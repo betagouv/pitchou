@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { créerPersonne, créerPersonneOuMettreÀJourCodeAccès, créerPersonnes } from "./personne.ts";
+import { creerPersonne, creerPersonneOuMettreAJourCodeAcces, creerPersonnes } from "./personne.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import { pgUniqueViolation } from "./pgErrors.js";
 
@@ -7,7 +7,7 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
   describe("when the email does not yet exist (insert succeeds)", () => {
     it("only touches the personne table", async () => {
       const db = fakeDatabase().build();
-      await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       const tables = new Set(db.table.mock.calls.map(([name]) => name));
       expect(tables).toEqual(new Set(["personne"]));
       expect(db.insert).toHaveBeenCalledTimes(1);
@@ -15,14 +15,14 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
 
     it("inserts the personne with the email lowercased", async () => {
       const db = fakeDatabase().build();
-      await créerPersonneOuMettreÀJourCodeAccès("Foo.BAR@Example.COM", db.knex);
+      await creerPersonneOuMettreAJourCodeAcces("Foo.BAR@Example.COM", db.knex);
       const inserted = db.insert.mock.calls[0][0] as { email: string };
       expect(inserted.email).toBe("foo.bar@example.com");
     });
 
     it("inserts the personne with empty nom and prénoms", async () => {
       const db = fakeDatabase().build();
-      await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       const inserted = db.insert.mock.calls[0][0] as { nom: string; prénoms: string };
       expect(inserted.nom).toBe("");
       expect(inserted.prénoms).toBe("");
@@ -32,13 +32,13 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
   describe("when a personne already exists (unique-constraint violation)", () => {
     it("updates the personne filtered by email", async () => {
       const db = fakeDatabase().insertRejects(pgUniqueViolation()).build();
-      await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       expect(db.where).toHaveBeenCalledWith({ email: "foo@bar.fr" });
     });
 
     it("updates with the freshly generated code_accès", async () => {
       const db = fakeDatabase().insertRejects(pgUniqueViolation()).build();
-      const returned = await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      const returned = await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       expect(db.update).toHaveBeenCalledWith({ code_accès: returned });
     });
   });
@@ -47,7 +47,7 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
     it("propagates the error instead of silently falling through to update", async () => {
       const originalError = new Error("connection refused");
       const db = fakeDatabase().insertRejects(originalError).build();
-      await expect(créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex)).rejects.toBe(
+      await expect(creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex)).rejects.toBe(
         originalError,
       );
       expect(db.update).not.toHaveBeenCalled();
@@ -59,7 +59,7 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
       const codes = new Set<string>();
       for (let i = 0; i < 100; i++) {
         const db = fakeDatabase().build();
-        codes.add(await créerPersonneOuMettreÀJourCodeAccès(`u${i}@x.fr`, db.knex));
+        codes.add(await creerPersonneOuMettreAJourCodeAcces(`u${i}@x.fr`, db.knex));
       }
       expect(codes.size).toBe(100);
     });
@@ -68,13 +68,13 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
     // conventional minimum for an unguessable secret.
     it("is at least 22 characters long (≈128 bits at base64url)", async () => {
       const db = fakeDatabase().build();
-      const code = await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      const code = await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       expect(code.length).toBeGreaterThanOrEqual(22);
     });
 
     it("only contains URL-safe characters", async () => {
       const db = fakeDatabase().build();
-      const code = await créerPersonneOuMettreÀJourCodeAccès("foo@bar.fr", db.knex);
+      const code = await creerPersonneOuMettreAJourCodeAcces("foo@bar.fr", db.knex);
       expect(code).toMatch(/^[A-Za-z0-9_-]+$/);
     });
   });
@@ -83,14 +83,14 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
 describe("créerPersonnes", () => {
   it("only touches the personne table", async () => {
     const db = fakeDatabase().build();
-    await créerPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
+    await creerPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["personne"]));
   });
 
   it("lowercases the email of every personne before inserting", async () => {
     const db = fakeDatabase().build();
-    await créerPersonnes(
+    await creerPersonnes(
       [
         { email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "a" },
         { email: "Bar@Y.fr", nom: "", prénoms: "", code_accès: "b" },
@@ -104,14 +104,14 @@ describe("créerPersonnes", () => {
 
   it("leaves personnes without an email untouched", async () => {
     const db = fakeDatabase().build();
-    await créerPersonnes([{ nom: "Smith", prénoms: "Alice", code_accès: "a" }], db.knex);
+    await creerPersonnes([{ nom: "Smith", prénoms: "Alice", code_accès: "a" }], db.knex);
     const insertedPersonnes = db.insert.mock.calls[0][0] as { email?: string }[];
     expect(insertedPersonnes[0].email).toBeUndefined();
   });
 
   it("asks the database to return the inserted ids", async () => {
     const db = fakeDatabase().build();
-    await créerPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
+    await creerPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
     expect(db.insert.mock.calls[0][1]).toEqual(["id"]);
   });
 
@@ -119,7 +119,7 @@ describe("créerPersonnes", () => {
     const db = fakeDatabase()
       .insertResolves([{ id: 42 }, { id: 43 }])
       .build();
-    const result = await créerPersonnes(
+    const result = await creerPersonnes(
       [
         { email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" },
         { email: "b@x.fr", nom: "", prénoms: "", code_accès: "y" },
@@ -133,13 +133,13 @@ describe("créerPersonnes", () => {
     const personnes = [{ email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "x" }];
     const before = structuredClone(personnes);
     const db = fakeDatabase().build();
-    await créerPersonnes(personnes, db.knex);
+    await creerPersonnes(personnes, db.knex);
     expect(personnes).toEqual(before);
   });
 
   it("does not touch the database when given an empty array", async () => {
     const db = fakeDatabase().build();
-    const result = await créerPersonnes([], db.knex);
+    const result = await creerPersonnes([], db.knex);
     expect(db.table).not.toHaveBeenCalled();
     expect(db.insert).not.toHaveBeenCalled();
     expect(result).toEqual([]);
@@ -151,7 +151,7 @@ describe("créerPersonne", () => {
     const personne = { email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "x" };
     const before = structuredClone(personne);
     const db = fakeDatabase().build();
-    await créerPersonne(personne, db.knex);
+    await creerPersonne(personne, db.knex);
     expect(personne).toEqual(before);
   });
 });

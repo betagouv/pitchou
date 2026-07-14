@@ -7,7 +7,7 @@ export const phases: Set<DossierPhase> = new Set([
   "Accompagnement amont",
   "Étude recevabilité DDEP",
   "Instruction",
-  "Contrôle",
+  "Controle",
   "Classé sans suite",
   "Obligations terminées",
 ]);

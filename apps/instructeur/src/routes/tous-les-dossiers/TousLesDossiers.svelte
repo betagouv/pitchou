@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
   import { SvelteMap } from "svelte/reactivity";
 
   type Props = {
     email?: string;
-    dossiers: DossierRésumé[];
+    dossiers: DossierResume[];
     relationSuivis?: PitchouState["relationSuivis"];
     notificationParDossier?: PitchouState["notificationParDossier"];
   };

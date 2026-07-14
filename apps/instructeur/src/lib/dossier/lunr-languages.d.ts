@@ -1,5 +1,5 @@
-// lunr-languages ne fournit pas de types. Ses points d'entrée utilisés ici sont des
-// fonctions qui reçoivent l'instance lunr pour enregistrer le support de langue.
+// lunr-languages does not provide types. The entry points used here are
+// functions that receive the lunr instance to register language support.
 declare module "lunr-languages/lunr.stemmer.support" {
   const registerStemmerSupport: (lunr: typeof import("lunr").default) => void;
   export default registerStemmerSupport;

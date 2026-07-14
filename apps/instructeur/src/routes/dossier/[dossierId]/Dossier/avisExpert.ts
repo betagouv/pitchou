@@ -1,4 +1,4 @@
-import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+import { envoyerEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type {
@@ -8,7 +8,7 @@ import type {
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
 /**
- * Ajoute un avis d'expert.
+ * Adds an expert avis.
  */
 export function ajouterOuModifierAvisExpert(
   frontEndAvisExpert: Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>,
@@ -33,19 +33,19 @@ export function ajouterOuModifierAvisExpert(
     ...copyFrontEndAvisExpert,
   };
 
-  // Dans un objet FormData, la valeur de la clef ne peut être qu'un string ou un Blob,
-  // et dossier est de type number & {__brand: "public.dossier";}
+  // In a FormData object, the value of the key can only be a string or a Blob,
+  // and dossier is of type number & {__brand: "public.dossier";}
   // @ts-expect-error
   form.append("dossier", avisExpert.dossier);
 
-  // Dans le cas d'une modification,
-  // on fournit l'id de l'avis d'expert
+  // In the case of a modification,
+  // we provide the id of the expert avis
   if (avisExpert.id) {
     form.append("id", avisExpert.id);
-    envoyerÉvènement({ type: "modifierAvisExpert" });
+    envoyerEvenement({ type: "modifierAvisExpert" });
   } else {
-    // Dans le cas d'un ajout
-    envoyerÉvènement({ type: "ajouterAvisExpert" });
+    // In the case of an addition
+    envoyerEvenement({ type: "ajouterAvisExpert" });
   }
 
   if (avisExpert.avis) {
@@ -76,7 +76,7 @@ export function ajouterOuModifierAvisExpert(
 }
 
 /**
- * Supprime un avis d'expert.
+ * Deletes an expert avis.
  */
 export function supprimerAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
   const deleteAvisExpert = store.capabilities.deleteAvisExpert;
@@ -84,6 +84,6 @@ export function supprimerAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
     throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);
   }
 
-  envoyerÉvènement({ type: "supprimerAvisExpert" });
+  envoyerEvenement({ type: "supprimerAvisExpert" });
   return deleteAvisExpert(avisExpert.id);
 }

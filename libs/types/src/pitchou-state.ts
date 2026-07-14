@@ -1,35 +1,35 @@
-import type { DossierComplet, DossierRésumé } from "./API_Pitchou.ts";
-import type { SchemaDémarcheSimplifiée } from "./démarche-numérique/schema.ts";
-import type { PitchouInstructeurCapabilities, IdentitéInstructeurPitchou } from "./capabilities.ts";
+import type { DossierComplet, DossierResume } from "./API_Pitchou.ts";
+import type { SchemaDemarcheSimplifiee } from "./demarche-numerique/schema.ts";
+import type { PitchouInstructeurCapabilities, IdentiteInstructeurPitchou } from "./capabilities.ts";
 import type {
   ParClassification,
-  ActivitéMenançante,
-  EspèceProtégée,
-  MéthodeMenançante,
-  MoyenDePoursuiteMenaçant,
-  ImpactQuantifié,
+  ActiviteMenancante,
+  EspeceProtegee,
+  MethodeMenancante,
+  MoyenDePoursuiteMenacant,
+  ImpactQuantifie,
 } from "./especes.d.ts";
 import type Message from "./database/public/Message.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
 import type Notification from "./database/public/Notification.ts";
-import type RésultatSynchronisationDS88444 from "./database/public/RésultatSynchronisationDS88444.ts";
+import type ResultatSynchronisationDS88444 from "./database/public/ResultatSynchronisationDS88444.ts";
 
-export type ActivitésMéthodesMoyensDePoursuiteBundle = {
-  activités: ParClassification<Map<ActivitéMenançante["Identifiant Pitchou"], ActivitéMenançante>>;
-  méthodes: ParClassification<Map<MéthodeMenançante["Code"], MéthodeMenançante>>;
+export type ActivitesMethodesMoyensDePoursuiteBundle = {
+  activités: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
+  méthodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
   moyensDePoursuite: ParClassification<
-    Map<MoyenDePoursuiteMenaçant["Code"], MoyenDePoursuiteMenaçant>
+    Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >;
   identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
     string,
-    ActivitéMenançante & { impactsQuantifiés: ImpactQuantifié[] }
+    ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] }
   >;
 };
 
 export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
-  dossiersRésumés: Map<DossierRésumé["id"], DossierRésumé>;
+  dossiersRésumés: Map<DossierResume["id"], DossierResume>;
   dossiersComplets: Map<DossierComplet["id"], DossierComplet>;
   messagesParDossierId: Map<DossierComplet["id"], Message[]>;
   relationSuivis?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
@@ -37,13 +37,13 @@ export type PitchouState = {
     Dossier["id"],
     Pick<Notification, "vue" | "date_dernière_mise_à_jour">
   >;
-  identité?: IdentitéInstructeurPitchou;
+  identité?: IdentiteInstructeurPitchou;
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;
-  schemaDS88444?: SchemaDémarcheSimplifiée;
-  espècesProtégéesParClassification?: ParClassification<EspèceProtégée[]>;
-  espèceByCD_REF?: Map<EspèceProtégée["CD_REF"], EspèceProtégée>;
-  ActivitésMéthodesMoyensDePoursuite?: ActivitésMéthodesMoyensDePoursuiteBundle;
+  schemaDS88444?: SchemaDemarcheSimplifiee;
+  espècesProtégéesParClassification?: ParClassification<EspeceProtegee[]>;
+  espèceByCD_REF?: Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
+  ActivitésMéthodesMoyensDePoursuite?: ActivitesMethodesMoyensDePoursuiteBundle;
   erreurs: Set<{ message: string }>;
-  résultatsSynchronisationDS88444?: RésultatSynchronisationDS88444[];
+  résultatsSynchronisationDS88444?: ResultatSynchronisationDS88444[];
 };

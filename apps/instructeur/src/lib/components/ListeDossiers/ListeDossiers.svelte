@@ -1,22 +1,22 @@
 <script lang="ts">
-  import type { DossierRésumé, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierResume, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
   import type { ChangeEventHandler, EventHandler } from "svelte/elements";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
+  import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
   import { instructeurSuitDossier, instructeurLaisseDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
+  import { creerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier } from "$lib/shared/aarri.ts";
+  import { envoyerEvenementRechercherUnDossier as _envoyerEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
   import { phases as toutesLesPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
     titre: string;
     email?: string;
-    dossiers: DossierRésumé[];
+    dossiers: DossierResume[];
     relationSuivis?: PitchouState["relationSuivis"];
     afficherFiltreSansInstructeurice?: boolean;
     afficherFiltreActionInstructeur?: boolean;
@@ -35,10 +35,10 @@
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 10;
 
-  type CléFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
-  const tousLesFiltres = new SvelteMap<CléFiltre, (d: DossierRésumé) => boolean>();
+  type CleFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
+  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierResume) => boolean>();
 
-  const dossiersFiltrés = $derived.by(() => {
+  const dossiersFiltres = $derived.by(() => {
     let resultat = [...dossiers];
 
     for (const filtre of tousLesFiltres.values()) {
@@ -48,88 +48,88 @@
     return resultat;
   });
 
-  function envoyerÉvènementRechercherUnDossier() {
-    const filtres: ÉvènementRechercheDossiersDétails["filtres"] = {
+  function envoyerEvenementRechercherUnDossier() {
+    const filtres: EvenementRechercheDossiersDetails["filtres"] = {
       sansInstructeurice: tousLesFiltres.has("sansInstructeurice"),
       nouveauté: tousLesFiltres.has("nouveauté"),
     };
 
-    if (texteÀChercher) {
-      filtres.texte = texteÀChercher;
+    if (texteAChercher) {
+      filtres.texte = texteAChercher;
     }
 
-    if (tousLesFiltres.has("phase") && phaseSélectionnée) {
-      filtres.phases = [phaseSélectionnée];
+    if (tousLesFiltres.has("phase") && phaseSelectionnee) {
+      filtres.phases = [phaseSelectionnee];
     }
 
     if (tousLesFiltres.has("actionInstructeur")) {
       filtres.prochaineActionAttenduePar = ["Instructeur"];
     }
 
-    _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltrés.length });
+    _envoyerEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltres.length });
   }
 
-  let numéroDeLaPageSélectionnée = $state(1);
+  let numeroDeLaPageSelectionnee = $state(1);
 
   let statusMessage = $state("");
 
   let titrePageElement: HTMLHeadingElement | undefined = $state();
 
-  /** Nombre total de pages */
+  /** Total number of pages */
   const nombreDePages = $derived.by(() => {
-    if (dossiersFiltrés.length === 0) return 1;
-    return Math.ceil(dossiersFiltrés.length / NOMBRE_DOSSIERS_PAR_PAGE);
+    if (dossiersFiltres.length === 0) return 1;
+    return Math.ceil(dossiersFiltres.length / NOMBRE_DOSSIERS_PAR_PAGE);
   });
 
-  /** Texte à afficher pour la page */
+  /** Text to display for the page */
   const textePage = $derived.by(() => {
-    if (tousLesFiltres.has("texte") && texteÀChercher && texteÀChercher.trim() !== "") {
-      return `Résultats de recherche pour «${texteÀChercher}» : Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`;
+    if (tousLesFiltres.has("texte") && texteAChercher && texteAChercher.trim() !== "") {
+      return `Résultats de recherche pour «${texteAChercher}» : Page ${numeroDeLaPageSelectionnee} sur ${nombreDePages}`;
     }
-    return `Page ${numéroDeLaPageSélectionnée} sur ${nombreDePages}`;
+    return `Page ${numeroDeLaPageSelectionnee} sur ${nombreDePages}`;
   });
 
   /**
-   * Met à jour le message aria-live avec le nombre de dossiers filtrés
+   * Updates the aria-live message with the number of filtered dossiers
    */
-  function mettreÀJourMessageFiltres() {
-    const nombreFiltrés = dossiersFiltrés.length;
+  function mettreAJourMessageFiltres() {
+    const nombreFiltres = dossiersFiltres.length;
     const nombreTotal = dossiers.length;
 
-    statusMessage = `${nombreFiltrés} dossiers affichés sur ${nombreTotal}`;
+    statusMessage = `${nombreFiltres} dossiers affichés sur ${nombreTotal}`;
     setTimeout(() => {
       statusMessage = "";
     }, 400);
   }
 
-  let texteÀChercher: string | undefined = $state();
+  let texteAChercher: string | undefined = $state();
 
-  let phaseSélectionnée: DossierPhase | undefined = $state();
+  let phaseSelectionnee: DossierPhase | undefined = $state();
 
   const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
 
   type SelectionneurPage = () => void;
   let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(
     () => {
-      if (dossiersFiltrés.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-        const sélectionneurs: SelectionneurPage[] = [
+      if (dossiersFiltres.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
+        const selectionneurs: SelectionneurPage[] = [
           ...Array.from({ length: nombreDePages }, (_v, i) => () => {
-            numéroDeLaPageSélectionnée = i + 1;
+            numeroDeLaPageSelectionnee = i + 1;
             tick().then(() => titrePageElement?.focus());
           }),
         ];
 
-        return [undefined, ...sélectionneurs];
+        return [undefined, ...selectionneurs];
       } else {
         return undefined;
       }
     },
   );
 
-  let dossiersAffichés: typeof dossiers = $derived.by(() => {
-    // On affiche les dossiers triés d'abord par date de dernière modification (nouveauté) la plus récente
-    // puis par date de dépôt
-    const dossiersTriés = [...dossiersFiltrés].sort((a, b) => {
+  let dossiersAffiches: typeof dossiers = $derived.by(() => {
+    // We display the dossiers sorted first by the most recent last-modification date (nouveauté)
+    // then by submission date
+    const dossiersTries = [...dossiersFiltres].sort((a, b) => {
       const notificationA = notificationParDossier.get(a.id);
       const notificationB = notificationParDossier.get(b.id);
 
@@ -149,27 +149,27 @@
       return a.date_dépôt > b.date_dépôt ? -1 : 1;
     });
 
-    if (!selectionneursPage) return dossiersTriés;
+    if (!selectionneursPage) return dossiersTries;
     else {
-      return dossiersTriés.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numéroDeLaPageSélectionnée - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numéroDeLaPageSélectionnée,
+      return dossiersTries.slice(
+        NOMBRE_DOSSIERS_PAR_PAGE * (numeroDeLaPageSelectionnee - 1),
+        NOMBRE_DOSSIERS_PAR_PAGE * numeroDeLaPageSelectionnee,
       );
     }
   });
 
   const soumettreTextePourRecherche: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
     e.preventDefault();
-    if (!texteÀChercher || texteÀChercher.trim() === "") {
+    if (!texteAChercher || texteAChercher.trim() === "") {
       tousLesFiltres.delete("texte");
     } else {
-      tousLesFiltres.set("texte", créerFiltreTexte(texteÀChercher, dossiers));
+      tousLesFiltres.set("texte", creerFiltreTexte(texteAChercher, dossiers));
     }
-    envoyerÉvènementRechercherUnDossier();
+    envoyerEvenementRechercherUnDossier();
   };
 
   /**
-   * Vérifie si un dossier est suivi par au moins une personne
+   * Checks whether a dossier is followed by at least one person
    */
   function dossierEstSuivi(dossierId: Dossier["id"]): boolean {
     if (!relationSuivis) return false;
@@ -182,11 +182,11 @@
   }
 
   /**
-   * Réinitialise la page à 1 quand on change un filtre
+   * Resets the page to 1 when a filter is changed
    */
-  function réinitialiserPage() {
-    numéroDeLaPageSélectionnée = 1;
-    mettreÀJourMessageFiltres();
+  function reinitialiserPage() {
+    numeroDeLaPageSelectionnee = 1;
+    mettreAJourMessageFiltres();
   }
 
   function toggleFiltreSansInstructeurice() {
@@ -195,8 +195,8 @@
     } else {
       tousLesFiltres.delete("sansInstructeurice");
     }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+    envoyerEvenementRechercherUnDossier();
+    reinitialiserPage();
   }
 
   function toggleFiltreActionInstructeur() {
@@ -208,11 +208,11 @@
     } else {
       tousLesFiltres.delete("actionInstructeur");
     }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+    envoyerEvenementRechercherUnDossier();
+    reinitialiserPage();
   }
 
-  function toggleFiltreNouveauté() {
+  function toggleFiltreNouveaute() {
     if (!tousLesFiltres.has("nouveauté")) {
       tousLesFiltres.set(
         "nouveauté",
@@ -221,21 +221,21 @@
     } else {
       tousLesFiltres.delete("nouveauté");
     }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+    envoyerEvenementRechercherUnDossier();
+    reinitialiserPage();
   }
 
-  const sélectionnerPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
+  const selectionnerPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
     e.preventDefault();
     const phase = e.currentTarget.value;
     if (phase === "") {
       tousLesFiltres.delete("phase");
     } else {
-      // Sélectionner la phase
+      // Select the phase
       tousLesFiltres.set("phase", (dossier) => dossier.phase === phase);
     }
-    envoyerÉvènementRechercherUnDossier();
-    réinitialiserPage();
+    envoyerEvenementRechercherUnDossier();
+    reinitialiserPage();
   };
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -254,7 +254,7 @@
       <div class="fr-search-bar barre-de-recherche" role="search">
         <label class="fr-label" for="search-input">Rechercher un dossier</label>
         <input
-          bind:value={texteÀChercher}
+          bind:value={texteAChercher}
           name="texte-de-recherche"
           class="fr-input"
           aria-describedby="search-input-messages"
@@ -280,8 +280,8 @@
         <div class="fr-select-group filtre-par-phase">
           <label class="fr-label" for="select-phase"> Filtrer par phase </label>
           <select
-            bind:value={phaseSélectionnée}
-            onchange={sélectionnerPhase}
+            bind:value={phaseSelectionnee}
+            onchange={selectionnerPhase}
             aria-label="Phase choisie"
             class="fr-select select-phase"
             id="select-phase"
@@ -316,14 +316,14 @@
         <button
           type="button"
           class="fr-tag"
-          onclick={toggleFiltreNouveauté}
+          onclick={toggleFiltreNouveaute}
           aria-pressed={tousLesFiltres.has("nouveauté")}
         >
           Nouveauté
         </button>
       </div>
       <p class="compteur" data-testid={"compteur-dossier"}>
-        <span class="fr-text--lead">{dossiersFiltrés.length}</span><span class="fr-text--lg"
+        <span class="fr-text--lead">{dossiersFiltres.length}</span><span class="fr-text--lg"
           >/{dossiers.length} dossiers</span
         >
       </p>
@@ -331,10 +331,10 @@
   </fieldset>
   <h2 bind:this={titrePageElement} tabindex="-1" class="titre-page">{textePage}</h2>
 </div>
-{#if dossiersAffichés.length >= 1}
+{#if dossiersAffiches.length >= 1}
   <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
     <ul>
-      {#each dossiersAffichés as dossier (dossier.id)}
+      {#each dossiersAffiches as dossier (dossier.id)}
         <li>
           <CarteDossier
             {dossier}
@@ -351,7 +351,7 @@
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
 {#if selectionneursPage}
-  <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroDeLaPageSélectionnée]}
+  <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numeroDeLaPageSelectionnee]}
   ></Pagination>
 {/if}
 

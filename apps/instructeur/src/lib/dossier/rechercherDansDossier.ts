@@ -5,20 +5,20 @@ import lunrfr from "lunr-languages/lunr.fr";
 import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
-import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
 
 stemmerSupport(lunr);
 lunrfr(lunr);
 
-const créerDossierIndexable = (dossier: DossierRésumé): StringValues<Partial<DossierRésumé>> => {
+const creerDossierIndexable = (dossier: DossierResume): StringValues<Partial<DossierResume>> => {
   const {
     id,
     nom,
     number_demarches_simplifiées,
     communes,
-    déposant_nom,
-    déposant_prénoms,
-    demandeur_personne_physique_prénoms,
+    déposant_nom: deposant_nom,
+    déposant_prénoms: deposant_prenoms,
+    demandeur_personne_physique_prénoms: demandeur_personne_physique_prenoms,
     demandeur_personne_physique_nom,
     demandeur_personne_morale_raison_sociale,
   } = dossier;
@@ -28,9 +28,9 @@ const créerDossierIndexable = (dossier: DossierRésumé): StringValues<Partial<
     number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
     nom: retirerAccents(nom || ""),
     communes: communes?.map(({ name }) => retirerAccents(name || "")).join(" ") || "",
-    déposant_nom: retirerAccents(déposant_nom || ""),
-    déposant_prénoms: retirerAccents(déposant_prénoms || ""),
-    demandeur_personne_physique_prénoms: retirerAccents(demandeur_personne_physique_prénoms || ""),
+    déposant_nom: retirerAccents(deposant_nom || ""),
+    déposant_prénoms: retirerAccents(deposant_prenoms || ""),
+    demandeur_personne_physique_prénoms: retirerAccents(demandeur_personne_physique_prenoms || ""),
     demandeur_personne_physique_nom: retirerAccents(demandeur_personne_physique_nom || ""),
     demandeur_personne_morale_raison_sociale: retirerAccents(
       demandeur_personne_morale_raison_sociale || "",
@@ -38,15 +38,15 @@ const créerDossierIndexable = (dossier: DossierRésumé): StringValues<Partial<
   };
 };
 
-const indexCache: Map<DossierRésumé[], lunr.Index> = new Map();
+const indexCache: Map<DossierResume[], lunr.Index> = new Map();
 
-const créerIndexDossiers = (dossiers: DossierRésumé[]): lunr.Index => {
+const creerIndexDossiers = (dossiers: DossierResume[]): lunr.Index => {
   if (indexCache.has(dossiers))
-    // @ts-expect-error TS ne comprend pas que le .get retourne un lunr.Index après un .has positif
+    // @ts-expect-error TS does not understand that .get returns a lunr.Index after a positive .has
     return indexCache.get(dossiers);
   else {
     const index = lunr(function () {
-      // @ts-ignore TS ne comprends pas qu'on a ajouté lunrfr
+      // @ts-ignore TS does not understand that we added lunrfr
       this.use(lunr.fr);
 
       this.ref("id");
@@ -60,7 +60,7 @@ const créerIndexDossiers = (dossiers: DossierRésumé[]): lunr.Index => {
       this.field("demandeur_personne_morale_raison_sociale");
 
       for (const dossier of dossiers) {
-        this.add(créerDossierIndexable(dossier));
+        this.add(creerDossierIndexable(dossier));
       }
     });
 
@@ -69,13 +69,13 @@ const créerIndexDossiers = (dossiers: DossierRésumé[]): lunr.Index => {
   }
 };
 
-export const trouverDossiersIdCorrespondantsÀTexte = (
-  texteÀChercher: string,
-  dossiers: DossierRésumé[],
-): Set<DossierRésumé["id"]> => {
-  const index = créerIndexDossiers(dossiers);
-  const lunrRésultats = index.search(texteÀChercher);
+export const trouverDossiersIdCorrespondantsATexte = (
+  texteAChercher: string,
+  dossiers: DossierResume[],
+): Set<DossierResume["id"]> => {
+  const index = creerIndexDossiers(dossiers);
+  const lunrResultats = index.search(texteAChercher);
 
-  // @ts-expect-error TS ne sait pas que la `ref` correspond à l'`id` du dossier
-  return new Set(lunrRésultats.map(({ ref }) => Number(ref)));
+  // @ts-expect-error TS does not know that the `ref` corresponds to the dossier's `id`
+  return new Set(lunrResultats.map(({ ref }) => Number(ref)));
 };

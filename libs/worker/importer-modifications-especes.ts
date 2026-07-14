@@ -5,7 +5,7 @@ import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "
 import { directDatabaseConnection, closeDatabaseConnection } from "@pitchou/server/database.ts";
 import { upsertEspeceProtegeeModification } from "@pitchou/server/especeProtegee.ts";
 
-import type { ESPÈCES_MINISTÉRIELLES_ROW, ESPÈCES_CNPN_ROW } from "@pitchou/types/especes.d.ts";
+import type { ESPECES_MINISTERIELLES_ROW, ESPECES_CNPN_ROW } from "@pitchou/types/especes.d.ts";
 
 // ONE-OFF production bootstrap. Populates `espece_protegee_modification` from the two
 // committed .ods files, matched against the already-built reference
@@ -97,12 +97,12 @@ async function main() {
         ) as T,
     );
   const ministerielles = normaliser(
-    sheetRawContentToObjects<ESPÈCES_MINISTÉRIELLES_ROW>(
+    sheetRawContentToObjects<ESPECES_MINISTERIELLES_ROW>(
       sheetMap.get("Espèces Ministérielles")!.filter(isRowNotEmpty),
     ),
   );
   const cnpn = normaliser(
-    sheetRawContentToObjects<ESPÈCES_CNPN_ROW>(sheetMap.get("Espèces CNPN")!.filter(isRowNotEmpty)),
+    sheetRawContentToObjects<ESPECES_CNPN_ROW>(sheetMap.get("Espèces CNPN")!.filter(isRowNotEmpty)),
   );
   const nomsMinisterielles = new Set([
     ...ministerielles.map((m) => m["Nom scientifique"]),

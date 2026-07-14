@@ -1,10 +1,10 @@
 <script lang="ts">
   import { supprimerAvisExpert as supprimerAvisExpertServeur } from "./avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
@@ -16,7 +16,7 @@
 
   const idModaleAjouterPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
-  let avisExpertTriés = $derived(
+  let avisExpertTries = $derived(
     [...dossier.avisExpert].sort((a, b) => {
       const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0);
       const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0);
@@ -32,9 +32,9 @@
 
 <div class="section-liste-avis-expert">
   <h2>Avis d'experts</h2>
-  {#if avisExpertTriés.length >= 1}
+  {#if avisExpertTries.length >= 1}
     <div class="liste-avis-expert">
-      {#each avisExpertTriés as avisExpert}
+      {#each avisExpertTries as avisExpert}
         <AvisExpert dossierId={dossier.id} {avisExpert} {supprimerAvisExpert} />
       {/each}
     </div>
@@ -47,13 +47,13 @@
   {/if}
   <button
     type="button"
-    class="fr-btn fr-mt-3w {avisExpertTriés.length === 0
+    class="fr-btn fr-mt-3w {avisExpertTries.length === 0
       ? ''
       : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line"
     aria-controls={idModaleAjouterPieceJointeAvis}
     data-fr-opened="false"
     onclick={() =>
-      envoyerÉvènement({
+      envoyerEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletAvis" },
       })}
@@ -62,7 +62,7 @@
   </button>
 </div>
 
-<ModaleAjouterPièceJointe id={idModaleAjouterPieceJointeAvis} {dossier} source="ongletAvis" />
+<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointeAvis} {dossier} source="ongletAvis" />
 
 <style lang="scss">
   .section-liste-avis-expert {

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import type {
     DossierComplet,
@@ -127,7 +127,7 @@
     aria-controls={idModaleAjouterPieceJointe}
     data-fr-opened="false"
     onclick={() =>
-      envoyerÉvènement({
+      envoyerEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletPiecesJointes" },
       })}
@@ -213,7 +213,7 @@
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
         onclick={() => ouvrirOnglet("controles")}
       >
-        Voir dans l'onglet Contrôles
+        Voir dans l'onglet Controles
       </button>
     </div>
     {#if piecesJointesArretes.length === 0}
@@ -280,7 +280,7 @@
   </section>
 </section>
 
-<ModaleAjouterPièceJointe
+<ModaleAjouterPieceJointe
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

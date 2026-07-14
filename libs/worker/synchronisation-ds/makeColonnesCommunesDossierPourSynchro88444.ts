@@ -1,19 +1,19 @@
 import type {
   BaseChampDS,
   ChampDSCommunes,
-  ChampDSDépartements,
-  ChampDSRégions,
-  ChampDSDépartement,
+  ChampDSDepartements,
+  ChampDSRegions,
+  ChampDSDepartement,
   ChampDSCarte,
   ChampScientifiqueIntervenants,
   DossierDS88444,
-} from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+} from "@pitchou/types/demarche-numerique/apiSchema.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
-import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
+import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 
 /**
- * Renvoie le dossier rempli des champs communs aux dossiers DS issus de la Démarche 88444 à initialiser et aux dossiers DS à modifier pour la synchronisation.
+ * Returns the dossier filled with the fields common to the DS dossiers from Démarche 88444 to initialize and to the DS dossiers to modify for the synchronization.
  */
 export function makeColonnesCommunesDossierPourSynchro88444(
   dossierDS: DossierDS88444,
@@ -22,12 +22,12 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   const { id: id_demarches_simplifiées, number, champs, annotations } = dossierDS;
 
   /**
-   * Meta données
+   * Metadata
    */
   const number_demarches_simplifiées = String(number);
 
   /**
-   * Champs
+   * Fields
    */
   /** @type {Map<string | undefined, Champs88444>} */
   /** @type {Map<string | undefined, any>} */
@@ -85,19 +85,19 @@ export function makeColonnesCommunesDossierPourSynchro88444(
 
   /* localisation */
   /** @type {DossierDemarcheNumerique88444['Le projet se situe au niveau…'] | ''} */
-  const projetSitué = champById.get(
+  const projetSitue = champById.get(
     pitchouKeyToChampDS.get("Le projet se situe au niveau…"),
   )?.stringValue;
   const champCommunes: ChampDSCommunes = champById.get(
     pitchouKeyToChampDS.get("Commune(s) où se situe le projet"),
   );
-  const champDépartements: ChampDSDépartements = champById.get(
+  const champDepartements: ChampDSDepartements = champById.get(
     pitchouKeyToChampDS.get("Département(s) où se situe le projet"),
   );
-  const champDépartementPrincipal: ChampDSDépartement = champById.get(
+  const champDepartementPrincipal: ChampDSDepartement = champById.get(
     pitchouKeyToChampDS.get("Dans quel département se localise majoritairement votre projet ?"),
   );
-  const champRégions: ChampDSRégions = champById.get(
+  const champRegions: ChampDSRegions = champById.get(
     pitchouKeyToChampDS.get("Région(s) où se situe le projet"),
   );
 
@@ -108,7 +108,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   let départements;
   let régions;
 
-  if (projetSitué === `d'une ou plusieurs communes` && champCommunes) {
+  if (projetSitue === `d'une ou plusieurs communes` && champCommunes) {
     communes = champCommunes.rows.map((c) => c.champs[0].commune).filter((x) => !!x);
 
     if (Array.isArray(communes) && communes.length >= 1) {
@@ -117,21 +117,21 @@ export function makeColonnesCommunesDossierPourSynchro88444(
       ];
     }
   } else {
-    if (projetSitué === `d'un ou plusieurs départements` && champDépartements) {
+    if (projetSitue === `d'un ou plusieurs départements` && champDepartements) {
       départements = [
-        ...new Set(champDépartements.rows.map((c) => c.champs[0].departement?.code)),
+        ...new Set(champDepartements.rows.map((c) => c.champs[0].departement?.code)),
       ].filter((x) => !!x);
     } else {
-      if (projetSitué === `d'une ou plusieurs régions` && champRégions) {
-        régions = [...new Set(champRégions.rows.map((c) => c.champs[0].stringValue))];
+      if (projetSitue === `d'une ou plusieurs régions` && champRegions) {
+        régions = [...new Set(champRegions.rows.map((c) => c.champs[0].stringValue))];
       } else {
-        if (projetSitué === "de toute la France") {
-          // ignorer
+        if (projetSitue === "de toute la France") {
+          // ignore
         } else {
-          if (!projetSitué) {
-            // ignorer
+          if (!projetSitue) {
+            // ignore
           } else {
-            console.log("localisation manquante", projetSitué, champs);
+            console.log("localisation manquante", projetSitue, champs);
             process.exit(1);
           }
         }
@@ -139,46 +139,46 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     }
   }
 
-  // Si la localisation avec les champs dédiés (surtout communes et départements) a échoué,
-  // se rabattre sur le champ du département principal s'il est présent
+  // If localisation via the dedicated fields (especially communes and départements) failed,
+  // fall back to the main département field if it is present
   if (
-    champDépartementPrincipal &&
-    champDépartementPrincipal.departement &&
+    champDepartementPrincipal &&
+    champDepartementPrincipal.departement &&
     (!départements || départements.length === 0)
   ) {
-    départements = [champDépartementPrincipal.departement.code];
+    départements = [champDepartementPrincipal.departement.code];
   }
 
   /** Régime AE */
-  // le champ AE a changé d'une checkbox à un Oui/Non à un Oui/Non/Ne sait pas encore
-  // et donc, on gère les différentes valeurs pour les différentes version du formulaire
+  // the AE field changed from a checkbox to a Yes/No to a Yes/No/Don't know yet
+  // and so we handle the different values for the different versions of the form
 
-  const rattaché_régime_ae_champ = champById.get(
+  const rattache_regime_ae_champ = champById.get(
     pitchouKeyToChampDS.get(
       "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
     ),
   );
 
-  const rattaché_au_régime_ae_stringValue = rattaché_régime_ae_champ?.stringValue;
+  const rattache_au_regime_ae_stringValue = rattache_regime_ae_champ?.stringValue;
 
-  // null signifie "ne sait pas encore" et c'est la valeur par défaut
+  // null means "don't know yet" and it is the default value
   let rattaché_au_régime_ae = null;
 
-  if (rattaché_au_régime_ae_stringValue === "Oui" || rattaché_au_régime_ae_stringValue === "true") {
+  if (rattache_au_regime_ae_stringValue === "Oui" || rattache_au_regime_ae_stringValue === "true") {
     rattaché_au_régime_ae = true;
   }
   if (
-    rattaché_au_régime_ae_stringValue === "Non" ||
-    rattaché_au_régime_ae_stringValue === "false"
+    rattache_au_regime_ae_stringValue === "Non" ||
+    rattache_au_regime_ae_stringValue === "false"
   ) {
     rattaché_au_régime_ae = false;
   }
 
-  /** Mesures ERC prévues */
-  const mesures_erc_prévues_champ = champById.get(
+  /** Mesures ERC planned */
+  const mesures_erc_prevues_champ = champById.get(
     pitchouKeyToChampDS.get("Des mesures ERC sont-elles prévues ?"),
   );
-  const mesures_erc_prévues = mesures_erc_prévues_champ?.checked;
+  const mesures_erc_prévues = mesures_erc_prevues_champ?.checked;
 
   const etat_des_lieux_ecologique_complet_realise_champ = champById.get(
     pitchouKeyToChampDS.get("Avez-vous réalisé un état des lieux écologique complet ?"),
@@ -201,7 +201,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
 
   const risque_malgre_mesures_erc = risque_malgre_mesures_erc_champ?.checked;
 
-  /** Données dossier scientifique */
+  /** Scientific dossier data */
   /** @type {DossierDemarcheNumerique88444['Recherche scientifique - Votre demande concerne :']} */
   const scientifique_type_demande_values = champById.get(
     pitchouKeyToChampDS.get("Recherche scientifique - Votre demande concerne :"),
@@ -216,7 +216,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   const scientifique_bilan_antérieur = champById.get(
     pitchouKeyToChampDS.get("Cette demande concerne un programme de suivi déjà existant"),
   )?.checked;
-  // "Non renseigné" est tranformé en 'false'
+  // "Non renseigné" is transformed into 'false'
 
   /** @type {DossierDemarcheNumerique88444['Description du protocole de suivi']} */
   const scientifique_description_protocole_suivi = champById.get(
@@ -224,7 +224,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   )?.stringValue;
 
   /** @type {DossierDemarcheNumerique88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
-  const scientifique_précisez_mode_capture_values = champById.get(
+  const scientifique_precisez_mode_capture_values = champById.get(
     pitchouKeyToChampDS.get(
       `En cas de nécessité de capture d'individus, précisez le mode de capture`,
     ),
@@ -236,8 +236,8 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   )?.stringValue;
 
   /** @type {Set<DossierDemarcheNumerique88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`] | DossierDemarcheNumerique88444[`Préciser le(s) autre(s) moyen(s) de capture`]>} */
-  const scientifique_mode_capture_set = scientifique_précisez_mode_capture_values
-    ? new Set(scientifique_précisez_mode_capture_values)
+  const scientifique_mode_capture_set = scientifique_precisez_mode_capture_values
+    ? new Set(scientifique_precisez_mode_capture_values)
     : new Set();
 
   if (scientifique_precisez_autre_capture) {
@@ -248,19 +248,19 @@ export function makeColonnesCommunesDossierPourSynchro88444(
   const scientifique_mode_capture = JSON.stringify([...scientifique_mode_capture_set]);
 
   /** @type {DossierDemarcheNumerique88444[`Utilisez-vous des sources lumineuses ?`]} */
-  const scientifique_modalités_source_lumineuses_boolean = champById.get(
+  const scientifique_modalites_source_lumineuses_boolean = champById.get(
     pitchouKeyToChampDS.get(`Utilisez-vous des sources lumineuses ?`),
   )?.checked;
 
   /** @type {DossierDemarcheNumerique88444[`Précisez les modalités de l'utilisation des sources lumineuses`]} */
-  const scientifique_modalités_source_lumineuses_précisez = champById.get(
+  const scientifique_modalites_source_lumineuses_precisez = champById.get(
     pitchouKeyToChampDS.get(`Précisez les modalités de l'utilisation des sources lumineuses`),
   )?.stringValue;
 
   const scientifique_modalités_source_lumineuses =
-    scientifique_modalités_source_lumineuses_boolean &&
-    scientifique_modalités_source_lumineuses_précisez
-      ? scientifique_modalités_source_lumineuses_précisez
+    scientifique_modalites_source_lumineuses_boolean &&
+    scientifique_modalites_source_lumineuses_precisez
+      ? scientifique_modalites_source_lumineuses_precisez
       : undefined;
 
   /** @type {DossierDemarcheNumerique88444[`Précisez les modalités de marquage pour chaque taxon`]} */
@@ -312,7 +312,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     )?.stringValue || undefined;
 
   /**
-   * Annotations privées
+   * Private annotations
    */
   /** @type {Map<string | undefined, Annotations88444>} */
   /** @type {Map<string | undefined, any>} */
@@ -321,19 +321,19 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     annotationById.set(annotation.id, annotation);
   }
 
-  const champ_nombre_nids_compensés_oiseau_simple = champById.get(
+  const champ_nombre_nids_compenses_oiseau_simple = champById.get(
     pitchouKeyToChampDS.get("Indiquer le nombre de nids artificiels posés en compensation"),
   )?.stringValue;
-  const nombre_nids_compensés_dossier_oiseau_simple = champ_nombre_nids_compensés_oiseau_simple
-    ? Number(champ_nombre_nids_compensés_oiseau_simple)
+  const nombre_nids_compensés_dossier_oiseau_simple = champ_nombre_nids_compenses_oiseau_simple
+    ? Number(champ_nombre_nids_compenses_oiseau_simple)
     : null;
 
-  const champ_nombre_nids_détruits_oiseau_simple_hirondelle = champById.get(
+  const champ_nombre_nids_detruits_oiseau_simple_hirondelle = champById.get(
     pitchouKeyToChampDS.get("Nombre de nids d'Hirondelles détruits"),
   )?.stringValue;
   const nombre_nids_détruits_dossier_oiseau_simple =
-    champ_nombre_nids_détruits_oiseau_simple_hirondelle
-      ? Number(champ_nombre_nids_détruits_oiseau_simple_hirondelle)
+    champ_nombre_nids_detruits_oiseau_simple_hirondelle
+      ? Number(champ_nombre_nids_detruits_oiseau_simple_hirondelle)
       : null;
 
   const champ_transport_ferroviaire_electrique = champById.get(
@@ -362,14 +362,14 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     : null;
 
   /** @type {TypeDossier | null} */
-  const type = champ_nombre_nids_détruits_oiseau_simple_hirondelle
+  const type = champ_nombre_nids_detruits_oiseau_simple_hirondelle
     ? "Hirondelle"
     : champ_transport_ferroviaire_electrique === "Destruction de nids de Cigognes"
       ? "Cigogne"
       : null;
 
   return {
-    // méta-données
+    // metadata
     id_demarches_simplifiées,
     number_demarches_simplifiées,
 
@@ -377,7 +377,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     // demandeur_personne_morale,
     // déposant,
 
-    // champs
+    // fields
     etat_des_lieux_ecologique_complet_realise,
     presence_especes_dans_aire_influence,
     risque_malgre_mesures_erc,
@@ -405,13 +405,13 @@ export function makeColonnesCommunesDossierPourSynchro88444(
     // régime AE
     rattaché_au_régime_ae,
 
-    // mesurse ERC prévues
+    // mesures ERC planned
     mesures_erc_prévues,
 
     /**
-     * Les données de dossier scientifique
+     * The scientific dossier data
      */
-    //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
+    //@ts-ignore Columns of database type 'json' are inserted as a string after a JSON.stringify
     scientifique_type_demande: scientifique_type_demande_values
       ? JSON.stringify(scientifique_type_demande_values)
       : undefined,
@@ -420,7 +420,7 @@ export function makeColonnesCommunesDossierPourSynchro88444(
       : undefined,
     scientifique_bilan_antérieur,
     scientifique_description_protocole_suivi,
-    //@ts-ignore Les colonnes en type de base de données 'json' sont insérés sous forme de string après un JSON.stringify
+    //@ts-ignore Columns of database type 'json' are inserted as a string after a JSON.stringify
     scientifique_mode_capture,
     scientifique_modalités_source_lumineuses,
     scientifique_modalités_marquage,

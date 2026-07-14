@@ -1,10 +1,10 @@
 <script lang="ts">
   import Loader from "$lib/components/Loader.svelte";
-  import { chargerListeEspècesProtégées } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
+  import { chargerListeEspecesProtegees } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   import ListeEspecesProtegees from "./ListeEspecesProtegees.svelte";
 
-  const initP = chargerListeEspècesProtégées();
+  const initP = chargerListeEspecesProtegees();
 </script>
 
 <svelte:head>
@@ -13,8 +13,8 @@
 
 {#await initP}
   <Loader></Loader>
-{:then { espèceByCD_REF }}
-  <ListeEspecesProtegees especes={[...espèceByCD_REF.values()]} />
+{:then { espèceByCD_REF: especeByCD_REF }}
+  <ListeEspecesProtegees especes={[...especeByCD_REF.values()]} />
 {:catch error}
   <div class="fr-alert fr-alert--error fr-mb-3w">
     <h3 class="fr-alert__title">Erreur lors du chargement des espèces protégées :</h3>

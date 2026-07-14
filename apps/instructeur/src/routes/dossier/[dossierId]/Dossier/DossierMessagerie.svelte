@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
 
   import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
 
@@ -16,7 +16,7 @@
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
 
-  let messagesTriés = $derived(
+  let messagesTries = $derived(
     messages.toSorted(
       // @ts-ignore
       ({ date: date1 }, { date: date2 }) => new Date(date2).getTime() - new Date(date1).getTime(),
@@ -30,14 +30,14 @@
   <a
     class="fr-btn fr-mb-w"
     target="_blank"
-    href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}
+    href={`${originDemarcheNumerique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}
   >
     Répondre sur Démarche Numérique
   </a>
 </div>
 
 <article class="messages fr-mt-2w fr-mb-4w">
-  {#each messagesTriés as { contenu, date, email_expéditeur }}
+  {#each messagesTries as { contenu, date, email_expéditeur }}
     {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">

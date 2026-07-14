@@ -35,9 +35,9 @@ export async function verifierSecretGeoMCE(
 }
 
 /**
- * Fonction sensible. À appeler avec prudence
+ * Sensitive function. To be called with caution
  */
-export async function récupérerSecretGeoMCE(
+export async function recupererSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const { secret } = await databaseConnection("capability-geomce").select("*").first();
@@ -46,15 +46,15 @@ export async function récupérerSecretGeoMCE(
 }
 
 /**
- * Fonction sensible. À appeler avec prudence
+ * Sensitive function. To be called with caution
  */
 export async function resetSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<CapabilityGeomce["secret"]> {
-  // supprimer le secret existant
+  // delete the existing secret
   await databaseConnection("capability-geomce").delete();
 
-  // créer un nouveau secret
+  // create a new secret
   const [{ secret }] = await databaseConnection("capability-geomce")
     .insert({})
     .returning(["secret"]);

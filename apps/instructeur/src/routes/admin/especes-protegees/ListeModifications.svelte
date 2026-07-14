@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
   import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
@@ -127,7 +127,7 @@
     ajoutOuvert = false;
   }
 
-  function onSelectExistante(espece: EspèceProtégée) {
+  function onSelectExistante(espece: EspeceProtegee) {
     const existing = modifications.find((m) => m.cd_ref === espece.CD_REF) ?? null;
     modal = existing
       ? { seed: existing, creation: false }

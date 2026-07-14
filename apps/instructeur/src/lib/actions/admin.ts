@@ -4,7 +4,7 @@ import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
 
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
-export async function downloadÉvènementsCSV(): Promise<void> {
+export async function downloadEvenementsCSV(): Promise<void> {
   const stored = await remember(PITCHOU_SECRET_STORAGE_KEY);
   const secret = typeof stored === "string" ? stored : "";
   if (!secret) {

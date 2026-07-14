@@ -1,17 +1,17 @@
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
 
-import { getDébutPhaseActuelle } from "$lib/dossier/getDébutPhaseActuelle.ts";
+import { getDebutPhaseActuelle } from "$lib/dossier/getDebutPhaseActuelle.ts";
 
 import type {
   DossierPhase,
   DossierProchaineActionAttenduePar,
-  DossierRésumé,
+  DossierResume,
 } from "@pitchou/types/API_Pitchou.ts";
 
-export const trierDossiersParOrdreAlphabétiqueColonne = (
-  dossiers: DossierRésumé[],
-  nomColonne: keyof DossierRésumé | "localisation" | "porteur de projet",
-): DossierRésumé[] => {
+export const trierDossiersParOrdreAlphabetiqueColonne = (
+  dossiers: DossierResume[],
+  nomColonne: keyof DossierResume | "localisation" | "porteur de projet",
+): DossierResume[] => {
   return dossiers.toSorted((a, b) => {
     let colonneA;
     let colonneB;
@@ -42,13 +42,13 @@ const phaseToImportance: { [k in DossierPhase]: number } = {
   "Accompagnement amont": 6,
   "Étude recevabilité DDEP": 5,
   Instruction: 4,
-  Contrôle: 3,
+  Controle: 3,
   "Classé sans suite": 2,
   "Obligations terminées": 1,
 };
 
 /**
- * Retourne un nombre positif si la phase1 est plus importante que la phase2
+ * Returns a positive number if phase1 is more important than phase2
  */
 function comparePhase(phase1: DossierPhase, phase2: DossierPhase) {
   return phaseToImportance[phase2] - phaseToImportance[phase1];
@@ -66,7 +66,7 @@ const prochaineActionAttendueParToImportance: { [k in DossierProchaineActionAtte
   };
 
 /**
- * Retourne un nombre positif si la phase1 est plus importante que la phase2
+ * Returns a positive number if phase1 is more important than phase2
  */
 function compareProchaineActionAttenduePar(
   prochaineActionAttenduePar1: DossierProchaineActionAttenduePar,
@@ -82,7 +82,7 @@ function compareProchaineActionAttenduePar(
   return importance2 - importance1;
 }
 
-export function trierDossiersParPhaseProchaineAction(dossiers: DossierRésumé[]): DossierRésumé[] {
+export function trierDossiersParPhaseProchaineAction(dossiers: DossierResume[]): DossierResume[] {
   return dossiers.toSorted((dossier1, dossier2) => {
     const phase1 = dossier1.phase;
     const phase2 = dossier2.phase;
@@ -93,8 +93,8 @@ export function trierDossiersParPhaseProchaineAction(dossiers: DossierRésumé[]
     if (phaseComparison !== 0) {
       return phaseComparison;
     } else {
-      // les phases sont similaires,
-      // comparer sur de qui la prochaine action est attendue
+      // phases are similar,
+      // compare on who the next action is expected from
       const prochaineActionAttenduePar1 = dossier1.prochaine_action_attendue_par;
       const prochaineActionAttenduePar2 = dossier2.prochaine_action_attendue_par;
 
@@ -107,12 +107,12 @@ export function trierDossiersParPhaseProchaineAction(dossiers: DossierRésumé[]
       if (prochaineActionAttendueParComparison !== 0) {
         return prochaineActionAttendueParComparison;
       } else {
-        const { dateDébut: dateDébut1 } = getDébutPhaseActuelle(dossier1);
-        const { dateDébut: dateDébut2 } = getDébutPhaseActuelle(dossier2);
-        // les prochaineActionAttenduePar sont aussi similaires
-        // comparer sur l'ancienneté (dossier le plus ancien le plus pertinent)
+        const { dateDébut: dateDebut1 } = getDebutPhaseActuelle(dossier1);
+        const { dateDébut: dateDebut2 } = getDebutPhaseActuelle(dossier2);
+        // the prochaineActionAttenduePar are also similar
+        // compare on age (oldest dossier is the most relevant)
 
-        return dateDébut1.getTime() - dateDébut2.getTime();
+        return dateDebut1.getTime() - dateDebut2.getTime();
       }
     }
   });

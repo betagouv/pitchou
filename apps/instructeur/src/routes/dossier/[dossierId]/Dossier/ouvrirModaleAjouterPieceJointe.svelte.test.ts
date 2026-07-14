@@ -10,7 +10,7 @@ vi.mock(import("$app/navigation"), () => ({
 
 vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  envoyerÉvènement: vi.fn(),
+  envoyerEvenement: vi.fn(),
 }));
 
 vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
@@ -22,21 +22,21 @@ vi.mock(import("./attachmentAutre.ts"), () => ({
   addAttachmentAutre: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
 }));
 
-import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+import { envoyerEvenement } from "$lib/shared/aarri.ts";
 import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
 import { addAttachmentAutre } from "./attachmentAutre.ts";
 import DossierAvis from "./DossierAvis.svelte";
-import DossierContrôles from "./DossierContrôles.svelte";
+import DossierControles from "./DossierControles.svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 import EnteteDossier from "./EnteteDossier.svelte";
-import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
 
 const DOSSIER_ID = 123;
 
 beforeEach(() => {
-  vi.mocked(envoyerÉvènement).mockReset();
+  vi.mocked(envoyerEvenement).mockReset();
   vi.mocked(addAttachmentAutre).mockClear();
   vi.mocked(refreshDossierComplet).mockClear();
   Object.assign(window, {
@@ -77,7 +77,7 @@ function dossier(overrides: Partial<DossierComplet> = {}): DossierComplet {
 }
 
 function expectTracking(source: string) {
-  expect(envoyerÉvènement).toHaveBeenCalledWith({
+  expect(envoyerEvenement).toHaveBeenCalledWith({
     type: "ouvrirModaleAjouterPieceJointe",
     détails: { dossierId: DOSSIER_ID, source },
   });
@@ -136,7 +136,7 @@ test("trace l'ouverture de la modale depuis l'onglet avis", async () => {
 });
 
 test("trace l'ouverture de la modale depuis l'onglet contrôles", async () => {
-  render(DossierContrôles, { dossier: dossier() });
+  render(DossierControles, { dossier: dossier() });
 
   await page.getByRole("button", { name: "Rajouter une décision administrative" }).click();
 
@@ -144,7 +144,7 @@ test("trace l'ouverture de la modale depuis l'onglet contrôles", async () => {
 });
 
 test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombre de fichiers", async () => {
-  const { container } = render(ModaleAjouterPièceJointe, {
+  const { container } = render(ModaleAjouterPieceJointe, {
     id: "modale-test-ajout-autre",
     dossier: dossier(),
     typesPiècesJointes: ["Autre"],
@@ -173,7 +173,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 
   await waitFor(() => expect(addAttachmentAutre).toHaveBeenCalledTimes(1));
   await waitFor(() =>
-    expect(envoyerÉvènement).toHaveBeenCalledWith({
+    expect(envoyerEvenement).toHaveBeenCalledWith({
       type: "ajouterPieceJointe",
       détails: {
         dossierId: DOSSIER_ID,
@@ -186,20 +186,20 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 });
 
 test("affiche des libellés experts détaillés pour la saisine et l'avis", async () => {
-  const { container } = render(ModaleAjouterPièceJointe, {
+  const { container } = render(ModaleAjouterPieceJointe, {
     id: "modale-test-libelles",
     dossier: dossier(),
     typesPiècesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
     source: "ongletPiecesJointes",
   });
 
-  const libellés = Array.from(container.querySelectorAll("label")).map((label) =>
+  const libelles = Array.from(container.querySelectorAll("label")).map((label) =>
     label.textContent?.trim(),
   );
 
-  expect(libellés).toContain("Saisine CNPN / CSRPN");
-  expect(libellés).toContain("Avis (CNPN, CSRPN, CBN, PNA, etc.)");
-  // Les libellés génériques ne sont plus affichés tels quels.
-  expect(libellés).not.toContain("Saisine expert");
-  expect(libellés).not.toContain("Avis expert");
+  expect(libelles).toContain("Saisine CNPN / CSRPN");
+  expect(libelles).toContain("Avis (CNPN, CSRPN, CBN, PNA, etc.)");
+  // The generic labels are no longer displayed as-is.
+  expect(libelles).not.toContain("Saisine expert");
+  expect(libelles).not.toContain("Avis expert");
 });

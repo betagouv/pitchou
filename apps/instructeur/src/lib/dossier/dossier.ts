@@ -1,18 +1,18 @@
 import { store, setDossierComplet } from "$lib/state/store.svelte.ts";
 
-import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "@pitchou/common/outils-espèces.ts";
+import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
 import {
-  chargerActivitésMéthodesMoyensDePoursuite,
-  chargerListeEspècesProtégées,
-} from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
-import { isDossierRésuméArray } from "@pitchou/common/typeguards.ts";
-import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "$lib/shared/aarri.ts";
+  chargerActivitesMethodesMoyensDePoursuite,
+  chargerListeEspecesProtegees,
+} from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+import { isDossierResumeArray } from "@pitchou/common/typeguards.ts";
+import { envoyerEvenementModifierCommentaire, envoyerEvenement } from "$lib/shared/aarri.ts";
 import { chargerRelationSuivi } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
-import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 export function modifierDossier(
   dossier: DossierComplet,
@@ -21,25 +21,25 @@ export function modifierDossier(
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
-  // modifier le dossier dans le store de manière optimiste
-  const dossierModifié: DossierComplet = Object.assign({}, dossier, modifs);
+  // optimistically modify the dossier in the store
+  const dossierModifie: DossierComplet = Object.assign({}, dossier, modifs);
   if (modifs.évènementsPhase) {
-    dossierModifié.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
+    dossierModifie.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
 
-    envoyerÉvènement({ type: "changerPhase" });
+    envoyerEvenement({ type: "changerPhase" });
   }
 
   if (modifs.commentaire_libre) {
-    envoyerÉvènementModifierCommentaire();
+    envoyerEvenementModifierCommentaire();
   }
   if (modifs.prochaine_action_attendue_par) {
-    envoyerÉvènement({ type: "changerProchaineActionAttendueDe" });
+    envoyerEvenement({ type: "changerProchaineActionAttendueDe" });
   }
 
-  setDossierComplet(dossierModifié);
+  setDossierComplet(dossierModifie);
 
   return store.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
-    // en cas d'erreur, remettre le dossier précédent dans le store comme avant la copie
+    // on error, restore the previous dossier in the store as it was before the copy
     setDossierComplet(dossier);
     throw err;
   });
@@ -83,20 +83,20 @@ export async function refreshDossierComplet(id: DossierComplet["id"]): Promise<D
   return dossierComplet;
 }
 
-export async function espècesImpactéesDepuisFichierOdsArrayBuffer(
+export async function especesImpacteesDepuisFichierOdsArrayBuffer(
   fichierArrayBuffer: ArrayBuffer,
-): Promise<DescriptionMenacesEspèces> {
-  const espècesProtégées = chargerListeEspècesProtégées();
-  const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite();
+): Promise<DescriptionMenacesEspeces> {
+  const especesProtegees = chargerListeEspecesProtegees();
+  const actMetTrans = chargerActivitesMethodesMoyensDePoursuite();
 
-  const { espèceByCD_REF } = await espècesProtégées;
-  const { activités, méthodes, moyensDePoursuite } = await actMétTrans;
+  const { espèceByCD_REF: especeByCD_REF } = await especesProtegees;
+  const { activités: activites, méthodes: methodes, moyensDePoursuite } = await actMetTrans;
 
-  return importDescriptionMenacesEspècesFromOdsArrayBuffer(
+  return importDescriptionMenacesEspecesFromOdsArrayBuffer(
     fichierArrayBuffer,
-    espèceByCD_REF,
-    activités,
-    méthodes,
+    especeByCD_REF,
+    activites,
+    methodes,
     moyensDePoursuite,
   );
 }
@@ -106,11 +106,11 @@ export function chargerDossiers() {
 
   if (store.capabilities?.listerDossiers) {
     return store.capabilities?.listerDossiers().then((dossiers) => {
-      if (!isDossierRésuméArray(dossiers)) {
+      if (!isDossierResumeArray(dossiers)) {
         throw new TypeError("On attendait un tableau de dossiers ici !");
       }
 
-      /* Formatter les dossiers */
+      /* Format the dossiers */
       for (const dossier of dossiers) {
         dossier.date_dépôt = new Date(dossier.date_dépôt);
         dossier.date_début_phase = new Date(dossier.date_début_phase);

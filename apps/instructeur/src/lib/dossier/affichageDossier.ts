@@ -1,4 +1,4 @@
-import type { DossierRésumé, DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierResume, DossierComplet } from "@pitchou/types/API_Pitchou.ts";
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 export { formatDateAbsolue, formatDateRelative } from "@pitchou/common/formatDate.ts";
@@ -8,7 +8,7 @@ export function formatLocalisation({
   départements,
   régions,
 }: Partial<DossierComplet>): string {
-  // Nettoyage du cas où un dossier a dit qu'il était sur plusieurs communes, mais n'a pas saisi les communes
+  // Clean up the case where a dossier said it spanned several communes, but the communes were not entered
   if (Array.isArray(communes) && communes.length === 0) {
     communes = undefined;
   }
@@ -42,28 +42,28 @@ export function formatLocalisation({
   );
 }
 
-export function formatDéposant(dossier: DossierComplet | DossierRésumé): string {
+export function formatDeposant(dossier: DossierComplet | DossierResume): string {
   const INCONNU = "(inconnu)";
 
-  let { déposant_nom, déposant_prénoms } = dossier;
+  let { déposant_nom: deposant_nom, déposant_prénoms: deposant_prenoms } = dossier;
 
-  if (!déposant_nom && !déposant_prénoms) {
+  if (!deposant_nom && !deposant_prenoms) {
     if ("déposant_email" in dossier) {
       return dossier.déposant_email ?? INCONNU;
     }
     return INCONNU;
   }
-  if (!déposant_nom) {
-    déposant_nom = "";
+  if (!deposant_nom) {
+    deposant_nom = "";
   }
-  if (!déposant_prénoms) {
-    déposant_prénoms = "";
+  if (!deposant_prenoms) {
+    deposant_prenoms = "";
   }
 
-  return déposant_nom ? déposant_nom + " " + déposant_prénoms : déposant_prénoms;
+  return deposant_nom ? deposant_nom + " " + deposant_prenoms : deposant_prenoms;
 }
 
-export function formatPorteurDeProjet(dossier: DossierComplet | DossierRésumé): string {
+export function formatPorteurDeProjet(dossier: DossierComplet | DossierResume): string {
   if (dossier.demandeur_personne_morale_siret) {
     return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`;
   } else {
@@ -72,7 +72,7 @@ export function formatPorteurDeProjet(dossier: DossierComplet | DossierRésumé)
         dossier.demandeur_personne_physique_nom + " " + dossier.demandeur_personne_physique_prénoms
       );
     } else {
-      return formatDéposant(dossier);
+      return formatDeposant(dossier);
     }
   }
 }

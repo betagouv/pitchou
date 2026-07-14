@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { StatsConformité } from "@pitchou/types/API_Pitchou.ts";
+  import type { StatsConformite } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    statsConformite: StatsConformité;
+    statsConformite: StatsConformite;
     totalPrescriptions: number;
   };
 

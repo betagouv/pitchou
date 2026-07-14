@@ -1,6 +1,6 @@
-import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
-import { normalizeNomEspèce, normalizeTexteEspèce } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
 
 import { CLASSIFICATIONS, STATUTS } from "../../especes-protegees/especesList.ts";
 
@@ -71,7 +71,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
   const words = text
     .trim()
     .split(" ")
-    .map(normalizeTexteEspèce)
+    .map(normalizeTexteEspece)
     .filter((word) => word.length >= 1);
 
   const haystack = [
@@ -80,7 +80,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
     ...(modification.noms_scientifiques ?? []),
     ...(modification.reference_noms_vernaculaires ?? []),
     ...(modification.noms_vernaculaires ?? []),
-  ].map(normalizeNomEspèce);
+  ].map(normalizeNomEspece);
 
   return words.every((word) => haystack.some((value) => value.includes(word)));
 }
@@ -158,7 +158,7 @@ export function emptySeed(cd_ref = ""): ModificationEspeceAdmin {
 }
 
 /** A seed for an existing reference species chosen in the selector (overrides inherited). */
-export function seedFromEspece(espece: EspèceProtégée): ModificationEspeceAdmin {
+export function seedFromEspece(espece: EspeceProtegee): ModificationEspeceAdmin {
   return {
     ...emptySeed(espece.CD_REF),
     reference_noms_scientifiques: [...espece.nomsScientifiques],

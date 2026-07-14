@@ -8,10 +8,10 @@
     triSélectionné?: TriTableau | undefined;
   };
 
-  let { tris, triSélectionné = $bindable(undefined) }: Props = $props();
+  let { tris, triSélectionné: triSelectionne = $bindable(undefined) }: Props = $props();
 
-  const sélectionnerTri = (tri: TriTableau): void => {
-    triSélectionné = tri;
+  const selectionnerTri = (tri: TriTableau): void => {
+    triSelectionne = tri;
     tri.trier();
   };
 </script>
@@ -20,15 +20,15 @@
   {#each tris as tri}
     <li class="fr-mb-1v">
       <button
-        class={clsx(["fr-pt-1v", "fr-pb-1v", { sélectionné: triSélectionné === tri }])}
+        class={clsx(["fr-pt-1v", "fr-pb-1v", { sélectionné: triSelectionne === tri }])}
         type="button"
         onclick={() => {
-          sélectionnerTri(tri);
+          selectionnerTri(tri);
         }}
       >
         {tri["nom"]}
 
-        {#if tri === triSélectionné}
+        {#if tri === triSelectionne}
           <span class="fr-icon-check-line" aria-hidden="true"></span>
         {/if}
       </button>

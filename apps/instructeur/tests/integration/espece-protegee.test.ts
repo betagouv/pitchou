@@ -60,10 +60,10 @@ test("la référence agrège noms et statuts depuis les tables sources", async (
   );
 
   const [espece] = await getEspecesProtegees(db);
-  // Le nom accepté reste en tête.
+  // The accepted name stays first.
   expect(espece.noms_scientifiques).toEqual(["Nom accepté", "Synonyme A", "Synonyme B"]);
   expect(espece.noms_vernaculaires).toEqual(["Vernaculaire 1", "Vernaculaire 2"]);
-  // Les statuts sont ordonnés PN/PR/PD/POM.
+  // The statuts are ordered PN/PR/PD/POM.
   expect(espece.cd_type_statuts).toEqual(["PN", "PD"]);
 });
 
@@ -126,11 +126,11 @@ test("la vue fusionne un patch épars : les drapeaux viennent de la modification
   await db("espece_protegee_modification").insert(modification("30", { espece_cnpn: true }));
 
   const [espece] = await getEspecesProtegees(db);
-  // hérité de la référence
+  // inherited from the reference
   expect(espece.classification).toBe("oiseau");
   expect(espece.noms_scientifiques).toEqual(["Espece 30"]);
   expect(espece.cd_type_statuts).toEqual(["PN"]);
-  // issu de la modification
+  // coming from the modification
   expect(espece.espece_cnpn).toBe(true);
   expect(espece.espece_ministerielle).toBe(false);
 });

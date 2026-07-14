@@ -1,9 +1,9 @@
 import type { Knex } from "knex";
 
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import {
-  ÉVÈNEMENTS_CONSULTATIONS,
-  ÉVÈNEMENTS_MODIFICATIONS,
+  EVENEMENTS_CONSULTATIONS,
+  EVENEMENTS_MODIFICATIONS,
 } from "@pitchou/server/database/aarri/constantes.ts";
 
 import { SEED_PERSONNES } from "../fixtures/users.ts";
@@ -18,7 +18,7 @@ import { SEED_PERSONNES } from "../fixtures/users.ts";
 Å * existing metric events for each personne are deleted before re-inserting.
  */
 
-type EventType = ÉvènementMétrique["type"];
+type EventType = EvenementMetrique["type"];
 
 type WeekActivity = {
   weeksAgo: number;
@@ -151,7 +151,7 @@ export async function seed(knex: Knex) {
 
       for (const week of profile.activity) {
         for (let j = 0; j < week.modifications; j++) {
-          const type = ÉVÈNEMENTS_MODIFICATIONS[j % ÉVÈNEMENTS_MODIFICATIONS.length];
+          const type = EVENEMENTS_MODIFICATIONS[j % EVENEMENTS_MODIFICATIONS.length];
           rows.push({
             personne: personne.id,
             évènement: type,
@@ -160,7 +160,7 @@ export async function seed(knex: Knex) {
           });
         }
         for (let j = 0; j < week.consultations; j++) {
-          const type = ÉVÈNEMENTS_CONSULTATIONS[j % ÉVÈNEMENTS_CONSULTATIONS.length];
+          const type = EVENEMENTS_CONSULTATIONS[j % EVENEMENTS_CONSULTATIONS.length];
           rows.push({
             personne: personne.id,
             évènement: type,

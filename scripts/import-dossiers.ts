@@ -1,24 +1,24 @@
 /**
- * Script d'automatisation pour importer des dossiers dans Pitchou
- * à partir d'un fichier .ods
+ * Automation script to import dossiers into Pitchou
+ * from a .ods file
  *
- * ### Utilisation
+ * ### Usage
  * ```bash
  * node outils/import-dossiers.js --fichier /chemin/vers/fichier.ods
  * ```
  *
  * ### Options
- * - `--fichier, -f` : Chemin vers le fichier tableau de suivi (.ods) - **requis**
- * - `--email, -e` : Email utilisé pour récupérer le lien de connexion
- *   (défaut : `clemence.fernandez@beta.gouv.fr`)
+ * - `--fichier, -f`: Path to the tracking table file (.ods) - **required**
+ * - `--email, -e`: Email used to retrieve the login link
+ *   (default: `clemence.fernandez@beta.gouv.fr`)
  *
- * ### Comportement
- * - URL fixe : `http://127.0.0.1:2648`
- * - Secret récupéré automatiquement via
+ * ### Behavior
+ * - Fixed URL: `http://127.0.0.1:2648`
+ * - Secret retrieved automatically via
  *   `docker exec tooling node outils/afficher-liens-de-connexion.js --emails <email>`
- * - Lancement du navigateur Firefox fourni par Playwright (équivalent Nightly)
+ * - Launch of the Firefox browser provided by Playwright (Nightly equivalent)
  *
- * ### Exemple
+ * ### Example
  * ```bash
  * node outils/import-dossiers.js \
  *   --fichier /Users/clemencefernandez/Desktop/pitchou_pas_code/import_corse/24-2B_TDB_DOSSIERS_DEP.ods \
@@ -63,11 +63,11 @@ function fetchSecret(emailArg: string) {
 }
 
 const secret = fetchSecret(email);
-const urlComplète = `${BASE_URL}?secret=${secret}`;
+const urlComplete = `${BASE_URL}?secret=${secret}`;
 
 console.log("Démarrage de l'automatisation d'import...");
 console.log(`- Fichier: ${cheminDuDocTableauDeSuivi}`);
-console.log(`- URL: ${urlComplète}`);
+console.log(`- URL: ${urlComplete}`);
 console.log(`- Secret généré: ${secret}`);
 
 const browser = await firefox.launch({
@@ -82,22 +82,22 @@ try {
   const page = await context.newPage();
 
   console.log("Connexion à Pitchou...");
-  await page.goto(urlComplète);
+  await page.goto(urlComplete);
 
   const headingLocator = page.getByRole("heading", { level: 1 });
   const heading = await headingLocator.textContent();
   console.log(`✅ Connecté - Page: ${heading}`);
 
-  // Navigation vers la page d'import
+  // Navigate to the import page
   await page.goto(`${BASE_URL}/import-dossier-historique/corse`);
 
-  // Chargement du tableau
+  // Load the table
   await page.locator('input[type="file"]').setInputFiles(cheminDuDocTableauDeSuivi);
 
   await page.waitForSelector("h2", { timeout: 10000 });
   await page.waitForSelector("table", { timeout: 10000 });
 
-  // Récupération des dossiers sans alertes
+  // Retrieve the dossiers without alerts
   const dossiersSansAlertes = page.getByTestId("dossier-sans-alerte(s)");
   const count = await dossiersSansAlertes.count();
   console.log(`Nombre de dossiers sans alertes trouvés: ${count}`);

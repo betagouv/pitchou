@@ -1,10 +1,10 @@
-import type { DossierDS88444 } from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { Knex } from "knex";
 import type { NotificationInitializer } from "@pitchou/types/database/public/Notification.ts";
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-export async function mettreÀjourNotification(
+export async function mettreAjourNotification(
   dossiersDN: DossierDS88444[],
   dossierIdByDN_number: Map<DossierDS88444["number"], DossierId>,
   laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
@@ -15,7 +15,7 @@ export async function mettreÀjourNotification(
 
   const dossierIds = [...dossierIdByDN_number.values()];
 
-  // Pour chaque dossier, récupérer les personnes qui suivent ce dossiers.
+  // For each dossier, retrieve the personnes who follow this dossier.
   const rowsPersonneEtDossierSuivi: { personne: PersonneId; dossier: DossierId }[] =
     await laTransactionDeSynchronisationDS("arête_personne_suit_dossier")
       .select("*")
@@ -26,7 +26,7 @@ export async function mettreÀjourNotification(
     (row) => row.dossier,
   );
 
-  // Pour chaque dossier, créer une notification pour chaque personne
+  // For each dossier, create a notification for each personne
   let notifications: NotificationInitializer[] = [];
 
   for (const dossierDN of dossiersDN) {
@@ -54,11 +54,11 @@ export async function mettreÀjourNotification(
     return;
   }
 
-  // Mettre à jour la table notification.
-  // On n'écrase la notification existante que si la date de modification reçue est
-  // STRICTEMENT plus récente que celle stockée. Une date différente mais plus ancienne
-  // (ré-import, ou date de seed > date réelle du dossier) ne doit pas repasser "vue" à false.
-  // Cas NULL : si la date stockée est NULL, toute date reçue non-NULL est considérée plus récente.
+  // Update the notification table.
+  // We only overwrite the existing notification if the received modification date is
+  // STRICTLY more recent than the stored one. A different but older date
+  // (re-import, or seed date > actual dossier date) must not reset "vue" back to false.
+  // NULL case: if the stored date is NULL, any non-NULL received date is considered more recent.
   return laTransactionDeSynchronisationDS("notification")
     .insert(notifications)
     .onConflict(["dossier", "personne"])

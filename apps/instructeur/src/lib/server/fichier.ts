@@ -3,7 +3,7 @@ import { error } from "@sveltejs/kit";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
-export async function téléchargementFichierResponse(fileId: FileId): Promise<Response> {
+export async function telechargementFichierResponse(fileId: FileId): Promise<Response> {
   const fichier = await loadFichierContent(fileId);
   if (!fichier) {
     error(404, "Fichier non trouvé");

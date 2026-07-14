@@ -1,11 +1,11 @@
 import type { Knex } from "knex";
 
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
 import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 type SeedEvent = {
-  type: ÉvènementMétrique["type"];
+  type: EvenementMetrique["type"];
   weeksAgo: number;
   count: number;
 };
@@ -48,8 +48,8 @@ const AARRI_PROFILES: AarriProfile[] = [
   {
     events: [
       { type: "seConnecter", weeksAgo: 0, count: 1 },
-      { type: "ajouterContrôle", weeksAgo: 0, count: 4 },
-      { type: "modifierContrôle", weeksAgo: 0, count: 2 },
+      { type: "ajouterControle", weeksAgo: 0, count: 4 },
+      { type: "modifierControle", weeksAgo: 0, count: 2 },
       { type: "modifierPrescription", weeksAgo: 3, count: 3 },
     ],
   },

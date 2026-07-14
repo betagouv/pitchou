@@ -4,18 +4,18 @@
     mettreÀJourTexteRecherche: (valeur: string) => void;
   };
 
-  let { titre, mettreÀJourTexteRecherche }: Props = $props();
+  let { titre, mettreÀJourTexteRecherche: mettreAJourTexteRecherche }: Props = $props();
 
   let valeur = $state("");
 
-  function onMettreÀJourValeurSélectionnée(e: SubmitEvent) {
+  function onMettreAJourValeurSelectionnee(e: SubmitEvent) {
     e.preventDefault();
-    mettreÀJourTexteRecherche(valeur);
+    mettreAJourTexteRecherche(valeur);
     valeur = "";
   }
 </script>
 
-<form onsubmit={onMettreÀJourValeurSélectionnée} role="search">
+<form onsubmit={onMettreAJourValeurSelectionnee} role="search">
   <div class="form-recherche">
     <label class="sr-only" for="recherche-texte">{titre}</label>
     <input

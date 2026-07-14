@@ -15,7 +15,7 @@ test("applique la classe spécifique à chaque phase connue", async () => {
   const cases = [
     { phase: "Accompagnement amont", className: "phase--accompagnement-amont" },
     { phase: "Instruction", className: "phase--instruction" },
-    { phase: "Contrôle", className: "phase--contrôle" },
+    { phase: "Controle", className: "phase--contrôle" },
   ] as const;
 
   for (const { phase, className } of cases) {

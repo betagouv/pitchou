@@ -10,7 +10,7 @@ import type {
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 /**
- * Récupère les notifications d'une personne donnée
+ * Fetches the notifications of a given personne
  */
 export async function getNotificationsPourPersonneDepuisCap(
   cap: CapDossier["cap"],
@@ -26,7 +26,7 @@ export async function getNotificationsPourPersonneDepuisCap(
 }
 
 /**
- * Met à jour la notification d'un dossier d'une personne à partir de sa capability.
+ * Updates the notification of a personne's dossier from its capability.
  */
 export async function updateNotificationDossierFromCap(
   cap: CapDossier["cap"],
@@ -39,9 +39,9 @@ export async function updateNotificationDossierFromCap(
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
   }
 
-  const notificationÀUpdate = { vue: notification.vue };
+  const notificationAUpdate = { vue: notification.vue };
 
-  return await databaseConnection("notification").update(notificationÀUpdate).where({
+  return await databaseConnection("notification").update(notificationAUpdate).where({
     dossier: notification.dossier,
     personne: personne.id,
   });

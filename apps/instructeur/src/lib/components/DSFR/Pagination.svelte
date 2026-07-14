@@ -2,20 +2,20 @@
   import clsx from "clsx";
 
   /*
-    Implémentation du composant de pagination du DSFR
+    Implementation of the DSFR pagination component
     https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/pagination/
 
-    L’implémentation de la pagination doit respecter les bonnes pratiques suivantes :
+    The pagination implementation must follow these good practices:
 
-    La pagination est toujours placée en bas de liste
-    La page sur laquelle se trouve l'utilisateur doit être clairement mise en avant
-    Le dernier élément de la pagination est la dernière page de la liste. L’utilisateur connait ainsi le nombre total de pages.
-    Le lien “précédent” doit être désactivé quand l’utilisateur est sur la première page, et la page “suivant” quand l’utilisateur est sur la dernière page.
-    Toujours donner un accès rapide à la première et dernière page lorsque celles-ci ne sont pas actives, soit avec les boutons “I<“ et “>I”, soit avec la page “1” et la dernière page.
-    Il est recommandé de limiter à 5 ou 7 le nombre de page visibles et affichées par défaut dans la pagination. Au-delà les autres pages sont masquées par un système de troncature. La troncature est matérialisée par l’icône “…” : il ne s’affiche que quand le nombre de pages dépasse de la liste est supérieur à la limite fixée.
+    The pagination is always placed at the bottom of the list
+    The page the user is on must be clearly highlighted
+    The last element of the pagination is the last page of the list. The user thus knows the total number of pages.
+    The "previous" link must be disabled when the user is on the first page, and the "next" page when the user is on the last page.
+    Always provide quick access to the first and last page when they are not active, either with the "I<" and ">I" buttons, or with the "1" page and the last page.
+    It is recommended to limit the number of pages visible and displayed by default in the pagination to 5 or 7. Beyond that, the other pages are hidden by a truncation system. The truncation is represented by the "…" icon: it only appears when the number of pages in the list exceeds the fixed limit.
 
-    Par défaut nous recommandons d’afficher la troncature “…” : après la 5ème page sur les grandes et moyennes résolutions
-    La double troncature apparait lorsque la page consultée est séparée par 5 pages ou plus de la première et de la dernière page sur les grandes et moyennes résolutions
+    By default we recommend displaying the "…" truncation: after the 5th page on large and medium resolutions
+    The double truncation appears when the consulted page is separated by 5 pages or more from the first and the last page on large and medium resolutions
 
     */
 
@@ -28,26 +28,26 @@
 
   let { selectionneursPage, pageActuelle }: Props = $props();
 
-  let selectionnerPremièrePage = $derived(selectionneursPage[1]);
-  let selectionnerDernièrePage = $derived(selectionneursPage.at(-1));
-  let numéroDernièrePage = $derived(selectionneursPage.length - 1);
-  let numéroPageSelectionné = $derived(selectionneursPage.indexOf(pageActuelle));
-  let selectionnerPagePrécédente = $derived(selectionneursPage[numéroPageSelectionné - 1]);
-  let selectionnerPageSuivante = $derived(selectionneursPage[numéroPageSelectionné + 1]);
-  // Toujours afficher la première, la dernière, la page actuelle, deux avant et deux après
+  let selectionnerPremierePage = $derived(selectionneursPage[1]);
+  let selectionnerDernierePage = $derived(selectionneursPage.at(-1));
+  let numeroDernierePage = $derived(selectionneursPage.length - 1);
+  let numeroPageSelectionne = $derived(selectionneursPage.indexOf(pageActuelle));
+  let selectionnerPagePrecedente = $derived(selectionneursPage[numeroPageSelectionne - 1]);
+  let selectionnerPageSuivante = $derived(selectionneursPage[numeroPageSelectionne + 1]);
+  // Always display the first, the last, the current page, two before and two after
 
-  let listeNumérosPage = $derived(
+  let listeNumerosPage = $derived(
     [
       ...new Set([
         1,
 
-        numéroPageSelectionné - 2,
-        numéroPageSelectionné - 1,
-        numéroPageSelectionné,
-        numéroPageSelectionné + 1,
-        numéroPageSelectionné + 2,
+        numeroPageSelectionne - 2,
+        numeroPageSelectionne - 1,
+        numeroPageSelectionne,
+        numeroPageSelectionne + 1,
+        numeroPageSelectionne + 2,
 
-        numéroDernièrePage,
+        numeroDernierePage,
       ]),
     ].filter((n) => !!selectionneursPage[n]),
   );
@@ -58,8 +58,8 @@
     <li>
       <button
         class="fr-pagination__link fr-pagination__link--first"
-        disabled={pageActuelle === selectionnerPremièrePage}
-        onclick={selectionnerPremièrePage}
+        disabled={pageActuelle === selectionnerPremierePage}
+        onclick={selectionnerPremierePage}
       >
         Première page
       </button>
@@ -67,15 +67,15 @@
     <li>
       <button
         class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
-        disabled={pageActuelle === selectionnerPremièrePage}
-        onclick={selectionnerPagePrécédente}
+        disabled={pageActuelle === selectionnerPremierePage}
+        onclick={selectionnerPagePrecedente}
       >
         Page précédente
       </button>
     </li>
 
-    {#each listeNumérosPage as numéroPage, i}
-      {#if numéroPage === numéroDernièrePage && listeNumérosPage[i] - listeNumérosPage[i - 1] >= 2}
+    {#each listeNumerosPage as numeroPage, i}
+      {#if numeroPage === numeroDernierePage && listeNumerosPage[i] - listeNumerosPage[i - 1] >= 2}
         <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
       {/if}
 
@@ -83,15 +83,15 @@
         <button
           type="button"
           class={clsx(["fr-pagination__link", "fr-displayed-lg"])}
-          aria-current={pageActuelle === selectionneursPage[numéroPage] ? "page" : undefined}
-          title={`Page ${numéroPage}`}
-          onclick={selectionneursPage[numéroPage]}
+          aria-current={pageActuelle === selectionneursPage[numeroPage] ? "page" : undefined}
+          title={`Page ${numeroPage}`}
+          onclick={selectionneursPage[numeroPage]}
         >
-          {numéroPage}
+          {numeroPage}
         </button>
       </li>
 
-      {#if numéroPage === 1 && listeNumérosPage[i + 1] - listeNumérosPage[i] >= 2}
+      {#if numeroPage === 1 && listeNumerosPage[i + 1] - listeNumerosPage[i] >= 2}
         <li><span aria-hidden="true" class="fr-pagination__link fr-displayed-lg"> … </span></li>
       {/if}
     {/each}
@@ -99,7 +99,7 @@
     <li>
       <button
         class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
-        disabled={pageActuelle === selectionnerDernièrePage}
+        disabled={pageActuelle === selectionnerDernierePage}
         onclick={selectionnerPageSuivante}
       >
         Page suivante
@@ -108,8 +108,8 @@
     <li>
       <button
         class="fr-pagination__link fr-pagination__link--last"
-        disabled={pageActuelle === selectionnerDernièrePage}
-        onclick={selectionnerDernièrePage}
+        disabled={pageActuelle === selectionnerDernierePage}
+        onclick={selectionnerDernierePage}
       >
         Dernière page
       </button>

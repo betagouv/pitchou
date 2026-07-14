@@ -12,7 +12,7 @@
   import { envoiEmailConnexion } from "./LoginViaEmail/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
-  import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
+  import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
   import type {
     TriFiltreLocalStorage,
     FiltresLocalStorage,
@@ -21,14 +21,14 @@
 
   const TRI_FILTRE_CLEF_LOCALSTORAGE = "tri-filtres-tableau-suivi";
 
-  let trisFiltresSélectionnés = $state<TriFiltreLocalStorage | undefined>();
+  let trisFiltresSelectionnes = $state<TriFiltreLocalStorage | undefined>();
 
-  let chargementDossiersTerminé = $state(false);
+  let chargementDossiersTermine = $state(false);
 
   onMount(async () => {
     const stored = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE);
     if (stored && typeof stored !== "string") {
-      trisFiltresSélectionnés = stored;
+      trisFiltresSelectionnes = stored;
     } else if (typeof stored === "string") {
       console.warn(`string du localStorage non comprise en tant que filtre/tri`, stored);
     }
@@ -54,7 +54,7 @@
         message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`,
       });
     }
-    chargementDossiersTerminé = true;
+    chargementDossiersTermine = true;
   });
 
   async function logoutEtAfficherLoginParEmail(erreur?: { message: string }) {
@@ -80,7 +80,7 @@
       },
     };
     remember(TRI_FILTRE_CLEF_LOCALSTORAGE, nouveaux);
-    trisFiltresSélectionnés = nouveaux;
+    trisFiltresSelectionnes = nouveaux;
   }
 
   const email = $derived(store.identité?.email);
@@ -92,12 +92,12 @@
     store.schemaDS88444?.revision.champDescriptors,
   );
 
-  const activitésPrincipales = $derived(
+  const activitesPrincipales = $derived(
     schemaChamps?.find((c) => c.label === "Activité principale")?.options,
   );
 </script>
 
-{#if !chargementDossiersTerminé && peutListerDossiers}
+{#if !chargementDossiersTermine && peutListerDossiers}
   <div class="fr-p-2w fr-pb-10w">
     <Loader />
   </div>
@@ -106,9 +106,9 @@
     {email}
     {dossiers}
     {relationSuivis}
-    activitésPrincipales={activitésPrincipales ?? []}
-    triIdSélectionné={trisFiltresSélectionnés?.tri}
-    filtresSélectionnés={trisFiltresSélectionnés?.filtres}
+    activitésPrincipales={activitesPrincipales ?? []}
+    triIdSélectionné={trisFiltresSelectionnes?.tri}
+    filtresSélectionnés={trisFiltresSelectionnes?.filtres}
     {rememberTriFiltres}
   />
 {:else}

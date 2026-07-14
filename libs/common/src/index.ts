@@ -1,3 +1,3 @@
-// Point d'entrée du package @pitchou/common.
-// Les imports se font surtout via les sous-chemins (@pitchou/common/<fichier>).
+// Entry point of the @pitchou/common package.
+// Imports are mostly done via sub-paths (@pitchou/common/<file>).
 export {};

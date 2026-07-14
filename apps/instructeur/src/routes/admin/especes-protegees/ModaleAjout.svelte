@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { TaxrefRow } from "../../taxref/taxrefList.ts";
   import Loader from "$lib/components/Loader.svelte";
   import { chargerEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
@@ -14,7 +14,7 @@
     onClose: () => void;
     /** CD_REFs already covered by a modification (flagged in the espece selector). */
     existingCdRefs: Set<string>;
-    onSelectExistante: (espece: EspèceProtégée) => void;
+    onSelectExistante: (espece: EspeceProtegee) => void;
     onSelectTaxref: (row: TaxrefRow) => void;
   };
 
@@ -24,7 +24,7 @@
 
   // The protected list is loaded once: it feeds the espece selector (option 1) and the
   // set of already-protected CD_REFs flagged in the TAXREF selector (option 2).
-  let especes = $state<EspèceProtégée[]>([]);
+  let especes = $state<EspeceProtegee[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
 

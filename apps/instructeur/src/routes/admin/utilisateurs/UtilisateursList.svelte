@@ -15,7 +15,7 @@
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
-  import { downloadÉvènementsCSV } from "$lib/actions/admin.ts";
+  import { downloadEvenementsCSV } from "$lib/actions/admin.ts";
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
@@ -158,7 +158,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      onclick={() => downloadÉvènementsCSV().catch((e: Error) => (downloadError = e.message))}
+      onclick={() => downloadEvenementsCSV().catch((e: Error) => (downloadError = e.message))}
     >
       Télécharger les évènements
     </button>

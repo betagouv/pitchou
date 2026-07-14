@@ -6,18 +6,18 @@
   import DossierProjet from "./Dossier/DossierProjet.svelte";
   import DossierPorteurDeProjet from "./Dossier/DossierPorteurDeProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
-  import DossierContrôles from "./Dossier/DossierContrôles.svelte";
+  import DossierControles from "./Dossier/DossierControles.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
-  import DossierGénérationDocuments from "./Dossier/DossierGénérationDocuments.svelte";
+  import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
-  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { especesImpacteesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+  import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
 
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
@@ -33,7 +33,7 @@
 
   function changerOnglet(nouvelOnglet: Onglet) {
     ongletActif = nouvelOnglet;
-    // Mettre à jour l'URL sans recharger la page
+    // Update the URL without reloading the page
     window.history.replaceState(null, "", `#${nouvelOnglet}`);
   }
 
@@ -45,16 +45,16 @@
   // template) or as .xlsx; both are parsed by espècesImpactéesDepuisFichierOdsArrayBuffer.
   const EXTENSIONS_ATTENDUES = [".ods", ".xlsx"];
 
-  function getEspècesImpactés(
+  function getEspecesImpactes(
     dossier: DossierComplet,
-  ): ReturnType<typeof espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined {
-    const espècesImpactées = dossier.espècesImpactées;
+  ): ReturnType<typeof especesImpacteesDepuisFichierOdsArrayBuffer> | undefined {
+    const especesImpactees = dossier.espècesImpactées;
 
-    if (!espècesImpactées || !espècesImpactées.url) {
+    if (!especesImpactees || !especesImpactees.url) {
       return undefined;
     }
 
-    const extension = "." + espècesImpactées.nom?.split(".").pop();
+    const extension = "." + especesImpactees.nom?.split(".").pop();
 
     if (!EXTENSIONS_ATTENDUES.includes(extension)) {
       return Promise.reject(
@@ -62,10 +62,10 @@
       );
     }
 
-    // Le contenu du fichier est récupéré à la demande depuis l'Object Storage
-    return fetch(espècesImpactées.url)
+    // The file content is fetched on demand from the Object Storage
+    return fetch(especesImpactees.url)
       .then((response) => response.arrayBuffer())
-      .then((arrayBuffer) => espècesImpactéesDepuisFichierOdsArrayBuffer(arrayBuffer));
+      .then((arrayBuffer) => especesImpacteesDepuisFichierOdsArrayBuffer(arrayBuffer));
   }
 
   type Props = {
@@ -90,30 +90,30 @@
 
   $inspect("Dossier complet", dossier);
 
-  const envoyerÉvènementConsulterUnDossier = debounce(
-    () => envoyerÉvènement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
+  const envoyerEvenementConsulterUnDossier = debounce(
+    () => envoyerEvenement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
     15 * 60 * 1000,
     true,
   );
 
   onMount(() => {
     if (notification?.vue === false) {
-      // Quand le dossier a une notification non vue par l'instructrice actuelle,
-      // elle disparaît au moment de la consultation du dossier.
+      // When the dossier has a notification not seen by the current instructrice,
+      // it disappears when the dossier is consulted.
       updateNotificationForDossier({ dossier: dossier.id, vue: true });
     }
   });
 
   $effect(() => {
     if (ongletActif === "projet") {
-      envoyerÉvènementConsulterUnDossier();
+      envoyerEvenementConsulterUnDossier();
     }
   });
 
   let ongletActif = $derived(ongletActifInitial);
 
-  let espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined = $derived(
-    getEspècesImpactés(dossier),
+  let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
+    getEspecesImpactes(dossier),
   );
 </script>
 
@@ -212,7 +212,7 @@
             aria-selected={ongletActif === "controles"}
             onclick={() => handleTabClick("controles")}
           >
-            Contrôles
+            Controles
           </button>
         </li>
         <li role="presentation">
@@ -269,7 +269,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierProjet {dossier} {espècesImpactées}></DossierProjet>
+        <DossierProjet {dossier} espècesImpactées={especesImpactees}></DossierProjet>
       </div>
       <div
         id="tabpanel-porteur-de-projet-panel"
@@ -309,7 +309,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierContrôles {dossier}></DossierContrôles>
+        <DossierControles {dossier}></DossierControles>
       </div>
       <div
         id="tabpanel-pieces-jointes-panel"
@@ -329,7 +329,8 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierGénérationDocuments {dossier} {espècesImpactées}></DossierGénérationDocuments>
+        <DossierGenerationDocuments {dossier} espècesImpactées={especesImpactees}
+        ></DossierGenerationDocuments>
       </div>
     </div>
   </div>

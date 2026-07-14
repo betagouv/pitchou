@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import {
     formatDateAbsolue,
@@ -10,7 +10,7 @@
   import BadgePhase from "./BadgePhase.svelte";
 
   type Props = {
-    dossier: DossierRésumé;
+    dossier: DossierResume;
     instructeurActuelSuitDossier: (id: Dossier["id"]) => Promise<void>;
     instructeurActuelLaisseDossier: (id: Dossier["id"]) => Promise<void>;
     nouveautéVueParInstructeur: boolean;
@@ -22,14 +22,14 @@
     dossierSuiviParInstructeurActuel,
     instructeurActuelSuitDossier,
     instructeurActuelLaisseDossier,
-    nouveautéVueParInstructeur,
+    nouveautéVueParInstructeur: nouveauteVueParInstructeur,
   }: Props = $props();
 </script>
 
 <div class="carte fr-p-2w" data-testid="carte-dossier">
   <div class="en-tête">
     <div class="tag-nouveauté-et-nom-du-projet">
-      {#if nouveautéVueParInstructeur === false}
+      {#if nouveauteVueParInstructeur === false}
         <p class="fr-badge fr-badge--new">Nouveauté</p>
       {/if}
       <h3>

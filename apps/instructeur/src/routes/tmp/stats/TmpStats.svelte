@@ -10,58 +10,58 @@
 
   import TagPhase from "$lib/components/TagPhase.svelte";
 
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossiers?: DossierRésumé[];
+    dossiers?: DossierResume[];
   };
 
   let { dossiers = [] }: Props = $props();
 
   const aujourdhui = new Date();
 
-  function trouverDossiersEnContrôle(dossiers: DossierRésumé[]) {
-    return dossiers.filter((dossier) => dossier.phase === "Contrôle");
+  function trouverDossiersEnControle(dossiers: DossierResume[]) {
+    return dossiers.filter((dossier) => dossier.phase === "Controle");
   }
 
-  let dossierEnPhaseContrôle = $derived(trouverDossiersEnContrôle(dossiers));
+  let dossierEnPhaseControle = $derived(trouverDossiersEnControle(dossiers));
 
   function trouverDossiersAvecAPPrisDepuis(
-    dossiers: DossierRésumé[],
+    dossiers: DossierResume[],
     dateDebut: Date,
     dateFin: Date | undefined = aujourdhui,
   ) {
     return dossiers.filter((d) => {
       return d.décisionsAdministratives?.find(
-        (décision) =>
-          décision.date_signature !== null &&
-          isAfter(décision.date_signature, dateDebut) &&
-          isBefore(décision.date_signature, dateFin),
+        (decision) =>
+          decision.date_signature !== null &&
+          isAfter(decision.date_signature, dateDebut) &&
+          isBefore(decision.date_signature, dateFin),
       );
     });
   }
 
   let dossierAvecAPDepuisAnneeEnCours = $derived(
-    trouverDossiersAvecAPPrisDepuis(dossierEnPhaseContrôle, startOfYear(aujourdhui)),
+    trouverDossiersAvecAPPrisDepuis(dossierEnPhaseControle, startOfYear(aujourdhui)),
   );
 
-  let annéeDernière = $derived(sub(aujourdhui, { years: 1 }));
+  let anneeDerniere = $derived(sub(aujourdhui, { years: 1 }));
 
   let dossierAvecAPAnneePrecedente = $derived(
     trouverDossiersAvecAPPrisDepuis(
-      dossierEnPhaseContrôle,
-      startOfYear(annéeDernière),
-      endOfYear(annéeDernière),
+      dossierEnPhaseControle,
+      startOfYear(anneeDerniere),
+      endOfYear(anneeDerniere),
     ),
   );
 
-  function trouverDossiersEnAccompagnement(dossiers: DossierRésumé[]) {
+  function trouverDossiersEnAccompagnement(dossiers: DossierResume[]) {
     return dossiers.filter((dossier) => dossier.phase === "Accompagnement amont");
   }
 
   let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers));
 
-  function trouverDossiersDeMoinsDe3Ans(dossiers: DossierRésumé[]) {
+  function trouverDossiersDeMoinsDe3Ans(dossiers: DossierResume[]) {
     return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.date_dépôt));
   }
 
@@ -69,7 +69,7 @@
     trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement),
   );
 
-  function trouverDossiersNonScientifiques(dossiers: DossierRésumé[]) {
+  function trouverDossiersNonScientifiques(dossiers: DossierResume[]) {
     return dossiers.filter((d) => d.activité_principale !== "Demande à caractère scientifique");
   }
 
@@ -93,19 +93,19 @@
       <ul>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase> (avec AP)
-          </strong>&nbsp;: {dossierEnPhaseContrôle.length}
+            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase> (avec AP)
+          </strong>&nbsp;: {dossierEnPhaseControle.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
+            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase>
             avec AP pris en {getYear(aujourdhui)}
           </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Contrôle" taille="SM"></TagPhase>
-            avec AP pris en {getYear(annéeDernière)}
+            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase>
+            avec AP pris en {getYear(anneeDerniere)}
           </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
         </li>
       </ul>

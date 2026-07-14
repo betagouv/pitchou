@@ -1,8 +1,8 @@
-import type { DossierComplet, DossierPhase, DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierComplet, DossierPhase, DossierResume } from "@pitchou/types/API_Pitchou.ts";
 
-export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet): DossierRésumé {
+export function DossierCompletToDossierResume(dossierComplet: DossierComplet): DossierResume {
   const {
-    // Propriétés directement copiées
+    // Properties copied directly
     id,
     number_demarches_simplifiées,
     nom,
@@ -12,37 +12,37 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     rattaché_au_régime_ae,
     historique_identifiant_demande_onagre,
     date_dépôt,
-    décisionsAdministratives,
+    décisionsAdministratives: decisionsAdministratives,
 
-    // Localisation (déjà au bon format)
+    // Localisation (already in the right format)
     communes,
     départements,
     régions,
 
-    // Personnes impliquées
-    déposant_nom,
-    déposant_prénoms,
+    // People involved
+    déposant_nom: deposant_nom,
+    déposant_prénoms: deposant_prenoms,
     demandeur_personne_physique_nom,
-    demandeur_personne_physique_prénoms,
+    demandeur_personne_physique_prénoms: demandeur_personne_physique_prenoms,
     demandeur_personne_morale_raison_sociale,
     demandeur_personne_morale_siret,
 
-    // Prochaine action
+    // Next action
     prochaine_action_attendue_par,
 
-    // Évènements pour extraire la phase
-    évènementsPhase,
+    // Events used to extract the phase
+    évènementsPhase: evenementsPhase,
   } = dossierComplet;
 
-  // Trouver la phase la plus récente
-  // PPP à corriger
-  const phaseActuelle: DossierPhase = évènementsPhase[0]
-    ? évènementsPhase[0].phase
+  // Find the most recent phase
+  // PPP to fix
+  const phaseActuelle: DossierPhase = evenementsPhase[0]
+    ? evenementsPhase[0].phase
     : "Accompagnement amont";
-  const dateDébutPhaseActuelle = évènementsPhase[0] ? évènementsPhase[0].horodatage : date_dépôt;
+  const dateDebutPhaseActuelle = evenementsPhase[0] ? evenementsPhase[0].horodatage : date_dépôt;
 
-  const dossierRésumé: DossierRésumé = {
-    // Propriétés simples
+  const dossierResume: DossierResume = {
+    // Simple properties
     id,
     number_demarches_simplifiées,
     nom,
@@ -51,9 +51,9 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     commentaire_libre,
     rattaché_au_régime_ae,
     historique_identifiant_demande_onagre,
-    décisionsAdministratives,
+    décisionsAdministratives: decisionsAdministratives,
 
-    // Statistiques
+    // Statistics
     date_dépôt,
 
     // Localisation
@@ -61,22 +61,22 @@ export function DossierCompletToDossierRésumé(dossierComplet: DossierComplet):
     départements,
     régions,
 
-    // Personnes impliquées
-    déposant_nom,
-    déposant_prénoms,
+    // People involved
+    déposant_nom: deposant_nom,
+    déposant_prénoms: deposant_prenoms,
     demandeur_personne_physique_nom,
-    demandeur_personne_physique_prénoms,
+    demandeur_personne_physique_prénoms: demandeur_personne_physique_prenoms,
     demandeur_personne_morale_raison_sociale,
     demandeur_personne_morale_siret,
 
-    // Phase et prochaine action
+    // Phase and next action
     phase: phaseActuelle,
-    date_début_phase: dateDébutPhaseActuelle,
+    date_début_phase: dateDebutPhaseActuelle,
     // @ts-ignore
     prochaine_action_attendue_par,
   };
 
-  Object.freeze(dossierRésumé);
+  Object.freeze(dossierResume);
 
-  return dossierRésumé;
+  return dossierResume;
 }

@@ -1,7 +1,7 @@
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
-import { téléchargementFichierResponse } from "./fichier.ts";
+import { telechargementFichierResponse } from "./fichier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 vi.mock(import("@pitchou/server/database/fichier.ts"), () => ({
@@ -19,7 +19,7 @@ const id = "00000000-0000-0000-0000-000000000001" as FileId;
 describe("téléchargementFichierResponse", () => {
   it("throws a 404 SvelteKit error when the fichier is not found", async () => {
     load.mockResolvedValue(null);
-    await expect(téléchargementFichierResponse(id)).rejects.toMatchObject({ status: 404 });
+    await expect(telechargementFichierResponse(id)).rejects.toMatchObject({ status: 404 });
   });
 
   it("returns body and content-length for S3 files", async () => {
@@ -32,7 +32,7 @@ describe("téléchargementFichierResponse", () => {
       taille: bytes.byteLength,
     });
 
-    const res = await téléchargementFichierResponse(id);
+    const res = await telechargementFichierResponse(id);
 
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("application/pdf");
@@ -50,7 +50,7 @@ describe("téléchargementFichierResponse", () => {
       taille: 6,
     });
 
-    const res = await téléchargementFichierResponse(id);
+    const res = await telechargementFichierResponse(id);
 
     expect(res.status).toBe(200);
     expect(res.headers.get("content-length")).toBe("6");
@@ -65,7 +65,7 @@ describe("téléchargementFichierResponse", () => {
       body: Readable.from([Buffer.from("x")]),
       taille: 1,
     });
-    const res = await téléchargementFichierResponse(id);
+    const res = await telechargementFichierResponse(id);
     const cd = res.headers.get("content-disposition") ?? "";
 
     // No comma between two attachment= directives — undici joins repeated headers with ", ".
@@ -84,7 +84,7 @@ describe("téléchargementFichierResponse", () => {
       media_type: "application/pdf",
       body: Readable.from([Buffer.from("x")]),
     });
-    const res = await téléchargementFichierResponse(id);
+    const res = await telechargementFichierResponse(id);
     expect(res.headers.get("content-length")).toBeNull();
     await res.text();
   });

@@ -24,7 +24,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose espè
   const result = await getDossierComplet(dossier.id as DossierId, cap as CapDossier["cap"], db);
 
   expect(result).toBeDefined();
-  // Le fichier est lié au dossier en base → il doit apparaître dans l'UI.
+  // The file is linked to the dossier in the database → it must show up in the UI.
   expect(result!.espècesImpactées).toBeDefined();
   expect(result!.espècesImpactées!.nom).toBe("especes-impactées.ods");
   expect(result!.espècesImpactées!.media_type).toBe(ODS_MEDIA_TYPE);

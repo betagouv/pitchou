@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
   type Props = {
     id: string;
-    espece: EspèceProtégée | null;
+    espece: EspeceProtegee | null;
   };
 
   let { id, espece }: Props = $props();

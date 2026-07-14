@@ -2,15 +2,15 @@ import { json } from "d3-fetch";
 import memoize from "just-memoize";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 
-import type { GeoAPIDépartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
-import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
-export type { DonnéesSupplémentairesPourCréationDossier } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
+export type { DonneesSupplementairesPourCreationDossier } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 
 /**
- * Type qui définit les messages :
- *  - d'avertissement (où on peut proposer une alternative correcte)
- *  - d'erreurs (où une correction de l'utilisateur.rice est nécessaire)
+ * Type that defines the messages:
+ *  - warning (where we can suggest a correct alternative)
+ *  - error (where a correction from the user is required)
  */
 export type Alerte = {
   type: "erreur" | "avertissement";
@@ -24,12 +24,12 @@ export type DossierAvecAlertes = Partial<
 >;
 
 /**
- * Récupère toutes les données de la commune ainsi que celles de son département.
+ * Retrieves all the data of the commune as well as that of its département.
  *
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
 async function getCommuneData(nomCommune: string): Promise<{
-  data: (GeoAPICommune & { departement: GeoAPIDépartement }) | null;
+  data: (GeoAPICommune & { departement: GeoAPIDepartement }) | null;
   alerte?: Alerte;
 }> {
   const commune = await json(
@@ -52,79 +52,79 @@ export { memoizedGetCommuneData as getCommuneData };
 /**
  * @see {@link https://geo.api.gouv.fr/decoupage-administratif/communes}
  */
-async function _getDépartementData(
+async function _getDepartementData(
   code: string,
-): Promise<{ data: GeoAPIDépartement | null; alerte?: Alerte }> {
-  const département = await json(
+): Promise<{ data: GeoAPIDepartement | null; alerte?: Alerte }> {
+  const departement = await json(
     `https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`,
   );
 
-  if (!département) {
+  if (!departement) {
     const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
     console.warn(messageAlerte);
     return { data: null, alerte: { type: "erreur", message: messageAlerte } };
   }
   //@ts-ignore
-  return { data: département };
+  return { data: departement };
 }
 
 /**
- * Extrait un tableau de noms de communes à partir d'une chaîne de caractères.
- * La chaîne peut contenir des noms séparés par des virgules (`,`), des slashes (`/`), ou un mélange des deux.
- * Exemples de valeur en entrée :
+ * Extracts an array of commune names from a string.
+ * The string can contain names separated by commas (`,`), slashes (`/`), or a mix of both.
+ * Examples of input values:
  * - Arthonnay, Mélisey, Quincerot, Rugny, Thorey, Trichey et Villon
  * - Argenteuil-sur-Armancon / Moulins-en-Tonnerrois
  * - Mélisey
  *
- * On n'inclut pas le séparateur "-" car beaucoup de villes contiennent des "-"
+ * We do not include the "-" separator because many towns contain "-"
  */
 export function extraireCommunes(valeur: string): string[] {
   if (typeof valeur !== "string") return [];
 
-  // Utilise une expression régulière pour séparer sur ',' ou '/'
+  // Use a regular expression to split on ',' or '/'
   const communes = valeur.split(/[\/,]/);
 
-  // Nettoie les espaces superflus et filtre les éléments vides
+  // Trim extra whitespace and filter out empty items
   return communes.map((c) => c.trim()).filter((c) => c.length > 0);
 }
 
 /**
- * Formate une valeur (code ou chaîne) en un ou plusieurs départements reconnus.
- * Renvoie null si pas de département reconnu.
+ * Formats a value (code or string) into one or more recognized départements.
+ * Returns null if no département is recognized.
  */
-async function formaterDépartementDepuisValeur(
+async function formaterDepartementDepuisValeur(
   valeur: string | number,
-): Promise<{ data: GeoAPIDépartement[] | null; alertes: Alerte[] }> {
+): Promise<{ data: GeoAPIDepartement[] | null; alertes: Alerte[] }> {
   let codes: string[] = [];
   if (typeof valeur === "number") {
     codes = [valeur.toString()];
   }
   if (typeof valeur === "string") {
     const blocs = valeur.split("-");
-    // Cela permet de récupérer les valeurs comme "21-78"
+    // This allows retrieving values like "21-78"
     for (const bloc of blocs) {
       codes.push(bloc);
     }
   }
 
-  const départementsP = codes.map((code) => _getDépartementData(code));
+  const departementsP = codes.map((code) => _getDepartementData(code));
   const alertes: Alerte[] = [];
 
   try {
-    const résultats = await Promise.all(départementsP);
+    const resultats = await Promise.all(departementsP);
 
-    for (const résultat of résultats) {
+    for (const résultat of resultats) {
       if (résultat.alerte) {
         alertes.push(résultat.alerte);
       }
     }
 
-    const départements = résultats.map((résultat) => résultat.data).filter((dep) => dep !== null);
+    const départements = resultats.map((résultat) => résultat.data).filter((dep) => dep !== null);
 
     if (départements.length >= 1) {
-      // On force le cast car la logique garantit un tableau non vide
+      // We force the cast because the logic guarantees a non-empty array
       return {
-        data: départements as [GeoAPIDépartement, ...GeoAPIDépartement[]],
+        data: départements as [GeoAPIDepartement, ...GeoAPIDepartement[]],
         alertes,
       };
     } else {
@@ -138,12 +138,12 @@ async function formaterDépartementDepuisValeur(
   }
 }
 
-const memoizedFormaterDépartementDepuisValeur = memoize(formaterDépartementDepuisValeur);
+const memoizedFormaterDepartementDepuisValeur = memoize(formaterDepartementDepuisValeur);
 
-export { memoizedFormaterDépartementDepuisValeur as formaterDépartementDepuisValeur };
+export { memoizedFormaterDepartementDepuisValeur as formaterDepartementDepuisValeur };
 
 /**
- * Tente d'extraire un prénom et un nom à partir d'une chaîne de texte.
+ * Attempts to extract a first name and a last name from a text string.
  *
  * @example
  *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
@@ -160,7 +160,7 @@ export function extraireNom(text: string): Partial<{ prénom: string; nom: strin
 }
 
 /**
- * Extrait la première adresse mail trouvée dans une chaîne de texte.
+ * Extracts the first email address found in a text string.
  *
  * @example
  *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
@@ -175,7 +175,7 @@ export function extrairePremierMail(text: string): string | null {
 }
 
 /**
- * Tente d'extraire un prénom et un nom à partir d'une adresse mail.
+ * Attempts to extract a first name and a last name from an email address.
  *
  * @example
  *   extraireNomDunMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
@@ -185,13 +185,13 @@ export function extraireNomDunMail(mail: string): Partial<{ prénom: string; nom
 
   const localPart = mail.split("@")[0];
 
-  // Séparateurs fréquents
+  // Common separators
   const parts = localPart.split(/[._\-]/).filter((s) => s.length >= 1);
 
   if (parts.length === 2) {
     const [a, b] = parts;
 
-    // On fait l'hypothèse que la première partie est le prénom.
+    // We assume the first part is the first name.
     return {
       prénom: capitalize(a),
       nom: capitalize(b),
@@ -205,7 +205,7 @@ export function extraireNomDunMail(mail: string): Partial<{ prénom: string; nom
 }
 
 /**
- * Met une majuscule à la première lettre d'une chaîne, le reste en minuscules.
+ * Capitalizes the first letter of a string, the rest in lowercase.
  *
  * @example
  *   capitalize("jean") // "Jean"

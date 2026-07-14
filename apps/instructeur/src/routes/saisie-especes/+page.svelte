@@ -1,45 +1,48 @@
 <script lang="ts">
-  import SaisieEspèces from "./SaisieEspèces.svelte";
+  import SaisieEspeces from "./SaisieEspeces.svelte";
   import {
-    importDescriptionMenacesEspècesFromOdsArrayBuffer,
-    importDescriptionMenacesEspècesFromURL,
-  } from "@pitchou/common/outils-espèces.ts";
+    importDescriptionMenacesEspecesFromOdsArrayBuffer,
+    importDescriptionMenacesEspecesFromURL,
+  } from "@pitchou/common/outils-especes.ts";
   import {
-    chargerListeEspècesProtégées,
-    chargerActivitésMéthodesMoyensDePoursuite,
-  } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
+    chargerListeEspecesProtegees,
+    chargerActivitesMethodesMoyensDePoursuite,
+  } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
-    chargerListeEspècesProtégées(),
-    chargerActivitésMéthodesMoyensDePoursuite(),
+    chargerListeEspecesProtegees(),
+    chargerActivitesMethodesMoyensDePoursuite(),
   ]);
 </script>
 
-{#await initP then [espècesData, actMétTrans]}
-  {@const { espècesProtégéesParClassification, espèceByCD_REF } = espècesData}
+{#await initP then [especesData, actMetTrans]}
+  {@const {
+    espècesProtégéesParClassification: especesProtegeesParClassification,
+    espèceByCD_REF: especeByCD_REF,
+  } = especesData}
   {@const {
     activités: activitesParClassificationEtreVivant,
-    méthodes: méthodesParClassificationEtreVivant,
+    méthodes: methodesParClassificationEtreVivant,
     moyensDePoursuite: transportsParClassificationEtreVivant,
-  } = actMétTrans}
-  {@const etresVivantsAtteints = importDescriptionMenacesEspècesFromURL(
+  } = actMetTrans}
+  {@const etresVivantsAtteints = importDescriptionMenacesEspecesFromURL(
     new URL(location.href),
-    espèceByCD_REF,
+    especeByCD_REF,
     activitesParClassificationEtreVivant,
-    méthodesParClassificationEtreVivant,
+    methodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
   )}
-  <SaisieEspèces
-    {espècesProtégéesParClassification}
+  <SaisieEspeces
+    espècesProtégéesParClassification={especesProtegeesParClassification}
     {activitesParClassificationEtreVivant}
-    {méthodesParClassificationEtreVivant}
+    méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
     {transportsParClassificationEtreVivant}
     importDescriptionMenacesEspècesFromOds={(odsAB) =>
-      importDescriptionMenacesEspècesFromOdsArrayBuffer(
+      importDescriptionMenacesEspecesFromOdsArrayBuffer(
         odsAB,
-        espèceByCD_REF,
+        especeByCD_REF,
         activitesParClassificationEtreVivant,
-        méthodesParClassificationEtreVivant,
+        methodesParClassificationEtreVivant,
         transportsParClassificationEtreVivant,
       )}
     oiseauxAtteints={(etresVivantsAtteints && etresVivantsAtteints["oiseau"]) || []}

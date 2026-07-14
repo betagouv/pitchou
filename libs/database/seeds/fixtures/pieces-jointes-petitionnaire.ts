@@ -1,4 +1,4 @@
-export type SeedPièceJointe = {
+export type SeedPieceJointe = {
   /** number_demarches_simplifiées du dossier, pour le retrouver en DB */
   dossier: string;
   nom: string;
@@ -6,7 +6,7 @@ export type SeedPièceJointe = {
   DS_createdAt: Date;
 };
 
-export const SEED_PIÈCES_JOINTES_PÉTITIONNAIRE: SeedPièceJointe[] = [
+export const SEED_PIECES_JOINTES_PETITIONNAIRE: SeedPieceJointe[] = [
   // D1 — Parc éolien des Monts d'Arrée (Bretagne)
   {
     dossier: "99000001",

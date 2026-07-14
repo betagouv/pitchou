@@ -3,40 +3,40 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 import {
-  supprimerÉvènementsAvantTelleDate,
-  supprimerÉvènementsParEmail,
-} from "@pitchou/server/database/évènements_métriques.ts";
+  supprimerEvenementsAvantTelleDate,
+  supprimerEvenementsParEmail,
+} from "@pitchou/server/database/evenements_metriques.ts";
 import { subWeeks } from "date-fns";
 
 const args = parseArgs(process.argv);
 
 const email = args["email"];
 
-let nombreSemaineÀConserver = args["conserver-dernières-semaines"];
+let nombreSemaineAConserver = args["conserver-dernières-semaines"];
 
-if (nombreSemaineÀConserver) {
-  nombreSemaineÀConserver = Number(nombreSemaineÀConserver);
+if (nombreSemaineAConserver) {
+  nombreSemaineAConserver = Number(nombreSemaineAConserver);
 
-  if (!Number.isSafeInteger(nombreSemaineÀConserver)) {
+  if (!Number.isSafeInteger(nombreSemaineAConserver)) {
     console.error(`"${args["conserver-dernières-semaines"]}" n'est pas un nombre`);
     process.exit(1);
   }
 
-  if (nombreSemaineÀConserver < 0) {
+  if (nombreSemaineAConserver < 0) {
     console.error(`C'est bizarre d'avoir mis un nombre négatif en nombre de semaines à conserver`);
     process.exit(1);
   }
-  if (nombreSemaineÀConserver === 0) {
+  if (nombreSemaineAConserver === 0) {
     console.error(`C'est bizarre d'avoir mis 0 en nombre de semaines à conserver`);
     process.exit(1);
   }
 }
 
-if (!email && !nombreSemaineÀConserver) {
+if (!email && !nombreSemaineAConserver) {
   console.error(`Il manque soit l'argument "--email", soit "--conserver-dernières-semaines"`);
   process.exit(1);
 }
-if (email && nombreSemaineÀConserver) {
+if (email && nombreSemaineAConserver) {
   console.error(
     `Il y a les deux arguments "--email" et "--conserver-dernières-semaines". Cette situation n'est pas gérée. N'en choisir qu'un seul`,
   );
@@ -44,15 +44,15 @@ if (email && nombreSemaineÀConserver) {
 }
 
 if (email) {
-  const nombreSupprimés = await supprimerÉvènementsParEmail(email);
-  console.log(nombreSupprimés, `évènements supprimés concernant l'utilisateur.rice`, email);
+  const nombreSupprimes = await supprimerEvenementsParEmail(email);
+  console.log(nombreSupprimes, `évènements supprimés concernant l'utilisateur.rice`, email);
 }
 
-if (nombreSemaineÀConserver) {
-  const date = subWeeks(new Date(), nombreSemaineÀConserver);
-  const nombreSupprimés = await supprimerÉvènementsAvantTelleDate(date);
+if (nombreSemaineAConserver) {
+  const date = subWeeks(new Date(), nombreSemaineAConserver);
+  const nombreSupprimes = await supprimerEvenementsAvantTelleDate(date);
   console.log(
-    nombreSupprimés,
+    nombreSupprimes,
     `évènements qui dataient d'avant le`,
     format(date, "d MMMM yyyy", { locale: fr }),
     `supprimés`,

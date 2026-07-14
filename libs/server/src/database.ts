@@ -2,9 +2,9 @@ import knex, { type Knex } from "knex";
 
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { default as Entreprise } from "@pitchou/types/database/public/Entreprise.ts";
-import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
+import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
 import type {
-  IdentitéInstructeurPitchou,
+  IdentiteInstructeurPitchou,
   PitchouInstructeurCapabilities,
 } from "@pitchou/types/capabilities.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
@@ -20,7 +20,7 @@ export function closeDatabaseConnection(): ReturnType<Knex["destroy"]> {
   return directDatabaseConnection.destroy();
 }
 
-export function créerTransaction(config?: Knex.TransactionConfig): Promise<Knex.Transaction> {
+export function creerTransaction(config?: Knex.TransactionConfig): Promise<Knex.Transaction> {
   return directDatabaseConnection.transaction(config);
 }
 
@@ -37,11 +37,11 @@ export function dumpEntreprises(
   return databaseConnection("entreprise").insert(entreprises).onConflict("siret").merge();
 }
 
-export async function getInstructeurCapBundleByPersonneCodeAccès(
+export async function getInstructeurCapBundleByPersonneCodeAcces(
   code_accès: NonNullable<Personne["code_accès"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
-  Partial<StringValues<PitchouInstructeurCapabilities> & { identité: IdentitéInstructeurPitchou }>
+  Partial<StringValues<PitchouInstructeurCapabilities> & { identité: IdentiteInstructeurPitchou }>
 > {
   const remplirAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
     .select("cap")
@@ -52,7 +52,7 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
     .where({ personne_cap: code_accès })
     .first();
 
-  const identitéP = databaseConnection("personne").select("email").where({ code_accès }).first();
+  const identiteP = databaseConnection("personne").select("email").where({ code_accès }).first();
 
   const listerDossiersP = databaseConnection("cap_dossier")
     .select("cap")
@@ -60,68 +60,68 @@ export async function getInstructeurCapBundleByPersonneCodeAccès(
     .first()
     .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-  const créerÉvènementMetriqueP = databaseConnection("cap_évènement_métrique")
+  const creerEvenementMetriqueP = databaseConnection("cap_évènement_métrique")
     .select("cap")
     .where({ personne_cap: code_accès })
     .first()
     .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-  // Pour le moment, les droits associés à tout un tas de capabilities la même partie secrète
-  // de la capability que pour lister les dossiers
-  const recupérerDossierCompletP = listerDossiersP;
+  // For now, the rights associated with a whole bunch of capabilities share the same secret part
+  // of the capability as for listing the dossiers
+  const recupererDossierCompletP = listerDossiersP;
   const listerRelationSuiviP = listerDossiersP;
   const modifierRelationSuiviP = listerDossiersP;
-  const listerÉvènementsPhaseDossierP = listerDossiersP;
+  const listerEvenementsPhaseDossierP = listerDossiersP;
   const listerMessagesP = listerDossiersP;
   const modifierDossierP = listerDossiersP;
-  const modifierDécisionAdministrativeDansDossierP = listerDossiersP;
+  const modifierDecisionAdministrativeDansDossierP = listerDossiersP;
   const listerNotificationsP = listerDossiersP;
   const updateNotificationP = listerDossiersP;
 
   return Promise.all([
     remplirAnnotationsP,
     listerDossiersP,
-    recupérerDossierCompletP,
+    recupererDossierCompletP,
     listerRelationSuiviP,
     modifierRelationSuiviP,
-    listerÉvènementsPhaseDossierP,
+    listerEvenementsPhaseDossierP,
     listerMessagesP,
     modifierDossierP,
-    modifierDécisionAdministrativeDansDossierP,
-    créerÉvènementMetriqueP,
-    identitéP,
+    modifierDecisionAdministrativeDansDossierP,
+    creerEvenementMetriqueP,
+    identiteP,
     listerNotificationsP,
     updateNotificationP,
   ]).then(
     ([
       remplirAnnotations,
       listerDossiers,
-      recupérerDossierComplet,
+      recupererDossierComplet,
       listerRelationSuivi,
       modifierRelationSuivi,
-      listerÉvènementsPhaseDossier,
+      listerEvenementsPhaseDossier,
       listerMessages,
       modifierDossier,
-      modifierDécisionAdministrativeDansDossier,
-      créerÉvènementMetrique,
-      identité,
+      modifierDecisionAdministrativeDansDossier,
+      creerEvenementMetrique,
+      identite,
       listerNotifications,
       updateNotificationForDossier,
     ]) => {
-      const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAccès>> = {
+      const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>> = {
         remplirAnnotations: undefined,
         listerDossiers,
-        recupérerDossierComplet,
+        recupérerDossierComplet: recupererDossierComplet,
         listerRelationSuivi,
         modifierRelationSuivi,
-        listerÉvènementsPhaseDossier,
+        listerÉvènementsPhaseDossier: listerEvenementsPhaseDossier,
         listerMessages,
         modifierDossier,
-        identité: identité
-          ? { email: identité.email, estAdmin: isAdminEmail(identité.email) }
+        identité: identite
+          ? { email: identite.email, estAdmin: isAdminEmail(identite.email) }
           : undefined,
-        créerÉvènementMetrique,
-        modifierDécisionAdministrativeDansDossier,
+        créerÉvènementMetrique: creerEvenementMetrique,
+        modifierDecisionAdministrativeDansDossier,
         listerNotifications,
         updateNotificationForDossier,
       };
@@ -172,18 +172,18 @@ export async function getRelationSuivis(
   }));
 }
 
-export async function getRésultatsSynchronisationDS88444(
+export async function getResultatsSynchronisationDS88444(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<RésultatSynchronisationDS88444[]> {
+): Promise<ResultatSynchronisationDS88444[]> {
   return databaseConnection("résultat_synchronisation_DS_88444").select("*");
 }
 
-export async function addRésultatSynchronisationDS88444(
-  résultatSynchro: RésultatSynchronisationDS88444,
+export async function addResultatSynchronisationDS88444(
+  resultatSynchro: ResultatSynchronisationDS88444,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
   return databaseConnection("résultat_synchronisation_DS_88444")
-    .insert([résultatSynchro])
+    .insert([resultatSynchro])
     .onConflict("succès")
     .merge();
 }

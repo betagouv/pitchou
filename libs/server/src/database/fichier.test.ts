@@ -18,7 +18,7 @@ import * as fileModule from "./file.ts";
 import {
   loadFichierContent,
   stockerNouveauFichier,
-  supprimerFichiersSansAutresRéférences,
+  supprimerFichiersSansAutresReferences,
 } from "./fichier.js";
 import { fakeDatabase } from "./fakeDatabase.js";
 
@@ -122,10 +122,10 @@ describe("loadFichierContent", () => {
   });
 });
 
-describe("supprimerFichiersSansAutresRéférences", () => {
+describe("supprimerFichiersSansAutresReferences", () => {
   it("returns [] without queries when the input list is empty", async () => {
     const db = fakeDatabase().build();
-    const result = await supprimerFichiersSansAutresRéférences([], db.knex);
+    const result = await supprimerFichiersSansAutresReferences([], db.knex);
     expect(result).toEqual([]);
     expect(db.table).not.toHaveBeenCalled();
   });
@@ -137,7 +137,7 @@ describe("supprimerFichiersSansAutresRéférences", () => {
     deleteObject.mockResolvedValue();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresRéférences(["file-1"], db.knex);
+    const result = await supprimerFichiersSansAutresReferences(["file-1"], db.knex);
 
     expect(result).toEqual(["file-1"]);
     expect(deleteFile).toHaveBeenCalledWith("file-1", db.knex);
@@ -151,7 +151,7 @@ describe("supprimerFichiersSansAutresRéférences", () => {
       .build();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresRéférences(["file-1"], db.knex);
+    const result = await supprimerFichiersSansAutresReferences(["file-1"], db.knex);
 
     expect(result).toEqual([]);
     expect(deleteFile).not.toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe("supprimerFichiersSansAutresRéférences", () => {
 
     await expect(
       // @ts-ignore branded id
-      supprimerFichiersSansAutresRéférences(["file-1"], db.knex),
+      supprimerFichiersSansAutresReferences(["file-1"], db.knex),
     ).resolves.toEqual(["file-1"]);
 
     expect(errSpy).toHaveBeenCalled();

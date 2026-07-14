@@ -68,13 +68,13 @@
       }
     }
 
-    const avisExpertÀAjouterOuModifier = avisExpertInitial?.id
+    const avisExpertAAjouterOuModifier = avisExpertInitial?.id
       ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert }
       : { dossier: dossierId, ...avisExpert };
 
-    if (avisExpertÀAjouterOuModifier) {
+    if (avisExpertAAjouterOuModifier) {
       chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(
-        avisExpertÀAjouterOuModifier,
+        avisExpertAAjouterOuModifier,
         fichierSaisine,
         fichierAvis,
       )

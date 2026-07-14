@@ -5,7 +5,7 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
   return {
     ...actual,
     stockerNouveauFichier: vi.fn(),
-    supprimerFichiersSansAutresRéférences: vi.fn(),
+    supprimerFichiersSansAutresReferences: vi.fn(),
   };
 });
 
@@ -14,7 +14,7 @@ import {
   modifierAvisExpert,
   supprimerAvisExpert,
 } from "./avis_expert.ts";
-import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
+import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -30,7 +30,7 @@ const newSaisine = "new-saisine" as FileId;
 const newAvis = "new-avis" as FileId;
 
 const stocker = vi.mocked(stockerNouveauFichier);
-const supprimer = vi.mocked(supprimerFichiersSansAutresRéférences);
+const supprimer = vi.mocked(supprimerFichiersSansAutresReferences);
 
 beforeEach(() => {
   stocker.mockReset();
@@ -62,7 +62,7 @@ describe("supprimerAvisExpert", () => {
     expect(supprimer).not.toHaveBeenCalled();
   });
 
-  it("cleans up the saisine + avis fichiers via supprimerFichiersSansAutresRéférences", async () => {
+  it("cleans up the saisine + avis fichiers via supprimerFichiersSansAutresReferences", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: fSaisine, avis_fichier: fAvis }])
       .build();

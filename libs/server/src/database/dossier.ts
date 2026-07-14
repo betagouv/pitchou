@@ -2,34 +2,34 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
-import { getDécisionsAdministratives } from "./décision_administrative.ts";
+import { getDecisionsAdministratives } from "./decision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
-import { getContrôles } from "./controle.ts";
+import { getControles } from "./controle.ts";
 import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
-import type { default as ÉvènementPhaseDossier } from "@pitchou/types/database/public/ÉvènementPhaseDossier.ts";
+import type { default as EvenementPhaseDossier } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type {
   default as AvisExpert,
   AvisExpertInitializer,
 } from "@pitchou/types/database/public/AvisExpert.ts";
-import type { default as DécisionAdministrative } from "@pitchou/types/database/public/DécisionAdministrative.ts";
+import type { default as DecisionAdministrative } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
-import type { default as Contrôle } from "@pitchou/types/database/public/Contrôle.ts";
+import type { default as Controle } from "@pitchou/types/database/public/Controle.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
-import type * as API_DS_SCHEMA from "@pitchou/types/démarche-numérique/apiSchema.ts";
+import type * as API_DS_SCHEMA from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type {
   DossierPourInsert,
   DossierPourUpdate,
-} from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
+} from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
-import type ArTePersonneSuitDossier from "@pitchou/types/database/public/ArêtePersonneSuitDossier.ts";
+import type AretePersonneSuitDossier from "@pitchou/types/database/public/AretePersonneSuitDossier.ts";
 import type {
   DossierComplet,
-  DossierRésumé,
-  FrontEndDécisionAdministrative,
+  DossierResume,
+  FrontEndDecisionAdministrative,
   FrontEndFichier,
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
@@ -38,9 +38,9 @@ import type { AttachmentAutreWithFileDescription } from "./attachmentAutre.ts";
 import type File from "@pitchou/types/database/public/File.ts";
 
 /**
- * Récupérer les id Pitchou à partir des id DS (pas les numéro)
+ * Fetch the Pitchou ids from the DS ids (not the numéro)
  *
- * PPP : c'est un peu bizarre d'utiliser les ids DS, on pourrait utiliser les numéros
+ * PPP: it's a bit weird to use the DS ids, we could use the numéros
  */
 export function getDossierIdsFromDS_Ids(
   DS_ids: Dossier["id_demarches_simplifiées"][],
@@ -107,7 +107,7 @@ async function getDecisionsAdministrativesNotInDB(
   const fichiers = decisions
     .map((decision) => decision.fichier)
     .filter(
-      (fichier): fichier is NonNullable<DécisionAdministrative["fichier"]> =>
+      (fichier): fichier is NonNullable<DecisionAdministrative["fichier"]> =>
         fichier !== undefined && fichier !== null,
     );
 
@@ -158,7 +158,7 @@ export async function dumpDossiers(
 
   let updatePromises: Knex.QueryBuilder<any, any>[] = [];
 
-  const arêtePersonneSuitDossierDossier: ArTePersonneSuitDossier[] = [];
+  const aretePersonneSuitDossierDossier: AretePersonneSuitDossier[] = [];
 
   let avisExpertDossier: PartialBy<AvisExpertInitializer, "dossier">[] = [];
 
@@ -171,31 +171,31 @@ export async function dumpDossiers(
     });
   }
 
-  let synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP: Promise<any> = Promise.resolve([]);
+  let synchroniserPersonnesEtRelationsSuiviPourDossiersInseresP: Promise<any> = Promise.resolve([]);
 
   if (dossiersPourInsert.length >= 1) {
     let insertedDossierIds: { id: DossierId }[] = await databaseConnection("dossier")
       .insert(dossiersPourInsert.map((tables) => tables.dossier))
       .returning(["id"]);
 
-    const toutesLesPersonnesQuiSuivent = await synchroniserEtRetournerPersonnesPourDossiersInsérer(
+    const toutesLesPersonnesQuiSuivent = await synchroniserEtRetournerPersonnesPourDossiersInserer(
       dossiersPourInsert,
       databaseConnection,
     );
 
     if (toutesLesPersonnesQuiSuivent.length >= 1) {
-      insertedDossierIds.forEach((dossierInséréId, index) => {
+      insertedDossierIds.forEach((dossierInsereId, index) => {
         const { personnes_qui_suivent, évènement_phase_dossier } = dossiersPourInsert[index];
         const emailsQuiSuivent = new Set(personnes_qui_suivent?.map((p) => p.email));
 
-        //Attention, ici il y a un risque de problèmes de performance avec le filter
+        //Warning, here there is a risk of performance problems with the filter
         const personnesQuiSuiventCeDossier = toutesLesPersonnesQuiSuivent.filter(
           (p) => p.email && emailsQuiSuivent.has(p.email),
         );
 
         personnesQuiSuiventCeDossier.forEach((personne) => {
-          arêtePersonneSuitDossierDossier.push({
-            dossier: dossierInséréId.id,
+          aretePersonneSuitDossierDossier.push({
+            dossier: dossierInsereId.id,
             personne: personne.id,
           });
         });
@@ -203,7 +203,7 @@ export async function dumpDossiers(
         if (personnesQuiSuiventCeDossier.length >= 1) {
           évènement_phase_dossier.forEach((ev) => {
             if (!ev.cause_personne) {
-              // Dans le front-end, on souhaite afficher les évènements phases avec une cause_personne non nulle.
+              // In the front-end, we want to display the phase events with a non-null cause_personne.
               ev.cause_personne = personnesQuiSuiventCeDossier[0].id;
             }
           });
@@ -216,45 +216,45 @@ export async function dumpDossiers(
       .filter((x) => x !== undefined)
       .flat();
 
-    // Rajouter nouveaux les Dossier['id'] aux données qui en ont besoin
-    insertedDossierIds.forEach((dossierInséréId, index) => {
-      // suppose que postgres retourne les id dans le même ordre que le tableau passé à `.insert`
+    // Add the new Dossier['id'] to the data that needs it
+    insertedDossierIds.forEach((dossierInsereId, index) => {
+      // assumes that postgres returns the ids in the same order as the array passed to `.insert`
       const { évènement_phase_dossier, avis_expert, décision_administrative } =
         dossiersPourInsert[index];
 
       if (Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1) {
-        évènement_phase_dossier.forEach((ev) => (ev.dossier = dossierInséréId.id));
+        évènement_phase_dossier.forEach((ev) => (ev.dossier = dossierInsereId.id));
       }
       if (Array.isArray(avis_expert) && avis_expert.length >= 1) {
-        avis_expert.forEach((ae) => (ae.dossier = dossierInséréId.id));
+        avis_expert.forEach((ae) => (ae.dossier = dossierInsereId.id));
       }
       if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
-        décision_administrative.forEach((da) => (da.dossier = dossierInséréId.id));
+        décision_administrative.forEach((da) => (da.dossier = dossierInsereId.id));
       }
     });
   }
 
   const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert];
 
-  const évènementsPhaseDossier = tousLesDossiers
+  const evenementsPhaseDossier = tousLesDossiers
     .map((tables) => tables.évènement_phase_dossier)
     .filter((x) => x !== undefined)
     .flat();
 
-  const décisionAdministrativeDossier = tousLesDossiers
+  const decisionAdministrativeDossier = tousLesDossiers
     .map((tables) => tables.décision_administrative)
     .filter((x) => x !== undefined)
     .flat();
 
   const decisionsAdministrativesToInsert = await getDecisionsAdministrativesNotInDB(
-    décisionAdministrativeDossier,
+    decisionAdministrativeDossier,
     databaseConnection,
   );
 
   const databaseOperations = [
-    évènementsPhaseDossier.length > 0
+    evenementsPhaseDossier.length > 0
       ? databaseConnection("évènement_phase_dossier")
-          .insert(évènementsPhaseDossier)
+          .insert(evenementsPhaseDossier)
           .onConflict(["dossier", "phase", "horodatage"])
           .merge()
       : Promise.resolve([]),
@@ -267,14 +267,14 @@ export async function dumpDossiers(
       ? databaseConnection("décision_administrative").insert(decisionsAdministrativesToInsert)
       : Promise.resolve([]),
 
-    arêtePersonneSuitDossierDossier.length > 0
+    aretePersonneSuitDossierDossier.length > 0
       ? databaseConnection("arête_personne_suit_dossier")
-          .insert(arêtePersonneSuitDossierDossier)
+          .insert(aretePersonneSuitDossierDossier)
           .onConflict(["personne", "dossier"])
           .ignore()
       : Promise.resolve([]),
 
-    synchroniserPersonnesEtRelationsSuiviPourDossiersInsérésP,
+    synchroniserPersonnesEtRelationsSuiviPourDossiersInseresP,
 
     ...updatePromises,
   ];
@@ -315,7 +315,7 @@ export async function synchroniserDossierDansGroupeInstructeur(
   const dossierNumberDSToId = await dossierNumberDSToIdP;
   const groupeInstructeursLabelToId = await groupeInstructeursLabelToIdP;
 
-  const arêtesGroupeTnstructeurs_Dossier = dossierDS.map(
+  const aretesGroupeTnstructeurs_Dossier = dossierDS.map(
     // @ts-ignore
     ({ number, groupeInstructeur: { label } }) => {
       const dossierId = dossierNumberDSToId.get(String(number));
@@ -330,19 +330,19 @@ export async function synchroniserDossierDansGroupeInstructeur(
   );
 
   return databaseConnection("arête_groupe_instructeurs__dossier")
-    .insert(arêtesGroupeTnstructeurs_Dossier)
+    .insert(aretesGroupeTnstructeurs_Dossier)
     .onConflict("dossier")
     .merge(["groupe_instructeurs"]);
 }
 
 const colonnesDossierComplet: (keyof DossierComplet)[] = [
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "dossier.id as id",
   //"id_demarches_simplifiées",
   "number_demarches_simplifiées",
   "numéro_démarche",
   "date_dépôt",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "dossier.nom as nom",
   "description",
 
@@ -354,11 +354,11 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "motif_dérogation",
   "justification_motif_dérogation",
 
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "file_espèces_impactées.id as espèces_impactées_id",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "file_espèces_impactées.nom as espèces_impactées_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "file_espèces_impactées.media_type as espèces_impactées_media_type",
   "rattaché_au_régime_ae",
   "activité_principale",
@@ -369,76 +369,76 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "régions",
   "cartographie_projet",
 
-  // prochaine action attendue
+  // next expected action
   "prochaine_action_attendue_par",
 
   // déposant
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "déposant.nom as déposant_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "déposant.prénoms as déposant_prénoms",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "déposant.email as déposant_email",
 
   // demandeur_personne_physique
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.email as demandeur_personne_physique_email",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.address as demandeur_personne_physique_address",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.phone as demandeur_personne_physique_phone",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_physique.role as demandeur_personne_physique_role",
 
   // demandeur_personne_morale
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.siren as demandeur_personne_morale_siren",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.legal_form as demandeur_personne_morale_legal_form",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.naf_code as demandeur_personne_morale_naf_code",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.naf_label as demandeur_personne_morale_naf_label",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.creation_date as demandeur_personne_morale_creation_date",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.admin_status as demandeur_personne_morale_admin_status",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.headcount as demandeur_personne_morale_headcount",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.share_capital as demandeur_personne_morale_share_capital",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.insee_code as demandeur_personne_morale_insee_code",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.postal_code as demandeur_personne_morale_postal_code",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.department as demandeur_personne_morale_department",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "demandeur_personne_morale.region as demandeur_personne_morale_region",
 
-  // representative (personne en charge du projet au sein de la personne morale)
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  // representative (personne in charge of the project within the personne morale)
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "representative.nom as representative_nom",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "representative.prénoms as representative_prénoms",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "representative.email as representative_email",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "representative.phone as representative_phone",
-  //@ts-expect-error pas exactement une keyof DossierComplet, mais quand même
+  //@ts-expect-error not exactly a keyof DossierComplet, but still
   "representative.role as representative_role",
 
-  // annotations privées
+  // private annotations
   "ddep_nécessaire",
 
   "scientifique_type_demande",
@@ -494,9 +494,9 @@ export function listAllDossiersComplets(
     })
     .then((dossiers) => {
       for (const dossier of dossiers) {
-        const id_fichier_espèces_impactées = dossier.espèces_impactées_id;
-        if (id_fichier_espèces_impactées) {
-          dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_espèces_impactées}`;
+        const id_fichier_especes_impactees = dossier.espèces_impactées_id;
+        if (id_fichier_especes_impactees) {
+          dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_especes_impactees}`;
         }
       }
       return dossiers;
@@ -512,13 +512,13 @@ type AvisExpertAvecDescriptionsFichiers = AvisExpert & {
   saisine_fichier_taille: number | null;
 };
 
-type DécisionAdministrativeAvecDescriptionFichier = DécisionAdministrative & {
+type DecisionAdministrativeAvecDescriptionFichier = DecisionAdministrative & {
   fichier_nom: File["nom"];
   fichier_media_type: File["media_type"];
   fichier_taille: number | null;
 };
 
-function décrireFichier(
+function decrireFichier(
   id: File["id"] | null | undefined,
   nom: File["nom"],
   media_type: File["media_type"],
@@ -545,7 +545,7 @@ export async function getDossierComplet(
   let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
-    //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
+    //@ts-expect-error Knex is badly typed and does not understand that databaseConnection is of type Knex.Transaction
     transaction = databaseConnection;
   } else {
     transaction = await databaseConnection.transaction({ readOnly: true });
@@ -555,7 +555,7 @@ export async function getDossierComplet(
 
   if (!accessibleDossierId.has(dossierId)) {
     if (!databaseConnection.isTransaction) {
-      // transaction créée à la main, la libérer avant de throw
+      // transaction created by hand, release it before throwing
       await transaction.commit();
     }
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
@@ -594,7 +594,7 @@ export async function getDossierComplet(
     .andWhere({ "dossier.id": dossierId })
     .first();
 
-  const évènementsPhaseDossierP: Promise<ÉvènementPhaseDossier[]> = getÉvènementsPhaseDossier(
+  const evenementsPhaseDossierP: Promise<EvenementPhaseDossier[]> = getEvenementsPhaseDossier(
     dossierId,
     transaction,
   );
@@ -602,33 +602,33 @@ export async function getDossierComplet(
   const tousLesAvisExpertDossierP: Promise<AvisExpertAvecDescriptionsFichiers[]> =
     getAvisExpertDossier(dossierId, transaction);
 
-  const descriptionsPiècesJointesPétitionnaireP: Promise<
+  const descriptionsPiecesJointesPetitionnaireP: Promise<
     (Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]
-  > = getDescriptionsPiècesJointesPétitionnaire(dossierId, transaction);
+  > = getDescriptionsPiecesJointesPetitionnaire(dossierId, transaction);
 
-  const décisionsAdministrativesP: Promise<DécisionAdministrativeAvecDescriptionFichier[]> =
-    getDécisionAdministrativesDossier(dossierId, transaction);
+  const decisionsAdministrativesP: Promise<DecisionAdministrativeAvecDescriptionFichier[]> =
+    getDecisionAdministrativesDossier(dossierId, transaction);
   const attachmentAutresPromise: Promise<AttachmentAutreWithFileDescription[]> =
     getAttachmentAutresForDossier(dossierId, transaction);
-  const decisionIds = (await décisionsAdministrativesP).map((d) => d.id);
+  const decisionIds = (await decisionsAdministrativesP).map((d) => d.id);
 
   const prescriptionsP: Promise<Prescription[]> = getPrescriptions(decisionIds, transaction);
   const prescriptionIds = (await prescriptionsP).map((d) => d.id);
 
-  const contrôlesP: Promise<Contrôle[]> = getContrôles(prescriptionIds, transaction);
+  const controlesP: Promise<Controle[]> = getControles(prescriptionIds, transaction);
 
   if (!databaseConnection.isTransaction) {
-    // transaction locale à cette fonction
-    // nous la refermons donc manuellement
+    // transaction local to this function
+    // so we close it manually
     Promise.all([
       dossierP,
-      évènementsPhaseDossierP,
+      evenementsPhaseDossierP,
       tousLesAvisExpertDossierP,
-      descriptionsPiècesJointesPétitionnaireP,
-      décisionsAdministrativesP,
+      descriptionsPiecesJointesPetitionnaireP,
+      decisionsAdministrativesP,
       attachmentAutresPromise,
       prescriptionsP,
-      contrôlesP,
+      controlesP,
     ])
       .then(transaction.commit)
       .catch(transaction.rollback);
@@ -636,23 +636,23 @@ export async function getDossierComplet(
 
   return Promise.all([
     dossierP,
-    évènementsPhaseDossierP,
+    evenementsPhaseDossierP,
     tousLesAvisExpertDossierP,
-    descriptionsPiècesJointesPétitionnaireP,
-    décisionsAdministrativesP,
+    descriptionsPiecesJointesPetitionnaireP,
+    decisionsAdministrativesP,
     attachmentAutresPromise,
     prescriptionsP,
-    contrôlesP,
+    controlesP,
   ]).then(
     ([
       dossier,
-      évènementsPhaseDossier,
+      evenementsPhaseDossier,
       tousLesAvisExpertDossier,
-      descriptionsPiècesJointesPétitionnaire,
-      décisionsAdministratives,
+      descriptionsPiecesJointesPetitionnaire,
+      decisionsAdministratives,
       attachmentAutres,
       prescriptions,
-      contrôles,
+      controles,
     ]) => {
       dossier.demandeur_adresse =
         dossier.demandeur_personne_morale_adresse ||
@@ -660,7 +660,7 @@ export async function getDossierComplet(
         "";
       delete dossier.demandeur_personne_morale_adresse;
 
-      dossier.évènementsPhase = évènementsPhaseDossier;
+      dossier.évènementsPhase = evenementsPhaseDossier;
 
       dossier.avisExpert = tousLesAvisExpertDossier.map(
         ({
@@ -674,14 +674,14 @@ export async function getDossierComplet(
           saisine_fichier_taille,
           ...avisExpert
         }) => {
-          const avisFichierDescription = décrireFichier(
+          const avisFichierDescription = decrireFichier(
             avis_fichier,
             avis_fichier_nom,
             avis_fichier_media_type,
             avis_fichier_taille,
             "/avis-expert/fichier",
           );
-          const saisineFichierDescription = décrireFichier(
+          const saisineFichierDescription = decrireFichier(
             saisine_fichier,
             saisine_fichier_nom,
             saisine_fichier_media_type,
@@ -699,7 +699,7 @@ export async function getDossierComplet(
         },
       );
 
-      dossier.piècesJointesPétitionnaires = descriptionsPiècesJointesPétitionnaire.map(
+      dossier.piècesJointesPétitionnaires = descriptionsPiecesJointesPetitionnaire.map(
         ({ id, DS_createdAt, nom, media_type, taille }) => ({
           url: `/piece-jointe-petitionnaire/fichier/${id}`,
           DS_createdAt,
@@ -725,31 +725,31 @@ export async function getDossierComplet(
       delete dossier.espèces_impactées_media_type;
       delete dossier.espèces_impactées_nom;
 
-      const contrôlesParPrescriptionId: Map<Prescription["id"], Contrôle[]> = new Map();
-      for (const c of contrôles) {
+      const controlesParPrescriptionId: Map<Prescription["id"], Controle[]> = new Map();
+      for (const c of controles) {
         const id = c.prescription;
-        const contrôlesPourCetId = contrôlesParPrescriptionId.get(id) || [];
-        contrôlesPourCetId.push(c);
-        contrôlesParPrescriptionId.set(id, contrôlesPourCetId);
+        const controlesPourCetId = controlesParPrescriptionId.get(id) || [];
+        controlesPourCetId.push(c);
+        controlesParPrescriptionId.set(id, controlesPourCetId);
       }
 
-      const prescriptionsParDécisionId: Map<DécisionAdministrative["id"], FrontEndPrescription[]> =
+      const prescriptionsParDecisionId: Map<DecisionAdministrative["id"], FrontEndPrescription[]> =
         new Map();
       for (const p of prescriptions) {
-        const contrôles = contrôlesParPrescriptionId.get(p.id);
+        const controles = controlesParPrescriptionId.get(p.id);
         // @ts-ignore p devient un FrontEndPrescription
-        p.contrôles = contrôles;
+        p.contrôles = controles;
 
         const id = p.décision_administrative;
-        const prescrPourCetId = prescriptionsParDécisionId.get(id) || [];
+        const prescrPourCetId = prescriptionsParDecisionId.get(id) || [];
 
         // @ts-ignore p est devenu un FrontEndPrescription
         prescrPourCetId.push(p);
-        prescriptionsParDécisionId.set(id, prescrPourCetId);
+        prescriptionsParDecisionId.set(id, prescrPourCetId);
       }
 
-      if (décisionsAdministratives.length >= 1) {
-        dossier.décisionsAdministratives = décisionsAdministratives.map(
+      if (decisionsAdministratives.length >= 1) {
+        dossier.décisionsAdministratives = decisionsAdministratives.map(
           ({
             id,
             numéro,
@@ -762,7 +762,7 @@ export async function getDossierComplet(
             fichier_taille,
             dossier,
           }) => {
-            const fichierDescription = décrireFichier(
+            const fichierDescription = decrireFichier(
               fichier,
               fichier_nom,
               fichier_media_type,
@@ -776,7 +776,7 @@ export async function getDossierComplet(
               type,
               date_signature,
               date_fin_obligations,
-              prescriptions: prescriptionsParDécisionId.get(id),
+              prescriptions: prescriptionsParDecisionId.get(id),
               fichier_url: fichierDescription?.url,
               fichier_description: fichierDescription,
               dossier,
@@ -787,7 +787,7 @@ export async function getDossierComplet(
 
       dossier.attachmentAutres = attachmentAutres.map(
         ({ fichier, fichier_nom, fichier_media_type, fichier_taille, ...attachment }) => {
-          const fileDescription = décrireFichier(
+          const fileDescription = decrireFichier(
             fichier,
             fichier_nom,
             fichier_media_type,
@@ -809,13 +809,13 @@ export async function getDossierComplet(
   );
 }
 
-const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+const colonnesDossierResume: (keyof DossierResume)[] = [
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "dossier.id as id",
   //"id_demarches_simplifiées",
   "number_demarches_simplifiées",
   "date_dépôt",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "dossier.nom as nom",
   "rattaché_au_régime_ae",
   "activité_principale",
@@ -825,25 +825,25 @@ const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   "communes",
   "régions",
 
-  // prochaine action attendue
+  // next expected action
   "prochaine_action_attendue_par",
 
   // déposant
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "déposant.nom as déposant_nom",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "déposant.prénoms as déposant_prénoms",
 
   // demandeur_personne_physique
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
 
   // demandeur_personne_morale
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error pas exactement une keyof DossierRésumé, mais quand même
+  //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
 
   "enjeu",
@@ -853,21 +853,21 @@ const colonnesDossierRésumé: (keyof DossierRésumé)[] = [
   "historique_identifiant_demande_onagre",
 ];
 
-export async function getDossiersRésumésByCap(
+export async function getDossiersResumesByCap(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierRésumé[]> {
+): Promise<DossierResume[]> {
   let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
-    //@ts-expect-error Knex est mal typé et ne comprend pas que databaseConnection est de type Knex.Transaction
+    //@ts-expect-error Knex is badly typed and does not understand that databaseConnection is of type Knex.Transaction
     transaction = databaseConnection;
   } else {
     transaction = await databaseConnection.transaction({ readOnly: true });
   }
 
-  const dossiersP: Promise<DossierRésumé[]> = transaction("dossier")
-    .select(colonnesDossierRésumé)
+  const dossiersP: Promise<DossierResume[]> = transaction("dossier")
+    .select(colonnesDossierResume)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
@@ -884,48 +884,48 @@ export async function getDossiersRésumésByCap(
     })
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap });
 
-  const évènementsPhaseDossierP = getDerniersÉvènementsPhaseDossiers(cap, transaction);
+  const evenementsPhaseDossierP = getDerniersEvenementsPhaseDossiers(cap, transaction);
 
-  const décisionsAdministrativesP = getDécisionsAdministratives(cap, transaction);
+  const decisionsAdministrativesP = getDecisionsAdministratives(cap, transaction);
 
-  const result = Promise.all([dossiersP, évènementsPhaseDossierP, décisionsAdministrativesP]).then(
-    ([dossiers, évènementsPhaseDossier, décisionsAdministratives]) => {
-      const évènementsPhaseDossierById: Map<Dossier["id"], ÉvènementPhaseDossier> = new Map();
+  const result = Promise.all([dossiersP, evenementsPhaseDossierP, decisionsAdministrativesP]).then(
+    ([dossiers, evenementsPhaseDossier, decisionsAdministratives]) => {
+      const evenementsPhaseDossierById: Map<Dossier["id"], EvenementPhaseDossier> = new Map();
 
-      for (const évènementPhaseDossier of évènementsPhaseDossier) {
-        évènementsPhaseDossierById.set(évènementPhaseDossier.dossier, évènementPhaseDossier);
+      for (const evenementPhaseDossier of evenementsPhaseDossier) {
+        evenementsPhaseDossierById.set(evenementPhaseDossier.dossier, evenementPhaseDossier);
       }
 
       for (const dossier of dossiers) {
-        const évènementPhaseDossier = évènementsPhaseDossierById.get(dossier.id);
+        const evenementPhaseDossier = evenementsPhaseDossierById.get(dossier.id);
 
-        if (évènementPhaseDossier) {
-          dossier.phase = évènementPhaseDossier.phase;
-          dossier.date_début_phase = évènementPhaseDossier.horodatage;
+        if (evenementPhaseDossier) {
+          dossier.phase = evenementPhaseDossier.phase;
+          dossier.date_début_phase = evenementPhaseDossier.horodatage;
         } else {
-          // dépôt du dossier
+          // dossier submission
           dossier.phase = "Accompagnement amont";
           dossier.date_début_phase = dossier.date_dépôt;
         }
       }
 
-      const décisionsAdministrativesById: Map<Dossier["id"], FrontEndDécisionAdministrative[]> =
+      const decisionsAdministrativesById: Map<Dossier["id"], FrontEndDecisionAdministrative[]> =
         new Map();
-      for (const décisionAdministrative of décisionsAdministratives) {
-        const décisionsAdministrativesPourCetId =
-          décisionsAdministrativesById.get(décisionAdministrative.dossier) || [];
-        décisionsAdministrativesPourCetId.push(décisionAdministrative);
-        décisionsAdministrativesById.set(
-          décisionAdministrative.dossier,
-          décisionsAdministrativesPourCetId,
+      for (const decisionAdministrative of decisionsAdministratives) {
+        const decisionsAdministrativesPourCetId =
+          decisionsAdministrativesById.get(decisionAdministrative.dossier) || [];
+        decisionsAdministrativesPourCetId.push(decisionAdministrative);
+        decisionsAdministrativesById.set(
+          decisionAdministrative.dossier,
+          decisionsAdministrativesPourCetId,
         );
       }
 
       for (const dossier of dossiers) {
-        const décisionAdministrative = décisionsAdministrativesById.get(dossier.id);
+        const decisionAdministrative = decisionsAdministrativesById.get(dossier.id);
 
-        if (décisionAdministrative) {
-          dossier.décisionsAdministratives = décisionAdministrative;
+        if (decisionAdministrative) {
+          dossier.décisionsAdministratives = decisionAdministrative;
         }
       }
 
@@ -934,9 +934,9 @@ export async function getDossiersRésumésByCap(
   );
 
   if (!databaseConnection.isTransaction) {
-    // transaction locale à cette fonction
-    // nous la refermons donc manuellement
-    Promise.all([dossiersP, évènementsPhaseDossierP])
+    // transaction local to this function
+    // so we close it manually
+    Promise.all([dossiersP, evenementsPhaseDossierP])
       .then(transaction.commit)
       .catch(transaction.rollback);
   }
@@ -970,13 +970,13 @@ export async function dossiersAccessibleViaCap(
 }
 
 /**
- * Récupère uniquement la phase actuelle (la plus récente) pour chaque dossier
- * La requête utilise une astuce à coup de distinctOn (spécifique à Postgresql) pour y arriver
+ * Fetches only the current (most recent) phase for each dossier
+ * The query uses a distinctOn trick (specific to Postgresql) to achieve this
  */
-export async function getDerniersÉvènementsPhaseDossiers(
+export async function getDerniersEvenementsPhaseDossiers(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<ÉvènementPhaseDossier[]> {
+): Promise<EvenementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
     .join("arête_groupe_instructeurs__dossier", {
@@ -989,10 +989,10 @@ export async function getDerniersÉvènementsPhaseDossiers(
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
     .distinctOn("dossier")
     .andWhere(function () {
-      // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
-      // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-      // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
-      // on ne veut pas le refléter côté interface
+      // DS creates bad "traitement" that are not phase changes
+      // We can detect them with 'DS_emailAgentTraitant IS NULL'
+      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // we don't want to reflect it on the interface side
       this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
     })
     .orderBy([
@@ -1001,10 +1001,10 @@ export async function getDerniersÉvènementsPhaseDossiers(
     ]);
 }
 
-export async function getÉvènementsPhaseDossiers(
+export async function getEvenementsPhaseDossiers(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<ÉvènementPhaseDossier[]> {
+): Promise<EvenementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
     .join("arête_groupe_instructeurs__dossier", {
@@ -1016,26 +1016,26 @@ export async function getÉvènementsPhaseDossiers(
     })
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
     .andWhere(function () {
-      // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
-      // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-      // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
-      // on ne veut pas le refléter côté interface
+      // DS creates bad "traitement" that are not phase changes
+      // We can detect them with 'DS_emailAgentTraitant IS NULL'
+      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // we don't want to reflect it on the interface side
       this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
     });
 }
 
-async function getÉvènementsPhaseDossier(
+async function getEvenementsPhaseDossier(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<ÉvènementPhaseDossier[]> {
+): Promise<EvenementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select("*")
     .where({ dossier: idDossier })
     .andWhere(function () {
-      // DS créé des mauvais "traitement" qui ne sont pas des changements de phase
-      // On peut les détecter avec 'DS_emailAgentTraitant IS NULL'
-      // Si un évènement_phase_dossier n'a ni de 'cause_personne' ni de 'DS_emailAgentTraitant',
-      // on ne veut pas le refléter côté interface
+      // DS creates bad "traitement" that are not phase changes
+      // We can detect them with 'DS_emailAgentTraitant IS NULL'
+      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // we don't want to reflect it on the interface side
       this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
     })
     .orderBy("horodatage", "desc");
@@ -1060,10 +1060,10 @@ async function getAvisExpertDossier(
     .where({ dossier: idDossier });
 }
 
-async function getDécisionAdministrativesDossier(
+async function getDecisionAdministrativesDossier(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DécisionAdministrativeAvecDescriptionFichier[]> {
+): Promise<DecisionAdministrativeAvecDescriptionFichier[]> {
   return databaseConnection("décision_administrative")
     .select([
       "décision_administrative.*",
@@ -1075,7 +1075,7 @@ async function getDécisionAdministrativesDossier(
     .where({ dossier: idDossier });
 }
 
-async function getDescriptionsPiècesJointesPétitionnaire(
+async function getDescriptionsPiecesJointesPetitionnaire(
   idDossier: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<(Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]> {
@@ -1104,37 +1104,37 @@ export function deleteDossierByDSNumber(numbers: number[]) {
 
 export function updateDossier(
   id: Dossier["id"],
-  dossierParams: Partial<Dossier & { évènementsPhase: ÉvènementPhaseDossier[] }>,
+  dossierParams: Partial<Dossier & { évènementsPhase: EvenementPhaseDossier[] }>,
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  let phaseAjoutée = Promise.resolve();
+  let phaseAjoutee = Promise.resolve();
 
   if (dossierParams.évènementsPhase) {
     for (const ev of dossierParams.évènementsPhase) {
       ev.cause_personne = causePersonne;
     }
 
-    phaseAjoutée = databaseConnection("évènement_phase_dossier").insert(
+    phaseAjoutee = databaseConnection("évènement_phase_dossier").insert(
       dossierParams.évènementsPhase,
     );
 
     delete dossierParams.évènementsPhase;
   }
 
-  let dossierÀJour = Promise.resolve();
+  let dossierAJour = Promise.resolve();
 
   if (Object.keys(dossierParams).length >= 1) {
-    dossierÀJour = databaseConnection("dossier").where({ id }).update(dossierParams);
+    dossierAJour = databaseConnection("dossier").where({ id }).update(dossierParams);
   }
 
-  return Promise.all([phaseAjoutée, dossierÀJour]);
+  return Promise.all([phaseAjoutee, dossierAJour]);
 }
 
 /**
- * Synchronise et retourne les personnes des dossiers à insérer.
+ * Synchronizes and returns the personnes of the dossiers to insert.
  */
-async function synchroniserEtRetournerPersonnesPourDossiersInsérer(
+async function synchroniserEtRetournerPersonnesPourDossiersInserer(
   dossiersPourInsert: DossierPourInsert[],
   databaseConnection: Knex.Transaction | Knex,
 ) {
@@ -1145,7 +1145,7 @@ async function synchroniserEtRetournerPersonnesPourDossiersInsérer(
     dossiersPourInsert
       .flatMap((dossier) => dossier.personnes_qui_suivent)
       .filter((x) => x != null)
-      // On ne sélectionne que les propriétés que l'on veut garder (pas code_accès)
+      // We only select the properties we want to keep (not code_accès)
       .map(({ email, nom, prénoms }) => ({
         email: email ? normalisationEmail(email) : null,
         nom,

@@ -1,6 +1,6 @@
 import { StringValues } from "./tools.d.ts";
 
-export type Règne = "Animalia" | "Plantae" | "Fungi" | "Chromista";
+export type Regne = "Animalia" | "Plantae" | "Fungi" | "Chromista";
 export type Classe =
   | "Aves"
   | "Amphibia"
@@ -31,8 +31,8 @@ export type ParClassification<T> = {
 };
 
 /**
- * Lignes du fichier TAXREF.txt (INPN)
- * Il peut y avoir plusieurs lignes avec le même CD_REF (mais différents CD_NOM) si l'espèce a des synonymes
+ * Rows of the TAXREF.txt file (INPN)
+ * There may be several rows with the same CD_REF (but different CD_NOM) if the species has synonyms
  */
 export interface TAXREF_ROW {
   CD_NOM: string;
@@ -40,13 +40,13 @@ export interface TAXREF_ROW {
   LB_NOM: string;
   NOM_VERN: string;
   CLASSE: Classe;
-  REGNE: Règne;
-  // incomplet
+  REGNE: Regne;
+  // incomplete
 }
 
 /**
- * Lignes du fichier BDC_STATUT.csv (INPN)
- * Il peut y avoir plusieurs lignes avec le même CD_NOM si l'espèce est protégées à plusieurs endroits
+ * Rows of the BDC_STATUT.csv file (INPN)
+ * There may be several rows with the same CD_NOM if the species is protected in several places
  */
 
 export interface BDC_STATUT_ROW {
@@ -57,7 +57,7 @@ export interface BDC_STATUT_ROW {
   CD_DOC: string;
   FULL_CITATION: string;
   DOC_URL: string;
-  // incomplet
+  // incomplete
 }
 
 export interface ProtectionDocument {
@@ -72,35 +72,35 @@ export interface StatutProtection {
 }
 
 /**
- * Lignes de la feuille Espèce Ministérielle du fichier espèces_ministérielles_cnpn (produit par Pitchou)
+ * Rows of the Espèce Ministérielle sheet of the espèces_ministérielles_cnpn file (produced by Pitchou)
  */
-export interface ESPÈCES_MINISTÉRIELLES_ROW {
+export interface ESPECES_MINISTERIELLES_ROW {
   "Nom vernaculaire": string;
   "Nom scientifique": string;
 }
 
 /**
- * Lignes de la feuille Espèces CNPN du fichier espèces_ministérielles_cnpn (produit par Pitchou)
+ * Rows of the Espèces CNPN sheet of the espèces_ministérielles_cnpn file (produced by Pitchou)
  */
-export interface ESPÈCES_CNPN_ROW {
+export interface ESPECES_CNPN_ROW {
   "Nom vernaculaire": string;
   "Nom scientifique": string;
 }
 
 /**
- * Espèce protégée telle que stockée dans la table `espece_protegee`
- * (une entrée par CD_REF, noms et statuts agrégés)
+ * Espèce protégée as stored in the `espece_protegee` table
+ * (one entry per CD_REF, with aggregated names and statuses)
  */
-export interface EspèceProtégée {
+export interface EspeceProtegee {
   CD_REF: TAXREF_ROW["CD_REF"];
-  // TAXREF_ROW['NOM_VERN'] contient parfois plusieurs noms. Ils sont séparés dans le set
+  // TAXREF_ROW['NOM_VERN'] sometimes contains several names. They are separated in the set
   nomsVernaculaires: Set<TAXREF_ROW["NOM_VERN"]>;
-  // plusieurs noms si plusieurs CD_NOM pour le même CD_REF
+  // several names if several CD_NOM for the same CD_REF
   nomsScientifiques: Set<TAXREF_ROW["LB_NOM"]>;
   classification: ClassificationEtreVivant;
-  // types de protection associées à cette espèce
+  // types of protection associated with this species
   CD_TYPE_STATUTS: Set<BDC_STATUT_ROW["CD_TYPE_STATUT"]>;
-  // liens vers les documents sources par statut de protection
+  // links to the source documents by protection status
   statutsProtection?: StatutProtection[];
   // Espèce ministérielle
   espèceMinistérielle: undefined | "O";
@@ -109,12 +109,12 @@ export interface EspèceProtégée {
 }
 
 /**
- * Les Set<string> deviennent des string séparés par des `,`
+ * The Set<string> become strings separated by `,`
  */
-export type EspèceProtégéeStrings = StringValues<EspèceProtégée>;
+export type EspeceProtegeeStrings = StringValues<EspeceProtegee>;
 
-// d'après la nomenclature pour le rapportage à la Commission Européenne
-export type CodeActivitéStandard =
+// based on the nomenclature for reporting to the European Commission
+export type CodeActiviteStandard =
   | "1"
   | "2"
   | "3"
@@ -133,41 +133,41 @@ export type CodeActivitéStandard =
   | "80"
   | "90";
 
-// pour quand on veut réunir ou séparer des activités
-export type CodeActivitéPitchou =
+// for when we want to merge or split activities
+export type CodeActivitePitchou =
   | "4-1-pitchou-aires"
   | "4-2-pitchou-nids"
   | "4-3-pitchou-œufs"
   | "mix-1-10-3-30-6-40";
 
-export type ImpactQuantifié =
+export type ImpactQuantifie =
   | `Nombre d'individus`
   | "Nids"
   | "Œufs"
   | "Surface habitat détruit (m²)";
 
-export interface ActivitéMenançante {
+export interface ActiviteMenancante {
   "Code rapportage européen": string;
   "Identifiant Pitchou": string;
   "Libellé activité directive européenne": string;
   "Libellé Pitchou": string;
   Méthode: "Oui" | "Non";
   "Moyen de poursuite": "Oui" | "Non";
-  // Données secondaires
+  // Secondary data
   "Nombre d'individus": "Oui" | "Non";
   Nids: "Oui" | "Non";
   Œufs: "Oui" | "Non";
   "Surface habitat détruit (m²)": "Oui" | "Non";
 }
 
-export interface MéthodeMenançante {
+export interface MethodeMenancante {
   Code: string;
   Espèces: ClassificationEtreVivant;
   "Libellé activité directive européenne": string;
   "Libellé Pitchou": string;
 }
 
-export interface MoyenDePoursuiteMenaçant {
+export interface MoyenDePoursuiteMenacant {
   Code: string;
   Espèces: ClassificationEtreVivant;
   "Libellé activité directive européenne": string;
@@ -175,20 +175,20 @@ export interface MoyenDePoursuiteMenaçant {
 }
 
 export interface EtreVivantAtteint {
-  espèce: EspèceProtégée;
+  espèce: EspeceProtegee;
   nombreIndividus?: string;
   surfaceHabitatDétruit?: number;
 }
 
 export interface EtreVivantAtteintJSON {
-  espèce: EspèceProtégée["CD_REF"];
-  espece?: EspèceProtégée["CD_REF"]; // deprecated
+  espèce: EspeceProtegee["CD_REF"];
+  espece?: EspeceProtegee["CD_REF"]; // deprecated
   nombreIndividus?: string;
   surfaceHabitatDétruit?: number;
 }
 
 export interface FloreAtteinte extends EtreVivantAtteint {
-  activité?: ActivitéMenançante;
+  activité?: ActiviteMenancante;
 }
 
 export interface FloreAtteinteJSON extends EtreVivantAtteintJSON {
@@ -196,9 +196,9 @@ export interface FloreAtteinteJSON extends EtreVivantAtteintJSON {
 }
 
 export interface FauneNonOiseauAtteinte extends EtreVivantAtteint {
-  activité?: ActivitéMenançante;
-  méthode?: MéthodeMenançante;
-  moyenDePoursuite?: MoyenDePoursuiteMenaçant;
+  activité?: ActiviteMenancante;
+  méthode?: MethodeMenancante;
+  moyenDePoursuite?: MoyenDePoursuiteMenacant;
 }
 
 export interface FauneNonOiseauAtteinteJSON extends EtreVivantAtteintJSON {
@@ -208,9 +208,9 @@ export interface FauneNonOiseauAtteinteJSON extends EtreVivantAtteintJSON {
 }
 
 export interface OiseauAtteint extends EtreVivantAtteint {
-  activité?: ActivitéMenançante;
-  méthode?: MéthodeMenançante;
-  moyenDePoursuite?: MoyenDePoursuiteMenaçant;
+  activité?: ActiviteMenancante;
+  méthode?: MethodeMenancante;
+  moyenDePoursuite?: MoyenDePoursuiteMenacant;
   nombreNids?: number;
   nombreOeufs?: number;
 }
@@ -226,25 +226,25 @@ export interface OiseauAtteintJSON extends EtreVivantAtteintJSON {
 export interface DescriptionImpact {
   nombreIndividus?: string;
   surfaceHabitatDétruit?: number;
-  activité?: ActivitéMenançante;
-  méthode?: MéthodeMenançante;
-  moyenDePoursuite?: MoyenDePoursuiteMenaçant;
+  activité?: ActiviteMenancante;
+  méthode?: MethodeMenancante;
+  moyenDePoursuite?: MoyenDePoursuiteMenacant;
   nombreNids?: number;
   nombreOeufs?: number;
 }
 
-export interface DescriptionMenacesEspèces {
+export interface DescriptionMenacesEspeces {
   oiseau: OiseauAtteint[];
   "faune non-oiseau": FauneNonOiseauAtteinte[];
   flore: FloreAtteinte[];
 }
 
-export interface DescriptionMenaceEspèceJSON {
+export interface DescriptionMenaceEspeceJSON {
   classification: ClassificationEtreVivant;
   etresVivantsAtteints: (OiseauAtteintJSON | FauneNonOiseauAtteinteJSON | FloreAtteinteJSON)[];
 }
 
-export interface EspèceSimplifiée {
-  CD_REF: EspèceProtégée["CD_REF"];
+export interface EspeceSimplifiee {
+  CD_REF: EspeceProtegee["CD_REF"];
   nom: string;
 }

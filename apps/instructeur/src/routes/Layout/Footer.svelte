@@ -12,10 +12,11 @@
     résultatsSynchronisationDS88444?: PitchouState["résultatsSynchronisationDS88444"];
   };
 
-  let { résultatsSynchronisationDS88444 = undefined }: Props = $props();
+  let { résultatsSynchronisationDS88444: resultatsSynchronisationDS88444 = undefined }: Props =
+    $props();
 
-  let dernièreSynchronisationRéussie = $derived(
-    résultatsSynchronisationDS88444 && résultatsSynchronisationDS88444.find((r) => r.succès),
+  let derniereSynchronisationReussie = $derived(
+    resultatsSynchronisationDS88444 && resultatsSynchronisationDS88444.find((r) => r.succès),
   );
 
   function formatDate(date: Date): string {
@@ -80,11 +81,11 @@
   {/snippet}
 
   {#snippet bottomExtra()}
-    {#if dernièreSynchronisationRéussie}
+    {#if derniereSynchronisationReussie}
       <li class="fr-footer__bottom-item">
         <span class="fr-footer__bottom-link">
           Dernière synchronisation avec DS&nbsp;:&nbsp;
-          <span>{formatDate(dernièreSynchronisationRéussie.horodatage)}</span>
+          <span>{formatDate(derniereSynchronisationReussie.horodatage)}</span>
         </span>
       </li>
     {/if}

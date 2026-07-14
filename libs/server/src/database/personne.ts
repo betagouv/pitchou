@@ -11,7 +11,7 @@ import type {
 } from "@pitchou/types/database/public/Personne.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
-export function créerPersonne(
+export function creerPersonne(
   personne: PersonneInitializer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
@@ -22,7 +22,7 @@ export function créerPersonne(
   return databaseConnection("personne").insert(normalised);
 }
 
-export function créerPersonnes(
+export function creerPersonnes(
   personnes: PersonneInitializer[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ id: Personne["id"] }[]> {
@@ -67,7 +67,7 @@ export function getPersonneByDossierCap(
     .first();
 }
 
-function updateCodeAccès(
+function updateCodeAcces(
   email: Personne["email"],
   code_accès: Personne["code_accès"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -75,29 +75,29 @@ function updateCodeAccès(
   return databaseConnection("personne").where({ email }).update({ code_accès });
 }
 
-export function créerPersonneOuMettreÀJourCodeAccès(
+export function creerPersonneOuMettreAJourCodeAcces(
   email: Personne["email"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<string> {
-  const codeAccès = randomBytes(32).toString("base64url");
+  const codeAcces = randomBytes(32).toString("base64url");
 
-  return créerPersonne(
+  return creerPersonne(
     {
       nom: "",
       prénoms: "",
       email,
-      code_accès: codeAccès,
+      code_accès: codeAcces,
     },
     databaseConnection,
   )
     .catch((err) => {
       // 23505 = unique_violation in PostgreSQL. Assume the email already exists.
       if (err?.code === "23505") {
-        return updateCodeAccès(email, codeAccès, databaseConnection);
+        return updateCodeAcces(email, codeAcces, databaseConnection);
       }
       throw err;
     })
-    .then(() => codeAccès);
+    .then(() => codeAcces);
 }
 
 export function listAllPersonnes(

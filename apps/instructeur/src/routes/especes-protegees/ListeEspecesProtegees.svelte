@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
@@ -21,7 +21,7 @@
   import EspecesGenerationModale from "./EspecesGenerationModale.svelte";
 
   type Props = {
-    especes: EspèceProtégée[];
+    especes: EspeceProtegee[];
   };
 
   let { especes }: Props = $props();

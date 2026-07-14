@@ -9,7 +9,7 @@ export interface GeoAPICommune {
   population: number;
 }
 
-export interface GeoAPIDépartement {
+export interface GeoAPIDepartement {
   nom: string;
   code: string;
 }

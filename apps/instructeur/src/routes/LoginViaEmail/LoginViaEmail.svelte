@@ -16,10 +16,10 @@
   let emailInProgress: Promise<unknown> | undefined = $state();
 
   const domaine = $derived(normalisationEmail(email).split("@")[1] ?? "");
-  const domaineAutorisé = $derived(authorizedEmailDomains.has(domaine));
+  const domaineAutorise = $derived(authorizedEmailDomains.has(domaine));
 
   function onSubmit() {
-    if (!domaineAutorisé) return;
+    if (!domaineAutorise) return;
     emailInProgress = envoiEmailConnexion(normalisationEmail(email));
   }
 </script>
@@ -52,25 +52,25 @@
 <div class="fr-grid-row fr-pb-6w fr-grid-row--center">
   <div class="fr-col-6">
     <form onsubmit={preventDefault(onSubmit)}>
-      <div class="fr-input-group" class:fr-input-group--error={domaine && !domaineAutorisé}>
+      <div class="fr-input-group" class:fr-input-group--error={domaine && !domaineAutorise}>
         <label class="fr-label" for="email">Adresse email</label>
         <input
           class="fr-input"
-          class:fr-input--error={domaine && !domaineAutorisé}
+          class:fr-input--error={domaine && !domaineAutorise}
           autocomplete="email"
           type="email"
           id="email"
-          aria-describedby={domaine && !domaineAutorisé ? "email-erreur" : undefined}
+          aria-describedby={domaine && !domaineAutorise ? "email-erreur" : undefined}
           bind:value={email}
         />
-        {#if domaine && !domaineAutorisé}
+        {#if domaine && !domaineAutorise}
           <p id="email-erreur" class="fr-error-text">
             Le domaine «&nbsp;{domaine}&nbsp;» ne fait pas partie des domaines autorisés à se
             connecter.
           </p>
         {/if}
       </div>
-      <button class="fr-btn fr-mt-2w" disabled={!domaineAutorisé}>
+      <button class="fr-btn fr-mt-2w" disabled={!domaineAutorise}>
         Obtenir un lien de connexion par email
       </button>
       {#if emailInProgress}

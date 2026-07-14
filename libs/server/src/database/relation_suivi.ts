@@ -43,7 +43,7 @@ export async function instructeurSuitDossier(
       dossier: dossierId,
     })
     .onConflict(["personne", "dossier"])
-    .ignore() // ignorer si la personne suit déjà le dossier, parce que c'est le résultat final qui compte
+    .ignore() // ignore if the personne already follows the dossier, because it's the final result that matters
     .then(() => undefined);
 }
 

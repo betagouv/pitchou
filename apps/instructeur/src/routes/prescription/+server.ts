@@ -6,7 +6,7 @@ import {
   modifierPrescription,
   getDossierIdFromPrescription,
 } from "@pitchou/server/database/prescription.ts";
-import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/décision_administrative.ts";
+import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {

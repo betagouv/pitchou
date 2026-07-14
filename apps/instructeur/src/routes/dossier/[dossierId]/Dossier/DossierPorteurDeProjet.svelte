@@ -8,7 +8,7 @@
 
   let { dossier }: Props = $props();
 
-  const NON_RENSEIGNÉ = "Non renseigné";
+  const NON_RENSEIGNE = "Non renseigné";
 
   const estPersonneMorale = $derived(Boolean(dossier.demandeur_personne_morale_siret));
 
@@ -26,7 +26,7 @@
     }
   });
 
-  const dateCréationFormatée = $derived.by(() => {
+  const dateCreationFormatee = $derived.by(() => {
     const date = dossier.demandeur_personne_morale_creation_date;
     if (!date) {
       return null;
@@ -39,7 +39,7 @@
 {#snippet champ(label: string, value: string | null | undefined, large = false)}
   <div class="champ" class:champ--large={large}>
     <dt>{label}</dt>
-    <dd class:adresse={large}>{value || NON_RENSEIGNÉ}</dd>
+    <dd class:adresse={large}>{value || NON_RENSEIGNE}</dd>
   </div>
 {/snippet}
 
@@ -51,7 +51,7 @@
         <CopyIconButton textToCopy={value} label="Copier" />
       {/if}
     </div>
-    <dd class="adresse">{value || NON_RENSEIGNÉ}</dd>
+    <dd class="adresse">{value || NON_RENSEIGNE}</dd>
   </div>
 {/snippet}
 
@@ -62,13 +62,13 @@
       {#if email}
         <a href={`mailto:${email}`}>{email}</a>
       {:else}
-        {NON_RENSEIGNÉ}
+        {NON_RENSEIGNE}
       {/if}
     </dd>
   </div>
 {/snippet}
 
-{#snippet carteDéposant()}
+{#snippet carteDeposant()}
   <section class="carte">
     <h3>Personne ayant déposé le dossier</h3>
     <dl class="grille grille--étroite">
@@ -94,7 +94,7 @@
         {@render champ("Forme juridique", dossier.demandeur_personne_morale_legal_form)}
         {@render champ("Libellé NAF", dossier.demandeur_personne_morale_naf_label)}
         {@render champ("État administratif", statutAdministratif)}
-        {@render champ("Date de création", dateCréationFormatée)}
+        {@render champ("Date de création", dateCreationFormatee)}
       </dl>
     </section>
 
@@ -125,7 +125,7 @@
       </div>
 
       <div class="fr-col-12 fr-col-md-4">
-        {@render carteDéposant()}
+        {@render carteDeposant()}
       </div>
     </div>
   {:else}
@@ -153,7 +153,7 @@
       </div>
 
       <div class="fr-col-12 fr-col-md-4">
-        {@render carteDéposant()}
+        {@render carteDeposant()}
       </div>
     </div>
   {/if}

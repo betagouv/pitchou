@@ -1,27 +1,27 @@
 import { eachWeekOfInterval, differenceInCalendarWeeks } from "date-fns";
 import { directDatabaseConnection } from "../database.ts";
-import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
 import { getFirstRetenuWeek } from "./aarri/niveau.ts";
 
 import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 
 /**
- * Correspond au jour d'une semaine
+ * Corresponds to the day of a week
  */
 type Semaine = string;
 
 /**
- * Calcule le nombre de personnes acquises sur Pitchou pour chaque semaine sur les 5 dernières semaines.
- * Une personne acquise est une personne qui s'est connectée au moins une fois.
+ * Computes the number of acquired persons on Pitchou for each week over the last 5 weeks.
+ * An acquired person is a person who has connected at least once.
  *
- * Pour l'instant, on considère que se connecter correspond à l'action "a cliqué sur un lien de connexion".
- * Par respect du RGPD, cet évènement sera perdu un an après son enregistrement.
- * Si c'est un problème, nous pourrons enregistrer l'évènement d'une autre manière pour ne pas perdre l'information.
+ * For now, we consider that connecting corresponds to the action "clicked on a connection link".
+ * Out of respect for the GDPR, this event will be lost one year after being recorded.
+ * If this is a problem, we could record the event in another way so as not to lose the information.
  */
 async function calculerIndicateurAcquis(
-  nbSemainesObservées: number,
+  nbSemainesObservees: number,
 ): Promise<Map<Semaine, number>> {
   const acquis = await directDatabaseConnection.raw(
     `
@@ -62,7 +62,7 @@ async function calculerIndicateurAcquis(
         limit :nb_semaines_observees; 
     `,
     {
-      nb_semaines_observees: nbSemainesObservées,
+      nb_semaines_observees: nbSemainesObservees,
     },
   );
 
@@ -72,15 +72,15 @@ async function calculerIndicateurAcquis(
 }
 
 /**
- * Une correspondance entre la date de la semaine concernée et le nombre de personnes cumulées ayant
- * atteint le seuil à cette date.
+ * A mapping between the date of the concerned week and the cumulative number of persons having
+ * reached the threshold at that date.
  */
-async function nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(
-  nombreSemainesObservées: number,
-  évènements: ÉvènementMétrique["type"][],
-  seuilNombreÉvènements: number,
+async function nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
+  nombreSemainesObservees: number,
+  evenements: EvenementMetrique["type"][],
+  seuilNombreEvenements: number,
 ): Promise<Map<string, number>> {
-  const requêteSQL = `
+  const requeteSQL = `
 -- personnes et le nombre évènement suivis par semaine
 with actions_par_personne as (select
 	personne,
@@ -127,10 +127,10 @@ order by date desc
 limit :nb_semaines_observees; 
         `;
 
-  const personnesParSemaines = await directDatabaseConnection.raw(requêteSQL, {
-    nb_semaines_observees: nombreSemainesObservées,
-    nb_seuil_actions: seuilNombreÉvènements,
-    evenements: directDatabaseConnection.raw(évènements.map(() => "?").join(", "), évènements),
+  const personnesParSemaines = await directDatabaseConnection.raw(requeteSQL, {
+    nb_semaines_observees: nombreSemainesObservees,
+    nb_seuil_actions: seuilNombreEvenements,
+    evenements: directDatabaseConnection.raw(evenements.map(() => "?").join(", "), evenements),
   });
 
   return new Map(
@@ -144,47 +144,47 @@ limit :nb_semaines_observees;
 }
 
 /**
- * Calcule le nombre de personnes actives sur Pitchou pour chaque semaine sur les X dernières semaines.
- * Une personne active est une personne qui a effectué au moins 5 actions de modifications sur une semaine.
+ * Computes the number of active persons on Pitchou for each week over the last X weeks.
+ * An active person is a person who has performed at least 5 modification actions in a week.
  */
-async function calculerIndicateurActif(nbSemainesObservées: number): Promise<Map<string, number>> {
-  return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(
-    nbSemainesObservées,
-    ÉVÈNEMENTS_MODIFICATIONS,
+async function calculerIndicateurActif(nbSemainesObservees: number): Promise<Map<string, number>> {
+  return nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
+    nbSemainesObservees,
+    EVENEMENTS_MODIFICATIONS,
     5,
   );
 }
 
 /**
- * Calcule le nombre de personnes qui ont créé un impact sur Pitchou pour chaque semaine
- * L'impact de Pitchou est mesuré par les retours à conformité
+ * Computes the number of persons who created an impact on Pitchou for each week
+ * Pitchou's impact is measured by the returns to conformity
  *
- * Une correspondance entre la date de la semaine concernée et le nombre de personne
- * ayant un "impact" à cette date
+ * A mapping between the date of the concerned week and the number of persons
+ * having an "impact" at that date
  */
-async function calculerIndicateurImpact(nbSemainesObservées: number): Promise<Map<string, number>> {
+async function calculerIndicateurImpact(nbSemainesObservees: number): Promise<Map<string, number>> {
   /*
-        Avoir de l'impact, c'est de faire au moins un contrôle qui produit un retour à la conformité
-        donc un contrôle Conforme qui arrive après un contrôle qui est autre chose que Conforme
+        Having an impact means performing at least one control that produces a return to conformity
+        so a Conforme control that comes after a control that is something other than Conforme
     */
 
-  const évènements: ÉvènementMétrique["type"][] = ["retourÀLaConformité"];
+  const evenements: EvenementMetrique["type"][] = ["retourÀLaConformité"];
 
-  return nombrePersonnesAyantAtteintSeuilDÉvènmentsParSemaine(nbSemainesObservées, évènements, 1);
+  return nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(nbSemainesObservees, evenements, 1);
 }
 
 /**
- * Calcule le nombre de personnes retenues sur Pitchou pour chaque semaine depuis toujours (bien qu'on rappelle que la durée de stockage de ces données est d'un an).
- * Une personne retenue est une personne qui renouvelle 5 actions consultation ou modification sur une semaine sur au moins 5 des 8 dernières semaines.
+ * Computes the number of retained persons on Pitchou for each week since the beginning (though we recall that the storage duration of this data is one year).
+ * A retained person is a person who repeats 5 consultation or modification actions in a week over at least 5 of the last 8 weeks.
  *
- * On décide de regarder le nombre de semaines validées sur une période de 8 semaines pour tenir compte des congés des instructrices (utilisateurices).
+ * We decide to look at the number of validated weeks over an 8-week period to account for the leave of the instructrices (utilisateurices).
  */
 async function calculerIndicateurRetenu(start: Date): Promise<Map<Semaine, number>> {
-  // Paramètres de la condition de rétention
-  const évènements = [...ÉVÈNEMENTS_CONSULTATIONS, ...ÉVÈNEMENTS_MODIFICATIONS];
-  const nombreSemainesGlissantesÀObserver = 8;
+  // Parameters of the retention condition
+  const evenements = [...EVENEMENTS_CONSULTATIONS, ...EVENEMENTS_MODIFICATIONS];
+  const nombreSemainesGlissantesAObserver = 8;
   const nombreSeuilActionsParSemaine = 5;
-  const nombreSeuilSemainesValidées = 5;
+  const nombreSeuilSemainesValidees = 5;
 
   const semaines: Semaine[] = eachWeekOfInterval(
     {
@@ -196,7 +196,7 @@ async function calculerIndicateurRetenu(start: Date): Promise<Map<Semaine, numbe
     },
   ).map((semaine) => semaine.toISOString());
 
-  const retourRequête: { rows: { personne: string; nombre_actions: string; semaine: Semaine }[] } =
+  const retourRequete: { rows: { personne: string; nombre_actions: string; semaine: Semaine }[] } =
     await directDatabaseConnection.raw(
       `
         -- personnes et le nombre évènement d'action de modif/consult par semaine
@@ -211,70 +211,70 @@ and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine;
         `,
       {
-        evenements: directDatabaseConnection.raw(évènements.map(() => "?").join(", "), évènements),
+        evenements: directDatabaseConnection.raw(evenements.map(() => "?").join(", "), evenements),
       },
     );
 
   // @ts-ignore
-  const retourRequêteFormattée: {
+  const retourRequeteFormattee: {
     personne: PersonneId;
     nombre_actions: number;
     semaine: Semaine;
-  }[] = retourRequête.rows.map((row) => ({
+  }[] = retourRequete.rows.map((row) => ({
     personne: Number(row.personne),
     nombre_actions: Number(row.nombre_actions),
     // @ts-ignore
     semaine: row.semaine.toISOString(),
   }));
 
-  const résultatsParPersonne: Map<PersonneId, Map<Semaine, number>> = new Map();
+  const resultatsParPersonne: Map<PersonneId, Map<Semaine, number>> = new Map();
 
-  for (const { personne, nombre_actions, semaine } of retourRequêteFormattée) {
+  for (const { personne, nombre_actions, semaine } of retourRequeteFormattee) {
     const nombreActionsParSemaine: Map<Semaine, number> =
-      résultatsParPersonne.get(personne) || new Map();
+      resultatsParPersonne.get(personne) || new Map();
     nombreActionsParSemaine.set(semaine, nombre_actions);
-    résultatsParPersonne.set(personne, nombreActionsParSemaine);
+    resultatsParPersonne.set(personne, nombreActionsParSemaine);
   }
 
-  // Pour chaque personne, identifier la première semaine où elle a été retenue.
-  const premièreSemaineRetenuParPersonne: Map<PersonneId, Semaine> = new Map();
+  // For each person, identify the first week when they were retained.
+  const premiereSemaineRetenuParPersonne: Map<PersonneId, Semaine> = new Map();
 
-  résultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
+  resultatsParPersonne.forEach((nombreActionsParSemaine, personne) => {
     const semaineRetenue = getFirstRetenuWeek(
       nombreActionsParSemaine,
       nombreSeuilActionsParSemaine,
-      nombreSemainesGlissantesÀObserver,
+      nombreSemainesGlissantesAObserver,
       semaines,
-      nombreSeuilSemainesValidées,
+      nombreSeuilSemainesValidees,
     );
 
     if (semaineRetenue) {
-      premièreSemaineRetenuParPersonne.set(personne, semaineRetenue);
+      premiereSemaineRetenuParPersonne.set(personne, semaineRetenue);
     }
   });
 
-  //Calculer le nombre de personnes retenues par semaine
+  //Compute the number of retained persons per week
   const nombreRetenusParSemaine: Map<Semaine, number> = new Map();
 
-  const personnesPremièreFoisRetenueRegroupéesParSemaine: Map<Semaine, [PersonneId, Semaine][]> =
-    Map.groupBy([...premièreSemaineRetenuParPersonne], ([_, semaine]) => semaine);
+  const personnesPremiereFoisRetenueRegroupeesParSemaine: Map<Semaine, [PersonneId, Semaine][]> =
+    Map.groupBy([...premiereSemaineRetenuParPersonne], ([_, semaine]) => semaine);
 
-  personnesPremièreFoisRetenueRegroupéesParSemaine.forEach((value, cetteSemaine) => {
+  personnesPremiereFoisRetenueRegroupeesParSemaine.forEach((value, cetteSemaine) => {
     const nombrePersonnesRetenuesCetteSemaine = value.length;
     nombreRetenusParSemaine.set(cetteSemaine, nombrePersonnesRetenuesCetteSemaine);
   });
 
-  //Puis, on fait le cumul de nombre de retenu.e.s par semaine
-  const nombreRetenusCumulésParSemaine: Map<Semaine, number> = new Map();
+  //Then, we compute the cumulative number of retained persons per week
+  const nombreRetenusCumulesParSemaine: Map<Semaine, number> = new Map();
 
-  let nombreRetenusCumulés = 0;
-  for (const semaineObservée of semaines) {
-    nombreRetenusCumulés =
-      nombreRetenusCumulés + (nombreRetenusParSemaine.get(semaineObservée) ?? 0);
-    nombreRetenusCumulésParSemaine.set(semaineObservée, nombreRetenusCumulés);
+  let nombreRetenusCumules = 0;
+  for (const semaineObservee of semaines) {
+    nombreRetenusCumules =
+      nombreRetenusCumules + (nombreRetenusParSemaine.get(semaineObservee) ?? 0);
+    nombreRetenusCumulesParSemaine.set(semaineObservee, nombreRetenusCumules);
   }
 
-  return nombreRetenusCumulésParSemaine;
+  return nombreRetenusCumulesParSemaine;
 }
 
 /**
@@ -289,19 +289,19 @@ async function firstEventWeek(): Promise<Date | undefined> {
 }
 
 export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
-  const premièreSemaine = await firstEventWeek();
+  const premiereSemaine = await firstEventWeek();
 
   // Observe every week since the first event (with a small margin so the
   // oldest one is not truncated). Defaults to 5 weeks when there is no event.
-  const nbSemainesObservées = premièreSemaine
-    ? differenceInCalendarWeeks(new Date(), premièreSemaine, { weekStartsOn: 1 }) + 2
+  const nbSemainesObservees = premiereSemaine
+    ? differenceInCalendarWeeks(new Date(), premiereSemaine, { weekStartsOn: 1 }) + 2
     : 5;
 
   const indicateurs: IndicateursAARRI[] = [];
-  const acquis = await calculerIndicateurAcquis(nbSemainesObservées);
-  const actifs = await calculerIndicateurActif(nbSemainesObservées);
-  const retenus = await calculerIndicateurRetenu(premièreSemaine ?? new Date());
-  const impacts = await calculerIndicateurImpact(nbSemainesObservées);
+  const acquis = await calculerIndicateurAcquis(nbSemainesObservees);
+  const actifs = await calculerIndicateurActif(nbSemainesObservees);
+  const retenus = await calculerIndicateurRetenu(premiereSemaine ?? new Date());
+  const impacts = await calculerIndicateurImpact(nbSemainesObservees);
 
   const dates = acquis.keys();
 

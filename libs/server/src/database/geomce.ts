@@ -9,9 +9,9 @@ import { byteFormat } from "@pitchou/common/typeFormat.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { loadFichierContent } from "./fichier.ts";
 import {
-  construireActivitésMéthodesMoyensDePoursuite,
-  importDescriptionMenacesEspècesFromOdsArrayBuffer,
-} from "@pitchou/common/outils-espèces.ts";
+  construireActivitesMethodesMoyensDePoursuite,
+  importDescriptionMenacesEspecesFromOdsArrayBuffer,
+} from "@pitchou/common/outils-especes.ts";
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -19,54 +19,54 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { GeoMceMessage, DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
 import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
-import type { EspèceProtégée, DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 const DATA_DIR = join(import.meta.dirname, "../../../../data");
 
-const chargerActivitésMéthodesMoyensDePoursuite: () => Promise<
+const chargerActivitesMethodesMoyensDePoursuite: () => Promise<
   NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
-> = memoize(async function chargerActivitésMéthodesMoyensDePoursuite() {
-  const activitésBuffer = await readFile(
+> = memoize(async function chargerActivitesMethodesMoyensDePoursuite() {
+  const activitesBuffer = await readFile(
     join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
   );
-  return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
+  return await construireActivitesMethodesMoyensDePoursuite(activitesBuffer);
 });
 
-type EspèceParCD_REF = Map<EspèceProtégée["CD_REF"], EspèceProtégée>;
+type EspeceParCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
 
 // Cached per connection so the public endpoint does not re-query every espèce on
 // each request, while a different connection gets its own entry.
-const espèceParCD_REFParConnexion = new WeakMap<
+const especeParCD_REFParConnexion = new WeakMap<
   Knex.Transaction | Knex,
-  Promise<EspèceParCD_REF>
+  Promise<EspeceParCD_REF>
 >();
 
-function chargerListeEspèceParCD_REF(
+function chargerListeEspeceParCD_REF(
   databaseConnection: Knex.Transaction | Knex,
-): Promise<EspèceParCD_REF> {
-  let espèceByCD_REFP = espèceParCD_REFParConnexion.get(databaseConnection);
+): Promise<EspeceParCD_REF> {
+  let especeByCD_REFP = especeParCD_REFParConnexion.get(databaseConnection);
 
-  if (!espèceByCD_REFP) {
-    espèceByCD_REFP = getEspecesProtegees(databaseConnection)
+  if (!especeByCD_REFP) {
+    especeByCD_REFP = getEspecesProtegees(databaseConnection)
       .then(
         (lignes) => new Map(lignes.map((ligne) => [ligne.cd_ref, dbRowToEspeceProtegee(ligne)])),
       )
       .catch((error) => {
         // Don't keep a rejected promise cached
-        espèceParCD_REFParConnexion.delete(databaseConnection);
+        especeParCD_REFParConnexion.delete(databaseConnection);
         throw error;
       });
-    espèceParCD_REFParConnexion.set(databaseConnection, espèceByCD_REFP);
+    especeParCD_REFParConnexion.set(databaseConnection, especeByCD_REFP);
   }
 
-  return espèceByCD_REFP;
+  return especeByCD_REFP;
 }
 
 function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
-async function récupérerDossiersParIds(
+async function recupererDossiersParIds(
   idDossiers: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierPourGeoMCE[] | undefined> {
@@ -81,16 +81,16 @@ async function récupérerDossiersParIds(
     .whereIn("dossier.id", idDossiers)
     .orderBy("décision_administrative.date_signature", "asc")
     .then((dossiers) => {
-      // Cette requête retourne plusieurs lignes par dossier s'il y a plusieurs décision_administrative
-      // La fonction actuelle filtre pour n'avoir qu'une seule ligne
-      const idDéjàVus = new Set();
+      // This query returns several rows per dossier if there are several décision_administrative
+      // The current function filters to keep only a single row
+      const idDejaVus = new Set();
 
       return dossiers.filter((d) => {
         const id = d.id;
-        if (idDéjàVus.has(id)) {
+        if (idDejaVus.has(id)) {
           return false;
         } else {
-          idDéjàVus.add(id);
+          idDejaVus.add(id);
           return true;
         }
       });
@@ -115,52 +115,52 @@ async function récupérerDossiersParIds(
     });
 
   const [
-    espèceParCD_REF,
-    { activités, méthodes, moyensDePoursuite },
+    especeParCD_REF,
+    { activités: activites, méthodes: methodes, moyensDePoursuite },
     instructeursByDossierId,
     dossiers,
   ] = await Promise.all([
-    chargerListeEspèceParCD_REF(databaseConnection),
-    chargerActivitésMéthodesMoyensDePoursuite(),
+    chargerListeEspeceParCD_REF(databaseConnection),
+    chargerActivitesMethodesMoyensDePoursuite(),
     instructeursByDossierIdP,
     dossiersP,
   ]);
 
   // .ods (Pitchou template) and .xlsx are both parsed as impacted-espece files.
-  const mediaTypesEspèces = new Set([
+  const mediaTypesEspeces = new Set([
     "application/vnd.oasis.opendocument.spreadsheet",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ]);
 
   return await Promise.all(
     dossiers.map(async (dossier) => {
-      let descriptionEspèces: DescriptionMenacesEspèces = {
+      let descriptionEspeces: DescriptionMenacesEspeces = {
         oiseau: [],
         "faune non-oiseau": [],
         flore: [],
       };
 
-      const espècesImpactéesFileId = dossier.espèces_impactées as FileId | null;
-      const espècesImpactéesFile = espècesImpactéesFileId
-        ? await loadFichierContent(espècesImpactéesFileId, databaseConnection)
+      const especesImpacteesFileId = dossier.espèces_impactées as FileId | null;
+      const especesImpacteesFile = especesImpacteesFileId
+        ? await loadFichierContent(especesImpacteesFileId, databaseConnection)
         : null;
 
       if (
-        espècesImpactéesFile?.media_type &&
-        mediaTypesEspèces.has(espècesImpactéesFile?.media_type)
+        especesImpacteesFile?.media_type &&
+        mediaTypesEspeces.has(especesImpacteesFile?.media_type)
       ) {
         try {
-          descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
-            await arrayBuffer(espècesImpactéesFile.body),
-            espèceParCD_REF,
-            activités,
-            méthodes,
+          descriptionEspeces = await importDescriptionMenacesEspecesFromOdsArrayBuffer(
+            await arrayBuffer(especesImpacteesFile.body),
+            especeParCD_REF,
+            activites,
+            methodes,
             moyensDePoursuite,
           );
         } catch (e) {
           // @ts-ignore
           if (e.cause === "format incorrect") {
-            // ignorer
+            // ignore
           } else {
             console.error("Erreur lors de la génération du message GeoMCE. Dossier", idDossiers);
             console.error("Dossier", dossier);
@@ -180,18 +180,20 @@ async function récupérerDossiersParIds(
           };
         }),
         specimens_faunes: [
-          ...new Set((descriptionEspèces.oiseau || []).map(({ espèce }) => espèce)),
-          ...new Set((descriptionEspèces["faune non-oiseau"] || []).map(({ espèce }) => espèce)),
-        ].map((espèce) => {
+          ...new Set((descriptionEspeces.oiseau || []).map(({ espèce: espece }) => espece)),
+          ...new Set(
+            (descriptionEspeces["faune non-oiseau"] || []).map(({ espèce: espece }) => espece),
+          ),
+        ].map((espece) => {
           return {
-            nom_scientifique: espèce.nomsScientifiques.values().next().value,
+            nom_scientifique: espece.nomsScientifiques.values().next().value,
           };
         }),
         specimens_flores: [
-          ...new Set((descriptionEspèces.flore || []).map(({ espèce }) => espèce)),
-        ].map((espèce) => {
+          ...new Set((descriptionEspeces.flore || []).map(({ espèce: espece }) => espece)),
+        ].map((espece) => {
           return {
-            nom_scientifique: espèce.nomsScientifiques.values().next().value,
+            nom_scientifique: espece.nomsScientifiques.values().next().value,
           };
         }),
         ...dossier,
@@ -236,7 +238,7 @@ export function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): Geo
   };
 }
 
-async function listerDossiersPourDéclarationGeoMCE(
+async function listerDossiersPourDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"][]> {
   const dossiers = await databaseConnection("dossier")
@@ -251,13 +253,13 @@ async function listerDossiersPourDéclarationGeoMCE(
   return dossiers.map(({ id }) => id);
 }
 
-export async function générerDéclarationGeoMCE(
+export async function genererDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  const dossiers = await listerDossiersPourDéclarationGeoMCE(databaseConnection);
+  const dossiers = await listerDossiersPourDeclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
   const dossiersPourGeoMCE = (
-    (await récupérerDossiersParIds(dossiers, databaseConnection)) || []
+    (await recupererDossiersParIds(dossiers, databaseConnection)) || []
   ).filter((d) => d !== undefined);
 
   const messagesGeoMCE = dossiersPourGeoMCE.map(genererMessagesGeoMCE);

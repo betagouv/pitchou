@@ -17,15 +17,15 @@
     indicateursParDateP.then((indicateursParDate) => indicateursParDate[0]),
   );
 
-  // typage volontairement laxe : la valeur peut être Date (depuis l'option) ou "" (option par défaut)
-  let dateDébut: any = $state();
+  // typing intentionally loose: the value can be Date (from the option) or "" (default option)
+  let dateDebut: any = $state();
   let dateFin: any = $state();
 
   // Default comparison: from the earliest snapshot to today (the two extremes).
   untrack(() => indicateursParDateP).then((indicateursParDate) => {
     if (indicateursParDate.length > 0) {
       dateFin = indicateursParDate[0].date;
-      dateDébut = indicateursParDate[indicateursParDate.length - 1].date;
+      dateDebut = indicateursParDate[indicateursParDate.length - 1].date;
     }
   });
 
@@ -144,14 +144,14 @@
       {@const toutesLesDates = [...indicateursParDate]
         .map((indicateurs) => indicateurs.date)
         .sort((a, b) => +new Date(a) - +new Date(b))}
-      {@const datesDébutPossibles = toutesLesDates.filter(
+      {@const datesDebutPossibles = toutesLesDates.filter(
         (date) => !dateFin || +new Date(date) <= +new Date(dateFin),
       )}
       {@const datesFinPossibles = toutesLesDates.filter(
-        (date) => !dateDébut || +new Date(date) >= +new Date(dateDébut),
+        (date) => !dateDebut || +new Date(date) >= +new Date(dateDebut),
       )}
-      {@const indicateurDébut = indicateursParDate.find((indicateurs) =>
-        isSameDay(indicateurs.date, dateDébut),
+      {@const indicateurDebut = indicateursParDate.find((indicateurs) =>
+        isSameDay(indicateurs.date, dateDebut),
       )}
       {@const indicateurFin = indicateursParDate.find((indicateurs) =>
         isSameDay(indicateurs.date, dateFin),
@@ -160,25 +160,25 @@
         {
           phase: "Acquis",
           color: "var(--artwork-minor-brown-caramel)",
-          before: indicateurDébut?.nombreUtilisateuriceAcquis,
+          before: indicateurDebut?.nombreUtilisateuriceAcquis,
           after: indicateurFin?.nombreUtilisateuriceAcquis,
         },
         {
           phase: "Activé",
           color: "var(--artwork-minor-green-menthe)",
-          before: indicateurDébut?.nombreUtilisateuriceActif,
+          before: indicateurDebut?.nombreUtilisateuriceActif,
           after: indicateurFin?.nombreUtilisateuriceActif,
         },
         {
           phase: "Retenu",
           color: "var(--artwork-minor-yellow-moutarde)",
-          before: indicateurDébut?.nombreUtilisateuriceRetenu,
+          before: indicateurDebut?.nombreUtilisateuriceRetenu,
           after: indicateurFin?.nombreUtilisateuriceRetenu,
         },
         {
           phase: "Impact",
           color: "var(--artwork-minor-red-marianne)",
-          before: indicateurDébut?.nombreUtilisateuriceImpact,
+          before: indicateurDebut?.nombreUtilisateuriceImpact,
           after: indicateurFin?.nombreUtilisateuriceImpact,
         },
       ]}
@@ -197,8 +197,8 @@
         <div class="comparaison-dates">
           <div class="fr-select-group">
             <label class="fr-label" for="select-debut">De</label>
-            <select bind:value={dateDébut} class="fr-select" id="select-debut" name="select-debut">
-              {#each datesDébutPossibles as date}
+            <select bind:value={dateDebut} class="fr-select" id="select-debut" name="select-debut">
+              {#each datesDebutPossibles as date}
                 <option value={date}>{formatDateAbsolue(date)}</option>
               {/each}
             </select>
@@ -213,7 +213,7 @@
           </div>
         </div>
 
-        {#if indicateurDébut && indicateurFin}
+        {#if indicateurDebut && indicateurFin}
           <div class="fr-table" id="table-0-component">
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
@@ -221,13 +221,13 @@
                   <table id="table-0">
                     <caption class="fr-sr-only">
                       Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolue(
-                        dateDébut,
+                        dateDebut,
                       )} et {formatDateAbsolue(dateFin)}
                     </caption>
                     <thead>
                       <tr>
                         <th>Phase</th>
-                        <th>{formatDateAbsolue(dateDébut)}</th>
+                        <th>{formatDateAbsolue(dateDebut)}</th>
                         <th>{formatDateAbsolue(dateFin)}</th>
                         <th>Évolution</th>
                         <th>%</th>

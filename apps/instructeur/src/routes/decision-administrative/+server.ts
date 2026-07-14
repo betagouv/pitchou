@@ -1,23 +1,23 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { créerTransaction } from "@pitchou/server/database.ts";
+import { creerTransaction } from "@pitchou/server/database.ts";
 import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
-  modifierDécisionAdministrative,
-  ajouterDécisionAdministrativeAvecFichier,
-} from "@pitchou/server/database/décision_administrative.ts";
-import type { DécisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
+  modifierDecisionAdministrative,
+  ajouterDecisionAdministrativeAvecFichier,
+} from "@pitchou/server/database/decision_administrative.ts";
+import type { DecisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
-  const decisionData = (await request.json()) as DécisionAdministrativePourTransfer;
+  const decisionData = (await request.json()) as DecisionAdministrativePourTransfer;
 
   if (!decisionData.dossier) {
     error(400, `Le 'dossier' est absent des données de décision administrative`);
   }
 
-  const transaction = await créerTransaction();
+  const transaction = await creerTransaction();
   try {
     const dossiersAccessibles = await dossiersAccessibleViaCap(
       decisionData.dossier,
@@ -33,8 +33,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
 
     const id = decisionData.id
-      ? await modifierDécisionAdministrative(decisionData, transaction)
-      : await ajouterDécisionAdministrativeAvecFichier(decisionData, transaction);
+      ? await modifierDecisionAdministrative(decisionData, transaction)
+      : await ajouterDecisionAdministrativeAvecFichier(decisionData, transaction);
 
     await transaction.commit();
     return json(id);

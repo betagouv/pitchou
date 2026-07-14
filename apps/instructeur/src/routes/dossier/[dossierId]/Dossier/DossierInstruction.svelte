@@ -13,7 +13,7 @@
   import { modifierDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
@@ -85,7 +85,7 @@
   );
 
   /**
-   * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
+   * Converts the two fields ddep_nécessaire and mesures_er_suffisantes into a composite value for the select
    */
   function getDDEPValeurComposite():
     | "oui"
@@ -100,11 +100,11 @@
       } else if (mesures_er_suffisantes === true) {
         return "non_mesures_er_suffisantes";
       } else {
-        // Par défaut, si mesures_er_suffisantes est null et ddep_nécessaire est false, on considère que c'est "sans objet"
+        // By default, if mesures_er_suffisantes is null and ddep_nécessaire is false, we consider it "sans objet"
         return "non_sans_objet";
       }
     } else {
-      // ddep_nécessaire est null ou undefined
+      // ddep_nécessaire is null or undefined
       return "a_determiner";
     }
   }
@@ -133,7 +133,7 @@
           dossier: dossier.id,
           horodatage: new Date(),
           phase: phase,
-          cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
+          cause_personne: null, // will be filled server-side with the right PersonneId
           DS_emailAgentTraitant: null,
           DS_motivation: null,
         },
@@ -184,7 +184,7 @@
         : null;
     }
 
-    // Règle métier : mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+    // Business rule: mesures_er_suffisantes is always NULL if ddep_nécessaire is NULL
     if (ddep_nécessaire === null) {
       if (dossier.mesures_er_suffisantes !== null) {
         modifs.mesures_er_suffisantes = null;
@@ -192,7 +192,7 @@
     }
 
     if (Object.keys(modifs).length >= 1) {
-      // On applique un debounce pour les champs saisis au clavier (commentaire libre, N° Demande ONAGRE)
+      // We apply a debounce for fields typed on the keyboard (commentaire libre, N° Demande ONAGRE)
       if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
         modifierChampAvecDebounce(modifs);
       } else {
@@ -215,7 +215,7 @@
   }
 
   /**
-   * Met à jour les deux champs ddep_nécessaire et mesures_er_suffisantes à partir de la valeur composite
+   * Updates the two fields ddep_nécessaire and mesures_er_suffisantes from the composite value
    */
   function setDDEPValeurComposite(
     e: Event & { currentTarget: EventTarget & HTMLSelectElement },
@@ -438,7 +438,7 @@
   </section>
 </section>
 
-<ModaleAjouterPièceJointe
+<ModaleAjouterPieceJointe
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

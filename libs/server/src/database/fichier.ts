@@ -100,7 +100,7 @@ export async function loadFichierContent(
 }
 
 // All tables/columns that can reference a file (FK -> file.id).
-// Centralised here so supprimerFichiersSansAutresRéférences stays exhaustive.
+// Centralised here so supprimerFichiersSansAutresReferences stays exhaustive.
 const FILE_REFERENCES = [
   { table: "arête_dossier__fichier_pièces_jointes_pétitionnaire", column: "fichier" },
   { table: "dossier", column: "espèces_impactées" },
@@ -116,7 +116,7 @@ const FILE_REFERENCES = [
  *
  * Returns the IDs that were actually deleted.
  */
-export async function supprimerFichiersSansAutresRéférences(
+export async function supprimerFichiersSansAutresReferences(
   fileIds: FileId[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<FileId[]> {
@@ -130,14 +130,14 @@ export async function supprimerFichiersSansAutresRéférences(
     }
   }
 
-  const àSupprimer = fileIds.filter((id) => !stillReferenced.has(id));
+  const aSupprimer = fileIds.filter((id) => !stillReferenced.has(id));
 
-  for (const fileId of àSupprimer) {
+  for (const fileId of aSupprimer) {
     await deleteFile(fileId, databaseConnection);
     await deleteObject(fileKey(fileId)).catch((err) => {
       console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
     });
   }
 
-  return àSupprimer;
+  return aSupprimer;
 }

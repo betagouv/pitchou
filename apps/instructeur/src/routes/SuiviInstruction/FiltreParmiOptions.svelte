@@ -1,39 +1,39 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
 
-  // TODO: remplacer Set<any> par un générique `<T extends string>`
+  // TODO: replace Set<any> with a generic `<T extends string>`
   type Props = {
     options: Set<any>;
     titre: string;
-    mettreÀJourOptionsSélectionnées: (optionsSélectionnées: Set<any>) => void;
+    mettreÀJourOptionsSélectionnées: (optionsSelectionnees: Set<any>) => void;
     optionsSélectionnées?: Set<any>;
   };
 
   let {
     options,
     titre,
-    mettreÀJourOptionsSélectionnées,
-    optionsSélectionnées = new SvelteSet(options),
+    mettreÀJourOptionsSélectionnées: mettreAJourOptionsSelectionnees,
+    optionsSélectionnées: optionsSelectionnees = new SvelteSet(options),
   }: Props = $props();
 
-  function mettreÀJourOption(option: string) {
-    if (optionsSélectionnées.has(option)) {
-      optionsSélectionnées.delete(option);
+  function mettreAJourOption(option: string) {
+    if (optionsSelectionnees.has(option)) {
+      optionsSelectionnees.delete(option);
     } else {
-      optionsSélectionnées.add(option);
+      optionsSelectionnees.add(option);
     }
 
-    mettreÀJourOptionsSélectionnées(optionsSélectionnées);
+    mettreAJourOptionsSelectionnees(optionsSelectionnees);
   }
 
   function selectionnerTout() {
-    optionsSélectionnées = new Set(options);
-    mettreÀJourOptionsSélectionnées(optionsSélectionnées);
+    optionsSelectionnees = new Set(options);
+    mettreAJourOptionsSelectionnees(optionsSelectionnees);
   }
 
   function selectionnerRien() {
-    optionsSélectionnées = new Set();
-    mettreÀJourOptionsSélectionnées(optionsSélectionnées);
+    optionsSelectionnees = new Set();
+    mettreAJourOptionsSelectionnees(optionsSelectionnees);
   }
 
   let open = $state(false);
@@ -68,8 +68,8 @@
           <label>
             <input
               type="checkbox"
-              checked={optionsSélectionnées.has(option)}
-              oninput={() => mettreÀJourOption(option)}
+              checked={optionsSelectionnees.has(option)}
+              oninput={() => mettreAJourOption(option)}
             />
             {option}
           </label>

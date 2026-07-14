@@ -1,0 +1,44 @@
+import { store } from "$lib/state/store.svelte.ts";
+
+import type { default as Controle } from "@pitchou/types/database/public/Controle.ts";
+import type { ResultatControle, TypesActionSuiteControle } from "@pitchou/types/API_Pitchou.ts";
+
+export const resultatsControle: Set<ResultatControle> = new Set([
+  "Conforme",
+  "Non conforme",
+  "Trop tard",
+  "En cours",
+  "Non conforme (Pas d'informations reçues)",
+]);
+
+export const typesActionSuiteControle: Set<TypesActionSuiteControle> = new Set([
+  "Email",
+  "Courrier",
+  "Courrier recommandé avec accusé de réception",
+]);
+
+export function ajouterControle(contrôle: Partial<Controle>): Promise<Controle["id"]> {
+  const addOrUpdateControle = store.capabilities.addOrUpdateControle;
+  if (!addOrUpdateControle) {
+    throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
+  }
+  // Le serveur renvoie un tableau d'ids pour le cas "ajout"
+  // @ts-ignore
+  return addOrUpdateControle(contrôle).then((ids) => ids[0]);
+}
+
+export function modifierControle(contrôle: Partial<Controle>): Promise<Controle["id"] | undefined> {
+  const addOrUpdateControle = store.capabilities.addOrUpdateControle;
+  if (!addOrUpdateControle) {
+    throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
+  }
+  return addOrUpdateControle(contrôle);
+}
+
+export function supprimerControle(id: Controle["id"]): Promise<unknown> {
+  const deleteControle = store.capabilities.deleteControle;
+  if (!deleteControle) {
+    throw new Error(`Pas les droits suffisants pour supprimer un contrôle`);
+  }
+  return deleteControle(id);
+}

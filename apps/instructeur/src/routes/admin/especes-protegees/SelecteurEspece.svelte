@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import {
@@ -16,10 +16,10 @@
   import EspecesSortPanel from "../../especes-protegees/EspecesSortPanel.svelte";
 
   type Props = {
-    especes: EspèceProtégée[];
+    especes: EspeceProtegee[];
     /** CD_REFs already covered by a modification: flagged as "déjà dans la liste". */
     existingCdRefs: Set<string>;
-    onSelect: (espece: EspèceProtégée) => void;
+    onSelect: (espece: EspeceProtegee) => void;
   };
 
   let { especes, existingCdRefs, onSelect }: Props = $props();

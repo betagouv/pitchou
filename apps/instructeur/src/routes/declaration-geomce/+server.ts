@@ -2,7 +2,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
 import { verifierSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
-import { générerDéclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
+import { genererDeclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 import type { CapabilityGeomceSecret } from "@pitchou/types/database/public/CapabilityGeomce.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
@@ -17,5 +17,5 @@ export const GET: RequestHandler = async ({ url }) => {
     );
   }
 
-  return json(await générerDéclarationGeoMCE());
+  return json(await genererDeclarationGeoMCE());
 };

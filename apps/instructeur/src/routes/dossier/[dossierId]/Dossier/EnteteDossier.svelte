@@ -3,12 +3,12 @@
   import {
     formatLocalisation,
     formatPorteurDeProjet,
-    formatDéposant,
+    formatDeposant,
   } from "$lib/dossier/affichageDossier.ts";
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
   import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
 
@@ -44,7 +44,7 @@
   let showDeposant = $derived(
     Boolean(dossier.déposant_nom || dossier.déposant_prénoms || dossier.déposant_email) &&
       (dossier.déposant_email !== porteurEmail ||
-        formatDéposant(dossier) !== formatPorteurDeProjet(dossier)),
+        formatDeposant(dossier) !== formatPorteurDeProjet(dossier)),
   );
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -116,10 +116,10 @@
             Personne qui dépose le dossier&nbsp;:&nbsp;
             {#if dossier.déposant_email}
               <a href={`mailto:${dossier.déposant_email}`} target="_blank" rel="noopener noreferrer"
-                >{formatDéposant(dossier)}</a
+                >{formatDeposant(dossier)}</a
               >
             {:else}
-              {formatDéposant(dossier)}
+              {formatDeposant(dossier)}
             {/if}
           </span>
         </div>
@@ -176,7 +176,7 @@
           aria-controls={idModaleAjouterPieceJointe}
           data-fr-opened="false"
           onclick={() =>
-            envoyerÉvènement({
+            envoyerEvenement({
               type: "ouvrirModaleAjouterPieceJointe",
               détails: { dossierId: dossier.id, source: "enteteDossier" },
             })}
@@ -195,7 +195,7 @@
   </div>
 </header>
 
-<ModaleAjouterPièceJointe
+<ModaleAjouterPieceJointe
   id={idModaleAjouterPieceJointe}
   {dossier}
   typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

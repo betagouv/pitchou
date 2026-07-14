@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
   import type { LigneDossierBFC } from "./importDossierBFC.ts";
-  import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
-  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+  import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
+  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
@@ -10,23 +10,23 @@
 
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
-  import { créerDossierDepuisLigne, créerNomPourDossier } from "./importDossierBFC.ts";
+  import { creerDossierDepuisLigne, creerNomPourDossier } from "./importDossierBFC.ts";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
   type Props = {
-    dossiers?: DossierRésumé[];
-    schema: SchemaDémarcheSimplifiée | undefined;
+    dossiers?: DossierResume[];
+    schema: SchemaDemarcheSimplifiee | undefined;
   };
 
   let { dossiers = [], schema }: Props = $props();
 
-  // Pré-calcul: ensemble des noms présents en base (lookup O(1))
+  // Pre-computation: set of names present in the database (O(1) lookup)
   const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
 
   const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.nom, d.id])));
 
   // @ts-ignore
-  const activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
+  const activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activite principale"]> =
     $derived(
       schema
         ? new Set(
@@ -36,24 +36,24 @@
         : new Set(),
     );
   let lignesTableauImport: LigneDossierBFC[] = $state([]);
-  let lignesFiltréesTableauImport: LigneDossierBFC[] = $state([]);
-  let dossiersDéjàEnBDD: DossierRésumé[] = $state([]);
+  let lignesFiltreesTableauImport: LigneDossierBFC[] = $state([]);
+  let dossiersDejaEnBDD: DossierResume[] = $state([]);
 
-  let ligneToLienPréremplissage: Map<any, string> = $state(new SvelteMap());
+  let ligneToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
 
-  let pourcentageDeDossierCrééEnBDD: number | undefined = $state();
+  let pourcentageDeDossierCreeEnBDD: number | undefined = $state();
 
   let afficherTousLesDossiers: boolean = $state(false);
 
-  let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
-  let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDéjàImportés);
+  let nombreDossiersDejaImportes = $derived(dossiersDejaEnBDD.length);
+  let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDejaImportes);
 
   /**
-   * Vérifie si un dossier spécifique à importer existe déjà dans la base de données.
-   * La recherche s'effectue en comparant le nom du projet (champ 'nom' de la table 'dossier').
+   * Checks whether a specific dossier to import already exists in the database.
+   * The search is performed by comparing the project name (the 'nom' field of the 'dossier' table).
    */
   function ligneDossierEnBDD(LigneDossierBFC: LigneDossierBFC): boolean {
-    return nomsEnBDD.has(créerNomPourDossier(LigneDossierBFC));
+    return nomsEnBDD.has(creerNomPourDossier(LigneDossierBFC));
   }
 
   async function handleFileChange(event: Event) {
@@ -84,20 +84,20 @@
         ];
 
         lignesTableauImport = lignes;
-        lignesFiltréesTableauImport = lignes.filter((ligne) => !ligneDossierEnBDD(ligne));
-        dossiersDéjàEnBDD = lignes.filter((ligne) => ligneDossierEnBDD(ligne));
+        lignesFiltreesTableauImport = lignes.filter((ligne) => !ligneDossierEnBDD(ligne));
+        dossiersDejaEnBDD = lignes.filter((ligne) => ligneDossierEnBDD(ligne));
 
         const totalDossiers = lignes.length;
-        pourcentageDeDossierCrééEnBDD =
-          totalDossiers > 0 ? (dossiersDéjàEnBDD.length / totalDossiers) * 100 : 0;
+        pourcentageDeDossierCreeEnBDD =
+          totalDossiers > 0 ? (dossiersDejaEnBDD.length / totalDossiers) * 100 : 0;
       } catch (error) {
         console.error(`Une erreur est survenue pendant la lecture du fichier : ${error}`);
       }
     }
   }
 
-  async function handleCréerLienPréRemplissage(LigneDossierBFC: LigneDossierBFC) {
-    const dossier = await créerDossierDepuisLigne(LigneDossierBFC, activitésPrincipales88444);
+  async function handleCreerLienPreRemplissage(LigneDossierBFC: LigneDossierBFC) {
+    const dossier = await creerDossierDepuisLigne(LigneDossierBFC, activitesPrincipales88444);
 
     console.log(
       { dossier },
@@ -111,8 +111,8 @@
         body: JSON.stringify(dossier),
       });
 
-      ligneToLienPréremplissage.set(LigneDossierBFC, lien);
-      ligneToLienPréremplissage = ligneToLienPréremplissage;
+      ligneToLienPreremplissage.set(LigneDossierBFC, lien);
+      ligneToLienPreremplissage = ligneToLienPreremplissage;
     } catch (error) {
       throw new Error(
         `Une erreur est survenue lors de la récupération du lien de préremplissage : ${error}`,
@@ -120,13 +120,13 @@
     }
   }
 
-  // Pagination du tableau de suivi
+  // Pagination of the tracking table
   type SelectionneurPage = () => void;
 
   const NOMBRE_DOSSIERS_PAR_PAGE = 20;
 
-  // numéro de page qui correspond à celui affiché, donc commençant à 1
-  let numéroPageSelectionnée: number = $state(1);
+  // page number matching the one displayed, therefore starting at 1
+  let numeroPageSelectionnee: number = $state(1);
 
   let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
     () => {
@@ -137,7 +137,7 @@
           undefined,
           ...[...Array(nombreDePages).keys()].map((i) => () => {
             //console.log('sélection de la page', i+1)
-            numéroPageSelectionnée = i + 1;
+            numeroPageSelectionnee = i + 1;
           }),
         ];
       }
@@ -147,19 +147,19 @@
   );
 
   $effect(() => {
-    if (selectionneursPage) numéroPageSelectionnée = 1;
+    if (selectionneursPage) numeroPageSelectionnee = 1;
   });
 
-  let lignesAffichéesTableauImport: typeof lignesTableauImport = $derived.by(() => {
-    const lignesÀAfficher = afficherTousLesDossiers
+  let lignesAfficheesTableauImport: typeof lignesTableauImport = $derived.by(() => {
+    const lignesAAfficher = afficherTousLesDossiers
       ? lignesTableauImport
-      : lignesFiltréesTableauImport;
+      : lignesFiltreesTableauImport;
 
-    if (!selectionneursPage) return lignesÀAfficher;
+    if (!selectionneursPage) return lignesAAfficher;
     else {
-      return lignesÀAfficher.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numéroPageSelectionnée - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numéroPageSelectionnée,
+      return lignesAAfficher.slice(
+        NOMBRE_DOSSIERS_PAR_PAGE * (numeroPageSelectionnee - 1),
+        NOMBRE_DOSSIERS_PAR_PAGE * numeroPageSelectionnee,
       );
     }
   });
@@ -226,7 +226,7 @@
       title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
     >
       <div
-        style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+        style="width: {pourcentageDeDossierCreeEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
       ></div>
     </div>
   </div>
@@ -244,9 +244,9 @@
               </tr>
             </thead>
             <tbody>
-              {#each lignesAffichéesTableauImport as LigneDossierBFC, index}
+              {#each lignesAfficheesTableauImport as LigneDossierBFC, index}
                 <tr data-row-key="1">
-                  <td>{créerNomPourDossier(LigneDossierBFC)}</td>
+                  <td>{creerNomPourDossier(LigneDossierBFC)}</td>
                   <td>
                     <BoutonModale id={`dsfr-modale-${index}`}>
                       {#snippet boutonOuvrir()}
@@ -261,15 +261,15 @@
                     {#if ligneDossierEnBDD(LigneDossierBFC)}
                       <p class="fr-badge fr-badge--success">En base de données</p>
                       <a
-                        href={`/dossier/${nomToDossierId.get(créerNomPourDossier(LigneDossierBFC))}`}
+                        href={`/dossier/${nomToDossierId.get(creerNomPourDossier(LigneDossierBFC))}`}
                         target="_blank"
                         class="fr-btn fr-btn--secondary fr-ml-2w"
                       >
                         Ouvrir dossier
                       </a>
-                    {:else if ligneToLienPréremplissage.get(LigneDossierBFC)}
+                    {:else if ligneToLienPreremplissage.get(LigneDossierBFC)}
                       <a
-                        href={ligneToLienPréremplissage.get(LigneDossierBFC)}
+                        href={ligneToLienPreremplissage.get(LigneDossierBFC)}
                         target="_blank"
                         class="fr-btn">Créer dossier</a
                       >
@@ -277,7 +277,7 @@
                       <button
                         type="button"
                         class="fr-btn fr-btn--secondary"
-                        onclick={() => handleCréerLienPréRemplissage(LigneDossierBFC)}
+                        onclick={() => handleCreerLienPreRemplissage(LigneDossierBFC)}
                         >Préparer préremplissage</button
                       >
                     {/if}
@@ -292,7 +292,7 @@
   </div>
 
   {#if selectionneursPage}
-    <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
+    <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numeroPageSelectionnee]}
     ></Pagination>
   {/if}
 {/if}

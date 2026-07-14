@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
   import type {
-    SchemaDémarcheSimplifiée,
+    SchemaDemarcheSimplifiee,
     Dossier88444ChampDescriptor,
-  } from "@pitchou/types/démarche-numérique/schema.ts";
-  import { créerLienGETPréremplissageDémarche } from "@pitchou/common/préremplissageDémarcheNumérique.ts";
+  } from "@pitchou/types/demarche-numerique/schema.ts";
+  import { creerLienGETPreremplissageDemarche } from "@pitchou/common/preremplissageDemarcheNumerique.ts";
   import CopyButton from "./CopyButton.svelte";
 
   function labelToId(label: string): string {
@@ -12,7 +12,7 @@
   }
 
   type Props = {
-    schemaDS88444: SchemaDémarcheSimplifiée;
+    schemaDS88444: SchemaDemarcheSimplifiee;
   };
 
   let { schemaDS88444 }: Props = $props();
@@ -29,7 +29,7 @@
   );
 
   let onSelectChanged = () => {
-    lienDePreremplissage = créerLienGETPréremplissageDémarche(nouveauDossierPartiel, schemaDS88444);
+    lienDePreremplissage = creerLienGETPreremplissageDemarche(nouveauDossierPartiel, schemaDS88444);
   };
 
   const champsPossibles = [
@@ -63,8 +63,8 @@
       }),
   );
 
-  let champsRemplissablesGroupés = $derived.by(() => {
-    const résultat: { nom: string; champs: Dossier88444ChampDescriptor[] }[] = [];
+  let champsRemplissablesGroupes = $derived.by(() => {
+    const resultat: { nom: string; champs: Dossier88444ChampDescriptor[] }[] = [];
 
     let groupe: { nom: string; champs: Dossier88444ChampDescriptor[] } = {
       nom: "Questions préliminaires",
@@ -74,7 +74,7 @@
     for (const champ of champsRemplissables) {
       if (champ["__typename"] === "HeaderSectionChampDescriptor") {
         if (groupe.champs.length) {
-          résultat.push(groupe);
+          resultat.push(groupe);
         }
         groupe = {
           nom: champ["label"],
@@ -85,7 +85,7 @@
       }
     }
 
-    return résultat;
+    return resultat;
   });
 </script>
 
@@ -98,7 +98,7 @@
     <h1>Pré-remplissage dérogation espèces protégées</h1>
 
     <form onchange={onSelectChanged}>
-      {#each champsRemplissablesGroupés as groupe}
+      {#each champsRemplissablesGroupes as groupe}
         <fieldset class="fr-fieldset">
           <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
             <h2>{groupe.nom}</h2>

@@ -6,13 +6,13 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
 import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
-import créerObjetCapDepuisURLs from "$lib/shared/créerObjetCapDepuisURLs.ts";
-import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+import creerObjetCapDepuisURLs from "$lib/shared/creerObjetCapDepuisURLs.ts";
+import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
-import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
+import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
 import type {
   PitchouInstructeurCapabilities,
-  IdentitéInstructeurPitchou,
+  IdentiteInstructeurPitchou,
 } from "@pitchou/types/capabilities.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 
@@ -64,15 +64,15 @@ export function chargerSchemaDS88444() {
   });
 }
 
-export function chargerRésultatsSynchronisation() {
+export function chargerResultatsSynchronisation() {
   return json("/resultats-synchronisation").then(
     // @ts-ignore
-    (résultatsSync: RésultatSynchronisationDS88444[]) => {
-      for (const r of résultatsSync) {
+    (resultatsSync: ResultatSynchronisationDS88444[]) => {
+      for (const r of resultatsSync) {
         r.horodatage = new Date(r.horodatage);
       }
 
-      store.résultatsSynchronisationDS88444 = résultatsSync;
+      store.résultatsSynchronisationDS88444 = resultatsSync;
     },
   );
 }
@@ -114,7 +114,7 @@ export async function logoutEtRedirigerVersAccueil(erreur?: { message: string })
 }
 
 type CapsResponse = StringValues<PitchouInstructeurCapabilities> & {
-  identité: IdentitéInstructeurPitchou;
+  identité: IdentiteInstructeurPitchou;
   maxUploadSizeBytes?: number;
 };
 
@@ -122,7 +122,7 @@ function initCapabilities(secret: string) {
   return json(`/caps?secret=${secret}`).then((response) => {
     if (response && typeof response === "object") {
       const capsURLs = response as CapsResponse;
-      store.capabilities = créerObjetCapDepuisURLs(capsURLs);
+      store.capabilities = creerObjetCapDepuisURLs(capsURLs);
 
       if (capsURLs.identité) {
         store.identité = capsURLs.identité;
@@ -132,7 +132,7 @@ function initCapabilities(secret: string) {
         store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
       }
 
-      envoyerÉvènement({ type: "seConnecter" });
+      envoyerEvenement({ type: "seConnecter" });
     } else {
       throw new TypeError(`capsURLs non-reconnu (${typeof response} - ${response})`);
     }
@@ -151,6 +151,6 @@ export function init() {
       ),
 
     chargerSchemaDS88444(),
-    chargerRésultatsSynchronisation(),
+    chargerResultatsSynchronisation(),
   ]);
 }

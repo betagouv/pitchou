@@ -7,9 +7,9 @@ import type { Knex } from "knex";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
-import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
+import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
 
-function estUnAvisExpertÀModifier(
+function estUnAvisExpertAModifier(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
 ): boolean {
   return avisExpert.id !== undefined;
@@ -22,38 +22,38 @@ export async function ajouterOuModifierAvisExpertAvecFichiers(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {
-    const fichierSaisineAjoutéP = fichierSaisine
+    const fichierSaisineAjouteP = fichierSaisine
       ? stockerNouveauFichier(fichierSaisine, databaseConnection)
       : Promise.resolve();
-    const fichierAvisAjoutéP = fichierAvis
+    const fichierAvisAjouteP = fichierAvis
       ? stockerNouveauFichier(fichierAvis, databaseConnection)
       : Promise.resolve();
 
-    const [fichierSaisineAjouté, fichierAvisAjouté] = await Promise.all([
-      fichierSaisineAjoutéP,
-      fichierAvisAjoutéP,
+    const [fichierSaisineAjoute, fichierAvisAjoute] = await Promise.all([
+      fichierSaisineAjouteP,
+      fichierAvisAjouteP,
     ]);
 
-    if (estUnAvisExpertÀModifier(avisExpert)) {
-      const avisExpertÀMaj = avisExpert as { id: string } & AvisExpertMutator;
+    if (estUnAvisExpertAModifier(avisExpert)) {
+      const avisExpertAMaj = avisExpert as { id: string } & AvisExpertMutator;
 
       return modifierAvisExpert(
         {
-          ...avisExpertÀMaj,
-          id: avisExpertÀMaj.id,
-          saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
-          avis_fichier: fichierAvisAjouté?.id ?? undefined,
+          ...avisExpertAMaj,
+          id: avisExpertAMaj.id,
+          saisine_fichier: fichierSaisineAjoute?.id ?? undefined,
+          avis_fichier: fichierAvisAjoute?.id ?? undefined,
         },
         databaseConnection,
       );
     } else {
-      const avisExpertÀInsérer = avisExpert as AvisExpertInitializer;
+      const avisExpertAInserer = avisExpert as AvisExpertInitializer;
 
       return ajouterAvisExpert(
         {
-          ...avisExpertÀInsérer,
-          saisine_fichier: fichierSaisineAjouté?.id ?? undefined,
-          avis_fichier: fichierAvisAjouté?.id ?? undefined,
+          ...avisExpertAInserer,
+          saisine_fichier: fichierSaisineAjoute?.id ?? undefined,
+          avis_fichier: fichierAvisAjoute?.id ?? undefined,
         },
         databaseConnection,
       );
@@ -69,12 +69,12 @@ export function ajouterOuModifierAvisExpert(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  if (estUnAvisExpertÀModifier(avisExpert)) {
-    const avisExpertÀMaj = avisExpert as { id: string } & AvisExpertMutator;
-    return modifierAvisExpert(avisExpertÀMaj, databaseConnection);
+  if (estUnAvisExpertAModifier(avisExpert)) {
+    const avisExpertAMaj = avisExpert as { id: string } & AvisExpertMutator;
+    return modifierAvisExpert(avisExpertAMaj, databaseConnection);
   } else {
-    const avisExpertÀInsérer = avisExpert as AvisExpertInitializer;
-    return ajouterAvisExpert(avisExpertÀInsérer, databaseConnection);
+    const avisExpertAInserer = avisExpert as AvisExpertInitializer;
+    return ajouterAvisExpert(avisExpertAInserer, databaseConnection);
   }
 }
 
@@ -106,23 +106,23 @@ export async function modifierAvisExpert(
     .returning(["id"]);
 
   if (ancien) {
-    const fichierIdsÀNettoyer = [];
+    const fichierIdsANettoyer = [];
     if (
       checkSaisine &&
       ancien.saisine_fichier !== null &&
       ancien.saisine_fichier !== avisExpert.saisine_fichier
     ) {
-      fichierIdsÀNettoyer.push(ancien.saisine_fichier);
+      fichierIdsANettoyer.push(ancien.saisine_fichier);
     }
     if (
       checkAvis &&
       ancien.avis_fichier !== null &&
       ancien.avis_fichier !== avisExpert.avis_fichier
     ) {
-      fichierIdsÀNettoyer.push(ancien.avis_fichier);
+      fichierIdsANettoyer.push(ancien.avis_fichier);
     }
-    if (fichierIdsÀNettoyer.length >= 1) {
-      await supprimerFichiersSansAutresRéférences(fichierIdsÀNettoyer, databaseConnection);
+    if (fichierIdsANettoyer.length >= 1) {
+      await supprimerFichiersSansAutresReferences(fichierIdsANettoyer, databaseConnection);
     }
   }
 
@@ -133,19 +133,19 @@ export async function supprimerAvisExpert(
   avisExpertId: AvisExpert["id"] | AvisExpert["id"][],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  const idsÀSupprimer = Array.isArray(avisExpertId) ? avisExpertId : [avisExpertId];
+  const idsASupprimer = Array.isArray(avisExpertId) ? avisExpertId : [avisExpertId];
 
   const lignes = await databaseConnection("avis_expert")
     .select("saisine_fichier", "avis_fichier")
-    .whereIn("id", idsÀSupprimer);
+    .whereIn("id", idsASupprimer);
   const fichierIds = lignes
     .flatMap((r) => [r.saisine_fichier, r.avis_fichier])
     .filter((id) => id !== null);
 
-  const result = await databaseConnection("avis_expert").delete().whereIn("id", idsÀSupprimer);
+  const result = await databaseConnection("avis_expert").delete().whereIn("id", idsASupprimer);
 
   if (fichierIds.length >= 1) {
-    await supprimerFichiersSansAutresRéférences(fichierIds, databaseConnection);
+    await supprimerFichiersSansAutresReferences(fichierIds, databaseConnection);
   }
 
   return result;

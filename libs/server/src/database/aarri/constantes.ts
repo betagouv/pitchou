@@ -1,26 +1,26 @@
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
-export const ÉVÈNEMENTS_CONSULTATIONS: ÉvènementMétrique["type"][] = [
+export const EVENEMENTS_CONSULTATIONS: EvenementMetrique["type"][] = [
   "rechercherDesDossiers",
   "afficherLesDossiersSuivis",
   "consulterUnDossier",
   "téléchargerListeÉspècesImpactées",
 ];
 
-export const ÉVÈNEMENTS_MODIFICATIONS: ÉvènementMétrique["type"][] = [
+export const EVENEMENTS_MODIFICATIONS: EvenementMetrique["type"][] = [
   "suivreUnDossier",
   "modifierCommentaireInstruction",
   "changerPhase",
   "changerProchaineActionAttendueDe",
-  "ajouterDécisionAdministrative",
-  "modifierDécisionAdministrative",
-  "supprimerDécisionAdministrative",
+  "ajouterDecisionAdministrative",
+  "modifierDecisionAdministrative",
+  "supprimerDecisionAdministrative",
   "ajouterPrescription",
   "modifierPrescription",
   "supprimerPrescription",
-  "ajouterContrôle",
-  "modifierContrôle",
-  "supprimerContrôle",
+  "ajouterControle",
+  "modifierControle",
+  "supprimerControle",
   "ajouterAvisExpert",
   "modifierAvisExpert",
   "supprimerAvisExpert",

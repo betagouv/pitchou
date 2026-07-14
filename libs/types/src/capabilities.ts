@@ -1,7 +1,7 @@
 import type {
   DossierComplet,
-  DossierRésumé,
-  DécisionAdministrativePourTransfer,
+  DossierResume,
+  DecisionAdministrativePourTransfer,
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
@@ -10,13 +10,13 @@ import type Message from "./database/public/Message.ts";
 import type Notification from "./database/public/Notification.ts";
 import type { NotificationMutator } from "./database/public/Notification.ts";
 import type Prescription from "./database/public/Prescription.ts";
-import type Contrôle from "./database/public/Contrôle.ts";
-import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
+import type Controle from "./database/public/Controle.ts";
+import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
-import type { ÉvènementMétrique } from "./évènement.ts";
+import type { EvenementMetrique } from "./evenement.ts";
 
 export interface PitchouInstructeurCapabilities {
-  listerDossiers: () => Promise<DossierRésumé[]>;
+  listerDossiers: () => Promise<DossierResume[]>;
   recupérerDossierComplet: (dossierId: DossierComplet["id"]) => Promise<DossierComplet>;
   listerRelationSuivi: () => Promise<
     { personneEmail: Personne["email"]; dossiersSuivisIds: Dossier["id"][] }[]
@@ -26,14 +26,14 @@ export interface PitchouInstructeurCapabilities {
     personneEmail: NonNullable<Personne["email"]>,
     dossierId: Dossier["id"],
   ) => Promise<void>;
-  listerMessages: (dossierId: DossierRésumé["id"]) => Promise<Message[]>;
+  listerMessages: (dossierId: DossierResume["id"]) => Promise<Message[]>;
   listerÉvènementsPhaseDossier: () => Promise<any[]>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierComplet>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;
-  modifierDécisionAdministrativeDansDossier: (
-    décisionAdministrative: DécisionAdministrativePourTransfer,
+  modifierDecisionAdministrativeDansDossier: (
+    decisionAdministrative: DecisionAdministrativePourTransfer,
   ) => Promise<void>;
-  deleteDecisionAdministrative: (id: DécisionAdministrative["id"]) => Promise<unknown>;
+  deleteDecisionAdministrative: (id: DecisionAdministrative["id"]) => Promise<unknown>;
   addOrUpdatePrescription: (
     prescription: Partial<Prescription>,
   ) => Promise<Prescription["id"] | undefined>;
@@ -41,17 +41,17 @@ export interface PitchouInstructeurCapabilities {
     prescriptions: Omit<FrontEndPrescription, "id">[],
   ) => Promise<unknown>;
   deletePrescription: (id: Prescription["id"]) => Promise<unknown>;
-  addOrUpdateControle: (contrôle: Partial<Contrôle>) => Promise<Contrôle["id"] | undefined>;
-  deleteControle: (id: Contrôle["id"]) => Promise<unknown>;
+  addOrUpdateControle: (contrôle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
+  deleteControle: (id: Controle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (form: FormData) => Promise<string>;
   addAttachmentAutre: (form: FormData) => Promise<string>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
-  créerÉvènementMetrique: (évènement: ÉvènementMétrique) => Promise<void>;
+  créerÉvènementMetrique: (évènement: EvenementMetrique) => Promise<void>;
   listerNotifications: () => Promise<Notification[]>;
   updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
 }
 
-export interface IdentitéInstructeurPitchou {
+export interface IdentiteInstructeurPitchou {
   email: string;
   estAdmin: boolean;
 }

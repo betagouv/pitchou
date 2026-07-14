@@ -1,23 +1,23 @@
 import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
-import { trouverDossiersIdCorrespondantsÀTexte } from "$lib/dossier/rechercherDansDossier.ts";
+import { trouverDossiersIdCorrespondantsATexte } from "$lib/dossier/rechercherDansDossier.ts";
 
-import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
 
 /**
- * Crée un filtre pour rechercher dans les dossiers par texte.
- * Détecte automatiquement si le texte contient des chiffres :
- * - Avec chiffres : recherche dans les identifiants, départements, codes postaux, etc.
- * - Sans chiffres : utilise lunr pour la recherche textuelle avec support du français.
+ * Creates a filter to search within dossiers by text.
+ * Automatically detects whether the text contains digits:
+ * - With digits: searches in identifiers, départements, postal codes, etc.
+ * - Without digits: uses lunr for text search with French support.
  *
  * cf. https://github.com/MihaiValentin/lunr-languages/issues/66
- * lunr.fr n'indexe pas les chiffres, donc on gère la recherche sur les nombres avec une fonction séparée.
+ * lunr.fr does not index digits, so we handle number search with a separate function.
  */
-export function créerFiltreTexte(
-  texteÀChercher: string,
-  dossiers: DossierRésumé[],
-): (dossier: DossierRésumé) => boolean {
-  // Si le texte contient des chiffres, utiliser la recherche directe
-  if (texteÀChercher.match(/\d[\dA-Za-z\-]*/)) {
+export function creerFiltreTexte(
+  texteAChercher: string,
+  dossiers: DossierResume[],
+): (dossier: DossierResume) => boolean {
+  // If the text contains digits, use direct search
+  if (texteAChercher.match(/\d[\dA-Za-z\-]*/)) {
     return (dossier) => {
       const {
         id,
@@ -29,28 +29,28 @@ export function créerFiltreTexte(
       const communesCodes = communes?.map(({ postalCode }) => postalCode).filter((c) => c) || [];
 
       return (
-        String(id) === texteÀChercher ||
-        départements?.includes(texteÀChercher || "") ||
-        communesCodes?.includes(texteÀChercher || "") ||
-        number_demarches_simplifiées === texteÀChercher ||
-        historique_identifiant_demande_onagre === texteÀChercher
+        String(id) === texteAChercher ||
+        départements?.includes(texteAChercher || "") ||
+        communesCodes?.includes(texteAChercher || "") ||
+        number_demarches_simplifiées === texteAChercher ||
+        historique_identifiant_demande_onagre === texteAChercher
       );
     };
   } else {
-    // Sinon, utiliser lunr pour la recherche textuelle
-    const texteSansAccents = retirerAccents(texteÀChercher);
-    // Pour chercher les communes qui contiennent des tirets avec lunr,
-    // on a besoin de passer la chaîne de caractères entre "".
+    // Otherwise, use lunr for text search
+    const texteSansAccents = retirerAccents(texteAChercher);
+    // To search communes that contain hyphens with lunr,
+    // we need to pass the string between "".
     const aRechercher = texteSansAccents.match(/(\w-)+/)
       ? `"${texteSansAccents}"`
       : texteSansAccents;
-    const dossiersIdCorrespondantsÀTexte = trouverDossiersIdCorrespondantsÀTexte(
+    const dossiersIdCorrespondantsATexte = trouverDossiersIdCorrespondantsATexte(
       aRechercher,
       dossiers,
     );
 
     return (dossier) => {
-      return dossiersIdCorrespondantsÀTexte.has(dossier.id);
+      return dossiersIdCorrespondantsATexte.has(dossier.id);
     };
   }
 }

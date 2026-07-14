@@ -1,13 +1,13 @@
 import type Dossier from "./database/public/Dossier.ts";
-import type { DossierDemarcheNumerique88444 } from "./démarche-numérique/Démarche88444.ts";
+import type { DossierDemarcheNumerique88444 } from "./demarche-numerique/Demarche88444.ts";
 import type File from "./database/public/File.ts";
-import type ÉvènementPhaseDossier from "./database/public/ÉvènementPhaseDossier.ts";
-import type DécisionAdministrative from "./database/public/DécisionAdministrative.ts";
+import type EvenementPhaseDossier from "./database/public/EvenementPhaseDossier.ts";
+import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type Prescription from "./database/public/Prescription.ts";
-import type Contrôle from "./database/public/Contrôle.ts";
+import type Controle from "./database/public/Controle.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 
-type DossierPersonnesImpliquéesRésumé = {
+type DossierPersonnesImpliqueesResume = {
   déposant_nom: string;
   déposant_prénoms: string;
   demandeur_personne_physique_nom: string;
@@ -16,7 +16,7 @@ type DossierPersonnesImpliquéesRésumé = {
   demandeur_personne_morale_siret: string;
 };
 
-type DossierPersonnesImpliquéesComplet = DossierPersonnesImpliquéesRésumé & {
+type DossierPersonnesImpliqueesComplet = DossierPersonnesImpliqueesResume & {
   demandeur_adresse: string;
   déposant_email: string | null;
 
@@ -46,19 +46,19 @@ type DossierPersonnesImpliquéesComplet = DossierPersonnesImpliquéesRésumé & 
 };
 
 /**
- * On génère automatiquement les types des propriétés d'un Dossier via Kanel
- * On a choisi d'utiliser un type `string` pour les propriétés
- * 'phase' et 'prochaine_action_attendue_par'
- * pour plus de flexibilité (au lieu d'un enum).
+ * The types of a Dossier's properties are generated automatically via Kanel.
+ * We chose to use a `string` type for the properties
+ * 'phase' and 'prochaine_action_attendue_par'
+ * for more flexibility (instead of an enum).
  *
- * On surcharge ici ces propriétés pour contraindre les valeurs de ces propriétés.
+ * We override these properties here to constrain their values.
  */
 
 export type DossierPhase =
   | "Accompagnement amont"
   | "Étude recevabilité DDEP"
   | "Instruction"
-  | "Contrôle"
+  | "Controle"
   | "Classé sans suite"
   | "Obligations terminées";
 
@@ -72,24 +72,24 @@ export type DossierProchaineActionAttenduePar =
   | "Personne";
 
 /**
- * Kanel génère un type `unknown` pour les champs JSON.
+ * Kanel generates an `unknown` type for JSON fields.
  *
- * On surcharge ici les propriétés `communes`, `départements` et `régions` pour contraindre le type des valeurs du JSON.
+ * We override the `communes`, `départements` and `régions` properties here to constrain the type of the JSON values.
  *
  */
-type DossierDémarcheSimplifiée88444Communes = {
+type DossierDemarcheSimplifiee88444Communes = {
   name: string;
   code: string;
   postalCode: string;
 };
 
 type DossierLocalisation = {
-  communes: DossierDémarcheSimplifiée88444Communes[] | null | undefined;
+  communes: DossierDemarcheSimplifiee88444Communes[] | null | undefined;
   départements: string[] | null | undefined;
   régions: string[] | null | undefined;
 };
 
-type DossierActivitéPrincipale = {
+type DossierActivitePrincipale = {
   activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null;
 };
 
@@ -121,18 +121,18 @@ type DossierCartographieProjet = {
   cartographie_projet: GeoJSONFeatureCollection | null;
 };
 
-type DonnéesDossierPourStats = {
-  décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
+type DonneesDossierPourStats = {
+  décisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
 };
 
 /**
- * Le type DossierRésumé contient les données nécessaires à afficher le tableau de suivi
- * et pouvoir effectuer des recherches dans le tableau de suivi
- * ou le cartouche résumé commun aux onglets des écrans montrant un unique dossier
+ * The DossierResume type contains the data needed to display the tracking table
+ * and to be able to perform searches in the tracking table
+ * or the summary panel shared across the tabs of the screens showing a single dossier
  *
- * Il a pour objectif d'être plutôt facile à requêter en groupe
+ * It is intended to be fairly easy to query in bulk
  */
-export type DossierRésumé = Pick<
+export type DossierResume = Pick<
   Dossier,
   | "id"
   | "number_demarches_simplifiées"
@@ -144,24 +144,24 @@ export type DossierRésumé = Pick<
   | "commentaire_libre"
   | "historique_identifiant_demande_onagre"
 > & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
-  DossierPersonnesImpliquéesRésumé &
-  DossierActivitéPrincipale &
-  DonnéesDossierPourStats;
+  DossierPersonnesImpliqueesResume &
+  DossierActivitePrincipale &
+  DonneesDossierPourStats;
 
-export type FrontEndPrescription = Prescription & { contrôles: Contrôle[] | undefined };
+export type FrontEndPrescription = Prescription & { contrôles: Controle[] | undefined };
 
 export type FrontEndFichier = Pick<File, "media_type" | "nom"> & {
   url: string;
   taille?: number | null;
 };
 
-export type FrontEndDécisionAdministrative = Omit<DécisionAdministrative, "fichier"> & {
+export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
   fichier_url: string | undefined;
   fichier_description?: FrontEndFichier;
 } & { prescriptions: FrontEndPrescription[] | undefined };
 
-export type DécisionAdministrativePourTransfer = Partial<
-  Omit<DécisionAdministrative, "fichier"> & {
+export type DecisionAdministrativePourTransfer = Partial<
+  Omit<DecisionAdministrative, "fichier"> & {
     fichier_base64: { contenuBase64: string; nom: string; media_type: string };
   }
 >;
@@ -185,20 +185,20 @@ export type FrontEndAttachmentAutre = {
 };
 
 /**
- * Le type DossierComplet contient toutes les informations relatives à un dossier
- * notamment l'URL de téléchargement du fichier espèces impactées s'il y en a un
+ * The DossierComplet type contains all the information related to a dossier,
+ * notably the download URL of the impacted species file if there is one
  */
 export type DossierComplet = Omit<
   Dossier,
   "communes" | "départements" | "régions" | "activité_principale" | "cartographie_projet"
 > &
   DossierLocalisation &
-  DossierPersonnesImpliquéesComplet &
-  DossierActivitéPrincipale &
+  DossierPersonnesImpliqueesComplet &
+  DossierActivitePrincipale &
   DossierCartographieProjet & {
     espècesImpactées: (Pick<File, "media_type" | "nom"> & { url: string }) | undefined;
-  } & { évènementsPhase: ÉvènementPhaseDossier[] } & {
-    décisionsAdministratives: FrontEndDécisionAdministrative[] | undefined;
+  } & { évènementsPhase: EvenementPhaseDossier[] } & {
+    décisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
     piècesJointesPétitionnaires: (Pick<File, "DS_createdAt" | "media_type" | "nom"> & {
       url: string;
@@ -206,88 +206,88 @@ export type DossierComplet = Omit<
     })[];
   } & { attachmentAutres: FrontEndAttachmentAutre[] };
 
-export type TypeDécisionAdministrative =
+export type TypeDecisionAdministrative =
   | "Arrêté dérogation"
   | "Arrêté refus"
   | "Arrêté modificatif"
   | "Courrier"
   | "Autre décision";
 
-export type RésultatContrôle =
+export type ResultatControle =
   | "Conforme"
   | "Non conforme"
   | "Trop tard"
   | "En cours"
   | "Non conforme (Pas d'informations reçues)";
-export type TypesActionSuiteContrôle =
+export type TypesActionSuiteControle =
   | "Email"
   | "Courrier"
   | "Courrier recommandé avec accusé de réception";
 
-// - - - - - Statistiques - - - - - - //
+// - - - - - Statistics - - - - - - //
 export interface StatsPubliques {
-  nbDossiersEnPhaseContrôle: number;
-  nbDossiersEnPhaseContrôleAvecDécision: number;
-  nbDossiersEnPhaseContrôleSansDécision: number;
+  nbDossiersEnPhaseControle: number;
+  nbDossiersEnPhaseControleAvecDécision: number;
+  nbDossiersEnPhaseControleSansDécision: number;
   nbPétitionnairesDepuisSept2024: number;
   totalDossiers: number;
   totalPrescriptions: number;
   nbPrescriptionsControlees: number;
-  statsConformité: StatsConformité;
-  statsImpactBiodiversité: StatsImpactBiodiversité;
+  statsConformité: StatsConformite;
+  statsImpactBiodiversité: StatsImpactBiodiversite;
 }
 
 /**
- * Statistiques des prescriptions par conformité.
+ * Prescription statistics by conformity.
  */
-export interface StatsConformité {
-  /** Le nombre de prescriptions dont le dernier contrôle est Non conforme */
+export interface StatsConformite {
+  /** The number of prescriptions whose last contrôle is Non conforme */
   nb_non_conforme: number;
 
-  /** Le nombre de prescriptions dont le dernier contrôle est Trop tard */
+  /** The number of prescriptions whose last contrôle is Trop tard */
   nb_trop_tard: number;
 
-  /** Le nombre de prescriptions conformes après le 1er contrôle */
+  /** The number of prescriptions that became conforme after the 1st contrôle */
   nb_conforme_apres_1: number;
 
-  /** Le nombre de prescriptions conformes après le 2e contrôle */
+  /** The number of prescriptions that became conforme after the 2nd contrôle */
   nb_conforme_apres_2: number;
 
-  /** Le nombre de prescriptions conformes après le 3e contrôle */
+  /** The number of prescriptions that became conforme after the 3rd contrôle */
   nb_conforme_apres_3: number;
 
-  /** Le nombre de prescriptions avec retour à la conformité après plus d’un contrôle */
+  /** The number of prescriptions with a return to conformity after more than one contrôle */
   nb_retour_conformite: number;
 }
 
 /**
- * Statistiques d'impact sur la biodiversité des prescriptions conformes.
+ * Biodiversity impact statistics of the conforme prescriptions.
  */
-export interface StatsImpactBiodiversité {
-  /** Le nombre total de prescriptions avec au moins un contrôle conforme */
+export interface StatsImpactBiodiversite {
+  /** The total number of prescriptions with at least one conforme contrôle */
   total_prescriptions_conformes: number;
 
-  /** La somme totale des surfaces évitées (en m² ou ha selon unité) */
+  /** The total sum of avoided areas (in m² or ha depending on the unit) */
   total_surface_évitée: number;
 
-  /** La somme totale des surfaces compensées */
+  /** The total sum of compensated areas */
   total_surface_compensée: number;
 
-  /** Le nombre total de nids évités */
+  /** The total number of avoided nests */
   total_nids_évités: number;
 
-  /** Le nombre total de nids compensés */
+  /** The total number of compensated nests */
   total_nids_compensés: number;
 
-  /** Le nombre total d'individus évités */
+  /** The total number of avoided individuals */
   total_individus_évités: number;
 
-  /** Le nombre total d'individus compensés */
+  /** The total number of compensated individuals */
   total_individus_compensés: number;
 }
 
 /**
- * AARRI (indicateurs de suivi).
+ * AARRI (tracking indicators).
  */
 export interface IndicateursAARRI {
   nombreBaseUtilisateuricePotentielle: number;

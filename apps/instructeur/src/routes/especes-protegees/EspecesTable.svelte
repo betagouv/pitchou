@@ -1,12 +1,12 @@
 <script lang="ts">
   import { tick } from "svelte";
 
-  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import { firstName } from "./especesList.ts";
   import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
 
   type Props = {
-    especes: EspèceProtégée[];
+    especes: EspeceProtegee[];
   };
 
   let { especes }: Props = $props();
@@ -14,10 +14,10 @@
   const detailModaleId = "modale-detail-espece";
 
   // Espèce whose details are shown in the shared modal, set when a row is activated
-  let especeDetail: EspèceProtégée | null = $state(null);
+  let especeDetail: EspeceProtegee | null = $state(null);
   let triggerDetail: HTMLButtonElement | undefined = $state();
 
-  async function ouvrirDetail(espece: EspèceProtégée) {
+  async function ouvrirDetail(espece: EspeceProtegee) {
     especeDetail = espece;
     await tick();
     triggerDetail?.click();

@@ -4,16 +4,16 @@ export function UTF8ToB64(s: string): string {
 }
 
 /**
- * Normalisation des adresses email
+ * Normalization of email addresses
  */
 export function normalisationEmail(email: string): string {
   return email.toLowerCase();
 }
 
 /**
- * Normalisation du nom vernaculaire ou scientifique d'une seule espèce
+ * Normalization of the vernacular or scientific name of a single espèce
  */
-export function normalizeNomEspèce(nom: string): string {
+export function normalizeNomEspece(nom: string): string {
   return nom
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents
@@ -25,9 +25,9 @@ export function normalizeNomEspèce(nom: string): string {
 }
 
 /**
- * Normalisation d'un texte long pouvant contenir des noms d'espèces
+ * Normalization of a long text that may contain espèce names
  */
-export function normalizeTexteEspèce(texte: string): string {
+export function normalizeTexteEspece(texte: string): string {
   return texte
     .trim()
     .normalize("NFD")

@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * @deprecated Utiliser BadgePhase à la place.
+   * @deprecated Use BadgePhase instead.
    */
 
   import type { MouseEventHandler } from "svelte/elements";
@@ -30,7 +30,7 @@
     ["Accompagnement amont", "phase--accompagnement-amont"],
     ["Étude recevabilité DDEP", "phase--étude-recevabilité"],
     ["Instruction", "phase--instruction"],
-    ["Contrôle", "phase--contrôle"],
+    ["Controle", "phase--contrôle"],
     ["Classé sans suite", "phase--classé-sans-suite"],
     ["Obligations terminées", "phase--obligations-terminées"],
   ]);
@@ -44,8 +44,8 @@
     ["fr-tag", tailleToClass.get(taille), phaseToClass.get(phase), ...classes].filter((x) => !!x),
   );
 
-  // Le DSFR rajoute ses propres listeners pour gérer les aria-pressed, mais on n'en a pas besoin
-  // alors, on désactive la propagation des évènements pour éviter des problèmes d'affichage
+  // The DSFR adds its own listeners to handle aria-pressed, but we don't need them,
+  // so we disable event propagation to avoid display issues
   const onClickWithDSFROverride: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (onClick) {
       e.stopImmediatePropagation();
