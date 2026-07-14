@@ -5,7 +5,7 @@ import { directDatabaseConnection } from "../database.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 
-export async function ajouterEvenementDepuisCap(cap: string, évènement: EvenementMetrique) {
+export async function addEvenementFromCap(cap: string, évènement: EvenementMetrique) {
   const personne = await directDatabaseConnection("cap_évènement_métrique")
     .select("id")
     .from("personne")
@@ -26,7 +26,7 @@ export async function ajouterEvenementDepuisCap(cap: string, évènement: Evenem
   });
 }
 
-export async function supprimerEvenementsParEmail(
+export async function deleteEvenementsByEmail(
   email: NonNullable<Personne["email"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {
@@ -36,7 +36,7 @@ export async function supprimerEvenementsParEmail(
     .delete();
 }
 
-export async function getAllEvenementsAvecEmail(): Promise<
+export async function getAllEvenementsWithEmail(): Promise<
   {
     email: string | null;
     groupesInstructeurs: string[] | null;
@@ -45,7 +45,7 @@ export async function getAllEvenementsAvecEmail(): Promise<
     détails: unknown | null;
   }[]
 > {
-  const groupesParPersonne = directDatabaseConnection("cap_dossier")
+  const groupesByPersonne = directDatabaseConnection("cap_dossier")
     .join(
       "arête_cap_dossier__groupe_instructeurs",
       "arête_cap_dossier__groupe_instructeurs.cap_dossier",
@@ -67,7 +67,7 @@ export async function getAllEvenementsAvecEmail(): Promise<
 
   return directDatabaseConnection("évènement_métrique")
     .join("personne", { "personne.id": "évènement_métrique.personne" })
-    .leftJoin(groupesParPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
+    .leftJoin(groupesByPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
     .select(
       "personne.email",
       "groupes_par_personne.groupes as groupesInstructeurs",
@@ -79,7 +79,7 @@ export async function getAllEvenementsAvecEmail(): Promise<
     .orderBy("évènement_métrique.date", "asc");
 }
 
-export async function supprimerEvenementsAvantTelleDate(
+export async function deleteEvenementsBeforeDate(
   date: Date,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {

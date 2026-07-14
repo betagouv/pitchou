@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { requireAdmin } from "$lib/server/auth.ts";
-import { getAllEvenementsAvecEmail } from "@pitchou/server/database/evenements_metriques.ts";
+import { getAllEvenementsWithEmail } from "@pitchou/server/database/evenements_metriques.ts";
 
 function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -13,7 +13,7 @@ function csvEscape(value: unknown): string {
 
 export const GET: RequestHandler = async ({ url }) => {
   await requireAdmin(url);
-  const rows = await getAllEvenementsAvecEmail();
+  const rows = await getAllEvenementsWithEmail();
 
   const lines = [
     "email,groupes instructeurs,date,évènement,détails",
