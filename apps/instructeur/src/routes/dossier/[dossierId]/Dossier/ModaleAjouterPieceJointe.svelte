@@ -1,6 +1,6 @@
 <script lang="ts">
   import { addAttachmentAutre } from "./attachmentAutre.ts";
-  import { ajouterOuModifierAvisExpert } from "./avisExpert.ts";
+  import { addOrUpdateAvisExpert } from "./avisExpert.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
@@ -173,7 +173,7 @@
           date_saisine: dateSaisine,
         };
 
-        ajouterUneNouvellePieceJointeP = ajouterOuModifierAvisExpert(
+        ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
           avisExpertACreer,
           fichierSaisine,
           undefined,
@@ -201,7 +201,7 @@
             date_saisine: dateSaisine,
             date_avis: dateAvis,
           };
-          ajouterUneNouvellePieceJointeP = ajouterOuModifierAvisExpert(
+          ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
             avisExpertACreer,
             undefined,
             fichierAvis,
@@ -222,7 +222,7 @@
               date_avis: dateAvis,
               avis,
             };
-            ajouterUneNouvellePieceJointeP = ajouterOuModifierAvisExpert(
+            ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
               avisExpertAModifier,
               undefined,
               fichierAvis,

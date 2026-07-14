@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { supprimerAvisExpert as supprimerAvisExpertServeur } from "./avisExpert.ts";
+  import { deleteAvisExpert as deleteAvisExpertServer } from "./avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
@@ -14,9 +14,9 @@
 
   let { dossier }: Props = $props();
 
-  const idModaleAjouterPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
+  const idModalAddPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
-  let avisExpertTries = $derived(
+  let sortedAvisExpert = $derived(
     [...dossier.avisExpert].sort((a, b) => {
       const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0);
       const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0);
@@ -24,18 +24,18 @@
     }),
   );
 
-  async function supprimerAvisExpert(avisExpert: FrontEndAvisExpert) {
-    await supprimerAvisExpertServeur(avisExpert);
+  async function deleteAvisExpert(avisExpert: FrontEndAvisExpert) {
+    await deleteAvisExpertServer(avisExpert);
     await refreshDossierComplet(dossier.id);
   }
 </script>
 
-<div class="section-liste-avis-expert">
+<div class="section-list-avis-expert">
   <h2>Avis d'experts</h2>
-  {#if avisExpertTries.length >= 1}
-    <div class="liste-avis-expert">
-      {#each avisExpertTries as avisExpert}
-        <AvisExpert dossierId={dossier.id} {avisExpert} {supprimerAvisExpert} />
+  {#if sortedAvisExpert.length >= 1}
+    <div class="list-avis-expert">
+      {#each sortedAvisExpert as avisExpert}
+        <AvisExpert dossierId={dossier.id} {avisExpert} {deleteAvisExpert} />
       {/each}
     </div>
   {:else}
@@ -47,10 +47,10 @@
   {/if}
   <button
     type="button"
-    class="fr-btn fr-mt-3w {avisExpertTries.length === 0
+    class="fr-btn fr-mt-3w {sortedAvisExpert.length === 0
       ? ''
       : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line"
-    aria-controls={idModaleAjouterPieceJointeAvis}
+    aria-controls={idModalAddPieceJointeAvis}
     data-fr-opened="false"
     onclick={() =>
       envoyerEvenement({
@@ -62,14 +62,14 @@
   </button>
 </div>
 
-<ModaleAjouterPieceJointe id={idModaleAjouterPieceJointeAvis} {dossier} source="ongletAvis" />
+<ModaleAjouterPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
 
 <style lang="scss">
-  .section-liste-avis-expert {
+  .section-list-avis-expert {
     display: flex;
     flex-direction: column;
   }
-  .liste-avis-expert {
+  .list-avis-expert {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;

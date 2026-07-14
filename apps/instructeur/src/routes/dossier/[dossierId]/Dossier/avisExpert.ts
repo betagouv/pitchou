@@ -10,7 +10,7 @@ import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 /**
  * Adds an expert avis.
  */
-export function ajouterOuModifierAvisExpert(
+export function addOrUpdateAvisExpert(
   frontEndAvisExpert: Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>,
   fileFichierSaisine?: File | undefined,
   fileFichierAvis?: File | undefined,
@@ -78,7 +78,7 @@ export function ajouterOuModifierAvisExpert(
 /**
  * Deletes an expert avis.
  */
-export function supprimerAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
+export function deleteAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
   const deleteAvisExpert = store.capabilities.deleteAvisExpert;
   if (!deleteAvisExpert) {
     throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);

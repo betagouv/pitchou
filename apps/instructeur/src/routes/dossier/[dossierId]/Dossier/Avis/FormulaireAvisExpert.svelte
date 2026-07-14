@@ -1,18 +1,18 @@
 <script lang="ts">
   import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
-  import { ajouterOuModifierAvisExpert } from "../avisExpert.ts";
+  import { addOrUpdateAvisExpert } from "../avisExpert.ts";
   import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../../DateInput.svelte";
 
   type Props = {
     dossierId: DossierComplet["id"];
-    fermerLeFormulaire: () => void;
+    closeForm: () => void;
     avisExpertInitial?: FrontEndAvisExpert;
   };
 
-  let { fermerLeFormulaire, dossierId, avisExpertInitial = $bindable() }: Props = $props();
+  let { closeForm, dossierId, avisExpertInitial = $bindable() }: Props = $props();
 
   let avisExpert: Partial<
     Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">
@@ -22,9 +22,9 @@
 
   let fileListFichierAvis: FileList | undefined = $state();
 
-  let messageErreur: string | null = $state(null);
+  let errorMessage: string | null = $state(null);
 
-  let chargementAjouterOuModifierAvisExpertP: Promise<void> = $state(Promise.resolve());
+  let loadingAddOrUpdateAvisExpertP: Promise<void> = $state(Promise.resolve());
 
   let serviceOuPersonneExperte: string = $state(
     avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
@@ -38,7 +38,7 @@
       : (avisExpert?.expert ?? ""),
   );
 
-  function sauvegarderAvisExpert(e: SubmitEvent) {
+  function saveAvisExpert(e: SubmitEvent) {
     e.preventDefault();
 
     let fichierSaisine: File | undefined;
@@ -68,23 +68,23 @@
       }
     }
 
-    const avisExpertAAjouterOuModifier = avisExpertInitial?.id
+    const avisExpertToAddOrUpdate = avisExpertInitial?.id
       ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert }
       : { dossier: dossierId, ...avisExpert };
 
-    if (avisExpertAAjouterOuModifier) {
-      chargementAjouterOuModifierAvisExpertP = ajouterOuModifierAvisExpert(
-        avisExpertAAjouterOuModifier,
+    if (avisExpertToAddOrUpdate) {
+      loadingAddOrUpdateAvisExpertP = addOrUpdateAvisExpert(
+        avisExpertToAddOrUpdate,
         fichierSaisine,
         fichierAvis,
       )
-        .then(() => refreshDossierComplet(dossierId).then(() => fermerLeFormulaire()))
-        .catch((e) => (messageErreur = e.message));
+        .then(() => refreshDossierComplet(dossierId).then(() => closeForm()))
+        .catch((e) => (errorMessage = e.message));
     }
   }
 </script>
 
-<form id="formulaire-ajouter-avis-expert" onsubmit={sauvegarderAvisExpert}>
+<form id="formulaire-ajouter-avis-expert" onsubmit={saveAvisExpert}>
   <fieldset
     class="fr-fieldset"
     id="formulaire-ajouter-avis-expert-fieldset"
@@ -98,7 +98,7 @@
       {/if}
     </legend>
     <!-- Section Expert -->
-    <h4 class="section-titre fr-h6">Expert</h4>
+    <h4 class="section-title fr-h6">Expert</h4>
     <div class="fr-fieldset__element">
       <fieldset class="fr-fieldset radio-service-ou-personne-experte">
         <legend class="fr-fieldset__legend">Service ou personne experte</legend>
@@ -140,7 +140,7 @@
     </div>
 
     <!-- Section Saisine -->
-    <h4 class="section-titre fr-h6">Saisine</h4>
+    <h4 class="section-title fr-h6">Saisine</h4>
     <div class="fr-fieldset__element">
       <div class="fr-upload-fichier-saisine-group">
         <label class="fr-label" for="upload-fichier-saisine"
@@ -183,7 +183,7 @@
     </div>
 
     <!-- Section Avis -->
-    <h4 class="section-titre fr-h6">Avis</h4>
+    <h4 class="section-title fr-h6">Avis</h4>
     <div class="fr-fieldset__element">
       <div class="fr-upload-fichier-avis-group">
         <label class="fr-label" for="upload-fichier-avis"
@@ -246,9 +246,9 @@
       id="formulaire-ajouter-avis-expert-fieldset-messages"
       aria-live="polite"
     >
-      {#if messageErreur}
+      {#if errorMessage}
         <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
-          <p>{messageErreur}</p>
+          <p>{errorMessage}</p>
         </div>
       {/if}
     </div>
@@ -257,12 +257,12 @@
       class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-4w"
     >
       <li>
-        <button type="button" class="fr-btn fr-btn--secondary" onclick={fermerLeFormulaire}
+        <button type="button" class="fr-btn fr-btn--secondary" onclick={closeForm}
           >Annuler</button
         >
       </li>
       <li>
-        {#await chargementAjouterOuModifierAvisExpertP}
+        {#await loadingAddOrUpdateAvisExpertP}
           <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">
             Sauvegarde en cours
           </p>
@@ -284,7 +284,7 @@
     margin-bottom: 0;
   }
 
-  .section-titre {
+  .section-title {
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     border-bottom: 1px solid var(--border-default-grey);
@@ -292,7 +292,7 @@
     padding-bottom: 0.5rem;
   }
 
-  .section-titre:first-of-type {
+  .section-title:first-of-type {
     margin-top: 0;
   }
 </style>
