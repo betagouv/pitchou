@@ -15,7 +15,7 @@ import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.t
 /**
  * Returns the dossier filled with the fields common to the DS dossiers from Démarche 88444 to initialize and to the DS dossiers to modify for the synchronization.
  */
-export function makeColonnesCommunesDossierPourSynchro88444(
+export function makeCommonDossierColumnsForSync88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
 ): DossierInitializer | DossierMutator {

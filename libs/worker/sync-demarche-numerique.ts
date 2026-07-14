@@ -32,10 +32,10 @@ import {
 } from "./synchronisation-ds/synchronisation-dossier-88444.ts";
 
 import {
-  getDonneesPersonnesEntreprises88444,
-  makeDossiersPourSynchronisation,
+  getPersonnesEntreprisesData88444,
+  makeDossiersForSynchronization,
 } from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
-import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.ts";
+import { makeCommonDossierColumnsForSync88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
@@ -65,8 +65,8 @@ import type {
   AnnotationsPriveesDemarcheNumerique88444,
 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
-  GetDonneesPersonnesEntreprises,
-  MakeColonnesCommunesDossierPourSynchro,
+  GetPersonnesEntreprisesData,
+  MakeCommonDossierColumnsForSync,
 } from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
@@ -177,17 +177,17 @@ const downloadedFichiersMotivationP: Promise<Map<DossierDS88444["number"], FileI
 const downloadedFichiersMotivation = await downloadedFichiersMotivationP;
 
 const {
-  getDonnéesPersonnesEntreprises: getDonneesPersonnesEntreprises,
-  makeColonnesCommunesDossierPourSynchro,
+  getPersonnesEntreprisesData,
+  makeCommonDossierColumnsForSync,
 } = (() => {
   if (DEMARCHE_NUMBER === 88444) {
     return {
       // We can't create types that depend on a parameter — here we'd want
-      // GetDonnéesPersonnesEntreprises to be a function of keyof DossierDemarcheNumerique88444
-      getDonnéesPersonnesEntreprises:
-        getDonneesPersonnesEntreprises88444 as unknown as GetDonneesPersonnesEntreprises,
-      makeColonnesCommunesDossierPourSynchro:
-        makeColonnesCommunesDossierPourSynchro88444 as unknown as MakeColonnesCommunesDossierPourSynchro,
+      // GetPersonnesEntreprisesData to be a function of keyof DossierDemarcheNumerique88444
+      getPersonnesEntreprisesData:
+        getPersonnesEntreprisesData88444 as unknown as GetPersonnesEntreprisesData,
+      makeCommonDossierColumnsForSync:
+        makeCommonDossierColumnsForSync88444 as unknown as MakeCommonDossierColumnsForSync,
     };
   } else {
     throw new Error(
@@ -196,16 +196,16 @@ const {
   }
 })();
 
-const { dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro } =
-  await makeDossiersPourSynchronisation(
+const { dossiersToInitializeForSync, dossiersToUpdateForSync } =
+  await makeDossiersForSynchronization(
     dossiersDS,
     DEMARCHE_NUMBER,
     dossierNumberToDossierId,
     downloadedFichiersMotivation,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
-    getDonneesPersonnesEntreprises,
-    makeColonnesCommunesDossierPourSynchro,
+    getPersonnesEntreprisesData,
+    makeCommonDossierColumnsForSync,
   );
 
 /*
@@ -224,7 +224,7 @@ for (const personne of allPersonnesCurrentlyInDatabase) {
 const dossiersForSynchronization: readonly (
   | DossierEntreprisesPersonneInitializersPourInsert
   | DossierEntreprisesPersonneInitializersPourUpdate
-)[] = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro]);
+)[] = Object.freeze([...dossiersToInitializeForSync, ...dossiersToUpdateForSync]);
 
 const personnesInDossiersWithEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
 const personnesInDossiersWithoutEmail = new Map<string, PersonneInitializer>();
@@ -326,7 +326,7 @@ if (entreprisesInDossiersBySiret.size >= 1) {
  */
 
 function _replacePersonneEntreprise(
-  dossierPourSynchronisation:
+  dossierForSynchronization:
     | DossierEntreprisesPersonneInitializersPourInsert
     | DossierEntreprisesPersonneInitializersPourUpdate,
 ) {
@@ -339,7 +339,7 @@ function _replacePersonneEntreprise(
       ...otherDossierProperties
     },
     ...otherTablesData
-  } = dossierPourSynchronisation;
+  } = dossierForSynchronization;
 
   return {
     dossier: {
@@ -366,8 +366,8 @@ function replaceForUpdate(
   return _replacePersonneEntreprise(d) as DossierPourUpdate;
 }
 
-const dossiersToInitialize = dossiersAInitialiserPourSynchro.map(replaceForInsert);
-const dossiersToUpdate = dossiersAModifierPourSynchro.map(replaceForUpdate);
+const dossiersToInitialize = dossiersToInitializeForSync.map(replaceForInsert);
+const dossiersToUpdate = dossiersToUpdateForSync.map(replaceForUpdate);
 
 /** Download the new impacted-espece files */
 const downloadedFichiersEspecesImpacteesP: Promise<
@@ -419,7 +419,7 @@ const downloadedFichiersPiecesJointesPetitionnaireP = (async () => {
  * Synchronization of the dossiers
  */
 let synchronizedDossiers;
-if (dossiersToInitialize.length >= 1 || dossiersAModifierPourSynchro.length >= 1) {
+if (dossiersToInitialize.length >= 1 || dossiersToUpdateForSync.length >= 1) {
   synchronizedDossiers = dumpDossiers(
     dossiersToInitialize,
     dossiersToUpdate,

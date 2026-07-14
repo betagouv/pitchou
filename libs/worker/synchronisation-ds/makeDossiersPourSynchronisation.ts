@@ -28,7 +28,7 @@ import type { TypeDecisionAdministrative, DossierPhase } from "@pitchou/types/AP
 import type { DonneesSupplementairesPourCreationDossier } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
-export type MakeColonnesCommunesDossierPourSynchro = (
+export type MakeCommonDossierColumnsForSync = (
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
@@ -38,7 +38,7 @@ export type MakeColonnesCommunesDossierPourSynchro = (
  * Retrieves the data of a DS dossier needed to create the personnes and the entreprises (déposants and demandeurs) in the database.
  * The first parameter of pitchouKeyToChampDS must be a string that represents a key of the DossierDémarcheSimplifiée
  */
-export type GetDonneesPersonnesEntreprises = (
+export type GetPersonnesEntreprisesData = (
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
 ) => DonneesPersonnesEntreprisesInitializer;
@@ -55,7 +55,7 @@ function formatPostalAddress(
   return [streetAddress, secondLine].filter(Boolean).join("\n") || undefined;
 }
 
-export function getDonneesPersonnesEntreprises88444(
+export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
 ): DonneesPersonnesEntreprisesInitializer {
@@ -244,7 +244,7 @@ async function makeChampsDossierForInitialization(
   demarcheNumber: number,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
-  makeColonnesCommunesDossierPourSynchro: MakeColonnesCommunesDossierPourSynchro,
+  makeCommonDossierColumnsForSync: MakeCommonDossierColumnsForSync,
 ): Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, "dossier">> {
   const additionalDataToDecrypt = dossierDS?.champs.find(
     (champ) => champ.label === "NE PAS MODIFIER - Données techniques associées à votre dossier",
@@ -277,7 +277,7 @@ async function makeChampsDossierForInitialization(
 
   return {
     dossier: {
-      ...makeColonnesCommunesDossierPourSynchro(
+      ...makeCommonDossierColumnsForSync(
         dossierDS,
         pitchouKeyToChampDS,
         pitchouKeyToAnnotationDS,
@@ -336,12 +336,12 @@ function makeEvenementsPhaseDossierFromTraitementsDS(
  */
 function makeDecisionAdministrativeFromTraitementDS(
   dossierDS: DossierDS88444,
-  fichiersMotivationTelecharges: Map<DossierDS88444["number"], FileId> | undefined,
+  downloadedFichiersMotivation: Map<DossierDS88444["number"], FileId> | undefined,
   idPitchouDuDossier: DecisionAdministrative["dossier"] | null,
 ): PartialBy<DecisionAdministrativeInitializer, "dossier">[] {
   const decisionsAdministratives: PartialBy<DecisionAdministrativeInitializer, "dossier">[] = [];
 
-  const fichierMotivationId = fichiersMotivationTelecharges?.get(dossierDS.number);
+  const fichierMotivationId = downloadedFichiersMotivation?.get(dossierDS.number);
 
   if (fichierMotivationId) {
     let type: TypeDecisionAdministrative = "Autre décision";
@@ -374,32 +374,32 @@ function makeDecisionAdministrativeFromTraitementDS(
  * then transforms it into the format expected by the application
  * in order to allow its insertion or update in the database.
  */
-export async function makeDossiersPourSynchronisation(
+export async function makeDossiersForSynchronization(
   dossiersDS: DossierDS88444[],
   demarcheNumber: number,
   numberDSDossiersAlreadyExistingInDB: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
-  fichiersMotivationTelecharges: Map<number, FileId> | undefined,
+  downloadedFichiersMotivation: Map<number, FileId> | undefined,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
-  getDonneesPersonnesEntreprises: GetDonneesPersonnesEntreprises,
-  makeColonnesCommunesDossierPourSynchro: MakeColonnesCommunesDossierPourSynchro,
+  getPersonnesEntreprisesData: GetPersonnesEntreprisesData,
+  makeCommonDossierColumnsForSync: MakeCommonDossierColumnsForSync,
 ): Promise<{
-  dossiersAInitialiserPourSynchro: DossierEntreprisesPersonneInitializersPourInsert[];
-  dossiersAModifierPourSynchro: DossierEntreprisesPersonneInitializersPourUpdate[];
+  dossiersToInitializeForSync: DossierEntreprisesPersonneInitializersPourInsert[];
+  dossiersToUpdateForSync: DossierEntreprisesPersonneInitializersPourUpdate[];
 }> {
   const { dossiersDSToInitialize, dossiersDSToUpdate } = splitDossiersToInitializeAndToUpdate(
     dossiersDS,
     numberDSDossiersAlreadyExistingInDB,
   );
 
-  const dossiersAInitialiserPourSynchroP: Promise<DossierEntreprisesPersonneInitializersPourInsert>[] =
+  const dossiersToInitializeForSyncP: Promise<DossierEntreprisesPersonneInitializersPourInsert>[] =
     dossiersDSToInitialize.map((dossierDS) => {
       const champsDossierForInitP = makeChampsDossierForInitialization(
         dossierDS,
         demarcheNumber,
         pitchouKeyToChampDS,
         pitchouKeyToAnnotationDS,
-        makeColonnesCommunesDossierPourSynchro,
+        makeCommonDossierColumnsForSync,
       );
 
       const évènement_phase_dossier = makeEvenementsPhaseDossierFromTraitementsDS(
@@ -408,14 +408,14 @@ export async function makeDossiersPourSynchronisation(
 
       const décision_administrative = makeDecisionAdministrativeFromTraitementDS(
         dossierDS,
-        fichiersMotivationTelecharges,
+        downloadedFichiersMotivation,
         null,
       );
 
       return champsDossierForInitP.then((champsDossierForInit) => ({
         dossier: {
           ...champsDossierForInit.dossier,
-          ...getDonneesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+          ...getPersonnesEntreprisesData(dossierDS, pitchouKeyToChampDS),
         },
         // The phase events returned by makeÉvènementsPhaseDossierFromTraitementsDS
         // only concern the dossiers to update (not the ones being created)
@@ -430,7 +430,7 @@ export async function makeDossiersPourSynchronisation(
       }));
     });
 
-  const dossiersAModifierPourSynchro = dossiersDSToUpdate.map((dossierDS) => {
+  const dossiersToUpdateForSync = dossiersDSToUpdate.map((dossierDS) => {
     const dossierId = numberDSDossiersAlreadyExistingInDB.get(String(dossierDS.number));
 
     if (!dossierId) {
@@ -439,7 +439,7 @@ export async function makeDossiersPourSynchronisation(
       );
     }
 
-    const partialDossier = makeColonnesCommunesDossierPourSynchro(
+    const partialDossier = makeCommonDossierColumnsForSync(
       dossierDS,
       pitchouKeyToChampDS,
       pitchouKeyToAnnotationDS,
@@ -452,24 +452,24 @@ export async function makeDossiersPourSynchronisation(
 
     const décision_administrative = makeDecisionAdministrativeFromTraitementDS(
       dossierDS,
-      fichiersMotivationTelecharges,
+      downloadedFichiersMotivation,
       dossierId,
     );
 
     return {
       dossier: {
         ...partialDossier,
-        ...getDonneesPersonnesEntreprises(dossierDS, pitchouKeyToChampDS),
+        ...getPersonnesEntreprisesData(dossierDS, pitchouKeyToChampDS),
       },
       évènement_phase_dossier,
       décision_administrative,
     };
   });
 
-  const dossiersAInitialiserPourSynchro = await Promise.all(dossiersAInitialiserPourSynchroP);
+  const dossiersToInitializeForSync = await Promise.all(dossiersToInitializeForSyncP);
 
   return {
-    dossiersAInitialiserPourSynchro,
-    dossiersAModifierPourSynchro,
+    dossiersToInitializeForSync,
+    dossiersToUpdateForSync,
   };
 }
