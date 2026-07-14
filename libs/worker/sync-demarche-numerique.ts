@@ -27,8 +27,8 @@ import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
 import { downloadNewFichiersMotivation } from "./synchronisation-ds/telechargerNouveauxFichiersParType.ts";
 import {
-  recupererFichiersEspecesImpactees88444,
-  recupererPiecesJointesPetitionnaire88444,
+  getFichiersEspecesImpactees88444,
+  getPiecesJointesPetitionnaire88444,
 } from "./synchronisation-ds/synchronisation-dossier-88444.ts";
 
 import {
@@ -39,7 +39,7 @@ import { makeColonnesCommunesDossierPourSynchro88444 } from "./synchronisation-d
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
-import { mettreAjourNotification } from "./synchronisation-ds/synchronisation-notification.ts";
+import { updateNotification } from "./synchronisation-ds/synchronisation-notification.ts";
 
 import type { default as DatabaseDossier } from "@pitchou/types/database/public/Dossier.ts";
 import type {
@@ -374,7 +374,7 @@ const downloadedFichiersEspecesImpacteesP: Promise<
   Map<DossierDS88444["number"], FileId> | undefined
 > = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
-    return recupererFichiersEspecesImpactees88444(
+    return getFichiersEspecesImpactees88444(
       dossiersDS,
       pitchouKeyToChampDS,
       synchronizationTransactionDS,
@@ -402,7 +402,7 @@ const champsWithPiecesJointes88444: ChampFormulaire88444[] = [
 /** Download the pièces jointes attached to the dossier by the pétitionnaire */
 const downloadedFichiersPiecesJointesPetitionnaireP = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
-    return recupererPiecesJointesPetitionnaire88444(
+    return getPiecesJointesPetitionnaire88444(
       dossiersDS,
       pitchouKeyToChampDS,
       champsWithPiecesJointes88444,
@@ -539,7 +539,7 @@ const synchronizedFichiersPiecesJointesPetitionnaire =
 /*
     Update the notifications
 */
-const updateNotificationP = mettreAjourNotification(
+const updateNotificationP = updateNotification(
   dossiersDS,
   dossierIdByDS_number,
   synchronizationTransactionDS,

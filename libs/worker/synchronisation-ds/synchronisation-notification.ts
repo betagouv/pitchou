@@ -4,10 +4,10 @@ import type { NotificationInitializer } from "@pitchou/types/database/public/Not
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-export async function mettreAjourNotification(
+export async function updateNotification(
   dossiersDN: DossierDS88444[],
   dossierIdByDN_number: Map<DossierDS88444["number"], DossierId>,
-  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+  synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<any | void> {
   if (dossiersDN.length === 0) {
     return;
@@ -16,13 +16,13 @@ export async function mettreAjourNotification(
   const dossierIds = [...dossierIdByDN_number.values()];
 
   // For each dossier, retrieve the personnes who follow this dossier.
-  const rowsPersonneEtDossierSuivi: { personne: PersonneId; dossier: DossierId }[] =
-    await laTransactionDeSynchronisationDS("arête_personne_suit_dossier")
+  const rowsPersonneAndDossierSuivi: { personne: PersonneId; dossier: DossierId }[] =
+    await synchronizationTransactionDS("arête_personne_suit_dossier")
       .select("*")
       .whereIn("dossier", dossierIds);
 
-  const personnesSuivantDossierParDossier: Map<DossierId, { personne: PersonneId }[]> = Map.groupBy(
-    rowsPersonneEtDossierSuivi,
+  const personnesFollowingDossierByDossier: Map<DossierId, { personne: PersonneId }[]> = Map.groupBy(
+    rowsPersonneAndDossierSuivi,
     (row) => row.dossier,
   );
 
@@ -36,13 +36,13 @@ export async function mettreAjourNotification(
         `Dans la mise à jour de la table Notification, le dossier de Démarche numérique numéro ${dossierDN.number} n'a pas trouvé de correspondance parmi les id des dossiers Pitchou.`,
       );
     }
-    const personnesSuivantCeDossier = personnesSuivantDossierParDossier.get(dossierId);
+    const personnesFollowingThisDossier = personnesFollowingDossierByDossier.get(dossierId);
 
-    if (personnesSuivantCeDossier && personnesSuivantCeDossier.length >= 1) {
-      personnesSuivantCeDossier.forEach((personneSuivantCeDossier) =>
+    if (personnesFollowingThisDossier && personnesFollowingThisDossier.length >= 1) {
+      personnesFollowingThisDossier.forEach((personneFollowingThisDossier) =>
         notifications.push({
           dossier: dossierId,
-          personne: personneSuivantCeDossier.personne,
+          personne: personneFollowingThisDossier.personne,
           date_dernière_mise_à_jour: dossierDN.dateDerniereModification,
           vue: false,
         }),
@@ -59,7 +59,7 @@ export async function mettreAjourNotification(
   // STRICTLY more recent than the stored one. A different but older date
   // (re-import, or seed date > actual dossier date) must not reset "vue" back to false.
   // NULL case: if the stored date is NULL, any non-NULL received date is considered more recent.
-  return laTransactionDeSynchronisationDS("notification")
+  return synchronizationTransactionDS("notification")
     .insert(notifications)
     .onConflict(["dossier", "personne"])
     .merge()

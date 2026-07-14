@@ -12,10 +12,10 @@ import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 /**
  * Downloads the new "Espèces impactées" files for démarche 88444
  */
-export function recupererFichiersEspecesImpactees88444(
+export function getFichiersEspecesImpactees88444(
   dossiersDS: DossierDS88444[],
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
-  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+  synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
   const fichierEspecesImpacteeChampId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(
     "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
@@ -27,22 +27,22 @@ export function recupererFichiersEspecesImpactees88444(
   return downloadNewFichiersEspecesImpactees(
     dossiersDS,
     fichierEspecesImpacteeChampId,
-    laTransactionDeSynchronisationDS,
+    synchronizationTransactionDS,
   );
 }
 
 /**
  * Downloads the pièces jointes attached to the dossier provided by the pétitionnaire for démarche 88444
  */
-export async function recupererPiecesJointesPetitionnaire88444(
+export async function getPiecesJointesPetitionnaire88444(
   dossiersDS: DossierDS88444[],
   pitchouKeyToChampDS: Map<ChampFormulaire88444, ChampDescriptor["id"]>,
-  champsAvecPiecesJointes: ChampFormulaire88444[],
+  champsWithPiecesJointes: ChampFormulaire88444[],
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId[]>> {
   const fichiersP: Map<DossierDS88444["number"], FileId[]> = new Map();
 
-  for (const champ of champsAvecPiecesJointes) {
+  for (const champ of champsWithPiecesJointes) {
     const champId = pitchouKeyToChampDS.get(champ);
     if (!champId) {
       throw new Error(`champId for ${champ} is undefined`);
@@ -57,8 +57,8 @@ export async function recupererPiecesJointesPetitionnaire88444(
 
     if (fichiersFromDossier) {
       for (const [number, fichierIds] of fichiersFromDossier) {
-        const fichiersIdsDejaLa = fichiersP.get(number) || [];
-        fichiersP.set(number, [...fichierIds, ...fichiersIdsDejaLa]);
+        const fichierIdsAlreadyThere = fichiersP.get(number) || [];
+        fichiersP.set(number, [...fichierIds, ...fichierIdsAlreadyThere]);
       }
     }
   }
