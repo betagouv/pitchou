@@ -121,18 +121,18 @@ console.info(
   `(${formatDistanceToNow(lastModified, { locale: fr })})`,
 );
 
-const laTransactionDeSynchronisationDS = await createTransaction();
+const synchronizationTransactionDS = await createTransaction();
 
-const dossSuppP = getAllDeletedDossiers(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER);
+const deletedDossiersP = getAllDeletedDossiers(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER);
 
-const groupesInstructeursSynchronises = getGroupesInstructeurs(
+const synchronizedGroupesInstructeurs = getGroupesInstructeurs(
   DEMARCHE_SIMPLIFIEE_API_TOKEN,
   DEMARCHE_NUMBER,
 ).then((groupesInstructeurs) =>
   synchronizeGroupesInstructeurs(
     groupesInstructeurs,
     DEMARCHE_NUMBER,
-    laTransactionDeSynchronisationDS,
+    synchronizationTransactionDS,
   ),
 );
 
@@ -159,22 +159,22 @@ export const pitchouKeyToAnnotationDS = new Map(
   ),
 ) as Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor["id"]>;
 
-const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(laTransactionDeSynchronisationDS);
+const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(synchronizationTransactionDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-const dossiersDejaExistantsEnBDD = await getDossierIdsFromDS_Ids(
+const dossiersAlreadyInDB = await getDossierIdsFromDS_Ids(
   dossiersDS.map((d: DossierDS88444) => d.id),
-  laTransactionDeSynchronisationDS,
+  synchronizationTransactionDS,
 );
 const dossierNumberToDossierId = new Map(
-  dossiersDejaExistantsEnBDD.map((d) => [d.number_demarches_simplifiées, d.id]),
+  dossiersAlreadyInDB.map((d) => [d.number_demarches_simplifiées, d.id]),
 );
 
 /** Download the new 'motivation' files */
-const fichiersMotivationTelechargesP: Promise<Map<DossierDS88444["number"], FileId> | undefined> =
-  telechargerNouveauxFichiersMotivation(dossiersDS, laTransactionDeSynchronisationDS);
+const downloadedFichiersMotivationP: Promise<Map<DossierDS88444["number"], FileId> | undefined> =
+  telechargerNouveauxFichiersMotivation(dossiersDS, synchronizationTransactionDS);
 
-const fichiersMotivationTelecharges = await fichiersMotivationTelechargesP;
+const downloadedFichiersMotivation = await downloadedFichiersMotivationP;
 
 const {
   getDonnéesPersonnesEntreprises: getDonneesPersonnesEntreprises,
@@ -201,7 +201,7 @@ const { dossiersAInitialiserPourSynchro, dossiersAModifierPourSynchro } =
     dossiersDS,
     DEMARCHE_NUMBER,
     dossierNumberToDossierId,
-    fichiersMotivationTelecharges,
+    downloadedFichiersMotivation,
     pitchouKeyToChampDS,
     pitchouKeyToAnnotationDS,
     getDonneesPersonnesEntreprises,
@@ -221,28 +221,28 @@ for (const personne of allPersonnesCurrentlyInDatabase) {
   }
 }
 
-const dossiersPourSynchronisation: readonly (
+const dossiersForSynchronization: readonly (
   | DossierEntreprisesPersonneInitializersPourInsert
   | DossierEntreprisesPersonneInitializersPourUpdate
 )[] = Object.freeze([...dossiersAInitialiserPourSynchro, ...dossiersAModifierPourSynchro]);
 
-const personnesInDossiersAvecEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
-const personnesInDossiersSansEmail = new Map<string, PersonneInitializer>();
+const personnesInDossiersWithEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
+const personnesInDossiersWithoutEmail = new Map<string, PersonneInitializer>();
 
 function collectPersonne(personne: PersonneInitializer | undefined) {
   if (!personne) {
     return;
   }
   if (personne.email) {
-    personnesInDossiersAvecEmail.set(personne.email, personne);
+    personnesInDossiersWithEmail.set(personne.email, personne);
   } else {
-    personnesInDossiersSansEmail.set(`${personne.prénoms}|${personne.nom}`, personne);
+    personnesInDossiersWithoutEmail.set(`${personne.prénoms}|${personne.nom}`, personne);
   }
 }
 
 for (const {
   dossier: { déposant, demandeur_personne_physique, representative },
-} of dossiersPourSynchronisation) {
+} of dossiersForSynchronization) {
   collectPersonne(déposant);
   collectPersonne(demandeur_personne_physique);
   collectPersonne(representative);
@@ -264,23 +264,23 @@ function getPersonneId(
     return personne && personne.id;
   }
 
-  const personneParNomPrenom = allPersonnesCurrentlyInDatabase.find(
+  const personneByNomPrenom = allPersonnesCurrentlyInDatabase.find(
     ({ email, nom, prénoms }) =>
       !email && descriptionPersonne.nom === nom && descriptionPersonne.prénoms === prénoms,
   );
 
-  return personneParNomPrenom && personneParNomPrenom.id;
+  return personneByNomPrenom && personneByNomPrenom.id;
 }
 
 const personnesInDossiersWithoutId = [
-  ...personnesInDossiersAvecEmail.values(),
-  ...personnesInDossiersSansEmail.values(),
+  ...personnesInDossiersWithEmail.values(),
+  ...personnesInDossiersWithoutEmail.values(),
 ].filter((p) => !getPersonneId(p));
 
 // console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if (personnesInDossiersWithoutId.length >= 1) {
-  await createPersonnes(personnesInDossiersWithoutId, laTransactionDeSynchronisationDS).then(
+  await createPersonnes(personnesInDossiersWithoutId, synchronizationTransactionDS).then(
     (personneIds) => {
       personnesInDossiersWithoutId.forEach((p, i) => {
         p.id = personneIds[i].id;
@@ -299,7 +299,7 @@ const entreprisesInDossiersBySiret = new Map<Entreprise["siret"], Entreprise>();
 
 for (const {
   dossier: { demandeur_personne_morale, id_demarches_simplifiées },
-} of dossiersPourSynchronisation) {
+} of dossiersForSynchronization) {
   if (demandeur_personne_morale) {
     const { siret } = demandeur_personne_morale;
     if (demandeur_personne_morale && !siret) {
@@ -315,7 +315,7 @@ for (const {
 if (entreprisesInDossiersBySiret.size >= 1) {
   await dumpEntreprises(
     [...entreprisesInDossiersBySiret.values()],
-    laTransactionDeSynchronisationDS,
+    synchronizationTransactionDS,
   );
 }
 
@@ -325,7 +325,7 @@ if (entreprisesInDossiersBySiret.size >= 1) {
  * and the Personne objects with their id
  */
 
-function _remplacerPersonneEntreprise(
+function _replacePersonneEntreprise(
   dossierPourSynchronisation:
     | DossierEntreprisesPersonneInitializersPourInsert
     | DossierEntreprisesPersonneInitializersPourUpdate,
@@ -336,9 +336,9 @@ function _remplacerPersonneEntreprise(
       demandeur_personne_physique,
       demandeur_personne_morale,
       representative,
-      ...autresProprietesDossiers
+      ...otherDossierProperties
     },
-    ...autresDonneesTables
+    ...otherTablesData
   } = dossierPourSynchronisation;
 
   return {
@@ -348,36 +348,36 @@ function _remplacerPersonneEntreprise(
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
       representative: getPersonneId(representative) || null,
-      ...autresProprietesDossiers,
+      ...otherDossierProperties,
     },
-    ...autresDonneesTables,
+    ...otherTablesData,
   };
 }
 
-function remplacerPourInsert(
+function replaceForInsert(
   d: DossierEntreprisesPersonneInitializersPourInsert,
 ): DossierPourInsert {
-  return _remplacerPersonneEntreprise(d) as DossierPourInsert;
+  return _replacePersonneEntreprise(d) as DossierPourInsert;
 }
 
-function remplacerPourUpdate(
+function replaceForUpdate(
   d: DossierEntreprisesPersonneInitializersPourUpdate,
 ): DossierPourUpdate {
-  return _remplacerPersonneEntreprise(d) as DossierPourUpdate;
+  return _replacePersonneEntreprise(d) as DossierPourUpdate;
 }
 
-const dossiersAInitialiser = dossiersAInitialiserPourSynchro.map(remplacerPourInsert);
-const dossiersAModifier = dossiersAModifierPourSynchro.map(remplacerPourUpdate);
+const dossiersToInitialize = dossiersAInitialiserPourSynchro.map(replaceForInsert);
+const dossiersToUpdate = dossiersAModifierPourSynchro.map(replaceForUpdate);
 
 /** Download the new impacted-espece files */
-const fichiersEspecesImpacteesTelechargesP: Promise<
+const downloadedFichiersEspecesImpacteesP: Promise<
   Map<DossierDS88444["number"], FileId> | undefined
 > = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
     return recupererFichiersEspecesImpactees88444(
       dossiersDS,
       pitchouKeyToChampDS,
-      laTransactionDeSynchronisationDS,
+      synchronizationTransactionDS,
     );
   } else {
     throw new Error(
@@ -386,7 +386,7 @@ const fichiersEspecesImpacteesTelechargesP: Promise<
   }
 })();
 
-const champsAvecPiecesJointes88444: ChampFormulaire88444[] = [
+const champsWithPiecesJointes88444: ChampFormulaire88444[] = [
   "Dépot du dossier complet de demande de dérogation",
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande",
   "Diagnostic écologique",
@@ -400,13 +400,13 @@ const champsAvecPiecesJointes88444: ChampFormulaire88444[] = [
 ];
 
 /** Download the pièces jointes attached to the dossier by the pétitionnaire */
-const fichiersPiecesJointesPetitionnaireTelechargesP = (async () => {
+const downloadedFichiersPiecesJointesPetitionnaireP = (async () => {
   if (DEMARCHE_NUMBER === 88444) {
     return recupererPiecesJointesPetitionnaire88444(
       dossiersDS,
       pitchouKeyToChampDS,
-      champsAvecPiecesJointes88444,
-      laTransactionDeSynchronisationDS,
+      champsWithPiecesJointes88444,
+      synchronizationTransactionDS,
     );
   } else {
     throw new Error(
@@ -418,20 +418,20 @@ const fichiersPiecesJointesPetitionnaireTelechargesP = (async () => {
 /**
  * Synchronization of the dossiers
  */
-let dossiersSynchronises;
-if (dossiersAInitialiser.length >= 1 || dossiersAModifierPourSynchro.length >= 1) {
-  dossiersSynchronises = dumpDossiers(
-    dossiersAInitialiser,
-    dossiersAModifier,
-    laTransactionDeSynchronisationDS,
+let synchronizedDossiers;
+if (dossiersToInitialize.length >= 1 || dossiersAModifierPourSynchro.length >= 1) {
+  synchronizedDossiers = dumpDossiers(
+    dossiersToInitialize,
+    dossiersToUpdate,
+    synchronizationTransactionDS,
   );
 }
 
-const dossiersSupprimes = dossSuppP.then((dossiersSupp) =>
-  deleteDossierByDSNumber(dossiersSupp.map(({ number }) => number)),
+const deletedDossiers = deletedDossiersP.then((deletedDossiersData) =>
+  deleteDossierByDSNumber(deletedDossiersData.map(({ number }) => number)),
 );
 
-await Promise.all([dossiersSynchronises, dossiersSupprimes]);
+await Promise.all([synchronizedDossiers, deletedDossiers]);
 
 /**
  * After synchronizing the dossiers
@@ -446,7 +446,7 @@ await Promise.all([dossiersSynchronises, dossiersSupprimes]);
 
 const dossierIds = await getDossierIdsFromDS_Ids(
   dossiersDS.map((d: DossierDS88444) => d.id),
-  laTransactionDeSynchronisationDS,
+  synchronizationTransactionDS,
 );
 const dossierIdByDS_id = new Map<NonNullable<DossierDS88444["id"]>, DatabaseDossier["id"]>();
 const dossierIdByDS_number = new Map<DossierDS88444["number"], DatabaseDossier["id"]>();
@@ -458,64 +458,64 @@ for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of d
 
 /** Synchronization of the messaging */
 
-const messagesAMettreEnBDDAvecDossierId_DS = new Map<
+const messagesToStoreInDBWithDossierId_DS = new Map<
   NonNullable<DatabaseDossier["id_demarches_simplifiées"]>,
   Message[]
 >(dossiersDS.map(({ id: id_DS, messages }: DossierDS88444) => [id_DS, messages]));
 
-let messagesSynchronises;
+let synchronizedMessages;
 
-const messagesAMettreEnBDDAvecDossierId = new Map<DatabaseDossier["id"], Message[]>();
-for (const [id_DS, messages] of messagesAMettreEnBDDAvecDossierId_DS) {
+const messagesToStoreInDBWithDossierId = new Map<DatabaseDossier["id"], Message[]>();
+for (const [id_DS, messages] of messagesToStoreInDBWithDossierId_DS) {
   const dossierId = dossierIdByDS_id.get(id_DS);
 
-  messagesAMettreEnBDDAvecDossierId.set(dossierId!, messages);
+  messagesToStoreInDBWithDossierId.set(dossierId!, messages);
 }
 
-if (messagesAMettreEnBDDAvecDossierId.size >= 1) {
-  messagesSynchronises = dumpDossierMessages(
-    messagesAMettreEnBDDAvecDossierId,
-    laTransactionDeSynchronisationDS,
+if (messagesToStoreInDBWithDossierId.size >= 1) {
+  synchronizedMessages = dumpDossierMessages(
+    messagesToStoreInDBWithDossierId,
+    synchronizationTransactionDS,
   );
 }
 
 /** Synchronization of dossier within groupeInstructeur */
 
-let synchronisationDossierDansGroupeInstructeur;
+let dossierInGroupeInstructeurSynchronization;
 
 if (dossiersDS.length >= 1) {
   /** Synchronization of the information about which dossier belongs to which groupe_instructeurs */
-  synchronisationDossierDansGroupeInstructeur = synchronizeDossierInGroupeInstructeur(
+  dossierInGroupeInstructeurSynchronization = synchronizeDossierInGroupeInstructeur(
     dossiersDS,
     DEMARCHE_NUMBER,
-    laTransactionDeSynchronisationDS,
+    synchronizationTransactionDS,
   );
 }
 
 /** Synchronization of the downloaded impacted-espece files */
-const fichiersEspecesImpacteesSynchronises = fichiersEspecesImpacteesTelechargesP.then(
-  (fichiersEspecesImpacteesTelecharges) => {
-    if (fichiersEspecesImpacteesTelecharges && fichiersEspecesImpacteesTelecharges.size >= 1) {
+const synchronizedFichiersEspecesImpactees = downloadedFichiersEspecesImpacteesP.then(
+  (downloadedFichiersEspecesImpactees) => {
+    if (downloadedFichiersEspecesImpactees && downloadedFichiersEspecesImpactees.size >= 1) {
       return synchroniserFichiersEspecesImpacteesDepuisDS88444(
-        fichiersEspecesImpacteesTelecharges,
-        laTransactionDeSynchronisationDS,
+        downloadedFichiersEspecesImpactees,
+        synchronizationTransactionDS,
       );
     }
   },
 );
 
 /** Synchronization of the downloaded pétitionnaire pièces jointes files */
-const fichiersPiecesJointesPetitionnaireSynchronises =
-  fichiersPiecesJointesPetitionnaireTelechargesP.then(
-    (fichiersPiecesJointesPetitionnaireTelecharges) => {
+const synchronizedFichiersPiecesJointesPetitionnaire =
+  downloadedFichiersPiecesJointesPetitionnaireP.then(
+    (downloadedFichiersPiecesJointesPetitionnaire) => {
       if (DEMARCHE_NUMBER !== 88444) {
         throw new Error(
           `La fonction pour synchroniser les pièces jointes du pétitionnaire n'a pas été trouvée pour la Démarche numéro ${DEMARCHE_NUMBER}.`,
         );
       }
 
-      const fichiersPiecesJointesPetitionnaireTelechargesParDossierId = new Map(
-        [...fichiersPiecesJointesPetitionnaireTelecharges].map(([number, fichiers]) => {
+      const downloadedFichiersPiecesJointesPetitionnaireByDossierId = new Map(
+        [...downloadedFichiersPiecesJointesPetitionnaire].map(([number, fichiers]) => {
           const id = dossierIdByDS_number.get(number);
           if (!id) {
             console.log("dossierIdByDS_number", dossierIdByDS_number);
@@ -526,12 +526,12 @@ const fichiersPiecesJointesPetitionnaireSynchronises =
         }),
       );
       return synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444(
-        fichiersPiecesJointesPetitionnaireTelechargesParDossierId,
+        downloadedFichiersPiecesJointesPetitionnaireByDossierId,
         dossiersDS,
         dossierIdByDS_number,
         pitchouKeyToChampDS,
-        champsAvecPiecesJointes88444,
-        laTransactionDeSynchronisationDS,
+        champsWithPiecesJointes88444,
+        synchronizationTransactionDS,
       );
     },
   );
@@ -539,47 +539,47 @@ const fichiersPiecesJointesPetitionnaireSynchronises =
 /*
     Update the notifications
 */
-const mettreAjourNotificationP = mettreAjourNotification(
+const updateNotificationP = mettreAjourNotification(
   dossiersDS,
   dossierIdByDS_number,
-  laTransactionDeSynchronisationDS,
+  synchronizationTransactionDS,
 );
 
 /** End of the synchronization tool - shutdown */
 
 Promise.all([
-  groupesInstructeursSynchronises,
-  messagesSynchronises,
-  synchronisationDossierDansGroupeInstructeur,
-  fichiersEspecesImpacteesSynchronises,
-  fichiersPiecesJointesPetitionnaireSynchronises,
-  mettreAjourNotificationP,
+  synchronizedGroupesInstructeurs,
+  synchronizedMessages,
+  dossierInGroupeInstructeurSynchronization,
+  synchronizedFichiersEspecesImpactees,
+  synchronizedFichiersPiecesJointesPetitionnaire,
+  updateNotificationP,
 ])
   .then(() => {
     console.log("Sync terminé avec succès, commit de la transaction");
-    const resultatSynchro: ResultatSynchronisationDS88444 = {
+    const syncResult: ResultatSynchronisationDS88444 = {
       succès: true,
       horodatage: new Date(),
       erreur: null,
     };
 
     return Promise.allSettled([
-      addResultatSynchronisationDS88444(resultatSynchro),
-      laTransactionDeSynchronisationDS.commit(),
+      addResultatSynchronisationDS88444(syncResult),
+      synchronizationTransactionDS.commit(),
     ]);
   })
   .catch((err) => {
     console.error("Sync échoué", err, "rollback de la transaction");
 
-    const resultatSynchro: ResultatSynchronisationDS88444 = {
+    const syncResult: ResultatSynchronisationDS88444 = {
       succès: false,
       horodatage: new Date(),
       erreur: err.toString(),
     };
 
     return Promise.allSettled([
-      addResultatSynchronisationDS88444(resultatSynchro),
-      laTransactionDeSynchronisationDS.rollback(),
+      addResultatSynchronisationDS88444(syncResult),
+      synchronizationTransactionDS.rollback(),
     ]);
   })
   .then(() => {
