@@ -13,7 +13,7 @@ import type {
  */
 export async function getStatsPubliques(): Promise<StatsPubliques> {
   const transaction = await creerTransaction({ readOnly: true });
-  const aujourdhui = formatISO(startOfToday());
+  const today = formatISO(startOfToday());
   try {
     // Fetch all the dossiers
     const dossiersP = transaction("dossier").select("id");
@@ -26,7 +26,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
       .groupBy("dossier")
       .orderBy("latest_horodatage", "desc");
 
-    const petitionnairesDepuisSept2024P = transaction("dossier")
+    const petitionnairesSinceSept2024P = transaction("dossier")
       .select(["demandeur_personne_morale", "demandeur_personne_physique"])
       .where("date_dépôt", "<=", "2024-09-30")
       .groupBy("demandeur_personne_morale", "demandeur_personne_physique");
@@ -42,7 +42,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
         "individus_évités",
         "individus_compensés",
       ])
-      .where("date_échéance", "<=", aujourdhui)
+      .where("date_échéance", "<=", today)
       .as("p");
 
     const controleP = transaction
@@ -63,7 +63,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     const [
       dossiers,
       dossiersEnPhaseControle,
-      petitionnairesDepuisSept2024,
+      petitionnairesSinceSept2024,
       statsConformite,
       prescriptions,
       prescriptionsControleesRow,
@@ -71,7 +71,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     ] = await Promise.all([
       dossiersP,
       dossiersEnPhaseControleP,
-      petitionnairesDepuisSept2024P,
+      petitionnairesSinceSept2024P,
       statsConformiteP,
       prescriptionsP,
       prescriptionsControleesP,
@@ -97,7 +97,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
       nbDossiersEnPhaseControleAvecDécision: decisionsPourDossierEnPhaseControle.length,
       nbDossiersEnPhaseControleSansDécision:
         dossiersEnPhaseControle.length - decisionsPourDossierEnPhaseControle.length,
-      nbPétitionnairesDepuisSept2024: petitionnairesDepuisSept2024.length,
+      nbPétitionnairesDepuisSept2024: petitionnairesSinceSept2024.length,
       totalPrescriptions,
       nbPrescriptionsControlees,
       statsConformité: statsConformite,
@@ -126,7 +126,7 @@ async function getStatsConformite(
     .count("* as nb_contrôles")
     .groupBy("prescription");
 
-  const dernierControle = transaction
+  const lastControle = transaction
     .from(controleP.as("contrôle"))
     .select("prescription", "résultat", "date_contrôle")
     .distinctOn("prescription")
@@ -135,8 +135,8 @@ async function getStatsConformite(
       { column: "date_contrôle", order: "desc" },
     ]);
 
-  const resultatsRequeteSQL = await transaction
-    .from(dernierControle.as("dc"))
+  const sqlQueryResults = await transaction
+    .from(lastControle.as("dc"))
     .join(nbControles.as("nc"), "dc.prescription", "nc.prescription")
     .select([
       transaction.raw(`COUNT(*) FILTER (WHERE dc.résultat = 'Non conforme') AS nb_non_conforme`),
@@ -160,12 +160,12 @@ async function getStatsConformite(
     .first();
 
   const stats: StatsConformite = {
-    nb_non_conforme: Number(resultatsRequeteSQL["nb_non_conforme"]),
-    nb_conforme_apres_1: Number(resultatsRequeteSQL["nb_conforme_apres_1"]),
-    nb_conforme_apres_2: Number(resultatsRequeteSQL["nb_conforme_apres_2"]),
-    nb_conforme_apres_3: Number(resultatsRequeteSQL["nb_conforme_apres_3"]),
-    nb_trop_tard: Number(resultatsRequeteSQL["nb_trop_tard"]),
-    nb_retour_conformite: Number(resultatsRequeteSQL["nb_retour_conformite"]),
+    nb_non_conforme: Number(sqlQueryResults["nb_non_conforme"]),
+    nb_conforme_apres_1: Number(sqlQueryResults["nb_conforme_apres_1"]),
+    nb_conforme_apres_2: Number(sqlQueryResults["nb_conforme_apres_2"]),
+    nb_conforme_apres_3: Number(sqlQueryResults["nb_conforme_apres_3"]),
+    nb_trop_tard: Number(sqlQueryResults["nb_trop_tard"]),
+    nb_retour_conformite: Number(sqlQueryResults["nb_retour_conformite"]),
   };
 
   return stats;
@@ -178,7 +178,7 @@ async function getStatsImpactBiodiversite(
   transaction: Knex.Transaction | Knex,
   prescriptionsP: Knex.QueryBuilder,
 ): Promise<StatsImpactBiodiversite> {
-  const sousRequete = transaction
+  const subQuery = transaction
     .from(prescriptionsP.as("p"))
     .join("contrôle", "p.id", "contrôle.prescription")
     .where("contrôle.résultat", "Conforme")
@@ -197,8 +197,8 @@ async function getStatsImpactBiodiversite(
       { column: "contrôle.date_contrôle", order: "desc" },
     ]);
 
-  const résultat = await transaction
-    .from(sousRequete.as("prescriptions_conformes"))
+  const result = await transaction
+    .from(subQuery.as("prescriptions_conformes"))
     .select([
       transaction.raw("COUNT(*)::int AS total_prescriptions_conformes"),
       transaction.raw("SUM(COALESCE(surface_évitée, 0))::float AS total_surface_évitée"),
@@ -211,13 +211,13 @@ async function getStatsImpactBiodiversite(
     .first();
 
   const stats: StatsImpactBiodiversite = {
-    total_prescriptions_conformes: Number(résultat.total_prescriptions_conformes),
-    total_surface_évitée: Number(résultat.total_surface_évitée),
-    total_surface_compensée: Number(résultat.total_surface_compensée),
-    total_nids_évités: Number(résultat.total_nids_évités),
-    total_nids_compensés: Number(résultat.total_nids_compensés),
-    total_individus_évités: Number(résultat.total_individus_évités),
-    total_individus_compensés: Number(résultat.total_individus_compensés),
+    total_prescriptions_conformes: Number(result.total_prescriptions_conformes),
+    total_surface_évitée: Number(result.total_surface_évitée),
+    total_surface_compensée: Number(result.total_surface_compensée),
+    total_nids_évités: Number(result.total_nids_évités),
+    total_nids_compensés: Number(result.total_nids_compensés),
+    total_individus_évités: Number(result.total_individus_évités),
+    total_individus_compensés: Number(result.total_individus_compensés),
   };
 
   return stats;
