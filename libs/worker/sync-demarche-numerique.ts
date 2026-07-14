@@ -16,7 +16,7 @@ import {
   synchroniserDossierDansGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/personne.ts";
-import { synchroniserGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
+import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
 import { recupererDossiersRecemmentModifies } from "@pitchou/server/demarche-numerique/recupererDossiersRecemmentModifies.ts";
@@ -129,7 +129,7 @@ const groupesInstructeursSynchronises = recupererGroupesInstructeurs(
   DEMARCHE_SIMPLIFIEE_API_TOKEN,
   DEMARCHE_NUMBER,
 ).then((groupesInstructeurs) =>
-  synchroniserGroupesInstructeurs(
+  synchronizeGroupesInstructeurs(
     groupesInstructeurs,
     DEMARCHE_NUMBER,
     laTransactionDeSynchronisationDS,
