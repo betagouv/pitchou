@@ -7,7 +7,7 @@ import type {
   EvenementRechercheDossiersDetails,
 } from "@pitchou/types/evenement.d.ts";
 
-function estDetailsDossier(détails: any): détails is { dossierId: number } {
+function isDossierDetails(détails: any): détails is { dossierId: number } {
   if (Object(détails) === détails) {
     return Number.isInteger(détails.dossierId);
   } else {
@@ -15,7 +15,7 @@ function estDetailsDossier(détails: any): détails is { dossierId: number } {
   }
 }
 
-function estRechercheDossierDetails(détails: any): détails is EvenementRechercheDossiersDetails {
+function isRechercheDossierDetails(détails: any): détails is EvenementRechercheDossiersDetails {
   if (Object(détails) !== détails) {
     return false;
   }
@@ -32,12 +32,12 @@ function estRechercheDossierDetails(détails: any): détails is EvenementRecherc
 
   if (filtres.suiviPar) {
     const suiviPar = filtres.suiviPar;
-    const estSuiviPar =
+    const isSuiviPar =
       typeof suiviPar.nombreSéléctionnées === "number" &&
       typeof suiviPar.nombreTotal === "number" &&
       typeof suiviPar.inclusSoiMême === "boolean";
 
-    if (!estSuiviPar) {
+    if (!isSuiviPar) {
       return false;
     }
   }
@@ -51,34 +51,34 @@ function estRechercheDossierDetails(détails: any): détails is EvenementRecherc
   }
 
   if (filtres.activitésPrincipales && Array.isArray(filtres.activitésPrincipales)) {
-    const estActivitesPrincipales = filtres.activitésPrincipales.every(
+    const isActivitesPrincipales = filtres.activitésPrincipales.every(
       (activite: any) => typeof activite === "string",
     );
 
-    if (!estActivitesPrincipales) {
+    if (!isActivitesPrincipales) {
       return false;
     }
   }
 
   if (filtres.phases && Array.isArray(filtres.phases)) {
-    const estPhases = filtres.phases.every((peutEtrePhase: any) => {
-      return phases.has(peutEtrePhase);
+    const isPhases = filtres.phases.every((maybePhase: any) => {
+      return phases.has(maybePhase);
     });
-    if (!estPhases) {
+    if (!isPhases) {
       return false;
     }
   }
 
   if (filtres.prochaineActionAttenduePar && Array.isArray(filtres.prochaineActionAttenduePar)) {
-    const estProchaineActionAttenduePar = filtres.prochaineActionAttenduePar.every(
-      (peutProchaineActionPar: any) => {
+    const isProchaineActionAttenduePar = filtres.prochaineActionAttenduePar.every(
+      (maybeProchaineActionPar: any) => {
         return (
-          peutProchaineActionPar === "(vide)" ||
-          prochaineActionAttenduePar.has(peutProchaineActionPar)
+          maybeProchaineActionPar === "(vide)" ||
+          prochaineActionAttenduePar.has(maybeProchaineActionPar)
         );
       },
     );
-    if (!estProchaineActionAttenduePar) {
+    if (!isProchaineActionAttenduePar) {
       return false;
     }
   }
@@ -101,7 +101,7 @@ const typesPieceJointe = new Set([
   "Autre",
 ]);
 
-function estOuvertureModaleAjouterPieceJointeDetails(
+function isOuvertureModaleAjouterPieceJointeDetails(
   détails: any,
 ): détails is EvenementOuvrirModaleAjouterPieceJointeDetails {
   return (
@@ -111,7 +111,7 @@ function estOuvertureModaleAjouterPieceJointeDetails(
   );
 }
 
-function estAjouterPieceJointeDetails(détails: any): détails is EvenementAjouterPieceJointeDetails {
+function isAjouterPieceJointeDetails(détails: any): détails is EvenementAjouterPieceJointeDetails {
   return (
     Object(détails) === détails &&
     Number.isInteger(détails.dossierId) &&
@@ -133,19 +133,19 @@ export function evenementMetriqueGuard(évènement: any): évènement is Eveneme
     case "seConnecter":
       return !("détails" in évènement);
     case "suivreUnDossier":
-      return estDetailsDossier(évènement.détails);
+      return isDossierDetails(évènement.détails);
     case "rechercherDesDossiers":
-      return estRechercheDossierDetails(évènement.détails);
+      return isRechercheDossierDetails(évènement.détails);
     case "modifierCommentaireInstruction":
       return !("détails" in évènement);
     case "afficherLesDossiersSuivis":
       return !("détails" in évènement);
     case "consulterUnDossier":
-      return estDetailsDossier(évènement.détails);
+      return isDossierDetails(évènement.détails);
     case "téléchargerListeÉspècesImpactées":
-      return estDetailsDossier(évènement.détails);
+      return isDossierDetails(évènement.détails);
     case "téléchargerCartographieProjet":
-      return estDetailsDossier(évènement.détails);
+      return isDossierDetails(évènement.détails);
     case "changerPhase": {
       return !("details" in évènement);
     }
@@ -177,10 +177,10 @@ export function evenementMetriqueGuard(évènement: any): évènement is Eveneme
       return !("details" in évènement);
     }
     case "ouvrirModaleAjouterPieceJointe": {
-      return estOuvertureModaleAjouterPieceJointeDetails(évènement.détails);
+      return isOuvertureModaleAjouterPieceJointeDetails(évènement.détails);
     }
     case "ajouterPieceJointe": {
-      return estAjouterPieceJointeDetails(évènement.détails);
+      return isAjouterPieceJointeDetails(évènement.détails);
     }
     case "générerUnDocument": {
       return !("details" in évènement);
