@@ -13,7 +13,7 @@ import {
   getDossierIdsFromDS_Ids,
   dumpDossierMessages,
   deleteDossierByDSNumber,
-  synchroniserDossierDansGroupeInstructeur,
+  synchronizeDossierInGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/personne.ts";
 import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
@@ -485,7 +485,7 @@ let synchronisationDossierDansGroupeInstructeur;
 
 if (dossiersDS.length >= 1) {
   /** Synchronization of the information about which dossier belongs to which groupe_instructeurs */
-  synchronisationDossierDansGroupeInstructeur = synchroniserDossierDansGroupeInstructeur(
+  synchronisationDossierDansGroupeInstructeur = synchronizeDossierInGroupeInstructeur(
     dossiersDS,
     DEMARCHE_NUMBER,
     laTransactionDeSynchronisationDS,

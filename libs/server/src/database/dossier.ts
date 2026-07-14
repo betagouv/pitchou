@@ -163,48 +163,48 @@ export async function dumpDossiers(
   let avisExpertDossier: PartialBy<AvisExpertInitializer, "dossier">[] = [];
 
   if (dossiersPourUpdate.length >= 1) {
-    updatePromises = dossiersPourUpdate.map(({ dossier: dossierAModifier }) => {
+    updatePromises = dossiersPourUpdate.map(({ dossier: dossierToUpdate }) => {
       return databaseConnection("dossier")
-        .where("number_demarches_simplifiées", dossierAModifier.number_demarches_simplifiées)
-        .update(dossierAModifier)
+        .where("number_demarches_simplifiées", dossierToUpdate.number_demarches_simplifiées)
+        .update(dossierToUpdate)
         .returning(["id", "number_demarches_simplifiées", "id_demarches_simplifiées"]);
     });
   }
 
-  let synchroniserPersonnesEtRelationsSuiviPourDossiersInseresP: Promise<any> = Promise.resolve([]);
+  let synchronizePersonnesAndRelationsSuiviForInsertedDossiersP: Promise<any> = Promise.resolve([]);
 
   if (dossiersPourInsert.length >= 1) {
     let insertedDossierIds: { id: DossierId }[] = await databaseConnection("dossier")
       .insert(dossiersPourInsert.map((tables) => tables.dossier))
       .returning(["id"]);
 
-    const toutesLesPersonnesQuiSuivent = await synchroniserEtRetournerPersonnesPourDossiersInserer(
+    const allPersonnesWhoFollow = await synchronizeAndReturnPersonnesForDossiersToInsert(
       dossiersPourInsert,
       databaseConnection,
     );
 
-    if (toutesLesPersonnesQuiSuivent.length >= 1) {
-      insertedDossierIds.forEach((dossierInsereId, index) => {
+    if (allPersonnesWhoFollow.length >= 1) {
+      insertedDossierIds.forEach((insertedDossierId, index) => {
         const { personnes_qui_suivent, évènement_phase_dossier } = dossiersPourInsert[index];
-        const emailsQuiSuivent = new Set(personnes_qui_suivent?.map((p) => p.email));
+        const emailsWhoFollow = new Set(personnes_qui_suivent?.map((p) => p.email));
 
         //Warning, here there is a risk of performance problems with the filter
-        const personnesQuiSuiventCeDossier = toutesLesPersonnesQuiSuivent.filter(
-          (p) => p.email && emailsQuiSuivent.has(p.email),
+        const personnesWhoFollowThisDossier = allPersonnesWhoFollow.filter(
+          (p) => p.email && emailsWhoFollow.has(p.email),
         );
 
-        personnesQuiSuiventCeDossier.forEach((personne) => {
+        personnesWhoFollowThisDossier.forEach((personne) => {
           aretePersonneSuitDossierDossier.push({
-            dossier: dossierInsereId.id,
+            dossier: insertedDossierId.id,
             personne: personne.id,
           });
         });
 
-        if (personnesQuiSuiventCeDossier.length >= 1) {
+        if (personnesWhoFollowThisDossier.length >= 1) {
           évènement_phase_dossier.forEach((ev) => {
             if (!ev.cause_personne) {
               // In the front-end, we want to display the phase events with a non-null cause_personne.
-              ev.cause_personne = personnesQuiSuiventCeDossier[0].id;
+              ev.cause_personne = personnesWhoFollowThisDossier[0].id;
             }
           });
         }
@@ -217,31 +217,31 @@ export async function dumpDossiers(
       .flat();
 
     // Add the new Dossier['id'] to the data that needs it
-    insertedDossierIds.forEach((dossierInsereId, index) => {
+    insertedDossierIds.forEach((insertedDossierId, index) => {
       // assumes that postgres returns the ids in the same order as the array passed to `.insert`
       const { évènement_phase_dossier, avis_expert, décision_administrative } =
         dossiersPourInsert[index];
 
       if (Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1) {
-        évènement_phase_dossier.forEach((ev) => (ev.dossier = dossierInsereId.id));
+        évènement_phase_dossier.forEach((ev) => (ev.dossier = insertedDossierId.id));
       }
       if (Array.isArray(avis_expert) && avis_expert.length >= 1) {
-        avis_expert.forEach((ae) => (ae.dossier = dossierInsereId.id));
+        avis_expert.forEach((ae) => (ae.dossier = insertedDossierId.id));
       }
       if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
-        décision_administrative.forEach((da) => (da.dossier = dossierInsereId.id));
+        décision_administrative.forEach((da) => (da.dossier = insertedDossierId.id));
       }
     });
   }
 
-  const tousLesDossiers = [...dossiersPourUpdate, ...dossiersPourInsert];
+  const allDossiers = [...dossiersPourUpdate, ...dossiersPourInsert];
 
-  const evenementsPhaseDossier = tousLesDossiers
+  const evenementsPhaseDossier = allDossiers
     .map((tables) => tables.évènement_phase_dossier)
     .filter((x) => x !== undefined)
     .flat();
 
-  const decisionAdministrativeDossier = tousLesDossiers
+  const decisionAdministrativeDossier = allDossiers
     .map((tables) => tables.décision_administrative)
     .filter((x) => x !== undefined)
     .flat();
@@ -274,7 +274,7 @@ export async function dumpDossiers(
           .ignore()
       : Promise.resolve([]),
 
-    synchroniserPersonnesEtRelationsSuiviPourDossiersInseresP,
+    synchronizePersonnesAndRelationsSuiviForInsertedDossiersP,
 
     ...updatePromises,
   ];
@@ -282,7 +282,7 @@ export async function dumpDossiers(
   return Promise.all(databaseOperations);
 }
 
-export async function synchroniserDossierDansGroupeInstructeur(
+export async function synchronizeDossierInGroupeInstructeur(
   dossierDS: any,
   demarcheNumber: number,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -503,7 +503,7 @@ export function listAllDossiersComplets(
     });
 }
 
-type AvisExpertAvecDescriptionsFichiers = AvisExpert & {
+type AvisExpertWithFichierDescriptions = AvisExpert & {
   avis_fichier_nom: File["nom"];
   avis_fichier_media_type: File["media_type"];
   avis_fichier_taille: number | null;
@@ -512,13 +512,13 @@ type AvisExpertAvecDescriptionsFichiers = AvisExpert & {
   saisine_fichier_taille: number | null;
 };
 
-type DecisionAdministrativeAvecDescriptionFichier = DecisionAdministrative & {
+type DecisionAdministrativeWithFichierDescription = DecisionAdministrative & {
   fichier_nom: File["nom"];
   fichier_media_type: File["media_type"];
   fichier_taille: number | null;
 };
 
-function decrireFichier(
+function describeFichier(
   id: File["id"] | null | undefined,
   nom: File["nom"],
   media_type: File["media_type"],
@@ -599,14 +599,14 @@ export async function getDossierComplet(
     transaction,
   );
 
-  const tousLesAvisExpertDossierP: Promise<AvisExpertAvecDescriptionsFichiers[]> =
+  const allAvisExpertDossierP: Promise<AvisExpertWithFichierDescriptions[]> =
     getAvisExpertDossier(dossierId, transaction);
 
   const descriptionsPiecesJointesPetitionnaireP: Promise<
     (Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]
   > = getDescriptionsPiecesJointesPetitionnaire(dossierId, transaction);
 
-  const decisionsAdministrativesP: Promise<DecisionAdministrativeAvecDescriptionFichier[]> =
+  const decisionsAdministrativesP: Promise<DecisionAdministrativeWithFichierDescription[]> =
     getDecisionAdministrativesDossier(dossierId, transaction);
   const attachmentAutresPromise: Promise<AttachmentAutreWithFileDescription[]> =
     getAttachmentAutresForDossier(dossierId, transaction);
@@ -623,7 +623,7 @@ export async function getDossierComplet(
     Promise.all([
       dossierP,
       evenementsPhaseDossierP,
-      tousLesAvisExpertDossierP,
+      allAvisExpertDossierP,
       descriptionsPiecesJointesPetitionnaireP,
       decisionsAdministrativesP,
       attachmentAutresPromise,
@@ -637,7 +637,7 @@ export async function getDossierComplet(
   return Promise.all([
     dossierP,
     evenementsPhaseDossierP,
-    tousLesAvisExpertDossierP,
+    allAvisExpertDossierP,
     descriptionsPiecesJointesPetitionnaireP,
     decisionsAdministrativesP,
     attachmentAutresPromise,
@@ -647,7 +647,7 @@ export async function getDossierComplet(
     ([
       dossier,
       evenementsPhaseDossier,
-      tousLesAvisExpertDossier,
+      allAvisExpertDossier,
       descriptionsPiecesJointesPetitionnaire,
       decisionsAdministratives,
       attachmentAutres,
@@ -662,7 +662,7 @@ export async function getDossierComplet(
 
       dossier.évènementsPhase = evenementsPhaseDossier;
 
-      dossier.avisExpert = tousLesAvisExpertDossier.map(
+      dossier.avisExpert = allAvisExpertDossier.map(
         ({
           avis_fichier,
           avis_fichier_nom,
@@ -674,14 +674,14 @@ export async function getDossierComplet(
           saisine_fichier_taille,
           ...avisExpert
         }) => {
-          const avisFichierDescription = decrireFichier(
+          const avisFichierDescription = describeFichier(
             avis_fichier,
             avis_fichier_nom,
             avis_fichier_media_type,
             avis_fichier_taille,
             "/avis-expert/fichier",
           );
-          const saisineFichierDescription = decrireFichier(
+          const saisineFichierDescription = describeFichier(
             saisine_fichier,
             saisine_fichier_nom,
             saisine_fichier_media_type,
@@ -725,27 +725,27 @@ export async function getDossierComplet(
       delete dossier.espèces_impactées_media_type;
       delete dossier.espèces_impactées_nom;
 
-      const controlesParPrescriptionId: Map<Prescription["id"], Controle[]> = new Map();
+      const controlesByPrescriptionId: Map<Prescription["id"], Controle[]> = new Map();
       for (const c of controles) {
         const id = c.prescription;
-        const controlesPourCetId = controlesParPrescriptionId.get(id) || [];
-        controlesPourCetId.push(c);
-        controlesParPrescriptionId.set(id, controlesPourCetId);
+        const controlesForThisId = controlesByPrescriptionId.get(id) || [];
+        controlesForThisId.push(c);
+        controlesByPrescriptionId.set(id, controlesForThisId);
       }
 
-      const prescriptionsParDecisionId: Map<DecisionAdministrative["id"], FrontEndPrescription[]> =
+      const prescriptionsByDecisionId: Map<DecisionAdministrative["id"], FrontEndPrescription[]> =
         new Map();
       for (const p of prescriptions) {
-        const controles = controlesParPrescriptionId.get(p.id);
+        const controles = controlesByPrescriptionId.get(p.id);
         // @ts-ignore p devient un FrontEndPrescription
         p.contrôles = controles;
 
         const id = p.décision_administrative;
-        const prescrPourCetId = prescriptionsParDecisionId.get(id) || [];
+        const prescrForThisId = prescriptionsByDecisionId.get(id) || [];
 
         // @ts-ignore p est devenu un FrontEndPrescription
-        prescrPourCetId.push(p);
-        prescriptionsParDecisionId.set(id, prescrPourCetId);
+        prescrForThisId.push(p);
+        prescriptionsByDecisionId.set(id, prescrForThisId);
       }
 
       if (decisionsAdministratives.length >= 1) {
@@ -762,7 +762,7 @@ export async function getDossierComplet(
             fichier_taille,
             dossier,
           }) => {
-            const fichierDescription = decrireFichier(
+            const fichierDescription = describeFichier(
               fichier,
               fichier_nom,
               fichier_media_type,
@@ -776,7 +776,7 @@ export async function getDossierComplet(
               type,
               date_signature,
               date_fin_obligations,
-              prescriptions: prescriptionsParDecisionId.get(id),
+              prescriptions: prescriptionsByDecisionId.get(id),
               fichier_url: fichierDescription?.url,
               fichier_description: fichierDescription,
               dossier,
@@ -787,7 +787,7 @@ export async function getDossierComplet(
 
       dossier.attachmentAutres = attachmentAutres.map(
         ({ fichier, fichier_nom, fichier_media_type, fichier_taille, ...attachment }) => {
-          const fileDescription = decrireFichier(
+          const fileDescription = describeFichier(
             fichier,
             fichier_nom,
             fichier_media_type,
@@ -884,7 +884,7 @@ export async function getDossiersResumesByCap(
     })
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap });
 
-  const evenementsPhaseDossierP = getDerniersEvenementsPhaseDossiers(cap, transaction);
+  const evenementsPhaseDossierP = getLatestEvenementsPhaseDossiers(cap, transaction);
 
   const decisionsAdministrativesP = getDecisionsAdministratives(cap, transaction);
 
@@ -912,12 +912,12 @@ export async function getDossiersResumesByCap(
       const decisionsAdministrativesById: Map<Dossier["id"], FrontEndDecisionAdministrative[]> =
         new Map();
       for (const decisionAdministrative of decisionsAdministratives) {
-        const decisionsAdministrativesPourCetId =
+        const decisionsAdministrativesForThisId =
           decisionsAdministrativesById.get(decisionAdministrative.dossier) || [];
-        decisionsAdministrativesPourCetId.push(decisionAdministrative);
+        decisionsAdministrativesForThisId.push(decisionAdministrative);
         decisionsAdministrativesById.set(
           decisionAdministrative.dossier,
-          decisionsAdministrativesPourCetId,
+          decisionsAdministrativesForThisId,
         );
       }
 
@@ -973,7 +973,7 @@ export async function dossiersAccessibleViaCap(
  * Fetches only the current (most recent) phase for each dossier
  * The query uses a distinctOn trick (specific to Postgresql) to achieve this
  */
-export async function getDerniersEvenementsPhaseDossiers(
+export async function getLatestEvenementsPhaseDossiers(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
@@ -1025,12 +1025,12 @@ export async function getEvenementsPhaseDossiers(
 }
 
 async function getEvenementsPhaseDossier(
-  idDossier: Dossier["id"],
+  dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
   return databaseConnection("évènement_phase_dossier")
     .select("*")
-    .where({ dossier: idDossier })
+    .where({ dossier: dossierId })
     .andWhere(function () {
       // DS creates bad "traitement" that are not phase changes
       // We can detect them with 'DS_emailAgentTraitant IS NULL'
@@ -1042,9 +1042,9 @@ async function getEvenementsPhaseDossier(
 }
 
 async function getAvisExpertDossier(
-  idDossier: Dossier["id"],
+  dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<AvisExpertAvecDescriptionsFichiers[]> {
+): Promise<AvisExpertWithFichierDescriptions[]> {
   return databaseConnection("avis_expert")
     .select([
       "avis_expert.*",
@@ -1057,13 +1057,13 @@ async function getAvisExpertDossier(
     ])
     .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
     .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })
-    .where({ dossier: idDossier });
+    .where({ dossier: dossierId });
 }
 
 async function getDecisionAdministrativesDossier(
-  idDossier: Dossier["id"],
+  dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DecisionAdministrativeAvecDescriptionFichier[]> {
+): Promise<DecisionAdministrativeWithFichierDescription[]> {
   return databaseConnection("décision_administrative")
     .select([
       "décision_administrative.*",
@@ -1072,11 +1072,11 @@ async function getDecisionAdministrativesDossier(
       databaseConnection.raw("file_decision.taille::integer as fichier_taille"),
     ])
     .leftJoin("file as file_decision", { "file_decision.id": "décision_administrative.fichier" })
-    .where({ dossier: idDossier });
+    .where({ dossier: dossierId });
 }
 
 async function getDescriptionsPiecesJointesPetitionnaire(
-  idDossier: Dossier["id"],
+  dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<(Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]> {
   return databaseConnection("dossier")
@@ -1093,7 +1093,7 @@ async function getDescriptionsPiecesJointesPetitionnaire(
     .leftJoin("file", {
       "file.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
     })
-    .where({ dossier: idDossier });
+    .where({ dossier: dossierId });
 }
 
 export function deleteDossierByDSNumber(numbers: number[]) {
@@ -1108,40 +1108,40 @@ export function updateDossier(
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  let phaseAjoutee = Promise.resolve();
+  let phaseAdded = Promise.resolve();
 
   if (dossierParams.évènementsPhase) {
     for (const ev of dossierParams.évènementsPhase) {
       ev.cause_personne = causePersonne;
     }
 
-    phaseAjoutee = databaseConnection("évènement_phase_dossier").insert(
+    phaseAdded = databaseConnection("évènement_phase_dossier").insert(
       dossierParams.évènementsPhase,
     );
 
     delete dossierParams.évènementsPhase;
   }
 
-  let dossierAJour = Promise.resolve();
+  let updatedDossier = Promise.resolve();
 
   if (Object.keys(dossierParams).length >= 1) {
-    dossierAJour = databaseConnection("dossier").where({ id }).update(dossierParams);
+    updatedDossier = databaseConnection("dossier").where({ id }).update(dossierParams);
   }
 
-  return Promise.all([phaseAjoutee, dossierAJour]);
+  return Promise.all([phaseAdded, updatedDossier]);
 }
 
 /**
  * Synchronizes and returns the personnes of the dossiers to insert.
  */
-async function synchroniserEtRetournerPersonnesPourDossiersInserer(
+async function synchronizeAndReturnPersonnesForDossiersToInsert(
   dossiersPourInsert: DossierPourInsert[],
   databaseConnection: Knex.Transaction | Knex,
 ) {
   let personnes: Personne[] = [];
 
   //@ts-ignore
-  const personnesQuiSuiventDossiers: Pick<Personne, "email" | "nom" | "prénoms">[] =
+  const personnesWhoFollowDossiers: Pick<Personne, "email" | "nom" | "prénoms">[] =
     dossiersPourInsert
       .flatMap((dossier) => dossier.personnes_qui_suivent)
       .filter((x) => x != null)
@@ -1152,13 +1152,13 @@ async function synchroniserEtRetournerPersonnesPourDossiersInserer(
         prénoms,
       }));
 
-  if (personnesQuiSuiventDossiers.length >= 1) {
+  if (personnesWhoFollowDossiers.length >= 1) {
     await databaseConnection("personne")
-      .insert(personnesQuiSuiventDossiers)
+      .insert(personnesWhoFollowDossiers)
       .onConflict(["email"])
       .ignore();
 
-    const emails = personnesQuiSuiventDossiers.map((p) => p?.email).filter((x) => x != null);
+    const emails = personnesWhoFollowDossiers.map((p) => p?.email).filter((x) => x != null);
 
     personnes = await databaseConnection("personne").select("id", "email").whereIn("email", emails);
   }
