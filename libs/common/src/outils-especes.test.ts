@@ -9,7 +9,7 @@ import {
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type {
   EspeceProtegee,
-  ParClassification,
+  ByClassification,
   ActiviteMenancante,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
@@ -77,7 +77,7 @@ describe("importDescriptionMenacesEspècesFromOdsArrayBuffer", () => {
   const espece = { CD_REF: "2437", classification: "oiseau" } as unknown as EspeceProtegee;
   const especeByCD_REF = new Map([["2437" as EspeceProtegee["CD_REF"], espece]]);
 
-  const emptyParClassification = <T>(): ParClassification<Map<string, T>> => ({
+  const emptyParClassification = <T>(): ByClassification<Map<string, T>> => ({
     oiseau: new Map(),
     "faune non-oiseau": new Map(),
     flore: new Map(),

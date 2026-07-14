@@ -7,7 +7,7 @@
   import type {
     EspeceProtegee,
     DescriptionImpact,
-    ParClassification,
+    ByClassification,
     ActiviteMenancante,
     MethodeMenancante,
     MoyenDePoursuiteMenacant,
@@ -21,13 +21,13 @@
     }>;
     supprimerEspèceImpactée: (indexEspeceASupprimer: number) => Promise<void>;
     préremplirAvecCesEspècesImpacts: () => void;
-    activitesParClassificationEtreVivant?: ParClassification<
+    activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
     ajouterImpactPourChaqueClassification: (

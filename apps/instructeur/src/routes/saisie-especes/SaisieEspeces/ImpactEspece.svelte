@@ -2,7 +2,7 @@
   import { fourchettesIndividus } from "./especeFieldset.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     DescriptionImpact,
     EspeceProtegee,
     ActiviteMenancante,
@@ -18,13 +18,13 @@
     onSupprimerImpact?: () => Promise<void>;
     espèce?: EspeceProtegee;
     espèceClassification?: ClassificationEtreVivant;
-    activitesParClassificationEtreVivant?: ParClassification<
+    activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
   };

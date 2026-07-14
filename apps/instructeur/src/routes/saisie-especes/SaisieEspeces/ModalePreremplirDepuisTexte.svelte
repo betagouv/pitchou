@@ -5,7 +5,7 @@
   import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     EspeceProtegee,
     DescriptionImpact,
     ActiviteMenancante,
@@ -15,17 +15,17 @@
 
   type Props = {
     référencesEspèces: TuileSaisieEspece[];
-    espècesProtégéesParClassification: ParClassification<EspeceProtegee[]>;
+    espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
     onClickPréRemplirAvecDocumentTexte: (
       especesImpactees: Array<{ espece: EspeceProtegee; impacts: DescriptionImpact[] }>,
     ) => void;
-    activitesParClassificationEtreVivant?: ParClassification<
+    activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
   };
@@ -124,7 +124,7 @@
    * Quick and dirty search
    */
   function creerNomVersEspeceClassif(
-    especesProtegeesParClassification: ParClassification<EspeceProtegee[]>,
+    especesProtegeesParClassification: ByClassification<EspeceProtegee[]>,
   ): Map<string, EspeceProtegee> {
     const nomVersEspeceClassif: Map<string, EspeceProtegee> = new Map();
 

@@ -2,7 +2,7 @@ import type { DossierComplet, DossierResume } from "./API_Pitchou.ts";
 import type { SchemaDemarcheSimplifiee } from "./demarche-numerique/schema.ts";
 import type { PitchouInstructeurCapabilities, IdentiteInstructeurPitchou } from "./capabilities.ts";
 import type {
-  ParClassification,
+  ByClassification,
   ActiviteMenancante,
   EspeceProtegee,
   MethodeMenancante,
@@ -16,9 +16,9 @@ import type Notification from "./database/public/Notification.ts";
 import type ResultatSynchronisationDS88444 from "./database/public/ResultatSynchronisationDS88444.ts";
 
 export type ActivitesMethodesMoyensDePoursuiteBundle = {
-  activités: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
-  méthodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
-  moyensDePoursuite: ParClassification<
+  activités: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
+  méthodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
+  moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >;
   identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
@@ -41,7 +41,7 @@ export type PitchouState = {
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;
   schemaDS88444?: SchemaDemarcheSimplifiee;
-  espècesProtégéesParClassification?: ParClassification<EspeceProtegee[]>;
+  espècesProtégéesParClassification?: ByClassification<EspeceProtegee[]>;
   espèceByCD_REF?: Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
   ActivitésMéthodesMoyensDePoursuite?: ActivitesMethodesMoyensDePoursuiteBundle;
   erreurs: Set<{ message: string }>;

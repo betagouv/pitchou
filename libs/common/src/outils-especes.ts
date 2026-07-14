@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import type {
   ClassificationEtreVivant,
   EspeceProtegee,
-  ParClassification,
+  ByClassification,
   EspeceProtegeeStrings,
   TAXREF_ROW,
   OiseauAtteint,
@@ -335,9 +335,9 @@ export function descriptionMenacesEspecesToOdsArrayBuffer(
 function descriptionMenacesEspecesFromJSON(
   descriptionMenacesEspecesJSON: DescriptionMenaceEspeceJSON[],
   especeByCD_REF: Map<EspeceProtegee["CD_REF"], EspeceProtegee>,
-  activites: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
-  methodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
-  moyensDePoursuite: ParClassification<
+  activites: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
+  methodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
+  moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >,
 ): DescriptionMenacesEspeces {
@@ -377,9 +377,9 @@ function b64ToUTF8(s: string): string {
 export function importDescriptionMenacesEspecesFromURL(
   url: URL,
   especeByCD_REF: Map<EspeceProtegee["CD_REF"], EspeceProtegee>,
-  activites: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
-  methodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
-  moyensDePoursuite: ParClassification<
+  activites: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
+  methodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
+  moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >,
 ): DescriptionMenacesEspeces | undefined {
@@ -487,9 +487,9 @@ function getTableRawContent(file: ArrayBuffer): Promise<TableRawContent> {
 async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
   odsFile: ArrayBuffer,
   especeByCD_REF: Map<EspeceProtegee["CD_REF"], EspeceProtegee>,
-  activites: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
-  methodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
-  moyensDePoursuite: ParClassification<
+  activites: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>,
+  methodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>,
+  moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >,
 ): Promise<DescriptionMenacesEspeces> {
@@ -653,7 +653,7 @@ export async function construireActivitesMethodesMoyensDePoursuite(
   // The rows are reassigned into new objects so that they have the `Object.prototype.toString` method
   // used by Svelte
 
-  const activitesBrutes: ParClassification<ActiviteMenancante[]> = {
+  const activitesBrutes: ByClassification<ActiviteMenancante[]> = {
     oiseau: ActivitesMethodesMoyensDePoursuiteBruts.get("Activités oiseau")!.map((row) =>
       Object.assign({}, row),
     ),
@@ -711,17 +711,17 @@ export async function construireActivitesMethodesMoyensDePoursuite(
 }
 
 export function actMetTransArraysToMapBundle(
-  activitesBrutes: ParClassification<ActiviteMenancante[]>,
+  activitesBrutes: ByClassification<ActiviteMenancante[]>,
   methodesBrutes: MethodeMenancante[],
   moyensDePoursuiteBruts: MoyenDePoursuiteMenacant[],
 ): {
-  activités: ParClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
-  méthodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
-  moyensDePoursuite: ParClassification<
+  activités: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
+  méthodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
+  moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   >;
 } {
-  const activites: ParClassification<
+  const activites: ByClassification<
     Map<ActiviteMenancante["Code rapportage européen"], ActiviteMenancante>
   > = {
     oiseau: new Map(),
@@ -744,7 +744,7 @@ export function actMetTransArraysToMapBundle(
     }
   }
 
-  const methodes: ParClassification<Map<MethodeMenancante["Code"], MethodeMenancante>> = {
+  const methodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>> = {
     oiseau: new Map(),
     "faune non-oiseau": new Map(),
     flore: new Map(),
@@ -770,7 +770,7 @@ export function actMetTransArraysToMapBundle(
     methodes[classif] = classifMeth;
   }
 
-  const moyensDePoursuite: ParClassification<
+  const moyensDePoursuite: ByClassification<
     Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
   > = {
     oiseau: new Map(),

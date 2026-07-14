@@ -4,7 +4,7 @@
   import { mailtoJeNetrouvePasUneEspece } from "@pitchou/common/constantes.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     EspeceProtegee,
     DescriptionImpact,
     ActiviteMenancante,
@@ -17,13 +17,13 @@
     espècesImpactées?: Array<{ espèce?: EspeceProtegee; impacts?: DescriptionImpact[] }>;
     espècesProtégées?: EspeceProtegee[];
     référencesEspèces: TuileSaisieEspece[];
-    activitesParClassificationEtreVivant?: ParClassification<
+    activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
   };

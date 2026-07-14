@@ -7,7 +7,7 @@ import { creerEspecesGroupeesParImpact } from "./creerEspecesGroupeesParImpact.t
 
 import type {
   EspeceProtegee,
-  ParClassification,
+  ByClassification,
   ActiviteMenancante,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
@@ -43,12 +43,12 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
     "Surface habitat détruit (m²)": "Non",
   };
 
-  const activites: ParClassification<Map<string, ActiviteMenancante>> = {
+  const activites: ByClassification<Map<string, ActiviteMenancante>> = {
     oiseau: new Map([["P-2-1", activite]]),
     "faune non-oiseau": new Map(),
     flore: new Map(),
   };
-  const empty = <T>(): ParClassification<Map<string, T>> => ({
+  const empty = <T>(): ByClassification<Map<string, T>> => ({
     oiseau: new Map(),
     "faune non-oiseau": new Map(),
     flore: new Map(),

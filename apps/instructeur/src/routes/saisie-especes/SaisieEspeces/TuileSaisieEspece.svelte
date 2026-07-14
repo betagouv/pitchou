@@ -6,7 +6,7 @@
   import { especeLabel } from "@pitchou/common/outils-especes.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     EspeceProtegee,
     ActiviteMenancante,
     MethodeMenancante,
@@ -24,13 +24,13 @@
     onOuvertureModale?: ((e: Event) => void) | undefined;
     onSuprimerEspèce?: (() => Promise<void>) | undefined;
     espècesProtégées?: EspeceProtegee[];
-    activitesParClassificationEtreVivant?: ParClassification<
+    activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
   };

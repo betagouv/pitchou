@@ -11,7 +11,7 @@
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     EspeceProtegee,
     OiseauAtteint,
     FauneNonOiseauAtteinte,
@@ -24,14 +24,14 @@
   } from "@pitchou/types/especes.d.ts";
 
   type Props = {
-    espècesProtégéesParClassification: ParClassification<EspeceProtegee[]>;
-    activitesParClassificationEtreVivant: ParClassification<
+    espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
+    activitesParClassificationEtreVivant: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
-    méthodesParClassificationEtreVivant: ParClassification<
+    méthodesParClassificationEtreVivant: ByClassification<
       Map<MethodeMenancante["Code"], MethodeMenancante>
     >;
-    transportsParClassificationEtreVivant: ParClassification<
+    transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
     importDescriptionMenacesEspècesFromOds: (x: ArrayBuffer) => Promise<DescriptionMenacesEspeces>;

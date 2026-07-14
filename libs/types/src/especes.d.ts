@@ -24,7 +24,7 @@ export type Classe =
   | "Phaeophyceae";
 export type ClassificationEtreVivant = "oiseau" | "faune non-oiseau" | "flore";
 
-export type ParClassification<T> = {
+export type ByClassification<T> = {
   oiseau: T;
   "faune non-oiseau": T;
   flore: T;

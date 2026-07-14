@@ -6,7 +6,7 @@
   import { mailtoJeNetrouvePasUneEspece } from "@pitchou/common/constantes.ts";
 
   import type {
-    ParClassification,
+    ByClassification,
     EspeceProtegee,
     DescriptionImpact,
   } from "@pitchou/types/especes.d.ts";
@@ -21,7 +21,7 @@
     }>;
     préremplirAvecCesEspècesImpacts: () => void;
     supprimerEspèceImpactée: (indexEspeceASupprimer: number) => void;
-    espècesProtégéesParClassification: ParClassification<EspeceProtegee[]>;
+    espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
     idModalePréremplirDepuisTexte: string;
   };
 
