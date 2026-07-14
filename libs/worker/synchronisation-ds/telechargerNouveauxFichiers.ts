@@ -8,13 +8,13 @@ import {
   findExistingFichiers,
 } from "@pitchou/server/database/fichier.ts";
 
-import telechargerFichierDS from "./telechargerFichierDS.ts";
+import downloadFichierDS from "./telechargerFichierDS.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Knex } from "knex";
 
-type FichierATelecharger = {
+type FichierToDownload = {
   nom: string;
   url: string;
   media_type: string | null;
@@ -61,12 +61,12 @@ function DScontentTypeToActualMediaType({
  * This function starts the downloads, saves the files in the database
  * and returns the association between the dossier and the corresponding Fichier['id']
  */
-export default async function telechargerNouveauxFichiers(
-  candidatsFichiers: Map<DossierDS88444["number"], DSFile[]>,
+export default async function downloadNewFichiers(
+  candidateFichiers: Map<DossierDS88444["number"], DSFile[]>,
   transaction?: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId[]>> {
-  const candidatsFichiersBDD: Map<DossierDS88444["number"], FichierATelecharger[]> = new Map(
-    [...candidatsFichiers].map(([number, fichiers]) => {
+  const candidateFichiersDB: Map<DossierDS88444["number"], FichierToDownload[]> = new Map(
+    [...candidateFichiers].map(([number, fichiers]) => {
       return [
         number,
         fichiers.map(({ filename, contentType, checksum, createdAt, url }) => ({
@@ -81,25 +81,25 @@ export default async function telechargerNouveauxFichiers(
   );
 
   // Look up in the database the files we already have that resemble the candidates
-  const fichiersDejaEnBDD = await findExistingFichiers(
-    [...candidatsFichiersBDD.values()].flat(),
+  const fichiersAlreadyInDB = await findExistingFichiers(
+    [...candidateFichiersDB.values()].flat(),
     transaction,
   );
 
-  const fichierIdParHashDejaEnBDD = new Map(
+  const fichierIdByHashAlreadyInDB = new Map(
     // @ts-ignore
-    fichiersDejaEnBDD.map((f) => [makeFichierHash(f), f.id]),
+    fichiersAlreadyInDB.map((f) => [makeFichierHash(f), f.id]),
   );
 
   //console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
-  //console.log('candidatsFichiersBDD', candidatsFichiersBDD)
+  //console.log('candidateFichiersDB', candidateFichiersDB)
 
   // Filter the candidate list by removing the files already present in the database
-  const fichiersATelecharger: typeof candidatsFichiersBDD = new Map(
+  const fichiersToDownload: typeof candidateFichiersDB = new Map(
     // @ts-ignore
-    [...candidatsFichiersBDD]
+    [...candidateFichiersDB]
       .map(([number, fichiers]) => {
-        return [number, fichiers.filter((f) => !fichierIdParHashDejaEnBDD.has(makeFichierHash(f)))];
+        return [number, fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f)))];
       })
       // @ts-ignore
       .filter(([_, fichiers]) => fichiers.length >= 1),
@@ -111,7 +111,7 @@ export default async function telechargerNouveauxFichiers(
 
   // Download the files and put them directly into the database
   // @ts-ignore
-  const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersATelecharger].map(
+  const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersToDownload].map(
     ([number, fichiers]) => {
       return Promise.all(
         fichiers.map(async (fichier) => {
@@ -120,7 +120,7 @@ export default async function telechargerNouveauxFichiers(
 
           let buffer: Buffer;
           try {
-            const { contenu } = await telechargerFichierDS(url);
+            const { contenu } = await downloadFichierDS(url);
             buffer = Buffer.from(contenu);
           } catch (err) {
             if (err instanceof HTTPError) {
@@ -146,7 +146,7 @@ export default async function telechargerNouveauxFichiers(
           }
 
           try {
-            const fichierInsere = await storeNewFichier(
+            const insertedFichier = await storeNewFichier(
               { nom, contenu: buffer, media_type, DS_checksum, DS_createdAt },
               transaction,
             );
@@ -156,7 +156,7 @@ export default async function telechargerNouveauxFichiers(
               `- Téléchargement et stockage fichier '${nom}'`,
               `(${byteSize(buffer.byteLength)})`,
             );
-            return fichierInsere.id;
+            return insertedFichier.id;
           } catch (err) {
             console.error(
               `Échec stockage fichier pour`,
@@ -169,11 +169,11 @@ export default async function telechargerNouveauxFichiers(
             return undefined;
           }
         }),
-      ).then((fichiersTelecharges) => {
-        const fichiersTelechargesAvecSucces = fichiersTelecharges.filter((f) => f !== undefined);
+      ).then((downloadedFichiers) => {
+        const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
 
-        if (fichiersTelechargesAvecSucces.length >= 1) {
-          return [number, fichiersTelechargesAvecSucces];
+        if (successfullyDownloadedFichiers.length >= 1) {
+          return [number, successfullyDownloadedFichiers];
         } else {
           return undefined;
         }
@@ -181,25 +181,25 @@ export default async function telechargerNouveauxFichiers(
     },
   );
 
-  const nouveauxFichiersParDossier = new Map(
+  const newFichiersByDossier = new Map(
     (await Promise.all(retMapDataPs)).filter((x): x is ReturnMapEntryData => x !== undefined),
   );
 
   // For each dossier, we return the ids of all the files that concern it — whether they
   // were just downloaded or were already in the database (matched by hash). This lets the
   // consumer create the join edges in both cases.
-  const fichiersParDossier = new Map<DossierDS88444["number"], FileId[]>();
-  for (const [numeroDossier, candidats] of candidatsFichiersBDD) {
-    const idsFichiersDejaEnBDD = candidats
-      .map((c) => fichierIdParHashDejaEnBDD.get(makeFichierHash(c)))
+  const fichiersByDossier = new Map<DossierDS88444["number"], FileId[]>();
+  for (const [dossierNumber, candidates] of candidateFichiersDB) {
+    const fichierIdsAlreadyInDB = candidates
+      .map((c) => fichierIdByHashAlreadyInDB.get(makeFichierHash(c)))
       .filter((id): id is FileId => id !== undefined);
 
-    const idsFichiersNouveaux = nouveauxFichiersParDossier.get(numeroDossier) ?? [];
+    const newFichierIds = newFichiersByDossier.get(dossierNumber) ?? [];
 
-    const tousLesIds = [...idsFichiersDejaEnBDD, ...idsFichiersNouveaux];
+    const allIds = [...fichierIdsAlreadyInDB, ...newFichierIds];
 
-    if (tousLesIds.length >= 1) fichiersParDossier.set(numeroDossier, tousLesIds);
+    if (allIds.length >= 1) fichiersByDossier.set(dossierNumber, allIds);
   }
 
-  return fichiersParDossier;
+  return fichiersByDossier;
 }

@@ -25,7 +25,7 @@ import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/recupererL
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
-import { telechargerNouveauxFichiersMotivation } from "./synchronisation-ds/telechargerNouveauxFichiersParType.ts";
+import { downloadNewFichiersMotivation } from "./synchronisation-ds/telechargerNouveauxFichiersParType.ts";
 import {
   recupererFichiersEspecesImpactees88444,
   recupererPiecesJointesPetitionnaire88444,
@@ -172,7 +172,7 @@ const dossierNumberToDossierId = new Map(
 
 /** Download the new 'motivation' files */
 const downloadedFichiersMotivationP: Promise<Map<DossierDS88444["number"], FileId> | undefined> =
-  telechargerNouveauxFichiersMotivation(dossiersDS, synchronizationTransactionDS);
+  downloadNewFichiersMotivation(dossiersDS, synchronizationTransactionDS);
 
 const downloadedFichiersMotivation = await downloadedFichiersMotivationP;
 

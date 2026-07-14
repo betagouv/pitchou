@@ -1,79 +1,79 @@
 import trouverCandidatsFichiersATelecharger from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
-import telechargerNouveauxFichiers from "./telechargerNouveauxFichiers.ts";
+import downloadNewFichiers from "./telechargerNouveauxFichiers.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { Knex } from "knex";
 
-export async function telechargerNouveauxFichiersFromChampId(
+export async function downloadNewFichiersFromChampId(
   dossiers: DossierDS88444[],
   champDescriptorId: ChampDescriptor["id"],
-  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+  synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId[]> | undefined> {
-  const candidatsFichiers: Map<DossierDS88444["number"], DSFile[]> =
+  const candidateFichiers: Map<DossierDS88444["number"], DSFile[]> =
     trouverCandidatsFichiersATelecharger(dossiers, champDescriptorId);
 
-  if (candidatsFichiers.size >= 1) {
-    return telechargerNouveauxFichiers(candidatsFichiers, laTransactionDeSynchronisationDS);
+  if (candidateFichiers.size >= 1) {
+    return downloadNewFichiers(candidateFichiers, synchronizationTransactionDS);
   }
 }
 
-export async function telechargerNouveauxFichiersEspecesImpactees(
+export async function downloadNewFichiersEspecesImpactees(
   dossiers: DossierDS88444[],
   champDescriptorId: ChampDescriptor["id"],
-  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+  synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
-  const candidatsFichiersEspecesImpactees: Map<DossierDS88444["number"], DSFile[]> =
+  const candidateFichiersEspecesImpactees: Map<DossierDS88444["number"], DSFile[]> =
     trouverCandidatsFichiersATelecharger(dossiers, champDescriptorId);
 
-  // console.log('candidatsFichiersImpactées', candidatsFichiersImpactées)
+  // console.log('candidateFichiersImpactées', candidateFichiersImpactées)
 
-  if (candidatsFichiersEspecesImpactees.size >= 1) {
+  if (candidateFichiersEspecesImpactees.size >= 1) {
     // keep only the first file and ignore the others
 
-    let candidatsFichiersEspecesImpacteesUnParChamp: Map<DossierDS88444["number"], DSFile[]> =
+    let candidateFichiersEspecesImpacteesOnePerChamp: Map<DossierDS88444["number"], DSFile[]> =
       new Map(
-        [...candidatsFichiersEspecesImpactees].map(([number, descriptionFichier]) => [
+        [...candidateFichiersEspecesImpactees].map(([number, fichierDescription]) => [
           number,
-          [descriptionFichier[0]],
+          [fichierDescription[0]],
         ]),
       );
 
-    return telechargerNouveauxFichiers(
-      candidatsFichiersEspecesImpacteesUnParChamp,
-      laTransactionDeSynchronisationDS,
-    ).then((nouveauxFichiers) => {
-      return new Map([...nouveauxFichiers].map(([numéro, [id]]) => [numéro, id]));
+    return downloadNewFichiers(
+      candidateFichiersEspecesImpacteesOnePerChamp,
+      synchronizationTransactionDS,
+    ).then((newFichiers) => {
+      return new Map([...newFichiers].map(([number, [id]]) => [number, id]));
     });
   }
 }
 
-export async function telechargerNouveauxFichiersMotivation(
+export async function downloadNewFichiersMotivation(
   dossiers: DossierDS88444[],
-  laTransactionDeSynchronisationDS: Knex.Transaction | Knex,
+  synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
-  const candidatsFichiersMotivation: Map<DossierDS88444["number"], DSFile> = new Map(
+  const candidateFichiersMotivation: Map<DossierDS88444["number"], DSFile> = new Map(
     dossiers.filter((d) => !!d.motivationAttachment).map((d) => [d.number, d.motivationAttachment]),
   );
 
-  //console.log('candidatsFichiersMotivation', candidatsFichiersMotivation.size)
+  //console.log('candidateFichiersMotivation', candidateFichiersMotivation.size)
 
-  if (candidatsFichiersMotivation.size >= 1) {
+  if (candidateFichiersMotivation.size >= 1) {
     // keep only the first file and ignore the others
-    let candidatsFichiersMotivationPourTelechargement: Map<DossierDS88444["number"], DSFile[]> =
+    let candidateFichiersMotivationForDownload: Map<DossierDS88444["number"], DSFile[]> =
       new Map(
-        [...candidatsFichiersMotivation].map(([number, descriptionFichier]) => [
+        [...candidateFichiersMotivation].map(([number, fichierDescription]) => [
           number,
-          [descriptionFichier],
+          [fichierDescription],
         ]),
       );
 
-    return telechargerNouveauxFichiers(
-      candidatsFichiersMotivationPourTelechargement,
-      laTransactionDeSynchronisationDS,
-    ).then((nouveauxFichiers) => {
-      return new Map([...nouveauxFichiers].map(([numéro, [id]]) => [numéro, id]));
+    return downloadNewFichiers(
+      candidateFichiersMotivationForDownload,
+      synchronizationTransactionDS,
+    ).then((newFichiers) => {
+      return new Map([...newFichiers].map(([number, [id]]) => [number, id]));
     });
   }
 }

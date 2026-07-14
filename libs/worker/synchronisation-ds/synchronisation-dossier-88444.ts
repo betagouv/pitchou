@@ -1,6 +1,6 @@
 import {
-  telechargerNouveauxFichiersFromChampId,
-  telechargerNouveauxFichiersEspecesImpactees,
+  downloadNewFichiersFromChampId,
+  downloadNewFichiersEspecesImpactees,
 } from "./telechargerNouveauxFichiersParType.ts";
 
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -24,7 +24,7 @@ export function recupererFichiersEspecesImpactees88444(
     throw new Error("fichierEspècesImpactéeChampId is undefined");
   }
 
-  return telechargerNouveauxFichiersEspecesImpactees(
+  return downloadNewFichiersEspecesImpactees(
     dossiersDS,
     fichierEspecesImpacteeChampId,
     laTransactionDeSynchronisationDS,
@@ -47,7 +47,7 @@ export async function recupererPiecesJointesPetitionnaire88444(
     if (!champId) {
       throw new Error(`champId for ${champ} is undefined`);
     }
-    const fichiersFromDossierP = telechargerNouveauxFichiersFromChampId(
+    const fichiersFromDossierP = downloadNewFichiersFromChampId(
       dossiersDS,
       champId,
       databaseConnection,

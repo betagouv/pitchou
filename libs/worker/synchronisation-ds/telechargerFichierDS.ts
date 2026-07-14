@@ -3,29 +3,29 @@ import pLimit from "p-limit";
 
 const TIMEOUT_DELAY = 20 * 1000; // ms
 
-async function _telechargerFichierDS(
+async function _downloadFichierDS(
   url: string,
 ): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
   try {
-    const reponseSansBody = await ky.get(url, {
+    const responseWithoutBody = await ky.get(url, {
       timeout: TIMEOUT_DELAY,
     });
 
-    const mediaType = reponseSansBody?.headers?.get("Content-Type");
+    const mediaType = responseWithoutBody?.headers?.get("Content-Type");
 
-    const reponse = await reponseSansBody.arrayBuffer();
+    const response = await responseWithoutBody.arrayBuffer();
 
     return {
       mediaType,
-      contenu: reponse,
+      contenu: response,
     };
   } catch (err) {
     // @ts-ignore
     if (err.name === "TimeoutError") {
       const message = `\nTimeout d'une requête HTTP vers DS après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
-      const erreurSimple = new Error(message);
+      const simpleError = new Error(message);
       console.error(message);
-      throw erreurSimple;
+      throw simpleError;
     }
 
     throw err;
@@ -40,11 +40,11 @@ async function _telechargerFichierDS(
  * but overloads DS more
  *
  */
-const NOMBRE_MAX_TELECHARGEMENTS_SIMULTANES = 6;
-const fenetre = pLimit(NOMBRE_MAX_TELECHARGEMENTS_SIMULTANES);
+const MAX_SIMULTANEOUS_DOWNLOADS = 6;
+const concurrencyLimit = pLimit(MAX_SIMULTANEOUS_DOWNLOADS);
 
-export default async function telechargerFichierDS(
+export default async function downloadFichierDS(
   url: string,
 ): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
-  return fenetre(() => _telechargerFichierDS(url));
+  return concurrencyLimit(() => _downloadFichierDS(url));
 }
