@@ -36,7 +36,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
-  import type { FiltresLocalStorage, TriTableau } from "@pitchou/types/interfaceUtilisateur.ts";
+  import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
   import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
 
   type Props = {
@@ -44,8 +44,8 @@
     dossiers?: DossierResume[];
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
-    triIdSélectionné?: TriTableau["id"] | undefined;
-    filtresSélectionnés?: Partial<FiltresLocalStorage>;
+    triIdSélectionné?: TableSort["id"] | undefined;
+    filtresSélectionnés?: Partial<FiltersLocalStorage>;
     rememberTriFiltres: any;
   };
 
@@ -195,7 +195,7 @@
     },
   ];
 
-  const tris: TriTableau[] = [
+  const tris: TableSort[] = [
     ...trisActivitePrincipale,
     ...trisNomProjet,
     ...trisLocalisation,
@@ -204,7 +204,7 @@
   ];
 
   // This line must be tolerant of triIdSélectionné being undefined or anything else
-  let triSelectionne: TriTableau | undefined = $state(
+  let triSelectionne: TableSort | undefined = $state(
     tris.find((t) => t.id === triIdSelectionne) || triPriorisationPhaseProchaineAction[0],
   );
 

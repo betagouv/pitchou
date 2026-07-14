@@ -1,16 +1,16 @@
 <script lang="ts">
   import clsx from "clsx";
 
-  import type { TriTableau } from "@pitchou/types/interfaceUtilisateur.ts";
+  import type { TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
 
   type Props = {
-    tris: TriTableau[];
-    triSélectionné?: TriTableau | undefined;
+    tris: TableSort[];
+    triSélectionné?: TableSort | undefined;
   };
 
   let { tris, triSélectionné: triSelectionne = $bindable(undefined) }: Props = $props();
 
-  const selectionnerTri = (tri: TriTableau): void => {
+  const selectionnerTri = (tri: TableSort): void => {
     triSelectionne = tri;
     tri.trier();
   };

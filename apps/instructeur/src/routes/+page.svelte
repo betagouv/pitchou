@@ -14,14 +14,14 @@
 
   import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
   import type {
-    TriFiltreLocalStorage,
-    FiltresLocalStorage,
-    TriTableau,
+    SortFilterLocalStorage,
+    FiltersLocalStorage,
+    TableSort,
   } from "@pitchou/types/interfaceUtilisateur.ts";
 
   const TRI_FILTRE_CLEF_LOCALSTORAGE = "tri-filtres-tableau-suivi";
 
-  let trisFiltresSelectionnes = $state<TriFiltreLocalStorage | undefined>();
+  let trisFiltresSelectionnes = $state<SortFilterLocalStorage | undefined>();
 
   let chargementDossiersTermine = $state(false);
 
@@ -64,8 +64,8 @@
     await logout();
   }
 
-  function rememberTriFiltres(tri: TriTableau, filtres: Partial<FiltresLocalStorage>) {
-    const nouveaux: TriFiltreLocalStorage = {
+  function rememberTriFiltres(tri: TableSort, filtres: Partial<FiltersLocalStorage>) {
+    const nouveaux: SortFilterLocalStorage = {
       tri: tri.id,
       filtres: {
         phases: filtres.phases ? [...filtres.phases] : undefined,
