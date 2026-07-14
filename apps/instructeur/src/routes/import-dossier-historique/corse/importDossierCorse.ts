@@ -8,7 +8,7 @@ import {
 
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
-  DonneesSupplementairesPourCreationDossier,
+  AdditionalDataForDossierCreation,
   Alerte,
   DossierAvecAlertes,
 } from "../importDossierUtils.ts";
@@ -17,7 +17,7 @@ import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializ
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
-import type { PersonneAvecEmailObligatoire } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+import type { PersonneWithRequiredEmail } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 
 // Based on the spreadsheet sent on 25/07/2025
 export type LigneDossierCorse = {
@@ -411,13 +411,13 @@ function getSiretSiDemandeurPersonneMorale(
 function creerDonneePersonnesQuiSuivent(
   ligne: LigneDossierCorse,
   emailsParInitials: Map<string, string>,
-): PersonneAvecEmailObligatoire[] | undefined {
+): PersonneWithRequiredEmail[] | undefined {
   const valeurInstructeurDREAL = ligne["Instructeur DREAL"];
   const valeurDepartement = ligne["Département"];
 
   const instructricesTrouvees = valeurInstructeurDREAL.replaceAll(" ", "").split("+");
 
-  let personnesQuiSuivent: PersonneAvecEmailObligatoire[] = [];
+  let personnesQuiSuivent: PersonneWithRequiredEmail[] = [];
 
   for (const instructriceTrouvee of instructricesTrouvees) {
     if (["BG", "MR", "MB"].includes(instructriceTrouvee)) {
@@ -455,7 +455,7 @@ function creerDonneesSupplementairesDepuisLigne(
   ligne: LigneDossierCorse,
   emailsParInitials: Map<string, string>,
   demandeurPersonneMorale?: string,
-): DonneesSupplementairesPourCreationDossier & { alertes: Alerte[] } {
+): AdditionalDataForDossierCreation & { alertes: Alerte[] } {
   const resultatsDonneesEvenementPhaseDossier = creerDonneesEvenementPhaseDossier(ligne);
 
   const avisExpert = creerDonneesAvisExpert(ligne);

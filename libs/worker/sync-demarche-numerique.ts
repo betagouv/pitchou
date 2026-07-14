@@ -55,10 +55,10 @@ import type {
   ChampDescriptor,
 } from "@pitchou/types/demarche-numerique/schema.ts";
 import type {
-  DossierEntreprisesPersonneInitializersPourInsert,
-  DossierEntreprisesPersonneInitializersPourUpdate,
-  DossierPourInsert,
-  DossierPourUpdate,
+  DossierEntreprisesPersonneInitializersForInsert,
+  DossierEntreprisesPersonneInitializersForUpdate,
+  DossierForInsert,
+  DossierForUpdate,
 } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type {
   DossierDemarcheNumerique88444,
@@ -222,8 +222,8 @@ for (const personne of allPersonnesCurrentlyInDatabase) {
 }
 
 const dossiersForSynchronization: readonly (
-  | DossierEntreprisesPersonneInitializersPourInsert
-  | DossierEntreprisesPersonneInitializersPourUpdate
+  | DossierEntreprisesPersonneInitializersForInsert
+  | DossierEntreprisesPersonneInitializersForUpdate
 )[] = Object.freeze([...dossiersToInitializeForSync, ...dossiersToUpdateForSync]);
 
 const personnesInDossiersWithEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
@@ -327,8 +327,8 @@ if (entreprisesInDossiersBySiret.size >= 1) {
 
 function _replacePersonneEntreprise(
   dossierForSynchronization:
-    | DossierEntreprisesPersonneInitializersPourInsert
-    | DossierEntreprisesPersonneInitializersPourUpdate,
+    | DossierEntreprisesPersonneInitializersForInsert
+    | DossierEntreprisesPersonneInitializersForUpdate,
 ) {
   const {
     dossier: {
@@ -355,15 +355,15 @@ function _replacePersonneEntreprise(
 }
 
 function replaceForInsert(
-  d: DossierEntreprisesPersonneInitializersPourInsert,
-): DossierPourInsert {
-  return _replacePersonneEntreprise(d) as DossierPourInsert;
+  d: DossierEntreprisesPersonneInitializersForInsert,
+): DossierForInsert {
+  return _replacePersonneEntreprise(d) as DossierForInsert;
 }
 
 function replaceForUpdate(
-  d: DossierEntreprisesPersonneInitializersPourUpdate,
-): DossierPourUpdate {
-  return _replacePersonneEntreprise(d) as DossierPourUpdate;
+  d: DossierEntreprisesPersonneInitializersForUpdate,
+): DossierForUpdate {
+  return _replacePersonneEntreprise(d) as DossierForUpdate;
 }
 
 const dossiersToInitialize = dossiersToInitializeForSync.map(replaceForInsert);

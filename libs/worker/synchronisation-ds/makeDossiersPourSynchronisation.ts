@@ -5,10 +5,10 @@ import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";
 
 import type {
-  DonneesPersonnesEntreprisesInitializer,
-  DossierEntreprisesPersonneInitializersPourInsert,
-  DossierEntreprisesPersonneInitializersPourUpdate,
-  DossierPourInsert,
+  PersonnesEntreprisesDataInitializer,
+  DossierEntreprisesPersonneInitializersForInsert,
+  DossierEntreprisesPersonneInitializersForUpdate,
+  DossierForInsert,
 } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
@@ -25,7 +25,7 @@ import type {
 } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { TypeDecisionAdministrative, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
-import type { DonneesSupplementairesPourCreationDossier } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+import type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
 export type MakeCommonDossierColumnsForSync = (
@@ -41,7 +41,7 @@ export type MakeCommonDossierColumnsForSync = (
 export type GetPersonnesEntreprisesData = (
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
-) => DonneesPersonnesEntreprisesInitializer;
+) => PersonnesEntreprisesDataInitializer;
 
 /** Builds a two-line postal address string ("street\npostalCode city") from a structured DS address. */
 function formatPostalAddress(
@@ -58,7 +58,7 @@ function formatPostalAddress(
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
-): DonneesPersonnesEntreprisesInitializer {
+): PersonnesEntreprisesDataInitializer {
   const { demandeur, champs, nomMandataire = "", prenomMandataire = "", usager } = dossierDS;
 
   /**
@@ -245,7 +245,7 @@ async function makeChampsDossierForInitialization(
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
   makeCommonDossierColumnsForSync: MakeCommonDossierColumnsForSync,
-): Promise<Partial<DossierPourInsert> & Pick<DossierPourInsert, "dossier">> {
+): Promise<Partial<DossierForInsert> & Pick<DossierForInsert, "dossier">> {
   const additionalDataToDecrypt = dossierDS?.champs.find(
     (champ) => champ.label === "NE PAS MODIFIER - Données techniques associées à votre dossier",
   )?.stringValue;
@@ -253,7 +253,7 @@ async function makeChampsDossierForInitialization(
   /**
    * FOR IMPORTING HISTORICAL DOSSIERS
    */
-  let additionalData: DonneesSupplementairesPourCreationDossier | undefined;
+  let additionalData: AdditionalDataForDossierCreation | undefined;
   try {
     additionalData = additionalDataToDecrypt
       ? JSON.parse(
@@ -311,7 +311,7 @@ function makeEvenementsPhaseDossierFromTraitementsDS(
   traitements: DossierDS88444["traitements"],
   dossierId?: Dossier["id"],
 ) {
-  const evenementsPhaseDossier: DossierPourInsert["évènement_phase_dossier"] = [];
+  const evenementsPhaseDossier: DossierForInsert["évènement_phase_dossier"] = [];
 
   for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
     evenementsPhaseDossier.push({
@@ -384,15 +384,15 @@ export async function makeDossiersForSynchronization(
   getPersonnesEntreprisesData: GetPersonnesEntreprisesData,
   makeCommonDossierColumnsForSync: MakeCommonDossierColumnsForSync,
 ): Promise<{
-  dossiersToInitializeForSync: DossierEntreprisesPersonneInitializersPourInsert[];
-  dossiersToUpdateForSync: DossierEntreprisesPersonneInitializersPourUpdate[];
+  dossiersToInitializeForSync: DossierEntreprisesPersonneInitializersForInsert[];
+  dossiersToUpdateForSync: DossierEntreprisesPersonneInitializersForUpdate[];
 }> {
   const { dossiersDSToInitialize, dossiersDSToUpdate } = splitDossiersToInitializeAndToUpdate(
     dossiersDS,
     numberDSDossiersAlreadyExistingInDB,
   );
 
-  const dossiersToInitializeForSyncP: Promise<DossierEntreprisesPersonneInitializersPourInsert>[] =
+  const dossiersToInitializeForSyncP: Promise<DossierEntreprisesPersonneInitializersForInsert>[] =
     dossiersDSToInitialize.map((dossierDS) => {
       const champsDossierForInitP = makeChampsDossierForInitialization(
         dossierDS,

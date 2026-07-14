@@ -21,8 +21,8 @@ import type { default as Controle } from "@pitchou/types/database/public/Control
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 import type * as API_DS_SCHEMA from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type {
-  DossierPourInsert,
-  DossierPourUpdate,
+  DossierForInsert,
+  DossierForUpdate,
 } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type AretePersonneSuitDossier from "@pitchou/types/database/public/AretePersonneSuitDossier.ts";
@@ -93,7 +93,7 @@ export async function getDossierMessages(
 const varcharKeys: (keyof Pick<Dossier, "nom" | "ddep_nécessaire">)[] = ["nom", "ddep_nécessaire"];
 
 type DecisionAdministrativeToInsert = NonNullable<
-  DossierPourInsert["décision_administrative"]
+  DossierForInsert["décision_administrative"]
 >[number];
 
 /**
@@ -133,11 +133,11 @@ async function getDecisionsAdministrativesNotInDB(
 }
 
 export async function dumpDossiers(
-  dossiersPourInsert: DossierPourInsert[],
-  dossiersPourUpdate: DossierPourUpdate[],
+  dossiersForInsert: DossierForInsert[],
+  dossiersForUpdate: DossierForUpdate[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  for (const { dossier: d } of [...dossiersPourInsert, ...dossiersPourUpdate]) {
+  for (const { dossier: d } of [...dossiersForInsert, ...dossiersForUpdate]) {
     for (const k of varcharKeys) {
       if (typeof d[k] === "string" && d[k].length >= 255) {
         console.warn(
@@ -162,8 +162,8 @@ export async function dumpDossiers(
 
   let avisExpertDossier: PartialBy<AvisExpertInitializer, "dossier">[] = [];
 
-  if (dossiersPourUpdate.length >= 1) {
-    updatePromises = dossiersPourUpdate.map(({ dossier: dossierToUpdate }) => {
+  if (dossiersForUpdate.length >= 1) {
+    updatePromises = dossiersForUpdate.map(({ dossier: dossierToUpdate }) => {
       return databaseConnection("dossier")
         .where("number_demarches_simplifiées", dossierToUpdate.number_demarches_simplifiées)
         .update(dossierToUpdate)
@@ -173,19 +173,19 @@ export async function dumpDossiers(
 
   let synchronizePersonnesAndRelationsSuiviForInsertedDossiersP: Promise<any> = Promise.resolve([]);
 
-  if (dossiersPourInsert.length >= 1) {
+  if (dossiersForInsert.length >= 1) {
     let insertedDossierIds: { id: DossierId }[] = await databaseConnection("dossier")
-      .insert(dossiersPourInsert.map((tables) => tables.dossier))
+      .insert(dossiersForInsert.map((tables) => tables.dossier))
       .returning(["id"]);
 
     const allPersonnesWhoFollow = await synchronizeAndReturnPersonnesForDossiersToInsert(
-      dossiersPourInsert,
+      dossiersForInsert,
       databaseConnection,
     );
 
     if (allPersonnesWhoFollow.length >= 1) {
       insertedDossierIds.forEach((insertedDossierId, index) => {
-        const { personnes_qui_suivent, évènement_phase_dossier } = dossiersPourInsert[index];
+        const { personnes_qui_suivent, évènement_phase_dossier } = dossiersForInsert[index];
         const emailsWhoFollow = new Set(personnes_qui_suivent?.map((p) => p.email));
 
         //Warning, here there is a risk of performance problems with the filter
@@ -211,7 +211,7 @@ export async function dumpDossiers(
       });
     }
 
-    avisExpertDossier = dossiersPourInsert
+    avisExpertDossier = dossiersForInsert
       .map((tables) => tables.avis_expert)
       .filter((x) => x !== undefined)
       .flat();
@@ -220,7 +220,7 @@ export async function dumpDossiers(
     insertedDossierIds.forEach((insertedDossierId, index) => {
       // assumes that postgres returns the ids in the same order as the array passed to `.insert`
       const { évènement_phase_dossier, avis_expert, décision_administrative } =
-        dossiersPourInsert[index];
+        dossiersForInsert[index];
 
       if (Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1) {
         évènement_phase_dossier.forEach((ev) => (ev.dossier = insertedDossierId.id));
@@ -234,7 +234,7 @@ export async function dumpDossiers(
     });
   }
 
-  const allDossiers = [...dossiersPourUpdate, ...dossiersPourInsert];
+  const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
 
   const evenementsPhaseDossier = allDossiers
     .map((tables) => tables.évènement_phase_dossier)
@@ -1135,14 +1135,14 @@ export function updateDossier(
  * Synchronizes and returns the personnes of the dossiers to insert.
  */
 async function synchronizeAndReturnPersonnesForDossiersToInsert(
-  dossiersPourInsert: DossierPourInsert[],
+  dossiersForInsert: DossierForInsert[],
   databaseConnection: Knex.Transaction | Knex,
 ) {
   let personnes: Personne[] = [];
 
   //@ts-ignore
   const personnesWhoFollowDossiers: Pick<Personne, "email" | "nom" | "prénoms">[] =
-    dossiersPourInsert
+    dossiersForInsert
       .flatMap((dossier) => dossier.personnes_qui_suivent)
       .filter((x) => x != null)
       // We only select the properties we want to keep (not code_accès)

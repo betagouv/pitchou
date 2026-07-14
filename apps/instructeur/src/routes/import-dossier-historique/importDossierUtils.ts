@@ -5,7 +5,7 @@ import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
 import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
-export type { DonneesSupplementairesPourCreationDossier } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+export type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
 
 /**
  * Type that defines the messages:

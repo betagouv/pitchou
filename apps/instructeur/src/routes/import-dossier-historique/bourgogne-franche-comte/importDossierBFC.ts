@@ -9,7 +9,7 @@ import {
   getCommuneData,
 } from "../importDossierUtils.ts";
 
-import type { DonneesSupplementairesPourCreationDossier } from "../importDossierUtils.ts";
+import type { AdditionalDataForDossierCreation } from "../importDossierUtils.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -465,7 +465,7 @@ function creerDonneesAvisExpert(
  */
 export function creerDonneesSupplementairesDepuisLigne(
   ligne: LigneDossierBFC,
-): DonneesSupplementairesPourCreationDossier {
+): AdditionalDataForDossierCreation {
   const description = ligne["Description avancement dossier avec dates"]
     ? "Description avancement dossier avec dates : " +
       ligne["Description avancement dossier avec dates"]

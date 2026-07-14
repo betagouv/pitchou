@@ -7,64 +7,63 @@ import type { PartialBy } from "../tools";
 import type { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
 import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "../database/public/DecisionAdministrative.ts";
 
-export type DonneesPersonnesEntreprisesInitializer = {
+export type PersonnesEntreprisesDataInitializer = {
   déposant: PersonneInitializer;
   demandeur_personne_physique: PersonneInitializer | undefined;
   demandeur_personne_morale: EntrepriseInitializer | undefined;
   representative: PersonneInitializer | undefined;
 };
 
-type DossierAvecDonneesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> =
-  Omit<
-    T,
-    "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "representative"
-  > &
-    DonneesPersonnesEntreprisesInitializer;
+type DossierWithPersonnesEntreprisesDataInitializers<T = DossierMutator | DossierInitializer> = Omit<
+  T,
+  "déposant" | "demandeur_personne_physique" | "demandeur_personne_morale" | "representative"
+> &
+  PersonnesEntreprisesDataInitializer;
 
 /**
- * Représente le format des données issues de Démarche Numérique (DN)
- * avant leur insertion ou mise à jour dans la base de données.
+ * Represents the format of the data coming from Démarche Numérique (DN)
+ * before its insertion or update in the database.
  *
- * Problème technique actuel :
- * - Les données des personnes/entreprises sont récupérées depuis DS,
- *   créées en base, puis réinjectées dans les dossiers à stocker.
- * - Ce couplage complique l’utilisation directe de `DossierMutator` ou `DossierInitializer` pour le type DossierType.
+ * Current technical problem:
+ * - The personnes/entreprises data is fetched from DS,
+ *   created in the database, then reinjected into the dossiers to store.
+ * - This coupling makes it hard to directly use `DossierMutator` or `DossierInitializer` for the DossierType type.
  *
- * TODO :
- * - Suivi de l'issue : @see {@link https://github.com/betagouv/pitchou/issues/312}
+ * TODO:
+ * - Issue tracking: @see {@link https://github.com/betagouv/pitchou/issues/312}
  */
 
-export type DossierPourSynchronisation<DossierType> = {
+export type DossierForSynchronization<DossierType> = {
   dossier: DossierType;
   évènement_phase_dossier: PartialBy<EvenementPhaseDossierInitializer, "dossier">[];
   décision_administrative: PartialBy<DecisionAdministrativeInitializer, "dossier">[];
 };
 
-export type DossierEntreprisesPersonneInitializersPourInsert = DossierPourSynchronisation<
-  DossierAvecDonneesPersonnesEntreprisesInitializers<DossierInitializer>
+export type DossierEntreprisesPersonneInitializersForInsert = DossierForSynchronization<
+  DossierWithPersonnesEntreprisesDataInitializers<DossierInitializer>
 >;
 
-export type DossierEntreprisesPersonneInitializersPourUpdate = DossierPourSynchronisation<
-  DossierAvecDonneesPersonnesEntreprisesInitializers<DossierMutator>
+export type DossierEntreprisesPersonneInitializersForUpdate = DossierForSynchronization<
+  DossierWithPersonnesEntreprisesDataInitializers<DossierMutator>
 >;
 
 /**
- * A la création de Dossier via un import
- * On peut récupérer la donnée de personnes qui suivent ce dossier.
- * Dans ce cas, on doit impérativement avoir l'email de cette personne.
+ * When creating a Dossier via an import,
+ * we can retrieve the data of the personnes following this dossier.
+ * In that case, we must necessarily have that personne's email.
  */
-export type PersonneAvecEmailObligatoire = Partial<Omit<Personne, "email">> & {
+export type PersonneWithRequiredEmail = Partial<Omit<Personne, "email">> & {
   email: NonNullable<Personne["email"]>;
 };
 
-//Le type DossierPourInsertGénérique existe pour construire le type des données supplémentaires des dossiers importés
-export type DossierPourInsertGenerique<Dossier> = DossierPourSynchronisation<Dossier> & {
-  personnes_qui_suivent: PersonneAvecEmailObligatoire[] | undefined;
+// The DossierForInsertGeneric type exists to build the type of the additional data of imported dossiers
+export type DossierForInsertGeneric<Dossier> = DossierForSynchronization<Dossier> & {
+  personnes_qui_suivent: PersonneWithRequiredEmail[] | undefined;
 } & { avis_expert: PartialBy<AvisExpertInitializer, "dossier">[] };
-export type DossierPourInsert = DossierPourInsertGenerique<DossierInitializer>;
+export type DossierForInsert = DossierForInsertGeneric<DossierInitializer>;
 
-export type DossierPourUpdate = DossierPourSynchronisation<DossierMutator>;
+export type DossierForUpdate = DossierForSynchronization<DossierMutator>;
 
-export type DonneesSupplementairesPourCreationDossier = Partial<
-  DossierPourInsertGenerique<Omit<DossierInitializer, "numéro_démarche">>
+export type AdditionalDataForDossierCreation = Partial<
+  DossierForInsertGeneric<Omit<DossierInitializer, "numéro_démarche">>
 >;
