@@ -5,7 +5,7 @@ const CONNEXION_EMAIL_TEMPLATE_ID = 1;
 
 const BREVO_EMAIL_SEND_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
-export async function envoyerEmailConnexion(email: string, lienConnexion: string): Promise<any> {
+export async function sendConnexionEmail(email: string, connexionLink: string): Promise<any> {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
   if (!BREVO_API_KEY) {
     throw new Error("Missing BREVO_API_KEY environment variable");
@@ -21,7 +21,7 @@ export async function envoyerEmailConnexion(email: string, lienConnexion: string
         templateId: CONNEXION_EMAIL_TEMPLATE_ID,
         to: [{ email }],
         params: {
-          lien_connexion: lienConnexion,
+          lien_connexion: connexionLink,
         },
       },
     })
