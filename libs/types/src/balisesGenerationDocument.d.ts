@@ -14,7 +14,7 @@ interface Espece {
 /**
  * Type for an item in the list of species by impact
  */
-interface EspeceParImpact {
+interface EspeceByImpact {
   impact: string;
   liste_espèces: Espece[];
   liste_noms_impacts_quantifiés: string[];
@@ -23,7 +23,7 @@ interface EspeceParImpact {
 /**
  * Type for the scientific data of the dossier if it is of a scientific nature
  */
-interface DonneesScientifiques {
+interface ScientificData {
   type_demande: string[] | null;
   bilan_antérieur: boolean | null;
   finalité_demande: string[] | null;
@@ -40,7 +40,7 @@ interface DonneesScientifiques {
 /**
  * Utility functions for formatting
  */
-interface FonctionsUtilitaires {
+interface UtilityFunctions {
   afficher_nombre: (n: any, precision?: number) => string | undefined;
   formatter_date: (date: any, formatString: string) => string | undefined;
   formatter_date_simple: (date: any) => string | undefined;
@@ -71,12 +71,12 @@ export type BalisesGenerationDocument = {
   régime_autorisation_environnementale_renseigné: boolean;
   régime_autorisation_environnementale: boolean | "Non renseigné";
 
-  scientifique: DonneesScientifiques;
+  scientifique: ScientificData;
 
   justification_absence_autre_solution_satisfaisante: string | null;
   motif_dérogation: string | null;
   justification_motif_dérogation: string | null;
-  liste_espèces_par_impact: EspeceParImpact[] | undefined;
+  liste_espèces_par_impact: EspeceByImpact[] | undefined;
   mesures_erc_prévues: boolean | "Non renseigné";
   mesures_erc_prévues_renseigné: boolean;
 
