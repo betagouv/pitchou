@@ -11,7 +11,7 @@ import type {
   ActiviteMenancante,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
-  ImpactQuantifie,
+  QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 
 // The "Génération de documents" tab feeds the parsed impacted-espece file into
@@ -58,7 +58,7 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
 
   // Mirrors the map chargerActivitésMéthodesMoyensDePoursuite() gives the generation tab.
   const identifiantPitchouVersActiviteEtImpactsQuantifies = new Map([
-    ["P-2-1", { ...activite, impactsQuantifiés: ["Nombre d'individus"] as ImpactQuantifie[] }],
+    ["P-2-1", { ...activite, impactsQuantifiés: ["Nombre d'individus"] as QuantifiedImpact[] }],
   ]);
 
   const headers = ["CD_REF", "nombre individus", "identifiant pitchou activité"];

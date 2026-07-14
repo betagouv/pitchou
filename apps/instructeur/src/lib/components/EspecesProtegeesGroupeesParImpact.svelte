@@ -2,7 +2,7 @@
   import type {
     ActiviteMenancante,
     DescriptionMenacesEspeces,
-    ImpactQuantifie,
+    QuantifiedImpact,
   } from "@pitchou/types/especes.d.ts";
 
   import { creerEspecesGroupeesParImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
@@ -11,7 +11,7 @@
     espècesImpactées: DescriptionMenacesEspeces;
     identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
       string,
-      ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] }
+      ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
     >;
   };
 

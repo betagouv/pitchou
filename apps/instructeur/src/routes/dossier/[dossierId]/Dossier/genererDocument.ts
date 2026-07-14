@@ -7,7 +7,7 @@ import { creerEspecesGroupeesParImpact } from "$lib/especes/creerEspecesGroupees
 import type {
   ActiviteMenancante,
   DescriptionMenacesEspeces,
-  ImpactQuantifie,
+  QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
@@ -23,7 +23,7 @@ export function getBalisesGenerationDocument(
   especesImpactees: DescriptionMenacesEspeces,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
-    ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] }
+    ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
   >,
 ): BalisesGenerationDocument {
   const {

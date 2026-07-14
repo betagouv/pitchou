@@ -140,7 +140,7 @@ export type CodeActivitePitchou =
   | "4-3-pitchou-œufs"
   | "mix-1-10-3-30-6-40";
 
-export type ImpactQuantifie =
+export type QuantifiedImpact =
   | `Nombre d'individus`
   | "Nids"
   | "Œufs"
@@ -244,7 +244,7 @@ export interface DescriptionMenaceEspeceJSON {
   etresVivantsAtteints: (OiseauAtteintJSON | FauneNonOiseauAtteinteJSON | FloreAtteinteJSON)[];
 }
 
-export interface EspeceSimplifiee {
+export interface SimplifiedEspece {
   CD_REF: EspeceProtegee["CD_REF"];
   nom: string;
 }

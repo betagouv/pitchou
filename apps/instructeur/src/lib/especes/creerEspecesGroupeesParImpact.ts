@@ -1,7 +1,7 @@
 import type {
   ActiviteMenancante,
   DescriptionMenacesEspeces,
-  ImpactQuantifie,
+  QuantifiedImpact,
   FauneNonOiseauAtteinte,
   FloreAtteinte,
   OiseauAtteint,
@@ -27,7 +27,7 @@ function œufs(especeImpactee: OiseauAtteint): string {
   return especeImpactee.nombreOeufs ? `${especeImpactee.nombreOeufs}` : VALEUR_NON_RENSEIGNE;
 }
 
-const getterImpactQuantifie: Map<ImpactQuantifie, (esp: any) => string> = new Map([
+const getterImpactQuantifie: Map<QuantifiedImpact, (esp: any) => string> = new Map([
   ["Nombre d'individus", individus],
   ["Nids", nids],
   ["Œufs", œufs],
@@ -45,7 +45,7 @@ export type EspeceImpacteeSimplifiee = {
 
 export type EspecesParActivite = {
   activité: string;
-  impactsQuantifiés: ImpactQuantifie[];
+  impactsQuantifiés: QuantifiedImpact[];
   espèces: EspeceImpacteeSimplifiee[];
 };
 
@@ -53,7 +53,7 @@ export function creerEspecesGroupeesParImpact(
   especesImpactees: DescriptionMenacesEspeces,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
-    ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] }
+    ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
   >,
 ): EspecesParActivite[] {
   const _especesImpacteesParIdentifiantActivite: Map<

@@ -15,7 +15,7 @@ import type {
   ActiviteMenancante,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
-  ImpactQuantifie,
+  QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type {
@@ -681,7 +681,7 @@ export async function construireActivitesMethodesMoyensDePoursuite(
   const identifiantPitchouVersActiviteEtImpactsQuantifies = new Map(
     Object.values(ActivitesMethodesMoyensDePoursuite.activités).flatMap((activites) => {
       return [...activites.entries()].map(([code, activite]) => {
-        const impactsQuantifies: ImpactQuantifie[] = [
+        const impactsQuantifies: QuantifiedImpact[] = [
           "Nombre d'individus",
           "Nids",
           "Œufs",
@@ -694,7 +694,7 @@ export async function construireActivitesMethodesMoyensDePoursuite(
 
         const ret: [
           ActiviteMenancante["Identifiant Pitchou"],
-          ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] },
+          ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] },
         ] = [code, { ...activite, impactsQuantifiés: impactsQuantifiesFiltres }];
         return ret;
       });

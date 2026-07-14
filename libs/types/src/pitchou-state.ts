@@ -7,7 +7,7 @@ import type {
   EspeceProtegee,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
-  ImpactQuantifie,
+  QuantifiedImpact,
 } from "./especes.d.ts";
 import type Message from "./database/public/Message.ts";
 import type Dossier from "./database/public/Dossier.ts";
@@ -23,7 +23,7 @@ export type ActivitesMethodesMoyensDePoursuiteBundle = {
   >;
   identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
     string,
-    ActiviteMenancante & { impactsQuantifiés: ImpactQuantifie[] }
+    ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
   >;
 };
 
