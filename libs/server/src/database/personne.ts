@@ -11,7 +11,7 @@ import type {
 } from "@pitchou/types/database/public/Personne.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
-export function creerPersonne(
+export function createPersonne(
   personne: PersonneInitializer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
@@ -22,7 +22,7 @@ export function creerPersonne(
   return databaseConnection("personne").insert(normalised);
 }
 
-export function creerPersonnes(
+export function createPersonnes(
   personnes: PersonneInitializer[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ id: Personne["id"] }[]> {
@@ -75,13 +75,13 @@ function updateCodeAcces(
   return databaseConnection("personne").where({ email }).update({ code_accès });
 }
 
-export function creerPersonneOuMettreAJourCodeAcces(
+export function createPersonneOrUpdateCodeAcces(
   email: Personne["email"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<string> {
   const codeAcces = randomBytes(32).toString("base64url");
 
-  return creerPersonne(
+  return createPersonne(
     {
       nom: "",
       prénoms: "",

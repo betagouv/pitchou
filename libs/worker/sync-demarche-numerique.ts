@@ -15,7 +15,7 @@ import {
   deleteDossierByDSNumber,
   synchroniserDossierDansGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
-import { listAllPersonnes, creerPersonnes } from "@pitchou/server/database/personne.ts";
+import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/personne.ts";
 import { synchroniserGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
@@ -280,7 +280,7 @@ const personnesInDossiersWithoutId = [
 // console.log('personnesInDossiersWithoutId', personnesInDossiersWithoutId)
 
 if (personnesInDossiersWithoutId.length >= 1) {
-  await creerPersonnes(personnesInDossiersWithoutId, laTransactionDeSynchronisationDS).then(
+  await createPersonnes(personnesInDossiersWithoutId, laTransactionDeSynchronisationDS).then(
     (personneIds) => {
       personnesInDossiersWithoutId.forEach((p, i) => {
         p.id = personneIds[i].id;
