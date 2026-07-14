@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { getRelationSuivis, creerTransaction } from "@pitchou/server/database.ts";
+import { getRelationSuivis, createTransaction } from "@pitchou/server/database.ts";
 import {
   findRelationPersonneFromCap,
   instructeurFollowsDossier,
@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
   const { direction, personneEmail, dossierId } = (await request.json()) as ChangerSuiviBody;
 
-  const transaction = await creerTransaction();
+  const transaction = await createTransaction();
 
   try {
     const relationsSuiviViaCap = await findRelationPersonneFromCap(

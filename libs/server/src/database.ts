@@ -20,7 +20,7 @@ export function closeDatabaseConnection(): ReturnType<Knex["destroy"]> {
   return directDatabaseConnection.destroy();
 }
 
-export function creerTransaction(config?: Knex.TransactionConfig): Promise<Knex.Transaction> {
+export function createTransaction(config?: Knex.TransactionConfig): Promise<Knex.Transaction> {
   return directDatabaseConnection.transaction(config);
 }
 
@@ -43,7 +43,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 ): Promise<
   Partial<StringValues<PitchouInstructeurCapabilities> & { identité: IdentiteInstructeurPitchou }>
 > {
-  const remplirAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
+  const fillAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
     .select("cap")
     .leftJoin("cap_écriture_annotation", {
       "cap_écriture_annotation.cap":
@@ -54,13 +54,13 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 
   const identiteP = databaseConnection("personne").select("email").where({ code_accès }).first();
 
-  const listerDossiersP = databaseConnection("cap_dossier")
+  const listDossiersP = databaseConnection("cap_dossier")
     .select("cap")
     .where({ personne_cap: code_accès })
     .first()
     .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-  const creerEvenementMetriqueP = databaseConnection("cap_évènement_métrique")
+  const createEvenementMetriqueP = databaseConnection("cap_évènement_métrique")
     .select("cap")
     .where({ personne_cap: code_accès })
     .first()
@@ -68,66 +68,65 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 
   // For now, the rights associated with a whole bunch of capabilities share the same secret part
   // of the capability as for listing the dossiers
-  const recupererDossierCompletP = listerDossiersP;
-  const listerRelationSuiviP = listerDossiersP;
-  const modifierRelationSuiviP = listerDossiersP;
-  const listerEvenementsPhaseDossierP = listerDossiersP;
-  const listerMessagesP = listerDossiersP;
-  const modifierDossierP = listerDossiersP;
-  const modifierDecisionAdministrativeDansDossierP = listerDossiersP;
-  const listerNotificationsP = listerDossiersP;
-  const updateNotificationP = listerDossiersP;
+  const getDossierCompletP = listDossiersP;
+  const listRelationSuiviP = listDossiersP;
+  const updateRelationSuiviP = listDossiersP;
+  const listEvenementsPhaseDossierP = listDossiersP;
+  const listMessagesP = listDossiersP;
+  const updateDossierP = listDossiersP;
+  const updateDecisionAdministrativeInDossierP = listDossiersP;
+  const listNotificationsP = listDossiersP;
+  const updateNotificationP = listDossiersP;
 
   return Promise.all([
-    remplirAnnotationsP,
-    listerDossiersP,
-    recupererDossierCompletP,
-    listerRelationSuiviP,
-    modifierRelationSuiviP,
-    listerEvenementsPhaseDossierP,
-    listerMessagesP,
-    modifierDossierP,
-    modifierDecisionAdministrativeDansDossierP,
-    creerEvenementMetriqueP,
+    fillAnnotationsP,
+    listDossiersP,
+    getDossierCompletP,
+    listRelationSuiviP,
+    updateRelationSuiviP,
+    listEvenementsPhaseDossierP,
+    listMessagesP,
+    updateDossierP,
+    updateDecisionAdministrativeInDossierP,
+    createEvenementMetriqueP,
     identiteP,
-    listerNotificationsP,
+    listNotificationsP,
     updateNotificationP,
   ]).then(
     ([
-      remplirAnnotations,
-      listerDossiers,
-      recupererDossierComplet,
-      listerRelationSuivi,
-      modifierRelationSuivi,
-      listerEvenementsPhaseDossier,
-      listerMessages,
-      modifierDossier,
-      modifierDecisionAdministrativeDansDossier,
-      creerEvenementMetrique,
+      fillAnnotations,
+      listDossiers,
+      getDossierComplet,
+      listRelationSuivi,
+      updateRelationSuivi,
+      listEvenementsPhaseDossier,
+      listMessages,
+      updateDossier,
+      updateDecisionAdministrativeInDossier,
+      createEvenementMetrique,
       identite,
-      listerNotifications,
+      listNotifications,
       updateNotificationForDossier,
     ]) => {
       const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>> = {
         remplirAnnotations: undefined,
-        listerDossiers,
-        recupérerDossierComplet: recupererDossierComplet,
-        listerRelationSuivi,
-        modifierRelationSuivi,
-        listerÉvènementsPhaseDossier: listerEvenementsPhaseDossier,
-        listerMessages,
-        modifierDossier,
+        listerDossiers: listDossiers,
+        recupérerDossierComplet: getDossierComplet,
+        listerRelationSuivi: listRelationSuivi,
+        modifierRelationSuivi: updateRelationSuivi,
+        listerÉvènementsPhaseDossier: listEvenementsPhaseDossier,
+        listerMessages: listMessages,
+        modifierDossier: updateDossier,
         identité: identite
           ? { email: identite.email, estAdmin: isAdminEmail(identite.email) }
           : undefined,
-        créerÉvènementMetrique: creerEvenementMetrique,
-        modifierDecisionAdministrativeDansDossier,
-        listerNotifications,
+        créerÉvènementMetrique: createEvenementMetrique,
+        modifierDecisionAdministrativeDansDossier: updateDecisionAdministrativeInDossier,
+        listerNotifications: listNotifications,
         updateNotificationForDossier,
       };
 
-      if (remplirAnnotations && remplirAnnotations.cap)
-        ret.remplirAnnotations = remplirAnnotations.cap;
+      if (fillAnnotations && fillAnnotations.cap) ret.remplirAnnotations = fillAnnotations.cap;
 
       return ret;
     },
@@ -135,10 +134,10 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 }
 
 export async function getRelationSuivis(
-  listeDossiersCap: NonNullable<Personne["code_accès"]>,
+  dossierListCap: NonNullable<Personne["code_accès"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ReturnType<PitchouInstructeurCapabilities["listerRelationSuivi"]>> {
-  const relsBDD = await databaseConnection("dossier")
+  const relsDB = await databaseConnection("dossier")
     .select(["dossier.id as dossier", "personne.email as email"])
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
@@ -147,7 +146,7 @@ export async function getRelationSuivis(
       "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
         "arête_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": listeDossiersCap })
+    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": dossierListCap })
     .leftJoin("arête_personne_suit_dossier", {
       "arête_personne_suit_dossier.dossier": "dossier.id",
     })
@@ -156,11 +155,11 @@ export async function getRelationSuivis(
     })
     .whereNotNull("email");
 
-  //console.log('relsBDD', relsBDD)
+  //console.log('relsDB', relsDB)
 
   const retMap = new Map();
 
-  for (const { email, dossier } of relsBDD) {
+  for (const { email, dossier } of relsDB) {
     const dossiersSuivisIds = retMap.get(email) || new Set();
     dossiersSuivisIds.add(dossier);
     retMap.set(email, dossiersSuivisIds);

@@ -1,5 +1,5 @@
 import type { Knex } from "knex";
-import { creerTransaction } from "../database.ts";
+import { createTransaction } from "../database.ts";
 import { formatISO, startOfToday } from "date-fns";
 
 import type {
@@ -12,7 +12,7 @@ import type {
  * Computes Pitchou's public statistics
  */
 export async function getStatsPubliques(): Promise<StatsPubliques> {
-  const transaction = await creerTransaction({ readOnly: true });
+  const transaction = await createTransaction({ readOnly: true });
   const today = formatISO(startOfToday());
   try {
     // Fetch all the dossiers

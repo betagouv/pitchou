@@ -5,7 +5,7 @@ import { fr } from "date-fns/locale";
 import {
   dumpEntreprises,
   closeDatabaseConnection,
-  creerTransaction,
+  createTransaction,
   addResultatSynchronisationDS88444,
 } from "@pitchou/server/database.ts";
 import {
@@ -121,7 +121,7 @@ console.info(
   `(${formatDistanceToNow(lastModified, { locale: fr })})`,
 );
 
-const laTransactionDeSynchronisationDS = await creerTransaction();
+const laTransactionDeSynchronisationDS = await createTransaction();
 
 const dossSuppP = recupererTousLesDossiersSupprimes(DEMARCHE_SIMPLIFIEE_API_TOKEN, DEMARCHE_NUMBER);
 

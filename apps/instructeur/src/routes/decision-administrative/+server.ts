@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { creerTransaction } from "@pitchou/server/database.ts";
+import { createTransaction } from "@pitchou/server/database.ts";
 import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
   updateDecisionAdministrative,
@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     error(400, `Le 'dossier' est absent des données de décision administrative`);
   }
 
-  const transaction = await creerTransaction();
+  const transaction = await createTransaction();
   try {
     const dossiersAccessibles = await dossiersAccessibleViaCap(
       decisionData.dossier,
