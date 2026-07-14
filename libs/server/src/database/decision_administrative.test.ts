@@ -10,9 +10,9 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
 });
 
 import {
-  ajouterDecisionAdministrativeAvecFichier,
-  modifierDecisionAdministrative,
-  supprimerDecisionAdministrative,
+  addDecisionAdministrativeWithFichier,
+  updateDecisionAdministrative,
+  deleteDecisionAdministrative,
 } from "./decision_administrative.ts";
 import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
@@ -34,11 +34,11 @@ beforeEach(() => {
   supprimer.mockReset();
 });
 
-describe("supprimerDecisionAdministrative", () => {
+describe("deleteDecisionAdministrative", () => {
   it("filters the delete by the given id", async () => {
     const db = fakeDatabase().selectResolves([]).build();
     // @ts-ignore
-    await supprimerDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id", db.knex);
     expect(db.where).toHaveBeenCalledWith({ id: "some-id" });
     expect(db.delete).toHaveBeenCalledTimes(1);
   });
@@ -48,7 +48,7 @@ describe("supprimerDecisionAdministrative", () => {
       .selectResolvesForTable("décision_administrative", [{ fichier: null }])
       .build();
     // @ts-ignore
-    await supprimerDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id", db.knex);
     expect(supprimerFichiersSansAutresReferences).not.toHaveBeenCalled();
   });
 
@@ -57,7 +57,7 @@ describe("supprimerDecisionAdministrative", () => {
       .selectResolvesForTable("décision_administrative", [{ fichier: fId }])
       .build();
     // @ts-ignore
-    await supprimerDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id", db.knex);
     expect(supprimerFichiersSansAutresReferences).toHaveBeenCalledWith([fId], db.knex);
   });
 });
@@ -70,12 +70,12 @@ const baseDecision = {
   dossier: dossierId,
 };
 
-describe("ajouterDecisionAdministrativeAvecFichier", () => {
+describe("addDecisionAdministrativeWithFichier", () => {
   it("inserts the décision without S3 calls when fichier_base64 is missing", async () => {
     const db = fakeDatabase()
       .insertResolves([{ id: daId }])
       .build();
-    await ajouterDecisionAdministrativeAvecFichier(baseDecision, db.knex);
+    await addDecisionAdministrativeWithFichier(baseDecision, db.knex);
     expect(stocker).not.toHaveBeenCalled();
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({ dossier: dossierId, numéro: "1" }),
@@ -90,7 +90,7 @@ describe("ajouterDecisionAdministrativeAvecFichier", () => {
       .insertResolves([{ id: daId }])
       .build();
 
-    await ajouterDecisionAdministrativeAvecFichier(
+    await addDecisionAdministrativeWithFichier(
       {
         ...baseDecision,
         fichier_base64: {
@@ -113,17 +113,17 @@ describe("ajouterDecisionAdministrativeAvecFichier", () => {
   });
 });
 
-describe("modifierDecisionAdministrative", () => {
+describe("updateDecisionAdministrative", () => {
   it("throws when id is missing", async () => {
     const db = fakeDatabase().build();
     await expect(
-      modifierDecisionAdministrative({ ...baseDecision, id: undefined }, db.knex),
+      updateDecisionAdministrative({ ...baseDecision, id: undefined }, db.knex),
     ).rejects.toThrow(/id manquant/);
   });
 
   it("does not upload nor clean up when fichier_base64 is absent", async () => {
     const db = fakeDatabase().build();
-    await modifierDecisionAdministrative({ ...baseDecision, id: daId }, db.knex);
+    await updateDecisionAdministrative({ ...baseDecision, id: daId }, db.knex);
 
     expect(stocker).not.toHaveBeenCalled();
     expect(supprimer).not.toHaveBeenCalled();
@@ -136,7 +136,7 @@ describe("modifierDecisionAdministrative", () => {
       .selectResolvesForTable("décision_administrative", [{ fichier: oldFichierId }])
       .build();
 
-    await modifierDecisionAdministrative(
+    await updateDecisionAdministrative(
       {
         ...baseDecision,
         id: daId,
@@ -160,7 +160,7 @@ describe("modifierDecisionAdministrative", () => {
       .selectResolvesForTable("décision_administrative", [{ fichier: null }])
       .build();
 
-    await modifierDecisionAdministrative(
+    await updateDecisionAdministrative(
       {
         ...baseDecision,
         id: daId,

@@ -4,8 +4,8 @@ import { requireCap } from "$lib/server/auth";
 import { creerTransaction } from "@pitchou/server/database.ts";
 import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
-  modifierDecisionAdministrative,
-  ajouterDecisionAdministrativeAvecFichier,
+  updateDecisionAdministrative,
+  addDecisionAdministrativeWithFichier,
 } from "@pitchou/server/database/decision_administrative.ts";
 import type { DecisionAdministrativePourTransfer } from "@pitchou/types/API_Pitchou.ts";
 
@@ -33,8 +33,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
 
     const id = decisionData.id
-      ? await modifierDecisionAdministrative(decisionData, transaction)
-      : await ajouterDecisionAdministrativeAvecFichier(decisionData, transaction);
+      ? await updateDecisionAdministrative(decisionData, transaction)
+      : await addDecisionAdministrativeWithFichier(decisionData, transaction);
 
     await transaction.commit();
     return json(id);

@@ -18,21 +18,21 @@
   type Props = {
     dossierId: Dossier["id"];
     décisionAdministrative: FrontEndDecisionAdministrative;
-    supprimerDecisionAdministrative: () => Promise<unknown>;
+    deleteDecisionAdministrative: () => Promise<unknown>;
   };
 
   let {
     dossierId,
     décisionAdministrative: decisionAdministrative = $bindable(),
-    supprimerDecisionAdministrative,
+    deleteDecisionAdministrative,
   }: Props = $props();
 
   let { numéro, type, date_signature, date_fin_obligations, fichier_url } =
     $derived(decisionAdministrative);
 
-  const NON_RENSEIGNE = "(non renseigné)";
+  const NOT_PROVIDED = "(non renseigné)";
 
-  let decisionEnModification: DecisionAdministrativePourTransfer | undefined = $state();
+  let editedDecision: DecisionAdministrativePourTransfer | undefined = $state();
 
   // Deletion is irreversible, so we ask for confirmation before calling it.
   let showDeleteConfirmation = $state(false);
@@ -41,16 +41,16 @@
   async function confirmDelete() {
     deleteInProgress = true;
     try {
-      await supprimerDecisionAdministrative();
+      await deleteDecisionAdministrative();
       showDeleteConfirmation = false;
     } finally {
       deleteInProgress = false;
     }
   }
 
-  function commencerModification() {
+  function startEditing() {
     const { id } = decisionAdministrative;
-    decisionEnModification = {
+    editedDecision = {
       id,
       dossier: dossierId,
       numéro,
@@ -60,7 +60,7 @@
     };
   }
 
-  async function sauvegarderModification(decision: DecisionAdministrativePourTransfer) {
+  async function saveModification(decision: DecisionAdministrativePourTransfer) {
     const modifierDecisionAdministrativeDansDossier =
       store.capabilities.modifierDecisionAdministrativeDansDossier;
 
@@ -74,20 +74,20 @@
     envoyerEvenement({ type: "modifierDecisionAdministrative" });
 
     decisionAdministrative = Object.assign(decisionAdministrative, decision);
-    decisionEnModification = undefined;
+    editedDecision = undefined;
 
     refreshDossierComplet(dossierId);
   }
 </script>
 
 <CardDecisionAdministrative>
-  {#if decisionEnModification}
+  {#if editedDecision}
     <h4>Modifier décision administrative</h4>
 
     <FormDecisionAdministrative
-      décisionAdministrative={decisionEnModification}
-      onValider={sauvegarderModification}
-      onAnnuler={() => (decisionEnModification = undefined)}
+      décisionAdministrative={editedDecision}
+      onValider={saveModification}
+      onAnnuler={() => (editedDecision = undefined)}
       onSupprimer={() => (showDeleteConfirmation = true)}
     />
   {:else}
@@ -96,7 +96,7 @@
       {numéro || ""} du {formatDateAbsolue(date_signature)}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
-        onclick={commencerModification}
+        onclick={startEditing}
       >
         Modifier
       </button>
@@ -105,7 +105,7 @@
     <div class="fr-mb-1w">
       Date de fin des obligations : {date_fin_obligations
         ? formatDateAbsolue(date_fin_obligations)
-        : NON_RENSEIGNE}
+        : NOT_PROVIDED}
     </div>
 
     <div class="fr-mb-2w">

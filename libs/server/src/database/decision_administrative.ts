@@ -13,13 +13,13 @@ import type {
   FrontEndDecisionAdministrative,
 } from "@pitchou/types/API_Pitchou.ts";
 
-export async function ajouterDecisionAdministrativeAvecFichier(
+export async function addDecisionAdministrativeWithFichier(
   decision: DecisionAdministrativePourTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DecisionAdministrative["id"]> {
   const { id, numéro, type, date_signature, date_fin_obligations, dossier } = decision;
 
-  const decisionAdministrativeBDD: Partial<DecisionAdministrative> = {
+  const decisionAdministrativeDB: Partial<DecisionAdministrative> = {
     id,
     numéro,
     type,
@@ -34,18 +34,18 @@ export async function ajouterDecisionAdministrativeAvecFichier(
 
     await stockerNouveauFichier({ nom, media_type, contenu }, databaseConnection).then(
       (fichier) => {
-        decisionAdministrativeBDD.fichier = fichier.id;
+        decisionAdministrativeDB.fichier = fichier.id;
       },
     );
   }
 
   return databaseConnection("décision_administrative")
-    .insert(decisionAdministrativeBDD)
+    .insert(decisionAdministrativeDB)
     .returning(["id"])
     .then((d) => d[0].id);
 }
 
-export function ajouterDecisionsAdministratives(
+export function addDecisionsAdministratives(
   decisions: Omit<DecisionAdministrative, "id"> | Omit<DecisionAdministrative, "id">[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
@@ -82,7 +82,7 @@ export function getDecisionsAdministratives(
     .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
 }
 
-export async function modifierDecisionAdministrative(
+export async function updateDecisionAdministrative(
   decisionAdministrative: DecisionAdministrativePourTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
@@ -95,7 +95,7 @@ export async function modifierDecisionAdministrative(
     );
   }
 
-  const decisionAdministrativeBDD: Partial<DecisionAdministrative> = {
+  const decisionAdministrativeDB: Partial<DecisionAdministrative> = {
     id,
     numéro,
     type,
@@ -104,49 +104,49 @@ export async function modifierDecisionAdministrative(
     dossier,
   };
 
-  let decisionAdministrativePreteP: Promise<any> = Promise.resolve();
+  let decisionAdministrativeReadyP: Promise<any> = Promise.resolve();
 
-  let fichierIdPrecedentP: Promise<FileId | undefined> = Promise.resolve(undefined);
+  let previousFichierIdP: Promise<FileId | undefined> = Promise.resolve(undefined);
 
   if (decisionAdministrative.fichier_base64) {
     const { nom, media_type, contenuBase64 } = decisionAdministrative.fichier_base64;
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    decisionAdministrativePreteP = stockerNouveauFichier(
+    decisionAdministrativeReadyP = stockerNouveauFichier(
       { nom, media_type, contenu },
       databaseConnection,
     ).then((fichier) => {
-      decisionAdministrativeBDD.fichier = fichier.id;
+      decisionAdministrativeDB.fichier = fichier.id;
     });
 
-    fichierIdPrecedentP = databaseConnection("décision_administrative")
+    previousFichierIdP = databaseConnection("décision_administrative")
       .select(["fichier"])
       .where({ id })
       .then((decisions) => decisions[0].fichier);
   }
 
-  await decisionAdministrativePreteP;
-  const decisionAdministrativeAJourP = databaseConnection("décision_administrative")
-    .update(decisionAdministrativeBDD)
-    .where({ id: decisionAdministrativeBDD.id });
+  await decisionAdministrativeReadyP;
+  const updatedDecisionAdministrativeP = databaseConnection("décision_administrative")
+    .update(decisionAdministrativeDB)
+    .where({ id: decisionAdministrativeDB.id });
 
-  return Promise.all([fichierIdPrecedentP, decisionAdministrativeAJourP]).then(
-    ([fichierIdPrecedent]) => {
-      if (fichierIdPrecedent) {
-        return supprimerFichiersSansAutresReferences([fichierIdPrecedent], databaseConnection);
+  return Promise.all([previousFichierIdP, updatedDecisionAdministrativeP]).then(
+    ([previousFichierId]) => {
+      if (previousFichierId) {
+        return supprimerFichiersSansAutresReferences([previousFichierId], databaseConnection);
       }
     },
   );
 }
 
-export async function supprimerDecisionAdministrative(
+export async function deleteDecisionAdministrative(
   id: DecisionAdministrative["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  const lignes = await databaseConnection("décision_administrative")
+  const rows = await databaseConnection("décision_administrative")
     .select("fichier")
     .where({ id });
-  const fichierIds = lignes.map((r) => r.fichier).filter((fichierId) => fichierId !== null);
+  const fichierIds = rows.map((r) => r.fichier).filter((fichierId) => fichierId !== null);
 
   const result = await databaseConnection("décision_administrative").delete().where({ id });
 
