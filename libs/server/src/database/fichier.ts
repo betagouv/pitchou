@@ -21,8 +21,8 @@ export function makeFichierHash(fichier: Partial<File>): string {
 /**
  * Finds existing file records that match the given descriptions (used for deduplication during DS sync).
  */
-export function trouverFichiersExistants(
-  descriptionsFichier: Partial<File>[],
+export function findExistingFichiers(
+  fichierDescriptions: Partial<File>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Partial<File>[]> {
   return databaseConnection("file")
@@ -30,7 +30,7 @@ export function trouverFichiersExistants(
     .whereIn(
       ["DS_checksum", "nom", "media_type"],
       // @ts-ignore
-      descriptionsFichier.map(({ DS_checksum, nom, media_type }) => [DS_checksum, nom, media_type]),
+      fichierDescriptions.map(({ DS_checksum, nom, media_type }) => [DS_checksum, nom, media_type]),
     );
 }
 
@@ -40,7 +40,7 @@ export function trouverFichiersExistants(
  * The UUID is generated client-side to allow upload-first then DB insert.
  * If the DB insert fails, the S3 object is deleted (best-effort) before re-throwing.
  */
-export async function stockerNouveauFichier(
+export async function storeNewFichier(
   fichier: {
     nom: string;
     contenu: Buffer;
@@ -100,7 +100,7 @@ export async function loadFichierContent(
 }
 
 // All tables/columns that can reference a file (FK -> file.id).
-// Centralised here so supprimerFichiersSansAutresReferences stays exhaustive.
+// Centralised here so deleteFichiersWithoutOtherReferences stays exhaustive.
 const FILE_REFERENCES = [
   { table: "arête_dossier__fichier_pièces_jointes_pétitionnaire", column: "fichier" },
   { table: "dossier", column: "espèces_impactées" },
@@ -116,7 +116,7 @@ const FILE_REFERENCES = [
  *
  * Returns the IDs that were actually deleted.
  */
-export async function supprimerFichiersSansAutresReferences(
+export async function deleteFichiersWithoutOtherReferences(
   fileIds: FileId[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<FileId[]> {
@@ -130,14 +130,14 @@ export async function supprimerFichiersSansAutresReferences(
     }
   }
 
-  const aSupprimer = fileIds.filter((id) => !stillReferenced.has(id));
+  const toDelete = fileIds.filter((id) => !stillReferenced.has(id));
 
-  for (const fileId of aSupprimer) {
+  for (const fileId of toDelete) {
     await deleteFile(fileId, databaseConnection);
     await deleteObject(fileKey(fileId)).catch((err) => {
       console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
     });
   }
 
-  return aSupprimer;
+  return toDelete;
 }

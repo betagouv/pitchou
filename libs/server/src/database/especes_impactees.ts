@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { supprimerFichiersSansAutresReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -27,5 +27,5 @@ export async function synchroniserFichiersEspecesImpacteesDepuisDS88444(
   await Promise.all(updatePs);
 
   const fichiersAncienIds = fichiersIdPrecedents.map(({ espèces_impactées }) => espèces_impactées);
-  await supprimerFichiersSansAutresReferences(fichiersAncienIds, databaseConnection);
+  await deleteFichiersWithoutOtherReferences(fichiersAncienIds, databaseConnection);
 }

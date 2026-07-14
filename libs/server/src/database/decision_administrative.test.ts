@@ -4,8 +4,8 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    stockerNouveauFichier: vi.fn(),
-    supprimerFichiersSansAutresReferences: vi.fn(),
+    storeNewFichier: vi.fn(),
+    deleteFichiersWithoutOtherReferences: vi.fn(),
   };
 });
 
@@ -14,7 +14,7 @@ import {
   updateDecisionAdministrative,
   deleteDecisionAdministrative,
 } from "./decision_administrative.ts";
-import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
+import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { DecisionAdministrativeId } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -26,12 +26,12 @@ const newFichierId = "new-fichier" as unknown as FileId;
 const oldFichierId = "old-fichier" as unknown as FileId;
 const fId = "f-1" as unknown as FileId;
 
-const stocker = vi.mocked(stockerNouveauFichier);
-const supprimer = vi.mocked(supprimerFichiersSansAutresReferences);
+const storeFichier = vi.mocked(storeNewFichier);
+const deleteFichiers = vi.mocked(deleteFichiersWithoutOtherReferences);
 
 beforeEach(() => {
-  stocker.mockReset();
-  supprimer.mockReset();
+  storeFichier.mockReset();
+  deleteFichiers.mockReset();
 });
 
 describe("deleteDecisionAdministrative", () => {
@@ -49,16 +49,16 @@ describe("deleteDecisionAdministrative", () => {
       .build();
     // @ts-ignore
     await deleteDecisionAdministrative("some-id", db.knex);
-    expect(supprimerFichiersSansAutresReferences).not.toHaveBeenCalled();
+    expect(deleteFichiersWithoutOtherReferences).not.toHaveBeenCalled();
   });
 
-  it("cleans up the attached fichier via supprimerFichiersSansAutresReferences", async () => {
+  it("cleans up the attached fichier via deleteFichiersWithoutOtherReferences", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("décision_administrative", [{ fichier: fId }])
       .build();
     // @ts-ignore
     await deleteDecisionAdministrative("some-id", db.knex);
-    expect(supprimerFichiersSansAutresReferences).toHaveBeenCalledWith([fId], db.knex);
+    expect(deleteFichiersWithoutOtherReferences).toHaveBeenCalledWith([fId], db.knex);
   });
 });
 
@@ -76,7 +76,7 @@ describe("addDecisionAdministrativeWithFichier", () => {
       .insertResolves([{ id: daId }])
       .build();
     await addDecisionAdministrativeWithFichier(baseDecision, db.knex);
-    expect(stocker).not.toHaveBeenCalled();
+    expect(storeFichier).not.toHaveBeenCalled();
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({ dossier: dossierId, numéro: "1" }),
     );
@@ -85,7 +85,7 @@ describe("addDecisionAdministrativeWithFichier", () => {
   });
 
   it("uploads the base64 fichier and links its id on the décision row", async () => {
-    stocker.mockResolvedValue({ id: fId });
+    storeFichier.mockResolvedValue({ id: fId });
     const db = fakeDatabase()
       .insertResolves([{ id: daId }])
       .build();
@@ -102,12 +102,12 @@ describe("addDecisionAdministrativeWithFichier", () => {
       db.knex,
     );
 
-    expect(stocker).toHaveBeenCalledTimes(1);
-    const [stockerArg] = stocker.mock.calls[0];
-    expect(stockerArg.nom).toBe("arrete.pdf");
-    expect(stockerArg.media_type).toBe("application/pdf");
-    expect(Buffer.isBuffer(stockerArg.contenu)).toBe(true);
-    expect((stockerArg.contenu as Buffer).toString("utf8")).toBe("HELLO");
+    expect(storeFichier).toHaveBeenCalledTimes(1);
+    const [storeArg] = storeFichier.mock.calls[0];
+    expect(storeArg.nom).toBe("arrete.pdf");
+    expect(storeArg.media_type).toBe("application/pdf");
+    expect(Buffer.isBuffer(storeArg.contenu)).toBe(true);
+    expect((storeArg.contenu as Buffer).toString("utf8")).toBe("HELLO");
 
     expect(db.insert).toHaveBeenCalledWith(expect.objectContaining({ fichier: fId }));
   });
@@ -125,13 +125,13 @@ describe("updateDecisionAdministrative", () => {
     const db = fakeDatabase().build();
     await updateDecisionAdministrative({ ...baseDecision, id: daId }, db.knex);
 
-    expect(stocker).not.toHaveBeenCalled();
-    expect(supprimer).not.toHaveBeenCalled();
+    expect(storeFichier).not.toHaveBeenCalled();
+    expect(deleteFichiers).not.toHaveBeenCalled();
     expect(db.update).toHaveBeenCalledTimes(1);
   });
 
   it("uploads the new fichier and deletes the previous one (best-effort cleanup)", async () => {
-    stocker.mockResolvedValue({ id: newFichierId });
+    storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
       .selectResolvesForTable("décision_administrative", [{ fichier: oldFichierId }])
       .build();
@@ -149,13 +149,13 @@ describe("updateDecisionAdministrative", () => {
       db.knex,
     );
 
-    expect(stocker).toHaveBeenCalledTimes(1);
+    expect(storeFichier).toHaveBeenCalledTimes(1);
     expect(db.update).toHaveBeenCalledWith(expect.objectContaining({ fichier: newFichierId }));
-    expect(supprimer).toHaveBeenCalledWith([oldFichierId], db.knex);
+    expect(deleteFichiers).toHaveBeenCalledWith([oldFichierId], db.knex);
   });
 
-  it("does not call supprimer when there was no previous fichier on the décision", async () => {
-    stocker.mockResolvedValue({ id: newFichierId });
+  it("does not call deleteFichiers when there was no previous fichier on the décision", async () => {
+    storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
       .selectResolvesForTable("décision_administrative", [{ fichier: null }])
       .build();
@@ -173,6 +173,6 @@ describe("updateDecisionAdministrative", () => {
       db.knex,
     );
 
-    expect(supprimer).not.toHaveBeenCalled();
+    expect(deleteFichiers).not.toHaveBeenCalled();
   });
 });

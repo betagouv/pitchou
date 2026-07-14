@@ -7,7 +7,7 @@ import type { Knex } from "knex";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
-import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
+import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 function isAvisExpertToUpdate(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
@@ -23,10 +23,10 @@ export async function addOrUpdateAvisExpertWithFichiers(
 ) {
   try {
     const fichierSaisineAddedP = fichierSaisine
-      ? stockerNouveauFichier(fichierSaisine, databaseConnection)
+      ? storeNewFichier(fichierSaisine, databaseConnection)
       : Promise.resolve();
     const fichierAvisAddedP = fichierAvis
-      ? stockerNouveauFichier(fichierAvis, databaseConnection)
+      ? storeNewFichier(fichierAvis, databaseConnection)
       : Promise.resolve();
 
     const [fichierSaisineAdded, fichierAvisAdded] = await Promise.all([
@@ -122,7 +122,7 @@ export async function updateAvisExpert(
       fichierIdsToCleanUp.push(old.avis_fichier);
     }
     if (fichierIdsToCleanUp.length >= 1) {
-      await supprimerFichiersSansAutresReferences(fichierIdsToCleanUp, databaseConnection);
+      await deleteFichiersWithoutOtherReferences(fichierIdsToCleanUp, databaseConnection);
     }
   }
 
@@ -145,7 +145,7 @@ export async function deleteAvisExpert(
   const result = await databaseConnection("avis_expert").delete().whereIn("id", idsToDelete);
 
   if (fichierIds.length >= 1) {
-    await supprimerFichiersSansAutresReferences(fichierIds, databaseConnection);
+    await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
   }
 
   return result;

@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import trouverCandidatsFichiersATelecharger from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
 import { directDatabaseConnection } from "../database.ts";
-import { supprimerFichiersSansAutresReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -72,7 +72,7 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
 
       // 2. Delete the files now that the edges are gone, only
       //    if they are no longer referenced elsewhere
-      await supprimerFichiersSansAutresReferences(
+      await deleteFichiersWithoutOtherReferences(
         fichierIdsCandidatsASupprimer,
         databaseConnection,
       );

@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import { stockerNouveauFichier, supprimerFichiersSansAutresReferences } from "./fichier.ts";
+import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -32,7 +32,7 @@ export async function addDecisionAdministrativeWithFichier(
     const { nom, media_type, contenuBase64 } = decision.fichier_base64;
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    await stockerNouveauFichier({ nom, media_type, contenu }, databaseConnection).then(
+    await storeNewFichier({ nom, media_type, contenu }, databaseConnection).then(
       (fichier) => {
         decisionAdministrativeDB.fichier = fichier.id;
       },
@@ -112,7 +112,7 @@ export async function updateDecisionAdministrative(
     const { nom, media_type, contenuBase64 } = decisionAdministrative.fichier_base64;
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    decisionAdministrativeReadyP = stockerNouveauFichier(
+    decisionAdministrativeReadyP = storeNewFichier(
       { nom, media_type, contenu },
       databaseConnection,
     ).then((fichier) => {
@@ -133,7 +133,7 @@ export async function updateDecisionAdministrative(
   return Promise.all([previousFichierIdP, updatedDecisionAdministrativeP]).then(
     ([previousFichierId]) => {
       if (previousFichierId) {
-        return supprimerFichiersSansAutresReferences([previousFichierId], databaseConnection);
+        return deleteFichiersWithoutOtherReferences([previousFichierId], databaseConnection);
       }
     },
   );
@@ -151,7 +151,7 @@ export async function deleteDecisionAdministrative(
   const result = await databaseConnection("décision_administrative").delete().where({ id });
 
   if (fichierIds.length >= 1) {
-    await supprimerFichiersSansAutresReferences(fichierIds, databaseConnection);
+    await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
   }
 
   return result;

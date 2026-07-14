@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { stockerNouveauFichier } from "./fichier.ts";
+import { storeNewFichier } from "./fichier.ts";
 
 import type { FrontEndAttachmentAutre } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -34,7 +34,7 @@ export async function addAttachmentAutre(
   const ids = [];
 
   for (const file of attachment.files) {
-    const { id: fileId } = await stockerNouveauFichier(file, databaseConnection);
+    const { id: fileId } = await storeNewFichier(file, databaseConnection);
 
     const [{ id }] = await databaseConnection("attachment_autre")
       .insert({

@@ -17,8 +17,8 @@ import * as objectStorage from "../object-storage.ts";
 import * as fileModule from "./file.ts";
 import {
   loadFichierContent,
-  stockerNouveauFichier,
-  supprimerFichiersSansAutresReferences,
+  storeNewFichier,
+  deleteFichiersWithoutOtherReferences,
 } from "./fichier.js";
 import { fakeDatabase } from "./fakeDatabase.js";
 
@@ -38,7 +38,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("stockerNouveauFichier", () => {
+describe("storeNewFichier", () => {
   it("uploads to S3, then inserts file row, returning the file", async () => {
     putObject.mockResolvedValue();
     // @ts-ignore branded id
@@ -47,7 +47,7 @@ describe("stockerNouveauFichier", () => {
     const contenu = Buffer.from("DATA");
 
     // @ts-ignore branded id
-    const result = await stockerNouveauFichier(
+    const result = await storeNewFichier(
       {
         nom: "f.pdf",
         contenu,
@@ -87,7 +87,7 @@ describe("stockerNouveauFichier", () => {
     const db = fakeDatabase().build();
 
     await expect(
-      stockerNouveauFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
+      storeNewFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
     ).rejects.toThrow(/S3 down/);
 
     expect(addFile).not.toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe("stockerNouveauFichier", () => {
     const db = fakeDatabase().build();
 
     await expect(
-      stockerNouveauFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
+      storeNewFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
     ).rejects.toThrow(/file insert failed/);
 
     expect(deleteObject).toHaveBeenCalledTimes(1);
@@ -122,10 +122,10 @@ describe("loadFichierContent", () => {
   });
 });
 
-describe("supprimerFichiersSansAutresReferences", () => {
+describe("deleteFichiersWithoutOtherReferences", () => {
   it("returns [] without queries when the input list is empty", async () => {
     const db = fakeDatabase().build();
-    const result = await supprimerFichiersSansAutresReferences([], db.knex);
+    const result = await deleteFichiersWithoutOtherReferences([], db.knex);
     expect(result).toEqual([]);
     expect(db.table).not.toHaveBeenCalled();
   });
@@ -137,7 +137,7 @@ describe("supprimerFichiersSansAutresReferences", () => {
     deleteObject.mockResolvedValue();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresReferences(["file-1"], db.knex);
+    const result = await deleteFichiersWithoutOtherReferences(["file-1"], db.knex);
 
     expect(result).toEqual(["file-1"]);
     expect(deleteFile).toHaveBeenCalledWith("file-1", db.knex);
@@ -151,7 +151,7 @@ describe("supprimerFichiersSansAutresReferences", () => {
       .build();
 
     // @ts-ignore branded id
-    const result = await supprimerFichiersSansAutresReferences(["file-1"], db.knex);
+    const result = await deleteFichiersWithoutOtherReferences(["file-1"], db.knex);
 
     expect(result).toEqual([]);
     expect(deleteFile).not.toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe("supprimerFichiersSansAutresReferences", () => {
 
     await expect(
       // @ts-ignore branded id
-      supprimerFichiersSansAutresReferences(["file-1"], db.knex),
+      deleteFichiersWithoutOtherReferences(["file-1"], db.knex),
     ).resolves.toEqual(["file-1"]);
 
     expect(errSpy).toHaveBeenCalled();

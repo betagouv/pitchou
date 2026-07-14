@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import type { Knex } from "knex";
 
-import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
+import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
 import {
   construireActivitesMethodesMoyensDePoursuite,
   dbRowToEspeceProtegee,
@@ -70,7 +70,7 @@ function serializeJsonColumns(data: Record<string, unknown>): Record<string, unk
 }
 
 async function stockerPlaceholderPdf(nom: string, transaction: Knex.Transaction) {
-  const stored = await stockerNouveauFichier(
+  const stored = await storeNewFichier(
     {
       nom,
       contenu: generatePlaceholderPdf(nom),
@@ -449,7 +449,7 @@ export async function seed(knex: Knex) {
         }
 
         const odsArrayBuffer = await descriptionMenacesEspecesToOdsArrayBuffer(description);
-        const { id: fichierId } = await stockerNouveauFichier(
+        const { id: fichierId } = await storeNewFichier(
           {
             nom: nom_fichier,
             contenu: Buffer.from(odsArrayBuffer),

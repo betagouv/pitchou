@@ -4,8 +4,8 @@ import { HTTPError } from "ky";
 
 import {
   makeFichierHash,
-  stockerNouveauFichier,
-  trouverFichiersExistants,
+  storeNewFichier,
+  findExistingFichiers,
 } from "@pitchou/server/database/fichier.ts";
 
 import telechargerFichierDS from "./telechargerFichierDS.ts";
@@ -81,7 +81,7 @@ export default async function telechargerNouveauxFichiers(
   );
 
   // Look up in the database the files we already have that resemble the candidates
-  const fichiersDejaEnBDD = await trouverFichiersExistants(
+  const fichiersDejaEnBDD = await findExistingFichiers(
     [...candidatsFichiersBDD.values()].flat(),
     transaction,
   );
@@ -146,7 +146,7 @@ export default async function telechargerNouveauxFichiers(
           }
 
           try {
-            const fichierInsere = await stockerNouveauFichier(
+            const fichierInsere = await storeNewFichier(
               { nom, contenu: buffer, media_type, DS_checksum, DS_createdAt },
               transaction,
             );

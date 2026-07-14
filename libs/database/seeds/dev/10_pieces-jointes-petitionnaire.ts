@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
+import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
 
 import { SEED_PIECES_JOINTES_PETITIONNAIRE } from "../fixtures/pieces-jointes-petitionnaire.ts";
 import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
@@ -35,7 +35,7 @@ export async function seed(knex: Knex) {
         .where({ "a.dossier": dossierId, "f.nom": nom })
         .delete();
 
-      const { id: fichierId } = await stockerNouveauFichier(
+      const { id: fichierId } = await storeNewFichier(
         { nom, contenu: generatePlaceholderPdf(nom), media_type, DS_createdAt },
         trx,
       );
