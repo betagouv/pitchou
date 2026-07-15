@@ -6,12 +6,16 @@ import type { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializ
 import type { PartialBy } from "../tools";
 import type { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
 import type { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "../database/public/DécisionAdministrative.ts";
+import type { IdentiteDossierInitializer } from "../database/public/IdentiteDossier.ts";
+
+/** Identity snapshot extracted from Démarche Numérique, before the dossier id is known. */
+export type IdentiteDossierData = Omit<IdentiteDossierInitializer, "id" | "dossier">;
 
 export type DonnéesPersonnesEntreprisesInitializer = {
   déposant: PersonneInitializer;
   demandeur_personne_physique: PersonneInitializer | undefined;
   demandeur_personne_morale: EntrepriseInitializer | undefined;
-  representative: PersonneInitializer | undefined;
+  identites: IdentiteDossierData[];
 };
 
 type DossierAvecDonnéesPersonnesEntreprisesInitializers<T = DossierMutator | DossierInitializer> =

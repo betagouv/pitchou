@@ -43,6 +43,10 @@ type DossierPersonnesImpliquéesComplet = DossierPersonnesImpliquéesRésumé & 
   representative_email: string | null;
   representative_phone: string | null;
   representative_role: string | null;
+
+  mandataire_nom: string | null;
+  mandataire_prénoms: string | null;
+  mandataire_email: string | null;
 };
 
 /**
