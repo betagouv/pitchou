@@ -16,6 +16,7 @@ import {
   synchroniserDossierDansGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { listAllPersonnes, créerPersonnes } from "@pitchou/server/database/personne.ts";
+import { syncIdentitesDossier } from "@pitchou/server/database/identite_dossier.ts";
 import { synchroniserGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspècesImpactéesDepuisDS88444 } from "@pitchou/server/database/espèces_impactées.ts";
 
@@ -59,6 +60,7 @@ import type {
   DossierEntreprisesPersonneInitializersPourUpdate,
   DossierPourInsert,
   DossierPourUpdate,
+  IdentiteDossierData,
 } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type {
   DossierDemarcheNumerique88444,
@@ -238,11 +240,10 @@ function collectPersonne(personne: PersonneInitializer | undefined) {
 }
 
 for (const {
-  dossier: { déposant, demandeur_personne_physique, representative },
+  dossier: { déposant, demandeur_personne_physique },
 } of dossiersPourSynchronisation) {
   collectPersonne(déposant);
   collectPersonne(demandeur_personne_physique);
-  collectPersonne(representative);
 }
 
 function getPersonneId(
@@ -344,7 +345,8 @@ function _remplacerPersonneEntreprise(
       déposant,
       demandeur_personne_physique,
       demandeur_personne_morale,
-      representative,
+      // The identities are stored in the identite_dossier table, not as dossier columns.
+      identites: _identites,
       ...autresPropriétésDossiers
     },
     ...autresDonnéesTables
@@ -356,7 +358,6 @@ function _remplacerPersonneEntreprise(
       demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-      representative: getPersonneId(representative) || null,
       ...autresPropriétésDossiers,
     },
     ...autresDonnéesTables,
@@ -465,6 +466,24 @@ for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of d
   dossierIdByDS_number.set(Number(number_demarches_simplifiées), id);
 }
 
+/** Sync of the identities (demandeur, mandataire, representant) shown in the Porteur de projet tab */
+
+const identitesByDossierId = new Map<DatabaseDossier["id"], IdentiteDossierData[]>();
+
+for (const {
+  dossier: { identites, number_demarches_simplifiées },
+} of dossiersPourSynchronisation) {
+  const dossierId = dossierIdByDS_number.get(Number(number_demarches_simplifiées));
+  if (dossierId) {
+    identitesByDossierId.set(dossierId, identites);
+  }
+}
+
+const identitesSynced = syncIdentitesDossier(
+  identitesByDossierId,
+  laTransactionDeSynchronisationDS,
+);
+
 /** Synchronisation de la messagerie */
 
 const messagesÀMettreEnBDDAvecDossierId_DS = new Map<
@@ -558,6 +577,7 @@ const mettreÀjourNotificationP = mettreÀjourNotification(
 
 Promise.all([
   groupesInstructeursSynchronisés,
+  identitesSynced,
   messagesSynchronisés,
   synchronisationDossierDansGroupeInstructeur,
   fichiersEspècesImpactéesSynchronisés,

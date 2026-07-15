@@ -9,6 +9,7 @@ import type {
   DossierEntreprisesPersonneInitializersPourInsert,
   DossierEntreprisesPersonneInitializersPourUpdate,
   DossierPourInsert,
+  IdentiteDossierData,
 } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
@@ -74,15 +75,14 @@ export function getDonnéesPersonnesEntreprises88444(
   /*
     Déposant
 
-    Le déposant est la personne qui dépose le dossier sur DS
-    Dans certaines situations, cette personne est différente du demandeur (personne morale ou physique
-    qui demande la dérogation), par exemple, si un bureau d'étude mandaté par une personne morale dépose
-    le dossier
-    Le déposant n'est pas forcément représentant interne (point de contact principale) du demandeur
+    Person returned by the DS identity block ("Identité du demandeur" in the DN
+    interface), found in the `demandeur` property of the DS API (which is different
+    from our "demandeur"). Used to create/find the personne in the database.
 
-    Dans la nomenclature DS, ce que nous appelons "déposant" se trouve dans la propriété "demandeur"
-    (qui est différent de notre "demandeur")
-
+    The identities displayed in the "Porteur de projet" tab (demandeur, mandataire,
+    representant) are returned separately in `identites` and stored as per-dossier
+    snapshots (identite_dossier table), because the personne table cannot represent
+    two different people sharing the same email (unique email constraint).
     */
   /** @type {PersonneInitializer} */
   let déposant;
@@ -94,12 +94,6 @@ export function getDonnéesPersonnesEntreprises88444(
   let demandeur_personne_physique = undefined;
   /** @type {Entreprise | undefined} */
   let demandeur_personne_morale = undefined;
-  /*
-    Representative
-    Person in charge of the project within the legal entity (personne morale).
-    */
-  /** @type {PersonneInitializer | undefined} */
-  let representative = undefined;
 
   /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
   const personneMoraleOuPhysique = champById.get(
@@ -114,24 +108,40 @@ export function getDonnéesPersonnesEntreprises88444(
     pitchouKeyToChampDS.get("Adresse mail de contact"),
   )?.stringValue;
 
-  if (nomMandataire || prenomMandataire) {
-    // Dossier déposé par un tiers: the déposant is the mandataire, whose account
-    // email is exposed as usager.email.
-    déposant = {
-      prénoms: prenomMandataire,
-      nom: nomMandataire,
-      email: normalisationEmail(usager.email),
-    };
-  } else {
-    // Otherwise the déposant is the demandeur. demandeur.email is often null in
-    // the DN API (the "Adresse électronique" shown in the DN identity block is the
-    // usager's account email), so fall back to usager.email.
-    const emailDéposant = demandeur.email || usager.email;
-    déposant = {
-      prénoms: demandeur.prenom,
-      nom: demandeur.nom,
-      email: emailDéposant ? normalisationEmail(emailDéposant) : undefined,
-    };
+  const hasMandataire = Boolean(nomMandataire || prenomMandataire);
+
+  // demandeur.email (the identity block's "Adresse électronique") is filled when the
+  // dossier is deposited par un tiers; otherwise DN displays the usager's account email
+  // there, which the API only exposes as usager.email.
+  const demandeurIdentityEmail = demandeur.email || (hasMandataire ? undefined : usager.email);
+
+  déposant = {
+    prénoms: demandeur.prenom,
+    nom: demandeur.nom,
+    email: demandeurIdentityEmail ? normalisationEmail(demandeurIdentityEmail) : undefined,
+  };
+
+  const identites: IdentiteDossierData[] = [
+    {
+      type: "demandeur",
+      last_name: demandeur.nom || null,
+      first_names: demandeur.prenom || null,
+      email: demandeurIdentityEmail ? normalisationEmail(demandeurIdentityEmail) : null,
+      phone: null,
+      role: null,
+    },
+  ];
+
+  if (hasMandataire) {
+    identites.push({
+      type: "mandataire",
+      last_name: nomMandataire || null,
+      first_names: prenomMandataire || null,
+      // The usager account that deposited the dossier is the mandataire's.
+      email: usager.email ? normalisationEmail(usager.email) : null,
+      phone: null,
+      role: null,
+    });
   }
 
   if (personneMoraleOuPhysique === "une personne physique") {
@@ -189,20 +199,21 @@ export function getDonnéesPersonnesEntreprises88444(
     }
   }
 
-  // The representative is the contact person within the legal entity (personne morale).
+  // The representant is the contact person within the legal entity (personne morale).
   if (personneMoraleOuPhysique === "une personne morale") {
     const nom = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
     const prénoms = champById.get(pitchouKeyToChampDS.get("Prénom du représentant"))?.stringValue;
     const role = champById.get(pitchouKeyToChampDS.get("Qualité du représentant"))?.stringValue;
 
     if (nom || prénoms || role || emailContact || phoneContact) {
-      representative = {
-        prénoms: prénoms || undefined,
-        nom: nom || undefined,
-        email: emailContact ? normalisationEmail(emailContact) : undefined,
-        phone: phoneContact || undefined,
-        role: role || undefined,
-      };
+      identites.push({
+        type: "representant",
+        last_name: nom || null,
+        first_names: prénoms || null,
+        email: emailContact ? normalisationEmail(emailContact) : null,
+        phone: phoneContact || null,
+        role: role || null,
+      });
     }
   }
 
@@ -210,7 +221,7 @@ export function getDonnéesPersonnesEntreprises88444(
     déposant,
     demandeur_personne_morale,
     demandeur_personne_physique,
-    representative,
+    identites,
   };
 }
 
