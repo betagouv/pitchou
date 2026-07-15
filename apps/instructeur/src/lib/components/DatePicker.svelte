@@ -166,6 +166,7 @@
     width: 100%;
     text-align: left;
     cursor: pointer;
+    white-space: nowrap;
 
     &.placeholder {
       color: var(--text-mention-grey);
