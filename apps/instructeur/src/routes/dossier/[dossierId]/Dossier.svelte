@@ -88,8 +88,6 @@
     notification,
   }: Props = $props();
 
-  $inspect("Dossier complet", dossier);
-
   const envoyerÉvènementConsulterUnDossier = debounce(
     () => envoyerÉvènement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
     15 * 60 * 1000,
