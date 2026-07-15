@@ -114,17 +114,23 @@ export function getDonnéesPersonnesEntreprises88444(
     pitchouKeyToChampDS.get("Adresse mail de contact"),
   )?.stringValue;
 
-  if ((nomMandataire || prenomMandataire) && personneMoraleOuPhysique === "une personne physique") {
+  if (nomMandataire || prenomMandataire) {
+    // Dossier déposé par un tiers: the déposant is the mandataire, whose account
+    // email is exposed as usager.email.
     déposant = {
       prénoms: prenomMandataire,
       nom: nomMandataire,
       email: normalisationEmail(usager.email),
     };
   } else {
+    // Otherwise the déposant is the demandeur. demandeur.email is often null in
+    // the DN API (the "Adresse électronique" shown in the DN identity block is the
+    // usager's account email), so fall back to usager.email.
+    const emailDéposant = demandeur.email || usager.email;
     déposant = {
       prénoms: demandeur.prenom,
       nom: demandeur.nom,
-      email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
+      email: emailDéposant ? normalisationEmail(emailDéposant) : undefined,
     };
   }
 
