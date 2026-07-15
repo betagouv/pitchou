@@ -284,6 +284,18 @@ if (personnesInDossiersWithoutId.length >= 1) {
       });
     },
   );
+
+  // Register the newly created personnes in the lookup structures used by getPersonneId().
+  // Without this, only the deduplicated object receives the new id: every other dossier
+  // of the batch referencing the same personne (same email, or same nom/prénoms when
+  // there is no email) would be linked to null.
+  for (const personne of personnesInDossiersWithoutId) {
+    if (personne.email) {
+      personneByEmail.set(personne.email, personne as Personne);
+    } else {
+      allPersonnesCurrentlyInDatabase.push(personne as Personne);
+    }
+  }
 }
 
 //console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
