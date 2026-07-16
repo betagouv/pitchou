@@ -1,7 +1,7 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
-  import EspecesProtegeesGroupeesParImpact from "$lib/components/EspecesProtegeesGroupeesParImpact.svelte";
+  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
   import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
@@ -259,7 +259,7 @@
             {numberEspecesMinisterielles}
             {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
           </p>
-          <EspecesProtegeesGroupeesParImpact
+          <EspecesProtegeesGroupedByImpact
             espècesImpactées={especesImpactees}
             identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
           />

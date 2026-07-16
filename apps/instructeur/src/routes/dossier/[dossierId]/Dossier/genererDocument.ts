@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
-import { createEspecesGroupedByImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
 
 import type {
   ActiviteMenancante,
@@ -11,7 +11,7 @@ import type {
 } from "@pitchou/types/especes.d.ts";
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { EspecesByActivite } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+import type { EspecesByActivite } from "$lib/especes/createEspecesGroupedByImpact.ts";
 
 /**
  * List of tags provided to the instructeur.i.ces.

@@ -1,6 +1,6 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
-  import EspecesProtegeesGroupeesParImpact from "$lib/components/EspecesProtegeesGroupeesParImpact.svelte";
+  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
   import ModalePreremplirDepuisTexte from "./SaisieEspeces/ModalePreremplirDepuisTexte.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
@@ -379,7 +379,7 @@
       {#await promesseReferentiels}
         <Loader></Loader>
       {:then { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }}
-        <EspecesProtegeesGroupeesParImpact
+        <EspecesProtegeesGroupedByImpact
           espècesImpactées={especesImpacteesParClassification}
           identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
         />

@@ -3,7 +3,7 @@ import { createOdsFile } from "@odfjs/odfjs";
 import * as XLSX from "xlsx";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
-import { createEspecesGroupedByImpact } from "./creerEspecesGroupeesParImpact.ts";
+import { createEspecesGroupedByImpact } from "./createEspecesGroupedByImpact.ts";
 
 import type {
   EspeceProtegee,

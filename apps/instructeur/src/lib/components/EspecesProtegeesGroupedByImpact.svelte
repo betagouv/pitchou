@@ -5,7 +5,7 @@
     QuantifiedImpact,
   } from "@pitchou/types/especes.d.ts";
 
-  import { createEspecesGroupedByImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+  import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
 
   type Props = {
     espècesImpactées: DescriptionMenacesEspeces;
