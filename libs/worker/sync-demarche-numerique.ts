@@ -19,9 +19,9 @@ import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/pers
 import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
-import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/recupererDossiersRecemmentModifies.ts";
-import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/recupererGroupesInstructeurs.ts";
-import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/recupererListeDossiersSupprimes.ts";
+import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/getRecentlyUpdatedDossiers.ts";
+import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts";
+import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts";
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
