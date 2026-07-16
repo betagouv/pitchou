@@ -1,6 +1,6 @@
-import type { DossierComplet, DossierPhase, DossierResume } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-export function DossierCompletToDossierResume(dossierComplet: DossierComplet): DossierResume {
+export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSummary {
   const {
     // Properties copied directly
     id,
@@ -32,7 +32,7 @@ export function DossierCompletToDossierResume(dossierComplet: DossierComplet): D
 
     // Events used to extract the phase
     évènementsPhase: evenementsPhase,
-  } = dossierComplet;
+  } = dossierFull;
 
   // Find the most recent phase
   // PPP to fix
@@ -41,7 +41,7 @@ export function DossierCompletToDossierResume(dossierComplet: DossierComplet): D
     : "Accompagnement amont";
   const dateDebutPhaseActuelle = evenementsPhase[0] ? evenementsPhase[0].horodatage : date_dépôt;
 
-  const dossierResume: DossierResume = {
+  const dossierSummary: DossierSummary = {
     // Simple properties
     id,
     number_demarches_simplifiées,
@@ -76,7 +76,7 @@ export function DossierCompletToDossierResume(dossierComplet: DossierComplet): D
     prochaine_action_attendue_par,
   };
 
-  Object.freeze(dossierResume);
+  Object.freeze(dossierSummary);
 
-  return dossierResume;
+  return dossierSummary;
 }

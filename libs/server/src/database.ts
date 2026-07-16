@@ -68,7 +68,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 
   // For now, the rights associated with a whole bunch of capabilities share the same secret part
   // of the capability as for listing the dossiers
-  const getDossierCompletP = listDossiersP;
+  const getDossierFullP = listDossiersP;
   const listRelationSuiviP = listDossiersP;
   const updateRelationSuiviP = listDossiersP;
   const listEvenementsPhaseDossierP = listDossiersP;
@@ -81,7 +81,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
   return Promise.all([
     fillAnnotationsP,
     listDossiersP,
-    getDossierCompletP,
+    getDossierFullP,
     listRelationSuiviP,
     updateRelationSuiviP,
     listEvenementsPhaseDossierP,
@@ -96,7 +96,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     ([
       fillAnnotations,
       listDossiers,
-      getDossierComplet,
+      getDossierFull,
       listRelationSuivi,
       updateRelationSuivi,
       listEvenementsPhaseDossier,
@@ -111,7 +111,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
       const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>> = {
         remplirAnnotations: undefined,
         listerDossiers: listDossiers,
-        recupérerDossierComplet: getDossierComplet,
+        recupérerDossierComplet: getDossierFull,
         listerRelationSuivi: listRelationSuivi,
         modifierRelationSuivi: updateRelationSuivi,
         listerÉvènementsPhaseDossier: listEvenementsPhaseDossier,

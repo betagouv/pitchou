@@ -1,4 +1,4 @@
-import type { DossierComplet, DossierResume } from "./API_Pitchou.ts";
+import type { DossierFull, DossierSummary } from "./API_Pitchou.ts";
 import type { SchemaDemarcheSimplifiee } from "./demarche-numerique/schema.ts";
 import type { PitchouInstructeurCapabilities, IdentiteInstructeurPitchou } from "./capabilities.ts";
 import type {
@@ -29,9 +29,9 @@ export type ActivitesMethodesMoyensDePoursuiteBundle = {
 
 export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
-  dossiersRésumés: Map<DossierResume["id"], DossierResume>;
-  dossiersComplets: Map<DossierComplet["id"], DossierComplet>;
-  messagesParDossierId: Map<DossierComplet["id"], Message[]>;
+  dossiersRésumés: Map<DossierSummary["id"], DossierSummary>;
+  dossiersComplets: Map<DossierFull["id"], DossierFull>;
+  messagesParDossierId: Map<DossierFull["id"], Message[]>;
   relationSuivis?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
   notificationParDossier: Map<
     Dossier["id"],

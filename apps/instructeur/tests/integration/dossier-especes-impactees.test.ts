@@ -3,7 +3,7 @@ import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
-import { getDossierComplet } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull } from "@pitchou/server/database/dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
@@ -21,7 +21,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose espè
 
   await db("dossier").update({ espèces_impactées: fichier.id }).where({ id: dossier.id });
 
-  const result = await getDossierComplet(dossier.id as DossierId, cap as CapDossier["cap"], db);
+  const result = await getDossierFull(dossier.id as DossierId, cap as CapDossier["cap"], db);
 
   expect(result).toBeDefined();
   // The file is linked to the dossier in the database → it must show up in the UI.

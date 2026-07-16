@@ -1,28 +1,28 @@
-import { store, setDossierComplet } from "$lib/state/store.svelte.ts";
+import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
 import {
   chargerActivitesMethodesMoyensDePoursuite,
   chargerListeEspecesProtegees,
 } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-import { isDossierResumeArray } from "@pitchou/common/typeguards.ts";
+import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
 import { envoyerEvenementModifierCommentaire, envoyerEvenement } from "$lib/shared/aarri.ts";
 import { chargerRelationSuivi } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 export function modifierDossier(
-  dossier: DossierComplet,
-  modifs: Partial<DossierComplet>,
+  dossier: DossierFull,
+  modifs: Partial<DossierFull>,
 ): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
   // optimistically modify the dossier in the store
-  const dossierModifie: DossierComplet = Object.assign({}, dossier, modifs);
+  const dossierModifie: DossierFull = Object.assign({}, dossier, modifs);
   if (modifs.évènementsPhase) {
     dossierModifie.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
 
@@ -36,16 +36,16 @@ export function modifierDossier(
     envoyerEvenement({ type: "changerProchaineActionAttendueDe" });
   }
 
-  setDossierComplet(dossierModifie);
+  setDossierFull(dossierModifie);
 
   return store.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
     // on error, restore the previous dossier in the store as it was before the copy
-    setDossierComplet(dossier);
+    setDossierFull(dossier);
     throw err;
   });
 }
 
-export async function chargerMessagesDossier(id: DossierComplet["id"]): Promise<Message[]> {
+export async function chargerMessagesDossier(id: DossierFull["id"]): Promise<Message[]> {
   if (!store.capabilities?.listerMessages)
     throw new TypeError(`Capability listerMessages manquante`);
 
@@ -57,30 +57,30 @@ export async function chargerMessagesDossier(id: DossierComplet["id"]): Promise<
   return store.messagesParDossierId.get(id) || messagesP;
 }
 
-export async function getDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
-  const dossierCompletInStore = store.dossiersComplets.get(id);
+export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
+  const dossierFullInStore = store.dossiersComplets.get(id);
 
-  if (dossierCompletInStore) {
-    return dossierCompletInStore;
+  if (dossierFullInStore) {
+    return dossierFullInStore;
   }
 
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierComplet = await store.capabilities.recupérerDossierComplet(id);
-  setDossierComplet(dossierComplet);
+  const dossierFull = await store.capabilities.recupérerDossierComplet(id);
+  setDossierFull(dossierFull);
 
-  return dossierComplet;
+  return dossierFull;
 }
 
-export async function refreshDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
+export async function refreshDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierComplet = await store.capabilities.recupérerDossierComplet(id);
-  setDossierComplet(dossierComplet);
+  const dossierFull = await store.capabilities.recupérerDossierComplet(id);
+  setDossierFull(dossierFull);
 
-  return dossierComplet;
+  return dossierFull;
 }
 
 export async function especesImpacteesDepuisFichierOdsArrayBuffer(
@@ -106,7 +106,7 @@ export function chargerDossiers() {
 
   if (store.capabilities?.listerDossiers) {
     return store.capabilities?.listerDossiers().then((dossiers) => {
-      if (!isDossierResumeArray(dossiers)) {
+      if (!isDossierSummaryArray(dossiers)) {
         throw new TypeError("On attendait un tableau de dossiers ici !");
       }
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import CopyIconButton from "./CopyIconButton.svelte";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
   };
 
   let { dossier }: Props = $props();

@@ -7,7 +7,7 @@ import type {
 } from "@pitchou/types/capabilities.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 const commonHeaders = {
   Accept: "application/json",
@@ -97,9 +97,9 @@ function wrapListerMessages(
   };
 }
 
-function wrapRecupererDossierComplet(
+function wrapGetDossierFull(
   url: string | undefined,
-): ((dossierId: Dossier["id"]) => Promise<DossierComplet>) | undefined {
+): ((dossierId: Dossier["id"]) => Promise<DossierFull>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
@@ -109,8 +109,8 @@ function wrapRecupererDossierComplet(
   /**
    * Fetches the dossier data and formats it.
    */
-  return async function getDossierComplet(dossierId: Dossier["id"]): Promise<DossierComplet> {
-    const ret: DossierComplet | undefined = await json(
+  return async function getDossierFull(dossierId: Dossier["id"]): Promise<DossierFull> {
+    const ret: DossierFull | undefined = await json(
       // @ts-ignore
       url.replace(dossierIdURLParam, dossierId),
       commonRequestInit,
@@ -255,7 +255,7 @@ export default function (
 ): Partial<PitchouInstructeurCapabilities> & { identité: IdentiteInstructeurPitchou } {
   return {
     listerDossiers: wrapGETUrl(capURLs.listerDossiers),
-    recupérerDossierComplet: wrapRecupererDossierComplet(capURLs.recupérerDossierComplet),
+    recupérerDossierComplet: wrapGetDossierFull(capURLs.recupérerDossierComplet),
     listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
     modifierRelationSuivi: wrapModifierRelationSuivi(capURLs.modifierRelationSuivi),
     listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),

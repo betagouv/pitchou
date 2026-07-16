@@ -12,7 +12,7 @@ import type {
   Alerte,
   DossierAvecAlertes,
 } from "../importDossierUtils.ts";
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
@@ -355,7 +355,7 @@ function creerDonneesDecisionAdministrative(
 
 function creerDonneesProchaineActionAttenduePar(
   ligne: LigneDossierCorse,
-): DossierComplet["prochaine_action_attendue_par"] | undefined {
+): DossierFull["prochaine_action_attendue_par"] | undefined {
   const valeurNiveauDAvancement = ligne["Niveau d'avancement"].trim();
 
   if (valeurNiveauDAvancement === "A faire") {

@@ -4,7 +4,7 @@
   import CardDecisionAdministrative from "./CardDecisionAdministrative.svelte";
 
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
   import { labelForDecisionAdministrativeType } from "@pitchou/common/decision-administrative.js";
@@ -76,7 +76,7 @@
     decisionAdministrative = Object.assign(decisionAdministrative, decision);
     editedDecision = undefined;
 
-    refreshDossierComplet(dossierId);
+    refreshDossierFull(dossierId);
   }
 </script>
 

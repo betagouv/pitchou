@@ -1,6 +1,6 @@
 import type {
-  DossierComplet,
-  DossierResume,
+  DossierFull,
+  DossierSummary,
   DecisionAdministrativeForTransfer,
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
@@ -16,8 +16,8 @@ import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 
 export interface PitchouInstructeurCapabilities {
-  listerDossiers: () => Promise<DossierResume[]>;
-  recupérerDossierComplet: (dossierId: DossierComplet["id"]) => Promise<DossierComplet>;
+  listerDossiers: () => Promise<DossierSummary[]>;
+  recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
   listerRelationSuivi: () => Promise<
     { personneEmail: Personne["email"]; dossiersSuivisIds: Dossier["id"][] }[]
   >;
@@ -26,9 +26,9 @@ export interface PitchouInstructeurCapabilities {
     personneEmail: NonNullable<Personne["email"]>,
     dossierId: Dossier["id"],
   ) => Promise<void>;
-  listerMessages: (dossierId: DossierResume["id"]) => Promise<Message[]>;
+  listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
   listerÉvènementsPhaseDossier: () => Promise<any[]>;
-  modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierComplet>) => Promise<void>;
+  modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (
     decisionAdministrative: DecisionAdministrativeForTransfer,

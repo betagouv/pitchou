@@ -4,7 +4,7 @@
   import { chargerActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
   let templateFiles: FileList | undefined = $state();
@@ -13,7 +13,7 @@
   let erreurGenerationDocument: Error | undefined = $state();
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     espècesImpactées: Promise<DescriptionMenacesEspeces> | undefined;
   };
 

@@ -1,4 +1,4 @@
-import { DossierComplet } from "./API_Pitchou";
+import { DossierFull } from "./API_Pitchou";
 
 /**
  * Type for a species in a list of species

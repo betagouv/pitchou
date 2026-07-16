@@ -3,10 +3,10 @@
   import IndicateurDelai from "./IndicateurDelai.svelte";
   import { getDebutPhaseActuelle } from "$lib/dossier/getDebutPhaseActuelle.ts";
 
-  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossier: DossierResume;
+    dossier: DossierSummary;
   };
 
   let { dossier }: Props = $props();

@@ -1,7 +1,7 @@
 import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
 import { trouverDossiersIdCorrespondantsATexte } from "$lib/dossier/rechercherDansDossier.ts";
 
-import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
 /**
  * Creates a filter to search within dossiers by text.
@@ -14,8 +14,8 @@ import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
  */
 export function creerFiltreTexte(
   texteAChercher: string,
-  dossiers: DossierResume[],
-): (dossier: DossierResume) => boolean {
+  dossiers: DossierSummary[],
+): (dossier: DossierSummary) => boolean {
   // If the text contains digits, use direct search
   if (texteAChercher.match(/\d[\dA-Za-z\-]*/)) {
     return (dossier) => {

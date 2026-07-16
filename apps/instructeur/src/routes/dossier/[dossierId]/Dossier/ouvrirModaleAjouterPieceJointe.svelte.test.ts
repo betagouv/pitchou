@@ -15,7 +15,7 @@ vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
 
 vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  refreshDossierComplet: vi.fn().mockResolvedValue(undefined),
+  refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock(import("./attachmentAutre.ts"), () => ({
@@ -23,7 +23,7 @@ vi.mock(import("./attachmentAutre.ts"), () => ({
 }));
 
 import { envoyerEvenement } from "$lib/shared/aarri.ts";
-import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { addAttachmentAutre } from "./attachmentAutre.ts";
 import DossierAvis from "./DossierAvis.svelte";
 import DossierControles from "./DossierControles.svelte";
@@ -31,14 +31,14 @@ import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 import EnteteDossier from "./EnteteDossier.svelte";
 import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 const DOSSIER_ID = 123;
 
 beforeEach(() => {
   vi.mocked(envoyerEvenement).mockReset();
   vi.mocked(addAttachmentAutre).mockClear();
-  vi.mocked(refreshDossierComplet).mockClear();
+  vi.mocked(refreshDossierFull).mockClear();
   Object.assign(window, {
     dsfr: vi.fn(() => ({ modal: { conceal: vi.fn() } })),
   });
@@ -46,7 +46,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-function dossier(overrides: Partial<DossierComplet> = {}): DossierComplet {
+function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
   return {
     id: DOSSIER_ID,
     nom: "Dossier test",
@@ -73,7 +73,7 @@ function dossier(overrides: Partial<DossierComplet> = {}): DossierComplet {
     piècesJointesPétitionnaires: [],
     attachmentAutres: [],
     ...overrides,
-  } as unknown as DossierComplet;
+  } as unknown as DossierFull;
 }
 
 function expectTracking(source: string) {

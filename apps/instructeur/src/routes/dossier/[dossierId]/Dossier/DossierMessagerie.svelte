@@ -3,11 +3,11 @@
 
   import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Message from "@pitchou/types/database/public/Message.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     messages?: Partial<Message>[];
   };
 

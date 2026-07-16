@@ -1,4 +1,4 @@
-import type { DossierResume, DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierSummary, DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 export { formatDateAbsolue, formatDateRelative } from "@pitchou/common/formatDate.ts";
@@ -7,7 +7,7 @@ export function formatLocalisation({
   communes,
   départements,
   régions,
-}: Partial<DossierComplet>): string {
+}: Partial<DossierFull>): string {
   // Clean up the case where a dossier said it spanned several communes, but the communes were not entered
   if (Array.isArray(communes) && communes.length === 0) {
     communes = undefined;
@@ -42,7 +42,7 @@ export function formatLocalisation({
   );
 }
 
-export function formatDeposant(dossier: DossierComplet | DossierResume): string {
+export function formatDeposant(dossier: DossierFull | DossierSummary): string {
   const INCONNU = "(inconnu)";
 
   let { déposant_nom: deposant_nom, déposant_prénoms: deposant_prenoms } = dossier;
@@ -63,7 +63,7 @@ export function formatDeposant(dossier: DossierComplet | DossierResume): string 
   return deposant_nom ? deposant_nom + " " + deposant_prenoms : deposant_prenoms;
 }
 
-export function formatPorteurDeProjet(dossier: DossierComplet | DossierResume): string {
+export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {
   if (dossier.demandeur_personne_morale_siret) {
     return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`;
   } else {

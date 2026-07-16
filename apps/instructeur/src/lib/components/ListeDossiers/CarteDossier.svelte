@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import {
     formatDateAbsolue,
@@ -10,7 +10,7 @@
   import BadgePhase from "./BadgePhase.svelte";
 
   type Props = {
-    dossier: DossierResume;
+    dossier: DossierSummary;
     instructeurActuelSuitDossier: (id: Dossier["id"]) => Promise<void>;
     instructeurActuelLaisseDossier: (id: Dossier["id"]) => Promise<void>;
     nouveautéVueParInstructeur: boolean;

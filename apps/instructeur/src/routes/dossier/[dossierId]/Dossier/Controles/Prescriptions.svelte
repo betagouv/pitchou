@@ -12,7 +12,7 @@
     updatePrescription,
   } from "./prescriptions.ts";
   import { createPrescriptionControlesFromFichier } from "./decisionAdministrative.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 
   import type {
     FrontEndDecisionAdministrative,
@@ -133,7 +133,7 @@
     );
 
     prescriptions = new Set(newPrescriptions);
-    refreshDossierComplet(dossierId);
+    refreshDossierFull(dossierId);
   }
 </script>
 
@@ -173,7 +173,7 @@
 
     {#if viewPrescription === "view"}
       {#each prescriptions as prescription}
-        <Prescription {prescription} refreshDossierComplet={() => refreshDossierComplet(dossierId)}
+        <Prescription {prescription} refreshDossierFull={() => refreshDossierFull(dossierId)}
         ></Prescription>
       {/each}
 

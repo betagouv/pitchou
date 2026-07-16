@@ -2,10 +2,10 @@
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
 
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossierId: DossierComplet["id"];
+    dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
     deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
   };

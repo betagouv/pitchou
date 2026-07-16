@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossierResume, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
   import type { ChangeEventHandler, EventHandler } from "svelte/elements";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -16,7 +16,7 @@
   type Props = {
     titre: string;
     email?: string;
-    dossiers: DossierResume[];
+    dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
     afficherFiltreSansInstructeurice?: boolean;
     afficherFiltreActionInstructeur?: boolean;
@@ -36,7 +36,7 @@
   const NOMBRE_DOSSIERS_PAR_PAGE = 10;
 
   type CleFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
-  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierResume) => boolean>();
+  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierSummary) => boolean>();
 
   const dossiersFiltres = $derived.by(() => {
     let resultat = [...dossiers];

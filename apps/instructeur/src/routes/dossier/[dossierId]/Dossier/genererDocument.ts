@@ -10,7 +10,7 @@ import type {
   QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { EspecesParActivite } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
 
 /**
@@ -19,7 +19,7 @@ import type { EspecesParActivite } from "$lib/especes/creerEspecesGroupeesParImp
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  */
 export function getBalisesGenerationDocument(
-  dossier: DossierComplet,
+  dossier: DossierFull,
   especesImpactees: DescriptionMenacesEspeces,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,

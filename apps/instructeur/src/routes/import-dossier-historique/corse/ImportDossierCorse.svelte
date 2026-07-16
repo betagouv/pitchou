@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DossierAvecAlertes } from "../importDossierUtils.ts";
-  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { LigneDossierCorse } from "./importDossierCorse.ts";
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -23,7 +23,7 @@
   const DREAL = "Corse";
 
   type Props = {
-    dossiers?: DossierResume[];
+    dossiers?: DossierSummary[];
     schema: SchemaDemarcheSimplifiee | undefined;
   };
 
@@ -49,7 +49,7 @@
     );
   let lignesTableauImport: LigneDossierCorse[] = $state([]);
   let lignesFiltreesTableauImport: LigneDossierCorse[] = $state([]);
-  let dossiersDejaEnBDD: DossierResume[] = $state([]);
+  let dossiersDejaEnBDD: DossierSummary[] = $state([]);
   let ligneVersDossierAvecAlertes: Map<LigneDossierCorse, DossierAvecAlertes> = new SvelteMap();
   let emailsParInitials: Map<string, string> = $state(new SvelteMap());
 

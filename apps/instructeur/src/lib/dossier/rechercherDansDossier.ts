@@ -5,12 +5,12 @@ import lunrfr from "lunr-languages/lunr.fr";
 import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
-import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
 stemmerSupport(lunr);
 lunrfr(lunr);
 
-const creerDossierIndexable = (dossier: DossierResume): StringValues<Partial<DossierResume>> => {
+const creerDossierIndexable = (dossier: DossierSummary): StringValues<Partial<DossierSummary>> => {
   const {
     id,
     nom,
@@ -38,9 +38,9 @@ const creerDossierIndexable = (dossier: DossierResume): StringValues<Partial<Dos
   };
 };
 
-const indexCache: Map<DossierResume[], lunr.Index> = new Map();
+const indexCache: Map<DossierSummary[], lunr.Index> = new Map();
 
-const creerIndexDossiers = (dossiers: DossierResume[]): lunr.Index => {
+const creerIndexDossiers = (dossiers: DossierSummary[]): lunr.Index => {
   if (indexCache.has(dossiers))
     // @ts-expect-error TS does not understand that .get returns a lunr.Index after a positive .has
     return indexCache.get(dossiers);
@@ -71,8 +71,8 @@ const creerIndexDossiers = (dossiers: DossierResume[]): lunr.Index => {
 
 export const trouverDossiersIdCorrespondantsATexte = (
   texteAChercher: string,
-  dossiers: DossierResume[],
-): Set<DossierResume["id"]> => {
+  dossiers: DossierSummary[],
+): Set<DossierSummary["id"]> => {
   const index = creerIndexDossiers(dossiers);
   const lunrResultats = index.search(texteAChercher);
 

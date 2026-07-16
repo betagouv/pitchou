@@ -4,7 +4,7 @@ import { cleanup, render } from "@testing-library/svelte";
 
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(cleanup);
 
@@ -61,7 +61,7 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
         },
       },
     ],
-  } as unknown as DossierComplet;
+  } as unknown as DossierFull;
 
   render(DossierPiecesJointes, { dossier, ouvrirOnglet });
 

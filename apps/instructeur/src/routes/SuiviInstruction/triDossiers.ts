@@ -5,13 +5,13 @@ import { getDebutPhaseActuelle } from "$lib/dossier/getDebutPhaseActuelle.ts";
 import type {
   DossierPhase,
   DossierProchaineActionAttenduePar,
-  DossierResume,
+  DossierSummary,
 } from "@pitchou/types/API_Pitchou.ts";
 
 export const trierDossiersParOrdreAlphabetiqueColonne = (
-  dossiers: DossierResume[],
-  nomColonne: keyof DossierResume | "localisation" | "porteur de projet",
-): DossierResume[] => {
+  dossiers: DossierSummary[],
+  nomColonne: keyof DossierSummary | "localisation" | "porteur de projet",
+): DossierSummary[] => {
   return dossiers.toSorted((a, b) => {
     let colonneA;
     let colonneB;
@@ -82,7 +82,7 @@ function compareProchaineActionAttenduePar(
   return importance2 - importance1;
 }
 
-export function trierDossiersParPhaseProchaineAction(dossiers: DossierResume[]): DossierResume[] {
+export function trierDossiersParPhaseProchaineAction(dossiers: DossierSummary[]): DossierSummary[] {
   return dossiers.toSorted((dossier1, dossier2) => {
     const phase1 = dossier1.phase;
     const phase2 = dossier2.phase;

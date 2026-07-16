@@ -6,7 +6,7 @@ import {
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { addPrescriptionsEtControles } from "./prescriptions.ts";
-import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { envoyerEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
@@ -181,5 +181,5 @@ export async function saveNewDecisionAdministrative(
 
   await modifierDecisionAdministrativeDansDossier(newDecisionAdministrative);
 
-  refreshDossierComplet(newDecisionAdministrative.dossier);
+  refreshDossierFull(newDecisionAdministrative.dossier);
 }

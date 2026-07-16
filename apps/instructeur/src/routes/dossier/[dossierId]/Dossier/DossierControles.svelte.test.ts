@@ -15,17 +15,17 @@ vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    refreshDossierComplet: vi.fn(),
+    refreshDossierFull: vi.fn(),
   };
 });
 
 import DossierControles from "./DossierControles.svelte";
 import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
-import type { DossierComplet, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 
-let dossier: DossierComplet;
+let dossier: DossierFull;
 // Minimal "database" shared between the mocks: deletion empties it, refresh
 // copies its state back into the reactive dossier, like a server reload.
 let fakeDB: FrontEndDecisionAdministrative[];
@@ -45,16 +45,16 @@ beforeEach(() => {
     nom: "Dossier test",
     décisionsAdministratives: [...fakeDB],
     évènementsPhase: [],
-  } as unknown as DossierComplet);
+  } as unknown as DossierFull);
 
   vi.mocked(deleteDecisionAdministrative).mockReset();
   vi.mocked(deleteDecisionAdministrative).mockImplementation(async (id) => {
     fakeDB = fakeDB.filter((d) => d.id !== id);
   });
 
-  vi.mocked(refreshDossierComplet).mockReset();
+  vi.mocked(refreshDossierFull).mockReset();
   // Refresh reflects the real "database" state, like reloading from the server.
-  vi.mocked(refreshDossierComplet).mockImplementation(async () => {
+  vi.mocked(refreshDossierFull).mockImplementation(async () => {
     dossier.décisionsAdministratives = [...fakeDB];
     return dossier;
   });

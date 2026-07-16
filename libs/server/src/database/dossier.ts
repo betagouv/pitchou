@@ -27,8 +27,8 @@ import type {
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type AretePersonneSuitDossier from "@pitchou/types/database/public/AretePersonneSuitDossier.ts";
 import type {
-  DossierComplet,
-  DossierResume,
+  DossierFull,
+  DossierSummary,
   FrontEndDecisionAdministrative,
   FrontEndFichier,
   FrontEndPrescription,
@@ -335,14 +335,14 @@ export async function synchronizeDossierInGroupeInstructeur(
     .merge(["groupe_instructeurs"]);
 }
 
-const colonnesDossierComplet: (keyof DossierComplet)[] = [
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+const dossierFullColumns: (keyof DossierFull)[] = [
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "dossier.id as id",
   //"id_demarches_simplifiées",
   "number_demarches_simplifiées",
   "numéro_démarche",
   "date_dépôt",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "dossier.nom as nom",
   "description",
 
@@ -354,11 +354,11 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "motif_dérogation",
   "justification_motif_dérogation",
 
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "file_espèces_impactées.id as espèces_impactées_id",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "file_espèces_impactées.nom as espèces_impactées_nom",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "file_espèces_impactées.media_type as espèces_impactées_media_type",
   "rattaché_au_régime_ae",
   "activité_principale",
@@ -373,69 +373,69 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "prochaine_action_attendue_par",
 
   // déposant
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "déposant.nom as déposant_nom",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "déposant.prénoms as déposant_prénoms",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "déposant.email as déposant_email",
 
   // demandeur_personne_physique
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.email as demandeur_personne_physique_email",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.address as demandeur_personne_physique_address",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.phone as demandeur_personne_physique_phone",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.role as demandeur_personne_physique_role",
 
   // demandeur_personne_morale
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.siren as demandeur_personne_morale_siren",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.legal_form as demandeur_personne_morale_legal_form",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.naf_code as demandeur_personne_morale_naf_code",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.naf_label as demandeur_personne_morale_naf_label",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.creation_date as demandeur_personne_morale_creation_date",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.admin_status as demandeur_personne_morale_admin_status",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.headcount as demandeur_personne_morale_headcount",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.share_capital as demandeur_personne_morale_share_capital",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.insee_code as demandeur_personne_morale_insee_code",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.postal_code as demandeur_personne_morale_postal_code",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.department as demandeur_personne_morale_department",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.region as demandeur_personne_morale_region",
 
   // representative (personne in charge of the project within the personne morale)
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "representative.nom as representative_nom",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "representative.prénoms as representative_prénoms",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "representative.email as representative_email",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "representative.phone as representative_phone",
-  //@ts-expect-error not exactly a keyof DossierComplet, but still
+  //@ts-expect-error not exactly a keyof DossierFull, but still
   "representative.role as representative_role",
 
   // private annotations
@@ -474,11 +474,11 @@ const colonnesDossierComplet: (keyof DossierComplet)[] = [
   "date_mise_en_service",
 ];
 
-export function listAllDossiersComplets(
+export function listAllDossiersFull(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierComplet[]> {
+): Promise<DossierFull[]> {
   return databaseConnection("dossier")
-    .select(colonnesDossierComplet)
+    .select(dossierFullColumns)
     .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
@@ -537,11 +537,11 @@ function describeFichier(
   };
 }
 
-export async function getDossierComplet(
-  dossierId: DossierComplet["id"],
+export async function getDossierFull(
+  dossierId: DossierFull["id"],
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierComplet | undefined> {
+): Promise<DossierFull | undefined> {
   let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
@@ -562,14 +562,14 @@ export async function getDossierComplet(
   }
 
   const dossierP: Promise<
-    DossierComplet & {
+    DossierFull & {
       espèces_impactées_id?: FileId | null;
       espèces_impactées_media_type?: string;
       espèces_impactées_nom?: string;
       demandeur_personne_morale_adresse?: string;
     }
   > = transaction("dossier")
-    .select(colonnesDossierComplet)
+    .select(dossierFullColumns)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
@@ -809,7 +809,7 @@ export async function getDossierComplet(
   );
 }
 
-const colonnesDossierResume: (keyof DossierResume)[] = [
+const dossierSummaryColumns: (keyof DossierSummary)[] = [
   //@ts-expect-error not exactly a keyof DossierRésumé, but still
   "dossier.id as id",
   //"id_demarches_simplifiées",
@@ -853,10 +853,10 @@ const colonnesDossierResume: (keyof DossierResume)[] = [
   "historique_identifiant_demande_onagre",
 ];
 
-export async function getDossiersResumesByCap(
+export async function getDossiersSummariesByCap(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierResume[]> {
+): Promise<DossierSummary[]> {
   let transaction: Knex.Transaction;
 
   if (databaseConnection.isTransaction) {
@@ -866,8 +866,8 @@ export async function getDossiersResumesByCap(
     transaction = await databaseConnection.transaction({ readOnly: true });
   }
 
-  const dossiersP: Promise<DossierResume[]> = transaction("dossier")
-    .select(colonnesDossierResume)
+  const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
+    .select(dossierSummaryColumns)
     .join("arête_groupe_instructeurs__dossier", {
       "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
     })

@@ -2,7 +2,7 @@
   import { addAttachmentAutre } from "./attachmentAutre.ts";
   import { addOrUpdateAvisExpert } from "./avisExpert.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
@@ -10,7 +10,7 @@
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
 
   import type {
-    DossierComplet,
+    DossierFull,
     FrontEndAvisExpert,
     DecisionAdministrativeForTransfer,
   } from "@pitchou/types/API_Pitchou.ts";
@@ -20,7 +20,7 @@
 
   type Props = {
     id: string;
-    dossier: Pick<DossierComplet, "id" | "avisExpert">;
+    dossier: Pick<DossierFull, "id" | "avisExpert">;
     typesPiècesJointes?: TypePieceJointe[];
     afficherChoixType?: boolean;
     typePièceJointeInitial?: TypePieceJointe;
@@ -180,7 +180,7 @@
         )
           .then(() => {
             envoyerEvenementAjouterPieceJointe("Saisine expert", 1);
-            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+            return refreshDossierFull(dossier.id).then(() => fermerModale());
           })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       } else if (typePieceJointe === "Avis expert") {
@@ -208,7 +208,7 @@
           )
             .then(() => {
               envoyerEvenementAjouterPieceJointe("Avis expert", 1);
-              return refreshDossierComplet(dossier.id).then(() => fermerModale());
+              return refreshDossierFull(dossier.id).then(() => fermerModale());
             })
             .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
         } else if (avisExpertSelectionne) {
@@ -229,7 +229,7 @@
             )
               .then(() => {
                 envoyerEvenementAjouterPieceJointe("Avis expert", 1);
-                return refreshDossierComplet(dossier.id).then(() => fermerModale());
+                return refreshDossierFull(dossier.id).then(() => fermerModale());
               })
               .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
           }
@@ -244,7 +244,7 @@
         )
           .then(() => {
             envoyerEvenementAjouterPieceJointe("Autre", nombreFichiers);
-            return refreshDossierComplet(dossier.id).then(() => fermerModale());
+            return refreshDossierFull(dossier.id).then(() => fermerModale());
           })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
       }

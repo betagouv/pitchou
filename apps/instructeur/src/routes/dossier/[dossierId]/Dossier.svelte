@@ -16,7 +16,7 @@
   import { onMount } from "svelte";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
@@ -46,7 +46,7 @@
   const EXTENSIONS_ATTENDUES = [".ods", ".xlsx"];
 
   function getEspecesImpactes(
-    dossier: DossierComplet,
+    dossier: DossierFull,
   ): ReturnType<typeof especesImpacteesDepuisFichierOdsArrayBuffer> | undefined {
     const especesImpactees = dossier.espècesImpactées;
 
@@ -69,7 +69,7 @@
   }
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     ongletActifInitial: Onglet;
     messages: any;
     email: string;

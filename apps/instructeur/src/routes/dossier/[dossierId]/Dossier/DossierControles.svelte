@@ -5,16 +5,16 @@
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
   import type {
-    DossierComplet,
+    DossierFull,
     FrontEndDecisionAdministrative,
   } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
   };
 
   let { dossier }: Props = $props();
@@ -34,7 +34,7 @@
     // manual page reload.
     return async function () {
       await deleteDecisionAdministrative(decisionAdministrative.id);
-      await refreshDossierComplet(dossier.id);
+      await refreshDossierFull(dossier.id);
     };
   }
 

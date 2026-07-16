@@ -7,15 +7,15 @@ import type {
   ChampDSPieceJustificative,
   ChampRepeteDSPieceJustificative,
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
-import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type {
   OiseauAtteint,
   FauneNonOiseauAtteinte,
   FloreAtteinte,
 } from "@pitchou/types/especes.d.ts";
 
-export function isDossierResumeArray(x: any): x is DossierResume[] {
-  return Array.isArray(x) && x.every(isDossierResume);
+export function isDossierSummaryArray(x: any): x is DossierSummary[] {
+  return Array.isArray(x) && x.every(isDossierSummary);
 }
 
 const isCommune = (value: any): value is { name: string; code: string; postalCode: string } => {
@@ -36,9 +36,9 @@ const isOptionalStringArray = (value: any): value is string[] | null | undefined
 };
 
 /**
- * Type guard to check if an object is a DossierRésumé
+ * Type guard to check if an object is a DossierSummary
  */
-function isDossierResume(x: any): x is DossierResume {
+function isDossierSummary(x: any): x is DossierSummary {
   if (!x || typeof x !== "object") return false;
 
   // Basic properties

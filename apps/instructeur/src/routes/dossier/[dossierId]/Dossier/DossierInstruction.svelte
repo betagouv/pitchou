@@ -16,11 +16,11 @@
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
     email: string;
     dossierActuelSuiviParInstructeurActuel: boolean | undefined;
@@ -60,7 +60,7 @@
     return `${year}-${month}-${day}`;
   }
 
-  function attachmentDetails(attachment: DossierComplet["attachmentAutres"][number]) {
+  function attachmentDetails(attachment: DossierFull["attachmentAutres"][number]) {
     const details = [];
     const fileDescription = attachment.fichier_description;
 
@@ -113,7 +113,7 @@
   let messageErreur = $state("");
   let afficherMessageSucces = $state(false);
 
-  const modifierChamp: (modifs: Partial<DossierComplet>) => void = (modifs) => {
+  const modifierChamp: (modifs: Partial<DossierFull>) => void = (modifs) => {
     modifierDossier(dossier, modifs)
       .then(() => (afficherMessageSucces = true))
       .catch((error) => {
@@ -125,7 +125,7 @@
   const modifierChampAvecDebounce = debounce(modifierChamp, 1000);
 
   run(() => {
-    const modifs: Partial<DossierComplet> = {};
+    const modifs: Partial<DossierFull> = {};
 
     if (phaseActuelle !== phase) {
       modifs.évènementsPhase = [

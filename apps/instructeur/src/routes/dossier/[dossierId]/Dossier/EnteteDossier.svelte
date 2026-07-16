@@ -12,11 +12,11 @@
 
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     email: string;
     dossierActuelSuiviParInstructeurActuel: boolean | undefined;
   };

@@ -1,6 +1,6 @@
-import type { DossierPhase, DossierResume } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-export function getDebutPhaseActuelle(dossier: DossierResume): {
+export function getDebutPhaseActuelle(dossier: DossierSummary): {
   phase: DossierPhase;
   dateDébut: Date;
 } {

@@ -10,24 +10,24 @@
 
   import TagPhase from "$lib/components/TagPhase.svelte";
 
-  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossiers?: DossierResume[];
+    dossiers?: DossierSummary[];
   };
 
   let { dossiers = [] }: Props = $props();
 
   const aujourdhui = new Date();
 
-  function trouverDossiersEnControle(dossiers: DossierResume[]) {
+  function trouverDossiersEnControle(dossiers: DossierSummary[]) {
     return dossiers.filter((dossier) => dossier.phase === "Controle");
   }
 
   let dossierEnPhaseControle = $derived(trouverDossiersEnControle(dossiers));
 
   function trouverDossiersAvecAPPrisDepuis(
-    dossiers: DossierResume[],
+    dossiers: DossierSummary[],
     dateDebut: Date,
     dateFin: Date | undefined = aujourdhui,
   ) {
@@ -55,13 +55,13 @@
     ),
   );
 
-  function trouverDossiersEnAccompagnement(dossiers: DossierResume[]) {
+  function trouverDossiersEnAccompagnement(dossiers: DossierSummary[]) {
     return dossiers.filter((dossier) => dossier.phase === "Accompagnement amont");
   }
 
   let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers));
 
-  function trouverDossiersDeMoinsDe3Ans(dossiers: DossierResume[]) {
+  function trouverDossiersDeMoinsDe3Ans(dossiers: DossierSummary[]) {
     return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.date_dépôt));
   }
 
@@ -69,7 +69,7 @@
     trouverDossiersDeMoinsDe3Ans(dossiersEnAccompagnement),
   );
 
-  function trouverDossiersNonScientifiques(dossiers: DossierResume[]) {
+  function trouverDossiersNonScientifiques(dossiers: DossierSummary[]) {
     return dossiers.filter((d) => d.activité_principale !== "Demande à caractère scientifique");
   }
 

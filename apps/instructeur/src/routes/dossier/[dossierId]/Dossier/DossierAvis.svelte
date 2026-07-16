@@ -1,15 +1,15 @@
 <script lang="ts">
   import { deleteAvisExpert as deleteAvisExpertServer } from "./avisExpert.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
   };
 
   let { dossier }: Props = $props();
@@ -26,7 +26,7 @@
 
   async function deleteAvisExpert(avisExpert: FrontEndAvisExpert) {
     await deleteAvisExpertServer(avisExpert);
-    await refreshDossierComplet(dossier.id);
+    await refreshDossierFull(dossier.id);
   }
 </script>
 

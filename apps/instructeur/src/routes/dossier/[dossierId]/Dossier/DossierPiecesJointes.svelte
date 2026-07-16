@@ -5,7 +5,7 @@
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
   import type {
-    DossierComplet,
+    DossierFull,
     FrontEndAvisExpert,
     FrontEndFichier,
   } from "@pitchou/types/API_Pitchou.ts";
@@ -13,7 +13,7 @@
   type OngletLie = "instruction" | "projet" | "avis" | "controles";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     ouvrirOnglet: (onglet: OngletLie) => void;
   };
 

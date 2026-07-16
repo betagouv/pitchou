@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { LigneDossierBFC } from "./importDossierBFC.ts";
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -14,7 +14,7 @@
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
   type Props = {
-    dossiers?: DossierResume[];
+    dossiers?: DossierSummary[];
     schema: SchemaDemarcheSimplifiee | undefined;
   };
 
@@ -37,7 +37,7 @@
     );
   let lignesTableauImport: LigneDossierBFC[] = $state([]);
   let lignesFiltreesTableauImport: LigneDossierBFC[] = $state([]);
-  let dossiersDejaEnBDD: DossierResume[] = $state([]);
+  let dossiersDejaEnBDD: DossierSummary[] = $state([]);
 
   let ligneToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
 

@@ -9,11 +9,11 @@
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     espècesImpactées: Promise<DescriptionMenacesEspeces> | undefined;
   };
 

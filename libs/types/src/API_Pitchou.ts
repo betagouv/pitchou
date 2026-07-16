@@ -7,7 +7,7 @@ import type Prescription from "./database/public/Prescription.ts";
 import type Controle from "./database/public/Controle.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 
-type DossierPersonnesImpliqueesResume = {
+type DossierPersonnesImpliqueesSummary = {
   déposant_nom: string;
   déposant_prénoms: string;
   demandeur_personne_physique_nom: string;
@@ -16,7 +16,7 @@ type DossierPersonnesImpliqueesResume = {
   demandeur_personne_morale_siret: string;
 };
 
-type DossierPersonnesImpliqueesComplet = DossierPersonnesImpliqueesResume & {
+type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
   demandeur_adresse: string;
   déposant_email: string | null;
 
@@ -126,13 +126,13 @@ type DossierDataForStats = {
 };
 
 /**
- * The DossierResume type contains the data needed to display the tracking table
+ * The DossierSummary type contains the data needed to display the tracking table
  * and to be able to perform searches in the tracking table
  * or the summary panel shared across the tabs of the screens showing a single dossier
  *
  * It is intended to be fairly easy to query in bulk
  */
-export type DossierResume = Pick<
+export type DossierSummary = Pick<
   Dossier,
   | "id"
   | "number_demarches_simplifiées"
@@ -144,7 +144,7 @@ export type DossierResume = Pick<
   | "commentaire_libre"
   | "historique_identifiant_demande_onagre"
 > & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
-  DossierPersonnesImpliqueesResume &
+  DossierPersonnesImpliqueesSummary &
   DossierActivitePrincipale &
   DossierDataForStats;
 
@@ -185,15 +185,15 @@ export type FrontEndAttachmentAutre = {
 };
 
 /**
- * The DossierComplet type contains all the information related to a dossier,
+ * The DossierFull type contains all the information related to a dossier,
  * notably the download URL of the impacted species file if there is one
  */
-export type DossierComplet = Omit<
+export type DossierFull = Omit<
   Dossier,
   "communes" | "départements" | "régions" | "activité_principale" | "cartographie_projet"
 > &
   DossierLocalisation &
-  DossierPersonnesImpliqueesComplet &
+  DossierPersonnesImpliqueesFull &
   DossierActivitePrincipale &
   DossierCartographieProjet & {
     espècesImpactées: (Pick<File, "media_type" | "nom"> & { url: string }) | undefined;

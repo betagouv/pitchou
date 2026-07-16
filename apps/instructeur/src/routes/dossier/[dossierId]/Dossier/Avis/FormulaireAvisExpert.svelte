@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-  import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../../DateInput.svelte";
 
   type Props = {
-    dossierId: DossierComplet["id"];
+    dossierId: DossierFull["id"];
     closeForm: () => void;
     avisExpertInitial?: FrontEndAvisExpert;
   };
@@ -78,7 +78,7 @@
         fichierSaisine,
         fichierAvis,
       )
-        .then(() => refreshDossierComplet(dossierId).then(() => closeForm()))
+        .then(() => refreshDossierFull(dossierId).then(() => closeForm()))
         .catch((e) => (errorMessage = e.message));
     }
   }

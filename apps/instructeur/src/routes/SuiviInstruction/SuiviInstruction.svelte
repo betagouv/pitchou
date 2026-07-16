@@ -29,7 +29,7 @@
 
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
   import type {
-    DossierResume,
+    DossierSummary,
     DossierPhase,
     DossierProchaineActionAttenduePar,
   } from "@pitchou/types/API_Pitchou.ts";
@@ -41,7 +41,7 @@
 
   type Props = {
     email: string;
-    dossiers?: DossierResume[];
+    dossiers?: DossierSummary[];
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
     triIdSélectionné?: TableSort["id"] | undefined;
@@ -79,7 +79,7 @@
     return new SvelteSet(dossierIdsSansSuivi);
   });
 
-  let dossiersSelectionnes: DossierResume[] = $state([]);
+  let dossiersSelectionnes: DossierSummary[] = $state([]);
 
   //$inspect('dossiersSelectionnés', dossiersSelectionnés)
 
@@ -215,7 +215,7 @@
     | "suivis"
     | "instructeurs"
     | "activité principale";
-  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierResume) => boolean>();
+  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierSummary) => boolean>();
 
   function filtrerDossiers() {
     let nouveauxDossiersSelectionnes = dossiers;

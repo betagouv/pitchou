@@ -1,6 +1,6 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { getDossierComplet, chargerMessagesDossier } from "$lib/dossier/dossier.ts";
+import { getDossierFull, chargerMessagesDossier } from "$lib/dossier/dossier.ts";
 import {
   chargerNotificationParDossierPourInstructeurActuel,
   chargerRelationSuivi,
@@ -19,7 +19,7 @@ export const load: PageLoad = async ({ params, parent }) => {
   chargerNotificationParDossierPourInstructeurActuel();
 
   const [dossier] = await Promise.all([
-    getDossierComplet(id),
+    getDossierFull(id),
     chargerMessagesDossier(id),
     chargerRelationSuivi(),
   ]);

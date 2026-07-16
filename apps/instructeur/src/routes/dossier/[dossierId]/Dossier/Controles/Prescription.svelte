@@ -17,10 +17,10 @@
 
   type Props = {
     prescription: Partial<FrontEndPrescription>;
-    refreshDossierComplet: () => Promise<any>;
+    refreshDossierFull: () => Promise<any>;
   };
 
-  let { prescription, refreshDossierComplet }: Props = $props();
+  let { prescription, refreshDossierFull }: Props = $props();
 
   let {
     id,
@@ -137,7 +137,7 @@
 
     await deleteControle(id);
 
-    refreshDossierComplet();
+    refreshDossierFull();
 
     envoyerEvenement({ type: "supprimerControle" });
   }
