@@ -10,7 +10,7 @@
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
-  import { especesImpacteesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+  import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
@@ -47,7 +47,7 @@
 
   function getEspecesImpactes(
     dossier: DossierFull,
-  ): ReturnType<typeof especesImpacteesDepuisFichierOdsArrayBuffer> | undefined {
+  ): ReturnType<typeof especesImpacteesFromFichierOdsArrayBuffer> | undefined {
     const especesImpactees = dossier.espècesImpactées;
 
     if (!especesImpactees || !especesImpactees.url) {
@@ -65,7 +65,7 @@
     // The file content is fetched on demand from the Object Storage
     return fetch(especesImpactees.url)
       .then((response) => response.arrayBuffer())
-      .then((arrayBuffer) => especesImpacteesDepuisFichierOdsArrayBuffer(arrayBuffer));
+      .then((arrayBuffer) => especesImpacteesFromFichierOdsArrayBuffer(arrayBuffer));
   }
 
   type Props = {

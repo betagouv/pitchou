@@ -2,13 +2,13 @@
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
   import TousLesDossiers from "./TousLesDossiers.svelte";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
   import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/shared/main.ts";
 
   onMount(async () => {
     chargerNotificationParDossierPourInstructeurActuel();
     try {
-      await chargerDossiers();
+      await loadDossiers();
     } catch (error) {
       console.error("Erreur lors du chargement de la page Tous les dossiers :", error);
       const errorMessage = error instanceof Error ? error.message : String(error);

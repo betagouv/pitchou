@@ -2,11 +2,11 @@
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
   import TmpStats from "./TmpStats.svelte";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
     if (store.dossiersRésumés.size === 0) {
-      await chargerDossiers().catch((err) => console.error("Erreur chargement dossiers", err));
+      await loadDossiers().catch((err) => console.error("Erreur chargement dossiers", err));
     }
   });
 

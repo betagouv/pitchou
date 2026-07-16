@@ -8,7 +8,7 @@
   import Loader from "$lib/components/Loader.svelte";
 
   import { logout } from "$lib/shared/main.ts";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
   import { envoiEmailConnexion } from "./LoginViaEmail/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
 
@@ -35,7 +35,7 @@
 
     if (store.capabilities.listerDossiers) {
       try {
-        await chargerDossiers();
+        await loadDossiers();
       } catch (err) {
         console.error("Problème de chargement des dossiers", err);
         const errorMessage = err instanceof Error ? err.message : String(err);

@@ -45,7 +45,7 @@ export function modifierDossier(
   });
 }
 
-export async function chargerMessagesDossier(id: DossierFull["id"]): Promise<Message[]> {
+export async function loadDossierMessages(id: DossierFull["id"]): Promise<Message[]> {
   if (!store.capabilities?.listerMessages)
     throw new TypeError(`Capability listerMessages manquante`);
 
@@ -83,7 +83,7 @@ export async function refreshDossierFull(id: DossierFull["id"]): Promise<Dossier
   return dossierFull;
 }
 
-export async function especesImpacteesDepuisFichierOdsArrayBuffer(
+export async function especesImpacteesFromFichierOdsArrayBuffer(
   fichierArrayBuffer: ArrayBuffer,
 ): Promise<DescriptionMenacesEspeces> {
   const especesProtegees = loadEspecesProtegeesList();
@@ -101,7 +101,7 @@ export async function especesImpacteesDepuisFichierOdsArrayBuffer(
   );
 }
 
-export function chargerDossiers() {
+export function loadDossiers() {
   chargerRelationSuivi();
 
   if (store.capabilities?.listerDossiers) {

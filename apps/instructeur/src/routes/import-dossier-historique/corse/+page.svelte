@@ -2,11 +2,11 @@
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
   import ImportDossierCorse from "./ImportDossierCorse.svelte";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
     if (store.capabilities.listerDossiers) {
-      await chargerDossiers().catch((err) => console.error({ err }));
+      await loadDossiers().catch((err) => console.error({ err }));
     } else {
       console.error("store.capabilities.listerDossiers undefined");
     }
