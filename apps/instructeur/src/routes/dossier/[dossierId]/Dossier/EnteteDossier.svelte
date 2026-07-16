@@ -4,7 +4,7 @@
     formatLocalisation,
     formatPorteurDeProjet,
     formatDeposant,
-  } from "$lib/dossier/affichageDossier.ts";
+  } from "$lib/dossier/displayDossier.ts";
   import { displayString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";

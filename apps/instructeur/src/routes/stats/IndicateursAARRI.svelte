@@ -3,7 +3,7 @@
   import { untrack } from "svelte";
   import Loader from "$lib/components/Loader.svelte";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
-  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
   import MatriceImpact from "./MatriceImpact.svelte";
 

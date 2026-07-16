@@ -3,7 +3,7 @@
   import { addOrUpdateAvisExpert } from "./avisExpert.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";

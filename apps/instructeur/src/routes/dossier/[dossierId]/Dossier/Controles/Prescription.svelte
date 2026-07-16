@@ -4,7 +4,7 @@
   import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import TagResultatControle from "../../TagResultatControle.svelte";
 
-  import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import {
     addControle as sendControle,
     updateControle,

@@ -11,7 +11,7 @@
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
   import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
-  import { phases as allPhases } from "$lib/dossier/affichageDossier.ts";
+  import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
 
   type Props = {
     title: string;

@@ -9,7 +9,7 @@
     formatDateAbsolute,
     phases,
     prochaineActionAttenduePar,
-  } from "$lib/dossier/affichageDossier.ts";
+  } from "$lib/dossier/displayDossier.ts";
   import { updateDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";

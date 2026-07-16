@@ -2,7 +2,7 @@
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
   import EspecesProtegeesGroupeesParImpact from "$lib/components/EspecesProtegeesGroupeesParImpact.svelte";
-  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "$lib/components/Loader.svelte";

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
 import { createEspecesGroupedByImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
 
 import type {

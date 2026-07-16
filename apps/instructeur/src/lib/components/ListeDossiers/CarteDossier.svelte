@@ -5,7 +5,7 @@
     formatDateAbsolute,
     formatLocalisation,
     formatPorteurDeProjet,
-  } from "$lib/dossier/affichageDossier.ts";
+  } from "$lib/dossier/displayDossier.ts";
   import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
   import BadgePhase from "./BadgePhase.svelte";
 

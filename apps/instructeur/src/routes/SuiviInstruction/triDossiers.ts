@@ -1,4 +1,4 @@
-import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
 
 import { getCurrentPhaseStart } from "$lib/dossier/getDebutPhaseActuelle.ts";
 

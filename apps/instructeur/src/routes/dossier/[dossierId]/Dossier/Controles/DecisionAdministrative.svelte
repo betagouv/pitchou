@@ -3,7 +3,7 @@
   import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
   import CardDecisionAdministrative from "./CardDecisionAdministrative.svelte";
 
-  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
