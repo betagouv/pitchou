@@ -24,18 +24,18 @@ export default function findCandidateFichiersToDownload(
           champs.find((c) => c.id === champDescriptorId) ||
           annotations.find((c) => c.id === champDescriptorId);
 
-        let descriptionFichiers: DSFile[] | undefined;
+        let fichierDescriptions: DSFile[] | undefined;
 
         if (isChampDSPieceJustificative(champFichier)) {
-          descriptionFichiers = champFichier.files;
+          fichierDescriptions = champFichier.files;
         }
 
         if (isChampRepeteDSPieceJustificative(champFichier)) {
-          descriptionFichiers = champFichier.rows.map((r) => r.champs.map((c) => c.files)).flat(2);
+          fichierDescriptions = champFichier.rows.map((r) => r.champs.map((c) => c.files)).flat(2);
         }
 
-        return descriptionFichiers && descriptionFichiers.length >= 1
-          ? [number, descriptionFichiers]
+        return fichierDescriptions && fichierDescriptions.length >= 1
+          ? [number, fichierDescriptions]
           : undefined;
       })
       .filter((x) => x !== undefined),

@@ -36,10 +36,10 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
 
   // Find the most recent phase
   // PPP to fix
-  const phaseActuelle: DossierPhase = evenementsPhase[0]
+  const currentPhase: DossierPhase = evenementsPhase[0]
     ? evenementsPhase[0].phase
     : "Accompagnement amont";
-  const dateDebutPhaseActuelle = evenementsPhase[0] ? evenementsPhase[0].horodatage : date_dépôt;
+  const currentPhaseStartDate = evenementsPhase[0] ? evenementsPhase[0].horodatage : date_dépôt;
 
   const dossierSummary: DossierSummary = {
     // Simple properties
@@ -70,8 +70,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     demandeur_personne_morale_siret,
 
     // Phase and next action
-    phase: phaseActuelle,
-    date_début_phase: dateDebutPhaseActuelle,
+    phase: currentPhase,
+    date_début_phase: currentPhaseStartDate,
     // @ts-ignore
     prochaine_action_attendue_par,
   };
