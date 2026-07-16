@@ -11,13 +11,13 @@
 
   let { especes }: Props = $props();
 
-  const detailModaleId = "modale-detail-espece";
+  const detailModalId = "modale-detail-espece";
 
   // Espèce whose details are shown in the shared modal, set when a row is activated
   let especeDetail: EspeceProtegee | null = $state(null);
   let triggerDetail: HTMLButtonElement | undefined = $state();
 
-  async function ouvrirDetail(espece: EspeceProtegee) {
+  async function openDetail(espece: EspeceProtegee) {
     especeDetail = espece;
     await tick();
     triggerDetail?.click();
@@ -50,11 +50,11 @@
             role="button"
             tabindex="0"
             title="Voir le détail de {firstName(espece.nomsScientifiques)}"
-            onclick={() => ouvrirDetail(espece)}
+            onclick={() => openDetail(espece)}
             onkeydown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                ouvrirDetail(espece);
+                openDetail(espece);
               }
             }}
           >
@@ -89,7 +89,7 @@
     bind:this={triggerDetail}
     type="button"
     class="fr-sr-only"
-    aria-controls={detailModaleId}
+    aria-controls={detailModalId}
     data-fr-opened="false"
     tabindex="-1"
     aria-hidden="true"
@@ -97,7 +97,7 @@
     Voir le détail
   </button>
 
-  <EspecesSynonymesModale id={detailModaleId} espece={especeDetail} />
+  <EspecesSynonymesModale id={detailModalId} espece={especeDetail} />
 {:else}
   <p>Aucune espèce protégée n'a été trouvée.</p>
 {/if}

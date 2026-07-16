@@ -56,7 +56,7 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
   const methodes = empty<MethodeMenancante>();
   const moyensDePoursuite = empty<MoyenDePoursuiteMenacant>();
 
-  // Mirrors the map chargerActivitésMéthodesMoyensDePoursuite() gives the generation tab.
+  // Mirrors the map loadActivitesMethodesMoyensDePoursuite() gives the generation tab.
   const identifiantPitchouVersActiviteEtImpactsQuantifies = new Map([
     ["P-2-1", { ...activite, impactsQuantifiés: ["Nombre d'individus"] as QuantifiedImpact[] }],
   ]);
