@@ -177,15 +177,15 @@ generate-types-ds-local:
 
 # Génère la table espece_taxref depuis TAXREF (data/sources_especes/TAXREFv18.txt). À lancer en dev comme en prod après mise à jour de la source.
 generate-taxref:
-    {{ worker }} importer-taxref.ts
+    {{ worker }} import-taxref.ts
 
 # Génère la table espece_bdc_statut depuis BDC-Statuts (data/sources_especes/bdc_18_01.csv, tous statuts). À lancer en dev comme en prod après mise à jour de la source.
 generate-bdc:
-    {{ worker }} importer-bdc.ts
+    {{ worker }} import-bdc.ts
 
 # Régénère la table espece_protegee_reference depuis espece_taxref + espece_bdc_statut (à lancer après les sources). La couche manuelle (espece_protegee_modification) n'est pas touchée.
 generate-especes-protegees:
-    {{ worker }} rafraichir-reference-especes.ts
+    {{ worker }} refresh-reference-especes.ts
 
 # Génère les deux tables sources (TAXREF + BDC) puis la référence (raccourci dev/prod).
 generate-especes-sources:
@@ -195,7 +195,7 @@ generate-especes-sources:
 
 # [ONE-OFF prod] Génère espece_protegee_modification depuis les .ods (drapeaux ministérielle/CNPN + ajouts « Protection Pitchou »), en matchant la référence déjà construite. À lancer une fois au déploiement ; ce script et les .ods seront ensuite supprimés.
 generate-modifications-especes:
-    {{ worker }} importer-modifications-especes.ts
+    {{ worker }} import-modifications-especes.ts
 
 # Sync dossiers from Démarches Simplifiées (no arg: last hours; else since the given date, e.g. just sync-ds 2025-06-01)
 sync-ds lastModified="":
