@@ -10,7 +10,7 @@
   let templateFiles: FileList | undefined = $state();
   let template = $derived(templateFiles && templateFiles[0]);
 
-  let erreurGenerationDocument: Error | undefined = $state();
+  let documentGenerationError: Error | undefined = $state();
 
   type Props = {
     dossier: DossierFull;
@@ -19,14 +19,14 @@
 
   let { dossier, espècesImpactées: especesImpactees }: Props = $props();
 
-  let documentGenere: Blob | undefined = $state();
-  let urlDocumentGenere: string | undefined = $derived(
-    documentGenere && URL.createObjectURL(documentGenere),
+  let generatedDocument: Blob | undefined = $state();
+  let generatedDocumentUrl: string | undefined = $derived(
+    generatedDocument && URL.createObjectURL(generatedDocument),
   );
-  let nomDocumentGenere: string | undefined = $state();
+  let nomDocumentGenerated: string | undefined = $state();
 
-  let texteDocumentGenere: Promise<string> | undefined = $derived(
-    documentGenere && documentGenere.arrayBuffer().then(getOdtTextContent),
+  let textDocumentGenerated: Promise<string> | undefined = $derived(
+    generatedDocument && generatedDocument.arrayBuffer().then(getOdtTextContent),
   );
 
   async function generateDoc(e: SubmitEvent) {
@@ -48,13 +48,13 @@
       especes_impacts = await especesImpactees;
     } catch (e) {
       // @ts-ignore
-      erreurGenerationDocument = e;
+      documentGenerationError = e;
       return;
     }
 
     if (!especes_impacts) {
       // @ts-ignore
-      erreurGenerationDocument = new Error(
+      documentGenerationError = new Error(
         "Attention, il est impossible de générer des documents pour ce dossier si aucune liste d'espèce n'a été saisie par le pétitionnaire.",
       );
       return;
@@ -71,16 +71,16 @@
     const templateAB = await template.arrayBuffer();
     try {
       const documentArrayBuffer = await fillOdtTemplate(templateAB, balises);
-      documentGenere = new Blob([documentArrayBuffer], { type: template.type });
+      generatedDocument = new Blob([documentArrayBuffer], { type: template.type });
 
       const [part1, part2] = template.name.split(".");
       const datetime = new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length);
-      nomDocumentGenere = `${part1}-${datetime}.${part2}`;
+      nomDocumentGenerated = `${part1}-${datetime}.${part2}`;
 
       sendEvenement({ type: "générerUnDocument" });
     } catch (err) {
       // @ts-ignore
-      erreurGenerationDocument = err;
+      documentGenerationError = err;
     }
   }
 </script>
@@ -103,10 +103,10 @@
     >
   </p>
 
-  {#if erreurGenerationDocument}
+  {#if documentGenerationError}
     <div class="fr-alert fr-alert--error fr-mb-3w">
       <h3 class="fr-alert__title">Erreur lors de la génération du document :</h3>
-      <p>{erreurGenerationDocument}</p>
+      <p>{documentGenerationError}</p>
     </div>
   {/if}
 
@@ -130,17 +130,21 @@
     <button class="fr-btn" type="submit" disabled={!template}>Générer le document !</button>
   </form>
 
-  {#if documentGenere && nomDocumentGenere}
+  {#if generatedDocument && nomDocumentGenerated}
     <div>
-      <a class="fr-link fr-link--download" download={nomDocumentGenere} href={urlDocumentGenere}>
+      <a
+        class="fr-link fr-link--download"
+        download={nomDocumentGenerated}
+        href={generatedDocumentUrl}
+      >
         Télécharger le document généré
       </a>
       <details>
         <summary>Voir le texte brut</summary>
-        {#await texteDocumentGenere}
+        {#await textDocumentGenerated}
           (... en chargement ...)
-        {:then texte}
-          <div class="text-document-generated">{texte}</div>
+        {:then text}
+          <div class="text-document-generated">{text}</div>
         {/await}
       </details>
     </div>
