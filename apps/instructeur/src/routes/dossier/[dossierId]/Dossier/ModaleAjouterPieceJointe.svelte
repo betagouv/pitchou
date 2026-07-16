@@ -42,7 +42,7 @@
 
   let fileListPieceJointe: FileList | undefined = $state();
 
-  function typePieceJointeParDefaut() {
+  function getDefaultTypePieceJointe() {
     return typePieceJointeInitial ?? (!afficherChoixType ? (typesPiecesJointes[0] ?? null) : null);
   }
 
@@ -58,7 +58,7 @@
     }
   }
 
-  let typePieceJointe: TypePieceJointe | null = $state(typePieceJointeParDefaut());
+  let typePieceJointe: TypePieceJointe | null = $state(getDefaultTypePieceJointe());
 
   let serviceOuPersonneExperte: string | null = $state(null);
 
@@ -77,7 +77,7 @@
 
   let avisExpertSelectionne: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
-  let messageErreur: string | null = $state(null);
+  let errorMessage: string | null = $state(null);
 
   let modale: HTMLElement | undefined;
 
@@ -92,7 +92,7 @@
     ),
   );
 
-  let afficherChampTypePieceJointe = $derived(afficherChoixType && typesPiecesJointes.length > 1);
+  let showTypePieceJointeField = $derived(afficherChoixType && typesPiecesJointes.length > 1);
 
   let ajouterUneNouvellePieceJointeP: Promise<void> = $state(Promise.resolve());
 
@@ -108,10 +108,10 @@
     }
   });
 
-  let formulaireValidePourSaisineExpert = $derived(
+  let isFormValidForSaisineExpert = $derived(
     typePieceJointe === "Saisine expert" && serviceOuPersonneExperte !== null,
   );
-  let formulaireValidePourAvisExpert = $derived(
+  let isFormValidForAvisExpert = $derived(
     typePieceJointe === "Avis expert" &&
       avisExpertSelectionne !== null &&
       (avisExpertSelectionne === "nouvel-avis-expert" ? serviceOuPersonneExperte !== null : true) &&
@@ -123,13 +123,13 @@
         : true),
   );
 
-  let formulaireValide = $derived(
+  let isFormValid = $derived(
     fileListPieceJointe &&
       fileListPieceJointe.length > 0 &&
       typePieceJointe !== null &&
       typePieceJointe !== undefined &&
-      (formulaireValidePourSaisineExpert ||
-        formulaireValidePourAvisExpert ||
+      (isFormValidForSaisineExpert ||
+        isFormValidForAvisExpert ||
         (typePieceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
@@ -153,11 +153,11 @@
       return;
     }
 
-    messageErreur = null;
+    errorMessage = null;
 
-    const erreurTaille = uploadSizeError(fileListPieceJointe);
-    if (erreurTaille) {
-      messageErreur = erreurTaille;
+    const sizeError = uploadSizeError(fileListPieceJointe);
+    if (sizeError) {
+      errorMessage = sizeError;
       return;
     }
 
@@ -180,9 +180,9 @@
         )
           .then(() => {
             sendEvenementAjouterPieceJointe("Saisine expert", 1);
-            return refreshDossierFull(dossier.id).then(() => fermerModale());
+            return refreshDossierFull(dossier.id).then(() => closeModale());
           })
-          .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
+          .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
       } else if (typePieceJointe === "Avis expert") {
         // Either modify an existing saisine by adding the avis, or create a new one
         const fichierAvis = fileListPieceJointe[0];
@@ -208,9 +208,9 @@
           )
             .then(() => {
               sendEvenementAjouterPieceJointe("Avis expert", 1);
-              return refreshDossierFull(dossier.id).then(() => fermerModale());
+              return refreshDossierFull(dossier.id).then(() => closeModale());
             })
-            .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
+            .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
         } else if (avisExpertSelectionne) {
           // Add the avis to an existing saisine
           const saisineExistant = dossier.avisExpert.find((ae) => ae.id === avisExpertSelectionne);
@@ -229,9 +229,9 @@
             )
               .then(() => {
                 sendEvenementAjouterPieceJointe("Avis expert", 1);
-                return refreshDossierFull(dossier.id).then(() => fermerModale());
+                return refreshDossierFull(dossier.id).then(() => closeModale());
               })
-              .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
+              .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
           }
         }
       } else if (typePieceJointe === "Autre") {
@@ -244,13 +244,13 @@
         )
           .then(() => {
             sendEvenementAjouterPieceJointe("Autre", nombreFichiers);
-            return refreshDossierFull(dossier.id).then(() => fermerModale());
+            return refreshDossierFull(dossier.id).then(() => closeModale());
           })
-          .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
+          .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
       }
     } catch (e) {
       // @ts-ignore
-      messageErreur = e.message || "Une erreur est survenue";
+      errorMessage = e.message || "Une erreur est survenue";
     }
   }
 
@@ -259,10 +259,10 @@
     if (decision.fichier_base64) {
       sendEvenementAjouterPieceJointe("Décision administrative", 1);
     }
-    fermerModale();
+    closeModale();
   }
 
-  function reinitialiserLeFormulaireSaufTypePieceJointe() {
+  function resetFormExceptTypePieceJointe() {
     fileListPieceJointe = undefined;
     if (fileInput) {
       fileInput.value = "";
@@ -272,16 +272,16 @@
     avis = null;
     dateSaisine = null;
     avisExpertSelectionne = null;
-    messageErreur = null;
+    errorMessage = null;
     dateAvis = null;
     otherAttachmentType = "";
     otherAttachmentDate = null;
   }
 
-  function fermerModale() {
+  function closeModale() {
     // Reset the states
-    reinitialiserLeFormulaireSaufTypePieceJointe();
-    typePieceJointe = typePieceJointeParDefaut();
+    resetFormExceptTypePieceJointe();
+    typePieceJointe = getDefaultTypePieceJointe();
 
     if (modale) {
       //@ts-ignore
@@ -301,7 +301,7 @@
               title="Fermer"
               type="button"
               class="fr-btn--close fr-btn"
-              onclick={fermerModale}>Fermer</button
+              onclick={closeModale}>Fermer</button
             >
           </div>
           <div class="fr-modal__content">
@@ -310,7 +310,7 @@
               <span class="obligatoire-asterisque">*</span>
               Champs obligatoires
             </p>
-            {#if afficherChampTypePieceJointe}
+            {#if showTypePieceJointeField}
               <div class="fr-fieldset fr-mt-3w" id="champ-type-piece-jointe-group">
                 <legend
                   class="fr-fieldset__legend--regular fr-fieldset__legend"
@@ -330,7 +330,7 @@
                           id={idRadio}
                           name="type-piece-jointe-{id}"
                           value={type}
-                          onchange={() => reinitialiserLeFormulaireSaufTypePieceJointe()}
+                          onchange={() => resetFormExceptTypePieceJointe()}
                           bind:group={typePieceJointe}
                         />
                         <label class="fr-label" for={idRadio}>
@@ -346,7 +346,7 @@
               <FormDecisionAdministrative
                 décisionAdministrative={{ dossier: dossier.id }}
                 onValider={ajouterDecisionAdministrative}
-                onAnnuler={fermerModale}
+                onAnnuler={closeModale}
               />
             {:else if typePieceJointe}
               <form
@@ -600,11 +600,11 @@
                   </div>
                 {/if}
 
-                {#if formulaireValide}
+                {#if isFormValid}
                   <div class="fr-messages-group" aria-live="polite">
-                    {#if messageErreur}
+                    {#if errorMessage}
                       <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-3w fr-mb-2w">
-                        <p>{messageErreur}</p>
+                        <p>{errorMessage}</p>
                       </div>
                     {/if}
                   </div>
@@ -618,10 +618,10 @@
                       {/await}
                     </li>
                   </ul>
-                {:else if messageErreur}
+                {:else if errorMessage}
                   <div class="fr-messages-group" aria-live="polite">
                     <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-3w fr-mb-2w">
-                      <p>{messageErreur}</p>
+                      <p>{errorMessage}</p>
                     </div>
                   </div>
                 {/if}
