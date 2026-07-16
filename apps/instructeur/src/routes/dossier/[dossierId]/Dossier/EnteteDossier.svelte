@@ -23,7 +23,7 @@
 
   let { dossier, email, dossierActuelSuiviParInstructeurActuel }: Props = $props();
 
-  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-entete";
+  const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let phase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
@@ -74,7 +74,7 @@
 </script>
 
 <header class="fr-mb-2w">
-  <div class="entete-titre">
+  <div class="header-title">
     <button
       type="button"
       class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left"
@@ -82,15 +82,15 @@
     >
       Retour
     </button>
-    <h1 class="titre-dossier fr-mb-0">
-      <span class="numero"
+    <h1 class="title-dossier fr-mb-0">
+      <span class="number"
         >Dossier n°{dossier.number_demarches_simplifiées ?? "non renseigné"}&nbsp;:</span
       >
       {dossier.nom}
     </h1>
   </div>
 
-  <div class="entete-infos">
+  <div class="header-infos">
     <section>
       <div>
         <span class="fr-icon-map-pin-2-fill fr-icon--sm" aria-hidden="true"></span>
@@ -153,7 +153,7 @@
         </div>
       {/if}
 
-      <div class="entete-actions">
+      <div class="header-actions">
         {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
           {#if dossierActuelSuiviParInstructeurActuel}
             <button
@@ -173,7 +173,7 @@
         <button
           type="button"
           class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-attachment-line"
-          aria-controls={idModaleAjouterPieceJointe}
+          aria-controls={idModalAddPieceJointe}
           data-fr-opened="false"
           onclick={() =>
             sendEvenement({
@@ -196,7 +196,7 @@
 </header>
 
 <ModaleAjouterPieceJointe
-  id={idModaleAjouterPieceJointe}
+  id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="enteteDossier"
@@ -211,7 +211,7 @@
     overflow: hidden;
   }
 
-  .entete-titre {
+  .header-title {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -221,18 +221,18 @@
     border-bottom: 1px solid var(--border-default-grey);
   }
 
-  .titre-dossier {
+  .title-dossier {
     font-size: 1.5rem;
     line-height: 1.3;
     color: var(--text-title-grey);
 
-    .numero {
+    .number {
       color: var(--text-mention-grey);
       font-weight: 400;
     }
   }
 
-  .entete-infos {
+  .header-infos {
     display: flex;
     flex-direction: row;
     gap: 2rem;
@@ -258,7 +258,7 @@
       margin-bottom: 0;
     }
 
-    .entete-actions {
+    .header-actions {
       flex-wrap: wrap;
       align-items: center;
       margin-top: 1rem;
