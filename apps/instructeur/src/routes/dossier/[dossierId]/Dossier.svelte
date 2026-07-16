@@ -11,7 +11,7 @@
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
   import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
@@ -90,8 +90,8 @@
 
   $inspect("Dossier complet", dossier);
 
-  const envoyerEvenementConsulterUnDossier = debounce(
-    () => envoyerEvenement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
+  const sendEvenementConsulterUnDossier = debounce(
+    () => sendEvenement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
     15 * 60 * 1000,
     true,
   );
@@ -106,7 +106,7 @@
 
   $effect(() => {
     if (ongletActif === "projet") {
-      envoyerEvenementConsulterUnDossier();
+      sendEvenementConsulterUnDossier();
     }
   });
 

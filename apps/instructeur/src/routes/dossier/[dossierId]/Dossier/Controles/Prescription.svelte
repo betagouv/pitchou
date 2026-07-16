@@ -10,7 +10,7 @@
     updateControle,
     deleteControle,
   } from "./controle.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
   import type Controle from "@pitchou/types/database/public/Controle.ts";
@@ -77,7 +77,7 @@
         prescription.contrôles.length >= 2 &&
         prescription.contrôles.some((c) => c.résultat !== "Conforme")
       ) {
-        envoyerEvenement({
+        sendEvenement({
           type: "retourÀLaConformité",
           // @ts-ignore
           détails: { prescription: prescription.id },
@@ -92,7 +92,7 @@
 
       newControle = undefined;
 
-      envoyerEvenement({ type: "ajouterControle" });
+      sendEvenement({ type: "ajouterControle" });
     }
   }
 
@@ -120,7 +120,7 @@
 
     await updateControle(controleValide);
 
-    envoyerEvenement({ type: "modifierControle" });
+    sendEvenement({ type: "modifierControle" });
   }
 
   async function deleteEditedControle() {
@@ -139,7 +139,7 @@
 
     refreshDossierFull();
 
-    envoyerEvenement({ type: "supprimerControle" });
+    sendEvenement({ type: "supprimerControle" });
   }
 </script>
 

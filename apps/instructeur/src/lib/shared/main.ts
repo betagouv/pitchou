@@ -7,7 +7,7 @@ import { store } from "$lib/state/store.svelte.ts";
 import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
 import creerObjetCapDepuisURLs from "$lib/shared/creerObjetCapDepuisURLs.ts";
-import { envoyerEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
 
 import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
 import type {
@@ -132,7 +132,7 @@ function initCapabilities(secret: string) {
         store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
       }
 
-      envoyerEvenement({ type: "seConnecter" });
+      sendEvenement({ type: "seConnecter" });
     } else {
       throw new TypeError(`capsURLs non-reconnu (${typeof response} - ${response})`);
     }

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
@@ -127,7 +127,7 @@
     aria-controls={idModaleAjouterPieceJointe}
     data-fr-opened="false"
     onclick={() =>
-      envoyerEvenement({
+      sendEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletPiecesJointes" },
       })}

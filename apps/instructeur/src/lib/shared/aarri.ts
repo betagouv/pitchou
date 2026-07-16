@@ -60,7 +60,7 @@ function isIndicateursAARRI(indicateurs: any): indicateurs is IndicateursAARRI {
   return false;
 }
 
-export function envoyerEvenement(évènement: EvenementMetrique) {
+export function sendEvenement(évènement: EvenementMetrique) {
   if (store.capabilities.créerÉvènementMetrique) {
     store.capabilities
       .créerÉvènementMetrique(évènement)
@@ -68,21 +68,21 @@ export function envoyerEvenement(évènement: EvenementMetrique) {
   }
 }
 
-export const envoyerEvenementModifierCommentaire = debounce(
-  () => envoyerEvenement({ type: "modifierCommentaireInstruction" }),
+export const sendEvenementModifierCommentaire = debounce(
+  () => sendEvenement({ type: "modifierCommentaireInstruction" }),
   15 * 60 * 1000,
   true,
 );
 
-export const envoyerEvenementRechercherUnDossier = debounce(
+export const sendEvenementRechercherUnDossier = debounce(
   (détails: EvenementRechercheDossiersDetails) =>
-    envoyerEvenement({ type: "rechercherDesDossiers", détails }),
+    sendEvenement({ type: "rechercherDesDossiers", détails }),
   10 * 1000,
   true,
 );
 
-export const envoyerEvenementModifierPrescription = debounce(
-  () => envoyerEvenement({ type: "modifierPrescription" }),
+export const sendEvenementModifierPrescription = debounce(
+  () => sendEvenement({ type: "modifierPrescription" }),
   15 * 60 * 1000,
   true,
 );

@@ -4,7 +4,7 @@
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
@@ -133,11 +133,11 @@
         (typePieceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
-  function envoyerEvenementAjouterPieceJointe(
+  function sendEvenementAjouterPieceJointe(
     typePieceJointe: TypePieceJointe,
     nombreFichiers: number,
   ) {
-    envoyerEvenement({
+    sendEvenement({
       type: "ajouterPieceJointe",
       détails: {
         dossierId: dossier.id,
@@ -179,7 +179,7 @@
           undefined,
         )
           .then(() => {
-            envoyerEvenementAjouterPieceJointe("Saisine expert", 1);
+            sendEvenementAjouterPieceJointe("Saisine expert", 1);
             return refreshDossierFull(dossier.id).then(() => fermerModale());
           })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
@@ -207,7 +207,7 @@
             fichierAvis,
           )
             .then(() => {
-              envoyerEvenementAjouterPieceJointe("Avis expert", 1);
+              sendEvenementAjouterPieceJointe("Avis expert", 1);
               return refreshDossierFull(dossier.id).then(() => fermerModale());
             })
             .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
@@ -228,7 +228,7 @@
               fichierAvis,
             )
               .then(() => {
-                envoyerEvenementAjouterPieceJointe("Avis expert", 1);
+                sendEvenementAjouterPieceJointe("Avis expert", 1);
                 return refreshDossierFull(dossier.id).then(() => fermerModale());
               })
               .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
@@ -243,7 +243,7 @@
           fileListPieceJointe,
         )
           .then(() => {
-            envoyerEvenementAjouterPieceJointe("Autre", nombreFichiers);
+            sendEvenementAjouterPieceJointe("Autre", nombreFichiers);
             return refreshDossierFull(dossier.id).then(() => fermerModale());
           })
           .catch((e) => (messageErreur = e.message || "Une erreur est survenue"));
@@ -257,7 +257,7 @@
   async function ajouterDecisionAdministrative(decision: DecisionAdministrativeForTransfer) {
     await saveNewDecisionAdministrative(decision);
     if (decision.fichier_base64) {
-      envoyerEvenementAjouterPieceJointe("Décision administrative", 1);
+      sendEvenementAjouterPieceJointe("Décision administrative", 1);
     }
     fermerModale();
   }

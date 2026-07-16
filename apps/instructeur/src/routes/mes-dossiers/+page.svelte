@@ -3,14 +3,14 @@
   import { store } from "$lib/state/store.svelte.ts";
   import MesDossiers from "./MesDossiers.svelte";
   import { loadDossiers } from "$lib/dossier/dossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
 
   onMount(async () => {
     loadNotificationByDossierForCurrentInstructeur();
     try {
       await loadDossiers();
-      envoyerEvenement({ type: "afficherLesDossiersSuivis" });
+      sendEvenement({ type: "afficherLesDossiersSuivis" });
     } catch (error) {
       console.error("Erreur lors du chargement de la page Mes dossiers :", error);
       const errorMessage = error instanceof Error ? error.message : String(error);

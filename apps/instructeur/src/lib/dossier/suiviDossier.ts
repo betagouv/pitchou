@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
-import { envoyerEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
 
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
@@ -23,7 +23,7 @@ export function instructeurFollowsDossier(
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
   store.relationSuivis = relationsSuivi;
 
-  envoyerEvenement({ type: "suivreUnDossier", détails: { dossierId } });
+  sendEvenement({ type: "suivreUnDossier", détails: { dossierId } });
 
   return modifierRelationSuivi("suivre", instructeurEmail, dossierId);
 }

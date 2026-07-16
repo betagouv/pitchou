@@ -10,7 +10,7 @@
   import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { envoyerEvenementRechercherUnDossier as _envoyerEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
+  import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
   import { phases as toutesLesPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
@@ -48,7 +48,7 @@
     return resultat;
   });
 
-  function envoyerEvenementRechercherUnDossier() {
+  function sendEvenementRechercherUnDossier() {
     const filtres: EvenementRechercheDossiersDetails["filtres"] = {
       sansInstructeurice: tousLesFiltres.has("sansInstructeurice"),
       nouveauté: tousLesFiltres.has("nouveauté"),
@@ -66,7 +66,7 @@
       filtres.prochaineActionAttenduePar = ["Instructeur"];
     }
 
-    _envoyerEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltres.length });
+    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltres.length });
   }
 
   let numeroDeLaPageSelectionnee = $state(1);
@@ -165,7 +165,7 @@
     } else {
       tousLesFiltres.set("texte", createTextFilter(texteAChercher, dossiers));
     }
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
   };
 
   /**
@@ -195,7 +195,7 @@
     } else {
       tousLesFiltres.delete("sansInstructeurice");
     }
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
     reinitialiserPage();
   }
 
@@ -208,7 +208,7 @@
     } else {
       tousLesFiltres.delete("actionInstructeur");
     }
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
     reinitialiserPage();
   }
 
@@ -221,7 +221,7 @@
     } else {
       tousLesFiltres.delete("nouveauté");
     }
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
     reinitialiserPage();
   }
 
@@ -234,7 +234,7 @@
       // Select the phase
       tousLesFiltres.set("phase", (dossier) => dossier.phase === phase);
     }
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
     reinitialiserPage();
   };
 

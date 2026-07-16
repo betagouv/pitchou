@@ -7,7 +7,7 @@
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "$lib/components/Loader.svelte";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
@@ -58,7 +58,7 @@
       throw new Error("Aucun fichier espèces impactées à télécharger");
     }
 
-    envoyerEvenement({
+    sendEvenement({
       type: "téléchargerListeÉspècesImpactées",
       détails: { dossierId: dossier.id },
     });
@@ -79,7 +79,7 @@
       throw new Error("Aucune cartographie du projet à télécharger");
     }
 
-    envoyerEvenement({
+    sendEvenement({
       type: "téléchargerCartographieProjet",
       détails: { dossierId: dossier.id },
     });

@@ -6,7 +6,7 @@
 
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type {
     DossierFull,
@@ -75,7 +75,7 @@
     aria-controls={idModalAddDecisionAdministrative}
     data-fr-opened="false"
     onclick={() =>
-      envoyerEvenement({
+      sendEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletControles" },
       })}

@@ -5,7 +5,7 @@
 
   import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
   import { labelForDecisionAdministrativeType } from "@pitchou/common/decision-administrative.js";
 
@@ -71,7 +71,7 @@
     // On failure, the error propagates to the form, which displays it and keeps
     // the form open. We only update the view once the save succeeds.
     await modifierDecisionAdministrativeDansDossier(decision);
-    envoyerEvenement({ type: "modifierDecisionAdministrative" });
+    sendEvenement({ type: "modifierDecisionAdministrative" });
 
     decisionAdministrative = Object.assign(decisionAdministrative, decision);
     editedDecision = undefined;

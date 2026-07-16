@@ -1,7 +1,7 @@
 <script lang="ts">
   import { deleteAvisExpert as deleteAvisExpertServer } from "./avisExpert.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
@@ -53,7 +53,7 @@
     aria-controls={idModalAddPieceJointeAvis}
     data-fr-opened="false"
     onclick={() =>
-      envoyerEvenement({
+      sendEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletAvis" },
       })}

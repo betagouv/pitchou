@@ -2,7 +2,7 @@
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
   import { getBalisesGenerationDocument } from "./genererDocument.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
@@ -77,7 +77,7 @@
       const datetime = new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length);
       nomDocumentGenere = `${part1}-${datetime}.${part2}`;
 
-      envoyerEvenement({ type: "générerUnDocument" });
+      sendEvenement({ type: "générerUnDocument" });
     } catch (err) {
       // @ts-ignore
       erreurGenerationDocument = err;

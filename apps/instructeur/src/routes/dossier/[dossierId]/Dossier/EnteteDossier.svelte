@@ -8,7 +8,7 @@
   import { afficherString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
-  import { envoyerEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
 
@@ -176,7 +176,7 @@
           aria-controls={idModaleAjouterPieceJointe}
           data-fr-opened="false"
           onclick={() =>
-            envoyerEvenement({
+            sendEvenement({
               type: "ouvrirModaleAjouterPieceJointe",
               détails: { dossierId: dossier.id, source: "enteteDossier" },
             })}

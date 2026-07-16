@@ -23,8 +23,8 @@
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
   import {
-    envoyerEvenement,
-    envoyerEvenementRechercherUnDossier as _envoyerEvenementRechercherUnDossier,
+    sendEvenement,
+    sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier,
   } from "$lib/shared/aarri.ts";
 
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -231,7 +231,7 @@
     }
   }
 
-  function envoyerEvenementRechercherUnDossier() {
+  function sendEvenementRechercherUnDossier() {
     const filtres: EvenementRechercheDossiersDetails["filtres"] = {
       suiviPar: {
         nombreSéléctionnées: instructeursSelectionnes.has(AUCUN_INSTRUCTEUR)
@@ -251,7 +251,7 @@
       filtres.texte = texteAChercher;
     }
 
-    _envoyerEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnes.length });
+    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnes.length });
   }
 
   const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
@@ -279,7 +279,7 @@
       //phasesSélectionnées = phasesSélectionnées; // re-render
 
       filtrerDossiers();
-      envoyerEvenementRechercherUnDossier();
+      sendEvenementRechercherUnDossier();
     };
   }
 
@@ -329,7 +329,7 @@
     );
 
     filtrerDossiers();
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
   }
 
   let prochainesActionsAttenduesParNonSelectionnes = $derived(
@@ -347,7 +347,7 @@
     ajouterFiltreTexte(_texteAChercher);
 
     filtrerDossiers();
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
   }
 
   function onSupprimerFiltreTexte(e: Event) {
@@ -409,12 +409,12 @@
     instructeursSelectionnes = new SvelteSet(_instructeursSelectionnees);
 
     filtrerDossiers();
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
   }
 
   function filtrerSuivisParMoi() {
     filtrerParInstructeurs(new Set([email]));
-    envoyerEvenement({ type: "afficherLesDossiersSuivis" });
+    sendEvenement({ type: "afficherLesDossiersSuivis" });
   }
 
   let instructeursNonSelectionnes = $derived(
@@ -457,7 +457,7 @@
     activitesPrincipalesSelectionnees = new Set(_activitesPrincipalesSelectionnees);
 
     filtrerDossiers();
-    envoyerEvenementRechercherUnDossier();
+    sendEvenementRechercherUnDossier();
   }
 
   let activitesPrincipalesNonSelectionnees = $derived(

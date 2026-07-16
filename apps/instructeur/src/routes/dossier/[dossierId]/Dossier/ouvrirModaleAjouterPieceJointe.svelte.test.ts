@@ -10,7 +10,7 @@ vi.mock(import("$app/navigation"), () => ({
 
 vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  envoyerEvenement: vi.fn(),
+  sendEvenement: vi.fn(),
 }));
 
 vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
@@ -22,7 +22,7 @@ vi.mock(import("./attachmentAutre.ts"), () => ({
   addAttachmentAutre: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
 }));
 
-import { envoyerEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
 import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { addAttachmentAutre } from "./attachmentAutre.ts";
 import DossierAvis from "./DossierAvis.svelte";
@@ -36,7 +36,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 const DOSSIER_ID = 123;
 
 beforeEach(() => {
-  vi.mocked(envoyerEvenement).mockReset();
+  vi.mocked(sendEvenement).mockReset();
   vi.mocked(addAttachmentAutre).mockClear();
   vi.mocked(refreshDossierFull).mockClear();
   Object.assign(window, {
@@ -77,7 +77,7 @@ function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
 }
 
 function expectTracking(source: string) {
-  expect(envoyerEvenement).toHaveBeenCalledWith({
+  expect(sendEvenement).toHaveBeenCalledWith({
     type: "ouvrirModaleAjouterPieceJointe",
     détails: { dossierId: DOSSIER_ID, source },
   });
@@ -173,7 +173,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 
   await waitFor(() => expect(addAttachmentAutre).toHaveBeenCalledTimes(1));
   await waitFor(() =>
-    expect(envoyerEvenement).toHaveBeenCalledWith({
+    expect(sendEvenement).toHaveBeenCalledWith({
       type: "ajouterPieceJointe",
       détails: {
         dossierId: DOSSIER_ID,
