@@ -5,7 +5,7 @@ import {
 } from "@odfjs/odfjs";
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
-import { addPrescriptionsEtControles } from "./prescriptions.ts";
+import { addPrescriptionsAndControles } from "./prescriptions.ts";
 import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { sendEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
@@ -145,7 +145,7 @@ export async function createPrescriptionControlesFromFichier(
   //console.log('candidatePrescriptions', candidatePrescriptions)
 
   // @ts-ignore
-  return addPrescriptionsEtControles(candidatePrescriptions).then(() => candidatePrescriptions);
+  return addPrescriptionsAndControles(candidatePrescriptions).then(() => candidatePrescriptions);
 }
 
 export function deleteDecisionAdministrative(

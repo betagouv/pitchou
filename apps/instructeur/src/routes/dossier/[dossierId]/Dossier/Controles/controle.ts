@@ -22,7 +22,7 @@ export function addControle(controle: Partial<Controle>): Promise<Controle["id"]
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
   }
-  // Le serveur renvoie un tableau d'ids pour le cas "ajout"
+  // The server returns an array of ids for the "add" case
   // @ts-ignore
   return addOrUpdateControle(controle).then((ids) => ids[0]);
 }

@@ -107,7 +107,7 @@
   async function validateControleModifications(controleValide: Partial<Controle>) {
     if (!editedControle) throw new TypeError(`pas de contrôle en modificaion`);
 
-    // replace contrôleEnModification with contrôleValidé in the array of contrôles
+    // replace editedControle with controleValide in the array of contrôles
     // @ts-ignore
     const index = prescription.contrôles?.indexOf(editedControle) || -1;
     if (index !== -1) {

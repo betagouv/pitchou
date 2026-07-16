@@ -62,7 +62,7 @@
 
   let serviceOuPersonneExperte: string | null = $state(null);
 
-  let autreExpertTexte: string | null = $state(null);
+  let otherExpertText: string | null = $state(null);
 
   // expert's avis (favorable, unfavorable...)
   let avis: string | null = $state(null);
@@ -166,7 +166,7 @@
         // Create a new avis expert with the saisine
         const fichierSaisine = fileListPieceJointe[0];
         const expert =
-          serviceOuPersonneExperte === "Autre expert" ? autreExpertTexte : serviceOuPersonneExperte;
+          serviceOuPersonneExperte === "Autre expert" ? otherExpertText : serviceOuPersonneExperte;
         const avisExpertToCreate = {
           dossier: dossier.id,
           expert: expert,
@@ -191,7 +191,7 @@
           // Create a new avis expert
           const expert =
             serviceOuPersonneExperte === "Autre expert"
-              ? autreExpertTexte
+              ? otherExpertText
               : serviceOuPersonneExperte;
           const avisExpertToCreate: Pick<FrontEndAvisExpert, "dossier"> &
             Partial<FrontEndAvisExpert> = {
@@ -268,7 +268,7 @@
       fileInput.value = "";
     }
     serviceOuPersonneExperte = null;
-    autreExpertTexte = null;
+    otherExpertText = null;
     avis = null;
     dateSaisine = null;
     selectedAvisExpert = null;
@@ -408,7 +408,7 @@
                               value={service}
                               bind:group={serviceOuPersonneExperte}
                               onchange={() => {
-                                if (service !== "Autre expert") autreExpertTexte = null;
+                                if (service !== "Autre expert") otherExpertText = null;
                               }}
                             />
                             <label class="fr-label" for={idRadio}>
@@ -433,7 +433,7 @@
                         class="fr-input"
                         type="text"
                         id="autre-expert-texte-{id}"
-                        bind:value={autreExpertTexte}
+                        bind:value={otherExpertText}
                         placeholder="Nom de l'expert"
                       />
                     </div>
@@ -513,7 +513,7 @@
                                 value={service}
                                 bind:group={serviceOuPersonneExperte}
                                 onchange={() => {
-                                  if (service !== "Autre expert") autreExpertTexte = null;
+                                  if (service !== "Autre expert") otherExpertText = null;
                                 }}
                               />
                               <label class="fr-label" for={idRadio}>
@@ -533,7 +533,7 @@
                           class="fr-input"
                           type="text"
                           id="autre-expert-texte-avis-{id}"
-                          bind:value={autreExpertTexte}
+                          bind:value={otherExpertText}
                           placeholder="Nom de l'expert"
                         />
                       </div>

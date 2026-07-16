@@ -33,7 +33,7 @@
     email,
   }: Props = $props();
 
-  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe";
+  const idModalAddPieceJointe = "modale-ajouter-piece-jointe";
 
   const otherAttachments = $derived(dossier.attachmentAutres);
 
@@ -113,8 +113,8 @@
   let errorMessage = $state("");
   let showSuccessMessage = $state(false);
 
-  const updateField: (modifs: Partial<DossierFull>) => void = (modifs) => {
-    updateDossier(dossier, modifs)
+  const updateField: (updates: Partial<DossierFull>) => void = (updates) => {
+    updateDossier(dossier, updates)
       .then(() => (showSuccessMessage = true))
       .catch((error) => {
         console.info(error);
@@ -125,10 +125,10 @@
   const updateFieldWithDebounce = debounce(updateField, 1000);
 
   run(() => {
-    const modifs: Partial<DossierFull> = {};
+    const updates: Partial<DossierFull> = {};
 
     if (currentPhase !== phase) {
-      modifs.évènementsPhase = [
+      updates.évènementsPhase = [
         {
           dossier: dossier.id,
           horodatage: new Date(),
@@ -141,37 +141,37 @@
     }
 
     if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
-      modifs.commentaire_libre = commentaire_libre?.trim();
+      updates.commentaire_libre = commentaire_libre?.trim();
     }
 
     if (dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par) {
-      modifs.prochaine_action_attendue_par = prochaine_action_attendue_par;
+      updates.prochaine_action_attendue_par = prochaine_action_attendue_par;
     }
 
     if (
       dossier.historique_identifiant_demande_onagre !==
       historique_identifiant_demande_onagre?.trim()
     ) {
-      modifs.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
+      updates.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
     }
 
     if (dossier.enjeu !== enjeu) {
-      modifs.enjeu = enjeu;
+      updates.enjeu = enjeu;
     }
 
     if (dossier.ddep_nécessaire !== ddep_nécessaire) {
-      modifs.ddep_nécessaire = ddep_nécessaire;
+      updates.ddep_nécessaire = ddep_nécessaire;
     }
 
     if (dossier.mesures_er_suffisantes !== mesures_er_suffisantes) {
-      modifs.mesures_er_suffisantes = mesures_er_suffisantes;
+      updates.mesures_er_suffisantes = mesures_er_suffisantes;
     }
 
     if (
       dateToInputValue(dossier.date_debut_consultation_public) !==
       date_debut_consultation_public_str
     ) {
-      modifs.date_debut_consultation_public = date_debut_consultation_public_str
+      updates.date_debut_consultation_public = date_debut_consultation_public_str
         ? new Date(date_debut_consultation_public_str)
         : null;
     }
@@ -179,7 +179,7 @@
     if (
       dateToInputValue(dossier.date_fin_consultation_public) !== date_fin_consultation_public_str
     ) {
-      modifs.date_fin_consultation_public = date_fin_consultation_public_str
+      updates.date_fin_consultation_public = date_fin_consultation_public_str
         ? new Date(date_fin_consultation_public_str)
         : null;
     }
@@ -187,16 +187,16 @@
     // Business rule: mesures_er_suffisantes is always NULL if ddep_nécessaire is NULL
     if (ddep_nécessaire === null) {
       if (dossier.mesures_er_suffisantes !== null) {
-        modifs.mesures_er_suffisantes = null;
+        updates.mesures_er_suffisantes = null;
       }
     }
 
-    if (Object.keys(modifs).length >= 1) {
+    if (Object.keys(updates).length >= 1) {
       // We apply a debounce for fields typed on the keyboard (commentaire libre, N° Demande ONAGRE)
-      if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
-        updateFieldWithDebounce(modifs);
+      if (updates.commentaire_libre || updates.historique_identifiant_demande_onagre) {
+        updateFieldWithDebounce(updates);
       } else {
-        updateField(modifs);
+        updateField(updates);
       }
     }
   });
@@ -439,7 +439,7 @@
 </section>
 
 <ModaleAjouterPieceJointe
-  id={idModaleAjouterPieceJointe}
+  id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletInstruction"

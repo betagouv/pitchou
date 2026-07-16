@@ -17,7 +17,7 @@ export function addPrescription(
   return addOrUpdatePrescription(prescription);
 }
 
-export function addPrescriptionsEtControles(prescription: Omit<FrontEndPrescription, "id">[]) {
+export function addPrescriptionsAndControles(prescription: Omit<FrontEndPrescription, "id">[]) {
   const addPrescriptionsAndControles = store.capabilities.addPrescriptionsAndControles;
   if (!addPrescriptionsAndControles) {
     throw new Error(`Pas les droits suffisants pour ajouter des prescriptions et contrôles`);

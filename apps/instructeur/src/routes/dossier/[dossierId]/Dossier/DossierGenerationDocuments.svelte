@@ -44,7 +44,7 @@
     } = await loadActivitesMethodesMoyensDePoursuite();
 
     try {
-      // on laisse les erreurs sortir silencieusement ici s'il y en a
+      // let any errors surface here to be handled below
       especes_impacts = await especesImpactees;
     } catch (e) {
       // @ts-ignore

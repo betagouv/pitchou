@@ -32,7 +32,7 @@
       : "Autre expert",
   );
 
-  let autreExpertTexte: string | null = $state(
+  let otherExpertText: string | null = $state(
     avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
       ? null
       : (avisExpert?.expert ?? ""),
@@ -55,11 +55,11 @@
     if (serviceOuPersonneExperte) {
       if (
         serviceOuPersonneExperte === "Autre expert" &&
-        autreExpertTexte &&
-        autreExpertTexte.trim() !== ""
+        otherExpertText &&
+        otherExpertText.trim() !== ""
       ) {
-        if (avisExpert.expert !== autreExpertTexte) {
-          avisExpert.expert = autreExpertTexte;
+        if (avisExpert.expert !== otherExpertText) {
+          avisExpert.expert = otherExpertText;
         }
       } else {
         if (avisExpert.expert !== serviceOuPersonneExperte) {
@@ -113,7 +113,7 @@
                 name="serviceOuPersonneExperte"
                 bind:group={serviceOuPersonneExperte}
                 onchange={() => {
-                  if (service !== "Autre expert") autreExpertTexte = null;
+                  if (service !== "Autre expert") otherExpertText = null;
                 }}
               />
               <label class="fr-label" for={idRadio}>
@@ -130,7 +130,7 @@
                 class="fr-input"
                 type="text"
                 id="autre-expert-texte"
-                bind:value={autreExpertTexte}
+                bind:value={otherExpertText}
                 placeholder="Nom de l'expert"
               />
             </div>
