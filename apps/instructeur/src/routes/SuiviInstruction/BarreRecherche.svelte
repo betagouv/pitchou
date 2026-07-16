@@ -4,18 +4,18 @@
     mettreÀJourTexteRecherche: (valeur: string) => void;
   };
 
-  let { titre, mettreÀJourTexteRecherche: mettreAJourTexteRecherche }: Props = $props();
+  let { titre, mettreÀJourTexteRecherche: updateTextSearch }: Props = $props();
 
-  let valeur = $state("");
+  let value = $state("");
 
-  function onMettreAJourValeurSelectionnee(e: SubmitEvent) {
+  function onUpdateSelectedValue(e: SubmitEvent) {
     e.preventDefault();
-    mettreAJourTexteRecherche(valeur);
-    valeur = "";
+    updateTextSearch(value);
+    value = "";
   }
 </script>
 
-<form onsubmit={onMettreAJourValeurSelectionnee} role="search">
+<form onsubmit={onUpdateSelectedValue} role="search">
   <div class="form-recherche">
     <label class="sr-only" for="recherche-texte">{titre}</label>
     <input
@@ -24,7 +24,7 @@
       id="recherche-texte"
       placeholder={titre}
       class="fr-input"
-      bind:value={valeur}
+      bind:value={value}
     />
     <button class="fr-btn" type="submit">Chercher</button>
   </div>

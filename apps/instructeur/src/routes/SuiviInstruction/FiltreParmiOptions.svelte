@@ -12,28 +12,28 @@
   let {
     options,
     titre,
-    mettreÀJourOptionsSélectionnées: mettreAJourOptionsSelectionnees,
-    optionsSélectionnées: optionsSelectionnees = new SvelteSet(options),
+    mettreÀJourOptionsSélectionnées: updateSelectedOptions,
+    optionsSélectionnées: selectedOptions = new SvelteSet(options),
   }: Props = $props();
 
-  function mettreAJourOption(option: string) {
-    if (optionsSelectionnees.has(option)) {
-      optionsSelectionnees.delete(option);
+  function updateOption(option: string) {
+    if (selectedOptions.has(option)) {
+      selectedOptions.delete(option);
     } else {
-      optionsSelectionnees.add(option);
+      selectedOptions.add(option);
     }
 
-    mettreAJourOptionsSelectionnees(optionsSelectionnees);
+    updateSelectedOptions(selectedOptions);
   }
 
-  function selectionnerTout() {
-    optionsSelectionnees = new Set(options);
-    mettreAJourOptionsSelectionnees(optionsSelectionnees);
+  function selectAll() {
+    selectedOptions = new Set(options);
+    updateSelectedOptions(selectedOptions);
   }
 
-  function selectionnerRien() {
-    optionsSelectionnees = new Set();
-    mettreAJourOptionsSelectionnees(optionsSelectionnees);
+  function selectNone() {
+    selectedOptions = new Set();
+    updateSelectedOptions(selectedOptions);
   }
 
   let open = $state(false);
@@ -55,10 +55,10 @@
   </summary>
 
   <section class="filtre-options">
-    <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectionnerTout}
+    <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectAll}
       >Sélectionner tout</button
     >
-    <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectionnerRien}
+    <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectNone}
       >Sélectionner rien</button
     >
 
@@ -68,8 +68,8 @@
           <label>
             <input
               type="checkbox"
-              checked={optionsSelectionnees.has(option)}
-              oninput={() => mettreAJourOption(option)}
+              checked={selectedOptions.has(option)}
+              oninput={() => updateOption(option)}
             />
             {option}
           </label>
