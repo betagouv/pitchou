@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import findCandidateFichiersToDownload from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
+import findCandidateFichiersToDownload from "@pitchou/common/findCandidateFichiersToDownload.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
