@@ -74,12 +74,12 @@ export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
     );
   }
 
-  const lignes: EspeceProtegeeRow[] = await response.json();
-  if (!Array.isArray(lignes)) {
+  const rows: EspeceProtegeeRow[] = await response.json();
+  if (!Array.isArray(rows)) {
     throw new Error("Réponse invalide reçue du serveur pour /api/admin/especes-protegees.");
   }
 
-  return lignes.map(dbRowToEspeceProtegee);
+  return rows.map(dbRowToEspeceProtegee);
 }
 
 /**

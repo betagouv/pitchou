@@ -7,7 +7,7 @@
 
   let { phase }: Props = $props();
 
-  const classParPhase = new Map<DossierPhase, string>([
+  const classByPhase = new Map<DossierPhase, string>([
     ["Accompagnement amont", "fr-badge--yellow-tournesol"],
     ["Étude recevabilité DDEP", "fr-badge--yellow-moutarde"],
     ["Instruction", "fr-badge--blue-cumulus"],
@@ -17,4 +17,4 @@
   ]);
 </script>
 
-<p class="fr-badge fr-badge--sm {classParPhase.get(phase)}">{phase}</p>
+<p class="fr-badge fr-badge--sm {classByPhase.get(phase)}">{phase}</p>
