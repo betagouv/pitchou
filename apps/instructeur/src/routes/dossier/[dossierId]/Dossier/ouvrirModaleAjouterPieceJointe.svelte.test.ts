@@ -147,9 +147,9 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
   const { container } = render(ModaleAjouterPieceJointe, {
     id: "modale-test-ajout-autre",
     dossier: dossier(),
-    typesPiècesJointes: ["Autre"],
-    typePièceJointeInitial: "Autre",
-    afficherChoixType: false,
+    typesPiecesJointes: ["Autre"],
+    typePieceJointeInitial: "Autre",
+    showTypeChoice: false,
     source: "enteteDossier",
   });
 
@@ -189,7 +189,7 @@ test("affiche des libellés experts détaillés pour la saisine et l'avis", asyn
   const { container } = render(ModaleAjouterPieceJointe, {
     id: "modale-test-libelles",
     dossier: dossier(),
-    typesPiècesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
+    typesPiecesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
     source: "ongletPiecesJointes",
   });
 

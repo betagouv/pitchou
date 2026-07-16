@@ -21,18 +21,18 @@
   type Props = {
     id: string;
     dossier: Pick<DossierFull, "id" | "avisExpert">;
-    typesPiècesJointes?: TypePieceJointe[];
-    afficherChoixType?: boolean;
-    typePièceJointeInitial?: TypePieceJointe;
+    typesPiecesJointes?: TypePieceJointe[];
+    showTypeChoice?: boolean;
+    typePieceJointeInitial?: TypePieceJointe;
     source: EvenementPieceJointeSource;
   };
 
   let {
     id,
     dossier,
-    typesPiècesJointes: typesPiecesJointes = ["Saisine expert", "Avis expert"],
-    afficherChoixType = true,
-    typePièceJointeInitial: typePieceJointeInitial,
+    typesPiecesJointes = ["Saisine expert", "Avis expert"],
+    showTypeChoice = true,
+    typePieceJointeInitial,
     source,
   }: Props = $props();
 
@@ -43,7 +43,7 @@
   let fileListPieceJointe: FileList | undefined = $state();
 
   function getDefaultTypePieceJointe() {
-    return typePieceJointeInitial ?? (!afficherChoixType ? (typesPiecesJointes[0] ?? null) : null);
+    return typePieceJointeInitial ?? (!showTypeChoice ? (typesPiecesJointes[0] ?? null) : null);
   }
 
   // User-facing radio labels; the TypePièceJointe values stay unchanged.
@@ -92,7 +92,7 @@
     ),
   );
 
-  let showTypePieceJointeField = $derived(afficherChoixType && typesPiecesJointes.length > 1);
+  let showTypePieceJointeField = $derived(showTypeChoice && typesPiecesJointes.length > 1);
 
   let addNewPieceJointeP: Promise<void> = $state(Promise.resolve());
 

@@ -87,8 +87,8 @@
 <ModaleAjouterPieceJointe
   id={idModalAddDecisionAdministrative}
   {dossier}
-  typesPiècesJointes={["Décision administrative"]}
-  typePièceJointeInitial="Décision administrative"
-  afficherChoixType={false}
+  typesPiecesJointes={["Décision administrative"]}
+  typePieceJointeInitial="Décision administrative"
+  showTypeChoice={false}
   source="ongletControles"
 />
