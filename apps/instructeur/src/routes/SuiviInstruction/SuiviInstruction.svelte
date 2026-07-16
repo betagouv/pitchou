@@ -45,7 +45,7 @@
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
     selectedSortId?: TableSort["id"] | undefined;
-    filtresSélectionnés?: Partial<FiltersLocalStorage>;
+    selectedFilters?: Partial<FiltersLocalStorage>;
     rememberSortFilters: any;
   };
 
@@ -55,12 +55,12 @@
     relationSuivis,
     activitésPrincipales: activitesPrincipales = [],
     selectedSortId = undefined,
-    filtresSélectionnés: filtresSelectionnes = {},
+    selectedFilters = {},
     rememberSortFilters,
   }: Props = $props();
 
   //$inspect('dossiers', dossiers)
-  //$inspect('filtresSélectionnés', filtresSélectionnés)
+  //$inspect('selectedFilters', selectedFilters)
   $inspect("relationSuivis", relationSuivis);
 
   let dossierIdsFollowedByNoInstructeur = $derived.by(() => {
@@ -79,9 +79,9 @@
     return new SvelteSet(dossierIdsWithoutFollow);
   });
 
-  let dossiersSelectionnes: DossierSummary[] = $state([]);
+  let selectedDossiers: DossierSummary[] = $state([]);
 
-  //$inspect('dossiersSelectionnés', dossiersSelectionnés)
+  //$inspect('selectedDossiers', selectedDossiers)
 
   $effect(() => {
     console.log("relationSuivis effect", relationSuivis);
@@ -97,8 +97,8 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "activité_principale",
         );
       },
@@ -107,8 +107,8 @@
     {
       nom: "Trier de Z à A",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "activité_principale",
         ).reverse();
       },
@@ -120,8 +120,8 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "nom",
         );
       },
@@ -130,8 +130,8 @@
     {
       nom: "Trier de Z à A",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "nom",
         ).reverse();
       },
@@ -143,8 +143,8 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "localisation",
         );
       },
@@ -153,8 +153,8 @@
     {
       nom: "Trier de Z à A",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "localisation",
         ).reverse();
       },
@@ -166,8 +166,8 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "porteur de projet",
         );
       },
@@ -176,8 +176,8 @@
     {
       nom: "Trier de Z à A",
       sort() {
-        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
-          dossiersSelectionnes,
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "porteur de projet",
         ).reverse();
       },
@@ -189,7 +189,7 @@
     {
       nom: "Prioriser",
       sort() {
-        dossiersSelectionnes = sortDossiersByPhaseProchaineAction(dossiersSelectionnes);
+        selectedDossiers = sortDossiersByPhaseProchaineAction(selectedDossiers);
       },
       id: "Priorisation-PhaseAction",
     },
@@ -218,13 +218,13 @@
   const allFilters = new SvelteMap<FilterKey, (d: DossierSummary) => boolean>();
 
   function filterDossiers() {
-    let nouveauxDossiersSelectionnes = dossiers;
+    let newSelectedDossiers = dossiers;
 
     for (const filter of allFilters.values()) {
-      nouveauxDossiersSelectionnes = nouveauxDossiersSelectionnes.filter(filter);
+      newSelectedDossiers = newSelectedDossiers.filter(filter);
     }
 
-    dossiersSelectionnes = nouveauxDossiersSelectionnes;
+    selectedDossiers = newSelectedDossiers;
 
     if (selectedSort) {
       selectedSort.sort();
@@ -234,49 +234,49 @@
   function sendEvenementRechercherUnDossier() {
     const filtres: EvenementRechercheDossiersDetails["filtres"] = {
       suiviPar: {
-        nombreSéléctionnées: instructeursSelectionnes.has(AUCUN_INSTRUCTEUR)
-          ? instructeursSelectionnes.size - 1
-          : instructeursSelectionnes.size,
+        nombreSéléctionnées: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
+          ? selectedInstructeurs.size - 1
+          : selectedInstructeurs.size,
         // do not count “(aucun instructeur)”
         nombreTotal: instructeursOptions.size - 1,
-        inclusSoiMême: instructeursSelectionnes.has(email),
+        inclusSoiMême: selectedInstructeurs.has(email),
       },
-      sansInstructeurice: instructeursSelectionnes.has(AUCUN_INSTRUCTEUR),
-      phases: [...phasesSelectionnees],
-      prochaineActionAttenduePar: [...prochainesActionsAttenduesParSelectionnes],
-      activitésPrincipales: [...activitesPrincipalesSelectionnees],
+      sansInstructeurice: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
+      phases: [...selectedPhases],
+      prochaineActionAttenduePar: [...selectedProchainesActionsAttenduesPar],
+      activitésPrincipales: [...selectedActivitesPrincipales],
     };
 
     if (textToSearch) {
       filtres.texte = textToSearch;
     }
 
-    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnes.length });
+    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: selectedDossiers.length });
   }
 
   const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
 
-  let phasesSelectionnees: Set<DossierPhase> = $state(
+  let selectedPhases: Set<DossierPhase> = $state(
     untrack(() =>
-      filtresSelectionnes.phases
-        ? new SvelteSet(filtresSelectionnes.phases)
+      selectedFilters.phases
+        ? new SvelteSet(selectedFilters.phases)
         : new SvelteSet(["Accompagnement amont", "Étude recevabilité DDEP", "Instruction"]),
     ),
   );
 
-  //$inspect(phasesSélectionnées)
+  //$inspect(selectedPhases)
 
   function makeTagPhaseOnClick(phase: DossierPhase) {
     return () => {
       console.log("click on phase", phase);
 
-      if (phasesSelectionnees.has(phase)) {
-        phasesSelectionnees.delete(phase);
+      if (selectedPhases.has(phase)) {
+        selectedPhases.delete(phase);
       } else {
-        phasesSelectionnees.add(phase);
+        selectedPhases.add(phase);
       }
 
-      //phasesSélectionnées = phasesSélectionnées; // re-render
+      //selectedPhases = selectedPhases; // re-render
 
       filterDossiers();
       sendEvenementRechercherUnDossier();
@@ -284,7 +284,7 @@
   }
 
   allFilters.set("phase", (dossier) => {
-    return phasesSelectionnees.has(dossier.phase);
+    return selectedPhases.has(dossier.phase);
   });
 
   const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = "(vide)" as const;
@@ -294,12 +294,12 @@
   ]);
 
   // @ts-ignore
-  let prochainesActionsAttenduesParSelectionnes: Set<
+  let selectedProchainesActionsAttenduesPar: Set<
     DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
   > = $state(
     untrack(() =>
-      filtresSelectionnes["prochaine action attendue de"]
-        ? new SvelteSet(filtresSelectionnes["prochaine action attendue de"])
+      selectedFilters["prochaine action attendue de"]
+        ? new SvelteSet(selectedFilters["prochaine action attendue de"])
         : new SvelteSet(prochainesActionsAttenduesParOptions),
     ),
   );
@@ -311,32 +311,32 @@
         dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
       )
     ) {
-      return prochainesActionsAttenduesParSelectionnes.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
+      return selectedProchainesActionsAttenduesPar.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
     }
 
-    return prochainesActionsAttenduesParSelectionnes.has(
+    return selectedProchainesActionsAttenduesPar.has(
       dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
     );
   });
 
   function filterByProchainesActionsAttenduesPar(
-    _prochainesActionsAttenduesParSelectionnes: Set<
+    _selectedProchainesActionsAttenduesPar: Set<
       DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
     >,
   ) {
-    prochainesActionsAttenduesParSelectionnes = new SvelteSet(
-      _prochainesActionsAttenduesParSelectionnes,
+    selectedProchainesActionsAttenduesPar = new SvelteSet(
+      _selectedProchainesActionsAttenduesPar,
     );
 
     filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
-  let prochainesActionsAttenduesParNonSelectionnes = $derived(
-    prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSelectionnes),
+  let unselectedProchainesActionsAttenduesPar = $derived(
+    prochainesActionsAttenduesParOptions.difference(selectedProchainesActionsAttenduesPar),
   );
 
-  let textToSearch = $state(untrack(() => filtresSelectionnes.texte));
+  let textToSearch = $state(untrack(() => selectedFilters.texte));
 
   function addTextFilter(_textToSearch: string) {
     textToSearch = _textToSearch.trim();
@@ -369,32 +369,32 @@
 
   //$inspect('')
 
-  let instructeursSelectionnes: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
+  let selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
     $state(
       untrack(
         () =>
           new SvelteSet(
-            filtresSelectionnes.instructeurs
-              ? filtresSelectionnes.instructeurs
+            selectedFilters.instructeurs
+              ? selectedFilters.instructeurs
               : instructeursOptions,
           ),
       ),
     );
 
-  $inspect("instructeursSélectionnés", instructeursSelectionnes);
+  $inspect("instructeursSélectionnés", selectedInstructeurs);
 
   allFilters.set("instructeurs", (dossier) => {
     if (!relationSuivis) return true;
 
     if (
-      instructeursSelectionnes.has(AUCUN_INSTRUCTEUR) &&
+      selectedInstructeurs.has(AUCUN_INSTRUCTEUR) &&
       dossierIdsFollowedByNoInstructeur &&
       dossierIdsFollowedByNoInstructeur.has(dossier.id)
     ) {
       return true;
     }
 
-    for (const instructeurEmail of instructeursSelectionnes) {
+    for (const instructeurEmail of selectedInstructeurs) {
       const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail);
       if (dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
         return true;
@@ -404,9 +404,9 @@
   });
 
   function filterByInstructeurs(
-    _instructeursSelectionnees: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
+    _selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
   ) {
-    instructeursSelectionnes = new SvelteSet(_instructeursSelectionnees);
+    selectedInstructeurs = new SvelteSet(_selectedInstructeurs);
 
     filterDossiers();
     sendEvenementRechercherUnDossier();
@@ -417,8 +417,8 @@
     sendEvenement({ type: "afficherLesDossiersSuivis" });
   }
 
-  let instructeursNonSelectionnes = $derived(
-    instructeursOptions.difference(instructeursSelectionnes),
+  let unselectedInstructeurs = $derived(
+    instructeursOptions.difference(selectedInstructeurs),
   );
 
   const AUCUNE_ACTIVITE_PRINCIPALE = "(aucune activité principale)" as const;
@@ -428,14 +428,14 @@
   );
 
   // @ts-ignore
-  let activitesPrincipalesSelectionnees: Set<
+  let selectedActivitesPrincipales: Set<
     DossierDemarcheNumerique88444["Activité principale"] | typeof AUCUNE_ACTIVITE_PRINCIPALE
   > = $state(
     untrack(
       () =>
         new SvelteSet(
-          filtresSelectionnes.activitésPrincipales
-            ? filtresSelectionnes.activitésPrincipales
+          selectedFilters.activitésPrincipales
+            ? selectedFilters.activitésPrincipales
             : activitesPrincipalesOptions,
         ),
     ),
@@ -446,30 +446,30 @@
       !dossier.activité_principale ||
       !activitesPrincipalesOptions.has(dossier.activité_principale)
     )
-      return activitesPrincipalesSelectionnees.has(AUCUNE_ACTIVITE_PRINCIPALE);
+      return selectedActivitesPrincipales.has(AUCUNE_ACTIVITE_PRINCIPALE);
 
-    return activitesPrincipalesSelectionnees.has(dossier.activité_principale);
+    return selectedActivitesPrincipales.has(dossier.activité_principale);
   });
 
   function filterByActivitePrincipale(
-    _activitesPrincipalesSelectionnees: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+    _selectedActivitesPrincipales: Set<DossierDemarcheNumerique88444["Activité principale"]>,
   ) {
-    activitesPrincipalesSelectionnees = new Set(_activitesPrincipalesSelectionnees);
+    selectedActivitesPrincipales = new Set(_selectedActivitesPrincipales);
 
     filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
-  let activitesPrincipalesNonSelectionnees = $derived(
-    activitesPrincipalesOptions.difference(activitesPrincipalesSelectionnees),
+  let unselectedActivitesPrincipales = $derived(
+    activitesPrincipalesOptions.difference(selectedActivitesPrincipales),
   );
 
   $effect(() => {
     rememberSortFilters(selectedSort, {
-      phases: phasesSelectionnees,
-      "prochaine action attendue de": prochainesActionsAttenduesParSelectionnes,
-      instructeurs: instructeursSelectionnes,
-      activitésPrincipales: activitesPrincipalesSelectionnees,
+      phases: selectedPhases,
+      "prochaine action attendue de": selectedProchainesActionsAttenduesPar,
+      instructeurs: selectedInstructeurs,
+      activitésPrincipales: selectedActivitesPrincipales,
       texte: textToSearch,
     });
   });
@@ -484,8 +484,8 @@
 
   let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(
     () => {
-      if (dossiersSelectionnes.length >= DOSSIERS_PER_PAGE * 2 + 1) {
-        const pageCount = Math.ceil(dossiersSelectionnes.length / DOSSIERS_PER_PAGE);
+      if (selectedDossiers.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+        const pageCount = Math.ceil(selectedDossiers.length / DOSSIERS_PER_PAGE);
 
         return [
           undefined,
@@ -504,10 +504,10 @@
     if (pageSelectors) selectedPageNumber = 1;
   });
 
-  let displayedDossiers: typeof dossiersSelectionnes = $derived.by(() => {
-    if (!pageSelectors) return dossiersSelectionnes;
+  let displayedDossiers: typeof selectedDossiers = $derived.by(() => {
+    if (!pageSelectors) return selectedDossiers;
     else {
-      return dossiersSelectionnes.slice(
+      return selectedDossiers.slice(
         DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
         DOSSIERS_PER_PAGE * selectedPageNumber,
       );
@@ -558,7 +558,7 @@
             {phase}
             classes={["fr-mr-1w"]}
             onClick={makeTagPhaseOnClick(phase)}
-            ariaPressed={phasesSelectionnees.has(phase)}
+            ariaPressed={selectedPhases.has(phase)}
           ></TagPhase>
         {/each}
       </div>
@@ -567,20 +567,20 @@
         <FiltreParmiOptions
           title="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
-          selectedOptions={activitesPrincipalesSelectionnees}
+          selectedOptions={selectedActivitesPrincipales}
           updateSelectedOptions={filterByActivitePrincipale}
         />
         <FiltreParmiOptions
           title="Filtrer par prochaine action attendue par"
           options={prochainesActionsAttenduesParOptions}
-          selectedOptions={prochainesActionsAttenduesParSelectionnes}
+          selectedOptions={selectedProchainesActionsAttenduesPar}
           updateSelectedOptions={filterByProchainesActionsAttenduesPar}
         />
         {#if instructeursOptions && instructeursOptions.size >= 2}
           <FiltreParmiOptions
             title="Filtrer par instructeur suivant le dossier"
             options={instructeursOptions}
-            selectedOptions={instructeursSelectionnes}
+            selectedOptions={selectedInstructeurs}
             updateSelectedOptions={filterByInstructeurs}
           />
         {/if}
@@ -589,20 +589,20 @@
       <section class="active-filters fr-mb-1w">
         <div class="fr-mb-1w">
           <span>Dossiers suivis par&nbsp;:</span>
-          {#if instructeursNonSelectionnes.size === 0}
+          {#if unselectedInstructeurs.size === 0}
             <strong>Toustes</strong>
-          {:else if instructeursNonSelectionnes.size === 1 && instructeursNonSelectionnes.has(AUCUN_INSTRUCTEUR)}
+          {:else if unselectedInstructeurs.size === 1 && unselectedInstructeurs.has(AUCUN_INSTRUCTEUR)}
             <strong>Au moins un.e instructeur.rice</strong>
-          {:else if instructeursNonSelectionnes.size <= 2}
+          {:else if unselectedInstructeurs.size <= 2}
             <strong>Toustes sauf</strong>
-            {#each [...instructeursNonSelectionnes] as instructeur}
+            {#each [...unselectedInstructeurs] as instructeur}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {instructeur}
                 {#if instructeur === email}(moi){/if}
               </span>
             {/each}
           {:else}
-            {#each [...instructeursSelectionnes] as instructeur}
+            {#each [...selectedInstructeurs] as instructeur}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {instructeur}
                 {#if instructeur === email}(moi){/if}
@@ -610,7 +610,7 @@
             {/each}
           {/if}
 
-          {#if instructeursSelectionnes.size !== 1 || !instructeursSelectionnes.has(email)}
+          {#if selectedInstructeurs.size !== 1 || !selectedInstructeurs.has(email)}
             <button
               class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
               onclick={filterFollowedByMe}
@@ -622,17 +622,17 @@
 
         <div class="fr-mb-1w">
           <span>Prochaine action attendue par&nbsp;:</span>
-          {#if prochainesActionsAttenduesParNonSelectionnes.size === 0}
+          {#if unselectedProchainesActionsAttenduesPar.size === 0}
             <strong>Toutes options</strong>
-          {:else if prochainesActionsAttenduesParNonSelectionnes.size <= 2}
+          {:else if unselectedProchainesActionsAttenduesPar.size <= 2}
             <strong>Toutes options sauf</strong>
-            {#each [...prochainesActionsAttenduesParNonSelectionnes] as prochaineActionAttenduePar}
+            {#each [...unselectedProchainesActionsAttenduesPar] as prochaineActionAttenduePar}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {prochaineActionAttenduePar}
               </span>
             {/each}
           {:else}
-            {#each [...prochainesActionsAttenduesParSelectionnes] as prochaineActionAttenduePar}
+            {#each [...selectedProchainesActionsAttenduesPar] as prochaineActionAttenduePar}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {prochaineActionAttenduePar}
               </span>
@@ -642,17 +642,17 @@
 
         <div class="fr-mb-1w">
           <span>Activités principales&nbsp;:</span>
-          {#if activitesPrincipalesNonSelectionnees.size === 0}
+          {#if unselectedActivitesPrincipales.size === 0}
             <strong>Toutes</strong>
-          {:else if activitesPrincipalesNonSelectionnees.size <= 4}
+          {:else if unselectedActivitesPrincipales.size <= 4}
             <strong>Toutes sauf</strong>
-            {#each [...activitesPrincipalesNonSelectionnees] as activitePrincipale}
+            {#each [...unselectedActivitesPrincipales] as activitePrincipale}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {activitePrincipale}
               </span>
             {/each}
           {:else}
-            {#each [...activitesPrincipalesSelectionnees] as activitePrincipale}
+            {#each [...selectedActivitesPrincipales] as activitePrincipale}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {activitePrincipale}
               </span>
@@ -670,7 +670,7 @@
       </section>
 
       <h2 class="fr-mt-2w">
-        {dossiersSelectionnes.length}<small>/{dossiers.length}</small> dossiers sélectionnés
+        {selectedDossiers.length}<small>/{dossiers.length}</small> dossiers sélectionnés
       </h2>
 
       <div class="fr-table fr-table--bordered">

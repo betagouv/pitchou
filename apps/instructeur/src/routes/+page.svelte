@@ -23,7 +23,7 @@
 
   let selectedSortFilters = $state<SortFilterLocalStorage | undefined>();
 
-  let chargementDossiersTermine = $state(false);
+  let dossiersLoadingFinished = $state(false);
 
   onMount(async () => {
     const stored = await remember(SORT_FILTER_LOCALSTORAGE_KEY);
@@ -54,7 +54,7 @@
         message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`,
       });
     }
-    chargementDossiersTermine = true;
+    dossiersLoadingFinished = true;
   });
 
   async function logoutEtAfficherLoginParEmail(erreur?: { message: string }) {
@@ -97,7 +97,7 @@
   );
 </script>
 
-{#if !chargementDossiersTermine && peutListerDossiers}
+{#if !dossiersLoadingFinished && peutListerDossiers}
   <div class="fr-p-2w fr-pb-10w">
     <Loader />
   </div>
@@ -108,7 +108,7 @@
     {relationSuivis}
     activitésPrincipales={activitesPrincipales ?? []}
     selectedSortId={selectedSortFilters?.tri}
-    filtresSélectionnés={selectedSortFilters?.filtres}
+    selectedFilters={selectedSortFilters?.filtres}
     {rememberSortFilters}
   />
 {:else}
