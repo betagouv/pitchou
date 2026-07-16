@@ -10,44 +10,44 @@
   import type Controle from "@pitchou/types/database/public/Controle.ts";
 
   type Props = {
-    contrôle: Controle | Partial<Controle>;
-    onValider: (controle: Controle | Partial<Controle>) => Promise<any>;
-    boutonValider?: Snippet;
-    boutonAnnuler?: Snippet;
-    boutonSupprimer?: Snippet;
+    controle: Controle | Partial<Controle>;
+    onValidate: (controle: Controle | Partial<Controle>) => Promise<any>;
+    buttonValidate?: Snippet;
+    buttonCancel?: Snippet;
+    buttonDelete?: Snippet;
   };
 
-  let { contrôle, onValider, boutonValider, boutonAnnuler, boutonSupprimer }: Props = $props();
+  let { controle, onValidate, buttonValidate, buttonCancel, buttonDelete }: Props = $props();
 
-  let controleEnEdition: Props["contrôle"] = $state(untrack(() => contrôle));
+  let editedControle: Props["controle"] = $state(untrack(() => controle));
 
   async function formSubmit(e: Event) {
     e.preventDefault();
 
-    if (controleEnEdition.date_action_suite_contrôle) {
-      Object.defineProperty(controleEnEdition.date_action_suite_contrôle, "toJSON", {
+    if (editedControle.date_action_suite_contrôle) {
+      Object.defineProperty(editedControle.date_action_suite_contrôle, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
-    if (controleEnEdition.date_prochaine_échéance) {
-      Object.defineProperty(controleEnEdition.date_prochaine_échéance, "toJSON", {
+    if (editedControle.date_prochaine_échéance) {
+      Object.defineProperty(editedControle.date_prochaine_échéance, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
 
-    onValider(controleEnEdition);
+    onValidate(editedControle);
   }
 </script>
 
 <form onsubmit={formSubmit}>
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date du contrôle </label>
-    <DateInput bind:date={controleEnEdition.date_contrôle}></DateInput>
+    <DateInput bind:date={editedControle.date_contrôle}></DateInput>
   </div>
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Résultat </label>
-    <input class="fr-input" list="résultats-contrôle" bind:value={controleEnEdition.résultat} />
+    <input class="fr-input" list="résultats-contrôle" bind:value={editedControle.résultat} />
     <datalist id="résultats-contrôle">
       {#each resultatsControle as resultatControle}
         <option>{resultatControle}</option>
@@ -57,7 +57,7 @@
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Commentaire libre </label>
-    <textarea class="fr-input" bind:value={controleEnEdition.commentaire}></textarea>
+    <textarea class="fr-input" bind:value={editedControle.commentaire}></textarea>
   </div>
 
   <div class="fr-input-group">
@@ -65,7 +65,7 @@
     <input
       class="fr-input"
       list="type-actions"
-      bind:value={controleEnEdition.type_action_suite_contrôle}
+      bind:value={editedControle.type_action_suite_contrôle}
     />
     <datalist id="type-actions">
       {#each typesActionSuiteControle as typeActionSuiteControle}
@@ -76,28 +76,28 @@
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date de l'action suite au contrôle </label>
-    <DateInput bind:date={controleEnEdition.date_action_suite_contrôle}></DateInput>
+    <DateInput bind:date={editedControle.date_action_suite_contrôle}></DateInput>
   </div>
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date prochaine échéance </label>
-    <DateInput bind:date={controleEnEdition.date_prochaine_échéance}></DateInput>
+    <DateInput bind:date={editedControle.date_prochaine_échéance}></DateInput>
   </div>
 
   <div class="fr-mb-6w">
-    {#if boutonValider}
-      {@render boutonValider()}
+    {#if buttonValidate}
+      {@render buttonValidate()}
     {:else}
       <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
         Enregistrer
       </button>
     {/if}
 
-    {@render boutonAnnuler?.()}
+    {@render buttonCancel?.()}
   </div>
 
-  {#if boutonSupprimer}
-    {@render boutonSupprimer()}
+  {#if buttonDelete}
+    {@render buttonDelete()}
   {/if}
 </form>
 

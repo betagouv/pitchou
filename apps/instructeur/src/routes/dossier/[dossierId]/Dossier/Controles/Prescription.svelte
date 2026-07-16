@@ -204,13 +204,13 @@
           </button>
 
           {#if newControle}
-            <FormulaireControle contrôle={newControle} onValider={createControle}>
-              {#snippet boutonValider()}
+            <FormulaireControle controle={newControle} onValidate={createControle}>
+              {#snippet buttonValidate()}
                 <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                   Finir le contrôle
                 </button>
               {/snippet}
-              {#snippet boutonAnnuler()}
+              {#snippet buttonCancel()}
                 <button
                   type="button"
                   class="fr-btn fr-btn--secondary"
@@ -227,10 +227,10 @@
               <h6>Modification du contrôle</h6>
 
               <FormulaireControle
-                contrôle={editedControle}
-                onValider={validateControleModifications}
+                controle={editedControle}
+                onValidate={validateControleModifications}
               >
-                {#snippet boutonAnnuler()}
+                {#snippet buttonCancel()}
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary"
@@ -239,7 +239,7 @@
                     Annuler
                   </button>
                 {/snippet}
-                {#snippet boutonSupprimer()}
+                {#snippet buttonDelete()}
                   <div class="button-delete">
                     <button
                       type="button"
