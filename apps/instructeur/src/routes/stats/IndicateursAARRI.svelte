@@ -67,11 +67,11 @@
         Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI
         aujourd'hui.
       </p>
-      <div class="conteneur-barres">
+      <div class="bars-container">
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Impact</span>
           <div
-            class="barre barre-impact"
+            class="bar bar-impact"
             style={`width:${(indicateursAujourdhui.nombreUtilisateuriceImpact / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
           ></div>
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceImpact}</span>
@@ -79,7 +79,7 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Retenu</span>
           <div
-            class="barre barre-retenu"
+            class="bar bar-retenu"
             style={`width:${(indicateursAujourdhui.nombreUtilisateuriceRetenu / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
           ></div>
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceRetenu}</span>
@@ -87,7 +87,7 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Activé</span>
           <div
-            class="barre barre-actif"
+            class="bar bar-actif"
             style={`width:${(indicateursAujourdhui.nombreUtilisateuriceActif / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
           ></div>
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceActif}</span>
@@ -95,14 +95,14 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Acquis</span>
           <div
-            class="barre barre-acquis"
+            class="bar bar-acquis"
             style={`width:${(indicateursAujourdhui.nombreUtilisateuriceAcquis / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
           ></div>
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceAcquis}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Base</span>
-          <div class="barre barre-base" style={`width:${largeurBarreBase}%`}></div>
+          <div class="bar bar-base" style={`width:${largeurBarreBase}%`}></div>
           <span class="fr-ml-1w">{indicateursAujourdhui.nombreBaseUtilisateuricePotentielle}</span>
         </div>
       </div>
@@ -194,7 +194,7 @@
 
         <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurice par phase entre deux dates</h3>
 
-        <div class="comparaison-dates">
+        <div class="dates-comparison">
           <div class="fr-select-group">
             <label class="fr-label" for="select-debut">De</label>
             <select bind:value={dateDebut} class="fr-select" id="select-debut" name="select-debut">
@@ -265,13 +265,13 @@
 </div>
 
 <style lang="scss">
-  $couleur-base: var(--artwork-minor-blue-ecume);
-  $couleur-acquis: var(--artwork-minor-brown-caramel);
-  $couleur-actif: var(--artwork-minor-green-menthe);
-  $couleur-retenu: var(--artwork-minor-yellow-moutarde);
-  $couleur-impact: var(--artwork-minor-red-marianne);
+  $color-base: var(--artwork-minor-blue-ecume);
+  $color-acquis: var(--artwork-minor-brown-caramel);
+  $color-actif: var(--artwork-minor-green-menthe);
+  $color-retenu: var(--artwork-minor-yellow-moutarde);
+  $color-impact: var(--artwork-minor-red-marianne);
 
-  .conteneur-barres {
+  .bars-container {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -284,7 +284,7 @@
     margin-right: 0.5rem;
     vertical-align: middle;
   }
-  .comparaison-dates {
+  .dates-comparison {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -318,22 +318,22 @@
   .evolution-neutral {
     color: var(--text-mention-grey, #666);
   }
-  .barre {
+  .bar {
     height: 40px;
-    &.barre-base {
-      background-color: $couleur-base;
+    &.bar-base {
+      background-color: $color-base;
     }
-    &.barre-acquis {
-      background-color: $couleur-acquis;
+    &.bar-acquis {
+      background-color: $color-acquis;
     }
-    &.barre-actif {
-      background-color: $couleur-actif;
+    &.bar-actif {
+      background-color: $color-actif;
     }
-    &.barre-retenu {
-      background-color: $couleur-retenu;
+    &.bar-retenu {
+      background-color: $color-retenu;
     }
-    &.barre-impact {
-      background-color: $couleur-impact;
+    &.bar-impact {
+      background-color: $color-impact;
     }
   }
 </style>

@@ -27,37 +27,37 @@
     quantiteAjustee = Math.round(quantiteAjustee * 2) / 2;
   });
 
-  let baseClasses = $derived(["trait", style]);
+  let baseClasses = $derived(["line", style]);
 
-  let traitsClasses = $derived(
+  let lineClasses = $derived(
     [...Array(Math.ceil(quantiteAjustee))].map((_, i) => {
       if (quantiteAjustee - i >= 1) {
         return baseClasses;
       } else {
-        return [...baseClasses, "moitié"];
+        return [...baseClasses, "half"];
       }
     }),
   );
 </script>
 
-<div class="délai" title={alt}>
-  {#each traitsClasses as classes}
+<div class="delai" title={alt}>
+  {#each lineClasses as classes}
     <span class={clsx(classes)}></span>
   {/each}
 </div>
 
 <style lang="scss">
-  $largeur-trait: 1.5rem;
+  $line-width: 1.5rem;
 
-  .délai {
+  .delai {
     height: 1rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
 
-    .trait {
-      width: $largeur-trait;
+    .line {
+      width: $line-width;
       height: 50%;
       transform: translateY(50%);
 
@@ -65,8 +65,8 @@
       border-top: 2px solid var(--border-default-grey);
       margin-right: 0.2rem;
 
-      &.moitié {
-        width: calc($largeur-trait/2);
+      &.half {
+        width: calc($line-width/2);
       }
 
       &.info {

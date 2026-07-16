@@ -247,11 +247,11 @@
   }
 </script>
 
-<div class="en-tête">
-  <div class="titre-et-barre-de-recherche">
+<div class="header">
+  <div class="title-and-search-bar">
     <h1>{title}</h1>
     <form onsubmit={submitTextSearch}>
-      <div class="fr-search-bar barre-de-recherche" role="search">
+      <div class="fr-search-bar search-bar" role="search">
         <label class="fr-label" for="search-input">Rechercher un dossier</label>
         <input
           bind:value={textToSearch}
@@ -275,9 +275,9 @@
   </div>
   <fieldset>
     <legend class="fr-sr-only">Filtrer…</legend>
-    <div class="filtres-et-compteur-dossiers">
-      <div class="filtres">
-        <div class="fr-select-group filtre-par-phase">
+    <div class="filters-and-dossiers-counter">
+      <div class="filters">
+        <div class="fr-select-group filter-by-phase">
           <label class="fr-label" for="select-phase"> Filtrer par phase </label>
           <select
             bind:value={selectedPhase}
@@ -322,17 +322,17 @@
           Nouveauté
         </button>
       </div>
-      <p class="compteur" data-testid={"compteur-dossier"}>
+      <p class="counter" data-testid={"compteur-dossier"}>
         <span class="fr-text--lead">{filteredDossiers.length}</span><span class="fr-text--lg"
           >/{dossiers.length} dossiers</span
         >
       </p>
     </div>
   </fieldset>
-  <h2 bind:this={pageTitleElement} tabindex="-1" class="titre-page">{pageText}</h2>
+  <h2 bind:this={pageTitleElement} tabindex="-1" class="page-title">{pageText}</h2>
 </div>
 {#if displayedDossiers.length >= 1}
-  <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
+  <div class="dossier-list fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
     <ul>
       {#each displayedDossiers as dossier (dossier.id)}
         <li>
@@ -356,7 +356,7 @@
 {/if}
 
 <style>
-  .liste-des-dossiers {
+  .dossier-list {
     background: var(--background-contrast-grey);
   }
 
@@ -379,12 +379,12 @@
   li:not(:last-child) {
     margin-bottom: 1rem;
   }
-  .en-tête {
+  .header {
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
 
-    .titre-et-barre-de-recherche {
+    .title-and-search-bar {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -400,18 +400,18 @@
       }
     }
 
-    .compteur {
+    .counter {
       margin-bottom: 0.25rem;
     }
 
-    .filtre-par-phase {
+    .filter-by-phase {
       margin-bottom: 0;
       @media (max-width: 768px) {
         margin-bottom: 1rem;
       }
     }
 
-    .filtres-et-compteur-dossiers {
+    .filters-and-dossiers-counter {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -423,7 +423,7 @@
         gap: 1rem;
       }
 
-      .filtres {
+      .filters {
         display: flex;
         flex-direction: row;
         gap: 1rem;
@@ -438,20 +438,20 @@
     }
   }
 
-  .barre-de-recherche {
+  .search-bar {
     min-width: 28rem;
     @media (max-width: 768px) {
       min-width: unset;
     }
   }
 
-  .titre-page {
+  .page-title {
     font-size: 1rem;
     font-weight: normal;
     margin-bottom: 0;
   }
 
-  .titre-page:focus {
+  .page-title:focus {
     outline: 2px solid var(--bf500);
     outline-offset: 2px;
   }

@@ -92,7 +92,7 @@
       <label class="fr-label" for="input-espece-{indexEspece}-impact-{indexImpact}">
         Type d’impact
       </label>
-      <div class="input-button-avec-bouton-supprimer">
+      <div class="input-button-with-delete-button">
         <select
           bind:this={selectImpact}
           bind:value={impact.activité}
@@ -238,7 +238,7 @@
     padding: 0;
   }
 
-  .input-button-avec-bouton-supprimer {
+  .input-button-with-delete-button {
     display: flex;
     margin-top: 0.5rem;
     gap: 0.5rem;
@@ -251,7 +251,7 @@
         } */
 
   @media (min-width: 62em) {
-    .input-button-avec-bouton-supprimer {
+    .input-button-with-delete-button {
       gap: 1.5rem;
     }
   }

@@ -39,13 +39,13 @@
 <main tabindex="-1" id="main">
   <div class="fr-container">
     {#if store.errors.size >= 1}
-      <section class="erreurs fr-grid-row fr-grid-row--center">
+      <section class="errors fr-grid-row fr-grid-row--center">
         <div class="fr-col">
-          {#each [...store.errors] as erreur}
+          {#each [...store.errors] as error}
             <div class="fr-alert-background fr-mb-1w">
               <div class="fr-alert fr-alert--error fr-alert--sm">
-                <p><strong>Erreur&nbsp;:&nbsp;</strong>{erreur.message}</p>
-                <button onclick={() => store.errors.delete(erreur)} class="fr-link--close fr-link"
+                <p><strong>Erreur&nbsp;:&nbsp;</strong>{error.message}</p>
+                <button onclick={() => store.errors.delete(error)} class="fr-link--close fr-link"
                   >Masquer le message</button
                 >
               </div>
@@ -73,7 +73,7 @@
     flex: 1 0 auto;
   }
 
-  section.erreurs {
+  section.errors {
     position: relative;
     height: 0;
 

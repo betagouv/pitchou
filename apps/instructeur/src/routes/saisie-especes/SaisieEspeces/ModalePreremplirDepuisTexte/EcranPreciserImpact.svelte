@@ -168,7 +168,7 @@
       Aucune espèce n'a été renseignée.
     {:else}
       {#if oiseauxToPrefill.size >= 1}
-        <section class="section-espèce-par-classification">
+        <section class="section-espece-by-classification">
           <h3>
             {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
           </h3>
@@ -201,7 +201,7 @@
         </section>
       {/if}
       {#if fauneNonOiseauxToPrefill.size >= 1}
-        <section class="section-espèce-par-classification">
+        <section class="section-espece-by-classification">
           <h3>
             {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
           </h3>
@@ -234,7 +234,7 @@
         </section>
       {/if}
       {#if floreToPrefill.size >= 1}
-        <section class="section-espèce-par-classification">
+        <section class="section-espece-by-classification">
           <h3>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h3>
           <ul>
             {#each [...floreToPrefill] as espece (espece)}
@@ -284,7 +284,7 @@
 </div>
 
 <style>
-  .section-espèce-par-classification {
+  .section-espece-by-classification {
     margin-bottom: 2rem;
     h3 {
       margin-bottom: 0.75rem;

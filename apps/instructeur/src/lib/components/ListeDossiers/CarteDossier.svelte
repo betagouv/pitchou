@@ -26,9 +26,9 @@
   }: Props = $props();
 </script>
 
-<div class="carte fr-p-2w" data-testid="carte-dossier">
-  <div class="en-tête">
-    <div class="tag-nouveauté-et-nom-du-projet">
+<div class="card fr-p-2w" data-testid="carte-dossier">
+  <div class="header">
+    <div class="tag-nouveaute-and-nom-projet">
       {#if nouveauteVueParInstructeur === false}
         <p class="fr-badge fr-badge--new">Nouveauté</p>
       {/if}
@@ -39,7 +39,7 @@
         </a>
       </h3>
     </div>
-    <div class="boutons-action">
+    <div class="action-buttons">
       {#if dossier.commentaire_libre && dossier.commentaire_libre !== ""}
         {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
         <ModalButton id={dsfrModaleId}>
@@ -54,7 +54,7 @@
             </button>
           {/snippet}
           {#snippet content()}
-            <header class="titre-modale">
+            <header class="modal-title">
               <h1 class="fr-modal__title">
                 Commentaire dossier {dossier.nom}
               </h1>
@@ -64,7 +64,7 @@
                 {formatLocalisation(dossier)}
               </h2>
             </header>
-            <div class="contenu-modale">
+            <div class="modal-content">
               {dossier.commentaire_libre}
             </div>
           {/snippet}
@@ -86,8 +86,8 @@
     </div>
   </div>
 
-  <div class="contenu">
-    <div class="première-ligne">
+  <div class="content">
+    <div class="first-line">
       <div>
         <BadgePhase phase={dossier.phase} />
         <div>
@@ -97,7 +97,7 @@
         </div>
       </div>
       <div>
-        <p class="numéro-dossier fr-text--sm">
+        <p class="dossier-number fr-text--sm">
           Dossier n°{dossier.number_demarches_simplifiées}
         </p>
         {#if dossier.enjeu}
@@ -105,8 +105,8 @@
         {/if}
       </div>
     </div>
-    <div class="deuxième-ligne">
-      <div class="date-dépôt">
+    <div class="second-line">
+      <div class="date-depot">
         <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Date de dépôt</span>
         <time datetime={formatDateAbsolute(dossier.date_dépôt, "yyyy-MM-dd")}
@@ -118,7 +118,7 @@
         <span class="fr-sr-only">Porteur de projet</span>
         {formatPorteurDeProjet(dossier) || "(non renseigné)"}
       </div>
-      <div class="localisation">
+      <div class="location">
         <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Localisation</span>
         {formatLocalisation(dossier) || "(non renseignée)"}
@@ -128,12 +128,12 @@
 </div>
 
 <style lang="scss">
-  .carte {
+  .card {
     background: var(--background-default-grey);
     border-radius: 0.25rem;
   }
 
-  .en-tête {
+  .header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -142,7 +142,7 @@
     min-width: 0;
     align-items: center;
 
-    .tag-nouveauté-et-nom-du-projet {
+    .tag-nouveaute-and-nom-projet {
       min-width: 0;
       display: flex;
       flex-direction: row;
@@ -154,7 +154,7 @@
       }
     }
 
-    .boutons-action {
+    .action-buttons {
       display: flex;
       flex-wrap: nowrap;
     }
@@ -184,19 +184,19 @@
     }
   }
 
-  .contenu {
+  .content {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 
-    .première-ligne {
+    .first-line {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       flex-wrap: wrap;
     }
 
-    .première-ligne > div {
+    .first-line > div {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -204,7 +204,7 @@
       flex-wrap: wrap;
     }
 
-    .deuxième-ligne {
+    .second-line {
       display: flex;
       flex-direction: row;
       gap: 4rem;
@@ -212,10 +212,10 @@
       @media (max-width: 768px) {
         gap: 0.5rem;
       }
-      .date-dépôt {
+      .date-depot {
         white-space: nowrap;
       }
-      .localisation {
+      .location {
         display: flex;
         justify-content: end;
         gap: 0.25rem;
@@ -240,12 +240,12 @@
     }
   }
 
-  .numéro-dossier {
+  .dossier-number {
     margin-bottom: 0;
     color: var(--text-mention-grey);
   }
 
-  .titre-modale {
+  .modal-title {
     h1 {
       margin-bottom: 0.8rem;
     }
@@ -254,7 +254,7 @@
       font-size: 1.1rem;
     }
   }
-  .contenu-modale {
+  .modal-content {
     white-space: preserve;
   }
 </style>
