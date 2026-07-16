@@ -6,7 +6,7 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
 import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
-import creerObjetCapDepuisURLs from "$lib/shared/creerObjetCapDepuisURLs.ts";
+import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
 import { sendEvenement } from "$lib/shared/aarri.ts";
 
 import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
@@ -122,7 +122,7 @@ function initCapabilities(secret: string) {
   return json(`/caps?secret=${secret}`).then((response) => {
     if (response && typeof response === "object") {
       const capsURLs = response as CapsResponse;
-      store.capabilities = creerObjetCapDepuisURLs(capsURLs);
+      store.capabilities = createCapObjectFromURLs(capsURLs);
 
       if (capsURLs.identité) {
         store.identité = capsURLs.identité;
