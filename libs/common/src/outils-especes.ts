@@ -353,10 +353,10 @@ function descriptionMenacesEspecesFromJSON(
       ({ espèce, espece, activité: activite, méthode: methode, moyenDePoursuite, ...rest }) => {
         //@ts-expect-error TS does not understand that if `espèce` is missing
         // then `espece` is necessarily set
-        const especeParamDeprecie = especeByCD_REF.get(espece);
+        const deprecatedEspeceParam = especeByCD_REF.get(espece);
 
         return {
-          espèce: especeByCD_REF.get(espèce) || especeParamDeprecie,
+          espèce: especeByCD_REF.get(espèce) || deprecatedEspeceParam,
           // @ts-ignore
           activité: activites[classification].get(activite),
           méthode: methodes[classification].get(methode),
@@ -688,14 +688,14 @@ export async function construireActivitesMethodesMoyensDePoursuite(
           "Surface habitat détruit (m²)",
         ];
 
-        const impactsQuantifiesFiltres = impactsQuantifies.filter((donneeSecondaire) => {
-          return activite[donneeSecondaire] === "Oui";
+        const filteredImpactsQuantifies = impactsQuantifies.filter((secondaryData) => {
+          return activite[secondaryData] === "Oui";
         });
 
         const ret: [
           ActiviteMenancante["Identifiant Pitchou"],
           ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] },
-        ] = [code, { ...activite, impactsQuantifiés: impactsQuantifiesFiltres }];
+        ] = [code, { ...activite, impactsQuantifiés: filteredImpactsQuantifies }];
         return ret;
       });
     }),
