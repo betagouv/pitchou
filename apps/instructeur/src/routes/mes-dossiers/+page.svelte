@@ -4,10 +4,10 @@
   import MesDossiers from "./MesDossiers.svelte";
   import { loadDossiers } from "$lib/dossier/dossier.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
-  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/shared/main.ts";
+  import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
 
   onMount(async () => {
-    chargerNotificationParDossierPourInstructeurActuel();
+    loadNotificationByDossierForCurrentInstructeur();
     try {
       await loadDossiers();
       envoyerEvenement({ type: "afficherLesDossiersSuivis" });

@@ -3,10 +3,10 @@
   import { store } from "$lib/state/store.svelte.ts";
   import TousLesDossiers from "./TousLesDossiers.svelte";
   import { loadDossiers } from "$lib/dossier/dossier.ts";
-  import { chargerNotificationParDossierPourInstructeurActuel } from "$lib/shared/main.ts";
+  import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
 
   onMount(async () => {
-    chargerNotificationParDossierPourInstructeurActuel();
+    loadNotificationByDossierForCurrentInstructeur();
     try {
       await loadDossiers();
     } catch (error) {

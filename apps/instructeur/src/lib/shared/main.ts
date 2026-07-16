@@ -18,16 +18,16 @@ import type { StringValues } from "@pitchou/types/tools.d.ts";
 
 export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
-export function chargerRelationSuivi() {
+export function loadRelationSuivi() {
   if (store.capabilities?.listerRelationSuivi) {
-    store.capabilities?.listerRelationSuivi().then((relationSuivisBDD) => {
-      if (!relationSuivisBDD || !Array.isArray(relationSuivisBDD)) {
+    store.capabilities?.listerRelationSuivi().then((relationSuivisDB) => {
+      if (!relationSuivisDB || !Array.isArray(relationSuivisDB)) {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
 
       const relationSuivis: NonNullable<typeof store.relationSuivis> = new SvelteMap();
 
-      for (const { personneEmail, dossiersSuivisIds } of relationSuivisBDD) {
+      for (const { personneEmail, dossiersSuivisIds } of relationSuivisDB) {
         relationSuivis.set(personneEmail!, new SvelteSet(dossiersSuivisIds));
       }
 
@@ -36,27 +36,27 @@ export function chargerRelationSuivi() {
   }
 }
 
-export function chargerNotificationParDossierPourInstructeurActuel() {
+export function loadNotificationByDossierForCurrentInstructeur() {
   if (store.capabilities?.listerNotifications) {
-    store.capabilities?.listerNotifications().then((notificationsBDD) => {
-      if (!notificationsBDD || !Array.isArray(notificationsBDD)) {
+    store.capabilities?.listerNotifications().then((notificationsDB) => {
+      if (!notificationsDB || !Array.isArray(notificationsDB)) {
         throw new TypeError("On attendait un tableau de notifications ici !");
       }
 
-      const notificationParDossierPourInstructeurActuel: NonNullable<
+      const notificationByDossierForCurrentInstructeur: NonNullable<
         typeof store.notificationParDossier
       > = new SvelteMap();
 
-      for (const notification of notificationsBDD) {
-        notificationParDossierPourInstructeurActuel.set(notification.dossier, notification);
+      for (const notification of notificationsDB) {
+        notificationByDossierForCurrentInstructeur.set(notification.dossier, notification);
       }
 
-      store.notificationParDossier = notificationParDossierPourInstructeurActuel;
+      store.notificationParDossier = notificationByDossierForCurrentInstructeur;
     });
   }
 }
 
-export function chargerSchemaDS88444() {
+export function loadSchemaDS88444() {
   return json(SCHEMA_DS_88444).then((schema) => {
     //@ts-ignore
     store.schemaDS88444 = schema;
@@ -64,7 +64,7 @@ export function chargerSchemaDS88444() {
   });
 }
 
-export function chargerResultatsSynchronisation() {
+export function loadResultatsSynchronisation() {
   return json("/resultats-synchronisation").then(
     // @ts-ignore
     (resultatsSync: ResultatSynchronisationDS88444[]) => {
@@ -105,7 +105,7 @@ export async function logout() {
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }
 
-export async function logoutEtRedirigerVersAccueil(erreur?: { message: string }) {
+export async function logoutAndRedirectToHome(erreur?: { message: string }) {
   if (erreur) {
     store.erreurs.add(erreur);
   }
@@ -145,12 +145,12 @@ export function init() {
       //@ts-ignore
       .then((secret) => (secret ? initCapabilities(secret) : undefined))
       .catch(() =>
-        logoutEtRedirigerVersAccueil({
+        logoutAndRedirectToHome({
           message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
         }),
       ),
 
-    chargerSchemaDS88444(),
-    chargerResultatsSynchronisation(),
+    loadSchemaDS88444(),
+    loadResultatsSynchronisation(),
   ]);
 }
