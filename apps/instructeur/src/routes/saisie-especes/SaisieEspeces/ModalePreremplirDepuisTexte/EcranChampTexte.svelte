@@ -27,34 +27,34 @@
 
   let {
     espècesTrouvéesDansTexte = $bindable(),
-    texteEspèces: texteEspeces = $bindable(),
+    texteEspèces: especesText = $bindable(),
     écranAffiché = $bindable(),
-    espècesImpactéesPourPréremplir: especesImpacteesPourPreremplir,
-    idModalePréremplirDepuisTexte: idModalePreremplirDepuisTexte,
-    préremplirAvecCesEspècesImpacts: preremplirAvecCesEspecesImpacts,
-    supprimerEspèceImpactée: supprimerEspeceImpactee,
+    espècesImpactéesPourPréremplir: especesImpacteesToPrefill,
+    idModalePréremplirDepuisTexte: idModalPrefillFromText,
+    préremplirAvecCesEspècesImpacts: prefillWithTheseEspecesImpacts,
+    supprimerEspèceImpactée: removeEspeceImpactee,
   }: Props = $props();
 
   //@ts-ignore
-  let oiseauxAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let oiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map((especeImpactee) => especeImpactee.espèce)].filter(
+      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
         (e) => e && e.classification === "oiseau",
       ),
     ),
   );
   //@ts-ignore
-  let fauneNonOiseauxAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let fauneNonOiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map((especeImpactee) => especeImpactee.espèce)].filter(
+      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
         (e) => e && e.classification === "faune non-oiseau",
       ),
     ),
   );
   //@ts-ignore
-  let floreAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let floreToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map((especeImpactee) => especeImpactee.espèce)].filter(
+      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
         (e) => e && e.classification === "flore",
       ),
     ),
@@ -63,58 +63,56 @@
   /**
    * Array of references to the delete buttons, indexed by the index in espècesImpactéesPourPréremplir
    */
-  let referencesBoutonsSupprimer: HTMLElement[] = $state([]);
+  let deleteButtonRefs: HTMLElement[] = $state([]);
 
   /**
    * Reference to the text field
    */
-  let champTexte: HTMLTextAreaElement | undefined = $state();
+  let textField: HTMLTextAreaElement | undefined = $state();
 
   export function focusBoutonSupprimer() {
-    const dernierBouton = referencesBoutonsSupprimer.filter((b) => b !== null).pop();
-    dernierBouton?.focus();
+    const lastButton = deleteButtonRefs.filter((b) => b !== null).pop();
+    lastButton?.focus();
   }
 
   function onClickpreciserImpact() {
     écranAffiché = "préciserImpact";
   }
 
-  async function supprimerEspeceImpacteeDepuisClassification(espece: EspeceProtegee) {
-    const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+  async function removeEspeceImpacteeFromClassification(espece: EspeceProtegee) {
+    const indexInList = especesImpacteesToPrefill.findIndex(
       ({ espèce: especeImpactee }) => especeImpactee === espece,
     );
-    if (indexDansListe >= 0) {
-      supprimerEspeceImpactee(indexDansListe);
+    if (indexInList >= 0) {
+      removeEspeceImpactee(indexInList);
 
       await tick();
 
-      if (especesImpacteesPourPreremplir.length === 0) {
-        champTexte?.focus();
+      if (especesImpacteesToPrefill.length === 0) {
+        textField?.focus();
       } else {
-        let indexAFocuser =
-          indexDansListe === especesImpacteesPourPreremplir.length
-            ? indexDansListe - 1
-            : indexDansListe;
+        let indexToFocus =
+          indexInList === especesImpacteesToPrefill.length ? indexInList - 1 : indexInList;
 
-        let especeAFocus = especesImpacteesPourPreremplir[indexAFocuser]?.espèce;
+        let especeToFocus = especesImpacteesToPrefill[indexToFocus]?.espèce;
 
         // Find the reference of the button corresponding to this espèce
         // We iterate over the references and check if the espèce at this index matches
-        if (especeAFocus) {
-          const boutonAFocus = referencesBoutonsSupprimer.find((ref, idx) => {
+        if (especeToFocus) {
+          const buttonToFocus = deleteButtonRefs.find((ref, idx) => {
             // Check if the reference exists and if the espèce at this index matches
-            return ref !== null && especesImpacteesPourPreremplir[idx]?.espèce === especeAFocus;
+            return ref !== null && especesImpacteesToPrefill[idx]?.espèce === especeToFocus;
           });
 
-          if (boutonAFocus) {
-            boutonAFocus.focus();
+          if (buttonToFocus) {
+            buttonToFocus.focus();
           } else {
             // Fallback: focus on the text field if no button available
-            champTexte?.focus();
+            textField?.focus();
           }
         } else {
           // Fallback: focus on the text field
-          champTexte?.focus();
+          textField?.focus();
         }
       }
     }
@@ -123,7 +121,7 @@
 
 <div class="fr-modal__header">
   <button
-    aria-controls={idModalePreremplirDepuisTexte}
+    aria-controls={idModalPrefillFromText}
     title="Fermer"
     type="button"
     class="fr-btn--close fr-btn">Fermer</button
@@ -138,8 +136,8 @@
       <h3 class="fr-h6" id="label-champ-texte-espece">Votre texte</h3>
       <textarea
         id={"champ-texte-espece"}
-        bind:this={champTexte}
-        bind:value={texteEspeces}
+        bind:this={textField}
+        bind:value={especesText}
         class="fr-input fr-mb-2w"
         rows="14"
         aria-labelledby="label-champ-texte-espece"
@@ -147,26 +145,26 @@
     </div>
     <div class="fr-col">
       <h3 class="fr-h6">Les espèces trouvées</h3>
-      {#if texteEspeces !== "" && oiseauxAPreremplir.size === 0 && fauneNonOiseauxAPreremplir.size === 0 && floreAPreremplir.size === 0}
+      {#if especesText !== "" && oiseauxToPrefill.size === 0 && fauneNonOiseauxToPrefill.size === 0 && floreToPrefill.size === 0}
         Aucune espèce n'a été trouvée.
       {:else}
-        {#if oiseauxAPreremplir.size >= 1}
+        {#if oiseauxToPrefill.size >= 1}
           <section class="section-espèce-par-classification fr-mb-1w">
             <h4>
-              {`${oiseauxAPreremplir.size} ${oiseauxAPreremplir.size >= 2 ? "oiseaux" : "oiseau"}`}
+              {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
             </h4>
             <ul>
-              {#each [...oiseauxAPreremplir] as espece (espece)}
-                {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+              {#each [...oiseauxToPrefill] as espece (espece)}
+                {@const indexInList = especesImpacteesToPrefill.findIndex(
                   ({ espèce: especeImpactee }) => especeImpactee === espece,
                 )}
                 <li>
                   <NomEspece espèce={espece} />
                   <button
-                    bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                    bind:this={deleteButtonRefs[indexInList]}
                     type="button"
                     class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
                   >
                     Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                   </button>
@@ -175,23 +173,23 @@
             </ul>
           </section>
         {/if}
-        {#if fauneNonOiseauxAPreremplir.size >= 1}
+        {#if fauneNonOiseauxToPrefill.size >= 1}
           <section class="section-espèce-par-classification fr-mb-1w">
             <h4>
-              {`${fauneNonOiseauxAPreremplir.size} ${fauneNonOiseauxAPreremplir.size >= 2 ? "faunes" : "faune"} non-oiseau`}
+              {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
             </h4>
             <ul>
-              {#each [...fauneNonOiseauxAPreremplir] as espece (espece)}
-                {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+              {#each [...fauneNonOiseauxToPrefill] as espece (espece)}
+                {@const indexInList = especesImpacteesToPrefill.findIndex(
                   ({ espèce: especeImpactee }) => especeImpactee === espece,
                 )}
                 <li>
                   <NomEspece espèce={espece} />
                   <button
-                    bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                    bind:this={deleteButtonRefs[indexInList]}
                     type="button"
                     class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
                   >
                     Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                   </button>
@@ -200,21 +198,21 @@
             </ul>
           </section>
         {/if}
-        {#if floreAPreremplir.size >= 1}
+        {#if floreToPrefill.size >= 1}
           <section class="section-espèce-par-classification fr-mb-1w">
-            <h4>{`${floreAPreremplir.size} ${floreAPreremplir.size >= 2 ? "flores" : "flore"}`}</h4>
+            <h4>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h4>
             <ul>
-              {#each [...floreAPreremplir] as espece (espece)}
-                {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+              {#each [...floreToPrefill] as espece (espece)}
+                {@const indexInList = especesImpacteesToPrefill.findIndex(
                   ({ espèce: especeImpactee }) => especeImpactee === espece,
                 )}
                 <li>
                   <NomEspece espèce={espece} />
                   <button
-                    bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                    bind:this={deleteButtonRefs[indexInList]}
                     type="button"
                     class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
                   >
                     Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                   </button>
@@ -254,11 +252,11 @@
     >Préciser l'impact</button
   >
   <button
-    aria-controls={idModalePreremplirDepuisTexte}
+    aria-controls={idModalPrefillFromText}
     type="button"
     class="fr-btn fr-ml-2w"
-    onclick={preremplirAvecCesEspecesImpacts}
-    >{`Ajouter ${especesImpacteesPourPreremplir.length} ${especesImpacteesPourPreremplir.length >= 2 ? "espèces" : "espèce"}`}</button
+    onclick={prefillWithTheseEspecesImpacts}
+    >{`Ajouter ${especesImpacteesToPrefill.length} ${especesImpacteesToPrefill.length >= 2 ? "espèces" : "espèce"}`}</button
   >
 </div>
 

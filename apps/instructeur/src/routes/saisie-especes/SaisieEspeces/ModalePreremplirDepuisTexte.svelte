@@ -33,89 +33,89 @@
   let {
     référencesEspèces = $bindable(),
     espècesProtégéesParClassification: especesProtegeesParClassification,
-    onClickPréRemplirAvecDocumentTexte: onClickPreRemplirAvecDocumentTexte,
+    onClickPréRemplirAvecDocumentTexte: onClickPrefillWithTextDocument,
     méthodesParClassificationEtreVivant: methodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
     activitesParClassificationEtreVivant,
   }: Props = $props();
 
-  const idModalePreremplirDepuisTexte = "modale-préremplir-depuis-texte";
+  const idModalPrefillFromText = "modale-préremplir-depuis-texte";
 
-  function chercherEspecesDansTexte(texte: string): Set<EspeceProtegee> {
-    let especesTrouvees: Set<EspeceProtegee> = new Set();
+  function searchEspecesInText(text: string): Set<EspeceProtegee> {
+    let foundEspeces: Set<EspeceProtegee> = new Set();
 
-    for (const [nom, espClassif] of nomVersEspeceClassif) {
-      if (texte.includes(nom)) {
-        especesTrouvees.add(espClassif);
+    for (const [name, espClassif] of nameToEspeceClassif) {
+      if (text.includes(name)) {
+        foundEspeces.add(espClassif);
       }
     }
 
-    return especesTrouvees;
+    return foundEspeces;
   }
 
-  let ecranAffiche: "champTexte" | "préciserImpact" = $state("champTexte");
+  let displayedScreen: "champTexte" | "préciserImpact" = $state("champTexte");
 
-  let nomVersEspeceClassif = $derived(creerNomVersEspeceClassif(especesProtegeesParClassification));
+  let nameToEspeceClassif = $derived(createNameToEspeceClassif(especesProtegeesParClassification));
 
   /**
    * Text entered by the user
    */
-  let texteEspeces = $state("");
+  let especesText = $state("");
 
   /** Source of truth: espèces found in the text */
-  let especesTrouveesDansTexte: Set<EspeceProtegee> = $derived(
-    chercherEspecesDansTexte(normalizeEspeceText(texteEspeces)),
+  let especesFoundInText: Set<EspeceProtegee> = $derived(
+    searchEspecesInText(normalizeEspeceText(especesText)),
   );
 
   // Reset the editable espèces when the text changes
   $effect(() => {
-    reinitialiserEspecesImpactees(especesTrouveesDansTexte);
+    resetEspecesImpactees(especesFoundInText);
   });
 
-  let especesImpacteesPourPreremplir: Array<{
+  let especesImpacteesToPrefill: Array<{
     espèce?: EspeceProtegee;
     impacts: DescriptionImpact[];
   }> = $state([]);
 
-  async function supprimerEspeceImpacteeImpactee(indexEspeceASupprimer: number) {
-    especesImpacteesPourPreremplir.splice(indexEspeceASupprimer, 1);
+  async function removeEspeceImpactee(indexEspeceToRemove: number) {
+    especesImpacteesToPrefill.splice(indexEspeceToRemove, 1);
   }
 
-  function reinitialiserEspecesImpactees(nouvellesEspecesImpactees: Set<EspeceProtegee>) {
+  function resetEspecesImpactees(newEspecesImpactees: Set<EspeceProtegee>) {
     let _especesImpactees: Array<{ espèce: EspeceProtegee; impacts: DescriptionImpact[] }> = [];
-    nouvellesEspecesImpactees.forEach((espece) => {
+    newEspecesImpactees.forEach((espece) => {
       _especesImpactees.push({ espèce: espece, impacts: [{}] });
     });
-    especesImpacteesPourPreremplir = _especesImpactees;
+    especesImpacteesToPrefill = _especesImpactees;
   }
 
-  function preremplirAvecCesEspecesImpacts() {
+  function prefillWithTheseEspecesImpacts() {
     //@ts-ignore
-    let nouvellesEspecesImpactees: Array<{
+    let newEspecesImpactees: Array<{
       espece: EspeceProtegee;
       impacts: DescriptionImpact[];
-    }> = especesImpacteesPourPreremplir.filter(
+    }> = especesImpacteesToPrefill.filter(
       (especeImpactee) => especeImpactee?.espèce !== undefined,
     );
 
-    onClickPreRemplirAvecDocumentTexte(nouvellesEspecesImpactees);
+    onClickPrefillWithTextDocument(newEspecesImpactees);
   }
 
-  function ajouterImpactPourChaqueClassification(
-    impactPourChaqueOiseau: DescriptionImpact,
-    impactPourChaqueFauneNonOiseau: DescriptionImpact,
-    impactPourChaqueFlore: DescriptionImpact,
+  function addImpactForEachClassification(
+    impactForEachOiseau: DescriptionImpact,
+    impactForEachFauneNonOiseau: DescriptionImpact,
+    impactForEachFlore: DescriptionImpact,
   ) {
-    especesImpacteesPourPreremplir.forEach((especeImpactee) => {
+    especesImpacteesToPrefill.forEach((especeImpactee) => {
       if (especeImpactee.espèce && especeImpactee.espèce.classification === "oiseau") {
-        especeImpactee.impacts = [{ ...impactPourChaqueOiseau }];
+        especeImpactee.impacts = [{ ...impactForEachOiseau }];
       } else if (
         especeImpactee.espèce &&
         especeImpactee.espèce.classification === "faune non-oiseau"
       ) {
-        especeImpactee.impacts = [{ ...impactPourChaqueFauneNonOiseau }];
+        especeImpactee.impacts = [{ ...impactForEachFauneNonOiseau }];
       } else if (especeImpactee.espèce && especeImpactee.espèce.classification === "flore") {
-        especeImpactee.impacts = [{ ...impactPourChaqueFlore }];
+        especeImpactee.impacts = [{ ...impactForEachFlore }];
       }
     });
   }
@@ -123,35 +123,35 @@
   /**
    * Quick and dirty search
    */
-  function creerNomVersEspeceClassif(
+  function createNameToEspeceClassif(
     especesProtegeesParClassification: ByClassification<EspeceProtegee[]>,
   ): Map<string, EspeceProtegee> {
-    const nomVersEspeceClassif: Map<string, EspeceProtegee> = new Map();
+    const nameToEspeceClassif: Map<string, EspeceProtegee> = new Map();
 
     for (const especes of Object.values(especesProtegeesParClassification)) {
       for (const espece of especes) {
         const { nomsScientifiques, nomsVernaculaires } = espece;
         if (nomsScientifiques.size >= 1) {
-          for (const nom of nomsScientifiques) {
-            const normalized = normalizeEspeceName(nom);
+          for (const name of nomsScientifiques) {
+            const normalized = normalizeEspeceName(name);
             if (normalized && normalized.length >= 3) {
-              nomVersEspeceClassif.set(normalized, espece);
+              nameToEspeceClassif.set(normalized, espece);
             }
           }
         }
 
         if (nomsVernaculaires.size >= 1) {
-          for (const nom of nomsVernaculaires) {
-            const normalized = normalizeEspeceName(nom);
+          for (const name of nomsVernaculaires) {
+            const normalized = normalizeEspeceName(name);
             if (normalized && normalized.length >= 3) {
-              nomVersEspeceClassif.set(normalized, espece);
+              nameToEspeceClassif.set(normalized, espece);
             }
           }
         }
       }
     }
 
-    return nomVersEspeceClassif;
+    return nameToEspeceClassif;
   }
 </script>
 
@@ -166,24 +166,24 @@
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
         <div class="fr-modal__body">
-          {#if ecranAffiche === "champTexte"}
+          {#if displayedScreen === "champTexte"}
             <EcranChampTexte
-              bind:texteEspèces={texteEspeces}
-              bind:espècesTrouvéesDansTexte={especesTrouveesDansTexte}
-              bind:écranAffiché={ecranAffiche}
-              espècesImpactéesPourPréremplir={especesImpacteesPourPreremplir}
+              bind:texteEspèces={especesText}
+              bind:espècesTrouvéesDansTexte={especesFoundInText}
+              bind:écranAffiché={displayedScreen}
+              espècesImpactéesPourPréremplir={especesImpacteesToPrefill}
               espècesProtégéesParClassification={especesProtegeesParClassification}
-              idModalePréremplirDepuisTexte={idModalePreremplirDepuisTexte}
-              préremplirAvecCesEspècesImpacts={preremplirAvecCesEspecesImpacts}
-              supprimerEspèceImpactée={supprimerEspeceImpacteeImpactee}
+              idModalePréremplirDepuisTexte={idModalPrefillFromText}
+              préremplirAvecCesEspècesImpacts={prefillWithTheseEspecesImpacts}
+              supprimerEspèceImpactée={removeEspeceImpactee}
             />
-          {:else if ecranAffiche === "préciserImpact"}
+          {:else if displayedScreen === "préciserImpact"}
             <EcranPreciserImpact
-              bind:écranAffiché={ecranAffiche}
-              espècesImpactéesPourPréremplir={especesImpacteesPourPreremplir}
-              supprimerEspèceImpactée={supprimerEspeceImpacteeImpactee}
-              préremplirAvecCesEspècesImpacts={preremplirAvecCesEspecesImpacts}
-              {ajouterImpactPourChaqueClassification}
+              bind:écranAffiché={displayedScreen}
+              espècesImpactéesPourPréremplir={especesImpacteesToPrefill}
+              supprimerEspèceImpactée={removeEspeceImpactee}
+              préremplirAvecCesEspècesImpacts={prefillWithTheseEspecesImpacts}
+              {addImpactForEachClassification}
               méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
               {transportsParClassificationEtreVivant}
               {activitesParClassificationEtreVivant}

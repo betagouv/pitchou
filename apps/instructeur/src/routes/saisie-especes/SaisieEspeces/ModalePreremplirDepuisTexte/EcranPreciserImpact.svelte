@@ -30,121 +30,119 @@
     transportsParClassificationEtreVivant: ByClassification<
       Map<MoyenDePoursuiteMenacant["Code"], MoyenDePoursuiteMenacant>
     >;
-    ajouterImpactPourChaqueClassification: (
-      impactPourChaqueOiseau: DescriptionImpact,
-      impactPourChaqueFauneNonOiseau: DescriptionImpact,
-      impactPourChaqueFlore: DescriptionImpact,
+    addImpactForEachClassification: (
+      impactForEachOiseau: DescriptionImpact,
+      impactForEachFauneNonOiseau: DescriptionImpact,
+      impactForEachFlore: DescriptionImpact,
     ) => void;
   };
 
   let {
-    écranAffiché: ecranAffiche = $bindable(),
-    espècesImpactéesPourPréremplir: especesImpacteesPourPreremplir,
-    supprimerEspèceImpactée: supprimerEspeceImpactee,
-    préremplirAvecCesEspècesImpacts: preremplirAvecCesEspecesImpacts,
+    écranAffiché: displayedScreen = $bindable(),
+    espècesImpactéesPourPréremplir: especesImpacteesToPrefill,
+    supprimerEspèceImpactée: removeEspeceImpactee,
+    préremplirAvecCesEspècesImpacts: prefillWithTheseEspecesImpacts,
     méthodesParClassificationEtreVivant: methodesParClassificationEtreVivant,
     transportsParClassificationEtreVivant,
     activitesParClassificationEtreVivant,
-    ajouterImpactPourChaqueClassification,
+    addImpactForEachClassification,
   }: Props = $props();
 
-  let impactPourChaqueOiseau: DescriptionImpact = $state({});
+  let impactForEachOiseau: DescriptionImpact = $state({});
 
-  let impactPourChaqueFauneNonOiseau: DescriptionImpact = $state({});
+  let impactForEachFauneNonOiseau: DescriptionImpact = $state({});
 
-  let impactPourChaqueFlore: DescriptionImpact = $state({});
+  let impactForEachFlore: DescriptionImpact = $state({});
 
   //@ts-ignore
-  let oiseauxAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let oiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map(({ espèce: espece }) => espece)].filter(
+      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
         (e) => e && e.classification === "oiseau",
       ),
     ),
   );
   //@ts-ignore
-  let fauneNonOiseauxAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let fauneNonOiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map(({ espèce: espece }) => espece)].filter(
+      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
         (e) => e && e.classification === "faune non-oiseau",
       ),
     ),
   );
   //@ts-ignore
-  let floreAPreremplir: SvelteSet<EspeceProtegee> = $derived(
+  let floreToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesPourPreremplir.map(({ espèce: espece }) => espece)].filter(
+      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
         (e) => e && e.classification === "flore",
       ),
     ),
   );
 
-  let titreModale: HTMLElement;
+  let modalTitle: HTMLElement;
 
   /**
    * Reference to the back button
    */
-  let boutonRetour: HTMLButtonElement | undefined = $state();
+  let backButton: HTMLButtonElement | undefined = $state();
 
   /**
    * Array of references to the delete buttons, indexed by the index in espècesImpactéesPourPréremplir
    */
-  let referencesBoutonsSupprimer: HTMLElement[] = $state([]);
+  let deleteButtonRefs: HTMLElement[] = $state([]);
 
   $effect.pre(() => {
-    if (ecranAffiche === "préciserImpact") {
+    if (displayedScreen === "préciserImpact") {
       tick().then(() => {
-        titreModale.focus();
+        modalTitle.focus();
       });
     }
   });
 
-  async function supprimerEspeceImpacteeDepuisClassification(espece: EspeceProtegee) {
-    const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+  async function removeEspeceImpacteeFromClassification(espece: EspeceProtegee) {
+    const indexInList = especesImpacteesToPrefill.findIndex(
       ({ espèce: especeImpactee }) => especeImpactee === espece,
     );
-    if (indexDansListe >= 0) {
-      supprimerEspeceImpactee(indexDansListe);
+    if (indexInList >= 0) {
+      removeEspeceImpactee(indexInList);
 
       await tick();
 
-      if (especesImpacteesPourPreremplir.length === 0) {
-        boutonRetour?.focus();
+      if (especesImpacteesToPrefill.length === 0) {
+        backButton?.focus();
       } else {
-        let indexAFocuser =
-          indexDansListe === especesImpacteesPourPreremplir.length
-            ? indexDansListe - 1
-            : indexDansListe;
+        let indexToFocus =
+          indexInList === especesImpacteesToPrefill.length ? indexInList - 1 : indexInList;
 
-        let especeAFocus = especesImpacteesPourPreremplir[indexAFocuser]?.espèce;
+        let especeToFocus = especesImpacteesToPrefill[indexToFocus]?.espèce;
 
-        if (especeAFocus) {
-          const boutonAFocus = referencesBoutonsSupprimer.find((ref, idx) => {
+        if (especeToFocus) {
+          const buttonToFocus = deleteButtonRefs.find((ref, idx) => {
             // Check if the reference exists and if the espèce at this index matches
-            return ref !== null && especesImpacteesPourPreremplir[idx]?.espèce === especeAFocus;
+            return ref !== null && especesImpacteesToPrefill[idx]?.espèce === especeToFocus;
           });
 
-          if (boutonAFocus) {
-            boutonAFocus.focus();
+          if (buttonToFocus) {
+            buttonToFocus.focus();
           } else {
             // Fallback: focus on the back button
-            boutonRetour?.focus;
+            backButton?.focus;
           }
         } else {
           // Fallback : focus sur le bouton Retour
-          boutonRetour?.focus;
+          backButton?.focus;
         }
       }
     }
   }
 
-  function onClickToutAjouter() {
-    ajouterImpactPourChaqueClassification(
-      impactPourChaqueOiseau,
-      impactPourChaqueFauneNonOiseau,
-      impactPourChaqueFlore,
+  function onClickAddAll() {
+    addImpactForEachClassification(
+      impactForEachOiseau,
+      impactForEachFauneNonOiseau,
+      impactForEachFlore,
     );
-    preremplirAvecCesEspecesImpacts();
+    prefillWithTheseEspecesImpacts();
   }
 </script>
 
@@ -158,7 +156,7 @@
 </div>
 <div class="fr-modal__content">
   <h2
-    bind:this={titreModale}
+    bind:this={modalTitle}
     id="modale-préremplir-depuis-texte-title"
     class="fr-modal__title"
     tabindex="-1"
@@ -166,26 +164,26 @@
     Préciser l'impact pour chaque type d'espèce
   </h2>
   <div>
-    {#if oiseauxAPreremplir.size === 0 && fauneNonOiseauxAPreremplir.size === 0 && floreAPreremplir.size === 0}
+    {#if oiseauxToPrefill.size === 0 && fauneNonOiseauxToPrefill.size === 0 && floreToPrefill.size === 0}
       Aucune espèce n'a été renseignée.
     {:else}
-      {#if oiseauxAPreremplir.size >= 1}
+      {#if oiseauxToPrefill.size >= 1}
         <section class="section-espèce-par-classification">
           <h3>
-            {`${oiseauxAPreremplir.size} ${oiseauxAPreremplir.size >= 2 ? "oiseaux" : "oiseau"}`}
+            {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
           </h3>
           <ul>
-            {#each [...oiseauxAPreremplir] as espece (espece)}
-              {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+            {#each [...oiseauxToPrefill] as espece (espece)}
+              {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
               <li>
                 <NomEspece espèce={espece} />
                 <button
-                  bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                  bind:this={deleteButtonRefs[indexInList]}
                   type="button"
                   class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
                 >
                   Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                 </button>
@@ -193,7 +191,7 @@
             {/each}
           </ul>
           <ImpactEspece
-            bind:impact={impactPourChaqueOiseau}
+            bind:impact={impactForEachOiseau}
             indexEspèce={0}
             espèceClassification={"oiseau"}
             {activitesParClassificationEtreVivant}
@@ -202,23 +200,23 @@
           />
         </section>
       {/if}
-      {#if fauneNonOiseauxAPreremplir.size >= 1}
+      {#if fauneNonOiseauxToPrefill.size >= 1}
         <section class="section-espèce-par-classification">
           <h3>
-            {`${fauneNonOiseauxAPreremplir.size} ${fauneNonOiseauxAPreremplir.size >= 2 ? "faunes" : "faune"} non-oiseau`}
+            {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
           </h3>
           <ul>
-            {#each [...fauneNonOiseauxAPreremplir] as espece (espece)}
-              {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+            {#each [...fauneNonOiseauxToPrefill] as espece (espece)}
+              {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
               <li>
                 <NomEspece espèce={espece} />
                 <button
-                  bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                  bind:this={deleteButtonRefs[indexInList]}
                   type="button"
                   class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
                 >
                   Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                 </button>
@@ -226,7 +224,7 @@
             {/each}
           </ul>
           <ImpactEspece
-            bind:impact={impactPourChaqueFauneNonOiseau}
+            bind:impact={impactForEachFauneNonOiseau}
             indexEspèce={1}
             espèceClassification={"faune non-oiseau"}
             {activitesParClassificationEtreVivant}
@@ -235,21 +233,21 @@
           />
         </section>
       {/if}
-      {#if floreAPreremplir.size >= 1}
+      {#if floreToPrefill.size >= 1}
         <section class="section-espèce-par-classification">
-          <h3>{`${floreAPreremplir.size} ${floreAPreremplir.size >= 2 ? "flores" : "flore"}`}</h3>
+          <h3>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h3>
           <ul>
-            {#each [...floreAPreremplir] as espece (espece)}
-              {@const indexDansListe = especesImpacteesPourPreremplir.findIndex(
+            {#each [...floreToPrefill] as espece (espece)}
+              {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
               <li>
                 <NomEspece espèce={espece} />
                 <button
-                  bind:this={referencesBoutonsSupprimer[indexDansListe]}
+                  bind:this={deleteButtonRefs[indexInList]}
                   type="button"
                   class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => supprimerEspeceImpacteeDepuisClassification(espece)}
+                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
                 >
                   Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
                 </button>
@@ -257,7 +255,7 @@
             {/each}
           </ul>
           <ImpactEspece
-            bind:impact={impactPourChaqueFlore}
+            bind:impact={impactForEachFlore}
             indexEspèce={2}
             espèceClassification={"flore"}
             {activitesParClassificationEtreVivant}
@@ -272,16 +270,16 @@
 
 <div class="fr-modal__footer">
   <button
-    bind:this={boutonRetour}
+    bind:this={backButton}
     type="button"
     class="fr-btn fr-btn--secondary fr-ml-auto"
-    onclick={() => (ecranAffiche = "champTexte")}>Retour</button
+    onclick={() => (displayedScreen = "champTexte")}>Retour</button
   >
   <button
     aria-controls="modale-préremplir-depuis-texte"
     type="button"
     class="fr-btn fr-ml-2w"
-    onclick={onClickToutAjouter}>Tout ajouter</button
+    onclick={onClickAddAll}>Tout ajouter</button
   >
 </div>
 
