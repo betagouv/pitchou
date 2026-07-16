@@ -547,8 +547,8 @@
 
     {#if dossiers.length >= 1}
       <BarreRecherche
-        titre="Rechercher par texte libre"
-        mettreÀJourTexteRecherche={filterByText}
+        title="Rechercher par texte libre"
+        updateTextSearch={filterByText}
       />
 
       <div class="fr-mb-2w">
@@ -565,23 +565,23 @@
 
       <div class="filtres">
         <FiltreParmiOptions
-          titre="Filtrer par activité principale"
+          title="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
-          optionsSélectionnées={activitesPrincipalesSelectionnees}
-          mettreÀJourOptionsSélectionnées={filterByActivitePrincipale}
+          selectedOptions={activitesPrincipalesSelectionnees}
+          updateSelectedOptions={filterByActivitePrincipale}
         />
         <FiltreParmiOptions
-          titre="Filtrer par prochaine action attendue par"
+          title="Filtrer par prochaine action attendue par"
           options={prochainesActionsAttenduesParOptions}
-          optionsSélectionnées={prochainesActionsAttenduesParSelectionnes}
-          mettreÀJourOptionsSélectionnées={filterByProchainesActionsAttenduesPar}
+          selectedOptions={prochainesActionsAttenduesParSelectionnes}
+          updateSelectedOptions={filterByProchainesActionsAttenduesPar}
         />
         {#if instructeursOptions && instructeursOptions.size >= 2}
           <FiltreParmiOptions
-            titre="Filtrer par instructeur suivant le dossier"
+            title="Filtrer par instructeur suivant le dossier"
             options={instructeursOptions}
-            optionsSélectionnées={instructeursSelectionnes}
-            mettreÀJourOptionsSélectionnées={filterByInstructeurs}
+            selectedOptions={instructeursSelectionnes}
+            updateSelectedOptions={filterByInstructeurs}
           />
         {/if}
       </div>

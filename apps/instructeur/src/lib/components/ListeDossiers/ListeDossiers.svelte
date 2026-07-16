@@ -14,22 +14,22 @@
   import { phases as allPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
-    titre: string;
+    title: string;
     email?: string;
     dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
-    afficherFiltreSansInstructeurice?: boolean;
-    afficherFiltreActionInstructeur?: boolean;
+    showFilterSansInstructeurice?: boolean;
+    showFilterActionInstructeur?: boolean;
     notificationParDossier: PitchouState["notificationParDossier"];
   };
 
   let {
-    titre,
+    title,
     email = "",
     dossiers,
     relationSuivis,
-    afficherFiltreSansInstructeurice = false,
-    afficherFiltreActionInstructeur = false,
+    showFilterSansInstructeurice = false,
+    showFilterActionInstructeur = false,
     notificationParDossier,
   }: Props = $props();
 
@@ -249,7 +249,7 @@
 
 <div class="en-tête">
   <div class="titre-et-barre-de-recherche">
-    <h1>{titre}</h1>
+    <h1>{title}</h1>
     <form onsubmit={submitTextSearch}>
       <div class="fr-search-bar barre-de-recherche" role="search">
         <label class="fr-label" for="search-input">Rechercher un dossier</label>
@@ -293,7 +293,7 @@
             {/each}
           </select>
         </div>
-        {#if afficherFiltreSansInstructeurice}
+        {#if showFilterSansInstructeurice}
           <button
             type="button"
             class="fr-tag"
@@ -303,7 +303,7 @@
             Dossier sans instructeur·ice
           </button>
         {/if}
-        {#if afficherFiltreActionInstructeur}
+        {#if showFilterActionInstructeur}
           <button
             type="button"
             class="fr-tag"

@@ -4,16 +4,16 @@
   // TODO: replace Set<any> with a generic `<T extends string>`
   type Props = {
     options: Set<any>;
-    titre: string;
-    mettreÀJourOptionsSélectionnées: (optionsSelectionnees: Set<any>) => void;
-    optionsSélectionnées?: Set<any>;
+    title: string;
+    updateSelectedOptions: (selectedOptions: Set<any>) => void;
+    selectedOptions?: Set<any>;
   };
 
   let {
     options,
-    titre,
-    mettreÀJourOptionsSélectionnées: updateSelectedOptions,
-    optionsSélectionnées: selectedOptions = new SvelteSet(options),
+    title,
+    updateSelectedOptions,
+    selectedOptions = new SvelteSet(options),
   }: Props = $props();
 
   function updateOption(option: string) {
@@ -51,7 +51,7 @@
 
 <details bind:open bind:this={details}>
   <summary class="fr-btn fr-btn--secondary fr-btn--sm">
-    {titre}
+    {title}
   </summary>
 
   <section class="filtre-options">

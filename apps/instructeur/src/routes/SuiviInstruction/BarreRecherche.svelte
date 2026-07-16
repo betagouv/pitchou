@@ -1,10 +1,10 @@
 <script lang="ts">
   type Props = {
-    titre: string;
-    mettreÀJourTexteRecherche: (valeur: string) => void;
+    title: string;
+    updateTextSearch: (value: string) => void;
   };
 
-  let { titre, mettreÀJourTexteRecherche: updateTextSearch }: Props = $props();
+  let { title, updateTextSearch }: Props = $props();
 
   let value = $state("");
 
@@ -17,12 +17,12 @@
 
 <form onsubmit={onUpdateSelectedValue} role="search">
   <div class="form-recherche">
-    <label class="sr-only" for="recherche-texte">{titre}</label>
+    <label class="sr-only" for="recherche-texte">{title}</label>
     <input
       type="text"
       name="recherche-texte"
       id="recherche-texte"
-      placeholder={titre}
+      placeholder={title}
       class="fr-input"
       bind:value={value}
     />

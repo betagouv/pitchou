@@ -24,10 +24,10 @@
 </svelte:head>
 
 <ListeDossiers
-  titre="Tous les dossiers"
+  title="Tous les dossiers"
   {email}
   {dossiers}
   {relationSuivis}
   {notificationParDossier}
-  afficherFiltreSansInstructeurice
+  showFilterSansInstructeurice
 />

@@ -19,10 +19,10 @@
 </svelte:head>
 
 <ListeDossiers
-  titre="Mes dossiers"
+  title="Mes dossiers"
   {email}
   {dossiers}
   {relationSuivis}
-  afficherFiltreActionInstructeur
+  showFilterActionInstructeur
   {notificationParDossier}
 />
