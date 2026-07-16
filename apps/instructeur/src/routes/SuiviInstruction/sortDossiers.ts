@@ -4,7 +4,7 @@ import { getCurrentPhaseStart } from "$lib/dossier/getCurrentPhaseStart.ts";
 
 import type {
   DossierPhase,
-  DossierProchaineActionAttenduePar,
+  DossierNextActionExpectedFrom,
   DossierSummary,
 } from "@pitchou/types/API_Pitchou.ts";
 
@@ -54,7 +54,7 @@ function comparePhase(phase1: DossierPhase, phase2: DossierPhase) {
   return phaseToImportance[phase2] - phaseToImportance[phase1];
 }
 
-const prochaineActionAttendueParToImportance: { [k in DossierProchaineActionAttenduePar]: number } =
+const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedFrom]: number } =
   {
     Instructeur: 10,
     "Consultation du public": 9,
@@ -69,8 +69,8 @@ const prochaineActionAttendueParToImportance: { [k in DossierProchaineActionAtte
  * Returns a positive number if phase1 is more important than phase2
  */
 function compareProchaineActionAttenduePar(
-  prochaineActionAttenduePar1: DossierProchaineActionAttenduePar,
-  prochaineActionAttenduePar2: DossierProchaineActionAttenduePar,
+  prochaineActionAttenduePar1: DossierNextActionExpectedFrom,
+  prochaineActionAttenduePar2: DossierNextActionExpectedFrom,
 ) {
   const importance1 = prochaineActionAttenduePar1
     ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar1]

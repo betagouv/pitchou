@@ -1,6 +1,6 @@
 import type {
   DossierPhase,
-  DossierProchaineActionAttenduePar,
+  DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
 
 export const phases: Set<DossierPhase> = new Set([
@@ -12,7 +12,7 @@ export const phases: Set<DossierPhase> = new Set([
   "Obligations terminées",
 ]);
 
-export const prochaineActionAttenduePar: Set<DossierProchaineActionAttenduePar> = new Set([
+export const prochaineActionAttenduePar: Set<DossierNextActionExpectedFrom> = new Set([
   "Instructeur",
   "CNPN/CSRPN",
   "Pétitionnaire",

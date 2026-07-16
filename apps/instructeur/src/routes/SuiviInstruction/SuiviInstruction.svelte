@@ -31,7 +31,7 @@
   import type {
     DossierSummary,
     DossierPhase,
-    DossierProchaineActionAttenduePar,
+    DossierNextActionExpectedFrom,
   } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -295,7 +295,7 @@
 
   // @ts-ignore
   let selectedProchainesActionsAttenduesPar: Set<
-    DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+    DossierNextActionExpectedFrom | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
   > = $state(
     untrack(() =>
       selectedFilters["prochaine action attendue de"]
@@ -308,20 +308,20 @@
     if (
       !dossier.prochaine_action_attendue_par ||
       !prochainesActionsAttenduesParOptions.has(
-        dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+        dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
       )
     ) {
       return selectedProchainesActionsAttenduesPar.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
     }
 
     return selectedProchainesActionsAttenduesPar.has(
-      dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+      dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
     );
   });
 
   function filterByProchainesActionsAttenduesPar(
     _selectedProchainesActionsAttenduesPar: Set<
-      DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+      DossierNextActionExpectedFrom | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
     >,
   ) {
     selectedProchainesActionsAttenduesPar = new SvelteSet(

@@ -62,7 +62,7 @@ export type DossierPhase =
   | "Classé sans suite"
   | "Obligations terminées";
 
-export type DossierProchaineActionAttenduePar =
+export type DossierNextActionExpectedFrom =
   | "Instructeur"
   | "CNPN/CSRPN"
   | "Pétitionnaire"

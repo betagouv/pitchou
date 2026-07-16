@@ -1,4 +1,4 @@
-import { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou";
+import { DossierPhase, DossierNextActionExpectedFrom } from "./API_Pitchou";
 import Dossier from "./database/public/Dossier";
 import { default as Prescription } from "./database/public/Prescription";
 
@@ -12,7 +12,7 @@ export type EvenementRechercheDossiersDetails = {
     sansInstructeurice?: boolean;
     texte?: string;
     phases?: DossierPhase[];
-    prochaineActionAttenduePar?: Array<DossierProchaineActionAttenduePar | "(vide)">;
+    prochaineActionAttenduePar?: Array<DossierNextActionExpectedFrom | "(vide)">;
     activitésPrincipales?: NonNullable<Dossier["activité_principale"]>[];
     nouveauté?: boolean;
   };

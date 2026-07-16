@@ -1,4 +1,4 @@
-import type { DossierPhase, DossierProchaineActionAttenduePar } from "./API_Pitchou";
+import type { DossierPhase, DossierNextActionExpectedFrom } from "./API_Pitchou";
 import type Dossier from "./database/public/Dossier";
 import type Personne from "./database/public/Personne";
 
@@ -10,7 +10,7 @@ export type TableSort = {
 
 export type FiltersLocalStorage = {
   phases: DossierPhase[];
-  "prochaine action attendue de": DossierProchaineActionAttenduePar[];
+  "prochaine action attendue de": DossierNextActionExpectedFrom[];
   instructeurs: NonNullable<Personne["email"]>[];
   activitésPrincipales: NonNullable<Dossier["activité_principale"]>[];
   texte: string;
