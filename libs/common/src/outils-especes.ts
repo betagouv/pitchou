@@ -647,34 +647,34 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
 export async function construireActivitesMethodesMoyensDePoursuite(
   odsData: Buffer,
 ): Promise<NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>> {
-  const ActivitesMethodesMoyensDePoursuiteBruts =
+  const rawActivitesMethodesMoyensDePoursuite =
     await getODSTableRawContent(odsData).then(tableRawContentToObjects);
 
   // The rows are reassigned into new objects so that they have the `Object.prototype.toString` method
   // used by Svelte
 
-  const activitesBrutes: ByClassification<ActiviteMenancante[]> = {
-    oiseau: ActivitesMethodesMoyensDePoursuiteBruts.get("Activités oiseau")!.map((row) =>
+  const rawActivites: ByClassification<ActiviteMenancante[]> = {
+    oiseau: rawActivitesMethodesMoyensDePoursuite.get("Activités oiseau")!.map((row) =>
       Object.assign({}, row),
     ),
-    "faune non-oiseau": ActivitesMethodesMoyensDePoursuiteBruts.get(
+    "faune non-oiseau": rawActivitesMethodesMoyensDePoursuite.get(
       "Activités faune non oiseau",
     )!.map((row) => Object.assign({}, row)),
-    flore: ActivitesMethodesMoyensDePoursuiteBruts.get("Activités flore")!.map((row) =>
+    flore: rawActivitesMethodesMoyensDePoursuite.get("Activités flore")!.map((row) =>
       Object.assign({}, row),
     ),
   };
 
-  const methodesBrutes: MethodeMenancante[] = ActivitesMethodesMoyensDePoursuiteBruts.get(
+  const rawMethodes: MethodeMenancante[] = rawActivitesMethodesMoyensDePoursuite.get(
     "Méthodes",
   )!.map((row) => Object.assign({}, row));
-  const moyensPoursuite: MoyenDePoursuiteMenacant[] = ActivitesMethodesMoyensDePoursuiteBruts.get(
+  const moyensPoursuite: MoyenDePoursuiteMenacant[] = rawActivitesMethodesMoyensDePoursuite.get(
     "Moyens de poursuite",
   )!.map((row) => Object.assign({}, row));
 
   const ActivitesMethodesMoyensDePoursuite = actMetTransArraysToMapBundle(
-    activitesBrutes,
-    methodesBrutes,
+    rawActivites,
+    rawMethodes,
     moyensPoursuite,
   );
 
@@ -711,9 +711,9 @@ export async function construireActivitesMethodesMoyensDePoursuite(
 }
 
 export function actMetTransArraysToMapBundle(
-  activitesBrutes: ByClassification<ActiviteMenancante[]>,
-  methodesBrutes: MethodeMenancante[],
-  moyensDePoursuiteBruts: MoyenDePoursuiteMenacant[],
+  rawActivites: ByClassification<ActiviteMenancante[]>,
+  rawMethodes: MethodeMenancante[],
+  rawMoyensDePoursuite: MoyenDePoursuiteMenacant[],
 ): {
   activités: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
   méthodes: ByClassification<Map<MethodeMenancante["Code"], MethodeMenancante>>;
@@ -729,10 +729,10 @@ export function actMetTransArraysToMapBundle(
     flore: new Map(),
   };
 
-  for (const classification in activitesBrutes) {
+  for (const classification in rawActivites) {
     // @ts-ignore
-    const activiteBruteClassification: ActiviteMenancante[] = activitesBrutes[classification];
-    for (const activite of activiteBruteClassification) {
+    const rawActiviteClassification: ActiviteMenancante[] = rawActivites[classification];
+    for (const activite of rawActiviteClassification) {
       if (activite["Identifiant Pitchou"] === undefined || activite["Identifiant Pitchou"] === "") {
         // ignore empty lines (certainly comments)
         break;
@@ -750,7 +750,7 @@ export function actMetTransArraysToMapBundle(
     flore: new Map(),
   };
 
-  for (const methode of methodesBrutes) {
+  for (const methode of rawMethodes) {
     const classif = methode["Espèces"];
 
     if (!classif.trim() && (methode["Code"] === undefined || methode["Code"] === "")) {
@@ -778,7 +778,7 @@ export function actMetTransArraysToMapBundle(
     flore: new Map(),
   };
 
-  for (const moyenDePoursuite of moyensDePoursuiteBruts) {
+  for (const moyenDePoursuite of rawMoyensDePoursuite) {
     const classif = moyenDePoursuite["Espèces"];
 
     if (
