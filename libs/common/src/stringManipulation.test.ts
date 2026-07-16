@@ -6,7 +6,7 @@ import {
   normalizeEspeceName,
   normalizeEspeceText,
   removeAccents,
-} from "./manipulationStrings.ts";
+} from "./stringManipulation.ts";
 
 describe("UTF8ToB64", () => {
   it("encodes plain ASCII", () => {

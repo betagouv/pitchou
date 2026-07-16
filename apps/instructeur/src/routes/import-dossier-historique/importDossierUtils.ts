@@ -1,6 +1,6 @@
 import { json } from "d3-fetch";
 import memoize from "just-memoize";
-import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
 import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";

@@ -1,7 +1,7 @@
 import graphQLQuery from "./queryGraphQL.ts";
 
 import { GroupeInstructeursQuery } from "./graphQLqueries.ts";
-import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
 import type { GroupeInstructeurs } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 

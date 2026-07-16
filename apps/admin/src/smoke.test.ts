@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 
 // Smoke test: proves the unit runner works and the shared lib the home
 // page relies on behaves as expected.

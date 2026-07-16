@@ -2,7 +2,7 @@
   import EcranChampTexte from "./ModalePreremplirDepuisTexte/EcranChampTexte.svelte";
   import EcranPreciserImpact from "./ModalePreremplirDepuisTexte/EcranPreciserImpact.svelte";
   import TuileSaisieEspece from "./TuileSaisieEspece.svelte";
-  import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
+  import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
   import type {
     ByClassification,

@@ -1,4 +1,4 @@
-import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { findDossierIdsMatchingText } from "$lib/dossier/searchInDossier.ts";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";

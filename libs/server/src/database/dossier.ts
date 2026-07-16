@@ -5,7 +5,7 @@ import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
 import { getDecisionsAdministratives } from "./decision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getControles } from "./controle.ts";
-import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";

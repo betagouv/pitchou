@@ -2,7 +2,7 @@ import lunr from "lunr";
 import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
-import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";

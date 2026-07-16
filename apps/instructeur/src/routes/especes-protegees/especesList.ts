@@ -1,5 +1,5 @@
 import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 

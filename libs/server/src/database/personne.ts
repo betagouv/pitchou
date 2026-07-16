@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
 import type {
   default as Personne,

@@ -2,7 +2,7 @@
   import { preventDefault } from "svelte/legacy";
 
   import Loader from "$lib/components/Loader.svelte";
-  import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
+  import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
   type Props = {
     authorizedEmailDomains: Set<string>;
