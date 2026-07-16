@@ -3,7 +3,7 @@
   import EspecesProtegeesGroupeesParImpact from "$lib/components/EspecesProtegeesGroupeesParImpact.svelte";
   import ModalePreremplirDepuisTexte from "./SaisieEspeces/ModalePreremplirDepuisTexte.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
-  import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
+  import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
   import Loader from "$lib/components/Loader.svelte";
   import TuileSaisieEspece from "./SaisieEspeces/TuileSaisieEspece.svelte";
   import { tick } from "svelte";

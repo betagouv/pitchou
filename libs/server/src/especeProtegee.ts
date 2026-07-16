@@ -15,7 +15,7 @@ import type {
 // Re-exported so server consumers can convert rows from the same module they fetch
 // them with. The implementation is knex-free and lives in `commun` so the front-end
 // can reuse it on rows received from the API.
-export { dbRowToEspeceProtegee } from "@pitchou/common/outils-especes.ts";
+export { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 
 export type EspeceProtegeeAvecStatutsProtection = EspeceProtegee & {
   statuts_protection: StatutProtection[];

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { createOdsFile } from "@odfjs/odfjs";
 import * as XLSX from "xlsx";
 
-import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
+import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
 import { createEspecesGroupedByImpact } from "./creerEspecesGroupeesParImpact.ts";
 
 import type {

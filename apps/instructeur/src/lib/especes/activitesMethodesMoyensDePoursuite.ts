@@ -4,7 +4,7 @@ import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "$lib/shared/dataPat
 import {
   dbRowToEspeceProtegee,
   construireActivitesMethodesMoyensDePoursuite,
-} from "@pitchou/common/outils-especes.ts";
+} from "@pitchou/common/especesUtils.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";

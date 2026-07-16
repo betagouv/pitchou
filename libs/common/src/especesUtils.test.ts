@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import {
   dbRowToEspeceProtegee,
   importDescriptionMenacesEspecesFromOdsArrayBuffer,
-} from "./outils-especes.ts";
+} from "./especesUtils.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type {
   EspeceProtegee,

@@ -11,7 +11,7 @@ import { loadFichierContent } from "./fichier.ts";
 import {
   construireActivitesMethodesMoyensDePoursuite,
   importDescriptionMenacesEspecesFromOdsArrayBuffer,
-} from "@pitchou/common/outils-especes.ts";
+} from "@pitchou/common/especesUtils.ts";
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";

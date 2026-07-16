@@ -1,6 +1,6 @@
 import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
-import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
+import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
 import {
   loadActivitesMethodesMoyensDePoursuite,
   loadEspecesProtegeesList,

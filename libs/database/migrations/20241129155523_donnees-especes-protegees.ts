@@ -8,7 +8,7 @@ import {
   descriptionMenacesEspecesToOdsArrayBuffer,
   especeProtegeeStringToEspeceProtegee,
   actMetTransArraysToMapBundle,
-} from "@pitchou/common/outils-especes.ts";
+} from "@pitchou/common/especesUtils.ts";
 
 /** @import {ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../scripts/types/especes.js' */
 /** @import {PitchouState} from '../scripts/front-end/store.js' */

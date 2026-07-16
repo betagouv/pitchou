@@ -2,7 +2,7 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
   import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
-  import { especeLabel } from "@pitchou/common/outils-especes.ts";
+  import { especeLabel } from "@pitchou/common/especesUtils.ts";
 
   type Props = {
     espèces: EspeceProtegee[];

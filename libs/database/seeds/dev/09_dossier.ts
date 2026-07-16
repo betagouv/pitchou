@@ -8,7 +8,7 @@ import {
   construireActivitesMethodesMoyensDePoursuite,
   dbRowToEspeceProtegee,
   descriptionMenacesEspecesToOdsArrayBuffer,
-} from "@pitchou/common/outils-especes.ts";
+} from "@pitchou/common/especesUtils.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
 import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";

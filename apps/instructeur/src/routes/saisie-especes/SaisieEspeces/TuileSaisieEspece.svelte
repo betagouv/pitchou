@@ -3,7 +3,7 @@
 
   import AutocompleteEspeces from "./AutocompleteEspeces.svelte";
   import ImpactEspece from "./ImpactEspece.svelte";
-  import { especeLabel } from "@pitchou/common/outils-especes.ts";
+  import { especeLabel } from "@pitchou/common/especesUtils.ts";
 
   import type {
     ByClassification,

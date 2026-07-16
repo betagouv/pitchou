@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { DossierFullToDossierSummary } from "@pitchou/common/outils-dossiers.ts";
+import { DossierFullToDossierSummary } from "@pitchou/common/dossiersUtils.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type {

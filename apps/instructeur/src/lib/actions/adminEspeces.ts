@@ -1,7 +1,7 @@
 import remember from "remember";
 
 import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
-import { dbRowToEspeceProtegee } from "@pitchou/common/outils-especes.ts";
+import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";

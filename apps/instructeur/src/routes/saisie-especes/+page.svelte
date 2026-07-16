@@ -3,7 +3,7 @@
   import {
     importDescriptionMenacesEspecesFromOdsArrayBuffer,
     importDescriptionMenacesEspecesFromURL,
-  } from "@pitchou/common/outils-especes.ts";
+  } from "@pitchou/common/especesUtils.ts";
   import {
     loadEspecesProtegeesList,
     loadActivitesMethodesMoyensDePoursuite,
