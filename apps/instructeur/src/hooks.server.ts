@@ -1,5 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
-import { miseEnPlaceSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
+import { setupSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
 
 if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {
   throw new TypeError(`Variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN manquante`);
@@ -11,8 +11,8 @@ if (!process.env.PUBLIC_SITE_URL_PITCHOU) {
 console.log("NODE_ENV", process.env.NODE_ENV);
 
 // fire-and-forget
-miseEnPlaceSecretGeoMCE().catch((err) => {
-  console.error("miseEnPlaceSecretGeoMCE failed:", err);
+setupSecretGeoMCE().catch((err) => {
+  console.error("setupSecretGeoMCE failed:", err);
 });
 
 const STATIC_PREFIXES = ["/_app/", "/docs/", "/data/"];

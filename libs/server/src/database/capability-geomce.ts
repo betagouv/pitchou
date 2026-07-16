@@ -4,7 +4,7 @@ import { directDatabaseConnection } from "../database.ts";
 
 import type { default as CapabilityGeomce } from "@pitchou/types/database/public/CapabilityGeomce.ts";
 
-export async function miseEnPlaceSecretGeoMCE(
+export async function setupSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   const secretsGeoMCE = await databaseConnection("capability-geomce").select("*");
@@ -21,7 +21,7 @@ export async function miseEnPlaceSecretGeoMCE(
   }
 }
 
-export async function verifierSecretGeoMCE(
+export async function verifySecretGeoMCE(
   secret: CapabilityGeomce["secret"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
@@ -37,7 +37,7 @@ export async function verifierSecretGeoMCE(
 /**
  * Sensitive function. To be called with caution
  */
-export async function recupererSecretGeoMCE(
+export async function getSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const { secret } = await databaseConnection("capability-geomce").select("*").first();

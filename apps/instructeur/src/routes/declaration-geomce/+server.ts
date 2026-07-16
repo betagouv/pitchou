@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
-import { verifierSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
+import { verifySecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
 import { generateDeclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 import type { CapabilityGeomceSecret } from "@pitchou/types/database/public/CapabilityGeomce.ts";
 
@@ -9,7 +9,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const secret = requireSecret(url) as CapabilityGeomceSecret;
 
   try {
-    await verifierSecretGeoMCE(secret);
+    await verifySecretGeoMCE(secret);
   } catch {
     error(
       403,
