@@ -5,7 +5,7 @@ import type Personne from "./database/public/Personne";
 export type TableSort = {
   id: string; // serializable identifier to identify the selected sort in localStorage
   nom: string; // display name in the user interface
-  trier: () => void;
+  sort: () => void;
 };
 
 export type FiltersLocalStorage = {

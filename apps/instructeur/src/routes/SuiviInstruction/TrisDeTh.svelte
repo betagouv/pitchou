@@ -12,7 +12,7 @@
 
   const selectionnerTri = (tri: TableSort): void => {
     triSelectionne = tri;
-    tri.trier();
+    tri.sort();
   };
 </script>
 

@@ -96,7 +96,7 @@
   const trisActivitePrincipale = [
     {
       nom: "Trier de A à Z",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "activité_principale",
@@ -106,7 +106,7 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "activité_principale",
@@ -119,7 +119,7 @@
   const trisNomProjet = [
     {
       nom: "Trier de A à Z",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "nom",
@@ -129,7 +129,7 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "nom",
@@ -142,7 +142,7 @@
   const trisLocalisation = [
     {
       nom: "Trier de A à Z",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "localisation",
@@ -152,7 +152,7 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "localisation",
@@ -165,7 +165,7 @@
   const trisPorteurDeProjet = [
     {
       nom: "Trier de A à Z",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "porteur de projet",
@@ -175,7 +175,7 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "porteur de projet",
@@ -188,7 +188,7 @@
   const triPriorisationPhaseProchaineAction = [
     {
       nom: "Prioriser",
-      trier() {
+      sort() {
         dossiersSelectionnes = sortDossiersByPhaseProchaineAction(dossiersSelectionnes);
       },
       id: "Priorisation-PhaseAction",
@@ -227,7 +227,7 @@
     dossiersSelectionnes = nouveauxDossiersSelectionnes;
 
     if (triSelectionne) {
-      triSelectionne.trier();
+      triSelectionne.sort();
     }
   }
 
