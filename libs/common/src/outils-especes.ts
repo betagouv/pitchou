@@ -402,7 +402,7 @@ export function importDescriptionMenacesEspecesFromURL(
   }
 }
 
-function ligneEspeceImpacteeHasCD_REF(
+function rowEspeceImpacteeHasCD_REF(
   especeImpactee: OiseauAtteintOds_V1 | FauneNonOiseauAtteinteOds_V1 | FloreAtteinteOds_V1,
 ): boolean {
   return !!especeImpactee.CD_REF;
@@ -413,7 +413,7 @@ function ligneEspeceImpacteeHasCD_REF(
  * petitionnaire's .xlsx may store it as a number. Coerce it back to a string so
  * the lookup against the string-keyed espece map succeeds for both formats.
  */
-function normaliserCD_REF<T extends { CD_REF: string }>(ligne: T): T {
+function normalizeCD_REF<T extends { CD_REF: string }>(ligne: T): T {
   if (ligne.CD_REF !== undefined && ligne.CD_REF !== null && (ligne.CD_REF as unknown) !== "") {
     ligne.CD_REF = String(ligne.CD_REF) as T["CD_REF"];
   }
@@ -504,12 +504,12 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
   let lignesFloreOds = odsContent.get("flore");
 
   lignesOiseauOds =
-    lignesOiseauOds && lignesOiseauOds.map(normaliserCD_REF).filter(ligneEspeceImpacteeHasCD_REF);
+    lignesOiseauOds && lignesOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
   lignesFauneNonOiseauOds =
     lignesFauneNonOiseauOds &&
-    lignesFauneNonOiseauOds.map(normaliserCD_REF).filter(ligneEspeceImpacteeHasCD_REF);
+    lignesFauneNonOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
   lignesFloreOds =
-    lignesFloreOds && lignesFloreOds.map(normaliserCD_REF).filter(ligneEspeceImpacteeHasCD_REF);
+    lignesFloreOds && lignesFloreOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
 
   if (
     !(lignesOiseauOds && lignesOiseauOds.length >= 1) &&
