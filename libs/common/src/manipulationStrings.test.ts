@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 
 import {
   UTF8ToB64,
-  normalisationEmail,
+  normalizeEmail,
   normalizeNomEspece,
   normalizeTexteEspece,
-  retirerAccents,
+  removeAccents,
 } from "./manipulationStrings.ts";
 
 describe("UTF8ToB64", () => {
@@ -23,13 +23,13 @@ describe("UTF8ToB64", () => {
   });
 });
 
-describe("normalisationEmail", () => {
+describe("normalizeEmail", () => {
   it("lowercases the address", () => {
-    expect(normalisationEmail("Foo.Bar@Example.COM")).toBe("foo.bar@example.com");
+    expect(normalizeEmail("Foo.Bar@Example.COM")).toBe("foo.bar@example.com");
   });
 
   it("leaves an already-lowercase address unchanged", () => {
-    expect(normalisationEmail("foo@bar.fr")).toBe("foo@bar.fr");
+    expect(normalizeEmail("foo@bar.fr")).toBe("foo@bar.fr");
   });
 });
 
@@ -82,16 +82,16 @@ describe("normalizeTexteEspèce", () => {
   });
 });
 
-describe("retirerAccents", () => {
+describe("removeAccents", () => {
   it("strips combining marks", () => {
-    expect(retirerAccents("Éléphant")).toBe("Elephant");
+    expect(removeAccents("Éléphant")).toBe("Elephant");
   });
 
   it("preserves case", () => {
-    expect(retirerAccents("ÉÊÈ")).toBe("EEE");
+    expect(removeAccents("ÉÊÈ")).toBe("EEE");
   });
 
   it("does not trim surrounding whitespace", () => {
-    expect(retirerAccents("  café  ")).toBe("  cafe  ");
+    expect(removeAccents("  café  ")).toBe("  cafe  ");
   });
 });

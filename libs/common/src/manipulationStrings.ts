@@ -6,7 +6,7 @@ export function UTF8ToB64(s: string): string {
 /**
  * Normalization of email addresses
  */
-export function normalisationEmail(email: string): string {
+export function normalizeEmail(email: string): string {
   return email.toLowerCase();
 }
 
@@ -36,6 +36,6 @@ export function normalizeTexteEspece(texte: string): string {
     .toLowerCase();
 }
 
-export function retirerAccents(texte: string): string {
+export function removeAccents(texte: string): string {
   return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }

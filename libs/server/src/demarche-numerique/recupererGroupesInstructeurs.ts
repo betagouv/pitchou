@@ -1,7 +1,7 @@
 import graphQLQuery from "./queryGraphQL.ts";
 
 import { GroupeInstructeursQuery } from "./graphQLqueries.ts";
-import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type { GroupeInstructeurs } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 
@@ -14,7 +14,7 @@ export async function getGroupesInstructeurs(
 
   for (const group of groupeInstructeurs) {
     for (const instructeur of group.instructeurs) {
-      instructeur.email = normalisationEmail(instructeur.email);
+      instructeur.email = normalizeEmail(instructeur.email);
     }
   }
 

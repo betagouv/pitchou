@@ -2,7 +2,7 @@ import lunr from "lunr";
 import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
-import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
@@ -26,13 +26,13 @@ const creerDossierIndexable = (dossier: DossierResume): StringValues<Partial<Dos
   return {
     id: id.toString(),
     number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
-    nom: retirerAccents(nom || ""),
-    communes: communes?.map(({ name }) => retirerAccents(name || "")).join(" ") || "",
-    déposant_nom: retirerAccents(deposant_nom || ""),
-    déposant_prénoms: retirerAccents(deposant_prenoms || ""),
-    demandeur_personne_physique_prénoms: retirerAccents(demandeur_personne_physique_prenoms || ""),
-    demandeur_personne_physique_nom: retirerAccents(demandeur_personne_physique_nom || ""),
-    demandeur_personne_morale_raison_sociale: retirerAccents(
+    nom: removeAccents(nom || ""),
+    communes: communes?.map(({ name }) => removeAccents(name || "")).join(" ") || "",
+    déposant_nom: removeAccents(deposant_nom || ""),
+    déposant_prénoms: removeAccents(deposant_prenoms || ""),
+    demandeur_personne_physique_prénoms: removeAccents(demandeur_personne_physique_prenoms || ""),
+    demandeur_personne_physique_nom: removeAccents(demandeur_personne_physique_nom || ""),
+    demandeur_personne_morale_raison_sociale: removeAccents(
       demandeur_personne_morale_raison_sociale || "",
     ),
   };

@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type {
   default as Personne,
@@ -16,7 +16,7 @@ export function createPersonne(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const normalised = personne.email
-    ? { ...personne, email: normalisationEmail(personne.email) }
+    ? { ...personne, email: normalizeEmail(personne.email) }
     : personne;
 
   return databaseConnection("personne").insert(normalised);
@@ -29,7 +29,7 @@ export function createPersonnes(
   if (personnes.length === 0) return Promise.resolve([]);
 
   const normalised = personnes.map((personne) =>
-    personne.email ? { ...personne, email: normalisationEmail(personne.email) } : personne,
+    personne.email ? { ...personne, email: normalizeEmail(personne.email) } : personne,
   );
 
   return databaseConnection("personne").insert(normalised, ["id"]);

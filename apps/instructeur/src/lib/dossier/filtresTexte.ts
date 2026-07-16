@@ -1,4 +1,4 @@
-import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
 import { trouverDossiersIdCorrespondantsATexte } from "$lib/dossier/rechercherDansDossier.ts";
 
 import type { DossierResume } from "@pitchou/types/API_Pitchou.ts";
@@ -38,7 +38,7 @@ export function creerFiltreTexte(
     };
   } else {
     // Otherwise, use lunr for text search
-    const texteSansAccents = retirerAccents(texteAChercher);
+    const texteSansAccents = removeAccents(texteAChercher);
     // To search communes that contain hyphens with lunr,
     // we need to pass the string between "".
     const aRechercher = texteSansAccents.match(/(\w-)+/)

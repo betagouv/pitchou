@@ -1,6 +1,6 @@
 import { json } from "d3-fetch";
 import memoize from "just-memoize";
-import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -171,7 +171,7 @@ export function extrairePremierMail(text: string): string | null {
     /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   const résultat = text.match(mailRegex);
 
-  return résultat && résultat?.length ? normalisationEmail(résultat[0]) : null;
+  return résultat && résultat?.length ? normalizeEmail(résultat[0]) : null;
 }
 
 /**

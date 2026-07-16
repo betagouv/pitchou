@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { decryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/chiffrerDechiffrerDonneesSupplementaires.ts";
 import { isAfter } from "date-fns";
-import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";
 
 import type {
@@ -118,13 +118,13 @@ export function getPersonnesEntreprisesData88444(
     déposant = {
       prénoms: prenomMandataire,
       nom: nomMandataire,
-      email: normalisationEmail(usager.email),
+      email: normalizeEmail(usager.email),
     };
   } else {
     déposant = {
       prénoms: demandeur.prenom,
       nom: demandeur.nom,
-      email: demandeur.email ? normalisationEmail(demandeur.email) : undefined,
+      email: demandeur.email ? normalizeEmail(demandeur.email) : undefined,
     };
   }
 
@@ -140,7 +140,7 @@ export function getPersonnesEntreprisesData88444(
     demandeur_personne_physique = {
       prénoms: prenom,
       nom,
-      email: email ? normalisationEmail(email) : undefined,
+      email: email ? normalizeEmail(email) : undefined,
       address: formatPostalAddress(adresseChamp?.address),
       phone: phoneContact || undefined,
       role: role || undefined,
@@ -193,7 +193,7 @@ export function getPersonnesEntreprisesData88444(
       representative = {
         prénoms: prénoms || undefined,
         nom: nom || undefined,
-        email: emailContact ? normalisationEmail(emailContact) : undefined,
+        email: emailContact ? normalizeEmail(emailContact) : undefined,
         phone: phoneContact || undefined,
         role: role || undefined,
       };

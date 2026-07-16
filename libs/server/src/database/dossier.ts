@@ -5,7 +5,7 @@ import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
 import { getDecisionsAdministratives } from "./decision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getControles } from "./controle.ts";
-import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
@@ -1147,7 +1147,7 @@ async function synchronizeAndReturnPersonnesForDossiersToInsert(
       .filter((x) => x != null)
       // We only select the properties we want to keep (not code_accès)
       .map(({ email, nom, prénoms }) => ({
-        email: email ? normalisationEmail(email) : null,
+        email: email ? normalizeEmail(email) : null,
         nom,
         prénoms,
       }));

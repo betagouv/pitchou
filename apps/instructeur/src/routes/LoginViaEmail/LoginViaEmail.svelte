@@ -2,7 +2,7 @@
   import { preventDefault } from "svelte/legacy";
 
   import Loader from "$lib/components/Loader.svelte";
-  import { normalisationEmail } from "@pitchou/common/manipulationStrings.ts";
+  import { normalizeEmail } from "@pitchou/common/manipulationStrings.ts";
 
   type Props = {
     authorizedEmailDomains: Set<string>;
@@ -15,12 +15,12 @@
 
   let emailInProgress: Promise<unknown> | undefined = $state();
 
-  const domaine = $derived(normalisationEmail(email).split("@")[1] ?? "");
+  const domaine = $derived(normalizeEmail(email).split("@")[1] ?? "");
   const domaineAutorise = $derived(authorizedEmailDomains.has(domaine));
 
   function onSubmit() {
     if (!domaineAutorise) return;
-    emailInProgress = envoiEmailConnexion(normalisationEmail(email));
+    emailInProgress = envoiEmailConnexion(normalizeEmail(email));
   }
 </script>
 
