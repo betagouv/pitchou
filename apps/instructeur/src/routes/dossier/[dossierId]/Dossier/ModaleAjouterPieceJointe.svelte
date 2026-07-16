@@ -36,7 +36,7 @@
     source,
   }: Props = $props();
 
-  const idTitreH2 = $derived(`${id}-title`);
+  const idTitleH2 = $derived(`${id}-title`);
 
   const OPTIONS_SERVICE_EXPERT = ["CSRPN", "CNPN", "Ministre", "Autre expert"];
 
@@ -75,15 +75,15 @@
 
   let otherAttachmentDate: Date | undefined | null = $state();
 
-  let avisExpertSelectionne: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
+  let selectedAvisExpert: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
   let errorMessage: string | null = $state(null);
 
-  let modale: HTMLElement | undefined;
+  let modal: HTMLElement | undefined;
 
   let fileInput: HTMLInputElement | undefined = $state();
 
-  let saisinesSansAvis = $derived(
+  let saisinesWithoutAvis = $derived(
     dossier.avisExpert.filter(
       (ae) =>
         (ae.date_saisine !== null || ae.saisine_fichier_url !== null) &&
@@ -94,17 +94,17 @@
 
   let showTypePieceJointeField = $derived(afficherChoixType && typesPiecesJointes.length > 1);
 
-  let ajouterUneNouvellePieceJointeP: Promise<void> = $state(Promise.resolve());
+  let addNewPieceJointeP: Promise<void> = $state(Promise.resolve());
 
   // Automatically pre-check the saisine if there is only one
   $effect(() => {
     if (
       typePieceJointe === "Avis expert" &&
-      saisinesSansAvis.length === 1 &&
-      avisExpertSelectionne === null
+      saisinesWithoutAvis.length === 1 &&
+      selectedAvisExpert === null
     ) {
-      avisExpertSelectionne = saisinesSansAvis[0].id;
-      serviceOuPersonneExperte = saisinesSansAvis[0].expert;
+      selectedAvisExpert = saisinesWithoutAvis[0].id;
+      serviceOuPersonneExperte = saisinesWithoutAvis[0].expert;
     }
   });
 
@@ -113,8 +113,8 @@
   );
   let isFormValidForAvisExpert = $derived(
     typePieceJointe === "Avis expert" &&
-      avisExpertSelectionne !== null &&
-      (avisExpertSelectionne === "nouvel-avis-expert" ? serviceOuPersonneExperte !== null : true) &&
+      selectedAvisExpert !== null &&
+      (selectedAvisExpert === "nouvel-avis-expert" ? serviceOuPersonneExperte !== null : true) &&
       // The Ministre, CNPN and CSRPN experts are necessarily linked to an avis (compliant, non-compliant...)
       (serviceOuPersonneExperte === "Ministre" ||
       serviceOuPersonneExperte === "CNPN" ||
@@ -133,7 +133,7 @@
         (typePieceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
-  function sendEvenementAjouterPieceJointe(
+  function sendEvenementAddPieceJointe(
     typePieceJointe: TypePieceJointe,
     nombreFichiers: number,
   ) {
@@ -148,7 +148,7 @@
     });
   }
 
-  async function ajouterPieceJointe() {
+  async function addPieceJointe() {
     if (!fileListPieceJointe || fileListPieceJointe.length === 0) {
       return;
     }
@@ -167,33 +167,33 @@
         const fichierSaisine = fileListPieceJointe[0];
         const expert =
           serviceOuPersonneExperte === "Autre expert" ? autreExpertTexte : serviceOuPersonneExperte;
-        const avisExpertACreer = {
+        const avisExpertToCreate = {
           dossier: dossier.id,
           expert: expert,
           date_saisine: dateSaisine,
         };
 
-        ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
-          avisExpertACreer,
+        addNewPieceJointeP = addOrUpdateAvisExpert(
+          avisExpertToCreate,
           fichierSaisine,
           undefined,
         )
           .then(() => {
-            sendEvenementAjouterPieceJointe("Saisine expert", 1);
-            return refreshDossierFull(dossier.id).then(() => closeModale());
+            sendEvenementAddPieceJointe("Saisine expert", 1);
+            return refreshDossierFull(dossier.id).then(() => closeModal());
           })
           .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
       } else if (typePieceJointe === "Avis expert") {
         // Either modify an existing saisine by adding the avis, or create a new one
         const fichierAvis = fileListPieceJointe[0];
 
-        if (avisExpertSelectionne === "nouvel-avis-expert") {
+        if (selectedAvisExpert === "nouvel-avis-expert") {
           // Create a new avis expert
           const expert =
             serviceOuPersonneExperte === "Autre expert"
               ? autreExpertTexte
               : serviceOuPersonneExperte;
-          const avisExpertACreer: Pick<FrontEndAvisExpert, "dossier"> &
+          const avisExpertToCreate: Pick<FrontEndAvisExpert, "dossier"> &
             Partial<FrontEndAvisExpert> = {
             dossier: dossier.id,
             expert: expert,
@@ -201,50 +201,50 @@
             date_saisine: dateSaisine,
             date_avis: dateAvis,
           };
-          ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
-            avisExpertACreer,
+          addNewPieceJointeP = addOrUpdateAvisExpert(
+            avisExpertToCreate,
             undefined,
             fichierAvis,
           )
             .then(() => {
-              sendEvenementAjouterPieceJointe("Avis expert", 1);
-              return refreshDossierFull(dossier.id).then(() => closeModale());
+              sendEvenementAddPieceJointe("Avis expert", 1);
+              return refreshDossierFull(dossier.id).then(() => closeModal());
             })
             .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
-        } else if (avisExpertSelectionne) {
+        } else if (selectedAvisExpert) {
           // Add the avis to an existing saisine
-          const saisineExistant = dossier.avisExpert.find((ae) => ae.id === avisExpertSelectionne);
-          if (saisineExistant) {
-            const avisExpertAModifier = {
-              id: saisineExistant.id,
+          const existingSaisine = dossier.avisExpert.find((ae) => ae.id === selectedAvisExpert);
+          if (existingSaisine) {
+            const avisExpertToUpdate = {
+              id: existingSaisine.id,
               dossier: dossier.id,
-              expert: saisineExistant.expert,
+              expert: existingSaisine.expert,
               date_avis: dateAvis,
               avis,
             };
-            ajouterUneNouvellePieceJointeP = addOrUpdateAvisExpert(
-              avisExpertAModifier,
+            addNewPieceJointeP = addOrUpdateAvisExpert(
+              avisExpertToUpdate,
               undefined,
               fichierAvis,
             )
               .then(() => {
-                sendEvenementAjouterPieceJointe("Avis expert", 1);
-                return refreshDossierFull(dossier.id).then(() => closeModale());
+                sendEvenementAddPieceJointe("Avis expert", 1);
+                return refreshDossierFull(dossier.id).then(() => closeModal());
               })
               .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
           }
         }
       } else if (typePieceJointe === "Autre") {
         const nombreFichiers = fileListPieceJointe.length;
-        ajouterUneNouvellePieceJointeP = addAttachmentAutre(
+        addNewPieceJointeP = addAttachmentAutre(
           dossier.id,
           otherAttachmentType,
           otherAttachmentDate,
           fileListPieceJointe,
         )
           .then(() => {
-            sendEvenementAjouterPieceJointe("Autre", nombreFichiers);
-            return refreshDossierFull(dossier.id).then(() => closeModale());
+            sendEvenementAddPieceJointe("Autre", nombreFichiers);
+            return refreshDossierFull(dossier.id).then(() => closeModal());
           })
           .catch((e) => (errorMessage = e.message || "Une erreur est survenue"));
       }
@@ -254,12 +254,12 @@
     }
   }
 
-  async function ajouterDecisionAdministrative(decision: DecisionAdministrativeForTransfer) {
+  async function addDecisionAdministrative(decision: DecisionAdministrativeForTransfer) {
     await saveNewDecisionAdministrative(decision);
     if (decision.fichier_base64) {
-      sendEvenementAjouterPieceJointe("Décision administrative", 1);
+      sendEvenementAddPieceJointe("Décision administrative", 1);
     }
-    closeModale();
+    closeModal();
   }
 
   function resetFormExceptTypePieceJointe() {
@@ -271,26 +271,26 @@
     autreExpertTexte = null;
     avis = null;
     dateSaisine = null;
-    avisExpertSelectionne = null;
+    selectedAvisExpert = null;
     errorMessage = null;
     dateAvis = null;
     otherAttachmentType = "";
     otherAttachmentDate = null;
   }
 
-  function closeModale() {
+  function closeModal() {
     // Reset the states
     resetFormExceptTypePieceJointe();
     typePieceJointe = getDefaultTypePieceJointe();
 
-    if (modale) {
+    if (modal) {
       //@ts-ignore
-      window.dsfr(modale).modal.conceal();
+      window.dsfr(modal).modal.conceal();
     }
   }
 </script>
 
-<dialog bind:this={modale} {id} class="fr-modal" aria-labelledby={idTitreH2}>
+<dialog bind:this={modal} {id} class="fr-modal" aria-labelledby={idTitleH2}>
   <div class="fr-container fr-container--fluid fr-container-md">
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
@@ -301,13 +301,13 @@
               title="Fermer"
               type="button"
               class="fr-btn--close fr-btn"
-              onclick={closeModale}>Fermer</button
+              onclick={closeModal}>Fermer</button
             >
           </div>
           <div class="fr-modal__content">
-            <h2 id={idTitreH2} class="fr-modal__title">Ajouter une pièce jointe</h2>
+            <h2 id={idTitleH2} class="fr-modal__title">Ajouter une pièce jointe</h2>
             <p class="fr-text--sm fr-mb-2w">
-              <span class="obligatoire-asterisque">*</span>
+              <span class="required-asterisk">*</span>
               Champs obligatoires
             </p>
             {#if showTypePieceJointeField}
@@ -317,9 +317,9 @@
                   id="champ-type-piece-jointe-group"
                 >
                   Type de pièce jointe
-                  <span class="obligatoire-asterisque">*</span>
+                  <span class="required-asterisk">*</span>
                 </legend>
-                <div class="conteneur-boutons-radios">
+                <div class="radio-buttons-container">
                   {#each typesPiecesJointes as type}
                     {@const idRadio = `type-piece-jointe-${type.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                     <div class="fr-fieldset__element">
@@ -345,14 +345,14 @@
             {#if typePieceJointe === "Décision administrative"}
               <FormDecisionAdministrative
                 décisionAdministrative={{ dossier: dossier.id }}
-                onValider={ajouterDecisionAdministrative}
-                onAnnuler={closeModale}
+                onValider={addDecisionAdministrative}
+                onAnnuler={closeModal}
               />
             {:else if typePieceJointe}
               <form
                 onsubmit={(e) => {
                   e.preventDefault();
-                  ajouterPieceJointe();
+                  addPieceJointe();
                 }}
               >
                 <div class="fr-upload-group fr-mt-3w">
@@ -362,7 +362,7 @@
                     {:else}
                       Choisir un ou plusieurs fichiers
                     {/if}
-                    <span class="obligatoire-asterisque">*</span>
+                    <span class="required-asterisk">*</span>
                     <span class="fr-hint-text"
                       >{uploadSizeHint()} Formats supportés&nbsp;: xls, ods, pdf, odt.</span
                     >
@@ -393,9 +393,9 @@
                       id="champ-service-expert-group"
                     >
                       Service ou personne experte
-                      <span class="obligatoire-asterisque">*</span>
+                      <span class="required-asterisk">*</span>
                     </legend>
-                    <div class="conteneur-boutons-radios">
+                    <div class="radio-buttons-container">
                       {#each OPTIONS_SERVICE_EXPERT as service}
                         {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                         <div class="fr-fieldset__element">
@@ -441,7 +441,7 @@
                 {/if}
 
                 {#if typePieceJointe === "Avis expert"}
-                  {@const idRadioNouvel = `avis-expert-selection-nouvel-${id}`}
+                  {@const idRadioNew = `avis-expert-selection-nouvel-${id}`}
                   <div class="fr-fieldset fr-mt-3w" id="champ-avis-expert-selection-group">
                     <legend
                       class="fr-fieldset__legend--regular fr-fieldset__legend"
@@ -449,9 +449,9 @@
                     >
                       Sélectionner la saisine correspondante
                     </legend>
-                    <div class="conteneur-boutons-radios-vertical">
-                      {#if saisinesSansAvis.length > 0}
-                        {#each saisinesSansAvis as saisine}
+                    <div class="radio-buttons-container-vertical">
+                      {#if saisinesWithoutAvis.length > 0}
+                        {#each saisinesWithoutAvis as saisine}
                           {@const idRadio = `avis-expert-selection-${saisine.id}-${id}`}
                           <div class="fr-fieldset__element">
                             <div class="fr-radio-group">
@@ -460,7 +460,7 @@
                                 id={idRadio}
                                 name="avis-expert-selection-{id}"
                                 value={saisine.id}
-                                bind:group={avisExpertSelectionne}
+                                bind:group={selectedAvisExpert}
                                 onchange={() => (serviceOuPersonneExperte = saisine.expert)}
                               />
                               <label class="fr-label" for={idRadio}>
@@ -476,31 +476,31 @@
                         <div class="fr-radio-group">
                           <input
                             type="radio"
-                            id={idRadioNouvel}
+                            id={idRadioNew}
                             name="avis-expert-selection-{id}"
                             value="nouvel-avis-expert"
-                            bind:group={avisExpertSelectionne}
+                            bind:group={selectedAvisExpert}
                             onchange={() => {
                               avis = null;
                               serviceOuPersonneExperte = null;
                             }}
                           />
-                          <label class="fr-label" for={idRadioNouvel}> Nouvel avis expert </label>
+                          <label class="fr-label" for={idRadioNew}> Nouvel avis expert </label>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {#if avisExpertSelectionne === "nouvel-avis-expert"}
+                  {#if selectedAvisExpert === "nouvel-avis-expert"}
                     <div class="fr-fieldset fr-mt-3w" id="champ-service-expert-group">
                       <legend
                         class="fr-fieldset__legend--regular fr-fieldset__legend"
                         id="champ-service-expert-group"
                       >
                         Service ou personne experte
-                        <span class="obligatoire-asterisque">*</span>
+                        <span class="required-asterisk">*</span>
                       </legend>
-                      <div class="conteneur-boutons-radios">
+                      <div class="radio-buttons-container">
                         {#each OPTIONS_SERVICE_EXPERT as service}
                           {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                           <div class="fr-fieldset__element">
@@ -546,7 +546,7 @@
                         id="champ-avis-expert-group"
                       >
                         Avis de l'expert
-                        <span class="obligatoire-asterisque">*</span>
+                        <span class="required-asterisk">*</span>
                       </legend>
                       <div class="">
                         {#each ["Avis favorable", "Avis favorable sous condition", "Avis défavorable"] as avisOption}
@@ -582,7 +582,7 @@
                   <div class="fr-input-group fr-mt-3w">
                     <label class="fr-label" for="other-attachment-type-{id}">
                       Autre : Précisez le type de pièce jointe
-                      <span class="obligatoire-asterisque">*</span>
+                      <span class="required-asterisk">*</span>
                     </label>
                     <input
                       required
@@ -610,7 +610,7 @@
                   </div>
                   <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-2w">
                     <li>
-                      {#await ajouterUneNouvellePieceJointeP}
+                      {#await addNewPieceJointeP}
                         <button type="submit" class="fr-btn" disabled>Sauvegarde en cours...</button
                         >
                       {:then}
@@ -635,7 +635,7 @@
 </dialog>
 
 <style>
-  .conteneur-boutons-radios {
+  .radio-buttons-container {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -645,14 +645,14 @@
     flex: unset;
   }
 
-  .conteneur-boutons-radios-vertical {
+  .radio-buttons-container-vertical {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .obligatoire-asterisque {
+  .required-asterisk {
     color: var(--text-title-blue-france, #000091);
     margin-left: 0.25rem;
     font-weight: bold;
