@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
-import { requestPrefillingLink } from "@pitchou/server/demarche-numerique/demanderLienPreremplissage.ts";
-import { encryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/chiffrerDechiffrerDonneesSupplementaires.ts";
+import { requestPrefillingLink } from "@pitchou/server/demarche-numerique/requestPrefillingLink.ts";
+import { encryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/encryptDecryptDossiersAdditionalData.ts";
 import _schema88444 from "../../../../../data/demarche-numerique/schema-DS/derogation-especes-protegees.json" with { type: "json" };
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";

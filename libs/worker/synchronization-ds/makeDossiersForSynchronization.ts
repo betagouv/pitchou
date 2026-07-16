@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { decryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/chiffrerDechiffrerDonneesSupplementaires.ts";
+import { decryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/encryptDecryptDossiersAdditionalData.ts";
 import { isAfter } from "date-fns";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";

@@ -10,7 +10,7 @@ const TEST_KEY = vi.hoisted(() => {
 import {
   encryptDossiersAdditionalData,
   decryptDossiersAdditionalData,
-} from "./chiffrerDechiffrerDonneesSupplementaires.ts";
+} from "./encryptDecryptDossiersAdditionalData.ts";
 
 describe("encrypt then decrypt", () => {
   it("recovers a plain ASCII string", async () => {
