@@ -1,5 +1,5 @@
 import findCandidateFichiersToDownload from "@pitchou/common/findCandidateFichiersToDownload.ts";
-import downloadNewFichiers from "./telechargerNouveauxFichiers.ts";
+import downloadNewFichiers from "./downloadNewFichiers.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";

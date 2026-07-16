@@ -1,7 +1,7 @@
 import {
   downloadNewFichiersFromChampId,
   downloadNewFichiersEspecesImpactees,
-} from "./telechargerNouveauxFichiersParType.ts";
+} from "./downloadNewFichiersByType.ts";
 
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";

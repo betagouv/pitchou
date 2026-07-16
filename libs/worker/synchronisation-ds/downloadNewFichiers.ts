@@ -8,7 +8,7 @@ import {
   findExistingFichiers,
 } from "@pitchou/server/database/fichier.ts";
 
-import downloadFichierDS from "./telechargerFichierDS.ts";
+import downloadFichierDS from "./downloadFichierDS.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";

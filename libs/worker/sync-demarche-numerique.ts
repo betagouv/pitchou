@@ -25,7 +25,7 @@ import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/recupererL
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
-import { downloadNewFichiersMotivation } from "./synchronisation-ds/telechargerNouveauxFichiersParType.ts";
+import { downloadNewFichiersMotivation } from "./synchronisation-ds/downloadNewFichiersByType.ts";
 import {
   getFichiersEspecesImpactees88444,
   getPiecesJointesPetitionnaire88444,
