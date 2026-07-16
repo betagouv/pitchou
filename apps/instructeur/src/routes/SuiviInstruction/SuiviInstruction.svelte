@@ -63,20 +63,20 @@
   //$inspect('filtresSélectionnés', filtresSélectionnés)
   $inspect("relationSuivis", relationSuivis);
 
-  let dossiersIdSuivisParAucunInstructeur = $derived.by(() => {
+  let dossierIdsFollowedByNoInstructeur = $derived.by(() => {
     if (!relationSuivis) {
       return new SvelteSet();
     }
 
     // start with all the ids
-    let dossierIdsSansSuivi = new Set(dossiers.map((d) => d.id));
+    let dossierIdsWithoutFollow = new Set(dossiers.map((d) => d.id));
 
     // remove the ids followed by at least one instructeur.rice
     for (const dossierIds of relationSuivis.values()) {
-      dossierIdsSansSuivi = dossierIdsSansSuivi.difference(dossierIds);
+      dossierIdsWithoutFollow = dossierIdsWithoutFollow.difference(dossierIds);
     }
 
-    return new SvelteSet(dossierIdsSansSuivi);
+    return new SvelteSet(dossierIdsWithoutFollow);
   });
 
   let dossiersSelectionnes: DossierSummary[] = $state([]);
@@ -87,11 +87,11 @@
     console.log("relationSuivis effect", relationSuivis);
   });
 
-  let dossierIdsSuivisParInstructeurActuel: Set<Dossier["id"]> = $derived(
+  let dossierIdsFollowedByCurrentInstructeur: Set<Dossier["id"]> = $derived(
     relationSuivis?.get(email) || new SvelteSet(),
   );
 
-  $inspect("dossierIdsSuivisParInstructeurActuel", dossierIdsSuivisParInstructeurActuel);
+  $inspect("dossierIdsFollowedByCurrentInstructeur", dossierIdsFollowedByCurrentInstructeur);
 
   const trisActivitePrincipale = [
     {
@@ -388,8 +388,8 @@
 
     if (
       instructeursSelectionnes.has(AUCUN_INSTRUCTEUR) &&
-      dossiersIdSuivisParAucunInstructeur &&
-      dossiersIdSuivisParAucunInstructeur.has(dossier.id)
+      dossierIdsFollowedByNoInstructeur &&
+      dossierIdsFollowedByNoInstructeur.has(dossier.id)
     ) {
       return true;
     }
@@ -525,11 +525,11 @@
     filterDossiers();
   });
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
     return instructeurLeavesDossier(email, id);
   }
 </script>
@@ -760,15 +760,15 @@
                     </ModalButton>
                   {/if}
 
-                  {#if dossierIdsSuivisParInstructeurActuel.has(id)}
+                  {#if dossierIdsFollowedByCurrentInstructeur.has(id)}
                     <button
-                      onclick={() => instructeurActuelLaisseDossier(id)}
+                      onclick={() => currentInstructeurLeavesDossier(id)}
                       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
                       >Ne plus suivre</button
                     >
                   {:else}
                     <button
-                      onclick={() => instructeurActuelSuitDossier(id)}
+                      onclick={() => currentInstructeurFollowsDossier(id)}
                       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
                       >Suivre</button
                     >

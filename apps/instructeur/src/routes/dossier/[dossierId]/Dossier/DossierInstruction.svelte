@@ -23,13 +23,13 @@
     dossier: DossierFull;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
     email: string;
-    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
   };
 
   let {
     dossier,
     personnesQuiSuiventDossier,
-    dossierActuelSuiviParInstructeurActuel,
+    currentDossierFollowedByCurrentInstructeur,
     email,
   }: Props = $props();
 
@@ -206,11 +206,11 @@
     showSuccessMessage = false;
   };
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
     return instructeurLeavesDossier(email, id);
   }
 
@@ -280,16 +280,16 @@
     {:else}
       <div class="col">
         <span>Personne ne suit ce dossier pour l'instant.</span>
-        {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
-          {#if dossierActuelSuiviParInstructeurActuel}
+        {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
+          {#if currentDossierFollowedByCurrentInstructeur}
             <button
-              onclick={() => instructeurActuelLaisseDossier(dossier.id)}
+              onclick={() => currentInstructeurLeavesDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
               >Ne plus suivre</button
             >
           {:else}
             <button
-              onclick={() => instructeurActuelSuitDossier(dossier.id)}
+              onclick={() => currentInstructeurFollowsDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
               >Suivre</button
             >

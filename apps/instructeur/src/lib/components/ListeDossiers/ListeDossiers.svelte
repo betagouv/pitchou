@@ -106,7 +106,7 @@
 
   let selectedPhase: DossierPhase | undefined = $state();
 
-  const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
+  const dossierIdsFollowedByCurrentInstructeur = $derived(relationSuivis?.get(email) ?? new Set());
 
   type PageSelector = () => void;
   let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(
@@ -171,10 +171,10 @@
   /**
    * Checks whether a dossier is followed by at least one person
    */
-  function dossierEstSuivi(dossierId: Dossier["id"]): boolean {
+  function dossierIsFollowed(dossierId: Dossier["id"]): boolean {
     if (!relationSuivis) return false;
-    for (const dossiersSuivis of relationSuivis.values()) {
-      if (dossiersSuivis.has(dossierId)) {
+    for (const followedDossiers of relationSuivis.values()) {
+      if (followedDossiers.has(dossierId)) {
         return true;
       }
     }
@@ -191,7 +191,7 @@
 
   function toggleFilterSansInstructeurice() {
     if (!allFilters.has("sansInstructeurice")) {
-      allFilters.set("sansInstructeurice", (dossier) => !dossierEstSuivi(dossier.id));
+      allFilters.set("sansInstructeurice", (dossier) => !dossierIsFollowed(dossier.id));
     } else {
       allFilters.delete("sansInstructeurice");
     }
@@ -238,11 +238,11 @@
     resetPage();
   };
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
     return instructeurLeavesDossier(email, id);
   }
 </script>
@@ -338,9 +338,9 @@
         <li>
           <CarteDossier
             {dossier}
-            {instructeurActuelSuitDossier}
-            {instructeurActuelLaisseDossier}
-            dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel.has(dossier.id)}
+            {currentInstructeurFollowsDossier}
+            {currentInstructeurLeavesDossier}
+            dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(dossier.id)}
             nouveautéVueParInstructeur={notificationByDossier.get(dossier.id)?.vue ?? true}
           />
         </li>

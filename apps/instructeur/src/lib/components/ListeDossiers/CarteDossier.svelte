@@ -11,17 +11,17 @@
 
   type Props = {
     dossier: DossierSummary;
-    instructeurActuelSuitDossier: (id: Dossier["id"]) => Promise<void>;
-    instructeurActuelLaisseDossier: (id: Dossier["id"]) => Promise<void>;
+    currentInstructeurFollowsDossier: (id: Dossier["id"]) => Promise<void>;
+    currentInstructeurLeavesDossier: (id: Dossier["id"]) => Promise<void>;
     nouveautéVueParInstructeur: boolean;
-    dossierSuiviParInstructeurActuel: boolean;
+    dossierFollowedByCurrentInstructeur: boolean;
   };
 
   let {
     dossier,
-    dossierSuiviParInstructeurActuel,
-    instructeurActuelSuitDossier,
-    instructeurActuelLaisseDossier,
+    dossierFollowedByCurrentInstructeur,
+    currentInstructeurFollowsDossier,
+    currentInstructeurLeavesDossier,
     nouveautéVueParInstructeur: nouveauteVueParInstructeur,
   }: Props = $props();
 </script>
@@ -70,17 +70,17 @@
           {/snippet}
         </ModalButton>
       {/if}
-      {#if dossierSuiviParInstructeurActuel}
+      {#if dossierFollowedByCurrentInstructeur}
         <button
           type="button"
           class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm"
-          onclick={() => instructeurActuelLaisseDossier(dossier.id)}>Ne plus suivre</button
+          onclick={() => currentInstructeurLeavesDossier(dossier.id)}>Ne plus suivre</button
         >
       {:else}
         <button
           type="button"
           class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm"
-          onclick={() => instructeurActuelSuitDossier(dossier.id)}>Suivre</button
+          onclick={() => currentInstructeurFollowsDossier(dossier.id)}>Suivre</button
         >
       {/if}
     </div>

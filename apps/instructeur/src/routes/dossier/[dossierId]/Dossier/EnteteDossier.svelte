@@ -18,10 +18,10 @@
   type Props = {
     dossier: DossierFull;
     email: string;
-    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
   };
 
-  let { dossier, email, dossierActuelSuiviParInstructeurActuel }: Props = $props();
+  let { dossier, email, currentDossierFollowedByCurrentInstructeur }: Props = $props();
 
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
@@ -47,11 +47,11 @@
         formatDeposant(dossier) !== formatPorteurDeProjet(dossier)),
   );
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
     return instructeurLeavesDossier(email, id);
   }
 
@@ -68,7 +68,7 @@
     if (navigatedFromApp) {
       history.back();
     } else {
-      goto(dossierActuelSuiviParInstructeurActuel ? "/mes-dossiers" : "/tous-les-dossiers");
+      goto(currentDossierFollowedByCurrentInstructeur ? "/mes-dossiers" : "/tous-les-dossiers");
     }
   }
 </script>
@@ -154,16 +154,16 @@
       {/if}
 
       <div class="header-actions">
-        {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
-          {#if dossierActuelSuiviParInstructeurActuel}
+        {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
+          {#if currentDossierFollowedByCurrentInstructeur}
             <button
-              onclick={() => instructeurActuelLaisseDossier(dossier.id)}
+              onclick={() => currentInstructeurLeavesDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
               >Ne plus suivre</button
             >
           {:else}
             <button
-              onclick={() => instructeurActuelSuitDossier(dossier.id)}
+              onclick={() => currentInstructeurFollowsDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
               >Suivre</button
             >

@@ -74,7 +74,7 @@
     messages: any;
     email: string;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
-    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
     notification?: Pick<Notification, "vue" | "date_dernière_mise_à_jour">;
   };
 
@@ -84,7 +84,7 @@
     messages,
     email,
     personnesQuiSuiventDossier,
-    dossierActuelSuiviParInstructeurActuel,
+    currentDossierFollowedByCurrentInstructeur,
     notification,
   }: Props = $props();
 
@@ -125,7 +125,7 @@
 
 <div class="fr-grid-row fr-mt-2w">
   <div class="fr-col">
-    <EnteteDossier {dossier} {dossierActuelSuiviParInstructeurActuel} {email}></EnteteDossier>
+    <EnteteDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></EnteteDossier>
 
     <div class="fr-tabs">
       <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
@@ -257,7 +257,7 @@
         <DossierInstruction
           {dossier}
           {personnesQuiSuiventDossier}
-          {dossierActuelSuiviParInstructeurActuel}
+          {currentDossierFollowedByCurrentInstructeur}
           {email}
         ></DossierInstruction>
       </div>

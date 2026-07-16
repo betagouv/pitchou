@@ -41,12 +41,12 @@
   const personnesQuiSuiventDossier = $derived(
     relationSuivis
       ? Array.from(relationSuivis)
-          .filter(([, dossiersSuivis]) => dossiersSuivis.has(id))
+          .filter(([, followedDossiers]) => followedDossiers.has(id))
           .map(([e]) => e)
       : [],
   );
 
-  const dossierActuelSuiviParInstructeurActuel = $derived(
+  const currentDossierFollowedByCurrentInstructeur = $derived(
     email ? !!relationSuivis?.get(email)?.has(id) : false,
   );
 
@@ -63,7 +63,7 @@
     {messages}
     {email}
     {personnesQuiSuiventDossier}
-    {dossierActuelSuiviParInstructeurActuel}
+    {currentDossierFollowedByCurrentInstructeur}
     {notification}
   />
 {:else}

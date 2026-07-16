@@ -111,7 +111,7 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
   render(EnteteDossier, {
     dossier: dossier(),
     email: "instructeur@example.com",
-    dossierActuelSuiviParInstructeurActuel: false,
+    currentDossierFollowedByCurrentInstructeur: false,
   });
 
   await page.getByRole("button", { name: "Ajouter une pièce jointe" }).click();
