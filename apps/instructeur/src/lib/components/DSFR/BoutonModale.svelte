@@ -2,16 +2,16 @@
   import type { Snippet } from "svelte";
 
   type Props = {
-    boutonOuvrir?: Snippet;
-    contenu: Snippet;
+    openButton?: Snippet;
+    content: Snippet;
     id: string;
   };
 
-  let { boutonOuvrir, contenu, id }: Props = $props();
+  let { openButton, content, id }: Props = $props();
 </script>
 
-{#if boutonOuvrir}
-  {@render boutonOuvrir()}
+{#if openButton}
+  {@render openButton()}
 {:else}
   <button class="fr-btn" data-fr-opened="false" aria-controls={id}> Ouvrir </button>
 {/if}
@@ -27,7 +27,7 @@
             >
           </div>
           <div class="fr-modal__content">
-            {@render contenu()}
+            {@render content()}
           </div>
         </div>
       </div>

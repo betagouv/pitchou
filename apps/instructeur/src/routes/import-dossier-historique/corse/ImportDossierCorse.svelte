@@ -321,7 +321,7 @@
                     <td>{createNomForDossier(displayedImportTableRow)}</td>
                     <td>
                       <BoutonModale id={`dsfr-modale-${index}`}>
-                        {#snippet boutonOuvrir()}
+                        {#snippet openButton()}
                           {#if dossierAlerts && dossierAlerts.length >= 1}
                             <button
                               type="button"
@@ -342,7 +342,7 @@
                             </button>
                           {/if}
                         {/snippet}
-                        {#snippet contenu()}
+                        {#snippet content()}
                           {#if dossierAlerts && dossierAlerts.length >= 1}
                             <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp;</h3>
                             <ul>

@@ -249,10 +249,10 @@
                   <td>{createNomForDossier(displayedImportTableRow)}</td>
                   <td>
                     <BoutonModale id={`dsfr-modale-${index}`}>
-                      {#snippet boutonOuvrir()}
+                      {#snippet openButton()}
                         <button type="button">Voir les détails</button>
                       {/snippet}
-                      {#snippet contenu()}
+                      {#snippet content()}
                         <div>{JSON.stringify(displayedImportTableRow)}</div>
                       {/snippet}
                     </BoutonModale>

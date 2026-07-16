@@ -732,7 +732,7 @@
                   {#if commentaire_libre && commentaire_libre.trim().length >= 1}
                     {@const dsfrModaleId = `dsfr-modale-${id}`}
                     <BoutonModale id={dsfrModaleId}>
-                      {#snippet boutonOuvrir()}
+                      {#snippet openButton()}
                         <button
                           class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
                           data-fr-opened="false"
@@ -741,7 +741,7 @@
                           Commentaire
                         </button>
                       {/snippet}
-                      {#snippet contenu()}
+                      {#snippet content()}
                         <header class="titre-modale">
                           <h1 class="fr-modal__title">
                             Commentaire dossier {nom}
