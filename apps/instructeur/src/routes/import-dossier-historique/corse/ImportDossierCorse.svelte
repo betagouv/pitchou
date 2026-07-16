@@ -5,7 +5,7 @@
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
-  import { extrairePremierMail } from "../importDossierUtils.ts";
+  import { extractFirstMail } from "../importDossierUtils.ts";
   import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
@@ -109,7 +109,7 @@
           rawDataEmailsParInitials
             .map((row: { value: any }[]): [string, string] | null => {
               const initials = row?.[0]?.value;
-              const email = extrairePremierMail(row[1]?.value ?? "");
+              const email = extractFirstMail(row[1]?.value ?? "");
               if (row.length >= 1 && initials && email) {
                 return [initials, email];
               }

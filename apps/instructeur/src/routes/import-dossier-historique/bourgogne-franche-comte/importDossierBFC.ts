@@ -1,11 +1,11 @@
 import { addMonths } from "date-fns";
 import { isValidDateString } from "@pitchou/common/typeFormat.ts";
 import {
-  extrairePremierMail,
-  extraireNom,
-  extraireNomDunMail,
-  formaterDepartementDepuisValeur,
-  extraireCommunes,
+  extractFirstMail,
+  extractNom,
+  extractNomFromMail,
+  formatDepartementFromValue,
+  extractCommunes,
   getCommuneData,
 } from "../importDossierUtils.ts";
 
@@ -196,16 +196,16 @@ function genererDonneesDemandeurs(
 
   const nomContactMailValeur = ligne["Nom contact – mail"];
 
-  const mail = extrairePremierMail(nomContactMailValeur) || "";
+  const mail = extractFirstMail(nomContactMailValeur) || "";
 
   let prenomNom:
     | Partial<{ prénom: string | undefined; nom: string | undefined }>
     | undefined
-    | null = extraireNom(nomContactMailValeur);
+    | null = extractNom(nomContactMailValeur);
 
   // If no name, we try to retrieve the last and first name from the email
   if (!prenomNom && mail) {
-    prenomNom = extraireNomDunMail(nomContactMailValeur);
+    prenomNom = extractNomFromMail(nomContactMailValeur);
   }
 
   if (typeDemandeur === "une personne morale") {
@@ -271,10 +271,10 @@ async function genererDonneesLocalisations(ligne: {
       "Dans quel département se localise majoritairement votre projet ?"
     >
 > {
-  const valeursCommunes = extraireCommunes(ligne["Communes"] ?? "");
+  const valeursCommunes = extractCommunes(ligne["Communes"] ?? "");
 
   const communesP = valeursCommunes.map((com) => getCommuneData(com));
-  const departementsP = formaterDepartementDepuisValeur(ligne["Département"]);
+  const departementsP = formatDepartementFromValue(ligne["Département"]);
 
   const [resultatDepartements, communesResult] = await Promise.all([
     departementsP,
@@ -484,7 +484,7 @@ export function creerDonneesSupplementairesDepuisLigne(
     console.warn("Date de sollicitation invalide.");
   }
 
-  const emailTrouve = extrairePremierMail(ligne["POUR\nATTRIBUTION"]);
+  const emailTrouve = extractFirstMail(ligne["POUR\nATTRIBUTION"]);
 
   const personnes_qui_suivent = emailTrouve ? [{ email: emailTrouve }] : undefined;
 

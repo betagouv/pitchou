@@ -1,8 +1,8 @@
 import { isDate, setYear } from "date-fns";
 import { isValidDateString } from "@pitchou/common/typeFormat.ts";
 import {
-  formaterDepartementDepuisValeur,
-  extraireCommunes,
+  formatDepartementFromValue,
+  extractCommunes,
   getCommuneData,
 } from "../importDossierUtils.ts";
 
@@ -245,10 +245,10 @@ async function genererDonneesLocalisations(ligne: {
 }): Promise<{ data: DonneesLocalisationsData; alertes: Alerte[] }> {
   const departementParDefaut = { code: "2A", nom: "Corse-du-Sud" };
 
-  const valeursCommunes = extraireCommunes(ligne["Commune"] ?? "");
+  const valeursCommunes = extractCommunes(ligne["Commune"] ?? "");
 
   const communesPs = valeursCommunes.map((com) => getCommuneData(com));
-  const departementsP = formaterDepartementDepuisValeur(ligne["Département"]);
+  const departementsP = formatDepartementFromValue(ligne["Département"]);
 
   const [resultatDepartements, communesResult] = await Promise.all([
     departementsP,

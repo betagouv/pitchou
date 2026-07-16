@@ -28,18 +28,18 @@ export type DossierAvecAlertes = Partial<
  *
  * @see https://geo.api.gouv.fr/decoupage-administratif/communes
  */
-async function getCommuneData(nomCommune: string): Promise<{
+async function getCommuneData(communeName: string): Promise<{
   data: (GeoAPICommune & { departement: GeoAPIDepartement }) | null;
   alerte?: Alerte;
 }> {
   const commune = await json(
-    `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(nomCommune)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`,
+    `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(communeName)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`,
   );
 
   if (!Array.isArray(commune) || commune.length === 0) {
-    const messageAlerte = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${nomCommune}.`;
-    console.warn(messageAlerte);
-    return { data: null, alerte: { type: "avertissement", message: messageAlerte } };
+    const alertMessage = `La commune n'a pas été trouvée par geo.api.gouv.fr. Nom de la commune : ${communeName}.`;
+    console.warn(alertMessage);
+    return { data: null, alerte: { type: "avertissement", message: alertMessage } };
   }
 
   return { data: commune[0] };
@@ -60,9 +60,9 @@ async function _getDepartementData(
   );
 
   if (!departement) {
-    const messageAlerte = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
-    console.warn(messageAlerte);
-    return { data: null, alerte: { type: "erreur", message: messageAlerte } };
+    const alertMessage = `Le département n'a pas été trouvé par geo.api.gouv.fr. Code du département : ${code}.`;
+    console.warn(alertMessage);
+    return { data: null, alerte: { type: "erreur", message: alertMessage } };
   }
   //@ts-ignore
   return { data: departement };
@@ -78,11 +78,11 @@ async function _getDepartementData(
  *
  * We do not include the "-" separator because many towns contain "-"
  */
-export function extraireCommunes(valeur: string): string[] {
-  if (typeof valeur !== "string") return [];
+export function extractCommunes(value: string): string[] {
+  if (typeof value !== "string") return [];
 
   // Use a regular expression to split on ',' or '/'
-  const communes = valeur.split(/[\/,]/);
+  const communes = value.split(/[\/,]/);
 
   // Trim extra whitespace and filter out empty items
   return communes.map((c) => c.trim()).filter((c) => c.length > 0);
@@ -92,18 +92,18 @@ export function extraireCommunes(valeur: string): string[] {
  * Formats a value (code or string) into one or more recognized départements.
  * Returns null if no département is recognized.
  */
-async function formaterDepartementDepuisValeur(
-  valeur: string | number,
+async function formatDepartementFromValue(
+  value: string | number,
 ): Promise<{ data: GeoAPIDepartement[] | null; alertes: Alerte[] }> {
   let codes: string[] = [];
-  if (typeof valeur === "number") {
-    codes = [valeur.toString()];
+  if (typeof value === "number") {
+    codes = [value.toString()];
   }
-  if (typeof valeur === "string") {
-    const blocs = valeur.split("-");
+  if (typeof value === "string") {
+    const blocks = value.split("-");
     // This allows retrieving values like "21-78"
-    for (const bloc of blocs) {
-      codes.push(bloc);
+    for (const block of blocks) {
+      codes.push(block);
     }
   }
 
@@ -111,15 +111,15 @@ async function formaterDepartementDepuisValeur(
   const alertes: Alerte[] = [];
 
   try {
-    const resultats = await Promise.all(departementsP);
+    const results = await Promise.all(departementsP);
 
-    for (const résultat of resultats) {
-      if (résultat.alerte) {
-        alertes.push(résultat.alerte);
+    for (const result of results) {
+      if (result.alerte) {
+        alertes.push(result.alerte);
       }
     }
 
-    const départements = resultats.map((résultat) => résultat.data).filter((dep) => dep !== null);
+    const départements = results.map((result) => result.data).filter((dep) => dep !== null);
 
     if (départements.length >= 1) {
       // We force the cast because the logic guarantees a non-empty array
@@ -131,24 +131,24 @@ async function formaterDepartementDepuisValeur(
       return { data: null, alertes };
     }
   } catch (e) {
-    const messageAlerte = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${valeur}.`;
-    console.warn(messageAlerte);
-    alertes.push({ type: "erreur", message: messageAlerte });
+    const alertMessage = `Une erreur ${e} est survenue lors de l'appel de l'API de geo.api.gouv pour le(s) département(s) : ${value}.`;
+    console.warn(alertMessage);
+    alertes.push({ type: "erreur", message: alertMessage });
     return { data: null, alertes };
   }
 }
 
-const memoizedFormaterDepartementDepuisValeur = memoize(formaterDepartementDepuisValeur);
+const memoizedFormatDepartementFromValue = memoize(formatDepartementFromValue);
 
-export { memoizedFormaterDepartementDepuisValeur as formaterDepartementDepuisValeur };
+export { memoizedFormatDepartementFromValue as formatDepartementFromValue };
 
 /**
  * Attempts to extract a first name and a last name from a text string.
  *
  * @example
- *   extraireNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
+ *   extractNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
  */
-export function extraireNom(text: string): Partial<{ prénom: string; nom: string }> | null {
+export function extractNom(text: string): Partial<{ prénom: string; nom: string }> | null {
   const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
 
   const match = nameRegex.exec(text);
@@ -163,24 +163,24 @@ export function extraireNom(text: string): Partial<{ prénom: string; nom: strin
  * Extracts the first email address found in a text string.
  *
  * @example
- *   extrairePremierMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
+ *   extractFirstMail("Jean Dupont <jean.dupont@email.fr>") // "jean.dupont@email.fr"
  */
-export function extrairePremierMail(text: string): string | null {
+export function extractFirstMail(text: string): string | null {
   // Source Regex Mail : https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
   const mailRegex =
     /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-  const résultat = text.match(mailRegex);
+  const result = text.match(mailRegex);
 
-  return résultat && résultat?.length ? normalizeEmail(résultat[0]) : null;
+  return result && result?.length ? normalizeEmail(result[0]) : null;
 }
 
 /**
  * Attempts to extract a first name and a last name from an email address.
  *
  * @example
- *   extraireNomDunMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
+ *   extractNomFromMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
  */
-export function extraireNomDunMail(mail: string): Partial<{ prénom: string; nom: string }> {
+export function extractNomFromMail(mail: string): Partial<{ prénom: string; nom: string }> {
   if (!mail.includes("@")) return { prénom: "", nom: "" };
 
   const localPart = mail.split("@")[0];
