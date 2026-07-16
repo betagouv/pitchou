@@ -120,7 +120,7 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
 });
 
 test("trace l'ouverture de la modale depuis l'onglet pièces jointes", async () => {
-  render(DossierPiecesJointes, { dossier: dossier(), ouvrirOnglet: vi.fn() });
+  render(DossierPiecesJointes, { dossier: dossier(), openTab: vi.fn() });
 
   await page.getByRole("button", { name: "Ajouter une pièce jointe" }).click();
 

@@ -319,7 +319,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierPiecesJointes {dossier} ouvrirOnglet={changerOnglet}></DossierPiecesJointes>
+        <DossierPiecesJointes {dossier} openTab={changerOnglet}></DossierPiecesJointes>
       </div>
       <div
         id="tabpanel-generation-document-panel"

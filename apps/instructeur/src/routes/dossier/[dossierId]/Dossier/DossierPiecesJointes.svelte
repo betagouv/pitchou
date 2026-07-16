@@ -10,14 +10,14 @@
     FrontEndFichier,
   } from "@pitchou/types/API_Pitchou.ts";
 
-  type OngletLie = "instruction" | "projet" | "avis" | "controles";
+  type LinkedTab = "instruction" | "projet" | "avis" | "controles";
 
   type Props = {
     dossier: DossierFull;
-    ouvrirOnglet: (onglet: OngletLie) => void;
+    openTab: (tab: LinkedTab) => void;
   };
 
-  let { dossier, ouvrirOnglet }: Props = $props();
+  let { dossier, openTab }: Props = $props();
 
   const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
@@ -141,7 +141,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("projet")}
+        onclick={() => openTab("projet")}
       >
         Voir dans l'onglet Projet
       </button>
@@ -174,7 +174,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("avis")}
+        onclick={() => openTab("avis")}
       >
         Voir dans l'onglet Avis
       </button>
@@ -211,7 +211,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("controles")}
+        onclick={() => openTab("controles")}
       >
         Voir dans l'onglet Controles
       </button>
@@ -248,7 +248,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("instruction")}
+        onclick={() => openTab("instruction")}
       >
         Voir dans l'onglet Instruction
       </button>
