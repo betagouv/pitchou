@@ -7,7 +7,7 @@
   import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
+  import { createTextFilter } from "$lib/dossier/textFilters.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
   import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";

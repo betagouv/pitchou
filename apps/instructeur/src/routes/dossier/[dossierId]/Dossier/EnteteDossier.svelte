@@ -5,7 +5,7 @@
     formatPorteurDeProjet,
     formatDeposant,
   } from "$lib/dossier/displayDossier.ts";
-  import { displayString } from "./affichageValeurs.ts";
+  import { displayString } from "./displayValues.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";

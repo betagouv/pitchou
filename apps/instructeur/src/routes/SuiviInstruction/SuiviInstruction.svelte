@@ -15,7 +15,7 @@
     phases,
     prochaineActionAttenduePar,
   } from "$lib/dossier/displayDossier.ts";
-  import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
+  import { createTextFilter } from "$lib/dossier/textFilters.ts";
   import {
     sortDossiersByColumnAlphabetically,
     sortDossiersByPhaseProchaineAction,
