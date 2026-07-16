@@ -4,7 +4,7 @@ import { render } from "@testing-library/svelte";
 import TagPhase from "./TagPhase.svelte";
 
 test("affiche le libellé de la phase et la classe fr-tag", async () => {
-  render(TagPhase, { phase: "Instruction", taille: "SM" });
+  render(TagPhase, { phase: "Instruction", size: "SM" });
 
   const tag = page.getByText("Instruction");
   await expect.element(tag).toBeVisible();

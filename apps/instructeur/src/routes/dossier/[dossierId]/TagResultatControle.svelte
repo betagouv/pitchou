@@ -5,15 +5,15 @@
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  type Taille = "SM" | "MD";
+  type Size = "SM" | "MD";
 
   type Props = {
     résultatControle: ResultatControle | string;
-    taille?: Taille;
+    size?: Size;
     classes?: string[];
   };
 
-  let { résultatControle: resultatControle, taille = "SM", classes = [] }: Props = $props();
+  let { résultatControle: resultatControle, size = "SM", classes = [] }: Props = $props();
 
   const resultatToClass = new Map<ResultatControle, string>([
     ["Conforme", "résultat--conforme"],
@@ -23,14 +23,14 @@
     ["Trop tard", "résultat--trop-tard"],
   ]);
 
-  const tailleToClass = new Map<Taille, string>([
+  const sizeToClass = new Map<Size, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);
 
   let allClasses = $derived([
     "fr-tag",
-    tailleToClass.get(taille),
+    sizeToClass.get(size),
     resultatToClass.get(resultatControle as ResultatControle) || "résultat--autre",
     ...classes,
   ]);

@@ -93,18 +93,18 @@
       <ul>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase> (avec AP)
+            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase> (avec AP)
           </strong>&nbsp;: {dossierEnPhaseControle.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase>
+            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase>
             avec AP pris en {getYear(aujourdhui)}
           </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" taille="SM"></TagPhase>
+            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase>
             avec AP pris en {getYear(anneeDerniere)}
           </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
         </li>
@@ -118,7 +118,7 @@
           <strong>
             Nombre de dossiers actuellement en phase <TagPhase
               phase="Accompagnement amont"
-              taille="SM"
+              size="SM"
             ></TagPhase>
           </strong>&nbsp;: {dossiersEnAccompagnement.length}
         </li>
@@ -126,7 +126,7 @@
           <strong>
             Nombre de dossiers actuellement en phase <TagPhase
               phase="Accompagnement amont"
-              taille="SM"
+              size="SM"
             ></TagPhase>
             qui ont moins de 3 ans
           </strong>&nbsp;: {dossiersEnAccompagnementDeMoinsDe3Ans.length}
@@ -135,7 +135,7 @@
           <strong>
             Nombre de dossiers non-scientifiques actuellement en phase <TagPhase
               phase="Accompagnement amont"
-              taille="SM"
+              size="SM"
             ></TagPhase>
             qui ont moins de 3 ans
           </strong>&nbsp;: {dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans.length}

@@ -8,11 +8,11 @@
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  type Taille = "SM" | "MD";
+  type Size = "SM" | "MD";
 
   type Props = {
     phase: DossierPhase;
-    taille?: Taille;
+    size?: Size;
     onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
     ariaPressed?: boolean | undefined;
     classes?: string[];
@@ -20,7 +20,7 @@
 
   let {
     phase,
-    taille = "MD",
+    size = "MD",
     onClick = undefined,
     ariaPressed = undefined,
     classes = [],
@@ -35,13 +35,13 @@
     ["Obligations terminées", "phase--obligations-terminées"],
   ]);
 
-  const tailleToClass = new Map<Taille, string>([
+  const sizeToClass = new Map<Size, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);
 
   let allClasses = $derived(
-    ["fr-tag", tailleToClass.get(taille), phaseToClass.get(phase), ...classes].filter((x) => !!x),
+    ["fr-tag", sizeToClass.get(size), phaseToClass.get(phase), ...classes].filter((x) => !!x),
   );
 
   // The DSFR adds its own listeners to handle aria-pressed, but we don't need them,

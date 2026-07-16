@@ -791,7 +791,7 @@
                       : "non"}
                 </td>
                 <td>
-                  <TagPhase {phase} taille="SM"></TagPhase>
+                  <TagPhase {phase} size="SM"></TagPhase>
                   <IndicateurDelaiPhase {dossier}></IndicateurDelaiPhase>
                   {#if prochaine_action_attendue_par}
                     <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
