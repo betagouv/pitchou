@@ -3,7 +3,7 @@
   import { tick } from "svelte";
   import NomEspece from "../../NomEspece.svelte";
   import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
-  import { mailtoJeNetrouvePasUneEspece } from "@pitchou/common/constantes.ts";
+  import { mailtoMissingEspece } from "@pitchou/common/constantes.ts";
 
   import type {
     ByClassification,
@@ -234,7 +234,7 @@
       <p class="fr-text--sm">
         Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un
         mail à
-        <a target="_blank" href={mailtoJeNetrouvePasUneEspece}>pitchou@beta.gouv.fr</a> en indiquant
+        <a target="_blank" href={mailtoMissingEspece}>pitchou@beta.gouv.fr</a> en indiquant
         l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br />
         Le <code>CD_NOM</code> est disponible sur
         <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees"
