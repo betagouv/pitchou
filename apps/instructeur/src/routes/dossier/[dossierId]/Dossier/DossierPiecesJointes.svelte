@@ -123,7 +123,7 @@
 <section class="pieces-jointes">
   <button
     type="button"
-    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line bouton-ajouter-piece-jointe"
+    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line button-add-piece-jointe"
     aria-controls={idModaleAjouterPieceJointe}
     data-fr-opened="false"
     onclick={() =>
@@ -294,7 +294,7 @@
     gap: 1.25rem;
   }
 
-  .bouton-ajouter-piece-jointe {
+  .button-add-piece-jointe {
     align-self: flex-start;
   }
 

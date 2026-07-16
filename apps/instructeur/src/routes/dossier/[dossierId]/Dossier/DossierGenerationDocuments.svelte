@@ -140,7 +140,7 @@
         {#await texteDocumentGenere}
           (... en chargement ...)
         {:then texte}
-          <div class="texte-document-généré">{texte}</div>
+          <div class="text-document-generated">{texte}</div>
         {/await}
       </details>
     </div>
@@ -164,7 +164,7 @@
     }
   }
 
-  .texte-document-généré {
+  .text-document-generated {
     white-space: preserve;
     padding: 1rem;
 
