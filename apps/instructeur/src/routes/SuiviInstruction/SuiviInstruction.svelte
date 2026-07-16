@@ -17,8 +17,8 @@
   } from "$lib/dossier/affichageDossier.ts";
   import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
   import {
-    trierDossiersParOrdreAlphabetiqueColonne,
-    trierDossiersParPhaseProchaineAction,
+    sortDossiersByColumnAlphabetically,
+    sortDossiersByPhaseProchaineAction,
   } from "./triDossiers.ts";
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
@@ -97,7 +97,7 @@
     {
       nom: "Trier de A à Z",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "activité_principale",
         );
@@ -107,7 +107,7 @@
     {
       nom: "Trier de Z à A",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "activité_principale",
         ).reverse();
@@ -120,7 +120,7 @@
     {
       nom: "Trier de A à Z",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "nom",
         );
@@ -130,7 +130,7 @@
     {
       nom: "Trier de Z à A",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "nom",
         ).reverse();
@@ -143,7 +143,7 @@
     {
       nom: "Trier de A à Z",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "localisation",
         );
@@ -153,7 +153,7 @@
     {
       nom: "Trier de Z à A",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "localisation",
         ).reverse();
@@ -166,7 +166,7 @@
     {
       nom: "Trier de A à Z",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "porteur de projet",
         );
@@ -176,7 +176,7 @@
     {
       nom: "Trier de Z à A",
       trier() {
-        dossiersSelectionnes = trierDossiersParOrdreAlphabetiqueColonne(
+        dossiersSelectionnes = sortDossiersByColumnAlphabetically(
           dossiersSelectionnes,
           "porteur de projet",
         ).reverse();
@@ -189,7 +189,7 @@
     {
       nom: "Prioriser",
       trier() {
-        dossiersSelectionnes = trierDossiersParPhaseProchaineAction(dossiersSelectionnes);
+        dossiersSelectionnes = sortDossiersByPhaseProchaineAction(dossiersSelectionnes);
       },
       id: "Priorisation-PhaseAction",
     },

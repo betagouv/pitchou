@@ -8,31 +8,31 @@ import type {
   DossierSummary,
 } from "@pitchou/types/API_Pitchou.ts";
 
-export const trierDossiersParOrdreAlphabetiqueColonne = (
+export const sortDossiersByColumnAlphabetically = (
   dossiers: DossierSummary[],
-  nomColonne: keyof DossierSummary | "localisation" | "porteur de projet",
+  columnName: keyof DossierSummary | "localisation" | "porteur de projet",
 ): DossierSummary[] => {
   return dossiers.toSorted((a, b) => {
-    let colonneA;
-    let colonneB;
+    let columnA;
+    let columnB;
 
-    if (nomColonne === "localisation") {
-      colonneA = formatLocalisation(a).trim();
-      colonneB = formatLocalisation(b).trim();
-    } else if (nomColonne === "porteur de projet") {
-      colonneA = formatPorteurDeProjet(a).trim();
-      colonneB = formatPorteurDeProjet(b).trim();
+    if (columnName === "localisation") {
+      columnA = formatLocalisation(a).trim();
+      columnB = formatLocalisation(b).trim();
+    } else if (columnName === "porteur de projet") {
+      columnA = formatPorteurDeProjet(a).trim();
+      columnB = formatPorteurDeProjet(b).trim();
     } else {
-      colonneA = a[nomColonne];
-      colonneB = b[nomColonne];
+      columnA = a[columnName];
+      columnB = b[columnName];
     }
 
-    if (colonneA && typeof colonneA === "string" && colonneB && typeof colonneB === "string") {
-      return colonneA.trim().localeCompare(colonneB.trim(), "fr");
+    if (columnA && typeof columnA === "string" && columnB && typeof columnB === "string") {
+      return columnA.trim().localeCompare(columnB.trim(), "fr");
     }
 
-    if (!colonneA && colonneB) return 1;
-    if (colonneA && !colonneB) return -1;
+    if (!columnA && columnB) return 1;
+    if (columnA && !columnB) return -1;
 
     return 0;
   });
@@ -82,7 +82,7 @@ function compareProchaineActionAttenduePar(
   return importance2 - importance1;
 }
 
-export function trierDossiersParPhaseProchaineAction(dossiers: DossierSummary[]): DossierSummary[] {
+export function sortDossiersByPhaseProchaineAction(dossiers: DossierSummary[]): DossierSummary[] {
   return dossiers.toSorted((dossier1, dossier2) => {
     const phase1 = dossier1.phase;
     const phase2 = dossier2.phase;
