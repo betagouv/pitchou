@@ -4,7 +4,7 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { TaxrefRow } from "../../taxref/taxrefList.ts";
   import Loader from "$lib/components/Loader.svelte";
-  import { chargerEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
+  import { loadEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
 
   import Modale from "./Modale.svelte";
   import SelecteurEspece from "./SelecteurEspece.svelte";
@@ -30,7 +30,7 @@
 
   onMount(async () => {
     try {
-      especes = await chargerEspecesProtegeesAdmin();
+      especes = await loadEspecesProtegeesAdmin();
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
     } finally {

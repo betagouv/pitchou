@@ -60,7 +60,7 @@ async function storedSecret(): Promise<string> {
  * authenticates the request; the server enforces
  * that it belongs to an admin and answers 403 otherwise.
  */
-export async function chargerEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
+export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
   const secret = await storedSecret();
 
   const response = await fetch(`/api/admin/especes-protegees?secret=${encodeURIComponent(secret)}`);
