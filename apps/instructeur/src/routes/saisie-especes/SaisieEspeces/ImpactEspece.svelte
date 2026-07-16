@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fourchettesIndividus } from "./especeFieldset.ts";
+  import { individusRanges } from "./especeFieldset.ts";
 
   import type {
     ByClassification,
@@ -176,8 +176,8 @@
             id="input-espece-{indexEspece}-nombre-individus-{indexImpact}"
           >
             <option value={undefined}>-</option>
-            {#each fourchettesIndividus as fourchette}
-              <option value={fourchette}>{fourchette}</option>
+            {#each individusRanges as range}
+              <option value={range}>{range}</option>
             {/each}
           </select>
         </div>

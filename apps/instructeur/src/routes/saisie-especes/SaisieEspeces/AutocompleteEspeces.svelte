@@ -22,10 +22,10 @@
     espèces: especes,
     onChange,
     id = "",
-    espèceSélectionnée: especeSelectionnee = $bindable(undefined),
+    espèceSélectionnée: selectedEspece = $bindable(undefined),
   }: Props = $props();
 
-  let text = $state(especeSelectionnee ? especeLabel(especeSelectionnee) : "");
+  let text = $state(selectedEspece ? especeLabel(selectedEspece) : "");
   let statusMessage = $state("");
 
   let selectedOption: number | null = $state(null);
@@ -33,23 +33,23 @@
   let showListBox = $state(false);
 
   function onInputFocus() {
-    showListBox = text.length > 0 && especeSelectionnee === undefined;
+    showListBox = text.length > 0 && selectedEspece === undefined;
     selectedOption = null;
   }
 
   function onInput() {
     showListBox = true;
-    especeSelectionnee = undefined;
+    selectedEspece = undefined;
 
     if (text.length === 0) {
       showListBox = false;
-      especesPertinentes = [];
+      relevantEspeces = [];
     } else {
-      especesPertinentes = filtrerEspeces(text);
-      if (especesPertinentes.length === 0) {
-        messageLive("Pas de résultat");
+      relevantEspeces = filterEspeces(text);
+      if (relevantEspeces.length === 0) {
+        liveMessage("Pas de résultat");
       } else {
-        messageLive(`${especesPertinentes.length} résultats disponibles`);
+        liveMessage(`${relevantEspeces.length} résultats disponibles`);
       }
     }
   }
@@ -71,7 +71,7 @@
   }
 
   function onOptionClick(espece: EspeceProtegee) {
-    selectionnerEspece(espece);
+    selectEspece(espece);
   }
 
   function onOptionMouseDown(e: MouseEvent) {
@@ -100,8 +100,8 @@
       case "ArrowDown":
         if (
           showListBox &&
-          especesPertinentes.length > 0 &&
-          selectedOption !== especesPertinentes.length - 1
+          relevantEspeces.length > 0 &&
+          selectedOption !== relevantEspeces.length - 1
         ) {
           e.preventDefault();
           selectedOption = selectedOption === null ? 0 : selectedOption + 1;
@@ -116,7 +116,7 @@
         if (showListBox) {
           e.preventDefault();
           if (selectedOption !== null) {
-            selectionnerEspece(especesPertinentes[selectedOption]);
+            selectEspece(relevantEspeces[selectedOption]);
           }
         }
         break;
@@ -134,9 +134,9 @@
     }
   }
 
-  let especesPertinentes: EspeceProtegee[] = $state([]);
+  let relevantEspeces: EspeceProtegee[] = $state([]);
 
-  function filtrerEspeces(text: string) {
+  function filterEspeces(text: string) {
     if (text.trim().length === 0) return [];
 
     return especes
@@ -148,16 +148,16 @@
           .filter((x) => x.length >= 1);
 
         return textParts.every((part: string) => {
-          for (let nom of nomsScientifiques) {
-            nom = normalizeEspeceName(nom);
-            if (nom.includes(part)) {
+          for (let name of nomsScientifiques) {
+            name = normalizeEspeceName(name);
+            if (name.includes(part)) {
               return true;
             }
           }
 
-          for (let nom of nomsVernaculaires) {
-            nom = normalizeEspeceName(nom);
-            if (nom.includes(part)) {
+          for (let name of nomsVernaculaires) {
+            name = normalizeEspeceName(name);
+            if (name.includes(part)) {
               return true;
             }
           }
@@ -166,21 +166,21 @@
       .slice(0, 12);
   }
 
-  function messageLive(text: string) {
+  function liveMessage(text: string) {
     statusMessage = text;
     setTimeout(() => {
       statusMessage = "";
     }, 400);
   }
 
-  function selectionnerEspece(espece: EspeceProtegee) {
+  function selectEspece(espece: EspeceProtegee) {
     if (onChange) {
       onChange(espece);
     }
 
-    especeSelectionnee = espece;
-    text = especeLabel(especeSelectionnee);
-    especesPertinentes = [];
+    selectedEspece = espece;
+    text = especeLabel(selectedEspece);
+    relevantEspeces = [];
     input.focus();
     showListBox = false;
   }
@@ -200,7 +200,7 @@
     class="fr-input"
     role="combobox"
     autocomplete="off"
-    aria-expanded={showListBox && especesPertinentes.length > 0}
+    aria-expanded={showListBox && relevantEspeces.length > 0}
     aria-controls="combobox-{id}-option-list"
     aria-autocomplete="list"
     aria-describedby={text.length > 0 ? "" : `combobox-${id}-help`}
@@ -213,12 +213,12 @@
   />
 
   <ul id="combobox-{id}-option-list" aria-labelledby={id} role="listbox" hidden={!showListBox}>
-    {#each especesPertinentes as espece, indexOption}
+    {#each relevantEspeces as espece, indexOption}
       <li
         role="option"
         aria-selected={indexOption === selectedOption}
         aria-posinset={indexOption + 1}
-        aria-setsize={especesPertinentes.length}
+        aria-setsize={relevantEspeces.length}
         tabindex="-1"
         onblur={(e) => onOptionBlur(e, indexOption)}
         onclick={() => onOptionClick(espece)}
@@ -230,7 +230,7 @@
       </li>
     {/each}
 
-    {#if especesPertinentes.length === 0}
+    {#if relevantEspeces.length === 0}
       <li role="option" aria-disabled="true" aria-selected="false">Pas de résultat</li>
     {/if}
   </ul>

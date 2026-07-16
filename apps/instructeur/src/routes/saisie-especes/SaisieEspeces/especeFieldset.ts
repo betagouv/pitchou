@@ -19,17 +19,17 @@ export function makeEspeceToKeywords(especes: EspeceProtegee[]) {
   );
 }
 
-export function etresVivantsAtteintsCompareEspece(
-  { espèce: { nomsScientifiques: noms1 } }: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte,
-  { espèce: { nomsScientifiques: noms2 } }: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte,
+export function compareEtresVivantsAtteintsByEspece(
+  { espèce: { nomsScientifiques: names1 } }: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte,
+  { espèce: { nomsScientifiques: names2 } }: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte,
 ) {
-  const [nom1] = noms1;
-  const [nom2] = noms2;
+  const [name1] = names1;
+  const [name2] = names2;
 
-  if (nom1 < nom2) {
+  if (name1 < name2) {
     return -1;
   }
-  if (nom1 > nom2) {
+  if (name1 > name2) {
     return 1;
   }
   return 0;
@@ -38,7 +38,7 @@ export function etresVivantsAtteintsCompareEspece(
 /**
  * The ranges are strings always in the format 'x-y' where x and y are integers
  */
-export const fourchettesIndividus: string[] = [
+export const individusRanges: string[] = [
   "0-10",
   "11-100",
   "101-1000",
