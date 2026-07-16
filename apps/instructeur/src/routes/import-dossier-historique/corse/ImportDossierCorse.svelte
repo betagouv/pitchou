@@ -18,8 +18,8 @@
   } from "./importDossierCorse.ts";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
-  const NOM_FEUILLE_TABLEAU_SUIVI = "Instruction";
-  const NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES = "Instructeur DREAL";
+  const SUIVI_TABLE_SHEET_NAME = "Instruction";
+  const INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME = "Instructeur DREAL";
   const DREAL = "Corse";
 
   type Props = {
@@ -87,21 +87,21 @@
         const importFichier = await file.arrayBuffer();
         const rawData = await getODSTableRawContent(importFichier);
 
-        const rawDataSuiviTable = rawData.get(NOM_FEUILLE_TABLEAU_SUIVI);
+        const rawDataSuiviTable = rawData.get(SUIVI_TABLE_SHEET_NAME);
 
         if (!rawDataSuiviTable) {
           throw new TypeError(
-            `Erreur dans la récupération de la feuille ${NOM_FEUILLE_TABLEAU_SUIVI}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
+            `Erreur dans la récupération de la feuille ${SUIVI_TABLE_SHEET_NAME}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
           );
         }
 
         const rawDataEmailsByInitials = rawData.get(
-          NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES,
+          INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME,
         );
 
         if (!rawDataEmailsByInitials) {
           throw new TypeError(
-            `Erreur dans la récupération de la feuille ${NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
+            `Erreur dans la récupération de la feuille ${INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
           );
         }
 
