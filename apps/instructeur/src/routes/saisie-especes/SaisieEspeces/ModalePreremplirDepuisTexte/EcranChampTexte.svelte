@@ -70,7 +70,7 @@
    */
   let textField: HTMLTextAreaElement | undefined = $state();
 
-  export function focusBoutonSupprimer() {
+  export function focusDeleteButton() {
     const lastButton = deleteButtonRefs.filter((b) => b !== null).pop();
     lastButton?.focus();
   }

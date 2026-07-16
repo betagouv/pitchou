@@ -83,7 +83,7 @@ function expectTracking(source: string) {
   });
 }
 
-async function choisirFichiers(container: HTMLElement, fichiers: File[]) {
+async function chooseFichiers(container: HTMLElement, fichiers: File[]) {
   const input = container.querySelector<HTMLInputElement>('input[type="file"]');
   if (!input) throw new Error("input fichier introuvable");
 
@@ -97,7 +97,7 @@ async function choisirFichiers(container: HTMLElement, fichiers: File[]) {
   await tick();
 }
 
-async function renseignerTypeAutre(container: HTMLElement, type: string) {
+async function fillTypeAutre(container: HTMLElement, type: string) {
   const input = container.querySelector<HTMLInputElement>('input[id^="other-attachment-type-"]');
   if (!input) throw new Error("input type autre introuvable");
 
@@ -153,11 +153,11 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
     source: "enteteDossier",
   });
 
-  await choisirFichiers(container, [
+  await chooseFichiers(container, [
     new File(["contenu 1"], "note-1.pdf", { type: "application/pdf" }),
     new File(["contenu 2"], "note-2.pdf", { type: "application/pdf" }),
   ]);
-  await renseignerTypeAutre(container, "Note interne");
+  await fillTypeAutre(container, "Note interne");
 
   await waitFor(() => {
     const submitButton = Array.from(container.querySelectorAll("button")).find((button) =>

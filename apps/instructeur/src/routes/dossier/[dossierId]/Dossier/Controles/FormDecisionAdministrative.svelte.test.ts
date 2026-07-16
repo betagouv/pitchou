@@ -21,14 +21,14 @@ function decision(
 }
 
 /** Crée un File dont on force la taille, sans avoir à allouer le contenu réel. */
-function fichierDeTaille(nom: string, mediaType: string, taille: number): File {
+function fichierWithSize(nom: string, mediaType: string, size: number): File {
   const file = new File(["contenu"], nom, { type: mediaType });
-  Object.defineProperty(file, "size", { value: taille });
+  Object.defineProperty(file, "size", { value: size });
   return file;
 }
 
 /** Renseigne l'input fichier comme le ferait un utilisateur (déclenche bind:files). */
-async function choisirFichier(container: HTMLElement, fichier: File) {
+async function chooseFichier(container: HTMLElement, fichier: File) {
   const input = container.querySelector<HTMLInputElement>("#upload-fichier-décision");
   if (!input) throw new Error("input fichier introuvable");
 
@@ -39,7 +39,7 @@ async function choisirFichier(container: HTMLElement, fichier: File) {
   await tick();
 }
 
-function cliquerSauvegarder() {
+function clickSave() {
   return page.getByRole("button", { name: /^Sauvegarder$/ }).click();
 }
 
@@ -50,7 +50,7 @@ test("refuse une décision sans type et n'appelle pas onValidate", async () => {
     onValidate,
   });
 
-  await cliquerSauvegarder();
+  await clickSave();
 
   await expect.element(page.getByText(/sélectionner un type/i)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
@@ -63,8 +63,8 @@ test("refuse un format non supporté et n'appelle pas onValidate", async () => {
     onValidate,
   });
 
-  await choisirFichier(container, fichierDeTaille("notes.txt", "text/plain", 1000));
-  await cliquerSauvegarder();
+  await chooseFichier(container, fichierWithSize("notes.txt", "text/plain", 1000));
+  await clickSave();
 
   await expect.element(page.getByText(/Format de fichier non supporté/i)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
@@ -77,8 +77,8 @@ test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
     onValidate,
   });
 
-  await choisirFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
-  await cliquerSauvegarder();
+  await chooseFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
+  await clickSave();
 
   await expect.element(page.getByText(/l'enregistrement de la décision/i)).toBeVisible();
   await expect.element(page.getByText(/Boom serveur/)).toBeVisible();
@@ -94,8 +94,8 @@ test("traduit un rejet 413 en message « fichier trop volumineux »", async () =
     onValidate,
   });
 
-  await choisirFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
-  await cliquerSauvegarder();
+  await chooseFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
+  await clickSave();
 
   await expect.element(page.getByText(/trop volumineux pour être envoyé/i)).toBeVisible();
 });
@@ -107,20 +107,20 @@ test("appelle onValidate avec le fichier encodé en base64 quand tout est valide
     onValidate,
   });
 
-  await choisirFichier(
+  await chooseFichier(
     container,
     new File(["%PDF-1.4"], "arrete.pdf", { type: "application/pdf" }),
   );
-  await cliquerSauvegarder();
+  await clickSave();
 
   await vi.waitFor(() => expect(onValidate).toHaveBeenCalledTimes(1));
 
-  const decisionTransmise = onValidate.mock.calls[0][0] as DecisionAdministrativeForTransfer;
-  expect(decisionTransmise.fichier_base64).toMatchObject({
+  const transmittedDecision = onValidate.mock.calls[0][0] as DecisionAdministrativeForTransfer;
+  expect(transmittedDecision.fichier_base64).toMatchObject({
     nom: "arrete.pdf",
     media_type: "application/pdf",
   });
-  expect(decisionTransmise.fichier_base64?.contenuBase64.length).toBeGreaterThan(0);
+  expect(transmittedDecision.fichier_base64?.contenuBase64.length).toBeGreaterThan(0);
 });
 
 test("affiche un état de chargement pendant l'enregistrement", async () => {
@@ -131,10 +131,10 @@ test("affiche un état de chargement pendant l'enregistrement", async () => {
     onValidate,
   });
 
-  await cliquerSauvegarder();
+  await clickSave();
 
-  const boutonEnCours = page.getByRole("button", { name: /Sauvegarde en cours/ });
-  await expect.element(boutonEnCours).toBeDisabled();
+  const savingButton = page.getByRole("button", { name: /Sauvegarde en cours/ });
+  await expect.element(savingButton).toBeDisabled();
 
   resolve();
 

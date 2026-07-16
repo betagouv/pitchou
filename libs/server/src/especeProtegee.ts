@@ -30,7 +30,7 @@ export async function getEspecesProtegees(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EspeceProtegeeAvecStatutsProtection[]> {
   const rows = (await databaseConnection<EspeceProtegee>("espece_protegee").select("*")).map(
-    normaliserLigneVue,
+    normalizeViewRow,
   );
   const documentsByCdRef = await getDocumentsProtectionByCdRef(
     rows.map((row) => row.cd_ref),
@@ -50,7 +50,7 @@ export async function getEspecesProtegees(
  * columns as non-null, but a view offers no constraints, so we coerce to the defaults
  * the app expects (`[]`, `false`) — consumers always get the effective, non-null shape.
  */
-function normaliserLigneVue(row: EspeceProtegee): EspeceProtegee {
+function normalizeViewRow(row: EspeceProtegee): EspeceProtegee {
   return {
     cd_ref: row.cd_ref,
     classification: row.classification,
