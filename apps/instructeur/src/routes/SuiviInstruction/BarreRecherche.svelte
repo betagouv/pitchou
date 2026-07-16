@@ -16,7 +16,7 @@
 </script>
 
 <form onsubmit={onUpdateSelectedValue} role="search">
-  <div class="form-recherche">
+  <div class="form-search">
     <label class="sr-only" for="recherche-texte">{title}</label>
     <input
       type="text"
@@ -36,7 +36,7 @@
 </form>
 
 <style lang="scss">
-  .form-recherche {
+  .form-search {
     display: flex;
     width: 70%;
   }

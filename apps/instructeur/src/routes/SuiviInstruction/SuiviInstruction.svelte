@@ -563,7 +563,7 @@
         {/each}
       </div>
 
-      <div class="filtres">
+      <div class="filters">
         <FiltreParmiOptions
           title="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
@@ -586,7 +586,7 @@
         {/if}
       </div>
 
-      <section class="filtres-actifs fr-mb-1w">
+      <section class="active-filters fr-mb-1w">
         <div class="fr-mb-1w">
           <span>Dossiers suivis par&nbsp;:</span>
           {#if instructeursNonSelectionnes.size === 0}
@@ -725,7 +725,7 @@
               <tr>
                 <td>
                   <a
-                    class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
+                    class="fr-btn view-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
                     href={`/dossier/${id}`}>Voir le dossier</a
                   >
 
@@ -742,7 +742,7 @@
                         </button>
                       {/snippet}
                       {#snippet content()}
-                        <header class="titre-modale">
+                        <header class="modal-title">
                           <h1 class="fr-modal__title">
                             Commentaire dossier {nom}
                           </h1>
@@ -753,7 +753,7 @@
                           </h2>
                         </header>
 
-                        <div class="contenu-modale">
+                        <div class="modal-content">
                           {commentaire_libre}
                         </div>
                       {/snippet}
@@ -838,21 +838,21 @@
     color: var(--text-mention-grey);
   }
 
-  .filtres {
+  .filters {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
   }
 
-  .filtres-actifs {
+  .active-filters {
     margin-bottom: 0.5rem;
   }
 
-  .voir-le-dossier {
+  .view-dossier {
     white-space: pre;
   }
 
-  .titre-modale {
+  .modal-title {
     h1 {
       margin-bottom: 0.8rem;
     }
@@ -862,7 +862,7 @@
     }
   }
 
-  .contenu-modale {
+  .modal-content {
     white-space: preserve;
   }
 </style>

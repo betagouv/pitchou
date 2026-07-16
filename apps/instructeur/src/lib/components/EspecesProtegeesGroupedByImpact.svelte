@@ -30,7 +30,7 @@
 </script>
 
 {#each especesImpacteesParActivite as { activité: activite, espèces: especes, impactsQuantifiés: impactsQuantifies }}
-  <section class="liste-especes">
+  <section class="especes-list">
     <h3>{activite}</h3>
     <table class="fr-table">
       <thead>
@@ -67,7 +67,7 @@
 {/each}
 
 <style lang="scss">
-  .liste-especes {
+  .especes-list {
     margin-top: 2rem;
     margin-bottom: 2rem;
 
