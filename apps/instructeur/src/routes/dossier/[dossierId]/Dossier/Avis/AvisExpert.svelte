@@ -1,6 +1,6 @@
 <script lang="ts">
   import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
-  import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
+  import FormAvisExpert from "./FormAvisExpert.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
@@ -83,7 +83,7 @@
       {/if}
     </ul>
   {:else}
-    <FormulaireAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {closeForm} />
+    <FormAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {closeForm} />
     <button
       class="fr-btn fr-btn--secondary fr-mt-1w"
       type="button"

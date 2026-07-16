@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
-  import FormulaireControle from "./FormulaireControle.svelte";
+  import FormControle from "./FormControle.svelte";
   import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
   import TagResultatControle from "../../TagResultatControle.svelte";
 
@@ -204,7 +204,7 @@
           </button>
 
           {#if newControle}
-            <FormulaireControle controle={newControle} onValidate={createControle}>
+            <FormControle controle={newControle} onValidate={createControle}>
               {#snippet buttonValidate()}
                 <button type="submit" class="fr-btn fr-btn--icon-left fr-icon-check-line">
                   Finir le contrôle
@@ -219,14 +219,14 @@
                   Fermer le contrôle sans sauvegarder
                 </button>
               {/snippet}
-            </FormulaireControle>
+            </FormControle>
           {/if}
 
           {#each sortedControles as controle}
             {#if controle === editedControle}
               <h6>Modification du contrôle</h6>
 
-              <FormulaireControle
+              <FormControle
                 controle={editedControle}
                 onValidate={validateControleModifications}
               >
@@ -250,7 +250,7 @@
                     </button>
                   </div>
                 {/snippet}
-              </FormulaireControle>
+              </FormControle>
             {:else}
               <section class="controle">
                 <h6>
