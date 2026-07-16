@@ -208,20 +208,20 @@
     tris.find((t) => t.id === triIdSelectionne) || triPriorisationPhaseProchaineAction[0],
   );
 
-  type CleFiltre =
+  type FilterKey =
     | "phase"
     | "prochaine action attendue de"
     | "texte"
     | "suivis"
     | "instructeurs"
     | "activité principale";
-  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierSummary) => boolean>();
+  const allFilters = new SvelteMap<FilterKey, (d: DossierSummary) => boolean>();
 
-  function filtrerDossiers() {
+  function filterDossiers() {
     let nouveauxDossiersSelectionnes = dossiers;
 
-    for (const filtre of tousLesFiltres.values()) {
-      nouveauxDossiersSelectionnes = nouveauxDossiersSelectionnes.filter(filtre);
+    for (const filter of allFilters.values()) {
+      nouveauxDossiersSelectionnes = nouveauxDossiersSelectionnes.filter(filter);
     }
 
     dossiersSelectionnes = nouveauxDossiersSelectionnes;
@@ -247,8 +247,8 @@
       activitésPrincipales: [...activitesPrincipalesSelectionnees],
     };
 
-    if (texteAChercher) {
-      filtres.texte = texteAChercher;
+    if (textToSearch) {
+      filtres.texte = textToSearch;
     }
 
     _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnes.length });
@@ -278,12 +278,12 @@
 
       //phasesSélectionnées = phasesSélectionnées; // re-render
 
-      filtrerDossiers();
+      filterDossiers();
       sendEvenementRechercherUnDossier();
     };
   }
 
-  tousLesFiltres.set("phase", (dossier) => {
+  allFilters.set("phase", (dossier) => {
     return phasesSelectionnees.has(dossier.phase);
   });
 
@@ -304,7 +304,7 @@
     ),
   );
 
-  tousLesFiltres.set("prochaine action attendue de", (dossier) => {
+  allFilters.set("prochaine action attendue de", (dossier) => {
     if (
       !dossier.prochaine_action_attendue_par ||
       !prochainesActionsAttenduesParOptions.has(
@@ -319,7 +319,7 @@
     );
   });
 
-  function filtrerParProchainesActionsAttenduesPar(
+  function filterByProchainesActionsAttenduesPar(
     _prochainesActionsAttenduesParSelectionnes: Set<
       DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
     >,
@@ -328,7 +328,7 @@
       _prochainesActionsAttenduesParSelectionnes,
     );
 
-    filtrerDossiers();
+    filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
@@ -336,27 +336,27 @@
     prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSelectionnes),
   );
 
-  let texteAChercher = $state(untrack(() => filtresSelectionnes.texte));
+  let textToSearch = $state(untrack(() => filtresSelectionnes.texte));
 
-  function ajouterFiltreTexte(_texteAChercher: string) {
-    texteAChercher = _texteAChercher.trim();
-    tousLesFiltres.set("texte", createTextFilter(texteAChercher, dossiers));
+  function addTextFilter(_textToSearch: string) {
+    textToSearch = _textToSearch.trim();
+    allFilters.set("texte", createTextFilter(textToSearch, dossiers));
   }
 
-  function filtrerParTexte(_texteAChercher: string) {
-    ajouterFiltreTexte(_texteAChercher);
+  function filterByText(_textToSearch: string) {
+    addTextFilter(_textToSearch);
 
-    filtrerDossiers();
+    filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
-  function onSupprimerFiltreTexte(e: Event) {
+  function onDeleteTextFilter(e: Event) {
     e.preventDefault();
 
-    tousLesFiltres.delete("texte");
+    allFilters.delete("texte");
 
-    texteAChercher = "";
-    filtrerDossiers();
+    textToSearch = "";
+    filterDossiers();
   }
 
   const AUCUN_INSTRUCTEUR = "(aucun instructeur)" as const;
@@ -383,7 +383,7 @@
 
   $inspect("instructeursSélectionnés", instructeursSelectionnes);
 
-  tousLesFiltres.set("instructeurs", (dossier) => {
+  allFilters.set("instructeurs", (dossier) => {
     if (!relationSuivis) return true;
 
     if (
@@ -403,17 +403,17 @@
     return false;
   });
 
-  function filtrerParInstructeurs(
+  function filterByInstructeurs(
     _instructeursSelectionnees: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
   ) {
     instructeursSelectionnes = new SvelteSet(_instructeursSelectionnees);
 
-    filtrerDossiers();
+    filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
-  function filtrerSuivisParMoi() {
-    filtrerParInstructeurs(new Set([email]));
+  function filterFollowedByMe() {
+    filterByInstructeurs(new Set([email]));
     sendEvenement({ type: "afficherLesDossiersSuivis" });
   }
 
@@ -441,7 +441,7 @@
     ),
   );
 
-  tousLesFiltres.set("activité principale", (dossier) => {
+  allFilters.set("activité principale", (dossier) => {
     if (
       !dossier.activité_principale ||
       !activitesPrincipalesOptions.has(dossier.activité_principale)
@@ -451,12 +451,12 @@
     return activitesPrincipalesSelectionnees.has(dossier.activité_principale);
   });
 
-  function filtrerParActivitePrincipale(
+  function filterByActivitePrincipale(
     _activitesPrincipalesSelectionnees: Set<DossierDemarcheNumerique88444["Activité principale"]>,
   ) {
     activitesPrincipalesSelectionnees = new Set(_activitesPrincipalesSelectionnees);
 
-    filtrerDossiers();
+    filterDossiers();
     sendEvenementRechercherUnDossier();
   }
 
@@ -470,28 +470,28 @@
       "prochaine action attendue de": prochainesActionsAttenduesParSelectionnes,
       instructeurs: instructeursSelectionnes,
       activitésPrincipales: activitesPrincipalesSelectionnees,
-      texte: texteAChercher,
+      texte: textToSearch,
     });
   });
 
   // Pagination of the suivi table
-  type SelectionneurPage = () => void;
+  type PageSelector = () => void;
 
-  const NOMBRE_DOSSIERS_PAR_PAGE = 20;
+  const DOSSIERS_PER_PAGE = 20;
 
   // page number matching the displayed one, so starting at 1
-  let numeroPageSelectionnee: number = $state(1);
+  let selectedPageNumber: number = $state(1);
 
-  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(
     () => {
-      if (dossiersSelectionnes.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-        const nombreDePages = Math.ceil(dossiersSelectionnes.length / NOMBRE_DOSSIERS_PAR_PAGE);
+      if (dossiersSelectionnes.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+        const pageCount = Math.ceil(dossiersSelectionnes.length / DOSSIERS_PER_PAGE);
 
         return [
           undefined,
-          ...[...Array(nombreDePages).keys()].map((i) => () => {
+          ...[...Array(pageCount).keys()].map((i) => () => {
             console.log("sélection de la page", i + 1);
-            numeroPageSelectionnee = i + 1;
+            selectedPageNumber = i + 1;
           }),
         ];
       }
@@ -501,15 +501,15 @@
   );
 
   $effect(() => {
-    if (selectionneursPage) numeroPageSelectionnee = 1;
+    if (pageSelectors) selectedPageNumber = 1;
   });
 
-  let dossiersAffiches: typeof dossiersSelectionnes = $derived.by(() => {
-    if (!selectionneursPage) return dossiersSelectionnes;
+  let displayedDossiers: typeof dossiersSelectionnes = $derived.by(() => {
+    if (!pageSelectors) return dossiersSelectionnes;
     else {
       return dossiersSelectionnes.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numeroPageSelectionnee - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numeroPageSelectionnee,
+        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
+        DOSSIERS_PER_PAGE * selectedPageNumber,
       );
     }
   });
@@ -518,11 +518,11 @@
 
   // filtering with the initial filters
   onMount(async () => {
-    if (texteAChercher) {
-      ajouterFiltreTexte(texteAChercher);
+    if (textToSearch) {
+      addTextFilter(textToSearch);
     }
 
-    filtrerDossiers();
+    filterDossiers();
   });
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -548,7 +548,7 @@
     {#if dossiers.length >= 1}
       <BarreRecherche
         titre="Rechercher par texte libre"
-        mettreÀJourTexteRecherche={filtrerParTexte}
+        mettreÀJourTexteRecherche={filterByText}
       />
 
       <div class="fr-mb-2w">
@@ -568,20 +568,20 @@
           titre="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
           optionsSélectionnées={activitesPrincipalesSelectionnees}
-          mettreÀJourOptionsSélectionnées={filtrerParActivitePrincipale}
+          mettreÀJourOptionsSélectionnées={filterByActivitePrincipale}
         />
         <FiltreParmiOptions
           titre="Filtrer par prochaine action attendue par"
           options={prochainesActionsAttenduesParOptions}
           optionsSélectionnées={prochainesActionsAttenduesParSelectionnes}
-          mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
+          mettreÀJourOptionsSélectionnées={filterByProchainesActionsAttenduesPar}
         />
         {#if instructeursOptions && instructeursOptions.size >= 2}
           <FiltreParmiOptions
             titre="Filtrer par instructeur suivant le dossier"
             options={instructeursOptions}
             optionsSélectionnées={instructeursSelectionnes}
-            mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
+            mettreÀJourOptionsSélectionnées={filterByInstructeurs}
           />
         {/if}
       </div>
@@ -613,7 +613,7 @@
           {#if instructeursSelectionnes.size !== 1 || !instructeursSelectionnes.has(email)}
             <button
               class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
-              onclick={filtrerSuivisParMoi}
+              onclick={filterFollowedByMe}
             >
               Suivi par moi
             </button>
@@ -660,11 +660,11 @@
           {/if}
         </div>
 
-        {#if texteAChercher}
+        {#if textToSearch}
           <div class="fr-mb-1w">
-            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteAChercher}</span
+            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {textToSearch}</span
             >
-            <button onclick={onSupprimerFiltreTexte}>✖</button>
+            <button onclick={onDeleteTextFilter}>✖</button>
           </div>
         {/if}
       </section>
@@ -708,7 +708,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each dossiersAffiches as dossier (dossier)}
+            {#each displayedDossiers as dossier (dossier)}
               {@const {
                 id,
                 nom,
@@ -802,8 +802,8 @@
           </tbody>
         </table>
 
-        {#if selectionneursPage}
-          <Pagination pageSelectors={selectionneursPage} currentPage={selectionneursPage[numeroPageSelectionnee]}
+        {#if pageSelectors}
+          <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
           ></Pagination>
         {/if}
       </div>
