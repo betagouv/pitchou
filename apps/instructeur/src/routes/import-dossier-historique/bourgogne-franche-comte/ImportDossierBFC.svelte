@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import type { LigneDossierBFC } from "./importDossierBFC.ts";
+  import type { DossierBFCRow } from "./importDossierBFC.ts";
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
@@ -10,7 +10,7 @@
 
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
-  import { creerDossierDepuisLigne, creerNomPourDossier } from "./importDossierBFC.ts";
+  import { createDossierFromRow, createNomForDossier } from "./importDossierBFC.ts";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
   type Props = {
@@ -35,8 +35,8 @@
           )
         : new Set(),
     );
-  let lignesTableauImport: LigneDossierBFC[] = $state([]);
-  let lignesFiltreesTableauImport: LigneDossierBFC[] = $state([]);
+  let lignesTableauImport: DossierBFCRow[] = $state([]);
+  let lignesFiltreesTableauImport: DossierBFCRow[] = $state([]);
   let dossiersDejaEnBDD: DossierSummary[] = $state([]);
 
   let ligneToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
@@ -52,8 +52,8 @@
    * Checks whether a specific dossier to import already exists in the database.
    * The search is performed by comparing the project name (the 'nom' field of the 'dossier' table).
    */
-  function ligneDossierEnBDD(LigneDossierBFC: LigneDossierBFC): boolean {
-    return nomsEnBDD.has(creerNomPourDossier(LigneDossierBFC));
+  function ligneDossierEnBDD(LigneDossierBFC: DossierBFCRow): boolean {
+    return nomsEnBDD.has(createNomForDossier(LigneDossierBFC));
   }
 
   async function handleFileChange(event: Event) {
@@ -96,8 +96,8 @@
     }
   }
 
-  async function handleCreerLienPreRemplissage(LigneDossierBFC: LigneDossierBFC) {
-    const dossier = await creerDossierDepuisLigne(LigneDossierBFC, activitesPrincipales88444);
+  async function handleCreerLienPreRemplissage(LigneDossierBFC: DossierBFCRow) {
+    const dossier = await createDossierFromRow(LigneDossierBFC, activitesPrincipales88444);
 
     console.log(
       { dossier },
@@ -246,7 +246,7 @@
             <tbody>
               {#each lignesAfficheesTableauImport as LigneDossierBFC, index}
                 <tr data-row-key="1">
-                  <td>{creerNomPourDossier(LigneDossierBFC)}</td>
+                  <td>{createNomForDossier(LigneDossierBFC)}</td>
                   <td>
                     <BoutonModale id={`dsfr-modale-${index}`}>
                       {#snippet boutonOuvrir()}
@@ -261,7 +261,7 @@
                     {#if ligneDossierEnBDD(LigneDossierBFC)}
                       <p class="fr-badge fr-badge--success">En base de données</p>
                       <a
-                        href={`/dossier/${nomToDossierId.get(creerNomPourDossier(LigneDossierBFC))}`}
+                        href={`/dossier/${nomToDossierId.get(createNomForDossier(LigneDossierBFC))}`}
                         target="_blank"
                         class="fr-btn fr-btn--secondary fr-ml-2w"
                       >
