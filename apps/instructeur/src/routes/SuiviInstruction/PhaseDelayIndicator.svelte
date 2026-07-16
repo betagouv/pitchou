@@ -1,6 +1,6 @@
 <script lang="ts">
   import { differenceInMonths, differenceInWeeks, addMonths, format } from "date-fns";
-  import IndicateurDelai from "./IndicateurDelai.svelte";
+  import DelayIndicator from "./DelayIndicator.svelte";
   import { getCurrentPhaseStart } from "$lib/dossier/getCurrentPhaseStart.ts";
 
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
@@ -27,11 +27,11 @@
 </script>
 
 {#if currentPhaseStart.phase === "Instruction"}
-  <IndicateurDelai
+  <DelayIndicator
     quantity={quantity}
     style={quantity >= 3 ? "error" : quantity >= 2 ? "warning" : "info"}
     {alt}
-  ></IndicateurDelai>
+  ></DelayIndicator>
 {:else}
-  <IndicateurDelai quantity={quantity} style="info" {alt}></IndicateurDelai>
+  <DelayIndicator quantity={quantity} style="info" {alt}></DelayIndicator>
 {/if}

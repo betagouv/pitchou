@@ -2,13 +2,13 @@
   import { onMount, untrack } from "svelte";
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
-  import FiltreParmiOptions from "./FiltreParmiOptions.svelte";
-  import BarreRecherche from "./BarreRecherche.svelte";
-  import TrisDeTh from "./TrisDeTh.svelte";
+  import FilterAmongOptions from "./FilterAmongOptions.svelte";
+  import SearchBar from "./SearchBar.svelte";
+  import ThSorts from "./ThSorts.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import IndicateurDelaiPhase from "./IndicateurDelaiPhase.svelte";
+  import PhaseDelayIndicator from "./PhaseDelayIndicator.svelte";
   import {
     formatLocalisation,
     formatPorteurDeProjet,
@@ -546,7 +546,7 @@
     </h1>
 
     {#if dossiers.length >= 1}
-      <BarreRecherche
+      <SearchBar
         title="Rechercher par texte libre"
         updateTextSearch={filterByText}
       />
@@ -564,20 +564,20 @@
       </div>
 
       <div class="filters">
-        <FiltreParmiOptions
+        <FilterAmongOptions
           title="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
           selectedOptions={selectedActivitesPrincipales}
           updateSelectedOptions={filterByActivitePrincipale}
         />
-        <FiltreParmiOptions
+        <FilterAmongOptions
           title="Filtrer par prochaine action attendue par"
           options={prochainesActionsAttenduesParOptions}
           selectedOptions={selectedProchainesActionsAttenduesPar}
           updateSelectedOptions={filterByProchainesActionsAttenduesPar}
         />
         {#if instructeursOptions && instructeursOptions.size >= 2}
-          <FiltreParmiOptions
+          <FilterAmongOptions
             title="Filtrer par instructeur suivant le dossier"
             options={instructeursOptions}
             selectedOptions={selectedInstructeurs}
@@ -680,19 +680,19 @@
               <th>Voir le dossier</th>
               <th>
                 Localisation
-                <TrisDeTh sorts={localisationSorts} bind:selectedSort />
+                <ThSorts sorts={localisationSorts} bind:selectedSort />
               </th>
               <th>
                 Activité principale
-                <TrisDeTh sorts={activitePrincipaleSorts} bind:selectedSort />
+                <ThSorts sorts={activitePrincipaleSorts} bind:selectedSort />
               </th>
               <th>
                 Porteur de projet
-                <TrisDeTh sorts={porteurDeProjetSorts} bind:selectedSort />
+                <ThSorts sorts={porteurDeProjetSorts} bind:selectedSort />
               </th>
               <th>
                 Nom du projet
-                <TrisDeTh sorts={nomProjetSorts} bind:selectedSort />
+                <ThSorts sorts={nomProjetSorts} bind:selectedSort />
               </th>
               <th>Enjeux</th>
               <th>Rattaché au régime AE</th>
@@ -700,7 +700,7 @@
                 Phase<br />
                 <br />
                 Prochaine action attendue de
-                <TrisDeTh
+                <ThSorts
                   sorts={priorisationPhaseProchaineActionSorts}
                   bind:selectedSort
                 />
@@ -792,7 +792,7 @@
                 </td>
                 <td>
                   <TagPhase {phase} size="SM"></TagPhase>
-                  <IndicateurDelaiPhase {dossier}></IndicateurDelaiPhase>
+                  <PhaseDelayIndicator {dossier}></PhaseDelayIndicator>
                   {#if prochaine_action_attendue_par}
                     <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                   {/if}
