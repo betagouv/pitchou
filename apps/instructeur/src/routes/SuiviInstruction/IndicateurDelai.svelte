@@ -3,35 +3,35 @@
 
   import clsx from "clsx";
 
-  type StyleIndicateur = "info" | "succès" | "avertissement" | "erreur";
+  type IndicatorStyle = "info" | "success" | "warning" | "error";
 
   type Props = {
-    style?: StyleIndicateur;
-    quantité: number;
+    style?: IndicatorStyle;
+    quantity: number;
     alt: string;
   };
 
-  let { style = "info", quantité: quantite, alt }: Props = $props();
+  let { style = "info", quantity, alt }: Props = $props();
 
-  let quantiteAjustee = $derived(quantite);
+  let adjustedQuantity = $derived(quantity);
   run(() => {
-    if (quantiteAjustee < 0) {
-      quantiteAjustee = 0;
+    if (adjustedQuantity < 0) {
+      adjustedQuantity = 0;
     } else {
-      if (quantiteAjustee > 5) {
-        quantiteAjustee = 5;
+      if (adjustedQuantity > 5) {
+        adjustedQuantity = 5;
       }
     }
 
     // round to the nearest half-value
-    quantiteAjustee = Math.round(quantiteAjustee * 2) / 2;
+    adjustedQuantity = Math.round(adjustedQuantity * 2) / 2;
   });
 
   let baseClasses = $derived(["line", style]);
 
   let lineClasses = $derived(
-    [...Array(Math.ceil(quantiteAjustee))].map((_, i) => {
-      if (quantiteAjustee - i >= 1) {
+    [...Array(Math.ceil(adjustedQuantity))].map((_, i) => {
+      if (adjustedQuantity - i >= 1) {
         return baseClasses;
       } else {
         return [...baseClasses, "half"];
@@ -40,7 +40,7 @@
   );
 </script>
 
-<div class="delai" title={alt}>
+<div class="delay" title={alt}>
   {#each lineClasses as classes}
     <span class={clsx(classes)}></span>
   {/each}
@@ -49,7 +49,7 @@
 <style lang="scss">
   $line-width: 1.5rem;
 
-  .delai {
+  .delay {
     height: 1rem;
     display: flex;
     flex-direction: row;
@@ -72,13 +72,13 @@
       &.info {
         border-color: var(--border-plain-info);
       }
-      &.succès {
+      &.success {
         border-color: var(--border-plain-success);
       }
-      &.avertissement {
+      &.warning {
         border-color: var(--border-plain-warning);
       }
-      &.erreur {
+      &.error {
         border-color: var(--border-plain-error);
       }
     }

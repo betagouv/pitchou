@@ -20,7 +20,7 @@
   );
   // $: console.log('weekDiff', weekDiff)
 
-  let quantite = $derived(monthDiff + weekDiff / 4);
+  let quantity = $derived(monthDiff + weekDiff / 4);
   let alt = $derived(
     `depuis ${format(currentPhaseStart.startDate, "yyyy-MM-dd")} - ~${monthDiff} mois`,
   );
@@ -28,10 +28,10 @@
 
 {#if currentPhaseStart.phase === "Instruction"}
   <IndicateurDelai
-    quantité={quantite}
-    style={quantite >= 3 ? "erreur" : quantite >= 2 ? "avertissement" : "info"}
+    quantity={quantity}
+    style={quantity >= 3 ? "error" : quantity >= 2 ? "warning" : "info"}
     {alt}
   ></IndicateurDelai>
 {:else}
-  <IndicateurDelai quantité={quantite} style="info" {alt}></IndicateurDelai>
+  <IndicateurDelai quantity={quantity} style="info" {alt}></IndicateurDelai>
 {/if}

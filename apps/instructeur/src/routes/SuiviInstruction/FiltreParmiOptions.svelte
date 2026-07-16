@@ -54,7 +54,7 @@
     {title}
   </summary>
 
-  <section class="filtre-options">
+  <section class="filter-options">
     <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectAll}
       >Sélectionner tout</button
     >
@@ -85,7 +85,7 @@
     margin-right: 0.5rem;
   }
 
-  .filtre-options {
+  .filter-options {
     margin-top: 0.5rem;
     padding: 1rem;
     background-color: var(--background-contrast-grey);
