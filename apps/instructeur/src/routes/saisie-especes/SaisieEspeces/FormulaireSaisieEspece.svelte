@@ -37,7 +37,7 @@
     transportsParClassificationEtreVivant,
   }: Props = $props();
 
-  async function ajouterEspece() {
+  async function addEspece() {
     especesImpactees.push({
       impacts: [{}],
     });
@@ -48,8 +48,8 @@
     referencesEspeces[referencesEspeces.length - 1].focusFormulaireEspece();
   }
 
-  async function supprimerEspece(indexEspeceASupprimer: number) {
-    especesImpactees.splice(indexEspeceASupprimer, 1);
+  async function deleteEspece(indexEspeceToDelete: number) {
+    especesImpactees.splice(indexEspeceToDelete, 1);
 
     await tick();
 
@@ -57,30 +57,30 @@
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
 
     if (especesImpactees.length === 0) {
-      await ajouterEspece();
+      await addEspece();
     } else {
-      let indexEspeceAFocus =
-        indexEspeceASupprimer === especesImpactees.length
+      let indexEspeceToFocus =
+        indexEspeceToDelete === especesImpactees.length
           ? especesImpactees.length - 1
-          : indexEspeceASupprimer;
+          : indexEspeceToDelete;
 
-      referencesEspeces[indexEspeceAFocus].focusBoutonSupprimer();
+      referencesEspeces[indexEspeceToFocus].focusBoutonSupprimer();
     }
   }
 
-  async function duppliquerEspece(indexEspeceADuppliquer: number) {
-    const nouvelleEspeceImpactee = {
-      espèce: especesImpactees[indexEspeceADuppliquer].espèce,
-      impacts: especesImpactees[indexEspeceADuppliquer].impacts?.map((i) => Object.assign({}, i)),
+  async function duplicateEspece(indexEspeceToDuplicate: number) {
+    const newEspeceImpactee = {
+      espèce: especesImpactees[indexEspeceToDuplicate].espèce,
+      impacts: especesImpactees[indexEspeceToDuplicate].impacts?.map((i) => Object.assign({}, i)),
     };
-    especesImpactees.splice(indexEspeceADuppliquer + 1, 0, nouvelleEspeceImpactee);
+    especesImpactees.splice(indexEspeceToDuplicate + 1, 0, newEspeceImpactee);
 
     await tick();
 
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
 
-    referencesEspeces[indexEspeceADuppliquer + 1].reinitialiserEspece();
-    referencesEspeces[indexEspeceADuppliquer + 1].focusFormulaireEspece();
+    referencesEspeces[indexEspeceToDuplicate + 1].reinitialiserEspece();
+    referencesEspeces[indexEspeceToDuplicate + 1].focusFormulaireEspece();
   }
 
   function onOuvertureModale(e: Event) {
@@ -107,10 +107,10 @@
       bind:descriptionImpacts={especesImpactees[indexEspecesImpactee].impacts}
       {onOuvertureModale}
       onSuprimerEspèce={async () => {
-        await supprimerEspece(indexEspecesImpactee);
+        await deleteEspece(indexEspecesImpactee);
       }}
       onDupliquerEspèce={async () => {
-        await duppliquerEspece(indexEspecesImpactee);
+        await duplicateEspece(indexEspecesImpactee);
       }}
       espècesProtégées={especesProtegees}
       {activitesParClassificationEtreVivant}
@@ -120,7 +120,7 @@
   {/each}
 
   <div class="fr-grid-row">
-    <button class="fr-btn fr-btn--secondary fr-m-auto" type="button" onclick={ajouterEspece}>
+    <button class="fr-btn fr-btn--secondary fr-m-auto" type="button" onclick={addEspece}>
       Ajouter une espèce
     </button>
   </div>

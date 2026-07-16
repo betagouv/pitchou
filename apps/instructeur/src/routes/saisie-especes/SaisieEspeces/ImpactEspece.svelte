@@ -60,14 +60,14 @@
   );
 
   export function focusBoutonSupprimer() {
-    boutonSupprimer?.focus();
+    deleteButton?.focus();
   }
 
   export function focusFormulaireImpact() {
     selectImpact?.focus();
   }
 
-  function reinitialiserDetailsImpact() {
+  function resetDetailsImpact() {
     impact.méthode = undefined;
     impact.moyenDePoursuite = undefined;
     impact.nombreIndividus = undefined;
@@ -76,7 +76,7 @@
     impact.nombreOeufs = undefined;
   }
 
-  let boutonSupprimer: HTMLElement | undefined = $state();
+  let deleteButton: HTMLElement | undefined = $state();
 
   let selectImpact: HTMLElement;
 </script>
@@ -96,7 +96,7 @@
         <select
           bind:this={selectImpact}
           bind:value={impact.activité}
-          onchange={reinitialiserDetailsImpact}
+          onchange={resetDetailsImpact}
           class="fr-select"
           id="input-espece-{indexEspece}-impact-{indexImpact}"
         >
@@ -111,7 +111,7 @@
           <button
             class="fr-btn fr-btn--secondary fr-icon-delete-line"
             type="button"
-            bind:this={boutonSupprimer}
+            bind:this={deleteButton}
             onclick={onSupprimerImpact}
           >
             <span class="fr-sr-only"

@@ -51,7 +51,7 @@
 
   let especeClassification: ClassificationEtreVivant | undefined = $state(espece?.classification);
 
-  async function ajouterImpact() {
+  async function addImpact() {
     descriptionImpacts.push({});
 
     await tick();
@@ -60,8 +60,8 @@
     referencesImpact[referencesImpact.length - 1].focusFormulaireImpact();
   }
 
-  async function supprimerImpact(indexImpactASupprimer: number) {
-    descriptionImpacts.splice(indexImpactASupprimer, 1);
+  async function deleteImpact(indexImpactToDelete: number) {
+    descriptionImpacts.splice(indexImpactToDelete, 1);
     descriptionImpacts = descriptionImpacts;
 
     await tick();
@@ -69,19 +69,19 @@
     referencesImpact = referencesImpact.filter((e) => e !== null);
 
     if (descriptionImpacts.length === 0) {
-      await ajouterImpact();
+      await addImpact();
     } else {
-      let indexImpactAFocus =
-        indexImpactASupprimer === descriptionImpacts.length
+      let indexImpactToFocus =
+        indexImpactToDelete === descriptionImpacts.length
           ? descriptionImpacts.length - 1
-          : indexImpactASupprimer;
+          : indexImpactToDelete;
 
-      referencesImpact[indexImpactAFocus].focusBoutonSupprimer();
+      referencesImpact[indexImpactToFocus].focusBoutonSupprimer();
     }
   }
 
   export function focusBoutonSupprimer() {
-    boutonSupprimer?.focus();
+    deleteButton?.focus();
   }
 
   export function focusFormulaireEspece() {
@@ -92,17 +92,17 @@
     espece = undefined;
   }
 
-  function onChangeEspece(nouvelleEspece: EspeceProtegee) {
-    if (nouvelleEspece.classification !== especeClassification) {
+  function onChangeEspece(newEspece: EspeceProtegee) {
+    if (newEspece.classification !== especeClassification) {
       descriptionImpacts = [{}];
     }
 
-    especeClassification = nouvelleEspece.classification;
+    especeClassification = newEspece.classification;
   }
 
   let referencesImpact: ImpactEspece[] = $state([]);
 
-  let boutonSupprimer: HTMLElement;
+  let deleteButton: HTMLElement;
 
   let autocomplete: AutocompleteEspeces;
 </script>
@@ -147,7 +147,7 @@
         </button>
 
         <button
-          bind:this={boutonSupprimer}
+          bind:this={deleteButton}
           onclick={onSuprimerEspece}
           class="fr-btn fr-btn--secondary fr-icon-delete-line"
           type="button"
@@ -168,7 +168,7 @@
           indexEspèce={index}
           indexImpact={indexImpact + 1}
           onSupprimerImpact={async () => {
-            await supprimerImpact(indexImpact);
+            await deleteImpact(indexImpact);
           }}
           {activitesParClassificationEtreVivant}
           méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
@@ -180,7 +180,7 @@
       <hr class="fr-hr" />
 
       <div class="fr-fieldset__element fr-input-group container-ajouter-impact">
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={ajouterImpact}>
+        <button class="fr-btn fr-btn--secondary" type="button" onclick={addImpact}>
           Ajouter un autre impact
         </button>
       </div>
