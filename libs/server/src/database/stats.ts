@@ -79,27 +79,27 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     ]);
 
     const totalPrescriptions = prescriptions.length;
-    const nbPrescriptionsControlees = Number(prescriptionsControleesRow?.nb);
+    const numberPrescriptionsControlees = Number(prescriptionsControleesRow?.nb);
 
-    const dossiersIdsEnPhaseControle = dossiersEnPhaseControle.map((row) => row.dossier);
+    const dossierIdsEnPhaseControle = dossiersEnPhaseControle.map((row) => row.dossier);
 
     // Fetch the décisions administratives for the dossiers in the Controle phase
-    const decisionsPourDossierEnPhaseControle = await transaction("évènement_phase_dossier as epd")
+    const decisionsForDossierEnPhaseControle = await transaction("évènement_phase_dossier as epd")
       .join("décision_administrative as da", "da.dossier", "epd.dossier")
-      .whereIn("epd.dossier", dossiersIdsEnPhaseControle)
+      .whereIn("epd.dossier", dossierIdsEnPhaseControle)
       .whereNotNull("da.type")
       .distinct("epd.dossier")
       .select("epd.dossier");
 
     const stats: StatsPubliques = {
       totalDossiers: dossiers.length,
-      nbDossiersEnPhaseControle: dossiersEnPhaseControle.length,
-      nbDossiersEnPhaseControleAvecDécision: decisionsPourDossierEnPhaseControle.length,
-      nbDossiersEnPhaseControleSansDécision:
-        dossiersEnPhaseControle.length - decisionsPourDossierEnPhaseControle.length,
-      nbPétitionnairesDepuisSept2024: petitionnairesSinceSept2024.length,
+      numberDossiersEnPhaseControle: dossiersEnPhaseControle.length,
+      numberDossiersEnPhaseControleWithDecision: decisionsForDossierEnPhaseControle.length,
+      numberDossiersEnPhaseControleWithoutDecision:
+        dossiersEnPhaseControle.length - decisionsForDossierEnPhaseControle.length,
+      numberPetitionnairesSinceSept2024: petitionnairesSinceSept2024.length,
       totalPrescriptions,
-      nbPrescriptionsControlees,
+      numberPrescriptionsControlees,
       statsConformité: statsConformite,
       statsImpactBiodiversité: statsImpactBiodiversite,
     };
