@@ -2,8 +2,8 @@ import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
 import {
-  chargerActivitesMethodesMoyensDePoursuite,
-  chargerListeEspecesProtegees,
+  loadActivitesMethodesMoyensDePoursuite,
+  loadEspecesProtegeesList,
 } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
 import { envoyerEvenementModifierCommentaire, envoyerEvenement } from "$lib/shared/aarri.ts";
@@ -86,8 +86,8 @@ export async function refreshDossierFull(id: DossierFull["id"]): Promise<Dossier
 export async function especesImpacteesDepuisFichierOdsArrayBuffer(
   fichierArrayBuffer: ArrayBuffer,
 ): Promise<DescriptionMenacesEspeces> {
-  const especesProtegees = chargerListeEspecesProtegees();
-  const actMetTrans = chargerActivitesMethodesMoyensDePoursuite();
+  const especesProtegees = loadEspecesProtegeesList();
+  const actMetTrans = loadActivitesMethodesMoyensDePoursuite();
 
   const { espèceByCD_REF: especeByCD_REF } = await especesProtegees;
   const { activités: activites, méthodes: methodes, moyensDePoursuite } = await actMetTrans;

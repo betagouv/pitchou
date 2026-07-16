@@ -5,13 +5,13 @@
     importDescriptionMenacesEspecesFromURL,
   } from "@pitchou/common/outils-especes.ts";
   import {
-    chargerListeEspecesProtegees,
-    chargerActivitesMethodesMoyensDePoursuite,
+    loadEspecesProtegeesList,
+    loadActivitesMethodesMoyensDePoursuite,
   } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([
-    chargerListeEspecesProtegees(),
-    chargerActivitesMethodesMoyensDePoursuite(),
+    loadEspecesProtegeesList(),
+    loadActivitesMethodesMoyensDePoursuite(),
   ]);
 </script>
 

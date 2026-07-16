@@ -4,7 +4,7 @@
   import EspecesProtegeesGroupeesParImpact from "$lib/components/EspecesProtegeesGroupeesParImpact.svelte";
   import { formatDateAbsolue, formatDateRelative } from "$lib/dossier/affichageDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import { chargerActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "$lib/components/Loader.svelte";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
@@ -91,7 +91,7 @@
     return `cartographie-${dossier.id}.geojson`;
   }
 
-  const promesseReferentiels = chargerActivitesMethodesMoyensDePoursuite();
+  const promesseReferentiels = loadActivitesMethodesMoyensDePoursuite();
 
   // @ts-ignore
   let scientifiquesIntervenants: { nom_complet: string; qualification: string }[] | undefined =

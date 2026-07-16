@@ -1,10 +1,10 @@
 <script lang="ts">
   import Loader from "$lib/components/Loader.svelte";
-  import { chargerListeEspecesProtegees } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadEspecesProtegeesList } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   import ListeEspecesProtegees from "./ListeEspecesProtegees.svelte";
 
-  const initP = chargerListeEspecesProtegees();
+  const initP = loadEspecesProtegeesList();
 </script>
 
 <svelte:head>

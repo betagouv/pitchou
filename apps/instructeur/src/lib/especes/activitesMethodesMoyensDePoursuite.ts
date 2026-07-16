@@ -10,7 +10,7 @@ import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
-export async function chargerListeEspecesProtegees(): Promise<{
+export async function loadEspecesProtegeesList(): Promise<{
   espècesProtégéesParClassification: NonNullable<PitchouState["espècesProtégéesParClassification"]>;
   espèceByCD_REF: NonNullable<PitchouState["espèceByCD_REF"]>;
 }> {
@@ -26,11 +26,11 @@ export async function chargerListeEspecesProtegees(): Promise<{
     });
   }
 
-  const reponse = await fetch("/api/especes-protegees");
-  if (!reponse.ok) {
-    throw new Error(`Échec du chargement des espèces protégées (${reponse.status})`);
+  const response = await fetch("/api/especes-protegees");
+  if (!response.ok) {
+    throw new Error(`Échec du chargement des espèces protégées (${response.status})`);
   }
-  const lignes: EspeceProtegeeRow[] = await reponse.json();
+  const rows: EspeceProtegeeRow[] = await response.json();
 
   const especesProtegeesParClassification: NonNullable<
     PitchouState["espècesProtégéesParClassification"]
@@ -41,8 +41,8 @@ export async function chargerListeEspecesProtegees(): Promise<{
   };
   const especeByCD_REF: NonNullable<PitchouState["espèceByCD_REF"]> = new Map();
 
-  for (const ligne of lignes) {
-    const espece: EspeceProtegee = Object.freeze(dbRowToEspeceProtegee(ligne));
+  for (const row of rows) {
+    const espece: EspeceProtegee = Object.freeze(dbRowToEspeceProtegee(row));
     const { classification } = espece;
 
     const especes = especesProtegeesParClassification[classification] || [];
@@ -78,7 +78,7 @@ export async function chargerListeEspecesProtegees(): Promise<{
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Reference of the XML schema of the Habides 2.0 directive, defining the activity types.
  */
-export async function chargerActivitesMethodesMoyensDePoursuite(): Promise<
+export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
   NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
 > {
   if (store.ActivitésMéthodesMoyensDePoursuite) {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
   import { getBalisesGenerationDocument } from "./genererDocument.ts";
-  import { chargerActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { envoyerEvenement } from "$lib/shared/aarri.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -41,7 +41,7 @@
     const {
       identifiantPitchouVersActivitéEtImpactsQuantifiés:
         identifiantPitchouVersActiviteEtImpactsQuantifies,
-    } = await chargerActivitesMethodesMoyensDePoursuite();
+    } = await loadActivitesMethodesMoyensDePoursuite();
 
     try {
       // on laisse les erreurs sortir silencieusement ici s'il y en a

@@ -7,7 +7,7 @@
   import Loader from "$lib/components/Loader.svelte";
   import TuileSaisieEspece from "./SaisieEspeces/TuileSaisieEspece.svelte";
   import { tick } from "svelte";
-  import { chargerActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
 
   import type {
@@ -91,7 +91,7 @@
     return especesImpacteesParClassification;
   });
 
-  const promesseReferentiels = chargerActivitesMethodesMoyensDePoursuite();
+  const promesseReferentiels = loadActivitesMethodesMoyensDePoursuite();
 
   function impactsParClassificationVerListeEspecesImpactees(
     descriptionMenacesEspeces: DescriptionMenacesEspeces,
