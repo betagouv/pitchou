@@ -27,29 +27,29 @@
    * and the number of espèces ministérielles
    * in the list of espèces impacted by this project
    */
-  function getNombreEspecesMinisterielleCNPN(_especesImpactees: DescriptionMenacesEspeces): {
-    nombreEspècesCNPN: number;
-    nombreEspècesMinistérielles: number;
+  function getNumberEspecesMinisterielleCNPN(_especesImpactees: DescriptionMenacesEspeces): {
+    numberEspecesCNPN: number;
+    numberEspecesMinisterielles: number;
   } {
-    const toutesLesEspecesImpactees = [
+    const allEspecesImpactees = [
       ...(_especesImpactees["faune non-oiseau"] ?? []),
       ...(_especesImpactees["flore"] ?? []),
       ...(_especesImpactees["oiseau"] ?? []),
     ];
 
-    const nombres = toutesLesEspecesImpactees.reduce(
+    const numbers = allEspecesImpactees.reduce(
       (acc, { espèce: espece }) => {
         if (espece.espèceCNPN) {
-          acc["nombreEspècesCNPN"] += 1;
+          acc["numberEspecesCNPN"] += 1;
         }
         if (espece.espèceMinistérielle) {
-          acc["nombreEspècesMinistérielles"] += 1;
+          acc["numberEspecesMinisterielles"] += 1;
         }
         return acc;
       },
-      { nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0 },
+      { numberEspecesCNPN: 0, numberEspecesMinisterielles: 0 },
     );
-    return nombres;
+    return numbers;
   }
 
   async function makeFileContentBlob() {
@@ -91,7 +91,7 @@
     return `cartographie-${dossier.id}.geojson`;
   }
 
-  const promesseReferentiels = loadActivitesMethodesMoyensDePoursuite();
+  const referentielsPromise = loadActivitesMethodesMoyensDePoursuite();
 
   // @ts-ignore
   let scientifiquesIntervenants: { nom_complet: string; qualification: string }[] | undefined =
@@ -102,7 +102,7 @@
     dossier.scientifique_finalité_demande,
   );
 
-  function raccourcirNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
+  function truncateNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
     if (!filename) {
       return "(fichier sans nom)";
     }
@@ -244,20 +244,20 @@
     </div>
     {#if dossier.espècesImpactées}
       {#if especesImpactees}
-        {#await Promise.all([especesImpactees, promesseReferentiels])}
+        {#await Promise.all([especesImpactees, referentielsPromise])}
           <Loader></Loader>
         {:then [especesImpactees, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
           {@const {
-            nombreEspècesCNPN: nombreEspecesCNPN,
-            nombreEspècesMinistérielles: nombreEspecesMinisterielles,
-          } = getNombreEspecesMinisterielleCNPN(especesImpactees)}
+            numberEspecesCNPN,
+            numberEspecesMinisterielles,
+          } = getNumberEspecesMinisterielleCNPN(especesImpactees)}
           <p class="fr-badge fr-badge--blue-ecume">
-            {nombreEspecesCNPN}
-            {nombreEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
+            {numberEspecesCNPN}
+            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
           </p>
           <p class="fr-badge fr-badge--blue-ecume">
-            {nombreEspecesMinisterielles}
-            {nombreEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
+            {numberEspecesMinisterielles}
+            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
           </p>
           <EspecesProtegeesGroupeesParImpact
             espècesImpactées={especesImpactees}
@@ -378,7 +378,7 @@
                             We truncate the name because if it wraps onto 2 lines, the DSFR makes the second
                             line overlap with the details below
                         -->
-              {raccourcirNomFichier(nom)}
+              {truncateNomFichier(nom)}
               <span class="fr-link__detail">
                 {media_type} - {byteFormat.format(taille)}{DS_createdAt
                   ? ` - Date de dépôt : ${formatDateAbsolute(DS_createdAt)}`
