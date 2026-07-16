@@ -16,29 +16,29 @@ import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 export function updateDossier(
   dossier: DossierFull,
-  modifs: Partial<DossierFull>,
+  updates: Partial<DossierFull>,
 ): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
   // optimistically modify the dossier in the store
-  const dossierModifie: DossierFull = Object.assign({}, dossier, modifs);
-  if (modifs.évènementsPhase) {
-    dossierModifie.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
+  const updatedDossier: DossierFull = Object.assign({}, dossier, updates);
+  if (updates.évènementsPhase) {
+    updatedDossier.évènementsPhase = [...updates.évènementsPhase, ...dossier.évènementsPhase];
 
     sendEvenement({ type: "changerPhase" });
   }
 
-  if (modifs.commentaire_libre) {
+  if (updates.commentaire_libre) {
     sendEvenementModifierCommentaire();
   }
-  if (modifs.prochaine_action_attendue_par) {
+  if (updates.prochaine_action_attendue_par) {
     sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
 
-  setDossierFull(dossierModifie);
+  setDossierFull(updatedDossier);
 
-  return store.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
+  return store.capabilities.modifierDossier(dossier.id, updates).catch((err) => {
     // on error, restore the previous dossier in the store as it was before the copy
     setDossierFull(dossier);
     throw err;

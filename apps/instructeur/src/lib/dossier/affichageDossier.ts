@@ -43,15 +43,15 @@ export function formatLocalisation({
 }
 
 export function formatDeposant(dossier: DossierFull | DossierSummary): string {
-  const INCONNU = "(inconnu)";
+  const UNKNOWN = "(inconnu)";
 
   let { déposant_nom: deposant_nom, déposant_prénoms: deposant_prenoms } = dossier;
 
   if (!deposant_nom && !deposant_prenoms) {
     if ("déposant_email" in dossier) {
-      return dossier.déposant_email ?? INCONNU;
+      return dossier.déposant_email ?? UNKNOWN;
     }
-    return INCONNU;
+    return UNKNOWN;
   }
   if (!deposant_nom) {
     deposant_nom = "";
