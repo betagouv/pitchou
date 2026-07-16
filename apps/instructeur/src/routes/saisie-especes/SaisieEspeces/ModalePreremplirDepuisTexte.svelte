@@ -2,7 +2,7 @@
   import EcranChampTexte from "./ModalePreremplirDepuisTexte/EcranChampTexte.svelte";
   import EcranPreciserImpact from "./ModalePreremplirDepuisTexte/EcranPreciserImpact.svelte";
   import TuileSaisieEspece from "./TuileSaisieEspece.svelte";
-  import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
+  import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
 
   import type {
     ByClassification,
@@ -64,7 +64,7 @@
 
   /** Source of truth: espèces found in the text */
   let especesTrouveesDansTexte: Set<EspeceProtegee> = $derived(
-    chercherEspecesDansTexte(normalizeTexteEspece(texteEspeces)),
+    chercherEspecesDansTexte(normalizeEspeceText(texteEspeces)),
   );
 
   // Reset the editable espèces when the text changes
@@ -133,7 +133,7 @@
         const { nomsScientifiques, nomsVernaculaires } = espece;
         if (nomsScientifiques.size >= 1) {
           for (const nom of nomsScientifiques) {
-            const normalized = normalizeNomEspece(nom);
+            const normalized = normalizeEspeceName(nom);
             if (normalized && normalized.length >= 3) {
               nomVersEspeceClassif.set(normalized, espece);
             }
@@ -142,7 +142,7 @@
 
         if (nomsVernaculaires.size >= 1) {
           for (const nom of nomsVernaculaires) {
-            const normalized = normalizeNomEspece(nom);
+            const normalized = normalizeEspeceName(nom);
             if (normalized && normalized.length >= 3) {
               nomVersEspeceClassif.set(normalized, espece);
             }

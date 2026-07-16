@@ -1,5 +1,5 @@
 import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 
@@ -64,15 +64,15 @@ export function matchesText(espece: EspeceProtegee, text: string): boolean {
   const words = text
     .trim()
     .split(" ")
-    .map(normalizeTexteEspece)
+    .map(normalizeEspeceText)
     .filter((word) => word.length >= 1);
 
   return words.every((word) => {
     for (const name of espece.nomsScientifiques) {
-      if (normalizeNomEspece(name).includes(word)) return true;
+      if (normalizeEspeceName(name).includes(word)) return true;
     }
     for (const name of espece.nomsVernaculaires) {
-      if (normalizeNomEspece(name).includes(word)) return true;
+      if (normalizeEspeceName(name).includes(word)) return true;
     }
     return false;
   });

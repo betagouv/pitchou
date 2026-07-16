@@ -3,8 +3,8 @@ import { describe, it, expect } from "vitest";
 import {
   UTF8ToB64,
   normalizeEmail,
-  normalizeNomEspece,
-  normalizeTexteEspece,
+  normalizeEspeceName,
+  normalizeEspeceText,
   removeAccents,
 } from "./manipulationStrings.ts";
 
@@ -33,52 +33,52 @@ describe("normalizeEmail", () => {
   });
 });
 
-describe("normalizeNomEspèce", () => {
+describe("normalizeEspeceName", () => {
   it("strips diacritics", () => {
-    expect(normalizeNomEspece("Éléphant")).toBe("elephant");
+    expect(normalizeEspeceName("Éléphant")).toBe("elephant");
   });
 
   it("lowercases", () => {
-    expect(normalizeNomEspece("LOUP")).toBe("loup");
+    expect(normalizeEspeceName("LOUP")).toBe("loup");
   });
 
   it('removes the French article "(le)"', () => {
-    expect(normalizeNomEspece("Loup gris (le)")).toBe("loup gris");
+    expect(normalizeEspeceName("Loup gris (le)")).toBe("loup gris");
   });
 
   it('removes the French article "(la)"', () => {
-    expect(normalizeNomEspece("Belette (la)")).toBe("belette");
+    expect(normalizeEspeceName("Belette (la)")).toBe("belette");
   });
 
   it(`removes the French article "(l')"`, () => {
-    expect(normalizeNomEspece(`Ours brun (l')`)).toBe("ours brun");
+    expect(normalizeEspeceName(`Ours brun (l')`)).toBe("ours brun");
   });
 
   it("trims surrounding whitespace", () => {
-    expect(normalizeNomEspece("  Loup  ")).toBe("loup");
+    expect(normalizeEspeceName("  Loup  ")).toBe("loup");
   });
 
   it("does NOT remove articles written with a curly apostrophe", () => {
     // Only the straight-apostrophe form is matched; this pins down the current behavior.
-    expect(normalizeNomEspece(`Ours brun (l’)`)).toBe("ours brun (l’)");
+    expect(normalizeEspeceName(`Ours brun (l’)`)).toBe("ours brun (l’)");
   });
 });
 
-describe("normalizeTexteEspèce", () => {
+describe("normalizeEspeceText", () => {
   it("strips diacritics and lowercases", () => {
-    expect(normalizeTexteEspece("Éléphant")).toBe("elephant");
+    expect(normalizeEspeceText("Éléphant")).toBe("elephant");
   });
 
   it(`rewrites curly apostrophes ’ to straight apostrophes '`, () => {
-    expect(normalizeTexteEspece("l’ours")).toBe(`l'ours`);
+    expect(normalizeEspeceText("l’ours")).toBe(`l'ours`);
   });
 
   it("trims surrounding whitespace", () => {
-    expect(normalizeTexteEspece("  Loup  ")).toBe("loup");
+    expect(normalizeEspeceText("  Loup  ")).toBe("loup");
   });
 
-  it(`does NOT strip "(le)/(la)/(l')" — that is normalizeNomEspèce's job`, () => {
-    expect(normalizeTexteEspece("Loup gris (le)")).toBe("loup gris (le)");
+  it(`does NOT strip "(le)/(la)/(l')" — that is normalizeEspeceName's job`, () => {
+    expect(normalizeEspeceText("Loup gris (le)")).toBe("loup gris (le)");
   });
 });
 

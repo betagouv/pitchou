@@ -13,8 +13,8 @@ export function normalizeEmail(email: string): string {
 /**
  * Normalization of the vernacular or scientific name of a single espèce
  */
-export function normalizeNomEspece(nom: string): string {
-  return nom
+export function normalizeEspeceName(name: string): string {
+  return name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents
     .toLowerCase()
@@ -27,8 +27,8 @@ export function normalizeNomEspece(nom: string): string {
 /**
  * Normalization of a long text that may contain espèce names
  */
-export function normalizeTexteEspece(texte: string): string {
-  return texte
+export function normalizeEspeceText(text: string): string {
+  return text
     .trim()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents
@@ -36,6 +36,6 @@ export function normalizeTexteEspece(texte: string): string {
     .toLowerCase();
 }
 
-export function removeAccents(texte: string): string {
-  return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+export function removeAccents(text: string): string {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }

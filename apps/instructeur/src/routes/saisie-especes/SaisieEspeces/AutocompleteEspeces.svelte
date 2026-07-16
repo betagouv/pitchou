@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
-  import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
+  import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
   import { especeLabel } from "@pitchou/common/outils-especes.ts";
 
   type Props = {
@@ -144,19 +144,19 @@
         const textParts = text
           .trim()
           .split(" ")
-          .map(normalizeTexteEspece)
+          .map(normalizeEspeceText)
           .filter((x) => x.length >= 1);
 
         return textParts.every((part: string) => {
           for (let nom of nomsScientifiques) {
-            nom = normalizeNomEspece(nom);
+            nom = normalizeEspeceName(nom);
             if (nom.includes(part)) {
               return true;
             }
           }
 
           for (let nom of nomsVernaculaires) {
-            nom = normalizeNomEspece(nom);
+            nom = normalizeEspeceName(nom);
             if (nom.includes(part)) {
               return true;
             }

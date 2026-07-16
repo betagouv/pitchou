@@ -1,6 +1,6 @@
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
-import { normalizeNomEspece, normalizeTexteEspece } from "@pitchou/common/manipulationStrings.ts";
+import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/manipulationStrings.ts";
 
 import { CLASSIFICATIONS, STATUTS } from "../../especes-protegees/especesList.ts";
 
@@ -71,7 +71,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
   const words = text
     .trim()
     .split(" ")
-    .map(normalizeTexteEspece)
+    .map(normalizeEspeceText)
     .filter((word) => word.length >= 1);
 
   const haystack = [
@@ -80,7 +80,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
     ...(modification.noms_scientifiques ?? []),
     ...(modification.reference_noms_vernaculaires ?? []),
     ...(modification.noms_vernaculaires ?? []),
-  ].map(normalizeNomEspece);
+  ].map(normalizeEspeceName);
 
   return words.every((word) => haystack.some((value) => value.includes(word)));
 }
