@@ -24,7 +24,7 @@ import type { GeoAPICommune, GeoAPIDepartement } from "@pitchou/types/GeoAPI.ts"
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
 
-export const clefAE: keyof DossierDemarcheNumerique88444 =
+export const keyAE: keyof DossierDemarcheNumerique88444 =
   "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?";
 
 export function schemaToChampLabelToChampId(
@@ -69,19 +69,19 @@ function makeDepartementParam(
   return `${encodeURIComponent(departementChamp)}[][${departementChampRepete}]=${code}`;
 }
 
-const basePreremplissage = `https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees?`;
+const basePrefilling = `https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees?`;
 
 /**
  * Démarche Numérique offers 2 methods to create pre-fill links: via GET or POST
  * This function creates a GET link
  */
-export function creerLienGETPreremplissageDemarche(
-  dossierPartiel: Partial<DossierDemarcheNumerique88444>,
+export function createGETPrefillingLinkDemarche(
+  partialDossier: Partial<DossierDemarcheNumerique88444>,
   schema88444: SchemaDemarcheSimplifiee,
 ): string {
   const demarcheDossierLabelToId = schemaToChampLabelToChampId(schema88444);
 
-  const objetPreremplissage: Record<string, string> = {};
+  const prefillingObject: Record<string, string> = {};
 
   for (const champ of demarcheDossierLabelToId.keys()) {
     if (
@@ -91,30 +91,30 @@ export function creerLienGETPreremplissageDemarche(
         "Région(s) où se situe le projet",
       ].includes(champ)
     ) {
-      const valeur: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
-        dossierPartiel[champ];
-      if (valeur !== undefined && valeur !== null && valeur !== "") {
+      const value: DossierDemarcheNumerique88444[keyof DossierDemarcheNumerique88444] | undefined =
+        partialDossier[champ];
+      if (value !== undefined && value !== null && value !== "") {
         // the `champ_` is a convention for Démarche Numérique pre-fill
-        objetPreremplissage[`champ_${demarcheDossierLabelToId.get(champ)}`] = valeur.toString();
+        prefillingObject[`champ_${demarcheDossierLabelToId.get(champ)}`] = value.toString();
       }
     }
   }
 
-  if (dossierPartiel["Numéro de SIRET"]) {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get("Numéro de SIRET")}`] =
-      dossierPartiel["Numéro de SIRET"];
+  if (partialDossier["Numéro de SIRET"]) {
+    prefillingObject[`champ_${demarcheDossierLabelToId.get("Numéro de SIRET")}`] =
+      partialDossier["Numéro de SIRET"];
   }
 
-  if (typeof dossierPartiel[clefAE] === "boolean") {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get(clefAE)}`] = dossierPartiel[clefAE]
+  if (typeof partialDossier[keyAE] === "boolean") {
+    prefillingObject[`champ_${demarcheDossierLabelToId.get(keyAE)}`] = partialDossier[keyAE]
       ? "true"
       : "false";
   }
 
-  if (dossierPartiel["Dans quel département se localise majoritairement votre projet ?"]) {
-    objetPreremplissage[
+  if (partialDossier["Dans quel département se localise majoritairement votre projet ?"]) {
+    prefillingObject[
       `champ_${demarcheDossierLabelToId.get("Dans quel département se localise majoritairement votre projet ?")}`
-    ] = dossierPartiel["Dans quel département se localise majoritairement votre projet ?"].code;
+    ] = partialDossier["Dans quel département se localise majoritairement votre projet ?"].code;
   }
 
   let departementsURLParam = "";
@@ -122,32 +122,32 @@ export function creerLienGETPreremplissageDemarche(
 
   // retrieve the départements
   if (
-    Array.isArray(dossierPartiel["Département(s) où se situe le projet"]) &&
-    dossierPartiel["Département(s) où se situe le projet"].length >= 1
+    Array.isArray(partialDossier["Département(s) où se situe le projet"]) &&
+    partialDossier["Département(s) où se situe le projet"].length >= 1
   ) {
-    objetPreremplissage[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+    prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
       "d'un ou plusieurs départements";
     // An array of dictionaries with the possible values for each field of the repetition.
     // champ_Q2hhbXAtNDA0MTQ0Nw: A département number
 
-    departementsURLParam = dossierPartiel["Département(s) où se situe le projet"]
+    departementsURLParam = partialDossier["Département(s) où se situe le projet"]
       .filter((commune) => Object(commune) === commune)
       .map((d) => makeDepartementParam(d, demarcheDossierLabelToId))
       .join("&");
   } else {
     // retrieve the communes
     if (
-      Array.isArray(dossierPartiel["Commune(s) où se situe le projet"]) &&
-      dossierPartiel["Commune(s) où se situe le projet"].length >= 1
+      Array.isArray(partialDossier["Commune(s) où se situe le projet"]) &&
+      partialDossier["Commune(s) où se situe le projet"].length >= 1
     ) {
       // An array of dictionaries with the possible values for each field of the repetition.
       // champ_Q2hhbXAtNDA0MTQ0Mw: An array containing the postal code and the INSEE code of the commune
 
-      objetPreremplissage[
+      prefillingObject[
         `champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`
       ] = "d'une ou plusieurs communes";
 
-      communesURLParam = dossierPartiel["Commune(s) où se situe le projet"]
+      communesURLParam = partialDossier["Commune(s) où se situe le projet"]
         .filter((commune) => Object(commune) === commune)
         //@ts-expect-error TS doesn't understand that we kept only the objects after the filter
         .map((c) => makeCommuneParam(c, demarcheDossierLabelToId))
@@ -158,8 +158,8 @@ export function creerLienGETPreremplissageDemarche(
   //console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
 
   return (
-    basePreremplissage +
-    new URLSearchParams(objetPreremplissage).toString() +
+    basePrefilling +
+    new URLSearchParams(prefillingObject).toString() +
     (communesURLParam ? "&" + communesURLParam : "") +
     (departementsURLParam ? "&" + departementsURLParam : "")
   );

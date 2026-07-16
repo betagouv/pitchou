@@ -4,7 +4,7 @@
     SchemaDemarcheSimplifiee,
     Dossier88444ChampDescriptor,
   } from "@pitchou/types/demarche-numerique/schema.ts";
-  import { creerLienGETPreremplissageDemarche } from "@pitchou/common/preremplissageDemarcheNumerique.ts";
+  import { createGETPrefillingLinkDemarche } from "@pitchou/common/preremplissageDemarcheNumerique.ts";
   import CopyButton from "./CopyButton.svelte";
 
   function labelToId(label: string): string {
@@ -29,7 +29,7 @@
   );
 
   let onSelectChanged = () => {
-    lienDePreremplissage = creerLienGETPreremplissageDemarche(nouveauDossierPartiel, schemaDS88444);
+    lienDePreremplissage = createGETPrefillingLinkDemarche(nouveauDossierPartiel, schemaDS88444);
   };
 
   const champsPossibles = [

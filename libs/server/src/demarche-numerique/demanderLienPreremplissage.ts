@@ -1,6 +1,6 @@
 import ky from "ky";
 import {
-  clefAE,
+  keyAE,
   schemaToChampLabelToChampId,
 } from "@pitchou/common/preremplissageDemarcheNumerique.ts";
 
@@ -52,8 +52,8 @@ function createChampPrefillingObject(
       partialDossier["Numéro de SIRET"];
   }
 
-  if (typeof partialDossier[clefAE] === "boolean") {
-    prefillingObject[`champ_${demarcheDossierLabelToId.get(clefAE)}`] = partialDossier[clefAE]
+  if (typeof partialDossier[keyAE] === "boolean") {
+    prefillingObject[`champ_${demarcheDossierLabelToId.get(keyAE)}`] = partialDossier[keyAE]
       ? "true"
       : "false";
   }
