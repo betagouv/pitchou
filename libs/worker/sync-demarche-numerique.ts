@@ -34,8 +34,8 @@ import {
 import {
   getPersonnesEntreprisesData88444,
   makeDossiersForSynchronization,
-} from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
-import { makeCommonDossierColumnsForSync88444 } from "./synchronisation-ds/makeColonnesCommunesDossierPourSynchro88444.ts";
+} from "./synchronisation-ds/makeDossiersForSynchronization.ts";
+import { makeCommonDossierColumnsForSync88444 } from "./synchronisation-ds/makeCommonDossierColumnsForSync88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
@@ -67,7 +67,7 @@ import type {
 import type {
   GetPersonnesEntreprisesData,
   MakeCommonDossierColumnsForSync,
-} from "./synchronisation-ds/makeDossiersPourSynchronisation.ts";
+} from "./synchronisation-ds/makeDossiersForSynchronization.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
 // retrieve the data from DS
