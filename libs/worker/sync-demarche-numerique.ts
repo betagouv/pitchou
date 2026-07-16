@@ -25,21 +25,21 @@ import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/recupererL
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 
-import { downloadNewFichiersMotivation } from "./synchronisation-ds/downloadNewFichiersByType.ts";
+import { downloadNewFichiersMotivation } from "./synchronization-ds/downloadNewFichiersByType.ts";
 import {
   getFichiersEspecesImpactees88444,
   getPiecesJointesPetitionnaire88444,
-} from "./synchronisation-ds/synchronisation-dossier-88444.ts";
+} from "./synchronization-ds/synchronization-dossier-88444.ts";
 
 import {
   getPersonnesEntreprisesData88444,
   makeDossiersForSynchronization,
-} from "./synchronisation-ds/makeDossiersForSynchronization.ts";
-import { makeCommonDossierColumnsForSync88444 } from "./synchronisation-ds/makeCommonDossierColumnsForSync88444.ts";
+} from "./synchronization-ds/makeDossiersForSynchronization.ts";
+import { makeCommonDossierColumnsForSync88444 } from "./synchronization-ds/makeCommonDossierColumnsForSync88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
-import { updateNotification } from "./synchronisation-ds/synchronisation-notification.ts";
+import { updateNotification } from "./synchronization-ds/synchronization-notification.ts";
 
 import type { default as DatabaseDossier } from "@pitchou/types/database/public/Dossier.ts";
 import type {
@@ -67,7 +67,7 @@ import type {
 import type {
   GetPersonnesEntreprisesData,
   MakeCommonDossierColumnsForSync,
-} from "./synchronisation-ds/makeDossiersForSynchronization.ts";
+} from "./synchronization-ds/makeDossiersForSynchronization.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 
 // retrieve the data from DS
