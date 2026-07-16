@@ -23,10 +23,10 @@
 
   type Props = {
     dossierId: Dossier["id"];
-    décisionAdministrative: FrontEndDecisionAdministrative;
+    decisionAdministrative: FrontEndDecisionAdministrative;
   };
 
-  let { dossierId, décisionAdministrative: decisionAdministrative }: Props = $props();
+  let { dossierId, decisionAdministrative }: Props = $props();
 
   // Local set, initialized once from the décision then mutated in place
   // (add / remove / import). Intentionally not reactive to the prop.

@@ -62,7 +62,7 @@
   {:else}
     {#each decisionsAdministratives as decisionAdministrative (decisionAdministrative.id)}
       <DecisionAdministrative
-        décisionAdministrative={decisionAdministrative}
+        decisionAdministrative={decisionAdministrative}
         dossierId={dossier.id}
         deleteDecisionAdministrative={createDeleteFunction(decisionAdministrative)}
       ></DecisionAdministrative>

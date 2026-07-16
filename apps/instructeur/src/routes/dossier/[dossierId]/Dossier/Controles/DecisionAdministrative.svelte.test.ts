@@ -26,7 +26,7 @@ function decision(
 function renderInModifyMode(deleteDecisionAdministrative: () => Promise<unknown>) {
   render(DecisionAdministrative, {
     dossierId: DOSSIER_ID,
-    décisionAdministrative: decision(),
+    decisionAdministrative: decision(),
     deleteDecisionAdministrative,
   });
   return page.getByRole("button", { name: "Modifier" }).click();

@@ -17,13 +17,13 @@
 
   type Props = {
     dossierId: Dossier["id"];
-    décisionAdministrative: FrontEndDecisionAdministrative;
+    decisionAdministrative: FrontEndDecisionAdministrative;
     deleteDecisionAdministrative: () => Promise<unknown>;
   };
 
   let {
     dossierId,
-    décisionAdministrative: decisionAdministrative = $bindable(),
+    decisionAdministrative = $bindable(),
     deleteDecisionAdministrative,
   }: Props = $props();
 
@@ -118,7 +118,7 @@
       {/if}
     </div>
 
-    <Prescriptions {dossierId} décisionAdministrative={decisionAdministrative} />
+    <Prescriptions {dossierId} decisionAdministrative={decisionAdministrative} />
   {/if}
 </CardDecisionAdministrative>
 
