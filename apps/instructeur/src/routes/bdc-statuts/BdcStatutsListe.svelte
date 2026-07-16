@@ -214,7 +214,7 @@
 {/if}
 
 {#if pageSelectors}
-  <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
+  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
 <style lang="scss">

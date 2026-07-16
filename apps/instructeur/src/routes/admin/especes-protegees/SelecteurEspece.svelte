@@ -213,7 +213,7 @@
     </div>
 
     {#if pageSelectors}
-      <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
+      <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
     {/if}
   {:else}
     <p>Aucune espèce ne correspond à cette recherche.</p>

@@ -351,7 +351,7 @@
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
 {#if selectionneursPage}
-  <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numeroDeLaPageSelectionnee]}
+  <Pagination pageSelectors={selectionneursPage} currentPage={selectionneursPage[numeroDeLaPageSelectionnee]}
   ></Pagination>
 {/if}
 

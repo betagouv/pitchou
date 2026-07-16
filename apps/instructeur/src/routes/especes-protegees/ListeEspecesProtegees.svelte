@@ -207,7 +207,7 @@
 <EspecesTable especes={displayedEspeces} />
 
 {#if pageSelectors}
-  <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
+  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
 <EspecesGenerationModale id={generationModaleId} />

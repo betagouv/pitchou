@@ -235,7 +235,7 @@
   />
 
   {#if pageSelectors}
-    <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[clampedPage]} />
+    <Pagination {pageSelectors} currentPage={pageSelectors[clampedPage]} />
   {/if}
 {:else}
   <p>Aucune modification ne correspond à cette recherche.</p>

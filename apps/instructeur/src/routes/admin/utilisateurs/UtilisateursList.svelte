@@ -253,7 +253,7 @@
 <UtilisateursTable utilisateurs={displayedUtilisateurs} />
 
 {#if pageSelectors}
-  <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
+  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
 <NiveauxAARRIModale id={niveauxModaleId} />

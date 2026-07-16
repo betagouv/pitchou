@@ -803,7 +803,7 @@
         </table>
 
         {#if selectionneursPage}
-          <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numeroPageSelectionnee]}
+          <Pagination pageSelectors={selectionneursPage} currentPage={selectionneursPage[numeroPageSelectionnee]}
           ></Pagination>
         {/if}
       </div>
