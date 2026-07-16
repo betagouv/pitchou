@@ -9,13 +9,13 @@ import { fr } from "date-fns/locale";
  */
 export function formatDateAbsolue(
   date: Date | string | undefined | null,
-  formatDemande: string = "d MMMM yyyy",
+  requestedFormat: string = "d MMMM yyyy",
 ): string {
   if (!date) {
     return "(date inconnue)";
   }
 
-  return format(date, formatDemande, { locale: fr });
+  return format(date, requestedFormat, { locale: fr });
 }
 
 export function formatDateRelative(date: Date | undefined | null): string {
