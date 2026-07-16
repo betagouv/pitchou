@@ -13,7 +13,7 @@ docs/.jekyll-cache
 docs/.bundle
 docs/vendor
 libs/types/src/database
-libs/types/src/démarche-numérique
+libs/types/src/demarche-numerique
 package-lock.json
 pnpm-lock.yaml
 *.min.js
