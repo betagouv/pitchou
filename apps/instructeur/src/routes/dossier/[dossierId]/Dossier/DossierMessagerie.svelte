@@ -16,7 +16,7 @@
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
 
-  let messagesTries = $derived(
+  let sortedMessages = $derived(
     messages.toSorted(
       // @ts-ignore
       ({ date: date1 }, { date: date2 }) => new Date(date2).getTime() - new Date(date1).getTime(),
@@ -37,7 +37,7 @@
 </div>
 
 <article class="messages fr-mt-2w fr-mb-4w">
-  {#each messagesTries as { contenu, date, email_expéditeur }}
+  {#each sortedMessages as { contenu, date, email_expéditeur }}
     {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
@@ -50,7 +50,7 @@
           <span title={formatDateAbsolute(date)}>{formatDateRelative(date)}</span>
         </button>
       </h3>
-      <div class="contenu-message fr-collapse" id={accordionId}>
+      <div class="content-message fr-collapse" id={accordionId}>
         <!--
                 Avertissement : Source de problèmes de sécurité potentiels
                 Actuellement, les contenus viennent de Démarche Numérique et on
@@ -93,7 +93,7 @@
       }
     }
 
-    .contenu-message {
+    .content-message {
       white-space: pre-line;
     }
   }
