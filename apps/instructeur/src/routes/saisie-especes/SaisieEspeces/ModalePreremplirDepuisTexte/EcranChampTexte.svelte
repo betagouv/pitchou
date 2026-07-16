@@ -3,7 +3,7 @@
   import { tick } from "svelte";
   import NomEspece from "../../NomEspece.svelte";
   import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
-  import { mailtoMissingEspece } from "@pitchou/common/constantes.ts";
+  import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
   import type {
     ByClassification,

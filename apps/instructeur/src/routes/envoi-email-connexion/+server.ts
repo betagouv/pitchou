@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
+import { authorizedEmailDomains } from "@pitchou/common/constants.ts";
 import { createPersonneOrUpdateCodeAcces } from "@pitchou/server/database/personne.ts";
 import { sendConnexionEmail } from "@pitchou/server/emails.ts";
 

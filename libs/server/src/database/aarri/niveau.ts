@@ -1,6 +1,6 @@
 import { startOfWeek, eachWeekOfInterval } from "date-fns";
 
-import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./constants.ts";
 
 import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";

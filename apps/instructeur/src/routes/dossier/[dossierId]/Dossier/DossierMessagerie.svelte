@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
 
   import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
 

@@ -1,6 +1,6 @@
 import { directDatabaseConnection } from "../database.ts";
 import { computeNiveauAARRI, type LevelEvent } from "./aarri/niveau.ts";
-import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constants.ts";
 
 import type { Knex } from "knex";
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";

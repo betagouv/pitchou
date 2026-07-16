@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import TuileSaisieEspece from "./TuileSaisieEspece.svelte";
-  import { mailtoMissingEspece } from "@pitchou/common/constantes.ts";
+  import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
   import type {
     ByClassification,

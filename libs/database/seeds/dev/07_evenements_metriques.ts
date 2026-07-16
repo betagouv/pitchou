@@ -4,7 +4,7 @@ import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import {
   EVENEMENTS_CONSULTATIONS,
   EVENEMENTS_MODIFICATIONS,
-} from "@pitchou/server/database/aarri/constantes.ts";
+} from "@pitchou/server/database/aarri/constants.ts";
 
 import { SEED_PERSONNES } from "../fixtures/users.ts";
 

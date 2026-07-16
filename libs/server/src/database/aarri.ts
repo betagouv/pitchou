@@ -1,6 +1,6 @@
 import { eachWeekOfInterval, differenceInCalendarWeeks } from "date-fns";
 import { directDatabaseConnection } from "../database.ts";
-import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constants.ts";
 import { getFirstRetenuWeek } from "./aarri/niveau.ts";
 
 import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
