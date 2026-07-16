@@ -9,7 +9,7 @@ import type {
   DossierEntreprisesPersonneInitializersForInsert,
   DossierEntreprisesPersonneInitializersForUpdate,
   DossierForInsert,
-} from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+} from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type {
@@ -25,7 +25,7 @@ import type {
 } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { TypeDecisionAdministrative, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
-import type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+import type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
 export type MakeCommonDossierColumnsForSync = (

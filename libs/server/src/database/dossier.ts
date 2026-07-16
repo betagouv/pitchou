@@ -23,7 +23,7 @@ import type * as API_DS_SCHEMA from "@pitchou/types/demarche-numerique/apiSchema
 import type {
   DossierForInsert,
   DossierForUpdate,
-} from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+} from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type AretePersonneSuitDossier from "@pitchou/types/database/public/AretePersonneSuitDossier.ts";
 import type {

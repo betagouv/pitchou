@@ -59,7 +59,7 @@ import type {
   DossierEntreprisesPersonneInitializersForUpdate,
   DossierForInsert,
   DossierForUpdate,
-} from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+} from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type {
   DossierDemarcheNumerique88444,
   AnnotationsPriveesDemarcheNumerique88444,

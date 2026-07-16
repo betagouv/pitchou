@@ -17,7 +17,7 @@ import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializ
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
-import type { PersonneWithRequiredEmail } from "@pitchou/types/demarche-numerique/DossierPourSynchronisation.ts";
+import type { PersonneWithRequiredEmail } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 // Based on the spreadsheet sent on 25/07/2025
 export type DossierCorseRow = {
