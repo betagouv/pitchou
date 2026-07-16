@@ -395,8 +395,8 @@
     }
 
     for (const instructeurEmail of selectedInstructeurs) {
-      const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail);
-      if (dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
+      const dossierIdsFollowedByThisInstructeur = relationSuivis.get(instructeurEmail);
+      if (dossierIdsFollowedByThisInstructeur && dossierIdsFollowedByThisInstructeur.has(dossier.id))
         return true;
     }
 

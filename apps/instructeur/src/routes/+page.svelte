@@ -84,7 +84,7 @@
   }
 
   const email = $derived(store.identité?.email);
-  const peutListerDossiers = $derived(!!store.capabilities.listerDossiers);
+  const canListDossiers = $derived(!!store.capabilities.listerDossiers);
   const dossiers = $derived([...store.dossierSummaries.values()]);
   const relationSuivis = $derived(store.relationSuivis);
 
@@ -97,11 +97,11 @@
   );
 </script>
 
-{#if !dossiersLoadingFinished && peutListerDossiers}
+{#if !dossiersLoadingFinished && canListDossiers}
   <div class="fr-p-2w fr-pb-10w">
     <Loader />
   </div>
-{:else if peutListerDossiers && email}
+{:else if canListDossiers && email}
   <SuiviInstruction
     {email}
     {dossiers}
