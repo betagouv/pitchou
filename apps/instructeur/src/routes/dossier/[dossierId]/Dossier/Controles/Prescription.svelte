@@ -193,7 +193,7 @@
           </p>
         {/if}
 
-        <section class="contrôles">
+        <section class="controles">
           <h6>
             {#if controles.size === 1}1 contrôle{:else}{controles.size} contrôles
             {/if}
@@ -222,8 +222,8 @@
             </FormulaireControle>
           {/if}
 
-          {#each sortedControles as contrôle}
-            {#if contrôle === editedControle}
+          {#each sortedControles as controle}
+            {#if controle === editedControle}
               <h6>Modification du contrôle</h6>
 
               <FormulaireControle
@@ -252,32 +252,32 @@
                 {/snippet}
               </FormulaireControle>
             {:else}
-              <section class="contrôle">
+              <section class="controle">
                 <h6>
-                  Controle du <time datetime={contrôle.date_contrôle?.toISOString()}
-                    >{formatDateAbsolute(contrôle.date_contrôle)}</time
+                  Controle du <time datetime={controle.date_contrôle?.toISOString()}
+                    >{formatDateAbsolute(controle.date_contrôle)}</time
                   >
-                  <TagResultatControle résultatControle={contrôle.résultat || NOT_PROVIDED}
+                  <TagResultatControle résultatControle={controle.résultat || NOT_PROVIDED}
                   ></TagResultatControle>
                   <button
-                    class="contrôles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
-                    onclick={() => editControle(contrôle)}
+                    class="controles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
+                    onclick={() => editControle(controle)}
                   >
                     Modifier
                   </button>
                 </h6>
                 <strong>Commentaire&nbsp;:</strong>
-                {contrôle.commentaire}<br />
+                {controle.commentaire}<br />
                 <strong>Action suite au contrôle&nbsp;:</strong>
-                {contrôle.type_action_suite_contrôle}<br />
+                {controle.type_action_suite_contrôle}<br />
                 <strong>Date action suite au contrôle&nbsp;:</strong>
-                <time datetime={contrôle.date_action_suite_contrôle?.toISOString()}
-                  >{formatDateRelative(contrôle.date_action_suite_contrôle)}</time
+                <time datetime={controle.date_action_suite_contrôle?.toISOString()}
+                  >{formatDateRelative(controle.date_action_suite_contrôle)}</time
                 >
                 <br />
                 <strong>Date prochaine échéance&nbsp;:</strong>
-                <time datetime={contrôle.date_prochaine_échéance?.toISOString()}
-                  >{formatDateRelative(contrôle.date_prochaine_échéance)}</time
+                <time datetime={controle.date_prochaine_échéance?.toISOString()}
+                  >{formatDateRelative(controle.date_prochaine_échéance)}</time
                 >
                 <br />
               </section>
@@ -328,8 +328,8 @@
       }
     }
 
-    section.contrôles {
-      section.contrôle {
+    section.controles {
+      section.controle {
         margin-bottom: 0.5rem;
       }
 
