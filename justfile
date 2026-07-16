@@ -199,7 +199,7 @@ generate-modifications-especes:
 
 # Sync dossiers from Démarches Simplifiées (no arg: last hours; else since the given date, e.g. just sync-ds 2025-06-01)
 sync-ds lastModified="":
-    {{ worker }} sync-démarche-numérique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
+    {{ worker }} sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
 # Run all tests (unit + component + integration + e2e)
 test:
