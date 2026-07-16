@@ -11,7 +11,7 @@
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
   import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
-  import { phases as toutesLesPhases } from "$lib/dossier/affichageDossier.ts";
+  import { phases as allPhases } from "$lib/dossier/affichageDossier.ts";
 
   type Props = {
     titre: string;
@@ -33,103 +33,103 @@
     notificationParDossier,
   }: Props = $props();
 
-  const NOMBRE_DOSSIERS_PAR_PAGE = 10;
+  const DOSSIERS_PER_PAGE = 10;
 
-  type CleFiltre = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
-  const tousLesFiltres = new SvelteMap<CleFiltre, (d: DossierSummary) => boolean>();
+  type FilterKey = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
+  const allFilters = new SvelteMap<FilterKey, (d: DossierSummary) => boolean>();
 
-  const dossiersFiltres = $derived.by(() => {
-    let resultat = [...dossiers];
+  const filteredDossiers = $derived.by(() => {
+    let result = [...dossiers];
 
-    for (const filtre of tousLesFiltres.values()) {
-      resultat = resultat.filter(filtre);
+    for (const filter of allFilters.values()) {
+      result = result.filter(filter);
     }
 
-    return resultat;
+    return result;
   });
 
   function sendEvenementRechercherUnDossier() {
     const filtres: EvenementRechercheDossiersDetails["filtres"] = {
-      sansInstructeurice: tousLesFiltres.has("sansInstructeurice"),
-      nouveauté: tousLesFiltres.has("nouveauté"),
+      sansInstructeurice: allFilters.has("sansInstructeurice"),
+      nouveauté: allFilters.has("nouveauté"),
     };
 
-    if (texteAChercher) {
-      filtres.texte = texteAChercher;
+    if (textToSearch) {
+      filtres.texte = textToSearch;
     }
 
-    if (tousLesFiltres.has("phase") && phaseSelectionnee) {
-      filtres.phases = [phaseSelectionnee];
+    if (allFilters.has("phase") && selectedPhase) {
+      filtres.phases = [selectedPhase];
     }
 
-    if (tousLesFiltres.has("actionInstructeur")) {
+    if (allFilters.has("actionInstructeur")) {
       filtres.prochaineActionAttenduePar = ["Instructeur"];
     }
 
-    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: dossiersFiltres.length });
+    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: filteredDossiers.length });
   }
 
-  let numeroDeLaPageSelectionnee = $state(1);
+  let selectedPageNumber = $state(1);
 
   let statusMessage = $state("");
 
-  let titrePageElement: HTMLHeadingElement | undefined = $state();
+  let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
   /** Total number of pages */
-  const nombreDePages = $derived.by(() => {
-    if (dossiersFiltres.length === 0) return 1;
-    return Math.ceil(dossiersFiltres.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  const pageCount = $derived.by(() => {
+    if (filteredDossiers.length === 0) return 1;
+    return Math.ceil(filteredDossiers.length / DOSSIERS_PER_PAGE);
   });
 
   /** Text to display for the page */
-  const textePage = $derived.by(() => {
-    if (tousLesFiltres.has("texte") && texteAChercher && texteAChercher.trim() !== "") {
-      return `Résultats de recherche pour «${texteAChercher}» : Page ${numeroDeLaPageSelectionnee} sur ${nombreDePages}`;
+  const pageText = $derived.by(() => {
+    if (allFilters.has("texte") && textToSearch && textToSearch.trim() !== "") {
+      return `Résultats de recherche pour «${textToSearch}» : Page ${selectedPageNumber} sur ${pageCount}`;
     }
-    return `Page ${numeroDeLaPageSelectionnee} sur ${nombreDePages}`;
+    return `Page ${selectedPageNumber} sur ${pageCount}`;
   });
 
   /**
    * Updates the aria-live message with the number of filtered dossiers
    */
-  function mettreAJourMessageFiltres() {
-    const nombreFiltres = dossiersFiltres.length;
-    const nombreTotal = dossiers.length;
+  function updateFilterMessage() {
+    const filteredCount = filteredDossiers.length;
+    const totalCount = dossiers.length;
 
-    statusMessage = `${nombreFiltres} dossiers affichés sur ${nombreTotal}`;
+    statusMessage = `${filteredCount} dossiers affichés sur ${totalCount}`;
     setTimeout(() => {
       statusMessage = "";
     }, 400);
   }
 
-  let texteAChercher: string | undefined = $state();
+  let textToSearch: string | undefined = $state();
 
-  let phaseSelectionnee: DossierPhase | undefined = $state();
+  let selectedPhase: DossierPhase | undefined = $state();
 
   const dossierIdsSuivisParInstructeurActuel = $derived(relationSuivis?.get(email) ?? new Set());
 
-  type SelectionneurPage = () => void;
-  let selectionneursPage: undefined | [undefined, ...rest: SelectionneurPage[]] = $derived.by(
+  type PageSelector = () => void;
+  let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(
     () => {
-      if (dossiersFiltres.length >= NOMBRE_DOSSIERS_PAR_PAGE + 1) {
-        const selectionneurs: SelectionneurPage[] = [
-          ...Array.from({ length: nombreDePages }, (_v, i) => () => {
-            numeroDeLaPageSelectionnee = i + 1;
-            tick().then(() => titrePageElement?.focus());
+      if (filteredDossiers.length >= DOSSIERS_PER_PAGE + 1) {
+        const selectors: PageSelector[] = [
+          ...Array.from({ length: pageCount }, (_v, i) => () => {
+            selectedPageNumber = i + 1;
+            tick().then(() => pageTitleElement?.focus());
           }),
         ];
 
-        return [undefined, ...selectionneurs];
+        return [undefined, ...selectors];
       } else {
         return undefined;
       }
     },
   );
 
-  let dossiersAffiches: typeof dossiers = $derived.by(() => {
+  let displayedDossiers: typeof dossiers = $derived.by(() => {
     // We display the dossiers sorted first by the most recent last-modification date (nouveauté)
     // then by submission date
-    const dossiersTries = [...dossiersFiltres].sort((a, b) => {
+    const sortedDossiers = [...filteredDossiers].sort((a, b) => {
       const notificationA = notificationParDossier.get(a.id);
       const notificationB = notificationParDossier.get(b.id);
 
@@ -149,21 +149,21 @@
       return a.date_dépôt > b.date_dépôt ? -1 : 1;
     });
 
-    if (!selectionneursPage) return dossiersTries;
+    if (!pageSelectors) return sortedDossiers;
     else {
-      return dossiersTries.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numeroDeLaPageSelectionnee - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numeroDeLaPageSelectionnee,
+      return sortedDossiers.slice(
+        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
+        DOSSIERS_PER_PAGE * selectedPageNumber,
       );
     }
   });
 
-  const soumettreTextePourRecherche: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
+  const submitTextSearch: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
     e.preventDefault();
-    if (!texteAChercher || texteAChercher.trim() === "") {
-      tousLesFiltres.delete("texte");
+    if (!textToSearch || textToSearch.trim() === "") {
+      allFilters.delete("texte");
     } else {
-      tousLesFiltres.set("texte", createTextFilter(texteAChercher, dossiers));
+      allFilters.set("texte", createTextFilter(textToSearch, dossiers));
     }
     sendEvenementRechercherUnDossier();
   };
@@ -184,58 +184,58 @@
   /**
    * Resets the page to 1 when a filter is changed
    */
-  function reinitialiserPage() {
-    numeroDeLaPageSelectionnee = 1;
-    mettreAJourMessageFiltres();
+  function resetPage() {
+    selectedPageNumber = 1;
+    updateFilterMessage();
   }
 
-  function toggleFiltreSansInstructeurice() {
-    if (!tousLesFiltres.has("sansInstructeurice")) {
-      tousLesFiltres.set("sansInstructeurice", (dossier) => !dossierEstSuivi(dossier.id));
+  function toggleFilterSansInstructeurice() {
+    if (!allFilters.has("sansInstructeurice")) {
+      allFilters.set("sansInstructeurice", (dossier) => !dossierEstSuivi(dossier.id));
     } else {
-      tousLesFiltres.delete("sansInstructeurice");
+      allFilters.delete("sansInstructeurice");
     }
     sendEvenementRechercherUnDossier();
-    reinitialiserPage();
+    resetPage();
   }
 
-  function toggleFiltreActionInstructeur() {
-    if (!tousLesFiltres.has("actionInstructeur")) {
-      tousLesFiltres.set(
+  function toggleFilterActionInstructeur() {
+    if (!allFilters.has("actionInstructeur")) {
+      allFilters.set(
         "actionInstructeur",
         (dossier) => dossier.prochaine_action_attendue_par === "Instructeur",
       );
     } else {
-      tousLesFiltres.delete("actionInstructeur");
+      allFilters.delete("actionInstructeur");
     }
     sendEvenementRechercherUnDossier();
-    reinitialiserPage();
+    resetPage();
   }
 
-  function toggleFiltreNouveaute() {
-    if (!tousLesFiltres.has("nouveauté")) {
-      tousLesFiltres.set(
+  function toggleFilterNouveaute() {
+    if (!allFilters.has("nouveauté")) {
+      allFilters.set(
         "nouveauté",
         (dossier) => notificationParDossier.get(dossier.id)?.vue === false,
       );
     } else {
-      tousLesFiltres.delete("nouveauté");
+      allFilters.delete("nouveauté");
     }
     sendEvenementRechercherUnDossier();
-    reinitialiserPage();
+    resetPage();
   }
 
-  const selectionnerPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
+  const selectPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
     e.preventDefault();
     const phase = e.currentTarget.value;
     if (phase === "") {
-      tousLesFiltres.delete("phase");
+      allFilters.delete("phase");
     } else {
       // Select the phase
-      tousLesFiltres.set("phase", (dossier) => dossier.phase === phase);
+      allFilters.set("phase", (dossier) => dossier.phase === phase);
     }
     sendEvenementRechercherUnDossier();
-    reinitialiserPage();
+    resetPage();
   };
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -250,11 +250,11 @@
 <div class="en-tête">
   <div class="titre-et-barre-de-recherche">
     <h1>{titre}</h1>
-    <form onsubmit={soumettreTextePourRecherche}>
+    <form onsubmit={submitTextSearch}>
       <div class="fr-search-bar barre-de-recherche" role="search">
         <label class="fr-label" for="search-input">Rechercher un dossier</label>
         <input
-          bind:value={texteAChercher}
+          bind:value={textToSearch}
           name="texte-de-recherche"
           class="fr-input"
           aria-describedby="search-input-messages"
@@ -280,15 +280,15 @@
         <div class="fr-select-group filtre-par-phase">
           <label class="fr-label" for="select-phase"> Filtrer par phase </label>
           <select
-            bind:value={phaseSelectionnee}
-            onchange={selectionnerPhase}
+            bind:value={selectedPhase}
+            onchange={selectPhase}
             aria-label="Phase choisie"
             class="fr-select select-phase"
             id="select-phase"
             name="select-phase"
           >
             <option value="" selected>Toutes les phases</option>
-            {#each toutesLesPhases as phase}
+            {#each allPhases as phase}
               <option value={phase}>{phase}</option>
             {/each}
           </select>
@@ -297,8 +297,8 @@
           <button
             type="button"
             class="fr-tag"
-            onclick={toggleFiltreSansInstructeurice}
-            aria-pressed={tousLesFiltres.has("sansInstructeurice")}
+            onclick={toggleFilterSansInstructeurice}
+            aria-pressed={allFilters.has("sansInstructeurice")}
           >
             Dossier sans instructeur·ice
           </button>
@@ -307,8 +307,8 @@
           <button
             type="button"
             class="fr-tag"
-            onclick={toggleFiltreActionInstructeur}
-            aria-pressed={tousLesFiltres.has("actionInstructeur")}
+            onclick={toggleFilterActionInstructeur}
+            aria-pressed={allFilters.has("actionInstructeur")}
           >
             Action : Instructeur·ice
           </button>
@@ -316,25 +316,25 @@
         <button
           type="button"
           class="fr-tag"
-          onclick={toggleFiltreNouveaute}
-          aria-pressed={tousLesFiltres.has("nouveauté")}
+          onclick={toggleFilterNouveaute}
+          aria-pressed={allFilters.has("nouveauté")}
         >
           Nouveauté
         </button>
       </div>
       <p class="compteur" data-testid={"compteur-dossier"}>
-        <span class="fr-text--lead">{dossiersFiltres.length}</span><span class="fr-text--lg"
+        <span class="fr-text--lead">{filteredDossiers.length}</span><span class="fr-text--lg"
           >/{dossiers.length} dossiers</span
         >
       </p>
     </div>
   </fieldset>
-  <h2 bind:this={titrePageElement} tabindex="-1" class="titre-page">{textePage}</h2>
+  <h2 bind:this={pageTitleElement} tabindex="-1" class="titre-page">{pageText}</h2>
 </div>
-{#if dossiersAffiches.length >= 1}
+{#if displayedDossiers.length >= 1}
   <div class="liste-des-dossiers fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
     <ul>
-      {#each dossiersAffiches as dossier (dossier.id)}
+      {#each displayedDossiers as dossier (dossier.id)}
         <li>
           <CarteDossier
             {dossier}
@@ -350,8 +350,8 @@
 {:else}
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
-{#if selectionneursPage}
-  <Pagination pageSelectors={selectionneursPage} currentPage={selectionneursPage[numeroDeLaPageSelectionnee]}
+{#if pageSelectors}
+  <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
   ></Pagination>
 {/if}
 
