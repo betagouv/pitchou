@@ -2,11 +2,11 @@
   import Loader from "$lib/components/Loader.svelte";
   import StatsContenu from "./StatsContenu.svelte";
   import IndicateursAARRI from "./IndicateursAARRI.svelte";
-  import { chargerStats } from "$lib/stats/stats.ts";
-  import { chargerIndicateursAARRI } from "$lib/shared/aarri.ts";
+  import { loadStats } from "$lib/stats/stats.ts";
+  import { loadIndicateursAARRI } from "$lib/shared/aarri.ts";
 
-  const statsP = chargerStats();
-  const indicateursParDateP = chargerIndicateursAARRI();
+  const statsP = loadStats();
+  const indicateursParDateP = loadIndicateursAARRI();
 </script>
 
 <svelte:head>

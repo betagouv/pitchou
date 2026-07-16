@@ -12,7 +12,7 @@ import type {
 /**
  * Charge les indicateurs AARRI depuis le backend
  */
-export async function chargerIndicateursAARRI(): Promise<IndicateursAARRI[]> {
+export async function loadIndicateursAARRI(): Promise<IndicateursAARRI[]> {
   try {
     const indicateursParDate = await json(`/api/aarri`).then((result) => {
       if (!Array.isArray(result)) {

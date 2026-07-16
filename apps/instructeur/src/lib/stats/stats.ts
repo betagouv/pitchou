@@ -5,7 +5,7 @@ import type { StatsPubliques } from "@pitchou/types/API_Pitchou.ts";
 /**
  * Loads the statistics from the backend
  */
-export async function chargerStats(): Promise<StatsPubliques> {
+export async function loadStats(): Promise<StatsPubliques> {
   try {
     const stats = await json(`/api/stats-publiques`);
     if (!isStatsPubliques(stats)) {
