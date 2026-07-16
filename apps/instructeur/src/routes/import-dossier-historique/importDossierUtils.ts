@@ -12,14 +12,14 @@ export type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-n
  *  - warning (where we can suggest a correct alternative)
  *  - error (where a correction from the user is required)
  */
-export type Alerte = {
+export type Alert = {
   type: "erreur" | "avertissement";
   message: string;
 };
 
-export type DossierAvecAlertes = Partial<
+export type DossierWithAlerts = Partial<
   DossierDemarcheNumerique88444 & {
-    alertes: Alerte[];
+    alertes: Alert[];
   }
 >;
 
@@ -30,7 +30,7 @@ export type DossierAvecAlertes = Partial<
  */
 async function getCommuneData(communeName: string): Promise<{
   data: (GeoAPICommune & { departement: GeoAPIDepartement }) | null;
-  alerte?: Alerte;
+  alerte?: Alert;
 }> {
   const commune = await json(
     `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(communeName)}&fields=codeDepartement,codeRegion,codesPostaux,population,codeEpci,siren,departement&format=json&geometry=centre`,
@@ -54,7 +54,7 @@ export { memoizedGetCommuneData as getCommuneData };
  */
 async function _getDepartementData(
   code: string,
-): Promise<{ data: GeoAPIDepartement | null; alerte?: Alerte }> {
+): Promise<{ data: GeoAPIDepartement | null; alerte?: Alert }> {
   const departement = await json(
     `https://geo.api.gouv.fr/departements/${encodeURIComponent(code)}`,
   );
@@ -94,7 +94,7 @@ export function extractCommunes(value: string): string[] {
  */
 async function formatDepartementFromValue(
   value: string | number,
-): Promise<{ data: GeoAPIDepartement[] | null; alertes: Alerte[] }> {
+): Promise<{ data: GeoAPIDepartement[] | null; alertes: Alert[] }> {
   let codes: string[] = [];
   if (typeof value === "number") {
     codes = [value.toString()];
@@ -108,7 +108,7 @@ async function formatDepartementFromValue(
   }
 
   const departementsP = codes.map((code) => _getDepartementData(code));
-  const alertes: Alerte[] = [];
+  const alertes: Alert[] = [];
 
   try {
     const results = await Promise.all(departementsP);

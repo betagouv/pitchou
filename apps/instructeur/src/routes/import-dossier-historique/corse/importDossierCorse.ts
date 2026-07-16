@@ -9,8 +9,8 @@ import {
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   AdditionalDataForDossierCreation,
-  Alerte,
-  DossierAvecAlertes,
+  Alert,
+  DossierWithAlerts,
 } from "../importDossierUtils.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -163,8 +163,8 @@ const correspondanceTypeDeProjetVersActivitePrincipale: Map<
 function convertirTypeDeProjetEnActivitePrincipale(
   ligne: LigneDossierCorse,
   activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
-): { data: DossierDemarcheNumerique88444["Activité principale"]; alertes: Alerte[] } {
-  const alertes: Alerte[] = [];
+): { data: DossierDemarcheNumerique88444["Activité principale"]; alertes: Alert[] } {
+  const alertes: Alert[] = [];
   const typeDeProjet = ligne["Type de projet"].trim();
 
   // If the project type is already a pitchou value
@@ -242,7 +242,7 @@ type DonneesLocalisationsData = Partial<
 async function genererDonneesLocalisations(ligne: {
   Commune: string | undefined;
   Département: number | string;
-}): Promise<{ data: DonneesLocalisationsData; alertes: Alerte[] }> {
+}): Promise<{ data: DonneesLocalisationsData; alertes: Alert[] }> {
   const departementParDefaut = { code: "2A", nom: "Corse-du-Sud" };
 
   const valeursCommunes = extractCommunes(ligne["Commune"] ?? "");
@@ -330,7 +330,7 @@ function creerDonneesAvisExpert(
 function creerDonneesDecisionAdministrative(
   ligne: LigneDossierCorse,
 ):
-  | { data: PartialBy<DecisionAdministrativeInitializer, "dossier">[]; alertes: Alerte[] }
+  | { data: PartialBy<DecisionAdministrativeInitializer, "dossier">[]; alertes: Alert[] }
   | undefined {
   const valeurDateAP = ligne["Date AP"];
 
@@ -369,7 +369,7 @@ function creerDonneesProchaineActionAttenduePar(
   return undefined;
 }
 
-function creerDonneeDateDepot(ligne: LigneDossierCorse): { data: Date; alertes?: Alerte[] } {
+function creerDonneeDateDepot(ligne: LigneDossierCorse): { data: Date; alertes?: Alert[] } {
   const valeurDateDeDebutDaccompagnement = ligne["Date de début d'accompagnement"];
 
   if (valeurDateDeDebutDaccompagnement.toString().length === 4) {
@@ -389,7 +389,7 @@ function creerDonneeDateDepot(ligne: LigneDossierCorse): { data: Date; alertes?:
 
 function getSiretSiDemandeurPersonneMorale(
   ligne: LigneDossierCorse,
-): { data?: string; alertes?: Alerte[] } | undefined {
+): { data?: string; alertes?: Alert[] } | undefined {
   const valeurNomDuDemandeur = ligne["Nom du demandeur"].trim().toUpperCase();
   const siret = demandeurToSiret.get(valeurNomDuDemandeur);
   if (!siret && valeurNomDuDemandeur !== "") {
@@ -455,7 +455,7 @@ function creerDonneesSupplementairesDepuisLigne(
   ligne: LigneDossierCorse,
   emailsParInitials: Map<string, string>,
   demandeurPersonneMorale?: string,
-): AdditionalDataForDossierCreation & { alertes: Alerte[] } {
+): AdditionalDataForDossierCreation & { alertes: Alert[] } {
   const resultatsDonneesEvenementPhaseDossier = creerDonneesEvenementPhaseDossier(ligne);
 
   const avisExpert = creerDonneesAvisExpert(ligne);
@@ -535,11 +535,11 @@ function creerDonneesSupplementairesDepuisLigne(
 function creerDonneesEvenementPhaseDossier(
   ligne: LigneDossierCorse,
 ):
-  | { data: PartialBy<EvenementPhaseDossierInitializer, "dossier">[]; alertes: Alerte[] }
+  | { data: PartialBy<EvenementPhaseDossierInitializer, "dossier">[]; alertes: Alert[] }
   | undefined {
   const donneesEvenementPhaseDossier: PartialBy<EvenementPhaseDossierInitializer, "dossier">[] = [];
 
-  let alertes: Alerte[] = [];
+  let alertes: Alert[] = [];
 
   const valeurNormaliseeStatut = ligne["Statut"].trim().toLowerCase();
   const valeurDateDebutAccompagnement = ligne[`Date de début d'accompagnement`];
@@ -591,7 +591,7 @@ export async function creerDossierDepuisLigne(
   ligne: LigneDossierCorse,
   emailsParInitials: Map<string, string>,
   activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
-): Promise<DossierAvecAlertes> {
+): Promise<DossierWithAlerts> {
   const { data: donneesLocalisations, alertes: alertesLocalisation } =
     await genererDonneesLocalisations(ligne);
   const { data: activitePrincipale, alertes: alertesActivite } =

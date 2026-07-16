@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossierAvecAlertes } from "../importDossierUtils.ts";
+  import type { DossierWithAlerts } from "../importDossierUtils.ts";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { LigneDossierCorse } from "./importDossierCorse.ts";
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
@@ -50,7 +50,7 @@
   let lignesTableauImport: LigneDossierCorse[] = $state([]);
   let lignesFiltreesTableauImport: LigneDossierCorse[] = $state([]);
   let dossiersDejaEnBDD: DossierSummary[] = $state([]);
-  let ligneVersDossierAvecAlertes: Map<LigneDossierCorse, DossierAvecAlertes> = new SvelteMap();
+  let ligneVersDossierAvecAlertes: Map<LigneDossierCorse, DossierWithAlerts> = new SvelteMap();
   let emailsParInitials: Map<string, string> = $state(new SvelteMap());
 
   let ligneToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
