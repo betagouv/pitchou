@@ -238,15 +238,15 @@ Pour des raisons de minimisation des données, de protection des personnes et de
 
 Nous avons un outil qui permet de faire ça.
 En production :
-`scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
+`scalingo --app especes-protegees run "node outils/aarri/delete-evenements.js"`
 
 En dev :
-`node outils/aarri/supprimer-evenements.js`
+`node outils/aarri/delete-evenements.js`
 
 Pour nettoyer tous les évènements concernant une personne spécifique :
 
-`node outils/aarri/supprimer-evenements.js --email david@example.net`
+`node outils/aarri/delete-evenements.js --email david@example.net`
 
 Pour nettoyer tous les évènements plus vieux que x semaines
 
-`node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
+`node outils/aarri/delete-evenements.js --conserver-dernières-semaines 20`

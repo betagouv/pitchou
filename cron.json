@@ -5,7 +5,7 @@
       "size": "L"
     },
     {
-      "command": "0 23 * * 0 corepack pnpm --filter @pitchou/worker exec tsx aarri/supprimer-evenements.ts --conserver-dernières-semaines 50",
+      "command": "0 23 * * 0 corepack pnpm --filter @pitchou/worker exec tsx aarri/delete-evenements.ts --conserver-dernières-semaines 50",
       "size": "S"
     }
   ]
