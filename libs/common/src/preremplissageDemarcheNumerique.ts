@@ -49,10 +49,10 @@ function makeCommuneParam(
 ) {
   const communeChamp = `champ_${demarcheDossierLabelToId.get("Commune(s) où se situe le projet")}`;
   // See https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
-  const communeChampRepete = `champ_Q2hhbXAtNDA0MTQ0Mw`;
-  const champCommuneRepeteURLParamKey = `${encodeURIComponent(communeChamp)}[][${communeChampRepete}]`;
+  const communeChampRepeated = `champ_Q2hhbXAtNDA0MTQ0Mw`;
+  const champCommuneRepeatedURLParamKey = `${encodeURIComponent(communeChamp)}[][${communeChampRepeated}]`;
 
-  return `${champCommuneRepeteURLParamKey}=${encodeURIComponent(`["${codePostal}","${codeInsee}"]`)}`;
+  return `${champCommuneRepeatedURLParamKey}=${encodeURIComponent(`["${codePostal}","${codeInsee}"]`)}`;
 }
 
 /**
@@ -64,9 +64,9 @@ function makeDepartementParam(
 ) {
   const departementChamp = `champ_${demarcheDossierLabelToId.get("Département(s) où se situe le projet")}`;
   // See https://demarche.numerique.gouv.fr/preremplir/derogation-especes-protegees
-  const departementChampRepete = `champ_Q2hhbXAtNDA0MTQ0Nw`;
+  const departementChampRepeated = `champ_Q2hhbXAtNDA0MTQ0Nw`;
 
-  return `${encodeURIComponent(departementChamp)}[][${departementChampRepete}]=${code}`;
+  return `${encodeURIComponent(departementChamp)}[][${departementChampRepeated}]=${code}`;
 }
 
 const basePrefilling = `https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees?`;
@@ -154,8 +154,6 @@ export function createGETPrefillingLinkDemarche(
         .join("&");
     }
   }
-
-  //console.log('objetPréremplissage', objetPréremplissage, dossierPartiel)
 
   return (
     basePrefilling +

@@ -7,8 +7,8 @@ import {
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
 
-const communeChampRepete = `champ_Q2hhbXAtNDA0MTQ0Mw`;
-const departementChampRepete = `champ_Q2hhbXAtNDA0MTQ0Nw`;
+const communeChampRepeated = `champ_Q2hhbXAtNDA0MTQ0Mw`;
+const departementChampRepeated = `champ_Q2hhbXAtNDA0MTQ0Nw`;
 
 function createChampPrefillingObject(
   partialDossier: Partial<DossierDemarcheNumerique88444>,
@@ -75,7 +75,7 @@ function createChampPrefillingObject(
     prefillingObject[
       `champ_${demarcheDossierLabelToId.get(`Département(s) où se situe le projet`)}`
     ] = partialDossier["Département(s) où se situe le projet"].map(({ code }) => ({
-      [departementChampRepete]: code,
+      [departementChampRepeated]: code,
     }));
   } else {
     // get the communes
@@ -92,7 +92,7 @@ function createChampPrefillingObject(
       ] = partialDossier["Commune(s) où se situe le projet"]
         .filter((c) => typeof c === "object")
         .map(({ code: codeInsee, codesPostaux: [codePostal] }) => ({
-          [communeChampRepete]: [codePostal, codeInsee],
+          [communeChampRepeated]: [codePostal, codeInsee],
         }));
     }
   }
