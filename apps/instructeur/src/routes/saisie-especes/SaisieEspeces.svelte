@@ -119,7 +119,7 @@
     return [...impactParEspeces.values()];
   }
 
-  async function creerOdsBlob() {
+  async function createOdsBlob() {
     const odsArrayBuffer = await descriptionMenacesEspecesToOdsArrayBuffer(
       especesImpacteesParClassification,
     );
@@ -433,7 +433,7 @@
                       label={`Télécharger le document récapitulatif (${nombreEspecesSaisies} espèce${nombreEspecesSaisies > 1 ? "s" : ""})`}
                       makeFilename={() =>
                         `especes-impactées-${new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length)}.ods`}
-                      makeFileContentBlob={creerOdsBlob}
+                      makeFileContentBlob={createOdsBlob}
                     />
                   </div>
                 </li>

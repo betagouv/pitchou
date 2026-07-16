@@ -106,7 +106,7 @@ describe("getUtilisateursAARRI", () => {
 });
 
 describe("GET /api/admin/utilisateurs-aarri", () => {
-  async function creerAdmin(): Promise<string> {
+  async function createAdmin(): Promise<string> {
     const code = `admin-secret-${Math.random().toString(36).slice(2)}`;
     await createPersonne(db, { email: TEST_ADMIN_EMAIL, code_accès: code });
     return code;
@@ -119,7 +119,7 @@ describe("GET /api/admin/utilisateurs-aarri", () => {
   }
 
   test("returns the users for an admin secret", async () => {
-    const adminCode = await creerAdmin();
+    const adminCode = await createAdmin();
     const instructeur = await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
     await ajouterEvenements(instructeur.id, "seConnecter", 1);
 
