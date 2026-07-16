@@ -5,7 +5,7 @@ import type { Knex } from "knex";
 
 import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
 import {
-  construireActivitesMethodesMoyensDePoursuite,
+  buildActivitesMethodesMoyensDePoursuite,
   dbRowToEspeceProtegee,
   descriptionMenacesEspecesToOdsArrayBuffer,
 } from "@pitchou/common/especesUtils.ts";
@@ -383,7 +383,7 @@ export async function seed(knex: Knex) {
     // Step 8 — espèces impactées (generated ODS fichier)
     if (SEED_ESPECES_IMPACTEES.length > 0) {
       const activitesBuffer = await readFile(ACTIVITES_ODS_PATH);
-      const activites = await construireActivitesMethodesMoyensDePoursuite(activitesBuffer);
+      const activites = await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
       const activiteParIdentifiantPitchou =
         activites.identifiantPitchouVersActivitéEtImpactsQuantifiés;
 

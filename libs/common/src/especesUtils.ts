@@ -644,7 +644,7 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
   return descriptionMenacesEspeces;
 }
 
-export async function construireActivitesMethodesMoyensDePoursuite(
+export async function buildActivitesMethodesMoyensDePoursuite(
   odsData: Buffer,
 ): Promise<NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>> {
   const rawActivitesMethodesMoyensDePoursuite =

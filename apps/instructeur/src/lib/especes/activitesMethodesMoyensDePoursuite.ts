@@ -3,7 +3,7 @@ import { store } from "$lib/state/store.svelte.ts";
 import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "$lib/shared/dataPaths.ts";
 import {
   dbRowToEspeceProtegee,
-  construireActivitesMethodesMoyensDePoursuite,
+  buildActivitesMethodesMoyensDePoursuite,
 } from "@pitchou/common/especesUtils.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
@@ -87,7 +87,7 @@ export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
 
   const odsData = await buffer(ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA);
   // @ts-ignore
-  const ret = await construireActivitesMethodesMoyensDePoursuite(odsData);
+  const ret = await buildActivitesMethodesMoyensDePoursuite(odsData);
 
   store.ActivitésMéthodesMoyensDePoursuite = ret;
 

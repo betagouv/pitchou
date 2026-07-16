@@ -52,8 +52,8 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
   }
 }
 
-export function normalizeNomCommune(nomCommune: string): string {
-  return nomCommune
+export function normalizeCommuneName(communeName: string): string {
+  return communeName
     .replace(/-|'/g, " ")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // remove accents

@@ -9,7 +9,7 @@ import { byteFormat } from "@pitchou/common/typeFormat.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { loadFichierContent } from "./fichier.ts";
 import {
-  construireActivitesMethodesMoyensDePoursuite,
+  buildActivitesMethodesMoyensDePoursuite,
   importDescriptionMenacesEspecesFromOdsArrayBuffer,
 } from "@pitchou/common/especesUtils.ts";
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
@@ -29,7 +29,7 @@ const loadActivitesMethodesMoyensDePoursuite: () => Promise<
   const activitesBuffer = await readFile(
     join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
   );
-  return await construireActivitesMethodesMoyensDePoursuite(activitesBuffer);
+  return await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
 });
 
 type EspeceByCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
