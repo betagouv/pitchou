@@ -3,7 +3,7 @@ import { createOdsFile } from "@odfjs/odfjs";
 import * as XLSX from "xlsx";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/outils-especes.ts";
-import { creerEspecesGroupeesParImpact } from "./creerEspecesGroupeesParImpact.ts";
+import { createEspecesGroupedByImpact } from "./creerEspecesGroupeesParImpact.ts";
 
 import type {
   EspeceProtegee,
@@ -97,7 +97,7 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
       methodes,
       moyensDePoursuite,
     );
-    return creerEspecesGroupeesParImpact(
+    return createEspecesGroupedByImpact(
       description,
       identifiantPitchouVersActiviteEtImpactsQuantifies,
     );

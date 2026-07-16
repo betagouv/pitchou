@@ -5,7 +5,7 @@
     QuantifiedImpact,
   } from "@pitchou/types/especes.d.ts";
 
-  import { creerEspecesGroupeesParImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+  import { createEspecesGroupedByImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
 
   type Props = {
     espècesImpactées: DescriptionMenacesEspeces;
@@ -22,7 +22,7 @@
   }: Props = $props();
 
   let especesImpacteesParActivite = $derived(
-    creerEspecesGroupeesParImpact(
+    createEspecesGroupedByImpact(
       especesImpactees,
       identifiantPitchouVersActiviteEtImpactsQuantifies,
     ),

@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
-import { creerEspecesGroupeesParImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+import { createEspecesGroupedByImpact } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
 
 import type {
   ActiviteMenancante,
@@ -11,7 +11,7 @@ import type {
 } from "@pitchou/types/especes.d.ts";
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { EspecesParActivite } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
+import type { EspecesByActivite } from "$lib/especes/creerEspecesGroupeesParImpact.ts";
 
 /**
  * List of tags provided to the instructeur.i.ces.
@@ -63,7 +63,7 @@ export function getBalisesGenerationDocument(
   } = dossier;
 
   // Transform the impacted espèces if they exist
-  const especes_impacts: EspecesParActivite[] | undefined = creerEspecesGroupeesParImpact(
+  const especes_impacts: EspecesByActivite[] | undefined = createEspecesGroupedByImpact(
     especesImpactees,
     identifiantPitchouVersActiviteEtImpactsQuantifies,
   );

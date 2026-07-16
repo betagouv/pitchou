@@ -7,24 +7,24 @@ import type {
   OiseauAtteint,
 } from "@pitchou/types/especes.d.ts";
 
-const VALEUR_NON_RENSEIGNE = `(non renseigné)`;
+const VALUE_NOT_PROVIDED = `(non renseigné)`;
 
 function individus(especeImpactee: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte): string {
-  return especeImpactee.nombreIndividus || VALEUR_NON_RENSEIGNE;
+  return especeImpactee.nombreIndividus || VALUE_NOT_PROVIDED;
 }
 
 function surface(especeImpactee: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte): string {
   return especeImpactee.surfaceHabitatDétruit
     ? `${especeImpactee.surfaceHabitatDétruit}m²`
-    : VALEUR_NON_RENSEIGNE;
+    : VALUE_NOT_PROVIDED;
 }
 
 function nids(especeImpactee: OiseauAtteint): string {
-  return especeImpactee.nombreNids ? `${especeImpactee.nombreNids}` : VALEUR_NON_RENSEIGNE;
+  return especeImpactee.nombreNids ? `${especeImpactee.nombreNids}` : VALUE_NOT_PROVIDED;
 }
 
 function œufs(especeImpactee: OiseauAtteint): string {
-  return especeImpactee.nombreOeufs ? `${especeImpactee.nombreOeufs}` : VALEUR_NON_RENSEIGNE;
+  return especeImpactee.nombreOeufs ? `${especeImpactee.nombreOeufs}` : VALUE_NOT_PROVIDED;
 }
 
 const getterImpactQuantifie: Map<QuantifiedImpact, (esp: any) => string> = new Map([
@@ -34,7 +34,7 @@ const getterImpactQuantifie: Map<QuantifiedImpact, (esp: any) => string> = new M
   ["Surface habitat détruit (m²)", surface],
 ]);
 
-export type EspeceImpacteeSimplifiee = {
+export type SimplifiedEspeceImpactee = {
   nomVernaculaire: string;
   nomScientifique: string;
   CD_REF: string;
@@ -43,22 +43,22 @@ export type EspeceImpacteeSimplifiee = {
   détails: string[];
 };
 
-export type EspecesParActivite = {
+export type EspecesByActivite = {
   activité: string;
   impactsQuantifiés: QuantifiedImpact[];
-  espèces: EspeceImpacteeSimplifiee[];
+  espèces: SimplifiedEspeceImpactee[];
 };
 
-export function creerEspecesGroupeesParImpact(
+export function createEspecesGroupedByImpact(
   especesImpactees: DescriptionMenacesEspeces,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
     ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
   >,
-): EspecesParActivite[] {
-  const _especesImpacteesParIdentifiantActivite: Map<
+): EspecesByActivite[] {
+  const _especesImpacteesByIdentifiantActivite: Map<
     ActiviteMenancante["Identifiant Pitchou"] | undefined,
-    EspeceImpacteeSimplifiee[]
+    SimplifiedEspeceImpactee[]
   > = new Map();
 
   function push(especeImpactee: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte) {
@@ -66,7 +66,7 @@ export function creerEspecesGroupeesParImpact(
       ? especeImpactee.activité["Identifiant Pitchou"]
       : undefined;
 
-    const esps = _especesImpacteesParIdentifiantActivite.get(identifiantPitchou) || [];
+    const esps = _especesImpacteesByIdentifiantActivite.get(identifiantPitchou) || [];
     const impactsQuantifies =
       identifiantPitchouVersActiviteEtImpactsQuantifies.get(identifiantPitchou ?? "")
         ?.impactsQuantifiés || [];
@@ -77,19 +77,19 @@ export function creerEspecesGroupeesParImpact(
       nomVernaculaire: [...especeImpactee.espèce.nomsVernaculaires][0],
       espèceCNPN: especeImpactee.espèce.espèceCNPN === "O" ? true : false,
       espèceMinistérielle: especeImpactee.espèce.espèceMinistérielle === "O" ? true : false,
-      détails: [...impactsQuantifies].map((donneeSecondaire) => {
-        const funcDetail = getterImpactQuantifie.get(donneeSecondaire);
+      détails: [...impactsQuantifies].map((secondaryData) => {
+        const funcDetail = getterImpactQuantifie.get(secondaryData);
 
         if (!funcDetail) {
           throw new Error(
-            `Fonction de récupération des détails de l'espèce non définie pour le type de données ${donneeSecondaire}`,
+            `Fonction de récupération des détails de l'espèce non définie pour le type de données ${secondaryData}`,
           );
         }
 
         return funcDetail(especeImpactee);
       }),
     });
-    _especesImpacteesParIdentifiantActivite.set(identifiantPitchou, esps);
+    _especesImpacteesByIdentifiantActivite.set(identifiantPitchou, esps);
   }
 
   for (const classif of ["oiseau", "faune non-oiseau", "flore"] as const) {
@@ -100,8 +100,8 @@ export function creerEspecesGroupeesParImpact(
     }
   }
 
-  for (const [activite, esps] of _especesImpacteesParIdentifiantActivite) {
-    _especesImpacteesParIdentifiantActivite.set(
+  for (const [activite, esps] of _especesImpacteesByIdentifiantActivite) {
+    _especesImpacteesByIdentifiantActivite.set(
       activite,
       esps.toSorted(({ nomScientifique: nom1 }, { nomScientifique: nom2 }) => {
         if (nom1 < nom2) {
@@ -115,7 +115,7 @@ export function creerEspecesGroupeesParImpact(
     );
   }
 
-  return [..._especesImpacteesParIdentifiantActivite].map(([identifiant, especes]) => ({
+  return [..._especesImpacteesByIdentifiantActivite].map(([identifiant, especes]) => ({
     activité:
       identifiantPitchouVersActiviteEtImpactsQuantifies.get(identifiant ?? "")?.[
         "Libellé Pitchou"
