@@ -2,7 +2,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
   import NomEspece from "../../NomEspece.svelte";
-  import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
+  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import { mailtoMissingEspece } from "@pitchou/common/constantes.ts";
 
   import type {
@@ -224,7 +224,7 @@
       {/if}
     </div>
   </div>
-  <DeplierReplier>
+  <ExpandCollapse>
     {#snippet summary()}
       Je ne trouve pas une espèce…
     {/snippet}
@@ -245,7 +245,7 @@
         >.
       </p>
     {/snippet}
-  </DeplierReplier>
+  </ExpandCollapse>
 </div>
 <div class="fr-modal__footer">
   <button type="button" class="fr-btn fr-btn--secondary fr-ml-auto" onclick={onClickpreciserImpact}

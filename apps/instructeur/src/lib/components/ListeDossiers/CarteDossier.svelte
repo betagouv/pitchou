@@ -6,7 +6,7 @@
     formatLocalisation,
     formatPorteurDeProjet,
   } from "$lib/dossier/affichageDossier.ts";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
   import BadgePhase from "./BadgePhase.svelte";
 
   type Props = {
@@ -42,7 +42,7 @@
     <div class="boutons-action">
       {#if dossier.commentaire_libre && dossier.commentaire_libre !== ""}
         {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
-        <BoutonModale id={dsfrModaleId}>
+        <ModalButton id={dsfrModaleId}>
           {#snippet openButton()}
             <button
               type="button"
@@ -68,7 +68,7 @@
               {dossier.commentaire_libre}
             </div>
           {/snippet}
-        </BoutonModale>
+        </ModalButton>
       {/if}
       {#if dossierSuiviParInstructeurActuel}
         <button

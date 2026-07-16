@@ -6,7 +6,7 @@
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
   import { extractFirstMail } from "../importDossierUtils.ts";
-  import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
+  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
@@ -16,7 +16,7 @@
     createNomForDossier,
     rowDossierInDB,
   } from "./importDossierCorse.ts";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
 
   const SUIVI_TABLE_SHEET_NAME = "Instruction";
   const INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME = "Instructeur DREAL";
@@ -320,7 +320,7 @@
                   >
                     <td>{createNomForDossier(displayedImportTableRow)}</td>
                     <td>
-                      <BoutonModale id={`dsfr-modale-${index}`}>
+                      <ModalButton id={`dsfr-modale-${index}`}>
                         {#snippet openButton()}
                           {#if dossierAlerts && dossierAlerts.length >= 1}
                             <button
@@ -360,7 +360,7 @@
                               {/each}
                             </ul>
                           {/if}
-                          <DeplierReplier open={dossierAlerts && dossierAlerts.length === 0}>
+                          <ExpandCollapse open={dossierAlerts && dossierAlerts.length === 0}>
                             {#snippet summary()}
                               <h3>Données du dossier pour le pré-remplissage&nbsp;:</h3>
                             {/snippet}
@@ -401,9 +401,9 @@
                                 {/each}
                               </ul>
                             {/snippet}
-                          </DeplierReplier>
+                          </ExpandCollapse>
                         {/snippet}
-                      </BoutonModale>
+                      </ModalButton>
                     </td>
                     <td>
                       {#if rowDossierInDB(displayedImportTableRow, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre)}

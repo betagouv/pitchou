@@ -6,7 +6,7 @@
   import BarreRecherche from "./BarreRecherche.svelte";
   import TrisDeTh from "./TrisDeTh.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import IndicateurDelaiPhase from "./IndicateurDelaiPhase.svelte";
   import {
@@ -731,7 +731,7 @@
 
                   {#if commentaire_libre && commentaire_libre.trim().length >= 1}
                     {@const dsfrModaleId = `dsfr-modale-${id}`}
-                    <BoutonModale id={dsfrModaleId}>
+                    <ModalButton id={dsfrModaleId}>
                       {#snippet openButton()}
                         <button
                           class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
@@ -757,7 +757,7 @@
                           {commentaire_libre}
                         </div>
                       {/snippet}
-                    </BoutonModale>
+                    </ModalButton>
                   {/if}
 
                   {#if dossierIdsSuivisParInstructeurActuel.has(id)}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import FormControle from "./FormControle.svelte";
-  import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
+  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import TagResultatControle from "../../TagResultatControle.svelte";
 
   import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
@@ -144,7 +144,7 @@
 </script>
 
 <section class="prescription-viewed">
-  <DeplierReplier>
+  <ExpandCollapse>
     {#snippet summary()}
       {@const lastControle = sortedControles[0]}
       <h6>
@@ -286,7 +286,7 @@
         </section>
       </section>
     {/snippet}
-  </DeplierReplier>
+  </ExpandCollapse>
 </section>
 
 <style lang="scss">

@@ -11,7 +11,7 @@
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
   import { createDossierFromRow, createNomForDossier } from "./importDossierBFC.ts";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
 
   type Props = {
     dossiers?: DossierSummary[];
@@ -248,14 +248,14 @@
                 <tr data-row-key="1">
                   <td>{createNomForDossier(displayedImportTableRow)}</td>
                   <td>
-                    <BoutonModale id={`dsfr-modale-${index}`}>
+                    <ModalButton id={`dsfr-modale-${index}`}>
                       {#snippet openButton()}
                         <button type="button">Voir les détails</button>
                       {/snippet}
                       {#snippet content()}
                         <div>{JSON.stringify(displayedImportTableRow)}</div>
                       {/snippet}
-                    </BoutonModale>
+                    </ModalButton>
                   </td>
                   <td>
                     {#if rowDossierInDB(displayedImportTableRow)}
