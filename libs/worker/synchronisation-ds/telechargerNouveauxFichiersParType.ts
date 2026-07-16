@@ -1,4 +1,4 @@
-import trouverCandidatsFichiersATelecharger from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
+import findCandidateFichiersToDownload from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
 import downloadNewFichiers from "./telechargerNouveauxFichiers.ts";
 
 import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -12,7 +12,7 @@ export async function downloadNewFichiersFromChampId(
   synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId[]> | undefined> {
   const candidateFichiers: Map<DossierDS88444["number"], DSFile[]> =
-    trouverCandidatsFichiersATelecharger(dossiers, champDescriptorId);
+    findCandidateFichiersToDownload(dossiers, champDescriptorId);
 
   if (candidateFichiers.size >= 1) {
     return downloadNewFichiers(candidateFichiers, synchronizationTransactionDS);
@@ -25,7 +25,7 @@ export async function downloadNewFichiersEspecesImpactees(
   synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId> | undefined> {
   const candidateFichiersEspecesImpactees: Map<DossierDS88444["number"], DSFile[]> =
-    trouverCandidatsFichiersATelecharger(dossiers, champDescriptorId);
+    findCandidateFichiersToDownload(dossiers, champDescriptorId);
 
   // console.log('candidateFichiersImpactées', candidateFichiersImpactées)
 

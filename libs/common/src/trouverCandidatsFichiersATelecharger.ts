@@ -8,11 +8,11 @@ import type {
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 
-export default function trouverCandidatsFichiersATelecharger(
+export default function findCandidateFichiersToDownload(
   dossiers: DossierDS88444[],
   champDescriptorId: ChampDescriptor["id"],
 ): Map<DossierDS88444["number"], DSFile[]> {
-  const candidatsFichiers: Map<DossierDS88444["number"], DSFile[]> = new Map(
+  const candidateFichiers: Map<DossierDS88444["number"], DSFile[]> = new Map(
     // @ts-ignore
     dossiers
       .map(({ number, champs, annotations }) => {
@@ -41,5 +41,5 @@ export default function trouverCandidatsFichiersATelecharger(
       .filter((x) => x !== undefined),
   );
 
-  return candidatsFichiers;
+  return candidateFichiers;
 }

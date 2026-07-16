@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 
-import trouverCandidatsFichiersATelecharger from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
+import findCandidateFichiersToDownload from "@pitchou/common/trouverCandidatsFichiersATelecharger.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
@@ -27,9 +27,9 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
     if (!champId) {
       throw new Error(`champId for ${champ} is undefined`);
     }
-    const candidat = trouverCandidatsFichiersATelecharger(dossiersDS, champId);
+    const candidate = findCandidateFichiersToDownload(dossiersDS, champId);
 
-    descriptionsFichiers.push(candidat);
+    descriptionsFichiers.push(candidate);
   }
 
   // @ts-ignore
