@@ -1,20 +1,20 @@
 import type { DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-export function getDebutPhaseActuelle(dossier: DossierSummary): {
+export function getCurrentPhaseStart(dossier: DossierSummary): {
   phase: DossierPhase;
-  dateDébut: Date;
+  startDate: Date;
 } {
   // This is too simplistic
   // PPP to revisit alongside https://trello.com/c/GmhEx16G/420-un-dossier-qui-passe-en-instruction-dans-ds-reste-en-instruction-dans-pitchou
-  const phaseActuelle: DossierPhase = dossier.phase;
+  const currentPhase: DossierPhase = dossier.phase;
 
-  let dateDebut: Date;
+  let startDate: Date;
 
-  if (phaseActuelle === "Accompagnement amont") {
-    dateDebut = dossier.date_dépôt;
+  if (currentPhase === "Accompagnement amont") {
+    startDate = dossier.date_dépôt;
   } else {
-    dateDebut = dossier.date_début_phase;
+    startDate = dossier.date_début_phase;
   }
 
-  return { dateDébut: dateDebut, phase: phaseActuelle };
+  return { startDate, phase: currentPhase };
 }

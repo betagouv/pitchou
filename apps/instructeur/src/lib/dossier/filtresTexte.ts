@@ -1,5 +1,5 @@
 import { removeAccents } from "@pitchou/common/manipulationStrings.ts";
-import { trouverDossiersIdCorrespondantsATexte } from "$lib/dossier/rechercherDansDossier.ts";
+import { findDossierIdsMatchingText } from "$lib/dossier/rechercherDansDossier.ts";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
@@ -12,12 +12,12 @@ import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
  * cf. https://github.com/MihaiValentin/lunr-languages/issues/66
  * lunr.fr does not index digits, so we handle number search with a separate function.
  */
-export function creerFiltreTexte(
-  texteAChercher: string,
+export function createTextFilter(
+  textToSearch: string,
   dossiers: DossierSummary[],
 ): (dossier: DossierSummary) => boolean {
   // If the text contains digits, use direct search
-  if (texteAChercher.match(/\d[\dA-Za-z\-]*/)) {
+  if (textToSearch.match(/\d[\dA-Za-z\-]*/)) {
     return (dossier) => {
       const {
         id,
@@ -29,28 +29,28 @@ export function creerFiltreTexte(
       const communesCodes = communes?.map(({ postalCode }) => postalCode).filter((c) => c) || [];
 
       return (
-        String(id) === texteAChercher ||
-        départements?.includes(texteAChercher || "") ||
-        communesCodes?.includes(texteAChercher || "") ||
-        number_demarches_simplifiées === texteAChercher ||
-        historique_identifiant_demande_onagre === texteAChercher
+        String(id) === textToSearch ||
+        départements?.includes(textToSearch || "") ||
+        communesCodes?.includes(textToSearch || "") ||
+        number_demarches_simplifiées === textToSearch ||
+        historique_identifiant_demande_onagre === textToSearch
       );
     };
   } else {
     // Otherwise, use lunr for text search
-    const texteSansAccents = removeAccents(texteAChercher);
+    const textWithoutAccents = removeAccents(textToSearch);
     // To search communes that contain hyphens with lunr,
     // we need to pass the string between "".
-    const aRechercher = texteSansAccents.match(/(\w-)+/)
-      ? `"${texteSansAccents}"`
-      : texteSansAccents;
-    const dossiersIdCorrespondantsATexte = trouverDossiersIdCorrespondantsATexte(
-      aRechercher,
+    const toSearch = textWithoutAccents.match(/(\w-)+/)
+      ? `"${textWithoutAccents}"`
+      : textWithoutAccents;
+    const dossierIdsMatchingText = findDossierIdsMatchingText(
+      toSearch,
       dossiers,
     );
 
     return (dossier) => {
-      return dossiersIdCorrespondantsATexte.has(dossier.id);
+      return dossierIdsMatchingText.has(dossier.id);
     };
   }
 }

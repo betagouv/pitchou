@@ -1,6 +1,6 @@
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/affichageDossier.ts";
 
-import { getDebutPhaseActuelle } from "$lib/dossier/getDebutPhaseActuelle.ts";
+import { getCurrentPhaseStart } from "$lib/dossier/getDebutPhaseActuelle.ts";
 
 import type {
   DossierPhase,
@@ -107,12 +107,12 @@ export function trierDossiersParPhaseProchaineAction(dossiers: DossierSummary[])
       if (prochaineActionAttendueParComparison !== 0) {
         return prochaineActionAttendueParComparison;
       } else {
-        const { dateDébut: dateDebut1 } = getDebutPhaseActuelle(dossier1);
-        const { dateDébut: dateDebut2 } = getDebutPhaseActuelle(dossier2);
+        const { startDate: startDate1 } = getCurrentPhaseStart(dossier1);
+        const { startDate: startDate2 } = getCurrentPhaseStart(dossier2);
         // the prochaineActionAttenduePar are also similar
         // compare on age (oldest dossier is the most relevant)
 
-        return dateDebut1.getTime() - dateDebut2.getTime();
+        return startDate1.getTime() - startDate2.getTime();
       }
     }
   });

@@ -10,7 +10,7 @@ import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 stemmerSupport(lunr);
 lunrfr(lunr);
 
-const creerDossierIndexable = (dossier: DossierSummary): StringValues<Partial<DossierSummary>> => {
+const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<DossierSummary>> => {
   const {
     id,
     nom,
@@ -40,7 +40,7 @@ const creerDossierIndexable = (dossier: DossierSummary): StringValues<Partial<Do
 
 const indexCache: Map<DossierSummary[], lunr.Index> = new Map();
 
-const creerIndexDossiers = (dossiers: DossierSummary[]): lunr.Index => {
+const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
   if (indexCache.has(dossiers))
     // @ts-expect-error TS does not understand that .get returns a lunr.Index after a positive .has
     return indexCache.get(dossiers);
@@ -60,7 +60,7 @@ const creerIndexDossiers = (dossiers: DossierSummary[]): lunr.Index => {
       this.field("demandeur_personne_morale_raison_sociale");
 
       for (const dossier of dossiers) {
-        this.add(creerDossierIndexable(dossier));
+        this.add(createIndexableDossier(dossier));
       }
     });
 
@@ -69,13 +69,13 @@ const creerIndexDossiers = (dossiers: DossierSummary[]): lunr.Index => {
   }
 };
 
-export const trouverDossiersIdCorrespondantsATexte = (
-  texteAChercher: string,
+export const findDossierIdsMatchingText = (
+  textToSearch: string,
   dossiers: DossierSummary[],
 ): Set<DossierSummary["id"]> => {
-  const index = creerIndexDossiers(dossiers);
-  const lunrResultats = index.search(texteAChercher);
+  const index = createDossiersIndex(dossiers);
+  const lunrResults = index.search(textToSearch);
 
   // @ts-expect-error TS does not know that the `ref` corresponds to the dossier's `id`
-  return new Set(lunrResultats.map(({ ref }) => Number(ref)));
+  return new Set(lunrResults.map(({ ref }) => Number(ref)));
 };

@@ -7,7 +7,7 @@
   import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
   import CarteDossier from "./CarteDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import { creerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
+  import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
   import { SvelteMap } from "svelte/reactivity";
   import { tick } from "svelte";
   import { envoyerEvenementRechercherUnDossier as _envoyerEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
@@ -163,7 +163,7 @@
     if (!texteAChercher || texteAChercher.trim() === "") {
       tousLesFiltres.delete("texte");
     } else {
-      tousLesFiltres.set("texte", creerFiltreTexte(texteAChercher, dossiers));
+      tousLesFiltres.set("texte", createTextFilter(texteAChercher, dossiers));
     }
     envoyerEvenementRechercherUnDossier();
   };

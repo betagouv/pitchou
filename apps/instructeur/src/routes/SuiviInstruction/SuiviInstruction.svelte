@@ -15,7 +15,7 @@
     phases,
     prochaineActionAttenduePar,
   } from "$lib/dossier/affichageDossier.ts";
-  import { creerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
+  import { createTextFilter } from "$lib/dossier/filtresTexte.ts";
   import {
     trierDossiersParOrdreAlphabetiqueColonne,
     trierDossiersParPhaseProchaineAction,
@@ -340,7 +340,7 @@
 
   function ajouterFiltreTexte(_texteAChercher: string) {
     texteAChercher = _texteAChercher.trim();
-    tousLesFiltres.set("texte", creerFiltreTexte(texteAChercher, dossiers));
+    tousLesFiltres.set("texte", createTextFilter(texteAChercher, dossiers));
   }
 
   function filtrerParTexte(_texteAChercher: string) {
