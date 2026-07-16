@@ -5,7 +5,7 @@
     formatPorteurDeProjet,
     formatDeposant,
   } from "$lib/dossier/affichageDossier.ts";
-  import { afficherString } from "./affichageValeurs.ts";
+  import { displayString } from "./affichageValeurs.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
@@ -64,7 +64,7 @@
     if (from) navigatedFromApp = true;
   });
 
-  function retour() {
+  function goBack() {
     if (navigatedFromApp) {
       history.back();
     } else {
@@ -78,7 +78,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left"
-      onclick={retour}
+      onclick={goBack}
     >
       Retour
     </button>
@@ -137,7 +137,7 @@
 
       <div>
         <strong>Prochaine action de&nbsp;:&nbsp;</strong>
-        {afficherString(dossier.prochaine_action_attendue_par)}
+        {displayString(dossier.prochaine_action_attendue_par)}
       </div>
 
       {#if dossier.enjeu}

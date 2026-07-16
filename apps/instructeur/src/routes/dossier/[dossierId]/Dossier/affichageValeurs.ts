@@ -1,8 +1,8 @@
-export function afficherBool(b: boolean | null | undefined): string {
+export function displayBool(b: boolean | null | undefined): string {
   return b ? "Oui" : "Non";
 }
 
-export function afficherNumber(n: number | undefined | null): string {
+export function displayNumber(n: number | undefined | null): string {
   if (n === undefined || n === null) {
     return "Non-défini";
   }
@@ -14,7 +14,7 @@ export function afficherNumber(n: number | undefined | null): string {
   return n.toString();
 }
 
-export function afficherString(s: string | undefined | null): string {
+export function displayString(s: string | undefined | null): string {
   if (s === undefined || s === null || s === "") {
     return "(vide)";
   }
