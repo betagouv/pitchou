@@ -19,7 +19,7 @@
 
   let { dossier, openTab }: Props = $props();
 
-  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
+  const idModalAddPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
   type PieceJointeSimple = {
     label: string;
@@ -56,7 +56,7 @@
     return details.join(" - ");
   }
 
-  function detailsPieceJointeAvecContexte(pieceJointe: PieceJointeSimple) {
+  function detailsPieceJointeWithContext(pieceJointe: PieceJointeSimple) {
     const details = detailsPieceJointe(pieceJointe);
 
     return details ? `${pieceJointe.label} - ${details}` : pieceJointe.label;
@@ -124,7 +124,7 @@
   <button
     type="button"
     class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line button-add-piece-jointe"
-    aria-controls={idModaleAjouterPieceJointe}
+    aria-controls={idModalAddPieceJointe}
     data-fr-opened="false"
     onclick={() =>
       sendEvenement({
@@ -136,7 +136,7 @@
   </button>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Projet</h3>
       <button
         type="button"
@@ -149,9 +149,9 @@
     {#if dossier.piècesJointesPétitionnaires.length === 0}
       <p>Aucune pièce jointe n'a été déposée par le pétitionnaire.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
-          <li class="carte-piece-jointe">
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
                 {nom || "(fichier sans nom)"}
@@ -169,7 +169,7 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Avis d'experts</h3>
       <button
         type="button"
@@ -182,10 +182,10 @@
     {#if piecesJointesAvis.length === 0}
       <p>Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesAvis as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -206,7 +206,7 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Décisions administratives</h3>
       <button
         type="button"
@@ -219,10 +219,10 @@
     {#if piecesJointesArretes.length === 0}
       <p>Aucun fichier d'arrêté ou de décision administrative n'est associé à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesArretes as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -243,7 +243,7 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Autres</h3>
       <button
         type="button"
@@ -256,10 +256,10 @@
     {#if piecesJointesAutres.length === 0}
       <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesAutres as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -281,7 +281,7 @@
 </section>
 
 <ModaleAjouterPieceJointe
-  id={idModaleAjouterPieceJointe}
+  id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletPiecesJointes"
@@ -306,7 +306,7 @@
     }
   }
 
-  .entete-section-pieces-jointes {
+  .header-section-pieces-jointes {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -318,7 +318,7 @@
     }
   }
 
-  .liste-cartes-pieces-jointes {
+  .list-cards-pieces-jointes {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -327,7 +327,7 @@
     margin: 0;
   }
 
-  .carte-piece-jointe {
+  .card-piece-jointe {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -343,12 +343,12 @@
   }
 
   @media (max-width: 48rem) {
-    .entete-section-pieces-jointes {
+    .header-section-pieces-jointes {
       flex-direction: column;
       gap: 0.25rem;
     }
 
-    .carte-piece-jointe {
+    .card-piece-jointe {
       flex-direction: column;
     }
   }
