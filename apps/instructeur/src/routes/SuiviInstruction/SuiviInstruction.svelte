@@ -44,9 +44,9 @@
     dossiers?: DossierSummary[];
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
-    triIdSélectionné?: TableSort["id"] | undefined;
+    selectedSortId?: TableSort["id"] | undefined;
     filtresSélectionnés?: Partial<FiltersLocalStorage>;
-    rememberTriFiltres: any;
+    rememberSortFilters: any;
   };
 
   let {
@@ -54,9 +54,9 @@
     dossiers = [],
     relationSuivis,
     activitésPrincipales: activitesPrincipales = [],
-    triIdSélectionné: triIdSelectionne = undefined,
+    selectedSortId = undefined,
     filtresSélectionnés: filtresSelectionnes = {},
-    rememberTriFiltres,
+    rememberSortFilters,
   }: Props = $props();
 
   //$inspect('dossiers', dossiers)
@@ -93,7 +93,7 @@
 
   $inspect("dossierIdsFollowedByCurrentInstructeur", dossierIdsFollowedByCurrentInstructeur);
 
-  const trisActivitePrincipale = [
+  const activitePrincipaleSorts = [
     {
       nom: "Trier de A à Z",
       sort() {
@@ -116,7 +116,7 @@
     },
   ];
 
-  const trisNomProjet = [
+  const nomProjetSorts = [
     {
       nom: "Trier de A à Z",
       sort() {
@@ -139,7 +139,7 @@
     },
   ];
 
-  const trisLocalisation = [
+  const localisationSorts = [
     {
       nom: "Trier de A à Z",
       sort() {
@@ -162,7 +162,7 @@
     },
   ];
 
-  const trisPorteurDeProjet = [
+  const porteurDeProjetSorts = [
     {
       nom: "Trier de A à Z",
       sort() {
@@ -185,7 +185,7 @@
     },
   ];
 
-  const triPriorisationPhaseProchaineAction = [
+  const priorisationPhaseProchaineActionSorts = [
     {
       nom: "Prioriser",
       sort() {
@@ -195,17 +195,17 @@
     },
   ];
 
-  const tris: TableSort[] = [
-    ...trisActivitePrincipale,
-    ...trisNomProjet,
-    ...trisLocalisation,
-    ...trisPorteurDeProjet,
-    ...triPriorisationPhaseProchaineAction,
+  const sorts: TableSort[] = [
+    ...activitePrincipaleSorts,
+    ...nomProjetSorts,
+    ...localisationSorts,
+    ...porteurDeProjetSorts,
+    ...priorisationPhaseProchaineActionSorts,
   ];
 
-  // This line must be tolerant of triIdSélectionné being undefined or anything else
-  let triSelectionne: TableSort | undefined = $state(
-    tris.find((t) => t.id === triIdSelectionne) || triPriorisationPhaseProchaineAction[0],
+  // This line must be tolerant of selectedSortId being undefined or anything else
+  let selectedSort: TableSort | undefined = $state(
+    sorts.find((t) => t.id === selectedSortId) || priorisationPhaseProchaineActionSorts[0],
   );
 
   type FilterKey =
@@ -226,8 +226,8 @@
 
     dossiersSelectionnes = nouveauxDossiersSelectionnes;
 
-    if (triSelectionne) {
-      triSelectionne.sort();
+    if (selectedSort) {
+      selectedSort.sort();
     }
   }
 
@@ -465,7 +465,7 @@
   );
 
   $effect(() => {
-    rememberTriFiltres(triSelectionne, {
+    rememberSortFilters(selectedSort, {
       phases: phasesSelectionnees,
       "prochaine action attendue de": prochainesActionsAttenduesParSelectionnes,
       instructeurs: instructeursSelectionnes,
@@ -680,19 +680,19 @@
               <th>Voir le dossier</th>
               <th>
                 Localisation
-                <TrisDeTh tris={trisLocalisation} bind:triSélectionné={triSelectionne} />
+                <TrisDeTh sorts={localisationSorts} bind:selectedSort />
               </th>
               <th>
                 Activité principale
-                <TrisDeTh tris={trisActivitePrincipale} bind:triSélectionné={triSelectionne} />
+                <TrisDeTh sorts={activitePrincipaleSorts} bind:selectedSort />
               </th>
               <th>
                 Porteur de projet
-                <TrisDeTh tris={trisPorteurDeProjet} bind:triSélectionné={triSelectionne} />
+                <TrisDeTh sorts={porteurDeProjetSorts} bind:selectedSort />
               </th>
               <th>
                 Nom du projet
-                <TrisDeTh tris={trisNomProjet} bind:triSélectionné={triSelectionne} />
+                <TrisDeTh sorts={nomProjetSorts} bind:selectedSort />
               </th>
               <th>Enjeux</th>
               <th>Rattaché au régime AE</th>
@@ -701,8 +701,8 @@
                 <br />
                 Prochaine action attendue de
                 <TrisDeTh
-                  tris={triPriorisationPhaseProchaineAction}
-                  bind:triSélectionné={triSelectionne}
+                  sorts={priorisationPhaseProchaineActionSorts}
+                  bind:selectedSort
                 />
               </th>
             </tr>

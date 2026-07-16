@@ -19,16 +19,16 @@
     TableSort,
   } from "@pitchou/types/interfaceUtilisateur.ts";
 
-  const TRI_FILTRE_CLEF_LOCALSTORAGE = "tri-filtres-tableau-suivi";
+  const SORT_FILTER_LOCALSTORAGE_KEY = "tri-filtres-tableau-suivi";
 
-  let trisFiltresSelectionnes = $state<SortFilterLocalStorage | undefined>();
+  let selectedSortFilters = $state<SortFilterLocalStorage | undefined>();
 
   let chargementDossiersTermine = $state(false);
 
   onMount(async () => {
-    const stored = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE);
+    const stored = await remember(SORT_FILTER_LOCALSTORAGE_KEY);
     if (stored && typeof stored !== "string") {
-      trisFiltresSelectionnes = stored;
+      selectedSortFilters = stored;
     } else if (typeof stored === "string") {
       console.warn(`string du localStorage non comprise en tant que filtre/tri`, stored);
     }
@@ -64,23 +64,23 @@
     await logout();
   }
 
-  function rememberTriFiltres(tri: TableSort, filtres: Partial<FiltersLocalStorage>) {
-    const nouveaux: SortFilterLocalStorage = {
-      tri: tri.id,
+  function rememberSortFilters(sort: TableSort, filters: Partial<FiltersLocalStorage>) {
+    const newSortFilters: SortFilterLocalStorage = {
+      tri: sort.id,
       filtres: {
-        phases: filtres.phases ? [...filtres.phases] : undefined,
-        "prochaine action attendue de": filtres["prochaine action attendue de"]
-          ? [...filtres["prochaine action attendue de"]]
+        phases: filters.phases ? [...filters.phases] : undefined,
+        "prochaine action attendue de": filters["prochaine action attendue de"]
+          ? [...filters["prochaine action attendue de"]]
           : undefined,
-        instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
-        activitésPrincipales: filtres.activitésPrincipales
-          ? [...filtres.activitésPrincipales]
+        instructeurs: filters.instructeurs ? [...filters.instructeurs] : undefined,
+        activitésPrincipales: filters.activitésPrincipales
+          ? [...filters.activitésPrincipales]
           : undefined,
-        texte: filtres.texte ?? undefined,
+        texte: filters.texte ?? undefined,
       },
     };
-    remember(TRI_FILTRE_CLEF_LOCALSTORAGE, nouveaux);
-    trisFiltresSelectionnes = nouveaux;
+    remember(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
+    selectedSortFilters = newSortFilters;
   }
 
   const email = $derived(store.identité?.email);
@@ -107,9 +107,9 @@
     {dossiers}
     {relationSuivis}
     activitésPrincipales={activitesPrincipales ?? []}
-    triIdSélectionné={trisFiltresSelectionnes?.tri}
-    filtresSélectionnés={trisFiltresSelectionnes?.filtres}
-    {rememberTriFiltres}
+    selectedSortId={selectedSortFilters?.tri}
+    filtresSélectionnés={selectedSortFilters?.filtres}
+    {rememberSortFilters}
   />
 {:else}
   <LoginViaEmail {authorizedEmailDomains} {envoiEmailConnexion} />

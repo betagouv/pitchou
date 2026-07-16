@@ -4,31 +4,31 @@
   import type { TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
 
   type Props = {
-    tris: TableSort[];
-    triSélectionné?: TableSort | undefined;
+    sorts: TableSort[];
+    selectedSort?: TableSort | undefined;
   };
 
-  let { tris, triSélectionné: triSelectionne = $bindable(undefined) }: Props = $props();
+  let { sorts, selectedSort = $bindable(undefined) }: Props = $props();
 
-  const selectionnerTri = (tri: TableSort): void => {
-    triSelectionne = tri;
-    tri.sort();
+  const selectSort = (sort: TableSort): void => {
+    selectedSort = sort;
+    sort.sort();
   };
 </script>
 
 <ul class="fr-mt-1w">
-  {#each tris as tri}
+  {#each sorts as sort}
     <li class="fr-mb-1v">
       <button
-        class={clsx(["fr-pt-1v", "fr-pb-1v", { sélectionné: triSelectionne === tri }])}
+        class={clsx(["fr-pt-1v", "fr-pb-1v", { selected: selectedSort === sort }])}
         type="button"
         onclick={() => {
-          selectionnerTri(tri);
+          selectSort(sort);
         }}
       >
-        {tri["nom"]}
+        {sort["nom"]}
 
-        {#if tri === triSelectionne}
+        {#if sort === selectedSort}
           <span class="fr-icon-check-line" aria-hidden="true"></span>
         {/if}
       </button>
@@ -63,7 +63,7 @@
 
     box-shadow: inset 0 1px 0 0 var(--border-open-blue-france);
 
-    &.sélectionné {
+    &.selected {
       color: var(--text-active-grey);
     }
   }
