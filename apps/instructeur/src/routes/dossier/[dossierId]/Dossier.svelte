@@ -21,7 +21,7 @@
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
-  type Onglet =
+  type Tab =
     | "instruction"
     | "projet"
     | "porteur-de-projet"
@@ -31,14 +31,14 @@
     | "generation-document"
     | "echanges";
 
-  function changerOnglet(nouvelOnglet: Onglet) {
-    ongletActif = nouvelOnglet;
+  function changeTab(newTab: Tab) {
+    activeTab = newTab;
     // Update the URL without reloading the page
-    window.history.replaceState(null, "", `#${nouvelOnglet}`);
+    window.history.replaceState(null, "", `#${newTab}`);
   }
 
-  function handleTabClick(onglet: Onglet) {
-    changerOnglet(onglet);
+  function handleTabClick(tab: Tab) {
+    changeTab(tab);
   }
 
   // Petitionnaires may upload the impacted-espece file as .ods (Pitchou's
@@ -70,7 +70,7 @@
 
   type Props = {
     dossier: DossierFull;
-    ongletActifInitial: Onglet;
+    initialActiveTab: Tab;
     messages: any;
     email: string;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
@@ -80,7 +80,7 @@
 
   let {
     dossier,
-    ongletActifInitial,
+    initialActiveTab,
     messages,
     email,
     personnesQuiSuiventDossier,
@@ -105,12 +105,12 @@
   });
 
   $effect(() => {
-    if (ongletActif === "projet") {
+    if (activeTab === "projet") {
       sendEvenementConsulterUnDossier();
     }
   });
 
-  let ongletActif = $derived(ongletActifInitial);
+  let activeTab = $derived(initialActiveTab);
 
   let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
     getEspecesImpactes(dossier),
@@ -134,10 +134,10 @@
             type="button"
             id="tabpanel-instruction"
             aria-controls="tabpanel-instruction-panel"
-            class="fr-tabs__tab {ongletActif === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "instruction" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "instruction" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "instruction"}
+            aria-selected={activeTab === "instruction"}
             onclick={() => handleTabClick("instruction")}
           >
             Instruction
@@ -148,10 +148,10 @@
             type="button"
             id="tabpanel-projet"
             aria-controls="tabpanel-projet-panel"
-            class="fr-tabs__tab {ongletActif === 'projet' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "projet" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'projet' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "projet" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "projet"}
+            aria-selected={activeTab === "projet"}
             onclick={() => handleTabClick("projet")}
           >
             Projet
@@ -162,12 +162,12 @@
             type="button"
             id="tabpanel-porteur-de-projet"
             aria-controls="tabpanel-porteur-de-projet-panel"
-            class="fr-tabs__tab {ongletActif === 'porteur-de-projet'
+            class="fr-tabs__tab {activeTab === 'porteur-de-projet'
               ? 'fr-tabs__tab--selected'
               : ''}"
-            tabindex={ongletActif === "porteur-de-projet" ? 0 : -1}
+            tabindex={activeTab === "porteur-de-projet" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "porteur-de-projet"}
+            aria-selected={activeTab === "porteur-de-projet"}
             onclick={() => handleTabClick("porteur-de-projet")}
           >
             Porteur de projet
@@ -178,10 +178,10 @@
             type="button"
             id="tabpanel-echanges"
             aria-controls="tabpanel-echanges-panel"
-            class="fr-tabs__tab {ongletActif === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "echanges" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "echanges" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "echanges"}
+            aria-selected={activeTab === "echanges"}
             onclick={() => handleTabClick("echanges")}
           >
             Échanges
@@ -192,10 +192,10 @@
             type="button"
             id="tabpanel-avis"
             aria-controls="tabpanel-avis-panel"
-            class="fr-tabs__tab {ongletActif === 'avis' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "avis" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'avis' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "avis" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "avis"}
+            aria-selected={activeTab === "avis"}
             onclick={() => handleTabClick("avis")}
           >
             Avis
@@ -206,10 +206,10 @@
             type="button"
             id="tabpanel-controles"
             aria-controls="tabpanel-controles-panel"
-            class="fr-tabs__tab {ongletActif === 'controles' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "controles" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'controles' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "controles" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "controles"}
+            aria-selected={activeTab === "controles"}
             onclick={() => handleTabClick("controles")}
           >
             Controles
@@ -220,10 +220,10 @@
             type="button"
             id="tabpanel-pieces-jointes"
             aria-controls="tabpanel-pieces-jointes-panel"
-            class="fr-tabs__tab {ongletActif === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "pieces-jointes" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "pieces-jointes" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "pieces-jointes"}
+            aria-selected={activeTab === "pieces-jointes"}
             onclick={() => handleTabClick("pieces-jointes")}
           >
             Pièces jointes
@@ -234,12 +234,12 @@
             type="button"
             id="tabpanel-generation-document"
             aria-controls="tabpanel-generation-document-panel"
-            class="fr-tabs__tab {ongletActif === 'generation-document'
+            class="fr-tabs__tab {activeTab === 'generation-document'
               ? 'fr-tabs__tab--selected'
               : ''}"
-            tabindex={ongletActif === "generation-document" ? 0 : -1}
+            tabindex={activeTab === "generation-document" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "generation-document"}
+            aria-selected={activeTab === "generation-document"}
             onclick={() => handleTabClick("generation-document")}
           >
             Génération document
@@ -250,7 +250,7 @@
         id="tabpanel-instruction-panel"
         aria-labelledby="tabpanel-instruction"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "instruction"}
+        class:fr-tabs__panel--selected={activeTab === "instruction"}
         role="tabpanel"
         tabindex="0"
       >
@@ -265,7 +265,7 @@
         id="tabpanel-projet-panel"
         aria-labelledby="tabpanel-projet"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "projet"}
+        class:fr-tabs__panel--selected={activeTab === "projet"}
         role="tabpanel"
         tabindex="0"
       >
@@ -275,7 +275,7 @@
         id="tabpanel-porteur-de-projet-panel"
         aria-labelledby="tabpanel-porteur-de-projet"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "porteur-de-projet"}
+        class:fr-tabs__panel--selected={activeTab === "porteur-de-projet"}
         role="tabpanel"
         tabindex="0"
       >
@@ -285,7 +285,7 @@
         id="tabpanel-echanges-panel"
         aria-labelledby="tabpanel-echanges"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "echanges"}
+        class:fr-tabs__panel--selected={activeTab === "echanges"}
         role="tabpanel"
         tabindex="0"
       >
@@ -295,7 +295,7 @@
         id="tabpanel-avis-panel"
         aria-labelledby="tabpanel-avis"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "avis"}
+        class:fr-tabs__panel--selected={activeTab === "avis"}
         role="tabpanel"
         tabindex="0"
       >
@@ -305,7 +305,7 @@
         id="tabpanel-controles-panel"
         aria-labelledby="tabpanel-controles"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "controles"}
+        class:fr-tabs__panel--selected={activeTab === "controles"}
         role="tabpanel"
         tabindex="0"
       >
@@ -315,17 +315,17 @@
         id="tabpanel-pieces-jointes-panel"
         aria-labelledby="tabpanel-pieces-jointes"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "pieces-jointes"}
+        class:fr-tabs__panel--selected={activeTab === "pieces-jointes"}
         role="tabpanel"
         tabindex="0"
       >
-        <DossierPiecesJointes {dossier} openTab={changerOnglet}></DossierPiecesJointes>
+        <DossierPiecesJointes {dossier} openTab={changeTab}></DossierPiecesJointes>
       </div>
       <div
         id="tabpanel-generation-document-panel"
         aria-labelledby="tabpanel-generation-document"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "generation-document"}
+        class:fr-tabs__panel--selected={activeTab === "generation-document"}
         role="tabpanel"
         tabindex="0"
       >

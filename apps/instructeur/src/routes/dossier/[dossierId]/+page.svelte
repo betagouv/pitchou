@@ -5,7 +5,7 @@
 
   import type { PageProps } from "./$types";
 
-  type Onglet =
+  type Tab =
     | "instruction"
     | "projet"
     | "porteur-de-projet"
@@ -15,7 +15,7 @@
     | "generation-document"
     | "echanges";
 
-  function isOngletValide(onglet: string): onglet is Onglet {
+  function isValidTab(tab: string): tab is Tab {
     return [
       "instruction",
       "projet",
@@ -25,7 +25,7 @@
       "controles",
       "pieces-jointes",
       "generation-document",
-    ].includes(onglet);
+    ].includes(tab);
   }
 
   let { data }: PageProps = $props();
@@ -50,16 +50,16 @@
     email ? !!relationSuivis?.get(email)?.has(id) : false,
   );
 
-  const ongletActifInitial = $derived.by(() => {
-    const onglet = (typeof location !== "undefined" ? location.hash : "").slice(1);
-    return onglet && isOngletValide(onglet) ? onglet : "instruction";
+  const initialActiveTab = $derived.by(() => {
+    const tab = (typeof location !== "undefined" ? location.hash : "").slice(1);
+    return tab && isValidTab(tab) ? tab : "instruction";
   });
 </script>
 
 {#if dossier && email}
   <Dossier
     {dossier}
-    {ongletActifInitial}
+    {initialActiveTab}
     {messages}
     {email}
     {personnesQuiSuiventDossier}
