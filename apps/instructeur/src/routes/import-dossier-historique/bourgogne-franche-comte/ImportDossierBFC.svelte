@@ -21,7 +21,7 @@
   let { dossiers = [], schema }: Props = $props();
 
   // Pre-computation: set of names present in the database (O(1) lookup)
-  const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
+  const nomsInDB = $derived(new Set(dossiers.map((d) => d.nom)));
 
   const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.nom, d.id])));
 
@@ -35,25 +35,25 @@
           )
         : new Set(),
     );
-  let lignesTableauImport: DossierBFCRow[] = $state([]);
-  let lignesFiltreesTableauImport: DossierBFCRow[] = $state([]);
-  let dossiersDejaEnBDD: DossierSummary[] = $state([]);
+  let importTableRows: DossierBFCRow[] = $state([]);
+  let filteredImportTableRows: DossierBFCRow[] = $state([]);
+  let dossiersAlreadyInDB: DossierSummary[] = $state([]);
 
-  let ligneToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
+  let rowToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
 
-  let pourcentageDeDossierCreeEnBDD: number | undefined = $state();
+  let percentageOfDossiersCreatedInDB: number | undefined = $state();
 
-  let afficherTousLesDossiers: boolean = $state(false);
+  let showAllDossiers: boolean = $state(false);
 
-  let nombreDossiersDejaImportes = $derived(dossiersDejaEnBDD.length);
-  let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDejaImportes);
+  let numberDossiersAlreadyImported = $derived(dossiersAlreadyInDB.length);
+  let numberDossiersToImport = $derived(importTableRows.length - numberDossiersAlreadyImported);
 
   /**
    * Checks whether a specific dossier to import already exists in the database.
    * The search is performed by comparing the project name (the 'nom' field of the 'dossier' table).
    */
-  function ligneDossierEnBDD(LigneDossierBFC: DossierBFCRow): boolean {
-    return nomsEnBDD.has(createNomForDossier(LigneDossierBFC));
+  function rowDossierInDB(row: DossierBFCRow): boolean {
+    return nomsInDB.has(createNomForDossier(row));
   }
 
   async function handleFileChange(event: Event) {
@@ -69,35 +69,35 @@
 
     if (file) {
       try {
-        const fichierImport = await file.arrayBuffer();
-        const rawData = await getODSTableRawContent(fichierImport);
+        const importFichier = await file.arrayBuffer();
+        const rawData = await getODSTableRawContent(importFichier);
 
-        const rawDataTableauSuivi = rawData.get("tableau_suivi");
+        const rawDataSuiviTable = rawData.get("tableau_suivi");
 
-        if (!rawDataTableauSuivi) {
+        if (!rawDataSuiviTable) {
           throw new TypeError(
             `Erreur dans la récupération de la page "tableau_suivi". Assurez-vous que cette page existe bien dans votre tableur ods.`,
           );
         }
-        const lignes = [
-          ...sheetRawContentToObjects(rawDataTableauSuivi.filter(isRowNotEmpty)).values(),
+        const rows = [
+          ...sheetRawContentToObjects(rawDataSuiviTable.filter(isRowNotEmpty)).values(),
         ];
 
-        lignesTableauImport = lignes;
-        lignesFiltreesTableauImport = lignes.filter((ligne) => !ligneDossierEnBDD(ligne));
-        dossiersDejaEnBDD = lignes.filter((ligne) => ligneDossierEnBDD(ligne));
+        importTableRows = rows;
+        filteredImportTableRows = rows.filter((row) => !rowDossierInDB(row));
+        dossiersAlreadyInDB = rows.filter((row) => rowDossierInDB(row));
 
-        const totalDossiers = lignes.length;
-        pourcentageDeDossierCreeEnBDD =
-          totalDossiers > 0 ? (dossiersDejaEnBDD.length / totalDossiers) * 100 : 0;
+        const totalDossiers = rows.length;
+        percentageOfDossiersCreatedInDB =
+          totalDossiers > 0 ? (dossiersAlreadyInDB.length / totalDossiers) * 100 : 0;
       } catch (error) {
         console.error(`Une erreur est survenue pendant la lecture du fichier : ${error}`);
       }
     }
   }
 
-  async function handleCreerLienPreRemplissage(LigneDossierBFC: DossierBFCRow) {
-    const dossier = await createDossierFromRow(LigneDossierBFC, activitesPrincipales88444);
+  async function handleCreateLienPreRemplissage(row: DossierBFCRow) {
+    const dossier = await createDossierFromRow(row, activitesPrincipales88444);
 
     console.log(
       { dossier },
@@ -105,14 +105,14 @@
       "après avoir cliqué sur Préparer préremplissage",
     );
     try {
-      const lien = await text("/lien-preremplissage", {
+      const link = await text("/lien-preremplissage", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(dossier),
       });
 
-      ligneToLienPreremplissage.set(LigneDossierBFC, lien);
-      ligneToLienPreremplissage = ligneToLienPreremplissage;
+      rowToLienPreremplissage.set(row, link);
+      rowToLienPreremplissage = rowToLienPreremplissage;
     } catch (error) {
       throw new Error(
         `Une erreur est survenue lors de la récupération du lien de préremplissage : ${error}`,
@@ -121,23 +121,23 @@
   }
 
   // Pagination of the tracking table
-  type SelectionneurPage = () => void;
+  type PageSelector = () => void;
 
-  const NOMBRE_DOSSIERS_PAR_PAGE = 20;
+  const DOSSIERS_PER_PAGE = 20;
 
   // page number matching the one displayed, therefore starting at 1
-  let numeroPageSelectionnee: number = $state(1);
+  let selectedPageNumber: number = $state(1);
 
-  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(
     () => {
-      if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-        const nombreDePages = Math.ceil(lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE);
+      if (importTableRows.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+        const pageCount = Math.ceil(importTableRows.length / DOSSIERS_PER_PAGE);
 
         return [
           undefined,
-          ...[...Array(nombreDePages).keys()].map((i) => () => {
+          ...[...Array(pageCount).keys()].map((i) => () => {
             //console.log('sélection de la page', i+1)
-            numeroPageSelectionnee = i + 1;
+            selectedPageNumber = i + 1;
           }),
         ];
       }
@@ -147,19 +147,19 @@
   );
 
   $effect(() => {
-    if (selectionneursPage) numeroPageSelectionnee = 1;
+    if (pageSelectors) selectedPageNumber = 1;
   });
 
-  let lignesAfficheesTableauImport: typeof lignesTableauImport = $derived.by(() => {
-    const lignesAAfficher = afficherTousLesDossiers
-      ? lignesTableauImport
-      : lignesFiltreesTableauImport;
+  let displayedImportTableRows: typeof importTableRows = $derived.by(() => {
+    const rowsToDisplay = showAllDossiers
+      ? importTableRows
+      : filteredImportTableRows;
 
-    if (!selectionneursPage) return lignesAAfficher;
+    if (!pageSelectors) return rowsToDisplay;
     else {
-      return lignesAAfficher.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numeroPageSelectionnee - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numeroPageSelectionnee,
+      return rowsToDisplay.slice(
+        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
+        DOSSIERS_PER_PAGE * selectedPageNumber,
       );
     }
   });
@@ -171,7 +171,7 @@
 
 <h1>Import de dossiers historiques Bourgogne-Franche-Comté</h1>
 
-{#if !lignesTableauImport || lignesTableauImport.length === 0}
+{#if !importTableRows || importTableRows.length === 0}
   <div class="fr-upload-group fr-mb-4w">
     <label class="fr-label" for="file-upload">
       Charger un fichier de suivi
@@ -190,12 +190,12 @@
   </div>
 {/if}
 
-{#if lignesTableauImport.length >= 1}
+{#if importTableRows.length >= 1}
   <h2>
-    {#if afficherTousLesDossiers}
-      Tous les dossiers du fichier chargé ({lignesTableauImport.length})
+    {#if showAllDossiers}
+      Tous les dossiers du fichier chargé ({importTableRows.length})
     {:else}
-      Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
+      Dossiers restants à importer ({numberDossiersToImport} / {importTableRows.length})
     {/if}
   </h2>
 
@@ -205,7 +205,7 @@
       class="fr-toggle__input"
       id="toggle"
       aria-describedby="toggle-messages"
-      bind:checked={afficherTousLesDossiers}
+      bind:checked={showAllDossiers}
     />
     <label
       class="fr-toggle__label"
@@ -219,14 +219,14 @@
   </div>
 
   <div class="progression">
-    <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+    <div>{numberDossiersToImport} / {importTableRows.length}</div>
 
     <div
       class="fr-progress-bar"
-      title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
+      title={`${numberDossiersToImport} / ${importTableRows.length}`}
     >
       <div
-        style="width: {pourcentageDeDossierCreeEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+        style="width: {percentageOfDossiersCreatedInDB}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
       ></div>
     </div>
   </div>
@@ -244,32 +244,32 @@
               </tr>
             </thead>
             <tbody>
-              {#each lignesAfficheesTableauImport as LigneDossierBFC, index}
+              {#each displayedImportTableRows as displayedImportTableRow, index}
                 <tr data-row-key="1">
-                  <td>{createNomForDossier(LigneDossierBFC)}</td>
+                  <td>{createNomForDossier(displayedImportTableRow)}</td>
                   <td>
                     <BoutonModale id={`dsfr-modale-${index}`}>
                       {#snippet boutonOuvrir()}
                         <button type="button">Voir les détails</button>
                       {/snippet}
                       {#snippet contenu()}
-                        <div>{JSON.stringify(LigneDossierBFC)}</div>
+                        <div>{JSON.stringify(displayedImportTableRow)}</div>
                       {/snippet}
                     </BoutonModale>
                   </td>
                   <td>
-                    {#if ligneDossierEnBDD(LigneDossierBFC)}
+                    {#if rowDossierInDB(displayedImportTableRow)}
                       <p class="fr-badge fr-badge--success">En base de données</p>
                       <a
-                        href={`/dossier/${nomToDossierId.get(createNomForDossier(LigneDossierBFC))}`}
+                        href={`/dossier/${nomToDossierId.get(createNomForDossier(displayedImportTableRow))}`}
                         target="_blank"
                         class="fr-btn fr-btn--secondary fr-ml-2w"
                       >
                         Ouvrir dossier
                       </a>
-                    {:else if ligneToLienPreremplissage.get(LigneDossierBFC)}
+                    {:else if rowToLienPreremplissage.get(displayedImportTableRow)}
                       <a
-                        href={ligneToLienPreremplissage.get(LigneDossierBFC)}
+                        href={rowToLienPreremplissage.get(displayedImportTableRow)}
                         target="_blank"
                         class="fr-btn">Créer dossier</a
                       >
@@ -277,7 +277,7 @@
                       <button
                         type="button"
                         class="fr-btn fr-btn--secondary"
-                        onclick={() => handleCreerLienPreRemplissage(LigneDossierBFC)}
+                        onclick={() => handleCreateLienPreRemplissage(displayedImportTableRow)}
                         >Préparer préremplissage</button
                       >
                     {/if}
@@ -291,8 +291,8 @@
     </div>
   </div>
 
-  {#if selectionneursPage}
-    <Pagination pageSelectors={selectionneursPage} currentPage={selectionneursPage[numeroPageSelectionnee]}
+  {#if pageSelectors}
+    <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
     ></Pagination>
   {/if}
 {/if}
