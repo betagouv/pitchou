@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
@@ -47,7 +47,7 @@
     <ul>
       <li>
         <span
-          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)}
+          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_saisine)}
         </span>
         {#if avisExpert.saisine_fichier_url}
           <a
@@ -64,7 +64,7 @@
       {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === "Avis favorable tacite"}
         <li>
           <span
-            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)}
+            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_avis)}
           </span>
           {#if avisExpert.avis_fichier_url}
             <a

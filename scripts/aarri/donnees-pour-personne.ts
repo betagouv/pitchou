@@ -1,7 +1,7 @@
 import parseArgs from "minimist";
 import { getEvenementsForPersonne } from "@pitchou/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
-import { formatDateAbsolue } from "@pitchou/common/formatDate.ts";
+import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);
@@ -27,13 +27,13 @@ console.log(
   "Cette personne a enregistré",
   evenements.length,
   "évènements depuis le",
-  `${formatDateAbsolue(evenements.at(-1)?.date)}`,
+  `${formatDateAbsolute(evenements.at(-1)?.date)}`,
 );
 
 // Creation of the ODS file to store the results
 const evenementsFormattesPourODS = evenements.map(({ date, évènement, détails }) => [
   {
-    value: formatDateAbsolue(date, "dd/MM/yyyy"),
+    value: formatDateAbsolute(date, "dd/MM/yyyy"),
     type: "string",
   },
   {
@@ -94,7 +94,7 @@ const content = new Map([
     [
       [
         {
-          value: `Les données ont été calculées le ${formatDateAbsolue(aujourdhui)}`,
+          value: `Les données ont été calculées le ${formatDateAbsolute(aujourdhui)}`,
           type: "string",
         },
       ],

@@ -2,7 +2,7 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import {
-    formatDateAbsolue,
+    formatDateAbsolute,
     formatLocalisation,
     formatPorteurDeProjet,
   } from "$lib/dossier/affichageDossier.ts";
@@ -109,8 +109,8 @@
       <div class="date-dépôt">
         <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Date de dépôt</span>
-        <time datetime={formatDateAbsolue(dossier.date_dépôt, "yyyy-MM-dd")}
-          >{formatDateAbsolue(dossier.date_dépôt, "dd/MM/yyyy")}</time
+        <time datetime={formatDateAbsolute(dossier.date_dépôt, "yyyy-MM-dd")}
+          >{formatDateAbsolute(dossier.date_dépôt, "dd/MM/yyyy")}</time
         >
       </div>
       <div class="porteur-de-projet">

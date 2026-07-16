@@ -7,7 +7,7 @@ import { fr } from "date-fns/locale";
  * If the date is `null` or `undefined`, the function returns the string "(date inconnue)".
  * By default, the requested format is: 'd MMMM yyyy'
  */
-export function formatDateAbsolue(
+export function formatDateAbsolute(
   date: Date | string | undefined | null,
   requestedFormat: string = "d MMMM yyyy",
 ): string {
@@ -30,5 +30,5 @@ export function formatDateRelative(date: Date | undefined | null): string {
     return formatRelative(date, new Date(), { locale: fr });
   }
 
-  return formatDateAbsolue(date);
+  return formatDateAbsolute(date);
 }

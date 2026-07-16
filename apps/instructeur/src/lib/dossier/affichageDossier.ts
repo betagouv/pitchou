@@ -1,7 +1,7 @@
 import type { DossierSummary, DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
-export { formatDateAbsolue, formatDateRelative } from "@pitchou/common/formatDate.ts";
+export { formatDateAbsolute, formatDateRelative } from "@pitchou/common/formatDate.ts";
 
 export function formatLocalisation({
   communes,

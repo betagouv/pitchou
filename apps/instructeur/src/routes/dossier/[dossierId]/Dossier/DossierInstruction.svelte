@@ -6,7 +6,7 @@
   import TagPhase from "$lib/components/TagPhase.svelte";
   import {
     formatDateRelative,
-    formatDateAbsolue,
+    formatDateAbsolute,
     phases,
     prochaineActionAttenduePar,
   } from "$lib/dossier/affichageDossier.ts";
@@ -71,7 +71,7 @@
       details.push(byteFormat.format(fileDescription.taille));
     }
     if (attachment.attachment_date) {
-      details.push(`Date de la pièce jointe : ${formatDateAbsolue(attachment.attachment_date)}`);
+      details.push(`Date de la pièce jointe : ${formatDateAbsolute(attachment.attachment_date)}`);
     }
 
     return details.join(" - ");
@@ -256,7 +256,7 @@
         <li>
           <TagPhase {phase}></TagPhase>
           -
-          <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
+          <span title={formatDateAbsolute(horodatage)}>{formatDateRelative(horodatage)}</span>
         </li>
       {/each}
       <li>
@@ -264,7 +264,7 @@
         -
         <strong>Dépôt dossier</strong>
         -
-        <span title={formatDateAbsolue(dossier.date_dépôt)}
+        <span title={formatDateAbsolute(dossier.date_dépôt)}
           >{formatDateRelative(dossier.date_dépôt)}</span
         >
       </li>

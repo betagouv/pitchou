@@ -3,7 +3,7 @@
   import { untrack } from "svelte";
   import Loader from "$lib/components/Loader.svelte";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import { isSameDay } from "date-fns";
   import MatriceImpact from "./MatriceImpact.svelte";
 
@@ -199,7 +199,7 @@
             <label class="fr-label" for="select-debut">De</label>
             <select bind:value={dateDebut} class="fr-select" id="select-debut" name="select-debut">
               {#each datesDebutPossibles as date}
-                <option value={date}>{formatDateAbsolue(date)}</option>
+                <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
             </select>
           </div>
@@ -207,7 +207,7 @@
             <label class="fr-label" for="select-fin">à</label>
             <select bind:value={dateFin} class="fr-select" id="select-fin" name="select-fin">
               {#each datesFinPossibles as date}
-                <option value={date}>{formatDateAbsolue(date)}</option>
+                <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
             </select>
           </div>
@@ -220,15 +220,15 @@
                 <div class="fr-table__content">
                   <table id="table-0">
                     <caption class="fr-sr-only">
-                      Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolue(
+                      Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolute(
                         dateDebut,
-                      )} et {formatDateAbsolue(dateFin)}
+                      )} et {formatDateAbsolute(dateFin)}
                     </caption>
                     <thead>
                       <tr>
                         <th>Phase</th>
-                        <th>{formatDateAbsolue(dateDebut)}</th>
-                        <th>{formatDateAbsolue(dateFin)}</th>
+                        <th>{formatDateAbsolute(dateDebut)}</th>
+                        <th>{formatDateAbsolute(dateFin)}</th>
                         <th>Évolution</th>
                         <th>%</th>
                       </tr>

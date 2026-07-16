@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
@@ -50,7 +50,7 @@
     }
 
     if (pieceJointe.date) {
-      details.push(`${pieceJointe.labelDate} : ${formatDateAbsolue(pieceJointe.date)}`);
+      details.push(`${pieceJointe.labelDate} : ${formatDateAbsolute(pieceJointe.date)}`);
     }
 
     return details.join(" - ");
@@ -157,7 +157,7 @@
                 {nom || "(fichier sans nom)"}
                 <span class="fr-link__detail">
                   {media_type} - {byteFormat.format(taille)}{DS_createdAt
-                    ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
+                    ? ` - Date de dépôt : ${formatDateAbsolute(DS_createdAt)}`
                     : ""}
                 </span>
               </a>

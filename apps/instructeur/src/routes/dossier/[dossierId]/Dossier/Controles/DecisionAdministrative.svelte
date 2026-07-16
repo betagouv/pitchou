@@ -3,7 +3,7 @@
   import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
   import CardDecisionAdministrative from "./CardDecisionAdministrative.svelte";
 
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
@@ -93,7 +93,7 @@
   {:else}
     <h4>
       {type ? labelForDecisionAdministrativeType(type) : "Décision de type inconnu"}
-      {numéro || ""} du {formatDateAbsolue(date_signature)}
+      {numéro || ""} du {formatDateAbsolute(date_signature)}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
         onclick={startEditing}
@@ -104,7 +104,7 @@
 
     <div class="fr-mb-1w">
       Date de fin des obligations : {date_fin_obligations
-        ? formatDateAbsolue(date_fin_obligations)
+        ? formatDateAbsolute(date_fin_obligations)
         : NOT_PROVIDED}
     </div>
 

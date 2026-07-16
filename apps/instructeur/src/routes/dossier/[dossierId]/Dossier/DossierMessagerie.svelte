@@ -1,7 +1,7 @@
 <script lang="ts">
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
 
-  import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Message from "@pitchou/types/database/public/Message.ts";
@@ -47,7 +47,7 @@
           aria-controls={accordionId}
         >
           <span>{email_expéditeur}</span>
-          <span title={formatDateAbsolue(date)}>{formatDateRelative(date)}</span>
+          <span title={formatDateAbsolute(date)}>{formatDateRelative(date)}</span>
         </button>
       </h3>
       <div class="contenu-message fr-collapse" id={accordionId}>

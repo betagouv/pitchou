@@ -3,7 +3,7 @@
   import { addOrUpdateAvisExpert } from "./avisExpert.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import DateInput from "../DateInput.svelte";
@@ -465,7 +465,7 @@
                               />
                               <label class="fr-label" for={idRadio}>
                                 Saisine {saisine.expert || "Expert"}{saisine.date_saisine
-                                  ? ` - ${formatDateAbsolue(saisine.date_saisine)}`
+                                  ? ` - ${formatDateAbsolute(saisine.date_saisine)}`
                                   : ""}
                               </label>
                             </div>

@@ -4,7 +4,7 @@
   import DeplierReplier from "$lib/components/common/DeplierReplier.svelte";
   import TagResultatControle from "../../TagResultatControle.svelte";
 
-  import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/affichageDossier.ts";
   import {
     addControle as sendControle,
     updateControle,
@@ -255,7 +255,7 @@
               <section class="contrôle">
                 <h6>
                   Controle du <time datetime={contrôle.date_contrôle?.toISOString()}
-                    >{formatDateAbsolue(contrôle.date_contrôle)}</time
+                    >{formatDateAbsolute(contrôle.date_contrôle)}</time
                   >
                   <TagResultatControle résultatControle={contrôle.résultat || NOT_PROVIDED}
                   ></TagResultatControle>
