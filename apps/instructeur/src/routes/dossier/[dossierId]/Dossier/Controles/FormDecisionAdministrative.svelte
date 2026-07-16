@@ -33,18 +33,18 @@
 
   let fichiers: FileList | undefined = $state();
 
-  const FORMATS_ACCEPTES = [".pdf"];
+  const ACCEPTED_FORMATS = [".pdf"];
 
   // File-related error, shown under the upload field
-  let messageErreurFichier: string | null = $state(null);
+  let fileErrorMessage: string | null = $state(null);
   // "type" field error, shown under the select
-  let messageErreurType: string | null = $state(null);
+  let typeErrorMessage: string | null = $state(null);
   // Save error (network, server), shown next to the buttons
-  let messageErreur: string | null = $state(null);
-  let enCours = $state(false);
+  let errorMessage: string | null = $state(null);
+  let inProgress = $state(false);
 
-  function messageErreurLisible(erreur: unknown): string {
-    const message = erreur instanceof Error ? erreur.message : String(erreur);
+  function readableErrorMessage(error: unknown): string {
+    const message = error instanceof Error ? error.message : String(error);
     // d3-fetch rejects with a message like "413 Payload Too Large"
     if (/^413\b/.test(message)) {
       return `Le fichier est trop volumineux pour être envoyé.`;
@@ -56,13 +56,13 @@
     //console.log('submit', fichiers)
     e.preventDefault();
 
-    messageErreurFichier = null;
-    messageErreurType = null;
-    messageErreur = null;
+    fileErrorMessage = null;
+    typeErrorMessage = null;
+    errorMessage = null;
 
     // A décision must at least have a type; we reject an empty decision.
     if (!decision.type) {
-      messageErreurType = "Veuillez sélectionner un type de décision.";
+      typeErrorMessage = "Veuillez sélectionner un type de décision.";
       return;
     }
 
@@ -80,18 +80,18 @@
     if (fichiers && fichiers.length >= 1) {
       const fichier = fichiers[0];
 
-      const nomEnMinuscules = fichier.name.toLowerCase();
-      const formatValide = FORMATS_ACCEPTES.some((extension) =>
-        nomEnMinuscules.endsWith(extension),
+      const lowercaseName = fichier.name.toLowerCase();
+      const isValidFormat = ACCEPTED_FORMATS.some((extension) =>
+        lowercaseName.endsWith(extension),
       );
-      if (!formatValide) {
-        messageErreurFichier = `Format de fichier non supporté. Formats acceptés : ${FORMATS_ACCEPTES.join(", ")}.`;
+      if (!isValidFormat) {
+        fileErrorMessage = `Format de fichier non supporté. Formats acceptés : ${ACCEPTED_FORMATS.join(", ")}.`;
         return;
       }
 
-      const erreurTaille = uploadSizeError(fichiers);
-      if (erreurTaille) {
-        messageErreurFichier = erreurTaille;
+      const sizeError = uploadSizeError(fichiers);
+      if (sizeError) {
+        fileErrorMessage = sizeError;
         return;
       }
 
@@ -115,7 +115,7 @@
       try {
         contenuBase64 = await contenuBase64P;
       } catch {
-        messageErreurFichier = `La lecture du fichier a échoué. Veuillez réessayer.`;
+        fileErrorMessage = `La lecture du fichier a échoué. Veuillez réessayer.`;
         return;
       }
 
@@ -130,13 +130,13 @@
       };
     }
 
-    enCours = true;
+    inProgress = true;
     try {
       await onValider(decision);
-    } catch (erreur) {
-      messageErreur = messageErreurLisible(erreur);
+    } catch (error) {
+      errorMessage = readableErrorMessage(error);
     } finally {
-      enCours = false;
+      inProgress = false;
     }
   }
 </script>
@@ -157,8 +157,8 @@
       name="upload"
     />
     <div class="fr-messages-group" id="upload-fichier-décision-messages" aria-live="polite">
-      {#if messageErreurFichier}
-        <p class="fr-message fr-message--error">{messageErreurFichier}</p>
+      {#if fileErrorMessage}
+        <p class="fr-message fr-message--error">{fileErrorMessage}</p>
       {/if}
     </div>
   </div>
@@ -190,8 +190,8 @@
       {/each}
     </select>
     <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
-      {#if messageErreurType}
-        <p class="fr-message fr-message--error">{messageErreurType}</p>
+      {#if typeErrorMessage}
+        <p class="fr-message fr-message--error">{typeErrorMessage}</p>
       {/if}
     </div>
   </div>
@@ -210,16 +210,16 @@
   </div>
 
   <div class="fr-messages-group" aria-live="polite" role="alert">
-    {#if messageErreur}
+    {#if errorMessage}
       <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
-        <p>{messageErreur}</p>
+        <p>{errorMessage}</p>
       </div>
     {/if}
   </div>
 
   <div class="buttons">
-    <button type="submit" class="fr-btn" disabled={enCours}>
-      {enCours ? "Sauvegarde en cours…" : "Sauvegarder"}
+    <button type="submit" class="fr-btn" disabled={inProgress}>
+      {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
     </button>
 
     {#if onAnnuler}

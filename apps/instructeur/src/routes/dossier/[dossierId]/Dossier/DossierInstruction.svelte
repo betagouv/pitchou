@@ -37,11 +37,11 @@
 
   const otherAttachments = $derived(dossier.attachmentAutres);
 
-  let phaseActuelle = $derived(
+  let currentPhase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
   );
 
-  let phase = $derived(phaseActuelle);
+  let phase = $derived(currentPhase);
   let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
   let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
   let enjeu = $state(untrack(() => dossier.enjeu));
@@ -87,7 +87,7 @@
   /**
    * Converts the two fields ddep_nécessaire and mesures_er_suffisantes into a composite value for the select
    */
-  function getDDEPValeurComposite():
+  function getDDEPCompositeValue():
     | "oui"
     | "non_sans_objet"
     | "non_mesures_er_suffisantes"
@@ -108,26 +108,26 @@
       return "a_determiner";
     }
   }
-  let ddepValeurComposite = $state(getDDEPValeurComposite());
+  let ddepCompositeValue = $state(getDDEPCompositeValue());
 
-  let messageErreur = $state("");
-  let afficherMessageSucces = $state(false);
+  let errorMessage = $state("");
+  let showSuccessMessage = $state(false);
 
-  const modifierChamp: (modifs: Partial<DossierFull>) => void = (modifs) => {
+  const updateField: (modifs: Partial<DossierFull>) => void = (modifs) => {
     updateDossier(dossier, modifs)
-      .then(() => (afficherMessageSucces = true))
+      .then(() => (showSuccessMessage = true))
       .catch((error) => {
         console.info(error);
-        messageErreur = "Quelque chose s'est mal passé du côté serveur.";
+        errorMessage = "Quelque chose s'est mal passé du côté serveur.";
       });
   };
 
-  const modifierChampAvecDebounce = debounce(modifierChamp, 1000);
+  const updateFieldWithDebounce = debounce(updateField, 1000);
 
   run(() => {
     const modifs: Partial<DossierFull> = {};
 
-    if (phaseActuelle !== phase) {
+    if (currentPhase !== phase) {
       modifs.évènementsPhase = [
         {
           dossier: dossier.id,
@@ -194,16 +194,16 @@
     if (Object.keys(modifs).length >= 1) {
       // We apply a debounce for fields typed on the keyboard (commentaire libre, N° Demande ONAGRE)
       if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
-        modifierChampAvecDebounce(modifs);
+        updateFieldWithDebounce(modifs);
       } else {
-        modifierChamp(modifs);
+        updateField(modifs);
       }
     }
   });
 
-  const retirerAlert = () => {
-    messageErreur = "";
-    afficherMessageSucces = false;
+  const dismissAlert = () => {
+    errorMessage = "";
+    showSuccessMessage = false;
   };
 
   function instructeurActuelSuitDossier(id: Dossier["id"]) {
@@ -217,20 +217,20 @@
   /**
    * Updates the two fields ddep_nécessaire and mesures_er_suffisantes from the composite value
    */
-  function setDDEPValeurComposite(
+  function setDDEPCompositeValue(
     e: Event & { currentTarget: EventTarget & HTMLSelectElement },
   ): void {
-    const valeur = e.currentTarget.value;
-    if (valeur === "oui") {
+    const value = e.currentTarget.value;
+    if (value === "oui") {
       ddep_nécessaire = true;
       mesures_er_suffisantes = false;
-    } else if (valeur === "non_sans_objet") {
+    } else if (value === "non_sans_objet") {
       ddep_nécessaire = false;
       mesures_er_suffisantes = false;
-    } else if (valeur === "non_mesures_er_suffisantes") {
+    } else if (value === "non_mesures_er_suffisantes") {
       ddep_nécessaire = false;
       mesures_er_suffisantes = true;
-    } else if (valeur === "a_determiner") {
+    } else if (value === "a_determiner") {
       ddep_nécessaire = null;
       mesures_er_suffisantes = null;
     }
@@ -239,13 +239,13 @@
 
 <section class="row">
   <section>
-    {#if messageErreur}
+    {#if errorMessage}
       <div class="fr-alert fr-alert--error fr-mb-3w">
         <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-        <p>{messageErreur}</p>
+        <p>{errorMessage}</p>
       </div>
     {/if}
-    {#if afficherMessageSucces}
+    {#if showSuccessMessage}
       <div class="fr-alert fr-alert--success fr-mb-3w">
         <p>Le dossier a bien été mis à jour.</p>
       </div>
@@ -304,7 +304,7 @@
         <strong>Date de début</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="date_debut_consultation_public"
         type="date"
@@ -316,7 +316,7 @@
         <strong>Date de fin</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="date_fin_consultation_public"
         type="date"
@@ -356,7 +356,7 @@
         class="fr-toggle__input"
         id="toggle-enjeu"
         bind:checked={enjeu}
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
       />
       <label class="fr-toggle__label" for="toggle-enjeu"> Dossier à enjeu </label>
     </div>
@@ -366,7 +366,7 @@
         ><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong
       >
       <textarea
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input resize-vertical"
         aria-describedby="input-commentaire-libre-messages"
         id="input-commentaire-libre"
@@ -381,9 +381,9 @@
         <strong>Une DDEP est-elle nécessaire ?</strong>
       </label>
       <select
-        onfocus={retirerAlert}
-        bind:value={ddepValeurComposite}
-        onchange={setDDEPValeurComposite}
+        onfocus={dismissAlert}
+        bind:value={ddepCompositeValue}
+        onchange={setDDEPCompositeValue}
         class="fr-select"
         id="ddep-nécessaire"
       >
@@ -400,7 +400,7 @@
       <label class="fr-label" for="phase">
         <strong>Phase du dossier</strong>
       </label>
-      <select onfocus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
+      <select onfocus={dismissAlert} bind:value={phase} class="fr-select" id="phase">
         {#each [...phases] as phase}
           <option value={phase}>{phase}</option>
         {/each}
@@ -412,13 +412,13 @@
       </label>
 
       <select
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         bind:value={prochaine_action_attendue_par}
         class="fr-select"
         id="prochaine_action_attendue_par"
       >
-        {#each [...prochaineActionAttenduePar] as acteur}
-          <option value={acteur}>{acteur}</option>
+        {#each [...prochaineActionAttenduePar] as actor}
+          <option value={actor}>{actor}</option>
         {/each}
       </select>
     </div>
@@ -428,7 +428,7 @@
         <strong>N° Demande ONAGRE</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="historique_identifiant_demande_onagre"
         type="text"
