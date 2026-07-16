@@ -14,7 +14,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
-export function modifierDossier(
+export function updateDossier(
   dossier: DossierFull,
   modifs: Partial<DossierFull>,
 ): Promise<void> {

@@ -10,7 +10,7 @@
     phases,
     prochaineActionAttenduePar,
   } from "$lib/dossier/affichageDossier.ts";
-  import { modifierDossier } from "$lib/dossier/dossier.ts";
+  import { updateDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
@@ -114,7 +114,7 @@
   let afficherMessageSucces = $state(false);
 
   const modifierChamp: (modifs: Partial<DossierFull>) => void = (modifs) => {
-    modifierDossier(dossier, modifs)
+    updateDossier(dossier, modifs)
       .then(() => (afficherMessageSucces = true))
       .catch((error) => {
         console.info(error);
