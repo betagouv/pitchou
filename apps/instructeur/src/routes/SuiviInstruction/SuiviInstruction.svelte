@@ -19,7 +19,7 @@
   import {
     sortDossiersByColumnAlphabetically,
     sortDossiersByPhaseProchaineAction,
-  } from "./triDossiers.ts";
+  } from "./sortDossiers.ts";
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constantes.ts";
   import {
