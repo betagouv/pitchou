@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { DossierWithAlerts } from "../importDossierUtils.ts";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import type { LigneDossierCorse } from "./importDossierCorse.ts";
+  import type { DossierCorseRow } from "./importDossierCorse.ts";
   import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
@@ -12,9 +12,9 @@
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import {
-    creerDossierDepuisLigne,
-    creerNomPourDossier,
-    ligneDossierEnBDD,
+    createDossierFromRow,
+    createNomForDossier,
+    rowDossierInDB,
   } from "./importDossierCorse.ts";
   import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
 
@@ -47,10 +47,10 @@
           )
         : new Set(),
     );
-  let importTableRows: LigneDossierCorse[] = $state([]);
-  let filteredImportTableRows: LigneDossierCorse[] = $state([]);
+  let importTableRows: DossierCorseRow[] = $state([]);
+  let filteredImportTableRows: DossierCorseRow[] = $state([]);
   let dossiersAlreadyInDB: DossierSummary[] = $state([]);
-  let rowToDossierWithAlerts: Map<LigneDossierCorse, DossierWithAlerts> = new SvelteMap();
+  let rowToDossierWithAlerts: Map<DossierCorseRow, DossierWithAlerts> = new SvelteMap();
   let emailsByInitials: Map<string, string> = $state(new SvelteMap());
 
   let rowToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
@@ -125,20 +125,20 @@
         importTableRows = rows;
 
         filteredImportTableRows = rows.filter(
-          (row) => !ligneDossierEnBDD(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
+          (row) => !rowDossierInDB(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
         );
         dossiersAlreadyInDB = rows.filter((row) =>
-          ligneDossierEnBDD(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
+          rowDossierInDB(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
         );
 
         const totalDossiers = rows.length;
         percentageOfDossiersCreatedInDB =
           totalDossiers > 0 ? (dossiersAlreadyInDB.length / totalDossiers) * 100 : 0;
 
-        // Visualize at once all the alerts of all the lines when the "creerDossierDepuisLigne" function is applied to the line
+        // Visualize at once all the alerts of all the lines when the "createDossierFromRow" function is applied to the line
         loadingFichier = Promise.all(
           importTableRows.map(async (row) => {
-            const dossier = await creerDossierDepuisLigne(
+            const dossier = await createDossierFromRow(
               row,
               emailsByInitials,
               activitesPrincipales88444,
@@ -152,12 +152,12 @@
     }
   }
 
-  async function handleCreateLienPreRemplissage(row: LigneDossierCorse) {
+  async function handleCreateLienPreRemplissage(row: DossierCorseRow) {
     const dossier = rowToDossierWithAlerts.get(row);
 
     if (!dossier) {
       // Should never happen
-      console.warn(`La ligne n'existe pas : ${ligneDossierEnBDD}`);
+      console.warn(`La ligne n'existe pas : ${rowDossierInDB}`);
       return;
     }
 
@@ -318,7 +318,7 @@
                       ? undefined
                       : "dossier-sans-alerte(s)"}
                   >
-                    <td>{creerNomPourDossier(displayedImportTableRow)}</td>
+                    <td>{createNomForDossier(displayedImportTableRow)}</td>
                     <td>
                       <BoutonModale id={`dsfr-modale-${index}`}>
                         {#snippet boutonOuvrir()}
@@ -406,10 +406,10 @@
                       </BoutonModale>
                     </td>
                     <td>
-                      {#if ligneDossierEnBDD(displayedImportTableRow, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre)}
+                      {#if rowDossierInDB(displayedImportTableRow, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre)}
                         <p class="fr-badge fr-badge--success">En base de données</p>
                         <a
-                          href={`/dossier/${nomToDossierId.get(creerNomPourDossier(displayedImportTableRow))}`}
+                          href={`/dossier/${nomToDossierId.get(createNomForDossier(displayedImportTableRow))}`}
                           target="_blank"
                           class="fr-btn fr-btn--secondary fr-ml-2w"
                         >
