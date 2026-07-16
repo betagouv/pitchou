@@ -228,7 +228,7 @@
       <strong>Durée de la dérogation&nbsp;:</strong>
       {dossier.durée_intervention ? dossier.durée_intervention + " années" : "Non renseignée"}
     </p>
-    <div class="container-titre-espèces-impactées">
+    <div class="container-title-especes-impactees">
       <h2>Espèces impactées</h2>
       {#if dossier.espècesImpactées}
         <!-- In Svelte, a child component does not have access to the style classes defined in the parent component in which it is called. So we use an inline style. -->
@@ -270,7 +270,7 @@
     {/if}
 
     {#if cartographieProjet && cartographieProjet.features.length >= 1}
-      <div class="container-titre-cartographie">
+      <div class="container-title-cartographie">
         <h2>Cartographie du projet</h2>
         <!-- Inline style because a child component does not access the parent's classes -->
         <DownloadButton
@@ -370,7 +370,7 @@
     {#if dossier.piècesJointesPétitionnaires.length === 0}
       (aucune pièce jointe n'a été déposée par le pétitionnaire)
     {:else}
-      <ul class="pièces-jointes-pétitionnaire">
+      <ul class="pieces-jointes-petitionnaire">
         {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
           <li>
             <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
@@ -423,19 +423,19 @@
     }
   }
 
-  .container-titre-espèces-impactées {
+  .container-title-especes-impactees {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
   }
 
-  .container-titre-espèces-impactées h2 {
+  .container-title-especes-impactees h2 {
     margin: 0;
     white-space: nowrap;
   }
 
-  .container-titre-cartographie {
+  .container-title-cartographie {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -443,12 +443,12 @@
     margin-top: 3rem;
   }
 
-  .container-titre-cartographie h2 {
+  .container-title-cartographie h2 {
     margin: 0;
     white-space: nowrap;
   }
 
-  .pièces-jointes-pétitionnaire {
+  .pieces-jointes-petitionnaire {
     list-style: none;
     padding: 0;
 
