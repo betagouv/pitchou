@@ -43,38 +43,38 @@ function cliquerSauvegarder() {
   return page.getByRole("button", { name: /^Sauvegarder$/ }).click();
 }
 
-test("refuse une décision sans type et n'appelle pas onValider", async () => {
-  const onValider = vi.fn();
+test("refuse une décision sans type et n'appelle pas onValidate", async () => {
+  const onValidate = vi.fn();
   render(FormDecisionAdministrative, {
-    décisionAdministrative: decision(),
-    onValider,
+    decisionAdministrative: decision(),
+    onValidate,
   });
 
   await cliquerSauvegarder();
 
   await expect.element(page.getByText(/sélectionner un type/i)).toBeVisible();
-  expect(onValider).not.toHaveBeenCalled();
+  expect(onValidate).not.toHaveBeenCalled();
 });
 
-test("refuse un format non supporté et n'appelle pas onValider", async () => {
-  const onValider = vi.fn();
+test("refuse un format non supporté et n'appelle pas onValidate", async () => {
+  const onValidate = vi.fn();
   const { container } = render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
   });
 
   await choisirFichier(container, fichierDeTaille("notes.txt", "text/plain", 1000));
   await cliquerSauvegarder();
 
   await expect.element(page.getByText(/Format de fichier non supporté/i)).toBeVisible();
-  expect(onValider).not.toHaveBeenCalled();
+  expect(onValidate).not.toHaveBeenCalled();
 });
 
 test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
-  const onValider = vi.fn().mockRejectedValue(new Error("Boom serveur"));
+  const onValidate = vi.fn().mockRejectedValue(new Error("Boom serveur"));
   const { container } = render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
   });
 
   await choisirFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
@@ -82,16 +82,16 @@ test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
 
   await expect.element(page.getByText(/l'enregistrement de la décision/i)).toBeVisible();
   await expect.element(page.getByText(/Boom serveur/)).toBeVisible();
-  expect(onValider).toHaveBeenCalledTimes(1);
+  expect(onValidate).toHaveBeenCalledTimes(1);
   // Le formulaire reste affiché pour permettre une nouvelle tentative.
   await expect.element(page.getByText("Type de décision")).toBeVisible();
 });
 
 test("traduit un rejet 413 en message « fichier trop volumineux »", async () => {
-  const onValider = vi.fn().mockRejectedValue(new Error("413 Payload Too Large"));
+  const onValidate = vi.fn().mockRejectedValue(new Error("413 Payload Too Large"));
   const { container } = render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
   });
 
   await choisirFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
@@ -100,11 +100,11 @@ test("traduit un rejet 413 en message « fichier trop volumineux »", async () =
   await expect.element(page.getByText(/trop volumineux pour être envoyé/i)).toBeVisible();
 });
 
-test("appelle onValider avec le fichier encodé en base64 quand tout est valide", async () => {
-  const onValider = vi.fn().mockResolvedValue(undefined);
+test("appelle onValidate avec le fichier encodé en base64 quand tout est valide", async () => {
+  const onValidate = vi.fn().mockResolvedValue(undefined);
   const { container } = render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
   });
 
   await choisirFichier(
@@ -113,9 +113,9 @@ test("appelle onValider avec le fichier encodé en base64 quand tout est valide"
   );
   await cliquerSauvegarder();
 
-  await vi.waitFor(() => expect(onValider).toHaveBeenCalledTimes(1));
+  await vi.waitFor(() => expect(onValidate).toHaveBeenCalledTimes(1));
 
-  const decisionTransmise = onValider.mock.calls[0][0] as DecisionAdministrativeForTransfer;
+  const decisionTransmise = onValidate.mock.calls[0][0] as DecisionAdministrativeForTransfer;
   expect(decisionTransmise.fichier_base64).toMatchObject({
     nom: "arrete.pdf",
     media_type: "application/pdf",
@@ -125,10 +125,10 @@ test("appelle onValider avec le fichier encodé en base64 quand tout est valide"
 
 test("affiche un état de chargement pendant l'enregistrement", async () => {
   let resolve!: () => void;
-  const onValider = vi.fn(() => new Promise<void>((r) => (resolve = r)));
+  const onValidate = vi.fn(() => new Promise<void>((r) => (resolve = r)));
   render(FormDecisionAdministrative, {
-    décisionAdministrative: decision({ type: TYPE_VALIDE }),
-    onValider,
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
   });
 
   await cliquerSauvegarder();

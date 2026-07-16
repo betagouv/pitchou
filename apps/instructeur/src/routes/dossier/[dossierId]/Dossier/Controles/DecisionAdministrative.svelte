@@ -85,10 +85,10 @@
     <h4>Modifier décision administrative</h4>
 
     <FormDecisionAdministrative
-      décisionAdministrative={editedDecision}
-      onValider={saveModification}
-      onAnnuler={() => (editedDecision = undefined)}
-      onSupprimer={() => (showDeleteConfirmation = true)}
+      decisionAdministrative={editedDecision}
+      onValidate={saveModification}
+      onCancel={() => (editedDecision = undefined)}
+      onDelete={() => (showDeleteConfirmation = true)}
     />
   {:else}
     <h4>

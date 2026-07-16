@@ -11,21 +11,21 @@
   import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";
 
   type Props = {
-    décisionAdministrative: DecisionAdministrativeForTransfer;
-    onValider: (decision: DecisionAdministrativeForTransfer) => any;
-    onAnnuler?: () => void;
+    decisionAdministrative: DecisionAdministrativeForTransfer;
+    onValidate: (decision: DecisionAdministrativeForTransfer) => any;
+    onCancel?: () => void;
     /** If provided, a button to delete the décision is displayed */
-    onSupprimer?: () => void;
+    onDelete?: () => void;
   };
 
   let {
-    décisionAdministrative: decisionAdministrative,
-    onValider,
-    onAnnuler,
-    onSupprimer,
+    decisionAdministrative,
+    onValidate,
+    onCancel,
+    onDelete,
   }: Props = $props();
 
-  // Local editable copy: the form edits this and hands it to onValider, so it
+  // Local editable copy: the form edits this and hands it to onValidate, so it
   // never mutates the prop owned by the parent (avoids Svelte's
   // ownership_invalid_mutation warning).
   // svelte-ignore state_referenced_locally
@@ -132,7 +132,7 @@
 
     inProgress = true;
     try {
-      await onValider(decision);
+      await onValidate(decision);
     } catch (error) {
       errorMessage = readableErrorMessage(error);
     } finally {
@@ -222,15 +222,15 @@
       {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
     </button>
 
-    {#if onAnnuler}
-      <button type="button" class="fr-btn fr-btn--secondary" onclick={onAnnuler}>Annuler</button>
+    {#if onCancel}
+      <button type="button" class="fr-btn fr-btn--secondary" onclick={onCancel}>Annuler</button>
     {/if}
 
-    {#if onSupprimer}
+    {#if onDelete}
       <button
         type="button"
         class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-close-line"
-        onclick={onSupprimer}
+        onclick={onDelete}
       >
         Supprimer cette décision administrative
       </button>

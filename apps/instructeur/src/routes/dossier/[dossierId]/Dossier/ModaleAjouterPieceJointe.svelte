@@ -344,9 +344,9 @@
             {/if}
             {#if typePieceJointe === "Décision administrative"}
               <FormDecisionAdministrative
-                décisionAdministrative={{ dossier: dossier.id }}
-                onValider={addDecisionAdministrative}
-                onAnnuler={closeModal}
+                decisionAdministrative={{ dossier: dossier.id }}
+                onValidate={addDecisionAdministrative}
+                onCancel={closeModal}
               />
             {:else if typePieceJointe}
               <form
