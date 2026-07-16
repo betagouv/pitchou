@@ -58,7 +58,7 @@
 
     if (!EXTENSIONS_ATTENDUES.includes(extension)) {
       return Promise.reject(
-        new MediaTypeError({ attendu: EXTENSIONS_ATTENDUES.join(", "), obtenu: extension }),
+        new MediaTypeError({ expected: EXTENSIONS_ATTENDUES.join(", "), obtained: extension }),
       );
     }
 
