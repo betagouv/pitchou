@@ -191,7 +191,7 @@
       await tick();
 
       referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
-      referencesEspeces[referencesEspeces.length - 1].focusFormulaireEspece();
+      referencesEspeces[referencesEspeces.length - 1].focusEspeceForm();
     }
   }
 </script>

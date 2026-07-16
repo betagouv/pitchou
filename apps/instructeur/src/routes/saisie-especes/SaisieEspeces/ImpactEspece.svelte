@@ -59,11 +59,11 @@
       : [],
   );
 
-  export function focusBoutonSupprimer() {
+  export function focusDeleteButton() {
     deleteButton?.focus();
   }
 
-  export function focusFormulaireImpact() {
+  export function focusImpactForm() {
     selectImpact?.focus();
   }
 

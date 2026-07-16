@@ -45,7 +45,7 @@
     await tick();
 
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
-    referencesEspeces[referencesEspeces.length - 1].focusFormulaireEspece();
+    referencesEspeces[referencesEspeces.length - 1].focusEspeceForm();
   }
 
   async function deleteEspece(indexEspeceToDelete: number) {
@@ -64,7 +64,7 @@
           ? especesImpactees.length - 1
           : indexEspeceToDelete;
 
-      referencesEspeces[indexEspeceToFocus].focusBoutonSupprimer();
+      referencesEspeces[indexEspeceToFocus].focusDeleteButton();
     }
   }
 
@@ -79,8 +79,8 @@
 
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
 
-    referencesEspeces[indexEspeceToDuplicate + 1].reinitialiserEspece();
-    referencesEspeces[indexEspeceToDuplicate + 1].focusFormulaireEspece();
+    referencesEspeces[indexEspeceToDuplicate + 1].resetEspece();
+    referencesEspeces[indexEspeceToDuplicate + 1].focusEspeceForm();
   }
 
   function onOuvertureModale(e: Event) {

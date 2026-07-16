@@ -57,7 +57,7 @@
     await tick();
 
     referencesImpact = referencesImpact.filter((e) => e !== null);
-    referencesImpact[referencesImpact.length - 1].focusFormulaireImpact();
+    referencesImpact[referencesImpact.length - 1].focusImpactForm();
   }
 
   async function deleteImpact(indexImpactToDelete: number) {
@@ -76,19 +76,19 @@
           ? descriptionImpacts.length - 1
           : indexImpactToDelete;
 
-      referencesImpact[indexImpactToFocus].focusBoutonSupprimer();
+      referencesImpact[indexImpactToFocus].focusDeleteButton();
     }
   }
 
-  export function focusBoutonSupprimer() {
+  export function focusDeleteButton() {
     deleteButton?.focus();
   }
 
-  export function focusFormulaireEspece() {
+  export function focusEspeceForm() {
     autocomplete?.focus();
   }
 
-  export function reinitialiserEspece() {
+  export function resetEspece() {
     espece = undefined;
   }
 
