@@ -413,11 +413,11 @@ function rowEspeceImpacteeHasCD_REF(
  * petitionnaire's .xlsx may store it as a number. Coerce it back to a string so
  * the lookup against the string-keyed espece map succeeds for both formats.
  */
-function normalizeCD_REF<T extends { CD_REF: string }>(ligne: T): T {
-  if (ligne.CD_REF !== undefined && ligne.CD_REF !== null && (ligne.CD_REF as unknown) !== "") {
-    ligne.CD_REF = String(ligne.CD_REF) as T["CD_REF"];
+function normalizeCD_REF<T extends { CD_REF: string }>(row: T): T {
+  if (row.CD_REF !== undefined && row.CD_REF !== null && (row.CD_REF as unknown) !== "") {
+    row.CD_REF = String(row.CD_REF) as T["CD_REF"];
   }
-  return ligne;
+  return row;
 }
 
 type TableRawContent = Awaited<ReturnType<typeof getODSTableRawContent>>;
@@ -498,23 +498,23 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
   const rawContent = await getTableRawContent(odsFile);
   const odsContent = tableRawContentToObjects(rawContent) as FichierEspecesImpacteesOds_V1;
 
-  let lignesOiseauOds = odsContent.get("oiseau");
-  let lignesFauneNonOiseauOds =
+  let rowsOiseauOds = odsContent.get("oiseau");
+  let rowsFauneNonOiseauOds =
     odsContent.get("faune non-oiseau") || odsContent.get("faune_non-oiseau");
-  let lignesFloreOds = odsContent.get("flore");
+  let rowsFloreOds = odsContent.get("flore");
 
-  lignesOiseauOds =
-    lignesOiseauOds && lignesOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
-  lignesFauneNonOiseauOds =
-    lignesFauneNonOiseauOds &&
-    lignesFauneNonOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
-  lignesFloreOds =
-    lignesFloreOds && lignesFloreOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
+  rowsOiseauOds =
+    rowsOiseauOds && rowsOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
+  rowsFauneNonOiseauOds =
+    rowsFauneNonOiseauOds &&
+    rowsFauneNonOiseauOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
+  rowsFloreOds =
+    rowsFloreOds && rowsFloreOds.map(normalizeCD_REF).filter(rowEspeceImpacteeHasCD_REF);
 
   if (
-    !(lignesOiseauOds && lignesOiseauOds.length >= 1) &&
-    !(lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1) &&
-    !(lignesFloreOds && lignesFloreOds.length >= 1)
+    !(rowsOiseauOds && rowsOiseauOds.length >= 1) &&
+    !(rowsFauneNonOiseauOds && rowsFauneNonOiseauOds.length >= 1) &&
+    !(rowsFloreOds && rowsFloreOds.length >= 1)
   ) {
     throw new Error(
       "Le fichier espèces .ods semble ne contenir aucune feuille oiseau, faune non-oiseau ou flore.",
@@ -522,9 +522,9 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
     );
   }
 
-  if (lignesOiseauOds && lignesOiseauOds.length >= 1) {
+  if (rowsOiseauOds && rowsOiseauOds.length >= 1) {
     // retrieve the info from the columns
-    descriptionMenacesEspeces["oiseau"] = lignesOiseauOds.map((ligneOiseauOds) => {
+    descriptionMenacesEspeces["oiseau"] = rowsOiseauOds.map((rowOiseauOds) => {
       const {
         CD_REF,
         "nombre individus": nombreIndividus,
@@ -534,8 +534,8 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
         "code activité": codeActivite,
         "code méthode": codeMethode,
         "code transport": moyenDePoursuite,
-      } = ligneOiseauOds;
-      let identifiantPitchouActivite = ligneOiseauOds["identifiant pitchou activité"];
+      } = rowOiseauOds;
+      let identifiantPitchouActivite = rowOiseauOds["identifiant pitchou activité"];
 
       const espece = especeByCD_REF.get(CD_REF);
 
@@ -574,10 +574,10 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
     });
   }
 
-  if (lignesFauneNonOiseauOds && lignesFauneNonOiseauOds.length >= 1) {
+  if (rowsFauneNonOiseauOds && rowsFauneNonOiseauOds.length >= 1) {
     // retrieve the info from the columns
-    descriptionMenacesEspeces["faune non-oiseau"] = lignesFauneNonOiseauOds.map(
-      (ligneFauneNonOiseauOds) => {
+    descriptionMenacesEspeces["faune non-oiseau"] = rowsFauneNonOiseauOds.map(
+      (rowFauneNonOiseauOds) => {
         const {
           CD_REF,
           "nombre individus": nombreIndividus,
@@ -585,8 +585,8 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
           "code activité": codeActivite,
           "code méthode": codeMethode,
           "code transport": codeMoyenDePoursuite,
-        } = ligneFauneNonOiseauOds;
-        let identifiantPitchouActivite = ligneFauneNonOiseauOds["identifiant pitchou activité"];
+        } = rowFauneNonOiseauOds;
+        let identifiantPitchouActivite = rowFauneNonOiseauOds["identifiant pitchou activité"];
 
         const espece = especeByCD_REF.get(CD_REF);
 
@@ -615,16 +615,16 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
     );
   }
 
-  if (lignesFloreOds && lignesFloreOds.length >= 1) {
+  if (rowsFloreOds && rowsFloreOds.length >= 1) {
     // retrieve the info from the columns
-    descriptionMenacesEspeces["flore"] = lignesFloreOds.map((ligneFloreOds) => {
+    descriptionMenacesEspeces["flore"] = rowsFloreOds.map((rowFloreOds) => {
       const {
         CD_REF,
         "nombre individus": nombreIndividus,
         "surface habitat détruit": surfaceHabitatDetruit,
         "code activité": codeActivite,
         "identifiant pitchou activité": identifiantPitchouActivite,
-      } = ligneFloreOds;
+      } = rowFloreOds;
 
       const espece = especeByCD_REF.get(CD_REF);
 
