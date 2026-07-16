@@ -20,7 +20,7 @@ type Semaine = string;
  * Out of respect for the GDPR, this event will be lost one year after being recorded.
  * If this is a problem, we could record the event in another way so as not to lose the information.
  */
-async function calculerIndicateurAcquis(
+async function calculateIndicateurAcquis(
   nbSemainesObservees: number,
 ): Promise<Map<Semaine, number>> {
   const acquis = await directDatabaseConnection.raw(
@@ -147,7 +147,7 @@ limit :nb_semaines_observees;
  * Computes the number of active persons on Pitchou for each week over the last X weeks.
  * An active person is a person who has performed at least 5 modification actions in a week.
  */
-async function calculerIndicateurActif(nbSemainesObservees: number): Promise<Map<string, number>> {
+async function calculateIndicateurActif(nbSemainesObservees: number): Promise<Map<string, number>> {
   return nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
     nbSemainesObservees,
     EVENEMENTS_MODIFICATIONS,
@@ -162,7 +162,7 @@ async function calculerIndicateurActif(nbSemainesObservees: number): Promise<Map
  * A mapping between the date of the concerned week and the number of persons
  * having an "impact" at that date
  */
-async function calculerIndicateurImpact(nbSemainesObservees: number): Promise<Map<string, number>> {
+async function calculateIndicateurImpact(nbSemainesObservees: number): Promise<Map<string, number>> {
   /*
         Having an impact means performing at least one control that produces a return to conformity
         so a Conforme control that comes after a control that is something other than Conforme
@@ -179,7 +179,7 @@ async function calculerIndicateurImpact(nbSemainesObservees: number): Promise<Ma
  *
  * We decide to look at the number of validated weeks over an 8-week period to account for the leave of the instructrices (utilisateurices).
  */
-async function calculerIndicateurRetenu(start: Date): Promise<Map<Semaine, number>> {
+async function calculateIndicateurRetenu(start: Date): Promise<Map<Semaine, number>> {
   // Parameters of the retention condition
   const evenements = [...EVENEMENTS_CONSULTATIONS, ...EVENEMENTS_MODIFICATIONS];
   const nombreSemainesGlissantesAObserver = 8;
@@ -298,10 +298,10 @@ export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
     : 5;
 
   const indicateurs: IndicateursAARRI[] = [];
-  const acquis = await calculerIndicateurAcquis(nbSemainesObservees);
-  const actifs = await calculerIndicateurActif(nbSemainesObservees);
-  const retenus = await calculerIndicateurRetenu(premiereSemaine ?? new Date());
-  const impacts = await calculerIndicateurImpact(nbSemainesObservees);
+  const acquis = await calculateIndicateurAcquis(nbSemainesObservees);
+  const actifs = await calculateIndicateurActif(nbSemainesObservees);
+  const retenus = await calculateIndicateurRetenu(premiereSemaine ?? new Date());
+  const impacts = await calculateIndicateurImpact(nbSemainesObservees);
 
   const dates = acquis.keys();
 
