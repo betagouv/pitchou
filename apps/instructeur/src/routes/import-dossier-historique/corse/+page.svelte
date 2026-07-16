@@ -12,7 +12,7 @@
     }
   });
 
-  const dossiers = $derived([...store.dossiersRésumés.values()]);
+  const dossiers = $derived([...store.dossierSummaries.values()]);
   const schema = $derived(store.schemaDS88444);
 </script>
 

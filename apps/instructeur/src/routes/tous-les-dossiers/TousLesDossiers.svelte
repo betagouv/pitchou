@@ -8,14 +8,14 @@
     email?: string;
     dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
-    notificationParDossier?: PitchouState["notificationParDossier"];
+    notificationByDossier?: PitchouState["notificationByDossier"];
   };
 
   let {
     email = "",
     dossiers,
     relationSuivis,
-    notificationParDossier = new SvelteMap(),
+    notificationByDossier = new SvelteMap(),
   }: Props = $props();
 </script>
 
@@ -28,6 +28,6 @@
   {email}
   {dossiers}
   {relationSuivis}
-  {notificationParDossier}
+  {notificationByDossier}
   showFilterSansInstructeurice
 />

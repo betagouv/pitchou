@@ -5,12 +5,12 @@
   import { loadDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
-    if (store.dossiersRésumés.size === 0) {
+    if (store.dossierSummaries.size === 0) {
       await loadDossiers().catch((err) => console.error("Erreur chargement dossiers", err));
     }
   });
 
-  const dossiers = $derived([...store.dossiersRésumés.values()]);
+  const dossiers = $derived([...store.dossierSummaries.values()]);
 </script>
 
 <TmpStats {dossiers} />

@@ -15,11 +15,11 @@
       console.error("Erreur lors du chargement de la page Mes dossiers :", error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (errorMessage.includes("403")) {
-        store.erreurs.add({
+        store.errors.add({
           message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
         });
       } else {
-        store.erreurs.add({
+        store.errors.add({
           message: `Erreur de chargement de la page - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
         });
       }
@@ -28,10 +28,10 @@
 
   const email = $derived(store.identité?.email);
   const relationSuivis = $derived(store.relationSuivis);
-  const notificationParDossier = $derived(store.notificationParDossier);
+  const notificationByDossier = $derived(store.notificationByDossier);
 
   const dossiers = $derived.by(() => {
-    const tous = [...store.dossiersRésumés.values()];
+    const tous = [...store.dossierSummaries.values()];
     if (!email || !relationSuivis) return [];
     const suivis = relationSuivis.get(email);
     if (!suivis) return [];
@@ -39,4 +39,4 @@
   });
 </script>
 
-<MesDossiers {email} {dossiers} {relationSuivis} {notificationParDossier} />
+<MesDossiers {email} {dossiers} {relationSuivis} {notificationByDossier} />

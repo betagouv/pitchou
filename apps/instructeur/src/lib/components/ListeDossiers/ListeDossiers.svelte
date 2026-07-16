@@ -20,7 +20,7 @@
     relationSuivis?: PitchouState["relationSuivis"];
     showFilterSansInstructeurice?: boolean;
     showFilterActionInstructeur?: boolean;
-    notificationParDossier: PitchouState["notificationParDossier"];
+    notificationByDossier: PitchouState["notificationByDossier"];
   };
 
   let {
@@ -30,7 +30,7 @@
     relationSuivis,
     showFilterSansInstructeurice = false,
     showFilterActionInstructeur = false,
-    notificationParDossier,
+    notificationByDossier,
   }: Props = $props();
 
   const DOSSIERS_PER_PAGE = 10;
@@ -130,8 +130,8 @@
     // We display the dossiers sorted first by the most recent last-modification date (nouveauté)
     // then by submission date
     const sortedDossiers = [...filteredDossiers].sort((a, b) => {
-      const notificationA = notificationParDossier.get(a.id);
-      const notificationB = notificationParDossier.get(b.id);
+      const notificationA = notificationByDossier.get(a.id);
+      const notificationB = notificationByDossier.get(b.id);
 
       const dateNotificationNonVueA =
         notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
@@ -216,7 +216,7 @@
     if (!allFilters.has("nouveauté")) {
       allFilters.set(
         "nouveauté",
-        (dossier) => notificationParDossier.get(dossier.id)?.vue === false,
+        (dossier) => notificationByDossier.get(dossier.id)?.vue === false,
       );
     } else {
       allFilters.delete("nouveauté");
@@ -341,7 +341,7 @@
             {instructeurActuelSuitDossier}
             {instructeurActuelLaisseDossier}
             dossierSuiviParInstructeurActuel={dossierIdsSuivisParInstructeurActuel.has(dossier.id)}
-            nouveautéVueParInstructeur={notificationParDossier.get(dossier.id)?.vue ?? true}
+            nouveautéVueParInstructeur={notificationByDossier.get(dossier.id)?.vue ?? true}
           />
         </li>
       {/each}

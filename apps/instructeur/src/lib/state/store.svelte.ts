@@ -12,15 +12,15 @@ export type { PitchouState, ActivitesMethodesMoyensDePoursuiteBundle };
 
 export const store: PitchouState = $state({
   capabilities: {},
-  dossiersRésumés: new SvelteMap(),
-  dossiersComplets: new SvelteMap(),
-  messagesParDossierId: new SvelteMap(),
-  notificationParDossier: new SvelteMap(),
-  erreurs: new SvelteSet(),
+  dossierSummaries: new SvelteMap(),
+  fullDossiers: new SvelteMap(),
+  messagesByDossierId: new SvelteMap(),
+  notificationByDossier: new SvelteMap(),
+  errors: new SvelteSet(),
 });
 
 export function setDossierFull(newDossierFull: DossierFull): void {
-  store.dossiersComplets.set(newDossierFull.id, newDossierFull);
+  store.fullDossiers.set(newDossierFull.id, newDossierFull);
   const dossierSummary = DossierFullToDossierSummary(newDossierFull);
-  store.dossiersRésumés.set(newDossierFull.id, dossierSummary);
+  store.dossierSummaries.set(newDossierFull.id, dossierSummary);
 }

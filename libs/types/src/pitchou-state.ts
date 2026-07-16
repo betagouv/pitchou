@@ -29,11 +29,11 @@ export type ActivitesMethodesMoyensDePoursuiteBundle = {
 
 export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
-  dossiersRésumés: Map<DossierSummary["id"], DossierSummary>;
-  dossiersComplets: Map<DossierFull["id"], DossierFull>;
-  messagesParDossierId: Map<DossierFull["id"], Message[]>;
+  dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
+  fullDossiers: Map<DossierFull["id"], DossierFull>;
+  messagesByDossierId: Map<DossierFull["id"], Message[]>;
   relationSuivis?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
-  notificationParDossier: Map<
+  notificationByDossier: Map<
     Dossier["id"],
     Pick<Notification, "vue" | "date_dernière_mise_à_jour">
   >;
@@ -44,6 +44,6 @@ export type PitchouState = {
   espècesProtégéesParClassification?: ByClassification<EspeceProtegee[]>;
   espèceByCD_REF?: Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
   ActivitésMéthodesMoyensDePoursuite?: ActivitesMethodesMoyensDePoursuiteBundle;
-  erreurs: Set<{ message: string }>;
+  errors: Set<{ message: string }>;
   résultatsSynchronisationDS88444?: ResultatSynchronisationDS88444[];
 };

@@ -50,15 +50,15 @@ export async function loadDossierMessages(id: DossierFull["id"]): Promise<Messag
     throw new TypeError(`Capability listerMessages manquante`);
 
   const messagesP = store.capabilities?.listerMessages(id).then((messages: Message[]) => {
-    store.messagesParDossierId.set(id, messages);
+    store.messagesByDossierId.set(id, messages);
     return messages;
   });
 
-  return store.messagesParDossierId.get(id) || messagesP;
+  return store.messagesByDossierId.get(id) || messagesP;
 }
 
 export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
-  const dossierFullInStore = store.dossiersComplets.get(id);
+  const dossierFullInStore = store.fullDossiers.get(id);
 
   if (dossierFullInStore) {
     return dossierFullInStore;
@@ -116,14 +116,14 @@ export function loadDossiers() {
         dossier.date_début_phase = new Date(dossier.date_début_phase);
       }
 
-      const dossiersById: PitchouState["dossiersRésumés"] = new Map();
+      const dossiersById: PitchouState["dossierSummaries"] = new Map();
 
       for (const dossier of dossiers) {
         Object.freeze(dossier);
         dossiersById.set(dossier.id, dossier);
       }
 
-      store.dossiersRésumés = dossiersById;
+      store.dossierSummaries = dossiersById;
 
       return dossiersById;
     });

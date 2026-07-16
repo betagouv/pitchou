@@ -50,7 +50,7 @@
         }
       }
     } else if (store.identité) {
-      store.erreurs.add({
+      store.errors.add({
         message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`,
       });
     }
@@ -59,7 +59,7 @@
 
   async function logoutEtAfficherLoginParEmail(erreur?: { message: string }) {
     if (erreur) {
-      store.erreurs.add(erreur);
+      store.errors.add(erreur);
     }
     await logout();
   }
@@ -85,7 +85,7 @@
 
   const email = $derived(store.identité?.email);
   const peutListerDossiers = $derived(!!store.capabilities.listerDossiers);
-  const dossiers = $derived([...store.dossiersRésumés.values()]);
+  const dossiers = $derived([...store.dossierSummaries.values()]);
   const relationSuivis = $derived(store.relationSuivis);
 
   const schemaChamps = $derived<ChampDescriptor[] | undefined>(

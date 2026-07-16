@@ -44,14 +44,14 @@ export function loadNotificationByDossierForCurrentInstructeur() {
       }
 
       const notificationByDossierForCurrentInstructeur: NonNullable<
-        typeof store.notificationParDossier
+        typeof store.notificationByDossier
       > = new SvelteMap();
 
       for (const notification of notificationsDB) {
         notificationByDossierForCurrentInstructeur.set(notification.dossier, notification);
       }
 
-      store.notificationParDossier = notificationByDossierForCurrentInstructeur;
+      store.notificationByDossier = notificationByDossierForCurrentInstructeur;
     });
   }
 }
@@ -85,7 +85,7 @@ export async function consumeSecretFromURL(url: URL) {
     remember(PITCHOU_SECRET_STORAGE_KEY, secret),
     initCapabilities(secret).catch(async () => {
       await logout();
-      store.erreurs.add({
+      store.errors.add({
         message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
       });
     }),
@@ -96,18 +96,18 @@ export async function logout() {
   store.capabilities = {};
   store.identité = undefined;
 
-  store.dossiersRésumés = new SvelteMap();
-  store.dossiersComplets = new SvelteMap();
-  store.messagesParDossierId = new SvelteMap();
+  store.dossierSummaries = new SvelteMap();
+  store.fullDossiers = new SvelteMap();
+  store.messagesByDossierId = new SvelteMap();
   store.relationSuivis = new SvelteMap();
-  store.notificationParDossier = new SvelteMap();
+  store.notificationByDossier = new SvelteMap();
 
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }
 
 export async function logoutAndRedirectToHome(erreur?: { message: string }) {
   if (erreur) {
-    store.erreurs.add(erreur);
+    store.errors.add(erreur);
   }
 
   return logout().then(() => goto("/"));

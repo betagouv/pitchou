@@ -32,11 +32,11 @@
 
   const id = $derived(data.dossierId);
 
-  const dossier = $derived(store.dossiersComplets.get(id));
-  const messages = $derived(store.messagesParDossierId.get(id));
+  const dossier = $derived(store.fullDossiers.get(id));
+  const messages = $derived(store.messagesByDossierId.get(id));
   const email = $derived(store.identité?.email);
   const relationSuivis = $derived(store.relationSuivis);
-  const notification = $derived(store.notificationParDossier?.get(id));
+  const notification = $derived(store.notificationByDossier?.get(id));
 
   const personnesQuiSuiventDossier = $derived(
     relationSuivis
