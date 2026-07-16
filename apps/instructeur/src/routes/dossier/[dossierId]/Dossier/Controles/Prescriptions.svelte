@@ -84,8 +84,8 @@
     if (prescription.id) {
       // "contrôles" is a property of the FrontEndPrescription type, not a property of the Prescription type
       // which causes a problem when inserting/updating the prescription in the database
-      const { contrôles: controles, ...prescriptionSansControles } = prescription;
-      updatePrescription(prescriptionSansControles);
+      const { contrôles: controles, ...prescriptionWithoutControles } = prescription;
+      updatePrescription(prescriptionWithoutControles);
     } else {
       const pendingPrescriptionIdEntry = prescriptionToPendingIdAndLatestData.get(prescription);
       if (pendingPrescriptionIdEntry) {

@@ -9,12 +9,12 @@
   being created) so they are easy to tell apart. Single source of truth for the
   card style.
 -->
-<section class="card-décision-administrative">
+<section class="card-decision-administrative">
   {@render children()}
 </section>
 
 <style lang="scss">
-  .card-décision-administrative {
+  .card-decision-administrative {
     margin-bottom: 2rem;
     padding: 1.5rem 2rem;
     border: 1px solid var(--border-default-grey);

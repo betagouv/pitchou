@@ -17,22 +17,22 @@ export const typesActionSuiteControle: Set<TypesActionSuiteControle> = new Set([
   "Courrier recommandé avec accusé de réception",
 ]);
 
-export function addControle(contrôle: Partial<Controle>): Promise<Controle["id"]> {
+export function addControle(controle: Partial<Controle>): Promise<Controle["id"]> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
   }
   // Le serveur renvoie un tableau d'ids pour le cas "ajout"
   // @ts-ignore
-  return addOrUpdateControle(contrôle).then((ids) => ids[0]);
+  return addOrUpdateControle(controle).then((ids) => ids[0]);
 }
 
-export function updateControle(contrôle: Partial<Controle>): Promise<Controle["id"] | undefined> {
+export function updateControle(controle: Partial<Controle>): Promise<Controle["id"] | undefined> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
   }
-  return addOrUpdateControle(contrôle);
+  return addOrUpdateControle(controle);
 }
 
 export function deleteControle(id: Controle["id"]): Promise<unknown> {
