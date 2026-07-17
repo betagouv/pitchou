@@ -3,7 +3,7 @@
 
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import { firstName } from "./especesList.ts";
-  import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
+  import EspecesSynonymesModal from "./EspecesSynonymesModal.svelte";
 
   type Props = {
     especes: EspeceProtegee[];
@@ -97,7 +97,7 @@
     Voir le détail
   </button>
 
-  <EspecesSynonymesModale id={detailModalId} espece={especeDetail} />
+  <EspecesSynonymesModal id={detailModalId} espece={especeDetail} />
 {:else}
   <p>Aucune espèce protégée n'a été trouvée.</p>
 {/if}

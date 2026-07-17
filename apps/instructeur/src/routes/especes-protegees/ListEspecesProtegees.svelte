@@ -18,7 +18,7 @@
   import EspecesFilterPanel from "./EspecesFilterPanel.svelte";
   import EspecesSortPanel from "./EspecesSortPanel.svelte";
   import EspecesTable from "./EspecesTable.svelte";
-  import EspecesGenerationModale from "./EspecesGenerationModale.svelte";
+  import EspecesGenerationModal from "./EspecesGenerationModal.svelte";
 
   type Props = {
     especes: EspeceProtegee[];
@@ -28,7 +28,7 @@
 
   const ESPECES_PER_PAGE = 20;
 
-  const generationModaleId = "modale-generation-especes";
+  const generationModalId = "modale-generation-especes";
 
   // The URL query string is the single source of truth for search, filters, sort and page.
   const query = $derived(parseEspecesQuery(page.url.searchParams));
@@ -125,7 +125,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
-      aria-controls={generationModaleId}
+      aria-controls={generationModalId}
       data-fr-opened="false"
     >
       Comment cette liste est générée&nbsp;?
@@ -210,7 +210,7 @@
   <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
-<EspecesGenerationModale id={generationModaleId} />
+<EspecesGenerationModal id={generationModalId} />
 
 <style lang="scss">
   .header {
