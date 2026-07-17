@@ -152,7 +152,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
       aria-expanded={filterPanelOpen}
-      aria-controls="filter-panel"
+      aria-controls="filter-panel-especes"
       onclick={() => (filterPanelOpen = !filterPanelOpen)}
     >
       Filtrer
@@ -170,7 +170,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
       aria-expanded={sortPanelOpen}
-      aria-controls="sort-panel"
+      aria-controls="sort-panel-especes"
       onclick={() => (sortPanelOpen = !sortPanelOpen)}
     >
       Trier
