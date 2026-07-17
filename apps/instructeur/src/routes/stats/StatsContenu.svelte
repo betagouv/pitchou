@@ -66,7 +66,7 @@
 
     <section>
       <h2 class="fr-mt-2w">
-        Dossiers en phase <strong>Controle</strong> : avec ou sans décision administrative
+        Dossiers en phase <strong>Contrôle</strong> : avec ou sans décision administrative
       </h2>
       <div class="fr-card fr-card--no-arrow">
         <div class="fr-card__body">
