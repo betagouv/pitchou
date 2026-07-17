@@ -251,7 +251,7 @@ const commentaireInitial = `/**
 */`;
 
 const imports = [
-  `import type { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`,
+  `import type { GeoAPICommune, GeoAPIDepartement } from "../GeoAPI.ts";`,
   `import type { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join("\n");
 
