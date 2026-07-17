@@ -1,7 +1,7 @@
 <script lang="ts">
-  import EcranChampTexte from "./ModalePreremplirDepuisTexte/EcranChampTexte.svelte";
-  import EcranPreciserImpact from "./ModalePreremplirDepuisTexte/EcranPreciserImpact.svelte";
-  import TuileSaisieEspece from "./TuileSaisieEspece.svelte";
+  import ScreenFieldText from "./ModalPrefillFromText/ScreenFieldText.svelte";
+  import ScreenSpecifyImpact from "./ModalPrefillFromText/ScreenSpecifyImpact.svelte";
+  import TileSaisieEspece from "./TileSaisieEspece.svelte";
   import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
   import type {
@@ -14,7 +14,7 @@
   } from "@pitchou/types/especes.d.ts";
 
   type Props = {
-    référencesEspèces: TuileSaisieEspece[];
+    référencesEspèces: TileSaisieEspece[];
     espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
     onClickPréRemplirAvecDocumentTexte: (
       especesImpactees: Array<{ espece: EspeceProtegee; impacts: DescriptionImpact[] }>,
@@ -167,7 +167,7 @@
       <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
         <div class="fr-modal__body">
           {#if displayedScreen === "champTexte"}
-            <EcranChampTexte
+            <ScreenFieldText
               bind:texteEspèces={especesText}
               bind:espècesTrouvéesDansTexte={especesFoundInText}
               bind:écranAffiché={displayedScreen}
@@ -178,7 +178,7 @@
               supprimerEspèceImpactée={removeEspeceImpactee}
             />
           {:else if displayedScreen === "préciserImpact"}
-            <EcranPreciserImpact
+            <ScreenSpecifyImpact
               bind:écranAffiché={displayedScreen}
               espècesImpactéesPourPréremplir={especesImpacteesToPrefill}
               supprimerEspèceImpactée={removeEspeceImpactee}

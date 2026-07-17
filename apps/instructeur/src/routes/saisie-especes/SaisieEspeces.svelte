@@ -1,11 +1,11 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
-  import ModalePreremplirDepuisTexte from "./SaisieEspeces/ModalePreremplirDepuisTexte.svelte";
+  import ModalPrefillFromText from "./SaisieEspeces/ModalPrefillFromText.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
   import Loader from "$lib/components/Loader.svelte";
-  import TuileSaisieEspece from "./SaisieEspeces/TuileSaisieEspece.svelte";
+  import TileSaisieEspece from "./SaisieEspeces/TileSaisieEspece.svelte";
   import { tick } from "svelte";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
@@ -67,7 +67,7 @@
 
   let modeLecture = $state(false);
 
-  let referencesEspeces: TuileSaisieEspece[] = $state([]);
+  let referencesEspeces: TileSaisieEspece[] = $state([]);
 
   let especesImpacteesParClassification: DescriptionMenacesEspeces = $derived.by(() => {
     let especesImpacteesParClassification: DescriptionMenacesEspeces = {
@@ -345,7 +345,7 @@
         </div>
       </dialog>
 
-      <ModalePreremplirDepuisTexte
+      <ModalPrefillFromText
         bind:référencesEspèces={referencesEspeces}
         espècesProtégéesParClassification={especesProtegeesParClassification}
         onClickPréRemplirAvecDocumentTexte={onClickPreRemplirAvecDocumentTexte}

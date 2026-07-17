@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import TuileSaisieEspece from "./TuileSaisieEspece.svelte";
+  import TileSaisieEspece from "./TileSaisieEspece.svelte";
   import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
   import type {
@@ -16,7 +16,7 @@
     index?: number;
     espècesImpactées?: Array<{ espèce?: EspeceProtegee; impacts?: DescriptionImpact[] }>;
     espècesProtégées?: EspeceProtegee[];
-    référencesEspèces: TuileSaisieEspece[];
+    référencesEspèces: TileSaisieEspece[];
     activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
     >;
@@ -99,7 +99,7 @@
 
 <form class="fr-mb-4w">
   {#each especesImpactees as especesImpactee, indexEspecesImpactee (especesImpactee)}
-    <TuileSaisieEspece
+    <TileSaisieEspece
       bind:this={referencesEspeces[indexEspecesImpactee]}
       index={indexEspecesImpactee + 1}
       idModaleEspèceNonTrouvée="modale-je-ne-trouve-pas-une-espece"
