@@ -47,7 +47,7 @@ afterEach(() => {
 describe("putObject", () => {
   it('defaults the content-type to "application/octet-stream" when missing', async () => {
     sendMock.mockResolvedValue({});
-    const { putObject } = await import("./object-storage.ts");
+    const { putObject } = await import("./objectStorage.ts");
     await putObject("files/a", Buffer.from(""));
     expect(putCtor.mock.calls[0][0].ContentType).toBe("application/octet-stream");
   });
@@ -56,7 +56,7 @@ describe("putObject", () => {
 describe("getObject", () => {
   it("throws when the response has no body", async () => {
     sendMock.mockResolvedValue({ Body: undefined });
-    const { getObject } = await import("./object-storage.ts");
+    const { getObject } = await import("./objectStorage.ts");
     await expect(getObject("files/missing")).rejects.toThrow(/no body/i);
   });
 });
@@ -64,7 +64,7 @@ describe("getObject", () => {
 describe("getBucket", () => {
   it("throws when S3_BUCKET is not set", async () => {
     delete process.env.S3_BUCKET;
-    const { getBucket } = await import("./object-storage.ts");
+    const { getBucket } = await import("./objectStorage.ts");
     expect(() => getBucket()).toThrow(/S3_BUCKET/);
   });
 });

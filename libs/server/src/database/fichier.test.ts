@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock(import("../object-storage.ts"), () => ({
+vi.mock(import("../objectStorage.ts"), () => ({
   fileKey: (id: string) => `files/${id}`,
   putObject: vi.fn(),
   deleteObject: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock(import("./file.ts"), () => ({
   deleteFile: vi.fn(),
 }));
 
-import * as objectStorage from "../object-storage.ts";
+import * as objectStorage from "../objectStorage.ts";
 import * as fileModule from "./file.ts";
 import {
   loadFichierContent,

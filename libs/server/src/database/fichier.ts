@@ -5,7 +5,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { addFile, deleteFile, getFile } from "./file.ts";
-import { deleteObject, fileKey, getObject, putObject } from "../object-storage.ts";
+import { deleteObject, fileKey, getObject, putObject } from "../objectStorage.ts";
 
 import type File from "@pitchou/types/database/public/File.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";

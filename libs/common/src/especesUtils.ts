@@ -24,7 +24,7 @@ import type {
   FloreAtteinteOds_V1,
   OiseauAtteintOds_V1,
 } from "@pitchou/types/especesFichierOds.d.ts";
-import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
+import type { PitchouState } from "@pitchou/types/pitchouState.ts";
 
 const classificationEtreVivants: Set<"oiseau" | "faune non-oiseau" | "flore"> = new Set([
   "oiseau",

@@ -5,7 +5,7 @@
   import {
     typesDecisionAdministrative,
     labelForDecisionAdministrativeType,
-  } from "@pitchou/common/decision-administrative.js";
+  } from "@pitchou/common/decisionAdministrative.js";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
 
   import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";

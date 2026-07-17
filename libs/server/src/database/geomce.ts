@@ -18,7 +18,7 @@ import type { default as Dossier } from "@pitchou/types/database/public/Dossier.
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { GeoMceMessage, DossierForGeoMCE } from "@pitchou/types/geomce.ts";
-import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
+import type { PitchouState } from "@pitchou/types/pitchouState.ts";
 import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 const DATA_DIR = join(import.meta.dirname, "../../../../data");

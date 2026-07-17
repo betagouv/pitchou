@@ -7,7 +7,7 @@
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
-  import { labelForDecisionAdministrativeType } from "@pitchou/common/decision-administrative.js";
+  import { labelForDecisionAdministrativeType } from "@pitchou/common/decisionAdministrative.js";
 
   import type {
     DecisionAdministrativeForTransfer,

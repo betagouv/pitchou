@@ -6,7 +6,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type {
   PitchouState,
   ActivitesMethodesMoyensDePoursuiteBundle,
-} from "@pitchou/types/pitchou-state.ts";
+} from "@pitchou/types/pitchouState.ts";
 
 export type { PitchouState, ActivitesMethodesMoyensDePoursuiteBundle };
 

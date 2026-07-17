@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { getAttachmentAutresForDossier } from "./attachmentAutre.ts";
+import { getAttachmentAutresForDossier } from "./attachment_autre.ts";
 import { getDecisionsAdministratives } from "./decision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getControles } from "./controle.ts";
@@ -34,7 +34,7 @@ import type {
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PartialBy, PickNonNullable } from "@pitchou/types/tools.d.ts";
-import type { AttachmentAutreWithFileDescription } from "./attachmentAutre.ts";
+import type { AttachmentAutreWithFileDescription } from "./attachment_autre.ts";
 import type File from "@pitchou/types/database/public/File.ts";
 
 /**
