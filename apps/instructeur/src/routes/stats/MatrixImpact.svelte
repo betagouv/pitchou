@@ -3,28 +3,28 @@
 <section class="fr-mt-6w">
   <h2 class="fr-mt-2w">Matrice d'impact</h2>
 
-  <div class="matrice-wrapper fr-mt-4w">
-    <table class="matrice-table">
+  <div class="matrix-wrapper fr-mt-4w">
+    <table class="matrix-table">
       <thead>
         <tr>
           <th class="th-empty" aria-hidden="true"></th>
-          <th class="th-perimetre">Périmètre</th>
-          <th class="th-indicateurs">Indicateurs</th>
+          <th class="th-perimeter">Périmètre</th>
+          <th class="th-indicators">Indicateurs</th>
           <th class="th-efficient">Efficient</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="td-niveau utilisable">Utilisable</td>
-          <td rowspan="3" class="td-perimetre">Produit</td>
-          <td class="td-indicateur rouge">
+          <td class="td-level usable">Utilisable</td>
+          <td rowspan="3" class="td-perimeter">Produit</td>
+          <td class="td-indicator red">
             Nombre de contacts support par mois (et nombre de personnes)
           </td>
-          <td class="td-efficient td-efficient--vide"></td>
+          <td class="td-efficient td-efficient--empty"></td>
         </tr>
         <tr>
-          <td class="td-niveau utilise">Utilisé</td>
-          <td class="td-indicateur rouge">
+          <td class="td-level used">Utilisé</td>
+          <td class="td-indicator red">
             Nombre de personnes en rétention (la personne a renouvelé 5 actions de consultation ou
             de modification sur 7 jours glissants sur les 5 dernières semaines)
           </td>
@@ -33,16 +33,16 @@
           >
         </tr>
         <tr>
-          <td class="td-niveau utile">Utile</td>
-          <td class="td-indicateur rouge">Nombre de personnes qui font des contrôles</td>
+          <td class="td-level useful">Utile</td>
+          <td class="td-indicator red">Nombre de personnes qui font des contrôles</td>
           <td class="td-efficient"
             >Coût à l'utilité&nbsp;: budget pitchou&nbsp;/ nombre de contrôles</td
           >
         </tr>
         <tr>
-          <td class="td-niveau impactant">Impactant</td>
-          <td class="td-perimetre">Politique publique</td>
-          <td class="td-indicateur vert">
+          <td class="td-level impactful">Impactant</td>
+          <td class="td-perimeter">Politique publique</td>
+          <td class="td-indicator green">
             Nombre de personnes ayant indiqué un retour à la conformité
           </td>
           <td class="td-efficient">
@@ -55,11 +55,11 @@
 </section>
 
 <style lang="scss">
-  .matrice-wrapper {
+  .matrix-wrapper {
     overflow-x: auto;
   }
 
-  .matrice-table {
+  .matrix-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
@@ -69,10 +69,10 @@
   .th-empty {
     width: 16%;
   }
-  .th-perimetre {
+  .th-perimeter {
     width: 16%;
   }
-  .th-indicateurs {
+  .th-indicators {
     width: 38%;
   }
   .th-efficient {
@@ -91,8 +91,8 @@
     border: none;
   }
 
-  .th-perimetre,
-  .th-indicateurs {
+  .th-perimeter,
+  .th-indicators {
     background-color: var(--background-action-high-blue-france);
     color: var(--text-inverted-blue-france);
   }
@@ -101,7 +101,7 @@
     background-color: var(--background-alt-yellow-moutarde);
   }
 
-  .td-niveau {
+  .td-level {
     padding: 1rem;
     text-align: center;
     font-weight: 600;
@@ -110,19 +110,19 @@
     background: var(--background-default-grey);
   }
 
-  .utilisable,
-  .utilise,
-  .utile {
+  .usable,
+  .used,
+  .useful {
     border-color: var(--border-plain-error);
     color: var(--text-default-error);
   }
 
-  .impactant {
+  .impactful {
     border-color: var(--border-plain-success);
     color: var(--text-default-success);
   }
 
-  .td-perimetre {
+  .td-perimeter {
     padding: 1rem;
     text-align: center;
     font-weight: 600;
@@ -132,19 +132,19 @@
     vertical-align: middle;
   }
 
-  .td-indicateur {
+  .td-indicator {
     padding: 0.85rem 1rem;
     vertical-align: top;
     font-size: 0.875rem;
     border: 1px solid var(--border-default-grey);
   }
 
-  .td-indicateur.rouge {
+  .td-indicator.red {
     background-color: var(--background-flat-error);
     color: var(--text-inverted-error);
   }
 
-  .td-indicateur.vert {
+  .td-indicator.green {
     background-color: var(--background-flat-success);
     color: var(--text-inverted-success);
   }
@@ -158,20 +158,20 @@
     border: 1px solid var(--border-default-yellow-moutarde);
   }
 
-  .td-efficient--vide {
+  .td-efficient--empty {
     background-color: var(--background-default-grey);
     border-color: var(--border-default-grey);
   }
 
   @media (max-width: 768px) {
-    .matrice-table {
+    .matrix-table {
       font-size: 0.8rem;
     }
 
     thead th,
-    .td-niveau,
-    .td-perimetre,
-    .td-indicateur,
+    .td-level,
+    .td-perimeter,
+    .td-indicator,
     .td-efficient {
       padding: 0.5rem 0.6rem;
     }
