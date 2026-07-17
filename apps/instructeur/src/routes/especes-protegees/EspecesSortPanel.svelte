@@ -19,7 +19,7 @@
   }
 </script>
 
-<fieldset id="panneau-tri" class="panel">
+<fieldset id="sort-panel" class="panel">
   <legend class="panel-title">Trier les espèces</legend>
   <div class="sort" role="group" aria-label="Trier les espèces">
     {#each SORT_OPTIONS as option}

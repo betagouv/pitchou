@@ -16,7 +16,7 @@
   let { selectedClassification, selectedStatut, selectedListe, onChange }: Props = $props();
 </script>
 
-<fieldset id="panneau-filtres" class="panel">
+<fieldset id="filter-panel" class="panel">
   <legend class="panel-title">Filtrer les espèces</legend>
   <div class="filters">
     <div class="filter-row">

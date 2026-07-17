@@ -21,7 +21,7 @@
   }
 </script>
 
-<fieldset id="panneau-tri" class="panel">
+<fieldset id="sort-panel" class="panel">
   <legend class="panel-title">Trier les utilisateurices</legend>
   <div class="sort" role="group" aria-label="Trier les utilisateurices">
     {#each SORT_OPTIONS as option}

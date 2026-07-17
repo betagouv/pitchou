@@ -23,7 +23,7 @@
   }
 </script>
 
-<fieldset id="panneau-tri" class="panel">
+<fieldset id="sort-panel" class="panel">
   <legend class="panel-title">Trier les modifications</legend>
   <div class="sort" role="group" aria-label="Trier les modifications">
     {#each SORT_OPTIONS as option}
