@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/sveltekit";
 import { env } from "$env/dynamic/public";
 Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN_ADMIN,
-  environment: env.PUBLIC_PITCHOU_ENV,
+  // Events with the "development" environment are not reported in the Sentry interface.
+  // Therefore, in development, the environment name should be "dev".
+  // This is a known issue in Beta and cannot be fixed because only the provider
+  // has the permissions to configure the self-hosted Sentry instance.
+  environment: env.PUBLIC_SENTRY_DEV_ENV ?? env.PUBLIC_PITCHOU_ENV,
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/sveltekit/configuration/options/#dataCollection
