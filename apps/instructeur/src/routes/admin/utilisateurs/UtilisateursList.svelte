@@ -20,7 +20,7 @@
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
   import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
-  import NiveauxAARRIModale from "./NiveauxAARRIModale.svelte";
+  import LevelsAARRIModal from "./LevelsAARRIModal.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -30,7 +30,7 @@
 
   const UTILISATEURS_PER_PAGE = 20;
 
-  const niveauxModaleId = "modale-niveaux-aarri";
+  const levelsModalId = "modale-niveaux-aarri";
 
   // The URL query string is the single source of truth for search, filter, sort and page.
   const query = $derived(parseUtilisateursQuery(page.url.searchParams));
@@ -143,7 +143,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
-      aria-controls={niveauxModaleId}
+      aria-controls={levelsModalId}
       data-fr-opened="false"
     >
       Comment les niveaux sont calculés&nbsp;?
@@ -256,7 +256,7 @@
   <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
-<NiveauxAARRIModale id={niveauxModaleId} />
+<LevelsAARRIModal id={levelsModalId} />
 
 <style lang="scss">
   .header {
