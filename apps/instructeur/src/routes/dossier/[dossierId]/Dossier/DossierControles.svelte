@@ -2,7 +2,7 @@
   import clsx from "clsx";
 
   import DecisionAdministrative from "./Controles/DecisionAdministrative.svelte";
-  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
@@ -84,7 +84,7 @@
   </button>
 </div>
 
-<ModaleAjouterPieceJointe
+<ModalAddPieceJointe
   id={idModalAddDecisionAdministrative}
   {dossier}
   typesPiecesJointes={["Décision administrative"]}

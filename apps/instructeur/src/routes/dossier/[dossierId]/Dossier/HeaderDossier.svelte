@@ -7,7 +7,7 @@
   } from "$lib/dossier/displayDossier.ts";
   import { displayString } from "./displayValues.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
@@ -195,7 +195,7 @@
   </div>
 </header>
 
-<ModaleAjouterPieceJointe
+<ModalAddPieceJointe
   id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

@@ -4,7 +4,7 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
-  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
@@ -62,7 +62,7 @@
   </button>
 </div>
 
-<ModaleAjouterPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
+<ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
 
 <style lang="scss">
   .section-list-avis-expert {

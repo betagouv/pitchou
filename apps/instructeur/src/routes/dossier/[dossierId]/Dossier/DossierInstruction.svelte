@@ -13,7 +13,7 @@
   import { updateDossier } from "$lib/dossier/dossier.ts";
   import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -438,7 +438,7 @@
   </section>
 </section>
 
-<ModaleAjouterPieceJointe
+<ModalAddPieceJointe
   id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

@@ -2,7 +2,7 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import type {
     DossierFull,
@@ -280,7 +280,7 @@
   </section>
 </section>
 
-<ModaleAjouterPieceJointe
+<ModalAddPieceJointe
   id={idModalAddPieceJointe}
   {dossier}
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}

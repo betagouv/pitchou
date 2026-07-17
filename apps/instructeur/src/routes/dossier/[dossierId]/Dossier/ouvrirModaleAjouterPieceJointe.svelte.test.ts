@@ -29,7 +29,7 @@ import DossierAvis from "./DossierAvis.svelte";
 import DossierControles from "./DossierControles.svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 import HeaderDossier from "./HeaderDossier.svelte";
-import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
+import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
@@ -144,7 +144,7 @@ test("trace l'ouverture de la modale depuis l'onglet contrôles", async () => {
 });
 
 test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombre de fichiers", async () => {
-  const { container } = render(ModaleAjouterPieceJointe, {
+  const { container } = render(ModalAddPieceJointe, {
     id: "modale-test-ajout-autre",
     dossier: dossier(),
     typesPiecesJointes: ["Autre"],
@@ -186,7 +186,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 });
 
 test("affiche des libellés experts détaillés pour la saisine et l'avis", async () => {
-  const { container } = render(ModaleAjouterPieceJointe, {
+  const { container } = render(ModalAddPieceJointe, {
     id: "modale-test-libelles",
     dossier: dossier(),
     typesPiecesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
