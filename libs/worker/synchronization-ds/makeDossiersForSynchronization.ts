@@ -311,7 +311,7 @@ async function makeChampsDossierForInitialization(
 function traitementPhaseToDossierPhase(DSTraitementState: Traitement["state"]): DossierPhase {
   if (DSTraitementState === "en_construction") return "Accompagnement amont";
   if (DSTraitementState === "en_instruction") return "Instruction";
-  if (DSTraitementState === "accepte") return "Controle";
+  if (DSTraitementState === "accepte") return "Contrôle";
   if (DSTraitementState === "sans_suite") return "Classé sans suite";
   if (DSTraitementState === "refuse") return "Obligations terminées";
 

@@ -88,7 +88,7 @@
 
       newControle = undefined;
 
-      sendEvenement({ type: "ajouterControle" });
+      sendEvenement({ type: "ajouterContrôle" });
     }
   }
 
@@ -116,7 +116,7 @@
 
     await updateControle(controleValide);
 
-    sendEvenement({ type: "modifierControle" });
+    sendEvenement({ type: "modifierContrôle" });
   }
 
   async function deleteEditedControle() {
@@ -135,7 +135,7 @@
 
     refreshDossierFull();
 
-    sendEvenement({ type: "supprimerControle" });
+    sendEvenement({ type: "supprimerContrôle" });
   }
 </script>
 
@@ -247,7 +247,7 @@
             {:else}
               <section class="controle">
                 <h6>
-                  Controle du <time datetime={controle.date_contrôle?.toISOString()}
+                  Contrôle du <time datetime={controle.date_contrôle?.toISOString()}
                     >{formatDateAbsolute(controle.date_contrôle)}</time
                   >
                   <TagResultatControle résultatControle={controle.résultat || NOT_PROVIDED}

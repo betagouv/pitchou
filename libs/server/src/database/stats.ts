@@ -22,7 +22,7 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     const dossiersEnPhaseControleP = transaction("évènement_phase_dossier")
       .select("dossier")
       .max("horodatage as latest_horodatage")
-      .where("phase", "Controle")
+      .where("phase", "Contrôle")
       .groupBy("dossier")
       .orderBy("latest_horodatage", "desc");
 

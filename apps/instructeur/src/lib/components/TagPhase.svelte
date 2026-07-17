@@ -30,7 +30,7 @@
     ["Accompagnement amont", "phase--accompagnement-amont"],
     ["Étude recevabilité DDEP", "phase--étude-recevabilité"],
     ["Instruction", "phase--instruction"],
-    ["Controle", "phase--contrôle"],
+    ["Contrôle", "phase--contrôle"],
     ["Classé sans suite", "phase--classé-sans-suite"],
     ["Obligations terminées", "phase--obligations-terminées"],
   ]);

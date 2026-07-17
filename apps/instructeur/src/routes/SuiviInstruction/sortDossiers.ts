@@ -42,7 +42,7 @@ const phaseToImportance: { [k in DossierPhase]: number } = {
   "Accompagnement amont": 6,
   "Étude recevabilité DDEP": 5,
   Instruction: 4,
-  Controle: 3,
+  Contrôle: 3,
   "Classé sans suite": 2,
   "Obligations terminées": 1,
 };

@@ -1311,7 +1311,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000001",
-    phase: "Controle",
+    phase: "Contrôle",
     horodatage: new Date("2023-07-12T14:30:00+00:00"),
     DS_emailAgentTraitant: "claire.morin@dreal-bretagne.gouv.fr",
     DS_motivation: null,
@@ -1343,7 +1343,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000003",
-    phase: "Controle",
+    phase: "Contrôle",
     horodatage: new Date("2024-09-18T11:00:00+00:00"),
     DS_emailAgentTraitant: "isabelle.lefebvre@dreal-ge.gouv.fr",
     DS_motivation: null,
@@ -1416,7 +1416,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000008",
-    phase: "Controle",
+    phase: "Contrôle",
     horodatage: new Date("2024-01-22T09:00:00+00:00"),
     DS_emailAgentTraitant: "nicolas.martin@driat-idf.gouv.fr",
     DS_motivation: null,
@@ -1448,7 +1448,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000011",
-    phase: "Controle",
+    phase: "Contrôle",
     horodatage: new Date("2026-05-05T11:00:00+00:00"),
     DS_emailAgentTraitant: "camille.rousseau@dev.pitchou.fr",
     DS_motivation: null,

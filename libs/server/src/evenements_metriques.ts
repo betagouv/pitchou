@@ -152,9 +152,9 @@ export function evenementMetriqueGuard(évènement: any): évènement is Eveneme
     case "changerProchaineActionAttendueDe": {
       return !("details" in évènement);
     }
-    case "ajouterDecisionAdministrative":
-    case "modifierDecisionAdministrative":
-    case "supprimerDecisionAdministrative": {
+    case "ajouterDécisionAdministrative":
+    case "modifierDécisionAdministrative":
+    case "supprimerDécisionAdministrative": {
       return !("details" in évènement);
     }
     case "ajouterPrescription":
@@ -162,9 +162,9 @@ export function evenementMetriqueGuard(évènement: any): évènement is Eveneme
     case "supprimerPrescription": {
       return !("details" in évènement);
     }
-    case "ajouterControle":
-    case "modifierControle":
-    case "supprimerControle": {
+    case "ajouterContrôle":
+    case "modifierContrôle":
+    case "supprimerContrôle": {
       return !("details" in évènement);
     }
     case "ajouterAvisExpert": {

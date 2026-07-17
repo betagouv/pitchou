@@ -156,7 +156,7 @@ export function deleteDecisionAdministrative(
     throw new Error(`Pas les droits suffisants pour supprimer une décision administrative`);
   }
 
-  sendEvenement({ type: "supprimerDecisionAdministrative" });
+  sendEvenement({ type: "supprimerDécisionAdministrative" });
 
   return deleteDecisionAdministrative(decisionAdministrativeId);
 }
@@ -177,7 +177,7 @@ export async function saveNewDecisionAdministrative(
     );
   }
 
-  sendEvenement({ type: "ajouterDecisionAdministrative" });
+  sendEvenement({ type: "ajouterDécisionAdministrative" });
 
   await modifierDecisionAdministrativeDansDossier(newDecisionAdministrative);
 

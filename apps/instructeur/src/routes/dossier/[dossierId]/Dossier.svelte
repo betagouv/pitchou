@@ -208,7 +208,7 @@
             aria-selected={activeTab === "controles"}
             onclick={() => handleTabClick("controles")}
           >
-            Controles
+            Contrôles
           </button>
         </li>
         <li role="presentation">

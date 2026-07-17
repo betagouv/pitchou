@@ -24,7 +24,7 @@ export function addPrescriptionsAndControles(prescription: Omit<FrontEndPrescrip
   }
 
   sendEvenement({ type: "ajouterPrescription" });
-  sendEvenement({ type: "ajouterControle" });
+  sendEvenement({ type: "ajouterContrôle" });
 
   return addPrescriptionsAndControles(prescription);
 }

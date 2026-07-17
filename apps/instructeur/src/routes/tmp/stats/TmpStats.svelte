@@ -21,7 +21,7 @@
   const aujourdhui = new Date();
 
   function trouverDossiersEnControle(dossiers: DossierSummary[]) {
-    return dossiers.filter((dossier) => dossier.phase === "Controle");
+    return dossiers.filter((dossier) => dossier.phase === "Contrôle");
   }
 
   let dossierEnPhaseControle = $derived(trouverDossiersEnControle(dossiers));
@@ -93,18 +93,18 @@
       <ul>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase> (avec AP)
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" size="SM"></TagPhase> (avec AP)
           </strong>&nbsp;: {dossierEnPhaseControle.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase>
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" size="SM"></TagPhase>
             avec AP pris en {getYear(aujourdhui)}
           </strong>&nbsp;: {dossierAvecAPDepuisAnneeEnCours.length}
         </li>
         <li>
           <strong>
-            Nombre de dossiers en phase <TagPhase phase="Controle" size="SM"></TagPhase>
+            Nombre de dossiers en phase <TagPhase phase="Contrôle" size="SM"></TagPhase>
             avec AP pris en {getYear(anneeDerniere)}
           </strong>&nbsp;: {dossierAvecAPAnneePrecedente.length}
         </li>

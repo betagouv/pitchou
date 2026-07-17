@@ -48,8 +48,8 @@ const AARRI_PROFILES: AarriProfile[] = [
   {
     events: [
       { type: "seConnecter", weeksAgo: 0, count: 1 },
-      { type: "ajouterControle", weeksAgo: 0, count: 4 },
-      { type: "modifierControle", weeksAgo: 0, count: 2 },
+      { type: "ajouterContrôle", weeksAgo: 0, count: 4 },
+      { type: "modifierContrôle", weeksAgo: 0, count: 2 },
       { type: "modifierPrescription", weeksAgo: 3, count: 3 },
     ],
   },

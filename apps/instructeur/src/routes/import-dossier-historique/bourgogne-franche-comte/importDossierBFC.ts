@@ -385,12 +385,12 @@ function createEvenementPhaseDossierData(
   // Add the Controle phase event
   if (isValidDateString(row["Date AP"])) {
     evenementPhaseDossierData.push({
-      phase: "Controle",
+      phase: "Contrôle",
       horodatage: new Date(row["Date AP"]),
     });
-  } else if (rowEtapeProjet === "Controle") {
+  } else if (rowEtapeProjet === "Contrôle") {
     evenementPhaseDossierData.push({
-      phase: "Controle",
+      phase: "Contrôle",
       horodatage: isValidDateString(row["Date de sollicitation"].toString())
         ? addMonths(new Date(row["Date de sollicitation"]), 3)
         : today,

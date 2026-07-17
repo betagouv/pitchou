@@ -62,7 +62,7 @@ export type DossierPhase =
   | "Accompagnement amont"
   | "Étude recevabilité DDEP"
   | "Instruction"
-  | "Controle"
+  | "Contrôle"
   | "Classé sans suite"
   | "Obligations terminées";
 

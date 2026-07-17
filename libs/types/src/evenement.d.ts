@@ -60,11 +60,11 @@ export type EvenementMetrique =
   // Change the next expected action from
   | { type: "changerProchaineActionAttendueDe" }
   // Add an administrative decision
-  | { type: "ajouterDecisionAdministrative" }
+  | { type: "ajouterDécisionAdministrative" }
   // Edit an administrative decision
-  | { type: "modifierDecisionAdministrative" }
+  | { type: "modifierDécisionAdministrative" }
   // Delete an administrative decision
-  | { type: "supprimerDecisionAdministrative" }
+  | { type: "supprimerDécisionAdministrative" }
   // Add a prescription
   | { type: "ajouterPrescription" }
   // Edit a prescription
@@ -72,11 +72,11 @@ export type EvenementMetrique =
   // Delete a prescription
   | { type: "supprimerPrescription" }
   // Add a contrôle
-  | { type: "ajouterControle" }
+  | { type: "ajouterContrôle" }
   // Edit a contrôle
-  | { type: "modifierControle" }
+  | { type: "modifierContrôle" }
   // Delete a contrôle
-  | { type: "supprimerControle" }
+  | { type: "supprimerContrôle" }
   // Add an avis expert
   | { type: "ajouterAvisExpert" }
   // Edit an avis expert

@@ -15,7 +15,7 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   await page.goto(`/dossier/${dossier.id}`);
   await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
 
-  await page.getByRole("tab", { name: "Controles" }).click();
+  await page.getByRole("tab", { name: "Contrôles" }).click();
   await page.getByRole("button", { name: "Rajouter une décision administrative" }).click();
 
   await page.getByLabel("Numéro").fill("AP-E2E-001");

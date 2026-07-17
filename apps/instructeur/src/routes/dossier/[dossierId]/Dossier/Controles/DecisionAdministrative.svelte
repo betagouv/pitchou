@@ -71,7 +71,7 @@
     // On failure, the error propagates to the form, which displays it and keeps
     // the form open. We only update the view once the save succeeds.
     await modifierDecisionAdministrativeDansDossier(decision);
-    sendEvenement({ type: "modifierDecisionAdministrative" });
+    sendEvenement({ type: "modifierDécisionAdministrative" });
 
     decisionAdministrative = Object.assign(decisionAdministrative, decision);
     editedDecision = undefined;

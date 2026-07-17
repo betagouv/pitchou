@@ -107,7 +107,7 @@
               </div>
               <div class="progress-total fr-mt-1w">
                 <span class="stat-label"
-                  >Total dossiers en phase Controle : <strong
+                  >Total dossiers en phase Contrôle : <strong
                     >{stats.numberDossiersEnPhaseControle}</strong
                   ></span
                 >

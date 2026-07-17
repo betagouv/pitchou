@@ -213,7 +213,7 @@
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
         onclick={() => openTab("controles")}
       >
-        Voir dans l'onglet Controles
+        Voir dans l'onglet Contrôles
       </button>
     </div>
     {#if piecesJointesArretes.length === 0}
