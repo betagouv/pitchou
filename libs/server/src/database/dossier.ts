@@ -372,13 +372,21 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   // next expected action
   "prochaine_action_attendue_par",
 
-  // déposant
+  // demandeur identity (Démarche Numérique identity block)
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "déposant.nom as déposant_nom",
+  "identite_demandeur.last_name as déposant_nom",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "déposant.prénoms as déposant_prénoms",
+  "identite_demandeur.first_names as déposant_prénoms",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "déposant.email as déposant_email",
+  "identite_demandeur.email as déposant_email",
+
+  // mandataire identity (only when the dossier was submitted by a third party)
+  //@ts-expect-error not exactly a keyof DossierFull, but still
+  "identite_mandataire.last_name as mandataire_nom",
+  //@ts-expect-error not exactly a keyof DossierFull, but still
+  "identite_mandataire.first_names as mandataire_prénoms",
+  //@ts-expect-error not exactly a keyof DossierFull, but still
+  "identite_mandataire.email as mandataire_email",
 
   // demandeur_personne_physique
   //@ts-expect-error not exactly a keyof DossierFull, but still
@@ -426,17 +434,17 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.region as demandeur_personne_morale_region",
 
-  // representative (personne in charge of the project within the personne morale)
+  // representant (contact person within the personne morale)
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "representative.nom as representative_nom",
+  "identite_representant.last_name as representative_nom",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "representative.prénoms as representative_prénoms",
+  "identite_representant.first_names as representative_prénoms",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "representative.email as representative_email",
+  "identite_representant.email as representative_email",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "representative.phone as representative_phone",
+  "identite_representant.phone as representative_phone",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "representative.role as representative_role",
+  "identite_representant.role as representative_role",
 
   // private annotations
   "ddep_nécessaire",
@@ -466,7 +474,9 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   "nombre_nids_compensés_dossier_oiseau_simple",
   "nombre_nids_détruits_dossier_oiseau_simple",
 
-  "type",
+  // Qualified because identite_dossier (joined for the identities) also has a "type" column.
+  //@ts-expect-error not exactly a keyof DossierFull, but still
+  "dossier.type as type",
 
   "etat_des_lieux_ecologique_complet_realise",
   "presence_especes_dans_aire_influence",
@@ -479,12 +489,26 @@ export function listAllDossiersFull(
 ): Promise<DossierFull[]> {
   return databaseConnection("dossier")
     .select(dossierFullColumns)
-    .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
+    .leftJoin("identite_dossier as identite_demandeur", function () {
+      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
+        "identite_demandeur.type",
+        "demandeur",
+      );
+    })
+    .leftJoin("identite_dossier as identite_mandataire", function () {
+      this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
+        "identite_mandataire.type",
+        "mandataire",
+      );
+    })
+    .leftJoin("identite_dossier as identite_representant", function () {
+      this.on("identite_representant.dossier", "dossier.id").andOnVal(
+        "identite_representant.type",
+        "representant",
+      );
+    })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("personne as representative", {
-      "representative.id": "dossier.representative",
     })
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
@@ -577,12 +601,26 @@ export async function getDossierFull(
       "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
         "arête_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
+    .leftJoin("identite_dossier as identite_demandeur", function () {
+      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
+        "identite_demandeur.type",
+        "demandeur",
+      );
+    })
+    .leftJoin("identite_dossier as identite_mandataire", function () {
+      this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
+        "identite_mandataire.type",
+        "mandataire",
+      );
+    })
+    .leftJoin("identite_dossier as identite_representant", function () {
+      this.on("identite_representant.dossier", "dossier.id").andOnVal(
+        "identite_representant.type",
+        "representant",
+      );
+    })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("personne as representative", {
-      "representative.id": "dossier.representative",
     })
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
@@ -830,11 +868,11 @@ const dossierSummaryColumns: (keyof DossierSummary)[] = [
   // next expected action
   "prochaine_action_attendue_par",
 
-  // déposant
+  // demandeur identity (Démarche Numérique identity block)
   //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "déposant.nom as déposant_nom",
+  "identite_demandeur.last_name as déposant_nom",
   //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "déposant.prénoms as déposant_prénoms",
+  "identite_demandeur.first_names as déposant_prénoms",
 
   // demandeur_personne_physique
   //@ts-expect-error not exactly a keyof DossierRésumé, but still
@@ -877,7 +915,12 @@ export async function getDossiersSummariesByCap(
       "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
         "arête_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .leftJoin("personne as déposant", { "déposant.id": "dossier.déposant" })
+    .leftJoin("identite_dossier as identite_demandeur", function () {
+      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
+        "identite_demandeur.type",
+        "demandeur",
+      );
+    })
     .leftJoin("personne as demandeur_personne_physique", {
       "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
     })

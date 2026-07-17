@@ -16,6 +16,7 @@ import {
   synchronizeDossierInGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/personne.ts";
+import { syncIdentitesDossier } from "@pitchou/server/database/identite_dossier.ts";
 import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
@@ -59,6 +60,7 @@ import type {
   DossierEntreprisesPersonneInitializersForUpdate,
   DossierForInsert,
   DossierForUpdate,
+  IdentiteDossierData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type {
   DossierDemarcheNumerique88444,
@@ -238,11 +240,10 @@ function collectPersonne(personne: PersonneInitializer | undefined) {
 }
 
 for (const {
-  dossier: { déposant, demandeur_personne_physique, representative },
+  dossier: { déposant, demandeur_personne_physique },
 } of dossiersForSynchronization) {
   collectPersonne(déposant);
   collectPersonne(demandeur_personne_physique);
-  collectPersonne(representative);
 }
 
 function getPersonneId(
@@ -284,6 +285,18 @@ if (personnesInDossiersWithoutId.length >= 1) {
       });
     },
   );
+
+  // Register the newly created personnes in the lookup structures used by getPersonneId().
+  // Without this, only the deduplicated object receives the new id: every other dossier
+  // of the batch referencing the same personne (same email, or same nom/prénoms when
+  // there is no email) would be linked to null.
+  for (const personne of personnesInDossiersWithoutId) {
+    if (personne.email) {
+      personneByEmail.set(personne.email, personne as Personne);
+    } else {
+      allPersonnesCurrentlyInDatabase.push(personne as Personne);
+    }
+  }
 }
 
 //console.log('personnesInDossiersWithoutId après', personnesInDossiersWithoutId)
@@ -329,7 +342,8 @@ function _replacePersonneEntreprise(
       déposant,
       demandeur_personne_physique,
       demandeur_personne_morale,
-      representative,
+      // The identities are stored in the identite_dossier table, not as dossier columns.
+      identites: _identites,
       ...otherDossierProperties
     },
     ...otherTablesData
@@ -341,7 +355,6 @@ function _replacePersonneEntreprise(
       demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
-      representative: getPersonneId(representative) || null,
       ...otherDossierProperties,
     },
     ...otherTablesData,
@@ -446,6 +459,21 @@ for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of d
   dossierIdByDS_number.set(Number(number_demarches_simplifiées), id);
 }
 
+/** Sync of the identities (demandeur, mandataire, representant) shown in the Porteur de projet tab */
+
+const identitesByDossierId = new Map<DatabaseDossier["id"], IdentiteDossierData[]>();
+
+for (const {
+  dossier: { identites, number_demarches_simplifiées },
+} of dossiersForSynchronization) {
+  const dossierId = dossierIdByDS_number.get(Number(number_demarches_simplifiées));
+  if (dossierId) {
+    identitesByDossierId.set(dossierId, identites);
+  }
+}
+
+const identitesSynced = syncIdentitesDossier(identitesByDossierId, synchronizationTransactionDS);
+
 /** Synchronization of the messaging */
 
 const messagesToStoreInDBWithDossierId_DS = new Map<
@@ -539,6 +567,7 @@ const updateNotificationP = updateNotification(
 
 Promise.all([
   synchronizedGroupesInstructeurs,
+  identitesSynced,
   synchronizedMessages,
   dossierInGroupeInstructeurSynchronization,
   synchronizedFichiersEspecesImpactees,

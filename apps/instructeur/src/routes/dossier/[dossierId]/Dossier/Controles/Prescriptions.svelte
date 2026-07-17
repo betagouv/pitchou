@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SvelteSet, SvelteMap } from "svelte/reactivity";
+  import { SvelteMap } from "svelte/reactivity";
   import DateInput from "../../DateInput.svelte";
   import Prescription from "./Prescription.svelte";
 
@@ -28,13 +28,13 @@
 
   let { dossierId, decisionAdministrative }: Props = $props();
 
-  // Local set, initialized once from the décision then mutated in place
+  // Local list, initialized once from the décision then mutated in place
   // (add / remove / import). Intentionally not reactive to the prop.
+  // A $state array (not a SvelteSet) so each prescription object is deeply
+  // reactive: the edit table binds to individual properties.
   // svelte-ignore state_referenced_locally
-  let prescriptions: Set<Partial<FrontEndPrescription>> = $state(
-    decisionAdministrative.prescriptions
-      ? new SvelteSet(decisionAdministrative.prescriptions)
-      : new SvelteSet(),
+  let prescriptions: Partial<FrontEndPrescription>[] = $state(
+    decisionAdministrative.prescriptions ? [...decisionAdministrative.prescriptions] : [],
   );
 
   let viewPrescription: "view" | "edit" = $state("view");
@@ -63,7 +63,7 @@
       surface_évitée: undefined,
     };
 
-    prescriptions.add(newPrescription);
+    prescriptions.push(newPrescription);
 
     viewPrescription = "edit";
   }
@@ -119,7 +119,7 @@
       deletePrescriptionDatabase(prescription.id);
     }
 
-    prescriptions.delete(prescription);
+    prescriptions = prescriptions.filter((p) => p !== prescription);
   }
 
   async function onFileInput(e: Event & { currentTarget: HTMLElement & HTMLInputElement }) {
@@ -132,13 +132,13 @@
       decisionAdministrative,
     );
 
-    prescriptions = new Set(newPrescriptions);
+    prescriptions = newPrescriptions;
     refreshDossierFull(dossierId);
   }
 </script>
 
 <section class="prescriptions">
-  {#if prescriptions.size === 0}
+  {#if prescriptions.length === 0}
     <h5>Prescriptions</h5>
     <section class="fr-mb-3w">
       <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
@@ -169,7 +169,7 @@
       </div>
     </section>
   {:else}
-    <h5>{prescriptions.size} prescriptions</h5>
+    <h5>{prescriptions.length} prescriptions</h5>
 
     {#if viewPrescription === "view"}
       {#each prescriptions as prescription}
@@ -269,7 +269,7 @@
         width: 20rem;
       }
       & > :nth-child(3) {
-        width: 9rem;
+        width: 11rem;
       }
 
       & > :nth-child(n + 4) {

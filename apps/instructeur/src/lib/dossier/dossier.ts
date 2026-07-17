@@ -58,16 +58,16 @@ export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull
   const dossierFullInStore = store.fullDossiers.get(id);
 
   if (dossierFullInStore) {
+    // stale-while-revalidate: return the cached dossier for instant navigation,
+    // and refresh it in the background so the store catches up with changes
+    // made elsewhere (e.g. a synchronization with DN)
+    refreshDossierFull(id).catch((err) => {
+      console.error(`Échec du rafraîchissement du dossier ${id}`, err);
+    });
     return dossierFullInStore;
   }
 
-  if (!store.capabilities.recupérerDossierComplet)
-    throw new TypeError(`Capability recupérerDossierComplet manquante`);
-
-  const dossierFull = await store.capabilities.recupérerDossierComplet(id);
-  setDossierFull(dossierFull);
-
-  return dossierFull;
+  return refreshDossierFull(id);
 }
 
 export async function refreshDossierFull(id: DossierFull["id"]): Promise<DossierFull> {

@@ -12,6 +12,10 @@
 
   const isPersonneMorale = $derived(Boolean(dossier.demandeur_personne_morale_siret));
 
+  const hasMandataire = $derived(
+    Boolean(dossier.mandataire_nom || dossier.mandataire_prénoms || dossier.mandataire_email),
+  );
+
   const typeDemandeur = $derived(isPersonneMorale ? "Personne morale" : "Personne physique");
 
   // "Actif" / "Ferme" as provided by Démarche Numérique, displayed like DN.
@@ -68,13 +72,24 @@
   </div>
 {/snippet}
 
-{#snippet cardDeposant()}
+{#snippet identiteDemandeurCard()}
   <section class="card">
-    <h3>Personne ayant déposé le dossier</h3>
-    <dl class="grid grid--narrow">
+    <h3>Identité du demandeur</h3>
+    <dl class="grid grid--single-row">
       {@render field("Nom", dossier.déposant_nom)}
       {@render field("Prénom", dossier.déposant_prénoms)}
       {@render fieldMail("Adresse mail", dossier.déposant_email)}
+    </dl>
+  </section>
+{/snippet}
+
+{#snippet mandataireCard()}
+  <section class="card">
+    <h3>Identité du mandataire</h3>
+    <dl class="grid grid--single-row">
+      {@render field("Nom", dossier.mandataire_nom)}
+      {@render field("Prénom", dossier.mandataire_prénoms)}
+      {@render fieldMail("Adresse mail", dossier.mandataire_email)}
     </dl>
   </section>
 {/snippet}
@@ -86,6 +101,16 @@
   </div>
 
   {#if isPersonneMorale}
+    <div class="fr-mb-3w">
+      {@render identiteDemandeurCard()}
+    </div>
+
+    {#if hasMandataire}
+      <div class="fr-mb-3w">
+        {@render mandataireCard()}
+      </div>
+    {/if}
+
     <section class="card fr-mb-3w">
       <h3>Entreprise</h3>
       <dl class="grid">
@@ -99,19 +124,7 @@
     </section>
 
     <div class="fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-12 fr-col-md-4">
-        <section class="card">
-          <h3>Adresse</h3>
-          <dl class="grid grid--narrow">
-            {@render fieldAddress(dossier.demandeur_adresse)}
-            {@render field("Code postal", dossier.demandeur_personne_morale_postal_code)}
-            {@render field("Département", dossier.demandeur_personne_morale_department)}
-            {@render field("Région", dossier.demandeur_personne_morale_region)}
-          </dl>
-        </section>
-      </div>
-
-      <div class="fr-col-12 fr-col-md-4">
+      <div class="fr-col-12 fr-col-md-6">
         <section class="card">
           <h3>Représentant</h3>
           <dl class="grid grid--narrow">
@@ -124,8 +137,16 @@
         </section>
       </div>
 
-      <div class="fr-col-12 fr-col-md-4">
-        {@render cardDeposant()}
+      <div class="fr-col-12 fr-col-md-6">
+        <section class="card">
+          <h3>Adresse</h3>
+          <dl class="grid grid--narrow">
+            {@render fieldAddress(dossier.demandeur_adresse)}
+            {@render field("Code postal", dossier.demandeur_personne_morale_postal_code)}
+            {@render field("Département", dossier.demandeur_personne_morale_department)}
+            {@render field("Région", dossier.demandeur_personne_morale_region)}
+          </dl>
+        </section>
       </div>
     </div>
   {:else}
@@ -142,6 +163,12 @@
         </section>
       </div>
 
+      {#if hasMandataire}
+        <div class="fr-col-12 fr-col-md-4">
+          {@render mandataireCard()}
+        </div>
+      {/if}
+
       <div class="fr-col-12 fr-col-md-4">
         <section class="card">
           <h3>Contact</h3>
@@ -150,10 +177,6 @@
             {@render fieldMail("Adresse mail", dossier.demandeur_personne_physique_email)}
           </dl>
         </section>
-      </div>
-
-      <div class="fr-col-12 fr-col-md-4">
-        {@render cardDeposant()}
       </div>
     </div>
   {/if}
@@ -200,6 +223,14 @@
 
     &.grid--narrow {
       grid-template-columns: 1fr;
+    }
+
+    // Fields laid out side by side at their natural width, so a long value
+    // (e.g. an email) stays on a single line; wraps only on narrow screens.
+    &.grid--single-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 4rem;
     }
   }
 

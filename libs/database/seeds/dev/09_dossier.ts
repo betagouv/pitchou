@@ -109,6 +109,8 @@ export async function seed(knex: Knex) {
       .select("id", "email");
     const personneIdByEmail = new Map<string, number>(personneRows.map((p) => [p.email, p.id]));
 
+    const personneFixtureByEmail = new Map(SEED_PERSONNES.map((p) => [p.email, p]));
+
     // Step 1 — dossiers + groupe junction
 
     const dossierIdMap: Record<string, number> = {};
@@ -120,6 +122,7 @@ export async function seed(knex: Knex) {
       demandeur_personne_physique_email,
       representative_email,
       déposant_email: deposant_email,
+      mandataire_email,
       ...dossierData
     } of SEED_DOSSIERS) {
       const label = `dossier "${dossierData.nom}" (${dossierData.number_demarches_simplifiées})`;
@@ -137,9 +140,6 @@ export async function seed(knex: Knex) {
                 demandeur_personne_physique: demandeur_personne_physique_email
                   ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
                   : null,
-                representative: representative_email
-                  ? (personneIdByEmail.get(representative_email) ?? null)
-                  : null,
                 déposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
               }),
             )
@@ -148,6 +148,53 @@ export async function seed(knex: Knex) {
         }
 
         dossierIdMap[dossierData.number_demarches_simplifiées!] = dossier.id;
+
+        // Identities shown in the "Porteur de projet" tab (per-dossier snapshots)
+        const identites = [];
+        const demandeurFixture = deposant_email
+          ? personneFixtureByEmail.get(deposant_email)
+          : undefined;
+        if (demandeurFixture) {
+          identites.push({
+            dossier: dossier.id,
+            type: "demandeur",
+            last_name: demandeurFixture.nom,
+            first_names: demandeurFixture.prénoms,
+            email: demandeurFixture.email,
+          });
+        }
+        const mandataireFixture = mandataire_email
+          ? personneFixtureByEmail.get(mandataire_email)
+          : undefined;
+        if (mandataireFixture) {
+          identites.push({
+            dossier: dossier.id,
+            type: "mandataire",
+            last_name: mandataireFixture.nom,
+            first_names: mandataireFixture.prénoms,
+            email: mandataireFixture.email,
+          });
+        }
+        const representantFixture = representative_email
+          ? personneFixtureByEmail.get(representative_email)
+          : undefined;
+        if (representantFixture) {
+          identites.push({
+            dossier: dossier.id,
+            type: "representant",
+            last_name: representantFixture.nom,
+            first_names: representantFixture.prénoms,
+            email: representantFixture.email,
+            phone: representantFixture.phone ?? null,
+            role: representantFixture.role ?? null,
+          });
+        }
+        for (const identite of identites) {
+          await transaction("identite_dossier")
+            .insert(identite)
+            .onConflict(["dossier", "type"])
+            .merge();
+        }
 
         const group = await transaction("groupe_instructeurs")
           .where({ nom: groupe_instructeur, numéro_démarche: SEED_DEMARCHE_NUMBER })
