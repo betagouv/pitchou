@@ -121,7 +121,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
       aria-expanded={filterPanelOpen}
-      aria-controls="panneau-filtres-taxref"
+      aria-controls="filter-panel-taxref"
       onclick={toggleFilterPanel}
     >
       Filtrer
@@ -139,7 +139,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
       aria-expanded={sortPanelOpen}
-      aria-controls="panneau-tri-taxref"
+      aria-controls="sort-panel-taxref"
       onclick={() => (sortPanelOpen = !sortPanelOpen)}
     >
       Trier
