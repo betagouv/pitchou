@@ -6,9 +6,9 @@
   import Loader from "$lib/components/Loader.svelte";
   import { loadEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
 
-  import Modale from "./Modale.svelte";
-  import SelecteurEspece from "./SelecteurEspece.svelte";
-  import SelecteurTaxref from "./SelecteurTaxref.svelte";
+  import Modal from "./Modal.svelte";
+  import SelectorEspece from "./SelectorEspece.svelte";
+  import SelectorTaxref from "./SelectorTaxref.svelte";
 
   type Props = {
     onClose: () => void;
@@ -65,7 +65,7 @@
   ></button>
 {/snippet}
 
-<Modale
+<Modal
   title={titre}
   size={step === "choix" ? "default" : "xlarge"}
   headerStart={step === "choix" ? undefined : backButton}
@@ -92,12 +92,12 @@
         </div>
       </div>
     {:else}
-      <SelecteurEspece {especes} {existingCdRefs} onSelect={onSelectExistante} />
+      <SelectorEspece {especes} {existingCdRefs} onSelect={onSelectExistante} />
     {/if}
   {:else}
-    <SelecteurTaxref existingCdRefs={protectedCdRefs} onSelect={onSelectTaxref} />
+    <SelectorTaxref existingCdRefs={protectedCdRefs} onSelect={onSelectTaxref} />
   {/if}
-</Modale>
+</Modal>
 
 <style lang="scss">
   .choices {

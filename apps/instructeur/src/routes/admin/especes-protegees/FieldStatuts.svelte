@@ -1,7 +1,7 @@
 <script lang="ts">
   import { STATUTS } from "./adminModificationsList.ts";
-  import ChampModifiable from "./ChampModifiable.svelte";
-  import HeritageCheckbox from "./HeritageCheckbox.svelte";
+  import FieldModifiable from "./FieldModifiable.svelte";
+  import InheritanceCheckbox from "./InheritanceCheckbox.svelte";
 
   type Props = {
     values: string[] | null;
@@ -32,7 +32,7 @@
   }
 </script>
 
-<ChampModifiable
+<FieldModifiable
   label="Statuts de protection"
   {editing}
   {saving}
@@ -53,7 +53,7 @@
   {/snippet}
   {#snippet edit()}
     {#if hasReference}
-      <HeritageCheckbox id="inherit-statuts" source="BDC-Statuts" bind:checked={inherit} />
+      <InheritanceCheckbox id="inherit-statuts" source="BDC-Statuts" bind:checked={inherit} />
     {/if}
     <div class="statuts">
       {#each STATUTS as statut}
@@ -70,7 +70,7 @@
       {/each}
     </div>
   {/snippet}
-</ChampModifiable>
+</FieldModifiable>
 
 <style lang="scss">
   .statuts {

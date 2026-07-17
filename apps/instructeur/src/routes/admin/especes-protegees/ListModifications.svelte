@@ -20,8 +20,8 @@
   import ModificationsFilterPanel from "./ModificationsFilterPanel.svelte";
   import ModificationsSortPanel from "./ModificationsSortPanel.svelte";
   import TableModifications from "./TableModifications.svelte";
-  import ModaleAjout from "./ModaleAjout.svelte";
-  import ModaleEditionModification from "./ModaleEditionModification.svelte";
+  import ModalAdd from "./ModalAdd.svelte";
+  import ModalEditModification from "./ModalEditModification.svelte";
 
   type Props = {
     modifications: ModificationEspeceAdmin[];
@@ -242,7 +242,7 @@
 {/if}
 
 {#if ajoutOuvert}
-  <ModaleAjout
+  <ModalAdd
     onClose={() => (ajoutOuvert = false)}
     {existingCdRefs}
     {onSelectExistante}
@@ -251,7 +251,7 @@
 {/if}
 
 {#if modal}
-  <ModaleEditionModification
+  <ModalEditModification
     seed={modal.seed}
     creation={modal.creation}
     onSaved={onReload}

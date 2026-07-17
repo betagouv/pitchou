@@ -6,11 +6,11 @@
   import { saveModificationEspece, deleteModificationEspece } from "$lib/actions/adminEspeces.ts";
 
   import { CLASSIFICATIONS, displayedNom } from "./adminModificationsList.ts";
-  import Modale from "./Modale.svelte";
-  import ChampClassification from "./ChampClassification.svelte";
-  import ChampNoms from "./ChampNoms.svelte";
-  import ChampStatuts from "./ChampStatuts.svelte";
-  import ChampOuiNon from "./ChampOuiNon.svelte";
+  import Modal from "./Modal.svelte";
+  import FieldClassification from "./FieldClassification.svelte";
+  import FieldNoms from "./FieldNoms.svelte";
+  import FieldStatuts from "./FieldStatuts.svelte";
+  import FieldYesNo from "./FieldYesNo.svelte";
 
   type Props = {
     seed: ModificationEspeceAdmin;
@@ -135,7 +135,7 @@
   {/if}
 {/snippet}
 
-<Modale title={titre} {onClose} footer={created ? deleteFooter : undefined}>
+<Modal title={titre} {onClose} footer={created ? deleteFooter : undefined}>
   <div class="body">
     {#if creation && !created}
       <div class="creation">
@@ -171,14 +171,14 @@
       </div>
     {:else}
       <div class="fields">
-        <ChampClassification
+        <FieldClassification
           value={current.classification}
           referenceClassification={current.reference_classification}
           {hasReference}
           {saving}
           onSave={(v) => saveField({ classification: v })}
         />
-        <ChampNoms
+        <FieldNoms
           label="Noms scientifiques"
           source="TAXREF"
           inheritId="inherit-noms-scientifiques"
@@ -188,7 +188,7 @@
           {saving}
           onSave={(v) => saveField({ noms_scientifiques: v })}
         />
-        <ChampNoms
+        <FieldNoms
           label="Noms vernaculaires"
           source="TAXREF"
           inheritId="inherit-noms-vernaculaires"
@@ -198,28 +198,28 @@
           {saving}
           onSave={(v) => saveField({ noms_vernaculaires: v })}
         />
-        <ChampStatuts
+        <FieldStatuts
           values={current.cd_type_statuts}
           referenceValues={current.reference_cd_type_statuts}
           {hasReference}
           {saving}
           onSave={(v) => saveField({ cd_type_statuts: v })}
         />
-        <ChampOuiNon
+        <FieldYesNo
           label="Espèce ministérielle"
           toggleLabel="Espèce ministérielle"
           value={current.espece_ministerielle ?? false}
           {saving}
           onSave={(v) => saveField({ espece_ministerielle: v })}
         />
-        <ChampOuiNon
+        <FieldYesNo
           label="Espèce CNPN"
           toggleLabel="Espèce CNPN"
           value={current.espece_cnpn ?? false}
           {saving}
           onSave={(v) => saveField({ espece_cnpn: v })}
         />
-        <ChampOuiNon
+        <FieldYesNo
           label="Exclue de la liste publique"
           toggleLabel="Exclure cette espèce"
           value={current.exclu}
@@ -243,7 +243,7 @@
       </div>
     {/if}
   </div>
-</Modale>
+</Modal>
 
 <style lang="scss">
   .body {

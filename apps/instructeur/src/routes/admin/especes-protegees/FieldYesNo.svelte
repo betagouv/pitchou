@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ChampModifiable from "./ChampModifiable.svelte";
-  import OuiNonToggle from "./OuiNonToggle.svelte";
+  import FieldModifiable from "./FieldModifiable.svelte";
+  import YesNoToggle from "./YesNoToggle.svelte";
 
   type Props = {
     label: string;
@@ -26,7 +26,7 @@
   }
 </script>
 
-<ChampModifiable
+<FieldModifiable
   {label}
   {editing}
   {saving}
@@ -38,6 +38,6 @@
     <div class="field-value">{value ? "Oui" : "Non"}</div>
   {/snippet}
   {#snippet edit()}
-    <OuiNonToggle bind:value={draft} label={toggleLabel} />
+    <YesNoToggle bind:value={draft} label={toggleLabel} />
   {/snippet}
-</ChampModifiable>
+</FieldModifiable>

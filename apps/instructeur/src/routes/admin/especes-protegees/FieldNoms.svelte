@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ChampModifiable from "./ChampModifiable.svelte";
-  import HeritageCheckbox from "./HeritageCheckbox.svelte";
+  import FieldModifiable from "./FieldModifiable.svelte";
+  import InheritanceCheckbox from "./InheritanceCheckbox.svelte";
 
   type Props = {
     label: string;
@@ -42,7 +42,7 @@
   }
 </script>
 
-<ChampModifiable
+<FieldModifiable
   {label}
   {editing}
   {saving}
@@ -65,7 +65,7 @@
   {/snippet}
   {#snippet edit()}
     {#if hasReference}
-      <HeritageCheckbox id={inheritId} {source} bind:checked={inherit} />
+      <InheritanceCheckbox id={inheritId} {source} bind:checked={inherit} />
     {/if}
     <div class="name-list">
       {#each draft as _name, i (i)}
@@ -92,7 +92,7 @@
       {/if}
     </div>
   {/snippet}
-</ChampModifiable>
+</FieldModifiable>
 
 <style lang="scss">
   .name-list {

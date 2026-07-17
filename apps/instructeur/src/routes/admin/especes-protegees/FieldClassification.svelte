@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CLASSIFICATIONS } from "./adminModificationsList.ts";
-  import ChampModifiable from "./ChampModifiable.svelte";
-  import HeritageCheckbox from "./HeritageCheckbox.svelte";
+  import FieldModifiable from "./FieldModifiable.svelte";
+  import InheritanceCheckbox from "./InheritanceCheckbox.svelte";
 
   type Props = {
     value: string | null;
@@ -29,7 +29,7 @@
   }
 </script>
 
-<ChampModifiable
+<FieldModifiable
   label="Classification"
   {editing}
   {saving}
@@ -48,7 +48,7 @@
   {/snippet}
   {#snippet edit()}
     {#if hasReference}
-      <HeritageCheckbox id="inherit-classification" source="TAXREF" bind:checked={inherit} />
+      <InheritanceCheckbox id="inherit-classification" source="TAXREF" bind:checked={inherit} />
     {/if}
     <select class="fr-select" disabled={inherit} bind:value={draft}>
       {#each CLASSIFICATIONS as classification}
@@ -56,4 +56,4 @@
       {/each}
     </select>
   {/snippet}
-</ChampModifiable>
+</FieldModifiable>
