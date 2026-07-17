@@ -2,7 +2,7 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
 
-  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
+  import ListDossiers from "$lib/components/ListDossiers/ListDossiers.svelte";
 
   type Props = {
     email?: string;
@@ -18,7 +18,7 @@
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
-<ListeDossiers
+<ListDossiers
   title="Mes dossiers"
   {email}
   {dossiers}

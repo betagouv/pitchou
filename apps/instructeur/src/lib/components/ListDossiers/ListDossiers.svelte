@@ -5,7 +5,7 @@
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
   import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
-  import CarteDossier from "./CarteDossier.svelte";
+  import CardDossier from "./CardDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import { createTextFilter } from "$lib/dossier/textFilters.ts";
   import { SvelteMap } from "svelte/reactivity";
@@ -336,7 +336,7 @@
     <ul>
       {#each displayedDossiers as dossier (dossier.id)}
         <li>
-          <CarteDossier
+          <CardDossier
             {dossier}
             {currentInstructeurFollowsDossier}
             {currentInstructeurLeavesDossier}
