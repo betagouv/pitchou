@@ -1,3 +1,6 @@
-import type { Handle } from "@sveltejs/kit";
+import { sequence } from "@sveltejs/kit/hooks";
+import * as Sentry from "@sentry/sveltekit";
 
-export const handle: Handle = async ({ event, resolve }) => resolve(event);
+export const handleError = Sentry.handleErrorWithSentry();
+
+export const handle = sequence(Sentry.sentryHandle());
