@@ -38,7 +38,7 @@
   );
 
   // @ts-ignore
-  const activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activite principale"]> =
+  const activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
     $derived(
       schema
         ? new Set(
