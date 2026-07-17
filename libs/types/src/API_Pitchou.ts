@@ -230,13 +230,13 @@ export type TypesActionSuiteControle =
 
 // - - - - - Statistics - - - - - - //
 export interface StatsPubliques {
-  numberDossiersEnPhaseControle: number;
-  numberDossiersEnPhaseControleWithDecision: number;
-  numberDossiersEnPhaseControleWithoutDecision: number;
-  numberPetitionnairesSinceSept2024: number;
+  nbDossiersEnPhaseContrôle: number;
+  nbDossiersEnPhaseContrôleAvecDécision: number;
+  nbDossiersEnPhaseContrôleSansDécision: number;
+  nbPétitionnairesDepuisSept2024: number;
   totalDossiers: number;
   totalPrescriptions: number;
-  numberPrescriptionsControlees: number;
+  nbPrescriptionsControlees: number;
   statsConformité: StatsConformite;
   statsImpactBiodiversité: StatsImpactBiodiversite;
 }

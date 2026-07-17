@@ -12,7 +12,7 @@
 
   const pourcentageAvecDecision = $derived(
     Math.round(
-      (stats.numberDossiersEnPhaseControleWithDecision / stats.numberDossiersEnPhaseControle) * 100,
+      (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
     ),
   );
   const pourcentageSansDecision = $derived(100 - pourcentageAvecDecision);
@@ -37,7 +37,7 @@
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-6">
                 <div class="stat-item total-stat">
-                  <span class="stat-number">{stats.numberPetitionnairesSinceSept2024}</span>
+                  <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
                   <span class="stat-label"
                     >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
                       >(depuis 09/2024)</span
@@ -84,13 +84,11 @@
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.numberDossiersEnPhaseControleWithDecision}</span>
+                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
                   <span class="stat-label">Avec décision<br />{pourcentageAvecDecision}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
-                  <span class="stat-number"
-                    >{stats.numberDossiersEnPhaseControleWithoutDecision}</span
-                  >
+                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
                   <span class="stat-label">Sans décision<br />{pourcentageSansDecision}%</span>
                 </div>
               </div>
@@ -108,7 +106,7 @@
               <div class="progress-total fr-mt-1w">
                 <span class="stat-label"
                   >Total dossiers en phase Contrôle : <strong
-                    >{stats.numberDossiersEnPhaseControle}</strong
+                    >{stats.nbDossiersEnPhaseContrôle}</strong
                   ></span
                 >
               </div>
@@ -147,24 +145,24 @@
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.numberPrescriptionsControlees}</span>
+                  <span class="stat-number">{stats.nbPrescriptionsControlees}</span>
                   <span class="stat-label"
                     >Contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
                       ? Math.round(
-                          (stats.numberPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
                         )
                       : 0}%</span
                   >
                 </div>
                 <div class="progress-label progress-label--right">
                   <span class="stat-number"
-                    >{stats.totalPrescriptions - stats.numberPrescriptionsControlees}</span
+                    >{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span
                   >
                   <span class="stat-label"
                     >Non contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
                       ? 100 -
                         Math.round(
-                          (stats.numberPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
                         )
                       : 0}%</span
                   >
@@ -176,12 +174,12 @@
               >
                 <div
                   style="width: {stats.totalPrescriptions > 0
-                    ? (stats.numberPrescriptionsControlees / stats.totalPrescriptions) * 100
+                    ? (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100
                     : 0}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
                 ></div>
                 <div
                   style="width: {stats.totalPrescriptions > 0
-                    ? ((stats.totalPrescriptions - stats.numberPrescriptionsControlees) /
+                    ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) /
                         stats.totalPrescriptions) *
                       100
                     : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"

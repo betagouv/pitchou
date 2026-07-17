@@ -33,13 +33,13 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
   console.log({ stats });
   if (
     Object(stats) === stats &&
-    typeof stats.numberDossiersEnPhaseControle === "number" &&
-    typeof stats.numberDossiersEnPhaseControleWithDecision === "number" &&
-    typeof stats.numberDossiersEnPhaseControleWithoutDecision === "number" &&
-    typeof stats.numberPetitionnairesSinceSept2024 === "number" &&
+    typeof stats.nbDossiersEnPhaseContrôle === "number" &&
+    typeof stats.nbDossiersEnPhaseContrôleAvecDécision === "number" &&
+    typeof stats.nbDossiersEnPhaseContrôleSansDécision === "number" &&
+    typeof stats.nbPétitionnairesDepuisSept2024 === "number" &&
     typeof stats.totalDossiers === "number" &&
     typeof stats.totalPrescriptions === "number" &&
-    typeof stats.numberPrescriptionsControlees === "number" &&
+    typeof stats.nbPrescriptionsControlees === "number" &&
     Object(stats.statsConformité) === stats.statsConformité &&
     typeof stats.statsConformité.nb_non_conforme === "number" &&
     typeof stats.statsConformité.nb_trop_tard === "number" &&
@@ -63,13 +63,13 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
      * if a property is added to `StatsPubliques` without updating this type guard.
      */
     let statsOk: Required<StatsPubliques> = {
-      numberDossiersEnPhaseControle: 0,
-      numberDossiersEnPhaseControleWithDecision: 0,
-      numberDossiersEnPhaseControleWithoutDecision: 0,
-      numberPetitionnairesSinceSept2024: 0,
+      nbDossiersEnPhaseContrôle: 0,
+      nbDossiersEnPhaseContrôleAvecDécision: 0,
+      nbDossiersEnPhaseContrôleSansDécision: 0,
+      nbPétitionnairesDepuisSept2024: 0,
       totalDossiers: 0,
       totalPrescriptions: 0,
-      numberPrescriptionsControlees: 0,
+      nbPrescriptionsControlees: 0,
       statsConformité: {
         nb_conforme_apres_1: 0,
         nb_conforme_apres_2: 0,

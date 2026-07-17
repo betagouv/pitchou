@@ -93,13 +93,13 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
 
     const stats: StatsPubliques = {
       totalDossiers: dossiers.length,
-      numberDossiersEnPhaseControle: dossiersEnPhaseControle.length,
-      numberDossiersEnPhaseControleWithDecision: decisionsForDossierEnPhaseControle.length,
-      numberDossiersEnPhaseControleWithoutDecision:
+      nbDossiersEnPhaseContrôle: dossiersEnPhaseControle.length,
+      nbDossiersEnPhaseContrôleAvecDécision: decisionsForDossierEnPhaseControle.length,
+      nbDossiersEnPhaseContrôleSansDécision:
         dossiersEnPhaseControle.length - decisionsForDossierEnPhaseControle.length,
-      numberPetitionnairesSinceSept2024: petitionnairesSinceSept2024.length,
+      nbPétitionnairesDepuisSept2024: petitionnairesSinceSept2024.length,
       totalPrescriptions,
-      numberPrescriptionsControlees,
+      nbPrescriptionsControlees: numberPrescriptionsControlees,
       statsConformité: statsConformite,
       statsImpactBiodiversité: statsImpactBiodiversite,
     };
