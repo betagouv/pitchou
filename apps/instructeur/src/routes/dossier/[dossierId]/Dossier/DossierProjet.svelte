@@ -247,10 +247,8 @@
         {#await Promise.all([especesImpactees, referentielsPromise])}
           <Loader></Loader>
         {:then [especesImpactees, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
-          {@const {
-            numberEspecesCNPN,
-            numberEspecesMinisterielles,
-          } = getNumberEspecesMinisterielleCNPN(especesImpactees)}
+          {@const { numberEspecesCNPN, numberEspecesMinisterielles } =
+            getNumberEspecesMinisterielleCNPN(especesImpactees)}
           <p class="fr-badge fr-badge--blue-ecume">
             {numberEspecesCNPN}
             {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN

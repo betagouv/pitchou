@@ -32,11 +32,9 @@ export async function addDecisionAdministrativeWithFichier(
     const { nom, media_type, contenuBase64 } = decision.fichier_base64;
     const contenu = Buffer.from(contenuBase64, "base64");
 
-    await storeNewFichier({ nom, media_type, contenu }, databaseConnection).then(
-      (fichier) => {
-        decisionAdministrativeDB.fichier = fichier.id;
-      },
-    );
+    await storeNewFichier({ nom, media_type, contenu }, databaseConnection).then((fichier) => {
+      decisionAdministrativeDB.fichier = fichier.id;
+    });
   }
 
   return databaseConnection("décision_administrative")
@@ -143,9 +141,7 @@ export async function deleteDecisionAdministrative(
   id: DecisionAdministrative["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  const rows = await databaseConnection("décision_administrative")
-    .select("fichier")
-    .where({ id });
+  const rows = await databaseConnection("décision_administrative").select("fichier").where({ id });
   const fichierIds = rows.map((r) => r.fichier).filter((fichierId) => fichierId !== null);
 
   const result = await databaseConnection("décision_administrative").delete().where({ id });

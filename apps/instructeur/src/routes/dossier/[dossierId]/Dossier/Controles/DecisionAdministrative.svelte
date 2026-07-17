@@ -118,7 +118,7 @@
       {/if}
     </div>
 
-    <Prescriptions {dossierId} decisionAdministrative={decisionAdministrative} />
+    <Prescriptions {dossierId} {decisionAdministrative} />
   {/if}
 </CardDecisionAdministrative>
 

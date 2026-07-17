@@ -28,9 +28,7 @@ function getKey() {
   return keyPromise;
 }
 
-export async function encryptDossiersAdditionalData(
-  additionalData: string,
-): Promise<string> {
+export async function encryptDossiersAdditionalData(additionalData: string): Promise<string> {
   const iv = randomBytes(IV_LENGTH);
   const encryptedData = await subtle.encrypt(
     { name: ALGORITHM_NAME, iv },

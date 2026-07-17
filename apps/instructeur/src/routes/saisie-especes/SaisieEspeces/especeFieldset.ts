@@ -38,10 +38,4 @@ export function compareEtresVivantsAtteintsByEspece(
 /**
  * The ranges are strings always in the format 'x-y' where x and y are integers
  */
-export const individusRanges: string[] = [
-  "0-10",
-  "11-100",
-  "101-1000",
-  "1001-10000",
-  "10001+",
-];
+export const individusRanges: string[] = ["0-10", "11-100", "101-1000", "1001-10000", "10001+"];

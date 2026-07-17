@@ -36,10 +36,7 @@ type EspeceByCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
 
 // Cached per connection so the public endpoint does not re-query every espèce on
 // each request, while a different connection gets its own entry.
-const especeByCD_REFByConnexion = new WeakMap<
-  Knex.Transaction | Knex,
-  Promise<EspeceByCD_REF>
->();
+const especeByCD_REFByConnexion = new WeakMap<Knex.Transaction | Knex, Promise<EspeceByCD_REF>>();
 
 function loadEspeceListByCD_REF(
   databaseConnection: Knex.Transaction | Knex,
@@ -48,9 +45,7 @@ function loadEspeceListByCD_REF(
 
   if (!especeByCD_REFP) {
     especeByCD_REFP = getEspecesProtegees(databaseConnection)
-      .then(
-        (rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])),
-      )
+      .then((rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])))
       .catch((error) => {
         // Don't keep a rejected promise cached
         especeByCD_REFByConnexion.delete(databaseConnection);
@@ -258,9 +253,9 @@ export async function generateDeclarationGeoMCE(
 ) {
   const dossiers = await listDossiersForDeclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
-  const dossiersForGeoMCE = (
-    (await getDossiersByIds(dossiers, databaseConnection)) || []
-  ).filter((d) => d !== undefined);
+  const dossiersForGeoMCE = ((await getDossiersByIds(dossiers, databaseConnection)) || []).filter(
+    (d) => d !== undefined,
+  );
 
   const messagesGeoMCE = dossiersForGeoMCE.map(generateMessagesGeoMCE);
 

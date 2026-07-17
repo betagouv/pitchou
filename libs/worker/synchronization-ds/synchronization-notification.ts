@@ -21,10 +21,8 @@ export async function updateNotification(
       .select("*")
       .whereIn("dossier", dossierIds);
 
-  const personnesFollowingDossierByDossier: Map<DossierId, { personne: PersonneId }[]> = Map.groupBy(
-    rowsPersonneAndDossierSuivi,
-    (row) => row.dossier,
-  );
+  const personnesFollowingDossierByDossier: Map<DossierId, { personne: PersonneId }[]> =
+    Map.groupBy(rowsPersonneAndDossierSuivi, (row) => row.dossier);
 
   // For each dossier, create a notification for each personne
   let notifications: NotificationInitializer[] = [];

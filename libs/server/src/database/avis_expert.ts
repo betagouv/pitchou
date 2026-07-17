@@ -114,11 +114,7 @@ export async function updateAvisExpert(
     ) {
       fichierIdsToCleanUp.push(old.saisine_fichier);
     }
-    if (
-      checkAvis &&
-      old.avis_fichier !== null &&
-      old.avis_fichier !== avisExpert.avis_fichier
-    ) {
+    if (checkAvis && old.avis_fichier !== null && old.avis_fichier !== avisExpert.avis_fichier) {
       fichierIdsToCleanUp.push(old.avis_fichier);
     }
     if (fichierIdsToCleanUp.length >= 1) {

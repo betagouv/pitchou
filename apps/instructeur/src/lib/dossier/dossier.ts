@@ -14,10 +14,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
-export function updateDossier(
-  dossier: DossierFull,
-  updates: Partial<DossierFull>,
-): Promise<void> {
+export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull>): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 

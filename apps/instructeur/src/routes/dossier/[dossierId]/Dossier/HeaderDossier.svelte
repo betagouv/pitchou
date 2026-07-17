@@ -10,7 +10,10 @@
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
-  import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
+  import {
+    instructeurLeavesDossier,
+    instructeurFollowsDossier,
+  } from "$lib/dossier/suiviDossier.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";

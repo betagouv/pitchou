@@ -34,9 +34,7 @@ export async function loadIndicatorsAARRI(): Promise<IndicatorsAARRI[]> {
   }
 }
 
-function isIndicatorsAARRIByDate(
-  indicatorsByDate: any,
-): indicatorsByDate is IndicatorsAARRI[] {
+function isIndicatorsAARRIByDate(indicatorsByDate: any): indicatorsByDate is IndicatorsAARRI[] {
   if (!Array.isArray(indicatorsByDate)) {
     return false;
   }

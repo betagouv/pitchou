@@ -54,16 +54,15 @@ function comparePhase(phase1: DossierPhase, phase2: DossierPhase) {
   return phaseToImportance[phase2] - phaseToImportance[phase1];
 }
 
-const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedFrom]: number } =
-  {
-    Instructeur: 10,
-    "Consultation du public": 9,
-    "CNPN/CSRPN": 8,
-    Pétitionnaire: 7,
-    "Autre administration": 6,
-    Autre: 5,
-    Personne: 4,
-  };
+const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedFrom]: number } = {
+  Instructeur: 10,
+  "Consultation du public": 9,
+  "CNPN/CSRPN": 8,
+  Pétitionnaire: 7,
+  "Autre administration": 6,
+  Autre: 5,
+  Personne: 4,
+};
 
 /**
  * Returns a positive number if phase1 is more important than phase2

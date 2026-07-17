@@ -4,7 +4,10 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
-  import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
+  import {
+    instructeurFollowsDossier,
+    instructeurLeavesDossier,
+  } from "$lib/dossier/suiviDossier.ts";
   import CardDossier from "./CardDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import { createTextFilter } from "$lib/dossier/textFilters.ts";
@@ -109,22 +112,20 @@
   const dossierIdsFollowedByCurrentInstructeur = $derived(relationSuivis?.get(email) ?? new Set());
 
   type PageSelector = () => void;
-  let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(
-    () => {
-      if (filteredDossiers.length >= DOSSIERS_PER_PAGE + 1) {
-        const selectors: PageSelector[] = [
-          ...Array.from({ length: pageCount }, (_v, i) => () => {
-            selectedPageNumber = i + 1;
-            tick().then(() => pageTitleElement?.focus());
-          }),
-        ];
+  let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
+    if (filteredDossiers.length >= DOSSIERS_PER_PAGE + 1) {
+      const selectors: PageSelector[] = [
+        ...Array.from({ length: pageCount }, (_v, i) => () => {
+          selectedPageNumber = i + 1;
+          tick().then(() => pageTitleElement?.focus());
+        }),
+      ];
 
-        return [undefined, ...selectors];
-      } else {
-        return undefined;
-      }
-    },
-  );
+      return [undefined, ...selectors];
+    } else {
+      return undefined;
+    }
+  });
 
   let displayedDossiers: typeof dossiers = $derived.by(() => {
     // We display the dossiers sorted first by the most recent last-modification date (nouveauté)
@@ -340,7 +341,9 @@
             {dossier}
             {currentInstructeurFollowsDossier}
             {currentInstructeurLeavesDossier}
-            dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(dossier.id)}
+            dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(
+              dossier.id,
+            )}
             nouveautéVueParInstructeur={notificationByDossier.get(dossier.id)?.vue ?? true}
           />
         </li>
@@ -351,8 +354,7 @@
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
 {#if pageSelectors}
-  <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
-  ></Pagination>
+  <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
 {/if}
 
 <style>

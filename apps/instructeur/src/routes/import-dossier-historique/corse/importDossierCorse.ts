@@ -175,9 +175,7 @@ function convertTypeDeProjetToActivitePrincipale(
     return { data: typeDeProjet, alertes };
   }
 
-  const activite = typeDeProjetToActivitePrincipale.get(
-    typeDeProjet as TypeDeProjetOptions,
-  );
+  const activite = typeDeProjetToActivitePrincipale.get(typeDeProjet as TypeDeProjetOptions);
   if (activite) {
     return { data: activite, alertes };
   }
@@ -264,9 +262,7 @@ async function generateLocalisationsData(row: {
   let alertes = [...alertesCommunes, ...departementsResult.alertes];
   const foundDepartements = departementsResult.data;
   const departementColumn =
-    Array.isArray(foundDepartements) && foundDepartements[0]
-      ? foundDepartements[0]
-      : undefined;
+    Array.isArray(foundDepartements) && foundDepartements[0] ? foundDepartements[0] : undefined;
 
   // @ts-ignore
   let data: LocalisationsData = {};
@@ -616,11 +612,7 @@ export async function createDossierFromRow(
 
   const alertesDemandeurPersonneMorale = demandeurPersonneMoraleResult?.alertes;
   const { alertes: alertesDonneesSupplementaires, ...additionalDataFromRow } =
-    createAdditionalDataFromRow(
-      row,
-      emailsByInitials,
-      demandeurPersonneMoraleResult?.data,
-    );
+    createAdditionalDataFromRow(row, emailsByInitials, demandeurPersonneMoraleResult?.data);
 
   const alertes = [
     ...alertesLocalisation,
@@ -659,9 +651,8 @@ export async function createDossierFromRow(
       ],
     "À quelle procédure le projet est-il soumis ?":
       autorisationEnvironnementaleData["À quelle procédure le projet est-il soumis ?"],
-    "NE PAS MODIFIER - Données techniques associées à votre dossier": JSON.stringify(
-      additionalDataFromRow,
-    ),
+    "NE PAS MODIFIER - Données techniques associées à votre dossier":
+      JSON.stringify(additionalDataFromRow),
 
     alertes,
   };

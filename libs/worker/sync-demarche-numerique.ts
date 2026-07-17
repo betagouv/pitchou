@@ -176,10 +176,7 @@ const downloadedFichiersMotivationP: Promise<Map<DossierDS88444["number"], FileI
 
 const downloadedFichiersMotivation = await downloadedFichiersMotivationP;
 
-const {
-  getPersonnesEntreprisesData,
-  makeCommonDossierColumnsForSync,
-} = (() => {
+const { getPersonnesEntreprisesData, makeCommonDossierColumnsForSync } = (() => {
   if (DEMARCHE_NUMBER === 88444) {
     return {
       // We can't create types that depend on a parameter — here we'd want
@@ -313,10 +310,7 @@ for (const {
 }
 
 if (entreprisesInDossiersBySiret.size >= 1) {
-  await dumpEntreprises(
-    [...entreprisesInDossiersBySiret.values()],
-    synchronizationTransactionDS,
-  );
+  await dumpEntreprises([...entreprisesInDossiersBySiret.values()], synchronizationTransactionDS);
 }
 
 /*
@@ -354,15 +348,11 @@ function _replacePersonneEntreprise(
   };
 }
 
-function replaceForInsert(
-  d: DossierEntreprisesPersonneInitializersForInsert,
-): DossierForInsert {
+function replaceForInsert(d: DossierEntreprisesPersonneInitializersForInsert): DossierForInsert {
   return _replacePersonneEntreprise(d) as DossierForInsert;
 }
 
-function replaceForUpdate(
-  d: DossierEntreprisesPersonneInitializersForUpdate,
-): DossierForUpdate {
+function replaceForUpdate(d: DossierEntreprisesPersonneInitializersForUpdate): DossierForUpdate {
   return _replacePersonneEntreprise(d) as DossierForUpdate;
 }
 

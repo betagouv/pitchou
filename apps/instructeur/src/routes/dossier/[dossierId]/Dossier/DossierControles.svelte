@@ -8,10 +8,7 @@
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
-  import type {
-    DossierFull,
-    FrontEndDecisionAdministrative,
-  } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossier: DossierFull;
@@ -62,7 +59,7 @@
   {:else}
     {#each decisionsAdministratives as decisionAdministrative (decisionAdministrative.id)}
       <DecisionAdministrative
-        decisionAdministrative={decisionAdministrative}
+        {decisionAdministrative}
         dossierId={dossier.id}
         deleteDecisionAdministrative={createDeleteFunction(decisionAdministrative)}
       ></DecisionAdministrative>

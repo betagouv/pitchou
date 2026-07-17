@@ -654,23 +654,23 @@ export async function buildActivitesMethodesMoyensDePoursuite(
   // used by Svelte
 
   const rawActivites: ByClassification<ActiviteMenancante[]> = {
-    oiseau: rawActivitesMethodesMoyensDePoursuite.get("Activités oiseau")!.map((row) =>
-      Object.assign({}, row),
-    ),
-    "faune non-oiseau": rawActivitesMethodesMoyensDePoursuite.get(
-      "Activités faune non oiseau",
-    )!.map((row) => Object.assign({}, row)),
-    flore: rawActivitesMethodesMoyensDePoursuite.get("Activités flore")!.map((row) =>
-      Object.assign({}, row),
-    ),
+    oiseau: rawActivitesMethodesMoyensDePoursuite
+      .get("Activités oiseau")!
+      .map((row) => Object.assign({}, row)),
+    "faune non-oiseau": rawActivitesMethodesMoyensDePoursuite
+      .get("Activités faune non oiseau")!
+      .map((row) => Object.assign({}, row)),
+    flore: rawActivitesMethodesMoyensDePoursuite
+      .get("Activités flore")!
+      .map((row) => Object.assign({}, row)),
   };
 
-  const rawMethodes: MethodeMenancante[] = rawActivitesMethodesMoyensDePoursuite.get(
-    "Méthodes",
-  )!.map((row) => Object.assign({}, row));
-  const moyensPoursuite: MoyenDePoursuiteMenacant[] = rawActivitesMethodesMoyensDePoursuite.get(
-    "Moyens de poursuite",
-  )!.map((row) => Object.assign({}, row));
+  const rawMethodes: MethodeMenancante[] = rawActivitesMethodesMoyensDePoursuite
+    .get("Méthodes")!
+    .map((row) => Object.assign({}, row));
+  const moyensPoursuite: MoyenDePoursuiteMenacant[] = rawActivitesMethodesMoyensDePoursuite
+    .get("Moyens de poursuite")!
+    .map((row) => Object.assign({}, row));
 
   const ActivitesMethodesMoyensDePoursuite = actMetTransArraysToMapBundle(
     rawActivites,

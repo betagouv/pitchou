@@ -232,10 +232,7 @@
           {/each}
           <tr>
             <td colspan={NUMERIC_COLUMNS.length + 4} class="fr-pt-1w">
-              <button
-                class="fr-btn fr-btn--icon-left fr-icon-add-line"
-                onclick={addPrescription}
-              >
+              <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={addPrescription}>
                 Ajouter une prescription
               </button>
             </td>

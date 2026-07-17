@@ -61,13 +61,12 @@ export async function downloadNewFichiersMotivation(
 
   if (candidateFichiersMotivation.size >= 1) {
     // keep only the first file and ignore the others
-    let candidateFichiersMotivationForDownload: Map<DossierDS88444["number"], DSFile[]> =
-      new Map(
-        [...candidateFichiersMotivation].map(([number, fichierDescription]) => [
-          number,
-          [fichierDescription],
-        ]),
-      );
+    let candidateFichiersMotivationForDownload: Map<DossierDS88444["number"], DSFile[]> = new Map(
+      [...candidateFichiersMotivation].map(([number, fichierDescription]) => [
+        number,
+        [fichierDescription],
+      ]),
+    );
 
     return downloadNewFichiers(
       candidateFichiersMotivationForDownload,

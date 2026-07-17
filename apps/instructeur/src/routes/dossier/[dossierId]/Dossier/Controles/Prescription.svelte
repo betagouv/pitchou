@@ -5,11 +5,7 @@
   import TagResultatControle from "../../TagResultatControle.svelte";
 
   import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
-  import {
-    addControle as sendControle,
-    updateControle,
-    deleteControle,
-  } from "./controle.ts";
+  import { addControle as sendControle, updateControle, deleteControle } from "./controle.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
@@ -226,10 +222,7 @@
             {#if controle === editedControle}
               <h6>Modification du contrôle</h6>
 
-              <FormControle
-                controle={editedControle}
-                onValidate={validateControleModifications}
-              >
+              <FormControle controle={editedControle} onValidate={validateControleModifications}>
                 {#snippet buttonCancel()}
                   <button
                     type="button"

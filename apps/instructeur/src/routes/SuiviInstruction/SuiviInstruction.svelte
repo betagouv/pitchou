@@ -20,7 +20,10 @@
     sortDossiersByColumnAlphabetically,
     sortDossiersByPhaseProchaineAction,
   } from "./sortDossiers.ts";
-  import { instructeurLeavesDossier, instructeurFollowsDossier } from "$lib/dossier/suiviDossier.ts";
+  import {
+    instructeurLeavesDossier,
+    instructeurFollowsDossier,
+  } from "$lib/dossier/suiviDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import {
     sendEvenement,
@@ -120,20 +123,14 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(
-          selectedDossiers,
-          "nom",
-        );
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom");
       },
       id: "NomProjet-AZ",
     },
     {
       nom: "Trier de Z à A",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(
-          selectedDossiers,
-          "nom",
-        ).reverse();
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom").reverse();
       },
       id: "NomProjet-ZA",
     },
@@ -143,10 +140,7 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(
-          selectedDossiers,
-          "localisation",
-        );
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "localisation");
       },
       id: "Localisation-AZ",
     },
@@ -324,9 +318,7 @@
       DossierNextActionExpectedFrom | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
     >,
   ) {
-    selectedProchainesActionsAttenduesPar = new SvelteSet(
-      _selectedProchainesActionsAttenduesPar,
-    );
+    selectedProchainesActionsAttenduesPar = new SvelteSet(_selectedProchainesActionsAttenduesPar);
 
     filterDossiers();
     sendEvenementRechercherUnDossier();
@@ -369,17 +361,14 @@
 
   //$inspect('')
 
-  let selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
-    $state(
-      untrack(
-        () =>
-          new SvelteSet(
-            selectedFilters.instructeurs
-              ? selectedFilters.instructeurs
-              : instructeursOptions,
-          ),
-      ),
-    );
+  let selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> = $state(
+    untrack(
+      () =>
+        new SvelteSet(
+          selectedFilters.instructeurs ? selectedFilters.instructeurs : instructeursOptions,
+        ),
+    ),
+  );
 
   $inspect("instructeursSélectionnés", selectedInstructeurs);
 
@@ -396,7 +385,10 @@
 
     for (const instructeurEmail of selectedInstructeurs) {
       const dossierIdsFollowedByThisInstructeur = relationSuivis.get(instructeurEmail);
-      if (dossierIdsFollowedByThisInstructeur && dossierIdsFollowedByThisInstructeur.has(dossier.id))
+      if (
+        dossierIdsFollowedByThisInstructeur &&
+        dossierIdsFollowedByThisInstructeur.has(dossier.id)
+      )
         return true;
     }
 
@@ -417,9 +409,7 @@
     sendEvenement({ type: "afficherLesDossiersSuivis" });
   }
 
-  let unselectedInstructeurs = $derived(
-    instructeursOptions.difference(selectedInstructeurs),
-  );
+  let unselectedInstructeurs = $derived(instructeursOptions.difference(selectedInstructeurs));
 
   const AUCUNE_ACTIVITE_PRINCIPALE = "(aucune activité principale)" as const;
   // @ts-ignore
@@ -482,23 +472,21 @@
   // page number matching the displayed one, so starting at 1
   let selectedPageNumber: number = $state(1);
 
-  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(
-    () => {
-      if (selectedDossiers.length >= DOSSIERS_PER_PAGE * 2 + 1) {
-        const pageCount = Math.ceil(selectedDossiers.length / DOSSIERS_PER_PAGE);
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(() => {
+    if (selectedDossiers.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+      const pageCount = Math.ceil(selectedDossiers.length / DOSSIERS_PER_PAGE);
 
-        return [
-          undefined,
-          ...[...Array(pageCount).keys()].map((i) => () => {
-            console.log("sélection de la page", i + 1);
-            selectedPageNumber = i + 1;
-          }),
-        ];
-      }
+      return [
+        undefined,
+        ...[...Array(pageCount).keys()].map((i) => () => {
+          console.log("sélection de la page", i + 1);
+          selectedPageNumber = i + 1;
+        }),
+      ];
+    }
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   $effect(() => {
     if (pageSelectors) selectedPageNumber = 1;
@@ -546,10 +534,7 @@
     </h1>
 
     {#if dossiers.length >= 1}
-      <SearchBar
-        title="Rechercher par texte libre"
-        updateTextSearch={filterByText}
-      />
+      <SearchBar title="Rechercher par texte libre" updateTextSearch={filterByText} />
 
       <div class="fr-mb-2w">
         <strong>Filtrer par phase</strong>
@@ -662,8 +647,7 @@
 
         {#if textToSearch}
           <div class="fr-mb-1w">
-            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {textToSearch}</span
-            >
+            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {textToSearch}</span>
             <button onclick={onDeleteTextFilter}>✖</button>
           </div>
         {/if}
@@ -700,10 +684,7 @@
                 Phase<br />
                 <br />
                 Prochaine action attendue de
-                <ThSorts
-                  sorts={priorisationPhaseProchaineActionSorts}
-                  bind:selectedSort
-                />
+                <ThSorts sorts={priorisationPhaseProchaineActionSorts} bind:selectedSort />
               </th>
             </tr>
           </thead>
@@ -803,8 +784,7 @@
         </table>
 
         {#if pageSelectors}
-          <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
-          ></Pagination>
+          <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
         {/if}
       </div>
     {:else}

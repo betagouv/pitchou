@@ -24,7 +24,7 @@
       id="recherche-texte"
       placeholder={title}
       class="fr-input"
-      bind:value={value}
+      bind:value
     />
     <button class="fr-btn" type="submit">Chercher</button>
   </div>

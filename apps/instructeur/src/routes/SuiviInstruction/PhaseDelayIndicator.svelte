@@ -28,10 +28,10 @@
 
 {#if currentPhaseStart.phase === "Instruction"}
   <DelayIndicator
-    quantity={quantity}
+    {quantity}
     style={quantity >= 3 ? "error" : quantity >= 2 ? "warning" : "info"}
     {alt}
   ></DelayIndicator>
 {:else}
-  <DelayIndicator quantity={quantity} style="info" {alt}></DelayIndicator>
+  <DelayIndicator {quantity} style="info" {alt}></DelayIndicator>
 {/if}

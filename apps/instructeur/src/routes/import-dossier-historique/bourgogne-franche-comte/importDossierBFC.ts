@@ -113,9 +113,7 @@ function convertThematiqueToActivitePrincipale(
     return thematiqueBFC;
   }
 
-  const activite = thematiqueToActivitePrincipale.get(
-    thematiqueBFC as ThematiquesOptions,
-  );
+  const activite = thematiqueToActivitePrincipale.get(thematiqueBFC as ThematiquesOptions);
   if (activite) {
     return activite;
   }
@@ -288,9 +286,7 @@ async function generateLocalisationsData(row: {
   const foundDepartements = departementsResult.data;
 
   const departementColumn =
-    Array.isArray(foundDepartements) && foundDepartements[0]
-      ? foundDepartements[0]
-      : undefined;
+    Array.isArray(foundDepartements) && foundDepartements[0] ? foundDepartements[0] : undefined;
 
   if (communes.length >= 1) {
     const firstCommuneDepartement = communes[0].departement;
@@ -463,9 +459,7 @@ function createAvisExpertData(
 /**
  * Extracts the additional data (NE PAS MODIFIER) from an import row.
  */
-export function createAdditionalDataFromRow(
-  row: DossierBFCRow,
-): AdditionalDataForDossierCreation {
+export function createAdditionalDataFromRow(row: DossierBFCRow): AdditionalDataForDossierCreation {
   const description = row["Description avancement dossier avec dates"]
     ? "Description avancement dossier avec dates : " +
       row["Description avancement dossier avec dates"]

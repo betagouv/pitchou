@@ -232,8 +232,8 @@
       <p class="fr-text--sm">
         Si vous souhaitez rajouter une espèce qui ne se trouve pas dans la liste, merci d'envoyer un
         mail à
-        <a target="_blank" href={mailtoMissingEspece}>pitchou@beta.gouv.fr</a> en indiquant
-        l'espèce concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br />
+        <a target="_blank" href={mailtoMissingEspece}>pitchou@beta.gouv.fr</a> en indiquant l'espèce
+        concernée (nom scientifique, nom vernaculaire, <code>CD_NOM</code>).<br />
         Le <code>CD_NOM</code> est disponible sur
         <a target="_blank" href="https://inpn.mnhn.fr/accueil/recherche-de-donnees"
           >le site de l'INPN</a

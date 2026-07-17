@@ -18,10 +18,9 @@ export const POST: RequestHandler = async ({ request }) => {
       await encryptDossiersAdditionalData(dossiersAdditionalData);
   }
 
-  const { dossier_url } = (await requestPrefillingLink(
-    prefillingData,
-    schema88444,
-  )) as { dossier_url: string };
+  const { dossier_url } = (await requestPrefillingLink(prefillingData, schema88444)) as {
+    dossier_url: string;
+  };
 
   return new Response(dossier_url, { headers: { "content-type": "text/plain" } });
 };

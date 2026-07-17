@@ -107,10 +107,7 @@ test("appelle onValidate avec le fichier encodé en base64 quand tout est valide
     onValidate,
   });
 
-  await chooseFichier(
-    container,
-    new File(["%PDF-1.4"], "arrete.pdf", { type: "application/pdf" }),
-  );
+  await chooseFichier(container, new File(["%PDF-1.4"], "arrete.pdf", { type: "application/pdf" }));
   await clickSave();
 
   await vi.waitFor(() => expect(onValidate).toHaveBeenCalledTimes(1));

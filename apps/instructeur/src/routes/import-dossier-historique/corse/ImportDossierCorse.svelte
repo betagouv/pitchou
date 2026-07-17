@@ -95,9 +95,7 @@
           );
         }
 
-        const rawDataEmailsByInitials = rawData.get(
-          INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME,
-        );
+        const rawDataEmailsByInitials = rawData.get(INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME);
 
         if (!rawDataEmailsByInitials) {
           throw new TypeError(
@@ -190,32 +188,28 @@
   // page number matching the one displayed, therefore starting at 1
   let selectedPageNumber: number = $state(1);
 
-  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(
-    () => {
-      if (importTableRows.length >= DOSSIERS_PER_PAGE * 2 + 1) {
-        const pageCount = Math.ceil(importTableRows.length / DOSSIERS_PER_PAGE);
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(() => {
+    if (importTableRows.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+      const pageCount = Math.ceil(importTableRows.length / DOSSIERS_PER_PAGE);
 
-        return [
-          undefined,
-          ...[...Array(pageCount).keys()].map((i) => () => {
-            //console.log('sélection de la page', i+1)
-            selectedPageNumber = i + 1;
-          }),
-        ];
-      }
+      return [
+        undefined,
+        ...[...Array(pageCount).keys()].map((i) => () => {
+          //console.log('sélection de la page', i+1)
+          selectedPageNumber = i + 1;
+        }),
+      ];
+    }
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   $effect(() => {
     if (pageSelectors) selectedPageNumber = 1;
   });
 
   let displayedImportTableRows: typeof importTableRows = $derived.by(() => {
-    const rowsToDisplay = showAllDossiers
-      ? importTableRows
-      : filteredImportTableRows;
+    const rowsToDisplay = showAllDossiers ? importTableRows : filteredImportTableRows;
 
     if (!pageSelectors) return rowsToDisplay;
     else {
@@ -282,10 +276,7 @@
   <div class="progression">
     <div>{numberDossiersToImport} / {importTableRows.length}</div>
 
-    <div
-      class="fr-progress-bar"
-      title={`${numberDossiersToImport} / ${importTableRows.length}`}
-    >
+    <div class="fr-progress-bar" title={`${numberDossiersToImport} / ${importTableRows.length}`}>
       <div
         style="width: {percentageOfDossiersCreatedInDB}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
       ></div>
@@ -308,9 +299,7 @@
               </thead>
               <tbody>
                 {#each displayedImportTableRows as displayedImportTableRow, index}
-                  {@const dossierAndAlerts = rowToDossierWithAlerts.get(
-                    displayedImportTableRow,
-                  )}
+                  {@const dossierAndAlerts = rowToDossierWithAlerts.get(displayedImportTableRow)}
                   {@const dossierAlerts = dossierAndAlerts?.alertes}
                   <tr
                     data-row-key={index}
@@ -374,8 +363,9 @@
                                       )}
                                       {#each additionalData as [additionalDataKey, additionalDataValue]}
                                         {#if additionalDataKey === "dossier"}
-                                          {@const dossierDataFromAdditionalData =
-                                            Object.entries(additionalDataValue as object)}
+                                          {@const dossierDataFromAdditionalData = Object.entries(
+                                            additionalDataValue as object,
+                                          )}
                                           {#each dossierDataFromAdditionalData as dossierDataEntryFromAdditionalData}
                                             <li>
                                               <strong
@@ -440,8 +430,7 @@
     </div>
 
     {#if pageSelectors}
-      <Pagination pageSelectors={pageSelectors} currentPage={pageSelectors[selectedPageNumber]}
-      ></Pagination>
+      <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
     {/if}
   {:catch loadingError}
     <p class="fr-alert fr-alert--error fr-mt-4w">

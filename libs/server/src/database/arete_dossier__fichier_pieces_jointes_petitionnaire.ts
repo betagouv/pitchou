@@ -72,10 +72,7 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
 
       // 2. Delete the files now that the edges are gone, only
       //    if they are no longer referenced elsewhere
-      await deleteFichiersWithoutOtherReferences(
-        fichierIdsCandidatsASupprimer,
-        databaseConnection,
-      );
+      await deleteFichiersWithoutOtherReferences(fichierIdsCandidatsASupprimer, databaseConnection);
     })();
   }
 

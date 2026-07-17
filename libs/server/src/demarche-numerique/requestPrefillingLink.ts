@@ -83,9 +83,8 @@ function createChampPrefillingObject(
       Array.isArray(partialDossier["Commune(s) où se situe le projet"]) &&
       partialDossier["Commune(s) où se situe le projet"].length >= 1
     ) {
-      prefillingObject[
-        `champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`
-      ] = "d'une ou plusieurs communes";
+      prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+        "d'une ou plusieurs communes";
 
       prefillingObject[
         `champ_${demarcheDossierLabelToId.get(`Commune(s) où se situe le projet`)}`

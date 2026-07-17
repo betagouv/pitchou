@@ -257,9 +257,7 @@
       class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-4w"
     >
       <li>
-        <button type="button" class="fr-btn fr-btn--secondary" onclick={closeForm}
-          >Annuler</button
-        >
+        <button type="button" class="fr-btn fr-btn--secondary" onclick={closeForm}>Annuler</button>
       </li>
       <li>
         {#await loadingAddOrUpdateAvisExpertP}

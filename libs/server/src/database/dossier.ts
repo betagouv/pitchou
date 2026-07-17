@@ -599,8 +599,10 @@ export async function getDossierFull(
     transaction,
   );
 
-  const allAvisExpertDossierP: Promise<AvisExpertWithFichierDescriptions[]> =
-    getAvisExpertDossier(dossierId, transaction);
+  const allAvisExpertDossierP: Promise<AvisExpertWithFichierDescriptions[]> = getAvisExpertDossier(
+    dossierId,
+    transaction,
+  );
 
   const descriptionsPiecesJointesPetitionnaireP: Promise<
     (Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]

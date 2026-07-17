@@ -44,10 +44,7 @@ export function createTextFilter(
     const toSearch = textWithoutAccents.match(/(\w-)+/)
       ? `"${textWithoutAccents}"`
       : textWithoutAccents;
-    const dossierIdsMatchingText = findDossierIdsMatchingText(
-      toSearch,
-      dossiers,
-    );
+    const dossierIdsMatchingText = findDossierIdsMatchingText(toSearch, dossiers);
 
     return (dossier) => {
       return dossierIdsMatchingText.has(dossier.id);

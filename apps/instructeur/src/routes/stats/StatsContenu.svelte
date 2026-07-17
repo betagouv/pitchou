@@ -88,7 +88,9 @@
                   <span class="stat-label">Avec décision<br />{pourcentageAvecDecision}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
-                  <span class="stat-number">{stats.numberDossiersEnPhaseControleWithoutDecision}</span>
+                  <span class="stat-number"
+                    >{stats.numberDossiersEnPhaseControleWithoutDecision}</span
+                  >
                   <span class="stat-label">Sans décision<br />{pourcentageSansDecision}%</span>
                 </div>
               </div>

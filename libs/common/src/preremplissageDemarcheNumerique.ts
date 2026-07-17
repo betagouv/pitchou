@@ -143,9 +143,8 @@ export function createGETPrefillingLinkDemarche(
       // An array of dictionaries with the possible values for each field of the repetition.
       // champ_Q2hhbXAtNDA0MTQ0Mw: An array containing the postal code and the INSEE code of the commune
 
-      prefillingObject[
-        `champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`
-      ] = "d'une ou plusieurs communes";
+      prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+        "d'une ou plusieurs communes";
 
       communesURLParam = partialDossier["Commune(s) où se situe le projet"]
         .filter((commune) => Object(commune) === commune)

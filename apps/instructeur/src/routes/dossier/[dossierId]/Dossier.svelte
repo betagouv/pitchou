@@ -162,9 +162,7 @@
             type="button"
             id="tabpanel-porteur-de-projet"
             aria-controls="tabpanel-porteur-de-projet-panel"
-            class="fr-tabs__tab {activeTab === 'porteur-de-projet'
-              ? 'fr-tabs__tab--selected'
-              : ''}"
+            class="fr-tabs__tab {activeTab === 'porteur-de-projet' ? 'fr-tabs__tab--selected' : ''}"
             tabindex={activeTab === "porteur-de-projet" ? 0 : -1}
             role="tab"
             aria-selected={activeTab === "porteur-de-projet"}

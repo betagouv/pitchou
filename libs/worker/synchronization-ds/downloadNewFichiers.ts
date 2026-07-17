@@ -99,7 +99,10 @@ export default async function downloadNewFichiers(
     // @ts-ignore
     [...candidateFichiersDB]
       .map(([number, fichiers]) => {
-        return [number, fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f)))];
+        return [
+          number,
+          fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f))),
+        ];
       })
       // @ts-ignore
       .filter(([_, fichiers]) => fichiers.length >= 1),

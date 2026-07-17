@@ -94,9 +94,7 @@
     let newEspecesImpactees: Array<{
       espece: EspeceProtegee;
       impacts: DescriptionImpact[];
-    }> = especesImpacteesToPrefill.filter(
-      (especeImpactee) => especeImpactee?.espèce !== undefined,
-    );
+    }> = especesImpacteesToPrefill.filter((especeImpactee) => especeImpactee?.espèce !== undefined);
 
     onClickPrefillWithTextDocument(newEspecesImpactees);
   }

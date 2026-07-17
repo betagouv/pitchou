@@ -18,12 +18,7 @@
     onDelete?: () => void;
   };
 
-  let {
-    decisionAdministrative,
-    onValidate,
-    onCancel,
-    onDelete,
-  }: Props = $props();
+  let { decisionAdministrative, onValidate, onCancel, onDelete }: Props = $props();
 
   // Local editable copy: the form edits this and hands it to onValidate, so it
   // never mutates the prop owned by the parent (avoids Svelte's
@@ -81,9 +76,7 @@
       const fichier = fichiers[0];
 
       const lowercaseName = fichier.name.toLowerCase();
-      const isValidFormat = ACCEPTED_FORMATS.some((extension) =>
-        lowercaseName.endsWith(extension),
-      );
+      const isValidFormat = ACCEPTED_FORMATS.some((extension) => lowercaseName.endsWith(extension));
       if (!isValidFormat) {
         fileErrorMessage = `Format de fichier non supporté. Formats acceptés : ${ACCEPTED_FORMATS.join(", ")}.`;
         return;

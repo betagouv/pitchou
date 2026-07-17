@@ -256,9 +256,7 @@ async function makeChampsDossierForInitialization(
   let additionalData: AdditionalDataForDossierCreation | undefined;
   try {
     additionalData = additionalDataToDecrypt
-      ? JSON.parse(
-          await decryptDossiersAdditionalData(additionalDataToDecrypt),
-        )
+      ? JSON.parse(await decryptDossiersAdditionalData(additionalDataToDecrypt))
       : undefined;
 
     if (additionalData) {
@@ -277,11 +275,7 @@ async function makeChampsDossierForInitialization(
 
   return {
     dossier: {
-      ...makeCommonDossierColumnsForSync(
-        dossierDS,
-        pitchouKeyToChampDS,
-        pitchouKeyToAnnotationDS,
-      ),
+      ...makeCommonDossierColumnsForSync(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
       ...(additionalData?.dossier || {}),
       date_dépôt: additionalData?.dossier?.date_dépôt ?? dossierDS.dateDepot,
       numéro_démarche: demarcheNumber,

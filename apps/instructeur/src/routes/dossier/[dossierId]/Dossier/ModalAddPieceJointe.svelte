@@ -133,10 +133,7 @@
         (typePieceJointe === "Autre" && otherAttachmentType.trim() !== "")),
   );
 
-  function sendEvenementAddPieceJointe(
-    typePieceJointe: TypePieceJointe,
-    nombreFichiers: number,
-  ) {
+  function sendEvenementAddPieceJointe(typePieceJointe: TypePieceJointe, nombreFichiers: number) {
     sendEvenement({
       type: "ajouterPieceJointe",
       détails: {
@@ -173,11 +170,7 @@
           date_saisine: dateSaisine,
         };
 
-        addNewPieceJointeP = addOrUpdateAvisExpert(
-          avisExpertToCreate,
-          fichierSaisine,
-          undefined,
-        )
+        addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToCreate, fichierSaisine, undefined)
           .then(() => {
             sendEvenementAddPieceJointe("Saisine expert", 1);
             return refreshDossierFull(dossier.id).then(() => closeModal());
@@ -201,11 +194,7 @@
             date_saisine: dateSaisine,
             date_avis: dateAvis,
           };
-          addNewPieceJointeP = addOrUpdateAvisExpert(
-            avisExpertToCreate,
-            undefined,
-            fichierAvis,
-          )
+          addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToCreate, undefined, fichierAvis)
             .then(() => {
               sendEvenementAddPieceJointe("Avis expert", 1);
               return refreshDossierFull(dossier.id).then(() => closeModal());
@@ -222,11 +211,7 @@
               date_avis: dateAvis,
               avis,
             };
-            addNewPieceJointeP = addOrUpdateAvisExpert(
-              avisExpertToUpdate,
-              undefined,
-              fichierAvis,
-            )
+            addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToUpdate, undefined, fichierAvis)
               .then(() => {
                 sendEvenementAddPieceJointe("Avis expert", 1);
                 return refreshDossierFull(dossier.id).then(() => closeModal());

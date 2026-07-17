@@ -9,10 +9,7 @@
     loadActivitesMethodesMoyensDePoursuite,
   } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
-  const initP = Promise.all([
-    loadEspecesProtegeesList(),
-    loadActivitesMethodesMoyensDePoursuite(),
-  ]);
+  const initP = Promise.all([loadEspecesProtegeesList(), loadActivitesMethodesMoyensDePoursuite()]);
 </script>
 
 {#await initP then [especesData, actMetTrans]}
