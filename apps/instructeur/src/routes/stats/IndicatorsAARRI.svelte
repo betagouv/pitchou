@@ -1,35 +1,35 @@
 <script lang="ts">
-  import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
+  import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Loader from "$lib/components/Loader.svelte";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
-  import MatriceImpact from "./MatriceImpact.svelte";
+  import MatrixImpact from "./MatrixImpact.svelte";
 
   type Props = {
-    indicateursParDateP: Promise<IndicateursAARRI[]>;
+    indicatorsByDateP: Promise<IndicatorsAARRI[]>;
   };
 
-  let { indicateursParDateP }: Props = $props();
+  let { indicatorsByDateP }: Props = $props();
 
-  let indicateursAujourdhuiP = $derived(
-    indicateursParDateP.then((indicateursParDate) => indicateursParDate[0]),
+  let indicatorsTodayP = $derived(
+    indicatorsByDateP.then((indicatorsByDate) => indicatorsByDate[0]),
   );
 
   // typing intentionally loose: the value can be Date (from the option) or "" (default option)
-  let dateDebut: any = $state();
-  let dateFin: any = $state();
+  let startDate: any = $state();
+  let endDate: any = $state();
 
   // Default comparison: from the earliest snapshot to today (the two extremes).
-  untrack(() => indicateursParDateP).then((indicateursParDate) => {
-    if (indicateursParDate.length > 0) {
-      dateFin = indicateursParDate[0].date;
-      dateDebut = indicateursParDate[indicateursParDate.length - 1].date;
+  untrack(() => indicatorsByDateP).then((indicatorsByDate) => {
+    if (indicatorsByDate.length > 0) {
+      endDate = indicatorsByDate[0].date;
+      startDate = indicatorsByDate[indicatorsByDate.length - 1].date;
     }
   });
 
-  const largeurBarreBase = 80;
+  const baseBarWidth = 80;
 
   function formatEvolution(change: number): string {
     return change > 0 ? `+${change}` : `${change}`;
@@ -58,9 +58,9 @@
 <div class="fr-my-6w">
   <h1>Suivi des indicateurs AARRI</h1>
 
-  {#await indicateursAujourdhuiP}
+  {#await indicatorsTodayP}
     <Loader></Loader>
-  {:then indicateursAujourdhui}
+  {:then indicatorsToday}
     <section class="fr-mt-4w">
       <h2>État des lieux</h2>
       <p>
@@ -72,38 +72,38 @@
           <span class="fr-col-1">Impact</span>
           <div
             class="bar bar-impact"
-            style={`width:${(indicateursAujourdhui.nombreUtilisateuriceImpact / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
+            style={`width:${(indicatorsToday.nombreUtilisateuriceImpact / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
-          <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceImpact}</span>
+          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceImpact}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Retenu</span>
           <div
             class="bar bar-retenu"
-            style={`width:${(indicateursAujourdhui.nombreUtilisateuriceRetenu / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
+            style={`width:${(indicatorsToday.nombreUtilisateuriceRetenu / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
-          <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceRetenu}</span>
+          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceRetenu}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Activé</span>
           <div
             class="bar bar-actif"
-            style={`width:${(indicateursAujourdhui.nombreUtilisateuriceActif / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
+            style={`width:${(indicatorsToday.nombreUtilisateuriceActif / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
-          <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceActif}</span>
+          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceActif}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Acquis</span>
           <div
             class="bar bar-acquis"
-            style={`width:${(indicateursAujourdhui.nombreUtilisateuriceAcquis / indicateursAujourdhui.nombreBaseUtilisateuricePotentielle) * largeurBarreBase}%`}
+            style={`width:${(indicatorsToday.nombreUtilisateuriceAcquis / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
-          <span class="fr-ml-1w">{indicateursAujourdhui.nombreUtilisateuriceAcquis}</span>
+          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceAcquis}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Base</span>
-          <div class="bar bar-base" style={`width:${largeurBarreBase}%`}></div>
-          <span class="fr-ml-1w">{indicateursAujourdhui.nombreBaseUtilisateuricePotentielle}</span>
+          <div class="bar bar-base" style={`width:${baseBarWidth}%`}></div>
+          <span class="fr-ml-1w">{indicatorsToday.nombreBaseUtilisateuricePotentielle}</span>
         </div>
       </div>
     </section>
@@ -138,51 +138,51 @@
         d'utilisateurices ayant fait au moins un contrôle qui produit un retour à la conformité.
       </p>
     </section>
-    {#await indicateursParDateP}
+    {#await indicatorsByDateP}
       <Loader></Loader>
-    {:then indicateursParDate}
-      {@const toutesLesDates = [...indicateursParDate]
-        .map((indicateurs) => indicateurs.date)
+    {:then indicatorsByDate}
+      {@const allDates = [...indicatorsByDate]
+        .map((indicators) => indicators.date)
         .sort((a, b) => +new Date(a) - +new Date(b))}
-      {@const datesDebutPossibles = toutesLesDates.filter(
-        (date) => !dateFin || +new Date(date) <= +new Date(dateFin),
+      {@const possibleStartDates = allDates.filter(
+        (date) => !endDate || +new Date(date) <= +new Date(endDate),
       )}
-      {@const datesFinPossibles = toutesLesDates.filter(
-        (date) => !dateDebut || +new Date(date) >= +new Date(dateDebut),
+      {@const possibleEndDates = allDates.filter(
+        (date) => !startDate || +new Date(date) >= +new Date(startDate),
       )}
-      {@const indicateurDebut = indicateursParDate.find((indicateurs) =>
-        isSameDay(indicateurs.date, dateDebut),
+      {@const startIndicator = indicatorsByDate.find((indicators) =>
+        isSameDay(indicators.date, startDate),
       )}
-      {@const indicateurFin = indicateursParDate.find((indicateurs) =>
-        isSameDay(indicateurs.date, dateFin),
+      {@const endIndicator = indicatorsByDate.find((indicators) =>
+        isSameDay(indicators.date, endDate),
       )}
       {@const evolutionRows = [
         {
           phase: "Acquis",
           color: "var(--artwork-minor-brown-caramel)",
-          before: indicateurDebut?.nombreUtilisateuriceAcquis,
-          after: indicateurFin?.nombreUtilisateuriceAcquis,
+          before: startIndicator?.nombreUtilisateuriceAcquis,
+          after: endIndicator?.nombreUtilisateuriceAcquis,
         },
         {
           phase: "Activé",
           color: "var(--artwork-minor-green-menthe)",
-          before: indicateurDebut?.nombreUtilisateuriceActif,
-          after: indicateurFin?.nombreUtilisateuriceActif,
+          before: startIndicator?.nombreUtilisateuriceActif,
+          after: endIndicator?.nombreUtilisateuriceActif,
         },
         {
           phase: "Retenu",
           color: "var(--artwork-minor-yellow-moutarde)",
-          before: indicateurDebut?.nombreUtilisateuriceRetenu,
-          after: indicateurFin?.nombreUtilisateuriceRetenu,
+          before: startIndicator?.nombreUtilisateuriceRetenu,
+          after: endIndicator?.nombreUtilisateuriceRetenu,
         },
         {
           phase: "Impact",
           color: "var(--artwork-minor-red-marianne)",
-          before: indicateurDebut?.nombreUtilisateuriceImpact,
-          after: indicateurFin?.nombreUtilisateuriceImpact,
+          before: startIndicator?.nombreUtilisateuriceImpact,
+          after: endIndicator?.nombreUtilisateuriceImpact,
         },
       ]}
-      <MatriceImpact />
+      <MatrixImpact />
       <section class="fr-mt-4w">
         <h2>Évolution</h2>
         <p>
@@ -190,30 +190,30 @@
           enregistré.
         </p>
 
-        <AARRIEvolutionChart indicateurs={indicateursParDate} />
+        <AARRIEvolutionChart indicators={indicatorsByDate} />
 
         <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurice par phase entre deux dates</h3>
 
         <div class="dates-comparison">
           <div class="fr-select-group">
             <label class="fr-label" for="select-debut">De</label>
-            <select bind:value={dateDebut} class="fr-select" id="select-debut" name="select-debut">
-              {#each datesDebutPossibles as date}
+            <select bind:value={startDate} class="fr-select" id="select-debut" name="select-debut">
+              {#each possibleStartDates as date}
                 <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
             </select>
           </div>
           <div class="fr-select-group">
             <label class="fr-label" for="select-fin">à</label>
-            <select bind:value={dateFin} class="fr-select" id="select-fin" name="select-fin">
-              {#each datesFinPossibles as date}
+            <select bind:value={endDate} class="fr-select" id="select-fin" name="select-fin">
+              {#each possibleEndDates as date}
                 <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
             </select>
           </div>
         </div>
 
-        {#if indicateurDebut && indicateurFin}
+        {#if startIndicator && endIndicator}
           <div class="fr-table" id="table-0-component">
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
@@ -221,14 +221,14 @@
                   <table id="table-0">
                     <caption class="fr-sr-only">
                       Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolute(
-                        dateDebut,
-                      )} et {formatDateAbsolute(dateFin)}
+                        startDate,
+                      )} et {formatDateAbsolute(endDate)}
                     </caption>
                     <thead>
                       <tr>
                         <th>Phase</th>
-                        <th>{formatDateAbsolute(dateDebut)}</th>
-                        <th>{formatDateAbsolute(dateFin)}</th>
+                        <th>{formatDateAbsolute(startDate)}</th>
+                        <th>{formatDateAbsolute(endDate)}</th>
                         <th>Évolution</th>
                         <th>%</th>
                       </tr>

@@ -289,7 +289,7 @@ export interface StatsImpactBiodiversite {
 /**
  * AARRI (tracking indicators).
  */
-export interface IndicateursAARRI {
+export interface IndicatorsAARRI {
   nombreBaseUtilisateuricePotentielle: number;
   nombreUtilisateuriceAcquis: number;
   nombreUtilisateuriceActif: number;

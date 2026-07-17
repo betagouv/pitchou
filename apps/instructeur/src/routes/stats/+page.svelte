@@ -1,12 +1,12 @@
 <script lang="ts">
   import Loader from "$lib/components/Loader.svelte";
   import StatsContenu from "./StatsContenu.svelte";
-  import IndicateursAARRI from "./IndicateursAARRI.svelte";
+  import IndicatorsAARRI from "./IndicatorsAARRI.svelte";
   import { loadStats } from "$lib/stats/stats.ts";
-  import { loadIndicateursAARRI } from "$lib/shared/aarri.ts";
+  import { loadIndicatorsAARRI } from "$lib/shared/aarri.ts";
 
   const statsP = loadStats();
-  const indicateursParDateP = loadIndicateursAARRI();
+  const indicatorsByDateP = loadIndicatorsAARRI();
 </script>
 
 <svelte:head>
@@ -24,4 +24,4 @@
   </div>
 {/await}
 
-<IndicateursAARRI {indicateursParDateP} />
+<IndicatorsAARRI {indicatorsByDateP} />

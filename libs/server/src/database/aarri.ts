@@ -3,7 +3,7 @@ import { directDatabaseConnection } from "../database.ts";
 import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constants.ts";
 import { getFirstRetenuWeek } from "./aarri/niveau.ts";
 
-import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
+import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 
@@ -20,7 +20,7 @@ type Semaine = string;
  * Out of respect for the GDPR, this event will be lost one year after being recorded.
  * If this is a problem, we could record the event in another way so as not to lose the information.
  */
-async function calculateIndicateurAcquis(
+async function calculateIndicatorAcquis(
   nbSemainesObservees: number,
 ): Promise<Map<Semaine, number>> {
   const acquis = await directDatabaseConnection.raw(
@@ -147,7 +147,7 @@ limit :nb_semaines_observees;
  * Computes the number of active persons on Pitchou for each week over the last X weeks.
  * An active person is a person who has performed at least 5 modification actions in a week.
  */
-async function calculateIndicateurActif(nbSemainesObservees: number): Promise<Map<string, number>> {
+async function calculateIndicatorActif(nbSemainesObservees: number): Promise<Map<string, number>> {
   return nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
     nbSemainesObservees,
     EVENEMENTS_MODIFICATIONS,
@@ -162,7 +162,7 @@ async function calculateIndicateurActif(nbSemainesObservees: number): Promise<Ma
  * A mapping between the date of the concerned week and the number of persons
  * having an "impact" at that date
  */
-async function calculateIndicateurImpact(nbSemainesObservees: number): Promise<Map<string, number>> {
+async function calculateIndicatorImpact(nbSemainesObservees: number): Promise<Map<string, number>> {
   /*
         Having an impact means performing at least one control that produces a return to conformity
         so a Conforme control that comes after a control that is something other than Conforme
@@ -179,7 +179,7 @@ async function calculateIndicateurImpact(nbSemainesObservees: number): Promise<M
  *
  * We decide to look at the number of validated weeks over an 8-week period to account for the leave of the instructrices (utilisateurices).
  */
-async function calculateIndicateurRetenu(start: Date): Promise<Map<Semaine, number>> {
+async function calculateIndicatorRetenu(start: Date): Promise<Map<Semaine, number>> {
   // Parameters of the retention condition
   const evenements = [...EVENEMENTS_CONSULTATIONS, ...EVENEMENTS_MODIFICATIONS];
   const nombreSemainesGlissantesAObserver = 8;
@@ -288,7 +288,7 @@ async function firstEventWeek(): Promise<Date | undefined> {
   return result.rows[0]?.week ?? undefined;
 }
 
-export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
+export async function indicatorsAARRI(): Promise<IndicatorsAARRI[]> {
   const premiereSemaine = await firstEventWeek();
 
   // Observe every week since the first event (with a small margin so the
@@ -297,16 +297,16 @@ export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
     ? differenceInCalendarWeeks(new Date(), premiereSemaine, { weekStartsOn: 1 }) + 2
     : 5;
 
-  const indicateurs: IndicateursAARRI[] = [];
-  const acquis = await calculateIndicateurAcquis(nbSemainesObservees);
-  const actifs = await calculateIndicateurActif(nbSemainesObservees);
-  const retenus = await calculateIndicateurRetenu(premiereSemaine ?? new Date());
-  const impacts = await calculateIndicateurImpact(nbSemainesObservees);
+  const indicators: IndicatorsAARRI[] = [];
+  const acquis = await calculateIndicatorAcquis(nbSemainesObservees);
+  const actifs = await calculateIndicatorActif(nbSemainesObservees);
+  const retenus = await calculateIndicatorRetenu(premiereSemaine ?? new Date());
+  const impacts = await calculateIndicatorImpact(nbSemainesObservees);
 
   const dates = acquis.keys();
 
   for (const date of dates) {
-    indicateurs.push({
+    indicators.push({
       date: date,
       nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
       nombreUtilisateuriceActif: actifs.get(date) ?? 0,
@@ -316,5 +316,5 @@ export async function indicateursAARRI(): Promise<IndicateursAARRI[]> {
     });
   }
 
-  return indicateurs;
+  return indicators;
 }
