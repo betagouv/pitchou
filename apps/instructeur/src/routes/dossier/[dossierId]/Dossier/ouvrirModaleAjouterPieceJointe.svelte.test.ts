@@ -28,7 +28,7 @@ import { addAttachmentAutre } from "./attachmentAutre.ts";
 import DossierAvis from "./DossierAvis.svelte";
 import DossierControles from "./DossierControles.svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
-import EnteteDossier from "./EnteteDossier.svelte";
+import HeaderDossier from "./HeaderDossier.svelte";
 import ModaleAjouterPieceJointe from "./ModaleAjouterPieceJointe.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -108,7 +108,7 @@ async function fillTypeAutre(container: HTMLElement, type: string) {
 }
 
 test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
-  render(EnteteDossier, {
+  render(HeaderDossier, {
     dossier: dossier(),
     email: "instructeur@example.com",
     currentDossierFollowedByCurrentInstructeur: false,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EnteteDossier from "./Dossier/EnteteDossier.svelte";
+  import HeaderDossier from "./Dossier/HeaderDossier.svelte";
 
   import DossierMessagerie from "./Dossier/DossierMessagerie.svelte";
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
@@ -125,7 +125,7 @@
 
 <div class="fr-grid-row fr-mt-2w">
   <div class="fr-col">
-    <EnteteDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></EnteteDossier>
+    <HeaderDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></HeaderDossier>
 
     <div class="fr-tabs">
       <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
