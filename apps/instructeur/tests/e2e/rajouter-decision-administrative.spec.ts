@@ -28,10 +28,10 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
 
   await page.getByRole("button", { name: "Sauvegarder" }).click();
 
-  // La décision apparaît dans la liste (hors formulaire), identifiée par son numéro.
+  // The décision appears in the list (outside the form), identified by its numéro.
   await expect(page.getByRole("heading", { name: /AP-E2E-001/ })).toBeVisible();
 
-  // Et elle est bien persistée en base avec son fichier.
+  // And it is properly persisted in the database with its file.
   await expect
     .poll(async () => {
       const rows = await db("décision_administrative").where({ dossier: dossier.id });
@@ -39,8 +39,8 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
     })
     .toBe(1);
 
-  const décision = await db("décision_administrative").where({ dossier: dossier.id }).first();
-  expect(décision.numéro).toBe("AP-E2E-001");
-  expect(décision.type).toBe("Arrêté dérogation");
-  expect(décision.fichier).not.toBeNull();
+  const decision = await db("décision_administrative").where({ dossier: dossier.id }).first();
+  expect(decision.numéro).toBe("AP-E2E-001");
+  expect(decision.type).toBe("Arrêté dérogation");
+  expect(decision.fichier).not.toBeNull();
 });

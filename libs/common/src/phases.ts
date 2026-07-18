@@ -1,7 +1,4 @@
-import type {
-  DossierPhase,
-  DossierProchaineActionAttenduePar,
-} from "@pitchou/types/API_Pitchou.ts";
+import type { DossierPhase, DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
 
 export const phases: Set<DossierPhase> = new Set([
   "Accompagnement amont",
@@ -12,7 +9,7 @@ export const phases: Set<DossierPhase> = new Set([
   "Obligations terminées",
 ]);
 
-export const prochaineActionAttenduePar: Set<DossierProchaineActionAttenduePar> = new Set([
+export const prochaineActionAttenduePar: Set<DossierNextActionExpectedFrom> = new Set([
   "Instructeur",
   "CNPN/CSRPN",
   "Pétitionnaire",

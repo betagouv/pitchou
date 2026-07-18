@@ -197,7 +197,7 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [_one-off container_}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --app especes-protegees run --size 2XL 'node outils/sync-démarche-numérique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
+scalingo --app especes-protegees run --size 2XL 'node outils/sync-demarche-numerique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
 
 ### Lister les liens de connexion en local
@@ -238,15 +238,15 @@ Pour des raisons de minimisation des données, de protection des personnes et de
 
 Nous avons un outil qui permet de faire ça.
 En production :
-`scalingo --app especes-protegees run "node outils/aarri/supprimer-evenements.js"`
+`scalingo --app especes-protegees run "node outils/aarri/delete-evenements.js"`
 
 En dev :
-`node outils/aarri/supprimer-evenements.js`
+`node outils/aarri/delete-evenements.js`
 
 Pour nettoyer tous les évènements concernant une personne spécifique :
 
-`node outils/aarri/supprimer-evenements.js --email david@example.net`
+`node outils/aarri/delete-evenements.js --email david@example.net`
 
 Pour nettoyer tous les évènements plus vieux que x semaines
 
-`node outils/aarri/supprimer-evenements.js --conserver-dernières-semaines 20`
+`node outils/aarri/delete-evenements.js --conserver-dernières-semaines 20`

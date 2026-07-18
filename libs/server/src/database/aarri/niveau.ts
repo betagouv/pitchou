@@ -1,9 +1,9 @@
 import { startOfWeek, eachWeekOfInterval } from "date-fns";
 
-import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./constants.ts";
 
 import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
 /**
  * Pure (database-free) logic that computes the AARRI level of a single personne
@@ -15,7 +15,7 @@ import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
 
 /** A metric event reduced to what the level computation needs. */
 export type LevelEvent = {
-  type: ÉvènementMétrique["type"];
+  type: EvenementMetrique["type"];
   date: Date;
 };
 
@@ -36,10 +36,10 @@ export const VALIDATED_WEEKS_FOR_RETENU = 5;
 /** ISO string of the Monday starting a calendar week — used as a week key. */
 type WeekKey = string;
 
-const MODIFICATION_TYPES = new Set<ÉvènementMétrique["type"]>(ÉVÈNEMENTS_MODIFICATIONS);
-const RETENU_TYPES = new Set<ÉvènementMétrique["type"]>([
-  ...ÉVÈNEMENTS_CONSULTATIONS,
-  ...ÉVÈNEMENTS_MODIFICATIONS,
+const MODIFICATION_TYPES = new Set<EvenementMetrique["type"]>(EVENEMENTS_MODIFICATIONS);
+const RETENU_TYPES = new Set<EvenementMetrique["type"]>([
+  ...EVENEMENTS_CONSULTATIONS,
+  ...EVENEMENTS_MODIFICATIONS,
 ]);
 
 function weekKey(date: Date): WeekKey {
@@ -49,7 +49,7 @@ function weekKey(date: Date): WeekKey {
 /** Counts events whose type is in `types`, grouped by calendar week (Monday). */
 export function countActionsPerWeek(
   events: LevelEvent[],
-  types: Set<ÉvènementMétrique["type"]>,
+  types: Set<EvenementMetrique["type"]>,
 ): Map<WeekKey, number> {
   const counts = new Map<WeekKey, number>();
   for (const { type, date } of events) {

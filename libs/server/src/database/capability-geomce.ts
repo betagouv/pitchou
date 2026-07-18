@@ -4,7 +4,7 @@ import { directDatabaseConnection } from "../database.ts";
 
 import type { default as CapabilityGeomce } from "@pitchou/types/database/public/CapabilityGeomce.ts";
 
-export async function miseEnPlaceSecretGeoMCE(
+export async function setupSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   const secretsGeoMCE = await databaseConnection("capability-geomce").select("*");
@@ -21,7 +21,7 @@ export async function miseEnPlaceSecretGeoMCE(
   }
 }
 
-export async function verifierSecretGeoMCE(
+export async function verifySecretGeoMCE(
   secret: CapabilityGeomce["secret"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
@@ -35,9 +35,9 @@ export async function verifierSecretGeoMCE(
 }
 
 /**
- * Fonction sensible. À appeler avec prudence
+ * Sensitive function. To be called with caution
  */
-export async function récupérerSecretGeoMCE(
+export async function getSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const { secret } = await databaseConnection("capability-geomce").select("*").first();
@@ -46,15 +46,15 @@ export async function récupérerSecretGeoMCE(
 }
 
 /**
- * Fonction sensible. À appeler avec prudence
+ * Sensitive function. To be called with caution
  */
 export async function resetSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<CapabilityGeomce["secret"]> {
-  // supprimer le secret existant
+  // delete the existing secret
   await databaseConnection("capability-geomce").delete();
 
-  // créer un nouveau secret
+  // create a new secret
   const [{ secret }] = await databaseConnection("capability-geomce")
     .insert({})
     .returning(["secret"]);

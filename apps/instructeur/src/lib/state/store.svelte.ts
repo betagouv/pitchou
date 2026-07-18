@@ -1,26 +1,26 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { DossierCompletToDossierRésumé } from "@pitchou/common/outils-dossiers.ts";
+import { DossierFullToDossierSummary } from "@pitchou/common/dossiersUtils.ts";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type {
   PitchouState,
-  ActivitésMéthodesMoyensDePoursuiteBundle,
-} from "@pitchou/types/pitchou-state.ts";
+  ActivitesMethodesMoyensDePoursuiteBundle,
+} from "@pitchou/types/pitchouState.ts";
 
-export type { PitchouState, ActivitésMéthodesMoyensDePoursuiteBundle };
+export type { PitchouState, ActivitesMethodesMoyensDePoursuiteBundle };
 
 export const store: PitchouState = $state({
   capabilities: {},
-  dossiersRésumés: new SvelteMap(),
-  dossiersComplets: new SvelteMap(),
-  messagesParDossierId: new SvelteMap(),
-  notificationParDossier: new SvelteMap(),
-  erreurs: new SvelteSet(),
+  dossierSummaries: new SvelteMap(),
+  fullDossiers: new SvelteMap(),
+  messagesByDossierId: new SvelteMap(),
+  notificationByDossier: new SvelteMap(),
+  errors: new SvelteSet(),
 });
 
-export function setDossierComplet(nouveauDossierComplet: DossierComplet): void {
-  store.dossiersComplets.set(nouveauDossierComplet.id, nouveauDossierComplet);
-  const dossierRésumé = DossierCompletToDossierRésumé(nouveauDossierComplet);
-  store.dossiersRésumés.set(nouveauDossierComplet.id, dossierRésumé);
+export function setDossierFull(newDossierFull: DossierFull): void {
+  store.fullDossiers.set(newDossierFull.id, newDossierFull);
+  const dossierSummary = DossierFullToDossierSummary(newDossierFull);
+  store.dossierSummaries.set(newDossierFull.id, dossierSummary);
 }

@@ -50,12 +50,12 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   });
   expect(res.status).toBe(200);
 
-  const décisions = await db("décision_administrative").select("*").where({ dossier: dossier.id });
-  expect(décisions).toHaveLength(1);
-  const décision = décisions[0];
-  expect(décision.fichier).not.toBeNull();
+  const decisions = await db("décision_administrative").select("*").where({ dossier: dossier.id });
+  expect(decisions).toHaveLength(1);
+  const decision = decisions[0];
+  expect(decision.fichier).not.toBeNull();
 
-  const onS3 = await readKey(`files/${décision.fichier}`);
+  const onS3 = await readKey(`files/${decision.fichier}`);
   expect(onS3.equals(pdfBytes)).toBe(true);
 });
 
@@ -82,18 +82,18 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
     }),
   });
   expect(res1.status).toBe(200);
-  const décision1 = await db("décision_administrative")
+  const decision1 = await db("décision_administrative")
     .select("*")
     .where({ dossier: dossier.id })
     .first();
-  const v1Key = `files/${décision1.fichier}`;
+  const v1Key = `files/${decision1.fichier}`;
 
   // modification
   const res2 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      id: décision1.id,
+      id: decision1.id,
       dossier: dossier.id,
       numéro: "AP-002",
       type: "Arrêté dérogation",
@@ -108,12 +108,12 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   });
   expect(res2.status).toBe(200);
 
-  const décision2 = await db("décision_administrative")
+  const decision2 = await db("décision_administrative")
     .select("*")
-    .where({ id: décision1.id })
+    .where({ id: decision1.id })
     .first();
-  expect(décision2.fichier).not.toBe(décision1.fichier);
-  const v2Key = `files/${décision2.fichier}`;
+  expect(decision2.fichier).not.toBe(decision1.fichier);
+  const v2Key = `files/${decision2.fichier}`;
 
   expect((await readKey(v2Key)).equals(v2)).toBe(true);
   // old object should have been swept

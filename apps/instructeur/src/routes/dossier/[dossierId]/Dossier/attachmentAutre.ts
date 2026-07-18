@@ -1,9 +1,9 @@
 import { store } from "$lib/state/store.svelte.ts";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export function addAttachmentAutre(
-  dossierId: DossierComplet["id"],
+  dossierId: DossierFull["id"],
   type: string,
   attachmentDate: Date | undefined | null,
   files: FileList,

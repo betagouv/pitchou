@@ -8,26 +8,26 @@ vi.mock(import("$app/navigation"), () => ({
 
 vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  envoyerÉvènement: vi.fn(),
+  sendEvenement: vi.fn(),
 }));
 
 // avoid fetching the espèces data files over HTTP from the dossier page
-vi.mock(import("$lib/especes/activitésMéthodesMoyensDePoursuite.ts"), () => ({
-  chargerActivitésMéthodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
-  chargerListeEspècesProtégées: vi.fn().mockReturnValue(new Promise(() => {})),
+vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+  loadActivitesMethodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
+  loadEspecesProtegeesList: vi.fn().mockReturnValue(new Promise(() => {})),
 }));
 
 import { store } from "$lib/state/store.svelte.ts";
-import { getDossierComplet } from "$lib/dossier/dossier.ts";
+import { getDossierFull } from "$lib/dossier/dossier.ts";
 import PageTousLesDossiers from "./tous-les-dossiers/+page.svelte";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
-import type { DossierComplet, DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 // Scenario: the instructeur already visited the dossier (so it is cached in
-// store.dossiersComplets), then a synchronization with DN changed the dossier
+// store.fullDossiers), then a synchronization with DN changed the dossier
 // server-side. Both pages must display the up-to-date data.
 // The nom is used here as the observable field, but the same applies to any
 // data changed by the synchronization.
@@ -36,7 +36,7 @@ const DOSSIER_ID = 123 as DossierId;
 const NOM_BEFORE_SYNC = "Nom avant synchronisation";
 const NOM_AFTER_SYNC = "Nom après synchronisation";
 
-function fakeDossierComplet(nom: string): DossierComplet {
+function fakeDossierFull(nom: string): DossierFull {
   return {
     id: DOSSIER_ID,
     nom,
@@ -69,11 +69,11 @@ function fakeDossierComplet(nom: string): DossierComplet {
     décisionsAdministratives: [],
     piècesJointesPétitionnaires: [],
     attachmentAutres: [],
-  } as unknown as DossierComplet;
+  } as unknown as DossierFull;
 }
 
 // As returned by the /dossiers route: dates are serialized strings
-function fakeDossierResume(nom: string): DossierRésumé {
+function fakeDossierSummary(nom: string): DossierSummary {
   return {
     id: DOSSIER_ID,
     nom,
@@ -96,23 +96,23 @@ function fakeDossierResume(nom: string): DossierRésumé {
     date_début_phase: "2026-01-15",
     enjeu: false,
     commentaire_libre: "",
-  } as unknown as DossierRésumé;
+  } as unknown as DossierSummary;
 }
 
 afterEach(() => {
   cleanup();
-  store.dossiersComplets.clear();
-  store.dossiersRésumés.clear();
+  store.fullDossiers.clear();
+  store.dossierSummaries.clear();
   store.capabilities = {};
   store.identité = undefined;
 });
 
 test("after a DN synchronization, the tous-les-dossiers page displays the up-to-date dossier", async () => {
   // the dossier was visited before the synchronization
-  store.dossiersComplets.set(DOSSIER_ID, fakeDossierComplet(NOM_BEFORE_SYNC));
+  store.fullDossiers.set(DOSSIER_ID, fakeDossierFull(NOM_BEFORE_SYNC));
   store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
   store.capabilities = {
-    listerDossiers: vi.fn().mockResolvedValue([fakeDossierResume(NOM_AFTER_SYNC)]),
+    listerDossiers: vi.fn().mockResolvedValue([fakeDossierSummary(NOM_AFTER_SYNC)]),
   } as unknown as PitchouState["capabilities"];
 
   render(PageTousLesDossiers);
@@ -125,14 +125,14 @@ test("after a DN synchronization, the tous-les-dossiers page displays the up-to-
 
 test("after a DN synchronization, the page of an already visited dossier also displays the up-to-date dossier", async () => {
   // the dossier was visited before the synchronization
-  store.dossiersComplets.set(DOSSIER_ID, fakeDossierComplet(NOM_BEFORE_SYNC));
+  store.fullDossiers.set(DOSSIER_ID, fakeDossierFull(NOM_BEFORE_SYNC));
   store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
 
   // the server now responds with the synchronized dossier, but not instantly
-  let respondToRefresh: ((dossier: DossierComplet) => void) | undefined;
+  let respondToRefresh: ((dossier: DossierFull) => void) | undefined;
   store.capabilities = {
     recupérerDossierComplet: vi.fn().mockReturnValue(
-      new Promise<DossierComplet>((resolve) => {
+      new Promise<DossierFull>((resolve) => {
         respondToRefresh = resolve;
       }),
     ),
@@ -140,7 +140,7 @@ test("after a DN synchronization, the page of an already visited dossier also di
   } as unknown as PitchouState["capabilities"];
 
   // same call as the load of the dossier/[dossierId] route
-  await getDossierComplet(DOSSIER_ID);
+  await getDossierFull(DOSSIER_ID);
   render(PageDossier, {
     data: { dossierId: DOSSIER_ID },
     params: { dossierId: String(DOSSIER_ID) },
@@ -150,7 +150,7 @@ test("after a DN synchronization, the page of an already visited dossier also di
   expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(NOM_BEFORE_SYNC);
 
   // the server response arrives: the up-to-date dossier must replace the cached one
-  respondToRefresh?.(fakeDossierComplet(NOM_AFTER_SYNC));
+  respondToRefresh?.(fakeDossierFull(NOM_AFTER_SYNC));
   await waitFor(() => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(NOM_AFTER_SYNC);
   });

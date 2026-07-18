@@ -1,69 +1,69 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
-  import EspècesProtégéesGroupéesParImpact from "$lib/components/EspècesProtégéesGroupéesParImpact.svelte";
-  import { formatDateAbsolue, formatDateRelative } from "$lib/dossier/affichageDossier.ts";
+  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
+  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import { chargerActivitésMéthodesMoyensDePoursuite } from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "$lib/components/Loader.svelte";
-  import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
   type Props = {
-    dossier: DossierComplet;
-    espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined;
+    dossier: DossierFull;
+    espècesImpactées: Promise<DescriptionMenacesEspeces> | undefined;
   };
 
-  let { dossier, espècesImpactées }: Props = $props();
+  let { dossier, espècesImpactées: especesImpactees }: Props = $props();
 
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
 
   /**
-   * Calcule le nombre d'espèces CNPN
-   * et le nombre d'espèce ministérielles
-   * dans la liste des espèces impactées par ce projet
+   * Computes the number of espèces CNPN
+   * and the number of espèces ministérielles
+   * in the list of espèces impacted by this project
    */
-  function getNombreEspècesMinistérielleCNPN(_espècesImpactées: DescriptionMenacesEspèces): {
-    nombreEspècesCNPN: number;
-    nombreEspècesMinistérielles: number;
+  function getNumberEspecesMinisterielleCNPN(_especesImpactees: DescriptionMenacesEspeces): {
+    numberEspecesCNPN: number;
+    numberEspecesMinisterielles: number;
   } {
-    const toutesLesEspècesImpactées = [
-      ...(_espècesImpactées["faune non-oiseau"] ?? []),
-      ...(_espècesImpactées["flore"] ?? []),
-      ...(_espècesImpactées["oiseau"] ?? []),
+    const allEspecesImpactees = [
+      ...(_especesImpactees["faune non-oiseau"] ?? []),
+      ...(_especesImpactees["flore"] ?? []),
+      ...(_especesImpactees["oiseau"] ?? []),
     ];
 
-    const nombres = toutesLesEspècesImpactées.reduce(
-      (acc, { espèce }) => {
-        if (espèce.espèceCNPN) {
-          acc["nombreEspècesCNPN"] += 1;
+    const numbers = allEspecesImpactees.reduce(
+      (acc, { espèce: espece }) => {
+        if (espece.espèceCNPN) {
+          acc["numberEspecesCNPN"] += 1;
         }
-        if (espèce.espèceMinistérielle) {
-          acc["nombreEspècesMinistérielles"] += 1;
+        if (espece.espèceMinistérielle) {
+          acc["numberEspecesMinisterielles"] += 1;
         }
         return acc;
       },
-      { nombreEspècesCNPN: 0, nombreEspècesMinistérielles: 0 },
+      { numberEspecesCNPN: 0, numberEspecesMinisterielles: 0 },
     );
-    return nombres;
+    return numbers;
   }
 
   async function makeFileContentBlob() {
-    const espèces = dossier.espècesImpactées;
-    if (!espèces) {
+    const especes = dossier.espècesImpactées;
+    if (!especes) {
       throw new Error("Aucun fichier espèces impactées à télécharger");
     }
 
-    envoyerÉvènement({
+    sendEvenement({
       type: "téléchargerListeÉspècesImpactées",
       détails: { dossierId: dossier.id },
     });
 
-    const response = await fetch(espèces.url);
+    const response = await fetch(especes.url);
     return response.blob();
   }
 
@@ -79,7 +79,7 @@
       throw new Error("Aucune cartographie du projet à télécharger");
     }
 
-    envoyerÉvènement({
+    sendEvenement({
       type: "téléchargerCartographieProjet",
       détails: { dossierId: dossier.id },
     });
@@ -91,18 +91,18 @@
     return `cartographie-${dossier.id}.geojson`;
   }
 
-  const promesseRéférentiels = chargerActivitésMéthodesMoyensDePoursuite();
+  const referentielsPromise = loadActivitesMethodesMoyensDePoursuite();
 
   // @ts-ignore
   let scientifiquesIntervenants: { nom_complet: string; qualification: string }[] | undefined =
     $derived(dossier.scientifique_intervenants);
 
   // @ts-ignore
-  let scientifiqueFinalitéDemande: string[] | undefined = $derived(
+  let scientifiqueFinaliteDemande: string[] | undefined = $derived(
     dossier.scientifique_finalité_demande,
   );
 
-  function raccourcirNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
+  function truncateNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
     if (!filename) {
       return "(fichier sans nom)";
     }
@@ -228,10 +228,10 @@
       <strong>Durée de la dérogation&nbsp;:</strong>
       {dossier.durée_intervention ? dossier.durée_intervention + " années" : "Non renseignée"}
     </p>
-    <div class="container-titre-espèces-impactées">
+    <div class="container-title-especes-impactees">
       <h2>Espèces impactées</h2>
       {#if dossier.espècesImpactées}
-        <!-- // Dans Svelte, un composant enfant n'a pas accès aux classes de style définies dans le composant parent dans lequel il est appelé. On utilise donc un style inline. -->
+        <!-- In Svelte, a child component does not have access to the style classes defined in the parent component in which it is called. So we use an inline style. -->
         {@const styleDownloadButton = "width: 15rem;"}
         <DownloadButton
           {makeFileContentBlob}
@@ -243,23 +243,23 @@
       {/if}
     </div>
     {#if dossier.espècesImpactées}
-      {#if espècesImpactées}
-        {#await Promise.all([espècesImpactées, promesseRéférentiels])}
+      {#if especesImpactees}
+        {#await Promise.all([especesImpactees, referentielsPromise])}
           <Loader></Loader>
-        {:then [espècesImpactées, { identifiantPitchouVersActivitéEtImpactsQuantifiés }]}
-          {@const { nombreEspècesCNPN, nombreEspècesMinistérielles } =
-            getNombreEspècesMinistérielleCNPN(espècesImpactées)}
+        {:then [especesImpactees, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
+          {@const { numberEspecesCNPN, numberEspecesMinisterielles } =
+            getNumberEspecesMinisterielleCNPN(especesImpactees)}
           <p class="fr-badge fr-badge--blue-ecume">
-            {nombreEspècesCNPN}
-            {nombreEspècesCNPN > 1 ? "espèces" : "espèce"} CNPN
+            {numberEspecesCNPN}
+            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
           </p>
           <p class="fr-badge fr-badge--blue-ecume">
-            {nombreEspècesMinistérielles}
-            {nombreEspècesCNPN > 1 ? "espèces" : "espèce"} Ministère
+            {numberEspecesMinisterielles}
+            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
           </p>
-          <EspècesProtégéesGroupéesParImpact
-            {espècesImpactées}
-            {identifiantPitchouVersActivitéEtImpactsQuantifiés}
+          <EspecesProtegeesGroupedByImpact
+            espècesImpactées={especesImpactees}
+            identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
           />
         {/await}
       {/if}
@@ -268,9 +268,9 @@
     {/if}
 
     {#if cartographieProjet && cartographieProjet.features.length >= 1}
-      <div class="container-titre-cartographie">
+      <div class="container-title-cartographie">
         <h2>Cartographie du projet</h2>
-        <!-- Style inline car un composant enfant n'accède pas aux classes du parent -->
+        <!-- Inline style because a child component does not access the parent's classes -->
         <DownloadButton
           makeFileContentBlob={makeCartographieBlob}
           makeFilename={makeCartographieFilename}
@@ -305,10 +305,10 @@
       </p>
 
       <h3>Finalité de la demande</h3>
-      {#if Array.isArray(scientifiqueFinalitéDemande) && scientifiqueFinalitéDemande.length >= 1}
+      {#if Array.isArray(scientifiqueFinaliteDemande) && scientifiqueFinaliteDemande.length >= 1}
         <ul>
-          {#each scientifiqueFinalitéDemande as finalité}
-            <li>{finalité}</li>
+          {#each scientifiqueFinaliteDemande as finalite}
+            <li>{finalite}</li>
           {/each}
         </ul>
       {:else}
@@ -368,18 +368,18 @@
     {#if dossier.piècesJointesPétitionnaires.length === 0}
       (aucune pièce jointe n'a été déposée par le pétitionnaire)
     {:else}
-      <ul class="pièces-jointes-pétitionnaire">
+      <ul class="pieces-jointes-petitionnaire">
         {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
           <li>
             <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
               <!--
-                            On coupe le nom parce que s'il se met sur 2 lignes, le DSFR fait que la deuxième
-                            ligne se superpose avec les détails en-dessous
+                            We truncate the name because if it wraps onto 2 lines, the DSFR makes the second
+                            line overlap with the details below
                         -->
-              {raccourcirNomFichier(nom)}
+              {truncateNomFichier(nom)}
               <span class="fr-link__detail">
                 {media_type} - {byteFormat.format(taille)}{DS_createdAt
-                  ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
+                  ? ` - Date de dépôt : ${formatDateAbsolute(DS_createdAt)}`
                   : ""}
               </span>
             </a>
@@ -392,7 +392,7 @@
     <a
       class="fr-btn fr-btn--secondary fr-mb-1w"
       target="_blank"
-      href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
+      href={`${originDemarcheNumerique}/procedures/${numéro_démarche}/dossiers/${numdos}`}
       >Dossier sur Démarche Numérique</a
     >
   </section>
@@ -421,19 +421,19 @@
     }
   }
 
-  .container-titre-espèces-impactées {
+  .container-title-especes-impactees {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
   }
 
-  .container-titre-espèces-impactées h2 {
+  .container-title-especes-impactees h2 {
     margin: 0;
     white-space: nowrap;
   }
 
-  .container-titre-cartographie {
+  .container-title-cartographie {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
@@ -441,12 +441,12 @@
     margin-top: 3rem;
   }
 
-  .container-titre-cartographie h2 {
+  .container-title-cartographie h2 {
     margin: 0;
     white-space: nowrap;
   }
 
-  .pièces-jointes-pétitionnaire {
+  .pieces-jointes-petitionnaire {
     list-style: none;
     padding: 0;
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import BdcStatutsListe from "./BdcStatutsListe.svelte";
+  import BdcStatutsList from "./BdcStatutsList.svelte";
 </script>
 
 <svelte:head>
   <title>BDC-Statuts — Pitchou</title>
 </svelte:head>
 
-<BdcStatutsListe />
+<BdcStatutsList />

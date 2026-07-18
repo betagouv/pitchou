@@ -10,15 +10,15 @@ import {
 } from "../factories/index.ts";
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
 // A fixed Wednesday so several events for one personne land in the same week.
 const WEEK_DAY = new Date("2026-02-04T12:00:00.000Z");
 
-async function ajouterÉvènements(
+async function ajouterEvenements(
   personneId: number,
-  type: ÉvènementMétrique["type"],
+  type: EvenementMetrique["type"],
   count: number,
   date: Date = WEEK_DAY,
 ): Promise<void> {
@@ -37,9 +37,9 @@ describe("getUtilisateursAARRI", () => {
     const actif = await createPersonne(db, { email: "actif@dept.gouv.fr", nom: "Actif" });
     const impact = await createPersonne(db, { email: "impact@dept.gouv.fr", nom: "Impact" });
 
-    await ajouterÉvènements(acquis.id, "seConnecter", 1);
-    await ajouterÉvènements(actif.id, "modifierPrescription", 5);
-    await ajouterÉvènements(impact.id, "retourÀLaConformité", 1);
+    await ajouterEvenements(acquis.id, "seConnecter", 1);
+    await ajouterEvenements(actif.id, "modifierPrescription", 5);
+    await ajouterEvenements(impact.id, "retourÀLaConformité", 1);
 
     const utilisateurs = await getUtilisateursAARRI(db);
     const byEmail = new Map(utilisateurs.map((u) => [u.email, u]));
@@ -106,7 +106,7 @@ describe("getUtilisateursAARRI", () => {
 });
 
 describe("GET /api/admin/utilisateurs-aarri", () => {
-  async function créerAdmin(): Promise<string> {
+  async function createAdmin(): Promise<string> {
     const code = `admin-secret-${Math.random().toString(36).slice(2)}`;
     await createPersonne(db, { email: TEST_ADMIN_EMAIL, code_accès: code });
     return code;
@@ -119,9 +119,9 @@ describe("GET /api/admin/utilisateurs-aarri", () => {
   }
 
   test("returns the users for an admin secret", async () => {
-    const adminCode = await créerAdmin();
+    const adminCode = await createAdmin();
     const instructeur = await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
-    await ajouterÉvènements(instructeur.id, "seConnecter", 1);
+    await ajouterEvenements(instructeur.id, "seConnecter", 1);
 
     const res = await appeler(adminCode);
     expect(res.status).toBe(200);

@@ -6,7 +6,7 @@ import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 
-export function trouverRelationPersonneDepuisCap(
+export function findRelationPersonneFromCap(
   cap: CapDossier["cap"],
   personneEmail: NonNullable<Personne["email"]>,
   dossierId: Dossier["id"],
@@ -32,30 +32,30 @@ export function trouverRelationPersonneDepuisCap(
     });
 }
 
-export async function instructeurSuitDossier(
-  personneid: Personne["id"],
+export async function instructeurFollowsDossier(
+  personneId: Personne["id"],
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   return databaseConnection("arête_personne_suit_dossier")
     .insert({
-      personne: personneid,
+      personne: personneId,
       dossier: dossierId,
     })
     .onConflict(["personne", "dossier"])
-    .ignore() // ignorer si la personne suit déjà le dossier, parce que c'est le résultat final qui compte
+    .ignore() // ignore if the personne already follows the dossier, because it's the final result that matters
     .then(() => undefined);
 }
 
-export async function instructeurLaisseDossier(
-  personneid: Personne["id"],
+export async function instructeurLeavesDossier(
+  personneId: Personne["id"],
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   return databaseConnection("arête_personne_suit_dossier")
     .delete()
     .where({
-      personne: personneid,
+      personne: personneId,
       dossier: dossierId,
     })
     .then(() => undefined);

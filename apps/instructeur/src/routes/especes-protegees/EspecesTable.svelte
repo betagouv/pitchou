@@ -1,23 +1,23 @@
 <script lang="ts">
   import { tick } from "svelte";
 
-  import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+  import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import { firstName } from "./especesList.ts";
-  import EspecesSynonymesModale from "./EspecesSynonymesModale.svelte";
+  import EspecesSynonymesModal from "./EspecesSynonymesModal.svelte";
 
   type Props = {
-    especes: EspèceProtégée[];
+    especes: EspeceProtegee[];
   };
 
   let { especes }: Props = $props();
 
-  const detailModaleId = "modale-detail-espece";
+  const detailModalId = "modale-detail-espece";
 
   // Espèce whose details are shown in the shared modal, set when a row is activated
-  let especeDetail: EspèceProtégée | null = $state(null);
+  let especeDetail: EspeceProtegee | null = $state(null);
   let triggerDetail: HTMLButtonElement | undefined = $state();
 
-  async function ouvrirDetail(espece: EspèceProtégée) {
+  async function openDetail(espece: EspeceProtegee) {
     especeDetail = espece;
     await tick();
     triggerDetail?.click();
@@ -50,11 +50,11 @@
             role="button"
             tabindex="0"
             title="Voir le détail de {firstName(espece.nomsScientifiques)}"
-            onclick={() => ouvrirDetail(espece)}
+            onclick={() => openDetail(espece)}
             onkeydown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                ouvrirDetail(espece);
+                openDetail(espece);
               }
             }}
           >
@@ -89,7 +89,7 @@
     bind:this={triggerDetail}
     type="button"
     class="fr-sr-only"
-    aria-controls={detailModaleId}
+    aria-controls={detailModalId}
     data-fr-opened="false"
     tabindex="-1"
     aria-hidden="true"
@@ -97,7 +97,7 @@
     Voir le détail
   </button>
 
-  <EspecesSynonymesModale id={detailModaleId} espece={especeDetail} />
+  <EspecesSynonymesModal id={detailModalId} espece={especeDetail} />
 {:else}
   <p>Aucune espèce protégée n'a été trouvée.</p>
 {/if}

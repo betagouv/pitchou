@@ -1,16 +1,16 @@
 /**
- * le chargement d'odfjs charge ses et lance un appel à lockdown()
- * Cet appel peut être incompatible avec d'autres libs
+ * loading odfjs loads ses and triggers a call to lockdown()
+ * This call can be incompatible with other libs
  * https://www.npmjs.com/package/ses#ecosystem-compatibility
- * notamment à cause de la "override mistake"
- * Ce module est l'opportunité de faire le nécessaire avant l'appel à lockdown pour
- * préserver la compatibilité
+ * notably because of the "override mistake"
+ * This module is the opportunity to do what is needed before the lockdown call to
+ * preserve compatibility
  */
 
-// SvelteSet, SvelteMap se cognent sur l'override mistake lors de l'initialisation de la première instance
+// SvelteSet, SvelteMap hit the override mistake when initializing the first instance
 import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
-// on créé une première instance pour éviter de prendre une erreur après lockdown
+// we create a first instance to avoid getting an error after lockdown
 let s = new SvelteSet();
 let m = new SvelteMap();
 

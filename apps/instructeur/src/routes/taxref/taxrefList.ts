@@ -79,16 +79,16 @@ export async function fetchTaxrefPage(
   query: TaxrefQuery,
   fetchFn: typeof fetch = fetch,
 ): Promise<TaxrefPage> {
-  const réponse = await fetchFn(`/api/taxref${apiQueryString(query)}`);
-  if (!réponse.ok) throw new Error(`Échec du chargement de TAXREF (${réponse.status})`);
-  return réponse.json();
+  const reponse = await fetchFn(`/api/taxref${apiQueryString(query)}`);
+  if (!reponse.ok) throw new Error(`Échec du chargement de TAXREF (${reponse.status})`);
+  return reponse.json();
 }
 
 /** Fetches the distinct values that populate the règne / classe filters. */
 export async function fetchTaxrefFiltres(fetchFn: typeof fetch = fetch): Promise<TaxrefFiltres> {
-  const réponse = await fetchFn("/api/taxref/filtres");
-  if (!réponse.ok) throw new Error(`Échec du chargement des filtres TAXREF (${réponse.status})`);
-  return réponse.json();
+  const reponse = await fetchFn("/api/taxref/filtres");
+  if (!reponse.ok) throw new Error(`Échec du chargement des filtres TAXREF (${reponse.status})`);
+  return reponse.json();
 }
 
 /** The API query string for a search state (same param names as the page URL). */

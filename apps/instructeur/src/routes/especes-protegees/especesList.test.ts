@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 
-import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
+import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import { parseEspecesQuery, filterEspeces, matchesText, compareEspeces } from "./especesList.ts";
 
 // Builds an EspèceProtégée with sensible defaults; override only what a test cares about.
-function makeEspece(overrides: Partial<EspèceProtégée> = {}): EspèceProtégée {
+function makeEspece(overrides: Partial<EspeceProtegee> = {}): EspeceProtegee {
   return {
     CD_REF: "2437",
     classification: "oiseau",

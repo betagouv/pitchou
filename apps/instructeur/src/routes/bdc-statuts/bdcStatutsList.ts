@@ -67,19 +67,19 @@ export async function fetchBdcStatutPage(
   query: BdcStatutQuery,
   fetchFn: typeof fetch = fetch,
 ): Promise<BdcStatutPage> {
-  const réponse = await fetchFn(`/api/bdc-statuts${apiQueryString(query)}`);
-  if (!réponse.ok) throw new Error(`Échec du chargement de BDC-Statuts (${réponse.status})`);
-  return réponse.json();
+  const reponse = await fetchFn(`/api/bdc-statuts${apiQueryString(query)}`);
+  if (!reponse.ok) throw new Error(`Échec du chargement de BDC-Statuts (${reponse.status})`);
+  return reponse.json();
 }
 
 /** Fetches the distinct status types that populate the filter. */
 export async function fetchBdcStatutFiltres(
   fetchFn: typeof fetch = fetch,
 ): Promise<BdcStatutFiltres> {
-  const réponse = await fetchFn("/api/bdc-statuts/filtres");
-  if (!réponse.ok)
-    throw new Error(`Échec du chargement des filtres BDC-Statuts (${réponse.status})`);
-  return réponse.json();
+  const reponse = await fetchFn("/api/bdc-statuts/filtres");
+  if (!reponse.ok)
+    throw new Error(`Échec du chargement des filtres BDC-Statuts (${reponse.status})`);
+  return reponse.json();
 }
 
 /** The API query string for a search state (same param names as the page URL). */

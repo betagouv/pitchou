@@ -35,7 +35,7 @@ Kit sur la machine hôte (ports 32649 et 32648), avec des bases distinctes
 
 Copier le modèle correspondant :
 
-- Unit : `scripts/commun/manipulationStrings.test.ts`
+- Unit : `scripts/commun/stringManipulation.test.ts`
 - Composant : `scripts/front-end/components/TagPhase.svelte.test.ts`
 - Intégration : `tests/integration/caps.test.ts`
 - E2E : `tests/e2e/login-and-see-dossier.spec.ts`

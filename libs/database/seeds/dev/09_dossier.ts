@@ -3,34 +3,34 @@ import { join } from "node:path";
 
 import type { Knex } from "knex";
 
-import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
+import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
 import {
-  construireActivitésMéthodesMoyensDePoursuite,
+  buildActivitesMethodesMoyensDePoursuite,
   dbRowToEspeceProtegee,
-  descriptionMenacesEspècesToOdsArrayBuffer,
-} from "@pitchou/common/outils-espèces.ts";
-import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
+  descriptionMenacesEspecesToOdsArrayBuffer,
+} from "@pitchou/common/especesUtils.ts";
+import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
-import type { DescriptionMenacesEspèces, EspèceProtégée } from "@pitchou/types/especes.d.ts";
+import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
 import { SEED_DEMARCHE_NUMBER } from "../fixtures/demarche_numerique.ts";
 import {
   SEED_DOSSIERS,
   SEED_AVIS_EXPERTS,
-  SEED_DÉCISIONS_ADMINISTRATIVES,
-  SEED_ÉVÈNEMENTS_PHASE_DOSSIER,
+  SEED_DECISIONS_ADMINISTRATIVES,
+  SEED_EVENEMENTS_PHASE_DOSSIER,
   SEED_PRESCRIPTIONS,
-  SEED_CONTRÔLES,
+  SEED_CONTROLES,
   SEED_ENTREPRISES,
   SEED_PERSONNES,
   SEED_DOSSIERS_SUIVIS_PAR_DEV,
-  SEED_ESPÈCES_IMPACTÉES,
+  SEED_ESPECES_IMPACTEES,
 } from "../fixtures/dossiers.ts";
 import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
 import type { FileId } from "@pitchou/types/database/public/File.js";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
-const ACTIVITÉS_ODS_PATH = join(
+const ACTIVITES_ODS_PATH = join(
   import.meta.dirname,
   "../../../../data/activites-methodes-moyens-de-poursuite.ods",
 );
@@ -70,7 +70,7 @@ function serializeJsonColumns(data: Record<string, unknown>): Record<string, unk
 }
 
 async function stockerPlaceholderPdf(nom: string, transaction: Knex.Transaction) {
-  const stored = await stockerNouveauFichier(
+  const stored = await storeNewFichier(
     {
       nom,
       contenu: generatePlaceholderPdf(nom),
@@ -121,7 +121,7 @@ export async function seed(knex: Knex) {
       groupe_instructeur,
       demandeur_personne_physique_email,
       representative_email,
-      déposant_email,
+      déposant_email: deposant_email,
       mandataire_email,
       ...dossierData
     } of SEED_DOSSIERS) {
@@ -140,7 +140,7 @@ export async function seed(knex: Knex) {
                 demandeur_personne_physique: demandeur_personne_physique_email
                   ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
                   : null,
-                déposant: déposant_email ? (personneIdByEmail.get(déposant_email) ?? null) : null,
+                déposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
               }),
             )
             .returning("id");
@@ -151,8 +151,8 @@ export async function seed(knex: Knex) {
 
         // Identities shown in the "Porteur de projet" tab (per-dossier snapshots)
         const identites = [];
-        const demandeurFixture = déposant_email
-          ? personneFixtureByEmail.get(déposant_email)
+        const demandeurFixture = deposant_email
+          ? personneFixtureByEmail.get(deposant_email)
           : undefined;
         if (demandeurFixture) {
           identites.push({
@@ -267,7 +267,7 @@ export async function seed(knex: Knex) {
     }
 
     // Step 2 — évènements phase dossier
-    for (const { dossier: dsNumber, ...evtData } of SEED_ÉVÈNEMENTS_PHASE_DOSSIER) {
+    for (const { dossier: dsNumber, ...evtData } of SEED_EVENEMENTS_PHASE_DOSSIER) {
       const dossierId = dossierIdMap[dsNumber];
       if (!dossierId) {
         console.warn(`  ⚠ évènement phase "${evtData.phase}" — dossier DS ${dsNumber} non résolu`);
@@ -317,27 +317,27 @@ export async function seed(knex: Knex) {
               : null,
           });
         } else {
-          const fichiersÀAjouter: {
+          const fichiersAAjouter: {
             saisine_fichier?: FileId | null;
             avis_fichier?: FileId | null;
           } = {};
 
           if (nom_fichier_saisine && !existing.saisine_fichier) {
-            fichiersÀAjouter.saisine_fichier = await stockerPlaceholderPdf(
+            fichiersAAjouter.saisine_fichier = await stockerPlaceholderPdf(
               nom_fichier_saisine,
               transaction,
             );
           }
 
           if (nom_fichier_avis && !existing.avis_fichier) {
-            fichiersÀAjouter.avis_fichier = await stockerPlaceholderPdf(
+            fichiersAAjouter.avis_fichier = await stockerPlaceholderPdf(
               nom_fichier_avis,
               transaction,
             );
           }
 
-          if (Object.keys(fichiersÀAjouter).length >= 1) {
-            await transaction("avis_expert").where({ id: avisData.id }).update(fichiersÀAjouter);
+          if (Object.keys(fichiersAAjouter).length >= 1) {
+            await transaction("avis_expert").where({ id: avisData.id }).update(fichiersAAjouter);
           }
         }
       } catch (err) {
@@ -349,7 +349,7 @@ export async function seed(knex: Knex) {
     }
 
     // Step 4 — décisions administratives
-    for (const { dossier: dsNumber, nom_fichier, ...daData } of SEED_DÉCISIONS_ADMINISTRATIVES) {
+    for (const { dossier: dsNumber, nom_fichier, ...daData } of SEED_DECISIONS_ADMINISTRATIVES) {
       const dossierId = dossierIdMap[dsNumber];
       if (!dossierId) {
         console.warn(
@@ -397,7 +397,7 @@ export async function seed(knex: Knex) {
     }
 
     // Step 6 — contrôles
-    for (const contrôle of SEED_CONTRÔLES) {
+    for (const contrôle of SEED_CONTROLES) {
       try {
         const existing = await transaction("contrôle").where({ id: contrôle.id }).first();
         if (!existing) {
@@ -428,13 +428,13 @@ export async function seed(knex: Knex) {
     }
 
     // Step 8 — espèces impactées (generated ODS fichier)
-    if (SEED_ESPÈCES_IMPACTÉES.length > 0) {
-      const activitésBuffer = await readFile(ACTIVITÉS_ODS_PATH);
-      const activités = await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
-      const activitéParIdentifiantPitchou =
-        activités.identifiantPitchouVersActivitéEtImpactsQuantifiés;
+    if (SEED_ESPECES_IMPACTEES.length > 0) {
+      const activitesBuffer = await readFile(ACTIVITES_ODS_PATH);
+      const activites = await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
+      const activiteParIdentifiantPitchou =
+        activites.identifiantPitchouVersActivitéEtImpactsQuantifiés;
 
-      for (const { dossier: dsNumber, nom_fichier, lignes } of SEED_ESPÈCES_IMPACTÉES) {
+      for (const { dossier: dsNumber, nom_fichier, lignes } of SEED_ESPECES_IMPACTEES) {
         const dossierId = dossierIdMap[dsNumber];
         if (!dossierId) {
           console.warn(`  ⚠ espèces impactées — dossier DS ${dsNumber} non résolu`);
@@ -446,38 +446,38 @@ export async function seed(knex: Knex) {
         if (dossier?.espèces_impactées) continue;
 
         const cdRefs = [...new Set(lignes.map((l) => l.cd_ref))];
-        const rows: EspeceProtegee[] = await transaction("espece_protegee").whereIn(
+        const rows: EspeceProtegeeRow[] = await transaction("espece_protegee").whereIn(
           "cd_ref",
           cdRefs,
         );
-        const espèceByCD_REF = new Map<string, EspèceProtégée>(
+        const especeByCD_REF = new Map<string, EspeceProtegee>(
           rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)]),
         );
 
-        const description: DescriptionMenacesEspèces = {
+        const description: DescriptionMenacesEspeces = {
           oiseau: [],
           "faune non-oiseau": [],
           flore: [],
         };
 
         for (const ligne of lignes) {
-          const espèce = espèceByCD_REF.get(ligne.cd_ref);
-          if (!espèce) {
+          const espece = especeByCD_REF.get(ligne.cd_ref);
+          if (!espece) {
             throw new Error(
               `espèces impactées — espèce CD_REF ${ligne.cd_ref} introuvable dans la vue espece_protegee (dossier DS ${dsNumber})`,
             );
           }
 
-          const activité = activitéParIdentifiantPitchou.get(ligne.identifiant_pitchou_activité);
-          if (!activité) {
+          const activite = activiteParIdentifiantPitchou.get(ligne.identifiant_pitchou_activité);
+          if (!activite) {
             throw new Error(
               `espèces impactées — activité "${ligne.identifiant_pitchou_activité}" introuvable dans le référentiel (dossier DS ${dsNumber})`,
             );
           }
 
           const base = {
-            espèce,
-            activité,
+            espèce: espece,
+            activité: activite,
             nombreIndividus: ligne.nombre_individus,
             surfaceHabitatDétruit: ligne.surface_habitat_détruit,
           };
@@ -495,8 +495,8 @@ export async function seed(knex: Knex) {
           }
         }
 
-        const odsArrayBuffer = await descriptionMenacesEspècesToOdsArrayBuffer(description);
-        const { id: fichierId } = await stockerNouveauFichier(
+        const odsArrayBuffer = await descriptionMenacesEspecesToOdsArrayBuffer(description);
+        const { id: fichierId } = await storeNewFichier(
           {
             nom: nom_fichier,
             contenu: Buffer.from(odsArrayBuffer),

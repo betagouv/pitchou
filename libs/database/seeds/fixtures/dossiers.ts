@@ -11,10 +11,10 @@
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
 import type { GeoJSONFeatureCollection } from "@pitchou/types/API_Pitchou.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
-import type { DCisionAdministrativeInitializer } from "@pitchou/types/database/public/DécisionAdministrative.ts";
+import type { DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { PrescriptionInitializer } from "@pitchou/types/database/public/Prescription.ts";
-import type { ContrLeInitializer } from "@pitchou/types/database/public/Contrôle.ts";
-import type { VNementPhaseDossierInitializer } from "@pitchou/types/database/public/ÉvènementPhaseDossier.ts";
+import type { ControleInitializer } from "@pitchou/types/database/public/Controle.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 
 // ---------------------------------------------------------------------------
 // Seed-specific types
@@ -58,15 +58,15 @@ type SeedAvisExpert = Omit<
   nom_fichier_avis?: string;
 };
 
-type SeedÉvènementPhaseDossier = Omit<
-  VNementPhaseDossierInitializer,
+type SeedEvenementPhaseDossier = Omit<
+  EvenementPhaseDossierInitializer,
   "dossier" | "cause_personne"
 > & {
   dossier: string;
 };
 
-type SeedDécisionAdministrative = Omit<
-  DCisionAdministrativeInitializer,
+type SeedDecisionAdministrative = Omit<
+  DecisionAdministrativeInitializer,
   "id" | "dossier" | "fichier"
 > & {
   id: string;
@@ -80,7 +80,7 @@ type SeedPrescription = Omit<PrescriptionInitializer, "id" | "décision_administ
   décision_administrative: string;
 };
 
-type SeedContrôle = Omit<ContrLeInitializer, "id" | "prescription"> & {
+type SeedControle = Omit<ControleInitializer, "id" | "prescription"> & {
   id: string;
   prescription: string;
 };
@@ -120,7 +120,7 @@ type SeedPersonne = {
 };
 
 // One impacted-species line, used to build the "espèces impactées" ODS file.
-type SeedLigneEspèceImpactée = {
+type SeedLigneEspeceImpactee = {
   classification: "oiseau" | "faune non-oiseau" | "flore";
   /** CD_REF of the espèce; must be resolvable in the espece_protegee view */
   cd_ref: string;
@@ -133,11 +133,11 @@ type SeedLigneEspèceImpactée = {
 };
 
 // "Espèces impactées" file spec for a dossier (generated as ODS at seed time).
-type SeedEspècesImpactées = {
+type SeedEspecesImpactees = {
   /** number_demarches_simplifiées of the dossier */
   dossier: string;
   nom_fichier: string;
-  lignes: SeedLigneEspèceImpactée[];
+  lignes: SeedLigneEspeceImpactee[];
 };
 
 // ---------------------------------------------------------------------------
@@ -149,7 +149,7 @@ type SeedEspècesImpactées = {
 // ---------------------------------------------------------------------------
 
 /** A square Polygon zone of side ~`size`° centered on [lng, lat]. */
-function zoneCarrée(lng: number, lat: number, size: number, description: string) {
+function zoneCarree(lng: number, lat: number, size: number, description: string) {
   const h = size / 2;
   return {
     type: "Feature" as const,
@@ -180,7 +180,7 @@ function ligne(points: [number, number][], description: string) {
 
 /** Wrap features into a GeoJSON FeatureCollection. */
 function cartographie(
-  ...features: ReturnType<typeof zoneCarrée | typeof ligne>[]
+  ...features: ReturnType<typeof zoneCarree | typeof ligne>[]
 ): GeoJSONFeatureCollection {
   return { type: "FeatureCollection", features };
 }
@@ -192,7 +192,7 @@ function cartographie(
 export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   // D1 — Parc éolien des Monts d'Arrée – DREAL BRETAGNE
-  // Phase actuelle : Contrôle (décision signée, prescriptions en cours)
+  // Phase actuelle : Controle (décision signée, prescriptions en cours)
   // -------------------------------------------------------------------------
   {
     number_demarches_simplifiées: "99000001",
@@ -211,8 +211,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Bretagne"],
     // Zones drawn on the map in Démarche Numérique (Monts d'Arrée, Brasparts).
     cartographie_projet: cartographie(
-      zoneCarrée(-3.9615, 48.3035, 0.007, "Emprise du parc éolien"),
-      zoneCarrée(-3.9495, 48.2995, 0.005, "Zone de survol"),
+      zoneCarree(-3.9615, 48.3035, 0.007, "Emprise du parc éolien"),
+      zoneCarree(-3.9495, 48.2995, 0.005, "Zone de survol"),
     ),
     nom: "Parc éolien des Monts d'Arrée – Brasparts et Saint-Rivoal (29)",
     ddep_nécessaire: true,
@@ -274,7 +274,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Occitanie"],
     // Centrale photovoltaïque au sol, garrigue près de Montagnac (34).
     cartographie_projet: cartographie(
-      zoneCarrée(3.4805, 43.4805, 0.012, "Emprise clôturée de la centrale"),
+      zoneCarree(3.4805, 43.4805, 0.012, "Emprise clôturée de la centrale"),
     ),
     nom: "Centrale photovoltaïque au sol La Gardiole – Montagnac (34)",
     ddep_nécessaire: true,
@@ -322,7 +322,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 
   // -------------------------------------------------------------------------
   // D3 — Rénovation immeuble – Hirondelles – DREAL Grand Est
-  // Phase actuelle : Contrôle
+  // Phase actuelle : Controle
   // -------------------------------------------------------------------------
   {
     number_demarches_simplifiées: "99000003",
@@ -335,7 +335,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Grand Est"],
     // Façade d'un immeuble en centre-ville de Thionville (57).
     cartographie_projet: cartographie(
-      zoneCarrée(6.168, 49.358, 0.0015, "Façade concernée par le ravalement"),
+      zoneCarree(6.168, 49.358, 0.0015, "Façade concernée par le ravalement"),
     ),
     nom: "Rénovation de façade – nids d'hirondelles – Thionville (57)",
     ddep_nécessaire: null,
@@ -401,8 +401,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Auvergne-Rhône-Alpes"],
     // Réseau de grottes entre Issoire et Vic-le-Comte (63).
     cartographie_projet: cartographie(
-      zoneCarrée(3.249, 45.545, 0.006, "Grottes secteur Issoire"),
-      zoneCarrée(3.216, 45.646, 0.006, "Grottes secteur Vic-le-Comte"),
+      zoneCarree(3.249, 45.545, 0.006, "Grottes secteur Issoire"),
+      zoneCarree(3.216, 45.646, 0.006, "Grottes secteur Vic-le-Comte"),
     ),
     nom: "Inventaire chiroptères cavernicoles – réseau de grottes du Puy-de-Dôme",
     ddep_nécessaire: true,
@@ -484,9 +484,9 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Pays-de-la-Loire"],
     // Sites de relâcher autour du centre de soins LPO (Nantes / Loire-Atlantique).
     cartographie_projet: cartographie(
-      zoneCarrée(-1.554, 47.218, 0.004, "Centre de soins"),
-      zoneCarrée(-1.62, 47.28, 0.004, "Site de relâcher nord"),
-      zoneCarrée(-1.48, 47.16, 0.004, "Site de relâcher sud"),
+      zoneCarree(-1.554, 47.218, 0.004, "Centre de soins"),
+      zoneCarree(-1.62, 47.28, 0.004, "Site de relâcher nord"),
+      zoneCarree(-1.48, 47.16, 0.004, "Site de relâcher sud"),
     ),
     nom: "Transport et relâcher d'espèces protégées – Centre de soins LPO Pays de la Loire",
     ddep_nécessaire: false,
@@ -633,8 +633,8 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Bourgogne-Franche-Comté"],
     // Carrière de calcaire et son extension près de Nuits-Saint-Georges (21).
     cartographie_projet: cartographie(
-      zoneCarrée(4.949, 47.135, 0.01, "Carrière existante"),
-      zoneCarrée(4.962, 47.14, 0.008, "Périmètre d'extension"),
+      zoneCarree(4.949, 47.135, 0.01, "Carrière existante"),
+      zoneCarree(4.962, 47.14, 0.008, "Périmètre d'extension"),
     ),
     nom: "Extension de la carrière de calcaire de Chaux – Nuits-Saint-Georges (21)",
     ddep_nécessaire: true,
@@ -680,7 +680,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 
   // -------------------------------------------------------------------------
   // D8 — Réhabilitation clocher – Cigognes – DRIAT IDF
-  // Phase actuelle : Contrôle
+  // Phase actuelle : Controle
   // -------------------------------------------------------------------------
   {
     number_demarches_simplifiées: "99000008",
@@ -693,7 +693,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     régions: ["Île-de-France"],
     // Clocher de l'église Saint-Quiriace, centre historique de Provins (77).
     cartographie_projet: cartographie(
-      zoneCarrée(3.2985, 48.5595, 0.0012, "Clocher accueillant le nid"),
+      zoneCarree(3.2985, 48.5595, 0.0012, "Clocher accueillant le nid"),
     ),
     nom: "Réhabilitation du clocher de l'église Saint-Quiriace – nid de cigognes – Provins (77)",
     ddep_nécessaire: null,
@@ -762,7 +762,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
         ],
         "Berges à aménager",
       ),
-      zoneCarrée(-52.648, 5.162, 0.004, "Zone de renaturation"),
+      zoneCarree(-52.648, 5.162, 0.004, "Zone de renaturation"),
     ),
     nom: "Aménagement des berges du Kourou – protection contre les crues – Kourou (973)",
     ddep_nécessaire: true,
@@ -823,7 +823,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
     régions: ["Bretagne"],
     // Emprise du futur lotissement à Ploufragan (22).
-    cartographie_projet: cartographie(zoneCarrée(-2.783, 48.5, 0.008, "Emprise du lotissement")),
+    cartographie_projet: cartographie(zoneCarree(-2.783, 48.5, 0.008, "Emprise du lotissement")),
     nom: "Aménagement de lotissement",
     ddep_nécessaire: null,
     commentaire_libre: "",
@@ -867,7 +867,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
 
   // -------------------------------------------------------------------------
   // D11 — Agrandissement pistes cyclables Rennes-Dinan – Dév Pitchou
-  // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Contrôle)
+  // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Controle)
   // -------------------------------------------------------------------------
   {
     number_demarches_simplifiées: "99000011",
@@ -1188,7 +1188,7 @@ export const SEED_DOSSIERS_SUIVIS_PAR_DEV: string[] = [
 // Espèces impactées (generated as ODS files at seed time)
 // ---------------------------------------------------------------------------
 
-export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
+export const SEED_ESPECES_IMPACTEES: SeedEspecesImpactees[] = [
   // D10 — Aménagement de lotissement
   // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
   // (ministérielle, faune non-oiseau) impacted once.
@@ -1286,8 +1286,8 @@ export const SEED_ESPÈCES_IMPACTÉES: SeedEspècesImpactées[] = [
 // Each dossier has ≥1 phase event; the last one defines the current phase.
 // ---------------------------------------------------------------------------
 
-export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
-  // D1 – éolien Bretagne → Contrôle
+export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
+  // D1 – éolien Bretagne → Controle
   {
     dossier: "99000001",
     phase: "Accompagnement amont",
@@ -1333,7 +1333,7 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
     DS_motivation: null,
   },
 
-  // D3 – hirondelle Grand Est → Contrôle
+  // D3 – hirondelle Grand Est → Controle
   {
     dossier: "99000003",
     phase: "Instruction",
@@ -1406,7 +1406,7 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
     DS_motivation: "Dossier incomplet. Sans réponse du pétitionnaire après deux relances.",
   },
 
-  // D8 – cigogne IDF → Contrôle
+  // D8 – cigogne IDF → Controle
   {
     dossier: "99000008",
     phase: "Instruction",
@@ -1438,7 +1438,7 @@ export const SEED_ÉVÈNEMENTS_PHASE_DOSSIER: SeedÉvènementPhaseDossier[] = [
     DS_motivation: null,
   },
 
-  // D11 – pistes cyclables Rennes-Dinan → Instruction → Contrôle → Accompagnement amont
+  // D11 – pistes cyclables Rennes-Dinan → Instruction → Controle → Accompagnement amont
   {
     dossier: "99000011",
     phase: "Instruction",
@@ -1515,7 +1515,7 @@ export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
 // D1 (Arrêté dérogation), D3 (Courrier), D8 (Arrêté dérogation)
 // ---------------------------------------------------------------------------
 
-export const SEED_DÉCISIONS_ADMINISTRATIVES: SeedDécisionAdministrative[] = [
+export const SEED_DECISIONS_ADMINISTRATIVES: SeedDecisionAdministrative[] = [
   // D1 – éolien Bretagne – arrêté dérogation préfectoral
   {
     id: "da000001-0000-4000-a000-000000000001",
@@ -1737,10 +1737,10 @@ export const SEED_PRESCRIPTIONS: SeedPrescription[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Contrôles
+// Controles
 // ---------------------------------------------------------------------------
 
-export const SEED_CONTRÔLES: SeedContrôle[] = [
+export const SEED_CONTROLES: SeedControle[] = [
   // --- D1 prescriptions (a0000001–a0000004) ---
 
   {

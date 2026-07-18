@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { genererMessagesGeoMCE } from "./geomce.ts";
-import type { DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
+import { generateMessagesGeoMCE } from "./geomce.ts";
+import type { DossierForGeoMCE } from "@pitchou/types/geomce.ts";
 
-// Only the fields genererMessagesGeoMCE reads, with plain types (the branded
-// id/siret are simplified here since the result is cast to DossierPourGeoMCE).
+// Only the fields generateMessagesGeoMCE reads, with plain types (the branded
+// id/siret are simplified here since the result is cast to DossierForGeoMCE).
 type DossierOverrides = {
   id?: number;
   nom?: string | null;
@@ -11,13 +11,13 @@ type DossierOverrides = {
   communes?: { code: string }[];
   demandeur_personne_morale?: string | null;
   date_signature?: Date | null;
-  instructeurs?: DossierPourGeoMCE["instructeurs"];
-  specimens_faunes?: DossierPourGeoMCE["specimens_faunes"];
-  specimens_flores?: DossierPourGeoMCE["specimens_flores"];
+  instructeurs?: DossierForGeoMCE["instructeurs"];
+  specimens_faunes?: DossierForGeoMCE["specimens_faunes"];
+  specimens_flores?: DossierForGeoMCE["specimens_flores"];
 };
 
-// Builds a DossierPourGeoMCE with only the fields genererMessagesGeoMCE reads.
-function makeDossier(overrides: DossierOverrides = {}): DossierPourGeoMCE {
+// Builds a DossierForGeoMCE with only the fields generateMessagesGeoMCE reads.
+function makeDossier(overrides: DossierOverrides = {}): DossierForGeoMCE {
   return {
     id: 42,
     nom: "Parc éolien du Test",
@@ -29,12 +29,12 @@ function makeDossier(overrides: DossierOverrides = {}): DossierPourGeoMCE {
     specimens_faunes: [{ nom_scientifique: "Morus bassanus" }],
     specimens_flores: [{ nom_scientifique: "Narcissus tazetta" }],
     ...overrides,
-  } as unknown as DossierPourGeoMCE;
+  } as unknown as DossierForGeoMCE;
 }
 
-describe("genererMessagesGeoMCE", () => {
+describe("generateMessagesGeoMCE", () => {
   it("dérive ref, num_dossier et references depuis l'id", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ id: 7 }));
+    const message = generateMessagesGeoMCE(makeDossier({ id: 7 }));
 
     expect(message.projet.ref).toBe("PITCHOU-7");
     expect(message.procedure.num_dossier).toBe("PITCHOU-7");
@@ -42,32 +42,32 @@ describe("genererMessagesGeoMCE", () => {
   });
 
   it("garde le nom du dossier quand il est renseigné", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ nom: "Mon projet" }));
+    const message = generateMessagesGeoMCE(makeDossier({ nom: "Mon projet" }));
 
     expect(message.projet.nom).toBe("Mon projet");
   });
 
   it("retombe sur un nom par défaut quand le dossier n'a pas de nom", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ id: 7, nom: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ id: 7, nom: null }));
 
     expect(message.projet.nom).toBe("Dossier Pitchou #7");
   });
 
   it("retombe sur une description vide quand le dossier n'en a pas", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ description: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ description: null }));
 
     expect(message.projet.description).toBe("");
     expect(message.procedure.description).toBe("");
   });
 
   it("transforme les communes en localisations", () => {
-    const message = genererMessagesGeoMCE(makeDossier());
+    const message = generateMessagesGeoMCE(makeDossier());
 
     expect(message.projet.localisations).toEqual(["01001", "75056"]);
   });
 
   it("construit la maîtrise d'ouvrage depuis le SIRET du demandeur", () => {
-    const message = genererMessagesGeoMCE(
+    const message = generateMessagesGeoMCE(
       makeDossier({ demandeur_personne_morale: "98765432109876" }),
     );
 
@@ -75,13 +75,13 @@ describe("genererMessagesGeoMCE", () => {
   });
 
   it("laisse la maîtrise d'ouvrage à null sans demandeur personne morale", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ demandeur_personne_morale: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ demandeur_personne_morale: null }));
 
     expect(message.projet.maitrise_ouvrage).toBeNull();
   });
 
   it("formate la date de décision en YYYY-MM-DD", () => {
-    const message = genererMessagesGeoMCE(
+    const message = generateMessagesGeoMCE(
       makeDossier({ date_signature: new Date("2026-03-15T10:30:00Z") }),
     );
 
@@ -89,13 +89,13 @@ describe("genererMessagesGeoMCE", () => {
   });
 
   it("laisse la date de décision à null sans date de signature", () => {
-    const message = genererMessagesGeoMCE(makeDossier({ date_signature: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ date_signature: null }));
 
     expect(message.procedure.date_decision).toBeNull();
   });
 
   it("recopie les spécimens faune et flore dans la procédure", () => {
-    const message = genererMessagesGeoMCE(makeDossier());
+    const message = generateMessagesGeoMCE(makeDossier());
 
     expect(message.procedure.specimens_faunes).toEqual([{ nom_scientifique: "Morus bassanus" }]);
     expect(message.procedure.specimens_flores).toEqual([{ nom_scientifique: "Narcissus tazetta" }]);
@@ -103,13 +103,13 @@ describe("genererMessagesGeoMCE", () => {
 
   it("recopie les instructeurs dans la procédure", () => {
     const instructeurs = [{ email: "a@example.org", date_from: "2026-02-02" }];
-    const message = genererMessagesGeoMCE(makeDossier({ instructeurs }));
+    const message = generateMessagesGeoMCE(makeDossier({ instructeurs }));
 
     expect(message.procedure.instructeurs).toEqual(instructeurs);
   });
 
   it("pose les valeurs fixes attendues par GeoMCE", () => {
-    const message = genererMessagesGeoMCE(makeDossier());
+    const message = generateMessagesGeoMCE(makeDossier());
 
     expect(message.projet.avancement).toBe("Autorisé");
     expect(message.projet.typologies).toBeNull();

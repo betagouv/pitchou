@@ -1,28 +1,28 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
 
-  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
+  import ListDossiers from "$lib/components/ListDossiers/ListDossiers.svelte";
 
   type Props = {
     email?: string;
-    dossiers: DossierRésumé[];
+    dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
-    notificationParDossier: PitchouState["notificationParDossier"];
+    notificationByDossier: PitchouState["notificationByDossier"];
   };
 
-  let { email = "", dossiers = [], relationSuivis, notificationParDossier }: Props = $props();
+  let { email = "", dossiers = [], relationSuivis, notificationByDossier }: Props = $props();
 </script>
 
 <svelte:head>
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
-<ListeDossiers
-  titre="Mes dossiers"
+<ListDossiers
+  title="Mes dossiers"
   {email}
   {dossiers}
   {relationSuivis}
-  afficherFiltreActionInstructeur
-  {notificationParDossier}
+  showFilterActionInstructeur
+  {notificationByDossier}
 />

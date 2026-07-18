@@ -2,14 +2,14 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
 import {
-  getNotificationsPourPersonneDepuisCap,
+  getNotificationsForPersonneFromCap,
   updateNotificationDossierFromCap,
 } from "@pitchou/server/database/notification.ts";
 import type { NotificationInitializer } from "@pitchou/types/database/public/Notification.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   const cap = requireCap(url);
-  return json(await getNotificationsPourPersonneDepuisCap(cap));
+  return json(await getNotificationsForPersonneFromCap(cap));
 };
 
 export const POST: RequestHandler = async ({ url, request }) => {

@@ -1,5 +1,5 @@
-import type { EspèceProtégée, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-import { normalizeNomEspèce, normalizeTexteEspèce } from "@pitchou/common/manipulationStrings.ts";
+import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 
@@ -60,26 +60,26 @@ export function firstName(names: Set<string>): string {
 }
 
 /** Matches if every search word is a substring of any scientific or vernacular name */
-export function matchesText(espece: EspèceProtégée, text: string): boolean {
+export function matchesText(espece: EspeceProtegee, text: string): boolean {
   const words = text
     .trim()
     .split(" ")
-    .map(normalizeTexteEspèce)
+    .map(normalizeEspeceText)
     .filter((word) => word.length >= 1);
 
   return words.every((word) => {
     for (const name of espece.nomsScientifiques) {
-      if (normalizeNomEspèce(name).includes(word)) return true;
+      if (normalizeEspeceName(name).includes(word)) return true;
     }
     for (const name of espece.nomsVernaculaires) {
-      if (normalizeNomEspèce(name).includes(word)) return true;
+      if (normalizeEspeceName(name).includes(word)) return true;
     }
     return false;
   });
 }
 
 /** Applies the active attribute filters and text search from `query` */
-export function filterEspeces(especes: EspèceProtégée[], query: EspecesQuery): EspèceProtégée[] {
+export function filterEspeces(especes: EspeceProtegee[], query: EspecesQuery): EspeceProtegee[] {
   let result = especes;
 
   if (query.classification) {
@@ -103,8 +103,8 @@ export function filterEspeces(especes: EspèceProtégée[], query: EspecesQuery)
 }
 
 export function compareEspeces(
-  a: EspèceProtégée,
-  b: EspèceProtégée,
+  a: EspeceProtegee,
+  b: EspeceProtegee,
   sortKey: SortKey,
   sortOrder: "asc" | "desc",
 ): number {

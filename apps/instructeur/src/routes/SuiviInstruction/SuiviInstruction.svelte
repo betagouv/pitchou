@@ -2,103 +2,106 @@
   import { onMount, untrack } from "svelte";
   import { SvelteSet, SvelteMap } from "svelte/reactivity";
 
-  import FiltreParmiOptions from "./FiltreParmiOptions.svelte";
-  import BarreRecherche from "./BarreRecherche.svelte";
-  import TrisDeTh from "./TrisDeTh.svelte";
+  import FilterAmongOptions from "./FilterAmongOptions.svelte";
+  import SearchBar from "./SearchBar.svelte";
+  import ThSorts from "./ThSorts.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import IndicateurDélaiPhase from "./IndicateurDélaiPhase.svelte";
+  import PhaseDelayIndicator from "./PhaseDelayIndicator.svelte";
   import {
     formatLocalisation,
     formatPorteurDeProjet,
     phases,
     prochaineActionAttenduePar,
-  } from "$lib/dossier/affichageDossier.ts";
-  import { créerFiltreTexte } from "$lib/dossier/filtresTexte.ts";
+  } from "$lib/dossier/displayDossier.ts";
+  import { createTextFilter } from "$lib/dossier/textFilters.ts";
   import {
-    trierDossiersParOrdreAlphabétiqueColonne,
-    trierDossiersParPhaseProchaineAction,
-  } from "./triDossiers.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
-  import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
+    sortDossiersByColumnAlphabetically,
+    sortDossiersByPhaseProchaineAction,
+  } from "./sortDossiers.ts";
   import {
-    envoyerÉvènement,
-    envoyerÉvènementRechercherUnDossier as _envoyerÉvènementRechercherUnDossier,
+    instructeurLeavesDossier,
+    instructeurFollowsDossier,
+  } from "$lib/dossier/suiviDossier.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
+  import {
+    sendEvenement,
+    sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier,
   } from "$lib/shared/aarri.ts";
 
-  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
   import type {
-    DossierRésumé,
+    DossierSummary,
     DossierPhase,
-    DossierProchaineActionAttenduePar,
+    DossierNextActionExpectedFrom,
   } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
-  import type { FiltresLocalStorage, TriTableau } from "@pitchou/types/interfaceUtilisateur.ts";
-  import type { ÉvènementRechercheDossiersDétails } from "@pitchou/types/évènement.d.ts";
+  import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
+  import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
 
   type Props = {
     email: string;
-    dossiers?: DossierRésumé[];
+    dossiers?: DossierSummary[];
     relationSuivis: PitchouState["relationSuivis"];
     activitésPrincipales?: string[] | undefined;
-    triIdSélectionné?: TriTableau["id"] | undefined;
-    filtresSélectionnés?: Partial<FiltresLocalStorage>;
-    rememberTriFiltres: any;
+    selectedSortId?: TableSort["id"] | undefined;
+    selectedFilters?: Partial<FiltersLocalStorage>;
+    rememberSortFilters: any;
   };
 
   let {
     email,
     dossiers = [],
     relationSuivis,
-    activitésPrincipales = [],
-    triIdSélectionné = undefined,
-    filtresSélectionnés = {},
-    rememberTriFiltres,
+    activitésPrincipales: activitesPrincipales = [],
+    selectedSortId = undefined,
+    selectedFilters = {},
+    rememberSortFilters,
   }: Props = $props();
 
   //$inspect('dossiers', dossiers)
-  //$inspect('filtresSélectionnés', filtresSélectionnés)
+  //$inspect('selectedFilters', selectedFilters)
   $inspect("relationSuivis", relationSuivis);
 
-  let dossiersIdSuivisParAucunInstructeur = $derived.by(() => {
+  let dossierIdsFollowedByNoInstructeur = $derived.by(() => {
     if (!relationSuivis) {
       return new SvelteSet();
     }
 
-    // démarrer avec tous les ids
-    let dossierIdsSansSuivi = new Set(dossiers.map((d) => d.id));
+    // start with all the ids
+    let dossierIdsWithoutFollow = new Set(dossiers.map((d) => d.id));
 
-    // retirer les ids suivis par au moins un.e instructeur.rice
+    // remove the ids followed by at least one instructeur.rice
     for (const dossierIds of relationSuivis.values()) {
-      dossierIdsSansSuivi = dossierIdsSansSuivi.difference(dossierIds);
+      dossierIdsWithoutFollow = dossierIdsWithoutFollow.difference(dossierIds);
     }
 
-    return new SvelteSet(dossierIdsSansSuivi);
+    return new SvelteSet(dossierIdsWithoutFollow);
   });
 
-  let dossiersSelectionnés: DossierRésumé[] = $state([]);
+  let selectedDossiers: DossierSummary[] = $state([]);
 
-  //$inspect('dossiersSelectionnés', dossiersSelectionnés)
+  //$inspect('selectedDossiers', selectedDossiers)
 
   $effect(() => {
     console.log("relationSuivis effect", relationSuivis);
   });
 
-  let dossierIdsSuivisParInstructeurActuel: Set<Dossier["id"]> = $derived(
+  let dossierIdsFollowedByCurrentInstructeur: Set<Dossier["id"]> = $derived(
     relationSuivis?.get(email) || new SvelteSet(),
   );
 
-  $inspect("dossierIdsSuivisParInstructeurActuel", dossierIdsSuivisParInstructeurActuel);
+  $inspect("dossierIdsFollowedByCurrentInstructeur", dossierIdsFollowedByCurrentInstructeur);
 
-  const trisActivitéPrincipale = [
+  const activitePrincipaleSorts = [
     {
       nom: "Trier de A à Z",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "activité_principale",
         );
       },
@@ -106,9 +109,9 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "activité_principale",
         ).reverse();
       },
@@ -116,45 +119,36 @@
     },
   ];
 
-  const trisNomProjet = [
+  const nomProjetSorts = [
     {
       nom: "Trier de A à Z",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
-          "nom",
-        );
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom");
       },
       id: "NomProjet-AZ",
     },
     {
       nom: "Trier de Z à A",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
-          "nom",
-        ).reverse();
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom").reverse();
       },
       id: "NomProjet-ZA",
     },
   ];
 
-  const trisLocalisation = [
+  const localisationSorts = [
     {
       nom: "Trier de A à Z",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
-          "localisation",
-        );
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "localisation");
       },
       id: "Localisation-AZ",
     },
     {
       nom: "Trier de Z à A",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "localisation",
         ).reverse();
       },
@@ -162,12 +156,12 @@
     },
   ];
 
-  const trisPorteurDeProjet = [
+  const porteurDeProjetSorts = [
     {
       nom: "Trier de A à Z",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "porteur de projet",
         );
       },
@@ -175,9 +169,9 @@
     },
     {
       nom: "Trier de Z à A",
-      trier() {
-        dossiersSelectionnés = trierDossiersParOrdreAlphabétiqueColonne(
-          dossiersSelectionnés,
+      sort() {
+        selectedDossiers = sortDossiersByColumnAlphabetically(
+          selectedDossiers,
           "porteur de projet",
         ).reverse();
       },
@@ -185,106 +179,106 @@
     },
   ];
 
-  const triPriorisationPhaseProchaineAction = [
+  const priorisationPhaseProchaineActionSorts = [
     {
       nom: "Prioriser",
-      trier() {
-        dossiersSelectionnés = trierDossiersParPhaseProchaineAction(dossiersSelectionnés);
+      sort() {
+        selectedDossiers = sortDossiersByPhaseProchaineAction(selectedDossiers);
       },
       id: "Priorisation-PhaseAction",
     },
   ];
 
-  const tris: TriTableau[] = [
-    ...trisActivitéPrincipale,
-    ...trisNomProjet,
-    ...trisLocalisation,
-    ...trisPorteurDeProjet,
-    ...triPriorisationPhaseProchaineAction,
+  const sorts: TableSort[] = [
+    ...activitePrincipaleSorts,
+    ...nomProjetSorts,
+    ...localisationSorts,
+    ...porteurDeProjetSorts,
+    ...priorisationPhaseProchaineActionSorts,
   ];
 
-  // Cette ligne doit être tolérante à ce que triIdSélectionné soit undefined ou n'importe quoi
-  let triSélectionné: TriTableau | undefined = $state(
-    tris.find((t) => t.id === triIdSélectionné) || triPriorisationPhaseProchaineAction[0],
+  // This line must be tolerant of selectedSortId being undefined or anything else
+  let selectedSort: TableSort | undefined = $state(
+    sorts.find((t) => t.id === selectedSortId) || priorisationPhaseProchaineActionSorts[0],
   );
 
-  type CléFiltre =
+  type FilterKey =
     | "phase"
     | "prochaine action attendue de"
     | "texte"
     | "suivis"
     | "instructeurs"
     | "activité principale";
-  const tousLesFiltres = new SvelteMap<CléFiltre, (d: DossierRésumé) => boolean>();
+  const allFilters = new SvelteMap<FilterKey, (d: DossierSummary) => boolean>();
 
-  function filtrerDossiers() {
-    let nouveauxDossiersSélectionnés = dossiers;
+  function filterDossiers() {
+    let newSelectedDossiers = dossiers;
 
-    for (const filtre of tousLesFiltres.values()) {
-      nouveauxDossiersSélectionnés = nouveauxDossiersSélectionnés.filter(filtre);
+    for (const filter of allFilters.values()) {
+      newSelectedDossiers = newSelectedDossiers.filter(filter);
     }
 
-    dossiersSelectionnés = nouveauxDossiersSélectionnés;
+    selectedDossiers = newSelectedDossiers;
 
-    if (triSélectionné) {
-      triSélectionné.trier();
+    if (selectedSort) {
+      selectedSort.sort();
     }
   }
 
-  function envoyerÉvènementRechercherUnDossier() {
-    const filtres: ÉvènementRechercheDossiersDétails["filtres"] = {
+  function sendEvenementRechercherUnDossier() {
+    const filtres: EvenementRechercheDossiersDetails["filtres"] = {
       suiviPar: {
-        nombreSéléctionnées: instructeursSélectionnés.has(AUCUN_INSTRUCTEUR)
-          ? instructeursSélectionnés.size - 1
-          : instructeursSélectionnés.size,
-        // ne pas compter “(aucun instructeur)”
+        nombreSéléctionnées: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
+          ? selectedInstructeurs.size - 1
+          : selectedInstructeurs.size,
+        // do not count “(aucun instructeur)”
         nombreTotal: instructeursOptions.size - 1,
-        inclusSoiMême: instructeursSélectionnés.has(email),
+        inclusSoiMême: selectedInstructeurs.has(email),
       },
-      sansInstructeurice: instructeursSélectionnés.has(AUCUN_INSTRUCTEUR),
-      phases: [...phasesSélectionnées],
-      prochaineActionAttenduePar: [...prochainesActionsAttenduesParSélectionnés],
-      activitésPrincipales: [...activitésPrincipalesSélectionnées],
+      sansInstructeurice: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
+      phases: [...selectedPhases],
+      prochaineActionAttenduePar: [...selectedProchainesActionsAttenduesPar],
+      activitésPrincipales: [...selectedActivitesPrincipales],
     };
 
-    if (texteÀChercher) {
-      filtres.texte = texteÀChercher;
+    if (textToSearch) {
+      filtres.texte = textToSearch;
     }
 
-    _envoyerÉvènementRechercherUnDossier({ filtres, nombreRésultats: dossiersSelectionnés.length });
+    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: selectedDossiers.length });
   }
 
   const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
 
-  let phasesSélectionnées: Set<DossierPhase> = $state(
+  let selectedPhases: Set<DossierPhase> = $state(
     untrack(() =>
-      filtresSélectionnés.phases
-        ? new SvelteSet(filtresSélectionnés.phases)
+      selectedFilters.phases
+        ? new SvelteSet(selectedFilters.phases)
         : new SvelteSet(["Accompagnement amont", "Étude recevabilité DDEP", "Instruction"]),
     ),
   );
 
-  //$inspect(phasesSélectionnées)
+  //$inspect(selectedPhases)
 
   function makeTagPhaseOnClick(phase: DossierPhase) {
     return () => {
       console.log("click on phase", phase);
 
-      if (phasesSélectionnées.has(phase)) {
-        phasesSélectionnées.delete(phase);
+      if (selectedPhases.has(phase)) {
+        selectedPhases.delete(phase);
       } else {
-        phasesSélectionnées.add(phase);
+        selectedPhases.add(phase);
       }
 
-      //phasesSélectionnées = phasesSélectionnées; // re-render
+      //selectedPhases = selectedPhases; // re-render
 
-      filtrerDossiers();
-      envoyerÉvènementRechercherUnDossier();
+      filterDossiers();
+      sendEvenementRechercherUnDossier();
     };
   }
 
-  tousLesFiltres.set("phase", (dossier) => {
-    return phasesSélectionnées.has(dossier.phase);
+  allFilters.set("phase", (dossier) => {
+    return selectedPhases.has(dossier.phase);
   });
 
   const PROCHAINE_ACTION_ATTENDUE_PAR_VIDE = "(vide)" as const;
@@ -294,69 +288,67 @@
   ]);
 
   // @ts-ignore
-  let prochainesActionsAttenduesParSélectionnés: Set<
-    DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+  let selectedProchainesActionsAttenduesPar: Set<
+    DossierNextActionExpectedFrom | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
   > = $state(
     untrack(() =>
-      filtresSélectionnés["prochaine action attendue de"]
-        ? new SvelteSet(filtresSélectionnés["prochaine action attendue de"])
+      selectedFilters["prochaine action attendue de"]
+        ? new SvelteSet(selectedFilters["prochaine action attendue de"])
         : new SvelteSet(prochainesActionsAttenduesParOptions),
     ),
   );
 
-  tousLesFiltres.set("prochaine action attendue de", (dossier) => {
+  allFilters.set("prochaine action attendue de", (dossier) => {
     if (
       !dossier.prochaine_action_attendue_par ||
       !prochainesActionsAttenduesParOptions.has(
-        dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+        dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
       )
     ) {
-      return prochainesActionsAttenduesParSélectionnés.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
+      return selectedProchainesActionsAttenduesPar.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
     }
 
-    return prochainesActionsAttenduesParSélectionnés.has(
-      dossier.prochaine_action_attendue_par as DossierProchaineActionAttenduePar,
+    return selectedProchainesActionsAttenduesPar.has(
+      dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
     );
   });
 
-  function filtrerParProchainesActionsAttenduesPar(
-    _prochainesActionsAttenduesParSélectionnés: Set<
-      DossierProchaineActionAttenduePar | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
+  function filterByProchainesActionsAttenduesPar(
+    _selectedProchainesActionsAttenduesPar: Set<
+      DossierNextActionExpectedFrom | typeof PROCHAINE_ACTION_ATTENDUE_PAR_VIDE
     >,
   ) {
-    prochainesActionsAttenduesParSélectionnés = new SvelteSet(
-      _prochainesActionsAttenduesParSélectionnés,
-    );
+    selectedProchainesActionsAttenduesPar = new SvelteSet(_selectedProchainesActionsAttenduesPar);
 
-    filtrerDossiers();
-    envoyerÉvènementRechercherUnDossier();
+    filterDossiers();
+    sendEvenementRechercherUnDossier();
   }
 
-  let prochainesActionsAttenduesParNonSélectionnés = $derived(
-    prochainesActionsAttenduesParOptions.difference(prochainesActionsAttenduesParSélectionnés),
+  let unselectedProchainesActionsAttenduesPar = $derived(
+    prochainesActionsAttenduesParOptions.difference(selectedProchainesActionsAttenduesPar),
   );
 
-  let texteÀChercher = $state(untrack(() => filtresSélectionnés.texte));
+  let textToSearch = $state(untrack(() => selectedFilters.texte));
 
-  function ajouterFiltreTexte(_texteÀChercher: string) {
-    texteÀChercher = _texteÀChercher.trim();
-    tousLesFiltres.set("texte", créerFiltreTexte(texteÀChercher, dossiers));
+  function addTextFilter(_textToSearch: string) {
+    textToSearch = _textToSearch.trim();
+    allFilters.set("texte", createTextFilter(textToSearch, dossiers));
   }
 
-  function filtrerParTexte(_texteÀChercher: string) {
-    ajouterFiltreTexte(_texteÀChercher);
+  function filterByText(_textToSearch: string) {
+    addTextFilter(_textToSearch);
 
-    filtrerDossiers();
-    envoyerÉvènementRechercherUnDossier();
+    filterDossiers();
+    sendEvenementRechercherUnDossier();
   }
 
-  function onSupprimerFiltreTexte(e: Event) {
+  function onDeleteTextFilter(e: Event) {
     e.preventDefault();
 
-    tousLesFiltres.delete("texte");
+    allFilters.delete("texte");
 
-    texteÀChercher = "";
-    filtrerDossiers();
+    textToSearch = "";
+    filterDossiers();
   }
 
   const AUCUN_INSTRUCTEUR = "(aucun instructeur)" as const;
@@ -369,168 +361,164 @@
 
   //$inspect('')
 
-  let instructeursSélectionnés: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
-    $state(
-      untrack(
-        () =>
-          new SvelteSet(
-            filtresSélectionnés.instructeurs
-              ? filtresSélectionnés.instructeurs
-              : instructeursOptions,
-          ),
-      ),
-    );
+  let selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> = $state(
+    untrack(
+      () =>
+        new SvelteSet(
+          selectedFilters.instructeurs ? selectedFilters.instructeurs : instructeursOptions,
+        ),
+    ),
+  );
 
-  $inspect("instructeursSélectionnés", instructeursSélectionnés);
+  $inspect("instructeursSélectionnés", selectedInstructeurs);
 
-  tousLesFiltres.set("instructeurs", (dossier) => {
+  allFilters.set("instructeurs", (dossier) => {
     if (!relationSuivis) return true;
 
     if (
-      instructeursSélectionnés.has(AUCUN_INSTRUCTEUR) &&
-      dossiersIdSuivisParAucunInstructeur &&
-      dossiersIdSuivisParAucunInstructeur.has(dossier.id)
+      selectedInstructeurs.has(AUCUN_INSTRUCTEUR) &&
+      dossierIdsFollowedByNoInstructeur &&
+      dossierIdsFollowedByNoInstructeur.has(dossier.id)
     ) {
       return true;
     }
 
-    for (const instructeurEmail of instructeursSélectionnés) {
-      const dossiersIdsSuivisParCetInstructeur = relationSuivis.get(instructeurEmail);
-      if (dossiersIdsSuivisParCetInstructeur && dossiersIdsSuivisParCetInstructeur.has(dossier.id))
+    for (const instructeurEmail of selectedInstructeurs) {
+      const dossierIdsFollowedByThisInstructeur = relationSuivis.get(instructeurEmail);
+      if (
+        dossierIdsFollowedByThisInstructeur &&
+        dossierIdsFollowedByThisInstructeur.has(dossier.id)
+      )
         return true;
     }
 
     return false;
   });
 
-  function filtrerParInstructeurs(
-    _instructeursSélectionnées: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
+  function filterByInstructeurs(
+    _selectedInstructeurs: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR>,
   ) {
-    instructeursSélectionnés = new SvelteSet(_instructeursSélectionnées);
+    selectedInstructeurs = new SvelteSet(_selectedInstructeurs);
 
-    filtrerDossiers();
-    envoyerÉvènementRechercherUnDossier();
+    filterDossiers();
+    sendEvenementRechercherUnDossier();
   }
 
-  function filtrerSuivisParMoi() {
-    filtrerParInstructeurs(new Set([email]));
-    envoyerÉvènement({ type: "afficherLesDossiersSuivis" });
+  function filterFollowedByMe() {
+    filterByInstructeurs(new Set([email]));
+    sendEvenement({ type: "afficherLesDossiersSuivis" });
   }
 
-  let instructeursNonSélectionnés = $derived(
-    instructeursOptions.difference(instructeursSélectionnés),
-  );
+  let unselectedInstructeurs = $derived(instructeursOptions.difference(selectedInstructeurs));
 
-  const AUCUNE_ACTIVITÉ_PRINCIPALE = "(aucune activité principale)" as const;
+  const AUCUNE_ACTIVITE_PRINCIPALE = "(aucune activité principale)" as const;
   // @ts-ignore
-  const activitésPrincipalesOptions = $derived(
-    new SvelteSet([AUCUNE_ACTIVITÉ_PRINCIPALE, ...activitésPrincipales]),
+  const activitesPrincipalesOptions = $derived(
+    new SvelteSet([AUCUNE_ACTIVITE_PRINCIPALE, ...activitesPrincipales]),
   );
 
   // @ts-ignore
-  let activitésPrincipalesSélectionnées: Set<
-    DossierDemarcheNumerique88444["Activité principale"] | typeof AUCUNE_ACTIVITÉ_PRINCIPALE
+  let selectedActivitesPrincipales: Set<
+    DossierDemarcheNumerique88444["Activité principale"] | typeof AUCUNE_ACTIVITE_PRINCIPALE
   > = $state(
     untrack(
       () =>
         new SvelteSet(
-          filtresSélectionnés.activitésPrincipales
-            ? filtresSélectionnés.activitésPrincipales
-            : activitésPrincipalesOptions,
+          selectedFilters.activitésPrincipales
+            ? selectedFilters.activitésPrincipales
+            : activitesPrincipalesOptions,
         ),
     ),
   );
 
-  tousLesFiltres.set("activité principale", (dossier) => {
+  allFilters.set("activité principale", (dossier) => {
     if (
       !dossier.activité_principale ||
-      !activitésPrincipalesOptions.has(dossier.activité_principale)
+      !activitesPrincipalesOptions.has(dossier.activité_principale)
     )
-      return activitésPrincipalesSélectionnées.has(AUCUNE_ACTIVITÉ_PRINCIPALE);
+      return selectedActivitesPrincipales.has(AUCUNE_ACTIVITE_PRINCIPALE);
 
-    return activitésPrincipalesSélectionnées.has(dossier.activité_principale);
+    return selectedActivitesPrincipales.has(dossier.activité_principale);
   });
 
-  function filtrerParActivitéPrincipale(
-    _activitésPrincipalesSélectionnées: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+  function filterByActivitePrincipale(
+    _selectedActivitesPrincipales: Set<DossierDemarcheNumerique88444["Activité principale"]>,
   ) {
-    activitésPrincipalesSélectionnées = new Set(_activitésPrincipalesSélectionnées);
+    selectedActivitesPrincipales = new Set(_selectedActivitesPrincipales);
 
-    filtrerDossiers();
-    envoyerÉvènementRechercherUnDossier();
+    filterDossiers();
+    sendEvenementRechercherUnDossier();
   }
 
-  let activitésPrincipalesNonSélectionnées = $derived(
-    activitésPrincipalesOptions.difference(activitésPrincipalesSélectionnées),
+  let unselectedActivitesPrincipales = $derived(
+    activitesPrincipalesOptions.difference(selectedActivitesPrincipales),
   );
 
   $effect(() => {
-    rememberTriFiltres(triSélectionné, {
-      phases: phasesSélectionnées,
-      "prochaine action attendue de": prochainesActionsAttenduesParSélectionnés,
-      instructeurs: instructeursSélectionnés,
-      activitésPrincipales: activitésPrincipalesSélectionnées,
-      texte: texteÀChercher,
+    rememberSortFilters(selectedSort, {
+      phases: selectedPhases,
+      "prochaine action attendue de": selectedProchainesActionsAttenduesPar,
+      instructeurs: selectedInstructeurs,
+      activitésPrincipales: selectedActivitesPrincipales,
+      texte: textToSearch,
     });
   });
 
-  // Pagination du tableau de suivi
-  type SelectionneurPage = () => void;
+  // Pagination of the suivi table
+  type PageSelector = () => void;
 
-  const NOMBRE_DOSSIERS_PAR_PAGE = 20;
+  const DOSSIERS_PER_PAGE = 20;
 
-  // numéro de page qui correspond à celui affiché, donc commençant à 1
-  let numéroPageSelectionnée: number = $state(1);
+  // page number matching the displayed one, so starting at 1
+  let selectedPageNumber: number = $state(1);
 
-  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
-    () => {
-      if (dossiersSelectionnés.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-        const nombreDePages = Math.ceil(dossiersSelectionnés.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(() => {
+    if (selectedDossiers.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+      const pageCount = Math.ceil(selectedDossiers.length / DOSSIERS_PER_PAGE);
 
-        return [
-          undefined,
-          ...[...Array(nombreDePages).keys()].map((i) => () => {
-            console.log("sélection de la page", i + 1);
-            numéroPageSelectionnée = i + 1;
-          }),
-        ];
-      }
+      return [
+        undefined,
+        ...[...Array(pageCount).keys()].map((i) => () => {
+          console.log("sélection de la page", i + 1);
+          selectedPageNumber = i + 1;
+        }),
+      ];
+    }
 
-      return undefined;
-    },
-  );
-
-  $effect(() => {
-    if (selectionneursPage) numéroPageSelectionnée = 1;
+    return undefined;
   });
 
-  let dossiersAffichés: typeof dossiersSelectionnés = $derived.by(() => {
-    if (!selectionneursPage) return dossiersSelectionnés;
+  $effect(() => {
+    if (pageSelectors) selectedPageNumber = 1;
+  });
+
+  let displayedDossiers: typeof selectedDossiers = $derived.by(() => {
+    if (!pageSelectors) return selectedDossiers;
     else {
-      return dossiersSelectionnés.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numéroPageSelectionnée - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numéroPageSelectionnée,
+      return selectedDossiers.slice(
+        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
+        DOSSIERS_PER_PAGE * selectedPageNumber,
       );
     }
   });
 
   //$inspect('dossiersAffichés', dossiersAffichés)
 
-  // filtrage avec les filtres initiaux
+  // filtering with the initial filters
   onMount(async () => {
-    if (texteÀChercher) {
-      ajouterFiltreTexte(texteÀChercher);
+    if (textToSearch) {
+      addTextFilter(textToSearch);
     }
 
-    filtrerDossiers();
+    filterDossiers();
   });
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
+    return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
+    return instructeurLeavesDossier(email, id);
   }
 </script>
 
@@ -546,10 +534,7 @@
     </h1>
 
     {#if dossiers.length >= 1}
-      <BarreRecherche
-        titre="Rechercher par texte libre"
-        mettreÀJourTexteRecherche={filtrerParTexte}
-      />
+      <SearchBar title="Rechercher par texte libre" updateTextSearch={filterByText} />
 
       <div class="fr-mb-2w">
         <strong>Filtrer par phase</strong>
@@ -558,51 +543,51 @@
             {phase}
             classes={["fr-mr-1w"]}
             onClick={makeTagPhaseOnClick(phase)}
-            ariaPressed={phasesSélectionnées.has(phase)}
+            ariaPressed={selectedPhases.has(phase)}
           ></TagPhase>
         {/each}
       </div>
 
-      <div class="filtres">
-        <FiltreParmiOptions
-          titre="Filtrer par activité principale"
-          options={activitésPrincipalesOptions}
-          optionsSélectionnées={activitésPrincipalesSélectionnées}
-          mettreÀJourOptionsSélectionnées={filtrerParActivitéPrincipale}
+      <div class="filters">
+        <FilterAmongOptions
+          title="Filtrer par activité principale"
+          options={activitesPrincipalesOptions}
+          selectedOptions={selectedActivitesPrincipales}
+          updateSelectedOptions={filterByActivitePrincipale}
         />
-        <FiltreParmiOptions
-          titre="Filtrer par prochaine action attendue par"
+        <FilterAmongOptions
+          title="Filtrer par prochaine action attendue par"
           options={prochainesActionsAttenduesParOptions}
-          optionsSélectionnées={prochainesActionsAttenduesParSélectionnés}
-          mettreÀJourOptionsSélectionnées={filtrerParProchainesActionsAttenduesPar}
+          selectedOptions={selectedProchainesActionsAttenduesPar}
+          updateSelectedOptions={filterByProchainesActionsAttenduesPar}
         />
         {#if instructeursOptions && instructeursOptions.size >= 2}
-          <FiltreParmiOptions
-            titre="Filtrer par instructeur suivant le dossier"
+          <FilterAmongOptions
+            title="Filtrer par instructeur suivant le dossier"
             options={instructeursOptions}
-            optionsSélectionnées={instructeursSélectionnés}
-            mettreÀJourOptionsSélectionnées={filtrerParInstructeurs}
+            selectedOptions={selectedInstructeurs}
+            updateSelectedOptions={filterByInstructeurs}
           />
         {/if}
       </div>
 
-      <section class="filtres-actifs fr-mb-1w">
+      <section class="active-filters fr-mb-1w">
         <div class="fr-mb-1w">
           <span>Dossiers suivis par&nbsp;:</span>
-          {#if instructeursNonSélectionnés.size === 0}
+          {#if unselectedInstructeurs.size === 0}
             <strong>Toustes</strong>
-          {:else if instructeursNonSélectionnés.size === 1 && instructeursNonSélectionnés.has(AUCUN_INSTRUCTEUR)}
+          {:else if unselectedInstructeurs.size === 1 && unselectedInstructeurs.has(AUCUN_INSTRUCTEUR)}
             <strong>Au moins un.e instructeur.rice</strong>
-          {:else if instructeursNonSélectionnés.size <= 2}
+          {:else if unselectedInstructeurs.size <= 2}
             <strong>Toustes sauf</strong>
-            {#each [...instructeursNonSélectionnés] as instructeur}
+            {#each [...unselectedInstructeurs] as instructeur}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {instructeur}
                 {#if instructeur === email}(moi){/if}
               </span>
             {/each}
           {:else}
-            {#each [...instructeursSélectionnés] as instructeur}
+            {#each [...selectedInstructeurs] as instructeur}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {instructeur}
                 {#if instructeur === email}(moi){/if}
@@ -610,10 +595,10 @@
             {/each}
           {/if}
 
-          {#if instructeursSélectionnés.size !== 1 || !instructeursSélectionnés.has(email)}
+          {#if selectedInstructeurs.size !== 1 || !selectedInstructeurs.has(email)}
             <button
               class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-todo-line"
-              onclick={filtrerSuivisParMoi}
+              onclick={filterFollowedByMe}
             >
               Suivi par moi
             </button>
@@ -622,17 +607,17 @@
 
         <div class="fr-mb-1w">
           <span>Prochaine action attendue par&nbsp;:</span>
-          {#if prochainesActionsAttenduesParNonSélectionnés.size === 0}
+          {#if unselectedProchainesActionsAttenduesPar.size === 0}
             <strong>Toutes options</strong>
-          {:else if prochainesActionsAttenduesParNonSélectionnés.size <= 2}
+          {:else if unselectedProchainesActionsAttenduesPar.size <= 2}
             <strong>Toutes options sauf</strong>
-            {#each [...prochainesActionsAttenduesParNonSélectionnés] as prochaineActionAttenduePar}
+            {#each [...unselectedProchainesActionsAttenduesPar] as prochaineActionAttenduePar}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {prochaineActionAttenduePar}
               </span>
             {/each}
           {:else}
-            {#each [...prochainesActionsAttenduesParSélectionnés] as prochaineActionAttenduePar}
+            {#each [...selectedProchainesActionsAttenduesPar] as prochaineActionAttenduePar}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
                 {prochaineActionAttenduePar}
               </span>
@@ -642,35 +627,34 @@
 
         <div class="fr-mb-1w">
           <span>Activités principales&nbsp;:</span>
-          {#if activitésPrincipalesNonSélectionnées.size === 0}
+          {#if unselectedActivitesPrincipales.size === 0}
             <strong>Toutes</strong>
-          {:else if activitésPrincipalesNonSélectionnées.size <= 4}
+          {:else if unselectedActivitesPrincipales.size <= 4}
             <strong>Toutes sauf</strong>
-            {#each [...activitésPrincipalesNonSélectionnées] as activitéPrincipale}
+            {#each [...unselectedActivitesPrincipales] as activitePrincipale}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                {activitéPrincipale}
+                {activitePrincipale}
               </span>
             {/each}
           {:else}
-            {#each [...activitésPrincipalesSélectionnées] as activitéPrincipale}
+            {#each [...selectedActivitesPrincipales] as activitePrincipale}
               <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">
-                {activitéPrincipale}
+                {activitePrincipale}
               </span>
             {/each}
           {/if}
         </div>
 
-        {#if texteÀChercher}
+        {#if textToSearch}
           <div class="fr-mb-1w">
-            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {texteÀChercher}</span
-            >
-            <button onclick={onSupprimerFiltreTexte}>✖</button>
+            <span class="fr-tag fr-tag--sm fr-mr-1w fr-mb-1v">Texte cherché : {textToSearch}</span>
+            <button onclick={onDeleteTextFilter}>✖</button>
           </div>
         {/if}
       </section>
 
       <h2 class="fr-mt-2w">
-        {dossiersSelectionnés.length}<small>/{dossiers.length}</small> dossiers sélectionnés
+        {selectedDossiers.length}<small>/{dossiers.length}</small> dossiers sélectionnés
       </h2>
 
       <div class="fr-table fr-table--bordered">
@@ -680,19 +664,19 @@
               <th>Voir le dossier</th>
               <th>
                 Localisation
-                <TrisDeTh tris={trisLocalisation} bind:triSélectionné />
+                <ThSorts sorts={localisationSorts} bind:selectedSort />
               </th>
               <th>
                 Activité principale
-                <TrisDeTh tris={trisActivitéPrincipale} bind:triSélectionné />
+                <ThSorts sorts={activitePrincipaleSorts} bind:selectedSort />
               </th>
               <th>
                 Porteur de projet
-                <TrisDeTh tris={trisPorteurDeProjet} bind:triSélectionné />
+                <ThSorts sorts={porteurDeProjetSorts} bind:selectedSort />
               </th>
               <th>
                 Nom du projet
-                <TrisDeTh tris={trisNomProjet} bind:triSélectionné />
+                <ThSorts sorts={nomProjetSorts} bind:selectedSort />
               </th>
               <th>Enjeux</th>
               <th>Rattaché au régime AE</th>
@@ -700,12 +684,12 @@
                 Phase<br />
                 <br />
                 Prochaine action attendue de
-                <TrisDeTh tris={triPriorisationPhaseProchaineAction} bind:triSélectionné />
+                <ThSorts sorts={priorisationPhaseProchaineActionSorts} bind:selectedSort />
               </th>
             </tr>
           </thead>
           <tbody>
-            {#each dossiersAffichés as dossier (dossier)}
+            {#each displayedDossiers as dossier (dossier)}
               {@const {
                 id,
                 nom,
@@ -722,14 +706,14 @@
               <tr>
                 <td>
                   <a
-                    class="fr-btn voir-le-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
+                    class="fr-btn view-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
                     href={`/dossier/${id}`}>Voir le dossier</a
                   >
 
                   {#if commentaire_libre && commentaire_libre.trim().length >= 1}
                     {@const dsfrModaleId = `dsfr-modale-${id}`}
-                    <BoutonModale id={dsfrModaleId}>
-                      {#snippet boutonOuvrir()}
+                    <ModalButton id={dsfrModaleId}>
+                      {#snippet openButton()}
                         <button
                           class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
                           data-fr-opened="false"
@@ -738,8 +722,8 @@
                           Commentaire
                         </button>
                       {/snippet}
-                      {#snippet contenu()}
-                        <header class="titre-modale">
+                      {#snippet content()}
+                        <header class="modal-title">
                           <h1 class="fr-modal__title">
                             Commentaire dossier {nom}
                           </h1>
@@ -750,22 +734,22 @@
                           </h2>
                         </header>
 
-                        <div class="contenu-modale">
+                        <div class="modal-content">
                           {commentaire_libre}
                         </div>
                       {/snippet}
-                    </BoutonModale>
+                    </ModalButton>
                   {/if}
 
-                  {#if dossierIdsSuivisParInstructeurActuel.has(id)}
+                  {#if dossierIdsFollowedByCurrentInstructeur.has(id)}
                     <button
-                      onclick={() => instructeurActuelLaisseDossier(id)}
+                      onclick={() => currentInstructeurLeavesDossier(id)}
                       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
                       >Ne plus suivre</button
                     >
                   {:else}
                     <button
-                      onclick={() => instructeurActuelSuitDossier(id)}
+                      onclick={() => currentInstructeurFollowsDossier(id)}
                       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
                       >Suivre</button
                     >
@@ -788,8 +772,8 @@
                       : "non"}
                 </td>
                 <td>
-                  <TagPhase {phase} taille="SM"></TagPhase>
-                  <IndicateurDélaiPhase {dossier}></IndicateurDélaiPhase>
+                  <TagPhase {phase} size="SM"></TagPhase>
+                  <PhaseDelayIndicator {dossier}></PhaseDelayIndicator>
                   {#if prochaine_action_attendue_par}
                     <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
                   {/if}
@@ -799,9 +783,8 @@
           </tbody>
         </table>
 
-        {#if selectionneursPage}
-          <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-          ></Pagination>
+        {#if pageSelectors}
+          <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
         {/if}
       </div>
     {:else}
@@ -809,7 +792,7 @@
         Il n'y a pas encore de dossiers associés à votre groupe instructeurs.
         <br />
         Vous pouvez
-        <a href={`${originDémarcheNumérique}/commencer/derogation-especes-protegees`}
+        <a href={`${originDemarcheNumerique}/commencer/derogation-especes-protegees`}
           >créer des dossiers sur Démarche Numérique</a
         >. Et répondre un département correspondant à votre département ou région à la question
         "Dans quel département se localise majoritairement votre projet ?"
@@ -835,21 +818,21 @@
     color: var(--text-mention-grey);
   }
 
-  .filtres {
+  .filters {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
   }
 
-  .filtres-actifs {
+  .active-filters {
     margin-bottom: 0.5rem;
   }
 
-  .voir-le-dossier {
+  .view-dossier {
     white-space: pre;
   }
 
-  .titre-modale {
+  .modal-title {
     h1 {
       margin-bottom: 0.8rem;
     }
@@ -859,7 +842,7 @@
     }
   }
 
-  .contenu-modale {
+  .modal-content {
     white-space: preserve;
   }
 </style>

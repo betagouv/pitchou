@@ -2,9 +2,9 @@ import { defineConfig } from "vitest/config";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { playwright } from "@vitest/browser-playwright";
 
-// Exécuté depuis apps/instructeur (cwd) ; les globs sont relatifs à ce dossier.
-// Les tests unitaires colocalisés vivent dans les libs (../../libs) et dans l'app (src).
-// Les tests de composants vivent dans src/lib (code client de l'app).
+// Run from apps/instructeur (cwd); globs are relative to this directory.
+// Colocated unit tests live in the libs (../../libs) and in the app (src).
+// Component tests live in src/lib (the app's client code).
 export default defineConfig({
   plugins: [sveltekit()],
   test: {

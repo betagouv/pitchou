@@ -1,129 +1,126 @@
-import { store, setDossierComplet } from "$lib/state/store.svelte.ts";
+import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
-import { importDescriptionMenacesEspècesFromOdsArrayBuffer } from "@pitchou/common/outils-espèces.ts";
+import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
 import {
-  chargerActivitésMéthodesMoyensDePoursuite,
-  chargerListeEspècesProtégées,
-} from "$lib/especes/activitésMéthodesMoyensDePoursuite.ts";
-import { isDossierRésuméArray } from "@pitchou/common/typeguards.ts";
-import { envoyerÉvènementModifierCommentaire, envoyerÉvènement } from "$lib/shared/aarri.ts";
-import { chargerRelationSuivi } from "$lib/shared/main.ts";
+  loadActivitesMethodesMoyensDePoursuite,
+  loadEspecesProtegeesList,
+} from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
+import { sendEvenementModifierCommentaire, sendEvenement } from "$lib/shared/aarri.ts";
+import { loadRelationSuivi } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
-import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
-export function modifierDossier(
-  dossier: DossierComplet,
-  modifs: Partial<DossierComplet>,
-): Promise<void> {
+export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull>): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
 
-  // modifier le dossier dans le store de manière optimiste
-  const dossierModifié: DossierComplet = Object.assign({}, dossier, modifs);
-  if (modifs.évènementsPhase) {
-    dossierModifié.évènementsPhase = [...modifs.évènementsPhase, ...dossier.évènementsPhase];
+  // optimistically modify the dossier in the store
+  const updatedDossier: DossierFull = Object.assign({}, dossier, updates);
+  if (updates.évènementsPhase) {
+    updatedDossier.évènementsPhase = [...updates.évènementsPhase, ...dossier.évènementsPhase];
 
-    envoyerÉvènement({ type: "changerPhase" });
+    sendEvenement({ type: "changerPhase" });
   }
 
-  if (modifs.commentaire_libre) {
-    envoyerÉvènementModifierCommentaire();
+  if (updates.commentaire_libre) {
+    sendEvenementModifierCommentaire();
   }
-  if (modifs.prochaine_action_attendue_par) {
-    envoyerÉvènement({ type: "changerProchaineActionAttendueDe" });
+  if (updates.prochaine_action_attendue_par) {
+    sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
 
-  setDossierComplet(dossierModifié);
+  setDossierFull(updatedDossier);
 
-  return store.capabilities.modifierDossier(dossier.id, modifs).catch((err) => {
-    // en cas d'erreur, remettre le dossier précédent dans le store comme avant la copie
-    setDossierComplet(dossier);
+  return store.capabilities.modifierDossier(dossier.id, updates).catch((err) => {
+    // on error, restore the previous dossier in the store as it was before the copy
+    setDossierFull(dossier);
     throw err;
   });
 }
 
-export async function chargerMessagesDossier(id: DossierComplet["id"]): Promise<Message[]> {
+export async function loadDossierMessages(id: DossierFull["id"]): Promise<Message[]> {
   if (!store.capabilities?.listerMessages)
     throw new TypeError(`Capability listerMessages manquante`);
 
   const messagesP = store.capabilities?.listerMessages(id).then((messages: Message[]) => {
-    store.messagesParDossierId.set(id, messages);
+    store.messagesByDossierId.set(id, messages);
     return messages;
   });
 
-  return store.messagesParDossierId.get(id) || messagesP;
+  return store.messagesByDossierId.get(id) || messagesP;
 }
 
-export async function getDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
-  const dossierCompletInStore = store.dossiersComplets.get(id);
+export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
+  const dossierFullInStore = store.fullDossiers.get(id);
 
-  if (dossierCompletInStore) {
+  if (dossierFullInStore) {
     // stale-while-revalidate: return the cached dossier for instant navigation,
     // and refresh it in the background so the store catches up with changes
     // made elsewhere (e.g. a synchronization with DN)
-    refreshDossierComplet(id).catch((err) => {
+    refreshDossierFull(id).catch((err) => {
       console.error(`Échec du rafraîchissement du dossier ${id}`, err);
     });
-    return dossierCompletInStore;
+    return dossierFullInStore;
   }
 
-  return refreshDossierComplet(id);
+  return refreshDossierFull(id);
 }
 
-export async function refreshDossierComplet(id: DossierComplet["id"]): Promise<DossierComplet> {
+export async function refreshDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierComplet = await store.capabilities.recupérerDossierComplet(id);
-  setDossierComplet(dossierComplet);
+  const dossierFull = await store.capabilities.recupérerDossierComplet(id);
+  setDossierFull(dossierFull);
 
-  return dossierComplet;
+  return dossierFull;
 }
 
-export async function espècesImpactéesDepuisFichierOdsArrayBuffer(
+export async function especesImpacteesFromFichierOdsArrayBuffer(
   fichierArrayBuffer: ArrayBuffer,
-): Promise<DescriptionMenacesEspèces> {
-  const espècesProtégées = chargerListeEspècesProtégées();
-  const actMétTrans = chargerActivitésMéthodesMoyensDePoursuite();
+): Promise<DescriptionMenacesEspeces> {
+  const especesProtegees = loadEspecesProtegeesList();
+  const actMetTrans = loadActivitesMethodesMoyensDePoursuite();
 
-  const { espèceByCD_REF } = await espècesProtégées;
-  const { activités, méthodes, moyensDePoursuite } = await actMétTrans;
+  const { espèceByCD_REF: especeByCD_REF } = await especesProtegees;
+  const { activités: activites, méthodes: methodes, moyensDePoursuite } = await actMetTrans;
 
-  return importDescriptionMenacesEspècesFromOdsArrayBuffer(
+  return importDescriptionMenacesEspecesFromOdsArrayBuffer(
     fichierArrayBuffer,
-    espèceByCD_REF,
-    activités,
-    méthodes,
+    especeByCD_REF,
+    activites,
+    methodes,
     moyensDePoursuite,
   );
 }
 
-export function chargerDossiers() {
-  chargerRelationSuivi();
+export function loadDossiers() {
+  loadRelationSuivi();
 
   if (store.capabilities?.listerDossiers) {
     return store.capabilities?.listerDossiers().then((dossiers) => {
-      if (!isDossierRésuméArray(dossiers)) {
+      if (!isDossierSummaryArray(dossiers)) {
         throw new TypeError("On attendait un tableau de dossiers ici !");
       }
 
-      /* Formatter les dossiers */
+      /* Format the dossiers */
       for (const dossier of dossiers) {
         dossier.date_dépôt = new Date(dossier.date_dépôt);
         dossier.date_début_phase = new Date(dossier.date_début_phase);
       }
 
-      const dossiersById: PitchouState["dossiersRésumés"] = new Map();
+      const dossiersById: PitchouState["dossierSummaries"] = new Map();
 
       for (const dossier of dossiers) {
         Object.freeze(dossier);
         dossiersById.set(dossier.id, dossier);
       }
 
-      store.dossiersRésumés = dossiersById;
+      store.dossierSummaries = dossiersById;
 
       return dossiersById;
     });

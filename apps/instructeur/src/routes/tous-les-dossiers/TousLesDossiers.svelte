@@ -1,21 +1,21 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
+  import ListDossiers from "$lib/components/ListDossiers/ListDossiers.svelte";
   import { SvelteMap } from "svelte/reactivity";
 
   type Props = {
     email?: string;
-    dossiers: DossierRésumé[];
+    dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
-    notificationParDossier?: PitchouState["notificationParDossier"];
+    notificationByDossier?: PitchouState["notificationByDossier"];
   };
 
   let {
     email = "",
     dossiers,
     relationSuivis,
-    notificationParDossier = new SvelteMap(),
+    notificationByDossier = new SvelteMap(),
   }: Props = $props();
 </script>
 
@@ -23,11 +23,11 @@
   <title>Tous les dossiers — Pitchou</title>
 </svelte:head>
 
-<ListeDossiers
-  titre="Tous les dossiers"
+<ListDossiers
+  title="Tous les dossiers"
   {email}
   {dossiers}
   {relationSuivis}
-  {notificationParDossier}
-  afficherFiltreSansInstructeurice
+  {notificationByDossier}
+  showFilterSansInstructeurice
 />

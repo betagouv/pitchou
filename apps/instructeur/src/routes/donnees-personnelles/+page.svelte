@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DonnéesPersonnelles from "./DonnéesPersonnelles.svelte";
+  import DonneesPersonnelles from "./DonneesPersonnelles.svelte";
 </script>
 
-<DonnéesPersonnelles />
+<DonneesPersonnelles />

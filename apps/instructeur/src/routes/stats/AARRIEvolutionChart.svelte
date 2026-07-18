@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { IndicateursAARRI } from "@pitchou/types/API_Pitchou.ts";
+  import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    indicateurs: IndicateursAARRI[];
+    indicators: IndicatorsAARRI[];
   };
 
-  let { indicateurs }: Props = $props();
+  let { indicators }: Props = $props();
 
   // SVG geometry (user units, scaled responsively via viewBox)
   const WIDTH = 840;
@@ -14,7 +14,7 @@
   const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
   const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
 
-  // One curve per AARRI phase. Colors match the bars in IndicateursAARRI.svelte.
+  // One curve per AARRI phase. Colors match the bars in IndicatorsAARRI.svelte.
   const series = [
     {
       key: "nombreUtilisateuriceAcquis",
@@ -41,7 +41,7 @@
   type SeriesKey = (typeof series)[number]["key"];
 
   // Points ordered chronologically (the API returns them most-recent first).
-  let points = $derived([...indicateurs].sort((a, b) => +new Date(a.date) - +new Date(b.date)));
+  let points = $derived([...indicators].sort((a, b) => +new Date(a.date) - +new Date(b.date)));
 
   let maxValue = $derived(
     Math.max(1, ...points.flatMap((point) => series.map((s) => point[s.key]))),

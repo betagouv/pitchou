@@ -1,25 +1,25 @@
 <script lang="ts">
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import type {
-    DossierComplet,
+    DossierFull,
     FrontEndAvisExpert,
     FrontEndFichier,
   } from "@pitchou/types/API_Pitchou.ts";
 
-  type OngletLie = "instruction" | "projet" | "avis" | "controles";
+  type LinkedTab = "instruction" | "projet" | "avis" | "controles";
 
   type Props = {
-    dossier: DossierComplet;
-    ouvrirOnglet: (onglet: OngletLie) => void;
+    dossier: DossierFull;
+    openTab: (tab: LinkedTab) => void;
   };
 
-  let { dossier, ouvrirOnglet }: Props = $props();
+  let { dossier, openTab }: Props = $props();
 
-  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
+  const idModalAddPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
   type PieceJointeSimple = {
     label: string;
@@ -50,13 +50,13 @@
     }
 
     if (pieceJointe.date) {
-      details.push(`${pieceJointe.labelDate} : ${formatDateAbsolue(pieceJointe.date)}`);
+      details.push(`${pieceJointe.labelDate} : ${formatDateAbsolute(pieceJointe.date)}`);
     }
 
     return details.join(" - ");
   }
 
-  function detailsPieceJointeAvecContexte(pieceJointe: PieceJointeSimple) {
+  function detailsPieceJointeWithContext(pieceJointe: PieceJointeSimple) {
     const details = detailsPieceJointe(pieceJointe);
 
     return details ? `${pieceJointe.label} - ${details}` : pieceJointe.label;
@@ -123,11 +123,11 @@
 <section class="pieces-jointes">
   <button
     type="button"
-    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line bouton-ajouter-piece-jointe"
-    aria-controls={idModaleAjouterPieceJointe}
+    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line button-add-piece-jointe"
+    aria-controls={idModalAddPieceJointe}
     data-fr-opened="false"
     onclick={() =>
-      envoyerÉvènement({
+      sendEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
         détails: { dossierId: dossier.id, source: "ongletPiecesJointes" },
       })}
@@ -136,12 +136,12 @@
   </button>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Projet</h3>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("projet")}
+        onclick={() => openTab("projet")}
       >
         Voir dans l'onglet Projet
       </button>
@@ -149,15 +149,15 @@
     {#if dossier.piècesJointesPétitionnaires.length === 0}
       <p>Aucune pièce jointe n'a été déposée par le pétitionnaire.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
-          <li class="carte-piece-jointe">
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
                 {nom || "(fichier sans nom)"}
                 <span class="fr-link__detail">
                   {media_type} - {byteFormat.format(taille)}{DS_createdAt
-                    ? ` - Date de dépôt : ${formatDateAbsolue(DS_createdAt)}`
+                    ? ` - Date de dépôt : ${formatDateAbsolute(DS_createdAt)}`
                     : ""}
                 </span>
               </a>
@@ -169,12 +169,12 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Avis d'experts</h3>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("avis")}
+        onclick={() => openTab("avis")}
       >
         Voir dans l'onglet Avis
       </button>
@@ -182,10 +182,10 @@
     {#if piecesJointesAvis.length === 0}
       <p>Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesAvis as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -206,12 +206,12 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Décisions administratives</h3>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("controles")}
+        onclick={() => openTab("controles")}
       >
         Voir dans l'onglet Contrôles
       </button>
@@ -219,10 +219,10 @@
     {#if piecesJointesArretes.length === 0}
       <p>Aucun fichier d'arrêté ou de décision administrative n'est associé à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesArretes as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -243,12 +243,12 @@
   </section>
 
   <section class="section-pieces-jointes">
-    <div class="entete-section-pieces-jointes">
+    <div class="header-section-pieces-jointes">
       <h3>Autres</h3>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-        onclick={() => ouvrirOnglet("instruction")}
+        onclick={() => openTab("instruction")}
       >
         Voir dans l'onglet Instruction
       </button>
@@ -256,10 +256,10 @@
     {#if piecesJointesAutres.length === 0}
       <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
     {:else}
-      <ul class="liste-cartes-pieces-jointes">
+      <ul class="list-cards-pieces-jointes">
         {#each piecesJointesAutres as pieceJointe}
-          {@const details = detailsPieceJointeAvecContexte(pieceJointe)}
-          <li class="carte-piece-jointe">
+          {@const details = detailsPieceJointeWithContext(pieceJointe)}
+          <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
               <a
                 class="fr-link fr-link--download"
@@ -280,10 +280,10 @@
   </section>
 </section>
 
-<ModaleAjouterPièceJointe
-  id={idModaleAjouterPieceJointe}
+<ModalAddPieceJointe
+  id={idModalAddPieceJointe}
   {dossier}
-  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletPiecesJointes"
 />
 
@@ -294,7 +294,7 @@
     gap: 1.25rem;
   }
 
-  .bouton-ajouter-piece-jointe {
+  .button-add-piece-jointe {
     align-self: flex-start;
   }
 
@@ -306,7 +306,7 @@
     }
   }
 
-  .entete-section-pieces-jointes {
+  .header-section-pieces-jointes {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -318,7 +318,7 @@
     }
   }
 
-  .liste-cartes-pieces-jointes {
+  .list-cards-pieces-jointes {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -327,7 +327,7 @@
     margin: 0;
   }
 
-  .carte-piece-jointe {
+  .card-piece-jointe {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -343,12 +343,12 @@
   }
 
   @media (max-width: 48rem) {
-    .entete-section-pieces-jointes {
+    .header-section-pieces-jointes {
       flex-direction: column;
       gap: 0.25rem;
     }
 
-    .carte-piece-jointe {
+    .card-piece-jointe {
       flex-direction: column;
     }
   }

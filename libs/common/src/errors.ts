@@ -10,14 +10,14 @@ export class HTTPError extends Error {
 }
 
 export class MediaTypeError extends Error {
-  attendu: string;
-  obtenu: unknown;
+  expected: string;
+  obtained: unknown;
 
-  constructor({ attendu, obtenu }: { attendu: string; obtenu: unknown }) {
-    const message = `Media-type incorrect. Attendu : ${attendu}, obtenu : ${obtenu}`;
+  constructor({ expected, obtained }: { expected: string; obtained: unknown }) {
+    const message = `Media-type incorrect. Attendu : ${expected}, obtenu : ${obtained}`;
     super(message);
     this.name = "MediaTypeError";
-    this.attendu = attendu;
-    this.obtenu = obtenu;
+    this.expected = expected;
+    this.obtained = obtained;
   }
 }

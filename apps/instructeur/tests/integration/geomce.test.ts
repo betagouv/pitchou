@@ -8,7 +8,7 @@ import { createDossier } from "../factories/dossier.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
 import { createPersonne } from "../factories/personne.ts";
 
-import { générerDéclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
+import { generateDeclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 
@@ -62,7 +62,7 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
     dossier: dossier.id,
   });
 
-  const messages = await générerDéclarationGeoMCE(db);
+  const messages = await generateDeclarationGeoMCE(db);
 
   const message = messages.find((m) => m.projet.ref === `PITCHOU-${dossier.id}`);
   expect(message).toBeDefined();

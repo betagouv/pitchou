@@ -4,7 +4,7 @@ import { directDatabaseConnection } from "../database.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { IdentiteDossierInitializer } from "@pitchou/types/database/public/IdentiteDossier.ts";
-import type { IdentiteDossierData } from "@pitchou/types/démarche-numérique/DossierPourSynchronisation.ts";
+import type { IdentiteDossierData } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 /**
  * Replace the identities (demandeur, mandataire, representant) of each dossier with the
