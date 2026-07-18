@@ -1,21 +1,21 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
-import { évènementMétriqueGuard } from "@pitchou/server/évènements_métriques.ts";
-import { ajouterÉvènementDepuisCap } from "@pitchou/server/database/évènements_métriques.ts";
+import { evenementMetriqueGuard } from "@pitchou/server/evenements_metriques.ts";
+import { addEvenementFromCap } from "@pitchou/server/database/evenements_metriques.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
   const evenement = await request.json();
 
-  if (!évènementMétriqueGuard(evenement)) {
+  if (!evenementMetriqueGuard(evenement)) {
     error(400, "Objet évènement mal formé");
   }
 
   try {
-    await ajouterÉvènementDepuisCap(cap, evenement);
+    await addEvenementFromCap(cap, evenement);
   } catch (e) {
-    // TODO: améliorer la gestion d’erreur ici
+    // TODO: improve error handling here
     console.error(e);
   }
 

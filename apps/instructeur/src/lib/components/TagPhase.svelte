@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * @deprecated Utiliser BadgePhase à la place.
+   * @deprecated Use BadgePhase instead.
    */
 
   import type { MouseEventHandler } from "svelte/elements";
@@ -8,11 +8,11 @@
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
 
-  type Taille = "SM" | "MD";
+  type Size = "SM" | "MD";
 
   type Props = {
     phase: DossierPhase;
-    taille?: Taille;
+    size?: Size;
     onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
     ariaPressed?: boolean | undefined;
     classes?: string[];
@@ -20,7 +20,7 @@
 
   let {
     phase,
-    taille = "MD",
+    size = "MD",
     onClick = undefined,
     ariaPressed = undefined,
     classes = [],
@@ -35,17 +35,17 @@
     ["Obligations terminées", "phase--obligations-terminées"],
   ]);
 
-  const tailleToClass = new Map<Taille, string>([
+  const sizeToClass = new Map<Size, string>([
     ["SM", "fr-tag--sm"],
     ["MD", "fr-tag--md"],
   ]);
 
   let allClasses = $derived(
-    ["fr-tag", tailleToClass.get(taille), phaseToClass.get(phase), ...classes].filter((x) => !!x),
+    ["fr-tag", sizeToClass.get(size), phaseToClass.get(phase), ...classes].filter((x) => !!x),
   );
 
-  // Le DSFR rajoute ses propres listeners pour gérer les aria-pressed, mais on n'en a pas besoin
-  // alors, on désactive la propagation des évènements pour éviter des problèmes d'affichage
+  // The DSFR adds its own listeners to handle aria-pressed, but we don't need them,
+  // so we disable event propagation to avoid display issues
   const onClickWithDSFROverride: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (onClick) {
       e.stopImmediatePropagation();

@@ -1,22 +1,22 @@
 import { addMonths } from "date-fns";
 import { isValidDateString } from "@pitchou/common/typeFormat.ts";
 import {
-  extrairePremierMail,
-  extraireNom,
-  extraireNomDunMail,
-  formaterDépartementDepuisValeur,
-  extraireCommunes,
+  extractFirstMail,
+  extractNom,
+  extractNomFromMail,
+  formatDepartementFromValue,
+  extractCommunes,
   getCommuneData,
 } from "../importDossierUtils.ts";
 
-import type { DonnéesSupplémentairesPourCréationDossier } from "../importDossierUtils.ts";
-import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+import type { AdditionalDataForDossierCreation } from "../importDossierUtils.ts";
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
-import type { VNementPhaseDossierInitializer as ÉvènementPhaseDossierInitializer } from "@pitchou/types/database/public/ÉvènementPhaseDossier.ts";
-import type { DCisionAdministrativeInitializer as DécisionAdministrativeInitializer } from "@pitchou/types/database/public/DécisionAdministrative.ts";
+import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 
-export type LigneDossierBFC = {
+export type DossierBFCRow = {
   "Date de sollicitation": Date;
   ORIGINE: string;
   OBJET: string;
@@ -50,7 +50,7 @@ export type LigneDossierBFC = {
   "Date AP": string;
 };
 
-type ThématiquesOptions =
+type ThematiquesOptions =
   | "Autres"
   | "Autres EnR"
   | "Avis sur document d’urbanisme"
@@ -70,8 +70,8 @@ type ThématiquesOptions =
   | "Restauration"
   | "Transport de spécimens";
 
-const correspondanceThématiqueVersActivitéPrincipale: Map<
-  ThématiquesOptions,
+const thematiqueToActivitePrincipale: Map<
+  ThematiquesOptions,
   DossierDemarcheNumerique88444["Activité principale"]
 > = new Map([
   ["Autres", "Autre"],
@@ -102,85 +102,83 @@ const correspondanceThématiqueVersActivitéPrincipale: Map<
   ["Transport de spécimens", "Production énergie renouvelable - Éolien -  Suivi mortalité"],
 ]);
 
-function convertirThématiqueEnActivitéPrincipale(
-  thématiqueBFC: string,
-  activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+function convertThematiqueToActivitePrincipale(
+  thematiqueBFC: string,
+  activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
 ): DossierDemarcheNumerique88444["Activité principale"] {
-  // Si la thématique est déjà une valeur pitchou
+  // If the thématique is already a pitchou value
   // @ts-ignore
-  if (activitésPrincipales88444.has(thématiqueBFC)) {
+  if (activitesPrincipales88444.has(thematiqueBFC)) {
     // @ts-ignore
-    return thématiqueBFC;
+    return thematiqueBFC;
   }
 
-  const activité = correspondanceThématiqueVersActivitéPrincipale.get(
-    thématiqueBFC as ThématiquesOptions,
-  );
-  if (activité) {
-    return activité;
+  const activite = thematiqueToActivitePrincipale.get(thematiqueBFC as ThematiquesOptions);
+  if (activite) {
+    return activite;
   }
 
-  console.warn("Thématique BFC non associée à une activité Pitchou", thématiqueBFC);
+  console.warn("Thématique BFC non associée à une activité Pitchou", thematiqueBFC);
 
   return "Autre";
 }
 
-export function créerNomPourDossier(ligne: LigneDossierBFC): string {
-  return "N° Dossier DEROG " + ligne["N° Dossier DEROG"] + " - " + ligne["OBJET"];
+export function createNomForDossier(row: DossierBFCRow): string {
+  return "N° Dossier DEROG " + row["N° Dossier DEROG"] + " - " + row["OBJET"];
 }
 
 /**
- * Crée un objet dossier à partir d'une ligne d'import (inclut la recherche des données de localisation).
+ * Creates a dossier object from an import row (includes looking up localisation data).
  */
-export async function créerDossierDepuisLigne(
-  ligne: LigneDossierBFC,
-  activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
+export async function createDossierFromRow(
+  row: DossierBFCRow,
+  activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]>,
 ): Promise<Partial<DossierDemarcheNumerique88444>> {
-  const donnéesLocalisations = await générerDonnéesLocalisations(ligne);
-  const donnéesDemandeurs = générerDonnéesDemandeurs(ligne);
-  const donnéesAutorisationEnvironnementale = générerDonnéesAutorisationEnvironnementale(ligne);
+  const localisationsData = await generateLocalisationsData(row);
+  const demandeursData = generateDemandeursData(row);
+  const autorisationEnvironnementaleData = generateAutorisationEnvironnementaleData(row);
 
   return {
     "NE PAS MODIFIER - Données techniques associées à votre dossier": JSON.stringify(
-      créerDonnéesSupplémentairesDepuisLigne(ligne),
+      createAdditionalDataFromRow(row),
     ),
 
-    "Nom du projet premettant de l'identifier clairement": créerNomPourDossier(ligne),
+    "Nom du projet premettant de l'identifier clairement": createNomForDossier(row),
     "Dans quel département se localise majoritairement votre projet ?":
-      donnéesLocalisations["Dans quel département se localise majoritairement votre projet ?"],
-    "Avez-vous réalisé un état des lieux écologique complet ?": true, // Par défaut, on répond 'Oui' à cette question sinon les autres questions ne s'affichent pas sur DS et les réponses ne sont pas sauvegardées.
+      localisationsData["Dans quel département se localise majoritairement votre projet ?"],
+    "Avez-vous réalisé un état des lieux écologique complet ?": true, // By default, we answer 'Yes' to this question otherwise the other questions don't show up on DS and the answers are not saved.
 
-    "Commune(s) où se situe le projet": donnéesLocalisations["Commune(s) où se situe le projet"],
-    "Le projet se situe au niveau…": donnéesLocalisations["Le projet se situe au niveau…"],
+    "Commune(s) où se situe le projet": localisationsData["Commune(s) où se situe le projet"],
+    "Le projet se situe au niveau…": localisationsData["Le projet se situe au niveau…"],
     "Département(s) où se situe le projet":
-      donnéesLocalisations["Département(s) où se situe le projet"],
-    "Activité principale": convertirThématiqueEnActivitéPrincipale(
-      ligne["Thématique"],
-      activitésPrincipales88444,
+      localisationsData["Département(s) où se situe le projet"],
+    "Activité principale": convertThematiqueToActivitePrincipale(
+      row["Thématique"],
+      activitesPrincipales88444,
     ),
     "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
-      donnéesAutorisationEnvironnementale[
+      autorisationEnvironnementaleData[
         "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
       ],
     "À quelle procédure le projet est-il soumis ?":
-      donnéesAutorisationEnvironnementale["À quelle procédure le projet est-il soumis ?"],
-    "Le demandeur est…": donnéesDemandeurs["Le demandeur est…"],
-    "Adresse mail de contact": donnéesDemandeurs["Adresse mail de contact"],
-    "Nom du représentant": donnéesDemandeurs["Nom du représentant"],
-    "Prénom du représentant": donnéesDemandeurs["Prénom du représentant"],
-    "Qualité du représentant": donnéesDemandeurs["Qualité du représentant"],
+      autorisationEnvironnementaleData["À quelle procédure le projet est-il soumis ?"],
+    "Le demandeur est…": demandeursData["Le demandeur est…"],
+    "Adresse mail de contact": demandeursData["Adresse mail de contact"],
+    "Nom du représentant": demandeursData["Nom du représentant"],
+    "Prénom du représentant": demandeursData["Prénom du représentant"],
+    "Qualité du représentant": demandeursData["Qualité du représentant"],
   };
 }
 
 /**
- * Extrait les informations du demandeur à partir d'une ligne d'import.
+ * Extracts the demandeur information from an import row.
  *
- * - Si la catégorie du demandeur est "particulier", le type est "une personne physique" et seul le mail est renseigné.
- * - Sinon, le type est "une personne morale" et on tente d'extraire le nom et prénom du représentant à partir du champ "Nom contact – mail".
- * - Si le nom/prénom ne sont pas trouvés dans le champ, on tente de les déduire à partir de l'adresse mail.
+ * - If the demandeur category is "particulier", the type is "une personne physique" and only the email is filled in.
+ * - Otherwise, the type is "une personne morale" and we attempt to extract the représentant's last and first name from the "Nom contact – mail" field.
+ * - If the last/first name are not found in the field, we attempt to deduce them from the email address.
  */
-function générerDonnéesDemandeurs(
-  ligne: LigneDossierBFC,
+function generateDemandeursData(
+  row: DossierBFCRow,
 ): Pick<
   DossierDemarcheNumerique88444,
   | "Le demandeur est…"
@@ -190,31 +188,31 @@ function générerDonnéesDemandeurs(
   | "Qualité du représentant"
 > {
   const typeDemandeur =
-    ligne["Catégorie du demandeur"].toLowerCase() === "particulier"
+    row["Catégorie du demandeur"].toLowerCase() === "particulier"
       ? "une personne physique"
       : "une personne morale";
 
-  const nomContactMailValeur = ligne["Nom contact – mail"];
+  const nomContactMailValue = row["Nom contact – mail"];
 
-  const mail = extrairePremierMail(nomContactMailValeur) || "";
+  const mail = extractFirstMail(nomContactMailValue) || "";
 
-  let prénomNom:
+  let prenomNom:
     | Partial<{ prénom: string | undefined; nom: string | undefined }>
     | undefined
-    | null = extraireNom(nomContactMailValeur);
+    | null = extractNom(nomContactMailValue);
 
-  // Si pas de nom, on essaie de récupérer le nom et le prénom avec le mail
-  if (!prénomNom && mail) {
-    prénomNom = extraireNomDunMail(nomContactMailValeur);
+  // If no name, we try to retrieve the last and first name from the email
+  if (!prenomNom && mail) {
+    prenomNom = extractNomFromMail(nomContactMailValue);
   }
 
   if (typeDemandeur === "une personne morale") {
     return {
       "Le demandeur est…": typeDemandeur,
-      "Nom du représentant": prénomNom?.nom ?? "",
-      "Prénom du représentant": prénomNom?.prénom ?? "",
+      "Nom du représentant": prenomNom?.nom ?? "",
+      "Prénom du représentant": prenomNom?.prénom ?? "",
       "Adresse mail de contact": mail,
-      "Qualité du représentant": ligne["PETITIONNAIRE"],
+      "Qualité du représentant": row["PETITIONNAIRE"],
     };
   } else {
     return {
@@ -227,16 +225,16 @@ function générerDonnéesDemandeurs(
   }
 }
 
-function générerDonnéesAutorisationEnvironnementale(
-  ligne: LigneDossierBFC,
+function generateAutorisationEnvironnementaleData(
+  row: DossierBFCRow,
 ): Pick<
   DossierDemarcheNumerique88444,
   | "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
   | "À quelle procédure le projet est-il soumis ?"
 > {
-  const procedure_associée = ligne["Procédure associée"].toLowerCase();
+  const procedure_associee = row["Procédure associée"].toLowerCase();
 
-  if (procedure_associée === "autorisation environnementale") {
+  if (procedure_associee === "autorisation environnementale") {
     return {
       "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
         "Oui",
@@ -254,7 +252,7 @@ function générerDonnéesAutorisationEnvironnementale(
   };
 }
 
-async function générerDonnéesLocalisations(ligne: {
+async function generateLocalisationsData(row: {
   Communes: string | undefined;
   Département: number | string;
 }): Promise<
@@ -271,41 +269,39 @@ async function générerDonnéesLocalisations(ligne: {
       "Dans quel département se localise majoritairement votre projet ?"
     >
 > {
-  const valeursCommunes = extraireCommunes(ligne["Communes"] ?? "");
+  const communesValues = extractCommunes(row["Communes"] ?? "");
 
-  const communesP = valeursCommunes.map((com) => getCommuneData(com));
-  const départementsP = formaterDépartementDepuisValeur(ligne["Département"]);
+  const communesPromises = communesValues.map((com) => getCommuneData(com));
+  const departementsPromise = formatDepartementFromValue(row["Département"]);
 
-  const [résultatDépartements, communesResult] = await Promise.all([
-    départementsP,
-    Promise.all(communesP),
+  const [departementsResult, communesResult] = await Promise.all([
+    departementsPromise,
+    Promise.all(communesPromises),
   ]);
 
   const communes = communesResult
-    .map((communeRésultat) => communeRésultat.data)
+    .map((communeResult) => communeResult.data)
     .filter((commune) => commune !== null);
 
-  const départementsTrouvés = résultatDépartements.data;
+  const foundDepartements = departementsResult.data;
 
-  const départementColonne =
-    Array.isArray(départementsTrouvés) && départementsTrouvés[0]
-      ? départementsTrouvés[0]
-      : undefined;
+  const departementColumn =
+    Array.isArray(foundDepartements) && foundDepartements[0] ? foundDepartements[0] : undefined;
 
   if (communes.length >= 1) {
-    const départementPremièreCommune = communes[0].departement;
+    const firstCommuneDepartement = communes[0].departement;
 
     return {
       "Commune(s) où se situe le projet": communes,
       "Département(s) où se situe le projet": undefined,
       "Le projet se situe au niveau…": "d'une ou plusieurs communes",
       "Dans quel département se localise majoritairement votre projet ?":
-        départementColonne ?? départementPremièreCommune,
+        departementColumn ?? firstCommuneDepartement,
     };
   } else {
-    const départements = Array.isArray(départementsTrouvés)
-      ? départementsTrouvés
-      : [{ code: "25", nom: "Doubs" }]; // La valeur par défaut est le département du siège de la DREAL BFC
+    const départements = Array.isArray(foundDepartements)
+      ? foundDepartements
+      : [{ code: "25", nom: "Doubs" }]; // The default value is the département of the DREAL BFC head office
     return {
       "Commune(s) où se situe le projet": undefined,
       "Département(s) où se situe le projet": départements,
@@ -316,115 +312,115 @@ async function générerDonnéesLocalisations(ligne: {
 }
 
 /**
- * Cette fonction permet de remplir le champ "prochaine_action_attendue_par" en base de données
+ * This function fills the "prochaine_action_attendue_par" field in the database
  */
-function générerProchaineActionAttenduePar(ligne: LigneDossierBFC): string {
-  const valeur = ligne["Stade de l’avis"].trim();
+function generateProchaineActionAttenduePar(row: DossierBFCRow): string {
+  const value = row["Stade de l’avis"].trim();
 
-  if (valeur === "En attente d’éléments pétitionnaire") {
+  if (value === "En attente d’éléments pétitionnaire") {
     return "Pétitionnaire";
-  } else if (valeur === "En attente avis CSRPN/CNPN") {
+  } else if (value === "En attente avis CSRPN/CNPN") {
     return "CNPN/CSRPN";
-  } else if (valeur === "En cours d’examen par DBIO") {
+  } else if (value === "En cours d’examen par DBIO") {
     return "Autre administration";
-  } else if (valeur === "En attente signature") {
+  } else if (value === "En attente signature") {
     return "Autre administration";
-  } else if (valeur === "Clos") {
+  } else if (value === "Clos") {
     return "Personne";
   }
 
-  // Par défaut, on considère que la prochaine action attendue est celle de l'instruteur.i.ce
+  // By default, we consider that the next expected action is the instructeur.i.ce's
   return "Instructeur";
 }
 
-function créerDonnéesEvénementPhaseDossier(
-  ligne: LigneDossierBFC,
-): PartialBy<ÉvènementPhaseDossierInitializer, "dossier">[] | undefined {
-  const aujourdhui = new Date();
+function createEvenementPhaseDossierData(
+  row: DossierBFCRow,
+): PartialBy<EvenementPhaseDossierInitializer, "dossier">[] | undefined {
+  const today = new Date();
 
-  const donnéesEvénementPhaseDossier: PartialBy<ÉvènementPhaseDossierInitializer, "dossier">[] = [];
+  const evenementPhaseDossierData: PartialBy<EvenementPhaseDossierInitializer, "dossier">[] = [];
 
-  const ligneEtapeProjet = ligne["Etapes du projet"].trim();
+  const rowEtapeProjet = row["Etapes du projet"].trim();
 
-  // Rajout de l'évènement phase Accompagnement amont
+  // Add the Accompagnement amont phase event
   if (
-    ligneEtapeProjet === "Phase amont" ||
-    ligneEtapeProjet === "Pôle EnR" ||
-    ligneEtapeProjet === "Contentieux"
+    rowEtapeProjet === "Phase amont" ||
+    rowEtapeProjet === "Pôle EnR" ||
+    rowEtapeProjet === "Contentieux"
   ) {
-    donnéesEvénementPhaseDossier.push({
+    evenementPhaseDossierData.push({
       phase: "Accompagnement amont",
-      horodatage: isValidDateString(ligne["Date de sollicitation"].toString())
-        ? new Date(ligne["Date de sollicitation"])
-        : aujourdhui,
+      horodatage: isValidDateString(row["Date de sollicitation"].toString())
+        ? new Date(row["Date de sollicitation"])
+        : today,
     });
   }
 
-  // Rajout de l'évènement phase Instruction
-  if (ligne["DEP"].toLowerCase().trim() === "oui") {
-    if (!isValidDateString(ligne["Date de dépôt DEP"])) {
+  // Add the Instruction phase event
+  if (row["DEP"].toLowerCase().trim() === "oui") {
+    if (!isValidDateString(row["Date de dépôt DEP"])) {
       console.warn(
         `Date de dépôt DEP invalide : La colonne DEP spécifie "oui" mais la date de Dépôt DEP n'est pas valide. On prend alors la date de sollictation si elle est valide, sinon la date d'aujourd'hui.`,
       );
     }
-    donnéesEvénementPhaseDossier.push({
+    evenementPhaseDossierData.push({
       phase: "Instruction",
-      horodatage: isValidDateString(ligne["Date de dépôt DEP"])
-        ? new Date(ligne["Date de dépôt DEP"])
-        : isValidDateString(ligne["Date de sollicitation"].toString())
-          ? new Date(ligne["Date de sollicitation"])
-          : aujourdhui,
+      horodatage: isValidDateString(row["Date de dépôt DEP"])
+        ? new Date(row["Date de dépôt DEP"])
+        : isValidDateString(row["Date de sollicitation"].toString())
+          ? new Date(row["Date de sollicitation"])
+          : today,
     });
-  } else if (ligneEtapeProjet === "Phase d’instruction") {
-    donnéesEvénementPhaseDossier.push({
+  } else if (rowEtapeProjet === "Phase d’instruction") {
+    evenementPhaseDossierData.push({
       phase: "Instruction",
-      horodatage: isValidDateString(ligne["Date de dépôt DEP"])
-        ? new Date(ligne["Date de dépôt DEP"])
-        : isValidDateString(ligne["Date de sollicitation"].toString())
-          ? addMonths(new Date(ligne["Date de sollicitation"]), 1)
-          : aujourdhui,
+      horodatage: isValidDateString(row["Date de dépôt DEP"])
+        ? new Date(row["Date de dépôt DEP"])
+        : isValidDateString(row["Date de sollicitation"].toString())
+          ? addMonths(new Date(row["Date de sollicitation"]), 1)
+          : today,
     });
   }
 
-  // Rajout de l'évènement phase Contrôle
-  if (isValidDateString(ligne["Date AP"])) {
-    donnéesEvénementPhaseDossier.push({
+  // Add the Controle phase event
+  if (isValidDateString(row["Date AP"])) {
+    evenementPhaseDossierData.push({
       phase: "Contrôle",
-      horodatage: new Date(ligne["Date AP"]),
+      horodatage: new Date(row["Date AP"]),
     });
-  } else if (ligneEtapeProjet === "Contrôle") {
-    donnéesEvénementPhaseDossier.push({
+  } else if (rowEtapeProjet === "Contrôle") {
+    evenementPhaseDossierData.push({
       phase: "Contrôle",
-      horodatage: isValidDateString(ligne["Date de sollicitation"].toString())
-        ? addMonths(new Date(ligne["Date de sollicitation"]), 3)
-        : aujourdhui,
+      horodatage: isValidDateString(row["Date de sollicitation"].toString())
+        ? addMonths(new Date(row["Date de sollicitation"]), 3)
+        : today,
     });
   }
 
-  if (donnéesEvénementPhaseDossier.length >= 1) {
-    return donnéesEvénementPhaseDossier;
+  if (evenementPhaseDossierData.length >= 1) {
+    return evenementPhaseDossierData;
   } else {
     return undefined;
   }
 }
 
-function créerDonnéesDécisionAdministrative(
-  ligne: LigneDossierBFC,
-): PartialBy<DécisionAdministrativeInitializer, "dossier">[] | undefined {
+function createDecisionAdministrativeData(
+  row: DossierBFCRow,
+): PartialBy<DecisionAdministrativeInitializer, "dossier">[] | undefined {
   let décision_administrative;
 
-  const ligneDérogationAccordée = ligne["Dérogation accordée"].trim().toLowerCase();
+  const rowDerogationAccordee = row["Dérogation accordée"].trim().toLowerCase();
 
-  let date_signature = isValidDateString(ligne["Date AP"])
-    ? new Date(ligne["Date AP"])
-    : addMonths(new Date(ligne["Date de sollicitation"]), 3);
+  let date_signature = isValidDateString(row["Date AP"])
+    ? new Date(row["Date AP"])
+    : addMonths(new Date(row["Date de sollicitation"]), 3);
 
-  if (ligneDérogationAccordée === "non") {
+  if (rowDerogationAccordee === "non") {
     décision_administrative = {
       date_signature,
       type: "Arrêté refus",
     };
-  } else if (ligneDérogationAccordée === "oui" || ligneDérogationAccordée === "autorisé avec dep") {
+  } else if (rowDerogationAccordee === "oui" || rowDerogationAccordee === "autorisé avec dep") {
     décision_administrative = {
       date_signature,
       type: "Arrêté dérogation",
@@ -436,13 +432,13 @@ function créerDonnéesDécisionAdministrative(
   }
 }
 
-function créerDonnéesAvisExpert(
-  ligne: LigneDossierBFC,
+function createAvisExpertData(
+  row: DossierBFCRow,
 ): PartialBy<AvisExpertInitializer, "dossier">[] | undefined {
-  const saisine_csrpn_cnpn = ligne["Saisine CSRPN/CNPN"];
-  const date_saisine_csrpn_cnpn = ligne["Date saisine CSRPN/CNPN"];
-  const avis_csrpn_cnpn = ligne["Avis CSRPN/CNPN"];
-  const date_avis_csrpn_cnpn = ligne["Date avis CSRPN/CNPN"];
+  const saisine_csrpn_cnpn = row["Saisine CSRPN/CNPN"];
+  const date_saisine_csrpn_cnpn = row["Date saisine CSRPN/CNPN"];
+  const avis_csrpn_cnpn = row["Avis CSRPN/CNPN"];
+  const date_avis_csrpn_cnpn = row["Date avis CSRPN/CNPN"];
 
   if (saisine_csrpn_cnpn && saisine_csrpn_cnpn.trim().length >= 1) {
     return [
@@ -461,53 +457,51 @@ function créerDonnéesAvisExpert(
 }
 
 /**
- * Extrait les données supplémentaires (NE PAS MODIFIER) depuis une ligne d'import.
+ * Extracts the additional data (NE PAS MODIFIER) from an import row.
  */
-export function créerDonnéesSupplémentairesDepuisLigne(
-  ligne: LigneDossierBFC,
-): DonnéesSupplémentairesPourCréationDossier {
-  const description = ligne["Description avancement dossier avec dates"]
+export function createAdditionalDataFromRow(row: DossierBFCRow): AdditionalDataForDossierCreation {
+  const description = row["Description avancement dossier avec dates"]
     ? "Description avancement dossier avec dates : " +
-      ligne["Description avancement dossier avec dates"]
+      row["Description avancement dossier avec dates"]
     : "";
-  const observations = ligne["OBSERVATIONS"] ? "Observations : " + ligne["OBSERVATIONS"] : "";
+  const observations = row["OBSERVATIONS"] ? "Observations : " + row["OBSERVATIONS"] : "";
 
   const sollicitationOFB =
-    ligne["Sollicitation OFB pour avis"].toLowerCase() === "oui"
+    row["Sollicitation OFB pour avis"].toLowerCase() === "oui"
       ? "Ce dossier nécessite une sollicitation OFB pour avis."
       : null;
   const commentaire_libre = [description, observations, sollicitationOFB]
     .filter((value) => value?.trim())
     .join("\n");
 
-  if (!isValidDateString(ligne["Date de sollicitation"].toString())) {
+  if (!isValidDateString(row["Date de sollicitation"].toString())) {
     console.warn("Date de sollicitation invalide.");
   }
 
-  const emailTrouvé = extrairePremierMail(ligne["POUR\nATTRIBUTION"]);
+  const foundEmail = extractFirstMail(row["POUR\nATTRIBUTION"]);
 
-  const personnes_qui_suivent = emailTrouvé ? [{ email: emailTrouvé }] : undefined;
+  const personnes_qui_suivent = foundEmail ? [{ email: foundEmail }] : undefined;
 
-  const donnéesEvénementPhaseDossier = créerDonnéesEvénementPhaseDossier(ligne);
+  const evenementPhaseDossierData = createEvenementPhaseDossierData(row);
 
-  const décision_administrative = créerDonnéesDécisionAdministrative(ligne);
+  const décision_administrative = createDecisionAdministrativeData(row);
 
-  const avis_expert = créerDonnéesAvisExpert(ligne);
+  const avis_expert = createAvisExpertData(row);
 
   return {
     dossier: {
       commentaire_libre: commentaire_libre,
-      date_dépôt: isValidDateString(ligne["Date de sollicitation"].toString())
-        ? ligne["Date de sollicitation"]
+      date_dépôt: isValidDateString(row["Date de sollicitation"].toString())
+        ? row["Date de sollicitation"]
         : new Date(),
       historique_identifiant_demande_onagre:
-        ligne["N° de l’avis Onagre ou interne"] &&
-        ligne["N° de l’avis Onagre ou interne"].trim().length >= 1
-          ? ligne["N° de l’avis Onagre ou interne"]
+        row["N° de l’avis Onagre ou interne"] &&
+        row["N° de l’avis Onagre ou interne"].trim().length >= 1
+          ? row["N° de l’avis Onagre ou interne"]
           : undefined,
-      prochaine_action_attendue_par: générerProchaineActionAttenduePar(ligne),
+      prochaine_action_attendue_par: generateProchaineActionAttenduePar(row),
     },
-    évènement_phase_dossier: donnéesEvénementPhaseDossier,
+    évènement_phase_dossier: evenementPhaseDossierData,
     avis_expert,
     décision_administrative,
     personnes_qui_suivent,

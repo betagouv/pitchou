@@ -9,7 +9,7 @@ type RequiredNotNull<T> = {
 export type PickNonNullable<T, K extends keyof T> = RequiredNotNull<Pick<T, K>>;
 
 /**
- * Garder le type, sauf pour les propriété listées par K qui deviennent optionnelles
+ * Keep the type, except for the properties listed by K which become optional
  */
 export type PartialBy<T, PartialList extends keyof T> = Omit<T, PartialList> &
   Partial<Pick<T, PartialList>>;

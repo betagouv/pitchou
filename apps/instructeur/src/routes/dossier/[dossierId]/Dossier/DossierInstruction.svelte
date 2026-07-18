@@ -6,42 +6,45 @@
   import TagPhase from "$lib/components/TagPhase.svelte";
   import {
     formatDateRelative,
-    formatDateAbsolue,
+    formatDateAbsolute,
     phases,
     prochaineActionAttenduePar,
-  } from "$lib/dossier/affichageDossier.ts";
-  import { modifierDossier } from "$lib/dossier/dossier.ts";
-  import { instructeurLaisseDossier, instructeurSuitDossier } from "$lib/dossier/suiviDossier.ts";
+  } from "$lib/dossier/displayDossier.ts";
+  import { updateDossier } from "$lib/dossier/dossier.ts";
+  import {
+    instructeurLeavesDossier,
+    instructeurFollowsDossier,
+  } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
     email: string;
-    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
   };
 
   let {
     dossier,
     personnesQuiSuiventDossier,
-    dossierActuelSuiviParInstructeurActuel,
+    currentDossierFollowedByCurrentInstructeur,
     email,
   }: Props = $props();
 
-  const idModaleAjouterPieceJointe = "modale-ajouter-piece-jointe";
+  const idModalAddPieceJointe = "modale-ajouter-piece-jointe";
 
   const otherAttachments = $derived(dossier.attachmentAutres);
 
-  let phaseActuelle = $derived(
+  let currentPhase = $derived(
     (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
   );
 
-  let phase = $derived(phaseActuelle);
+  let phase = $derived(currentPhase);
   let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
   let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
   let enjeu = $state(untrack(() => dossier.enjeu));
@@ -60,7 +63,7 @@
     return `${year}-${month}-${day}`;
   }
 
-  function attachmentDetails(attachment: DossierComplet["attachmentAutres"][number]) {
+  function attachmentDetails(attachment: DossierFull["attachmentAutres"][number]) {
     const details = [];
     const fileDescription = attachment.fichier_description;
 
@@ -71,7 +74,7 @@
       details.push(byteFormat.format(fileDescription.taille));
     }
     if (attachment.attachment_date) {
-      details.push(`Date de la pièce jointe : ${formatDateAbsolue(attachment.attachment_date)}`);
+      details.push(`Date de la pièce jointe : ${formatDateAbsolute(attachment.attachment_date)}`);
     }
 
     return details.join(" - ");
@@ -85,9 +88,9 @@
   );
 
   /**
-   * Convertit les deux champs ddep_nécessaire et mesures_er_suffisantes en une valeur composite pour le select
+   * Converts the two fields ddep_nécessaire and mesures_er_suffisantes into a composite value for the select
    */
-  function getDDEPValeurComposite():
+  function getDDEPCompositeValue():
     | "oui"
     | "non_sans_objet"
     | "non_mesures_er_suffisantes"
@@ -100,40 +103,40 @@
       } else if (mesures_er_suffisantes === true) {
         return "non_mesures_er_suffisantes";
       } else {
-        // Par défaut, si mesures_er_suffisantes est null et ddep_nécessaire est false, on considère que c'est "sans objet"
+        // By default, if mesures_er_suffisantes is null and ddep_nécessaire is false, we consider it "sans objet"
         return "non_sans_objet";
       }
     } else {
-      // ddep_nécessaire est null ou undefined
+      // ddep_nécessaire is null or undefined
       return "a_determiner";
     }
   }
-  let ddepValeurComposite = $state(getDDEPValeurComposite());
+  let ddepCompositeValue = $state(getDDEPCompositeValue());
 
-  let messageErreur = $state("");
-  let afficherMessageSucces = $state(false);
+  let errorMessage = $state("");
+  let showSuccessMessage = $state(false);
 
-  const modifierChamp: (modifs: Partial<DossierComplet>) => void = (modifs) => {
-    modifierDossier(dossier, modifs)
-      .then(() => (afficherMessageSucces = true))
+  const updateField: (updates: Partial<DossierFull>) => void = (updates) => {
+    updateDossier(dossier, updates)
+      .then(() => (showSuccessMessage = true))
       .catch((error) => {
         console.info(error);
-        messageErreur = "Quelque chose s'est mal passé du côté serveur.";
+        errorMessage = "Quelque chose s'est mal passé du côté serveur.";
       });
   };
 
-  const modifierChampAvecDebounce = debounce(modifierChamp, 1000);
+  const updateFieldWithDebounce = debounce(updateField, 1000);
 
   run(() => {
-    const modifs: Partial<DossierComplet> = {};
+    const updates: Partial<DossierFull> = {};
 
-    if (phaseActuelle !== phase) {
-      modifs.évènementsPhase = [
+    if (currentPhase !== phase) {
+      updates.évènementsPhase = [
         {
           dossier: dossier.id,
           horodatage: new Date(),
           phase: phase,
-          cause_personne: null, // sera rempli côté serveur avec le bon PersonneId
+          cause_personne: null, // will be filled server-side with the right PersonneId
           DS_emailAgentTraitant: null,
           DS_motivation: null,
         },
@@ -141,37 +144,37 @@
     }
 
     if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
-      modifs.commentaire_libre = commentaire_libre?.trim();
+      updates.commentaire_libre = commentaire_libre?.trim();
     }
 
     if (dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par) {
-      modifs.prochaine_action_attendue_par = prochaine_action_attendue_par;
+      updates.prochaine_action_attendue_par = prochaine_action_attendue_par;
     }
 
     if (
       dossier.historique_identifiant_demande_onagre !==
       historique_identifiant_demande_onagre?.trim()
     ) {
-      modifs.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
+      updates.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
     }
 
     if (dossier.enjeu !== enjeu) {
-      modifs.enjeu = enjeu;
+      updates.enjeu = enjeu;
     }
 
     if (dossier.ddep_nécessaire !== ddep_nécessaire) {
-      modifs.ddep_nécessaire = ddep_nécessaire;
+      updates.ddep_nécessaire = ddep_nécessaire;
     }
 
     if (dossier.mesures_er_suffisantes !== mesures_er_suffisantes) {
-      modifs.mesures_er_suffisantes = mesures_er_suffisantes;
+      updates.mesures_er_suffisantes = mesures_er_suffisantes;
     }
 
     if (
       dateToInputValue(dossier.date_debut_consultation_public) !==
       date_debut_consultation_public_str
     ) {
-      modifs.date_debut_consultation_public = date_debut_consultation_public_str
+      updates.date_debut_consultation_public = date_debut_consultation_public_str
         ? new Date(date_debut_consultation_public_str)
         : null;
     }
@@ -179,58 +182,58 @@
     if (
       dateToInputValue(dossier.date_fin_consultation_public) !== date_fin_consultation_public_str
     ) {
-      modifs.date_fin_consultation_public = date_fin_consultation_public_str
+      updates.date_fin_consultation_public = date_fin_consultation_public_str
         ? new Date(date_fin_consultation_public_str)
         : null;
     }
 
-    // Règle métier : mesures_er_suffisantes est toujours NULL si ddep_nécessaire est NULL
+    // Business rule: mesures_er_suffisantes is always NULL if ddep_nécessaire is NULL
     if (ddep_nécessaire === null) {
       if (dossier.mesures_er_suffisantes !== null) {
-        modifs.mesures_er_suffisantes = null;
+        updates.mesures_er_suffisantes = null;
       }
     }
 
-    if (Object.keys(modifs).length >= 1) {
-      // On applique un debounce pour les champs saisis au clavier (commentaire libre, N° Demande ONAGRE)
-      if (modifs.commentaire_libre || modifs.historique_identifiant_demande_onagre) {
-        modifierChampAvecDebounce(modifs);
+    if (Object.keys(updates).length >= 1) {
+      // We apply a debounce for fields typed on the keyboard (commentaire libre, N° Demande ONAGRE)
+      if (updates.commentaire_libre || updates.historique_identifiant_demande_onagre) {
+        updateFieldWithDebounce(updates);
       } else {
-        modifierChamp(modifs);
+        updateField(updates);
       }
     }
   });
 
-  const retirerAlert = () => {
-    messageErreur = "";
-    afficherMessageSucces = false;
+  const dismissAlert = () => {
+    errorMessage = "";
+    showSuccessMessage = false;
   };
 
-  function instructeurActuelSuitDossier(id: Dossier["id"]) {
-    return instructeurSuitDossier(email, id);
+  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
+    return instructeurFollowsDossier(email, id);
   }
 
-  function instructeurActuelLaisseDossier(id: Dossier["id"]) {
-    return instructeurLaisseDossier(email, id);
+  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
+    return instructeurLeavesDossier(email, id);
   }
 
   /**
-   * Met à jour les deux champs ddep_nécessaire et mesures_er_suffisantes à partir de la valeur composite
+   * Updates the two fields ddep_nécessaire and mesures_er_suffisantes from the composite value
    */
-  function setDDEPValeurComposite(
+  function setDDEPCompositeValue(
     e: Event & { currentTarget: EventTarget & HTMLSelectElement },
   ): void {
-    const valeur = e.currentTarget.value;
-    if (valeur === "oui") {
+    const value = e.currentTarget.value;
+    if (value === "oui") {
       ddep_nécessaire = true;
       mesures_er_suffisantes = false;
-    } else if (valeur === "non_sans_objet") {
+    } else if (value === "non_sans_objet") {
       ddep_nécessaire = false;
       mesures_er_suffisantes = false;
-    } else if (valeur === "non_mesures_er_suffisantes") {
+    } else if (value === "non_mesures_er_suffisantes") {
       ddep_nécessaire = false;
       mesures_er_suffisantes = true;
-    } else if (valeur === "a_determiner") {
+    } else if (value === "a_determiner") {
       ddep_nécessaire = null;
       mesures_er_suffisantes = null;
     }
@@ -239,13 +242,13 @@
 
 <section class="row">
   <section>
-    {#if messageErreur}
+    {#if errorMessage}
       <div class="fr-alert fr-alert--error fr-mb-3w">
         <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
-        <p>{messageErreur}</p>
+        <p>{errorMessage}</p>
       </div>
     {/if}
-    {#if afficherMessageSucces}
+    {#if showSuccessMessage}
       <div class="fr-alert fr-alert--success fr-mb-3w">
         <p>Le dossier a bien été mis à jour.</p>
       </div>
@@ -256,7 +259,7 @@
         <li>
           <TagPhase {phase}></TagPhase>
           -
-          <span title={formatDateAbsolue(horodatage)}>{formatDateRelative(horodatage)}</span>
+          <span title={formatDateAbsolute(horodatage)}>{formatDateRelative(horodatage)}</span>
         </li>
       {/each}
       <li>
@@ -264,7 +267,7 @@
         -
         <strong>Dépôt dossier</strong>
         -
-        <span title={formatDateAbsolue(dossier.date_dépôt)}
+        <span title={formatDateAbsolute(dossier.date_dépôt)}
           >{formatDateRelative(dossier.date_dépôt)}</span
         >
       </li>
@@ -280,16 +283,16 @@
     {:else}
       <div class="col">
         <span>Personne ne suit ce dossier pour l'instant.</span>
-        {#if typeof dossierActuelSuiviParInstructeurActuel === "boolean"}
-          {#if dossierActuelSuiviParInstructeurActuel}
+        {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
+          {#if currentDossierFollowedByCurrentInstructeur}
             <button
-              onclick={() => instructeurActuelLaisseDossier(dossier.id)}
+              onclick={() => currentInstructeurLeavesDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
               >Ne plus suivre</button
             >
           {:else}
             <button
-              onclick={() => instructeurActuelSuitDossier(dossier.id)}
+              onclick={() => currentInstructeurFollowsDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
               >Suivre</button
             >
@@ -304,7 +307,7 @@
         <strong>Date de début</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="date_debut_consultation_public"
         type="date"
@@ -316,7 +319,7 @@
         <strong>Date de fin</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="date_fin_consultation_public"
         type="date"
@@ -356,7 +359,7 @@
         class="fr-toggle__input"
         id="toggle-enjeu"
         bind:checked={enjeu}
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
       />
       <label class="fr-toggle__label" for="toggle-enjeu"> Dossier à enjeu </label>
     </div>
@@ -366,7 +369,7 @@
         ><label class="fr-label" for="input-commentaire-libre"> Commentaire libre </label></strong
       >
       <textarea
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input resize-vertical"
         aria-describedby="input-commentaire-libre-messages"
         id="input-commentaire-libre"
@@ -381,9 +384,9 @@
         <strong>Une DDEP est-elle nécessaire ?</strong>
       </label>
       <select
-        onfocus={retirerAlert}
-        bind:value={ddepValeurComposite}
-        onchange={setDDEPValeurComposite}
+        onfocus={dismissAlert}
+        bind:value={ddepCompositeValue}
+        onchange={setDDEPCompositeValue}
         class="fr-select"
         id="ddep-nécessaire"
       >
@@ -400,7 +403,7 @@
       <label class="fr-label" for="phase">
         <strong>Phase du dossier</strong>
       </label>
-      <select onfocus={retirerAlert} bind:value={phase} class="fr-select" id="phase">
+      <select onfocus={dismissAlert} bind:value={phase} class="fr-select" id="phase">
         {#each [...phases] as phase}
           <option value={phase}>{phase}</option>
         {/each}
@@ -412,13 +415,13 @@
       </label>
 
       <select
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         bind:value={prochaine_action_attendue_par}
         class="fr-select"
         id="prochaine_action_attendue_par"
       >
-        {#each [...prochaineActionAttenduePar] as acteur}
-          <option value={acteur}>{acteur}</option>
+        {#each [...prochaineActionAttenduePar] as actor}
+          <option value={actor}>{actor}</option>
         {/each}
       </select>
     </div>
@@ -428,7 +431,7 @@
         <strong>N° Demande ONAGRE</strong>
       </label>
       <input
-        onfocus={retirerAlert}
+        onfocus={dismissAlert}
         class="fr-input"
         id="historique_identifiant_demande_onagre"
         type="text"
@@ -438,10 +441,10 @@
   </section>
 </section>
 
-<ModaleAjouterPièceJointe
-  id={idModaleAjouterPieceJointe}
+<ModalAddPieceJointe
+  id={idModalAddPieceJointe}
   {dossier}
-  typesPiècesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletInstruction"
 />
 

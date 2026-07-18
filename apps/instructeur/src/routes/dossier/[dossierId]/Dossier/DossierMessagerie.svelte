@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { originDémarcheNumérique } from "@pitchou/common/constantes.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
 
-  import { formatDateRelative, formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
+  import { formatDateRelative, formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Message from "@pitchou/types/database/public/Message.ts";
 
   type Props = {
-    dossier: DossierComplet;
+    dossier: DossierFull;
     messages?: Partial<Message>[];
   };
 
@@ -16,7 +16,7 @@
   const numdos = $derived(dossier.number_demarches_simplifiées);
   const numéro_démarche = $derived(dossier.numéro_démarche);
 
-  let messagesTriés = $derived(
+  let sortedMessages = $derived(
     messages.toSorted(
       // @ts-ignore
       ({ date: date1 }, { date: date2 }) => new Date(date2).getTime() - new Date(date1).getTime(),
@@ -30,14 +30,14 @@
   <a
     class="fr-btn fr-mb-w"
     target="_blank"
-    href={`${originDémarcheNumérique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}
+    href={`${originDemarcheNumerique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}
   >
     Répondre sur Démarche Numérique
   </a>
 </div>
 
 <article class="messages fr-mt-2w fr-mb-4w">
-  {#each messagesTriés as { contenu, date, email_expéditeur }}
+  {#each sortedMessages as { contenu, date, email_expéditeur }}
     {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
@@ -47,10 +47,10 @@
           aria-controls={accordionId}
         >
           <span>{email_expéditeur}</span>
-          <span title={formatDateAbsolue(date)}>{formatDateRelative(date)}</span>
+          <span title={formatDateAbsolute(date)}>{formatDateRelative(date)}</span>
         </button>
       </h3>
-      <div class="contenu-message fr-collapse" id={accordionId}>
+      <div class="content-message fr-collapse" id={accordionId}>
         <!--
                 Avertissement : Source de problèmes de sécurité potentiels
                 Actuellement, les contenus viennent de Démarche Numérique et on
@@ -93,7 +93,7 @@
       }
     }
 
-    .contenu-message {
+    .content-message {
       white-space: pre-line;
     }
   }

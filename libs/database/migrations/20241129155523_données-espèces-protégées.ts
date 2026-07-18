@@ -4,11 +4,11 @@ import { readFile } from "node:fs/promises";
 import { dsvFormat } from "d3-dsv";
 
 import {
-  importDescriptionMenacesEspècesFromURL,
-  descriptionMenacesEspècesToOdsArrayBuffer,
-  espèceProtégéeStringToEspèceProtégée,
+  importDescriptionMenacesEspecesFromURL,
+  descriptionMenacesEspecesToOdsArrayBuffer,
+  especeProtegeeStringToEspeceProtegee,
   actMetTransArraysToMapBundle,
-} from "@pitchou/common/outils-espèces.ts";
+} from "@pitchou/common/especesUtils.ts";
 
 /** @import {ActivitéMenançante, EspèceProtégée, MéthodeMenançante, TransportMenançant} from '../scripts/types/especes.js' */
 /** @import {PitchouState} from '../scripts/front-end/store.js' */
@@ -27,49 +27,49 @@ export async function up(knex: Knex) {
 
   /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], any[]] } */
   // @ts-ignore
-  const [activitésBrutes, méthodesBrutes, transportsBruts, dataEspèces] = await Promise.all([
+  const [activitesBrutes, methodesBrutes, transportsBruts, dataEspeces] = await Promise.all([
     readFile("data/activités.csv", "utf-8"),
     readFile("data/méthodes.csv", "utf-8"),
     readFile("data/transports.csv", "utf-8"),
     readFile("data/liste-espèces-protégées.csv", "utf-8"),
   ]).then((fichiers) => fichiers.map((str) => parse(str)));
 
-  // @ts-ignore migration historique : la forme de retour a évolué (transports -> moyensDePoursuite)
-  const { activités, méthodes, transports } = actMetTransArraysToMapBundle(
-    // @ts-ignore migration historique : types d'arguments désormais plus stricts
-    activitésBrutes,
-    méthodesBrutes,
-    transportsBruts,
-  );
+  // historical migration: the return shape changed (transports -> moyensDePoursuite)
+  // and the argument types became stricter, so this call is cast to `any`.
+  const {
+    activités: activites,
+    méthodes: methodes,
+    transports,
+  } = (actMetTransArraysToMapBundle as any)(activitesBrutes, methodesBrutes, transportsBruts);
 
   /** @type {NonNullable<PitchouState['espèceByCD_REF']>} */
-  const espèceByCD_REF = new Map();
+  const especeByCD_REF = new Map();
 
-  for (const espStr of dataEspèces) {
+  for (const espStr of dataEspeces) {
     /** @type {EspèceProtégée} */
     // @ts-ignore
-    const espèce = Object.freeze(espèceProtégéeStringToEspèceProtégée(espStr));
+    const espece = Object.freeze(especeProtegeeStringToEspeceProtegee(espStr));
 
-    espèceByCD_REF.set(espèce["CD_REF"], espèce);
+    especeByCD_REF.set(espece["CD_REF"], espece);
   }
 
-  const espècesImpactées = [];
+  const especesImpactees = [];
 
-  for (const { id, espèces_protégées_concernées } of idEtLien) {
+  for (const { id, espèces_protégées_concernées: especes_protegees_concernees } of idEtLien) {
     try {
-      if (espèces_protégées_concernées) {
-        const url = new URL(espèces_protégées_concernées);
-        const descriptionMenacesEspèces = importDescriptionMenacesEspècesFromURL(
+      if (especes_protegees_concernees) {
+        const url = new URL(especes_protegees_concernees);
+        const descriptionMenacesEspeces = importDescriptionMenacesEspecesFromURL(
           url,
-          espèceByCD_REF,
-          activités,
-          méthodes,
+          especeByCD_REF,
+          activites,
+          methodes,
           transports,
         );
-        if (descriptionMenacesEspèces) {
+        if (descriptionMenacesEspeces) {
           const odsArrayBuffer =
-            await descriptionMenacesEspècesToOdsArrayBuffer(descriptionMenacesEspèces);
-          espècesImpactées.push({
+            await descriptionMenacesEspecesToOdsArrayBuffer(descriptionMenacesEspeces);
+          especesImpactees.push({
             dossier: id,
             nom: "espèces-impactées.ods",
             media_type: "application/vnd.oasis.opendocument.spreadsheet",
@@ -82,9 +82,9 @@ export async function up(knex: Knex) {
     }
   }
 
-  console.log("espèces_impactées", espècesImpactées.length);
+  console.log("espèces_impactées", especesImpactees.length);
 
-  await knex("espèces_impactées").insert(espècesImpactées);
+  await knex("espèces_impactées").insert(especesImpactees);
 }
 
 export async function down(knex: Knex) {

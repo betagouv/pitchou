@@ -1,14 +1,14 @@
 import { formatISO } from "date-fns";
 
 /**
- * Cette fonction renvoie la date supprimant la partie horaire et la timezone.
+ * This function returns the date stripped of the time part and the timezone.
  *
- * Cette fonction existe pour résoudre un problème de transmission de Date en JSON
+ * This function exists to solve a problem when transmitting a Date in JSON.
  *
- * Quand une date est récupérée d'un input Date, l'heure est définie à 00:00 par défaut (heure locale du navigateur)
+ * When a date is retrieved from a Date input, the time is set to 00:00 by default (browser local time)
  *
- * Lors d'un appel JSON.stringify, la date est transmise en ISO8601, mais avec les fuseaux horaires et GMT+00
- * (il s'agit peut-être de la veille à 23h par exemple)
+ * On a JSON.stringify call, the date is transmitted as ISO8601, but with timezones and GMT+00
+ * (it might be the previous day at 11pm, for example)
  *
  */
 

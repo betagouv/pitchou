@@ -10,35 +10,35 @@ vi.mock(import("$app/navigation"), () => ({
 
 vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  envoyerÉvènement: vi.fn(),
+  sendEvenement: vi.fn(),
 }));
 
 vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
-  refreshDossierComplet: vi.fn().mockResolvedValue(undefined),
+  refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock(import("./attachmentAutre.ts"), () => ({
   addAttachmentAutre: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
 }));
 
-import { envoyerÉvènement } from "$lib/shared/aarri.ts";
-import { refreshDossierComplet } from "$lib/dossier/dossier.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 import { addAttachmentAutre } from "./attachmentAutre.ts";
 import DossierAvis from "./DossierAvis.svelte";
-import DossierContrôles from "./DossierContrôles.svelte";
+import DossierControles from "./DossierControles.svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
-import EnteteDossier from "./EnteteDossier.svelte";
-import ModaleAjouterPièceJointe from "./ModaleAjouterPièceJointe.svelte";
+import HeaderDossier from "./HeaderDossier.svelte";
+import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 const DOSSIER_ID = 123;
 
 beforeEach(() => {
-  vi.mocked(envoyerÉvènement).mockReset();
+  vi.mocked(sendEvenement).mockReset();
   vi.mocked(addAttachmentAutre).mockClear();
-  vi.mocked(refreshDossierComplet).mockClear();
+  vi.mocked(refreshDossierFull).mockClear();
   Object.assign(window, {
     dsfr: vi.fn(() => ({ modal: { conceal: vi.fn() } })),
   });
@@ -46,7 +46,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-function dossier(overrides: Partial<DossierComplet> = {}): DossierComplet {
+function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
   return {
     id: DOSSIER_ID,
     nom: "Dossier test",
@@ -73,17 +73,17 @@ function dossier(overrides: Partial<DossierComplet> = {}): DossierComplet {
     piècesJointesPétitionnaires: [],
     attachmentAutres: [],
     ...overrides,
-  } as unknown as DossierComplet;
+  } as unknown as DossierFull;
 }
 
 function expectTracking(source: string) {
-  expect(envoyerÉvènement).toHaveBeenCalledWith({
+  expect(sendEvenement).toHaveBeenCalledWith({
     type: "ouvrirModaleAjouterPieceJointe",
     détails: { dossierId: DOSSIER_ID, source },
   });
 }
 
-async function choisirFichiers(container: HTMLElement, fichiers: File[]) {
+async function chooseFichiers(container: HTMLElement, fichiers: File[]) {
   const input = container.querySelector<HTMLInputElement>('input[type="file"]');
   if (!input) throw new Error("input fichier introuvable");
 
@@ -97,7 +97,7 @@ async function choisirFichiers(container: HTMLElement, fichiers: File[]) {
   await tick();
 }
 
-async function renseignerTypeAutre(container: HTMLElement, type: string) {
+async function fillTypeAutre(container: HTMLElement, type: string) {
   const input = container.querySelector<HTMLInputElement>('input[id^="other-attachment-type-"]');
   if (!input) throw new Error("input type autre introuvable");
 
@@ -108,10 +108,10 @@ async function renseignerTypeAutre(container: HTMLElement, type: string) {
 }
 
 test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
-  render(EnteteDossier, {
+  render(HeaderDossier, {
     dossier: dossier(),
     email: "instructeur@example.com",
-    dossierActuelSuiviParInstructeurActuel: false,
+    currentDossierFollowedByCurrentInstructeur: false,
   });
 
   await page.getByRole("button", { name: "Ajouter une pièce jointe" }).click();
@@ -120,7 +120,7 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
 });
 
 test("trace l'ouverture de la modale depuis l'onglet pièces jointes", async () => {
-  render(DossierPiecesJointes, { dossier: dossier(), ouvrirOnglet: vi.fn() });
+  render(DossierPiecesJointes, { dossier: dossier(), openTab: vi.fn() });
 
   await page.getByRole("button", { name: "Ajouter une pièce jointe" }).click();
 
@@ -136,7 +136,7 @@ test("trace l'ouverture de la modale depuis l'onglet avis", async () => {
 });
 
 test("trace l'ouverture de la modale depuis l'onglet contrôles", async () => {
-  render(DossierContrôles, { dossier: dossier() });
+  render(DossierControles, { dossier: dossier() });
 
   await page.getByRole("button", { name: "Rajouter une décision administrative" }).click();
 
@@ -144,20 +144,20 @@ test("trace l'ouverture de la modale depuis l'onglet contrôles", async () => {
 });
 
 test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombre de fichiers", async () => {
-  const { container } = render(ModaleAjouterPièceJointe, {
+  const { container } = render(ModalAddPieceJointe, {
     id: "modale-test-ajout-autre",
     dossier: dossier(),
-    typesPiècesJointes: ["Autre"],
-    typePièceJointeInitial: "Autre",
-    afficherChoixType: false,
+    typesPiecesJointes: ["Autre"],
+    typePieceJointeInitial: "Autre",
+    showTypeChoice: false,
     source: "enteteDossier",
   });
 
-  await choisirFichiers(container, [
+  await chooseFichiers(container, [
     new File(["contenu 1"], "note-1.pdf", { type: "application/pdf" }),
     new File(["contenu 2"], "note-2.pdf", { type: "application/pdf" }),
   ]);
-  await renseignerTypeAutre(container, "Note interne");
+  await fillTypeAutre(container, "Note interne");
 
   await waitFor(() => {
     const submitButton = Array.from(container.querySelectorAll("button")).find((button) =>
@@ -173,7 +173,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 
   await waitFor(() => expect(addAttachmentAutre).toHaveBeenCalledTimes(1));
   await waitFor(() =>
-    expect(envoyerÉvènement).toHaveBeenCalledWith({
+    expect(sendEvenement).toHaveBeenCalledWith({
       type: "ajouterPieceJointe",
       détails: {
         dossierId: DOSSIER_ID,
@@ -186,20 +186,20 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
 });
 
 test("affiche des libellés experts détaillés pour la saisine et l'avis", async () => {
-  const { container } = render(ModaleAjouterPièceJointe, {
+  const { container } = render(ModalAddPieceJointe, {
     id: "modale-test-libelles",
     dossier: dossier(),
-    typesPiècesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
+    typesPiecesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
     source: "ongletPiecesJointes",
   });
 
-  const libellés = Array.from(container.querySelectorAll("label")).map((label) =>
+  const libelles = Array.from(container.querySelectorAll("label")).map((label) =>
     label.textContent?.trim(),
   );
 
-  expect(libellés).toContain("Saisine CNPN / CSRPN");
-  expect(libellés).toContain("Avis (CNPN, CSRPN, CBN, PNA, etc.)");
-  // Les libellés génériques ne sont plus affichés tels quels.
-  expect(libellés).not.toContain("Saisine expert");
-  expect(libellés).not.toContain("Avis expert");
+  expect(libelles).toContain("Saisine CNPN / CSRPN");
+  expect(libelles).toContain("Avis (CNPN, CSRPN, CBN, PNA, etc.)");
+  // The generic labels are no longer displayed as-is.
+  expect(libelles).not.toContain("Saisine expert");
+  expect(libelles).not.toContain("Avis expert");
 });

@@ -2,20 +2,20 @@ import { differenceInDays, format, formatRelative } from "date-fns";
 import { fr } from "date-fns/locale";
 
 /**
- * Formate une date JavaScript selon un format spécifié, en utilisant la locale française.
+ * Formats a JavaScript date according to a given format, using the French locale.
  *
- * Si la date est `null` ou `undefined`, la fonction retourne la chaîne "(date inconnue)".
- * Par défaut, le format demandé est : 'd MMMM yyyy'
+ * If the date is `null` or `undefined`, the function returns the string "(date inconnue)".
+ * By default, the requested format is: 'd MMMM yyyy'
  */
-export function formatDateAbsolue(
+export function formatDateAbsolute(
   date: Date | string | undefined | null,
-  formatDemandé: string = "d MMMM yyyy",
+  requestedFormat: string = "d MMMM yyyy",
 ): string {
   if (!date) {
     return "(date inconnue)";
   }
 
-  return format(date, formatDemandé, { locale: fr });
+  return format(date, requestedFormat, { locale: fr });
 }
 
 export function formatDateRelative(date: Date | undefined | null): string {
@@ -30,5 +30,5 @@ export function formatDateRelative(date: Date | undefined | null): string {
     return formatRelative(date, new Date(), { locale: fr });
   }
 
-  return formatDateAbsolue(date);
+  return formatDateAbsolute(date);
 }

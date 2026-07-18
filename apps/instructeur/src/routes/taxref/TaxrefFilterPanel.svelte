@@ -11,7 +11,7 @@
   let { filtres, selectedRegne, selectedClasse, onChange }: Props = $props();
 </script>
 
-<fieldset id="panneau-filtres" class="panel">
+<fieldset id="filter-panel-taxref" class="panel">
   <legend class="panel-title">Filtrer les taxons</legend>
   {#if !filtres}
     <p class="fr-text--sm">Chargement des filtres…</p>

@@ -1,7 +1,7 @@
 import parseArgs from "minimist";
-import { getÉvènementsForPersonne } from "@pitchou/server/database/aarri/utils.ts";
+import { getEvenementsForPersonne } from "@pitchou/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
-import { formatDateAbsolue } from "@pitchou/common/formatDate.ts";
+import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);
@@ -19,21 +19,21 @@ const email = args.email;
 console.log(`Mail de la personne concernée : ${email}`);
 console.log(`Début des Calculs des données AARRI.`);
 
-const évènements = await getÉvènementsForPersonne(email);
-const évènementsCount = Map.groupBy(évènements, ({ évènement }) => évènement);
+const evenements = await getEvenementsForPersonne(email);
+const evenementsCount = Map.groupBy(evenements, ({ évènement }) => évènement);
 
 console.log(`✅ Résultats :`);
 console.log(
   "Cette personne a enregistré",
-  évènements.length,
+  evenements.length,
   "évènements depuis le",
-  `${formatDateAbsolue(évènements.at(-1)?.date)}`,
+  `${formatDateAbsolute(evenements.at(-1)?.date)}`,
 );
 
-// Création du fichier ODS pour stocker les résultats
-const évènementsFormattésPourODS = évènements.map(({ date, évènement, détails }) => [
+// Creation of the ODS file to store the results
+const evenementsFormattesPourODS = evenements.map(({ date, évènement, détails }) => [
   {
-    value: formatDateAbsolue(date, "dd/MM/yyyy"),
+    value: formatDateAbsolute(date, "dd/MM/yyyy"),
     type: "string",
   },
   {
@@ -46,7 +46,7 @@ const évènementsFormattésPourODS = évènements.map(({ date, évènement, dé
   },
 ]);
 
-const headerÉvènements = [
+const headerEvenements = [
   [
     {
       value: "Date de l'évènement",
@@ -62,18 +62,18 @@ const headerÉvènements = [
     },
   ],
 ];
-const évènementCountsFormattésPourODS = [...évènementsCount].map(([nomÉvènement, évènements]) => [
+const evenementCountsFormattesPourODS = [...evenementsCount].map(([nomEvenement, evenements]) => [
   {
-    value: nomÉvènement,
+    value: nomEvenement,
     type: "string",
   },
   {
-    value: évènements.length,
+    value: evenements.length,
     type: "number",
   },
 ]);
 
-const headerÉvènementsCount = [
+const headerEvenementsCount = [
   [
     {
       value: "Évènement",
@@ -94,7 +94,7 @@ const content = new Map([
     [
       [
         {
-          value: `Les données ont été calculées le ${formatDateAbsolue(aujourdhui)}`,
+          value: `Les données ont été calculées le ${formatDateAbsolute(aujourdhui)}`,
           type: "string",
         },
       ],
@@ -106,8 +106,8 @@ const content = new Map([
       ],
     ],
   ],
-  ["Évènements", [...headerÉvènements, ...évènementsFormattésPourODS]],
-  ["Évènements avec count", [...headerÉvènementsCount, ...évènementCountsFormattésPourODS]],
+  ["Évènements", [...headerEvenements, ...evenementsFormattesPourODS]],
+  ["Évènements avec count", [...headerEvenementsCount, ...evenementCountsFormattesPourODS]],
 ]);
 
 const ods: ArrayBuffer = await createOdsFile(content as Parameters<typeof createOdsFile>[0]);

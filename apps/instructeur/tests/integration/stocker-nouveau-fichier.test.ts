@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
-import { stockerNouveauFichier } from "@pitchou/server/database/fichier.ts";
+import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
 
 async function readS3Body(key: string): Promise<Buffer> {
   const { client, bucket } = await getTestS3();
@@ -14,9 +14,9 @@ async function readS3Body(key: string): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-test("stockerNouveauFichier insère un file et stocke l'objet sur S3", async () => {
+test("storeNewFichier insère un file et stocke l'objet sur S3", async () => {
   const bytes = Buffer.from("hello s3 happy path");
-  const file = await stockerNouveauFichier(
+  const file = await storeNewFichier(
     { nom: "saisine.pdf", contenu: bytes, media_type: "application/pdf" },
     db,
   );
@@ -32,8 +32,8 @@ test("stockerNouveauFichier insère un file et stocke l'objet sur S3", async () 
   expect(onS3.equals(bytes)).toBe(true);
 });
 
-test("stockerNouveauFichier propage le content-type sur l'objet S3", async () => {
-  const file = await stockerNouveauFichier(
+test("storeNewFichier propage le content-type sur l'objet S3", async () => {
+  const file = await storeNewFichier(
     { nom: "image.png", contenu: Buffer.from("PNG"), media_type: "image/png" },
     db,
   );

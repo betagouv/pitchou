@@ -2,15 +2,15 @@
   import { onMount } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
   import TmpStats from "./TmpStats.svelte";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
 
   onMount(async () => {
-    if (store.dossiersRésumés.size === 0) {
-      await chargerDossiers().catch((err) => console.error("Erreur chargement dossiers", err));
+    if (store.dossierSummaries.size === 0) {
+      await loadDossiers().catch((err) => console.error("Erreur chargement dossiers", err));
     }
   });
 
-  const dossiers = $derived([...store.dossiersRésumés.values()]);
+  const dossiers = $derived([...store.dossierSummaries.values()]);
 </script>
 
 <TmpStats {dossiers} />

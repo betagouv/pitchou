@@ -1,27 +1,27 @@
 <script lang="ts">
-  import EnteteDossier from "./Dossier/EnteteDossier.svelte";
+  import HeaderDossier from "./Dossier/HeaderDossier.svelte";
 
   import DossierMessagerie from "./Dossier/DossierMessagerie.svelte";
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
   import DossierProjet from "./Dossier/DossierProjet.svelte";
   import DossierPorteurDeProjet from "./Dossier/DossierPorteurDeProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
-  import DossierContrôles from "./Dossier/DossierContrôles.svelte";
+  import DossierControles from "./Dossier/DossierControles.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
-  import DossierGénérationDocuments from "./Dossier/DossierGénérationDocuments.svelte";
+  import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { MediaTypeError } from "@pitchou/common/errors.ts";
-  import { espècesImpactéesDepuisFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
-  import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+  import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+  import { sendEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { onMount } from "svelte";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
 
-  import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
-  type Onglet =
+  type Tab =
     | "instruction"
     | "projet"
     | "porteur-de-projet"
@@ -31,89 +31,87 @@
     | "generation-document"
     | "echanges";
 
-  function changerOnglet(nouvelOnglet: Onglet) {
-    ongletActif = nouvelOnglet;
-    // Mettre à jour l'URL sans recharger la page
-    window.history.replaceState(null, "", `#${nouvelOnglet}`);
+  function changeTab(newTab: Tab) {
+    activeTab = newTab;
+    // Update the URL without reloading the page
+    window.history.replaceState(null, "", `#${newTab}`);
   }
 
-  function handleTabClick(onglet: Onglet) {
-    changerOnglet(onglet);
+  function handleTabClick(tab: Tab) {
+    changeTab(tab);
   }
 
   // Petitionnaires may upload the impacted-espece file as .ods (Pitchou's
   // template) or as .xlsx; both are parsed by espècesImpactéesDepuisFichierOdsArrayBuffer.
   const EXTENSIONS_ATTENDUES = [".ods", ".xlsx"];
 
-  function getEspècesImpactés(
-    dossier: DossierComplet,
-  ): ReturnType<typeof espècesImpactéesDepuisFichierOdsArrayBuffer> | undefined {
-    const espècesImpactées = dossier.espècesImpactées;
+  function getEspecesImpactes(
+    dossier: DossierFull,
+  ): ReturnType<typeof especesImpacteesFromFichierOdsArrayBuffer> | undefined {
+    const especesImpactees = dossier.espècesImpactées;
 
-    if (!espècesImpactées || !espècesImpactées.url) {
+    if (!especesImpactees || !especesImpactees.url) {
       return undefined;
     }
 
-    const extension = "." + espècesImpactées.nom?.split(".").pop();
+    const extension = "." + especesImpactees.nom?.split(".").pop();
 
     if (!EXTENSIONS_ATTENDUES.includes(extension)) {
       return Promise.reject(
-        new MediaTypeError({ attendu: EXTENSIONS_ATTENDUES.join(", "), obtenu: extension }),
+        new MediaTypeError({ expected: EXTENSIONS_ATTENDUES.join(", "), obtained: extension }),
       );
     }
 
-    // Le contenu du fichier est récupéré à la demande depuis l'Object Storage
-    return fetch(espècesImpactées.url)
+    // The file content is fetched on demand from the Object Storage
+    return fetch(especesImpactees.url)
       .then((response) => response.arrayBuffer())
-      .then((arrayBuffer) => espècesImpactéesDepuisFichierOdsArrayBuffer(arrayBuffer));
+      .then((arrayBuffer) => especesImpacteesFromFichierOdsArrayBuffer(arrayBuffer));
   }
 
   type Props = {
-    dossier: DossierComplet;
-    ongletActifInitial: Onglet;
+    dossier: DossierFull;
+    initialActiveTab: Tab;
     messages: any;
     email: string;
     personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
-    dossierActuelSuiviParInstructeurActuel: boolean | undefined;
+    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
     notification?: Pick<Notification, "vue" | "date_dernière_mise_à_jour">;
   };
 
   let {
     dossier,
-    ongletActifInitial,
+    initialActiveTab,
     messages,
     email,
     personnesQuiSuiventDossier,
-    dossierActuelSuiviParInstructeurActuel,
+    currentDossierFollowedByCurrentInstructeur,
     notification,
   }: Props = $props();
 
-  $inspect("Dossier complet", dossier);
-
-  const envoyerÉvènementConsulterUnDossier = debounce(
-    () => envoyerÉvènement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
+  const sendEvenementConsulterUnDossier = debounce(
+    () => sendEvenement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
     15 * 60 * 1000,
     true,
   );
 
   onMount(() => {
     if (notification?.vue === false) {
-      // Quand le dossier a une notification non vue par l'instructrice actuelle,
-      // elle disparaît au moment de la consultation du dossier.
+      // When the dossier has a notification not seen by the current instructrice,
+      // it disappears when the dossier is consulted.
       updateNotificationForDossier({ dossier: dossier.id, vue: true });
     }
   });
 
   $effect(() => {
-    if (ongletActif === "projet") {
-      envoyerÉvènementConsulterUnDossier();
+    if (activeTab === "projet") {
+      sendEvenementConsulterUnDossier();
     }
   });
 
-  let ongletActif = $derived(ongletActifInitial);
+  let activeTab = $derived(initialActiveTab);
 
-  let espècesImpactées: Promise<DescriptionMenacesEspèces> | undefined = $derived(
-    getEspècesImpactés(dossier),
+  let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
+    getEspecesImpactes(dossier),
   );
 </script>
 
@@ -125,7 +123,7 @@
 
 <div class="fr-grid-row fr-mt-2w">
   <div class="fr-col">
-    <EnteteDossier {dossier} {dossierActuelSuiviParInstructeurActuel} {email}></EnteteDossier>
+    <HeaderDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></HeaderDossier>
 
     <div class="fr-tabs">
       <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
@@ -134,10 +132,10 @@
             type="button"
             id="tabpanel-instruction"
             aria-controls="tabpanel-instruction-panel"
-            class="fr-tabs__tab {ongletActif === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "instruction" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "instruction" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "instruction"}
+            aria-selected={activeTab === "instruction"}
             onclick={() => handleTabClick("instruction")}
           >
             Instruction
@@ -148,10 +146,10 @@
             type="button"
             id="tabpanel-projet"
             aria-controls="tabpanel-projet-panel"
-            class="fr-tabs__tab {ongletActif === 'projet' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "projet" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'projet' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "projet" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "projet"}
+            aria-selected={activeTab === "projet"}
             onclick={() => handleTabClick("projet")}
           >
             Projet
@@ -162,12 +160,10 @@
             type="button"
             id="tabpanel-porteur-de-projet"
             aria-controls="tabpanel-porteur-de-projet-panel"
-            class="fr-tabs__tab {ongletActif === 'porteur-de-projet'
-              ? 'fr-tabs__tab--selected'
-              : ''}"
-            tabindex={ongletActif === "porteur-de-projet" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'porteur-de-projet' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "porteur-de-projet" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "porteur-de-projet"}
+            aria-selected={activeTab === "porteur-de-projet"}
             onclick={() => handleTabClick("porteur-de-projet")}
           >
             Porteur de projet
@@ -178,10 +174,10 @@
             type="button"
             id="tabpanel-echanges"
             aria-controls="tabpanel-echanges-panel"
-            class="fr-tabs__tab {ongletActif === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "echanges" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "echanges" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "echanges"}
+            aria-selected={activeTab === "echanges"}
             onclick={() => handleTabClick("echanges")}
           >
             Échanges
@@ -192,10 +188,10 @@
             type="button"
             id="tabpanel-avis"
             aria-controls="tabpanel-avis-panel"
-            class="fr-tabs__tab {ongletActif === 'avis' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "avis" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'avis' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "avis" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "avis"}
+            aria-selected={activeTab === "avis"}
             onclick={() => handleTabClick("avis")}
           >
             Avis
@@ -206,10 +202,10 @@
             type="button"
             id="tabpanel-controles"
             aria-controls="tabpanel-controles-panel"
-            class="fr-tabs__tab {ongletActif === 'controles' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "controles" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'controles' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "controles" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "controles"}
+            aria-selected={activeTab === "controles"}
             onclick={() => handleTabClick("controles")}
           >
             Contrôles
@@ -220,10 +216,10 @@
             type="button"
             id="tabpanel-pieces-jointes"
             aria-controls="tabpanel-pieces-jointes-panel"
-            class="fr-tabs__tab {ongletActif === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={ongletActif === "pieces-jointes" ? 0 : -1}
+            class="fr-tabs__tab {activeTab === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
+            tabindex={activeTab === "pieces-jointes" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "pieces-jointes"}
+            aria-selected={activeTab === "pieces-jointes"}
             onclick={() => handleTabClick("pieces-jointes")}
           >
             Pièces jointes
@@ -234,12 +230,12 @@
             type="button"
             id="tabpanel-generation-document"
             aria-controls="tabpanel-generation-document-panel"
-            class="fr-tabs__tab {ongletActif === 'generation-document'
+            class="fr-tabs__tab {activeTab === 'generation-document'
               ? 'fr-tabs__tab--selected'
               : ''}"
-            tabindex={ongletActif === "generation-document" ? 0 : -1}
+            tabindex={activeTab === "generation-document" ? 0 : -1}
             role="tab"
-            aria-selected={ongletActif === "generation-document"}
+            aria-selected={activeTab === "generation-document"}
             onclick={() => handleTabClick("generation-document")}
           >
             Génération document
@@ -250,14 +246,14 @@
         id="tabpanel-instruction-panel"
         aria-labelledby="tabpanel-instruction"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "instruction"}
+        class:fr-tabs__panel--selected={activeTab === "instruction"}
         role="tabpanel"
         tabindex="0"
       >
         <DossierInstruction
           {dossier}
           {personnesQuiSuiventDossier}
-          {dossierActuelSuiviParInstructeurActuel}
+          {currentDossierFollowedByCurrentInstructeur}
           {email}
         ></DossierInstruction>
       </div>
@@ -265,17 +261,17 @@
         id="tabpanel-projet-panel"
         aria-labelledby="tabpanel-projet"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "projet"}
+        class:fr-tabs__panel--selected={activeTab === "projet"}
         role="tabpanel"
         tabindex="0"
       >
-        <DossierProjet {dossier} {espècesImpactées}></DossierProjet>
+        <DossierProjet {dossier} espècesImpactées={especesImpactees}></DossierProjet>
       </div>
       <div
         id="tabpanel-porteur-de-projet-panel"
         aria-labelledby="tabpanel-porteur-de-projet"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "porteur-de-projet"}
+        class:fr-tabs__panel--selected={activeTab === "porteur-de-projet"}
         role="tabpanel"
         tabindex="0"
       >
@@ -285,7 +281,7 @@
         id="tabpanel-echanges-panel"
         aria-labelledby="tabpanel-echanges"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "echanges"}
+        class:fr-tabs__panel--selected={activeTab === "echanges"}
         role="tabpanel"
         tabindex="0"
       >
@@ -295,7 +291,7 @@
         id="tabpanel-avis-panel"
         aria-labelledby="tabpanel-avis"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "avis"}
+        class:fr-tabs__panel--selected={activeTab === "avis"}
         role="tabpanel"
         tabindex="0"
       >
@@ -305,31 +301,32 @@
         id="tabpanel-controles-panel"
         aria-labelledby="tabpanel-controles"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "controles"}
+        class:fr-tabs__panel--selected={activeTab === "controles"}
         role="tabpanel"
         tabindex="0"
       >
-        <DossierContrôles {dossier}></DossierContrôles>
+        <DossierControles {dossier}></DossierControles>
       </div>
       <div
         id="tabpanel-pieces-jointes-panel"
         aria-labelledby="tabpanel-pieces-jointes"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "pieces-jointes"}
+        class:fr-tabs__panel--selected={activeTab === "pieces-jointes"}
         role="tabpanel"
         tabindex="0"
       >
-        <DossierPiecesJointes {dossier} ouvrirOnglet={changerOnglet}></DossierPiecesJointes>
+        <DossierPiecesJointes {dossier} openTab={changeTab}></DossierPiecesJointes>
       </div>
       <div
         id="tabpanel-generation-document-panel"
         aria-labelledby="tabpanel-generation-document"
         class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={ongletActif === "generation-document"}
+        class:fr-tabs__panel--selected={activeTab === "generation-document"}
         role="tabpanel"
         tabindex="0"
       >
-        <DossierGénérationDocuments {dossier} {espècesImpactées}></DossierGénérationDocuments>
+        <DossierGenerationDocuments {dossier} espècesImpactées={especesImpactees}
+        ></DossierGenerationDocuments>
       </div>
     </div>
   </div>

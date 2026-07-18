@@ -69,16 +69,16 @@ export async function createInstructeurWithDossier(
     numéroDémarche?: number;
   } = {},
 ): Promise<InstructeurWithDossier> {
-  const numéroDémarche = overrides.numéroDémarche ?? DEFAULT_NUMERO_DEMARCHE;
+  const numeroDemarche = overrides.numéroDémarche ?? DEFAULT_NUMERO_DEMARCHE;
   const base = await createInstructeurWithCapToGroup(db, {
     email: overrides.email,
     codeAcces: overrides.codeAcces,
     nomGroupe: overrides.nomGroupe,
-    numéroDémarche,
+    numéroDémarche: numeroDemarche,
   });
   const dossier = await createDossier(db, {
     nom: overrides.dossierNom ?? "Dossier de test",
-    numéro_démarche: numéroDémarche,
+    numéro_démarche: numeroDemarche,
   });
   await attachDossierToGroupe(db, dossier.id, base.groupeId);
   return { ...base, dossier };

@@ -4,17 +4,17 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    stockerNouveauFichier: vi.fn(),
-    supprimerFichiersSansAutresRéférences: vi.fn(),
+    storeNewFichier: vi.fn(),
+    deleteFichiersWithoutOtherReferences: vi.fn(),
   };
 });
 
 import {
-  ajouterOuModifierAvisExpertAvecFichiers,
-  modifierAvisExpert,
-  supprimerAvisExpert,
+  addOrUpdateAvisExpertWithFichiers,
+  updateAvisExpert,
+  deleteAvisExpert,
 } from "./avis_expert.ts";
-import { stockerNouveauFichier, supprimerFichiersSansAutresRéférences } from "./fichier.ts";
+import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -29,18 +29,18 @@ const oldAvis = "old-avis" as FileId;
 const newSaisine = "new-saisine" as FileId;
 const newAvis = "new-avis" as FileId;
 
-const stocker = vi.mocked(stockerNouveauFichier);
-const supprimer = vi.mocked(supprimerFichiersSansAutresRéférences);
+const storeFichier = vi.mocked(storeNewFichier);
+const deleteFichiers = vi.mocked(deleteFichiersWithoutOtherReferences);
 
 beforeEach(() => {
-  stocker.mockReset();
-  supprimer.mockReset();
+  storeFichier.mockReset();
+  deleteFichiers.mockReset();
 });
 
-describe("supprimerAvisExpert", () => {
+describe("deleteAvisExpert", () => {
   it("wraps a single id into an array for whereIn", async () => {
     const db = fakeDatabase().selectResolves([]).build();
-    await supprimerAvisExpert(aeId, db.knex);
+    await deleteAvisExpert(aeId, db.knex);
     expect(db.whereIn).toHaveBeenCalledWith("id", [aeId]);
     expect(db.delete).toHaveBeenCalledTimes(1);
   });
@@ -48,7 +48,7 @@ describe("supprimerAvisExpert", () => {
   it("passes an array of ids through unchanged", async () => {
     const db = fakeDatabase().selectResolves([]).build();
     const ids = ["a", "b", "c"] as unknown as AvisExpertId[];
-    await supprimerAvisExpert(ids, db.knex);
+    await deleteAvisExpert(ids, db.knex);
     expect(db.whereIn).toHaveBeenCalledWith("id", ids);
   });
 
@@ -56,22 +56,22 @@ describe("supprimerAvisExpert", () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: null, avis_fichier: null }])
       .build();
-    await supprimerAvisExpert(aeId, db.knex);
+    await deleteAvisExpert(aeId, db.knex);
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["avis_expert"]));
-    expect(supprimer).not.toHaveBeenCalled();
+    expect(deleteFichiers).not.toHaveBeenCalled();
   });
 
-  it("cleans up the saisine + avis fichiers via supprimerFichiersSansAutresRéférences", async () => {
+  it("cleans up the saisine + avis fichiers via deleteFichiersWithoutOtherReferences", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: fSaisine, avis_fichier: fAvis }])
       .build();
-    await supprimerAvisExpert(aeId, db.knex);
-    expect(supprimer).toHaveBeenCalledWith([fSaisine, fAvis], db.knex);
+    await deleteAvisExpert(aeId, db.knex);
+    expect(deleteFichiers).toHaveBeenCalledWith([fSaisine, fAvis], db.knex);
   });
 });
 
-describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
+describe("addOrUpdateAvisExpertWithFichiers", () => {
   const baseAvis = {
     dossier: dossierId,
     expert: "expert-x",
@@ -81,8 +81,8 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
   };
 
   it("inserts a new avis_expert with both fichier ids when both files are provided", async () => {
-    stocker.mockResolvedValueOnce({ id: fSaisine });
-    stocker.mockResolvedValueOnce({ id: fAvis });
+    storeFichier.mockResolvedValueOnce({ id: fSaisine });
+    storeFichier.mockResolvedValueOnce({ id: fAvis });
     const db = fakeDatabase()
       .insertResolves([{ id: aeId }])
       .build();
@@ -98,11 +98,11 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
       media_type: "application/pdf",
     };
 
-    await ajouterOuModifierAvisExpertAvecFichiers(baseAvis, fichierSaisine, fichierAvis, db.knex);
+    await addOrUpdateAvisExpertWithFichiers(baseAvis, fichierSaisine, fichierAvis, db.knex);
 
-    expect(stocker).toHaveBeenCalledTimes(2);
-    expect(stocker).toHaveBeenCalledWith(fichierSaisine, db.knex);
-    expect(stocker).toHaveBeenCalledWith(fichierAvis, db.knex);
+    expect(storeFichier).toHaveBeenCalledTimes(2);
+    expect(storeFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
+    expect(storeFichier).toHaveBeenCalledWith(fichierAvis, db.knex);
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         dossier: dossierId,
@@ -113,7 +113,7 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
   });
 
   it("uploads only the saisine when only the saisine fichier is provided", async () => {
-    stocker.mockResolvedValueOnce({ id: fSaisine });
+    storeFichier.mockResolvedValueOnce({ id: fSaisine });
     const db = fakeDatabase()
       .insertResolves([{ id: aeId }])
       .build();
@@ -123,23 +123,23 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
       contenu: Buffer.from("S"),
       media_type: "application/pdf",
     };
-    await ajouterOuModifierAvisExpertAvecFichiers(baseAvis, fichierSaisine, undefined, db.knex);
+    await addOrUpdateAvisExpertWithFichiers(baseAvis, fichierSaisine, undefined, db.knex);
 
-    expect(stocker).toHaveBeenCalledTimes(1);
-    expect(stocker).toHaveBeenCalledWith(fichierSaisine, db.knex);
+    expect(storeFichier).toHaveBeenCalledTimes(1);
+    expect(storeFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({ saisine_fichier: fSaisine, avis_fichier: undefined }),
     );
   });
 
-  it("routes to modifierAvisExpert when avis.id is set, populating the fichier columns", async () => {
-    stocker.mockResolvedValueOnce({ id: fAvis });
+  it("routes to updateAvisExpert when avis.id is set, populating the fichier columns", async () => {
+    storeFichier.mockResolvedValueOnce({ id: fAvis });
     // No previous saisine/avis on the existing row -> no cleanup expected.
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: null, avis_fichier: null }])
       .build();
 
-    await ajouterOuModifierAvisExpertAvecFichiers(
+    await addOrUpdateAvisExpertWithFichiers(
       { ...baseAvis, id: aeId },
       undefined,
       { nom: "a.pdf", contenu: Buffer.from("A"), media_type: "application/pdf" },
@@ -155,12 +155,12 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
     );
   });
 
-  it("propagates errors from stockerNouveauFichier and never inserts the avis_expert", async () => {
-    stocker.mockRejectedValue(new Error("S3 down"));
+  it("propagates errors from storeNewFichier and never inserts the avis_expert", async () => {
+    storeFichier.mockRejectedValue(new Error("S3 down"));
     const db = fakeDatabase().build();
 
     await expect(
-      ajouterOuModifierAvisExpertAvecFichiers(
+      addOrUpdateAvisExpertWithFichiers(
         baseAvis,
         { nom: "s.pdf", contenu: Buffer.from(""), media_type: "application/pdf" },
         undefined,
@@ -172,15 +172,15 @@ describe("ajouterOuModifierAvisExpertAvecFichiers", () => {
   });
 });
 
-describe("modifierAvisExpert", () => {
+describe("updateAvisExpert", () => {
   it("cleans up the previous saisine fichier when it is replaced", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: oldSaisine, avis_fichier: null }])
       .build();
 
-    await modifierAvisExpert({ id: aeId, saisine_fichier: newSaisine }, db.knex);
+    await updateAvisExpert({ id: aeId, saisine_fichier: newSaisine }, db.knex);
 
-    expect(supprimer).toHaveBeenCalledWith([oldSaisine], db.knex);
+    expect(deleteFichiers).toHaveBeenCalledWith([oldSaisine], db.knex);
   });
 
   it("cleans up both previous fichiers when both are replaced", async () => {
@@ -190,21 +190,21 @@ describe("modifierAvisExpert", () => {
       ])
       .build();
 
-    await modifierAvisExpert(
+    await updateAvisExpert(
       { id: aeId, saisine_fichier: newSaisine, avis_fichier: newAvis },
       db.knex,
     );
 
-    expect(supprimer).toHaveBeenCalledWith([oldSaisine, oldAvis], db.knex);
+    expect(deleteFichiers).toHaveBeenCalledWith([oldSaisine, oldAvis], db.knex);
   });
 
-  it("does not call supprimer when the fichier columns are not touched in the update", async () => {
+  it("does not call deleteFichiers when the fichier columns are not touched in the update", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: fSaisine, avis_fichier: fAvis }])
       .build();
 
-    await modifierAvisExpert({ id: aeId, avis: "updated" }, db.knex);
+    await updateAvisExpert({ id: aeId, avis: "updated" }, db.knex);
 
-    expect(supprimer).not.toHaveBeenCalled();
+    expect(deleteFichiers).not.toHaveBeenCalled();
   });
 });

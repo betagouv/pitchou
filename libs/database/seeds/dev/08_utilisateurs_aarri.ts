@@ -1,11 +1,11 @@
 import type { Knex } from "knex";
 
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
 import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 type SeedEvent = {
-  type: ÉvènementMétrique["type"];
+  type: EvenementMetrique["type"];
   weeksAgo: number;
   count: number;
 };

@@ -1,8 +1,5 @@
 import parseArgs from "minimist";
-import {
-  resetSecretGeoMCE,
-  récupérerSecretGeoMCE,
-} from "@pitchou/server/database/capability-geomce.ts";
+import { resetSecretGeoMCE, getSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);
@@ -28,7 +25,7 @@ if (args.origin) origin = args.origin;
 const baseURL = `${origin}/declaration-geomce?secret=`;
 
 if (getCap) {
-  const secret = await récupérerSecretGeoMCE();
+  const secret = await getSecretGeoMCE();
   const capURLGeoMCE = `${baseURL}${secret}`;
 
   console.log(`Lien d'API GeoMCE:`, capURLGeoMCE);

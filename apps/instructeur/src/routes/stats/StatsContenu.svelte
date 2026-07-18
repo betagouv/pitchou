@@ -8,14 +8,14 @@
 
   let { stats }: Props = $props();
 
-  const estimationNbPétitionnairesEnFranceParAn = 1500;
+  const estimationNbPetitionnairesEnFranceParAn = 1500;
 
-  const pourcentageAvecDécision = $derived(
+  const pourcentageAvecDecision = $derived(
     Math.round(
       (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
     ),
   );
-  const pourcentageSansDecision = $derived(100 - pourcentageAvecDécision);
+  const pourcentageSansDecision = $derived(100 - pourcentageAvecDecision);
 </script>
 
 <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
@@ -47,7 +47,7 @@
               </div>
               <div class="fr-col-6">
                 <div class="stat-item">
-                  <span class="stat-number">{estimationNbPétitionnairesEnFranceParAn}</span>
+                  <span class="stat-number">{estimationNbPetitionnairesEnFranceParAn}</span>
                   <span class="stat-label"
                     >Pétitionnaires en France<br /><span class="fr-text--xs">(référence)</span
                     ></span
@@ -85,7 +85,7 @@
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
                   <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
-                  <span class="stat-label">Avec décision<br />{pourcentageAvecDécision}%</span>
+                  <span class="stat-label">Avec décision<br />{pourcentageAvecDecision}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
                   <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
@@ -97,7 +97,7 @@
                 style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
               >
                 <div
-                  style="width: {pourcentageAvecDécision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+                  style="width: {pourcentageAvecDecision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
                 ></div>
                 <div
                   style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
@@ -116,7 +116,7 @@
       </div>
     </section>
 
-    <!-- Bloc prescriptions contrôlées (barre) -->
+    <!-- Controlled prescriptions block (bar) -->
     <section class="fr-mt-4w">
       <h2 class="fr-mt-2w">Prescriptions et contrôles réalisés dans Pitchou</h2>
       <div class="fr-card fr-card--no-arrow stat-prescriptions-card">

@@ -5,10 +5,10 @@ import { compile } from "json-schema-to-typescript";
 import ky from "ky";
 
 import type {
-  SchemaDémarcheSimplifiée,
+  SchemaDemarcheSimplifiee,
   ChampDescriptor,
   ChampDescriptorTypename,
-} from "@pitchou/types/démarche-numérique/schema.ts";
+} from "@pitchou/types/demarche-numerique/schema.ts";
 import type { JSONSchema } from "json-schema-to-typescript";
 
 const args = parseArgs(process.argv);
@@ -21,9 +21,9 @@ if (!ID_SCHEMA_DS) {
 
 const urlSchema = `https://www.demarches-simplifiees.fr/preremplir/${ID_SCHEMA_DS}/schema`;
 
-let schema: SchemaDémarcheSimplifiée;
+let schema: SchemaDemarcheSimplifiee;
 
-const schemaPath = `data/démarche-numérique/schema-DS/${ID_SCHEMA_DS}.json`;
+const schemaPath = `data/demarche-numerique/schema-DS/${ID_SCHEMA_DS}.json`;
 
 if (args.skipDownload) {
   let schemaStr: string;
@@ -96,8 +96,8 @@ function champToNumberJSONSchema({ description }: ChampDescriptor): JSONSchema {
   return { type: "number", description };
 }
 
-function champToDépartementJSONSchema({ description }: ChampDescriptor): JSONSchema {
-  return { type: "object", tsType: "GeoAPIDépartement", description };
+function champToDepartementJSONSchema({ description }: ChampDescriptor): JSONSchema {
+  return { type: "object", tsType: "GeoAPIDepartement", description };
 }
 
 function champToCommuneJSONSchema({ description }: ChampDescriptor): JSONSchema {
@@ -166,7 +166,7 @@ const DSTypenameToJSONSchema = new Map<
   ["TextareaChampDescriptor", champToStringJSONSchema],
   ["IntegerNumberChampDescriptor", champToNumberJSONSchema],
   ["DecimalNumberChampDescriptor", champToNumberJSONSchema],
-  ["DepartementChampDescriptor", champToDépartementJSONSchema],
+  ["DepartementChampDescriptor", champToDepartementJSONSchema],
   ["CommuneChampDescriptor", champToCommuneJSONSchema],
   ["RepetitionChampDescriptor", champToArrayJSONSchema],
   ["DateChampDescriptor", champToDateJSONSchema],
@@ -177,7 +177,7 @@ const {
   revision: { champDescriptors, annotationDescriptors },
 } = schema;
 
-// champDescriptors vers JSONSchema
+// champDescriptors to JSONSchema
 function champDescriptorsToJSONSchemaObjectType(champDescriptors: ChampDescriptor[]) {
   const properties = Object.create(null);
   const required = [];
@@ -216,25 +216,25 @@ function champDescriptorsToJSONSchemaObjectType(champDescriptors: ChampDescripto
   };
 }
 
-const dossierDémarcheNumériqueJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors);
+const dossierDemarcheNumeriqueJSONSchema = champDescriptorsToJSONSchemaObjectType(champDescriptors);
 
-const dossierDémarcheNumériqueInterfaceP = compile(
+const dossierDemarcheNumeriqueInterfaceP = compile(
   //@ts-ignore
-  dossierDémarcheNumériqueJSONSchema,
+  dossierDemarcheNumeriqueJSONSchema,
   `DossierDemarcheNumerique${schema.number}`,
   { bannerComment: "" },
 );
 
 /**
- * annotationDescriptors vers JSONSchema
+ * annotationDescriptors to JSONSchema
  */
 
-const annotationsDémarcheNumériqueJSONSchema =
+const annotationsDemarcheNumeriqueJSONSchema =
   champDescriptorsToJSONSchemaObjectType(annotationDescriptors);
 
-const annotationsDémarcheNumériqueInterfaceP = compile(
+const annotationsDemarcheNumeriqueInterfaceP = compile(
   //@ts-ignore
-  annotationsDémarcheNumériqueJSONSchema,
+  annotationsDemarcheNumeriqueJSONSchema,
   `AnnotationsPriveesDemarcheNumerique${schema.number}`,
   { bannerComment: "" },
 );
@@ -251,18 +251,18 @@ const commentaireInitial = `/**
 */`;
 
 const imports = [
-  `import type { GeoAPICommune, GeoAPIDépartement } from "../GeoAPI.ts";`,
+  `import type { GeoAPICommune, GeoAPIDepartement } from "../GeoAPI.ts";`,
   `import type { ChampDSPieceJustificative } from "./apiSchema.ts";`,
 ].join("\n");
 
-const outPath = `libs/types/src/démarche-numérique/Démarche${schema.number}.ts`;
-await Promise.all([dossierDémarcheNumériqueInterfaceP, annotationsDémarcheNumériqueInterfaceP])
-  .then(([dossierDémarcheNumériqueInterface, annotationsDémarcheNumériqueInterface]) =>
+const outPath = `libs/types/src/demarche-numerique/Demarche${schema.number}.ts`;
+await Promise.all([dossierDemarcheNumeriqueInterfaceP, annotationsDemarcheNumeriqueInterfaceP])
+  .then(([dossierDemarcheNumeriqueInterface, annotationsDemarcheNumeriqueInterface]) =>
     [
       commentaireInitial,
       imports,
-      dossierDémarcheNumériqueInterface,
-      annotationsDémarcheNumériqueInterface,
+      dossierDemarcheNumeriqueInterface,
+      annotationsDemarcheNumeriqueInterface,
     ].join("\n\n"),
   )
   .then((str) => writeFile(outPath, str));

@@ -1,27 +1,26 @@
 import type { RequestHandler } from "./$types";
-import { demanderLienPréremplissage } from "@pitchou/server/démarche-numérique/demanderLienPréremplissage.ts";
-import { chiffrerDonnéesSupplémentairesDossiers } from "@pitchou/server/démarche-numérique/chiffrerDéchiffrerDonnéesSupplémentaires.ts";
-import _schema88444 from "../../../../../data/démarche-numérique/schema-DS/derogation-especes-protegees.json" with { type: "json" };
-import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
-import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
+import { requestPrefillingLink } from "@pitchou/server/demarche-numerique/requestPrefillingLink.ts";
+import { encryptDossiersAdditionalData } from "@pitchou/server/demarche-numerique/encryptDecryptDossiersAdditionalData.ts";
+import _schema88444 from "../../../../../data/demarche-numerique/schema-DS/derogation-especes-protegees.json" with { type: "json" };
+import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
+import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
 
-const schema88444 = _schema88444 as unknown as SchemaDémarcheSimplifiée;
+const schema88444 = _schema88444 as unknown as SchemaDemarcheSimplifiee;
 
 export const POST: RequestHandler = async ({ request }) => {
-  const donneesPreRemplissage = (await request.json()) as Partial<DossierDemarcheNumerique88444>;
+  const prefillingData = (await request.json()) as Partial<DossierDemarcheNumerique88444>;
 
-  const donneesSupplementairesDossiers =
-    donneesPreRemplissage["NE PAS MODIFIER - Données techniques associées à votre dossier"];
+  const dossiersAdditionalData =
+    prefillingData["NE PAS MODIFIER - Données techniques associées à votre dossier"];
 
-  if (donneesSupplementairesDossiers) {
-    donneesPreRemplissage["NE PAS MODIFIER - Données techniques associées à votre dossier"] =
-      await chiffrerDonnéesSupplémentairesDossiers(donneesSupplementairesDossiers);
+  if (dossiersAdditionalData) {
+    prefillingData["NE PAS MODIFIER - Données techniques associées à votre dossier"] =
+      await encryptDossiersAdditionalData(dossiersAdditionalData);
   }
 
-  const { dossier_url } = (await demanderLienPréremplissage(
-    donneesPreRemplissage,
-    schema88444,
-  )) as { dossier_url: string };
+  const { dossier_url } = (await requestPrefillingLink(prefillingData, schema88444)) as {
+    dossier_url: string;
+  };
 
   return new Response(dossier_url, { headers: { "content-type": "text/plain" } });
 };

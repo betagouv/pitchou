@@ -1,0 +1,185 @@
+import {
+  getODSTableRawContent,
+  tableRawContentToObjects,
+  tableWithoutEmptyRows,
+} from "@odfjs/odfjs";
+
+import { isValidDate } from "@pitchou/common/typeFormat.ts";
+import { addPrescriptionsAndControles } from "./prescriptions.ts";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
+import { store } from "$lib/state/store.svelte.ts";
+
+import type {
+  FrontEndPrescription,
+  FrontEndDecisionAdministrative,
+  ResultatControle,
+  TypesActionSuiteControle,
+  DecisionAdministrativeForTransfer,
+} from "@pitchou/types/API_Pitchou.ts";
+import type Controle from "@pitchou/types/database/public/Controle.ts";
+import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
+
+/**
+ * Finds the data and synchronizes it in the database
+ */
+export async function createPrescriptionControlesFromFichier(
+  fichierPrescriptionControleAB: ArrayBuffer,
+  decisionAdministrative: FrontEndDecisionAdministrative,
+): Promise<FrontEndPrescription[]> {
+  const rawData = await getODSTableRawContent(fichierPrescriptionControleAB);
+  const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0];
+
+  const decisionNumber = decisionAdministrative.numéro;
+
+  const candidatePrescriptions: Omit<FrontEndPrescription, "id">[] = cleanData
+    // @ts-ignore
+    .filter((row) => {
+      const prescriptionNumDec =
+        row["Numéro décision administrative"] && row["Numéro décision administrative"].trim();
+      // Keep the candidate prescription if it has no decision number or if it matches the one of the decision under consideration
+      return (
+        !prescriptionNumDec || prescriptionNumDec === (decisionNumber && decisionNumber.trim())
+      );
+    })
+    // @ts-ignore
+    .map((row) => {
+      //console.log('row', row)
+
+      const {
+        "Numéro article": numéro_article,
+        Description: description,
+        "Date échéance": date_échéance,
+        "Surface compensée": surface_compensée,
+        "Surface évitée": surface_évitée,
+        "Individus compensés": individus_compensés,
+        "Individus évités": individus_évités,
+        "Nids compensés": nids_compensés,
+        "Nids évités": nids_évités,
+      } = row;
+
+      const prescription: Omit<FrontEndPrescription, "id"> = {
+        décision_administrative: decisionAdministrative.id,
+        date_échéance: isValidDate(new Date(date_échéance)) ? new Date(date_échéance) : null,
+        numéro_article,
+        description,
+        individus_compensés: !individus_compensés ? undefined : individus_compensés,
+        individus_évités: !individus_évités ? undefined : individus_évités,
+        nids_compensés: !nids_compensés ? undefined : nids_compensés,
+        nids_évités: !nids_évités ? undefined : nids_évités,
+        surface_compensée: !surface_compensée ? undefined : surface_compensée,
+        surface_évitée: !surface_évitée ? undefined : surface_évitée,
+        contrôles: undefined,
+      };
+
+      let controles: Omit<Controle, "id" | "prescription">[] = [];
+
+      let controleNumber = 1;
+
+      while (true) {
+        const date_controleProp = `${controleNumber} Date contrôle`;
+        const resultatProp = `${controleNumber} Résultat contrôle`;
+        const commentaireProp = `${controleNumber} Commentaire`;
+        const type_action_suite_controleProp = `${controleNumber} Type de Suite`;
+        const date_action_suite_controleProp = `${controleNumber} Date de la suite`;
+        const date_prochaine_echeanceProp = `${controleNumber} Date Echéance`;
+
+        const date_contrôle = row[date_controleProp];
+        let résultat: ResultatControle = row[resultatProp];
+        if (résultat && résultat.trim() === "non conforme") {
+          résultat = "Non conforme";
+        }
+        if (résultat && résultat.trim() === "conforme") {
+          résultat = "Conforme";
+        }
+        if (résultat && résultat.trim() === "en cours") {
+          résultat = "En cours";
+        }
+        if (résultat && résultat.trim() === "trop tard") {
+          résultat = "Trop tard";
+        }
+
+        const commentaire = row[commentaireProp];
+
+        let type_action_suite_contrôle: TypesActionSuiteControle =
+          row[type_action_suite_controleProp];
+
+        if (type_action_suite_contrôle && type_action_suite_contrôle.trim() === "mail") {
+          type_action_suite_contrôle = "Email";
+        }
+        if (type_action_suite_contrôle && type_action_suite_contrôle.trim() === "courrier") {
+          type_action_suite_contrôle = "Courrier";
+        }
+
+        const date_action_suite_contrôle = row[date_action_suite_controleProp];
+        const date_prochaine_échéance = row[date_prochaine_echeanceProp];
+
+        if (date_contrôle && résultat) {
+          controles.push({
+            date_contrôle: isValidDate(new Date(date_contrôle)) ? new Date(date_contrôle) : null,
+            résultat,
+            commentaire,
+            type_action_suite_contrôle,
+            date_action_suite_contrôle: isValidDate(new Date(date_action_suite_contrôle))
+              ? new Date(date_action_suite_contrôle)
+              : null,
+            date_prochaine_échéance: isValidDate(new Date(date_prochaine_échéance))
+              ? new Date(date_prochaine_échéance)
+              : null,
+          });
+
+          controleNumber = controleNumber + 1;
+        } else {
+          break;
+        }
+      }
+
+      if (controles.length >= 1) {
+        // @ts-ignore
+        prescription.contrôles = controles;
+      }
+
+      return prescription;
+    });
+
+  //console.log('candidatePrescriptions', candidatePrescriptions)
+
+  // @ts-ignore
+  return addPrescriptionsAndControles(candidatePrescriptions).then(() => candidatePrescriptions);
+}
+
+export function deleteDecisionAdministrative(
+  decisionAdministrativeId: DecisionAdministrative["id"],
+): Promise<unknown> {
+  const deleteDecisionAdministrative = store.capabilities.deleteDecisionAdministrative;
+  if (!deleteDecisionAdministrative) {
+    throw new Error(`Pas les droits suffisants pour supprimer une décision administrative`);
+  }
+
+  sendEvenement({ type: "supprimerDécisionAdministrative" });
+
+  return deleteDecisionAdministrative(decisionAdministrativeId);
+}
+
+export async function saveNewDecisionAdministrative(
+  newDecisionAdministrative: DecisionAdministrativeForTransfer,
+) {
+  const modifierDecisionAdministrativeDansDossier =
+    store.capabilities.modifierDecisionAdministrativeDansDossier;
+
+  if (!modifierDecisionAdministrativeDansDossier) {
+    throw new Error(`Pas les droits suffisants pour créer une décision administrative`);
+  }
+
+  if (!newDecisionAdministrative.dossier) {
+    throw new TypeError(
+      `décisionAdministrativeEnCréation.dossier manquant dans saveNewDecisionAdministrative`,
+    );
+  }
+
+  sendEvenement({ type: "ajouterDécisionAdministrative" });
+
+  await modifierDecisionAdministrativeDansDossier(newDecisionAdministrative);
+
+  refreshDossierFull(newDecisionAdministrative.dossier);
+}

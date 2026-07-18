@@ -1,21 +1,21 @@
-// Fichier avec divers prédicats / type guards
+// File with various predicates / type guards
 // https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
 
 import { isValidDateString } from "./typeFormat.ts";
 
 import type {
   ChampDSPieceJustificative,
-  ChampRépétéDSPieceJustificative,
-} from "@pitchou/types/démarche-numérique/apiSchema.ts";
-import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  ChampRepeteDSPieceJustificative,
+} from "@pitchou/types/demarche-numerique/apiSchema.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type {
   OiseauAtteint,
   FauneNonOiseauAtteinte,
   FloreAtteinte,
 } from "@pitchou/types/especes.d.ts";
 
-export function isDossierRésuméArray(x: any): x is DossierRésumé[] {
-  return Array.isArray(x) && x.every(isDossierRésumé);
+export function isDossierSummaryArray(x: any): x is DossierSummary[] {
+  return Array.isArray(x) && x.every(isDossierSummary);
 }
 
 const isCommune = (value: any): value is { name: string; code: string; postalCode: string } => {
@@ -36,9 +36,9 @@ const isOptionalStringArray = (value: any): value is string[] | null | undefined
 };
 
 /**
- * Type guard to check if an object is a DossierRésumé
+ * Type guard to check if an object is a DossierSummary
  */
-function isDossierRésumé(x: any): x is DossierRésumé {
+function isDossierSummary(x: any): x is DossierSummary {
   if (!x || typeof x !== "object") return false;
 
   // Basic properties
@@ -142,7 +142,7 @@ export function isChampDSPieceJustificative(x: any): x is ChampDSPieceJustificat
   return _isBaseChampDS(x) && Array.isArray(x.files);
 }
 
-export function isChampRépétéDSPieceJustificative(x: any): x is ChampRépétéDSPieceJustificative {
+export function isChampRepeteDSPieceJustificative(x: any): x is ChampRepeteDSPieceJustificative {
   return (
     _isBaseChampDS(x) &&
     Array.isArray(x.rows) &&

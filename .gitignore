@@ -19,7 +19,7 @@ data/sources_especes/*
 !data/sources_especes/README.md
 # Sources for the one-off `just generate-modifications-especes` bootstrap
 # Delete (files + these 2 lines) once prod is bootstrapped
-# See outils/importer-modifications-especes.ts
+# See libs/worker/import-modifications-especes.ts
 !data/sources_especes/espèces_manquantes.ods
 !data/sources_especes/espèces_ministérielles_cnpn.ods
 

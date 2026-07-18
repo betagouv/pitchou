@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { getDossierComplet, updateDossier } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -17,7 +17,7 @@ export const GET: RequestHandler = async ({ params, url }) => {
   const cap = requireCap(url);
   const dossierId = parseDossierId(params.dossierId!);
 
-  const dossier = await getDossierComplet(dossierId, cap);
+  const dossier = await getDossierFull(dossierId, cap);
   if (!dossier) {
     error(403, `Aucun dossier trouvé avec id '${dossierId}'`);
   }

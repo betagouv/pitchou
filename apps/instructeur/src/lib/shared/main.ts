@@ -6,28 +6,28 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
 import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
-import créerObjetCapDepuisURLs from "$lib/shared/créerObjetCapDepuisURLs.ts";
-import { envoyerÉvènement } from "$lib/shared/aarri.ts";
+import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
 
-import type { default as RésultatSynchronisationDS88444 } from "@pitchou/types/database/public/RésultatSynchronisationDS88444.ts";
+import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
 import type {
   PitchouInstructeurCapabilities,
-  IdentitéInstructeurPitchou,
+  IdentiteInstructeurPitchou,
 } from "@pitchou/types/capabilities.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 
 export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
-export function chargerRelationSuivi() {
+export function loadRelationSuivi() {
   if (store.capabilities?.listerRelationSuivi) {
-    store.capabilities?.listerRelationSuivi().then((relationSuivisBDD) => {
-      if (!relationSuivisBDD || !Array.isArray(relationSuivisBDD)) {
+    store.capabilities?.listerRelationSuivi().then((relationSuivisDB) => {
+      if (!relationSuivisDB || !Array.isArray(relationSuivisDB)) {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
 
       const relationSuivis: NonNullable<typeof store.relationSuivis> = new SvelteMap();
 
-      for (const { personneEmail, dossiersSuivisIds } of relationSuivisBDD) {
+      for (const { personneEmail, dossiersSuivisIds } of relationSuivisDB) {
         relationSuivis.set(personneEmail!, new SvelteSet(dossiersSuivisIds));
       }
 
@@ -46,27 +46,27 @@ export function loadRecentSearches() {
   });
 }
 
-export function chargerNotificationParDossierPourInstructeurActuel() {
+export function loadNotificationByDossierForCurrentInstructeur() {
   if (store.capabilities?.listerNotifications) {
-    store.capabilities?.listerNotifications().then((notificationsBDD) => {
-      if (!notificationsBDD || !Array.isArray(notificationsBDD)) {
+    store.capabilities?.listerNotifications().then((notificationsDB) => {
+      if (!notificationsDB || !Array.isArray(notificationsDB)) {
         throw new TypeError("On attendait un tableau de notifications ici !");
       }
 
-      const notificationParDossierPourInstructeurActuel: NonNullable<
-        typeof store.notificationParDossier
+      const notificationByDossierForCurrentInstructeur: NonNullable<
+        typeof store.notificationByDossier
       > = new SvelteMap();
 
-      for (const notification of notificationsBDD) {
-        notificationParDossierPourInstructeurActuel.set(notification.dossier, notification);
+      for (const notification of notificationsDB) {
+        notificationByDossierForCurrentInstructeur.set(notification.dossier, notification);
       }
 
-      store.notificationParDossier = notificationParDossierPourInstructeurActuel;
+      store.notificationByDossier = notificationByDossierForCurrentInstructeur;
     });
   }
 }
 
-export function chargerSchemaDS88444() {
+export function loadSchemaDS88444() {
   return json(SCHEMA_DS_88444).then((schema) => {
     //@ts-ignore
     store.schemaDS88444 = schema;
@@ -74,15 +74,15 @@ export function chargerSchemaDS88444() {
   });
 }
 
-export function chargerRésultatsSynchronisation() {
+export function loadResultatsSynchronisation() {
   return json("/resultats-synchronisation").then(
     // @ts-ignore
-    (résultatsSync: RésultatSynchronisationDS88444[]) => {
-      for (const r of résultatsSync) {
+    (resultatsSync: ResultatSynchronisationDS88444[]) => {
+      for (const r of resultatsSync) {
         r.horodatage = new Date(r.horodatage);
       }
 
-      store.résultatsSynchronisationDS88444 = résultatsSync;
+      store.résultatsSynchronisationDS88444 = resultatsSync;
     },
   );
 }
@@ -95,7 +95,7 @@ export async function consumeSecretFromURL(url: URL) {
     remember(PITCHOU_SECRET_STORAGE_KEY, secret),
     initCapabilities(secret).catch(async () => {
       await logout();
-      store.erreurs.add({
+      store.errors.add({
         message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
       });
     }),
@@ -106,26 +106,26 @@ export async function logout() {
   store.capabilities = {};
   store.identité = undefined;
 
-  store.dossiersRésumés = new SvelteMap();
-  store.dossiersComplets = new SvelteMap();
-  store.messagesParDossierId = new SvelteMap();
+  store.dossierSummaries = new SvelteMap();
+  store.fullDossiers = new SvelteMap();
+  store.messagesByDossierId = new SvelteMap();
   store.relationSuivis = new SvelteMap();
-  store.notificationParDossier = new SvelteMap();
+  store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;
 
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }
 
-export async function logoutEtRedirigerVersAccueil(erreur?: { message: string }) {
+export async function logoutAndRedirectToHome(erreur?: { message: string }) {
   if (erreur) {
-    store.erreurs.add(erreur);
+    store.errors.add(erreur);
   }
 
   return logout().then(() => goto("/"));
 }
 
 type CapsResponse = StringValues<PitchouInstructeurCapabilities> & {
-  identité: IdentitéInstructeurPitchou;
+  identité: IdentiteInstructeurPitchou;
   maxUploadSizeBytes?: number;
 };
 
@@ -133,7 +133,7 @@ function initCapabilities(secret: string) {
   return json(`/caps?secret=${secret}`).then((response) => {
     if (response && typeof response === "object") {
       const capsURLs = response as CapsResponse;
-      store.capabilities = créerObjetCapDepuisURLs(capsURLs);
+      store.capabilities = createCapObjectFromURLs(capsURLs);
 
       if (capsURLs.identité) {
         store.identité = capsURLs.identité;
@@ -143,7 +143,7 @@ function initCapabilities(secret: string) {
         store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
       }
 
-      envoyerÉvènement({ type: "seConnecter" });
+      sendEvenement({ type: "seConnecter" });
     } else {
       throw new TypeError(`capsURLs non-reconnu (${typeof response} - ${response})`);
     }
@@ -156,12 +156,12 @@ export function init() {
       //@ts-ignore
       .then((secret) => (secret ? initCapabilities(secret) : undefined))
       .catch(() =>
-        logoutEtRedirigerVersAccueil({
+        logoutAndRedirectToHome({
           message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
         }),
       ),
 
-    chargerSchemaDS88444(),
-    chargerRésultatsSynchronisation(),
+    loadSchemaDS88444(),
+    loadResultatsSynchronisation(),
   ]);
 }

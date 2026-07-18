@@ -2,8 +2,8 @@ import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
-  ajouterOuModifierAvisExpert,
-  ajouterOuModifierAvisExpertAvecFichiers,
+  addOrUpdateAvisExpert,
+  addOrUpdateAvisExpertWithFichiers,
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
@@ -47,9 +47,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
     blobFichierAvis instanceof File ? await readFileField(blobFichierAvis) : undefined;
 
   if (fichierAvis || fichierSaisine) {
-    await ajouterOuModifierAvisExpertAvecFichiers(avisExpert, fichierSaisine, fichierAvis);
+    await addOrUpdateAvisExpertWithFichiers(avisExpert, fichierSaisine, fichierAvis);
   } else {
-    await ajouterOuModifierAvisExpert(avisExpert);
+    await addOrUpdateAvisExpert(avisExpert);
   }
 
   return new Response(null, { status: 204 });

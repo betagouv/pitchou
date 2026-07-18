@@ -8,34 +8,34 @@
   import Loader from "$lib/components/Loader.svelte";
 
   import { logout } from "$lib/shared/main.ts";
-  import { chargerDossiers } from "$lib/dossier/dossier.ts";
+  import { loadDossiers } from "$lib/dossier/dossier.ts";
   import { envoiEmailConnexion } from "./LoginViaEmail/serveur.ts";
-  import { authorizedEmailDomains } from "@pitchou/common/constantes.ts";
+  import { authorizedEmailDomains } from "@pitchou/common/constants.ts";
 
-  import type { ChampDescriptor } from "@pitchou/types/démarche-numérique/schema.ts";
+  import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
   import type {
-    TriFiltreLocalStorage,
-    FiltresLocalStorage,
-    TriTableau,
+    SortFilterLocalStorage,
+    FiltersLocalStorage,
+    TableSort,
   } from "@pitchou/types/interfaceUtilisateur.ts";
 
-  const TRI_FILTRE_CLEF_LOCALSTORAGE = "tri-filtres-tableau-suivi";
+  const SORT_FILTER_LOCALSTORAGE_KEY = "tri-filtres-tableau-suivi";
 
-  let trisFiltresSélectionnés = $state<TriFiltreLocalStorage | undefined>();
+  let selectedSortFilters = $state<SortFilterLocalStorage | undefined>();
 
-  let chargementDossiersTerminé = $state(false);
+  let dossiersLoadingFinished = $state(false);
 
   onMount(async () => {
-    const stored = await remember(TRI_FILTRE_CLEF_LOCALSTORAGE);
+    const stored = await remember(SORT_FILTER_LOCALSTORAGE_KEY);
     if (stored && typeof stored !== "string") {
-      trisFiltresSélectionnés = stored;
+      selectedSortFilters = stored;
     } else if (typeof stored === "string") {
       console.warn(`string du localStorage non comprise en tant que filtre/tri`, stored);
     }
 
     if (store.capabilities.listerDossiers) {
       try {
-        await chargerDossiers();
+        await loadDossiers();
       } catch (err) {
         console.error("Problème de chargement des dossiers", err);
         const errorMessage = err instanceof Error ? err.message : String(err);
@@ -50,66 +50,66 @@
         }
       }
     } else if (store.identité) {
-      store.erreurs.add({
+      store.errors.add({
         message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`,
       });
     }
-    chargementDossiersTerminé = true;
+    dossiersLoadingFinished = true;
   });
 
   async function logoutEtAfficherLoginParEmail(erreur?: { message: string }) {
     if (erreur) {
-      store.erreurs.add(erreur);
+      store.errors.add(erreur);
     }
     await logout();
   }
 
-  function rememberTriFiltres(tri: TriTableau, filtres: Partial<FiltresLocalStorage>) {
-    const nouveaux: TriFiltreLocalStorage = {
-      tri: tri.id,
+  function rememberSortFilters(sort: TableSort, filters: Partial<FiltersLocalStorage>) {
+    const newSortFilters: SortFilterLocalStorage = {
+      tri: sort.id,
       filtres: {
-        phases: filtres.phases ? [...filtres.phases] : undefined,
-        "prochaine action attendue de": filtres["prochaine action attendue de"]
-          ? [...filtres["prochaine action attendue de"]]
+        phases: filters.phases ? [...filters.phases] : undefined,
+        "prochaine action attendue de": filters["prochaine action attendue de"]
+          ? [...filters["prochaine action attendue de"]]
           : undefined,
-        instructeurs: filtres.instructeurs ? [...filtres.instructeurs] : undefined,
-        activitésPrincipales: filtres.activitésPrincipales
-          ? [...filtres.activitésPrincipales]
+        instructeurs: filters.instructeurs ? [...filters.instructeurs] : undefined,
+        activitésPrincipales: filters.activitésPrincipales
+          ? [...filters.activitésPrincipales]
           : undefined,
-        texte: filtres.texte ?? undefined,
+        texte: filters.texte ?? undefined,
       },
     };
-    remember(TRI_FILTRE_CLEF_LOCALSTORAGE, nouveaux);
-    trisFiltresSélectionnés = nouveaux;
+    remember(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
+    selectedSortFilters = newSortFilters;
   }
 
   const email = $derived(store.identité?.email);
-  const peutListerDossiers = $derived(!!store.capabilities.listerDossiers);
-  const dossiers = $derived([...store.dossiersRésumés.values()]);
+  const canListDossiers = $derived(!!store.capabilities.listerDossiers);
+  const dossiers = $derived([...store.dossierSummaries.values()]);
   const relationSuivis = $derived(store.relationSuivis);
 
   const schemaChamps = $derived<ChampDescriptor[] | undefined>(
     store.schemaDS88444?.revision.champDescriptors,
   );
 
-  const activitésPrincipales = $derived(
+  const activitesPrincipales = $derived(
     schemaChamps?.find((c) => c.label === "Activité principale")?.options,
   );
 </script>
 
-{#if !chargementDossiersTerminé && peutListerDossiers}
+{#if !dossiersLoadingFinished && canListDossiers}
   <div class="fr-p-2w fr-pb-10w">
     <Loader />
   </div>
-{:else if peutListerDossiers && email}
+{:else if canListDossiers && email}
   <SuiviInstruction
     {email}
     {dossiers}
     {relationSuivis}
-    activitésPrincipales={activitésPrincipales ?? []}
-    triIdSélectionné={trisFiltresSélectionnés?.tri}
-    filtresSélectionnés={trisFiltresSélectionnés?.filtres}
-    {rememberTriFiltres}
+    activitésPrincipales={activitesPrincipales ?? []}
+    selectedSortId={selectedSortFilters?.tri}
+    selectedFilters={selectedSortFilters?.filtres}
+    {rememberSortFilters}
   />
 {:else}
   <LoginViaEmail {authorizedEmailDomains} {envoiEmailConnexion} />

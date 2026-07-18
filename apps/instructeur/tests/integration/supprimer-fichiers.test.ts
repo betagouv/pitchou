@@ -4,7 +4,7 @@ import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
 import { createDossier } from "../factories/dossier.ts";
-import { supprimerFichiersSansAutresRéférences } from "@pitchou/server/database/fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/fichier.ts";
 
 async function s3HasKey(key: string): Promise<boolean> {
   const { client, bucket } = await getTestS3();
@@ -25,8 +25,8 @@ test("supprime fichier + file + objet S3 quand plus aucune référence n'existe"
 
   expect(await s3HasKey(fichier.key)).toBe(true);
 
-  const supprimés = await supprimerFichiersSansAutresRéférences([fichier.id], db);
-  expect(supprimés).toEqual([fichier.id]);
+  const deleted = await deleteFichiersWithoutOtherReferences([fichier.id], db);
+  expect(deleted).toEqual([fichier.id]);
 
   expect(await db("file").select("id").where({ id: fichier.id })).toHaveLength(0);
   expect(await s3HasKey(fichier.key)).toBe(false);
@@ -38,26 +38,26 @@ test("préserve un fichier encore référencé par dossier.espèces_impactées",
   // attach the fichier as dossier.espèces_impactées
   await createDossier(db, { espèces_impactées: fichier.id });
 
-  const supprimés = await supprimerFichiersSansAutresRéférences([fichier.id], db);
-  expect(supprimés).toEqual([]);
+  const deleted = await deleteFichiersWithoutOtherReferences([fichier.id], db);
+  expect(deleted).toEqual([]);
   expect(await db("file").select("id").where({ id: fichier.id })).toHaveLength(1);
   expect(await s3HasKey(fichier.key)).toBe(true);
 });
 
 test("traite un mix de fichiers à supprimer et à conserver", async () => {
   const s3 = await getTestS3();
-  const fichierÀGarder = await createFichierS3(db, s3, { nom: "keep.pdf" });
-  const fichierÀSupprimer = await createFichierS3(db, s3, { nom: "del.pdf" });
-  await createDossier(db, { espèces_impactées: fichierÀGarder.id });
+  const fichierAGarder = await createFichierS3(db, s3, { nom: "keep.pdf" });
+  const fichierASupprimer = await createFichierS3(db, s3, { nom: "del.pdf" });
+  await createDossier(db, { espèces_impactées: fichierAGarder.id });
 
-  const supprimés = await supprimerFichiersSansAutresRéférences(
-    [fichierÀGarder.id, fichierÀSupprimer.id],
+  const deleted = await deleteFichiersWithoutOtherReferences(
+    [fichierAGarder.id, fichierASupprimer.id],
     db,
   );
 
-  expect(supprimés).toEqual([fichierÀSupprimer.id]);
-  expect(await db("file").select("id").where({ id: fichierÀGarder.id })).toHaveLength(1);
-  expect(await db("file").select("id").where({ id: fichierÀSupprimer.id })).toHaveLength(0);
-  expect(await s3HasKey(fichierÀGarder.key)).toBe(true);
-  expect(await s3HasKey(fichierÀSupprimer.key)).toBe(false);
+  expect(deleted).toEqual([fichierASupprimer.id]);
+  expect(await db("file").select("id").where({ id: fichierAGarder.id })).toHaveLength(1);
+  expect(await db("file").select("id").where({ id: fichierASupprimer.id })).toHaveLength(0);
+  expect(await s3HasKey(fichierAGarder.key)).toBe(true);
+  expect(await s3HasKey(fichierASupprimer.key)).toBe(false);
 });

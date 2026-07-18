@@ -1,0 +1,96 @@
+import type { Knex } from "knex";
+
+import { directDatabaseConnection } from "../database.ts";
+import { addDossierSearch } from "./dossier_search.ts";
+
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
+import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
+
+export async function addEvenementFromCap(cap: string, évènement: EvenementMetrique) {
+  const personne = await directDatabaseConnection("cap_évènement_métrique")
+    .select("id")
+    .from("personne")
+    .join("cap_évènement_métrique", {
+      "cap_évènement_métrique.personne_cap": "personne.code_accès",
+    })
+    .where({ "cap_évènement_métrique.cap": cap })
+    .first();
+
+  if (!personne) {
+    throw new Error("Pas de personne avec cette capability");
+  }
+
+  await directDatabaseConnection("évènement_métrique").insert({
+    évènement: évènement.type,
+    détails: "détails" in évènement ? évènement.détails : null,
+    personne: personne.id,
+  });
+
+  // Text searches also feed the recent-searches suggestions of the search bar
+  if (évènement.type === "rechercherDesDossiers") {
+    const texte = évènement.détails.filtres.texte?.trim();
+    if (texte) {
+      await addDossierSearch(personne.id, texte);
+    }
+  }
+}
+
+export async function deleteEvenementsByEmail(
+  email: NonNullable<Personne["email"]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<number> {
+  return databaseConnection("évènement_métrique")
+    .join("personne", { "personne.id": "évènement_métrique.personne" })
+    .where({ email: email })
+    .delete();
+}
+
+export async function getAllEvenementsWithEmail(): Promise<
+  {
+    email: string | null;
+    groupesInstructeurs: string[] | null;
+    date: Date;
+    évènement: string;
+    détails: unknown | null;
+  }[]
+> {
+  const groupesByPersonne = directDatabaseConnection("cap_dossier")
+    .join(
+      "arête_cap_dossier__groupe_instructeurs",
+      "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap",
+    )
+    .join(
+      "groupe_instructeurs",
+      "groupe_instructeurs.id",
+      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    )
+    .select("cap_dossier.personne_cap")
+    .select(
+      directDatabaseConnection.raw(
+        "array_agg(DISTINCT groupe_instructeurs.nom ORDER BY groupe_instructeurs.nom) as groupes",
+      ),
+    )
+    .groupBy("cap_dossier.personne_cap")
+    .as("groupes_par_personne");
+
+  return directDatabaseConnection("évènement_métrique")
+    .join("personne", { "personne.id": "évènement_métrique.personne" })
+    .leftJoin(groupesByPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
+    .select(
+      "personne.email",
+      "groupes_par_personne.groupes as groupesInstructeurs",
+      "évènement_métrique.date",
+      "évènement_métrique.évènement",
+      "évènement_métrique.détails",
+    )
+    .whereNot("personne.email", "like", "%beta.gouv%")
+    .orderBy("évènement_métrique.date", "asc");
+}
+
+export async function deleteEvenementsBeforeDate(
+  date: Date,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<number> {
+  return databaseConnection("évènement_métrique").where("date", "<", date).delete();
+}

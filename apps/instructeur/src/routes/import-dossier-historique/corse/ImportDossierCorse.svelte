@@ -1,35 +1,35 @@
 <script lang="ts">
-  import type { DossierAvecAlertes } from "../importDossierUtils.ts";
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
-  import type { LigneDossierCorse } from "./importDossierCorse.ts";
-  import type { SchemaDémarcheSimplifiée } from "@pitchou/types/démarche-numérique/schema.ts";
-  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/démarche-numérique/Démarche88444.ts";
+  import type { DossierWithAlerts } from "../importDossierUtils.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierCorseRow } from "./importDossierCorse.ts";
+  import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
+  import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
-  import { extrairePremierMail } from "../importDossierUtils.ts";
-  import DéplierReplier from "$lib/components/common/DéplierReplier.svelte";
+  import { extractFirstMail } from "../importDossierUtils.ts";
+  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import { SvelteMap } from "svelte/reactivity";
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import {
-    créerDossierDepuisLigne,
-    créerNomPourDossier,
-    ligneDossierEnBDD,
+    createDossierFromRow,
+    createNomForDossier,
+    rowDossierInDB,
   } from "./importDossierCorse.ts";
-  import BoutonModale from "$lib/components/DSFR/BoutonModale.svelte";
+  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
 
-  const NOM_FEUILLE_TABLEAU_SUIVI = "Instruction";
-  const NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES = "Instructeur DREAL";
+  const SUIVI_TABLE_SHEET_NAME = "Instruction";
+  const INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME = "Instructeur DREAL";
   const DREAL = "Corse";
 
   type Props = {
-    dossiers?: DossierRésumé[];
-    schema: SchemaDémarcheSimplifiée | undefined;
+    dossiers?: DossierSummary[];
+    schema: SchemaDemarcheSimplifiee | undefined;
   };
 
   let { dossiers = [], schema }: Props = $props();
 
-  const nomsEnBDD = $derived(new Set(dossiers.map((d) => d.nom)));
+  const nomsInDB = $derived(new Set(dossiers.map((d) => d.nom)));
 
   const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.nom, d.id])));
 
@@ -38,7 +38,7 @@
   );
 
   // @ts-ignore
-  const activitésPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
+  const activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
     $derived(
       schema
         ? new Set(
@@ -47,29 +47,29 @@
           )
         : new Set(),
     );
-  let lignesTableauImport: LigneDossierCorse[] = $state([]);
-  let lignesFiltréesTableauImport: LigneDossierCorse[] = $state([]);
-  let dossiersDéjàEnBDD: DossierRésumé[] = $state([]);
-  let ligneVersDossierAvecAlertes: Map<LigneDossierCorse, DossierAvecAlertes> = new SvelteMap();
-  let emailsParInitials: Map<string, string> = $state(new SvelteMap());
+  let importTableRows: DossierCorseRow[] = $state([]);
+  let filteredImportTableRows: DossierCorseRow[] = $state([]);
+  let dossiersAlreadyInDB: DossierSummary[] = $state([]);
+  let rowToDossierWithAlerts: Map<DossierCorseRow, DossierWithAlerts> = new SvelteMap();
+  let emailsByInitials: Map<string, string> = $state(new SvelteMap());
 
-  let ligneToLienPréremplissage: Map<any, string> = $state(new SvelteMap());
+  let rowToLienPreremplissage: Map<any, string> = $state(new SvelteMap());
 
-  let pourcentageDeDossierCrééEnBDD: number | undefined = $state();
+  let percentageOfDossiersCreatedInDB: number | undefined = $state();
 
-  let afficherTousLesDossiers: boolean = $state(false);
+  let showAllDossiers: boolean = $state(false);
 
-  let loadingChargementDuFichier: Promise<void[]> = $state(Promise.resolve([]));
+  let loadingFichier: Promise<void[]> = $state(Promise.resolve([]));
 
-  let nombreDossiersAvecAlertes: number | undefined = $derived(
-    Array.from(ligneVersDossierAvecAlertes).filter(
-      (ligneEtDossierAvecAlertes) =>
-        ligneEtDossierAvecAlertes[1].alertes && ligneEtDossierAvecAlertes[1].alertes.length >= 1,
+  let numberDossiersWithAlerts: number | undefined = $derived(
+    Array.from(rowToDossierWithAlerts).filter(
+      (rowAndDossierWithAlerts) =>
+        rowAndDossierWithAlerts[1].alertes && rowAndDossierWithAlerts[1].alertes.length >= 1,
     ).length,
   );
 
-  let nombreDossiersDéjàImportés = $derived(dossiersDéjàEnBDD.length);
-  let nombreDossiersAImporter = $derived(lignesTableauImport.length - nombreDossiersDéjàImportés);
+  let numberDossiersAlreadyImported = $derived(dossiersAlreadyInDB.length);
+  let numberDossiersToImport = $derived(importTableRows.length - numberDossiersAlreadyImported);
 
   async function handleFileChange(event: Event) {
     const target = event.target;
@@ -84,32 +84,30 @@
 
     if (file) {
       try {
-        const fichierImport = await file.arrayBuffer();
-        const rawData = await getODSTableRawContent(fichierImport);
+        const importFichier = await file.arrayBuffer();
+        const rawData = await getODSTableRawContent(importFichier);
 
-        const rawDataTableauSuivi = rawData.get(NOM_FEUILLE_TABLEAU_SUIVI);
+        const rawDataSuiviTable = rawData.get(SUIVI_TABLE_SHEET_NAME);
 
-        if (!rawDataTableauSuivi) {
+        if (!rawDataSuiviTable) {
           throw new TypeError(
-            `Erreur dans la récupération de la feuille ${NOM_FEUILLE_TABLEAU_SUIVI}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
+            `Erreur dans la récupération de la feuille ${SUIVI_TABLE_SHEET_NAME}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
           );
         }
 
-        const rawDataEmailsParInitials = rawData.get(
-          NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES,
-        );
+        const rawDataEmailsByInitials = rawData.get(INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME);
 
-        if (!rawDataEmailsParInitials) {
+        if (!rawDataEmailsByInitials) {
           throw new TypeError(
-            `Erreur dans la récupération de la feuille ${NOM_FEUILLE_CORRESPONDANCE_INITIALS_MAILS_INSTRUCTRICES}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
+            `Erreur dans la récupération de la feuille ${INSTRUCTRICES_EMAILS_BY_INITIALS_SHEET_NAME}. Assurez-vous que cette feuille existe bien dans votre tableur ods.`,
           );
         }
 
-        emailsParInitials = new SvelteMap(
-          rawDataEmailsParInitials
+        emailsByInitials = new SvelteMap(
+          rawDataEmailsByInitials
             .map((row: { value: any }[]): [string, string] | null => {
               const initials = row?.[0]?.value;
-              const email = extrairePremierMail(row[1]?.value ?? "");
+              const email = extractFirstMail(row[1]?.value ?? "");
               if (row.length >= 1 && initials && email) {
                 return [initials, email];
               }
@@ -118,32 +116,32 @@
             .filter((entry): entry is [string, string] => entry !== null),
         );
 
-        const lignes = [
-          ...sheetRawContentToObjects(rawDataTableauSuivi.filter(isRowNotEmpty)).values(),
+        const rows = [
+          ...sheetRawContentToObjects(rawDataSuiviTable.filter(isRowNotEmpty)).values(),
         ];
 
-        lignesTableauImport = lignes;
+        importTableRows = rows;
 
-        lignesFiltréesTableauImport = lignes.filter(
-          (ligne) => !ligneDossierEnBDD(ligne, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre),
+        filteredImportTableRows = rows.filter(
+          (row) => !rowDossierInDB(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
         );
-        dossiersDéjàEnBDD = lignes.filter((ligne) =>
-          ligneDossierEnBDD(ligne, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre),
+        dossiersAlreadyInDB = rows.filter((row) =>
+          rowDossierInDB(row, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre),
         );
 
-        const totalDossiers = lignes.length;
-        pourcentageDeDossierCrééEnBDD =
-          totalDossiers > 0 ? (dossiersDéjàEnBDD.length / totalDossiers) * 100 : 0;
+        const totalDossiers = rows.length;
+        percentageOfDossiersCreatedInDB =
+          totalDossiers > 0 ? (dossiersAlreadyInDB.length / totalDossiers) * 100 : 0;
 
-        // Visualiser en une fois toutes les alertes de toutes les lignes lorsqu'on applique à la ligne la fonction "créerDossierDepuisLigne"
-        loadingChargementDuFichier = Promise.all(
-          lignesTableauImport.map(async (ligne) => {
-            const dossier = await créerDossierDepuisLigne(
-              ligne,
-              emailsParInitials,
-              activitésPrincipales88444,
+        // Visualize at once all the alerts of all the lines when the "createDossierFromRow" function is applied to the line
+        loadingFichier = Promise.all(
+          importTableRows.map(async (row) => {
+            const dossier = await createDossierFromRow(
+              row,
+              emailsByInitials,
+              activitesPrincipales88444,
             );
-            ligneVersDossierAvecAlertes.set(ligne, dossier);
+            rowToDossierWithAlerts.set(row, dossier);
           }),
         );
       } catch (error) {
@@ -152,12 +150,12 @@
     }
   }
 
-  async function handleCréerLienPréRemplissage(LigneDossierCorse: LigneDossierCorse) {
-    const dossier = ligneVersDossierAvecAlertes.get(LigneDossierCorse);
+  async function handleCreateLienPreRemplissage(row: DossierCorseRow) {
+    const dossier = rowToDossierWithAlerts.get(row);
 
     if (!dossier) {
-      // Ne doit jamais arriver
-      console.warn(`La ligne n'existe pas : ${ligneDossierEnBDD}`);
+      // Should never happen
+      console.warn(`La ligne n'existe pas : ${rowDossierInDB}`);
       return;
     }
 
@@ -167,14 +165,14 @@
       "après avoir cliqué sur Préparer préremplissage",
     );
     try {
-      const lien = await text("/lien-preremplissage", {
+      const link = await text("/lien-preremplissage", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(dossier),
       });
 
-      ligneToLienPréremplissage.set(LigneDossierCorse, lien);
-      ligneToLienPréremplissage = ligneToLienPréremplissage;
+      rowToLienPreremplissage.set(row, link);
+      rowToLienPreremplissage = rowToLienPreremplissage;
     } catch (error) {
       throw new Error(
         `Une erreur est survenue lors de la récupération du lien de préremplissage : ${error}`,
@@ -182,46 +180,42 @@
     }
   }
 
-  // Pagination du tableau de suivi
-  type SelectionneurPage = () => void;
+  // Pagination of the tracking table
+  type PageSelector = () => void;
 
-  const NOMBRE_DOSSIERS_PAR_PAGE = 20;
+  const DOSSIERS_PER_PAGE = 20;
 
-  // numéro de page qui correspond à celui affiché, donc commençant à 1
-  let numéroPageSelectionnée: number = $state(1);
+  // page number matching the one displayed, therefore starting at 1
+  let selectedPageNumber: number = $state(1);
 
-  let selectionneursPage: [undefined, ...rest: SelectionneurPage[]] | undefined = $derived.by(
-    () => {
-      if (lignesTableauImport.length >= NOMBRE_DOSSIERS_PAR_PAGE * 2 + 1) {
-        const nombreDePages = Math.ceil(lignesTableauImport.length / NOMBRE_DOSSIERS_PAR_PAGE);
+  let pageSelectors: [undefined, ...rest: PageSelector[]] | undefined = $derived.by(() => {
+    if (importTableRows.length >= DOSSIERS_PER_PAGE * 2 + 1) {
+      const pageCount = Math.ceil(importTableRows.length / DOSSIERS_PER_PAGE);
 
-        return [
-          undefined,
-          ...[...Array(nombreDePages).keys()].map((i) => () => {
-            //console.log('sélection de la page', i+1)
-            numéroPageSelectionnée = i + 1;
-          }),
-        ];
-      }
+      return [
+        undefined,
+        ...[...Array(pageCount).keys()].map((i) => () => {
+          //console.log('sélection de la page', i+1)
+          selectedPageNumber = i + 1;
+        }),
+      ];
+    }
 
-      return undefined;
-    },
-  );
-
-  $effect(() => {
-    if (selectionneursPage) numéroPageSelectionnée = 1;
+    return undefined;
   });
 
-  let lignesAffichéesTableauImport: typeof lignesTableauImport = $derived.by(() => {
-    const lignesÀAfficher = afficherTousLesDossiers
-      ? lignesTableauImport
-      : lignesFiltréesTableauImport;
+  $effect(() => {
+    if (pageSelectors) selectedPageNumber = 1;
+  });
 
-    if (!selectionneursPage) return lignesÀAfficher;
+  let displayedImportTableRows: typeof importTableRows = $derived.by(() => {
+    const rowsToDisplay = showAllDossiers ? importTableRows : filteredImportTableRows;
+
+    if (!pageSelectors) return rowsToDisplay;
     else {
-      return lignesÀAfficher.slice(
-        NOMBRE_DOSSIERS_PAR_PAGE * (numéroPageSelectionnée - 1),
-        NOMBRE_DOSSIERS_PAR_PAGE * numéroPageSelectionnée,
+      return rowsToDisplay.slice(
+        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
+        DOSSIERS_PER_PAGE * selectedPageNumber,
       );
     }
   });
@@ -233,7 +227,7 @@
 
 <h1>Import de dossiers historiques {DREAL}</h1>
 
-{#if !lignesTableauImport || lignesTableauImport.length === 0}
+{#if !importTableRows || importTableRows.length === 0}
   <div class="fr-upload-group fr-mb-4w">
     <label class="fr-label" for="file-upload">
       Charger un fichier de suivi
@@ -252,13 +246,13 @@
   </div>
 {:else}
   <h2>
-    {#if afficherTousLesDossiers}
-      Tous les dossiers du fichier chargé ({lignesTableauImport.length})
+    {#if showAllDossiers}
+      Tous les dossiers du fichier chargé ({importTableRows.length})
     {:else}
-      Dossiers restants à importer ({nombreDossiersAImporter} / {lignesTableauImport.length})
+      Dossiers restants à importer ({numberDossiersToImport} / {importTableRows.length})
     {/if}
   </h2>
-  <p>Nombre de dossiers avec des alertes : {nombreDossiersAvecAlertes}</p>
+  <p>Nombre de dossiers avec des alertes : {numberDossiersWithAlerts}</p>
 
   <div class="fr-toggle">
     <input
@@ -266,7 +260,7 @@
       class="fr-toggle__input"
       id="toggle"
       aria-describedby="toggle-messages"
-      bind:checked={afficherTousLesDossiers}
+      bind:checked={showAllDossiers}
     />
     <label
       class="fr-toggle__label"
@@ -280,18 +274,15 @@
   </div>
 
   <div class="progression">
-    <div>{nombreDossiersAImporter} / {lignesTableauImport.length}</div>
+    <div>{numberDossiersToImport} / {importTableRows.length}</div>
 
-    <div
-      class="fr-progress-bar"
-      title={`${nombreDossiersAImporter} / ${lignesTableauImport.length}`}
-    >
+    <div class="fr-progress-bar" title={`${numberDossiersToImport} / ${importTableRows.length}`}>
       <div
-        style="width: {pourcentageDeDossierCrééEnBDD}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+        style="width: {percentageOfDossiersCreatedInDB}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
       ></div>
     </div>
   </div>
-  {#await loadingChargementDuFichier}
+  {#await loadingFichier}
     <p class="fr-mt-4w">Préparation du fichier en cours…</p>
   {:then}
     <div class="fr-table">
@@ -307,29 +298,27 @@
                 </tr>
               </thead>
               <tbody>
-                {#each lignesAffichéesTableauImport as ligneAffichéeTableauImport, index}
-                  {@const dossierEtAlertes = ligneVersDossierAvecAlertes.get(
-                    ligneAffichéeTableauImport,
-                  )}
-                  {@const alertesDuDossier = dossierEtAlertes?.alertes}
+                {#each displayedImportTableRows as displayedImportTableRow, index}
+                  {@const dossierAndAlerts = rowToDossierWithAlerts.get(displayedImportTableRow)}
+                  {@const dossierAlerts = dossierAndAlerts?.alertes}
                   <tr
                     data-row-key={index}
-                    data-testid={alertesDuDossier && alertesDuDossier.length >= 1
+                    data-testid={dossierAlerts && dossierAlerts.length >= 1
                       ? undefined
                       : "dossier-sans-alerte(s)"}
                   >
-                    <td>{créerNomPourDossier(ligneAffichéeTableauImport)}</td>
+                    <td>{createNomForDossier(displayedImportTableRow)}</td>
                     <td>
-                      <BoutonModale id={`dsfr-modale-${index}`}>
-                        {#snippet boutonOuvrir()}
-                          {#if alertesDuDossier && alertesDuDossier.length >= 1}
+                      <ModalButton id={`dsfr-modale-${index}`}>
+                        {#snippet openButton()}
+                          {#if dossierAlerts && dossierAlerts.length >= 1}
                             <button
                               type="button"
                               class="fr-btn fr-btn--sm fr-btn--icon-left fr-icon-warning-line"
                               data-fr-opened="false"
                               aria-controls={`dsfr-modale-${index}`}
                             >
-                              {`Voir les alertes (${alertesDuDossier.length})`}
+                              {`Voir les alertes (${dossierAlerts.length})`}
                             </button>
                           {:else}
                             <button
@@ -342,82 +331,83 @@
                             </button>
                           {/if}
                         {/snippet}
-                        {#snippet contenu()}
-                          {#if alertesDuDossier && alertesDuDossier.length >= 1}
+                        {#snippet content()}
+                          {#if dossierAlerts && dossierAlerts.length >= 1}
                             <h3 class="fr-mb-2w">Liste des alertes&nbsp;:&nbsp;</h3>
                             <ul>
-                              {#each alertesDuDossier ?? [] as alerte}
+                              {#each dossierAlerts ?? [] as alert}
                                 <li>
                                   <p
-                                    class="fr-badge {alerte.type === 'avertissement'
+                                    class="fr-badge {alert.type === 'avertissement'
                                       ? 'fr-badge--warning'
                                       : 'fr-badge--error'}"
                                   >
-                                    {alerte.type}
+                                    {alert.type}
                                   </p>
-                                  &nbsp;:&nbsp;{alerte.message}
+                                  &nbsp;:&nbsp;{alert.message}
                                 </li>
                               {/each}
                             </ul>
                           {/if}
-                          <DéplierReplier open={alertesDuDossier && alertesDuDossier.length === 0}>
+                          <ExpandCollapse open={dossierAlerts && dossierAlerts.length === 0}>
                             {#snippet summary()}
                               <h3>Données du dossier pour le pré-remplissage&nbsp;:</h3>
                             {/snippet}
                             {#snippet content()}
                               <ul>
-                                {#each Object.entries(dossierEtAlertes ?? {}) as [clefDossierEtAlertes, valeurDossierEtAlertes]}
-                                  {#if clefDossierEtAlertes !== "alertes"}
-                                    {#if clefDossierEtAlertes === "NE PAS MODIFIER - Données techniques associées à votre dossier"}
-                                      {@const donnéesSupplémentaires = Object.entries(
-                                        JSON.parse(valeurDossierEtAlertes as string),
+                                {#each Object.entries(dossierAndAlerts ?? {}) as [dossierAndAlertsKey, dossierAndAlertsValue]}
+                                  {#if dossierAndAlertsKey !== "alertes"}
+                                    {#if dossierAndAlertsKey === "NE PAS MODIFIER - Données techniques associées à votre dossier"}
+                                      {@const additionalData = Object.entries(
+                                        JSON.parse(dossierAndAlertsValue as string),
                                       )}
-                                      {#each donnéesSupplémentaires as [clefDonnéesSupplémentaire, valeurDonnéesSupplémentaire]}
-                                        {#if clefDonnéesSupplémentaire === "dossier"}
-                                          {@const donnéesDossierDesDonnéesSupplémentaires =
-                                            Object.entries(valeurDonnéesSupplémentaire as object)}
-                                          {#each donnéesDossierDesDonnéesSupplémentaires as donnéeDossierDesDonnéesSupplémentaires}
+                                      {#each additionalData as [additionalDataKey, additionalDataValue]}
+                                        {#if additionalDataKey === "dossier"}
+                                          {@const dossierDataFromAdditionalData = Object.entries(
+                                            additionalDataValue as object,
+                                          )}
+                                          {#each dossierDataFromAdditionalData as dossierDataEntryFromAdditionalData}
                                             <li>
                                               <strong
-                                                >{`${donnéeDossierDesDonnéesSupplémentaires[0]} :`}</strong
+                                                >{`${dossierDataEntryFromAdditionalData[0]} :`}</strong
                                               >
-                                              {`${JSON.stringify(donnéeDossierDesDonnéesSupplémentaires[1])}`}
+                                              {`${JSON.stringify(dossierDataEntryFromAdditionalData[1])}`}
                                             </li>
                                           {/each}
                                         {:else}
                                           <li>
-                                            <strong>{`${clefDonnéesSupplémentaire} :`}</strong>
-                                            {`${JSON.stringify(valeurDonnéesSupplémentaire)}`}
+                                            <strong>{`${additionalDataKey} :`}</strong>
+                                            {`${JSON.stringify(additionalDataValue)}`}
                                           </li>
                                         {/if}
                                       {/each}
                                     {:else}
                                       <li>
-                                        <strong>{`${clefDossierEtAlertes} :`}</strong>
-                                        {`${JSON.stringify(valeurDossierEtAlertes)}`}
+                                        <strong>{`${dossierAndAlertsKey} :`}</strong>
+                                        {`${JSON.stringify(dossierAndAlertsValue)}`}
                                       </li>
                                     {/if}
                                   {/if}
                                 {/each}
                               </ul>
                             {/snippet}
-                          </DéplierReplier>
+                          </ExpandCollapse>
                         {/snippet}
-                      </BoutonModale>
+                      </ModalButton>
                     </td>
                     <td>
-                      {#if ligneDossierEnBDD(ligneAffichéeTableauImport, nomsEnBDD, nomToHistoriqueIdentifiantDemandeOnagre)}
+                      {#if rowDossierInDB(displayedImportTableRow, nomsInDB, nomToHistoriqueIdentifiantDemandeOnagre)}
                         <p class="fr-badge fr-badge--success">En base de données</p>
                         <a
-                          href={`/dossier/${nomToDossierId.get(créerNomPourDossier(ligneAffichéeTableauImport))}`}
+                          href={`/dossier/${nomToDossierId.get(createNomForDossier(displayedImportTableRow))}`}
                           target="_blank"
                           class="fr-btn fr-btn--secondary fr-ml-2w"
                         >
                           Ouvrir dossier
                         </a>
-                      {:else if ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
+                      {:else if rowToLienPreremplissage.get(displayedImportTableRow)}
                         <a
-                          href={ligneToLienPréremplissage.get(ligneAffichéeTableauImport)}
+                          href={rowToLienPreremplissage.get(displayedImportTableRow)}
                           target="_blank"
                           class="fr-btn">Créer dossier</a
                         >
@@ -425,7 +415,7 @@
                         <button
                           type="button"
                           class="fr-btn fr-btn--secondary"
-                          onclick={() => handleCréerLienPréRemplissage(ligneAffichéeTableauImport)}
+                          onclick={() => handleCreateLienPreRemplissage(displayedImportTableRow)}
                           >Préparer préremplissage</button
                         >
                       {/if}
@@ -439,13 +429,12 @@
       </div>
     </div>
 
-    {#if selectionneursPage}
-      <Pagination {selectionneursPage} pageActuelle={selectionneursPage[numéroPageSelectionnée]}
-      ></Pagination>
+    {#if pageSelectors}
+      <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
     {/if}
-  {:catch erreurChargement}
+  {:catch loadingError}
     <p class="fr-alert fr-alert--error fr-mt-4w">
-      {`Une erreur est survenue lors de la préparation du fichier : ${erreurChargement instanceof Error ? erreurChargement.message : erreurChargement}`}
+      {`Une erreur est survenue lors de la préparation du fichier : ${loadingError instanceof Error ? loadingError.message : loadingError}`}
     </p>
   {/await}
 {/if}

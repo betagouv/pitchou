@@ -1,14 +1,14 @@
 import { directDatabaseConnection } from "../database.ts";
 import { computeNiveauAARRI, type LevelEvent } from "./aarri/niveau.ts";
-import { ÉVÈNEMENTS_CONSULTATIONS, ÉVÈNEMENTS_MODIFICATIONS } from "./aarri/constantes.ts";
+import { EVENEMENTS_CONSULTATIONS, EVENEMENTS_MODIFICATIONS } from "./aarri/constants.ts";
 
 import type { Knex } from "knex";
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
-import type { ÉvènementMétrique } from "@pitchou/types/évènement.d.ts";
+import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
-const ACTION_TYPES = new Set<ÉvènementMétrique["type"]>([
-  ...ÉVÈNEMENTS_CONSULTATIONS,
-  ...ÉVÈNEMENTS_MODIFICATIONS,
+const ACTION_TYPES = new Set<EvenementMetrique["type"]>([
+  ...EVENEMENTS_CONSULTATIONS,
+  ...EVENEMENTS_MODIFICATIONS,
 ]);
 
 type PersonneEventRow = {
@@ -17,7 +17,7 @@ type PersonneEventRow = {
   nom: string | null;
   prenoms: string | null;
   groupesInstructeurs: string[] | null;
-  type: ÉvènementMétrique["type"] | null;
+  type: EvenementMetrique["type"] | null;
   date: Date | null;
 };
 

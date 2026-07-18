@@ -28,6 +28,7 @@
     <li><a href="/stats">Statistiques</a></li>
     <li><a href="/accessibilite">Accessibilité : non conforme</a></li>
     <li><a href="/donnees-personnelles">Données personnelles</a></li>
+    <li><a href="/mentions-legales">Mentions légales</a></li>
     <li><a href="/plan-du-site">Plan du site</a></li>
   </ul>
 </div>

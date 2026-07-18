@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { addAttachmentAutre } from "@pitchou/server/database/attachmentAutre.ts";
+import { addAttachmentAutre } from "@pitchou/server/database/attachment_autre.ts";
 
 import type { RequestHandler } from "./$types";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";

@@ -4,12 +4,12 @@ import { cleanup, render } from "@testing-library/svelte";
 
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 
-import type { DossierComplet } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(cleanup);
 
 test("affiche les pièces jointes du projet, des avis et des arrêtés", async () => {
-  const ouvrirOnglet = vi.fn();
+  const openTab = vi.fn();
   const dossier = {
     id: "dossier-1",
     piècesJointesPétitionnaires: [
@@ -61,9 +61,9 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
         },
       },
     ],
-  } as unknown as DossierComplet;
+  } as unknown as DossierFull;
 
-  render(DossierPiecesJointes, { dossier, ouvrirOnglet });
+  render(DossierPiecesJointes, { dossier, openTab });
 
   await expect
     .element(page.getByRole("button", { name: "Ajouter une pièce jointe" }))
@@ -92,14 +92,14 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   await expect.element(page.getByRole("link", { name: "Télécharger" })).not.toBeInTheDocument();
 
   await page.getByRole("button", { name: "Voir dans l'onglet Projet" }).click();
-  expect(ouvrirOnglet).toHaveBeenCalledWith("projet");
+  expect(openTab).toHaveBeenCalledWith("projet");
 
   await page.getByRole("button", { name: "Voir dans l'onglet Avis" }).click();
-  expect(ouvrirOnglet).toHaveBeenCalledWith("avis");
+  expect(openTab).toHaveBeenCalledWith("avis");
 
   await page.getByRole("button", { name: "Voir dans l'onglet Contrôles" }).click();
-  expect(ouvrirOnglet).toHaveBeenCalledWith("controles");
+  expect(openTab).toHaveBeenCalledWith("controles");
 
   await page.getByRole("button", { name: "Voir dans l'onglet Instruction" }).click();
-  expect(ouvrirOnglet).toHaveBeenCalledWith("instruction");
+  expect(openTab).toHaveBeenCalledWith("instruction");
 });

@@ -1,31 +1,31 @@
 <script lang="ts">
-  import { formatDateAbsolue } from "$lib/dossier/affichageDossier.ts";
-  import FormulaireAvisExpert from "./FormulaireAvisExpert.svelte";
+  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import FormAvisExpert from "./FormAvisExpert.svelte";
 
-  import type { DossierComplet, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    dossierId: DossierComplet["id"];
+    dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
-    supprimerAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
+    deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
   };
 
-  let { dossierId, avisExpert, supprimerAvisExpert }: Props = $props();
+  let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
 
-  let avisExpertEnModification: boolean = $state(false);
+  let isEditing: boolean = $state(false);
 
-  function fermerLeFormulaire() {
-    avisExpertEnModification = false;
+  function closeForm() {
+    isEditing = false;
   }
 
-  function onClickSupprimer(avisExpert: FrontEndAvisExpert) {
-    supprimerAvisExpert(avisExpert);
-    fermerLeFormulaire();
+  function onClickDelete(avisExpert: FrontEndAvisExpert) {
+    deleteAvisExpert(avisExpert);
+    closeForm();
   }
 </script>
 
-<div class="carte-avis-expert">
-  <div class="titre">
+<div class="card-avis-expert">
+  <div class="title">
     <h3 class="fr-h5">
       {avisExpert.expert ?? "Expert"}
       -
@@ -35,19 +35,19 @@
         {avisExpert.avis_fichier_url ? "Avis rendu" : "Avis en attente"}
       {/if}
     </h3>
-    {#if !avisExpertEnModification}
+    {#if !isEditing}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
         type="button"
-        onclick={() => (avisExpertEnModification = true)}>Modifier</button
+        onclick={() => (isEditing = true)}>Modifier</button
       >
     {/if}
   </div>
-  {#if !avisExpertEnModification}
+  {#if !isEditing}
     <ul>
       <li>
         <span
-          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_saisine)}
+          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_saisine)}
         </span>
         {#if avisExpert.saisine_fichier_url}
           <a
@@ -64,7 +64,7 @@
       {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === "Avis favorable tacite"}
         <li>
           <span
-            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolue(avisExpert.date_avis)}
+            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_avis)}
           </span>
           {#if avisExpert.avis_fichier_url}
             <a
@@ -83,24 +83,24 @@
       {/if}
     </ul>
   {:else}
-    <FormulaireAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {fermerLeFormulaire} />
+    <FormAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {closeForm} />
     <button
       class="fr-btn fr-btn--secondary fr-mt-1w"
       type="button"
-      onclick={() => onClickSupprimer(avisExpert)}>Supprimer cet avis d'expert</button
+      onclick={() => onClickDelete(avisExpert)}>Supprimer cet avis d'expert</button
     >
   {/if}
 </div>
 
 <style lang="scss">
-  .titre {
+  .title {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: start;
     margin-bottom: 1rem;
   }
-  .carte-avis-expert {
+  .card-avis-expert {
     display: flex;
     flex-direction: column;
     padding: 1.5rem;

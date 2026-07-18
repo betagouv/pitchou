@@ -1,10 +1,29 @@
 const prettier = require("prettier");
-const { markAsGenerated } = require("kanel");
+const { markAsGenerated, defaultGetMetadata } = require("kanel");
 
-function ÉvènementPhaseDossier_phase_typeDossierPhase(output) {
-  const ÉvènementPhaseDossierKey = "libs/types/src/database/public/ÉvènementPhaseDossier";
+// Strip French accents so generated TypeScript type & file names stay
+// accent-free (e.g. `contrôle` table -> `Controle` type/file). Column
+// properties are left untouched (getPropertyMetadata is not overridden), so
+// they keep the exact accented names of the real database columns.
+function deaccent(str) {
+  return str.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
 
-  const { declarations } = output[ÉvènementPhaseDossierKey];
+// Wrap Kanel's default metadata resolver to de-accent the emitted type name
+// and output file path, without changing anything else.
+function getMetadata(details, generateFor, instantiatedConfig) {
+  const metadata = defaultGetMetadata(details, generateFor, instantiatedConfig);
+  return {
+    ...metadata,
+    name: deaccent(metadata.name),
+    path: deaccent(metadata.path),
+  };
+}
+
+function EvenementPhaseDossier_phase_typeDossierPhase(output) {
+  const EvenementPhaseDossierKey = "libs/types/src/database/public/EvenementPhaseDossier";
+
+  const { declarations } = output[EvenementPhaseDossierKey];
 
   for (const { properties } of declarations) {
     for (const prop of properties) {
@@ -90,12 +109,13 @@ async function formatWithPrettier(path, lines) {
 
 module.exports = {
   enumStyle: "type",
+  getMetadata,
   customTypeMap: {
     "pg_catalog.bytea": "Buffer",
   },
 
   preRenderHooks: [
-    ÉvènementPhaseDossier_phase_typeDossierPhase,
+    EvenementPhaseDossier_phase_typeDossierPhase,
     Dossier_scientifique_type_demande,
     Dossier_scientifique_mode_capture,
   ],

@@ -2,21 +2,21 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
 import { getMaxUploadSizeBytes } from "$lib/server/uploadLimit";
-import { getInstructeurCapBundleByPersonneCodeAccès } from "@pitchou/server/database.ts";
+import { getInstructeurCapBundleByPersonneCodeAcces } from "@pitchou/server/database.ts";
 import type {
-  IdentitéInstructeurPitchou,
+  IdentiteInstructeurPitchou,
   PitchouInstructeurCapabilities,
 } from "@pitchou/types/capabilities.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 
 type CapURLs = StringValues<PitchouInstructeurCapabilities> & {
-  identité: IdentitéInstructeurPitchou;
+  identité: IdentiteInstructeurPitchou;
   maxUploadSizeBytes: number;
 };
 
 export const GET: RequestHandler = async ({ url }) => {
   const codeAcces = requireSecret(url);
-  const capBundle = await getInstructeurCapBundleByPersonneCodeAccès(codeAcces);
+  const capBundle = await getInstructeurCapBundleByPersonneCodeAcces(codeAcces);
 
   const ret = Object.create(null) as CapURLs;
 
@@ -44,9 +44,9 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.remplirAnnotations) {
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`;
   }
-  if (capBundle.modifierDécisionAdministrativeDansDossier) {
-    const cap = capBundle.modifierDécisionAdministrativeDansDossier;
-    ret.modifierDécisionAdministrativeDansDossier = `/decision-administrative?cap=${cap}`;
+  if (capBundle.modifierDecisionAdministrativeDansDossier) {
+    const cap = capBundle.modifierDecisionAdministrativeDansDossier;
+    ret.modifierDecisionAdministrativeDansDossier = `/decision-administrative?cap=${cap}`;
     ret.deleteDecisionAdministrative = `/decision-administrative/:decisionAdministrativeId?cap=${cap}`;
     ret.addOrUpdatePrescription = `/prescription?cap=${cap}`;
     ret.addPrescriptionsAndControles = `/prescriptions-et-controles?cap=${cap}`;

@@ -8,7 +8,7 @@
     type ModificationEspeceAdmin,
   } from "$lib/actions/adminEspeces.ts";
 
-  import ListeModifications from "./ListeModifications.svelte";
+  import ListModifications from "./ListModifications.svelte";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
@@ -56,5 +56,5 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <ListeModifications {modifications} onReload={refresh} />
+  <ListModifications {modifications} onReload={refresh} />
 {/if}

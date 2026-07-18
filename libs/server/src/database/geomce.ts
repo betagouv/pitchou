@@ -9,88 +9,83 @@ import { byteFormat } from "@pitchou/common/typeFormat.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { loadFichierContent } from "./fichier.ts";
 import {
-  construireActivitésMéthodesMoyensDePoursuite,
-  importDescriptionMenacesEspècesFromOdsArrayBuffer,
-} from "@pitchou/common/outils-espèces.ts";
+  buildActivitesMethodesMoyensDePoursuite,
+  importDescriptionMenacesEspecesFromOdsArrayBuffer,
+} from "@pitchou/common/especesUtils.ts";
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
-import type { GeoMceMessage, DossierPourGeoMCE } from "@pitchou/types/geomce.ts";
-import type { PitchouState } from "@pitchou/types/pitchou-state.ts";
-import type { EspèceProtégée, DescriptionMenacesEspèces } from "@pitchou/types/especes.d.ts";
+import type { GeoMceMessage, DossierForGeoMCE } from "@pitchou/types/geomce.ts";
+import type { PitchouState } from "@pitchou/types/pitchouState.ts";
+import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 const DATA_DIR = join(import.meta.dirname, "../../../../data");
 
-const chargerActivitésMéthodesMoyensDePoursuite: () => Promise<
+const loadActivitesMethodesMoyensDePoursuite: () => Promise<
   NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
-> = memoize(async function chargerActivitésMéthodesMoyensDePoursuite() {
-  const activitésBuffer = await readFile(
+> = memoize(async function loadActivitesMethodesMoyensDePoursuite() {
+  const activitesBuffer = await readFile(
     join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
   );
-  return await construireActivitésMéthodesMoyensDePoursuite(activitésBuffer);
+  return await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
 });
 
-type EspèceParCD_REF = Map<EspèceProtégée["CD_REF"], EspèceProtégée>;
+type EspeceByCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
 
 // Cached per connection so the public endpoint does not re-query every espèce on
 // each request, while a different connection gets its own entry.
-const espèceParCD_REFParConnexion = new WeakMap<
-  Knex.Transaction | Knex,
-  Promise<EspèceParCD_REF>
->();
+const especeByCD_REFByConnexion = new WeakMap<Knex.Transaction | Knex, Promise<EspeceByCD_REF>>();
 
-function chargerListeEspèceParCD_REF(
+function loadEspeceListByCD_REF(
   databaseConnection: Knex.Transaction | Knex,
-): Promise<EspèceParCD_REF> {
-  let espèceByCD_REFP = espèceParCD_REFParConnexion.get(databaseConnection);
+): Promise<EspeceByCD_REF> {
+  let especeByCD_REFP = especeByCD_REFByConnexion.get(databaseConnection);
 
-  if (!espèceByCD_REFP) {
-    espèceByCD_REFP = getEspecesProtegees(databaseConnection)
-      .then(
-        (lignes) => new Map(lignes.map((ligne) => [ligne.cd_ref, dbRowToEspeceProtegee(ligne)])),
-      )
+  if (!especeByCD_REFP) {
+    especeByCD_REFP = getEspecesProtegees(databaseConnection)
+      .then((rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])))
       .catch((error) => {
         // Don't keep a rejected promise cached
-        espèceParCD_REFParConnexion.delete(databaseConnection);
+        especeByCD_REFByConnexion.delete(databaseConnection);
         throw error;
       });
-    espèceParCD_REFParConnexion.set(databaseConnection, espèceByCD_REFP);
+    especeByCD_REFByConnexion.set(databaseConnection, especeByCD_REFP);
   }
 
-  return espèceByCD_REFP;
+  return especeByCD_REFP;
 }
 
 function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
 }
 
-async function récupérerDossiersParIds(
-  idDossiers: Dossier["id"][] | Dossier["id"],
+async function getDossiersByIds(
+  dossierIds: Dossier["id"][] | Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierPourGeoMCE[] | undefined> {
-  if (!Array.isArray(idDossiers)) {
-    idDossiers = [idDossiers];
+): Promise<DossierForGeoMCE[] | undefined> {
+  if (!Array.isArray(dossierIds)) {
+    dossierIds = [dossierIds];
   }
 
   const dossiersP = databaseConnection("dossier")
     .select(["dossier.*", "décision_administrative.date_signature"])
     .leftJoin("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
     .where({ "décision_administrative.type": "Arrêté dérogation" })
-    .whereIn("dossier.id", idDossiers)
+    .whereIn("dossier.id", dossierIds)
     .orderBy("décision_administrative.date_signature", "asc")
     .then((dossiers) => {
-      // Cette requête retourne plusieurs lignes par dossier s'il y a plusieurs décision_administrative
-      // La fonction actuelle filtre pour n'avoir qu'une seule ligne
-      const idDéjàVus = new Set();
+      // This query returns several rows per dossier if there are several décision_administrative
+      // The current function filters to keep only a single row
+      const seenIds = new Set();
 
       return dossiers.filter((d) => {
         const id = d.id;
-        if (idDéjàVus.has(id)) {
+        if (seenIds.has(id)) {
           return false;
         } else {
-          idDéjàVus.add(id);
+          seenIds.add(id);
           return true;
         }
       });
@@ -99,7 +94,7 @@ async function récupérerDossiersParIds(
   const instructeursDossierP = databaseConnection("arête_personne_suit_dossier")
     .select(["personne.email as email", "arête_personne_suit_dossier.dossier as dossier"])
     .join("personne", { "personne.id": "arête_personne_suit_dossier.personne" })
-    .whereIn("arête_personne_suit_dossier.dossier", idDossiers);
+    .whereIn("arête_personne_suit_dossier.dossier", dossierIds);
 
   const instructeursByDossierIdP: Promise<Map<Dossier["id"], Personne["email"][]>> =
     instructeursDossierP.then((instructeursDossiers) => {
@@ -115,54 +110,54 @@ async function récupérerDossiersParIds(
     });
 
   const [
-    espèceParCD_REF,
-    { activités, méthodes, moyensDePoursuite },
+    especeByCD_REF,
+    { activités: activites, méthodes: methodes, moyensDePoursuite },
     instructeursByDossierId,
     dossiers,
   ] = await Promise.all([
-    chargerListeEspèceParCD_REF(databaseConnection),
-    chargerActivitésMéthodesMoyensDePoursuite(),
+    loadEspeceListByCD_REF(databaseConnection),
+    loadActivitesMethodesMoyensDePoursuite(),
     instructeursByDossierIdP,
     dossiersP,
   ]);
 
   // .ods (Pitchou template) and .xlsx are both parsed as impacted-espece files.
-  const mediaTypesEspèces = new Set([
+  const mediaTypesEspeces = new Set([
     "application/vnd.oasis.opendocument.spreadsheet",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ]);
 
   return await Promise.all(
     dossiers.map(async (dossier) => {
-      let descriptionEspèces: DescriptionMenacesEspèces = {
+      let descriptionEspeces: DescriptionMenacesEspeces = {
         oiseau: [],
         "faune non-oiseau": [],
         flore: [],
       };
 
-      const espècesImpactéesFileId = dossier.espèces_impactées as FileId | null;
-      const espècesImpactéesFile = espècesImpactéesFileId
-        ? await loadFichierContent(espècesImpactéesFileId, databaseConnection)
+      const especesImpacteesFileId = dossier.espèces_impactées as FileId | null;
+      const especesImpacteesFile = especesImpacteesFileId
+        ? await loadFichierContent(especesImpacteesFileId, databaseConnection)
         : null;
 
       if (
-        espècesImpactéesFile?.media_type &&
-        mediaTypesEspèces.has(espècesImpactéesFile?.media_type)
+        especesImpacteesFile?.media_type &&
+        mediaTypesEspeces.has(especesImpacteesFile?.media_type)
       ) {
         try {
-          descriptionEspèces = await importDescriptionMenacesEspècesFromOdsArrayBuffer(
-            await arrayBuffer(espècesImpactéesFile.body),
-            espèceParCD_REF,
-            activités,
-            méthodes,
+          descriptionEspeces = await importDescriptionMenacesEspecesFromOdsArrayBuffer(
+            await arrayBuffer(especesImpacteesFile.body),
+            especeByCD_REF,
+            activites,
+            methodes,
             moyensDePoursuite,
           );
         } catch (e) {
           // @ts-ignore
           if (e.cause === "format incorrect") {
-            // ignorer
+            // ignore
           } else {
-            console.error("Erreur lors de la génération du message GeoMCE. Dossier", idDossiers);
+            console.error("Erreur lors de la génération du message GeoMCE. Dossier", dossierIds);
             console.error("Dossier", dossier);
             console.error(e);
             process.exit();
@@ -180,18 +175,20 @@ async function récupérerDossiersParIds(
           };
         }),
         specimens_faunes: [
-          ...new Set((descriptionEspèces.oiseau || []).map(({ espèce }) => espèce)),
-          ...new Set((descriptionEspèces["faune non-oiseau"] || []).map(({ espèce }) => espèce)),
-        ].map((espèce) => {
+          ...new Set((descriptionEspeces.oiseau || []).map(({ espèce: espece }) => espece)),
+          ...new Set(
+            (descriptionEspeces["faune non-oiseau"] || []).map(({ espèce: espece }) => espece),
+          ),
+        ].map((espece) => {
           return {
-            nom_scientifique: espèce.nomsScientifiques.values().next().value,
+            nom_scientifique: espece.nomsScientifiques.values().next().value,
           };
         }),
         specimens_flores: [
-          ...new Set((descriptionEspèces.flore || []).map(({ espèce }) => espèce)),
-        ].map((espèce) => {
+          ...new Set((descriptionEspeces.flore || []).map(({ espèce: espece }) => espece)),
+        ].map((espece) => {
           return {
-            nom_scientifique: espèce.nomsScientifiques.values().next().value,
+            nom_scientifique: espece.nomsScientifiques.values().next().value,
           };
         }),
         ...dossier,
@@ -200,43 +197,43 @@ async function récupérerDossiersParIds(
   );
 }
 
-export function genererMessagesGeoMCE(dossierPourGeoMCE: DossierPourGeoMCE): GeoMceMessage {
+export function generateMessagesGeoMCE(dossierForGeoMCE: DossierForGeoMCE): GeoMceMessage {
   return {
     projet: {
-      ref: `PITCHOU-${dossierPourGeoMCE.id}`,
-      nom: dossierPourGeoMCE.nom || `Dossier Pitchou #${dossierPourGeoMCE.id}`,
-      description: dossierPourGeoMCE.description || "",
+      ref: `PITCHOU-${dossierForGeoMCE.id}`,
+      nom: dossierForGeoMCE.nom || `Dossier Pitchou #${dossierForGeoMCE.id}`,
+      description: dossierForGeoMCE.description || "",
       // @ts-expect-error
-      localisations: dossierPourGeoMCE.communes?.map(({ code }) => code),
+      localisations: dossierForGeoMCE.communes?.map(({ code }) => code),
       avancement: "Autorisé",
       typologies: null,
       maitrise_ouvrage:
-        dossierPourGeoMCE.demandeur_personne_morale !== null
+        dossierForGeoMCE.demandeur_personne_morale !== null
           ? [
               {
-                siret: dossierPourGeoMCE.demandeur_personne_morale,
+                siret: dossierForGeoMCE.demandeur_personne_morale,
               },
             ]
           : null,
       emprises: null,
     },
     procedure: {
-      num_dossier: `PITCHOU-${dossierPourGeoMCE.id}`,
+      num_dossier: `PITCHOU-${dossierForGeoMCE.id}`,
       type: "En Attente de GeoMCE Dérogation Espèces Protégées",
-      description: dossierPourGeoMCE.description || "",
-      references: [`PITCHOU-${dossierPourGeoMCE.id}`],
-      date_decision: formatDate(dossierPourGeoMCE.date_signature),
-      instructeurs: dossierPourGeoMCE.instructeurs,
+      description: dossierForGeoMCE.description || "",
+      references: [`PITCHOU-${dossierForGeoMCE.id}`],
+      date_decision: formatDate(dossierForGeoMCE.date_signature),
+      instructeurs: dossierForGeoMCE.instructeurs,
       autorite_decisionnaire: null,
-      specimens_faunes: dossierPourGeoMCE.specimens_faunes,
-      specimens_flores: dossierPourGeoMCE.specimens_flores,
+      specimens_faunes: dossierForGeoMCE.specimens_faunes,
+      specimens_flores: dossierForGeoMCE.specimens_flores,
       emprises: null,
     },
     mesures: [],
   };
 }
 
-async function listerDossiersPourDéclarationGeoMCE(
+async function listDossiersForDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"][]> {
   const dossiers = await databaseConnection("dossier")
@@ -251,16 +248,16 @@ async function listerDossiersPourDéclarationGeoMCE(
   return dossiers.map(({ id }) => id);
 }
 
-export async function générerDéclarationGeoMCE(
+export async function generateDeclarationGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  const dossiers = await listerDossiersPourDéclarationGeoMCE(databaseConnection);
+  const dossiers = await listDossiersForDeclarationGeoMCE(databaseConnection);
   console.log(`${dossiers.length} dossiers trouvés\n`);
-  const dossiersPourGeoMCE = (
-    (await récupérerDossiersParIds(dossiers, databaseConnection)) || []
-  ).filter((d) => d !== undefined);
+  const dossiersForGeoMCE = ((await getDossiersByIds(dossiers, databaseConnection)) || []).filter(
+    (d) => d !== undefined,
+  );
 
-  const messagesGeoMCE = dossiersPourGeoMCE.map(genererMessagesGeoMCE);
+  const messagesGeoMCE = dossiersForGeoMCE.map(generateMessagesGeoMCE);
 
   console.log("messagesGeoMCE", messagesGeoMCE.length);
   console.log("taille en JSON", byteFormat.format(JSON.stringify(messagesGeoMCE).length));

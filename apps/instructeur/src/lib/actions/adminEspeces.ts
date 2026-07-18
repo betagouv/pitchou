@@ -1,10 +1,10 @@
 import remember from "remember";
 
 import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
-import { dbRowToEspeceProtegee } from "@pitchou/common/outils-espèces.ts";
+import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 
-import type { EspèceProtégée } from "@pitchou/types/especes.d.ts";
-import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
+import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
+import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
 /**
  * Thrown when the user is not connected or not an admin (no secret, or 403).
@@ -60,7 +60,7 @@ async function storedSecret(): Promise<string> {
  * authenticates the request; the server enforces
  * that it belongs to an admin and answers 403 otherwise.
  */
-export async function chargerEspecesProtegeesAdmin(): Promise<EspèceProtégée[]> {
+export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
   const secret = await storedSecret();
 
   const response = await fetch(`/api/admin/especes-protegees?secret=${encodeURIComponent(secret)}`);
@@ -74,12 +74,12 @@ export async function chargerEspecesProtegeesAdmin(): Promise<EspèceProtégée[
     );
   }
 
-  const lignes: EspeceProtegee[] = await response.json();
-  if (!Array.isArray(lignes)) {
+  const rows: EspeceProtegeeRow[] = await response.json();
+  if (!Array.isArray(rows)) {
     throw new Error("Réponse invalide reçue du serveur pour /api/admin/especes-protegees.");
   }
 
-  return lignes.map(dbRowToEspeceProtegee);
+  return rows.map(dbRowToEspeceProtegee);
 }
 
 /**

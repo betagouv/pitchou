@@ -1,5 +1,5 @@
 import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
-import { retirerAccents } from "@pitchou/common/manipulationStrings.ts";
+import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 
 /** AARRI levels in display order: highest funnel stage first. */
 export const NIVEAUX: NiveauAARRI[] = ["impact", "retenu", "actif", "acquis", "base"];
@@ -130,7 +130,7 @@ export function listeGroupesInstructeurs(utilisateurs: UtilisateurAARRI[]): stri
 }
 
 function normalize(value: string | null): string {
-  return retirerAccents((value ?? "").toLowerCase());
+  return removeAccents((value ?? "").toLowerCase());
 }
 
 /** Matches if every search word is a substring of the email, nom or prénoms. */
@@ -138,7 +138,7 @@ export function matchesText(utilisateur: UtilisateurAARRI, text: string): boolea
   const words = text
     .trim()
     .split(" ")
-    .map((word) => retirerAccents(word.toLowerCase()))
+    .map((word) => removeAccents(word.toLowerCase()))
     .filter((word) => word.length >= 1);
 
   const haystack = [utilisateur.email, utilisateur.nom, utilisateur.prenoms]

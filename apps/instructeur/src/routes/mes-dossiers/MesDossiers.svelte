@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { DossierRésumé } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
 
-  import ListeDossiers from "$lib/components/ListeDossiers/ListeDossiers.svelte";
+  import ListDossiers from "$lib/components/ListDossiers/ListDossiers.svelte";
 
   type Props = {
     email?: string;
-    dossiers: DossierRésumé[];
+    dossiers: DossierSummary[];
     relationSuivis?: PitchouState["relationSuivis"];
     services?: string[];
     recentSearches?: string[];
-    notificationParDossier: PitchouState["notificationParDossier"];
+    notificationByDossier: PitchouState["notificationByDossier"];
   };
 
   let {
@@ -19,7 +19,7 @@
     relationSuivis,
     services = [],
     recentSearches = [],
-    notificationParDossier,
+    notificationByDossier,
   }: Props = $props();
 </script>
 
@@ -29,14 +29,14 @@
 
 <!-- « à enjeux » is replaced by the « prochaine action à moi » quick filter: on this page
      every dossier is followed by the instructeur, so their own next action matters more -->
-<ListeDossiers
-  titre="Mes dossiers"
+<ListDossiers
+  title="Mes dossiers"
   {email}
   {dossiers}
   {relationSuivis}
   {services}
   {recentSearches}
-  {notificationParDossier}
-  afficherFiltreEnjeu={false}
-  afficherFiltreActionInstructeur
+  {notificationByDossier}
+  showFilterEnjeu={false}
+  showFilterActionInstructeur
 />

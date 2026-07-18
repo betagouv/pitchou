@@ -1,3 +1,3 @@
-// Point d'entrée du package @pitchou/types.
-// Les imports se font surtout via les sous-chemins (@pitchou/types/<fichier>).
+// Entry point of the @pitchou/types package.
+// Imports are mostly done via the sub-paths (@pitchou/types/<file>).
 export {};

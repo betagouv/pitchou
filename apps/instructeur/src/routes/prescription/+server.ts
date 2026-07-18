@@ -2,11 +2,11 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
-  ajouterPrescription,
-  modifierPrescription,
+  addPrescription,
+  updatePrescription,
   getDossierIdFromPrescription,
 } from "@pitchou/server/database/prescription.ts";
-import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/décision_administrative.ts";
+import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {
@@ -25,8 +25,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   try {
     const prescriptionId = prescriptionData.id
-      ? await modifierPrescription(prescriptionData)
-      : await ajouterPrescription(prescriptionData);
+      ? await updatePrescription(prescriptionData)
+      : await addPrescription(prescriptionData);
     return json(prescriptionId);
   } catch (err) {
     error(500, `Erreur lors de l'ajout/modification de prescription. ${err}`);

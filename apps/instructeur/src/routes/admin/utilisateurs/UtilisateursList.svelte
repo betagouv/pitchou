@@ -15,12 +15,12 @@
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
-  import { downloadÉvènementsCSV } from "$lib/actions/admin.ts";
+  import { downloadEvenementsCSV } from "$lib/actions/admin.ts";
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";
   import UtilisateursSortPanel from "./UtilisateursSortPanel.svelte";
   import UtilisateursTable from "./UtilisateursTable.svelte";
   import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
-  import NiveauxAARRIModale from "./NiveauxAARRIModale.svelte";
+  import LevelsAARRIModal from "./LevelsAARRIModal.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -30,7 +30,7 @@
 
   const UTILISATEURS_PER_PAGE = 20;
 
-  const niveauxModaleId = "modale-niveaux-aarri";
+  const levelsModalId = "modale-niveaux-aarri";
 
   // The URL query string is the single source of truth for search, filter, sort and page.
   const query = $derived(parseUtilisateursQuery(page.url.searchParams));
@@ -143,7 +143,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
-      aria-controls={niveauxModaleId}
+      aria-controls={levelsModalId}
       data-fr-opened="false"
     >
       Comment les niveaux sont calculés&nbsp;?
@@ -158,7 +158,7 @@
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      onclick={() => downloadÉvènementsCSV().catch((e: Error) => (downloadError = e.message))}
+      onclick={() => downloadEvenementsCSV().catch((e: Error) => (downloadError = e.message))}
     >
       Télécharger les évènements
     </button>
@@ -194,7 +194,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
       aria-expanded={filterPanelOpen}
-      aria-controls="panneau-filtres"
+      aria-controls="filter-panel"
       onclick={() => (filterPanelOpen = !filterPanelOpen)}
     >
       Filtrer
@@ -212,7 +212,7 @@
       type="button"
       class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
       aria-expanded={sortPanelOpen}
-      aria-controls="panneau-tri"
+      aria-controls="sort-panel"
       onclick={() => (sortPanelOpen = !sortPanelOpen)}
     >
       Trier
@@ -253,10 +253,10 @@
 <UtilisateursTable utilisateurs={displayedUtilisateurs} />
 
 {#if pageSelectors}
-  <Pagination selectionneursPage={pageSelectors} pageActuelle={pageSelectors[currentPage]} />
+  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
-<NiveauxAARRIModale id={niveauxModaleId} />
+<LevelsAARRIModal id={levelsModalId} />
 
 <style lang="scss">
   .header {

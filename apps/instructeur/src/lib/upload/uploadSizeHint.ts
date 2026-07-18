@@ -2,9 +2,9 @@ import { store } from "$lib/state/store.svelte.ts";
 
 /** Upload size limit in Mo, or null when unknown or unlimited. */
 export function maxUploadSizeMo(): number | null {
-  const octets = store.maxUploadSizeBytes;
-  if (octets === undefined || !Number.isFinite(octets)) return null;
-  return Math.floor(octets / (1024 * 1024));
+  const bytes = store.maxUploadSizeBytes;
+  if (bytes === undefined || !Number.isFinite(bytes)) return null;
+  return Math.floor(bytes / (1024 * 1024));
 }
 
 /**

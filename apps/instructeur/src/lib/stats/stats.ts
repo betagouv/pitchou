@@ -3,9 +3,9 @@ import { json } from "d3-fetch";
 import type { StatsPubliques } from "@pitchou/types/API_Pitchou.ts";
 
 /**
- * Charge les statistiques depuis le backend
+ * Loads the statistics from the backend
  */
-export async function chargerStats(): Promise<StatsPubliques> {
+export async function loadStats(): Promise<StatsPubliques> {
   try {
     const stats = await json(`/api/stats-publiques`);
     if (!isStatsPubliques(stats)) {
@@ -21,13 +21,13 @@ export async function chargerStats(): Promise<StatsPubliques> {
 }
 
 /**
- * Vérifie si l'objet fourni respecte la structure attendue de `StatsPubliques`.
+ * Checks whether the provided object matches the expected structure of `StatsPubliques`.
  *
- * Ce type guard permet de s'assurer que toutes les propriétés nécessaires sont présentes
- * et qu'elles sont bien de type `number`. Cela permet de garantir la conformité avec
- * l'interface `StatsPubliques`.
+ * This type guard ensures that all required properties are present
+ * and that they are indeed of type `number`. This guarantees conformity with
+ * the `StatsPubliques` interface.
  *
- * Si de nouvelles propriétés sont ajoutées à `StatsPubliques`, pensez à mettre à jour ce type guard.
+ * If new properties are added to `StatsPubliques`, remember to update this type guard.
  */
 function isStatsPubliques(stats: any): stats is StatsPubliques {
   console.log({ stats });
@@ -58,9 +58,9 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
     typeof stats.statsImpactBiodiversité.total_individus_compensés === "number"
   ) {
     /**
-     * Création d'un objet conforme à `StatsPubliques` uniquement à des fins de vérification statique.
-     * Cette variable n'est utilisée que pour forcer une erreur TypeScript
-     * si une propriété est ajoutée à `StatsPubliques` sans mettre à jour ce type guard.
+     * Creation of an object conforming to `StatsPubliques` solely for static-checking purposes.
+     * This variable is only used to force a TypeScript error
+     * if a property is added to `StatsPubliques` without updating this type guard.
      */
     let statsOk: Required<StatsPubliques> = {
       nbDossiersEnPhaseContrôle: 0,
@@ -88,7 +88,7 @@ function isStatsPubliques(stats: any): stats is StatsPubliques {
         total_surface_évitée: 0,
       },
     };
-    void statsOk; // pour éviter une erreur typescript que la variable n'est pas utilisée
+    void statsOk; // to avoid a typescript error that the variable is unused
 
     return true;
   }

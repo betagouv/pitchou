@@ -156,8 +156,6 @@ export default interface Dossier {
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service: Date | null;
 
-  representative: PersonneId | null;
-
   cartographie_projet: unknown | null;
 }
 
@@ -318,8 +316,6 @@ export interface DossierInitializer {
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service?: Date | null;
 
-  representative?: PersonneId | null;
-
   cartographie_projet?: unknown | null;
 }
 
@@ -469,8 +465,6 @@ export interface DossierMutator {
 
   /** Date de début d'exploitation (mise en service de l'exploitation) */
   date_mise_en_service?: Date | null;
-
-  representative?: PersonneId | null;
 
   cartographie_projet?: unknown | null;
 }
