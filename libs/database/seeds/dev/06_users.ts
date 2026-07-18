@@ -15,12 +15,12 @@ const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 export async function seed(knex: Knex) {
   await knex("groupe_instructeurs")
     .insert(
-      SEED_GROUPE_INSTRUCTEURS_NAMES.map((nom) => ({
-        nom,
-        numéro_démarche: SEED_DEMARCHE_NUMBER,
+      SEED_GROUPE_INSTRUCTEURS_NAMES.map((name) => ({
+        name,
+        demarche_number: SEED_DEMARCHE_NUMBER,
       })),
     )
-    .onConflict(["nom", "numéro_démarche"])
+    .onConflict(["name", "demarche_number"])
     .ignore();
 
   for (const personne of SEED_PERSONNES) {
@@ -32,44 +32,44 @@ export async function seed(knex: Knex) {
         const accessCode = randomBytes(16).toString("hex");
         const newPerson: PersonneInitializer = {
           email,
-          nom: personne.nom,
-          prénoms: personne.prénoms,
-          code_accès: accessCode,
+          last_name: personne.last_name,
+          first_names: personne.first_names,
+          access_code: accessCode,
         };
         const [inserted] = await transaction("personne")
           .insert(newPerson)
-          .returning(["id", "code_accès"]);
+          .returning(["id", "access_code"]);
         person = inserted;
-      } else if (!person.code_accès) {
+      } else if (!person.access_code) {
         const accessCode = randomBytes(16).toString("hex");
-        await transaction("personne").where({ id: person.id }).update({ code_accès: accessCode });
-        person.code_accès = accessCode;
+        await transaction("personne").where({ id: person.id }).update({ access_code: accessCode });
+        person.access_code = accessCode;
       }
 
       let capability = await transaction("cap_dossier")
-        .where({ personne_cap: person.code_accès })
+        .where({ personne_cap: person.access_code })
         .first();
       if (!capability) {
         const [inserted] = await transaction("cap_dossier")
-          .insert({ personne_cap: person.code_accès })
+          .insert({ personne_cap: person.access_code })
           .returning("cap");
         capability = inserted;
       }
 
-      await transaction("cap_évènement_métrique")
-        .insert({ personne_cap: person.code_accès })
+      await transaction("cap_evenement_metrique")
+        .insert({ personne_cap: person.access_code })
         .onConflict("personne_cap")
         .ignore();
 
       const group = await transaction("groupe_instructeurs")
-        .where({ nom: personne.groupe, numéro_démarche: SEED_DEMARCHE_NUMBER })
+        .where({ name: personne.groupe, demarche_number: SEED_DEMARCHE_NUMBER })
         .first();
       if (group) {
-        const groupLink = await transaction("arête_cap_dossier__groupe_instructeurs")
+        const groupLink = await transaction("edge_cap_dossier__groupe_instructeurs")
           .where({ cap_dossier: capability.cap, groupe_instructeurs: group.id })
           .first();
         if (!groupLink) {
-          await transaction("arête_cap_dossier__groupe_instructeurs").insert({
+          await transaction("edge_cap_dossier__groupe_instructeurs").insert({
             cap_dossier: capability.cap,
             groupe_instructeurs: group.id,
           });

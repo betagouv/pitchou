@@ -40,24 +40,24 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
 
   const s3 = await getTestS3();
   const fichier = await createFichierS3(db, s3, {
-    nom: "especes-impactees.ods",
+    name: "especes-impactees.ods",
     mediaType: ODS_MEDIA_TYPE,
     bytes: await odsEspecesImpactees("2437"),
   });
 
   const dossier = await createDossier(db, {
-    nom: "Parc éolien du Test",
-    espèces_impactées: fichier.id,
+    name: "Parc éolien du Test",
+    especes_impactees: fichier.id,
   });
 
-  await db("décision_administrative").insert({
+  await db("decision_administrative").insert({
     dossier: dossier.id,
     type: "Arrêté dérogation",
-    date_signature: new Date("2026-03-15T10:30:00Z"),
+    signature_date: new Date("2026-03-15T10:30:00Z"),
   });
 
   const instructeur = await createPersonne(db, { email: "instructeur@example.org" });
-  await db("arête_personne_suit_dossier").insert({
+  await db("edge_personne_follows_dossier").insert({
     personne: instructeur.id,
     dossier: dossier.id,
   });
@@ -75,11 +75,11 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
   // TODO: formatDate in geomce.ts is timezone-dependent — a `date` column reads back
   // as local midnight and toISOString() can shift it by a day (off-by-one in prod east
   // of UTC). Fix formatDate to use local date components, then assert an exact date here.
-  const [decision] = await db("décision_administrative")
-    .select("date_signature")
+  const [decision] = await db("decision_administrative")
+    .select("signature_date")
     .where({ dossier: dossier.id });
   expect(message!.procedure.date_decision).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-  expect(message!.procedure.date_decision).toBe(decision.date_signature.toISOString().slice(0, 10));
+  expect(message!.procedure.date_decision).toBe(decision.signature_date.toISOString().slice(0, 10));
 
   expect(message!.procedure.instructeurs.map((i) => i.email)).toContain("instructeur@example.org");
 });

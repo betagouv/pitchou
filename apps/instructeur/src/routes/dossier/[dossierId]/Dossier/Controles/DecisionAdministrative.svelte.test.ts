@@ -18,7 +18,7 @@ function decision(
   return reactive({
     id: "decision-1",
     type: "Arrêté dérogation",
-    numéro: "AP-001",
+    number: "AP-001",
     ...overrides,
   } as FrontEndDecisionAdministrative);
 }

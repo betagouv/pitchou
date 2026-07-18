@@ -232,7 +232,7 @@ En cas de compromission ou régulièrement, la capability-url peut être reset:
 
 #### Nettoyage des données d'évènements
 
-Les données de tracking nécessaires à AARRI sont stockées exclusivement dans la table `évènement_métrique`
+Les données de tracking nécessaires à AARRI sont stockées exclusivement dans la table `evenement_metrique`
 
 Pour des raisons de minimisation des données, de protection des personnes et de conformité au RGPD, nous supprimons les données datant de plus d’un an.
 

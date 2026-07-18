@@ -39,10 +39,10 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
       dossier: dossier.id,
       numéro: "AP-001",
       type: "Arrêté dérogation",
-      date_signature: new Date("2026-04-15").toISOString(),
-      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      signature_date: new Date("2026-04-15").toISOString(),
+      obligations_end_date: new Date("2031-04-15").toISOString(),
       fichier_base64: {
-        nom: "arrete.pdf",
+        name: "arrete.pdf",
         media_type: "application/pdf",
         contenuBase64: pdfBytes.toString("base64"),
       },
@@ -50,7 +50,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   });
   expect(res.status).toBe(200);
 
-  const decisions = await db("décision_administrative").select("*").where({ dossier: dossier.id });
+  const decisions = await db("decision_administrative").select("*").where({ dossier: dossier.id });
   expect(decisions).toHaveLength(1);
   const decision = decisions[0];
   expect(decision.fichier).not.toBeNull();
@@ -72,17 +72,17 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
       dossier: dossier.id,
       numéro: "AP-002",
       type: "Arrêté dérogation",
-      date_signature: new Date("2026-04-15").toISOString(),
-      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      signature_date: new Date("2026-04-15").toISOString(),
+      obligations_end_date: new Date("2031-04-15").toISOString(),
       fichier_base64: {
-        nom: "v1.pdf",
+        name: "v1.pdf",
         media_type: "application/pdf",
         contenuBase64: v1.toString("base64"),
       },
     }),
   });
   expect(res1.status).toBe(200);
-  const decision1 = await db("décision_administrative")
+  const decision1 = await db("decision_administrative")
     .select("*")
     .where({ dossier: dossier.id })
     .first();
@@ -97,10 +97,10 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
       dossier: dossier.id,
       numéro: "AP-002",
       type: "Arrêté dérogation",
-      date_signature: new Date("2026-04-15").toISOString(),
-      date_fin_obligations: new Date("2031-04-15").toISOString(),
+      signature_date: new Date("2026-04-15").toISOString(),
+      obligations_end_date: new Date("2031-04-15").toISOString(),
       fichier_base64: {
-        nom: "v2.pdf",
+        name: "v2.pdf",
         media_type: "application/pdf",
         contenuBase64: v2.toString("base64"),
       },
@@ -108,7 +108,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   });
   expect(res2.status).toBe(200);
 
-  const decision2 = await db("décision_administrative")
+  const decision2 = await db("decision_administrative")
     .select("*")
     .where({ id: decision1.id })
     .first();

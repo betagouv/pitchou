@@ -8,19 +8,19 @@
   type Size = "SM" | "MD";
 
   type Props = {
-    résultatControle: ResultatControle | string;
+    result: ResultatControle | string;
     size?: Size;
     classes?: string[];
   };
 
-  let { résultatControle: resultatControle, size = "SM", classes = [] }: Props = $props();
+  let { result, size = "SM", classes = [] }: Props = $props();
 
   const resultatToClass = new Map<ResultatControle, string>([
-    ["Conforme", "résultat--conforme"],
-    ["Non conforme", "résultat--non-conforme"],
-    ["Non conforme (Pas d'informations reçues)", "résultat--non-conforme-pas-information"],
-    ["En cours", "résultat--en-cours"],
-    ["Trop tard", "résultat--trop-tard"],
+    ["Conforme", "result--conforme"],
+    ["Non conforme", "result--non-conforme"],
+    ["Non conforme (Pas d'informations reçues)", "result--non-conforme-pas-information"],
+    ["En cours", "result--en-cours"],
+    ["Trop tard", "result--trop-tard"],
   ]);
 
   const sizeToClass = new Map<Size, string>([
@@ -31,17 +31,17 @@
   let allClasses = $derived([
     "fr-tag",
     sizeToClass.get(size),
-    resultatToClass.get(resultatControle as ResultatControle) || "résultat--autre",
+    resultatToClass.get(result as ResultatControle) || "result--autre",
     ...classes,
   ]);
 </script>
 
-<p class={clsx(allClasses)}>{resultatControle}</p>
+<p class={clsx(allClasses)}>{result}</p>
 
 <style lang="scss">
-  $couleur-résultat-contrôle-conforme: var(--background-flat-success);
-  $couleur-résultat-contrôle-non-conforme: var(--background-flat-error);
-  $couleur-résultat-contrôle-autre: var(--background-flat-beige-gris-galet);
+  $conforme-result-color: var(--background-flat-success);
+  $non-conforme-result-color: var(--background-flat-error);
+  $other-result-color: var(--background-flat-beige-gris-galet);
 
   p {
     // DSFR override
@@ -50,21 +50,21 @@
       background-image: none;
     }
 
-    &.résultat--en-cours,
-    &.résultat--trop-tard,
-    &.résultat--autre {
-      background-color: $couleur-résultat-contrôle-autre;
+    &.result--en-cours,
+    &.result--trop-tard,
+    &.result--autre {
+      background-color: $other-result-color;
       color: var(--text-inverted-beige-gris-galet);
     }
 
-    &.résultat--conforme {
-      background-color: $couleur-résultat-contrôle-conforme;
+    &.result--conforme {
+      background-color: $conforme-result-color;
       color: var(--text-inverted-success);
     }
 
-    &.résultat--non-conforme,
-    &.résultat--non-conforme-pas-information {
-      background-color: $couleur-résultat-contrôle-non-conforme;
+    &.result--non-conforme,
+    &.result--non-conforme-pas-information {
+      background-color: $non-conforme-result-color;
       color: var(--text-inverted-error);
     }
   }

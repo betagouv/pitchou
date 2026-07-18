@@ -13,7 +13,7 @@ export type EvenementRechercheDossiersDetails = {
     texte?: string;
     phases?: DossierPhase[];
     prochaineActionAttenduePar?: Array<DossierNextActionExpectedFrom | "(vide)">;
-    activitésPrincipales?: NonNullable<Dossier["activité_principale"]>[];
+    activitésPrincipales?: NonNullable<Dossier["main_activite"]>[];
     nouveauté?: boolean;
   };
   nombreRésultats: number;

@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { getResultatsSynchronisationDS88444 } from "@pitchou/server/database.ts";
+import { getDemarcheNumerique88444SynchronizationResults } from "@pitchou/server/database.ts";
 
 export const GET: RequestHandler = async () => {
-  return json(await getResultatsSynchronisationDS88444());
+  return json(await getDemarcheNumerique88444SynchronizationResults());
 };

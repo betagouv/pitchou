@@ -94,8 +94,8 @@ export function sortDossiersByPhaseProchaineAction(dossiers: DossierSummary[]): 
     } else {
       // phases are similar,
       // compare on who the next action is expected from
-      const prochaineActionAttenduePar1 = dossier1.prochaine_action_attendue_par;
-      const prochaineActionAttenduePar2 = dossier2.prochaine_action_attendue_par;
+      const prochaineActionAttenduePar1 = dossier1.next_action_expected_from;
+      const prochaineActionAttenduePar2 = dossier2.next_action_expected_from;
 
       const prochaineActionAttendueParComparison = compareProchaineActionAttenduePar(
         // @ts-ignore

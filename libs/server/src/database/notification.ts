@@ -39,7 +39,7 @@ export async function updateNotificationDossierFromCap(
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
   }
 
-  const notificationToUpdate = { vue: notification.vue };
+  const notificationToUpdate = { viewed: notification.viewed };
 
   return await databaseConnection("notification").update(notificationToUpdate).where({
     dossier: notification.dossier,

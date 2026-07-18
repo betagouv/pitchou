@@ -8,11 +8,11 @@ import {
 } from "@pitchou/server/database/avis_expert.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 
-type FichierUpload = { nom: string; contenu: Buffer; media_type: string };
+type FichierUpload = { name: string; content: Buffer; media_type: string };
 
 async function readFileField(file: File): Promise<FichierUpload> {
-  const contenu = Buffer.from(await file.arrayBuffer());
-  return { nom: file.name, media_type: file.type, contenu };
+  const content = Buffer.from(await file.arrayBuffer());
+  return { name: file.name, media_type: file.type, content };
 }
 
 export const POST: RequestHandler = async ({ url, request }) => {
@@ -28,12 +28,12 @@ export const POST: RequestHandler = async ({ url, request }) => {
   const id = (form.get("id") as string | null) ?? undefined;
   const expert = (form.get("expert") as string | null) ?? undefined;
   const avis = (form.get("avis") as string | null) ?? undefined;
-  const dateSaisineRaw = form.get("date_saisine") as string | null;
-  const dateAvisRaw = form.get("date_avis") as string | null;
+  const dateSaisineRaw = form.get("saisine_date") as string | null;
+  const dateAvisRaw = form.get("avis_date") as string | null;
   const dateSaisine = dateSaisineRaw ? new Date(dateSaisineRaw) : undefined;
   const dateAvis = dateAvisRaw ? new Date(dateAvisRaw) : undefined;
 
-  const baseAvisExpert = { dossier, expert, avis, date_avis: dateAvis, date_saisine: dateSaisine };
+  const baseAvisExpert = { dossier, expert, avis, avis_date: dateAvis, saisine_date: dateSaisine };
   const avisExpert = id ? { ...baseAvisExpert, id: id as AvisExpertId } : baseAvisExpert;
 
   const dossierIdForAuth = id ? await getDossierIdFromAvisExpert(id as AvisExpertId) : dossier;

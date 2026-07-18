@@ -3,26 +3,26 @@
 
 import type { PersonneId } from "./Personne";
 
-/** Identifier type for public.évènement_métrique */
-export type EvenementMetriqueId = string & { __brand: "public.évènement_métrique" };
+/** Identifier type for public.evenement_metrique */
+export type EvenementMetriqueId = string & { __brand: "public.evenement_metrique" };
 
-/** Represents the table public.évènement_métrique */
+/** Represents the table public.evenement_metrique */
 export default interface EvenementMetrique {
   id: EvenementMetriqueId;
 
   personne: PersonneId;
 
-  /** Date de l’évènement */
+  /** Evenement date */
   date: Date;
 
-  /** Type de l’évènement */
-  évènement: string;
+  /** Evenement type */
+  evenement: string;
 
-  /** Données structurées liées donnant des détails sur l’évènement */
-  détails: unknown | null;
+  /** Related structured data providing details about the evenement */
+  details: unknown | null;
 }
 
-/** Represents the initializer for the table public.évènement_métrique */
+/** Represents the initializer for the table public.evenement_metrique */
 export interface EvenementMetriqueInitializer {
   /** Default value: gen_random_uuid() */
   id?: EvenementMetriqueId;
@@ -30,30 +30,30 @@ export interface EvenementMetriqueInitializer {
   personne: PersonneId;
 
   /**
-   * Date de l’évènement
+   * Evenement date
    * Default value: CURRENT_TIMESTAMP
    */
   date?: Date;
 
-  /** Type de l’évènement */
-  évènement: string;
+  /** Evenement type */
+  evenement: string;
 
-  /** Données structurées liées donnant des détails sur l’évènement */
-  détails?: unknown | null;
+  /** Related structured data providing details about the evenement */
+  details?: unknown | null;
 }
 
-/** Represents the mutator for the table public.évènement_métrique */
+/** Represents the mutator for the table public.evenement_metrique */
 export interface EvenementMetriqueMutator {
   id?: EvenementMetriqueId;
 
   personne?: PersonneId;
 
-  /** Date de l’évènement */
+  /** Evenement date */
   date?: Date;
 
-  /** Type de l’évènement */
-  évènement?: string;
+  /** Evenement type */
+  evenement?: string;
 
-  /** Données structurées liées donnant des détails sur l’évènement */
-  détails?: unknown | null;
+  /** Related structured data providing details about the evenement */
+  details?: unknown | null;
 }

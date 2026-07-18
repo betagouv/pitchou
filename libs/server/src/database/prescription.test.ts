@@ -3,21 +3,21 @@ import { getDossierIdFromPrescription, deletePrescription } from "./prescription
 import { fakeDatabase } from "./fakeDatabase.js";
 
 describe("getDossierIdFromPrescription", () => {
-  it("queries the prescription table then the décision_administrative table", async () => {
+  it("queries the prescription table then the decision_administrative table", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("prescription", [{ décision_administrative: "da-id" }])
-      .selectResolvesForTable("décision_administrative", [{ dossier: 42 }])
+      .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
+      .selectResolvesForTable("decision_administrative", [{ dossier: 42 }])
       .build();
     // @ts-ignore: id is a branded string, the test passes a literal
     await getDossierIdFromPrescription("p-id", db.knex);
     const tables = db.table.mock.calls.map(([name]) => name);
-    expect(tables).toEqual(["prescription", "décision_administrative"]);
+    expect(tables).toEqual(["prescription", "decision_administrative"]);
   });
 
-  it("returns the dossier id reached through the décision_administrative", async () => {
+  it("returns the dossier id reached through the decision_administrative", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("prescription", [{ décision_administrative: "da-id" }])
-      .selectResolvesForTable("décision_administrative", [{ dossier: 42 }])
+      .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
+      .selectResolvesForTable("decision_administrative", [{ dossier: 42 }])
       .build();
     // @ts-ignore
     const result = await getDossierIdFromPrescription("p-id", db.knex);
@@ -31,10 +31,10 @@ describe("getDossierIdFromPrescription", () => {
     expect(result).toBeUndefined();
   });
 
-  it("returns undefined when the parent décision_administrative is missing", async () => {
+  it("returns undefined when the parent decision_administrative is missing", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("prescription", [{ décision_administrative: "da-id" }])
-      .selectResolvesForTable("décision_administrative", [])
+      .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
+      .selectResolvesForTable("decision_administrative", [])
       .build();
     // @ts-ignore
     const result = await getDossierIdFromPrescription("p-id", db.knex);

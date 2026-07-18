@@ -12,14 +12,14 @@ import type { PitchouInstructeurCapabilities } from "@pitchou/types/capabilities
 
 export const GET: RequestHandler = async ({ url }) => {
   const cap = requireCap(url);
-  const relationSuivis = await getRelationSuivis(cap);
-  if (!relationSuivis) {
+  const followRelations = await getRelationSuivis(cap);
+  if (!followRelations) {
     error(403, `Le paramètre 'cap' est invalide`);
   }
-  return json(relationSuivis);
+  return json(followRelations);
 };
 
-type ChangerSuiviParams = Parameters<PitchouInstructeurCapabilities["modifierRelationSuivi"]>;
+type ChangerSuiviParams = Parameters<PitchouInstructeurCapabilities["updateFollowRelation"]>;
 type ChangerSuiviBody = {
   direction: ChangerSuiviParams[0];
   personneEmail: ChangerSuiviParams[1];

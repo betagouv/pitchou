@@ -17,8 +17,8 @@ function isAvisExpertToUpdate(
 
 export async function addOrUpdateAvisExpertWithFichiers(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
-  fichierSaisine?: { nom: string; contenu: Buffer; media_type: string },
-  fichierAvis?: { nom: string; contenu: Buffer; media_type: string },
+  fichierSaisine?: { name: string; content: Buffer; media_type: string },
+  fichierAvis?: { name: string; content: Buffer; media_type: string },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {

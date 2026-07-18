@@ -86,7 +86,7 @@
   const email = $derived(store.identité?.email);
   const canListDossiers = $derived(!!store.capabilities.listerDossiers);
   const dossiers = $derived([...store.dossierSummaries.values()]);
-  const relationSuivis = $derived(store.relationSuivis);
+  const followRelations = $derived(store.followRelations);
 
   const schemaChamps = $derived<ChampDescriptor[] | undefined>(
     store.schemaDS88444?.revision.champDescriptors,
@@ -105,7 +105,7 @@
   <SuiviInstruction
     {email}
     {dossiers}
-    {relationSuivis}
+    {followRelations}
     activitésPrincipales={activitesPrincipales ?? []}
     selectedSortId={selectedSortFilters?.tri}
     selectedFilters={selectedSortFilters?.filtres}

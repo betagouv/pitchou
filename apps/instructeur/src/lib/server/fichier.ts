@@ -9,7 +9,7 @@ export async function downloadFichierResponse(fileId: FileId): Promise<Response>
     error(404, "Fichier non trouvé");
   }
 
-  const nomAscii = fichier.nom
+  const nomAscii = fichier.name
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "") // strip diacritics
     .replace(/[^\x00-\x7F]/g, ""); // strip remaining non-ASCII
@@ -17,13 +17,13 @@ export async function downloadFichierResponse(fileId: FileId): Promise<Response>
   const headers = new Headers();
   headers.set(
     "content-disposition",
-    `attachment; filename="${nomAscii}"; filename*=UTF-8''${encodeURI(fichier.nom)}`,
+    `attachment; filename="${nomAscii}"; filename*=UTF-8''${encodeURI(fichier.name)}`,
   );
   if (fichier.media_type) {
     headers.set("content-type", fichier.media_type);
   }
-  if (fichier.taille !== undefined) {
-    headers.set("content-length", String(fichier.taille));
+  if (fichier.size !== undefined) {
+    headers.set("content-length", String(fichier.size));
   }
 
   const body =

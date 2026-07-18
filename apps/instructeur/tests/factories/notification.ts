@@ -7,8 +7,8 @@ export async function createNotification(
   await db("notification").insert({
     personne: args.personneId,
     dossier: args.dossierId,
-    vue: args.vue ?? false,
-    date_dernière_mise_à_jour: args.date ?? new Date(),
+    viewed: args.vue ?? false,
+    updated_at: args.date ?? new Date(),
   });
 }
 
@@ -17,7 +17,7 @@ export async function attachPersonneSuitDossier(
   personneId: number,
   dossierId: number,
 ): Promise<void> {
-  await db("arête_personne_suit_dossier").insert({
+  await db("edge_personne_follows_dossier").insert({
     personne: personneId,
     dossier: dossierId,
   });

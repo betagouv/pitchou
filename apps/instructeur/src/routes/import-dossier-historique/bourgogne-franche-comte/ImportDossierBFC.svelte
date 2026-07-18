@@ -10,7 +10,7 @@
 
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
 
-  import { createDossierFromRow, createNomForDossier } from "./importDossierBFC.ts";
+  import { createDossierFromRow, createDossierName } from "./importDossierBFC.ts";
   import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
 
   type Props = {
@@ -21,9 +21,9 @@
   let { dossiers = [], schema }: Props = $props();
 
   // Pre-computation: set of names present in the database (O(1) lookup)
-  const nomsInDB = $derived(new Set(dossiers.map((d) => d.nom)));
+  const namesInDatabase = $derived(new Set(dossiers.map((d) => d.name)));
 
-  const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.nom, d.id])));
+  const nomToDossierId = $derived(new Map(dossiers.map((d) => [d.name, d.id])));
 
   // @ts-ignore
   const activitesPrincipales88444: Set<DossierDemarcheNumerique88444["Activité principale"]> =
@@ -50,10 +50,10 @@
 
   /**
    * Checks whether a specific dossier to import already exists in the database.
-   * The search is performed by comparing the project name (the 'nom' field of the 'dossier' table).
+   * The search is performed by comparing the project name (the 'name' field of the 'dossier' table).
    */
-  function rowDossierInDB(row: DossierBFCRow): boolean {
-    return nomsInDB.has(createNomForDossier(row));
+  function isDossierRowInDatabase(row: DossierBFCRow): boolean {
+    return namesInDatabase.has(createDossierName(row));
   }
 
   async function handleFileChange(event: Event) {
@@ -84,8 +84,8 @@
         ];
 
         importTableRows = rows;
-        filteredImportTableRows = rows.filter((row) => !rowDossierInDB(row));
-        dossiersAlreadyInDB = rows.filter((row) => rowDossierInDB(row));
+        filteredImportTableRows = rows.filter((row) => !isDossierRowInDatabase(row));
+        dossiersAlreadyInDB = rows.filter((row) => isDossierRowInDatabase(row));
 
         const totalDossiers = rows.length;
         percentageOfDossiersCreatedInDB =
@@ -239,7 +239,7 @@
             <tbody>
               {#each displayedImportTableRows as displayedImportTableRow, index}
                 <tr data-row-key="1">
-                  <td>{createNomForDossier(displayedImportTableRow)}</td>
+                  <td>{createDossierName(displayedImportTableRow)}</td>
                   <td>
                     <ModalButton id={`dsfr-modale-${index}`}>
                       {#snippet openButton()}
@@ -251,10 +251,10 @@
                     </ModalButton>
                   </td>
                   <td>
-                    {#if rowDossierInDB(displayedImportTableRow)}
+                    {#if isDossierRowInDatabase(displayedImportTableRow)}
                       <p class="fr-badge fr-badge--success">En base de données</p>
                       <a
-                        href={`/dossier/${nomToDossierId.get(createNomForDossier(displayedImportTableRow))}`}
+                        href={`/dossier/${nomToDossierId.get(createDossierName(displayedImportTableRow))}`}
                         target="_blank"
                         class="fr-btn fr-btn--secondary fr-ml-2w"
                       >

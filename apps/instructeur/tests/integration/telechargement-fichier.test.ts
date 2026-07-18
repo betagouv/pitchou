@@ -6,7 +6,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 test("GET /avis-expert/fichier/[id] renvoie un seul en-tête Content-Disposition", async () => {
   const s3 = await getTestS3();
-  const fichier = await createFichierS3(db, s3, { nom: "saisine.pdf" });
+  const fichier = await createFichierS3(db, s3, { name: "saisine.pdf" });
 
   const res = await fetch(`${INTEGRATION_BASE_URL}/avis-expert/fichier/${fichier.id}`);
 
@@ -21,7 +21,7 @@ test("GET /avis-expert/fichier/[id] renvoie un seul en-tête Content-Disposition
 
 test("GET /avis-expert/fichier/[id] expose filename et filename* dans un seul en-tête", async () => {
   const s3 = await getTestS3();
-  const fichier = await createFichierS3(db, s3, { nom: "avis été 2025.pdf" });
+  const fichier = await createFichierS3(db, s3, { name: "avis été 2025.pdf" });
 
   const res = await fetch(`${INTEGRATION_BASE_URL}/avis-expert/fichier/${fichier.id}`);
 

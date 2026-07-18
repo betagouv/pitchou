@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
-  import { getBalisesGenerationDocument } from "./genererDocument.ts";
+  import { getDocumentGenerationTags } from "./generateDocument.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
@@ -14,10 +14,10 @@
 
   type Props = {
     dossier: DossierFull;
-    espècesImpactées: Promise<DescriptionMenacesEspeces> | undefined;
+    especesImpactees: Promise<DescriptionMenacesEspeces> | undefined;
   };
 
-  let { dossier, espècesImpactées: especesImpactees }: Props = $props();
+  let { dossier, especesImpactees }: Props = $props();
 
   let generatedDocument: Blob | undefined = $state();
   let generatedDocumentUrl: string | undefined = $derived(
@@ -36,7 +36,7 @@
       throw new Error(`Missing template`);
     }
 
-    let especes_impacts = undefined;
+    let especesImpacts = undefined;
 
     const {
       identifiantPitchouVersActivitéEtImpactsQuantifiés:
@@ -45,14 +45,14 @@
 
     try {
       // let any errors surface here to be handled below
-      especes_impacts = await especesImpactees;
+      especesImpacts = await especesImpactees;
     } catch (e) {
       // @ts-ignore
       documentGenerationError = e;
       return;
     }
 
-    if (!especes_impacts) {
+    if (!especesImpacts) {
       // @ts-ignore
       documentGenerationError = new Error(
         "Attention, il est impossible de générer des documents pour ce dossier si aucune liste d'espèce n'a été saisie par le pétitionnaire.",
@@ -60,17 +60,17 @@
       return;
     }
 
-    const balises = getBalisesGenerationDocument(
+    const tags = getDocumentGenerationTags(
       dossier,
-      especes_impacts,
+      especesImpacts,
       identifiantPitchouVersActiviteEtImpactsQuantifies,
     );
 
-    console.log("balises", balises);
+    console.log("balises", tags);
 
     const templateAB = await template.arrayBuffer();
     try {
-      const documentArrayBuffer = await fillOdtTemplate(templateAB, balises);
+      const documentArrayBuffer = await fillOdtTemplate(templateAB, tags);
       generatedDocument = new Blob([documentArrayBuffer], { type: template.type });
 
       const [part1, part2] = template.name.split(".");

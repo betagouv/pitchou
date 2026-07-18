@@ -9,7 +9,7 @@ import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
 import { sendEvenement } from "$lib/shared/aarri.ts";
 
-import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
+import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {
   PitchouInstructeurCapabilities,
   IdentiteInstructeurPitchou,
@@ -19,19 +19,19 @@ import type { StringValues } from "@pitchou/types/tools.d.ts";
 export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
 export function loadRelationSuivi() {
-  if (store.capabilities?.listerRelationSuivi) {
-    store.capabilities?.listerRelationSuivi().then((relationSuivisDB) => {
-      if (!relationSuivisDB || !Array.isArray(relationSuivisDB)) {
+  if (store.capabilities?.listFollowRelations) {
+    store.capabilities?.listFollowRelations().then((followRelationsDB) => {
+      if (!followRelationsDB || !Array.isArray(followRelationsDB)) {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
 
-      const relationSuivis: NonNullable<typeof store.relationSuivis> = new SvelteMap();
+      const followRelations: NonNullable<typeof store.followRelations> = new SvelteMap();
 
-      for (const { personneEmail, dossiersSuivisIds } of relationSuivisDB) {
-        relationSuivis.set(personneEmail!, new SvelteSet(dossiersSuivisIds));
+      for (const { personneEmail, followedDossierIds } of followRelationsDB) {
+        followRelations.set(personneEmail!, new SvelteSet(followedDossierIds));
       }
 
-      store.relationSuivis = relationSuivis;
+      store.followRelations = followRelations;
     });
   }
 }
@@ -64,15 +64,15 @@ export function loadSchemaDS88444() {
   });
 }
 
-export function loadResultatsSynchronisation() {
+export function loadSynchronizationResults() {
   return json("/resultats-synchronisation").then(
     // @ts-ignore
-    (resultatsSync: ResultatSynchronisationDS88444[]) => {
-      for (const r of resultatsSync) {
-        r.horodatage = new Date(r.horodatage);
+    (synchronizationResults: DemarcheNumerique88444SynchronizationResult[]) => {
+      for (const r of synchronizationResults) {
+        r.timestamp = new Date(r.timestamp);
       }
 
-      store.résultatsSynchronisationDS88444 = resultatsSync;
+      store.demarcheNumerique88444SynchronizationResults = synchronizationResults;
     },
   );
 }
@@ -99,7 +99,7 @@ export async function logout() {
   store.dossierSummaries = new SvelteMap();
   store.fullDossiers = new SvelteMap();
   store.messagesByDossierId = new SvelteMap();
-  store.relationSuivis = new SvelteMap();
+  store.followRelations = new SvelteMap();
   store.notificationByDossier = new SvelteMap();
 
   return forget(PITCHOU_SECRET_STORAGE_KEY);
@@ -151,6 +151,6 @@ export function init() {
       ),
 
     loadSchemaDS88444(),
-    loadResultatsSynchronisation(),
+    loadSynchronizationResults(),
   ]);
 }

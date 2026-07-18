@@ -2,7 +2,7 @@ import knex, { type Knex } from "knex";
 
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { default as Entreprise } from "@pitchou/types/database/public/Entreprise.ts";
-import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
+import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {
   IdentiteInstructeurPitchou,
   PitchouInstructeurCapabilities,
@@ -38,31 +38,33 @@ export function dumpEntreprises(
 }
 
 export async function getInstructeurCapBundleByPersonneCodeAcces(
-  code_accès: NonNullable<Personne["code_accès"]>,
+  accessCode: NonNullable<Personne["access_code"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
   Partial<StringValues<PitchouInstructeurCapabilities> & { identité: IdentiteInstructeurPitchou }>
 > {
-  const fillAnnotationsP = databaseConnection("arête_personne__cap_écriture_annotation")
+  const fillAnnotationsP = databaseConnection("edge_personne__cap_annotation_write")
     .select("cap")
-    .leftJoin("cap_écriture_annotation", {
-      "cap_écriture_annotation.cap":
-        "arête_personne__cap_écriture_annotation.écriture_annotation_cap",
+    .leftJoin("cap_annotation_write", {
+      "cap_annotation_write.cap": "edge_personne__cap_annotation_write.annotation_write_cap",
     })
-    .where({ personne_cap: code_accès })
+    .where({ personne_cap: accessCode })
     .first();
 
-  const identiteP = databaseConnection("personne").select("email").where({ code_accès }).first();
+  const identiteP = databaseConnection("personne")
+    .select("email")
+    .where({ access_code: accessCode })
+    .first();
 
   const listDossiersP = databaseConnection("cap_dossier")
     .select("cap")
-    .where({ personne_cap: code_accès })
+    .where({ personne_cap: accessCode })
     .first()
     .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
-  const createEvenementMetriqueP = databaseConnection("cap_évènement_métrique")
+  const createEvenementMetriqueP = databaseConnection("cap_evenement_metrique")
     .select("cap")
-    .where({ personne_cap: code_accès })
+    .where({ personne_cap: accessCode })
     .first()
     .then((cap_dossier) => (cap_dossier ? cap_dossier.cap : undefined));
 
@@ -112,15 +114,15 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
         remplirAnnotations: undefined,
         listerDossiers: listDossiers,
         recupérerDossierComplet: getDossierFull,
-        listerRelationSuivi: listRelationSuivi,
-        modifierRelationSuivi: updateRelationSuivi,
-        listerÉvènementsPhaseDossier: listEvenementsPhaseDossier,
+        listFollowRelations: listRelationSuivi,
+        updateFollowRelation: updateRelationSuivi,
+        listerEvenementsPhaseDossier: listEvenementsPhaseDossier,
         listerMessages: listMessages,
         modifierDossier: updateDossier,
         identité: identite
           ? { email: identite.email, estAdmin: isAdminEmail(identite.email) }
           : undefined,
-        créerÉvènementMetrique: createEvenementMetrique,
+        creerEvenementMetrique: createEvenementMetrique,
         modifierDecisionAdministrativeDansDossier: updateDecisionAdministrativeInDossier,
         listerNotifications: listNotifications,
         updateNotificationForDossier,
@@ -134,24 +136,24 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
 }
 
 export async function getRelationSuivis(
-  dossierListCap: NonNullable<Personne["code_accès"]>,
+  dossierListCap: NonNullable<Personne["access_code"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<ReturnType<PitchouInstructeurCapabilities["listerRelationSuivi"]>> {
+): Promise<ReturnType<PitchouInstructeurCapabilities["listFollowRelations"]>> {
   const relsDB = await databaseConnection("dossier")
     .select(["dossier.id as dossier", "personne.email as email"])
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": dossierListCap })
-    .leftJoin("arête_personne_suit_dossier", {
-      "arête_personne_suit_dossier.dossier": "dossier.id",
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": dossierListCap })
+    .leftJoin("edge_personne_follows_dossier", {
+      "edge_personne_follows_dossier.dossier": "dossier.id",
     })
     .leftJoin("personne", {
-      "personne.id": "arête_personne_suit_dossier.personne",
+      "personne.id": "edge_personne_follows_dossier.personne",
     })
     .whereNotNull("email");
 
@@ -160,29 +162,29 @@ export async function getRelationSuivis(
   const retMap = new Map();
 
   for (const { email, dossier } of relsDB) {
-    const dossiersSuivisIds = retMap.get(email) || new Set();
-    dossiersSuivisIds.add(dossier);
-    retMap.set(email, dossiersSuivisIds);
+    const followedDossierIds = retMap.get(email) || new Set();
+    followedDossierIds.add(dossier);
+    retMap.set(email, followedDossierIds);
   }
 
-  return [...retMap].map(([email, dossiersSuivisIds]) => ({
+  return [...retMap].map(([email, followedDossierIds]) => ({
     personneEmail: email,
-    dossiersSuivisIds: [...dossiersSuivisIds],
+    followedDossierIds: [...followedDossierIds],
   }));
 }
 
-export async function getResultatsSynchronisationDS88444(
+export async function getDemarcheNumerique88444SynchronizationResults(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<ResultatSynchronisationDS88444[]> {
-  return databaseConnection("résultat_synchronisation_DS_88444").select("*");
+): Promise<DemarcheNumerique88444SynchronizationResult[]> {
+  return databaseConnection("demarche_numerique_88444_synchronization_result").select("*");
 }
 
-export async function addResultatSynchronisationDS88444(
-  resultatSynchro: ResultatSynchronisationDS88444,
+export async function addDemarcheNumerique88444SynchronizationResult(
+  synchronizationResult: DemarcheNumerique88444SynchronizationResult,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("résultat_synchronisation_DS_88444")
-    .insert([resultatSynchro])
-    .onConflict("succès")
+  return databaseConnection("demarche_numerique_88444_synchronization_result")
+    .insert([synchronizationResult])
+    .onConflict("success")
     .merge();
 }

@@ -41,26 +41,26 @@
 
   // Numeric columns of the edit table: all displayed and edited the same way
   const NUMERIC_COLUMNS = [
-    { key: "surface_compensée", label: "Surface compensée (m²)" },
-    { key: "surface_évitée", label: "Surface évitée (m²)" },
-    { key: "individus_compensés", label: "Individus compensés" },
-    { key: "individus_évités", label: "Individus évités" },
-    { key: "nids_compensés", label: "Nids compensés" },
-    { key: "nids_évités", label: "Nids évités" },
+    { key: "compensated_surface", label: "Surface compensée (m²)" },
+    { key: "avoided_surface", label: "Surface évitée (m²)" },
+    { key: "compensated_individus", label: "Individus compensés" },
+    { key: "avoided_individus", label: "Individus évités" },
+    { key: "compensated_nids", label: "Nids compensés" },
+    { key: "avoided_nids", label: "Nids évités" },
   ] as const satisfies readonly { key: keyof FrontEndPrescription; label: string }[];
 
   function addPrescription() {
     const newPrescription: Partial<PrescriptionType> = {
-      décision_administrative: decisionAdministrative.id,
-      date_échéance: undefined,
-      numéro_article: "",
+      decision_administrative: decisionAdministrative.id,
+      due_date: undefined,
+      article_number: "",
       description: "",
-      individus_compensés: undefined,
-      individus_évités: undefined,
-      nids_compensés: undefined,
-      nids_évités: undefined,
-      surface_compensée: undefined,
-      surface_évitée: undefined,
+      compensated_individus: undefined,
+      avoided_individus: undefined,
+      compensated_nids: undefined,
+      avoided_nids: undefined,
+      compensated_surface: undefined,
+      avoided_surface: undefined,
     };
 
     prescriptions.push(newPrescription);
@@ -77,14 +77,14 @@
   >();
 
   async function savePrescription(prescription: Partial<FrontEndPrescription>) {
-    if (prescription.date_échéance) {
-      Object.defineProperty(prescription.date_échéance, "toJSON", { value: toJSONPerserveDate });
+    if (prescription.due_date) {
+      Object.defineProperty(prescription.due_date, "toJSON", { value: toJSONPerserveDate });
     }
 
     if (prescription.id) {
       // "contrôles" is a property of the FrontEndPrescription type, not a property of the Prescription type
       // which causes a problem when inserting/updating the prescription in the database
-      const { contrôles: controles, ...prescriptionWithoutControles } = prescription;
+      const { controles, ...prescriptionWithoutControles } = prescription;
       updatePrescription(prescriptionWithoutControles);
     } else {
       const pendingPrescriptionIdEntry = prescriptionToPendingIdAndLatestData.get(prescription);
@@ -207,9 +207,9 @@
                 }
               }}
             >
-              <td><input class="fr-input" bind:value={prescription.numéro_article} /></td>
+              <td><input class="fr-input" bind:value={prescription.article_number} /></td>
               <td><input class="fr-input" bind:value={prescription.description} /></td>
-              <td><DateInput bind:date={prescription.date_échéance}></DateInput></td>
+              <td><DateInput bind:date={prescription.due_date}></DateInput></td>
 
               {#each NUMERIC_COLUMNS as column}
                 <td>

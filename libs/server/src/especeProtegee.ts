@@ -146,7 +146,7 @@ export type PatchModification = {
   cd_type_statuts?: string[] | null;
   espece_ministerielle?: boolean | null;
   espece_cnpn?: boolean | null;
-  exclu?: boolean;
+  excluded?: boolean;
 };
 
 function isStringArray(x: unknown): x is string[] {
@@ -204,8 +204,8 @@ export function validatePatchModification(
     }
   }
 
-  if ("exclu" in p && typeof p.exclu !== "boolean") {
-    return { ok: false, message: "exclu doit être un booléen." };
+  if ("excluded" in p && typeof p.excluded !== "boolean") {
+    return { ok: false, message: "`excluded` doit être un booléen." };
   }
 
   return { ok: true, value: p as PatchModification };

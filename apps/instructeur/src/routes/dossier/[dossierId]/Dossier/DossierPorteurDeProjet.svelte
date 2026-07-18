@@ -13,7 +13,9 @@
   const isPersonneMorale = $derived(Boolean(dossier.demandeur_personne_morale_siret));
 
   const hasMandataire = $derived(
-    Boolean(dossier.mandataire_nom || dossier.mandataire_prénoms || dossier.mandataire_email),
+    Boolean(
+      dossier.mandataire_last_name || dossier.mandataire_first_names || dossier.mandataire_email,
+    ),
   );
 
   const typeDemandeur = $derived(isPersonneMorale ? "Personne morale" : "Personne physique");
@@ -76,9 +78,9 @@
   <section class="card">
     <h3>Identité du demandeur</h3>
     <dl class="grid grid--single-row">
-      {@render field("Nom", dossier.déposant_nom)}
-      {@render field("Prénom", dossier.déposant_prénoms)}
-      {@render fieldMail("Adresse mail", dossier.déposant_email)}
+      {@render field("Nom", dossier.deposant_last_name)}
+      {@render field("Prénom", dossier.deposant_first_names)}
+      {@render fieldMail("Adresse mail", dossier.deposant_email)}
     </dl>
   </section>
 {/snippet}
@@ -87,8 +89,8 @@
   <section class="card">
     <h3>Identité du mandataire</h3>
     <dl class="grid grid--single-row">
-      {@render field("Nom", dossier.mandataire_nom)}
-      {@render field("Prénom", dossier.mandataire_prénoms)}
+      {@render field("Nom", dossier.mandataire_last_name)}
+      {@render field("Prénom", dossier.mandataire_first_names)}
       {@render fieldMail("Adresse mail", dossier.mandataire_email)}
     </dl>
   </section>
@@ -115,7 +117,7 @@
       <h3>Entreprise</h3>
       <dl class="grid">
         {@render field("SIRET", dossier.demandeur_personne_morale_siret)}
-        {@render field("Dénomination", dossier.demandeur_personne_morale_raison_sociale)}
+        {@render field("Dénomination", dossier.demandeur_personne_morale_legal_name)}
         {@render field("Forme juridique", dossier.demandeur_personne_morale_legal_form)}
         {@render field("Libellé NAF", dossier.demandeur_personne_morale_naf_label)}
         {@render field("État administratif", statutAdministratif)}
@@ -128,8 +130,8 @@
         <section class="card">
           <h3>Représentant</h3>
           <dl class="grid grid--narrow">
-            {@render field("Nom", dossier.representative_nom)}
-            {@render field("Prénom", dossier.representative_prénoms)}
+            {@render field("Nom", dossier.representative_last_name)}
+            {@render field("Prénom", dossier.representative_first_names)}
             {@render field("Qualité", dossier.representative_role)}
             {@render field("Téléphone", dossier.representative_phone)}
             {@render fieldMail("Adresse mail", dossier.representative_email)}
@@ -141,7 +143,7 @@
         <section class="card">
           <h3>Adresse</h3>
           <dl class="grid grid--narrow">
-            {@render fieldAddress(dossier.demandeur_adresse)}
+            {@render fieldAddress(dossier.demandeur_address)}
             {@render field("Code postal", dossier.demandeur_personne_morale_postal_code)}
             {@render field("Département", dossier.demandeur_personne_morale_department)}
             {@render field("Région", dossier.demandeur_personne_morale_region)}
@@ -155,8 +157,8 @@
         <section class="card">
           <h3>Identité du demandeur</h3>
           <dl class="grid grid--narrow">
-            {@render field("Nom", dossier.demandeur_personne_physique_nom)}
-            {@render field("Prénoms", dossier.demandeur_personne_physique_prénoms)}
+            {@render field("Nom", dossier.demandeur_personne_physique_last_name)}
+            {@render field("Prénoms", dossier.demandeur_personne_physique_first_names)}
             {@render field("Qualification", dossier.demandeur_personne_physique_role)}
             {@render fieldAddress(dossier.demandeur_personne_physique_address)}
           </dl>

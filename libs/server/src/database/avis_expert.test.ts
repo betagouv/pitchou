@@ -76,8 +76,8 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
     dossier: dossierId,
     expert: "expert-x",
     avis: "ok",
-    date_saisine: new Date(0),
-    date_avis: new Date(0),
+    saisine_date: new Date(0),
+    avis_date: new Date(0),
   };
 
   it("inserts a new avis_expert with both fichier ids when both files are provided", async () => {
@@ -88,13 +88,13 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
       .build();
 
     const fichierSaisine = {
-      nom: "saisine.pdf",
-      contenu: Buffer.from("S"),
+      name: "saisine.pdf",
+      content: Buffer.from("S"),
       media_type: "application/pdf",
     };
     const fichierAvis = {
-      nom: "avis.pdf",
-      contenu: Buffer.from("A"),
+      name: "avis.pdf",
+      content: Buffer.from("A"),
       media_type: "application/pdf",
     };
 
@@ -119,8 +119,8 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
       .build();
 
     const fichierSaisine = {
-      nom: "s.pdf",
-      contenu: Buffer.from("S"),
+      name: "s.pdf",
+      content: Buffer.from("S"),
       media_type: "application/pdf",
     };
     await addOrUpdateAvisExpertWithFichiers(baseAvis, fichierSaisine, undefined, db.knex);
@@ -142,7 +142,7 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
     await addOrUpdateAvisExpertWithFichiers(
       { ...baseAvis, id: aeId },
       undefined,
-      { nom: "a.pdf", contenu: Buffer.from("A"), media_type: "application/pdf" },
+      { name: "a.pdf", content: Buffer.from("A"), media_type: "application/pdf" },
       db.knex,
     );
 
@@ -162,7 +162,7 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
     await expect(
       addOrUpdateAvisExpertWithFichiers(
         baseAvis,
-        { nom: "s.pdf", contenu: Buffer.from(""), media_type: "application/pdf" },
+        { name: "s.pdf", content: Buffer.from(""), media_type: "application/pdf" },
         undefined,
         db.knex,
       ),

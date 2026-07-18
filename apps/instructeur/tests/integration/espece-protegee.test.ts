@@ -155,7 +155,7 @@ test("la vue fait apparaître un ajout manuel absent de la référence", async (
 
 test("la vue masque une espèce exclue (tombstone)", async () => {
   await seedEspeceProtegeeReference([refEspece("50"), refEspece("51")], db);
-  await db("espece_protegee_modification").insert(modification("50", { exclu: true }));
+  await db("espece_protegee_modification").insert(modification("50", { excluded: true }));
 
   const rows = await getEspecesProtegees(db);
   expect(rows.map((r) => r.cd_ref)).toEqual(["51"]);

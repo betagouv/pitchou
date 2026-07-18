@@ -5,7 +5,7 @@ const TIMEOUT_DELAY = 20 * 1000; // ms
 
 async function _downloadFichierDS(
   url: string,
-): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
+): Promise<{ mediaType: string | null; content: ArrayBuffer }> {
   try {
     const responseWithoutBody = await ky.get(url, {
       timeout: TIMEOUT_DELAY,
@@ -17,7 +17,7 @@ async function _downloadFichierDS(
 
     return {
       mediaType,
-      contenu: response,
+      content: response,
     };
   } catch (err) {
     // @ts-ignore
@@ -45,6 +45,6 @@ const concurrencyLimit = pLimit(MAX_SIMULTANEOUS_DOWNLOADS);
 
 export default async function downloadFichierDS(
   url: string,
-): Promise<{ mediaType: string | null; contenu: ArrayBuffer }> {
+): Promise<{ mediaType: string | null; content: ArrayBuffer }> {
   return concurrencyLimit(() => _downloadFichierDS(url));
 }

@@ -6,11 +6,11 @@ import type { DossierForGeoMCE } from "@pitchou/types/geomce.ts";
 // id/siret are simplified here since the result is cast to DossierForGeoMCE).
 type DossierOverrides = {
   id?: number;
-  nom?: string | null;
+  name?: string | null;
   description?: string | null;
   communes?: { code: string }[];
   demandeur_personne_morale?: string | null;
-  date_signature?: Date | null;
+  signature_date?: Date | null;
   instructeurs?: DossierForGeoMCE["instructeurs"];
   specimens_faunes?: DossierForGeoMCE["specimens_faunes"];
   specimens_flores?: DossierForGeoMCE["specimens_flores"];
@@ -20,11 +20,11 @@ type DossierOverrides = {
 function makeDossier(overrides: DossierOverrides = {}): DossierForGeoMCE {
   return {
     id: 42,
-    nom: "Parc éolien du Test",
+    name: "Parc éolien du Test",
     description: "Un projet de test",
     communes: [{ code: "01001" }, { code: "75056" }],
     demandeur_personne_morale: "12345678901234",
-    date_signature: new Date("2026-03-15T10:30:00Z"),
+    signature_date: new Date("2026-03-15T10:30:00Z"),
     instructeurs: [{ email: "instructeur@example.org", date_from: "2026-01-01" }],
     specimens_faunes: [{ nom_scientifique: "Morus bassanus" }],
     specimens_flores: [{ nom_scientifique: "Narcissus tazetta" }],
@@ -42,13 +42,13 @@ describe("generateMessagesGeoMCE", () => {
   });
 
   it("garde le nom du dossier quand il est renseigné", () => {
-    const message = generateMessagesGeoMCE(makeDossier({ nom: "Mon projet" }));
+    const message = generateMessagesGeoMCE(makeDossier({ name: "Mon projet" }));
 
     expect(message.projet.nom).toBe("Mon projet");
   });
 
   it("retombe sur un nom par défaut quand le dossier n'a pas de nom", () => {
-    const message = generateMessagesGeoMCE(makeDossier({ id: 7, nom: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ id: 7, name: null }));
 
     expect(message.projet.nom).toBe("Dossier Pitchou #7");
   });
@@ -82,14 +82,14 @@ describe("generateMessagesGeoMCE", () => {
 
   it("formate la date de décision en YYYY-MM-DD", () => {
     const message = generateMessagesGeoMCE(
-      makeDossier({ date_signature: new Date("2026-03-15T10:30:00Z") }),
+      makeDossier({ signature_date: new Date("2026-03-15T10:30:00Z") }),
     );
 
     expect(message.procedure.date_decision).toBe("2026-03-15");
   });
 
   it("laisse la date de décision à null sans date de signature", () => {
-    const message = generateMessagesGeoMCE(makeDossier({ date_signature: null }));
+    const message = generateMessagesGeoMCE(makeDossier({ signature_date: null }));
 
     expect(message.procedure.date_decision).toBeNull();
   });

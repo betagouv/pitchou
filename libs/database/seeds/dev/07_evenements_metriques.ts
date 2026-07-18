@@ -113,8 +113,8 @@ function detailsFor(type: EventType, i: number): Record<string, unknown> | null 
 
 type MetricEventRow = {
   personne: number;
-  évènement: EventType;
-  détails: Record<string, unknown> | null;
+  evenement: EventType;
+  details: Record<string, unknown> | null;
   date: Date;
 };
 
@@ -140,12 +140,12 @@ export async function seed(knex: Knex) {
       if (!personne) continue;
 
       // Idempotence: remove existing metric events before re-inserting
-      await transaction("évènement_métrique").where({ personne: personne.id }).delete();
+      await transaction("evenement_metrique").where({ personne: personne.id }).delete();
 
       rows.push({
         personne: personne.id,
-        évènement: "seConnecter",
-        détails: null,
+        evenement: "seConnecter",
+        details: null,
         date: dateInWeek(profile.acquisitionWeeksAgo, 0),
       });
 
@@ -154,8 +154,8 @@ export async function seed(knex: Knex) {
           const type = EVENEMENTS_MODIFICATIONS[j % EVENEMENTS_MODIFICATIONS.length];
           rows.push({
             personne: personne.id,
-            évènement: type,
-            détails: detailsFor(type, j),
+            evenement: type,
+            details: detailsFor(type, j),
             date: dateInWeek(week.weeksAgo, j),
           });
         }
@@ -163,16 +163,16 @@ export async function seed(knex: Knex) {
           const type = EVENEMENTS_CONSULTATIONS[j % EVENEMENTS_CONSULTATIONS.length];
           rows.push({
             personne: personne.id,
-            évènement: type,
-            détails: detailsFor(type, j),
+            evenement: type,
+            details: detailsFor(type, j),
             date: dateInWeek(week.weeksAgo, j + 1),
           });
         }
         if (week.impact) {
           rows.push({
             personne: personne.id,
-            évènement: "retourÀLaConformité",
-            détails: detailsFor("retourÀLaConformité", 0),
+            evenement: "retourÀLaConformité",
+            details: detailsFor("retourÀLaConformité", 0),
             date: dateInWeek(week.weeksAgo, 3),
           });
         }
@@ -182,7 +182,7 @@ export async function seed(knex: Knex) {
     }
 
     if (rows.length > 0) {
-      await transaction("évènement_métrique").insert(rows);
+      await transaction("evenement_metrique").insert(rows);
     }
 
     console.log("");

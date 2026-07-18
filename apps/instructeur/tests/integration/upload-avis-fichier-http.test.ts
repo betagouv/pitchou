@@ -25,8 +25,8 @@ test("POST /avis-expert avec saisine + avis envoie les deux fichiers sur S3 et l
   form.set("dossier", JSON.stringify(dossier.id));
   form.set("expert", "CSRPN");
   form.set("avis", "Favorable");
-  form.set("date_saisine", new Date("2026-04-01").toISOString());
-  form.set("date_avis", new Date("2026-05-01").toISOString());
+  form.set("saisine_date", new Date("2026-04-01").toISOString());
+  form.set("avis_date", new Date("2026-05-01").toISOString());
   form.set(
     "blobFichierSaisine",
     new File([saisineBytes], "saisine.pdf", { type: "application/pdf" }),

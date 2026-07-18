@@ -13,7 +13,7 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   await loginAs(codeAcces);
 
   await page.goto(`/dossier/${dossier.id}`);
-  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.getByRole("tab", { name: "Contrôles" }).click();
   await page.getByRole("button", { name: "Rajouter une décision administrative" }).click();
@@ -34,13 +34,13 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   // And it is properly persisted in the database with its file.
   await expect
     .poll(async () => {
-      const rows = await db("décision_administrative").where({ dossier: dossier.id });
+      const rows = await db("decision_administrative").where({ dossier: dossier.id });
       return rows.length;
     })
     .toBe(1);
 
-  const decision = await db("décision_administrative").where({ dossier: dossier.id }).first();
-  expect(decision.numéro).toBe("AP-E2E-001");
+  const decision = await db("decision_administrative").where({ dossier: dossier.id }).first();
+  expect(decision.number).toBe("AP-E2E-001");
   expect(decision.type).toBe("Arrêté dérogation");
   expect(decision.fichier).not.toBeNull();
 });

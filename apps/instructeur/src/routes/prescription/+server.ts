@@ -16,9 +16,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
   let dossierId;
   if (prescriptionData.id) {
     dossierId = await getDossierIdFromPrescription(prescriptionData.id);
-  } else if (prescriptionData.décision_administrative) {
+  } else if (prescriptionData.decision_administrative) {
     dossierId = await getDossierIdFromDecisionAdministrative(
-      prescriptionData.décision_administrative,
+      prescriptionData.decision_administrative,
     );
   }
   await requireDossierAccessByCap(dossierId, cap);

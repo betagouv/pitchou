@@ -29,7 +29,7 @@ export async function requireAdmin(url: URL): Promise<string> {
   const secret = requireSecret(url);
   const personne = await directDatabaseConnection("personne")
     .select("email")
-    .where({ code_accès: secret })
+    .where({ access_code: secret })
     .first();
 
   if (!personne || !isAdminEmail(personne.email)) {

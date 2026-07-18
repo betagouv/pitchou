@@ -21,7 +21,7 @@ async function s3HasKey(key: string): Promise<boolean> {
 
 test("supprime fichier + file + objet S3 quand plus aucune référence n'existe", async () => {
   const s3 = await getTestS3();
-  const fichier = await createFichierS3(db, s3, { nom: "x.pdf" });
+  const fichier = await createFichierS3(db, s3, { name: "x.pdf" });
 
   expect(await s3HasKey(fichier.key)).toBe(true);
 
@@ -32,11 +32,11 @@ test("supprime fichier + file + objet S3 quand plus aucune référence n'existe"
   expect(await s3HasKey(fichier.key)).toBe(false);
 });
 
-test("préserve un fichier encore référencé par dossier.espèces_impactées", async () => {
+test("préserve un fichier encore référencé par dossier.especes_impactees", async () => {
   const s3 = await getTestS3();
-  const fichier = await createFichierS3(db, s3, { nom: "especes.pdf" });
-  // attach the fichier as dossier.espèces_impactées
-  await createDossier(db, { espèces_impactées: fichier.id });
+  const fichier = await createFichierS3(db, s3, { name: "especes.pdf" });
+  // Attach the fichier as dossier.especes_impactees.
+  await createDossier(db, { especes_impactees: fichier.id });
 
   const deleted = await deleteFichiersWithoutOtherReferences([fichier.id], db);
   expect(deleted).toEqual([]);
@@ -46,9 +46,9 @@ test("préserve un fichier encore référencé par dossier.espèces_impactées",
 
 test("traite un mix de fichiers à supprimer et à conserver", async () => {
   const s3 = await getTestS3();
-  const fichierAGarder = await createFichierS3(db, s3, { nom: "keep.pdf" });
-  const fichierASupprimer = await createFichierS3(db, s3, { nom: "del.pdf" });
-  await createDossier(db, { espèces_impactées: fichierAGarder.id });
+  const fichierAGarder = await createFichierS3(db, s3, { name: "keep.pdf" });
+  const fichierASupprimer = await createFichierS3(db, s3, { name: "del.pdf" });
+  await createDossier(db, { especes_impactees: fichierAGarder.id });
 
   const deleted = await deleteFichiersWithoutOtherReferences(
     [fichierAGarder.id, fichierASupprimer.id],

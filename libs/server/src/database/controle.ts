@@ -12,38 +12,38 @@ export function getControles(
   prescriptionIds: Prescription["id"][],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Controle[]> {
-  return databaseConnection("contrôle").select("*").whereIn("prescription", prescriptionIds);
+  return databaseConnection("controle").select("*").whereIn("prescription", prescriptionIds);
 }
 
 export function addControles(
   controles: Partial<Controle> | Partial<Controle>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("contrôle")
+  return databaseConnection("controle")
     .insert(controles)
     .returning(["id"])
     .then((controles) => controles.map((c) => c.id));
 }
 
 export function updateControle(
-  contrôle: Partial<Controle>,
+  controle: Partial<Controle>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("contrôle").update(contrôle).where({ id: contrôle.id });
+  return databaseConnection("controle").update(controle).where({ id: controle.id });
 }
 
 export function deleteControle(
   id: Controle["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("contrôle").delete().where({ id });
+  return databaseConnection("controle").delete().where({ id });
 }
 
 export async function getDossierIdFromControle(
   id: Controle["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"] | undefined> {
-  const rows = await databaseConnection("contrôle").select(["prescription"]).where({ id });
+  const rows = await databaseConnection("controle").select(["prescription"]).where({ id });
   const prescriptionId = rows[0]?.prescription;
   if (!prescriptionId) return undefined;
   return getDossierIdFromPrescription(prescriptionId, databaseConnection);

@@ -52,16 +52,16 @@ export function addOrUpdateAvisExpert(
     form.append("avis", avisExpert.avis);
   }
 
-  if (avisExpert.date_avis) {
-    form.append("date_avis", avisExpert.date_avis.toJSON());
+  if (avisExpert.avis_date) {
+    form.append("avis_date", avisExpert.avis_date.toJSON());
   }
 
   if (avisExpert.expert) {
     form.append("expert", avisExpert.expert);
   }
 
-  if (avisExpert.date_saisine) {
-    form.append("date_saisine", avisExpert.date_saisine.toJSON());
+  if (avisExpert.saisine_date) {
+    form.append("saisine_date", avisExpert.saisine_date.toJSON());
   }
 
   if (fileFichierSaisine) {

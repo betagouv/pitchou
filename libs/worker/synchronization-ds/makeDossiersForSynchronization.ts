@@ -5,11 +5,13 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { inseeHeadcountRangeLabel } from "./inseeHeadcountRange.ts";
 
 import type {
-  PersonnesEntreprisesDataInitializer,
+  AdditionalDataForDossierCreation,
   DossierEntreprisesPersonneInitializersForInsert,
   DossierEntreprisesPersonneInitializersForUpdate,
   DossierForInsert,
   IdentiteDossierData,
+  PersonnesEntreprisesDataInitializer,
+  PersonneWithRequiredEmail,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
@@ -22,12 +24,112 @@ import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type {
   default as DecisionAdministrative,
-  DecisionAdministrativeInitializer as DecisionAdministrativeInitializer,
+  DecisionAdministrativeInitializer,
 } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { TypeDecisionAdministrative, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
-import type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
+
+const persistedDossierColumnRenames = {
+  id_demarches_simplifiées: "demarche_numerique_id",
+  date_dépôt: "depot_date",
+  départements: "departments",
+  déposant: "deposant",
+  régions: "regions",
+  nom: "name",
+  number_demarches_simplifiées: "demarche_numerique_number",
+  ddep_nécessaire: "ddep_required",
+  commentaire_libre: "free_comment",
+  historique_identifiant_demande_onagre: "onagre_demande_identifier",
+  date_debut_consultation_public: "public_consultation_start_date",
+  rattaché_au_régime_ae: "linked_to_ae_regime",
+  prochaine_action_attendue_par: "next_action_expected_from",
+  activité_principale: "main_activite",
+  espèces_impactées: "especes_impactees",
+  date_début_intervention: "intervention_start_date",
+  date_fin_intervention: "intervention_end_date",
+  durée_intervention: "intervention_duration",
+  scientifique_type_demande: "scientifique_demande_type",
+  scientifique_description_protocole_suivi: "scientifique_suivi_protocol_description",
+  scientifique_mode_capture: "scientifique_capture_mode",
+  scientifique_modalités_source_lumineuses: "scientifique_light_source_conditions",
+  scientifique_modalités_marquage: "scientifique_marking_conditions",
+  scientifique_modalités_transport: "scientifique_transport_conditions",
+  scientifique_périmètre_intervention: "scientifique_intervention_perimeter",
+  scientifique_précisions_autres_intervenants: "scientifique_other_intervenants_details",
+  justification_absence_autre_solution_satisfaisante:
+    "no_other_satisfactory_solution_justification",
+  motif_dérogation: "motif_derogation",
+  justification_motif_dérogation: "motif_derogation_justification",
+  mesures_erc_prévues: "mesures_erc_planned",
+  scientifique_bilan_antérieur: "scientifique_previous_assessment",
+  scientifique_finalité_demande: "scientifique_demande_purposes",
+  nombre_nids_détruits_dossier_oiseau_simple: "dossier_oiseau_simple_destroyed_nids_count",
+  nombre_nids_compensés_dossier_oiseau_simple: "dossier_oiseau_simple_compensated_nids_count",
+  numéro_démarche: "demarche_number",
+  etat_des_lieux_ecologique_complet_realise: "ecological_inventory_completed",
+  presence_especes_dans_aire_influence: "especes_present_in_influence_area",
+  risque_malgre_mesures_erc: "risk_despite_erc_mesures",
+  date_fin_consultation_public: "public_consultation_end_date",
+  mesures_er_suffisantes: "er_mesures_sufficient",
+  date_mise_en_service: "commissioning_date",
+  cartographie_projet: "projet_map",
+} as const;
+
+function renamePersistedProperties(
+  value: unknown,
+  renames: Readonly<Record<string, string>>,
+): Record<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, propertyValue]) => [renames[key] ?? key, propertyValue]),
+  );
+}
+
+function renamePersistedArrayProperties(
+  value: unknown,
+  renames: Readonly<Record<string, string>>,
+): Record<string, unknown>[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((item) => renamePersistedProperties(item, renames) ?? {});
+}
+
+function mapPersistedAdditionalData(
+  value: AdditionalDataForDossierCreation,
+): Partial<DossierForInsert> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const persisted = value as unknown as Record<string, unknown>;
+
+  return {
+    dossier: renamePersistedProperties(
+      persisted.dossier,
+      persistedDossierColumnRenames,
+    ) as unknown as DossierInitializer,
+    evenement_phase_dossier: renamePersistedArrayProperties(persisted["évènement_phase_dossier"], {
+      horodatage: "timestamp",
+      cause_personne: "caused_by_personne",
+      DS_emailAgentTraitant: "demarche_numerique_agent_email",
+      DS_motivation: "demarche_numerique_motivation",
+    }) as PartialBy<EvenementPhaseDossierInitializer, "dossier">[] | undefined,
+    decision_administrative: renamePersistedArrayProperties(persisted["décision_administrative"], {
+      numéro: "number",
+      date_signature: "signature_date",
+      date_fin_obligations: "obligations_end_date",
+    }) as PartialBy<DecisionAdministrativeInitializer, "dossier">[] | undefined,
+    avis_expert: renamePersistedArrayProperties(persisted.avis_expert, {
+      date_saisine: "saisine_date",
+      date_avis: "avis_date",
+    }) as PartialBy<AvisExpertInitializer, "dossier">[] | undefined,
+    followers: renamePersistedArrayProperties(persisted.personnes_qui_suivent, {
+      nom: "last_name",
+      prénoms: "first_names",
+      code_accès: "access_code",
+    }) as PersonneWithRequiredEmail[] | undefined,
+  };
+}
 
 export type MakeCommonDossierColumnsForSync = (
   dossierDS: DossierDS88444,
@@ -85,15 +187,15 @@ export function getPersonnesEntreprisesData88444(
     two different people sharing the same email (unique email constraint).
     */
   /** @type {PersonneInitializer} */
-  let déposant;
+  let deposant;
   /*
     Demandeur
     Personne physique or morale who formulates the demande de dérogation espèces protégées
     */
   /** @type {PersonneInitializer | undefined} */
-  let demandeur_personne_physique = undefined;
+  let demandeurPersonnePhysique = undefined;
   /** @type {Entreprise | undefined} */
-  let demandeur_personne_morale = undefined;
+  let demandeurPersonneMorale = undefined;
 
   /** @type {DossierDemarcheNumerique88444['Le demandeur est…'] | undefined} */
   const personneMoraleOuPhysique = champById.get(
@@ -115,9 +217,9 @@ export function getPersonnesEntreprisesData88444(
   // email there, which the API only exposes as usager.email.
   const demandeurIdentityEmail = demandeur.email || (hasMandataire ? undefined : usager.email);
 
-  déposant = {
-    prénoms: demandeur.prenom,
-    nom: demandeur.nom,
+  deposant = {
+    first_names: demandeur.prenom,
+    last_name: demandeur.nom,
     email: demandeurIdentityEmail ? normalizeEmail(demandeurIdentityEmail) : undefined,
   };
 
@@ -145,19 +247,19 @@ export function getPersonnesEntreprisesData88444(
   }
 
   if (personneMoraleOuPhysique === "une personne physique") {
-    const { prenom, nom } = demandeur;
+    const { prenom, nom: lastName } = demandeur;
 
-    const email = emailContact || demandeur.email || déposant.email;
+    const email = emailContact || demandeur.email || deposant.email;
 
     // "Adresse" is a BAN address champ: it carries a structured `address` sub-object.
-    const adresseChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
+    const addressChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
     const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
 
-    demandeur_personne_physique = {
-      prénoms: prenom,
-      nom,
+    demandeurPersonnePhysique = {
+      first_names: prenom,
+      last_name: lastName,
       email: email ? normalizeEmail(email) : undefined,
-      address: formatPostalAddress(adresseChamp?.address),
+      address: formatPostalAddress(addressChamp?.address),
       phone: phoneContact || undefined,
       role: role || undefined,
     };
@@ -178,10 +280,10 @@ export function getPersonnesEntreprisesData88444(
         codeEffectifEntreprise,
       } = entreprise ?? {};
 
-      demandeur_personne_morale = {
+      demandeurPersonneMorale = {
         siret,
-        raison_sociale: raisonSociale,
-        adresse: formatPostalAddress(address),
+        legal_name: raisonSociale,
+        address: formatPostalAddress(address),
         siren: siren || undefined,
         legal_form: formeJuridique || undefined,
         naf_code: naf || undefined,
@@ -201,15 +303,17 @@ export function getPersonnesEntreprisesData88444(
 
   // The representant is the contact person within the legal entity (personne morale).
   if (personneMoraleOuPhysique === "une personne morale") {
-    const nom = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
-    const prénoms = champById.get(pitchouKeyToChampDS.get("Prénom du représentant"))?.stringValue;
+    const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
+    const firstNames = champById.get(
+      pitchouKeyToChampDS.get("Prénom du représentant"),
+    )?.stringValue;
     const role = champById.get(pitchouKeyToChampDS.get("Qualité du représentant"))?.stringValue;
 
-    if (nom || prénoms || role || emailContact || phoneContact) {
+    if (lastName || firstNames || role || emailContact || phoneContact) {
       identites.push({
         type: "representant",
-        last_name: nom || null,
-        first_names: prénoms || null,
+        last_name: lastName || null,
+        first_names: firstNames || null,
         email: emailContact ? normalizeEmail(emailContact) : null,
         phone: phoneContact || null,
         role: role || null,
@@ -218,9 +322,9 @@ export function getPersonnesEntreprisesData88444(
   }
 
   return {
-    déposant,
-    demandeur_personne_morale,
-    demandeur_personne_physique,
+    deposant,
+    demandeur_personne_morale: demandeurPersonneMorale,
+    demandeur_personne_physique: demandeurPersonnePhysique,
     identites,
   };
 }
@@ -231,7 +335,7 @@ export function getPersonnesEntreprisesData88444(
  */
 function splitDossiersToInitializeAndToUpdate(
   dossiersDS: DossierDS88444[],
-  dossierNumberToDossierId: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
+  dossierNumberToDossierId: Map<Dossier["demarche_numerique_number"], Dossier["id"]>,
 ): { dossiersDSToInitialize: DossierDS88444[]; dossiersDSToUpdate: DossierDS88444[] } {
   let dossiersDSToInitialize: DossierDS88444[] = [];
   let dossiersDSToUpdate: DossierDS88444[] = [];
@@ -270,10 +374,14 @@ async function makeChampsDossierForInitialization(
   /**
    * FOR IMPORTING HISTORICAL DOSSIERS
    */
-  let additionalData: AdditionalDataForDossierCreation | undefined;
+  let additionalData: Partial<DossierForInsert> | undefined;
   try {
     additionalData = additionalDataToDecrypt
-      ? JSON.parse(await decryptDossiersAdditionalData(additionalDataToDecrypt))
+      ? mapPersistedAdditionalData(
+          JSON.parse(
+            await decryptDossiersAdditionalData(additionalDataToDecrypt),
+          ) as AdditionalDataForDossierCreation,
+        )
       : undefined;
 
     if (additionalData) {
@@ -294,13 +402,13 @@ async function makeChampsDossierForInitialization(
     dossier: {
       ...makeCommonDossierColumnsForSync(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
       ...(additionalData?.dossier || {}),
-      date_dépôt: additionalData?.dossier?.date_dépôt ?? dossierDS.dateDepot,
-      numéro_démarche: demarcheNumber,
+      depot_date: additionalData?.dossier?.depot_date ?? dossierDS.dateDepot,
+      demarche_number: demarcheNumber,
     },
-    évènement_phase_dossier: additionalData?.évènement_phase_dossier,
+    evenement_phase_dossier: additionalData?.evenement_phase_dossier,
     avis_expert: additionalData?.avis_expert,
-    décision_administrative: additionalData?.décision_administrative,
-    personnes_qui_suivent: additionalData?.personnes_qui_suivent,
+    decision_administrative: additionalData?.decision_administrative,
+    followers: additionalData?.followers,
   };
 }
 
@@ -322,16 +430,16 @@ function makeEvenementsPhaseDossierFromTraitementsDS(
   traitements: DossierDS88444["traitements"],
   dossierId?: Dossier["id"],
 ) {
-  const evenementsPhaseDossier: DossierForInsert["évènement_phase_dossier"] = [];
+  const evenementsPhaseDossier: DossierForInsert["evenement_phase_dossier"] = [];
 
   for (const { dateTraitement, state, emailAgentTraitant, motivation } of traitements) {
     evenementsPhaseDossier.push({
       phase: traitementPhaseToDossierPhase(state),
       dossier: dossierId,
-      horodatage: new Date(dateTraitement),
-      cause_personne: null, // means that the DS sync tool is the cause
-      DS_emailAgentTraitant: emailAgentTraitant,
-      DS_motivation: motivation,
+      timestamp: new Date(dateTraitement),
+      caused_by_personne: null, // means that the DS sync tool is the cause
+      demarche_numerique_agent_email: emailAgentTraitant,
+      demarche_numerique_motivation: motivation,
     });
   }
 
@@ -371,9 +479,9 @@ function makeDecisionAdministrativeFromTraitementDS(
       dossier: idPitchouDuDossier ?? undefined,
       fichier: fichierMotivationId,
       type,
-      date_signature: null, // no default value
-      numéro: null,
-      date_fin_obligations: null,
+      signature_date: null, // no default value
+      number: null,
+      obligations_end_date: null,
     });
   }
 
@@ -388,7 +496,7 @@ function makeDecisionAdministrativeFromTraitementDS(
 export async function makeDossiersForSynchronization(
   dossiersDS: DossierDS88444[],
   demarcheNumber: number,
-  numberDSDossiersAlreadyExistingInDB: Map<Dossier["number_demarches_simplifiées"], Dossier["id"]>,
+  dossierNumberToDossierId: Map<Dossier["demarche_numerique_number"], Dossier["id"]>,
   downloadedFichiersMotivation: Map<number, FileId> | undefined,
   pitchouKeyToChampDS: Map<string, ChampDescriptor["id"]>,
   pitchouKeyToAnnotationDS: Map<string, ChampDescriptor["id"]>,
@@ -400,7 +508,7 @@ export async function makeDossiersForSynchronization(
 }> {
   const { dossiersDSToInitialize, dossiersDSToUpdate } = splitDossiersToInitializeAndToUpdate(
     dossiersDS,
-    numberDSDossiersAlreadyExistingInDB,
+    dossierNumberToDossierId,
   );
 
   const dossiersToInitializeForSyncP: Promise<DossierEntreprisesPersonneInitializersForInsert>[] =
@@ -413,11 +521,11 @@ export async function makeDossiersForSynchronization(
         makeCommonDossierColumnsForSync,
       );
 
-      const évènement_phase_dossier = makeEvenementsPhaseDossierFromTraitementsDS(
+      const evenementPhaseDossier = makeEvenementsPhaseDossierFromTraitementsDS(
         dossierDS.traitements,
       );
 
-      const décision_administrative = makeDecisionAdministrativeFromTraitementDS(
+      const decisionAdministrative = makeDecisionAdministrativeFromTraitementDS(
         dossierDS,
         downloadedFichiersMotivation,
         null,
@@ -428,21 +536,21 @@ export async function makeDossiersForSynchronization(
           ...champsDossierForInit.dossier,
           ...getPersonnesEntreprisesData(dossierDS, pitchouKeyToChampDS),
         },
-        // The phase events returned by makeÉvènementsPhaseDossierFromTraitementsDS
+        // The phase events returned by makeEvenementsPhaseDossierFromTraitementsDS
         // only concern the dossiers to update (not the ones being created)
-        évènement_phase_dossier:
-          champsDossierForInit.évènement_phase_dossier ?? évènement_phase_dossier,
+        evenement_phase_dossier:
+          champsDossierForInit.evenement_phase_dossier ?? evenementPhaseDossier,
         avis_expert: champsDossierForInit.avis_expert || [],
-        décision_administrative: [
-          ...(champsDossierForInit.décision_administrative || []),
-          ...décision_administrative,
+        decision_administrative: [
+          ...(champsDossierForInit.decision_administrative || []),
+          ...decisionAdministrative,
         ],
-        personnes_qui_suivent: champsDossierForInit.personnes_qui_suivent,
+        followers: champsDossierForInit.followers,
       }));
     });
 
   const dossiersToUpdateForSync = dossiersDSToUpdate.map((dossierDS) => {
-    const dossierId = numberDSDossiersAlreadyExistingInDB.get(String(dossierDS.number));
+    const dossierId = dossierNumberToDossierId.get(String(dossierDS.number));
 
     if (!dossierId) {
       throw new Error(
@@ -456,12 +564,12 @@ export async function makeDossiersForSynchronization(
       pitchouKeyToAnnotationDS,
     );
 
-    const évènement_phase_dossier = makeEvenementsPhaseDossierFromTraitementsDS(
+    const evenementPhaseDossier = makeEvenementsPhaseDossierFromTraitementsDS(
       dossierDS.traitements,
       dossierId,
     );
 
-    const décision_administrative = makeDecisionAdministrativeFromTraitementDS(
+    const decisionAdministrative = makeDecisionAdministrativeFromTraitementDS(
       dossierDS,
       downloadedFichiersMotivation,
       dossierId,
@@ -472,8 +580,8 @@ export async function makeDossiersForSynchronization(
         ...partialDossier,
         ...getPersonnesEntreprisesData(dossierDS, pitchouKeyToChampDS),
       },
-      évènement_phase_dossier,
-      décision_administrative,
+      evenement_phase_dossier: evenementPhaseDossier,
+      decision_administrative: decisionAdministrative,
     };
   });
 

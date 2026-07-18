@@ -24,31 +24,31 @@ async function setup(db: Knex): Promise<SetupResult> {
     codeAcces: CODE,
   });
 
-  // date_dépôt — older to newer
+  // depot_date, from oldest to newest.
   const d1 = new Date("2024-01-01");
   const d2 = new Date("2024-02-01");
   const d3 = new Date("2024-03-01");
   const d4 = new Date("2024-04-01");
 
   const noNotificationOld = await createDossier(db, {
-    nom: "Dossier ancien sans notification",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d1,
+    name: "Dossier ancien sans notification",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d1,
   });
   const viewedRecent = await createDossier(db, {
-    nom: "Dossier récent déjà consulté",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d2,
+    name: "Dossier récent déjà consulté",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d2,
   });
   const unviewedOld = await createDossier(db, {
-    nom: "Recherche scientifique sur les chats",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d3,
+    name: "Recherche scientifique sur les chats",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d3,
   });
   const unviewedRecent = await createDossier(db, {
-    nom: "Parc photovoltaïque à Anglet",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d4,
+    name: "Parc photovoltaïque à Anglet",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d4,
     enjeu: true,
   });
 
@@ -78,10 +78,10 @@ async function setup(db: Knex): Promise<SetupResult> {
   });
 
   return {
-    unviewedRecent: { id: unviewedRecent.id, nom: unviewedRecent.nom! },
-    unviewedOld: { id: unviewedOld.id, nom: unviewedOld.nom! },
-    viewedRecent: { id: viewedRecent.id, nom: viewedRecent.nom! },
-    noNotificationOld: { id: noNotificationOld.id, nom: noNotificationOld.nom! },
+    unviewedRecent: { id: unviewedRecent.id, nom: unviewedRecent.name! },
+    unviewedOld: { id: unviewedOld.id, nom: unviewedOld.name! },
+    viewedRecent: { id: viewedRecent.id, nom: viewedRecent.name! },
+    noNotificationOld: { id: noNotificationOld.id, nom: noNotificationOld.name! },
   };
 }
 
@@ -94,7 +94,7 @@ async function gotoMesDossiers(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 }
 
-test("dossiers triés : notifications non vues (récentes d'abord) puis date_dépôt décroissante", async ({
+test("dossiers triés : notifications non vues (récentes d'abord) puis depot_date décroissante", async ({
   page,
   db,
 }) => {

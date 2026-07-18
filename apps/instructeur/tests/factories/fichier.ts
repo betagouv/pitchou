@@ -5,7 +5,7 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 export type CreatedFile = {
   id: FileId;
-  nom: string;
+  name: string;
   key: string;
   bytes: Buffer;
 };
@@ -16,9 +16,9 @@ export type CreatedFile = {
 export async function createFichierS3(
   db: Knex,
   s3: { client: S3Client; bucket: string },
-  overrides: { nom?: string; mediaType?: string; bytes?: Buffer } = {},
+  overrides: { name?: string; mediaType?: string; bytes?: Buffer } = {},
 ): Promise<CreatedFile> {
-  const nom = overrides.nom ?? "doc.pdf";
+  const name = overrides.name ?? "doc.pdf";
   const mediaType = overrides.mediaType ?? "application/pdf";
   const bytes = overrides.bytes ?? Buffer.from("%PDF-1.4 stored on S3");
 
@@ -31,10 +31,10 @@ export async function createFichierS3(
 
   await db("file").insert({
     id: fileId,
-    nom,
+    name,
     media_type: mediaType,
-    taille: String(bytes.byteLength),
+    size: String(bytes.byteLength),
   });
 
-  return { id: fileId, nom, key, bytes };
+  return { id: fileId, name, key, bytes };
 }

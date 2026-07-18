@@ -58,11 +58,11 @@ function isIndicatorsAARRI(indicators: any): indicators is IndicatorsAARRI {
   return false;
 }
 
-export function sendEvenement(évènement: EvenementMetrique) {
-  if (store.capabilities.créerÉvènementMetrique) {
+export function sendEvenement(event: EvenementMetrique) {
+  if (store.capabilities.creerEvenementMetrique) {
     store.capabilities
-      .créerÉvènementMetrique(évènement)
-      .catch((e) => console.warn(`Échec lors de la création de l’évènement:`, e, évènement));
+      .creerEvenementMetrique(event)
+      .catch((e) => console.warn(`Échec lors de la création de l’évènement:`, e, event));
   }
 }
 
@@ -73,8 +73,8 @@ export const sendEvenementModifierCommentaire = debounce(
 );
 
 export const sendEvenementRechercherUnDossier = debounce(
-  (détails: EvenementRechercheDossiersDetails) =>
-    sendEvenement({ type: "rechercherDesDossiers", détails }),
+  (details: EvenementRechercheDossiersDetails) =>
+    sendEvenement({ type: "rechercherDesDossiers", détails: details }),
   10 * 1000,
   true,
 );

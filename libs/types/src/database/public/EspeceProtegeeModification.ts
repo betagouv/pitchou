@@ -22,9 +22,9 @@ export default interface EspeceProtegeeModification {
 
   espece_cnpn: boolean | null;
 
-  exclu: boolean;
+  excluded: boolean;
 
-  modifie_par: string | null;
+  modified_by: string | null;
 
   created_at: Date;
 
@@ -48,9 +48,9 @@ export interface EspeceProtegeeModificationInitializer {
   espece_cnpn?: boolean | null;
 
   /** Default value: false */
-  exclu?: boolean;
+  excluded?: boolean;
 
-  modifie_par?: string | null;
+  modified_by?: string | null;
 
   /** Default value: CURRENT_TIMESTAMP */
   created_at?: Date;
@@ -75,9 +75,9 @@ export interface EspeceProtegeeModificationMutator {
 
   espece_cnpn?: boolean | null;
 
-  exclu?: boolean;
+  excluded?: boolean;
 
-  modifie_par?: string | null;
+  modified_by?: string | null;
 
   created_at?: Date;
 

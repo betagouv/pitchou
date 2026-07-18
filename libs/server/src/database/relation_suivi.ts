@@ -14,21 +14,21 @@ export function findRelationPersonneFromCap(
 ): Promise<any[]> {
   return databaseConnection("cap_dossier")
     .select([
-      "arête_groupe_instructeurs__dossier.dossier as dossier_id",
+      "edge_groupe_instructeurs__dossier.dossier as dossier_id",
       "personne.id as personne_id",
     ])
-    .leftJoin("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.cap_dossier": "cap_dossier.cap",
+    .leftJoin("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.cap_dossier": "cap_dossier.cap",
     })
-    .leftJoin("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.groupe_instructeurs":
-        "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    .leftJoin("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.groupe_instructeurs":
+        "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
     })
-    .leftJoin("personne", { "personne.code_accès": "cap_dossier.personne_cap" })
+    .leftJoin("personne", { "personne.access_code": "cap_dossier.personne_cap" })
     .where({
       "cap_dossier.cap": cap,
       "personne.email": personneEmail,
-      "arête_groupe_instructeurs__dossier.dossier": dossierId,
+      "edge_groupe_instructeurs__dossier.dossier": dossierId,
     });
 }
 
@@ -37,7 +37,7 @@ export async function instructeurFollowsDossier(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  return databaseConnection("arête_personne_suit_dossier")
+  return databaseConnection("edge_personne_follows_dossier")
     .insert({
       personne: personneId,
       dossier: dossierId,
@@ -52,7 +52,7 @@ export async function instructeurLeavesDossier(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  return databaseConnection("arête_personne_suit_dossier")
+  return databaseConnection("edge_personne_follows_dossier")
     .delete()
     .where({
       personne: personneId,

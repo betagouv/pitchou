@@ -19,36 +19,36 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     const dossiersP = transaction("dossier").select("id");
 
     // Fetch the dossiers currently in the contrôle phase
-    const dossiersEnPhaseControleP = transaction("évènement_phase_dossier")
+    const dossiersEnPhaseControleP = transaction("evenement_phase_dossier")
       .select("dossier")
-      .max("horodatage as latest_horodatage")
+      .max("timestamp as latest_timestamp")
       .where("phase", "Contrôle")
       .groupBy("dossier")
-      .orderBy("latest_horodatage", "desc");
+      .orderBy("latest_timestamp", "desc");
 
     const petitionnairesSinceSept2024P = transaction("dossier")
       .select(["demandeur_personne_morale", "demandeur_personne_physique"])
-      .where("date_dépôt", "<=", "2024-09-30")
+      .where("depot_date", "<=", "2024-09-30")
       .groupBy("demandeur_personne_morale", "demandeur_personne_physique");
 
     /** The prescriptions we're interested in are the controllable prescriptions, i.e. the prescriptions whose due date is in the past */
     const prescriptionsP = transaction("prescription")
       .select([
         "id",
-        "surface_évitée",
-        "surface_compensée",
-        "nids_évités",
-        "nids_compensés",
-        "individus_évités",
-        "individus_compensés",
+        "avoided_surface",
+        "compensated_surface",
+        "avoided_nids",
+        "compensated_nids",
+        "avoided_individus",
+        "compensated_individus",
       ])
-      .where("date_échéance", "<=", today)
+      .where("due_date", "<=", today)
       .as("p");
 
     const controleP = transaction
-      .select(["contrôle.prescription", "contrôle.résultat", "contrôle.date_contrôle"])
-      .from("contrôle")
-      .join(prescriptionsP, "contrôle.prescription", "p.id")
+      .select(["controle.prescription", "controle.result", "controle.controle_date"])
+      .from("controle")
+      .join(prescriptionsP, "controle.prescription", "p.id")
       .as("c");
 
     const prescriptionsControleesP = transaction
@@ -84,8 +84,8 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
     const dossierIdsEnPhaseControle = dossiersEnPhaseControle.map((row) => row.dossier);
 
     // Fetch the décisions administratives for the dossiers in the Controle phase
-    const decisionsForDossierEnPhaseControle = await transaction("évènement_phase_dossier as epd")
-      .join("décision_administrative as da", "da.dossier", "epd.dossier")
+    const decisionsForDossierEnPhaseControle = await transaction("evenement_phase_dossier as epd")
+      .join("decision_administrative as da", "da.dossier", "epd.dossier")
       .whereIn("epd.dossier", dossierIdsEnPhaseControle)
       .whereNotNull("da.type")
       .distinct("epd.dossier")
@@ -93,15 +93,15 @@ export async function getStatsPubliques(): Promise<StatsPubliques> {
 
     const stats: StatsPubliques = {
       totalDossiers: dossiers.length,
-      nbDossiersEnPhaseContrôle: dossiersEnPhaseControle.length,
-      nbDossiersEnPhaseContrôleAvecDécision: decisionsForDossierEnPhaseControle.length,
-      nbDossiersEnPhaseContrôleSansDécision:
+      nbDossiersEnPhaseControle: dossiersEnPhaseControle.length,
+      nbDossiersEnPhaseControleAvecDecision: decisionsForDossierEnPhaseControle.length,
+      nbDossiersEnPhaseControleSansDecision:
         dossiersEnPhaseControle.length - decisionsForDossierEnPhaseControle.length,
-      nbPétitionnairesDepuisSept2024: petitionnairesSinceSept2024.length,
+      nbPetitionnairesDepuisSept2024: petitionnairesSinceSept2024.length,
       totalPrescriptions,
       nbPrescriptionsControlees: numberPrescriptionsControlees,
-      statsConformité: statsConformite,
-      statsImpactBiodiversité: statsImpactBiodiversite,
+      statsConformite,
+      statsImpactBiodiversite,
     };
 
     await transaction.commit();
@@ -120,41 +120,41 @@ async function getStatsConformite(
   transaction: Knex.Transaction | Knex,
   controleP: Knex.QueryBuilder,
 ): Promise<StatsConformite> {
-  const nbControles = transaction
-    .from(controleP.as("contrôle"))
+  const controleCounts = transaction
+    .from(controleP.as("controle"))
     .select("prescription")
-    .count("* as nb_contrôles")
+    .count("* as controle_count")
     .groupBy("prescription");
 
   const lastControle = transaction
-    .from(controleP.as("contrôle"))
-    .select("prescription", "résultat", "date_contrôle")
+    .from(controleP.as("controle"))
+    .select("prescription", "result", "controle_date")
     .distinctOn("prescription")
     .orderBy([
       { column: "prescription", order: "asc" },
-      { column: "date_contrôle", order: "desc" },
+      { column: "controle_date", order: "desc" },
     ]);
 
   const sqlQueryResults = await transaction
     .from(lastControle.as("dc"))
-    .join(nbControles.as("nc"), "dc.prescription", "nc.prescription")
+    .join(controleCounts.as("nc"), "dc.prescription", "nc.prescription")
     .select([
-      transaction.raw(`COUNT(*) FILTER (WHERE dc.résultat = 'Non conforme') AS nb_non_conforme`),
-      transaction.raw(`COUNT(*) FILTER (WHERE dc.résultat = 'Trop tard') AS nb_trop_tard`),
+      transaction.raw(`COUNT(*) FILTER (WHERE dc.result = 'Non conforme') AS nb_non_conforme`),
+      transaction.raw(`COUNT(*) FILTER (WHERE dc.result = 'Trop tard') AS nb_trop_tard`),
       transaction.raw(
-        `COUNT(*) FILTER (WHERE dc.résultat NOT IN ('Conforme', 'Non conforme', 'Trop tard')) AS nb_conformite_autre`,
+        `COUNT(*) FILTER (WHERE dc.result NOT IN ('Conforme', 'Non conforme', 'Trop tard')) AS nb_conformite_autre`,
       ),
       transaction.raw(
-        `COUNT(*) FILTER (WHERE dc.résultat = 'Conforme' AND nc.nb_contrôles = 1) AS nb_conforme_apres_1`,
+        `COUNT(*) FILTER (WHERE dc.result = 'Conforme' AND nc.controle_count = 1) AS nb_conforme_apres_1`,
       ),
       transaction.raw(
-        `COUNT(*) FILTER (WHERE dc.résultat = 'Conforme' AND nc.nb_contrôles = 2) AS nb_conforme_apres_2`,
+        `COUNT(*) FILTER (WHERE dc.result = 'Conforme' AND nc.controle_count = 2) AS nb_conforme_apres_2`,
       ),
       transaction.raw(
-        `COUNT(*) FILTER (WHERE dc.résultat = 'Conforme' AND nc.nb_contrôles = 3) AS nb_conforme_apres_3`,
+        `COUNT(*) FILTER (WHERE dc.result = 'Conforme' AND nc.controle_count = 3) AS nb_conforme_apres_3`,
       ),
       transaction.raw(
-        `COUNT(*) FILTER (WHERE dc.résultat = 'Conforme' AND nc.nb_contrôles > 1) AS nb_retour_conformite`,
+        `COUNT(*) FILTER (WHERE dc.result = 'Conforme' AND nc.controle_count > 1) AS nb_retour_conformite`,
       ),
     ])
     .first();
@@ -180,44 +180,46 @@ async function getStatsImpactBiodiversite(
 ): Promise<StatsImpactBiodiversite> {
   const subQuery = transaction
     .from(prescriptionsP.as("p"))
-    .join("contrôle", "p.id", "contrôle.prescription")
-    .where("contrôle.résultat", "Conforme")
+    .join("controle", "p.id", "controle.prescription")
+    .where("controle.result", "Conforme")
     .distinctOn("p.id")
     .select(
       "p.id",
-      "p.surface_évitée",
-      "p.surface_compensée",
-      "p.nids_évités",
-      "p.nids_compensés",
-      "p.individus_évités",
-      "p.individus_compensés",
+      "p.avoided_surface",
+      "p.compensated_surface",
+      "p.avoided_nids",
+      "p.compensated_nids",
+      "p.avoided_individus",
+      "p.compensated_individus",
     )
     .orderBy([
       { column: "p.id", order: "asc" },
-      { column: "contrôle.date_contrôle", order: "desc" },
+      { column: "controle.controle_date", order: "desc" },
     ]);
 
   const result = await transaction
     .from(subQuery.as("prescriptions_conformes"))
     .select([
       transaction.raw("COUNT(*)::int AS total_prescriptions_conformes"),
-      transaction.raw("SUM(COALESCE(surface_évitée, 0))::float AS total_surface_évitée"),
-      transaction.raw("SUM(COALESCE(surface_compensée, 0))::float AS total_surface_compensée"),
-      transaction.raw("SUM(COALESCE(nids_évités, 0))::int AS total_nids_évités"),
-      transaction.raw("SUM(COALESCE(nids_compensés, 0))::int AS total_nids_compensés"),
-      transaction.raw("SUM(COALESCE(individus_évités, 0))::int AS total_individus_évités"),
-      transaction.raw("SUM(COALESCE(individus_compensés, 0))::int AS total_individus_compensés"),
+      transaction.raw("SUM(COALESCE(avoided_surface, 0))::float AS total_avoided_surface"),
+      transaction.raw("SUM(COALESCE(compensated_surface, 0))::float AS total_compensated_surface"),
+      transaction.raw("SUM(COALESCE(avoided_nids, 0))::int AS total_avoided_nids"),
+      transaction.raw("SUM(COALESCE(compensated_nids, 0))::int AS total_compensated_nids"),
+      transaction.raw("SUM(COALESCE(avoided_individus, 0))::int AS total_avoided_individus"),
+      transaction.raw(
+        "SUM(COALESCE(compensated_individus, 0))::int AS total_compensated_individus",
+      ),
     ])
     .first();
 
   const stats: StatsImpactBiodiversite = {
     total_prescriptions_conformes: Number(result.total_prescriptions_conformes),
-    total_surface_évitée: Number(result.total_surface_évitée),
-    total_surface_compensée: Number(result.total_surface_compensée),
-    total_nids_évités: Number(result.total_nids_évités),
-    total_nids_compensés: Number(result.total_nids_compensés),
-    total_individus_évités: Number(result.total_individus_évités),
-    total_individus_compensés: Number(result.total_individus_compensés),
+    total_avoided_surface: Number(result.total_avoided_surface),
+    total_compensated_surface: Number(result.total_compensated_surface),
+    total_avoided_nids: Number(result.total_avoided_nids),
+    total_compensated_nids: Number(result.total_compensated_nids),
+    total_avoided_individus: Number(result.total_avoided_individus),
+    total_compensated_individus: Number(result.total_compensated_individus),
   };
 
   return stats;

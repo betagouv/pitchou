@@ -18,13 +18,13 @@ vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
   refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock(import("./attachmentAutre.ts"), () => ({
-  addAttachmentAutre: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
+vi.mock(import("./otherAttachment.ts"), () => ({
+  addOtherAttachment: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
 }));
 
 import { sendEvenement } from "$lib/shared/aarri.ts";
 import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-import { addAttachmentAutre } from "./attachmentAutre.ts";
+import { addOtherAttachment } from "./otherAttachment.ts";
 import DossierAvis from "./DossierAvis.svelte";
 import DossierControles from "./DossierControles.svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
@@ -37,7 +37,7 @@ const DOSSIER_ID = 123;
 
 beforeEach(() => {
   vi.mocked(sendEvenement).mockReset();
-  vi.mocked(addAttachmentAutre).mockClear();
+  vi.mocked(addOtherAttachment).mockClear();
   vi.mocked(refreshDossierFull).mockClear();
   Object.assign(window, {
     dsfr: vi.fn(() => ({ modal: { conceal: vi.fn() } })),
@@ -49,29 +49,29 @@ afterEach(cleanup);
 function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
   return {
     id: DOSSIER_ID,
-    nom: "Dossier test",
+    name: "Dossier test",
     communes: null,
-    départements: ["01"],
-    régions: null,
-    activité_principale: "Travaux",
-    number_demarches_simplifiées: 456,
+    departments: ["01"],
+    regions: null,
+    main_activite: "Travaux",
+    demarche_numerique_number: 456,
     demandeur_personne_morale_siret: null,
-    demandeur_personne_morale_raison_sociale: "",
+    demandeur_personne_morale_legal_name: "",
     representative_email: null,
-    demandeur_personne_physique_nom: "Durand",
-    demandeur_personne_physique_prénoms: "Alice",
+    demandeur_personne_physique_last_name: "Durand",
+    demandeur_personne_physique_first_names: "Alice",
     demandeur_personne_physique_email: null,
-    déposant_nom: "Durand",
-    déposant_prénoms: "Alice",
-    déposant_email: null,
-    prochaine_action_attendue_par: null,
+    deposant_last_name: "Durand",
+    deposant_first_names: "Alice",
+    deposant_email: null,
+    next_action_expected_from: null,
     enjeu: false,
-    rattaché_au_régime_ae: false,
-    évènementsPhase: [],
+    linked_to_ae_regime: false,
+    evenementsPhase: [],
     avisExpert: [],
-    décisionsAdministratives: [],
-    piècesJointesPétitionnaires: [],
-    attachmentAutres: [],
+    decisionsAdministratives: [],
+    piecesJointesPetitionnaires: [],
+    otherAttachments: [],
     ...overrides,
   } as unknown as DossierFull;
 }
@@ -171,7 +171,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
   if (!submitButton) throw new Error("bouton Valider introuvable");
   submitButton.click();
 
-  await waitFor(() => expect(addAttachmentAutre).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(addOtherAttachment).toHaveBeenCalledTimes(1));
   await waitFor(() =>
     expect(sendEvenement).toHaveBeenCalledWith({
       type: "ajouterPieceJointe",

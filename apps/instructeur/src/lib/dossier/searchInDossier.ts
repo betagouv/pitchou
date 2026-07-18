@@ -13,28 +13,30 @@ lunrfr(lunr);
 const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<DossierSummary>> => {
   const {
     id,
-    nom,
-    number_demarches_simplifiées,
+    name,
+    demarche_numerique_number,
     communes,
-    déposant_nom: deposant_nom,
-    déposant_prénoms: deposant_prenoms,
-    demandeur_personne_physique_prénoms: demandeur_personne_physique_prenoms,
-    demandeur_personne_physique_nom,
-    demandeur_personne_morale_raison_sociale,
+    deposant_last_name,
+    deposant_first_names,
+    demandeur_personne_physique_first_names,
+    demandeur_personne_physique_last_name,
+    demandeur_personne_morale_legal_name,
   } = dossier;
 
   return {
     id: id.toString(),
-    number_demarches_simplifiées: number_demarches_simplifiées?.toString(),
-    nom: removeAccents(nom || ""),
+    demarche_numerique_number: demarche_numerique_number?.toString(),
+    name: removeAccents(name || ""),
     communes: communes?.map(({ name }) => removeAccents(name || "")).join(" ") || "",
-    déposant_nom: removeAccents(deposant_nom || ""),
-    déposant_prénoms: removeAccents(deposant_prenoms || ""),
-    demandeur_personne_physique_prénoms: removeAccents(demandeur_personne_physique_prenoms || ""),
-    demandeur_personne_physique_nom: removeAccents(demandeur_personne_physique_nom || ""),
-    demandeur_personne_morale_raison_sociale: removeAccents(
-      demandeur_personne_morale_raison_sociale || "",
+    deposant_last_name: removeAccents(deposant_last_name || ""),
+    deposant_first_names: removeAccents(deposant_first_names || ""),
+    demandeur_personne_physique_first_names: removeAccents(
+      demandeur_personne_physique_first_names || "",
     ),
+    demandeur_personne_physique_last_name: removeAccents(
+      demandeur_personne_physique_last_name || "",
+    ),
+    demandeur_personne_morale_legal_name: removeAccents(demandeur_personne_morale_legal_name || ""),
   };
 };
 
@@ -50,14 +52,14 @@ const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
       this.use(lunr.fr);
 
       this.ref("id");
-      this.field("number_demarches_simplifiées");
+      this.field("demarche_numerique_number");
       this.field("communes");
-      this.field("nom");
-      this.field("déposant_nom");
-      this.field("déposant_prénoms");
-      this.field("demandeur_personne_physique_prénoms");
-      this.field("demandeur_personne_physique_nom");
-      this.field("demandeur_personne_morale_raison_sociale");
+      this.field("name");
+      this.field("deposant_last_name");
+      this.field("deposant_first_names");
+      this.field("demandeur_personne_physique_first_names");
+      this.field("demandeur_personne_physique_last_name");
+      this.field("demandeur_personne_morale_legal_name");
 
       for (const dossier of dossiers) {
         this.add(createIndexableDossier(dossier));

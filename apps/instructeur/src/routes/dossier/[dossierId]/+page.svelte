@@ -35,19 +35,19 @@
   const dossier = $derived(store.fullDossiers.get(id));
   const messages = $derived(store.messagesByDossierId.get(id));
   const email = $derived(store.identité?.email);
-  const relationSuivis = $derived(store.relationSuivis);
+  const followRelations = $derived(store.followRelations);
   const notification = $derived(store.notificationByDossier?.get(id));
 
-  const personnesQuiSuiventDossier = $derived(
-    relationSuivis
-      ? Array.from(relationSuivis)
+  const dossierFollowers = $derived(
+    followRelations
+      ? Array.from(followRelations)
           .filter(([, followedDossiers]) => followedDossiers.has(id))
           .map(([e]) => e)
       : [],
   );
 
   const currentDossierFollowedByCurrentInstructeur = $derived(
-    email ? !!relationSuivis?.get(email)?.has(id) : false,
+    email ? !!followRelations?.get(email)?.has(id) : false,
   );
 
   const initialActiveTab = $derived.by(() => {
@@ -62,7 +62,7 @@
     {initialActiveTab}
     {messages}
     {email}
-    {personnesQuiSuiventDossier}
+    {dossierFollowers}
     {currentDossierFollowedByCurrentInstructeur}
     {notification}
   />

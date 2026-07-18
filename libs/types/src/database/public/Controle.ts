@@ -3,84 +3,84 @@
 
 import type { PrescriptionId } from "./Prescription";
 
-/** Identifier type for public.contrôle */
-export type ControleId = string & { __brand: "public.contrôle" };
+/** Identifier type for public.controle */
+export type ControleId = string & { __brand: "public.controle" };
 
-/** Represents the table public.contrôle */
+/** Represents the table public.controle */
 export default interface Controle {
   id: ControleId;
 
-  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
+  /** Reference to the prescription associated with this controle. A prescription can have several controles to track its implementation. */
   prescription: PrescriptionId;
 
-  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
-  date_contrôle: Date | null;
+  /** Exact date and time when the controle was performed. Used to track the timeline of checks and schedule future controles. */
+  controle_date: Date | null;
 
-  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
-  résultat: string | null;
+  /** Result of the controle. It is currently free text. Eventually, values may be standardized (e.g. "Conforme", "Non conforme", "Conforme avec réserves") to facilitate analysis and reporting. */
+  result: string | null;
 
-  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
-  commentaire: string | null;
+  /** Detailed inspector comments about the controle. May include observations about implementation status, difficulties encountered, recommendations, etc. */
+  comment: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
-  type_action_suite_contrôle: string | null;
+  /** Type of action to take following the controle. It is currently free text. Examples: email, letter, etc. */
+  post_controle_action_type: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
-  date_action_suite_contrôle: Date | null;
+  /** Date on which the action following the controle was taken. It is often equal to controle_date, but may differ if the instructeur does not follow up immediately after the controle */
+  post_controle_action_date: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
-  date_prochaine_échéance: Date | null;
+  /** Date of the next scheduled controle deadline. Used to plan prescription monitoring and another controle. */
+  next_due_date: Date | null;
 }
 
-/** Represents the initializer for the table public.contrôle */
+/** Represents the initializer for the table public.controle */
 export interface ControleInitializer {
   /** Default value: gen_random_uuid() */
   id?: ControleId;
 
-  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
+  /** Reference to the prescription associated with this controle. A prescription can have several controles to track its implementation. */
   prescription: PrescriptionId;
 
-  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
-  date_contrôle?: Date | null;
+  /** Exact date and time when the controle was performed. Used to track the timeline of checks and schedule future controles. */
+  controle_date?: Date | null;
 
-  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
-  résultat?: string | null;
+  /** Result of the controle. It is currently free text. Eventually, values may be standardized (e.g. "Conforme", "Non conforme", "Conforme avec réserves") to facilitate analysis and reporting. */
+  result?: string | null;
 
-  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
-  commentaire?: string | null;
+  /** Detailed inspector comments about the controle. May include observations about implementation status, difficulties encountered, recommendations, etc. */
+  comment?: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
-  type_action_suite_contrôle?: string | null;
+  /** Type of action to take following the controle. It is currently free text. Examples: email, letter, etc. */
+  post_controle_action_type?: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
-  date_action_suite_contrôle?: Date | null;
+  /** Date on which the action following the controle was taken. It is often equal to controle_date, but may differ if the instructeur does not follow up immediately after the controle */
+  post_controle_action_date?: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
-  date_prochaine_échéance?: Date | null;
+  /** Date of the next scheduled controle deadline. Used to plan prescription monitoring and another controle. */
+  next_due_date?: Date | null;
 }
 
-/** Represents the mutator for the table public.contrôle */
+/** Represents the mutator for the table public.controle */
 export interface ControleMutator {
   id?: ControleId;
 
-  /** Référence vers la prescription associée à ce contrôle. Une prescription peut avoir plusieurs contrôles pour assurer le suivi de sa mise en œuvre. */
+  /** Reference to the prescription associated with this controle. A prescription can have several controles to track its implementation. */
   prescription?: PrescriptionId;
 
-  /** Date et heure précise à laquelle le contrôle a été effectué. Permet de tracer la chronologie des vérifications et de planifier les contrôles futurs. */
-  date_contrôle?: Date | null;
+  /** Exact date and time when the controle was performed. Used to track the timeline of checks and schedule future controles. */
+  controle_date?: Date | null;
 
-  /** Résultat du contrôle effectué. Pour le moment, c'est une chaîne libre. À terme, les valeurs pourront être standardisées (ex: Conforme, Non conforme, Conforme avec réserves, etc.) pour faciliter l'analyse et le reporting. */
-  résultat?: string | null;
+  /** Result of the controle. It is currently free text. Eventually, values may be standardized (e.g. "Conforme", "Non conforme", "Conforme avec réserves") to facilitate analysis and reporting. */
+  result?: string | null;
 
-  /** Commentaires détaillés de l'inspecteur sur le contrôle effectué. Peut inclure des observations sur l'état de mise en œuvre, des difficultés rencontrées, des recommandations, etc. */
-  commentaire?: string | null;
+  /** Detailed inspector comments about the controle. May include observations about implementation status, difficulties encountered, recommendations, etc. */
+  comment?: string | null;
 
-  /** Type d'action à entreprendre suite au contrôle. Pour le moment, c'est une chaîne libre. Exemples : email, courrier, etc. */
-  type_action_suite_contrôle?: string | null;
+  /** Type of action to take following the controle. It is currently free text. Examples: email, letter, etc. */
+  post_controle_action_type?: string | null;
 
-  /** Date à laquelle l'action suite au contrôle a été effectuée. Elle est souvent égale à la date_contrôle, mais peut être différente si l'instructeur.rice ne fait pas les suites dans la foulée du contrôle */
-  date_action_suite_contrôle?: Date | null;
+  /** Date on which the action following the controle was taken. It is often equal to controle_date, but may differ if the instructeur does not follow up immediately after the controle */
+  post_controle_action_date?: Date | null;
 
-  /** Date de la prochaine échéance de contrôle programmée. Permet de planifier le suivi de la prescription et de prévoir un autre contrôle. */
-  date_prochaine_échéance?: Date | null;
+  /** Date of the next scheduled controle deadline. Used to plan prescription monitoring and another controle. */
+  next_due_date?: Date | null;
 }

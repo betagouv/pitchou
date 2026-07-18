@@ -5,47 +5,47 @@ import type { DossierId } from "./Dossier";
 import type { DossierPhase } from "../../API_Pitchou.ts";
 import type { PersonneId } from "./Personne";
 
-/** Represents the table public.évènement_phase_dossier */
+/** Represents the table public.evenement_phase_dossier */
 export default interface EvenementPhaseDossier {
   dossier: DossierId;
 
   phase: DossierPhase;
 
-  horodatage: Date;
+  timestamp: Date;
 
-  cause_personne: PersonneId | null;
+  caused_by_personne: PersonneId | null;
 
-  DS_emailAgentTraitant: string | null;
+  demarche_numerique_agent_email: string | null;
 
-  DS_motivation: string | null;
+  demarche_numerique_motivation: string | null;
 }
 
-/** Represents the initializer for the table public.évènement_phase_dossier */
+/** Represents the initializer for the table public.evenement_phase_dossier */
 export interface EvenementPhaseDossierInitializer {
   dossier: DossierId;
 
   phase: DossierPhase;
 
-  horodatage: Date;
+  timestamp: Date;
 
-  cause_personne?: PersonneId | null;
+  caused_by_personne?: PersonneId | null;
 
-  DS_emailAgentTraitant?: string | null;
+  demarche_numerique_agent_email?: string | null;
 
-  DS_motivation?: string | null;
+  demarche_numerique_motivation?: string | null;
 }
 
-/** Represents the mutator for the table public.évènement_phase_dossier */
+/** Represents the mutator for the table public.evenement_phase_dossier */
 export interface EvenementPhaseDossierMutator {
   dossier?: DossierId;
 
   phase?: DossierPhase;
 
-  horodatage?: Date;
+  timestamp?: Date;
 
-  cause_personne?: PersonneId | null;
+  caused_by_personne?: PersonneId | null;
 
-  DS_emailAgentTraitant?: string | null;
+  demarche_numerique_agent_email?: string | null;
 
-  DS_motivation?: string | null;
+  demarche_numerique_motivation?: string | null;
 }

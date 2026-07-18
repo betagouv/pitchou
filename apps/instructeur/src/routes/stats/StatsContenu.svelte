@@ -12,7 +12,7 @@
 
   const pourcentageAvecDecision = $derived(
     Math.round(
-      (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
+      (stats.nbDossiersEnPhaseControleAvecDecision / stats.nbDossiersEnPhaseControle) * 100,
     ),
   );
   const pourcentageSansDecision = $derived(100 - pourcentageAvecDecision);
@@ -37,7 +37,7 @@
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-6">
                 <div class="stat-item total-stat">
-                  <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
+                  <span class="stat-number">{stats.nbPetitionnairesDepuisSept2024}</span>
                   <span class="stat-label"
                     >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
                       >(depuis 09/2024)</span
@@ -84,11 +84,11 @@
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
+                  <span class="stat-number">{stats.nbDossiersEnPhaseControleAvecDecision}</span>
                   <span class="stat-label">Avec décision<br />{pourcentageAvecDecision}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
-                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
+                  <span class="stat-number">{stats.nbDossiersEnPhaseControleSansDecision}</span>
                   <span class="stat-label">Sans décision<br />{pourcentageSansDecision}%</span>
                 </div>
               </div>
@@ -106,7 +106,7 @@
               <div class="progress-total fr-mt-1w">
                 <span class="stat-label"
                   >Total dossiers en phase Contrôle : <strong
-                    >{stats.nbDossiersEnPhaseContrôle}</strong
+                    >{stats.nbDossiersEnPhaseControle}</strong
                   ></span
                 >
               </div>
@@ -199,7 +199,7 @@
     </section>
 
     <StatistiquesConformites
-      statsConformite={stats.statsConformité}
+      statsConformite={stats.statsConformite}
       totalPrescriptions={stats.totalPrescriptions}
     />
     <section class="fr-mt-4w">
@@ -210,48 +210,49 @@
             <div class="biodiv-chiffres">
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_prescriptions_conformes}</span
+                  >{stats.statsImpactBiodiversite.total_prescriptions_conformes}</span
                 >
                 <span class="stat-label">Prescriptions conformes</span>
               </div>
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_surface_évitée.toLocaleString()} m²</span
+                  >{stats.statsImpactBiodiversite.total_avoided_surface.toLocaleString()} m²</span
                 >
                 <span class="stat-label">Surface évitée</span>
               </div>
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_surface_compensée.toLocaleString()} m²</span
+                  >{stats.statsImpactBiodiversite.total_compensated_surface.toLocaleString()} m²</span
                 >
                 <span class="stat-label">Surface compensée</span>
               </div>
-              {#if stats.statsImpactBiodiversité.total_nids_évités > 0}
+              {#if stats.statsImpactBiodiversite.total_avoided_nids > 0}
                 <div class="biodiv-chiffre-item">
-                  <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_évités}</span>
+                  <span class="stat-number">{stats.statsImpactBiodiversite.total_avoided_nids}</span
+                  >
                   <span class="stat-label">Nids évités</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_nids_compensés > 0}
+              {#if stats.statsImpactBiodiversite.total_compensated_nids > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_nids_compensés}</span
+                    >{stats.statsImpactBiodiversite.total_compensated_nids}</span
                   >
                   <span class="stat-label">Nids compensés</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_individus_évités > 0}
+              {#if stats.statsImpactBiodiversite.total_avoided_individus > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_individus_évités}</span
+                    >{stats.statsImpactBiodiversite.total_avoided_individus}</span
                   >
                   <span class="stat-label">Individus évités</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_individus_compensés > 0}
+              {#if stats.statsImpactBiodiversite.total_compensated_individus > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_individus_compensés}</span
+                    >{stats.statsImpactBiodiversite.total_compensated_individus}</span
                   >
                   <span class="stat-label">Individus compensés</span>
                 </div>

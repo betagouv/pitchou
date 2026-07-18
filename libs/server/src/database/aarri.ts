@@ -29,9 +29,9 @@ async function calculateIndicatorAcquis(
             select
                 personne,
                 min(date) as date
-            from évènement_métrique
-            join personne on personne.id = évènement_métrique.personne
-            where évènement = 'seConnecter'
+            from evenement_metrique
+            join personne on personne.id = evenement_metrique.personne
+            where evenement = 'seConnecter'
             and personne.email NOT ILIKE '%@beta.gouv.fr'
             group by personne
         ),
@@ -84,11 +84,11 @@ async function nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
 -- personnes et le nombre évènement suivis par semaine
 with actions_par_personne as (select
 	personne,
-	COUNT(évènement) as nombre_actions,
+	COUNT(evenement) as nombre_actions,
 	date_trunc('week', e.date)::date as semaine
-from évènement_métrique as e
+from evenement_metrique as e
 join personne on personne.id = e.personne
-WHERE évènement IN (:evenements)
+WHERE evenement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine),
 
@@ -202,11 +202,11 @@ async function calculateIndicatorRetenu(start: Date): Promise<Map<Semaine, numbe
         -- personnes et le nombre évènement d'action de modif/consult par semaine
 select
 	personne,
-	COUNT(évènement) as nombre_actions,
+	COUNT(evenement) as nombre_actions,
 	date_trunc('week', e.date)::date as semaine
-from évènement_métrique as e
+from evenement_metrique as e
 join personne on personne.id = e.personne
-WHERE évènement IN (:evenements)
+WHERE evenement IN (:evenements)
 and personne.email NOT ILIKE '%@beta.gouv.fr'
 group by personne, semaine;
         `,
@@ -283,7 +283,7 @@ group by personne, semaine;
  */
 async function firstEventWeek(): Promise<Date | undefined> {
   const result = await directDatabaseConnection.raw(
-    `select date_trunc('week', min(date))::date as week from évènement_métrique`,
+    `select date_trunc('week', min(date))::date as week from evenement_metrique`,
   );
   return result.rows[0]?.week ?? undefined;
 }

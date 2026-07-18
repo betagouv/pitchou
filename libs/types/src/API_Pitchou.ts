@@ -8,17 +8,17 @@ import type Controle from "./database/public/Controle.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 
 type DossierPersonnesImpliqueesSummary = {
-  déposant_nom: string;
-  déposant_prénoms: string;
-  demandeur_personne_physique_nom: string;
-  demandeur_personne_physique_prénoms: string;
-  demandeur_personne_morale_raison_sociale: string;
+  deposant_last_name: string;
+  deposant_first_names: string;
+  demandeur_personne_physique_last_name: string;
+  demandeur_personne_physique_first_names: string;
+  demandeur_personne_morale_legal_name: string;
   demandeur_personne_morale_siret: string;
 };
 
 type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
-  demandeur_adresse: string;
-  déposant_email: string | null;
+  demandeur_address: string;
+  deposant_email: string | null;
 
   demandeur_personne_physique_email: string | null;
   demandeur_personne_physique_address: string | null;
@@ -38,21 +38,21 @@ type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
   demandeur_personne_morale_department: string | null;
   demandeur_personne_morale_region: string | null;
 
-  representative_nom: string | null;
-  representative_prénoms: string | null;
+  representative_last_name: string | null;
+  representative_first_names: string | null;
   representative_email: string | null;
   representative_phone: string | null;
   representative_role: string | null;
 
-  mandataire_nom: string | null;
-  mandataire_prénoms: string | null;
+  mandataire_last_name: string | null;
+  mandataire_first_names: string | null;
   mandataire_email: string | null;
 };
 
 /**
  * The types of a Dossier's properties are generated automatically via Kanel.
  * We chose to use a `string` type for the properties
- * 'phase' and 'prochaine_action_attendue_par'
+ * 'phase' and 'next_action_expected_from'
  * for more flexibility (instead of an enum).
  *
  * We override these properties here to constrain their values.
@@ -78,7 +78,7 @@ export type DossierNextActionExpectedFrom =
 /**
  * Kanel generates an `unknown` type for JSON fields.
  *
- * We override the `communes`, `départements` and `régions` properties here to constrain the type of the JSON values.
+ * We override the `communes`, `departments` and `regions` properties here to constrain the type of the JSON values.
  *
  */
 type DossierDemarcheSimplifiee88444Communes = {
@@ -89,12 +89,12 @@ type DossierDemarcheSimplifiee88444Communes = {
 
 type DossierLocalisation = {
   communes: DossierDemarcheSimplifiee88444Communes[] | null | undefined;
-  départements: string[] | null | undefined;
-  régions: string[] | null | undefined;
+  departments: string[] | null | undefined;
+  regions: string[] | null | undefined;
 };
 
 type DossierActivitePrincipale = {
-  activité_principale: DossierDemarcheNumerique88444["Activité principale"] | null;
+  main_activite: DossierDemarcheNumerique88444["Activité principale"] | null;
 };
 
 /**
@@ -121,12 +121,12 @@ export type GeoJSONFeatureCollection = {
   features: GeoJSONFeature[];
 };
 
-type DossierCartographieProjet = {
-  cartographie_projet: GeoJSONFeatureCollection | null;
+type DossierProjetMap = {
+  projet_map: GeoJSONFeatureCollection | null;
 };
 
 type DossierDataForStats = {
-  décisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
+  decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
 };
 
 /**
@@ -139,24 +139,24 @@ type DossierDataForStats = {
 export type DossierSummary = Pick<
   Dossier,
   | "id"
-  | "number_demarches_simplifiées"
-  | "nom"
-  | "date_dépôt"
+  | "demarche_numerique_number"
+  | "name"
+  | "depot_date"
   | "enjeu"
-  | "rattaché_au_régime_ae"
-  | "prochaine_action_attendue_par"
-  | "commentaire_libre"
-  | "historique_identifiant_demande_onagre"
-> & { phase: DossierPhase; date_début_phase: Date } & DossierLocalisation &
+  | "linked_to_ae_regime"
+  | "next_action_expected_from"
+  | "free_comment"
+  | "onagre_demande_identifier"
+> & { phase: DossierPhase; phase_start_date: Date } & DossierLocalisation &
   DossierPersonnesImpliqueesSummary &
   DossierActivitePrincipale &
   DossierDataForStats;
 
-export type FrontEndPrescription = Prescription & { contrôles: Controle[] | undefined };
+export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
-export type FrontEndFichier = Pick<File, "media_type" | "nom"> & {
+export type FrontEndFichier = Pick<File, "media_type" | "name"> & {
   url: string;
-  taille?: number | null;
+  size?: number | null;
 };
 
 export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
@@ -166,7 +166,7 @@ export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichi
 
 export type DecisionAdministrativeForTransfer = Partial<
   Omit<DecisionAdministrative, "fichier"> & {
-    fichier_base64: { contenuBase64: string; nom: string; media_type: string };
+    fichier_base64: { contenuBase64: string; name: string; media_type: string };
   }
 >;
 
@@ -177,7 +177,7 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
   saisine_fichier_description?: FrontEndFichier;
 };
 
-export type FrontEndAttachmentAutre = {
+export type FrontEndOtherAttachment = {
   id: string;
   dossier: Dossier["id"];
   fichier: File["id"];
@@ -194,21 +194,24 @@ export type FrontEndAttachmentAutre = {
  */
 export type DossierFull = Omit<
   Dossier,
-  "communes" | "départements" | "régions" | "activité_principale" | "cartographie_projet"
+  "communes" | "departments" | "regions" | "main_activite" | "projet_map"
 > &
   DossierLocalisation &
   DossierPersonnesImpliqueesFull &
   DossierActivitePrincipale &
-  DossierCartographieProjet & {
-    espècesImpactées: (Pick<File, "media_type" | "nom"> & { url: string }) | undefined;
-  } & { évènementsPhase: EvenementPhaseDossier[] } & {
-    décisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
+  DossierProjetMap & {
+    especesImpactees: (Pick<File, "media_type" | "name"> & { url: string }) | undefined;
+  } & { evenementsPhase: EvenementPhaseDossier[] } & {
+    decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
   } & { avisExpert: FrontEndAvisExpert[] } & {
-    piècesJointesPétitionnaires: (Pick<File, "DS_createdAt" | "media_type" | "nom"> & {
+    piecesJointesPetitionnaires: (Pick<
+      File,
+      "demarche_numerique_created_at" | "media_type" | "name"
+    > & {
       url: string;
-      taille: number;
+      size: number;
     })[];
-  } & { attachmentAutres: FrontEndAttachmentAutre[] };
+  } & { otherAttachments: FrontEndOtherAttachment[] };
 
 export type TypeDecisionAdministrative =
   | "Arrêté dérogation"
@@ -230,15 +233,15 @@ export type TypesActionSuiteControle =
 
 // - - - - - Statistics - - - - - - //
 export interface StatsPubliques {
-  nbDossiersEnPhaseContrôle: number;
-  nbDossiersEnPhaseContrôleAvecDécision: number;
-  nbDossiersEnPhaseContrôleSansDécision: number;
-  nbPétitionnairesDepuisSept2024: number;
+  nbDossiersEnPhaseControle: number;
+  nbDossiersEnPhaseControleAvecDecision: number;
+  nbDossiersEnPhaseControleSansDecision: number;
+  nbPetitionnairesDepuisSept2024: number;
   totalDossiers: number;
   totalPrescriptions: number;
   nbPrescriptionsControlees: number;
-  statsConformité: StatsConformite;
-  statsImpactBiodiversité: StatsImpactBiodiversite;
+  statsConformite: StatsConformite;
+  statsImpactBiodiversite: StatsImpactBiodiversite;
 }
 
 /**
@@ -272,22 +275,22 @@ export interface StatsImpactBiodiversite {
   total_prescriptions_conformes: number;
 
   /** The total sum of avoided areas (in m² or ha depending on the unit) */
-  total_surface_évitée: number;
+  total_avoided_surface: number;
 
   /** The total sum of compensated areas */
-  total_surface_compensée: number;
+  total_compensated_surface: number;
 
   /** The total number of avoided nests */
-  total_nids_évités: number;
+  total_avoided_nids: number;
 
   /** The total number of compensated nests */
-  total_nids_compensés: number;
+  total_compensated_nids: number;
 
   /** The total number of avoided individuals */
-  total_individus_évités: number;
+  total_avoided_individus: number;
 
   /** The total number of compensated individuals */
-  total_individus_compensés: number;
+  total_compensated_individus: number;
 }
 
 /**
@@ -320,8 +323,8 @@ export type NiveauAARRI = "base" | "acquis" | "actif" | "retenu" | "impact";
 export interface UtilisateurAARRI {
   personneId: number;
   email: string | null;
-  nom: string | null;
-  prenoms: string | null;
+  lastName: string | null;
+  firstNames: string | null;
   niveau: NiveauAARRI;
   /** Names of the groupes instructeurs the personne belongs to (may be empty) */
   groupesInstructeurs: string[];

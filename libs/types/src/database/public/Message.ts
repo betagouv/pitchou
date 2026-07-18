@@ -10,13 +10,13 @@ export type MessageId = string & { __brand: "public.message" };
 export default interface Message {
   id: MessageId;
 
-  contenu: string | null;
+  content: string | null;
 
   date: Date | null;
 
-  email_expéditeur: string | null;
+  sender_email: string | null;
 
-  id_démarches_simplifiées: string | null;
+  demarche_numerique_id: string | null;
 
   dossier: DossierId | null;
 }
@@ -26,13 +26,13 @@ export interface MessageInitializer {
   /** Default value: gen_random_uuid() */
   id?: MessageId;
 
-  contenu?: string | null;
+  content?: string | null;
 
   date?: Date | null;
 
-  email_expéditeur?: string | null;
+  sender_email?: string | null;
 
-  id_démarches_simplifiées?: string | null;
+  demarche_numerique_id?: string | null;
 
   dossier?: DossierId | null;
 }
@@ -41,13 +41,13 @@ export interface MessageInitializer {
 export interface MessageMutator {
   id?: MessageId;
 
-  contenu?: string | null;
+  content?: string | null;
 
   date?: Date | null;
 
-  email_expéditeur?: string | null;
+  sender_email?: string | null;
 
-  id_démarches_simplifiées?: string | null;
+  demarche_numerique_id?: string | null;
 
   dossier?: DossierId | null;
 }

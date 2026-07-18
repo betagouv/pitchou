@@ -8,15 +8,15 @@ export type FileId = string & { __brand: "public.file" };
 export default interface File {
   id: FileId;
 
-  nom: string;
+  name: string;
 
   media_type: string | null;
 
-  taille: string;
+  size: string;
 
-  DS_checksum: string | null;
+  demarche_numerique_checksum: string | null;
 
-  DS_createdAt: Date | null;
+  demarche_numerique_created_at: Date | null;
 
   created_at: Date;
 }
@@ -26,15 +26,15 @@ export interface FileInitializer {
   /** Default value: gen_random_uuid() */
   id?: FileId;
 
-  nom: string;
+  name: string;
 
   media_type?: string | null;
 
-  taille: string;
+  size: string;
 
-  DS_checksum?: string | null;
+  demarche_numerique_checksum?: string | null;
 
-  DS_createdAt?: Date | null;
+  demarche_numerique_created_at?: Date | null;
 
   /** Default value: CURRENT_TIMESTAMP */
   created_at?: Date;
@@ -44,15 +44,15 @@ export interface FileInitializer {
 export interface FileMutator {
   id?: FileId;
 
-  nom?: string;
+  name?: string;
 
   media_type?: string | null;
 
-  taille?: string;
+  size?: string;
 
-  DS_checksum?: string | null;
+  demarche_numerique_checksum?: string | null;
 
-  DS_createdAt?: Date | null;
+  demarche_numerique_created_at?: Date | null;
 
   created_at?: Date;
 }

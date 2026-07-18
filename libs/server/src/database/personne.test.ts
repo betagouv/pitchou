@@ -20,12 +20,12 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
       expect(inserted.email).toBe("foo.bar@example.com");
     });
 
-    it("inserts the personne with empty nom and prénoms", async () => {
+    it("inserts the personne with empty last_name and first_names", async () => {
       const db = fakeDatabase().build();
       await createPersonneOrUpdateCodeAcces("foo@bar.fr", db.knex);
-      const inserted = db.insert.mock.calls[0][0] as { nom: string; prénoms: string };
-      expect(inserted.nom).toBe("");
-      expect(inserted.prénoms).toBe("");
+      const inserted = db.insert.mock.calls[0][0] as { last_name: string; first_names: string };
+      expect(inserted.last_name).toBe("");
+      expect(inserted.first_names).toBe("");
     });
   });
 
@@ -36,10 +36,10 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
       expect(db.where).toHaveBeenCalledWith({ email: "foo@bar.fr" });
     });
 
-    it("updates with the freshly generated code_accès", async () => {
+    it("updates with the freshly generated access_code", async () => {
       const db = fakeDatabase().insertRejects(pgUniqueViolation()).build();
       const returned = await createPersonneOrUpdateCodeAcces("foo@bar.fr", db.knex);
-      expect(db.update).toHaveBeenCalledWith({ code_accès: returned });
+      expect(db.update).toHaveBeenCalledWith({ access_code: returned });
     });
   });
 
@@ -54,7 +54,7 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
     });
   });
 
-  describe("the generated code_accès", () => {
+  describe("the generated access_code", () => {
     it("is distinct on every call (100 samples, all unique)", async () => {
       const codes = new Set<string>();
       for (let i = 0; i < 100; i++) {
@@ -83,7 +83,10 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
 describe("créerPersonnes", () => {
   it("only touches the personne table", async () => {
     const db = fakeDatabase().build();
-    await createPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
+    await createPersonnes(
+      [{ email: "a@x.fr", last_name: "", first_names: "", access_code: "x" }],
+      db.knex,
+    );
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["personne"]));
   });
@@ -92,8 +95,8 @@ describe("créerPersonnes", () => {
     const db = fakeDatabase().build();
     await createPersonnes(
       [
-        { email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "a" },
-        { email: "Bar@Y.fr", nom: "", prénoms: "", code_accès: "b" },
+        { email: "Foo@X.FR", last_name: "", first_names: "", access_code: "a" },
+        { email: "Bar@Y.fr", last_name: "", first_names: "", access_code: "b" },
       ],
       db.knex,
     );
@@ -104,14 +107,20 @@ describe("créerPersonnes", () => {
 
   it("leaves personnes without an email untouched", async () => {
     const db = fakeDatabase().build();
-    await createPersonnes([{ nom: "Smith", prénoms: "Alice", code_accès: "a" }], db.knex);
+    await createPersonnes(
+      [{ last_name: "Smith", first_names: "Alice", access_code: "a" }],
+      db.knex,
+    );
     const insertedPersonnes = db.insert.mock.calls[0][0] as { email?: string }[];
     expect(insertedPersonnes[0].email).toBeUndefined();
   });
 
   it("asks the database to return the inserted ids", async () => {
     const db = fakeDatabase().build();
-    await createPersonnes([{ email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" }], db.knex);
+    await createPersonnes(
+      [{ email: "a@x.fr", last_name: "", first_names: "", access_code: "x" }],
+      db.knex,
+    );
     expect(db.insert.mock.calls[0][1]).toEqual(["id"]);
   });
 
@@ -121,8 +130,8 @@ describe("créerPersonnes", () => {
       .build();
     const result = await createPersonnes(
       [
-        { email: "a@x.fr", nom: "", prénoms: "", code_accès: "x" },
-        { email: "b@x.fr", nom: "", prénoms: "", code_accès: "y" },
+        { email: "a@x.fr", last_name: "", first_names: "", access_code: "x" },
+        { email: "b@x.fr", last_name: "", first_names: "", access_code: "y" },
       ],
       db.knex,
     );
@@ -130,7 +139,7 @@ describe("créerPersonnes", () => {
   });
 
   it("does not mutate the input personnes", async () => {
-    const personnes = [{ email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "x" }];
+    const personnes = [{ email: "Foo@X.FR", last_name: "", first_names: "", access_code: "x" }];
     const before = structuredClone(personnes);
     const db = fakeDatabase().build();
     await createPersonnes(personnes, db.knex);
@@ -148,7 +157,7 @@ describe("créerPersonnes", () => {
 
 describe("créerPersonne", () => {
   it("does not mutate the input personne", async () => {
-    const personne = { email: "Foo@X.FR", nom: "", prénoms: "", code_accès: "x" };
+    const personne = { email: "Foo@X.FR", last_name: "", first_names: "", access_code: "x" };
     const before = structuredClone(personne);
     const db = fakeDatabase().build();
     await createPersonne(personne, db.knex);

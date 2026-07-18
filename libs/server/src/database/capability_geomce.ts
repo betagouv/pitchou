@@ -7,11 +7,11 @@ import type { default as CapabilityGeomce } from "@pitchou/types/database/public
 export async function setupSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  const secretsGeoMCE = await databaseConnection("capability-geomce").select("*");
+  const secretsGeoMCE = await databaseConnection("capability_geomce").select("*");
 
   if (secretsGeoMCE.length === 0) {
     console.log(`Aucune capability GeoMCE détectée. Création d'une capability GeoMCE`);
-    await databaseConnection("capability-geomce").insert({});
+    await databaseConnection("capability_geomce").insert({});
   }
 
   if (secretsGeoMCE.length >= 2) {
@@ -25,7 +25,7 @@ export async function verifySecretGeoMCE(
   secret: CapabilityGeomce["secret"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  const secretsGeoMCE = await databaseConnection("capability-geomce")
+  const secretsGeoMCE = await databaseConnection("capability_geomce")
     .select("*")
     .where({ secret: secret });
 
@@ -40,7 +40,7 @@ export async function verifySecretGeoMCE(
 export async function getSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  const { secret } = await databaseConnection("capability-geomce").select("*").first();
+  const { secret } = await databaseConnection("capability_geomce").select("*").first();
 
   return secret;
 }
@@ -52,10 +52,10 @@ export async function resetSecretGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<CapabilityGeomce["secret"]> {
   // delete the existing secret
-  await databaseConnection("capability-geomce").delete();
+  await databaseConnection("capability_geomce").delete();
 
   // create a new secret
-  const [{ secret }] = await databaseConnection("capability-geomce")
+  const [{ secret }] = await databaseConnection("capability_geomce")
     .insert({})
     .returning(["secret"]);
 

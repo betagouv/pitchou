@@ -27,7 +27,7 @@
     deleteDecisionAdministrative,
   }: Props = $props();
 
-  let { numéro, type, date_signature, date_fin_obligations, fichier_url } =
+  let { number, type, signature_date, obligations_end_date, fichier_url } =
     $derived(decisionAdministrative);
 
   const NOT_PROVIDED = "(non renseigné)";
@@ -53,10 +53,10 @@
     editedDecision = {
       id,
       dossier: dossierId,
-      numéro,
+      number,
       type,
-      date_fin_obligations,
-      date_signature,
+      obligations_end_date,
+      signature_date,
     };
   }
 
@@ -93,7 +93,7 @@
   {:else}
     <h4>
       {type ? labelForDecisionAdministrativeType(type) : "Décision de type inconnu"}
-      {numéro || ""} du {formatDateAbsolute(date_signature)}
+      {number || ""} du {formatDateAbsolute(signature_date)}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
         onclick={startEditing}
@@ -103,8 +103,8 @@
     </h4>
 
     <div class="fr-mb-1w">
-      Date de fin des obligations : {date_fin_obligations
-        ? formatDateAbsolute(date_fin_obligations)
+      Date de fin des obligations : {obligations_end_date
+        ? formatDateAbsolute(obligations_end_date)
         : NOT_PROVIDED}
     </div>
 

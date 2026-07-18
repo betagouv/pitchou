@@ -8,9 +8,9 @@ export type EntrepriseSiret = string & { __brand: "public.entreprise" };
 export default interface Entreprise {
   siret: EntrepriseSiret;
 
-  raison_sociale: string | null;
+  legal_name: string | null;
 
-  adresse: string | null;
+  address: string | null;
 
   siren: string | null;
 
@@ -41,9 +41,9 @@ export default interface Entreprise {
 export interface EntrepriseInitializer {
   siret: EntrepriseSiret;
 
-  raison_sociale?: string | null;
+  legal_name?: string | null;
 
-  adresse?: string | null;
+  address?: string | null;
 
   siren?: string | null;
 
@@ -74,9 +74,9 @@ export interface EntrepriseInitializer {
 export interface EntrepriseMutator {
   siret?: EntrepriseSiret;
 
-  raison_sociale?: string | null;
+  legal_name?: string | null;
 
-  adresse?: string | null;
+  address?: string | null;
 
   siren?: string | null;
 
