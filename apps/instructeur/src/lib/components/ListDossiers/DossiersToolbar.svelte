@@ -107,8 +107,7 @@
       class="fr-btn fr-icon-filter-line fr-btn--icon-left"
       onclick={onOpenFilters}
     >
-      Filtres{#if activeFilterCount > 0}&nbsp;<span class="filter-counter"
-          >{activeFilterCount}</span
+      Filtres{#if activeFilterCount > 0}&nbsp;<span class="filter-counter">{activeFilterCount}</span
         >{/if}
     </button>
 

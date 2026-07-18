@@ -20,12 +20,7 @@
     showFilterInstructeurice: boolean;
   };
 
-  let {
-    draft = $bindable(),
-    dossiers,
-    relationSuivis,
-    showFilterInstructeurice,
-  }: Props = $props();
+  let { draft = $bindable(), dossiers, relationSuivis, showFilterInstructeurice }: Props = $props();
 
   const activiteOptions = $derived(
     listAvailableActivites(dossiers).map((activite) => ({ value: activite, label: activite })),
