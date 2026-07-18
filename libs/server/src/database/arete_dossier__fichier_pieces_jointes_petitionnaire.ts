@@ -10,26 +10,26 @@ import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/a
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
-type ChampFormulaire = keyof DossierDemarcheNumerique88444;
+type FormField = keyof DossierDemarcheNumerique88444;
 
-export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444(
-  fichiersPiecesJointesPetitionnaireParNumeroDossier: Map<Dossier["id"], FileId[]>,
+export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
+  fichiersPiecesJointesPetitionnaireByDossierId: Map<Dossier["id"], FileId[]>,
   dossiersDS: DossierDS88444[],
   dossierIdByDS_number: Map<DossierDS88444["number"], Dossier["id"]>,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
-  champsAvecPiecesJointes: ChampFormulaire[],
+  fieldsWithPiecesJointes: FormField[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  let descriptionsFichiers: Map<DossierDS88444["number"], DSFile[]>[] = [];
+  let fichierDescriptions: Map<DossierDS88444["number"], DSFile[]>[] = [];
 
-  for (const champ of champsAvecPiecesJointes) {
-    const champId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(champ);
-    if (!champId) {
-      throw new Error(`champId for ${champ} is undefined`);
+  for (const field of fieldsWithPiecesJointes) {
+    const fieldId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(field);
+    if (!fieldId) {
+      throw new Error(`fieldId for ${field} is undefined`);
     }
-    const candidate = findCandidateFichiersToDownload(dossiersDS, champId);
+    const candidate = findCandidateFichiersToDownload(dossiersDS, fieldId);
 
-    descriptionsFichiers.push(candidate);
+    fichierDescriptions.push(candidate);
   }
 
   // @ts-ignore
@@ -37,8 +37,8 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
     dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)),
   );
 
-  const allDsFiles = descriptionsFichiers
-    .flatMap((descriptionFichier) => [...descriptionFichier.values()])
+  const allDsFiles = fichierDescriptions
+    .flatMap((fichierDescription) => [...fichierDescription.values()])
     .flat();
 
   const checksumsDS = new Set(allDsFiles.map((dsfile) => dsfile.checksum));
@@ -48,7 +48,7 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
 
   // Find the (dossier, fichier) pairs to unlink: files linked to a dossier of the batch via the pétitionnaire PJ join,
   // but whose DS_checksum is no longer in the list of DS candidates for these dossiers
-  const aretesASupprimer = await databaseConnection(
+  const aretesToDelete = await databaseConnection(
     "arête_dossier__fichier_pièces_jointes_pétitionnaire as a",
   )
     .select(["a.dossier as dossier", "a.fichier as fichier"])
@@ -56,38 +56,38 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
     .whereIn("a.dossier", [...dossierIds])
     .andWhere("f.DS_checksum", "not in", [...checksumsDS]);
 
-  let fichiersOrphelinsNettoyes: Promise<any> = Promise.resolve();
+  let orphanFichiersCleanedUp: Promise<any> = Promise.resolve();
 
-  if (aretesASupprimer.length >= 1) {
-    const fichierIdsCandidatsASupprimer = [...new Set(aretesASupprimer.map((a) => a.fichier))];
+  if (aretesToDelete.length >= 1) {
+    const candidateFichierIdsToDelete = [...new Set(aretesToDelete.map((a) => a.fichier))];
 
-    fichiersOrphelinsNettoyes = (async () => {
+    orphanFichiersCleanedUp = (async () => {
       // 1. Unlink: delete the concerned pétitionnaire PJ edges (the file may still be used elsewhere)
       await databaseConnection("arête_dossier__fichier_pièces_jointes_pétitionnaire")
         .delete()
         .whereIn(
           ["dossier", "fichier"],
-          aretesASupprimer.map((a) => [a.dossier, a.fichier]),
+          aretesToDelete.map((a) => [a.dossier, a.fichier]),
         );
 
       // 2. Delete the files now that the edges are gone, only
       //    if they are no longer referenced elsewhere
-      await deleteFichiersWithoutOtherReferences(fichierIdsCandidatsASupprimer, databaseConnection);
+      await deleteFichiersWithoutOtherReferences(candidateFichierIdsToDelete, databaseConnection);
     })();
   }
 
   const aretesFichierDossierPiecesJointePetitionnaires = [
-    ...fichiersPiecesJointesPetitionnaireParNumeroDossier,
+    ...fichiersPiecesJointesPetitionnaireByDossierId,
   ]
     .map(([dossierId, fichierIds]) =>
       fichierIds.map((fichierId) => ({ fichier: fichierId, dossier: dossierId })),
     )
     .flat();
 
-  let nouveauxFichiersSynchronises: Promise<any> = Promise.resolve();
+  let newFichiersSynchronized: Promise<any> = Promise.resolve();
 
   if (aretesFichierDossierPiecesJointePetitionnaires.length >= 1) {
-    nouveauxFichiersSynchronises = databaseConnection(
+    newFichiersSynchronized = databaseConnection(
       "arête_dossier__fichier_pièces_jointes_pétitionnaire",
     )
       .insert(aretesFichierDossierPiecesJointePetitionnaires)
@@ -95,5 +95,5 @@ export async function synchroniserFichiersPiecesJointesPetitionnaireDepuisDS8844
       .ignore();
   }
 
-  return Promise.all([fichiersOrphelinsNettoyes, nouveauxFichiersSynchronises]);
+  return Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
 }

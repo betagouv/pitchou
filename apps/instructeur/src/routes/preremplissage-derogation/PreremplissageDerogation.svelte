@@ -17,22 +17,22 @@
 
   let { schemaDS88444 }: Props = $props();
 
-  let nouveauDossierPartiel: Partial<DossierDemarcheNumerique88444> = $state({});
-  let lienDePreremplissage = $state("");
+  let newPartialDossier: Partial<DossierDemarcheNumerique88444> = $state({});
+  let prefillingLink = $state("");
 
-  //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
-  let champsPreremplis: (keyof DossierDemarcheNumerique88444)[] = $derived(
-    Object.keys(nouveauDossierPartiel).filter((champ) => {
-      //@ts-expect-error pareil
-      return nouveauDossierPartiel[champ] !== "";
+  //@ts-expect-error svelte cannot understand that the schema labels are the keys of DossierDemarcheNumerique88444
+  let prefilledFields: (keyof DossierDemarcheNumerique88444)[] = $derived(
+    Object.keys(newPartialDossier).filter((field) => {
+      //@ts-expect-error same here
+      return newPartialDossier[field] !== "";
     }),
   );
 
   let onSelectChanged = () => {
-    lienDePreremplissage = createGETPrefillingLinkDemarche(nouveauDossierPartiel, schemaDS88444);
+    prefillingLink = createGETPrefillingLinkDemarche(newPartialDossier, schemaDS88444);
   };
 
-  const champsPossibles = [
+  const possibleFieldTypes = [
     "DropDownListChampDescriptor",
     "MultipleDropDownListChampDescriptor",
     "YesNoChampDescriptor",
@@ -40,19 +40,19 @@
     "HeaderSectionChampDescriptor",
   ];
 
-  //@ts-expect-error svelte ne peut pas comprendre que les labels du schema sont les clefs de DossierDemarcheNumerique88444
-  let champsRemplissables: Dossier88444ChampDescriptor[] = $derived(
+  //@ts-expect-error svelte cannot understand that the schema labels are the keys of DossierDemarcheNumerique88444
+  let fillableFields: Dossier88444ChampDescriptor[] = $derived(
     schemaDS88444["revision"]["champDescriptors"]
-      .filter((champ) => {
-        return champsPossibles.includes(champ["__typename"]);
+      .filter((field) => {
+        return possibleFieldTypes.includes(field["__typename"]);
       })
-      .filter((champ, i, tableauActuel) => {
-        if (champ["__typename"] === "HeaderSectionChampDescriptor") {
-          const champSuivant = tableauActuel[i + 1];
+      .filter((field, i, currentArray) => {
+        if (field["__typename"] === "HeaderSectionChampDescriptor") {
+          const nextField = currentArray[i + 1];
 
-          if (!champSuivant) return champ["__typename"] !== "HeaderSectionChampDescriptor";
+          if (!nextField) return field["__typename"] !== "HeaderSectionChampDescriptor";
 
-          if (champSuivant["__typename"] !== "HeaderSectionChampDescriptor") {
+          if (nextField["__typename"] !== "HeaderSectionChampDescriptor") {
             return true;
           } else {
             return false;
@@ -63,29 +63,29 @@
       }),
   );
 
-  let champsRemplissablesGroupes = $derived.by(() => {
-    const resultat: { nom: string; champs: Dossier88444ChampDescriptor[] }[] = [];
+  let groupedFillableFields = $derived.by(() => {
+    const result: { nom: string; fields: Dossier88444ChampDescriptor[] }[] = [];
 
-    let groupe: { nom: string; champs: Dossier88444ChampDescriptor[] } = {
+    let group: { nom: string; fields: Dossier88444ChampDescriptor[] } = {
       nom: "Questions préliminaires",
-      champs: [],
+      fields: [],
     };
 
-    for (const champ of champsRemplissables) {
-      if (champ["__typename"] === "HeaderSectionChampDescriptor") {
-        if (groupe.champs.length) {
-          resultat.push(groupe);
+    for (const field of fillableFields) {
+      if (field["__typename"] === "HeaderSectionChampDescriptor") {
+        if (group.fields.length) {
+          result.push(group);
         }
-        groupe = {
-          nom: champ["label"],
-          champs: [],
+        group = {
+          nom: field["label"],
+          fields: [],
         };
       } else {
-        groupe.champs.push(champ);
+        group.fields.push(field);
       }
     }
 
-    return resultat;
+    return result;
   });
 </script>
 
@@ -98,26 +98,26 @@
     <h1>Pré-remplissage dérogation espèces protégées</h1>
 
     <form onchange={onSelectChanged}>
-      {#each champsRemplissablesGroupes as groupe}
+      {#each groupedFillableFields as group}
         <fieldset class="fr-fieldset">
           <legend class="fr-fieldset__legend--regular fr-fieldset__legend">
-            <h2>{groupe.nom}</h2>
+            <h2>{group.nom}</h2>
           </legend>
-          {#each groupe.champs as champ}
+          {#each group.fields as field}
             <div class="fr-fieldset__element">
               <div class="fr-select-group">
-                <label class="fr-label" for={labelToId(champ["label"])}>
-                  {champ["label"]}
+                <label class="fr-label" for={labelToId(field["label"])}>
+                  {field["label"]}
                 </label>
 
                 <select
-                  bind:value={nouveauDossierPartiel[champ["label"]]}
-                  id={labelToId(champ["label"])}
+                  bind:value={newPartialDossier[field["label"]]}
+                  id={labelToId(field["label"])}
                   class="fr-select"
                 >
                   <option value="" selected></option>
-                  {#if champ["options"]}
-                    {#each champ["options"] as option}
+                  {#if field["options"]}
+                    {#each field["options"] as option}
                       <option value={option}>{option}</option>
                     {/each}
                   {:else}
@@ -134,17 +134,17 @@
 
     <div class="fr-callout fr-callout--brown-caramel">
       <div class="fr-callout__text">
-        {#if champsPreremplis.length > 0}
+        {#if prefilledFields.length > 0}
           <p class="fr-mt-2w">La liste des éléments que vous avez pré-remplis avec ce lien :</p>
           <ul>
-            {#each champsPreremplis as champPrerempli}
+            {#each prefilledFields as prefilledField}
               <li>
-                {champPrerempli} :
+                {prefilledField} :
                 <em>
-                  {#if typeof nouveauDossierPartiel[champPrerempli] === "boolean"}
-                    {nouveauDossierPartiel[champPrerempli] ? "Oui" : "Non"}
+                  {#if typeof newPartialDossier[prefilledField] === "boolean"}
+                    {newPartialDossier[prefilledField] ? "Oui" : "Non"}
                   {:else}
-                    {nouveauDossierPartiel[champPrerempli]}
+                    {newPartialDossier[prefilledField]}
                   {/if}
                 </em>
               </li>
@@ -153,11 +153,11 @@
 
           <CopyButton
             classname="fr-btn fr-btn--lg copy-link"
-            textToCopy={() => lienDePreremplissage}
+            textToCopy={() => prefillingLink}
             initialLabel="Copier le lien de pré-remplissage"
           />
 
-          <a href={lienDePreremplissage} target="_blank"> Tester le lien de pré-remplissage </a>
+          <a href={prefillingLink} target="_blank"> Tester le lien de pré-remplissage </a>
         {:else}
           <p class="fr-mt-2w">
             Vous n'avez encore pré-rempli aucun champ de la dérogation. Vous pouvez sélectionner des

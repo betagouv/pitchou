@@ -8,13 +8,13 @@
 
   let { status = 404, message }: Props = $props();
 
-  let emailCopie = $state(false);
+  let emailCopied = $state(false);
 
-  function copierEmail() {
+  function copyEmail() {
     navigator.clipboard
       .writeText(CONTACT_EMAIL)
       .then(() => {
-        emailCopie = true;
+        emailCopied = true;
       })
       .catch((error) => {
         console.error("Une erreur s'est produite lors de la copie : ", error);
@@ -76,12 +76,12 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left"
-        class:fr-icon-clipboard-line={!emailCopie}
-        class:fr-icon-check-line={emailCopie}
-        onclick={copierEmail}
+        class:fr-icon-clipboard-line={!emailCopied}
+        class:fr-icon-check-line={emailCopied}
+        onclick={copyEmail}
         aria-label={`Copier l'adresse ${CONTACT_EMAIL}`}
       >
-        {emailCopie ? "Copié !" : "Copier"}
+        {emailCopied ? "Copié !" : "Copier"}
       </button>
     </p>
   </div>

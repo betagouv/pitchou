@@ -18,7 +18,7 @@ import {
 import { listAllPersonnes, createPersonnes } from "@pitchou/server/database/personne.ts";
 import { syncIdentitesDossier } from "@pitchou/server/database/identite_dossier.ts";
 import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
-import { synchroniserFichiersEspecesImpacteesDepuisDS88444 } from "@pitchou/server/database/especes_impactees.ts";
+import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 
 import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/getRecentlyUpdatedDossiers.ts";
 import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts";
@@ -39,7 +39,7 @@ import {
 import { makeCommonDossierColumnsForSync88444 } from "./synchronization-ds/makeCommonDossierColumnsForSync88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
+import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
 import { updateNotification } from "./synchronization-ds/synchronization-notification.ts";
 
 import type { default as DatabaseDossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -89,13 +89,13 @@ const args = parseArgs(process.argv);
 const ID_SCHEMA_DS = args.IdSchemaDS;
 
 if (!ID_SCHEMA_DS) {
-  const liste_fichiers = await readdir(
+  const fichiersList = await readdir(
     join(import.meta.dirname, `../../data/demarche-numerique/schema-DS`),
   );
   console.error(`
 Aucun argument --IdSchemaDS n'a été fourni.
 Voici la liste des ids des schémas DS disponibles :
-  - ${liste_fichiers.map((fichier) => fichier.slice(0, -".json".length)).join("\n  - ")}
+  - ${fichiersList.map((fichier) => fichier.slice(0, -".json".length)).join("\n  - ")}
 `);
   process.exit(1);
 }
@@ -514,7 +514,7 @@ if (dossiersDS.length >= 1) {
 const synchronizedFichiersEspecesImpactees = downloadedFichiersEspecesImpacteesP.then(
   (downloadedFichiersEspecesImpactees) => {
     if (downloadedFichiersEspecesImpactees && downloadedFichiersEspecesImpactees.size >= 1) {
-      return synchroniserFichiersEspecesImpacteesDepuisDS88444(
+      return synchronizeFichiersEspecesImpacteesFromDS88444(
         downloadedFichiersEspecesImpactees,
         synchronizationTransactionDS,
       );
@@ -543,7 +543,7 @@ const synchronizedFichiersPiecesJointesPetitionnaire =
           return [id, fichiers];
         }),
       );
-      return synchroniserFichiersPiecesJointesPetitionnaireDepuisDS88444(
+      return synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
         downloadedFichiersPiecesJointesPetitionnaireByDossierId,
         dossiersDS,
         dossierIdByDS_number,
