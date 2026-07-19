@@ -37,7 +37,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       dossier: dossier.id,
-      numéro: "AP-001",
+      number: "AP-001",
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
@@ -53,6 +53,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   const decisions = await db("decision_administrative").select("*").where({ dossier: dossier.id });
   expect(decisions).toHaveLength(1);
   const decision = decisions[0];
+  expect(decision.number).toBe("AP-001");
   expect(decision.fichier).not.toBeNull();
 
   const onS3 = await readKey(`files/${decision.fichier}`);
@@ -70,7 +71,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       dossier: dossier.id,
-      numéro: "AP-002",
+      number: "AP-002",
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
@@ -95,7 +96,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
     body: JSON.stringify({
       id: decision1.id,
       dossier: dossier.id,
-      numéro: "AP-002",
+      number: "AP-002",
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
@@ -118,4 +119,21 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   expect((await readKey(v2Key)).equals(v2)).toBe(true);
   // old object should have been swept
   expect(await s3HasKey(v1Key)).toBe(false);
+});
+
+test("POST /decision-administrative rejette un type de propriété incorrect", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
+
+  const res = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      dossier: dossier.id,
+      number: 42,
+      type: "Arrêté dérogation",
+    }),
+  });
+
+  expect(res.status).toBe(400);
+  expect(await db("decision_administrative").where({ dossier: dossier.id })).toHaveLength(0);
 });

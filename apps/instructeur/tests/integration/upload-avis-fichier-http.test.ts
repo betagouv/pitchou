@@ -35,10 +35,11 @@ test("POST /avis-expert avec saisine + avis envoie les deux fichiers sur S3 et l
 
   const res = await fetch(`${INTEGRATION_BASE_URL}/avis-expert?cap=${cap}`, {
     method: "POST",
+    headers: { Origin: new URL(INTEGRATION_BASE_URL).origin },
     body: form,
   });
 
-  expect(res.status).toBe(204);
+  expect(res.status, await res.text()).toBe(204);
 
   const rows = await db("avis_expert").select("*").where({ dossier: dossier.id });
   expect(rows).toHaveLength(1);
@@ -55,4 +56,21 @@ test("POST /avis-expert avec saisine + avis envoie les deux fichiers sur S3 et l
     const onS3 = await readKey(`files/${fileId}`);
     expect(onS3.equals(expectedBytes)).toBe(true);
   }
+});
+
+test("POST /avis-expert rejette une date invalide", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
+  const form = new FormData();
+  form.set("dossier", JSON.stringify(dossier.id));
+  form.set("expert", "CSRPN");
+  form.set("saisine_date", "date-invalide");
+
+  const res = await fetch(`${INTEGRATION_BASE_URL}/avis-expert?cap=${cap}`, {
+    method: "POST",
+    headers: { Origin: new URL(INTEGRATION_BASE_URL).origin },
+    body: form,
+  });
+
+  expect(res.status).toBe(400);
+  expect(await db("avis_expert").where({ dossier: dossier.id })).toHaveLength(0);
 });
