@@ -20,7 +20,7 @@ console.log(`Mail de la personne concernée : ${email}`);
 console.log(`Début des Calculs des données AARRI.`);
 
 const evenements = await getEvenementsForPersonne(email);
-const evenementsCount = Map.groupBy(evenements, ({ évènement }) => évènement);
+const evenementsCount = Map.groupBy(evenements, ({ evenement }) => evenement);
 
 console.log(`✅ Résultats :`);
 console.log(
@@ -31,17 +31,17 @@ console.log(
 );
 
 // Creation of the ODS file to store the results
-const evenementsFormattesPourODS = evenements.map(({ date, évènement, détails }) => [
+const evenementsFormattesPourODS = evenements.map(({ date, evenement, details }) => [
   {
     value: formatDateAbsolute(date, "dd/MM/yyyy"),
     type: "string",
   },
   {
-    value: évènement,
+    value: evenement,
     type: "string",
   },
   {
-    value: détails ? JSON.stringify(détails) : " ",
+    value: details ? JSON.stringify(details) : " ",
     type: "string",
   },
 ]);

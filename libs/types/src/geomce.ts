@@ -2,7 +2,7 @@ import type { default as Dossier } from "./database/public/Dossier.ts";
 import type { default as DecisionAdministrative } from "./database/public/DecisionAdministrative.ts";
 
 export type DossierForGeoMCE = Dossier &
-  Pick<DecisionAdministrative, "date_signature"> & { instructeurs: GeoMceInstructeur[] } & {
+  Pick<DecisionAdministrative, "signature_date"> & { instructeurs: GeoMceInstructeur[] } & {
     specimens_faunes: GeoMceSpecimenFaune[];
     specimens_flores: GeoMceSpecimenFlores[];
   };

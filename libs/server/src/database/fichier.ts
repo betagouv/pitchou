@@ -15,7 +15,7 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
  * Does not use created_at because DS modifies it whenever a new file is added to the same field.
  */
 export function makeFichierHash(fichier: Partial<File>): string {
-  return [fichier.nom, fichier.media_type, fichier.DS_checksum].join("-");
+  return [fichier.name, fichier.media_type, fichier.demarche_numerique_checksum].join("-");
 }
 
 /**
@@ -26,11 +26,15 @@ export function findExistingFichiers(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Partial<File>[]> {
   return databaseConnection("file")
-    .select(["id", "DS_checksum", "nom", "media_type"])
+    .select(["id", "demarche_numerique_checksum", "name", "media_type"])
     .whereIn(
-      ["DS_checksum", "nom", "media_type"],
+      ["demarche_numerique_checksum", "name", "media_type"],
       // @ts-ignore
-      fichierDescriptions.map(({ DS_checksum, nom, media_type }) => [DS_checksum, nom, media_type]),
+      fichierDescriptions.map(({ demarche_numerique_checksum, name, media_type }) => [
+        demarche_numerique_checksum,
+        name,
+        media_type,
+      ]),
     );
 }
 
@@ -42,29 +46,30 @@ export function findExistingFichiers(
  */
 export async function storeNewFichier(
   fichier: {
-    nom: string;
-    contenu: Buffer;
+    name: string;
+    content: Buffer;
     media_type: string | null;
-    DS_checksum?: string | null;
-    DS_createdAt?: Date | null;
+    demarche_numerique_checksum?: string | null;
+    demarche_numerique_created_at?: Date | null;
   },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Partial<File>> {
-  const { nom, contenu, media_type, DS_checksum, DS_createdAt } = fichier;
+  const { name, content, media_type, demarche_numerique_checksum, demarche_numerique_created_at } =
+    fichier;
   const fileId = randomUUID() as FileId;
   const key = fileKey(fileId);
 
-  await putObject(key, contenu, media_type);
+  await putObject(key, content, media_type);
 
   try {
     return await addFile(
       {
         id: fileId,
-        nom,
+        name,
         media_type,
-        taille: String(contenu.byteLength),
-        DS_checksum,
-        DS_createdAt,
+        size: String(content.byteLength),
+        demarche_numerique_checksum,
+        demarche_numerique_created_at,
       },
       databaseConnection,
     );
@@ -82,32 +87,32 @@ export async function loadFichierContent(
   fileId: FileId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{
-  nom: string;
+  name: string;
   media_type: string | null;
   body: Readable;
-  taille?: number;
+  size?: number;
 } | null> {
   const f = await getFile(fileId, databaseConnection);
   if (!f) return null;
 
   const s3 = await getObject(fileKey(fileId));
   return {
-    nom: f.nom,
+    name: f.name,
     media_type: f.media_type,
     body: s3.body,
-    taille: f.taille ? Number(f.taille) : undefined,
+    size: f.size ? Number(f.size) : undefined,
   };
 }
 
 // All tables/columns that can reference a file (FK -> file.id).
 // Centralised here so deleteFichiersWithoutOtherReferences stays exhaustive.
 const FILE_REFERENCES = [
-  { table: "arête_dossier__fichier_pièces_jointes_pétitionnaire", column: "fichier" },
-  { table: "dossier", column: "espèces_impactées" },
-  { table: "décision_administrative", column: "fichier" },
+  { table: "edge_dossier__fichier_pieces_jointes_petitionnaire", column: "fichier" },
+  { table: "dossier", column: "especes_impactees" },
+  { table: "decision_administrative", column: "fichier" },
   { table: "avis_expert", column: "saisine_fichier" },
   { table: "avis_expert", column: "avis_fichier" },
-  { table: "attachment_autre", column: "fichier" },
+  { table: "other_attachment", column: "fichier" },
 ];
 
 /**

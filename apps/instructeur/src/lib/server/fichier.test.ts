@@ -26,10 +26,10 @@ describe("downloadFichierResponse", () => {
     const bytes = Buffer.from("hello world");
     const body = Readable.from([bytes]);
     load.mockResolvedValue({
-      nom: "doc.pdf",
+      name: "doc.pdf",
       media_type: "application/pdf",
       body,
-      taille: bytes.byteLength,
+      size: bytes.byteLength,
     });
 
     const res = await downloadFichierResponse(id);
@@ -44,10 +44,10 @@ describe("downloadFichierResponse", () => {
   it("streams Readable bodies via Readable.toWeb", async () => {
     const body = Readable.from([Buffer.from("abc"), Buffer.from("def")]);
     load.mockResolvedValue({
-      nom: "stream.bin",
+      name: "stream.bin",
       media_type: "application/octet-stream",
       body,
-      taille: 6,
+      size: 6,
     });
 
     const res = await downloadFichierResponse(id);
@@ -60,10 +60,10 @@ describe("downloadFichierResponse", () => {
 
   it("emits a single content-disposition header with ASCII filename and RFC5987 filename*", async () => {
     load.mockResolvedValue({
-      nom: "été 2025.pdf",
+      name: "été 2025.pdf",
       media_type: "application/pdf",
       body: Readable.from([Buffer.from("x")]),
-      taille: 1,
+      size: 1,
     });
     const res = await downloadFichierResponse(id);
     const cd = res.headers.get("content-disposition") ?? "";
@@ -80,7 +80,7 @@ describe("downloadFichierResponse", () => {
 
   it("omits content-length when taille is undefined (unknown size stream)", async () => {
     load.mockResolvedValue({
-      nom: "doc.pdf",
+      name: "doc.pdf",
       media_type: "application/pdf",
       body: Readable.from([Buffer.from("x")]),
     });

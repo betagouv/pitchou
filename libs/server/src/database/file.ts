@@ -9,7 +9,14 @@ export function addFile(
 ): Promise<Partial<File>> {
   return databaseConnection("file")
     .insert(f)
-    .returning(["id", "nom", "media_type", "taille", "DS_checksum", "DS_createdAt"])
+    .returning([
+      "id",
+      "name",
+      "media_type",
+      "size",
+      "demarche_numerique_checksum",
+      "demarche_numerique_created_at",
+    ])
     .then((rows) => rows[0] as Partial<File>);
 }
 

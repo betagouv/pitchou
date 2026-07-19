@@ -22,7 +22,7 @@ test("un compte sans groupe d'instructeurs affiche l'erreur correspondante", asy
 }) => {
   const { codeAcces } = await createPersonne(db, {
     email: "jane@doe.fr",
-    code_accès: "test.pas.de.groupe",
+    access_code: "test.pas.de.groupe",
   });
 
   await page.goto(`/?secret=${codeAcces}`);

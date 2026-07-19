@@ -14,7 +14,7 @@ export async function getEvenementsForPersonne(email: Personne["email"]): Promis
 
   const personneId = requeteSQL[0].id;
 
-  const evenements = await directDatabaseConnection("évènement_métrique")
+  const evenements = await directDatabaseConnection("evenement_metrique")
     .select("*")
     .where("personne", "=", personneId)
     .orderBy("date", "desc");

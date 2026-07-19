@@ -20,7 +20,7 @@
     title: string;
     email?: string;
     dossiers: DossierSummary[];
-    relationSuivis?: PitchouState["relationSuivis"];
+    followRelations?: PitchouState["followRelations"];
     showFilterSansInstructeurice?: boolean;
     showFilterActionInstructeur?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
@@ -30,7 +30,7 @@
     title,
     email = "",
     dossiers,
-    relationSuivis,
+    followRelations,
     showFilterSansInstructeurice = false,
     showFilterActionInstructeur = false,
     notificationByDossier,
@@ -109,7 +109,7 @@
 
   let selectedPhase: DossierPhase | undefined = $state();
 
-  const dossierIdsFollowedByCurrentInstructeur = $derived(relationSuivis?.get(email) ?? new Set());
+  const dossierIdsFollowedByCurrentInstructeur = $derived(followRelations?.get(email) ?? new Set());
 
   type PageSelector = () => void;
   let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
@@ -135,9 +135,9 @@
       const notificationB = notificationByDossier.get(b.id);
 
       const dateNotificationNonVueA =
-        notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
+        notificationA?.viewed === false ? notificationA.updated_at : undefined;
       const dateNotificationNonVueB =
-        notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour : undefined;
+        notificationB?.viewed === false ? notificationB.updated_at : undefined;
 
       if (dateNotificationNonVueA && dateNotificationNonVueB) {
         return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1;
@@ -147,7 +147,7 @@
         return 1;
       }
 
-      return a.date_dépôt > b.date_dépôt ? -1 : 1;
+      return a.depot_date > b.depot_date ? -1 : 1;
     });
 
     if (!pageSelectors) return sortedDossiers;
@@ -173,8 +173,8 @@
    * Checks whether a dossier is followed by at least one person
    */
   function dossierIsFollowed(dossierId: Dossier["id"]): boolean {
-    if (!relationSuivis) return false;
-    for (const followedDossiers of relationSuivis.values()) {
+    if (!followRelations) return false;
+    for (const followedDossiers of followRelations.values()) {
       if (followedDossiers.has(dossierId)) {
         return true;
       }
@@ -204,7 +204,7 @@
     if (!allFilters.has("actionInstructeur")) {
       allFilters.set(
         "actionInstructeur",
-        (dossier) => dossier.prochaine_action_attendue_par === "Instructeur",
+        (dossier) => dossier.next_action_expected_from === "Instructeur",
       );
     } else {
       allFilters.delete("actionInstructeur");
@@ -217,7 +217,7 @@
     if (!allFilters.has("nouveauté")) {
       allFilters.set(
         "nouveauté",
-        (dossier) => notificationByDossier.get(dossier.id)?.vue === false,
+        (dossier) => notificationByDossier.get(dossier.id)?.viewed === false,
       );
     } else {
       allFilters.delete("nouveauté");
@@ -344,7 +344,7 @@
             dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(
               dossier.id,
             )}
-            nouveautéVueParInstructeur={notificationByDossier.get(dossier.id)?.vue ?? true}
+            notificationViewed={notificationByDossier.get(dossier.id)?.viewed ?? true}
           />
         </li>
       {/each}

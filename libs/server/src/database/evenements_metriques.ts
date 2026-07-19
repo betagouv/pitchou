@@ -5,23 +5,23 @@ import { directDatabaseConnection } from "../database.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 
-export async function addEvenementFromCap(cap: string, évènement: EvenementMetrique) {
-  const personne = await directDatabaseConnection("cap_évènement_métrique")
+export async function addEvenementFromCap(cap: string, event: EvenementMetrique) {
+  const personne = await directDatabaseConnection("cap_evenement_metrique")
     .select("id")
     .from("personne")
-    .join("cap_évènement_métrique", {
-      "cap_évènement_métrique.personne_cap": "personne.code_accès",
+    .join("cap_evenement_metrique", {
+      "cap_evenement_metrique.personne_cap": "personne.access_code",
     })
-    .where({ "cap_évènement_métrique.cap": cap })
+    .where({ "cap_evenement_metrique.cap": cap })
     .first();
 
   if (!personne) {
     throw new Error("Pas de personne avec cette capability");
   }
 
-  await directDatabaseConnection("évènement_métrique").insert({
-    évènement: évènement.type,
-    détails: "détails" in évènement ? évènement.détails : null,
+  await directDatabaseConnection("evenement_metrique").insert({
+    evenement: event.type,
+    details: "détails" in event ? event.détails : null,
     personne: personne.id,
   });
 }
@@ -30,8 +30,8 @@ export async function deleteEvenementsByEmail(
   email: NonNullable<Personne["email"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {
-  return databaseConnection("évènement_métrique")
-    .join("personne", { "personne.id": "évènement_métrique.personne" })
+  return databaseConnection("evenement_metrique")
+    .join("personne", { "personne.id": "evenement_metrique.personne" })
     .where({ email: email })
     .delete();
 }
@@ -41,47 +41,47 @@ export async function getAllEvenementsWithEmail(): Promise<
     email: string | null;
     groupesInstructeurs: string[] | null;
     date: Date;
-    évènement: string;
-    détails: unknown | null;
+    evenement: string;
+    details: unknown | null;
   }[]
 > {
   const groupesByPersonne = directDatabaseConnection("cap_dossier")
     .join(
-      "arête_cap_dossier__groupe_instructeurs",
-      "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "edge_cap_dossier__groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
       "cap_dossier.cap",
     )
     .join(
       "groupe_instructeurs",
       "groupe_instructeurs.id",
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
     )
     .select("cap_dossier.personne_cap")
     .select(
       directDatabaseConnection.raw(
-        "array_agg(DISTINCT groupe_instructeurs.nom ORDER BY groupe_instructeurs.nom) as groupes",
+        "array_agg(DISTINCT groupe_instructeurs.name ORDER BY groupe_instructeurs.name) as groupes",
       ),
     )
     .groupBy("cap_dossier.personne_cap")
     .as("groupes_par_personne");
 
-  return directDatabaseConnection("évènement_métrique")
-    .join("personne", { "personne.id": "évènement_métrique.personne" })
-    .leftJoin(groupesByPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
+  return directDatabaseConnection("evenement_metrique")
+    .join("personne", { "personne.id": "evenement_metrique.personne" })
+    .leftJoin(groupesByPersonne, "groupes_par_personne.personne_cap", "personne.access_code")
     .select(
       "personne.email",
       "groupes_par_personne.groupes as groupesInstructeurs",
-      "évènement_métrique.date",
-      "évènement_métrique.évènement",
-      "évènement_métrique.détails",
+      "evenement_metrique.date",
+      "evenement_metrique.evenement",
+      "evenement_metrique.details",
     )
     .whereNot("personne.email", "like", "%beta.gouv%")
-    .orderBy("évènement_métrique.date", "asc");
+    .orderBy("evenement_metrique.date", "asc");
 }
 
 export async function deleteEvenementsBeforeDate(
   date: Date,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {
-  return databaseConnection("évènement_métrique").where("date", "<", date).delete();
+  return databaseConnection("evenement_metrique").where("date", "<", date).delete();
 }

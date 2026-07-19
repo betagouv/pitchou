@@ -11,38 +11,38 @@ export function instructeurFollowsDossier(
 ) {
   console.log("instructeurFollowsDossier", dossierId);
 
-  const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
+  const updateFollowRelation = store.capabilities.updateFollowRelation;
 
-  if (!modifierRelationSuivi) {
+  if (!updateFollowRelation) {
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.relationSuivis || new SvelteMap();
+  const relationsSuivi = store.followRelations || new SvelteMap();
   const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
   dossiersSuivisParInstructeur.add(dossierId);
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.relationSuivis = relationsSuivi;
+  store.followRelations = relationsSuivi;
 
   sendEvenement({ type: "suivreUnDossier", détails: { dossierId } });
 
-  return modifierRelationSuivi("suivre", instructeurEmail, dossierId);
+  return updateFollowRelation("suivre", instructeurEmail, dossierId);
 }
 
 export function instructeurLeavesDossier(
   instructeurEmail: NonNullable<Personne["email"]>,
   dossierId: Dossier["id"],
 ) {
-  const modifierRelationSuivi = store.capabilities.modifierRelationSuivi;
+  const updateFollowRelation = store.capabilities.updateFollowRelation;
 
-  if (!modifierRelationSuivi) {
+  if (!updateFollowRelation) {
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.relationSuivis || new SvelteMap();
+  const relationsSuivi = store.followRelations || new SvelteMap();
   const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
   dossiersSuivisParInstructeur.delete(dossierId);
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.relationSuivis = relationsSuivi;
+  store.followRelations = relationsSuivi;
 
-  return modifierRelationSuivi("laisser", instructeurEmail, dossierId);
+  return updateFollowRelation("laisser", instructeurEmail, dossierId);
 }

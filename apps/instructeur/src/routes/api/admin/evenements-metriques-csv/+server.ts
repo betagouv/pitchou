@@ -22,8 +22,8 @@ export const GET: RequestHandler = async ({ url }) => {
         csvEscape(row.email),
         csvEscape((row.groupesInstructeurs ?? []).join(" ; ")),
         (row.date instanceof Date ? row.date : new Date(row.date)).toISOString().slice(0, 10),
-        csvEscape(row.évènement),
-        csvEscape(row.détails),
+        csvEscape(row.evenement),
+        csvEscape(row.details),
       ].join(","),
     ),
   ];

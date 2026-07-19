@@ -12,20 +12,20 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
 ): Promise<any> {
   // Find the files already in place (to delete them below)
   const previousFichierIdRows = await databaseConnection("dossier")
-    .select(["espèces_impactées"])
-    .whereIn("number_demarches_simplifiées", [...especesImpacteesByDossierNumber.keys()])
-    .andWhereNot({ espèces_impactées: null });
+    .select(["especes_impactees"])
+    .whereIn("demarche_numerique_number", [...especesImpacteesByDossierNumber.keys()])
+    .andWhereNot({ especes_impactees: null });
 
   // Associate the new espèces impactées files with the right dossier
   const updatePs = [...especesImpacteesByDossierNumber].map(([dossierNumber, fichierId]) => {
     return databaseConnection("dossier")
-      .update({ espèces_impactées: fichierId })
-      .where({ number_demarches_simplifiées: dossierNumber });
+      .update({ especes_impactees: fichierId })
+      .where({ demarche_numerique_number: dossierNumber });
   });
 
   // Delete the files that were attached to a dossier and are no longer relevant
   await Promise.all(updatePs);
 
-  const oldFichierIds = previousFichierIdRows.map(({ espèces_impactées }) => espèces_impactées);
+  const oldFichierIds = previousFichierIdRows.map(({ especes_impactees }) => especes_impactees);
   await deleteFichiersWithoutOtherReferences(oldFichierIds, databaseConnection);
 }

@@ -5,8 +5,8 @@ export { formatDateAbsolute, formatDateRelative } from "@pitchou/common/formatDa
 
 export function formatLocalisation({
   communes,
-  départements,
-  régions,
+  departments,
+  regions,
 }: Partial<DossierFull>): string {
   // Clean up the case where a dossier said it spanned several communes, but the communes were not entered
   if (Array.isArray(communes) && communes.length === 0) {
@@ -14,23 +14,23 @@ export function formatLocalisation({
   }
 
   // Régions
-  if (!communes && !départements && régions) {
-    return `Régions: ${régions.join(", ")}`;
+  if (!communes && !departments && regions) {
+    return `Régions: ${regions.join(", ")}`;
   }
 
   // Départements
-  if (!communes && départements) {
-    return départements.join(", ");
+  if (!communes && departments) {
+    return departments.join(", ");
   }
 
   // Communes
   if (
     !communes ||
-    (!communes && !départements) ||
+    (!communes && !departments) ||
     (communes &&
       Array.isArray(communes) &&
       communes.length === 0 &&
-      (!départements || départements.length === 0))
+      (!departments || departments.length === 0))
   ) {
     return "(inconnue)";
   }
@@ -38,38 +38,42 @@ export function formatLocalisation({
   return (
     communes.map(({ name }) => name).join(", ") +
     " " +
-    `(${Array.isArray(départements) ? départements.join(", ") : ""})`
+    `(${Array.isArray(departments) ? departments.join(", ") : ""})`
   );
 }
 
 export function formatDeposant(dossier: DossierFull | DossierSummary): string {
   const UNKNOWN = "(inconnu)";
 
-  let { déposant_nom: deposant_nom, déposant_prénoms: deposant_prenoms } = dossier;
+  let { deposant_last_name, deposant_first_names } = dossier;
 
-  if (!deposant_nom && !deposant_prenoms) {
-    if ("déposant_email" in dossier) {
-      return dossier.déposant_email ?? UNKNOWN;
+  if (!deposant_last_name && !deposant_first_names) {
+    if ("deposant_email" in dossier) {
+      return dossier.deposant_email ?? UNKNOWN;
     }
     return UNKNOWN;
   }
-  if (!deposant_nom) {
-    deposant_nom = "";
+  if (!deposant_last_name) {
+    deposant_last_name = "";
   }
-  if (!deposant_prenoms) {
-    deposant_prenoms = "";
+  if (!deposant_first_names) {
+    deposant_first_names = "";
   }
 
-  return deposant_nom ? deposant_nom + " " + deposant_prenoms : deposant_prenoms;
+  return deposant_last_name
+    ? deposant_last_name + " " + deposant_first_names
+    : deposant_first_names;
 }
 
 export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {
   if (dossier.demandeur_personne_morale_siret) {
-    return `${dossier.demandeur_personne_morale_raison_sociale} (${dossier.demandeur_personne_morale_siret})`;
+    return `${dossier.demandeur_personne_morale_legal_name} (${dossier.demandeur_personne_morale_siret})`;
   } else {
-    if (dossier.demandeur_personne_physique_nom) {
+    if (dossier.demandeur_personne_physique_last_name) {
       return (
-        dossier.demandeur_personne_physique_nom + " " + dossier.demandeur_personne_physique_prénoms
+        dossier.demandeur_personne_physique_last_name +
+        " " +
+        dossier.demandeur_personne_physique_first_names
       );
     } else {
       return formatDeposant(dossier);

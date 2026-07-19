@@ -70,13 +70,13 @@ async function getDossiersByIds(
   }
 
   const dossiersP = databaseConnection("dossier")
-    .select(["dossier.*", "décision_administrative.date_signature"])
-    .leftJoin("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
-    .where({ "décision_administrative.type": "Arrêté dérogation" })
+    .select(["dossier.*", "decision_administrative.signature_date"])
+    .leftJoin("decision_administrative", { "decision_administrative.dossier": "dossier.id" })
+    .where({ "decision_administrative.type": "Arrêté dérogation" })
     .whereIn("dossier.id", dossierIds)
-    .orderBy("décision_administrative.date_signature", "asc")
+    .orderBy("decision_administrative.signature_date", "asc")
     .then((dossiers) => {
-      // This query returns several rows per dossier if there are several décision_administrative
+      // This query returns several rows per dossier if there are several administrative decisions.
       // The current function filters to keep only a single row
       const seenIds = new Set();
 
@@ -91,10 +91,10 @@ async function getDossiersByIds(
       });
     });
 
-  const instructeursDossierP = databaseConnection("arête_personne_suit_dossier")
-    .select(["personne.email as email", "arête_personne_suit_dossier.dossier as dossier"])
-    .join("personne", { "personne.id": "arête_personne_suit_dossier.personne" })
-    .whereIn("arête_personne_suit_dossier.dossier", dossierIds);
+  const instructeursDossierP = databaseConnection("edge_personne_follows_dossier")
+    .select(["personne.email as email", "edge_personne_follows_dossier.dossier as dossier"])
+    .join("personne", { "personne.id": "edge_personne_follows_dossier.personne" })
+    .whereIn("edge_personne_follows_dossier.dossier", dossierIds);
 
   const instructeursByDossierIdP: Promise<Map<Dossier["id"], Personne["email"][]>> =
     instructeursDossierP.then((instructeursDossiers) => {
@@ -135,7 +135,7 @@ async function getDossiersByIds(
         flore: [],
       };
 
-      const especesImpacteesFileId = dossier.espèces_impactées as FileId | null;
+      const especesImpacteesFileId = dossier.especes_impactees as FileId | null;
       const especesImpacteesFile = especesImpacteesFileId
         ? await loadFichierContent(especesImpacteesFileId, databaseConnection)
         : null;
@@ -171,7 +171,7 @@ async function getDossiersByIds(
         instructeurs: instructeurs.map((email) => {
           return {
             email,
-            date_from: formatDate(dossier.date_dépôt),
+            date_from: formatDate(dossier.depot_date),
           };
         }),
         specimens_faunes: [
@@ -201,7 +201,7 @@ export function generateMessagesGeoMCE(dossierForGeoMCE: DossierForGeoMCE): GeoM
   return {
     projet: {
       ref: `PITCHOU-${dossierForGeoMCE.id}`,
-      nom: dossierForGeoMCE.nom || `Dossier Pitchou #${dossierForGeoMCE.id}`,
+      nom: dossierForGeoMCE.name || `Dossier Pitchou #${dossierForGeoMCE.id}`,
       description: dossierForGeoMCE.description || "",
       // @ts-expect-error
       localisations: dossierForGeoMCE.communes?.map(({ code }) => code),
@@ -222,7 +222,7 @@ export function generateMessagesGeoMCE(dossierForGeoMCE: DossierForGeoMCE): GeoM
       type: "En Attente de GeoMCE Dérogation Espèces Protégées",
       description: dossierForGeoMCE.description || "",
       references: [`PITCHOU-${dossierForGeoMCE.id}`],
-      date_decision: formatDate(dossierForGeoMCE.date_signature),
+      date_decision: formatDate(dossierForGeoMCE.signature_date),
       instructeurs: dossierForGeoMCE.instructeurs,
       autorite_decisionnaire: null,
       specimens_faunes: dossierForGeoMCE.specimens_faunes,
@@ -239,10 +239,10 @@ async function listDossiersForDeclarationGeoMCE(
   const dossiers = await databaseConnection("dossier")
     .select("dossier.id")
     .from("dossier")
-    .join("décision_administrative", { "décision_administrative.dossier": "dossier.id" })
-    .where({ "décision_administrative.type": "Arrêté dérogation" })
-    .whereNotNull("décision_administrative.date_signature")
-    .whereNotNull("dossier.espèces_impactées");
+    .join("decision_administrative", { "decision_administrative.dossier": "dossier.id" })
+    .where({ "decision_administrative.type": "Arrêté dérogation" })
+    .whereNotNull("decision_administrative.signature_date")
+    .whereNotNull("dossier.especes_impactees");
 
   // @ts-ignore
   return dossiers.map(({ id }) => id);

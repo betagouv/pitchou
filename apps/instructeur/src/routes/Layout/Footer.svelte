@@ -9,14 +9,14 @@
     "https://docs.google.com/spreadsheets/d/1E1z_SMXquqVnKvJXy7yKdGk1YPdV58_oaoLxBtf_k7s/edit?gid=0#gid=0";
 
   type Props = {
-    résultatsSynchronisationDS88444?: PitchouState["résultatsSynchronisationDS88444"];
+    demarcheNumerique88444SynchronizationResults?: PitchouState["demarcheNumerique88444SynchronizationResults"];
   };
 
-  let { résultatsSynchronisationDS88444: resultatsSynchronisationDS88444 = undefined }: Props =
-    $props();
+  let { demarcheNumerique88444SynchronizationResults = undefined }: Props = $props();
 
   let derniereSynchronisationReussie = $derived(
-    resultatsSynchronisationDS88444 && resultatsSynchronisationDS88444.find((r) => r.succès),
+    demarcheNumerique88444SynchronizationResults &&
+      demarcheNumerique88444SynchronizationResults.find((r) => r.success),
   );
 
   function formatDate(date: Date): string {
@@ -85,7 +85,7 @@
       <li class="fr-footer__bottom-item">
         <span class="fr-footer__bottom-link">
           Dernière synchronisation avec DS&nbsp;:&nbsp;
-          <span>{formatDate(derniereSynchronisationReussie.horodatage)}</span>
+          <span>{formatDate(derniereSynchronisationReussie.timestamp)}</span>
         </span>
       </li>
     {/if}

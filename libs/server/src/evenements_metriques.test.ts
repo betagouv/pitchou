@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { evenementMetriqueGuard } from "./evenements_metriques.ts";
 
-describe("évènementMétriqueGuard", () => {
+describe("evenementMetriqueGuard", () => {
   test("accepte l'ouverture de la modale d'ajout de pièce jointe depuis l'entête", () => {
     expect(
       evenementMetriqueGuard({

@@ -114,7 +114,7 @@ test("appelle onValidate avec le fichier encodé en base64 quand tout est valide
 
   const transmittedDecision = onValidate.mock.calls[0][0] as DecisionAdministrativeForTransfer;
   expect(transmittedDecision.fichier_base64).toMatchObject({
-    nom: "arrete.pdf",
+    name: "arrete.pdf",
     media_type: "application/pdf",
   });
   expect(transmittedDecision.fichier_base64?.contenuBase64.length).toBeGreaterThan(0);

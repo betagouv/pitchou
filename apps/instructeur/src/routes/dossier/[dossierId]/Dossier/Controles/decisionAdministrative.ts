@@ -30,7 +30,7 @@ export async function createPrescriptionControlesFromFichier(
   const rawData = await getODSTableRawContent(fichierPrescriptionControleAB);
   const cleanData = [...tableRawContentToObjects(tableWithoutEmptyRows(rawData)).values()][0];
 
-  const decisionNumber = decisionAdministrative.numéro;
+  const decisionNumber = decisionAdministrative.number;
 
   const candidatePrescriptions: Omit<FrontEndPrescription, "id">[] = cleanData
     // @ts-ignore
@@ -47,29 +47,29 @@ export async function createPrescriptionControlesFromFichier(
       //console.log('row', row)
 
       const {
-        "Numéro article": numéro_article,
+        "Numéro article": articleNumber,
         Description: description,
-        "Date échéance": date_échéance,
-        "Surface compensée": surface_compensée,
-        "Surface évitée": surface_évitée,
-        "Individus compensés": individus_compensés,
-        "Individus évités": individus_évités,
-        "Nids compensés": nids_compensés,
-        "Nids évités": nids_évités,
+        "Date échéance": dueDate,
+        "Surface compensée": compensatedSurface,
+        "Surface évitée": avoidedSurface,
+        "Individus compensés": compensatedIndividus,
+        "Individus évités": avoidedIndividus,
+        "Nids compensés": compensatedNids,
+        "Nids évités": avoidedNids,
       } = row;
 
       const prescription: Omit<FrontEndPrescription, "id"> = {
-        décision_administrative: decisionAdministrative.id,
-        date_échéance: isValidDate(new Date(date_échéance)) ? new Date(date_échéance) : null,
-        numéro_article,
+        decision_administrative: decisionAdministrative.id,
+        due_date: isValidDate(new Date(dueDate)) ? new Date(dueDate) : null,
+        article_number: articleNumber,
         description,
-        individus_compensés: !individus_compensés ? undefined : individus_compensés,
-        individus_évités: !individus_évités ? undefined : individus_évités,
-        nids_compensés: !nids_compensés ? undefined : nids_compensés,
-        nids_évités: !nids_évités ? undefined : nids_évités,
-        surface_compensée: !surface_compensée ? undefined : surface_compensée,
-        surface_évitée: !surface_évitée ? undefined : surface_évitée,
-        contrôles: undefined,
+        compensated_individus: !compensatedIndividus ? undefined : compensatedIndividus,
+        avoided_individus: !avoidedIndividus ? undefined : avoidedIndividus,
+        compensated_nids: !compensatedNids ? undefined : compensatedNids,
+        avoided_nids: !avoidedNids ? undefined : avoidedNids,
+        compensated_surface: !compensatedSurface ? undefined : compensatedSurface,
+        avoided_surface: !avoidedSurface ? undefined : avoidedSurface,
+        controles: undefined,
       };
 
       let controles: Omit<Controle, "id" | "prescription">[] = [];
@@ -77,55 +77,52 @@ export async function createPrescriptionControlesFromFichier(
       let controleNumber = 1;
 
       while (true) {
-        const date_controleProp = `${controleNumber} Date contrôle`;
-        const resultatProp = `${controleNumber} Résultat contrôle`;
-        const commentaireProp = `${controleNumber} Commentaire`;
-        const type_action_suite_controleProp = `${controleNumber} Type de Suite`;
-        const date_action_suite_controleProp = `${controleNumber} Date de la suite`;
-        const date_prochaine_echeanceProp = `${controleNumber} Date Echéance`;
+        const controleDateProperty = `${controleNumber} Date contrôle`;
+        const resultProperty = `${controleNumber} Résultat contrôle`;
+        const commentProperty = `${controleNumber} Commentaire`;
+        const postControleActionTypeProperty = `${controleNumber} Type de Suite`;
+        const postControleActionDateProperty = `${controleNumber} Date de la suite`;
+        const nextDueDateProperty = `${controleNumber} Date Echéance`;
 
-        const date_contrôle = row[date_controleProp];
-        let résultat: ResultatControle = row[resultatProp];
-        if (résultat && résultat.trim() === "non conforme") {
-          résultat = "Non conforme";
+        const controleDate = row[controleDateProperty];
+        let result: ResultatControle = row[resultProperty];
+        if (result && result.trim() === "non conforme") {
+          result = "Non conforme";
         }
-        if (résultat && résultat.trim() === "conforme") {
-          résultat = "Conforme";
+        if (result && result.trim() === "conforme") {
+          result = "Conforme";
         }
-        if (résultat && résultat.trim() === "en cours") {
-          résultat = "En cours";
+        if (result && result.trim() === "en cours") {
+          result = "En cours";
         }
-        if (résultat && résultat.trim() === "trop tard") {
-          résultat = "Trop tard";
-        }
-
-        const commentaire = row[commentaireProp];
-
-        let type_action_suite_contrôle: TypesActionSuiteControle =
-          row[type_action_suite_controleProp];
-
-        if (type_action_suite_contrôle && type_action_suite_contrôle.trim() === "mail") {
-          type_action_suite_contrôle = "Email";
-        }
-        if (type_action_suite_contrôle && type_action_suite_contrôle.trim() === "courrier") {
-          type_action_suite_contrôle = "Courrier";
+        if (result && result.trim() === "trop tard") {
+          result = "Trop tard";
         }
 
-        const date_action_suite_contrôle = row[date_action_suite_controleProp];
-        const date_prochaine_échéance = row[date_prochaine_echeanceProp];
+        const comment = row[commentProperty];
 
-        if (date_contrôle && résultat) {
+        let postControleActionType: TypesActionSuiteControle = row[postControleActionTypeProperty];
+
+        if (postControleActionType && postControleActionType.trim() === "mail") {
+          postControleActionType = "Email";
+        }
+        if (postControleActionType && postControleActionType.trim() === "courrier") {
+          postControleActionType = "Courrier";
+        }
+
+        const postControleActionDate = row[postControleActionDateProperty];
+        const nextDueDate = row[nextDueDateProperty];
+
+        if (controleDate && result) {
           controles.push({
-            date_contrôle: isValidDate(new Date(date_contrôle)) ? new Date(date_contrôle) : null,
-            résultat,
-            commentaire,
-            type_action_suite_contrôle,
-            date_action_suite_contrôle: isValidDate(new Date(date_action_suite_contrôle))
-              ? new Date(date_action_suite_contrôle)
+            controle_date: isValidDate(new Date(controleDate)) ? new Date(controleDate) : null,
+            result,
+            comment,
+            post_controle_action_type: postControleActionType,
+            post_controle_action_date: isValidDate(new Date(postControleActionDate))
+              ? new Date(postControleActionDate)
               : null,
-            date_prochaine_échéance: isValidDate(new Date(date_prochaine_échéance))
-              ? new Date(date_prochaine_échéance)
-              : null,
+            next_due_date: isValidDate(new Date(nextDueDate)) ? new Date(nextDueDate) : null,
           });
 
           controleNumber = controleNumber + 1;
@@ -136,7 +133,7 @@ export async function createPrescriptionControlesFromFichier(
 
       if (controles.length >= 1) {
         // @ts-ignore
-        prescription.contrôles = controles;
+        prescription.controles = controles;
       }
 
       return prescription;

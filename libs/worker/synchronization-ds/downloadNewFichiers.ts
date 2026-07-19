@@ -15,11 +15,11 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Knex } from "knex";
 
 type FichierToDownload = {
-  nom: string;
+  name: string;
   url: string;
   media_type: string | null;
-  DS_checksum: string | null;
-  DS_createdAt: Date | null;
+  demarche_numerique_checksum: string | null;
+  demarche_numerique_created_at: Date | null;
 };
 
 const openDocumentTypes = new Map([
@@ -43,7 +43,7 @@ const openDocumentTypes = new Map([
 /**
  * Workaround for https://github.com/demarches-simplifiees/demarches-simplifiees.fr/issues/11175
  */
-function DScontentTypeToActualMediaType({
+function demarcheNumeriqueContentTypeToActualMediaType({
   contentType,
   filename,
 }: Pick<DSFile, "contentType" | "filename">): string {
@@ -70,10 +70,10 @@ export default async function downloadNewFichiers(
       return [
         number,
         fichiers.map(({ filename, contentType, checksum, createdAt, url }) => ({
-          nom: filename,
-          media_type: DScontentTypeToActualMediaType({ filename, contentType }),
-          DS_checksum: checksum,
-          DS_createdAt: new Date(createdAt),
+          name: filename,
+          media_type: demarcheNumeriqueContentTypeToActualMediaType({ filename, contentType }),
+          demarche_numerique_checksum: checksum,
+          demarche_numerique_created_at: new Date(createdAt),
           url,
         })),
       ];
@@ -91,7 +91,6 @@ export default async function downloadNewFichiers(
     fichiersAlreadyInDB.map((f) => [makeFichierHash(f), f.id]),
   );
 
-  //console.log('fichiersDéjaEnBDD', fichiersDéjaEnBDD)
   //console.log('candidateFichiersDB', candidateFichiersDB)
 
   // Filter the candidate list by removing the files already present in the database
@@ -119,12 +118,13 @@ export default async function downloadNewFichiers(
       return Promise.all(
         fichiers.map(async (fichier) => {
           const { url } = fichier;
-          const { DS_checksum, DS_createdAt, media_type, nom } = fichier;
+          const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } =
+            fichier;
 
           let buffer: Buffer;
           try {
-            const { contenu } = await downloadFichierDS(url);
-            buffer = Buffer.from(contenu);
+            const { content } = await downloadFichierDS(url);
+            buffer = Buffer.from(content);
           } catch (err) {
             if (err instanceof HTTPError) {
               console.error(
@@ -150,13 +150,19 @@ export default async function downloadNewFichiers(
 
           try {
             const insertedFichier = await storeNewFichier(
-              { nom, contenu: buffer, media_type, DS_checksum, DS_createdAt },
+              {
+                name,
+                content: buffer,
+                media_type,
+                demarche_numerique_checksum,
+                demarche_numerique_created_at,
+              },
               transaction,
             );
             console.log(
               `Dossier DS`,
               number,
-              `- Téléchargement et stockage fichier '${nom}'`,
+              `- Téléchargement et stockage fichier '${name}'`,
               `(${byteSize(buffer.byteLength)})`,
             );
             return insertedFichier.id;

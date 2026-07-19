@@ -13,7 +13,7 @@
     dossier: DossierSummary;
     currentInstructeurFollowsDossier: (id: Dossier["id"]) => Promise<void>;
     currentInstructeurLeavesDossier: (id: Dossier["id"]) => Promise<void>;
-    nouveautéVueParInstructeur: boolean;
+    notificationViewed: boolean;
     dossierFollowedByCurrentInstructeur: boolean;
   };
 
@@ -22,25 +22,25 @@
     dossierFollowedByCurrentInstructeur,
     currentInstructeurFollowsDossier,
     currentInstructeurLeavesDossier,
-    nouveautéVueParInstructeur: nouveauteVueParInstructeur,
+    notificationViewed,
   }: Props = $props();
 </script>
 
 <div class="card fr-p-2w" data-testid="carte-dossier">
   <div class="header">
     <div class="tag-nouveaute-and-nom-projet">
-      {#if nouveauteVueParInstructeur === false}
+      {#if notificationViewed === false}
         <p class="fr-badge fr-badge--new">Nouveauté</p>
       {/if}
       <h3>
         <a href={`/dossier/${dossier.id}`} class="fr-link">
-          <span class="truncate">{dossier.nom || "(nom non renseigné)"}</span>
+          <span class="truncate">{dossier.name || "(nom non renseigné)"}</span>
           <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
         </a>
       </h3>
     </div>
     <div class="action-buttons">
-      {#if dossier.commentaire_libre && dossier.commentaire_libre !== ""}
+      {#if dossier.free_comment && dossier.free_comment !== ""}
         {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
         <ModalButton id={dsfrModaleId}>
           {#snippet openButton()}
@@ -56,7 +56,7 @@
           {#snippet content()}
             <header class="modal-title">
               <h1 class="fr-modal__title">
-                Commentaire dossier {dossier.nom}
+                Commentaire dossier {dossier.name}
               </h1>
               <h2 class="fr-modal__title">
                 {formatPorteurDeProjet(dossier)}
@@ -65,7 +65,7 @@
               </h2>
             </header>
             <div class="modal-content">
-              {dossier.commentaire_libre}
+              {dossier.free_comment}
             </div>
           {/snippet}
         </ModalButton>
@@ -93,12 +93,12 @@
         <div>
           <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
           <span class="fr-sr-only">Prochaine action attendue par</span>
-          {dossier.prochaine_action_attendue_par || "(non renseignée)"}
+          {dossier.next_action_expected_from || "(non renseignée)"}
         </div>
       </div>
       <div>
         <p class="dossier-number fr-text--sm">
-          Dossier n°{dossier.number_demarches_simplifiées}
+          Dossier n°{dossier.demarche_numerique_number}
         </p>
         {#if dossier.enjeu}
           <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
@@ -109,8 +109,8 @@
       <div class="date-depot">
         <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Date de dépôt</span>
-        <time datetime={formatDateAbsolute(dossier.date_dépôt, "yyyy-MM-dd")}
-          >{formatDateAbsolute(dossier.date_dépôt, "dd/MM/yyyy")}</time
+        <time datetime={formatDateAbsolute(dossier.depot_date, "yyyy-MM-dd")}
+          >{formatDateAbsolute(dossier.depot_date, "dd/MM/yyyy")}</time
         >
       </div>
       <div class="porteur-de-projet">

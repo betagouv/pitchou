@@ -16,8 +16,8 @@ export function getPrescriptions(
 ): Promise<Prescription[]> {
   return databaseConnection("prescription")
     .select("*")
-    .whereIn("décision_administrative", decisionIds)
-    .orderBy("date_échéance", "asc");
+    .whereIn("decision_administrative", decisionIds)
+    .orderBy("due_date", "asc");
 }
 
 export function addPrescription(
@@ -33,13 +33,13 @@ export function addPrescription(
 export function addPrescriptionsEtControles(prescriptions: Omit<FrontEndPrescription, "id">[]) {
   return Promise.allSettled(
     prescriptions.map((prescription) => {
-      const controles = prescription.contrôles;
-      delete prescription.contrôles;
+      const controles = prescription.controles;
+      delete prescription.controles;
 
       return addPrescription(prescription).then(({ prescriptionId }) => {
         if (controles && controles.length >= 1) {
-          for (const contrôle of controles) {
-            contrôle.prescription = prescriptionId;
+          for (const controle of controles) {
+            controle.prescription = prescriptionId;
           }
 
           return addControles(controles);
@@ -68,9 +68,9 @@ export async function getDossierIdFromPrescription(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"] | undefined> {
   const rows = await databaseConnection("prescription")
-    .select(["décision_administrative"])
+    .select(["decision_administrative"])
     .where({ id });
-  const decisionAdministrativeId = rows[0]?.décision_administrative;
+  const decisionAdministrativeId = rows[0]?.decision_administrative;
   if (!decisionAdministrativeId) return undefined;
   return getDossierIdFromDecisionAdministrative(decisionAdministrativeId, databaseConnection);
 }

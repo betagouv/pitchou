@@ -44,13 +44,11 @@ function isDossierSummary(x: any): x is DossierSummary {
   // Basic properties
   const basicPropsValid =
     typeof x.id === "number" &&
-    (typeof x.nom === "string" || x.nom === null) &&
-    (typeof x.number_demarches_simplifiées === "string" ||
-      x.number_demarches_simplifiées === null) &&
-    (typeof x.activité_principale === "string" || x.activité_principale === null) &&
-    (typeof x.rattaché_au_régime_ae === "boolean" || x.rattaché_au_régime_ae === null) &&
-    (typeof x.historique_identifiant_demande_onagre === "string" ||
-      x.historique_identifiant_demande_onagre === null);
+    (typeof x.name === "string" || x.name === null) &&
+    (typeof x.demarche_numerique_number === "string" || x.demarche_numerique_number === null) &&
+    (typeof x.main_activite === "string" || x.main_activite === null) &&
+    (typeof x.linked_to_ae_regime === "boolean" || x.linked_to_ae_regime === null) &&
+    (typeof x.onagre_demande_identifier === "string" || x.onagre_demande_identifier === null);
 
   if (!basicPropsValid) return false;
 
@@ -59,21 +57,21 @@ function isDossierSummary(x: any): x is DossierSummary {
     !x.communes ||
     (Array.isArray(x.communes) &&
       x.communes.every(isCommune) &&
-      isOptionalStringArray(x.départements) &&
-      isOptionalStringArray(x.régions));
+      isOptionalStringArray(x.departments) &&
+      isOptionalStringArray(x.regions));
 
   if (!locationValid) return false;
 
   // DossierPersonnesImpliquées
   const peopleValid =
-    (typeof x.déposant_nom === "string" || x.déposant_nom === null) &&
-    (typeof x.déposant_prénoms === "string" || x.déposant_prénoms === null) &&
-    (typeof x.demandeur_personne_physique_nom === "string" ||
-      x.demandeur_personne_physique_nom === null) &&
-    (typeof x.demandeur_personne_physique_prénoms === "string" ||
-      x.demandeur_personne_physique_prénoms === null) &&
-    (typeof x.demandeur_personne_morale_raison_sociale === "string" ||
-      x.demandeur_personne_morale_raison_sociale === null) &&
+    (typeof x.deposant_last_name === "string" || x.deposant_last_name === null) &&
+    (typeof x.deposant_first_names === "string" || x.deposant_first_names === null) &&
+    (typeof x.demandeur_personne_physique_last_name === "string" ||
+      x.demandeur_personne_physique_last_name === null) &&
+    (typeof x.demandeur_personne_physique_first_names === "string" ||
+      x.demandeur_personne_physique_first_names === null) &&
+    (typeof x.demandeur_personne_morale_legal_name === "string" ||
+      x.demandeur_personne_morale_legal_name === null) &&
     (typeof x.demandeur_personne_morale_siret === "string" ||
       x.demandeur_personne_morale_siret === null);
 
@@ -82,12 +80,12 @@ function isDossierSummary(x: any): x is DossierSummary {
   // DossierPhaseEtProchaineAction
   const phaseValid = typeof x.phase === "string";
   const actionValid =
-    x.prochaine_action_attendue_par === null || typeof x.prochaine_action_attendue_par === "string";
+    x.next_action_expected_from === null || typeof x.next_action_expected_from === "string";
 
   if (!phaseValid || !actionValid) return false;
 
   // DonnéesDossierPourStats
-  const statsValid = isValidDateString(x.date_dépôt);
+  const statsValid = isValidDateString(x.depot_date);
 
   return statsValid;
 }

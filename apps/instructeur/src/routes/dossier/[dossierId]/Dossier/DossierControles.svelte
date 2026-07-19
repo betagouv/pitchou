@@ -19,7 +19,7 @@
   const idModalAddDecisionAdministrative = "modale-ajouter-decision-administrative";
 
   let decisionsAdministratives: FrontEndDecisionAdministrative[] = $derived(
-    dossier.décisionsAdministratives || [],
+    dossier.decisionsAdministratives || [],
   );
 
   //$inspect('dossier', dossier)
@@ -35,7 +35,7 @@
     };
   }
 
-  const phase = $derived(dossier.évènementsPhase.at(-1)?.phase || "Accompagnement amont");
+  const phase = $derived(dossier.evenementsPhase.at(-1)?.phase || "Accompagnement amont");
 
   let classes = $derived(
     clsx([

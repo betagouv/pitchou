@@ -121,53 +121,51 @@ function wrapGetDossierFull(
     }
 
     // Date formatting
-    if (ret.date_début_intervention) {
-      ret.date_début_intervention = new Date(ret.date_début_intervention);
+    if (ret.intervention_start_date) {
+      ret.intervention_start_date = new Date(ret.intervention_start_date);
     }
-    if (ret.date_fin_intervention) {
-      ret.date_fin_intervention = new Date(ret.date_fin_intervention);
+    if (ret.intervention_end_date) {
+      ret.intervention_end_date = new Date(ret.intervention_end_date);
     }
-    if (ret.date_dépôt) {
-      ret.date_dépôt = new Date(ret.date_dépôt);
+    if (ret.depot_date) {
+      ret.depot_date = new Date(ret.depot_date);
     }
 
     // The espèces impactées file is served on demand via espècesImpactées.url
-    if (ret.espècesImpactées) {
-      Object.freeze(ret.espècesImpactées);
+    if (ret.especesImpactees) {
+      Object.freeze(ret.especesImpactees);
     }
-    if (ret.évènementsPhase) {
-      Object.freeze(ret.évènementsPhase);
+    if (ret.evenementsPhase) {
+      Object.freeze(ret.evenementsPhase);
     }
 
     // the dates fetched from the JSON are strings
     // here, we convert them back into Dates
-    if (ret.décisionsAdministratives) {
-      ret.décisionsAdministratives = ret.décisionsAdministratives.map((decisionAdministrative) => {
-        if (decisionAdministrative.date_signature) {
-          decisionAdministrative.date_signature = new Date(decisionAdministrative.date_signature);
+    if (ret.decisionsAdministratives) {
+      ret.decisionsAdministratives = ret.decisionsAdministratives.map((decisionAdministrative) => {
+        if (decisionAdministrative.signature_date) {
+          decisionAdministrative.signature_date = new Date(decisionAdministrative.signature_date);
         }
-        if (decisionAdministrative.date_fin_obligations) {
-          decisionAdministrative.date_fin_obligations = new Date(
-            decisionAdministrative.date_fin_obligations,
+        if (decisionAdministrative.obligations_end_date) {
+          decisionAdministrative.obligations_end_date = new Date(
+            decisionAdministrative.obligations_end_date,
           );
         }
 
         if (Array.isArray(decisionAdministrative.prescriptions)) {
           for (const p of decisionAdministrative.prescriptions) {
-            if (p.date_échéance) p.date_échéance = new Date(p.date_échéance);
+            if (p.due_date) p.due_date = new Date(p.due_date);
 
-            if (Array.isArray(p.contrôles)) {
-              for (const contrôle of p.contrôles) {
-                if (contrôle.date_contrôle) {
-                  contrôle.date_contrôle = new Date(contrôle.date_contrôle);
+            if (Array.isArray(p.controles)) {
+              for (const controle of p.controles) {
+                if (controle.controle_date) {
+                  controle.controle_date = new Date(controle.controle_date);
                 }
-                if (contrôle.date_action_suite_contrôle) {
-                  contrôle.date_action_suite_contrôle = new Date(
-                    contrôle.date_action_suite_contrôle,
-                  );
+                if (controle.post_controle_action_date) {
+                  controle.post_controle_action_date = new Date(controle.post_controle_action_date);
                 }
-                if (contrôle.date_prochaine_échéance) {
-                  contrôle.date_prochaine_échéance = new Date(contrôle.date_prochaine_échéance);
+                if (controle.next_due_date) {
+                  controle.next_due_date = new Date(controle.next_due_date);
                 }
               }
             }
@@ -178,8 +176,8 @@ function wrapGetDossierFull(
       });
     }
 
-    if (ret.attachmentAutres) {
-      ret.attachmentAutres = ret.attachmentAutres.map((attachment) => {
+    if (ret.otherAttachments) {
+      ret.otherAttachments = ret.otherAttachments.map((attachment) => {
         if (attachment.attachment_date) {
           attachment.attachment_date = new Date(attachment.attachment_date);
         }
@@ -230,12 +228,12 @@ function wrapPOSTMultipart(
   };
 }
 
-function wrapModifierRelationSuivi(
+function wrapUpdateFollowRelation(
   url: string | undefined,
-): PitchouInstructeurCapabilities["modifierRelationSuivi"] | undefined {
+): PitchouInstructeurCapabilities["updateFollowRelation"] | undefined {
   if (!url) return undefined;
 
-  return function modifierRelationSuivi(direction, personneEmail, dossierId) {
+  return function updateFollowRelation(direction, personneEmail, dossierId) {
     return text(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -256,9 +254,9 @@ export default function (
   return {
     listerDossiers: wrapGETUrl(capURLs.listerDossiers),
     recupérerDossierComplet: wrapGetDossierFull(capURLs.recupérerDossierComplet),
-    listerRelationSuivi: wrapGETUrl(capURLs.listerRelationSuivi),
-    modifierRelationSuivi: wrapModifierRelationSuivi(capURLs.modifierRelationSuivi),
-    listerÉvènementsPhaseDossier: wrapGETUrl(capURLs.listerÉvènementsPhaseDossier),
+    listFollowRelations: wrapGETUrl(capURLs.listFollowRelations),
+    updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),
+    listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
     listerMessages: wrapListerMessages(capURLs.listerMessages),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
     remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
@@ -275,9 +273,9 @@ export default function (
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
     addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
-    addAttachmentAutre: wrapPOSTMultipart(capURLs.addAttachmentAutre),
+    addOtherAttachment: wrapPOSTMultipart(capURLs.addOtherAttachment),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
-    créerÉvènementMetrique: wrapPOSTUrl(capURLs.créerÉvènementMetrique),
+    creerEvenementMetrique: wrapPOSTUrl(capURLs.creerEvenementMetrique),
     identité: capURLs.identité,
     listerNotifications: wrapGETUrl(capURLs.listerNotifications),
     updateNotificationForDossier: wrapPOSTUrl(capURLs.updateNotificationForDossier),

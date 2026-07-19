@@ -141,7 +141,7 @@ export function matchesText(utilisateur: UtilisateurAARRI, text: string): boolea
     .map((word) => removeAccents(word.toLowerCase()))
     .filter((word) => word.length >= 1);
 
-  const haystack = [utilisateur.email, utilisateur.nom, utilisateur.prenoms]
+  const haystack = [utilisateur.email, utilisateur.lastName, utilisateur.firstNames]
     .map(normalize)
     .join(" ");
 

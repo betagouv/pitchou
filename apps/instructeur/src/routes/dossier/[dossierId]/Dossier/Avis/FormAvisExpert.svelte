@@ -15,7 +15,7 @@
   let { closeForm, dossierId, avisExpertInitial = $bindable() }: Props = $props();
 
   let avisExpert: Partial<
-    Pick<FrontEndAvisExpert, "id" | "expert" | "date_saisine" | "avis" | "date_avis">
+    Pick<FrontEndAvisExpert, "id" | "expert" | "saisine_date" | "avis" | "avis_date">
   > = $state(avisExpertInitial ?? {});
 
   let fileListFichierSaisine: FileList | undefined = $state();
@@ -178,7 +178,7 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
         <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
-        <DateInput bind:date={avisExpert.date_saisine} />
+        <DateInput bind:date={avisExpert.saisine_date} />
       </div>
     </div>
 
@@ -217,7 +217,7 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
         <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-        <DateInput id={"input-champ-date-avis"} bind:date={avisExpert.date_avis} />
+        <DateInput id={"input-champ-date-avis"} bind:date={avisExpert.avis_date} />
       </div>
     </div>
     {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}

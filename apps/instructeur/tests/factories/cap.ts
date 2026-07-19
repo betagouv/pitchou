@@ -6,7 +6,7 @@ export async function createCapDossier(db: Knex, personneCap: string): Promise<{
 }
 
 export async function attachCapToGroupe(db: Knex, cap: string, groupeId: string): Promise<void> {
-  await db("arête_cap_dossier__groupe_instructeurs").insert({
+  await db("edge_cap_dossier__groupe_instructeurs").insert({
     cap_dossier: cap,
     groupe_instructeurs: groupeId,
   });

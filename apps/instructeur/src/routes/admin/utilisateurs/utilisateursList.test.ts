@@ -16,8 +16,8 @@ function makeUtilisateur(overrides: Partial<UtilisateurAARRI> = {}): Utilisateur
   return {
     personneId: 1,
     email: "instructeur@departement.gouv.fr",
-    nom: "Durand",
-    prenoms: "Camille",
+    lastName: "Durand",
+    firstNames: "Camille",
     niveau: "acquis",
     groupesInstructeurs: [],
     actionCount: 0,
@@ -88,8 +88,8 @@ describe("parseUtilisateursQuery", () => {
 describe("matchesText", () => {
   const utilisateur = makeUtilisateur({
     email: "camille.durand@gironde.gouv.fr",
-    nom: "Durand",
-    prenoms: "Camille",
+    lastName: "Durand",
+    firstNames: "Camille",
   });
 
   it("matches a substring of the email", () => {
@@ -101,7 +101,7 @@ describe("matchesText", () => {
   });
 
   it("is accent- and case-insensitive", () => {
-    expect(matchesText(makeUtilisateur({ nom: "Hélène" }), "HELENE")).toBe(true);
+    expect(matchesText(makeUtilisateur({ lastName: "Hélène" }), "HELENE")).toBe(true);
   });
 
   it("requires every word to match (AND), across all fields", () => {
@@ -110,15 +110,15 @@ describe("matchesText", () => {
   });
 
   it("tolerates null fields", () => {
-    const sansNom = makeUtilisateur({ nom: null, prenoms: null, email: "x@y.fr" });
+    const sansNom = makeUtilisateur({ lastName: null, firstNames: null, email: "x@y.fr" });
     expect(matchesText(sansNom, "x@y")).toBe(true);
     expect(matchesText(sansNom, "durand")).toBe(false);
   });
 });
 
 describe("filterUtilisateurs", () => {
-  const actif = makeUtilisateur({ personneId: 1, niveau: "actif", nom: "Actif" });
-  const base = makeUtilisateur({ personneId: 2, niveau: "base", nom: "Base" });
+  const actif = makeUtilisateur({ personneId: 1, niveau: "actif", lastName: "Actif" });
+  const base = makeUtilisateur({ personneId: 2, niveau: "base", lastName: "Base" });
   const utilisateurs = [actif, base];
   const emptyQuery = parseUtilisateursQuery(params());
 

@@ -3,10 +3,12 @@ import { beforeEach, expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { getEspecesProtegees } from "@pitchou/server/especeProtegee.ts";
 import { rebuildEspeceProtegeeReference } from "@pitchou/server/especeProtegeeReference.ts";
+import { createPersonne } from "../factories/index.ts";
 import {
   seedEspeceProtegeeReference,
   type EspeceProtegeeReferenceSample,
 } from "../factories/especeProtegeeReference.ts";
+import { INTEGRATION_BASE_URL, TEST_ADMIN_EMAIL } from "../setup/integration-global.ts";
 import type { EspeceProtegeeModificationInitializer } from "@pitchou/types/database/public/EspeceProtegeeModification.ts";
 
 function refEspece(
@@ -155,8 +157,25 @@ test("la vue fait apparaître un ajout manuel absent de la référence", async (
 
 test("la vue masque une espèce exclue (tombstone)", async () => {
   await seedEspeceProtegeeReference([refEspece("50"), refEspece("51")], db);
-  await db("espece_protegee_modification").insert(modification("50", { exclu: true }));
+  await db("espece_protegee_modification").insert(modification("50", { excluded: true }));
 
   const rows = await getEspecesProtegees(db);
   expect(rows.map((r) => r.cd_ref)).toEqual(["51"]);
+});
+
+test("PUT /api/admin/especes-protegees/modifications/:cd_ref rejette une propriété inconnue", async () => {
+  const adminSecret = "admin-species-secret";
+  await createPersonne(db, { email: TEST_ADMIN_EMAIL, access_code: adminSecret });
+
+  const response = await fetch(
+    `${INTEGRATION_BASE_URL}/api/admin/especes-protegees/modifications/50?secret=${adminSecret}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ exclu: true }),
+    },
+  );
+
+  expect(response.status).toBe(400);
+  await expect(db("espece_protegee_modification").where({ cd_ref: "50" })).resolves.toHaveLength(0);
 });

@@ -19,8 +19,8 @@ export const PUT: RequestHandler = async ({ url, request, params }) => {
     error(400, validation.message);
   }
 
-  // `modifie_par` is always the resolved admin email, never trusted from the client.
-  await upsertEspeceProtegeeModification(cd_ref, { ...validation.value, modifie_par: email });
+  // `modified_by` is always the resolved admin email, never trusted from the client.
+  await upsertEspeceProtegeeModification(cd_ref, { ...validation.value, modified_by: email });
   return json({ succès: true });
 };
 

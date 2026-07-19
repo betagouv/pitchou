@@ -17,27 +17,27 @@ export async function addDecisionAdministrativeWithFichier(
   decision: DecisionAdministrativeForTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DecisionAdministrative["id"]> {
-  const { id, numéro, type, date_signature, date_fin_obligations, dossier } = decision;
+  const { id, number, type, signature_date, obligations_end_date, dossier } = decision;
 
   const decisionAdministrativeDB: Partial<DecisionAdministrative> = {
     id,
-    numéro,
+    number,
     type,
-    date_signature,
-    date_fin_obligations,
+    signature_date,
+    obligations_end_date,
     dossier,
   };
 
   if (decision.fichier_base64) {
-    const { nom, media_type, contenuBase64 } = decision.fichier_base64;
-    const contenu = Buffer.from(contenuBase64, "base64");
+    const { name, media_type, contenuBase64 } = decision.fichier_base64;
+    const content = Buffer.from(contenuBase64, "base64");
 
-    await storeNewFichier({ nom, media_type, contenu }, databaseConnection).then((fichier) => {
+    await storeNewFichier({ name, media_type, content }, databaseConnection).then((fichier) => {
       decisionAdministrativeDB.fichier = fichier.id;
     });
   }
 
-  return databaseConnection("décision_administrative")
+  return databaseConnection("decision_administrative")
     .insert(decisionAdministrativeDB)
     .returning(["id"])
     .then((d) => d[0].id);
@@ -51,14 +51,14 @@ export function addDecisionsAdministratives(
     decisions = [decisions];
   }
 
-  return databaseConnection("décision_administrative").insert(decisions);
+  return databaseConnection("decision_administrative").insert(decisions);
 }
 
 export function getDecisionAdministratives(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DecisionAdministrative[]> {
-  return databaseConnection("décision_administrative").select("*").where({ dossier: dossierId });
+  return databaseConnection("decision_administrative").select("*").where({ dossier: dossierId });
 }
 
 /**
@@ -68,37 +68,37 @@ export function getDecisionsAdministratives(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<FrontEndDecisionAdministrative[]> {
-  return databaseConnection("décision_administrative")
-    .select("décision_administrative.*")
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "décision_administrative.dossier",
+  return databaseConnection("decision_administrative")
+    .select("decision_administrative.*")
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "decision_administrative.dossier",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
 }
 
 export async function updateDecisionAdministrative(
   decisionAdministrative: DecisionAdministrativeForTransfer,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  const { id, numéro, type, date_signature, date_fin_obligations, dossier } =
+  const { id, number, type, signature_date, obligations_end_date, dossier } =
     decisionAdministrative;
 
   if (!id) {
     throw new TypeError(
-      `id manquant dans la décision administrative ${decisionAdministrative.numéro}, ${decisionAdministrative.date_signature}, ${decisionAdministrative.type}`,
+      `id manquant dans la décision administrative ${decisionAdministrative.number}, ${decisionAdministrative.signature_date}, ${decisionAdministrative.type}`,
     );
   }
 
   const decisionAdministrativeDB: Partial<DecisionAdministrative> = {
     id,
-    numéro,
+    number,
     type,
-    date_signature,
-    date_fin_obligations,
+    signature_date,
+    obligations_end_date,
     dossier,
   };
 
@@ -107,24 +107,24 @@ export async function updateDecisionAdministrative(
   let previousFichierIdP: Promise<FileId | undefined> = Promise.resolve(undefined);
 
   if (decisionAdministrative.fichier_base64) {
-    const { nom, media_type, contenuBase64 } = decisionAdministrative.fichier_base64;
-    const contenu = Buffer.from(contenuBase64, "base64");
+    const { name, media_type, contenuBase64 } = decisionAdministrative.fichier_base64;
+    const content = Buffer.from(contenuBase64, "base64");
 
     decisionAdministrativeReadyP = storeNewFichier(
-      { nom, media_type, contenu },
+      { name, media_type, content },
       databaseConnection,
     ).then((fichier) => {
       decisionAdministrativeDB.fichier = fichier.id;
     });
 
-    previousFichierIdP = databaseConnection("décision_administrative")
+    previousFichierIdP = databaseConnection("decision_administrative")
       .select(["fichier"])
       .where({ id })
       .then((decisions) => decisions[0].fichier);
   }
 
   await decisionAdministrativeReadyP;
-  const updatedDecisionAdministrativeP = databaseConnection("décision_administrative")
+  const updatedDecisionAdministrativeP = databaseConnection("decision_administrative")
     .update(decisionAdministrativeDB)
     .where({ id: decisionAdministrativeDB.id });
 
@@ -141,10 +141,10 @@ export async function deleteDecisionAdministrative(
   id: DecisionAdministrative["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  const rows = await databaseConnection("décision_administrative").select("fichier").where({ id });
+  const rows = await databaseConnection("decision_administrative").select("fichier").where({ id });
   const fichierIds = rows.map((r) => r.fichier).filter((fichierId) => fichierId !== null);
 
-  const result = await databaseConnection("décision_administrative").delete().where({ id });
+  const result = await databaseConnection("decision_administrative").delete().where({ id });
 
   if (fichierIds.length >= 1) {
     await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
@@ -157,7 +157,7 @@ export async function getDossierIdFromDecisionAdministrative(
   id: DecisionAdministrative["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Dossier["id"] | undefined> {
-  const rows = await databaseConnection("décision_administrative")
+  const rows = await databaseConnection("decision_administrative")
     .select(["dossier"])
     .where({ id });
   return rows[0]?.dossier;

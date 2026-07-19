@@ -14,8 +14,8 @@ const ACTION_TYPES = new Set<EvenementMetrique["type"]>([
 type PersonneEventRow = {
   personneId: number;
   email: string | null;
-  nom: string | null;
-  prenoms: string | null;
+  lastName: string | null;
+  firstNames: string | null;
   groupesInstructeurs: string[] | null;
   type: EvenementMetrique["type"] | null;
   date: Date | null;
@@ -37,44 +37,44 @@ export async function getUtilisateursAARRI(
 ): Promise<UtilisateurAARRI[]> {
   const groupesParPersonne = databaseConnection("cap_dossier")
     .join(
-      "arête_cap_dossier__groupe_instructeurs",
-      "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "edge_cap_dossier__groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
       "cap_dossier.cap",
     )
     .join(
       "groupe_instructeurs",
       "groupe_instructeurs.id",
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
     )
     .select("cap_dossier.personne_cap")
     .select(
       databaseConnection.raw(
-        "array_agg(DISTINCT groupe_instructeurs.nom ORDER BY groupe_instructeurs.nom) as groupes",
+        "array_agg(DISTINCT groupe_instructeurs.name ORDER BY groupe_instructeurs.name) as groupes",
       ),
     )
     .groupBy("cap_dossier.personne_cap")
     .as("groupes_par_personne");
 
   const rows: PersonneEventRow[] = await databaseConnection("personne")
-    .whereNotNull("personne.code_accès")
+    .whereNotNull("personne.access_code")
     .whereRaw("(personne.email IS NULL OR personne.email NOT ILIKE '%@beta.gouv.fr')")
-    .leftJoin("évènement_métrique", "évènement_métrique.personne", "personne.id")
-    .leftJoin(groupesParPersonne, "groupes_par_personne.personne_cap", "personne.code_accès")
+    .leftJoin("evenement_metrique", "evenement_metrique.personne", "personne.id")
+    .leftJoin(groupesParPersonne, "groupes_par_personne.personne_cap", "personne.access_code")
     .select(
       "personne.id as personneId",
       "personne.email as email",
-      "personne.nom as nom",
-      "personne.prénoms as prenoms",
+      "personne.last_name as lastName",
+      "personne.first_names as firstNames",
       "groupes_par_personne.groupes as groupesInstructeurs",
-      "évènement_métrique.évènement as type",
-      "évènement_métrique.date as date",
+      "evenement_metrique.evenement as type",
+      "evenement_metrique.date as date",
     );
 
   type Accumulator = {
     personneId: number;
     email: string | null;
-    nom: string | null;
-    prenoms: string | null;
+    lastName: string | null;
+    firstNames: string | null;
     groupesInstructeurs: string[];
     events: LevelEvent[];
     actionCount: number;
@@ -89,8 +89,8 @@ export async function getUtilisateursAARRI(
       acc = {
         personneId: row.personneId,
         email: row.email,
-        nom: row.nom,
-        prenoms: row.prenoms,
+        lastName: row.lastName,
+        firstNames: row.firstNames,
         groupesInstructeurs: row.groupesInstructeurs ?? [],
         events: [],
         actionCount: 0,
@@ -112,8 +112,8 @@ export async function getUtilisateursAARRI(
   return [...parPersonne.values()].map((acc) => ({
     personneId: acc.personneId,
     email: acc.email,
-    nom: acc.nom,
-    prenoms: acc.prenoms,
+    lastName: acc.lastName,
+    firstNames: acc.firstNames,
     niveau: computeNiveauAARRI(acc.events),
     groupesInstructeurs: acc.groupesInstructeurs,
     actionCount: acc.actionCount,

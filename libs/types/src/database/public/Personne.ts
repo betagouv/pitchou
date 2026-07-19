@@ -8,17 +8,17 @@ export type PersonneId = number & { __brand: "public.personne" };
 export default interface Personne {
   id: PersonneId;
 
-  /** Nom de famille de la personne. Identité civile */
-  nom: string | null;
+  /** Personne last name. Civil identity */
+  last_name: string | null;
 
-  /** Prénoms de la personne. Identité civile */
-  prénoms: string | null;
+  /** Personne first names. Civil identity */
+  first_names: string | null;
 
-  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
+  /** Personne email address. Used for communication, authentication, and unique user identification in the system. */
   email: string | null;
 
-  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
-  code_accès: string | null;
+  /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
+  access_code: string | null;
 
   address: string | null;
 
@@ -32,17 +32,17 @@ export interface PersonneInitializer {
   /** Default value: nextval('personne_id_seq'::regclass) */
   id?: PersonneId;
 
-  /** Nom de famille de la personne. Identité civile */
-  nom?: string | null;
+  /** Personne last name. Civil identity */
+  last_name?: string | null;
 
-  /** Prénoms de la personne. Identité civile */
-  prénoms?: string | null;
+  /** Personne first names. Civil identity */
+  first_names?: string | null;
 
-  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
+  /** Personne email address. Used for communication, authentication, and unique user identification in the system. */
   email?: string | null;
 
-  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
-  code_accès?: string | null;
+  /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
+  access_code?: string | null;
 
   address?: string | null;
 
@@ -55,17 +55,17 @@ export interface PersonneInitializer {
 export interface PersonneMutator {
   id?: PersonneId;
 
-  /** Nom de famille de la personne. Identité civile */
-  nom?: string | null;
+  /** Personne last name. Civil identity */
+  last_name?: string | null;
 
-  /** Prénoms de la personne. Identité civile */
-  prénoms?: string | null;
+  /** Personne first names. Civil identity */
+  first_names?: string | null;
 
-  /** Adresse email de la personne. Utilisée pour la communication, l'authentification et l'identification unique de l'utilisateur dans le système. */
+  /** Personne email address. Used for communication, authentication, and unique user identification in the system. */
   email?: string | null;
 
-  /** Code d'accès unique de la personne. Permet de récupérer un lot de capabilities dans la table, notamment dans la table arête_cap_dossier__groupe_nstructeur */
-  code_accès?: string | null;
+  /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
+  access_code?: string | null;
 
   address?: string | null;
 

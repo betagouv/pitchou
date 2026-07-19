@@ -61,13 +61,13 @@
       return;
     }
 
-    if (decision.date_signature) {
-      Object.defineProperty(decision.date_signature, "toJSON", {
+    if (decision.signature_date) {
+      Object.defineProperty(decision.signature_date, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
-    if (decision.date_fin_obligations) {
-      Object.defineProperty(decision.date_fin_obligations, "toJSON", {
+    if (decision.obligations_end_date) {
+      Object.defineProperty(decision.obligations_end_date, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
@@ -88,10 +88,10 @@
         return;
       }
 
-      const nom = fichier.name;
-      const media_type = fichier.type;
+      const fileName = fichier.name;
+      const mediaType = fichier.type;
 
-      const contenuBase64P = new Promise<string>((resolve, reject) => {
+      const base64ContentPromise = new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.addEventListener(
           "load",
@@ -104,22 +104,22 @@
         reader.readAsDataURL(fichier);
       });
 
-      let contenuBase64: string;
+      let base64Content: string;
       try {
-        contenuBase64 = await contenuBase64P;
+        base64Content = await base64ContentPromise;
       } catch {
         fileErrorMessage = `La lecture du fichier a échoué. Veuillez réessayer.`;
         return;
       }
 
       // remove the dataURL prefix to keep only the base64 content
-      const dataURLPrefix = `data:${media_type};base64,`;
-      contenuBase64 = contenuBase64.slice(dataURLPrefix.length);
+      const dataURLPrefix = `data:${mediaType};base64,`;
+      base64Content = base64Content.slice(dataURLPrefix.length);
 
       decision.fichier_base64 = {
-        nom,
-        media_type,
-        contenuBase64,
+        name: fileName,
+        media_type: mediaType,
+        contenuBase64: base64Content,
       };
     }
 
@@ -160,7 +160,7 @@
     <label class="fr-label" for="input-numéro"> Numéro </label>
     <input
       class="fr-input"
-      bind:value={decision.numéro}
+      bind:value={decision.number}
       aria-describedby="input-numéro-messages"
       id="input-numéro"
       type="text"
@@ -193,12 +193,12 @@
     <label class="fr-label" for="input-date-signature">
       Date de signature de la décision administrative
     </label>
-    <DateInput id="input-date-signature" bind:date={decision.date_signature}></DateInput>
+    <DateInput id="input-date-signature" bind:date={decision.signature_date}></DateInput>
   </div>
 
   <div class="fr-input-group">
     <label class="fr-label" for="input-date-fin-obligations"> Date de fin des obligations </label>
-    <DateInput id="input-date-fin-obligations" bind:date={decision.date_fin_obligations}
+    <DateInput id="input-date-fin-obligations" bind:date={decision.obligations_end_date}
     ></DateInput>
   </div>
 

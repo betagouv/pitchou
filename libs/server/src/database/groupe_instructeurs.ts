@@ -4,7 +4,7 @@ import { directDatabaseConnection } from "../database.ts";
 
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { default as GroupeInstructeurs } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
-import type { default as CapEcritureAnnotation } from "@pitchou/types/database/public/CapEcritureAnnotation.ts";
+import type { default as CapAnnotationWrite } from "@pitchou/types/database/public/CapAnnotationWrite.ts";
 import type * as API_DS from "@pitchou/types/demarche-numerique/apiSchema.ts";
 
 async function getGroupesInstructeurs(
@@ -12,29 +12,29 @@ async function getGroupesInstructeurs(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
   Map<
-    GroupeInstructeurs["nom"],
+    GroupeInstructeurs["name"],
     { id: GroupeInstructeurs["id"]; instructeurs: Set<NonNullable<Personne["email"]>> }
   >
 > {
   const groupesInstructeursDB = await databaseConnection("groupe_instructeurs")
     .select([
       "groupe_instructeurs.id as id_groupe",
-      "groupe_instructeurs.nom as nom_groupe",
+      "groupe_instructeurs.name as group_name",
       "email",
     ])
-    .leftJoin("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs": "groupe_instructeurs.id",
+    .leftJoin("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs": "groupe_instructeurs.id",
     })
     .leftJoin("cap_dossier", {
-      "cap_dossier.cap": "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap": "edge_cap_dossier__groupe_instructeurs.cap_dossier",
     })
-    .leftJoin("personne", { "personne.code_accès": "cap_dossier.personne_cap" })
-    .where({ numéro_démarche: demarcheNumber });
+    .leftJoin("personne", { "personne.access_code": "cap_dossier.personne_cap" })
+    .where({ demarche_number: demarcheNumber });
 
-  const groupeByNom = new Map();
+  const groupByName = new Map();
 
-  for (const { id_groupe, nom_groupe, email } of groupesInstructeursDB) {
-    const groupeInstructeurs = groupeByNom.get(nom_groupe) || {
+  for (const { id_groupe, group_name, email } of groupesInstructeursDB) {
+    const groupeInstructeurs = groupByName.get(group_name) || {
       id: id_groupe,
       instructeurs: new Set(),
     };
@@ -42,10 +42,10 @@ async function getGroupesInstructeurs(
     if (email) {
       groupeInstructeurs.instructeurs.add(email);
     }
-    groupeByNom.set(nom_groupe, groupeInstructeurs);
+    groupByName.set(group_name, groupeInstructeurs);
   }
 
-  return groupeByNom;
+  return groupByName;
 }
 
 async function createGroupesInstructeurs(
@@ -56,22 +56,22 @@ async function createGroupesInstructeurs(
 ) {
   //console.log('créerGroupesInstructeurs', instructeurByEmail)
 
-  const nomsGroupes = groupesInstructeursAPI.map((g) => ({
-    nom: g.label,
-    numéro_démarche: demarcheNumber,
+  const groupNames = groupesInstructeursAPI.map((g) => ({
+    name: g.label,
+    demarche_number: demarcheNumber,
   }));
 
   // Create the groupes d'instructeurs in the DB
   const newGroupesP = databaseConnection("groupe_instructeurs")
-    .insert(nomsGroupes)
-    .returning(["id", "nom"]);
+    .insert(groupNames)
+    .returning(["id", "name"]);
 
-  //console.log('instructeurByEmail insert', [...instructeurByEmail.values()].map(({code_accès}) => ({personne_cap: code_accès})))
+  //console.log('instructeurByEmail insert', [...instructeurByEmail.values()].map(({access_code}) => ({personne_cap: access_code})))
 
   // Create the cap_dossier for the instructeurs who don't have one
   await databaseConnection("cap_dossier")
     .insert(
-      [...instructeurByEmail.values()].map(({ code_accès }) => ({ personne_cap: code_accès })),
+      [...instructeurByEmail.values()].map(({ access_code }) => ({ personne_cap: access_code })),
     )
     .onConflict("personne_cap")
     .ignore();
@@ -83,7 +83,7 @@ async function createGroupesInstructeurs(
     .whereIn(
       //@ts-ignore
       "personne_cap",
-      [...instructeurByEmail.values()].map(({ code_accès }) => code_accès),
+      [...instructeurByEmail.values()].map(({ access_code }) => access_code),
     )
     .then((capDossiers) => {
       const ret = new Map();
@@ -99,30 +99,31 @@ async function createGroupesInstructeurs(
 
   const codeAccesByEmail = new Map();
 
-  for (const { code_accès, email } of instructeurByEmail.values()) {
-    codeAccesByEmail.set(email, code_accès);
+  for (const { access_code, email } of instructeurByEmail.values()) {
+    codeAccesByEmail.set(email, access_code);
   }
 
-  const aretes = await Promise.all([newGroupesP, capDossierByCodeAccesP]).then(
+  const edges = await Promise.all([newGroupesP, capDossierByCodeAccesP]).then(
     ([nouveauxGroupes, capDossierByCodeAcces]) => {
       return groupesInstructeursAPI
         .map(({ label, instructeurs }) => {
-          const groupe_instructeurs = nouveauxGroupes.find((g) => g.nom === label).id;
+          const groupeInstructeursId = nouveauxGroupes.find((g) => g.name === label).id;
 
           return instructeurs.map(({ email }) => {
-            const code_accès = codeAccesByEmail.get(email);
-            const cap_dossier = capDossierByCodeAcces.get(code_accès);
+            const accessCode = codeAccesByEmail.get(email);
+            const capDossier = capDossierByCodeAcces.get(accessCode);
 
-            return { groupe_instructeurs, cap_dossier };
+            return {
+              groupe_instructeurs: groupeInstructeursId,
+              cap_dossier: capDossier,
+            };
           });
         })
         .flat(Infinity);
     },
   );
 
-  //console.log('arêtes', arêtes)
-
-  return databaseConnection("arête_cap_dossier__groupe_instructeurs").insert(aretes);
+  return databaseConnection("edge_cap_dossier__groupe_instructeurs").insert(edges);
 }
 
 async function deleteGroupesInstructeurs(
@@ -135,13 +136,13 @@ async function deleteGroupesInstructeurs(
 async function createAndReturnInstructeurPersonne(
   emailsInstructeur: NonNullable<Personne["email"]>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Pick<Personne, "id" | "email" | "code_accès">[]> {
+): Promise<Pick<Personne, "id" | "email" | "access_code">[]> {
   // Create the personnes of the instructeur.rices
   await databaseConnection("personne")
     .insert(
       emailsInstructeur.map((email) => ({
         email,
-        code_accès: Math.random().toString(36).slice(2),
+        access_code: Math.random().toString(36).slice(2),
       })),
     )
     .onConflict("email")
@@ -150,25 +151,25 @@ async function createAndReturnInstructeurPersonne(
   const instructeurPersonnesWithoutCode = await databaseConnection("personne")
     .select("*")
     .whereIn("email", emailsInstructeur)
-    .where("code_accès", null);
+    .where("access_code", null);
 
   //console.log('instructeurPersonnesWithoutCode', instructeurPersonnesWithoutCode)
 
   if (instructeurPersonnesWithoutCode.length >= 1) {
     const instructeurPersonnesWithCodeToAdd = instructeurPersonnesWithoutCode.map(({ id }) => ({
       id,
-      code_accès: Math.random().toString(36).slice(2),
+      access_code: Math.random().toString(36).slice(2),
     }));
 
-    // add a code_accès to the instructeur.rice.s who don't have one
+    // add a access_code to the instructeur.rice.s who don't have one
     await databaseConnection("personne")
       .insert(instructeurPersonnesWithCodeToAdd)
       .onConflict("id")
-      .merge(["code_accès"]);
+      .merge(["access_code"]);
   }
 
   return databaseConnection("personne")
-    .select(["id", "email", "code_accès"])
+    .select(["id", "email", "access_code"])
     .whereIn("email", emailsInstructeur);
 }
 
@@ -181,9 +182,9 @@ async function addPersonnesToGroupeByEmails(
 
   // Find the instructeurs for whom a cap_dossier is missing
   const instructeursWithoutDossierCap = await databaseConnection("personne")
-    .select("code_accès")
+    .select("access_code")
     .whereIn("email", [...emails])
-    .leftJoin("cap_dossier", { "personne.code_accès": "cap_dossier.personne_cap" })
+    .leftJoin("cap_dossier", { "personne.access_code": "cap_dossier.personne_cap" })
     .whereNull("cap");
 
   //console.log('instructeursWithoutDossierCap', instructeursWithoutDossierCap)
@@ -191,7 +192,9 @@ async function addPersonnesToGroupeByEmails(
   // add the missing cap_dossier
   if (instructeursWithoutDossierCap.length >= 1) {
     await databaseConnection("cap_dossier")
-      .insert(instructeursWithoutDossierCap.map(({ code_accès }) => ({ personne_cap: code_accès })))
+      .insert(
+        instructeursWithoutDossierCap.map(({ access_code }) => ({ personne_cap: access_code })),
+      )
       .onConflict("personne_cap")
       .ignore();
   }
@@ -199,16 +202,16 @@ async function addPersonnesToGroupeByEmails(
   const capDossierForTheseEmails = await databaseConnection("personne")
     .select("cap")
     .whereIn("email", [...emails])
-    .leftJoin("cap_dossier", { "personne.code_accès": "cap_dossier.personne_cap" });
+    .leftJoin("cap_dossier", { "personne.access_code": "cap_dossier.personne_cap" });
 
   //console.log('capDossierForTheseEmails', capDossierForTheseEmails)
 
-  const aretes = capDossierForTheseEmails.map(({ cap: cap_dossier }) => ({
+  const edges = capDossierForTheseEmails.map(({ cap: cap_dossier }) => ({
     groupe_instructeurs,
     cap_dossier,
   }));
 
-  return databaseConnection("arête_cap_dossier__groupe_instructeurs").insert(aretes);
+  return databaseConnection("edge_cap_dossier__groupe_instructeurs").insert(edges);
 }
 
 async function deletePersonnesFromGroupeByEmail(
@@ -221,9 +224,9 @@ async function deletePersonnesFromGroupeByEmail(
   const capDossierForTheseEmails = await databaseConnection("personne")
     .select("cap")
     .whereIn("email", [...emails])
-    .leftJoin("cap_dossier", { "personne.code_accès": "cap_dossier.personne_cap" });
+    .leftJoin("cap_dossier", { "personne.access_code": "cap_dossier.personne_cap" });
 
-  return databaseConnection("arête_cap_dossier__groupe_instructeurs")
+  return databaseConnection("edge_cap_dossier__groupe_instructeurs")
     .whereIn(
       ["groupe_instructeurs", "cap_dossier"],
       capDossierForTheseEmails.map(({ cap: cap_dossier }) => [groupe_instructeurs, cap_dossier]),
@@ -233,7 +236,7 @@ async function deletePersonnesFromGroupeByEmail(
 
 /**
  * Enforces the invariant "you can't follow a dossier you don't have access to":
- * for the given démarche, deletes every follow (arête_personne_suit_dossier) whose
+ * for the given démarche, deletes every follow (edge_personne_follows_dossier) whose
  * personne no longer has an access path to the dossier through
  * cap_dossier → groupe_instructeurs → dossier.
  */
@@ -241,30 +244,30 @@ export async function deleteNowInaccessibleSuivis(
   demarcheNumber: number,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  await databaseConnection("arête_personne_suit_dossier")
+  await databaseConnection("edge_personne_follows_dossier")
     .whereIn(
       "dossier",
-      databaseConnection("dossier").select("id").where({ numéro_démarche: demarcheNumber }),
+      databaseConnection("dossier").select("id").where({ demarche_number: demarcheNumber }),
     )
     // keep only follows for which the personne has NO remaining access path to the dossier
     .whereNotExists(function () {
       this.select("personne.id")
         .from("personne")
-        .join("cap_dossier", "cap_dossier.personne_cap", "personne.code_accès")
+        .join("cap_dossier", "cap_dossier.personne_cap", "personne.access_code")
         .join(
-          "arête_cap_dossier__groupe_instructeurs",
-          "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+          "edge_cap_dossier__groupe_instructeurs",
+          "edge_cap_dossier__groupe_instructeurs.cap_dossier",
           "cap_dossier.cap",
         )
         .join(
-          "arête_groupe_instructeurs__dossier",
-          "arête_groupe_instructeurs__dossier.groupe_instructeurs",
-          "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+          "edge_groupe_instructeurs__dossier",
+          "edge_groupe_instructeurs__dossier.groupe_instructeurs",
+          "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
         )
-        .where("personne.id", databaseConnection.ref("arête_personne_suit_dossier.personne"))
+        .where("personne.id", databaseConnection.ref("edge_personne_follows_dossier.personne"))
         .where(
-          "arête_groupe_instructeurs__dossier.dossier",
-          databaseConnection.ref("arête_personne_suit_dossier.dossier"),
+          "edge_groupe_instructeurs__dossier.dossier",
+          databaseConnection.ref("edge_personne_follows_dossier.dossier"),
         );
     })
     .delete();
@@ -280,27 +283,27 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
   // find the Personne with one of the instructeur emails who already have a code d'accès
   // @ts-ignore
   const personnesWithCodeP: Promise<Partial<Personne>[]> = databaseConnection("personne")
-    .select(["code_accès", "email"])
+    .select(["access_code", "email"])
     .whereIn("email", [...instructeurEmailToId.keys()])
-    .andWhereNot({ code_accès: null });
+    .andWhereNot({ access_code: null });
 
-  // Delete the cap_écriture_annotation for the instructeur_id that no longer exist
-  const deleteAbsentInstructeurIdsP = databaseConnection("cap_écriture_annotation")
+  // Delete the cap_annotation_write for the instructeur_id that no longer exist
+  const deleteAbsentInstructeurIdsP = databaseConnection("cap_annotation_write")
     .whereNotIn("instructeur_id", [...instructeurEmailToId.values()])
     .delete();
 
   // Delete the cap_dossier for the instructeurs who no longer exist in this démarche
   const deleteAbsentInstructeurCapDossier = personnesWithCodeP.then((personnesWithCode) => {
     // @ts-ignore
-    const codes: string[] = personnesWithCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesWithCode.map(({ access_code }) => access_code);
 
-    const capsOfThisDemarche = databaseConnection("arête_cap_dossier__groupe_instructeurs")
+    const capsOfThisDemarche = databaseConnection("edge_cap_dossier__groupe_instructeurs")
       .select("cap_dossier")
       .whereIn(
         "groupe_instructeurs",
         databaseConnection("groupe_instructeurs")
           .select("id")
-          .where({ numéro_démarche: demarcheNumber }),
+          .where({ demarche_number: demarcheNumber }),
       );
 
     return databaseConnection("cap_dossier")
@@ -309,8 +312,8 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
       .delete();
   });
 
-  // Add the cap_écriture_annotation for the new instructeurId if there are any
-  const instructeurIdAndEcritureCapsP = databaseConnection("cap_écriture_annotation")
+  // Add the cap_annotation_write for the new instructeurId if there are any
+  const instructeurIdAndEcritureCapsP = databaseConnection("cap_annotation_write")
     .insert([...instructeurEmailToId.values()].map((instructeur_id) => ({ instructeur_id })))
     .onConflict("instructeur_id")
     .ignore();
@@ -318,7 +321,7 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
   // Add the cap_dossier for the new instructeurId if there are any
   const instructeurDossierCapsP = personnesWithCodeP.then((personnesWithCode) => {
     // @ts-ignore
-    const codes: string[] = personnesWithCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesWithCode.map(({ access_code }) => access_code);
 
     return databaseConnection("cap_dossier")
       .insert(codes.map((code) => ({ personne_cap: code })))
@@ -329,9 +332,9 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
   // Add the cap_dossier for the new instructeurId if there are any
   const instructeurEvenementMetriqueCapsP = personnesWithCodeP.then((personnesWithCode) => {
     // @ts-ignore
-    const codes: string[] = personnesWithCode.map(({ code_accès }) => code_accès);
+    const codes: string[] = personnesWithCode.map(({ access_code }) => access_code);
 
-    return databaseConnection("cap_évènement_métrique")
+    return databaseConnection("cap_evenement_metrique")
       .insert(codes.map((code) => ({ personne_cap: code })))
       .onConflict("personne_cap")
       .ignore();
@@ -342,13 +345,12 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
     instructeurIdAndEcritureCapsP,
   ])
     .then(() =>
-      databaseConnection("cap_écriture_annotation")
+      databaseConnection("cap_annotation_write")
         .select(["cap", "instructeur_id"])
         .whereIn("instructeur_id", [...instructeurEmailToId.values()]),
     )
     .then((instructeurIdAndCaps) => {
-      const map: Map<CapEcritureAnnotation["instructeur_id"], CapEcritureAnnotation["cap"]> =
-        new Map();
+      const map: Map<CapAnnotationWrite["instructeur_id"], CapAnnotationWrite["cap"]> = new Map();
 
       for (const { cap, instructeur_id } of instructeurIdAndCaps) {
         map.set(instructeur_id, cap);
@@ -367,22 +369,22 @@ async function createInstructeurCapsAndCompleteInstructeurIds(
     //console.log('personnesWithCode', personnesWithCode)
     //console.log('instructeurIdToCaps', instructeurIdToCaps)
 
-    const personneCodeToCapEcritureAnnotation = [];
+    const personneCodeToCapAnnotationWrite = [];
 
-    for (const { code_accès, email } of personnesWithCode) {
+    for (const { access_code, email } of personnesWithCode) {
       // @ts-ignore
       const instructeurId = instructeurEmailToId.get(email);
       // @ts-ignore
-      const matchingCapEcritureAnnotation = instructeurIdToCaps.get(instructeurId);
+      const matchingCapAnnotationWrite = instructeurIdToCaps.get(instructeurId);
 
-      personneCodeToCapEcritureAnnotation.push({
-        personne_cap: code_accès,
-        écriture_annotation_cap: matchingCapEcritureAnnotation,
+      personneCodeToCapAnnotationWrite.push({
+        personne_cap: access_code,
+        annotation_write_cap: matchingCapAnnotationWrite,
       });
     }
 
-    return databaseConnection("arête_personne__cap_écriture_annotation")
-      .insert(personneCodeToCapEcritureAnnotation)
+    return databaseConnection("edge_personne__cap_annotation_write")
+      .insert(personneCodeToCapAnnotationWrite)
       .onConflict("personne_cap")
       .merge();
   });
@@ -467,12 +469,7 @@ export async function synchronizeGroupesInstructeurs(
             groupeDBEmailToAdd.add(email);
           }
         }
-        // at the end of this operation, in groupeDBEmailsÀEnlever,
-        // the emails to remove remain (because they are absent from the API response)
-
-        //console.log('groupeDB', label)
-        //console.log('groupeDBEmailÀAJouter', groupeDBEmailÀAJouter)
-        //console.log('groupeDBEmailsÀEnlever', groupeDBEmailsÀEnlever)
+        // Only emails absent from the API response remain in groupeDBEmailsToRemove.
 
         let addEmailsInGroupe = Promise.resolve();
         let deleteEmailsInGroupe = Promise.resolve();

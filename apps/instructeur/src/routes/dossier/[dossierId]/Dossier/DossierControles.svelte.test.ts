@@ -35,16 +35,16 @@ beforeEach(() => {
     id: "decision-1",
     dossier: "dossier-1",
     type: "Arrêté dérogation",
-    numéro: "AP-001",
+    number: "AP-001",
   } as unknown as FrontEndDecisionAdministrative;
 
   fakeDB = [decision];
 
   dossier = reactive({
     id: "dossier-1",
-    nom: "Dossier test",
-    décisionsAdministratives: [...fakeDB],
-    évènementsPhase: [],
+    name: "Dossier test",
+    decisionsAdministratives: [...fakeDB],
+    evenementsPhase: [],
   } as unknown as DossierFull);
 
   vi.mocked(deleteDecisionAdministrative).mockReset();
@@ -55,7 +55,7 @@ beforeEach(() => {
   vi.mocked(refreshDossierFull).mockReset();
   // Refresh reflects the real "database" state, like reloading from the server.
   vi.mocked(refreshDossierFull).mockImplementation(async () => {
-    dossier.décisionsAdministratives = [...fakeDB];
+    dossier.decisionsAdministratives = [...fakeDB];
     return dossier;
   });
 });

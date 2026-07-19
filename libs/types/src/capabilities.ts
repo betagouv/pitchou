@@ -18,16 +18,16 @@ import type { EvenementMetrique } from "./evenement.ts";
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
   recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
-  listerRelationSuivi: () => Promise<
-    { personneEmail: Personne["email"]; dossiersSuivisIds: Dossier["id"][] }[]
+  listFollowRelations: () => Promise<
+    { personneEmail: Personne["email"]; followedDossierIds: Dossier["id"][] }[]
   >;
-  modifierRelationSuivi: (
+  updateFollowRelation: (
     direction: "suivre" | "laisser",
     personneEmail: NonNullable<Personne["email"]>,
     dossierId: Dossier["id"],
   ) => Promise<void>;
   listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
-  listerÉvènementsPhaseDossier: () => Promise<any[]>;
+  listerEvenementsPhaseDossier: () => Promise<any[]>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (
@@ -41,12 +41,12 @@ export interface PitchouInstructeurCapabilities {
     prescriptions: Omit<FrontEndPrescription, "id">[],
   ) => Promise<unknown>;
   deletePrescription: (id: Prescription["id"]) => Promise<unknown>;
-  addOrUpdateControle: (contrôle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
+  addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
   deleteControle: (id: Controle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (form: FormData) => Promise<string>;
-  addAttachmentAutre: (form: FormData) => Promise<string>;
+  addOtherAttachment: (form: FormData) => Promise<string>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
-  créerÉvènementMetrique: (évènement: EvenementMetrique) => Promise<void>;
+  creerEvenementMetrique: (evenement: EvenementMetrique) => Promise<void>;
   listerNotifications: () => Promise<Notification[]>;
   updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
 }

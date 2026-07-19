@@ -14,7 +14,7 @@ test("l'accès direct à /dossier/[id] (équivalent reload) ne déclenche pas un
 
   await page.goto(`/dossier/${dossier.id}`);
 
-  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 });
 
 test("recharger /dossier/[id] ne déclenche pas une 500", async ({ page, db }) => {
@@ -28,8 +28,8 @@ test("recharger /dossier/[id] ne déclenche pas une 500", async ({ page, db }) =
   await expect(page.getByRole("heading", { name: /Tableau de suivi/ })).toBeVisible();
 
   await page.goto(`/dossier/${dossier.id}`);
-  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByRole("heading", { name: dossier.nom! })).toBeVisible();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 });

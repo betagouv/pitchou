@@ -5,7 +5,7 @@ import { createInstructeurWithDossier, DEFAULT_NUMERO_DEMARCHE } from "../factor
 import { attachPersonneSuitDossier } from "../factories/notification.ts";
 
 async function countSuivi(personneId: number, dossierId: number): Promise<number> {
-  return db("arête_personne_suit_dossier")
+  return db("edge_personne_follows_dossier")
     .where({ personne: personneId, dossier: dossierId })
     .then((rows) => rows.length);
 }
@@ -14,7 +14,7 @@ test("deleteNowInaccessibleSuivis supprime le suivi quand la personne perd l'acc
   const { id: personneId, cap, groupeId, dossier } = await createInstructeurWithDossier(db);
   await attachPersonneSuitDossier(db, personneId, dossier.id);
 
-  await db("arête_cap_dossier__groupe_instructeurs")
+  await db("edge_cap_dossier__groupe_instructeurs")
     .where({ cap_dossier: cap, groupe_instructeurs: groupeId })
     .delete();
 

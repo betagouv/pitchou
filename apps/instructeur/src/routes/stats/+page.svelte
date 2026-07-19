@@ -1,6 +1,6 @@
 <script lang="ts">
   import Loader from "$lib/components/Loader.svelte";
-  import StatsContenu from "./StatsContenu.svelte";
+  import StatsContent from "./StatsContent.svelte";
   import IndicatorsAARRI from "./IndicatorsAARRI.svelte";
   import { loadStats } from "$lib/stats/stats.ts";
   import { loadIndicatorsAARRI } from "$lib/shared/aarri.ts";
@@ -16,7 +16,7 @@
 {#await statsP}
   <Loader></Loader>
 {:then stats}
-  <StatsContenu {stats} />
+  <StatsContent {stats} />
 {:catch error}
   <div class="fr-alert fr-alert--error fr-mb-3w">
     <h3 class="fr-alert__title">Une erreur est survenue lors du chargement des statistiques :</h3>

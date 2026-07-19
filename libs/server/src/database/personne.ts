@@ -36,10 +36,10 @@ export function createPersonnes(
 }
 
 export function getPersonneByCode(
-  code_accès: Personne["code_accès"],
+  accessCode: Personne["access_code"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Personne | undefined> {
-  return databaseConnection("personne").where({ code_accès }).select("id").first();
+  return databaseConnection("personne").where({ access_code: accessCode }).select("id").first();
 }
 
 export function getPersonneByEmail(
@@ -62,17 +62,17 @@ export function getPersonneByDossierCap(
 ): Promise<Personne | undefined> {
   return databaseConnection("personne")
     .select(["personne.id", "personne.email"])
-    .leftJoin("cap_dossier", { "cap_dossier.personne_cap": "personne.code_accès" })
+    .leftJoin("cap_dossier", { "cap_dossier.personne_cap": "personne.access_code" })
     .where("cap_dossier.cap", cap)
     .first();
 }
 
 function updateCodeAcces(
   email: Personne["email"],
-  code_accès: Personne["code_accès"],
+  accessCode: Personne["access_code"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  return databaseConnection("personne").where({ email }).update({ code_accès });
+  return databaseConnection("personne").where({ email }).update({ access_code: accessCode });
 }
 
 export function createPersonneOrUpdateCodeAcces(
@@ -83,10 +83,10 @@ export function createPersonneOrUpdateCodeAcces(
 
   return createPersonne(
     {
-      nom: "",
-      prénoms: "",
+      last_name: "",
+      first_names: "",
       email,
-      code_accès: codeAcces,
+      access_code: codeAcces,
     },
     databaseConnection,
   )

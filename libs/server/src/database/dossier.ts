@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { getAttachmentAutresForDossier } from "./attachment_autre.ts";
+import { getOtherAttachmentsForDossier } from "./other_attachment.ts";
 import { getDecisionsAdministratives } from "./decision_administrative.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getControles } from "./controle.ts";
@@ -25,7 +25,7 @@ import type {
   DossierForUpdate,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
-import type AretePersonneSuitDossier from "@pitchou/types/database/public/AretePersonneSuitDossier.ts";
+import type EdgePersonneFollowsDossier from "@pitchou/types/database/public/EdgePersonneFollowsDossier.ts";
 import type {
   DossierFull,
   DossierSummary,
@@ -34,7 +34,7 @@ import type {
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PartialBy, PickNonNullable } from "@pitchou/types/tools.d.ts";
-import type { AttachmentAutreWithFileDescription } from "./attachment_autre.ts";
+import type { OtherAttachmentWithFileDescription } from "./other_attachment.ts";
 import type File from "@pitchou/types/database/public/File.ts";
 
 /**
@@ -43,14 +43,14 @@ import type File from "@pitchou/types/database/public/File.ts";
  * PPP: it's a bit weird to use the DS ids, we could use the numéros
  */
 export function getDossierIdsFromDS_Ids(
-  DS_ids: Dossier["id_demarches_simplifiées"][],
+  DS_ids: Dossier["demarche_numerique_id"][],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
-  PickNonNullable<Dossier, "id" | "id_demarches_simplifiées" | "number_demarches_simplifiées">[]
+  PickNonNullable<Dossier, "id" | "demarche_numerique_id" | "demarche_numerique_number">[]
 > {
   return databaseConnection("dossier")
-    .select(["id", "id_demarches_simplifiées", "number_demarches_simplifiées"])
-    .whereIn("id_demarches_simplifiées", DS_ids);
+    .select(["id", "demarche_numerique_id", "demarche_numerique_number"])
+    .whereIn("demarche_numerique_id", DS_ids);
 }
 
 export async function dumpDossierMessages(
@@ -62,19 +62,16 @@ export async function dumpDossierMessages(
   for (const [dossierId, apiMessages] of idToMessages) {
     for (const { id, body, createdAt, email } of apiMessages) {
       messages.push({
-        contenu: body,
+        content: body,
         date: new Date(createdAt),
-        email_expéditeur: email,
-        id_démarches_simplifiées: id,
+        sender_email: email,
+        demarche_numerique_id: id,
         dossier: dossierId,
       });
     }
   }
 
-  return databaseConnection("message")
-    .insert(messages)
-    .onConflict("id_démarches_simplifiées")
-    .merge();
+  return databaseConnection("message").insert(messages).onConflict("demarche_numerique_id").merge();
 }
 
 /**
@@ -86,14 +83,14 @@ export async function getDossierMessages(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Partial<Message>[] | null> {
   return databaseConnection("message")
-    .select(["contenu", "date", "email_expéditeur"])
+    .select(["content", "date", "sender_email"])
     .where({ dossier: dossierId });
 }
 
-const varcharKeys: (keyof Pick<Dossier, "nom" | "ddep_nécessaire">)[] = ["nom", "ddep_nécessaire"];
+const varcharKeys: (keyof Pick<Dossier, "name" | "ddep_required">)[] = ["name", "ddep_required"];
 
 type DecisionAdministrativeToInsert = NonNullable<
-  DossierForInsert["décision_administrative"]
+  DossierForInsert["decision_administrative"]
 >[number];
 
 /**
@@ -115,7 +112,7 @@ async function getDecisionsAdministrativesNotInDB(
     return decisions;
   }
 
-  const decisionsInDB = await databaseConnection("décision_administrative")
+  const decisionsInDB = await databaseConnection("decision_administrative")
     .select(["dossier", "fichier"])
     .whereIn("fichier", fichiers);
 
@@ -142,7 +139,7 @@ export async function dumpDossiers(
       if (typeof d[k] === "string" && d[k].length >= 255) {
         console.warn(
           "Attontion !! Dossier DS numéro",
-          d.number_demarches_simplifiées,
+          d.demarche_numerique_number,
           "key",
           k,
           ".length >= 255",
@@ -158,16 +155,16 @@ export async function dumpDossiers(
 
   let updatePromises: Knex.QueryBuilder<any, any>[] = [];
 
-  const aretePersonneSuitDossierDossier: AretePersonneSuitDossier[] = [];
+  const personneFollowsDossierEdges: EdgePersonneFollowsDossier[] = [];
 
   let avisExpertDossier: PartialBy<AvisExpertInitializer, "dossier">[] = [];
 
   if (dossiersForUpdate.length >= 1) {
     updatePromises = dossiersForUpdate.map(({ dossier: dossierToUpdate }) => {
       return databaseConnection("dossier")
-        .where("number_demarches_simplifiées", dossierToUpdate.number_demarches_simplifiées)
+        .where("demarche_numerique_number", dossierToUpdate.demarche_numerique_number)
         .update(dossierToUpdate)
-        .returning(["id", "number_demarches_simplifiées", "id_demarches_simplifiées"]);
+        .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]);
     });
   }
 
@@ -185,8 +182,8 @@ export async function dumpDossiers(
 
     if (allPersonnesWhoFollow.length >= 1) {
       insertedDossierIds.forEach((insertedDossierId, index) => {
-        const { personnes_qui_suivent, évènement_phase_dossier } = dossiersForInsert[index];
-        const emailsWhoFollow = new Set(personnes_qui_suivent?.map((p) => p.email));
+        const { followers, evenement_phase_dossier } = dossiersForInsert[index];
+        const emailsWhoFollow = new Set(followers?.map((p) => p.email));
 
         //Warning, here there is a risk of performance problems with the filter
         const personnesWhoFollowThisDossier = allPersonnesWhoFollow.filter(
@@ -194,17 +191,17 @@ export async function dumpDossiers(
         );
 
         personnesWhoFollowThisDossier.forEach((personne) => {
-          aretePersonneSuitDossierDossier.push({
+          personneFollowsDossierEdges.push({
             dossier: insertedDossierId.id,
             personne: personne.id,
           });
         });
 
         if (personnesWhoFollowThisDossier.length >= 1) {
-          évènement_phase_dossier.forEach((ev) => {
-            if (!ev.cause_personne) {
-              // In the front-end, we want to display the phase events with a non-null cause_personne.
-              ev.cause_personne = personnesWhoFollowThisDossier[0].id;
+          evenement_phase_dossier.forEach((ev) => {
+            if (!ev.caused_by_personne) {
+              // In the front-end, we want to display the phase events with a non-null caused_by_personne.
+              ev.caused_by_personne = personnesWhoFollowThisDossier[0].id;
             }
           });
         }
@@ -219,17 +216,17 @@ export async function dumpDossiers(
     // Add the new Dossier['id'] to the data that needs it
     insertedDossierIds.forEach((insertedDossierId, index) => {
       // assumes that postgres returns the ids in the same order as the array passed to `.insert`
-      const { évènement_phase_dossier, avis_expert, décision_administrative } =
+      const { evenement_phase_dossier, avis_expert, decision_administrative } =
         dossiersForInsert[index];
 
-      if (Array.isArray(évènement_phase_dossier) && évènement_phase_dossier.length >= 1) {
-        évènement_phase_dossier.forEach((ev) => (ev.dossier = insertedDossierId.id));
+      if (Array.isArray(evenement_phase_dossier) && evenement_phase_dossier.length >= 1) {
+        evenement_phase_dossier.forEach((ev) => (ev.dossier = insertedDossierId.id));
       }
       if (Array.isArray(avis_expert) && avis_expert.length >= 1) {
         avis_expert.forEach((ae) => (ae.dossier = insertedDossierId.id));
       }
-      if (Array.isArray(décision_administrative) && décision_administrative.length >= 1) {
-        décision_administrative.forEach((da) => (da.dossier = insertedDossierId.id));
+      if (Array.isArray(decision_administrative) && decision_administrative.length >= 1) {
+        decision_administrative.forEach((da) => (da.dossier = insertedDossierId.id));
       }
     });
   }
@@ -237,12 +234,12 @@ export async function dumpDossiers(
   const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
 
   const evenementsPhaseDossier = allDossiers
-    .map((tables) => tables.évènement_phase_dossier)
+    .map((tables) => tables.evenement_phase_dossier)
     .filter((x) => x !== undefined)
     .flat();
 
   const decisionAdministrativeDossier = allDossiers
-    .map((tables) => tables.décision_administrative)
+    .map((tables) => tables.decision_administrative)
     .filter((x) => x !== undefined)
     .flat();
 
@@ -253,9 +250,9 @@ export async function dumpDossiers(
 
   const databaseOperations = [
     evenementsPhaseDossier.length > 0
-      ? databaseConnection("évènement_phase_dossier")
+      ? databaseConnection("evenement_phase_dossier")
           .insert(evenementsPhaseDossier)
-          .onConflict(["dossier", "phase", "horodatage"])
+          .onConflict(["dossier", "phase", "timestamp"])
           .merge()
       : Promise.resolve([]),
 
@@ -264,12 +261,12 @@ export async function dumpDossiers(
       : Promise.resolve([]),
 
     decisionsAdministrativesToInsert.length > 0
-      ? databaseConnection("décision_administrative").insert(decisionsAdministrativesToInsert)
+      ? databaseConnection("decision_administrative").insert(decisionsAdministrativesToInsert)
       : Promise.resolve([]),
 
-    aretePersonneSuitDossierDossier.length > 0
-      ? databaseConnection("arête_personne_suit_dossier")
-          .insert(aretePersonneSuitDossierDossier)
+    personneFollowsDossierEdges.length > 0
+      ? databaseConnection("edge_personne_follows_dossier")
+          .insert(personneFollowsDossierEdges)
           .onConflict(["personne", "dossier"])
           .ignore()
       : Promise.resolve([]),
@@ -288,26 +285,26 @@ export async function synchronizeDossierInGroupeInstructeur(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const dossierNumberDSToIdP = databaseConnection("dossier")
-    .select(["id", "number_demarches_simplifiées"])
+    .select(["id", "demarche_numerique_number"])
     .whereIn(
-      "number_demarches_simplifiées",
+      "demarche_numerique_number",
       dossierDS.map((d: { number: string }) => d.number),
     )
     .then((dossiers) => {
       const dossierNumberDSToId = new Map();
-      for (const { id, number_demarches_simplifiées } of dossiers) {
-        dossierNumberDSToId.set(number_demarches_simplifiées, id);
+      for (const { id, demarche_numerique_number } of dossiers) {
+        dossierNumberDSToId.set(demarche_numerique_number, id);
       }
       return dossierNumberDSToId;
     });
 
   const groupeInstructeursLabelToIdP = databaseConnection("groupe_instructeurs")
-    .select(["id", "nom"])
-    .where({ numéro_démarche: demarcheNumber })
+    .select(["id", "name"])
+    .where({ demarche_number: demarcheNumber })
     .then((groupesInstructeurs) => {
       const groupeInstructeursLabelToId = new Map();
-      for (const { id, nom } of groupesInstructeurs) {
-        groupeInstructeursLabelToId.set(nom, id);
+      for (const { id, name } of groupesInstructeurs) {
+        groupeInstructeursLabelToId.set(name, id);
       }
       return groupeInstructeursLabelToId;
     });
@@ -315,22 +312,22 @@ export async function synchronizeDossierInGroupeInstructeur(
   const dossierNumberDSToId = await dossierNumberDSToIdP;
   const groupeInstructeursLabelToId = await groupeInstructeursLabelToIdP;
 
-  const aretesGroupeTnstructeurs_Dossier = dossierDS.map(
+  const groupeInstructeursDossierEdges = dossierDS.map(
     // @ts-ignore
     ({ number, groupeInstructeur: { label } }) => {
       const dossierId = dossierNumberDSToId.get(String(number));
-      const groupe_instructeursId = groupeInstructeursLabelToId.get(label);
+      const groupeInstructeursId = groupeInstructeursLabelToId.get(label);
 
-      if (!groupe_instructeursId) {
+      if (!groupeInstructeursId) {
         throw new Error(`groupe_instructeursId manquant pour groupe ${label}`);
       }
 
-      return { dossier: dossierId, groupe_instructeurs: groupe_instructeursId };
+      return { dossier: dossierId, groupe_instructeurs: groupeInstructeursId };
     },
   );
 
-  return databaseConnection("arête_groupe_instructeurs__dossier")
-    .insert(aretesGroupeTnstructeurs_Dossier)
+  return databaseConnection("edge_groupe_instructeurs__dossier")
+    .insert(groupeInstructeursDossierEdges)
     .onConflict("dossier")
     .merge(["groupe_instructeurs"]);
 }
@@ -338,61 +335,61 @@ export async function synchronizeDossierInGroupeInstructeur(
 const dossierFullColumns: (keyof DossierFull)[] = [
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "dossier.id as id",
-  //"id_demarches_simplifiées",
-  "number_demarches_simplifiées",
-  "numéro_démarche",
-  "date_dépôt",
+  //"demarche_numerique_id",
+  "demarche_numerique_number",
+  "demarche_number",
+  "depot_date",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "dossier.nom as nom",
+  "dossier.name as name",
   "description",
 
-  "date_début_intervention",
-  "date_fin_intervention",
-  "durée_intervention",
+  "intervention_start_date",
+  "intervention_end_date",
+  "intervention_duration",
 
-  "justification_absence_autre_solution_satisfaisante",
-  "motif_dérogation",
-  "justification_motif_dérogation",
+  "no_other_satisfactory_solution_justification",
+  "motif_derogation",
+  "motif_derogation_justification",
 
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "file_espèces_impactées.id as espèces_impactées_id",
+  "file_especes_impactees.id as especes_impactees_id",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "file_espèces_impactées.nom as espèces_impactées_nom",
+  "file_especes_impactees.name as especes_impactees_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "file_espèces_impactées.media_type as espèces_impactées_media_type",
-  "rattaché_au_régime_ae",
-  "activité_principale",
+  "file_especes_impactees.media_type as especes_impactees_media_type",
+  "linked_to_ae_regime",
+  "main_activite",
 
   // localisation
-  "départements",
+  "departments",
   "communes",
-  "régions",
-  "cartographie_projet",
+  "regions",
+  "projet_map",
 
   // next expected action
-  "prochaine_action_attendue_par",
+  "next_action_expected_from",
 
   // demandeur identity (Démarche Numérique identity block)
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_demandeur.last_name as déposant_nom",
+  "identite_demandeur.last_name as deposant_last_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_demandeur.first_names as déposant_prénoms",
+  "identite_demandeur.first_names as deposant_first_names",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_demandeur.email as déposant_email",
+  "identite_demandeur.email as deposant_email",
 
   // mandataire identity (only when the dossier was submitted by a third party)
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_mandataire.last_name as mandataire_nom",
+  "identite_mandataire.last_name as mandataire_last_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_mandataire.first_names as mandataire_prénoms",
+  "identite_mandataire.first_names as mandataire_first_names",
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "identite_mandataire.email as mandataire_email",
 
   // demandeur_personne_physique
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
+  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_physique.email as demandeur_personne_physique_email",
   //@ts-expect-error not exactly a keyof DossierFull, but still
@@ -406,9 +403,9 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "demandeur_personne_morale.adresse as demandeur_personne_morale_adresse",
+  "demandeur_personne_morale.address as demandeur_personne_morale_address",
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "demandeur_personne_morale.siren as demandeur_personne_morale_siren",
   //@ts-expect-error not exactly a keyof DossierFull, but still
@@ -436,9 +433,9 @@ const dossierFullColumns: (keyof DossierFull)[] = [
 
   // representant (contact person within the personne morale)
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_representant.last_name as representative_nom",
+  "identite_representant.last_name as representative_last_name",
   //@ts-expect-error not exactly a keyof DossierFull, but still
-  "identite_representant.first_names as representative_prénoms",
+  "identite_representant.first_names as representative_first_names",
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "identite_representant.email as representative_email",
   //@ts-expect-error not exactly a keyof DossierFull, but still
@@ -447,41 +444,41 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   "identite_representant.role as representative_role",
 
   // private annotations
-  "ddep_nécessaire",
+  "ddep_required",
 
-  "scientifique_type_demande",
-  "scientifique_bilan_antérieur",
-  "scientifique_finalité_demande",
-  "scientifique_description_protocole_suivi",
-  "scientifique_mode_capture",
-  "scientifique_modalités_source_lumineuses",
-  "scientifique_modalités_marquage",
-  "scientifique_modalités_transport",
-  "scientifique_périmètre_intervention",
+  "scientifique_demande_type",
+  "scientifique_previous_assessment",
+  "scientifique_demande_purposes",
+  "scientifique_suivi_protocol_description",
+  "scientifique_capture_mode",
+  "scientifique_light_source_conditions",
+  "scientifique_marking_conditions",
+  "scientifique_transport_conditions",
+  "scientifique_intervention_perimeter",
   "scientifique_intervenants",
-  "scientifique_précisions_autres_intervenants",
+  "scientifique_other_intervenants_details",
 
   "enjeu",
-  "commentaire_libre",
-  "historique_identifiant_demande_onagre",
+  "free_comment",
+  "onagre_demande_identifier",
 
-  "date_debut_consultation_public",
-  "date_fin_consultation_public",
+  "public_consultation_start_date",
+  "public_consultation_end_date",
 
-  "mesures_erc_prévues",
-  "mesures_er_suffisantes",
+  "mesures_erc_planned",
+  "er_mesures_sufficient",
 
-  "nombre_nids_compensés_dossier_oiseau_simple",
-  "nombre_nids_détruits_dossier_oiseau_simple",
+  "dossier_oiseau_simple_compensated_nids_count",
+  "dossier_oiseau_simple_destroyed_nids_count",
 
   // Qualified because identite_dossier (joined for the identities) also has a "type" column.
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "dossier.type as type",
 
-  "etat_des_lieux_ecologique_complet_realise",
-  "presence_especes_dans_aire_influence",
-  "risque_malgre_mesures_erc",
-  "date_mise_en_service",
+  "ecological_inventory_completed",
+  "especes_present_in_influence_area",
+  "risk_despite_erc_mesures",
+  "commissioning_date",
 ];
 
 export function listAllDossiersFull(
@@ -513,14 +510,14 @@ export function listAllDossiersFull(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .leftJoin("file as file_espèces_impactées", {
-      "file_espèces_impactées.id": "dossier.espèces_impactées",
+    .leftJoin("file as file_especes_impactees", {
+      "file_especes_impactees.id": "dossier.especes_impactees",
     })
     .then((dossiers) => {
       for (const dossier of dossiers) {
-        const id_fichier_especes_impactees = dossier.espèces_impactées_id;
-        if (id_fichier_especes_impactees) {
-          dossier.url_fichier_espèces_impactées = `/especes-impactees/${id_fichier_especes_impactees}`;
+        const especesImpacteesFileId = dossier.especes_impactees_id;
+        if (especesImpacteesFileId) {
+          dossier.url_fichier_especes_impactees = `/especes-impactees/${especesImpacteesFileId}`;
         }
       }
       return dossiers;
@@ -528,25 +525,25 @@ export function listAllDossiersFull(
 }
 
 type AvisExpertWithFichierDescriptions = AvisExpert & {
-  avis_fichier_nom: File["nom"];
+  avis_file_name: File["name"];
   avis_fichier_media_type: File["media_type"];
-  avis_fichier_taille: number | null;
-  saisine_fichier_nom: File["nom"];
+  avis_file_size: number | null;
+  saisine_file_name: File["name"];
   saisine_fichier_media_type: File["media_type"];
-  saisine_fichier_taille: number | null;
+  saisine_file_size: number | null;
 };
 
 type DecisionAdministrativeWithFichierDescription = DecisionAdministrative & {
-  fichier_nom: File["nom"];
-  fichier_media_type: File["media_type"];
-  fichier_taille: number | null;
+  file_name: File["name"];
+  file_media_type: File["media_type"];
+  file_size: number | null;
 };
 
 function describeFichier(
   id: File["id"] | null | undefined,
-  nom: File["nom"],
+  name: File["name"],
   media_type: File["media_type"],
-  taille: number | null,
+  size: number | null,
   route: string,
 ): FrontEndFichier | undefined {
   if (!id) {
@@ -555,9 +552,9 @@ function describeFichier(
 
   return {
     url: `${route}/${id}`,
-    nom,
+    name,
     media_type,
-    taille,
+    size,
   };
 }
 
@@ -587,19 +584,19 @@ export async function getDossierFull(
 
   const dossierP: Promise<
     DossierFull & {
-      espèces_impactées_id?: FileId | null;
-      espèces_impactées_media_type?: string;
-      espèces_impactées_nom?: string;
-      demandeur_personne_morale_adresse?: string;
+      especes_impactees_id?: FileId | null;
+      especes_impactees_media_type?: string;
+      especes_impactees_name?: string;
+      demandeur_personne_morale_address?: string;
     }
   > = transaction("dossier")
     .select(dossierFullColumns)
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
     .leftJoin("identite_dossier as identite_demandeur", function () {
       this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
@@ -625,10 +622,10 @@ export async function getDossierFull(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .leftJoin("file as file_espèces_impactées", {
-      "file_espèces_impactées.id": "dossier.espèces_impactées",
+    .leftJoin("file as file_especes_impactees", {
+      "file_especes_impactees.id": "dossier.especes_impactees",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
     .andWhere({ "dossier.id": dossierId })
     .first();
 
@@ -643,13 +640,15 @@ export async function getDossierFull(
   );
 
   const descriptionsPiecesJointesPetitionnaireP: Promise<
-    (Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]
+    (Pick<File, "demarche_numerique_created_at" | "id" | "name" | "media_type"> & {
+      size: number;
+    })[]
   > = getDescriptionsPiecesJointesPetitionnaire(dossierId, transaction);
 
   const decisionsAdministrativesP: Promise<DecisionAdministrativeWithFichierDescription[]> =
     getDecisionAdministrativesDossier(dossierId, transaction);
-  const attachmentAutresPromise: Promise<AttachmentAutreWithFileDescription[]> =
-    getAttachmentAutresForDossier(dossierId, transaction);
+  const otherAttachmentsPromise: Promise<OtherAttachmentWithFileDescription[]> =
+    getOtherAttachmentsForDossier(dossierId, transaction);
   const decisionIds = (await decisionsAdministrativesP).map((d) => d.id);
 
   const prescriptionsP: Promise<Prescription[]> = getPrescriptions(decisionIds, transaction);
@@ -666,7 +665,7 @@ export async function getDossierFull(
       allAvisExpertDossierP,
       descriptionsPiecesJointesPetitionnaireP,
       decisionsAdministrativesP,
-      attachmentAutresPromise,
+      otherAttachmentsPromise,
       prescriptionsP,
       controlesP,
     ])
@@ -680,7 +679,7 @@ export async function getDossierFull(
     allAvisExpertDossierP,
     descriptionsPiecesJointesPetitionnaireP,
     decisionsAdministrativesP,
-    attachmentAutresPromise,
+    otherAttachmentsPromise,
     prescriptionsP,
     controlesP,
   ]).then(
@@ -690,42 +689,42 @@ export async function getDossierFull(
       allAvisExpertDossier,
       descriptionsPiecesJointesPetitionnaire,
       decisionsAdministratives,
-      attachmentAutres,
+      otherAttachments,
       prescriptions,
       controles,
     ]) => {
-      dossier.demandeur_adresse =
-        dossier.demandeur_personne_morale_adresse ||
+      dossier.demandeur_address =
+        dossier.demandeur_personne_morale_address ||
         dossier.demandeur_personne_physique_address ||
         "";
-      delete dossier.demandeur_personne_morale_adresse;
+      delete dossier.demandeur_personne_morale_address;
 
-      dossier.évènementsPhase = evenementsPhaseDossier;
+      dossier.evenementsPhase = evenementsPhaseDossier;
 
       dossier.avisExpert = allAvisExpertDossier.map(
         ({
           avis_fichier,
-          avis_fichier_nom,
+          avis_file_name,
           avis_fichier_media_type,
-          avis_fichier_taille,
+          avis_file_size,
           saisine_fichier,
-          saisine_fichier_nom,
+          saisine_file_name,
           saisine_fichier_media_type,
-          saisine_fichier_taille,
+          saisine_file_size,
           ...avisExpert
         }) => {
           const avisFichierDescription = describeFichier(
             avis_fichier,
-            avis_fichier_nom,
+            avis_file_name,
             avis_fichier_media_type,
-            avis_fichier_taille,
+            avis_file_size,
             "/avis-expert/fichier",
           );
           const saisineFichierDescription = describeFichier(
             saisine_fichier,
-            saisine_fichier_nom,
+            saisine_file_name,
             saisine_fichier_media_type,
-            saisine_fichier_taille,
+            saisine_file_size,
             "/avis-expert/fichier",
           );
 
@@ -739,31 +738,31 @@ export async function getDossierFull(
         },
       );
 
-      dossier.piècesJointesPétitionnaires = descriptionsPiecesJointesPetitionnaire.map(
-        ({ id, DS_createdAt, nom, media_type, taille }) => ({
+      dossier.piecesJointesPetitionnaires = descriptionsPiecesJointesPetitionnaire.map(
+        ({ id, demarche_numerique_created_at, name, media_type, size }) => ({
           url: `/piece-jointe-petitionnaire/fichier/${id}`,
-          DS_createdAt,
-          nom,
+          demarche_numerique_created_at,
+          name,
           media_type,
-          taille,
+          size,
         }),
       );
 
       if (
-        dossier.espèces_impactées_id &&
-        dossier.espèces_impactées_media_type &&
-        dossier.espèces_impactées_nom
+        dossier.especes_impactees_id &&
+        dossier.especes_impactees_media_type &&
+        dossier.especes_impactees_name
       ) {
-        dossier.espècesImpactées = {
-          url: `/especes-impactees/${dossier.espèces_impactées_id}`,
-          media_type: dossier.espèces_impactées_media_type,
-          nom: dossier.espèces_impactées_nom,
+        dossier.especesImpactees = {
+          url: `/especes-impactees/${dossier.especes_impactees_id}`,
+          media_type: dossier.especes_impactees_media_type,
+          name: dossier.especes_impactees_name,
         };
       }
 
-      delete dossier.espèces_impactées_id;
-      delete dossier.espèces_impactées_media_type;
-      delete dossier.espèces_impactées_nom;
+      delete dossier.especes_impactees_id;
+      delete dossier.especes_impactees_media_type;
+      delete dossier.especes_impactees_name;
 
       const controlesByPrescriptionId: Map<Prescription["id"], Controle[]> = new Map();
       for (const c of controles) {
@@ -778,9 +777,9 @@ export async function getDossierFull(
       for (const p of prescriptions) {
         const controles = controlesByPrescriptionId.get(p.id);
         // @ts-ignore p devient un FrontEndPrescription
-        p.contrôles = controles;
+        p.controles = controles;
 
-        const id = p.décision_administrative;
+        const id = p.decision_administrative;
         const prescrForThisId = prescriptionsByDecisionId.get(id) || [];
 
         // @ts-ignore p est devenu un FrontEndPrescription
@@ -789,33 +788,33 @@ export async function getDossierFull(
       }
 
       if (decisionsAdministratives.length >= 1) {
-        dossier.décisionsAdministratives = decisionsAdministratives.map(
+        dossier.decisionsAdministratives = decisionsAdministratives.map(
           ({
             id,
-            numéro,
+            number,
             type,
-            date_signature,
-            date_fin_obligations,
+            signature_date,
+            obligations_end_date,
             fichier,
-            fichier_nom,
-            fichier_media_type,
-            fichier_taille,
+            file_name,
+            file_media_type,
+            file_size,
             dossier,
           }) => {
             const fichierDescription = describeFichier(
               fichier,
-              fichier_nom,
-              fichier_media_type,
-              fichier_taille,
+              file_name,
+              file_media_type,
+              file_size,
               "/decision-administrative/fichier",
             );
 
             return {
               id,
-              numéro,
+              number,
               type,
-              date_signature,
-              date_fin_obligations,
+              signature_date,
+              obligations_end_date,
               prescriptions: prescriptionsByDecisionId.get(id),
               fichier_url: fichierDescription?.url,
               fichier_description: fichierDescription,
@@ -825,13 +824,13 @@ export async function getDossierFull(
         );
       }
 
-      dossier.attachmentAutres = attachmentAutres.map(
-        ({ fichier, fichier_nom, fichier_media_type, fichier_taille, ...attachment }) => {
+      dossier.otherAttachments = otherAttachments.map(
+        ({ fichier, file_name, file_media_type, file_size, ...attachment }) => {
           const fileDescription = describeFichier(
             fichier,
-            fichier_nom,
-            fichier_media_type,
-            fichier_taille,
+            file_name,
+            file_media_type,
+            file_size,
             "/attachment-autre/fichier",
           );
 
@@ -850,47 +849,47 @@ export async function getDossierFull(
 }
 
 const dossierSummaryColumns: (keyof DossierSummary)[] = [
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
   "dossier.id as id",
-  //"id_demarches_simplifiées",
-  "number_demarches_simplifiées",
-  "date_dépôt",
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "dossier.nom as nom",
-  "rattaché_au_régime_ae",
-  "activité_principale",
+  //"demarche_numerique_id",
+  "demarche_numerique_number",
+  "depot_date",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "dossier.name as name",
+  "linked_to_ae_regime",
+  "main_activite",
 
   // localisation
-  "départements",
+  "departments",
   "communes",
-  "régions",
+  "regions",
 
   // next expected action
-  "prochaine_action_attendue_par",
+  "next_action_expected_from",
 
   // demandeur identity (Démarche Numérique identity block)
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "identite_demandeur.last_name as déposant_nom",
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "identite_demandeur.first_names as déposant_prénoms",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "identite_demandeur.last_name as deposant_last_name",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "identite_demandeur.first_names as deposant_first_names",
 
   // demandeur_personne_physique
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "demandeur_personne_physique.nom as demandeur_personne_physique_nom",
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "demandeur_personne_physique.prénoms as demandeur_personne_physique_prénoms",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
 
   // demandeur_personne_morale
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  //@ts-expect-error not exactly a keyof DossierRésumé, but still
-  "demandeur_personne_morale.raison_sociale as demandeur_personne_morale_raison_sociale",
+  //@ts-expect-error not exactly a keyof DossierSummary, but still
+  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
 
   "enjeu",
 
-  "commentaire_libre",
+  "free_comment",
 
-  "historique_identifiant_demande_onagre",
+  "onagre_demande_identifier",
 ];
 
 export async function getDossiersSummariesByCap(
@@ -908,12 +907,12 @@ export async function getDossiersSummariesByCap(
 
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(dossierSummaryColumns)
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "dossier.id",
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
     .leftJoin("identite_dossier as identite_demandeur", function () {
       this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
@@ -927,7 +926,7 @@ export async function getDossiersSummariesByCap(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap });
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap });
 
   const evenementsPhaseDossierP = getLatestEvenementsPhaseDossiers(cap, transaction);
 
@@ -946,11 +945,11 @@ export async function getDossiersSummariesByCap(
 
         if (evenementPhaseDossier) {
           dossier.phase = evenementPhaseDossier.phase;
-          dossier.date_début_phase = evenementPhaseDossier.horodatage;
+          dossier.phase_start_date = evenementPhaseDossier.timestamp;
         } else {
           // dossier submission
           dossier.phase = "Accompagnement amont";
-          dossier.date_début_phase = dossier.date_dépôt;
+          dossier.phase_start_date = dossier.depot_date;
         }
       }
 
@@ -970,7 +969,7 @@ export async function getDossiersSummariesByCap(
         const decisionAdministrative = decisionsAdministrativesById.get(dossier.id);
 
         if (decisionAdministrative) {
-          dossier.décisionsAdministratives = decisionAdministrative;
+          dossier.decisionsAdministratives = decisionAdministrative;
         }
       }
 
@@ -999,15 +998,15 @@ export async function dossiersAccessibleViaCap(
 ): Promise<Set<Dossier["id"]>> {
   if (!Array.isArray(dossierIds)) dossierIds = [dossierIds];
 
-  const ret = databaseConnection("arête_cap_dossier__groupe_instructeurs")
+  const ret = databaseConnection("edge_cap_dossier__groupe_instructeurs")
     .select(["dossier.id as id"])
-    .leftJoin("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.groupe_instructeurs":
-        "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    .leftJoin("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.groupe_instructeurs":
+        "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
     })
-    .leftJoin("dossier", { "dossier.id": "arête_groupe_instructeurs__dossier.dossier" })
+    .leftJoin("dossier", { "dossier.id": "edge_groupe_instructeurs__dossier.dossier" })
     .whereIn("dossier.id", dossierIds)
-    .andWhere({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+    .andWhere({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
     .then((dossiers) => new Set(dossiers.map((d) => d.id)));
 
   // @ts-ignore
@@ -1022,27 +1021,27 @@ export async function getLatestEvenementsPhaseDossiers(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return databaseConnection("évènement_phase_dossier")
-    .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "évènement_phase_dossier.dossier",
+  return databaseConnection("evenement_phase_dossier")
+    .select(["evenement_phase_dossier.dossier as dossier", "phase", "timestamp"])
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "evenement_phase_dossier.dossier",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
     .distinctOn("dossier")
     .andWhere(function () {
       // DS creates bad "traitement" that are not phase changes
-      // We can detect them with 'DS_emailAgentTraitant IS NULL'
-      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // We can detect them with 'demarche_numerique_agent_email IS NULL'
+      // If an evenement_phase_dossier has neither a 'caused_by_personne' nor a 'demarche_numerique_agent_email',
       // we don't want to reflect it on the interface side
-      this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
+      this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
     })
     .orderBy([
       { column: "dossier", order: "asc" },
-      { column: "horodatage", order: "desc" },
+      { column: "timestamp", order: "desc" },
     ]);
 }
 
@@ -1050,22 +1049,22 @@ export async function getEvenementsPhaseDossiers(
   cap_dossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return databaseConnection("évènement_phase_dossier")
-    .select(["évènement_phase_dossier.dossier as dossier", "phase", "horodatage"])
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "évènement_phase_dossier.dossier",
+  return databaseConnection("evenement_phase_dossier")
+    .select(["evenement_phase_dossier.dossier as dossier", "phase", "timestamp"])
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "evenement_phase_dossier.dossier",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier })
     .andWhere(function () {
       // DS creates bad "traitement" that are not phase changes
-      // We can detect them with 'DS_emailAgentTraitant IS NULL'
-      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // We can detect them with 'demarche_numerique_agent_email IS NULL'
+      // If an evenement_phase_dossier has neither a 'caused_by_personne' nor a 'demarche_numerique_agent_email',
       // we don't want to reflect it on the interface side
-      this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
+      this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
     });
 }
 
@@ -1073,17 +1072,17 @@ async function getEvenementsPhaseDossier(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return databaseConnection("évènement_phase_dossier")
+  return databaseConnection("evenement_phase_dossier")
     .select("*")
     .where({ dossier: dossierId })
     .andWhere(function () {
       // DS creates bad "traitement" that are not phase changes
-      // We can detect them with 'DS_emailAgentTraitant IS NULL'
-      // If an évènement_phase_dossier has neither a 'cause_personne' nor a 'DS_emailAgentTraitant',
+      // We can detect them with 'demarche_numerique_agent_email IS NULL'
+      // If an evenement_phase_dossier has neither a 'caused_by_personne' nor a 'demarche_numerique_agent_email',
       // we don't want to reflect it on the interface side
-      this.whereNotNull("cause_personne").orWhereNotNull("DS_emailAgentTraitant");
+      this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
     })
-    .orderBy("horodatage", "desc");
+    .orderBy("timestamp", "desc");
 }
 
 async function getAvisExpertDossier(
@@ -1093,12 +1092,12 @@ async function getAvisExpertDossier(
   return databaseConnection("avis_expert")
     .select([
       "avis_expert.*",
-      "file_avis.nom as avis_fichier_nom",
+      "file_avis.name as avis_file_name",
       "file_avis.media_type as avis_fichier_media_type",
-      databaseConnection.raw("file_avis.taille::integer as avis_fichier_taille"),
-      "file_saisine.nom as saisine_fichier_nom",
+      databaseConnection.raw("file_avis.size::integer as avis_file_size"),
+      "file_saisine.name as saisine_file_name",
       "file_saisine.media_type as saisine_fichier_media_type",
-      databaseConnection.raw("file_saisine.taille::integer as saisine_fichier_taille"),
+      databaseConnection.raw("file_saisine.size::integer as saisine_file_size"),
     ])
     .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
     .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })
@@ -1109,71 +1108,64 @@ async function getDecisionAdministrativesDossier(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DecisionAdministrativeWithFichierDescription[]> {
-  return databaseConnection("décision_administrative")
+  return databaseConnection("decision_administrative")
     .select([
-      "décision_administrative.*",
-      "file_decision.nom as fichier_nom",
-      "file_decision.media_type as fichier_media_type",
-      databaseConnection.raw("file_decision.taille::integer as fichier_taille"),
+      "decision_administrative.*",
+      "file_decision.name as file_name",
+      "file_decision.media_type as file_media_type",
+      databaseConnection.raw("file_decision.size::integer as file_size"),
     ])
-    .leftJoin("file as file_decision", { "file_decision.id": "décision_administrative.fichier" })
+    .leftJoin("file as file_decision", { "file_decision.id": "decision_administrative.fichier" })
     .where({ dossier: dossierId });
 }
 
 async function getDescriptionsPiecesJointesPetitionnaire(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<(Pick<File, "DS_createdAt" | "id" | "nom" | "media_type"> & { taille: number })[]> {
+): Promise<
+  (Pick<File, "demarche_numerique_created_at" | "id" | "name" | "media_type"> & {
+    size: number;
+  })[]
+> {
   return databaseConnection("dossier")
     .select([
       "file.id as id",
-      "file.DS_createdAt as DS_createdAt",
-      "file.nom as nom",
+      "file.demarche_numerique_created_at as demarche_numerique_created_at",
+      "file.name as name",
       "file.media_type as media_type",
-      databaseConnection.raw("file.taille::integer as taille"),
+      databaseConnection.raw("file.size::integer as size"),
     ])
-    .leftJoin("arête_dossier__fichier_pièces_jointes_pétitionnaire", {
-      "arête_dossier__fichier_pièces_jointes_pétitionnaire.dossier": "dossier.id",
+    .leftJoin("edge_dossier__fichier_pieces_jointes_petitionnaire", {
+      "edge_dossier__fichier_pieces_jointes_petitionnaire.dossier": "dossier.id",
     })
     .leftJoin("file", {
-      "file.id": "arête_dossier__fichier_pièces_jointes_pétitionnaire.fichier",
+      "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier",
     })
     .where({ dossier: dossierId });
 }
 
 export function deleteDossierByDSNumber(numbers: number[]) {
-  return directDatabaseConnection("dossier")
-    .whereIn("number_demarches_simplifiées", numbers)
-    .delete();
+  return directDatabaseConnection("dossier").whereIn("demarche_numerique_number", numbers).delete();
 }
 
-export function updateDossier(
+export async function updateDossier(
   id: Dossier["id"],
-  dossierParams: Partial<Dossier & { évènementsPhase: EvenementPhaseDossier[] }>,
+  dossierParams: Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>,
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  let phaseAdded = Promise.resolve();
+  const { evenementsPhase, ...dossierColumns } = dossierParams;
+  const phaseAdded = evenementsPhase
+    ? await databaseConnection("evenement_phase_dossier").insert(
+        evenementsPhase.map((event) => ({ ...event, caused_by_personne: causePersonne })),
+      )
+    : undefined;
+  const updatedDossier =
+    Object.keys(dossierColumns).length >= 1
+      ? await databaseConnection("dossier").where({ id }).update(dossierColumns)
+      : undefined;
 
-  if (dossierParams.évènementsPhase) {
-    for (const ev of dossierParams.évènementsPhase) {
-      ev.cause_personne = causePersonne;
-    }
-
-    phaseAdded = databaseConnection("évènement_phase_dossier").insert(
-      dossierParams.évènementsPhase,
-    );
-
-    delete dossierParams.évènementsPhase;
-  }
-
-  let updatedDossier = Promise.resolve();
-
-  if (Object.keys(dossierParams).length >= 1) {
-    updatedDossier = databaseConnection("dossier").where({ id }).update(dossierParams);
-  }
-
-  return Promise.all([phaseAdded, updatedDossier]);
+  return [phaseAdded, updatedDossier];
 }
 
 /**
@@ -1186,15 +1178,15 @@ async function synchronizeAndReturnPersonnesForDossiersToInsert(
   let personnes: Personne[] = [];
 
   //@ts-ignore
-  const personnesWhoFollowDossiers: Pick<Personne, "email" | "nom" | "prénoms">[] =
+  const personnesWhoFollowDossiers: Pick<Personne, "email" | "last_name" | "first_names">[] =
     dossiersForInsert
-      .flatMap((dossier) => dossier.personnes_qui_suivent)
+      .flatMap((dossier) => dossier.followers)
       .filter((x) => x != null)
-      // We only select the properties we want to keep (not code_accès)
-      .map(({ email, nom, prénoms }) => ({
+      // We only select the properties we want to keep (not access_code)
+      .map(({ email, last_name, first_names }) => ({
         email: email ? normalizeEmail(email) : null,
-        nom,
-        prénoms,
+        last_name,
+        first_names,
       }));
 
   if (personnesWhoFollowDossiers.length >= 1) {

@@ -24,18 +24,18 @@ async function ajouterEvenements(
 ): Promise<void> {
   const rows = Array.from({ length: count }, () => ({
     personne: personneId,
-    évènement: type,
+    evenement: type,
     date,
   }));
-  await db("évènement_métrique").insert(rows);
+  await db("evenement_metrique").insert(rows);
 }
 
 describe("getUtilisateursAARRI", () => {
   test("computes the AARRI level of each Pitchou account", async () => {
-    await createPersonne(db, { email: "base@dept.gouv.fr", nom: "Base" });
-    const acquis = await createPersonne(db, { email: "acquis@dept.gouv.fr", nom: "Acquis" });
-    const actif = await createPersonne(db, { email: "actif@dept.gouv.fr", nom: "Actif" });
-    const impact = await createPersonne(db, { email: "impact@dept.gouv.fr", nom: "Impact" });
+    await createPersonne(db, { email: "base@dept.gouv.fr", last_name: "Base" });
+    const acquis = await createPersonne(db, { email: "acquis@dept.gouv.fr", last_name: "Acquis" });
+    const actif = await createPersonne(db, { email: "actif@dept.gouv.fr", last_name: "Actif" });
+    const impact = await createPersonne(db, { email: "impact@dept.gouv.fr", last_name: "Impact" });
 
     await ajouterEvenements(acquis.id, "seConnecter", 1);
     await ajouterEvenements(actif.id, "modifierPrescription", 5);
@@ -65,7 +65,7 @@ describe("getUtilisateursAARRI", () => {
       email: "deux-groupes@dept.gouv.fr",
       nomGroupe: "Beta",
     });
-    const autreGroupe = await createGroupeInstructeurs(db, { nom: "Alpha" });
+    const autreGroupe = await createGroupeInstructeurs(db, { name: "Alpha" });
     await attachCapToGroupe(db, cap, autreGroupe.id);
 
     // Belongs to no groupe.
@@ -84,7 +84,7 @@ describe("getUtilisateursAARRI", () => {
   test("excludes personnes that are not Pitchou accounts (no code d'accès)", async () => {
     await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
     // A contact with no code d'accès, inserted directly to bypass the factory default.
-    await db("personne").insert({ email: "petitionnaire@exemple.fr", code_accès: null });
+    await db("personne").insert({ email: "petitionnaire@exemple.fr", access_code: null });
 
     const utilisateurs = await getUtilisateursAARRI(db);
     const emails = utilisateurs.map((u) => u.email);
@@ -108,7 +108,7 @@ describe("getUtilisateursAARRI", () => {
 describe("GET /api/admin/utilisateurs-aarri", () => {
   async function createAdmin(): Promise<string> {
     const code = `admin-secret-${Math.random().toString(36).slice(2)}`;
-    await createPersonne(db, { email: TEST_ADMIN_EMAIL, code_accès: code });
+    await createPersonne(db, { email: TEST_ADMIN_EMAIL, access_code: code });
     return code;
   }
 
@@ -135,7 +135,7 @@ describe("GET /api/admin/utilisateurs-aarri", () => {
   test("answers 403 for a non-admin secret", async () => {
     const instructeur = await createPersonne(db, {
       email: "instructeur@dept.gouv.fr",
-      code_accès: "non-admin-secret",
+      access_code: "non-admin-secret",
     });
     expect(instructeur.codeAcces).toBe("non-admin-secret");
 

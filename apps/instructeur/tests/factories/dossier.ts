@@ -5,8 +5,8 @@ export const DEFAULT_NUMERO_DEMARCHE = 88444;
 
 export type CreatedDossier = {
   id: number;
-  nom: string | null;
-  numéroDémarche: number;
+  name: string | null;
+  demarcheNumber: number;
 };
 
 export async function createDossier(
@@ -14,28 +14,28 @@ export async function createDossier(
   overrides: Partial<DossierInitializer> = {},
 ): Promise<CreatedDossier> {
   const defaults: DossierInitializer = {
-    nom: "Dossier de test",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: new Date(),
+    name: "Dossier de test",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: new Date(),
   };
   const insert = { ...defaults, ...overrides };
-  const [row] = await db("dossier").insert(insert).returning(["id", "nom", "numéro_démarche"]);
+  const [row] = await db("dossier").insert(insert).returning(["id", "name", "demarche_number"]);
   return {
     id: row.id,
-    nom: row.nom,
-    numéroDémarche: row["numéro_démarche"],
+    name: row.name,
+    demarcheNumber: row.demarche_number,
   };
 }
 
 export async function createGroupeInstructeurs(
   db: Knex,
-  overrides: { nom?: string; numéro_démarche?: number } = {},
-): Promise<{ id: string; nom: string }> {
+  overrides: { name?: string; demarche_number?: number } = {},
+): Promise<{ id: string; name: string }> {
   const insert = {
-    nom: overrides.nom ?? "Groupe de test",
-    numéro_démarche: overrides.numéro_démarche ?? DEFAULT_NUMERO_DEMARCHE,
+    name: overrides.name ?? "Groupe de test",
+    demarche_number: overrides.demarche_number ?? DEFAULT_NUMERO_DEMARCHE,
   };
-  const [row] = await db("groupe_instructeurs").insert(insert).returning(["id", "nom"]);
+  const [row] = await db("groupe_instructeurs").insert(insert).returning(["id", "name"]);
   return row;
 }
 
@@ -44,7 +44,7 @@ export async function attachDossierToGroupe(
   dossierId: number,
   groupeId: string,
 ): Promise<void> {
-  await db("arête_groupe_instructeurs__dossier").insert({
+  await db("edge_groupe_instructeurs__dossier").insert({
     dossier: dossierId,
     groupe_instructeurs: groupeId,
   });

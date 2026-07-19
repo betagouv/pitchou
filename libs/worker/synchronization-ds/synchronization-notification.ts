@@ -3,6 +3,7 @@ import type { Knex } from "knex";
 import type { NotificationInitializer } from "@pitchou/types/database/public/Notification.ts";
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type EdgePersonneFollowsDossier from "@pitchou/types/database/public/EdgePersonneFollowsDossier.ts";
 
 export async function updateNotification(
   dossiersDN: DossierDS88444[],
@@ -16,8 +17,8 @@ export async function updateNotification(
   const dossierIds = [...dossierIdByDN_number.values()];
 
   // For each dossier, retrieve the personnes who follow this dossier.
-  const rowsPersonneAndDossierSuivi: { personne: PersonneId; dossier: DossierId }[] =
-    await synchronizationTransactionDS("arête_personne_suit_dossier")
+  const rowsPersonneAndDossierSuivi: EdgePersonneFollowsDossier[] =
+    await synchronizationTransactionDS("edge_personne_follows_dossier")
       .select("*")
       .whereIn("dossier", dossierIds);
 
@@ -41,8 +42,8 @@ export async function updateNotification(
         notifications.push({
           dossier: dossierId,
           personne: personneFollowingThisDossier.personne,
-          date_dernière_mise_à_jour: dossierDN.dateDerniereModification,
-          vue: false,
+          updated_at: dossierDN.dateDerniereModification,
+          viewed: false,
         }),
       );
     }
@@ -55,13 +56,11 @@ export async function updateNotification(
   // Update the notification table.
   // We only overwrite the existing notification if the received modification date is
   // STRICTLY more recent than the stored one. A different but older date
-  // (re-import, or seed date > actual dossier date) must not reset "vue" back to false.
+  // (re-import, or seed date > actual dossier date) must not reset "viewed" back to false.
   // NULL case: if the stored date is NULL, any non-NULL received date is considered more recent.
   return synchronizationTransactionDS("notification")
     .insert(notifications)
     .onConflict(["dossier", "personne"])
     .merge()
-    .whereRaw(
-      "(notification.date_dernière_mise_à_jour IS NULL OR EXCLUDED.date_dernière_mise_à_jour > notification.date_dernière_mise_à_jour)",
-    );
+    .whereRaw("(notification.updated_at IS NULL OR EXCLUDED.updated_at > notification.updated_at)");
 }

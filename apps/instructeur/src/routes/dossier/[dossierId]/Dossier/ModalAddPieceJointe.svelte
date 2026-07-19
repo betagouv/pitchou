@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { addAttachmentAutre } from "./attachmentAutre.ts";
+  import { addOtherAttachment } from "./otherAttachment.ts";
   import { addOrUpdateAvisExpert } from "./avisExpert.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
@@ -67,9 +67,9 @@
   // expert's avis (favorable, unfavorable...)
   let avis: string | null = $state(null);
 
-  let dateSaisine: FrontEndAvisExpert["date_saisine"] | undefined = $state();
+  let dateSaisine: FrontEndAvisExpert["saisine_date"] | undefined = $state();
 
-  let dateAvis: FrontEndAvisExpert["date_avis"] | undefined = $state();
+  let dateAvis: FrontEndAvisExpert["avis_date"] | undefined = $state();
 
   let otherAttachmentType = $state("");
 
@@ -86,9 +86,9 @@
   let saisinesWithoutAvis = $derived(
     dossier.avisExpert.filter(
       (ae) =>
-        (ae.date_saisine !== null || ae.saisine_fichier_url !== null) &&
+        (ae.saisine_date !== null || ae.saisine_fichier_url !== null) &&
         ae.avis === null &&
-        ae.date_avis === null,
+        ae.avis_date === null,
     ),
   );
 
@@ -167,7 +167,7 @@
         const avisExpertToCreate = {
           dossier: dossier.id,
           expert: expert,
-          date_saisine: dateSaisine,
+          saisine_date: dateSaisine,
         };
 
         addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToCreate, fichierSaisine, undefined)
@@ -191,8 +191,8 @@
             dossier: dossier.id,
             expert: expert,
             avis,
-            date_saisine: dateSaisine,
-            date_avis: dateAvis,
+            saisine_date: dateSaisine,
+            avis_date: dateAvis,
           };
           addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToCreate, undefined, fichierAvis)
             .then(() => {
@@ -208,7 +208,7 @@
               id: existingSaisine.id,
               dossier: dossier.id,
               expert: existingSaisine.expert,
-              date_avis: dateAvis,
+              avis_date: dateAvis,
               avis,
             };
             addNewPieceJointeP = addOrUpdateAvisExpert(avisExpertToUpdate, undefined, fichierAvis)
@@ -221,7 +221,7 @@
         }
       } else if (typePieceJointe === "Autre") {
         const nombreFichiers = fileListPieceJointe.length;
-        addNewPieceJointeP = addAttachmentAutre(
+        addNewPieceJointeP = addOtherAttachment(
           dossier.id,
           otherAttachmentType,
           otherAttachmentDate,
@@ -449,8 +449,8 @@
                                 onchange={() => (serviceOuPersonneExperte = saisine.expert)}
                               />
                               <label class="fr-label" for={idRadio}>
-                                Saisine {saisine.expert || "Expert"}{saisine.date_saisine
-                                  ? ` - ${formatDateAbsolute(saisine.date_saisine)}`
+                                Saisine {saisine.expert || "Expert"}{saisine.saisine_date
+                                  ? ` - ${formatDateAbsolute(saisine.saisine_date)}`
                                   : ""}
                               </label>
                             </div>

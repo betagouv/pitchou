@@ -11,9 +11,9 @@ export function getCurrentPhaseStart(dossier: DossierSummary): {
   let startDate: Date;
 
   if (currentPhase === "Accompagnement amont") {
-    startDate = dossier.date_dépôt;
+    startDate = dossier.depot_date;
   } else {
-    startDate = dossier.date_début_phase;
+    startDate = dossier.phase_start_date;
   }
 
   return { startDate, phase: currentPhase };
