@@ -232,65 +232,65 @@ export type TypesActionSuiteControle =
   | "Courrier recommandé avec accusé de réception";
 
 // - - - - - Statistics - - - - - - //
-export interface StatsPubliques {
-  nbDossiersEnPhaseControle: number;
-  nbDossiersEnPhaseControleAvecDecision: number;
-  nbDossiersEnPhaseControleSansDecision: number;
-  nbPetitionnairesDepuisSept2024: number;
-  totalDossiers: number;
-  totalPrescriptions: number;
-  nbPrescriptionsControlees: number;
-  statsConformite: StatsConformite;
-  statsImpactBiodiversite: StatsImpactBiodiversite;
+export interface PublicStats {
+  dossierCount: number;
+  controlePhaseDossierCount: number;
+  controlePhaseDossierWithDecisionCount: number;
+  controlePhaseDossierWithoutDecisionCount: number;
+  petitionnaireCountSinceSeptember2024: number;
+  controllablePrescriptionCount: number;
+  prescriptionWithControleCount: number;
+  conformiteStats: ConformiteStats;
+  biodiversiteImpactStats: BiodiversiteImpactStats;
 }
 
 /**
  * Prescription statistics by conformity.
  */
-export interface StatsConformite {
+export interface ConformiteStats {
   /** The number of prescriptions whose last contrôle is Non conforme */
-  nb_non_conforme: number;
+  nonConformePrescriptionCount: number;
 
   /** The number of prescriptions whose last contrôle is Trop tard */
-  nb_trop_tard: number;
+  tooLatePrescriptionCount: number;
 
   /** The number of prescriptions that became conforme after the 1st contrôle */
-  nb_conforme_apres_1: number;
+  prescriptionConformeAfterFirstControleCount: number;
 
   /** The number of prescriptions that became conforme after the 2nd contrôle */
-  nb_conforme_apres_2: number;
+  prescriptionConformeAfterSecondControleCount: number;
 
   /** The number of prescriptions that became conforme after the 3rd contrôle */
-  nb_conforme_apres_3: number;
+  prescriptionConformeAfterThirdControleCount: number;
 
   /** The number of prescriptions with a return to conformity after more than one contrôle */
-  nb_retour_conformite: number;
+  prescriptionReturnedToConformiteCount: number;
 }
 
 /**
  * Biodiversity impact statistics of the conforme prescriptions.
  */
-export interface StatsImpactBiodiversite {
+export interface BiodiversiteImpactStats {
   /** The total number of prescriptions with at least one conforme contrôle */
-  total_prescriptions_conformes: number;
+  conformePrescriptionCount: number;
 
   /** The total sum of avoided areas (in m² or ha depending on the unit) */
-  total_avoided_surface: number;
+  avoidedSurfaceTotal: number;
 
   /** The total sum of compensated areas */
-  total_compensated_surface: number;
+  compensatedSurfaceTotal: number;
 
   /** The total number of avoided nests */
-  total_avoided_nids: number;
+  avoidedNidsCount: number;
 
   /** The total number of compensated nests */
-  total_compensated_nids: number;
+  compensatedNidsCount: number;
 
   /** The total number of avoided individuals */
-  total_avoided_individus: number;
+  avoidedIndividusCount: number;
 
   /** The total number of compensated individuals */
-  total_compensated_individus: number;
+  compensatedIndividusCount: number;
 }
 
 /**
