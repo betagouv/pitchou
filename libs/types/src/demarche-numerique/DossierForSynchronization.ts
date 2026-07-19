@@ -160,8 +160,7 @@ type LegacyAvisExpertInitializer = RenameKeys<
   }
 >;
 
-/** Persisted encrypted import payload. Its historical keys must remain readable. */
-export type AdditionalDataForDossierCreation = Partial<{
+type LegacyAdditionalDataForDossierCreation = Partial<{
   dossier: Omit<LegacyDossierInitializer, "numéro_démarche">;
   évènement_phase_dossier: PartialBy<LegacyEvenementPhaseDossierInitializer, "dossier">[];
   décision_administrative: PartialBy<LegacyDecisionAdministrativeInitializer, "dossier">[];
@@ -172,3 +171,16 @@ export type AdditionalDataForDossierCreation = Partial<{
     | undefined;
   avis_expert: PartialBy<LegacyAvisExpertInitializer, "dossier">[];
 }>;
+
+type CurrentAdditionalDataForDossierCreation = Partial<{
+  dossier: Omit<DossierInitializer, "demarche_number">;
+  evenement_phase_dossier: PartialBy<EvenementPhaseDossierInitializer, "dossier">[];
+  decision_administrative: PartialBy<DecisionAdministrativeInitializer, "dossier">[];
+  followers: PersonneWithRequiredEmail[] | undefined;
+  avis_expert: PartialBy<AvisExpertInitializer, "dossier">[];
+}>;
+
+/** Persisted encrypted import payload. Both historical and current keys must remain readable. */
+export type AdditionalDataForDossierCreation =
+  | LegacyAdditionalDataForDossierCreation
+  | CurrentAdditionalDataForDossierCreation;

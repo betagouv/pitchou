@@ -97,7 +97,7 @@ function renamePersistedArrayProperties(
   return value.map((item) => renamePersistedProperties(item, renames) ?? {});
 }
 
-function mapPersistedAdditionalData(
+export function mapPersistedAdditionalData(
   value: AdditionalDataForDossierCreation,
 ): Partial<DossierForInsert> | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
@@ -108,26 +108,35 @@ function mapPersistedAdditionalData(
       persisted.dossier,
       persistedDossierColumnRenames,
     ) as unknown as DossierInitializer,
-    evenement_phase_dossier: renamePersistedArrayProperties(persisted["évènement_phase_dossier"], {
-      horodatage: "timestamp",
-      cause_personne: "caused_by_personne",
-      DS_emailAgentTraitant: "demarche_numerique_agent_email",
-      DS_motivation: "demarche_numerique_motivation",
-    }) as PartialBy<EvenementPhaseDossierInitializer, "dossier">[] | undefined,
-    decision_administrative: renamePersistedArrayProperties(persisted["décision_administrative"], {
-      numéro: "number",
-      date_signature: "signature_date",
-      date_fin_obligations: "obligations_end_date",
-    }) as PartialBy<DecisionAdministrativeInitializer, "dossier">[] | undefined,
+    evenement_phase_dossier: renamePersistedArrayProperties(
+      persisted.evenement_phase_dossier ?? persisted["évènement_phase_dossier"],
+      {
+        horodatage: "timestamp",
+        cause_personne: "caused_by_personne",
+        DS_emailAgentTraitant: "demarche_numerique_agent_email",
+        DS_motivation: "demarche_numerique_motivation",
+      },
+    ) as PartialBy<EvenementPhaseDossierInitializer, "dossier">[] | undefined,
+    decision_administrative: renamePersistedArrayProperties(
+      persisted.decision_administrative ?? persisted["décision_administrative"],
+      {
+        numéro: "number",
+        date_signature: "signature_date",
+        date_fin_obligations: "obligations_end_date",
+      },
+    ) as PartialBy<DecisionAdministrativeInitializer, "dossier">[] | undefined,
     avis_expert: renamePersistedArrayProperties(persisted.avis_expert, {
       date_saisine: "saisine_date",
       date_avis: "avis_date",
     }) as PartialBy<AvisExpertInitializer, "dossier">[] | undefined,
-    followers: renamePersistedArrayProperties(persisted.personnes_qui_suivent, {
-      nom: "last_name",
-      prénoms: "first_names",
-      code_accès: "access_code",
-    }) as PersonneWithRequiredEmail[] | undefined,
+    followers: renamePersistedArrayProperties(
+      persisted.followers ?? persisted.personnes_qui_suivent,
+      {
+        nom: "last_name",
+        prénoms: "first_names",
+        code_accès: "access_code",
+      },
+    ) as PersonneWithRequiredEmail[] | undefined,
   };
 }
 

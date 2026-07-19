@@ -5,6 +5,7 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
+// TODO: Remove the retired BFC and Corse historical import tools in a dedicated cleanup PR.
 export type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 /**
