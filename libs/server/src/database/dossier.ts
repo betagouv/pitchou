@@ -1148,33 +1148,24 @@ export function deleteDossierByDSNumber(numbers: number[]) {
   return directDatabaseConnection("dossier").whereIn("demarche_numerique_number", numbers).delete();
 }
 
-export function updateDossier(
+export async function updateDossier(
   id: Dossier["id"],
   dossierParams: Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>,
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  let phaseAdded = Promise.resolve();
+  const { evenementsPhase, ...dossierColumns } = dossierParams;
+  const phaseAdded = evenementsPhase
+    ? await databaseConnection("evenement_phase_dossier").insert(
+        evenementsPhase.map((event) => ({ ...event, caused_by_personne: causePersonne })),
+      )
+    : undefined;
+  const updatedDossier =
+    Object.keys(dossierColumns).length >= 1
+      ? await databaseConnection("dossier").where({ id }).update(dossierColumns)
+      : undefined;
 
-  if (dossierParams.evenementsPhase) {
-    for (const ev of dossierParams.evenementsPhase) {
-      ev.caused_by_personne = causePersonne;
-    }
-
-    phaseAdded = databaseConnection("evenement_phase_dossier").insert(
-      dossierParams.evenementsPhase,
-    );
-
-    delete dossierParams.evenementsPhase;
-  }
-
-  let updatedDossier = Promise.resolve();
-
-  if (Object.keys(dossierParams).length >= 1) {
-    updatedDossier = databaseConnection("dossier").where({ id }).update(dossierParams);
-  }
-
-  return Promise.all([phaseAdded, updatedDossier]);
+  return [phaseAdded, updatedDossier];
 }
 
 /**
