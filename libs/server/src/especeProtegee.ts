@@ -139,6 +139,16 @@ const VALID_CLASSIFICATIONS: ReadonlySet<string> = new Set(["oiseau", "faune non
 
 const VALID_STATUTS: ReadonlySet<string> = new Set(["PN", "PR", "PD", "POM", "Espèce manquante"]);
 
+const PATCH_MODIFICATION_PROPERTIES: ReadonlySet<string> = new Set([
+  "classification",
+  "noms_scientifiques",
+  "noms_vernaculaires",
+  "cd_type_statuts",
+  "espece_ministerielle",
+  "espece_cnpn",
+  "excluded",
+]);
+
 export type PatchModification = {
   classification?: string | null;
   noms_scientifiques?: string[] | null;
@@ -163,6 +173,12 @@ export function validatePatchModification(
     return { ok: false, message: "Le patch doit être un objet." };
   }
   const p = patch as Record<string, unknown>;
+  const unknownProperty = Object.keys(p).find(
+    (property) => !PATCH_MODIFICATION_PROPERTIES.has(property),
+  );
+  if (unknownProperty) {
+    return { ok: false, message: `Propriété non reconnue : '${unknownProperty}'.` };
+  }
 
   if ("classification" in p && p.classification !== null) {
     if (typeof p.classification !== "string" || !VALID_CLASSIFICATIONS.has(p.classification)) {
