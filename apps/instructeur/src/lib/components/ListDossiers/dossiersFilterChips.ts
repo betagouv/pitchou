@@ -117,14 +117,14 @@ export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
   if (query.decisionAbsente) {
     chips.push({
       key: "decisionAbsente",
-      label: "Décision non-renseignée",
+      label: "Décision administrative non renseignée",
       next: withUpdates({ decisionAbsente: false }),
     });
   }
   if (query.avisExpertManquant) {
     chips.push({
       key: "avisManquant",
-      label: "Saisine ou avis d'expert manquant",
+      label: "Avis CNPN/CSRPN non renseigné",
       next: withUpdates({ avisExpertManquant: false }),
     });
   }

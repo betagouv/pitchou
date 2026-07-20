@@ -87,8 +87,8 @@ describe("buildActiveFilterChips", () => {
     );
     expect(chips.map((c) => c.label)).toEqual([
       "À enjeu",
-      "Décision non-renseignée",
-      "Saisine ou avis d'expert manquant",
+      "Décision administrative non renseignée",
+      "Avis CNPN/CSRPN non renseigné",
       "Espèces impactées non-renseignées",
     ]);
     const enjeuChip = chips.find((c) => c.key === "enjeu");

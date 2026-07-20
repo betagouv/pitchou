@@ -130,12 +130,12 @@ type DossierDataForStats = {
 };
 
 /**
- * Presence of the saisine and avis files for each avis expert of a dossier.
- * Lets the front filter dossiers that are missing a saisine or avis file,
- * without transferring the files themselves.
+ * The consulted expert and the presence of the saisine and avis files for each
+ * avis expert of a dossier. Lets the front filter dossiers by their avis files
+ * (e.g. « no CNPN/CSRPN avis file »), without transferring the files themselves.
  */
 type DossierAvisExpertSummary = {
-  avisExperts: { saisineFichierPresent: boolean; avisFichierPresent: boolean }[];
+  avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
 };
 
 /**
@@ -181,6 +181,8 @@ export type FrontEndFichier = Pick<File, "media_type" | "name"> & {
 export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
   fichier_url: string | undefined;
   fichier_description?: FrontEndFichier;
+  /** Whether the decision has an attached file. Set on the dossiers list summary. */
+  hasFile?: boolean;
 } & { prescriptions: FrontEndPrescription[] | undefined };
 
 export type DecisionAdministrativeForTransfer = Partial<

@@ -57,10 +57,14 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     free_comment,
     linked_to_ae_regime,
     onagre_demande_identifier,
-    decisionsAdministratives,
+    decisionsAdministratives: decisionsAdministratives?.map((decision) => ({
+      ...decision,
+      hasFile: decision.fichier_url !== undefined,
+    })),
     avisExperts: avisExpert.map((ae) => ({
-      saisineFichierPresent: ae.saisine_fichier_url !== undefined,
-      avisFichierPresent: ae.avis_fichier_url !== undefined,
+      expert: ae.expert,
+      hasSaisineFile: ae.saisine_fichier_url !== undefined,
+      hasAvisFile: ae.avis_fichier_url !== undefined,
     })),
     especesImpacteesRenseignees: especesImpactees !== undefined,
 

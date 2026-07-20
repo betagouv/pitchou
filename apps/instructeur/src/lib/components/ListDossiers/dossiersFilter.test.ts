@@ -106,16 +106,24 @@ describe("filterDossiers", () => {
     expect(result.map((d) => d.id)).toEqual([1]);
   });
 
-  test("« décision non-renseignée » keeps dossiers without any décision administrative", () => {
-    const decision = [
-      { number: "AP-2024-042" },
-    ] as unknown as DossierSummary["decisionsAdministratives"];
+  test("« décision administrative non renseignée » keeps dossiers with no décision file", () => {
     const dossiers = [
       makeDossier({ id: dossierId(1), decisionsAdministratives: [] }),
-      makeDossier({ id: dossierId(2), decisionsAdministratives: decision }),
+      makeDossier({
+        id: dossierId(2),
+        decisionsAdministratives: [
+          { number: "AP-2024-042", hasFile: true },
+        ] as unknown as DossierSummary["decisionsAdministratives"],
+      }),
+      makeDossier({
+        id: dossierId(3),
+        decisionsAdministratives: [
+          { number: "AP-2024-777", hasFile: false },
+        ] as unknown as DossierSummary["decisionsAdministratives"],
+      }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ decisionAbsente: true }), makeContext());
-    expect(result.map((d) => d.id)).toEqual([1]);
+    expect(result.map((d) => d.id)).toEqual([1, 3]);
   });
 
   test("« décision administrative » matches the numéro, case- and accent-insensitively", () => {
@@ -137,20 +145,28 @@ describe("filterDossiers", () => {
     expect(result.map((d) => d.id)).toEqual([1]);
   });
 
-  test("« saisine ou avis manquant » keeps dossiers with an incomplete avis expert", () => {
+  test("« avis CNPN/CSRPN non renseigné » keeps dossiers with no CNPN/CSRPN avis file", () => {
     const dossiers = [
+      // A CNPN avis with its file: renseigné, excluded.
       makeDossier({
         id: dossierId(1),
-        avisExperts: [{ saisineFichierPresent: true, avisFichierPresent: false }],
+        avisExperts: [{ expert: "CNPN", hasSaisineFile: true, hasAvisFile: true }],
       }),
+      // A CSRPN avis without its file: kept.
       makeDossier({
         id: dossierId(2),
-        avisExperts: [{ saisineFichierPresent: true, avisFichierPresent: true }],
+        avisExperts: [{ expert: "CSRPN", hasSaisineFile: true, hasAvisFile: false }],
       }),
+      // No avis at all: kept.
       makeDossier({ id: dossierId(3), avisExperts: [] }),
+      // Only an « Autre expert » avis with its file: that type is ignored, so kept.
+      makeDossier({
+        id: dossierId(4),
+        avisExperts: [{ expert: "Autre expert", hasSaisineFile: true, hasAvisFile: true }],
+      }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ avisExpertManquant: true }), makeContext());
-    expect(result.map((d) => d.id)).toEqual([1]);
+    expect(result.map((d) => d.id)).toEqual([2, 3, 4]);
   });
 
   test("« espèces impactées non-renseignée » keeps dossiers without the file", () => {

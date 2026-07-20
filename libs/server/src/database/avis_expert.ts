@@ -150,21 +150,25 @@ export async function deleteAvisExpert(
 
 /**
  * For every avis expert of the dossiers accessible through `cap_dossier`,
- * returns which dossier it belongs to and whether its saisine and avis files
- * are present. Used to filter dossiers missing a saisine or avis file.
+ * returns which dossier it belongs to, the consulted expert and whether its
+ * saisine and avis files exist. Used to filter dossiers by their avis files.
  */
-export function getPresenceFichiersAvisExpertByCap(
+export function getAvisExpertFilesByCap(
   capDossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
-  { dossier: Dossier["id"]; saisineFichierPresent: boolean; avisFichierPresent: boolean }[]
+  {
+    dossier: Dossier["id"];
+    expert: AvisExpert["expert"];
+    hasSaisineFile: boolean;
+    hasAvisFile: boolean;
+  }[]
 > {
   return databaseConnection("avis_expert")
     .select("avis_expert.dossier as dossier")
-    .select(
-      databaseConnection.raw('avis_expert.saisine_fichier is not null as "saisineFichierPresent"'),
-    )
-    .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "avisFichierPresent"'))
+    .select("avis_expert.expert as expert")
+    .select(databaseConnection.raw('avis_expert.saisine_fichier is not null as "hasSaisineFile"'))
+    .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "hasAvisFile"'))
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
     })

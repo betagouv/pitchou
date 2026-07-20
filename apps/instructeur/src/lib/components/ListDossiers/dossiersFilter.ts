@@ -14,6 +14,9 @@ import {
   type DossiersQuery,
 } from "./dossiersQuery.ts";
 
+/** Experts whose avis is treated as a « CNPN/CSRPN » avis (the « Autre expert » avis is ignored) */
+const AVIS_CNPN_CSRPN_EXPERTS = new Set(["CSRPN", "CNPN", "Ministre"]);
+
 /** True when the dossier is followed by at least one person */
 function dossierIsFollowed(
   dossierId: DossierSummary["id"],
@@ -109,13 +112,19 @@ export function filterDossiers(
     );
   }
   if (query.decisionAbsente) {
-    result = result.filter((dossier) => (dossier.decisionsAdministratives?.length ?? 0) === 0);
+    // « non renseignée » = no décision administrative has an attached file.
+    result = result.filter(
+      (dossier) => !(dossier.decisionsAdministratives ?? []).some((decision) => decision.hasFile),
+    );
   }
   if (query.avisExpertManquant) {
-    result = result.filter((dossier) =>
-      (dossier.avisExperts ?? []).some(
-        (avis) => !avis.saisineFichierPresent || !avis.avisFichierPresent,
-      ),
+    // « non renseigné » = no CNPN/CSRPN/Ministre avis has an attached avis file.
+    result = result.filter(
+      (dossier) =>
+        !(dossier.avisExperts ?? []).some(
+          (avis) =>
+            avis.expert !== null && AVIS_CNPN_CSRPN_EXPERTS.has(avis.expert) && avis.hasAvisFile,
+        ),
     );
   }
   if (query.especesImpacteesAbsente) {
