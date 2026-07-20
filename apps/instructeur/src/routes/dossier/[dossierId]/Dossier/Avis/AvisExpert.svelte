@@ -7,20 +7,30 @@
   type Props = {
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
-    deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => void;
+    deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => Promise<unknown>;
   };
 
   let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
 
   let isEditing: boolean = $state(false);
+  let showDeleteConfirmation = $state(false);
+  let deleteInProgress = $state(false);
+
+  const deleteConfirmationTitleId = $derived(`confirmation-suppression-avis-${avisExpert.id}`);
 
   function closeForm() {
     isEditing = false;
   }
 
-  function onClickDelete(avisExpert: FrontEndAvisExpert) {
-    deleteAvisExpert(avisExpert);
-    closeForm();
+  async function confirmDelete() {
+    deleteInProgress = true;
+    try {
+      await deleteAvisExpert(avisExpert);
+      showDeleteConfirmation = false;
+      closeForm();
+    } finally {
+      deleteInProgress = false;
+    }
   }
 </script>
 
@@ -87,10 +97,37 @@
     <button
       class="fr-btn fr-btn--secondary fr-mt-1w"
       type="button"
-      onclick={() => onClickDelete(avisExpert)}>Supprimer cet avis d'expert</button
+      onclick={() => (showDeleteConfirmation = true)}>Supprimer cet avis d'expert</button
     >
   {/if}
 </div>
+
+{#if showDeleteConfirmation}
+  <div class="confirmation-overlay">
+    <div
+      class="confirmation"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby={deleteConfirmationTitleId}
+    >
+      <h5 id={deleteConfirmationTitleId}>Supprimer cet avis d'expert ?</h5>
+      <p>Cette action est irréversible.</p>
+      <div class="buttons">
+        <button
+          type="button"
+          class="fr-btn fr-btn--secondary"
+          disabled={deleteInProgress}
+          onclick={() => (showDeleteConfirmation = false)}
+        >
+          Annuler
+        </button>
+        <button type="button" class="fr-btn" disabled={deleteInProgress} onclick={confirmDelete}>
+          {deleteInProgress ? "Suppression en cours…" : "Confirmer la suppression"}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style lang="scss">
   .title {
@@ -127,6 +164,34 @@
 
     h3 {
       margin: 0;
+    }
+  }
+
+  .confirmation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  .confirmation {
+    max-width: 32rem;
+    padding: 1.5rem 2rem;
+    border-radius: 0.5rem;
+    background-color: var(--background-default-grey);
+
+    h5 {
+      margin-top: 0;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
     }
   }
 </style>
