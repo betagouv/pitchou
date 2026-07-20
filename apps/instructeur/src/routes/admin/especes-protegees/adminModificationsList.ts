@@ -98,9 +98,9 @@ export function filterModifications(
     result = result.filter((m) => effectiveStatuts(m).includes(query.statut));
   }
   if (query.etat === "exclues") {
-    result = result.filter((m) => m.exclu);
+    result = result.filter((m) => m.excluded);
   } else if (query.etat === "actives") {
-    result = result.filter((m) => !m.exclu);
+    result = result.filter((m) => !m.excluded);
   }
   if (query.liste === "ministerielle") {
     result = result.filter((m) => m.espece_ministerielle === true);
@@ -146,8 +146,8 @@ export function emptySeed(cd_ref = ""): ModificationEspeceAdmin {
     cd_type_statuts: null,
     espece_ministerielle: null,
     espece_cnpn: null,
-    exclu: false,
-    modifie_par: null,
+    excluded: false,
+    modified_by: null,
     created_at: "",
     updated_at: "",
     reference_noms_scientifiques: null,

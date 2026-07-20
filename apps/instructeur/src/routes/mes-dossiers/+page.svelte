@@ -27,24 +27,24 @@
   });
 
   const email = $derived(store.identité?.email);
-  const relationSuivis = $derived(store.relationSuivis);
+  const followRelations = $derived(store.followRelations);
   const services = $derived(store.identité?.groupesInstructeurs ?? []);
   const recentSearches = $derived(store.recentSearches ?? []);
   const notificationByDossier = $derived(store.notificationByDossier);
 
   const dossiers = $derived.by(() => {
-    const tous = [...store.dossierSummaries.values()];
-    if (!email || !relationSuivis) return [];
-    const suivis = relationSuivis.get(email);
-    if (!suivis) return [];
-    return tous.filter((d) => suivis.has(d.id));
+    const allDossiers = [...store.dossierSummaries.values()];
+    if (!email || !followRelations) return [];
+    const followedDossiers = followRelations.get(email);
+    if (!followedDossiers) return [];
+    return allDossiers.filter((dossier) => followedDossiers.has(dossier.id));
   });
 </script>
 
 <MesDossiers
   {email}
   {dossiers}
-  {relationSuivis}
+  {followRelations}
   {services}
   {recentSearches}
   {notificationByDossier}

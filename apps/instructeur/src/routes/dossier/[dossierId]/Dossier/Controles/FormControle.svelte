@@ -24,13 +24,13 @@
   async function formSubmit(e: Event) {
     e.preventDefault();
 
-    if (editedControle.date_action_suite_contrôle) {
-      Object.defineProperty(editedControle.date_action_suite_contrôle, "toJSON", {
+    if (editedControle.post_controle_action_date) {
+      Object.defineProperty(editedControle.post_controle_action_date, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
-    if (editedControle.date_prochaine_échéance) {
-      Object.defineProperty(editedControle.date_prochaine_échéance, "toJSON", {
+    if (editedControle.next_due_date) {
+      Object.defineProperty(editedControle.next_due_date, "toJSON", {
         value: toJSONPerserveDate,
       });
     }
@@ -42,12 +42,12 @@
 <form onsubmit={formSubmit}>
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date du contrôle </label>
-    <DateInput bind:date={editedControle.date_contrôle}></DateInput>
+    <DateInput bind:date={editedControle.controle_date}></DateInput>
   </div>
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Résultat </label>
-    <input class="fr-input" list="résultats-contrôle" bind:value={editedControle.résultat} />
+    <input class="fr-input" list="résultats-contrôle" bind:value={editedControle.result} />
     <datalist id="résultats-contrôle">
       {#each resultatsControle as resultatControle}
         <option>{resultatControle}</option>
@@ -57,7 +57,7 @@
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Commentaire libre </label>
-    <textarea class="fr-input" bind:value={editedControle.commentaire}></textarea>
+    <textarea class="fr-input" bind:value={editedControle.comment}></textarea>
   </div>
 
   <div class="fr-input-group">
@@ -65,7 +65,7 @@
     <input
       class="fr-input"
       list="type-actions"
-      bind:value={editedControle.type_action_suite_contrôle}
+      bind:value={editedControle.post_controle_action_type}
     />
     <datalist id="type-actions">
       {#each typesActionSuiteControle as typeActionSuiteControle}
@@ -76,12 +76,12 @@
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date de l'action suite au contrôle </label>
-    <DateInput bind:date={editedControle.date_action_suite_contrôle}></DateInput>
+    <DateInput bind:date={editedControle.post_controle_action_date}></DateInput>
   </div>
 
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date prochaine échéance </label>
-    <DateInput bind:date={editedControle.date_prochaine_échéance}></DateInput>
+    <DateInput bind:date={editedControle.next_due_date}></DateInput>
   </div>
 
   <div class="fr-mb-6w">

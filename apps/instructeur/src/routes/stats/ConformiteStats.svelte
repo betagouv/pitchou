@@ -1,32 +1,43 @@
 <script lang="ts">
-  import type { StatsConformite } from "@pitchou/types/API_Pitchou.ts";
+  import type { ConformiteStats } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
-    statsConformite: StatsConformite;
-    totalPrescriptions: number;
+    conformiteStats: ConformiteStats;
+    controllablePrescriptionCount: number;
   };
 
-  let { statsConformite, totalPrescriptions }: Props = $props();
+  let { conformiteStats, controllablePrescriptionCount }: Props = $props();
 
-  const nbConformiteInitiale = $derived(statsConformite.nb_conforme_apres_1);
-  const nbRetourConformite = $derived(statsConformite.nb_retour_conformite);
-  const nbNonConforme = $derived(statsConformite.nb_non_conforme);
-  const nbTropTard = $derived(statsConformite.nb_trop_tard);
-  const nbAutre = $derived(
-    totalPrescriptions - (nbConformiteInitiale + nbRetourConformite + nbNonConforme + nbTropTard),
+  const initialConformiteCount = $derived(
+    conformiteStats.prescriptionConformeAfterFirstControleCount,
+  );
+  const returnedToConformiteCount = $derived(conformiteStats.prescriptionReturnedToConformiteCount);
+  const nonConformeCount = $derived(conformiteStats.nonConformePrescriptionCount);
+  const tooLateCount = $derived(conformiteStats.tooLatePrescriptionCount);
+  const otherCount = $derived(
+    controllablePrescriptionCount -
+      (initialConformiteCount + returnedToConformiteCount + nonConformeCount + tooLateCount),
   );
 
-  const pctConformiteInitiale = $derived(
-    totalPrescriptions ? Math.round((nbConformiteInitiale / totalPrescriptions) * 100) : 0,
+  const initialConformitePercentage = $derived(
+    controllablePrescriptionCount
+      ? Math.round((initialConformiteCount / controllablePrescriptionCount) * 100)
+      : 0,
   );
-  const pctRetourConformite = $derived(
-    totalPrescriptions ? Math.round((nbRetourConformite / totalPrescriptions) * 100) : 0,
+  const returnedToConformitePercentage = $derived(
+    controllablePrescriptionCount
+      ? Math.round((returnedToConformiteCount / controllablePrescriptionCount) * 100)
+      : 0,
   );
-  const pctNonConforme = $derived(
-    totalPrescriptions ? Math.round((nbNonConforme / totalPrescriptions) * 100) : 0,
+  const nonConformePercentage = $derived(
+    controllablePrescriptionCount
+      ? Math.round((nonConformeCount / controllablePrescriptionCount) * 100)
+      : 0,
   );
-  const pctTropTard = $derived(
-    totalPrescriptions ? Math.round((nbTropTard / totalPrescriptions) * 100) : 0,
+  const tooLatePercentage = $derived(
+    controllablePrescriptionCount
+      ? Math.round((tooLateCount / controllablePrescriptionCount) * 100)
+      : 0,
   );
 </script>
 
@@ -37,32 +48,32 @@
       <div class="fr-card__content">
         <div class="conformite-stats">
           <div class="stat-item conformite-initiale">
-            <span class="stat-number">{nbConformiteInitiale}</span>
+            <span class="stat-number">{initialConformiteCount}</span>
             <span class="stat-label">Conformité initiale</span>
           </div>
           <div class="stat-item retour-conformite">
-            <span class="stat-number">{nbRetourConformite}</span>
+            <span class="stat-number">{returnedToConformiteCount}</span>
             <span class="stat-label">Retour à la conformité</span>
           </div>
           <div class="stat-item non-conforme">
-            <span class="stat-number">{nbNonConforme}</span>
+            <span class="stat-number">{nonConformeCount}</span>
             <span class="stat-label">Non conforme</span>
           </div>
           <div class="stat-item trop-tard">
-            <span class="stat-number">{nbTropTard}</span>
+            <span class="stat-number">{tooLateCount}</span>
             <span class="stat-label">Trop tard</span>
           </div>
           <div class="stat-item autre">
-            <span class="stat-number">{nbAutre}</span>
+            <span class="stat-number">{otherCount}</span>
             <span class="stat-label">Autre</span>
           </div>
         </div>
 
         <div class="fr-progress-bar fr-mt-2w bar-conformite">
-          <div class="conformite-initiale" style:width="{pctConformiteInitiale}%"></div>
-          <div class="retour-conformite" style:width="{pctRetourConformite}%"></div>
-          <div class="non-conforme" style:width="{pctNonConforme}%"></div>
-          <div class="trop-tard" style:width="{pctTropTard}%"></div>
+          <div class="conformite-initiale" style:width="{initialConformitePercentage}%"></div>
+          <div class="retour-conformite" style:width="{returnedToConformitePercentage}%"></div>
+          <div class="non-conforme" style:width="{nonConformePercentage}%"></div>
+          <div class="trop-tard" style:width="{tooLatePercentage}%"></div>
         </div>
 
         <div class="legend-conformite">

@@ -1,125 +1,125 @@
 export type SeedPieceJointe = {
-  /** number_demarches_simplifiées du dossier, pour le retrouver en DB */
+  /** demarche_numerique_number du dossier, pour le retrouver en DB */
   dossier: string;
-  nom: string;
+  name: string;
   media_type: string;
-  DS_createdAt: Date;
+  demarche_numerique_created_at: Date;
 };
 
 export const SEED_PIECES_JOINTES_PETITIONNAIRE: SeedPieceJointe[] = [
   // D1 — Parc éolien des Monts d'Arrée (Bretagne)
   {
     dossier: "99000001",
-    nom: "etude-impact-chiropteres.pdf",
+    name: "etude-impact-chiropteres.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-01-12"),
+    demarche_numerique_created_at: new Date("2026-01-12"),
   },
   {
     dossier: "99000001",
-    nom: "protocole-suivi-avifaune.pdf",
+    name: "protocole-suivi-avifaune.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-01-12"),
+    demarche_numerique_created_at: new Date("2026-01-12"),
   },
   {
     dossier: "99000001",
-    nom: "plan-implantation-eoliennes.pdf",
+    name: "plan-implantation-eoliennes.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-01-13"),
+    demarche_numerique_created_at: new Date("2026-01-13"),
   },
 
   // D3 — Rénovation de façade, nids d'hirondelles (Thionville)
   {
     dossier: "99000003",
-    nom: "inventaire-nids-hirondelles.pdf",
+    name: "inventaire-nids-hirondelles.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-02-03"),
+    demarche_numerique_created_at: new Date("2026-02-03"),
   },
   {
     dossier: "99000003",
-    nom: "mesures-compensation-nidification.pdf",
+    name: "mesures-compensation-nidification.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-02-04"),
+    demarche_numerique_created_at: new Date("2026-02-04"),
   },
 
   // D5 — Transport et relâcher d'espèces protégées (Centre de soins LPO)
   {
     dossier: "99000005",
-    nom: "protocole-soins-transport-faune.pdf",
+    name: "protocole-soins-transport-faune.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-02-18"),
+    demarche_numerique_created_at: new Date("2026-02-18"),
   },
 
   // D6 — Déviation de la RD 73 (Yvetot / Valliquerville)
   {
     dossier: "99000006",
-    nom: "etude-impact-faune-flore.pdf",
+    name: "etude-impact-faune-flore.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-03-02"),
+    demarche_numerique_created_at: new Date("2026-03-02"),
   },
   {
     dossier: "99000006",
-    nom: "dossier-concertation-publique.pdf",
+    name: "dossier-concertation-publique.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-03-02"),
+    demarche_numerique_created_at: new Date("2026-03-02"),
   },
   {
     dossier: "99000006",
-    nom: "plan-passages-faune.pdf",
+    name: "plan-passages-faune.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-03-03"),
+    demarche_numerique_created_at: new Date("2026-03-03"),
   },
 
   // D8 — Réhabilitation du clocher, nid de cigognes (Provins)
   {
     dossier: "99000008",
-    nom: "diagnostic-clocher-cigognes.pdf",
+    name: "diagnostic-clocher-cigognes.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-03-19"),
+    demarche_numerique_created_at: new Date("2026-03-19"),
   },
   {
     dossier: "99000008",
-    nom: "plan-plateforme-nidification.pdf",
+    name: "plan-plateforme-nidification.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-03-20"),
+    demarche_numerique_created_at: new Date("2026-03-20"),
   },
 
   // D10 — Aménagement de lotissement (Ploufragan)
   {
     dossier: "99000010",
-    nom: "démo - voie verte cyclable rennes-dinan.jpg",
+    name: "démo - voie verte cyclable rennes-dinan.jpg",
     media_type: "image/jpeg",
-    DS_createdAt: new Date("2026-04-06"),
+    demarche_numerique_created_at: new Date("2026-04-06"),
   },
   {
     dossier: "99000010",
-    nom: "Etat des lieux écologique V2.pdf",
+    name: "Etat des lieux écologique V2.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-04-07"),
+    demarche_numerique_created_at: new Date("2026-04-07"),
   },
   {
     dossier: "99000010",
-    nom: "démo - forêt sur le lieu de l'aménagement.jpg",
+    name: "démo - forêt sur le lieu de l'aménagement.jpg",
     media_type: "image/jpeg",
-    DS_createdAt: new Date("2026-04-07"),
+    demarche_numerique_created_at: new Date("2026-04-07"),
   },
 
   // D11 — Agrandissement pistes cyclables Rennes-Dinan
   {
     dossier: "99000011",
-    nom: "démo - voie verte cyclable rennes-dinan.jpg",
+    name: "démo - voie verte cyclable rennes-dinan.jpg",
     media_type: "image/jpeg",
-    DS_createdAt: new Date("2026-04-15"),
+    demarche_numerique_created_at: new Date("2026-04-15"),
   },
   {
     dossier: "99000011",
-    nom: "Etat des lieux écologique V2.pdf",
+    name: "Etat des lieux écologique V2.pdf",
     media_type: "application/pdf",
-    DS_createdAt: new Date("2026-04-16"),
+    demarche_numerique_created_at: new Date("2026-04-16"),
   },
   {
     dossier: "99000011",
-    nom: "démo - forêt sur le lieu de l'aménagement.jpg",
+    name: "démo - forêt sur le lieu de l'aménagement.jpg",
     media_type: "image/jpeg",
-    DS_createdAt: new Date("2026-04-16"),
+    demarche_numerique_created_at: new Date("2026-04-16"),
   },
 ];

@@ -27,8 +27,6 @@ export async function downloadNewFichiersEspecesImpactees(
   const candidateFichiersEspecesImpactees: Map<DossierDS88444["number"], DSFile[]> =
     findCandidateFichiersToDownload(dossiers, champDescriptorId);
 
-  // console.log('candidateFichiersImpactées', candidateFichiersImpactées)
-
   if (candidateFichiersEspecesImpactees.size >= 1) {
     // keep only the first file and ignore the others
 

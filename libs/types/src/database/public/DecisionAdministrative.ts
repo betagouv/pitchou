@@ -4,75 +4,75 @@
 import type { DossierId } from "./Dossier";
 import type { FileId } from "./File";
 
-/** Identifier type for public.décision_administrative */
-export type DecisionAdministrativeId = string & { __brand: "public.décision_administrative" };
+/** Identifier type for public.decision_administrative */
+export type DecisionAdministrativeId = string & { __brand: "public.decision_administrative" };
 
-/** Represents the table public.décision_administrative */
+/** Represents the table public.decision_administrative */
 export default interface DecisionAdministrative {
   id: DecisionAdministrativeId;
 
-  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
+  /** Reference to the dossier associated with this decision administrative. A dossier can have several decisions administratives during its review (e.g. "arrêté préfectoral", "arrêté ministériel"). */
   dossier: DossierId;
 
-  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
-  numéro: string | null;
+  /** Official number of the decision administrative. This number is generally assigned by the administration and formally identifies the decision in administrative systems. */
+  number: string | null;
 
-  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
+  /** Type of decision administrative. Examples include: "Arrêté refus", "Arrêté modification", "Arrêté dérogation", "Autre décision". */
   type: string | null;
 
-  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
-  date_signature: Date | null;
+  /** Date on which the decision administrative was signed by the competent authority. This date marks the decision taking effect and the start of the beneficiary's obligations. */
+  signature_date: Date | null;
 
-  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
-  date_fin_obligations: Date | null;
+  /** End date of the obligations imposed by the decision administrative. This date marks the end of the decision's validity period and its associated prescriptions. */
+  obligations_end_date: Date | null;
 
-  /** Référence vers le fichier contenant la décision administrative. */
+  /** Reference to the fichier containing the decision administrative. */
   fichier: FileId | null;
 }
 
-/** Represents the initializer for the table public.décision_administrative */
+/** Represents the initializer for the table public.decision_administrative */
 export interface DecisionAdministrativeInitializer {
   /** Default value: gen_random_uuid() */
   id?: DecisionAdministrativeId;
 
-  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
+  /** Reference to the dossier associated with this decision administrative. A dossier can have several decisions administratives during its review (e.g. "arrêté préfectoral", "arrêté ministériel"). */
   dossier: DossierId;
 
-  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
-  numéro?: string | null;
+  /** Official number of the decision administrative. This number is generally assigned by the administration and formally identifies the decision in administrative systems. */
+  number?: string | null;
 
-  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
+  /** Type of decision administrative. Examples include: "Arrêté refus", "Arrêté modification", "Arrêté dérogation", "Autre décision". */
   type?: string | null;
 
-  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
-  date_signature?: Date | null;
+  /** Date on which the decision administrative was signed by the competent authority. This date marks the decision taking effect and the start of the beneficiary's obligations. */
+  signature_date?: Date | null;
 
-  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
-  date_fin_obligations?: Date | null;
+  /** End date of the obligations imposed by the decision administrative. This date marks the end of the decision's validity period and its associated prescriptions. */
+  obligations_end_date?: Date | null;
 
-  /** Référence vers le fichier contenant la décision administrative. */
+  /** Reference to the fichier containing the decision administrative. */
   fichier?: FileId | null;
 }
 
-/** Represents the mutator for the table public.décision_administrative */
+/** Represents the mutator for the table public.decision_administrative */
 export interface DecisionAdministrativeMutator {
   id?: DecisionAdministrativeId;
 
-  /** Référence vers le dossier associé à cette décision administrative. Un dossier peut avoir plusieurs décisions administratives au cours de son instruction (ex: arrêté préfectoral, arrêté ministériel, etc.). */
+  /** Reference to the dossier associated with this decision administrative. A dossier can have several decisions administratives during its review (e.g. "arrêté préfectoral", "arrêté ministériel"). */
   dossier?: DossierId;
 
-  /** Numéro officiel de la décision administrative. Ce numéro est généralement attribué par l'administration et permet d'identifier formellement la décision dans les systèmes administratifs. */
-  numéro?: string | null;
+  /** Official number of the decision administrative. This number is generally assigned by the administration and formally identifies the decision in administrative systems. */
+  number?: string | null;
 
-  /** Type de décision administrative. Peut être par exemple : Arrêté refus, Arrêté modification, Arrêté dérogation, Autre décision... */
+  /** Type of decision administrative. Examples include: "Arrêté refus", "Arrêté modification", "Arrêté dérogation", "Autre décision". */
   type?: string | null;
 
-  /** Date de signature de la décision administrative par l'autorité compétente. Cette date marque l'entrée en vigueur de la décision et le début des obligations pour le bénéficiaire. */
-  date_signature?: Date | null;
+  /** Date on which the decision administrative was signed by the competent authority. This date marks the decision taking effect and the start of the beneficiary's obligations. */
+  signature_date?: Date | null;
 
-  /** Date de fin des obligations imposées par la décision administrative. Cette date marque la fin de la période de validité de la décision et des prescriptions associées. */
-  date_fin_obligations?: Date | null;
+  /** End date of the obligations imposed by the decision administrative. This date marks the end of the decision's validity period and its associated prescriptions. */
+  obligations_end_date?: Date | null;
 
-  /** Référence vers le fichier contenant la décision administrative. */
+  /** Reference to the fichier containing the decision administrative. */
   fichier?: FileId | null;
 }

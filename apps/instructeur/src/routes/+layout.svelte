@@ -59,7 +59,9 @@
   </div>
 </main>
 
-<Footer résultatsSynchronisationDS88444={store.résultatsSynchronisationDS88444} />
+<Footer
+  demarcheNumerique88444SynchronizationResults={store.demarcheNumerique88444SynchronizationResults}
+/>
 
 <style lang="scss">
   // Sticky footer: keep the footer at the bottom when the content is shorter than the viewport

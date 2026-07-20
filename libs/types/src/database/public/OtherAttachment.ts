@@ -4,12 +4,12 @@
 import type { DossierId } from "./Dossier";
 import type { FileId } from "./File";
 
-/** Identifier type for public.attachment_autre */
-export type AttachmentAutreId = string & { __brand: "public.attachment_autre" };
+/** Identifier type for public.other_attachment */
+export type OtherAttachmentId = string & { __brand: "public.other_attachment" };
 
-/** Represents the table public.attachment_autre */
-export default interface AttachmentAutre {
-  id: AttachmentAutreId;
+/** Represents the table public.other_attachment */
+export default interface OtherAttachment {
+  id: OtherAttachmentId;
 
   dossier: DossierId;
 
@@ -22,10 +22,10 @@ export default interface AttachmentAutre {
   created_at: Date;
 }
 
-/** Represents the initializer for the table public.attachment_autre */
-export interface AttachmentAutreInitializer {
+/** Represents the initializer for the table public.other_attachment */
+export interface OtherAttachmentInitializer {
   /** Default value: gen_random_uuid() */
-  id?: AttachmentAutreId;
+  id?: OtherAttachmentId;
 
   dossier: DossierId;
 
@@ -39,9 +39,9 @@ export interface AttachmentAutreInitializer {
   created_at?: Date;
 }
 
-/** Represents the mutator for the table public.attachment_autre */
-export interface AttachmentAutreMutator {
-  id?: AttachmentAutreId;
+/** Represents the mutator for the table public.other_attachment */
+export interface OtherAttachmentMutator {
+  id?: OtherAttachmentId;
 
   dossier?: DossierId;
 

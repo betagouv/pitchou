@@ -13,8 +13,8 @@ export async function createPersonne(
   overrides: Partial<PersonneInitializer> = {},
 ): Promise<CreatedPersonne> {
   const email = overrides.email ?? `${randomId("personne")}@test.fr`;
-  const codeAcces = overrides["code_accès"] ?? randomId("code");
-  const insert: PersonneInitializer = { ...overrides, email, code_accès: codeAcces };
+  const codeAcces = overrides.access_code ?? randomId("code");
+  const insert: PersonneInitializer = { ...overrides, email, access_code: codeAcces };
   const [row] = await db("personne").insert(insert).returning("id");
   return { id: row.id, email, codeAcces };
 }

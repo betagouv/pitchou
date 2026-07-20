@@ -45,7 +45,7 @@ describe("deleteDecisionAdministrative", () => {
 
   it("skips fichier cleanup when the décision had no attached fichier", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("décision_administrative", [{ fichier: null }])
+      .selectResolvesForTable("decision_administrative", [{ fichier: null }])
       .build();
     // @ts-ignore
     await deleteDecisionAdministrative("some-id", db.knex);
@@ -54,7 +54,7 @@ describe("deleteDecisionAdministrative", () => {
 
   it("cleans up the attached fichier via deleteFichiersWithoutOtherReferences", async () => {
     const db = fakeDatabase()
-      .selectResolvesForTable("décision_administrative", [{ fichier: fId }])
+      .selectResolvesForTable("decision_administrative", [{ fichier: fId }])
       .build();
     // @ts-ignore
     await deleteDecisionAdministrative("some-id", db.knex);
@@ -63,10 +63,10 @@ describe("deleteDecisionAdministrative", () => {
 });
 
 const baseDecision = {
-  numéro: "1",
+  number: "1",
   type: "arrete-prefectoral",
-  date_signature: new Date(0),
-  date_fin_obligations: new Date(0),
+  signature_date: new Date(0),
+  obligations_end_date: new Date(0),
   dossier: dossierId,
 };
 
@@ -78,7 +78,7 @@ describe("addDecisionAdministrativeWithFichier", () => {
     await addDecisionAdministrativeWithFichier(baseDecision, db.knex);
     expect(storeFichier).not.toHaveBeenCalled();
     expect(db.insert).toHaveBeenCalledWith(
-      expect.objectContaining({ dossier: dossierId, numéro: "1" }),
+      expect.objectContaining({ dossier: dossierId, number: "1" }),
     );
     // The inserted payload must not carry a fichier id.
     expect(db.insert.mock.calls[0][0]).not.toHaveProperty("fichier");
@@ -94,7 +94,7 @@ describe("addDecisionAdministrativeWithFichier", () => {
       {
         ...baseDecision,
         fichier_base64: {
-          nom: "arrete.pdf",
+          name: "arrete.pdf",
           media_type: "application/pdf",
           contenuBase64: Buffer.from("HELLO").toString("base64"),
         },
@@ -104,10 +104,10 @@ describe("addDecisionAdministrativeWithFichier", () => {
 
     expect(storeFichier).toHaveBeenCalledTimes(1);
     const [storeArg] = storeFichier.mock.calls[0];
-    expect(storeArg.nom).toBe("arrete.pdf");
+    expect(storeArg.name).toBe("arrete.pdf");
     expect(storeArg.media_type).toBe("application/pdf");
-    expect(Buffer.isBuffer(storeArg.contenu)).toBe(true);
-    expect((storeArg.contenu as Buffer).toString("utf8")).toBe("HELLO");
+    expect(Buffer.isBuffer(storeArg.content)).toBe(true);
+    expect((storeArg.content as Buffer).toString("utf8")).toBe("HELLO");
 
     expect(db.insert).toHaveBeenCalledWith(expect.objectContaining({ fichier: fId }));
   });
@@ -133,7 +133,7 @@ describe("updateDecisionAdministrative", () => {
   it("uploads the new fichier and deletes the previous one (best-effort cleanup)", async () => {
     storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
-      .selectResolvesForTable("décision_administrative", [{ fichier: oldFichierId }])
+      .selectResolvesForTable("decision_administrative", [{ fichier: oldFichierId }])
       .build();
 
     await updateDecisionAdministrative(
@@ -141,7 +141,7 @@ describe("updateDecisionAdministrative", () => {
         ...baseDecision,
         id: daId,
         fichier_base64: {
-          nom: "v2.pdf",
+          name: "v2.pdf",
           media_type: "application/pdf",
           contenuBase64: Buffer.from("NEW").toString("base64"),
         },
@@ -157,7 +157,7 @@ describe("updateDecisionAdministrative", () => {
   it("does not call deleteFichiers when there was no previous fichier on the décision", async () => {
     storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
-      .selectResolvesForTable("décision_administrative", [{ fichier: null }])
+      .selectResolvesForTable("decision_administrative", [{ fichier: null }])
       .build();
 
     await updateDecisionAdministrative(
@@ -165,7 +165,7 @@ describe("updateDecisionAdministrative", () => {
         ...baseDecision,
         id: daId,
         fichier_base64: {
-          nom: "v2.pdf",
+          name: "v2.pdf",
           media_type: "application/pdf",
           contenuBase64: Buffer.from("NEW").toString("base64"),
         },

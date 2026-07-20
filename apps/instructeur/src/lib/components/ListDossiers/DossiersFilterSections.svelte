@@ -16,35 +16,40 @@
   type Props = {
     draft: DossiersQuery;
     dossiers: DossierSummary[];
-    relationSuivis?: PitchouState["relationSuivis"];
+    followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
   };
 
-  let { draft = $bindable(), dossiers, relationSuivis, showFilterInstructeurice }: Props = $props();
+  let {
+    draft = $bindable(),
+    dossiers,
+    followRelations,
+    showFilterInstructeurice,
+  }: Props = $props();
 
   const activiteOptions = $derived(
     listAvailableActivites(dossiers).map((activite) => ({ value: activite, label: activite })),
   );
   const departementOptions = $derived(
-    listAvailableDepartements(dossiers).map(({ code, nom }) => ({
+    listAvailableDepartements(dossiers).map(({ code, name }) => ({
       value: code,
-      label: `${code} — ${nom}`,
+      label: `${code} — ${name}`,
     })),
   );
   const instructeurOptions = $derived(
-    listAvailableInstructeurs(relationSuivis).map((email) => ({ value: email, label: email })),
+    listAvailableInstructeurs(followRelations).map((email) => ({ value: email, label: email })),
   );
 
   // Named instructeurs and the « sans instructeur·ice » sentinel share the same array.
   const selectedInstructeurs = $derived(
     draft.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR),
   );
-  const sansInstructeurice = $derived(draft.instructeur.includes(WITHOUT_INSTRUCTEUR));
+  const withoutInstructeur = $derived(draft.instructeur.includes(WITHOUT_INSTRUCTEUR));
 
   function setInstructeurs(values: string[]) {
-    draft.instructeur = [...values, ...(sansInstructeurice ? [WITHOUT_INSTRUCTEUR] : [])];
+    draft.instructeur = [...values, ...(withoutInstructeur ? [WITHOUT_INSTRUCTEUR] : [])];
   }
-  function toggleSansInstructeurice(checked: boolean) {
+  function toggleWithoutInstructeur(checked: boolean) {
     const named = selectedInstructeurs;
     draft.instructeur = checked ? [...named, WITHOUT_INSTRUCTEUR] : named;
   }
@@ -87,8 +92,8 @@
       <input
         type="checkbox"
         id="sans-instructeurice"
-        checked={sansInstructeurice}
-        onchange={(e) => toggleSansInstructeurice(e.currentTarget.checked)}
+        checked={withoutInstructeur}
+        onchange={(e) => toggleWithoutInstructeur(e.currentTarget.checked)}
       />
       <label class="fr-label" for="sans-instructeurice">Dossiers sans instructeur·ice</label>
     </div>

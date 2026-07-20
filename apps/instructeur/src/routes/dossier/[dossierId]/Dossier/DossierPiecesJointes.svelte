@@ -34,7 +34,7 @@
   }
 
   function nomPieceJointe(pieceJointe: PieceJointeSimple) {
-    return pieceJointe.description?.nom || pieceJointe.label;
+    return pieceJointe.description?.name || pieceJointe.label;
   }
 
   function detailsPieceJointe(pieceJointe: PieceJointeSimple) {
@@ -45,8 +45,8 @@
       details.push(description.media_type);
     }
 
-    if (typeof description?.taille === "number") {
-      details.push(byteFormat.format(description.taille));
+    if (typeof description?.size === "number") {
+      details.push(byteFormat.format(description.size));
     }
 
     if (pieceJointe.date) {
@@ -71,7 +71,7 @@
         pieces.push({
           label: `Saisine - ${expert}`,
           description: avisExpert.saisine_fichier_description,
-          date: avisExpert.date_saisine,
+          date: avisExpert.saisine_date,
           labelDate: "Date de saisine",
           url: avisExpert.saisine_fichier_url,
         });
@@ -81,7 +81,7 @@
         pieces.push({
           label: `Avis - ${expert}`,
           description: avisExpert.avis_fichier_description,
-          date: avisExpert.date_avis,
+          date: avisExpert.avis_date,
           labelDate: "Date de l'avis",
           url: avisExpert.avis_fichier_url,
         });
@@ -92,16 +92,16 @@
   );
 
   const piecesJointesArretes: PieceJointeSimple[] = $derived(
-    (dossier.décisionsAdministratives ?? []).flatMap((decision) => {
+    (dossier.decisionsAdministratives ?? []).flatMap((decision) => {
       if (!decision.fichier_url) {
         return [];
       }
 
       return [
         {
-          label: `${decision.type || "Décision administrative"}${decision.numéro ? ` ${decision.numéro}` : ""}`,
+          label: `${decision.type || "Décision administrative"}${decision.number ? ` ${decision.number}` : ""}`,
           description: decision.fichier_description,
-          date: decision.date_signature,
+          date: decision.signature_date,
           labelDate: "Date de signature",
           url: decision.fichier_url,
         },
@@ -110,7 +110,7 @@
   );
 
   const piecesJointesAutres: PieceJointeSimple[] = $derived(
-    dossier.attachmentAutres.map((attachment) => ({
+    dossier.otherAttachments.map((attachment) => ({
       label: attachment.type,
       description: attachment.fichier_description,
       date: attachment.attachment_date,
@@ -146,18 +146,18 @@
         Voir dans l'onglet Projet
       </button>
     </div>
-    {#if dossier.piècesJointesPétitionnaires.length === 0}
+    {#if dossier.piecesJointesPetitionnaires.length === 0}
       <p>Aucune pièce jointe n'a été déposée par le pétitionnaire.</p>
     {:else}
       <ul class="list-cards-pieces-jointes">
-        {#each dossier.piècesJointesPétitionnaires as { url, DS_createdAt, nom, media_type, taille }}
+        {#each dossier.piecesJointesPetitionnaires as { url, demarche_numerique_created_at, name, media_type, size }}
           <li class="card-piece-jointe">
             <div class="piece-jointe-fichier">
-              <a class="fr-link fr-link--download" href={url} title={nom} data-sveltekit-reload>
-                {nom || "(fichier sans nom)"}
+              <a class="fr-link fr-link--download" href={url} title={name} data-sveltekit-reload>
+                {name || "(fichier sans nom)"}
                 <span class="fr-link__detail">
-                  {media_type} - {byteFormat.format(taille)}{DS_createdAt
-                    ? ` - Date de dépôt : ${formatDateAbsolute(DS_createdAt)}`
+                  {media_type} - {byteFormat.format(size)}{demarche_numerique_created_at
+                    ? ` - Date de dépôt : ${formatDateAbsolute(demarche_numerique_created_at)}`
                     : ""}
                 </span>
               </a>

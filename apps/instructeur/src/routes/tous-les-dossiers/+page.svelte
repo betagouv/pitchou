@@ -26,7 +26,7 @@
 
   const email = $derived(store.identité?.email);
   const dossiers = $derived([...store.dossierSummaries.values()]);
-  const relationSuivis = $derived(store.relationSuivis);
+  const followRelations = $derived(store.followRelations);
   const services = $derived(store.identité?.groupesInstructeurs ?? []);
   const recentSearches = $derived(store.recentSearches ?? []);
   const notificationByDossier = $derived(store.notificationByDossier);
@@ -35,7 +35,7 @@
 <TousLesDossiers
   {email}
   {dossiers}
-  {relationSuivis}
+  {followRelations}
   {services}
   {recentSearches}
   {notificationByDossier}

@@ -3,10 +3,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
 import { getPersonneByDossierCap } from "./personne.ts";
 
-import type {
-  default as Notification,
-  NotificationInitializer,
-} from "@pitchou/types/database/public/Notification.ts";
+import type Notification from "@pitchou/types/database/public/Notification.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 /**
@@ -30,7 +27,7 @@ export async function getNotificationsForPersonneFromCap(
  */
 export async function updateNotificationDossierFromCap(
   cap: CapDossier["cap"],
-  notification: NotificationInitializer,
+  notification: Pick<Notification, "dossier" | "viewed">,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   const personne = await getPersonneByDossierCap(cap);
@@ -39,7 +36,7 @@ export async function updateNotificationDossierFromCap(
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
   }
 
-  const notificationToUpdate = { vue: notification.vue };
+  const notificationToUpdate = { viewed: notification.viewed };
 
   return await databaseConnection("notification").update(notificationToUpdate).where({
     dossier: notification.dossier,

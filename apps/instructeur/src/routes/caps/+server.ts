@@ -26,14 +26,14 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.recupérerDossierComplet) {
     ret.recupérerDossierComplet = `/dossier/:dossierId?cap=${capBundle.recupérerDossierComplet}`;
   }
-  if (capBundle.listerRelationSuivi) {
-    ret.listerRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.listerRelationSuivi}`;
+  if (capBundle.listFollowRelations) {
+    ret.listFollowRelations = `/dossiers/relation-suivis?cap=${capBundle.listFollowRelations}`;
   }
-  if (capBundle.modifierRelationSuivi) {
-    ret.modifierRelationSuivi = `/dossiers/relation-suivis?cap=${capBundle.modifierRelationSuivi}`;
+  if (capBundle.updateFollowRelation) {
+    ret.updateFollowRelation = `/dossiers/relation-suivis?cap=${capBundle.updateFollowRelation}`;
   }
-  if (capBundle.listerÉvènementsPhaseDossier) {
-    ret.listerÉvènementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerÉvènementsPhaseDossier}`;
+  if (capBundle.listerEvenementsPhaseDossier) {
+    ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }
   if (capBundle.listerMessages) {
     ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`;
@@ -54,11 +54,11 @@ export const GET: RequestHandler = async ({ url }) => {
     ret.addOrUpdateControle = `/controle?cap=${cap}`;
     ret.deleteControle = `/controle/:controleId?cap=${cap}`;
     ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
-    ret.addAttachmentAutre = `/attachment-autre?cap=${cap}`;
+    ret.addOtherAttachment = `/attachment-autre?cap=${cap}`;
     ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
   }
-  if (capBundle.créerÉvènementMetrique) {
-    ret.créerÉvènementMetrique = `/api/metriques/evenements?cap=${capBundle.créerÉvènementMetrique}`;
+  if (capBundle.creerEvenementMetrique) {
+    ret.creerEvenementMetrique = `/api/metriques/evenements?cap=${capBundle.creerEvenementMetrique}`;
   }
   if (capBundle.listRecentSearches) {
     ret.listRecentSearches = `/api/metriques/dernieres-recherches?cap=${capBundle.listRecentSearches}`;

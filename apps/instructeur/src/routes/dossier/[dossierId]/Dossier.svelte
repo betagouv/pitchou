@@ -48,13 +48,13 @@
   function getEspecesImpactes(
     dossier: DossierFull,
   ): ReturnType<typeof especesImpacteesFromFichierOdsArrayBuffer> | undefined {
-    const especesImpactees = dossier.espècesImpactées;
+    const especesImpactees = dossier.especesImpactees;
 
     if (!especesImpactees || !especesImpactees.url) {
       return undefined;
     }
 
-    const extension = "." + especesImpactees.nom?.split(".").pop();
+    const extension = "." + especesImpactees.name?.split(".").pop();
 
     if (!EXTENSIONS_ATTENDUES.includes(extension)) {
       return Promise.reject(
@@ -73,9 +73,9 @@
     initialActiveTab: Tab;
     messages: any;
     email: string;
-    personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
+    dossierFollowers: NonNullable<Personne["email"]>[];
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
-    notification?: Pick<Notification, "vue" | "date_dernière_mise_à_jour">;
+    notification?: Pick<Notification, "viewed" | "updated_at">;
   };
 
   let {
@@ -83,7 +83,7 @@
     initialActiveTab,
     messages,
     email,
-    personnesQuiSuiventDossier,
+    dossierFollowers,
     currentDossierFollowedByCurrentInstructeur,
     notification,
   }: Props = $props();
@@ -95,10 +95,10 @@
   );
 
   onMount(() => {
-    if (notification?.vue === false) {
+    if (notification?.viewed === false) {
       // When the dossier has a notification not seen by the current instructrice,
       // it disappears when the dossier is consulted.
-      updateNotificationForDossier({ dossier: dossier.id, vue: true });
+      updateNotificationForDossier({ dossier: dossier.id, viewed: true });
     }
   });
 
@@ -117,7 +117,7 @@
 
 <svelte:head>
   <title
-    >{`${dossier.nom} — Dossier n°${dossier.number_demarches_simplifiées ?? "non renseigné"} — Pitchou`}</title
+    >{`${dossier.name} — Dossier n°${dossier.demarche_numerique_number ?? "non renseigné"} — Pitchou`}</title
   >
 </svelte:head>
 
@@ -252,7 +252,7 @@
       >
         <DossierInstruction
           {dossier}
-          {personnesQuiSuiventDossier}
+          {dossierFollowers}
           {currentDossierFollowedByCurrentInstructeur}
           {email}
         ></DossierInstruction>
@@ -265,7 +265,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierProjet {dossier} espècesImpactées={especesImpactees}></DossierProjet>
+        <DossierProjet {dossier} {especesImpactees}></DossierProjet>
       </div>
       <div
         id="tabpanel-porteur-de-projet-panel"
@@ -325,8 +325,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierGenerationDocuments {dossier} espècesImpactées={especesImpactees}
-        ></DossierGenerationDocuments>
+        <DossierGenerationDocuments {dossier} {especesImpactees}></DossierGenerationDocuments>
       </div>
     </div>
   </div>

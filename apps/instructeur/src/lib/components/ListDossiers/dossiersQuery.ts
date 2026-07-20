@@ -8,7 +8,7 @@ import type { PitchouState } from "$lib/state/store.svelte.ts";
 /** Sentinel value for the « sans instructeur·ice » option of the instructeur filter */
 export const WITHOUT_INSTRUCTEUR = "sans-instructeur";
 
-export type ActivitePrincipale = NonNullable<DossierSummary["activité_principale"]>;
+export type ActivitePrincipale = NonNullable<DossierSummary["main_activite"]>;
 
 /** Dossier date the « dates » filter applies to */
 export type DateField = "deposit" | "phaseStart" | "lastModified";
@@ -58,7 +58,7 @@ export const DATE_FIELD_LABEL: Record<DateField, string> = {
  */
 export type DossiersContext = {
   notificationByDossier: PitchouState["notificationByDossier"];
-  relationSuivis?: PitchouState["relationSuivis"];
+  followRelations?: PitchouState["followRelations"];
 };
 
 /**

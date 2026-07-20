@@ -10,5 +10,5 @@ test("l'instructeur·rice se connecte via ?secret et voit son dossier", async ({
   await page.goto(`/?secret=${codeAcces}`);
 
   await expect(page.getByRole("heading", { name: /Tableau de suivi/ })).toBeVisible();
-  await expect(page.getByText(dossier.nom!)).toBeVisible();
+  await expect(page.getByText(dossier.name!)).toBeVisible();
 });

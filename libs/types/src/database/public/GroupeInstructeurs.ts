@@ -8,9 +8,9 @@ export type GroupeInstructeursId = string & { __brand: "public.groupe_instructeu
 export default interface GroupeInstructeurs {
   id: GroupeInstructeursId;
 
-  nom: string;
+  name: string;
 
-  numéro_démarche: number;
+  demarche_number: number;
 }
 
 /** Represents the initializer for the table public.groupe_instructeurs */
@@ -18,16 +18,16 @@ export interface GroupeInstructeursInitializer {
   /** Default value: gen_random_uuid() */
   id?: GroupeInstructeursId;
 
-  nom: string;
+  name: string;
 
-  numéro_démarche: number;
+  demarche_number: number;
 }
 
 /** Represents the mutator for the table public.groupe_instructeurs */
 export interface GroupeInstructeursMutator {
   id?: GroupeInstructeursId;
 
-  nom?: string;
+  name?: string;
 
-  numéro_démarche?: number;
+  demarche_number?: number;
 }

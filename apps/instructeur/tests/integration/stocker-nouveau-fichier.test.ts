@@ -17,15 +17,15 @@ async function readS3Body(key: string): Promise<Buffer> {
 test("storeNewFichier insère un file et stocke l'objet sur S3", async () => {
   const bytes = Buffer.from("hello s3 happy path");
   const file = await storeNewFichier(
-    { nom: "saisine.pdf", contenu: bytes, media_type: "application/pdf" },
+    { name: "saisine.pdf", content: bytes, media_type: "application/pdf" },
     db,
   );
 
   const files = await db("file").select("*");
   expect(files).toHaveLength(1);
-  expect(files[0].nom).toBe("saisine.pdf");
+  expect(files[0].name).toBe("saisine.pdf");
   expect(files[0].media_type).toBe("application/pdf");
-  expect(String(files[0].taille)).toBe(String(bytes.byteLength));
+  expect(String(files[0].size)).toBe(String(bytes.byteLength));
   expect(files[0].id).toBe(file.id);
 
   const onS3 = await readS3Body(`files/${file.id}`);
@@ -34,7 +34,7 @@ test("storeNewFichier insère un file et stocke l'objet sur S3", async () => {
 
 test("storeNewFichier propage le content-type sur l'objet S3", async () => {
   const file = await storeNewFichier(
-    { nom: "image.png", contenu: Buffer.from("PNG"), media_type: "image/png" },
+    { name: "image.png", content: Buffer.from("PNG"), media_type: "image/png" },
     db,
   );
 

@@ -1,4 +1,4 @@
-import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
+import type { DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
 import { WITHOUT_INSTRUCTEUR, type DossiersQuery } from "./dossiersQuery.ts";
 
 /** Builds the search/filter analytics event from the resulting query */
@@ -6,39 +6,39 @@ export function buildSearchEvent(
   query: DossiersQuery,
   resultCount: number,
   context: { instructeurCount: number; email: string },
-): EvenementRechercheDossiersDetails {
-  const filtres: EvenementRechercheDossiersDetails["filtres"] = {
-    nouveauté: query.nouveaute !== "",
+): DossierSearchEventDetails {
+  const filters: DossierSearchEventDetails["filters"] = {
+    nouveaute: query.nouveaute !== "",
   };
 
   if (query.text.trim()) {
-    filtres.texte = query.text;
+    filters.text = query.text;
   }
   if (query.phase.length) {
-    filtres.phases = query.phase;
+    filters.phases = query.phase;
   }
   if (query.activite.length) {
-    filtres.activitésPrincipales = query.activite;
+    filters.activitesPrincipales = query.activite;
   }
   if (query.prochaineAction.length) {
-    filtres.prochaineActionAttenduePar = query.prochaineAction;
+    filters.nextActionExpectedFrom = query.prochaineAction;
   } else if (query.actionInstructeur) {
-    filtres.prochaineActionAttenduePar = ["Instructeur"];
+    filters.nextActionExpectedFrom = ["Instructeur"];
   }
   if (query.departement.length) {
-    filtres.départements = query.departement;
+    filters.departements = query.departement;
   }
   if (query.instructeur.includes(WITHOUT_INSTRUCTEUR)) {
-    filtres.sansInstructeurice = true;
+    filters.withoutInstructeur = true;
   }
   const selectedEmails = query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR);
   if (selectedEmails.length) {
-    filtres.suiviPar = {
-      nombreSéléctionnées: selectedEmails.length,
-      nombreTotal: context.instructeurCount,
-      inclusSoiMême: selectedEmails.includes(context.email),
+    filters.followedBy = {
+      selectedCount: selectedEmails.length,
+      totalCount: context.instructeurCount,
+      includesSelf: selectedEmails.includes(context.email),
     };
   }
 
-  return { filtres, nombreRésultats: resultCount };
+  return { filters, resultCount };
 }

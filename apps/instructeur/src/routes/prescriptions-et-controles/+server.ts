@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   for (const prescription of prescriptionData) {
     const dossierId = await getDossierIdFromDecisionAdministrative(
-      prescription.décision_administrative,
+      prescription.decision_administrative,
     );
     await requireDossierAccessByCap(dossierId, cap);
   }

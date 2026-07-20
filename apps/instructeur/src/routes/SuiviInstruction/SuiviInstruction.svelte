@@ -27,7 +27,7 @@
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import {
     sendEvenement,
-    sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier,
+    sendDossierSearchEvent as sendDossierSearchAnalyticsEvent,
   } from "$lib/shared/aarri.ts";
 
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -40,13 +40,13 @@
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
-  import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
+  import type { DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
 
   type Props = {
     email: string;
     dossiers?: DossierSummary[];
-    relationSuivis: PitchouState["relationSuivis"];
-    activitésPrincipales?: string[] | undefined;
+    followRelations: PitchouState["followRelations"];
+    activitesPrincipales?: string[] | undefined;
     selectedSortId?: TableSort["id"] | undefined;
     selectedFilters?: Partial<FiltersLocalStorage>;
     rememberSortFilters: any;
@@ -55,8 +55,8 @@
   let {
     email,
     dossiers = [],
-    relationSuivis,
-    activitésPrincipales: activitesPrincipales = [],
+    followRelations,
+    activitesPrincipales = [],
     selectedSortId = undefined,
     selectedFilters = {},
     rememberSortFilters,
@@ -64,10 +64,10 @@
 
   //$inspect('dossiers', dossiers)
   //$inspect('selectedFilters', selectedFilters)
-  $inspect("relationSuivis", relationSuivis);
+  $inspect("followRelations", followRelations);
 
   let dossierIdsFollowedByNoInstructeur = $derived.by(() => {
-    if (!relationSuivis) {
+    if (!followRelations) {
       return new SvelteSet();
     }
 
@@ -75,7 +75,7 @@
     let dossierIdsWithoutFollow = new Set(dossiers.map((d) => d.id));
 
     // remove the ids followed by at least one instructeur.rice
-    for (const dossierIds of relationSuivis.values()) {
+    for (const dossierIds of followRelations.values()) {
       dossierIdsWithoutFollow = dossierIdsWithoutFollow.difference(dossierIds);
     }
 
@@ -87,11 +87,11 @@
   //$inspect('selectedDossiers', selectedDossiers)
 
   $effect(() => {
-    console.log("relationSuivis effect", relationSuivis);
+    console.log("followRelations effect", followRelations);
   });
 
   let dossierIdsFollowedByCurrentInstructeur: Set<Dossier["id"]> = $derived(
-    relationSuivis?.get(email) || new SvelteSet(),
+    followRelations?.get(email) || new SvelteSet(),
   );
 
   $inspect("dossierIdsFollowedByCurrentInstructeur", dossierIdsFollowedByCurrentInstructeur);
@@ -100,10 +100,7 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(
-          selectedDossiers,
-          "activité_principale",
-        );
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "main_activite");
       },
       id: "ActivitéPrincipale-AZ",
     },
@@ -112,7 +109,7 @@
       sort() {
         selectedDossiers = sortDossiersByColumnAlphabetically(
           selectedDossiers,
-          "activité_principale",
+          "main_activite",
         ).reverse();
       },
       id: "ActivitéPrincipale-ZA",
@@ -123,14 +120,14 @@
     {
       nom: "Trier de A à Z",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom");
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "name");
       },
       id: "NomProjet-AZ",
     },
     {
       nom: "Trier de Z à A",
       sort() {
-        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "nom").reverse();
+        selectedDossiers = sortDossiersByColumnAlphabetically(selectedDossiers, "name").reverse();
       },
       id: "NomProjet-ZA",
     },
@@ -225,27 +222,27 @@
     }
   }
 
-  function sendEvenementRechercherUnDossier() {
-    const filtres: EvenementRechercheDossiersDetails["filtres"] = {
-      suiviPar: {
-        nombreSéléctionnées: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
+  function sendDossierSearchEvent() {
+    const filters: DossierSearchEventDetails["filters"] = {
+      followedBy: {
+        selectedCount: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
           ? selectedInstructeurs.size - 1
           : selectedInstructeurs.size,
         // do not count “(aucun instructeur)”
-        nombreTotal: instructeursOptions.size - 1,
-        inclusSoiMême: selectedInstructeurs.has(email),
+        totalCount: instructeursOptions.size - 1,
+        includesSelf: selectedInstructeurs.has(email),
       },
-      sansInstructeurice: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
+      withoutInstructeur: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
       phases: [...selectedPhases],
-      prochaineActionAttenduePar: [...selectedProchainesActionsAttenduesPar],
-      activitésPrincipales: [...selectedActivitesPrincipales],
+      nextActionExpectedFrom: [...selectedProchainesActionsAttenduesPar],
+      activitesPrincipales: [...selectedActivitesPrincipales],
     };
 
     if (textToSearch) {
-      filtres.texte = textToSearch;
+      filters.text = textToSearch;
     }
 
-    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: selectedDossiers.length });
+    sendDossierSearchAnalyticsEvent({ filters, resultCount: selectedDossiers.length });
   }
 
   const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
@@ -273,7 +270,7 @@
       //selectedPhases = selectedPhases; // re-render
 
       filterDossiers();
-      sendEvenementRechercherUnDossier();
+      sendDossierSearchEvent();
     };
   }
 
@@ -300,16 +297,16 @@
 
   allFilters.set("prochaine action attendue de", (dossier) => {
     if (
-      !dossier.prochaine_action_attendue_par ||
+      !dossier.next_action_expected_from ||
       !prochainesActionsAttenduesParOptions.has(
-        dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
+        dossier.next_action_expected_from as DossierNextActionExpectedFrom,
       )
     ) {
       return selectedProchainesActionsAttenduesPar.has(PROCHAINE_ACTION_ATTENDUE_PAR_VIDE);
     }
 
     return selectedProchainesActionsAttenduesPar.has(
-      dossier.prochaine_action_attendue_par as DossierNextActionExpectedFrom,
+      dossier.next_action_expected_from as DossierNextActionExpectedFrom,
     );
   });
 
@@ -321,7 +318,7 @@
     selectedProchainesActionsAttenduesPar = new SvelteSet(_selectedProchainesActionsAttenduesPar);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   let unselectedProchainesActionsAttenduesPar = $derived(
@@ -339,7 +336,7 @@
     addTextFilter(_textToSearch);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   function onDeleteTextFilter(e: Event) {
@@ -353,7 +350,7 @@
 
   const AUCUN_INSTRUCTEUR = "(aucun instructeur)" as const;
   const instructeurEmailOptions = $derived(
-    (relationSuivis && Array.from(relationSuivis.keys()).sort()) || [],
+    (followRelations && Array.from(followRelations.keys()).sort()) || [],
   );
 
   const instructeursOptions: Set<NonNullable<Personne["email"]> | typeof AUCUN_INSTRUCTEUR> =
@@ -373,7 +370,7 @@
   $inspect("instructeursSélectionnés", selectedInstructeurs);
 
   allFilters.set("instructeurs", (dossier) => {
-    if (!relationSuivis) return true;
+    if (!followRelations) return true;
 
     if (
       selectedInstructeurs.has(AUCUN_INSTRUCTEUR) &&
@@ -384,7 +381,7 @@
     }
 
     for (const instructeurEmail of selectedInstructeurs) {
-      const dossierIdsFollowedByThisInstructeur = relationSuivis.get(instructeurEmail);
+      const dossierIdsFollowedByThisInstructeur = followRelations.get(instructeurEmail);
       if (
         dossierIdsFollowedByThisInstructeur &&
         dossierIdsFollowedByThisInstructeur.has(dossier.id)
@@ -401,7 +398,7 @@
     selectedInstructeurs = new SvelteSet(_selectedInstructeurs);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   function filterFollowedByMe() {
@@ -424,21 +421,18 @@
     untrack(
       () =>
         new SvelteSet(
-          selectedFilters.activitésPrincipales
-            ? selectedFilters.activitésPrincipales
+          selectedFilters.activitesPrincipales
+            ? selectedFilters.activitesPrincipales
             : activitesPrincipalesOptions,
         ),
     ),
   );
 
   allFilters.set("activité principale", (dossier) => {
-    if (
-      !dossier.activité_principale ||
-      !activitesPrincipalesOptions.has(dossier.activité_principale)
-    )
+    if (!dossier.main_activite || !activitesPrincipalesOptions.has(dossier.main_activite))
       return selectedActivitesPrincipales.has(AUCUNE_ACTIVITE_PRINCIPALE);
 
-    return selectedActivitesPrincipales.has(dossier.activité_principale);
+    return selectedActivitesPrincipales.has(dossier.main_activite);
   });
 
   function filterByActivitePrincipale(
@@ -447,7 +441,7 @@
     selectedActivitesPrincipales = new Set(_selectedActivitesPrincipales);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   let unselectedActivitesPrincipales = $derived(
@@ -459,7 +453,7 @@
       phases: selectedPhases,
       "prochaine action attendue de": selectedProchainesActionsAttenduesPar,
       instructeurs: selectedInstructeurs,
-      activitésPrincipales: selectedActivitesPrincipales,
+      activitesPrincipales: selectedActivitesPrincipales,
       texte: textToSearch,
     });
   });
@@ -692,16 +686,16 @@
             {#each displayedDossiers as dossier (dossier)}
               {@const {
                 id,
-                nom,
+                name,
                 communes,
-                départements,
-                régions,
-                activité_principale,
-                rattaché_au_régime_ae,
+                departments,
+                regions,
+                main_activite,
+                linked_to_ae_regime,
                 enjeu,
-                commentaire_libre,
+                free_comment,
                 phase,
-                prochaine_action_attendue_par,
+                next_action_expected_from,
               } = dossier}
               <tr>
                 <td>
@@ -710,7 +704,7 @@
                     href={`/dossier/${id}`}>Voir le dossier</a
                   >
 
-                  {#if commentaire_libre && commentaire_libre.trim().length >= 1}
+                  {#if free_comment && free_comment.trim().length >= 1}
                     {@const dsfrModaleId = `dsfr-modale-${id}`}
                     <ModalButton id={dsfrModaleId}>
                       {#snippet openButton()}
@@ -725,17 +719,17 @@
                       {#snippet content()}
                         <header class="modal-title">
                           <h1 class="fr-modal__title">
-                            Commentaire dossier {nom}
+                            Commentaire dossier {name}
                           </h1>
                           <h2 class="fr-modal__title">
                             {formatPorteurDeProjet(dossier)}
                             &nbsp;-&nbsp;
-                            {formatLocalisation({ communes, départements, régions })}
+                            {formatLocalisation({ communes, departments, regions })}
                           </h2>
                         </header>
 
                         <div class="modal-content">
-                          {commentaire_libre}
+                          {free_comment}
                         </div>
                       {/snippet}
                     </ModalButton>
@@ -755,27 +749,27 @@
                     >
                   {/if}
                 </td>
-                <td>{formatLocalisation({ communes, départements, régions })}</td>
-                <td>{activité_principale || ""}</td>
+                <td>{formatLocalisation({ communes, departments, regions })}</td>
+                <td>{main_activite || ""}</td>
                 <td>{formatPorteurDeProjet(dossier)}</td>
-                <td>{nom || ""}</td>
+                <td>{name || ""}</td>
                 <td>
                   {#if enjeu}
                     <p class="fr-badge fr-badge--pink-macaron fr-badge--sm">Dossier à enjeu</p>
                   {/if}
                 </td>
                 <td>
-                  {rattaché_au_régime_ae === null
+                  {linked_to_ae_regime === null
                     ? "Non renseigné"
-                    : rattaché_au_régime_ae
+                    : linked_to_ae_regime
                       ? "oui"
                       : "non"}
                 </td>
                 <td>
                   <TagPhase {phase} size="SM"></TagPhase>
                   <PhaseDelayIndicator {dossier}></PhaseDelayIndicator>
-                  {#if prochaine_action_attendue_par}
-                    <p class="fr-tag fr-tag--sm fr-mt-1w">{prochaine_action_attendue_par}</p>
+                  {#if next_action_expected_from}
+                    <p class="fr-tag fr-tag--sm fr-mt-1w">{next_action_expected_from}</p>
                   {/if}
                 </td>
               </tr>

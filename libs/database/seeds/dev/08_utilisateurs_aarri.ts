@@ -95,18 +95,18 @@ export async function seed(knex: Knex) {
       if (!personne) continue;
 
       // Idempotence: remove existing metric events before re-inserting
-      await transaction("évènement_métrique").where({ personne: personne.id }).delete();
+      await transaction("evenement_metrique").where({ personne: personne.id }).delete();
 
       const rows = profile.events.flatMap(({ type, weeksAgo, count }) =>
         Array.from({ length: count }, () => ({
           personne: personne.id,
-          évènement: type,
+          evenement: type,
           date: dateWeeksAgo(weeksAgo),
         })),
       );
 
       if (rows.length >= 1) {
-        await transaction("évènement_métrique").insert(rows);
+        await transaction("evenement_metrique").insert(rows);
       }
     }
 

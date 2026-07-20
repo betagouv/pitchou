@@ -13,9 +13,9 @@ export function makeQuery(overrides: Partial<DossiersQuery> = {}): DossiersQuery
 export function makeDossier(overrides: Partial<DossierSummary> = {}): DossierSummary {
   return {
     id: dossierId(1),
-    nom: "Dossier test",
+    name: "Dossier test",
     phase: "Instruction",
-    date_dépôt: new Date("2024-01-01"),
+    depot_date: new Date("2024-01-01"),
     ...overrides,
   } as DossierSummary;
 }

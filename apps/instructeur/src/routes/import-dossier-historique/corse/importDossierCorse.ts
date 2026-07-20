@@ -13,10 +13,10 @@ import type {
   DossierWithAlerts,
 } from "../importDossierUtils.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
-import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
+import type { DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { PersonneWithRequiredEmail } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 // Based on the spreadsheet sent on 25/07/2025
@@ -120,7 +120,7 @@ const demandeurToSiret = new Map([
   ["UNIVERSITÉ DE CORSE", "19202664900264"],
 ]);
 
-export function createNomForDossier(row: DossierCorseRow): string {
+export function createDossierName(row: DossierCorseRow): string {
   return row["Libellé Projet"];
 }
 
@@ -194,11 +194,11 @@ function generateAutorisationEnvironnementaleData(
   | "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
   | "À quelle procédure le projet est-il soumis ?"
 > {
-  const type_de_projet = row["Type de projet"].toLowerCase();
+  const projetType = row["Type de projet"].toLowerCase();
 
   const servicePiloteValue = row["Service Pilote"].trim().toUpperCase();
 
-  if (type_de_projet.includes("icpe")) {
+  if (projetType.includes("icpe")) {
     return {
       "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
         "Oui",
@@ -284,14 +284,12 @@ async function generateLocalisationsData(row: {
         type: "erreur",
       });
     }
-    const départements = Array.isArray(foundDepartements)
-      ? foundDepartements
-      : [defaultDepartement];
+    const departments = Array.isArray(foundDepartements) ? foundDepartements : [defaultDepartement];
     data = {
       "Commune(s) où se situe le projet": undefined,
-      "Département(s) où se situe le projet": départements,
+      "Département(s) où se situe le projet": departments,
       "Le projet se situe au niveau…": "d'un ou plusieurs départements",
-      "Dans quel département se localise majoritairement votre projet ?": départements[0],
+      "Dans quel département se localise majoritairement votre projet ?": departments[0],
     };
   }
 
@@ -306,20 +304,20 @@ function createAvisExpertData(
 ): PartialBy<AvisExpertInitializer, "dossier">[] | undefined {
   const expert = row["Compétence"];
   const avis = row["Avis rendu"];
-  const date_avis = new Date(row["Date avis"].toString());
+  const avisDate = new Date(row["Date avis"].toString());
   const dateDepotSurOnagreValue = row["Date de dépôt sur ONAGRE"];
-  let date_saisine: AvisExpertInitializer["date_saisine"];
+  let saisineDate: AvisExpertInitializer["saisine_date"];
 
   if (isDate(dateDepotSurOnagreValue)) {
-    date_saisine = new Date(dateDepotSurOnagreValue);
+    saisineDate = new Date(dateDepotSurOnagreValue);
   }
 
   if (expert !== "" || avis !== "") {
-    return [{ avis, date_avis, expert, date_saisine }];
+    return [{ avis, avis_date: avisDate, expert, saisine_date: saisineDate }];
   }
 
-  if (date_saisine) {
-    return [{ date_saisine }];
+  if (saisineDate) {
+    return [{ saisine_date: saisineDate }];
   }
 }
 
@@ -335,9 +333,9 @@ function createDecisionAdministrativeData(
       return {
         data: [
           {
-            date_signature: new Date(dateAPValue),
+            signature_date: new Date(dateAPValue),
             type: "Autre décision",
-            numéro: row["Numéro AP"],
+            number: row["Numéro AP"],
           },
         ],
         alertes: [],
@@ -349,9 +347,9 @@ function createDecisionAdministrativeData(
   }
 }
 
-function createProchaineActionAttendueParData(
+function createNextActionExpectedFromData(
   row: DossierCorseRow,
-): DossierFull["prochaine_action_attendue_par"] | undefined {
+): DossierFull["next_action_expected_from"] | undefined {
   const niveauDAvancementValue = row["Niveau d'avancement"].trim();
 
   if (niveauDAvancementValue === "A faire") {
@@ -404,7 +402,7 @@ function getSiretIfDemandeurPersonneMorale(
   }
 }
 
-function createPersonnesQuiSuiventData(
+function createFollowersData(
   row: DossierCorseRow,
   emailsByInitials: Map<string, string>,
 ): PersonneWithRequiredEmail[] | undefined {
@@ -413,35 +411,32 @@ function createPersonnesQuiSuiventData(
 
   const instructricesFound = instructeurDREALValue.replaceAll(" ", "").split("+");
 
-  let personnesQuiSuivent: PersonneWithRequiredEmail[] = [];
+  const followers: PersonneWithRequiredEmail[] = [];
 
   for (const instructriceFound of instructricesFound) {
     if (["BG", "MR", "MB"].includes(instructriceFound)) {
       if (departementValue === "2A") {
-        personnesQuiSuivent.push({ email: emailsByInitials.get("CT") ?? "" });
+        followers.push({ email: emailsByInitials.get("CT") ?? "" });
       } else if (departementValue === "2B") {
-        personnesQuiSuivent.push({ email: emailsByInitials.get("PZ") ?? "" });
+        followers.push({ email: emailsByInitials.get("PZ") ?? "" });
       }
     }
 
     const foundEmail = emailsByInitials.get(instructriceFound);
 
-    if (
-      foundEmail &&
-      !personnesQuiSuivent.find((personneQuiSuit) => personneQuiSuit.email === foundEmail)
-    ) {
-      personnesQuiSuivent.push({ email: foundEmail });
+    if (foundEmail && !followers.find((follower) => follower.email === foundEmail)) {
+      followers.push({ email: foundEmail });
     }
   }
 
-  if (personnesQuiSuivent.length >= 1) {
-    return personnesQuiSuivent;
+  if (followers.length >= 1) {
+    return followers;
   }
 }
 
-type SousCommentaireDansCommentaireLibre = {
+type FreeCommentSection = {
   title: string;
-  commentaire: string | undefined;
+  content: string | undefined;
 };
 
 /**
@@ -456,31 +451,31 @@ function createAdditionalDataFromRow(
 
   const avisExpert = createAvisExpertData(row);
 
-  const commentairePhaseInstruction: SousCommentaireDansCommentaireLibre = {
+  const instructionPhaseComment: FreeCommentSection = {
     title: "Commentaire phase instruction",
-    commentaire: row["Commentaires phase instruction"],
+    content: row["Commentaires phase instruction"],
   };
-  const commentairePostAP: SousCommentaireDansCommentaireLibre = {
+  const postDecisionComment: FreeCommentSection = {
     title: "Commentaires post AP",
-    commentaire: row["Commentaires post AP"],
+    content: row["Commentaires post AP"],
   };
-  const commentaireRemarques: SousCommentaireDansCommentaireLibre = {
+  const remarksComment: FreeCommentSection = {
     title: "Remarques",
-    commentaire: row["Remarques"],
+    content: row["Remarques"],
   };
-  const commentaireContribution: SousCommentaireDansCommentaireLibre = {
+  const contributionComment: FreeCommentSection = {
     title: "Contribution",
-    commentaire: row["Contribution"],
+    content: row["Contribution"],
   };
 
-  const commentaire_libre = [
-    commentairePhaseInstruction,
-    commentairePostAP,
-    commentaireRemarques,
-    commentaireContribution,
+  const freeComment = [
+    instructionPhaseComment,
+    postDecisionComment,
+    remarksComment,
+    contributionComment,
   ]
-    .filter((value) => value?.commentaire?.trim())
-    .map(({ title, commentaire }) => `${title} : ${commentaire}`)
+    .filter((value) => value?.content?.trim())
+    .map(({ title, content }) => `${title} : ${content}`)
     .join("\n");
 
   const decisionAdministrativeResult = createDecisionAdministrativeData(row);
@@ -492,13 +487,13 @@ function createAdditionalDataFromRow(
     ? new Date(row["Fin de publication"])
     : undefined;
 
-  const prochaineActionAttenduePar = createProchaineActionAttendueParData(row);
+  const nextActionExpectedFrom = createNextActionExpectedFromData(row);
 
   const dateDepotResult = createDateDepotData(row);
 
   const dateDepot = dateDepotResult?.data;
 
-  const personnesQuiSuivent = createPersonnesQuiSuiventData(row, emailsByInitials);
+  const followers = createFollowersData(row, emailsByInitials);
 
   const alertes = [
     ...(evenementPhaseDossierResult?.alertes ?? []),
@@ -506,23 +501,24 @@ function createAdditionalDataFromRow(
     ...(dateDepotResult?.alertes ?? []),
   ];
 
+  // The shared type also accepts historical decrypted payloads with legacy accented keys.
   return {
     dossier: {
-      historique_identifiant_demande_onagre: row["N°ONAGRE"],
-      date_dépôt: dateDepot,
-      commentaire_libre: commentaire_libre,
-      date_debut_consultation_public: dateDebutConsultation,
-      date_fin_consultation_public: dateFinConsultation,
-      prochaine_action_attendue_par: prochaineActionAttenduePar,
+      onagre_demande_identifier: row["N°ONAGRE"],
+      depot_date: dateDepot,
+      free_comment: freeComment,
+      public_consultation_start_date: dateDebutConsultation,
+      public_consultation_end_date: dateFinConsultation,
+      next_action_expected_from: nextActionExpectedFrom,
       // @ts-ignore
       demandeur_personne_morale: demandeurPersonneMorale,
     },
-    évènement_phase_dossier: evenementPhaseDossierResult?.data,
+    evenement_phase_dossier: evenementPhaseDossierResult?.data,
     alertes,
     avis_expert: avisExpert,
-    décision_administrative: decisionAdministrativeResult?.data,
-    personnes_qui_suivent: personnesQuiSuivent,
-  };
+    decision_administrative: decisionAdministrativeResult?.data,
+    followers,
+  } as unknown as AdditionalDataForDossierCreation & { alertes: Alert[] };
 }
 
 /**
@@ -548,7 +544,7 @@ function createEvenementPhaseDossierData(
   ) {
     evenementPhaseDossierData.push({
       phase: "Accompagnement amont",
-      horodatage: setYear(new Date(), dateDebutAccompagnementValue),
+      timestamp: setYear(new Date(), dateDebutAccompagnementValue),
     });
   }
 
@@ -563,7 +559,7 @@ function createEvenementPhaseDossierData(
     if (isValidDateString(datePhaseInstruction)) {
       evenementPhaseDossierData.push({
         phase: "Instruction",
-        horodatage: new Date(datePhaseInstruction),
+        timestamp: new Date(datePhaseInstruction),
       });
     } else {
       const alertMessage = `La date donnée dans la colonne Date de réception du dossier complet est incorrecte : "${datePhaseInstruction}". On ne peut donc pas rajouter de phase "Instruction" pour ce dossier.`;
@@ -635,7 +631,7 @@ export async function createDossierFromRow(
       ? demandeurPersonneMoraleData["Numéro de SIRET"]
       : undefined,
 
-    "Nom du projet premettant de l'identifier clairement": createNomForDossier(row),
+    "Nom du projet premettant de l'identifier clairement": createDossierName(row),
     "Activité principale": activitePrincipale,
     "Transport ferroviaire ou électrique - Votre demande concerne :":
       activitePrincipale === "Transport énergie électrique" ? "Autre" : undefined,
@@ -660,25 +656,25 @@ export async function createDossierFromRow(
 
 /**
  * Checks whether a specific dossier to import already exists in the database.
- * The lookup compares the project name (the 'nom' field of the 'dossier' table)
+ * The lookup compares the project name (the 'name' field of the 'dossier' table)
  * as well as the Onagre number.
  * We use the Onagre number because several projects in the spreadsheet share the same project name (Libellé column).
  */
-export function rowDossierInDB(
+export function isDossierRowInDatabase(
   row: DossierCorseRow,
-  nomsInDB: Set<string | null>,
-  nomToHistoriqueIdentifiantDemandeOnagre: Map<string | null, string | null>,
+  namesInDatabase: Set<string | null>,
+  nameToOnagreDemandeIdentifier: Map<string | null, string | null>,
 ): boolean {
-  const nom = createNomForDossier(row);
+  const name = createDossierName(row);
   const numeroOnagre = row["N°ONAGRE"];
-  if (!nom || nom === "") {
+  if (!name || name === "") {
     console.warn(
       `Attention, il n'y a pas de libellé pour le projet de la ligne ${JSON.stringify(row)}`,
     );
     return false;
   }
-  if (nomsInDB.has(nom)) {
-    return nomToHistoriqueIdentifiantDemandeOnagre.get(nom) === numeroOnagre;
+  if (namesInDatabase.has(name)) {
+    return nameToOnagreDemandeIdentifier.get(name) === numeroOnagre;
   } else {
     return false;
   }

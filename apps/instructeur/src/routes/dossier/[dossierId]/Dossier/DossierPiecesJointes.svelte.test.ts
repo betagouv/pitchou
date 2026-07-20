@@ -12,52 +12,52 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   const openTab = vi.fn();
   const dossier = {
     id: "dossier-1",
-    piècesJointesPétitionnaires: [
+    piecesJointesPetitionnaires: [
       {
         url: "/piece-jointe-petitionnaire/fichier/1",
-        nom: "etude-impact.pdf",
+        name: "etude-impact.pdf",
         media_type: "application/pdf",
-        taille: 2048,
-        DS_createdAt: new Date("2026-01-01"),
+        size: 2048,
+        demarche_numerique_created_at: new Date("2026-01-01"),
       },
     ],
     avisExpert: [
       {
         expert: "CNPN",
-        date_saisine: new Date("2026-01-02"),
+        saisine_date: new Date("2026-01-02"),
         saisine_fichier_url: "/avis/saisine-1",
         saisine_fichier_description: {
           url: "/avis/saisine-1",
-          nom: "saisine-csrpn-pistes-cyclables-rennes-metropole.pdf",
+          name: "saisine-csrpn-pistes-cyclables-rennes-metropole.pdf",
           media_type: "application/pdf",
-          taille: 1024,
+          size: 1024,
         },
       },
     ],
-    décisionsAdministratives: [
+    decisionsAdministratives: [
       {
         type: "Arrêté dérogation",
-        numéro: "AP-123",
-        date_signature: new Date("2026-02-03"),
+        number: "AP-123",
+        signature_date: new Date("2026-02-03"),
         fichier_url: "/decision-administrative/fichier/1",
         fichier_description: {
           url: "/decision-administrative/fichier/1",
-          nom: "arrete-ap-123.pdf",
+          name: "arrete-ap-123.pdf",
           media_type: "application/pdf",
-          taille: 4096,
+          size: 4096,
         },
       },
     ],
-    attachmentAutres: [
+    otherAttachments: [
       {
         type: "Note interne",
         attachment_date: new Date("2026-03-04"),
         fichier_url: "/attachment-autre/fichier/1",
         fichier_description: {
           url: "/attachment-autre/fichier/1",
-          nom: "note-interne.pdf",
+          name: "note-interne.pdf",
           media_type: "application/pdf",
-          taille: 512,
+          size: 512,
         },
       },
     ],

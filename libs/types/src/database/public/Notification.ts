@@ -11,11 +11,11 @@ export type NotificationId = string & { __brand: "public.notification" };
 export default interface Notification {
   id: NotificationId;
 
-  /** Date à laquelle la notification a été mise à jour pour la dernière fois */
-  date_dernière_mise_à_jour: Date | null;
+  /** Date on which the notification was last updated */
+  updated_at: Date | null;
 
-  /** Indique si la personne a consulté ou non la notification */
-  vue: boolean;
+  /** Indicates whether the personne has viewed the notification */
+  viewed: boolean;
 
   personne: PersonneId;
 
@@ -28,16 +28,16 @@ export interface NotificationInitializer {
   id?: NotificationId;
 
   /**
-   * Date à laquelle la notification a été mise à jour pour la dernière fois
+   * Date on which the notification was last updated
    * Default value: CURRENT_TIMESTAMP
    */
-  date_dernière_mise_à_jour?: Date | null;
+  updated_at?: Date | null;
 
   /**
-   * Indique si la personne a consulté ou non la notification
+   * Indicates whether the personne has viewed the notification
    * Default value: false
    */
-  vue?: boolean;
+  viewed?: boolean;
 
   personne: PersonneId;
 
@@ -48,11 +48,11 @@ export interface NotificationInitializer {
 export interface NotificationMutator {
   id?: NotificationId;
 
-  /** Date à laquelle la notification a été mise à jour pour la dernière fois */
-  date_dernière_mise_à_jour?: Date | null;
+  /** Date on which the notification was last updated */
+  updated_at?: Date | null;
 
-  /** Indique si la personne a consulté ou non la notification */
-  vue?: boolean;
+  /** Indicates whether the personne has viewed the notification */
+  viewed?: boolean;
 
   personne?: PersonneId;
 

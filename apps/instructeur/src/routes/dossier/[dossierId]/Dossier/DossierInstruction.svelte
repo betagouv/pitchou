@@ -24,35 +24,29 @@
 
   type Props = {
     dossier: DossierFull;
-    personnesQuiSuiventDossier: NonNullable<Personne["email"]>[];
+    dossierFollowers: NonNullable<Personne["email"]>[];
     email: string;
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
   };
 
-  let {
-    dossier,
-    personnesQuiSuiventDossier,
-    currentDossierFollowedByCurrentInstructeur,
-    email,
-  }: Props = $props();
+  let { dossier, dossierFollowers, currentDossierFollowedByCurrentInstructeur, email }: Props =
+    $props();
 
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe";
 
-  const otherAttachments = $derived(dossier.attachmentAutres);
+  const otherAttachments = $derived(dossier.otherAttachments);
 
   let currentPhase = $derived(
-    (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
+    (dossier.evenementsPhase[0] && dossier.evenementsPhase[0].phase) || "Accompagnement amont",
   );
 
   let phase = $derived(currentPhase);
-  let ddep_nécessaire = $state(untrack(() => dossier.ddep_nécessaire));
-  let mesures_er_suffisantes = $state(untrack(() => dossier.mesures_er_suffisantes));
+  let ddepRequired = $state(untrack(() => dossier.ddep_required));
+  let erMesuresSufficient = $state(untrack(() => dossier.er_mesures_sufficient));
   let enjeu = $state(untrack(() => dossier.enjeu));
-  let commentaire_libre = $state(untrack(() => dossier.commentaire_libre));
-  let prochaine_action_attendue_par = $state(untrack(() => dossier.prochaine_action_attendue_par));
-  let historique_identifiant_demande_onagre = $state(
-    untrack(() => dossier.historique_identifiant_demande_onagre),
-  );
+  let freeComment = $state(untrack(() => dossier.free_comment));
+  let nextActionExpectedFrom = $state(untrack(() => dossier.next_action_expected_from));
+  let onagreDemandeIdentifier = $state(untrack(() => dossier.onagre_demande_identifier));
 
   function dateToInputValue(date: Date | null | undefined): string {
     if (!date) return "";
@@ -63,15 +57,15 @@
     return `${year}-${month}-${day}`;
   }
 
-  function attachmentDetails(attachment: DossierFull["attachmentAutres"][number]) {
+  function attachmentDetails(attachment: DossierFull["otherAttachments"][number]) {
     const details = [];
     const fileDescription = attachment.fichier_description;
 
     if (fileDescription?.media_type) {
       details.push(fileDescription.media_type);
     }
-    if (typeof fileDescription?.taille === "number") {
-      details.push(byteFormat.format(fileDescription.taille));
+    if (typeof fileDescription?.size === "number") {
+      details.push(byteFormat.format(fileDescription.size));
     }
     if (attachment.attachment_date) {
       details.push(`Date de la pièce jointe : ${formatDateAbsolute(attachment.attachment_date)}`);
@@ -80,34 +74,34 @@
     return details.join(" - ");
   }
 
-  let date_debut_consultation_public_str = $state(
-    untrack(() => dateToInputValue(dossier.date_debut_consultation_public)),
+  let publicConsultationStartDateString = $state(
+    untrack(() => dateToInputValue(dossier.public_consultation_start_date)),
   );
-  let date_fin_consultation_public_str = $state(
-    untrack(() => dateToInputValue(dossier.date_fin_consultation_public)),
+  let publicConsultationEndDateString = $state(
+    untrack(() => dateToInputValue(dossier.public_consultation_end_date)),
   );
 
   /**
-   * Converts the two fields ddep_nécessaire and mesures_er_suffisantes into a composite value for the select
+   * Converts the two fields ddep_required and er_mesures_sufficient into a composite value for the select
    */
   function getDDEPCompositeValue():
     | "oui"
     | "non_sans_objet"
-    | "non_mesures_er_suffisantes"
+    | "non_er_mesures_sufficient"
     | "a_determiner" {
-    if (ddep_nécessaire === true) {
+    if (ddepRequired === true) {
       return "oui";
-    } else if (ddep_nécessaire === false) {
-      if (mesures_er_suffisantes === false) {
+    } else if (ddepRequired === false) {
+      if (erMesuresSufficient === false) {
         return "non_sans_objet";
-      } else if (mesures_er_suffisantes === true) {
-        return "non_mesures_er_suffisantes";
+      } else if (erMesuresSufficient === true) {
+        return "non_er_mesures_sufficient";
       } else {
-        // By default, if mesures_er_suffisantes is null and ddep_nécessaire is false, we consider it "sans objet"
+        // By default, if er_mesures_sufficient is null and ddep_required is false, we consider it "sans objet"
         return "non_sans_objet";
       }
     } else {
-      // ddep_nécessaire is null or undefined
+      // ddep_required is null or undefined
       return "a_determiner";
     }
   }
@@ -131,72 +125,68 @@
     const updates: Partial<DossierFull> = {};
 
     if (currentPhase !== phase) {
-      updates.évènementsPhase = [
+      updates.evenementsPhase = [
         {
           dossier: dossier.id,
-          horodatage: new Date(),
+          timestamp: new Date(),
           phase: phase,
-          cause_personne: null, // will be filled server-side with the right PersonneId
-          DS_emailAgentTraitant: null,
-          DS_motivation: null,
+          caused_by_personne: null, // will be filled server-side with the right PersonneId
+          demarche_numerique_agent_email: null,
+          demarche_numerique_motivation: null,
         },
       ];
     }
 
-    if (dossier.commentaire_libre !== commentaire_libre?.trim()) {
-      updates.commentaire_libre = commentaire_libre?.trim();
+    if (dossier.free_comment !== freeComment?.trim()) {
+      updates.free_comment = freeComment?.trim();
     }
 
-    if (dossier.prochaine_action_attendue_par !== prochaine_action_attendue_par) {
-      updates.prochaine_action_attendue_par = prochaine_action_attendue_par;
+    if (dossier.next_action_expected_from !== nextActionExpectedFrom) {
+      updates.next_action_expected_from = nextActionExpectedFrom;
     }
 
-    if (
-      dossier.historique_identifiant_demande_onagre !==
-      historique_identifiant_demande_onagre?.trim()
-    ) {
-      updates.historique_identifiant_demande_onagre = historique_identifiant_demande_onagre?.trim();
+    if (dossier.onagre_demande_identifier !== onagreDemandeIdentifier?.trim()) {
+      updates.onagre_demande_identifier = onagreDemandeIdentifier?.trim();
     }
 
     if (dossier.enjeu !== enjeu) {
       updates.enjeu = enjeu;
     }
 
-    if (dossier.ddep_nécessaire !== ddep_nécessaire) {
-      updates.ddep_nécessaire = ddep_nécessaire;
+    if (dossier.ddep_required !== ddepRequired) {
+      updates.ddep_required = ddepRequired;
     }
 
-    if (dossier.mesures_er_suffisantes !== mesures_er_suffisantes) {
-      updates.mesures_er_suffisantes = mesures_er_suffisantes;
+    if (dossier.er_mesures_sufficient !== erMesuresSufficient) {
+      updates.er_mesures_sufficient = erMesuresSufficient;
     }
 
     if (
-      dateToInputValue(dossier.date_debut_consultation_public) !==
-      date_debut_consultation_public_str
+      dateToInputValue(dossier.public_consultation_start_date) !== publicConsultationStartDateString
     ) {
-      updates.date_debut_consultation_public = date_debut_consultation_public_str
-        ? new Date(date_debut_consultation_public_str)
+      updates.public_consultation_start_date = publicConsultationStartDateString
+        ? new Date(publicConsultationStartDateString)
         : null;
     }
 
     if (
-      dateToInputValue(dossier.date_fin_consultation_public) !== date_fin_consultation_public_str
+      dateToInputValue(dossier.public_consultation_end_date) !== publicConsultationEndDateString
     ) {
-      updates.date_fin_consultation_public = date_fin_consultation_public_str
-        ? new Date(date_fin_consultation_public_str)
+      updates.public_consultation_end_date = publicConsultationEndDateString
+        ? new Date(publicConsultationEndDateString)
         : null;
     }
 
-    // Business rule: mesures_er_suffisantes is always NULL if ddep_nécessaire is NULL
-    if (ddep_nécessaire === null) {
-      if (dossier.mesures_er_suffisantes !== null) {
-        updates.mesures_er_suffisantes = null;
+    // Business rule: er_mesures_sufficient is always NULL if ddep_required is NULL
+    if (ddepRequired === null) {
+      if (dossier.er_mesures_sufficient !== null) {
+        updates.er_mesures_sufficient = null;
       }
     }
 
     if (Object.keys(updates).length >= 1) {
       // We apply a debounce for fields typed on the keyboard (commentaire libre, N° Demande ONAGRE)
-      if (updates.commentaire_libre || updates.historique_identifiant_demande_onagre) {
+      if (updates.free_comment || updates.onagre_demande_identifier) {
         updateFieldWithDebounce(updates);
       } else {
         updateField(updates);
@@ -218,24 +208,24 @@
   }
 
   /**
-   * Updates the two fields ddep_nécessaire and mesures_er_suffisantes from the composite value
+   * Updates the two fields ddep_required and er_mesures_sufficient from the composite value
    */
   function setDDEPCompositeValue(
     e: Event & { currentTarget: EventTarget & HTMLSelectElement },
   ): void {
     const value = e.currentTarget.value;
     if (value === "oui") {
-      ddep_nécessaire = true;
-      mesures_er_suffisantes = false;
+      ddepRequired = true;
+      erMesuresSufficient = false;
     } else if (value === "non_sans_objet") {
-      ddep_nécessaire = false;
-      mesures_er_suffisantes = false;
-    } else if (value === "non_mesures_er_suffisantes") {
-      ddep_nécessaire = false;
-      mesures_er_suffisantes = true;
+      ddepRequired = false;
+      erMesuresSufficient = false;
+    } else if (value === "non_er_mesures_sufficient") {
+      ddepRequired = false;
+      erMesuresSufficient = true;
     } else if (value === "a_determiner") {
-      ddep_nécessaire = null;
-      mesures_er_suffisantes = null;
+      ddepRequired = null;
+      erMesuresSufficient = null;
     }
   }
 </script>
@@ -255,11 +245,11 @@
     {/if}
     <h2>Historique</h2>
     <ol>
-      {#each dossier.évènementsPhase as { phase, horodatage }}
+      {#each dossier.evenementsPhase as { phase, timestamp }}
         <li>
           <TagPhase {phase}></TagPhase>
           -
-          <span title={formatDateAbsolute(horodatage)}>{formatDateRelative(horodatage)}</span>
+          <span title={formatDateAbsolute(timestamp)}>{formatDateRelative(timestamp)}</span>
         </li>
       {/each}
       <li>
@@ -267,17 +257,17 @@
         -
         <strong>Dépôt dossier</strong>
         -
-        <span title={formatDateAbsolute(dossier.date_dépôt)}
-          >{formatDateRelative(dossier.date_dépôt)}</span
+        <span title={formatDateAbsolute(dossier.depot_date)}
+          >{formatDateRelative(dossier.depot_date)}</span
         >
       </li>
     </ol>
 
     <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
-    {#if personnesQuiSuiventDossier.length >= 1}
+    {#if dossierFollowers.length >= 1}
       <ul>
-        {#each personnesQuiSuiventDossier as personneQuiSuitDossier}
-          <li id={personneQuiSuitDossier}>{personneQuiSuitDossier}</li>
+        {#each dossierFollowers as follower}
+          <li id={follower}>{follower}</li>
         {/each}
       </ul>
     {:else}
@@ -303,27 +293,27 @@
 
     <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
     <div class="fr-input-group">
-      <label class="fr-label" for="date_debut_consultation_public">
+      <label class="fr-label" for="public_consultation_start_date">
         <strong>Date de début</strong>
       </label>
       <input
         onfocus={dismissAlert}
         class="fr-input"
-        id="date_debut_consultation_public"
+        id="public_consultation_start_date"
         type="date"
-        bind:value={date_debut_consultation_public_str}
+        bind:value={publicConsultationStartDateString}
       />
     </div>
     <div class="fr-input-group">
-      <label class="fr-label" for="date_fin_consultation_public">
+      <label class="fr-label" for="public_consultation_end_date">
         <strong>Date de fin</strong>
       </label>
       <input
         onfocus={dismissAlert}
         class="fr-input"
-        id="date_fin_consultation_public"
+        id="public_consultation_end_date"
         type="date"
-        bind:value={date_fin_consultation_public_str}
+        bind:value={publicConsultationEndDateString}
       />
     </div>
 
@@ -338,10 +328,10 @@
             <a
               class="fr-link fr-link--download"
               href={attachment.fichier_url}
-              title={attachment.fichier_description?.nom ?? attachment.type}
+              title={attachment.fichier_description?.name ?? attachment.type}
               data-sveltekit-reload
             >
-              {attachment.fichier_description?.nom ?? attachment.type}
+              {attachment.fichier_description?.name ?? attachment.type}
               {#if details}
                 <span class="fr-link__detail">{attachment.type} - {details}</span>
               {/if}
@@ -373,7 +363,7 @@
         class="fr-input resize-vertical"
         aria-describedby="input-commentaire-libre-messages"
         id="input-commentaire-libre"
-        bind:value={commentaire_libre}
+        bind:value={freeComment}
         rows={8}
       ></textarea>
       <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite"></div>
@@ -391,7 +381,7 @@
         id="ddep-nécessaire"
       >
         <option value="oui">Oui</option>
-        <option value="non_mesures_er_suffisantes"
+        <option value="non_er_mesures_sufficient"
           >Non, mesures Éviter, Réduire (ER) suffisantes</option
         >
         <option value="non_sans_objet">Non, sans objet</option>
@@ -410,15 +400,15 @@
       </select>
     </div>
     <div class="fr-input-group">
-      <label class="fr-label" for="prochaine_action_attendue_par">
+      <label class="fr-label" for="next_action_expected_from">
         <strong>Prochaine action attendue de</strong>
       </label>
 
       <select
         onfocus={dismissAlert}
-        bind:value={prochaine_action_attendue_par}
+        bind:value={nextActionExpectedFrom}
         class="fr-select"
-        id="prochaine_action_attendue_par"
+        id="next_action_expected_from"
       >
         {#each [...prochaineActionAttenduePar] as actor}
           <option value={actor}>{actor}</option>
@@ -427,15 +417,15 @@
     </div>
 
     <div class="fr-input-group">
-      <label class="fr-label" for="historique_identifiant_demande_onagre">
+      <label class="fr-label" for="onagre_demande_identifier">
         <strong>N° Demande ONAGRE</strong>
       </label>
       <input
         onfocus={dismissAlert}
         class="fr-input"
-        id="historique_identifiant_demande_onagre"
+        id="onagre_demande_identifier"
         type="text"
-        bind:value={historique_identifiant_demande_onagre}
+        bind:value={onagreDemandeIdentifier}
       />
     </div>
   </section>

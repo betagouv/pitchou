@@ -32,11 +32,11 @@
     dateFin: Date | undefined = aujourdhui,
   ) {
     return dossiers.filter((d) => {
-      return d.décisionsAdministratives?.find(
+      return d.decisionsAdministratives?.find(
         (decision) =>
-          decision.date_signature !== null &&
-          isAfter(decision.date_signature, dateDebut) &&
-          isBefore(decision.date_signature, dateFin),
+          decision.signature_date !== null &&
+          isAfter(decision.signature_date, dateDebut) &&
+          isBefore(decision.signature_date, dateFin),
       );
     });
   }
@@ -62,7 +62,7 @@
   let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers));
 
   function trouverDossiersDeMoinsDe3Ans(dossiers: DossierSummary[]) {
-    return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.date_dépôt));
+    return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.depot_date));
   }
 
   let dossiersEnAccompagnementDeMoinsDe3Ans = $derived(
@@ -70,7 +70,7 @@
   );
 
   function trouverDossiersNonScientifiques(dossiers: DossierSummary[]) {
-    return dossiers.filter((d) => d.activité_principale !== "Demande à caractère scientifique");
+    return dossiers.filter((d) => d.main_activite !== "Demande à caractère scientifique");
   }
 
   let dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = $derived(

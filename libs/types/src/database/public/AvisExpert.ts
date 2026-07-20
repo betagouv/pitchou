@@ -13,22 +13,22 @@ export default interface AvisExpert {
 
   dossier: DossierId;
 
-  /** Instance consultée pour avis sur la dérogation (ex. : CSRPN, CNPN, autre autorité compétente). */
+  /** Authority consulted for an avis on the derogation (e.g. CSRPN, CNPN, or another competent authority). */
   expert: string | null;
 
-  /** Date à laquelle l'expert a été officiellement saisi pour avis. */
-  date_saisine: Date | null;
+  /** Date on which the expert was officially consulted for an avis. */
+  saisine_date: Date | null;
 
-  /** Fichier transmis lors de la saisine de l'expert. */
+  /** Fichier sent when the expert was consulted. */
   saisine_fichier: FileId | null;
 
-  /** Nature de l'avis émis par l'expert (ex. : Favorable, Favorable sous conditions, Défavorable, Non renseigné). */
+  /** Nature of the avis issued by the expert (e.g. "Favorable", "Favorable sous conditions", "Défavorable", "Non renseigné"). */
   avis: string | null;
 
-  /** Date de formulation ou de réception de l'avis de l'expert. */
-  date_avis: Date | null;
+  /** Date on which the expert's avis was issued or received. */
+  avis_date: Date | null;
 
-  /** Fichier contenant l'avis formel de l'expert. */
+  /** Fichier containing the expert's formal avis. */
   avis_fichier: FileId | null;
 }
 
@@ -39,22 +39,22 @@ export interface AvisExpertInitializer {
 
   dossier: DossierId;
 
-  /** Instance consultée pour avis sur la dérogation (ex. : CSRPN, CNPN, autre autorité compétente). */
+  /** Authority consulted for an avis on the derogation (e.g. CSRPN, CNPN, or another competent authority). */
   expert?: string | null;
 
-  /** Date à laquelle l'expert a été officiellement saisi pour avis. */
-  date_saisine?: Date | null;
+  /** Date on which the expert was officially consulted for an avis. */
+  saisine_date?: Date | null;
 
-  /** Fichier transmis lors de la saisine de l'expert. */
+  /** Fichier sent when the expert was consulted. */
   saisine_fichier?: FileId | null;
 
-  /** Nature de l'avis émis par l'expert (ex. : Favorable, Favorable sous conditions, Défavorable, Non renseigné). */
+  /** Nature of the avis issued by the expert (e.g. "Favorable", "Favorable sous conditions", "Défavorable", "Non renseigné"). */
   avis?: string | null;
 
-  /** Date de formulation ou de réception de l'avis de l'expert. */
-  date_avis?: Date | null;
+  /** Date on which the expert's avis was issued or received. */
+  avis_date?: Date | null;
 
-  /** Fichier contenant l'avis formel de l'expert. */
+  /** Fichier containing the expert's formal avis. */
   avis_fichier?: FileId | null;
 }
 
@@ -64,21 +64,21 @@ export interface AvisExpertMutator {
 
   dossier?: DossierId;
 
-  /** Instance consultée pour avis sur la dérogation (ex. : CSRPN, CNPN, autre autorité compétente). */
+  /** Authority consulted for an avis on the derogation (e.g. CSRPN, CNPN, or another competent authority). */
   expert?: string | null;
 
-  /** Date à laquelle l'expert a été officiellement saisi pour avis. */
-  date_saisine?: Date | null;
+  /** Date on which the expert was officially consulted for an avis. */
+  saisine_date?: Date | null;
 
-  /** Fichier transmis lors de la saisine de l'expert. */
+  /** Fichier sent when the expert was consulted. */
   saisine_fichier?: FileId | null;
 
-  /** Nature de l'avis émis par l'expert (ex. : Favorable, Favorable sous conditions, Défavorable, Non renseigné). */
+  /** Nature of the avis issued by the expert (e.g. "Favorable", "Favorable sous conditions", "Défavorable", "Non renseigné"). */
   avis?: string | null;
 
-  /** Date de formulation ou de réception de l'avis de l'expert. */
-  date_avis?: Date | null;
+  /** Date on which the expert's avis was issued or received. */
+  avis_date?: Date | null;
 
-  /** Fichier contenant l'avis formel de l'expert. */
+  /** Fichier containing the expert's formal avis. */
   avis_fichier?: FileId | null;
 }

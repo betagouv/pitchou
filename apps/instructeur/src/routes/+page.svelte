@@ -73,8 +73,8 @@
           ? [...filters["prochaine action attendue de"]]
           : undefined,
         instructeurs: filters.instructeurs ? [...filters.instructeurs] : undefined,
-        activitésPrincipales: filters.activitésPrincipales
-          ? [...filters.activitésPrincipales]
+        activitesPrincipales: filters.activitesPrincipales
+          ? [...filters.activitesPrincipales]
           : undefined,
         texte: filters.texte ?? undefined,
       },
@@ -86,7 +86,7 @@
   const email = $derived(store.identité?.email);
   const canListDossiers = $derived(!!store.capabilities.listerDossiers);
   const dossiers = $derived([...store.dossierSummaries.values()]);
-  const relationSuivis = $derived(store.relationSuivis);
+  const followRelations = $derived(store.followRelations);
 
   const schemaChamps = $derived<ChampDescriptor[] | undefined>(
     store.schemaDS88444?.revision.champDescriptors,
@@ -105,8 +105,8 @@
   <SuiviInstruction
     {email}
     {dossiers}
-    {relationSuivis}
-    activitésPrincipales={activitesPrincipales ?? []}
+    {followRelations}
+    activitesPrincipales={activitesPrincipales ?? []}
     selectedSortId={selectedSortFilters?.tri}
     selectedFilters={selectedSortFilters?.filtres}
     {rememberSortFilters}

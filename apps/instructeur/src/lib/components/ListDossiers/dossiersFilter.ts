@@ -2,9 +2,9 @@ import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
-  départements as allDepartements,
-  nomParCodeDépartement as nomByCodeDepartement,
-} from "@pitchou/common/départements.ts";
+  departements as allDepartements,
+  departementNameByCode,
+} from "@pitchou/common/departements.ts";
 import {
   WITHOUT_INSTRUCTEUR,
   defaultDossiersQuery,
@@ -17,11 +17,11 @@ import {
 /** True when the dossier is followed by at least one person */
 function dossierIsFollowed(
   dossierId: DossierSummary["id"],
-  relationSuivis: DossiersContext["relationSuivis"],
+  followRelations: DossiersContext["followRelations"],
 ): boolean {
-  if (!relationSuivis) return false;
-  for (const dossiersSuivis of relationSuivis.values()) {
-    if (dossiersSuivis.has(dossierId)) return true;
+  if (!followRelations) return false;
+  for (const followedDossiers of followRelations.values()) {
+    if (followedDossiers.has(dossierId)) return true;
   }
   return false;
 }
@@ -34,12 +34,12 @@ export function dossierDate(
 ): Date | undefined {
   switch (field) {
     case "phaseStart":
-      return dossier.date_début_phase ?? undefined;
+      return dossier.phase_start_date ?? undefined;
     case "lastModified":
-      return notificationByDossier.get(dossier.id)?.date_dernière_mise_à_jour ?? undefined;
+      return notificationByDossier.get(dossier.id)?.updated_at ?? undefined;
     case "deposit":
     default:
-      return dossier.date_dépôt ?? undefined;
+      return dossier.depot_date ?? undefined;
   }
 }
 
@@ -49,7 +49,7 @@ export function filterDossiers(
   query: DossiersQuery,
   ctx: DossiersContext,
 ): DossierSummary[] {
-  const { notificationByDossier, relationSuivis } = ctx;
+  const { notificationByDossier, followRelations } = ctx;
   let result = dossiers;
 
   if (query.text.trim()) {
@@ -61,25 +61,23 @@ export function filterDossiers(
   }
   if (query.activite.length) {
     result = result.filter(
-      (dossier) =>
-        dossier.activité_principale !== null &&
-        query.activite.includes(dossier.activité_principale),
+      (dossier) => dossier.main_activite !== null && query.activite.includes(dossier.main_activite),
     );
   }
   if (query.actionInstructeur) {
-    result = result.filter((dossier) => dossier.prochaine_action_attendue_par === "Instructeur");
+    result = result.filter((dossier) => dossier.next_action_expected_from === "Instructeur");
   }
   if (query.prochaineAction.length) {
     const selected = query.prochaineAction as readonly string[];
     result = result.filter(
       (dossier) =>
-        dossier.prochaine_action_attendue_par !== null &&
-        selected.includes(dossier.prochaine_action_attendue_par),
+        dossier.next_action_expected_from !== null &&
+        selected.includes(dossier.next_action_expected_from),
     );
   }
   if (query.departement.length) {
     result = result.filter(
-      (dossier) => dossier.départements?.some((code) => query.departement.includes(code)) ?? false,
+      (dossier) => dossier.departments?.some((code) => query.departement.includes(code)) ?? false,
     );
   }
   if (query.instructeur.length) {
@@ -88,14 +86,15 @@ export function filterDossiers(
     const includesWithoutInstructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR);
     const selectedEmails = query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR);
     result = result.filter((dossier) => {
-      if (includesWithoutInstructeur && !dossierIsFollowed(dossier.id, relationSuivis)) return true;
-      return selectedEmails.some((email) => relationSuivis?.get(email)?.has(dossier.id) ?? false);
+      if (includesWithoutInstructeur && !dossierIsFollowed(dossier.id, followRelations))
+        return true;
+      return selectedEmails.some((email) => followRelations?.get(email)?.has(dossier.id) ?? false);
     });
   }
   if (query.nouveaute === "oui") {
-    result = result.filter((dossier) => notificationByDossier.get(dossier.id)?.vue === false);
+    result = result.filter((dossier) => notificationByDossier.get(dossier.id)?.viewed === false);
   } else if (query.nouveaute === "non") {
-    result = result.filter((dossier) => notificationByDossier.get(dossier.id)?.vue !== false);
+    result = result.filter((dossier) => notificationByDossier.get(dossier.id)?.viewed !== false);
   }
   if (query.enjeu) {
     result = result.filter((dossier) => dossier.enjeu === true);
@@ -103,14 +102,14 @@ export function filterDossiers(
   if (query.decisionText.trim()) {
     const needle = removeAccents(query.decisionText.trim()).toLowerCase();
     result = result.filter((dossier) =>
-      (dossier.décisionsAdministratives ?? []).some(
+      (dossier.decisionsAdministratives ?? []).some(
         (decision) =>
-          decision.numéro != null && removeAccents(decision.numéro).toLowerCase().includes(needle),
+          decision.number != null && removeAccents(decision.number).toLowerCase().includes(needle),
       ),
     );
   }
   if (query.decisionAbsente) {
-    result = result.filter((dossier) => (dossier.décisionsAdministratives?.length ?? 0) === 0);
+    result = result.filter((dossier) => (dossier.decisionsAdministratives?.length ?? 0) === 0);
   }
   if (query.avisExpertManquant) {
     result = result.filter((dossier) =>
@@ -137,13 +136,13 @@ export function filterDossiers(
   return result;
 }
 
-export type DepartementOption = { code: string; nom: string };
+export type DepartementOption = { code: string; name: string };
 
 /** Activités principales present in the dossiers, sorted alphabetically */
 export function listAvailableActivites(dossiers: DossierSummary[]): ActivitePrincipale[] {
   const activites = new Set<ActivitePrincipale>();
   for (const dossier of dossiers) {
-    if (dossier.activité_principale) activites.add(dossier.activité_principale);
+    if (dossier.main_activite) activites.add(dossier.main_activite);
   }
   return [...activites].sort((a, b) => a.localeCompare(b, "fr"));
 }
@@ -156,11 +155,11 @@ export function listAvailableActivites(dossiers: DossierSummary[]): ActivitePrin
 export function listAvailableDepartements(dossiers: DossierSummary[]): DepartementOption[] {
   const presentCodes = new Set<string>();
   for (const dossier of dossiers) {
-    for (const code of dossier.départements ?? []) presentCodes.add(code);
+    for (const code of dossier.departments ?? []) presentCodes.add(code);
   }
   const unknownCodes = [...presentCodes]
-    .filter((code) => !nomByCodeDepartement.has(code))
-    .map((code) => ({ code, nom: code }));
+    .filter((code) => !departementNameByCode.has(code))
+    .map((code) => ({ code, name: code }));
 
   return [...allDepartements, ...unknownCodes].sort((a, b) =>
     a.code.localeCompare(b.code, "fr", { numeric: true }),
@@ -169,12 +168,12 @@ export function listAvailableDepartements(dossiers: DossierSummary[]): Departeme
 
 /** Instructeurs following at least one dossier, identified by email, sorted alphabetically */
 export function listAvailableInstructeurs(
-  relationSuivis: DossiersContext["relationSuivis"],
+  followRelations: DossiersContext["followRelations"],
 ): string[] {
-  if (!relationSuivis) return [];
+  if (!followRelations) return [];
   const emails: string[] = [];
-  for (const [instructeurEmail, dossiersSuivis] of relationSuivis) {
-    if (dossiersSuivis.size > 0) emails.push(instructeurEmail);
+  for (const [instructeurEmail, followedDossiers] of followRelations) {
+    if (followedDossiers.size > 0) emails.push(instructeurEmail);
   }
   return emails.sort((a, b) => a.localeCompare(b, "fr"));
 }

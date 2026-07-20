@@ -10,9 +10,9 @@ export const GET: RequestHandler = async () => {
   const email = process.env.SEED_EMAIL || "dev@localhost.local";
   const personne = await getPersonneByEmail(email);
 
-  if (!personne?.code_accès) {
+  if (!personne?.access_code) {
     error(404, "Utilisateur dev introuvable — lancer les seeds");
   }
 
-  redirect(302, `/?secret=${personne.code_accès}`);
+  redirect(302, `/?secret=${personne.access_code}`);
 };

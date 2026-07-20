@@ -1,4 +1,4 @@
-import { nomParCodeDépartement as nomByCodeDepartement } from "@pitchou/common/départements.ts";
+import { departementNameByCode } from "@pitchou/common/departements.ts";
 import {
   WITHOUT_INSTRUCTEUR,
   PROCHAINE_ACTION_LABEL,
@@ -22,12 +22,12 @@ function formatDateFr(iso: string): string {
 }
 
 function dateChipLabel(query: DossiersQuery): string {
-  const champ = DATE_FIELD_LABEL[query.dateField];
+  const fieldLabel = DATE_FIELD_LABEL[query.dateField];
   if (query.dateStart && query.dateEnd) {
-    return `Date ${champ} : du ${formatDateFr(query.dateStart)} au ${formatDateFr(query.dateEnd)}`;
+    return `Date ${fieldLabel} : du ${formatDateFr(query.dateStart)} au ${formatDateFr(query.dateEnd)}`;
   }
-  if (query.dateStart) return `Date ${champ} : depuis le ${formatDateFr(query.dateStart)}`;
-  return `Date ${champ} : jusqu'au ${formatDateFr(query.dateEnd)}`;
+  if (query.dateStart) return `Date ${fieldLabel} : depuis le ${formatDateFr(query.dateStart)}`;
+  return `Date ${fieldLabel} : jusqu'au ${formatDateFr(query.dateEnd)}`;
 }
 
 /**
@@ -37,103 +37,109 @@ function dateChipLabel(query: DossiersQuery): string {
 export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
   const chips: FilterChip[] = [];
   // `next` is only ever read (serialized), so sharing the untouched arrays with `query` is safe.
-  const sans = (over: Partial<DossiersQuery>): DossiersQuery => ({ ...query, page: 1, ...over });
+  const withUpdates = (updates: Partial<DossiersQuery>): DossiersQuery => ({
+    ...query,
+    page: 1,
+    ...updates,
+  });
 
   if (query.text.trim()) {
-    chips.push({ key: "text", label: query.text.trim(), next: sans({ text: "" }) });
+    chips.push({ key: "text", label: query.text.trim(), next: withUpdates({ text: "" }) });
   }
   for (const phase of query.phase) {
     chips.push({
       key: `phase:${phase}`,
       label: phase,
-      next: sans({ phase: query.phase.filter((value) => value !== phase) }),
+      next: withUpdates({ phase: query.phase.filter((value) => value !== phase) }),
     });
   }
   for (const value of query.prochaineAction) {
     chips.push({
       key: `action:${value}`,
       label: `${PROCHAINE_ACTION_LABEL.get(value) ?? value} (en charge de la prochaine action)`,
-      next: sans({ prochaineAction: query.prochaineAction.filter((action) => action !== value) }),
+      next: withUpdates({
+        prochaineAction: query.prochaineAction.filter((action) => action !== value),
+      }),
     });
   }
   for (const value of query.activite) {
     chips.push({
       key: `activite:${value}`,
       label: value,
-      next: sans({ activite: query.activite.filter((activite) => activite !== value) }),
+      next: withUpdates({ activite: query.activite.filter((activite) => activite !== value) }),
     });
   }
   for (const code of query.departement) {
-    const nom = nomByCodeDepartement.get(code);
+    const name = departementNameByCode.get(code);
     chips.push({
       key: `departement:${code}`,
-      label: nom ? `${code} — ${nom}` : code,
-      next: sans({ departement: query.departement.filter((value) => value !== code) }),
+      label: name ? `${code} — ${name}` : code,
+      next: withUpdates({ departement: query.departement.filter((value) => value !== code) }),
     });
   }
   for (const value of query.instructeur) {
     chips.push({
       key: `instructeur:${value}`,
       label: value === WITHOUT_INSTRUCTEUR ? "Sans instructeur·ice" : value,
-      next: sans({ instructeur: query.instructeur.filter((email) => email !== value) }),
+      next: withUpdates({ instructeur: query.instructeur.filter((email) => email !== value) }),
     });
   }
   if (query.nouveaute === "oui") {
     chips.push({
       key: "nouveaute",
       label: "Nouvelles modifications",
-      next: sans({ nouveaute: "" }),
+      next: withUpdates({ nouveaute: "" }),
     });
   } else if (query.nouveaute === "non") {
     chips.push({
       key: "nouveaute",
       label: "Sans nouvelle modification",
-      next: sans({ nouveaute: "" }),
+      next: withUpdates({ nouveaute: "" }),
     });
   }
   if (query.actionInstructeur) {
     chips.push({
       key: "actionInstructeur",
       label: "Action de l'instructeur·ice attendue",
-      next: sans({ actionInstructeur: false }),
+      next: withUpdates({ actionInstructeur: false }),
     });
   }
   if (query.enjeu) {
-    chips.push({ key: "enjeu", label: "À enjeu", next: sans({ enjeu: false }) });
+    chips.push({ key: "enjeu", label: "À enjeu", next: withUpdates({ enjeu: false }) });
   }
   if (query.decisionText.trim()) {
     chips.push({
       key: "decision",
       label: `Décision : ${query.decisionText.trim()}`,
-      next: sans({ decisionText: "" }),
+      next: withUpdates({ decisionText: "" }),
     });
   }
   if (query.decisionAbsente) {
     chips.push({
       key: "decisionAbsente",
       label: "Décision non-renseignée",
-      next: sans({ decisionAbsente: false }),
+      next: withUpdates({ decisionAbsente: false }),
     });
   }
   if (query.avisExpertManquant) {
     chips.push({
       key: "avisManquant",
       label: "Saisine ou avis d'expert manquant",
-      next: sans({ avisExpertManquant: false }),
+      next: withUpdates({ avisExpertManquant: false }),
     });
   }
   if (query.especesImpacteesAbsente) {
     chips.push({
       key: "especesAbsente",
       label: "Espèces impactées non-renseignées",
-      next: sans({ especesImpacteesAbsente: false }),
+      next: withUpdates({ especesImpacteesAbsente: false }),
     });
   }
   if (query.dateStart || query.dateEnd) {
     chips.push({
       key: "date",
       label: dateChipLabel(query),
-      next: sans({ dateField: "deposit", dateStart: "", dateEnd: "" }),
+      next: withUpdates({ dateField: "deposit", dateStart: "", dateEnd: "" }),
     });
   }
 

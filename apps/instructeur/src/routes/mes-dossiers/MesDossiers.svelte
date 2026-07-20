@@ -7,7 +7,7 @@
   type Props = {
     email?: string;
     dossiers: DossierSummary[];
-    relationSuivis?: PitchouState["relationSuivis"];
+    followRelations?: PitchouState["followRelations"];
     services?: string[];
     recentSearches?: string[];
     notificationByDossier: PitchouState["notificationByDossier"];
@@ -16,7 +16,7 @@
   let {
     email = "",
     dossiers = [],
-    relationSuivis,
+    followRelations,
     services = [],
     recentSearches = [],
     notificationByDossier,
@@ -33,7 +33,7 @@
   title="Mes dossiers"
   {email}
   {dossiers}
-  {relationSuivis}
+  {followRelations}
   {services}
   {recentSearches}
   {notificationByDossier}

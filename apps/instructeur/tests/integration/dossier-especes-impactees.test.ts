@@ -14,19 +14,19 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose espè
 
   const s3 = await getTestS3();
   const fichier = await createFichierS3(db, s3, {
-    nom: "especes-impactées.ods",
+    name: "especes-impactées.ods",
     mediaType: ODS_MEDIA_TYPE,
     bytes: Buffer.from("PK ods bytes"),
   });
 
-  await db("dossier").update({ espèces_impactées: fichier.id }).where({ id: dossier.id });
+  await db("dossier").update({ especes_impactees: fichier.id }).where({ id: dossier.id });
 
   const result = await getDossierFull(dossier.id as DossierId, cap as CapDossier["cap"], db);
 
   expect(result).toBeDefined();
   // The file is linked to the dossier in the database → it must show up in the UI.
-  expect(result!.espècesImpactées).toBeDefined();
-  expect(result!.espècesImpactées!.nom).toBe("especes-impactées.ods");
-  expect(result!.espècesImpactées!.media_type).toBe(ODS_MEDIA_TYPE);
-  expect(result!.espècesImpactées!.url).toBe(`/especes-impactees/${fichier.id}`);
+  expect(result!.especesImpactees).toBeDefined();
+  expect(result!.especesImpactees!.name).toBe("especes-impactées.ods");
+  expect(result!.especesImpactees!.media_type).toBe(ODS_MEDIA_TYPE);
+  expect(result!.especesImpactees!.url).toBe(`/especes-impactees/${fichier.id}`);
 });

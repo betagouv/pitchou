@@ -14,10 +14,10 @@ import type { Knex } from "knex";
 const CODE = "abyssin";
 
 type SetupResult = {
-  unviewedRecent: { id: number; nom: string };
-  unviewedOld: { id: number; nom: string };
-  viewedRecent: { id: number; nom: string };
-  noNotificationOld: { id: number; nom: string };
+  unviewedRecent: { id: number; name: string };
+  unviewedOld: { id: number; name: string };
+  viewedRecent: { id: number; name: string };
+  noNotificationOld: { id: number; name: string };
 };
 
 async function setup(db: Knex): Promise<SetupResult> {
@@ -26,31 +26,31 @@ async function setup(db: Knex): Promise<SetupResult> {
     codeAcces: CODE,
   });
 
-  // date_dépôt — older to newer
+  // depot_date, from oldest to newest.
   const d1 = new Date("2024-01-01");
   const d2 = new Date("2024-02-01");
   const d3 = new Date("2024-03-01");
   const d4 = new Date("2024-04-01");
 
   const noNotificationOld = await createDossier(db, {
-    nom: "Dossier ancien sans notification",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d1,
+    name: "Dossier ancien sans notification",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d1,
   });
   const viewedRecent = await createDossier(db, {
-    nom: "Dossier récent déjà consulté",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d2,
+    name: "Dossier récent déjà consulté",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d2,
   });
   const unviewedOld = await createDossier(db, {
-    nom: "Recherche scientifique sur les chats",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d3,
+    name: "Recherche scientifique sur les chats",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d3,
   });
   const unviewedRecent = await createDossier(db, {
-    nom: "Parc photovoltaïque à Anglet",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    date_dépôt: d4,
+    name: "Parc photovoltaïque à Anglet",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    depot_date: d4,
     enjeu: true,
   });
 
@@ -80,10 +80,10 @@ async function setup(db: Knex): Promise<SetupResult> {
   });
 
   return {
-    unviewedRecent: { id: unviewedRecent.id, nom: unviewedRecent.nom! },
-    unviewedOld: { id: unviewedOld.id, nom: unviewedOld.nom! },
-    viewedRecent: { id: viewedRecent.id, nom: viewedRecent.nom! },
-    noNotificationOld: { id: noNotificationOld.id, nom: noNotificationOld.nom! },
+    unviewedRecent: { id: unviewedRecent.id, name: unviewedRecent.name! },
+    unviewedOld: { id: unviewedOld.id, name: unviewedOld.name! },
+    viewedRecent: { id: viewedRecent.id, name: viewedRecent.name! },
+    noNotificationOld: { id: noNotificationOld.id, name: noNotificationOld.name! },
   };
 }
 
@@ -96,7 +96,10 @@ async function gotoMesDossiers(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 }
 
-test("dossiers triés par date de dépôt décroissante par défaut", async ({ page, db }) => {
+test("dossiers triés : notifications non vues (récentes d'abord) puis depot_date décroissante", async ({
+  page,
+  db,
+}) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
@@ -105,15 +108,15 @@ test("dossiers triés par date de dépôt décroissante par défaut", async ({ p
     "4 dossiers dans votre service : Groupe de test",
   );
 
-  const cartes = await page.getByTestId("carte-dossier").all();
-  const ordreAttendu = [
-    fixtures.unviewedRecent.nom,
-    fixtures.unviewedOld.nom,
-    fixtures.viewedRecent.nom,
-    fixtures.noNotificationOld.nom,
+  const cards = await page.getByTestId("card-dossier").all();
+  const expectedOrder = [
+    fixtures.unviewedRecent.name,
+    fixtures.unviewedOld.name,
+    fixtures.viewedRecent.name,
+    fixtures.noNotificationOld.name,
   ];
-  for (let i = 0; i < cartes.length; i++) {
-    await expect(cartes[i]).toContainText(ordreAttendu[i]);
+  for (let i = 0; i < cards.length; i++) {
+    await expect(cards[i]).toContainText(expectedOrder[i]);
   }
 });
 
@@ -121,12 +124,12 @@ test("les dossiers avec notification non vue portent un badge Nouveauté", async
   await setup(db);
   await gotoMesDossiers(page);
 
-  const avecBadge = await page
-    .getByTestId("carte-dossier")
+  const withBadge = await page
+    .getByTestId("card-dossier")
     .filter({ has: page.locator("p.fr-badge", { hasText: /Nouveauté/i }) })
     .all();
 
-  expect(avecBadge).toHaveLength(2);
+  expect(withBadge).toHaveLength(2);
 });
 
 test("le filtre Nouveauté ne montre que les dossiers à notification non vue", async ({
@@ -137,8 +140,8 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await gotoMesDossiers(page);
 
   await page.getByRole("button", { name: "Filtres" }).click();
-  const modale = page.getByRole("dialog", { name: "Tous les filtres" });
-  await modale.locator('label[for="nouvelles-modifications"]').click();
+  const modal = page.getByRole("dialog", { name: "Tous les filtres" });
+  await modal.locator('label[for="nouvelles-modifications"]').click();
 
   // Filters apply live: the URL and the background list update as soon as the box is ticked,
   // before « Rechercher » is pressed.
@@ -146,24 +149,24 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
 
   // The footer button reflects the live result count.
-  await expect(modale.getByRole("button", { name: "Voir 2 résultats" })).toBeVisible();
-  await modale.getByRole("button", { name: "Voir 2 résultats" }).click();
+  await expect(modal.getByRole("button", { name: "Voir 2 résultats" })).toBeVisible();
+  await modal.getByRole("button", { name: "Voir 2 résultats" }).click();
 
   // Closing the panel keeps the applied filter.
   await expect(page).toHaveURL(/nouveaute=oui/);
   await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
 
-  const cartes = await page.getByTestId("carte-dossier").all();
-  const ordreAttendu = [fixtures.unviewedRecent.nom, fixtures.unviewedOld.nom];
-  for (let i = 0; i < cartes.length; i++) {
-    await expect(cartes[i]).toContainText(ordreAttendu[i]);
+  const cards = await page.getByTestId("card-dossier").all();
+  const expectedOrder = [fixtures.unviewedRecent.name, fixtures.unviewedOld.name];
+  for (let i = 0; i < cards.length; i++) {
+    await expect(cards[i]).toContainText(expectedOrder[i]);
   }
 
   // The active filter shows as a removable tag; clicking it clears the filter.
   const tags = page.getByTestId("filtres-actifs");
-  const tagNouveaute = tags.getByRole("button", { name: /Nouvelles modifications/ });
-  await expect(tagNouveaute).toBeVisible();
-  await tagNouveaute.click();
+  const nouveauteTag = tags.getByRole("button", { name: /Nouvelles modifications/ });
+  await expect(nouveauteTag).toBeVisible();
+  await nouveauteTag.click();
 
   await expect(page).not.toHaveURL(/nouveaute=oui/);
   await expect(page.getByTestId("compteur-dossier")).toContainText("4 dossiers dans votre service");
@@ -174,20 +177,20 @@ test("le badge Nouveauté disparaît après consultation du dossier", async ({ p
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  const titre = page.getByRole("link", { name: fixtures.unviewedRecent.nom });
-  const carte = page.getByTestId("carte-dossier").filter({ has: titre });
-  const badge = carte.locator("p.fr-badge", { hasText: /Nouveauté/i });
+  const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
+  const card = page.getByTestId("card-dossier").filter({ has: title });
+  const badge = card.locator("p.fr-badge", { hasText: /Nouveauté/i });
 
-  await expect(carte).toHaveCount(1);
+  await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
 
-  await titre.click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(fixtures.unviewedRecent.nom);
+  await title.click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(fixtures.unviewedRecent.name);
 
   await page.goto("/mes-dossiers");
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
-  await expect(carte).toHaveCount(1);
+  await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(0);
 });
 
@@ -198,11 +201,11 @@ test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu",
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  const titre = page.getByRole("link", { name: fixtures.unviewedRecent.nom });
-  const carte = page.getByTestId("carte-dossier").filter({ has: titre });
-  const badge = carte.locator("p.fr-badge", { hasText: /Dossier à enjeu/i });
+  const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
+  const card = page.getByTestId("card-dossier").filter({ has: title });
+  const badge = card.locator("p.fr-badge", { hasText: /Dossier à enjeu/i });
 
-  await expect(carte).toHaveCount(1);
+  await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
 });
 
@@ -213,19 +216,19 @@ test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ 
   });
 
   const photovoltaique = await createDossier(db, {
-    nom: "Parc photovoltaïque à Anglet",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    number_demarches_simplifiées: "29803745",
+    name: "Parc photovoltaïque à Anglet",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    demarche_numerique_number: "29803745",
   });
   const coquelicots = await createDossier(db, {
-    nom: "Recherche scientifique",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    commentaire_libre: "Présence de coquelicots sur la zone",
+    name: "Recherche scientifique",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    free_comment: "Présence de coquelicots sur la zone",
   });
   const methaniseur = await createDossier(db, {
-    nom: "Méthaniseur",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    number_demarches_simplifiées: "12345678",
+    name: "Méthaniseur",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    demarche_numerique_number: "12345678",
   });
 
   for (const d of [photovoltaique, coquelicots, methaniseur]) {
@@ -234,30 +237,30 @@ test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ 
   }
 
   await gotoMesDossiers(page);
-  const cartes = page.getByTestId("carte-dossier");
-  await expect(cartes).toHaveCount(3);
+  const cards = page.getByTestId("card-dossier");
+  await expect(cards).toHaveCount(3);
 
-  const recherche = page.getByLabel("Rechercher un dossier");
+  const searchInput = page.getByLabel("Rechercher un dossier");
 
-  // Saisie partielle sur le nom : la liste et l'URL se mettent à jour sans valider.
-  await recherche.fill("photovolta");
+  // A partial name updates the list and URL without submitting.
+  await searchInput.fill("photovolta");
   await expect(page).toHaveURL(/[?&]q=photovolta/);
-  await expect(cartes).toHaveCount(1);
-  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("Parc photovoltaïque à Anglet");
 
-  // Nouveau champ couvert : le commentaire libre.
-  await recherche.fill("coquelicot");
-  await expect(cartes).toHaveCount(1);
-  await expect(cartes).toContainText("Recherche scientifique");
+  // The free comment is searchable too.
+  await searchInput.fill("coquelicot");
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("Recherche scientifique");
 
-  // Recherche partielle sur le n° DN (avant, il fallait le saisir en entier).
-  await recherche.fill("298037");
-  await expect(cartes).toHaveCount(1);
-  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+  // A partial DN number matches without requiring the full value.
+  await searchInput.fill("298037");
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("Parc photovoltaïque à Anglet");
 
-  // En vidant la barre, on retrouve tous les dossiers.
-  await recherche.fill("");
-  await expect(cartes).toHaveCount(3);
+  // Clearing the input restores all dossiers.
+  await searchInput.fill("");
+  await expect(cards).toHaveCount(3);
 });
 
 test("la barre de recherche suggère les 3 dernières recherches distinctes", async ({
@@ -275,12 +278,12 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   await createCapEvenementMetrique(db, codeAcces);
 
   const photovoltaique = await createDossier(db, {
-    nom: "Parc photovoltaïque à Anglet",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    name: "Parc photovoltaïque à Anglet",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
   });
   const carriere = await createDossier(db, {
-    nom: "Carrière de calcaire",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
+    name: "Carrière de calcaire",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
   });
   for (const d of [photovoltaique, carriere]) {
     await attachDossierToGroupe(db, d.id, groupeId);
@@ -312,9 +315,9 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   // Clicking a suggestion re-runs that search: URL and list update.
   await options.nth(0).click();
   await expect(page).toHaveURL(/[?&]q=photovolta/);
-  const cartes = page.getByTestId("carte-dossier");
-  await expect(cartes).toHaveCount(1);
-  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+  const cards = page.getByTestId("card-dossier");
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("Parc photovoltaïque à Anglet");
 });
 
 test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux »", async ({
@@ -326,17 +329,17 @@ test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux
     codeAcces: CODE,
   });
 
-  const aMoi = await createDossier(db, {
-    nom: "Parc photovoltaïque à Anglet",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    prochaine_action_attendue_par: "Instructeur",
+  const instructeurAction = await createDossier(db, {
+    name: "Parc photovoltaïque à Anglet",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    next_action_expected_from: "Instructeur",
   });
-  const auPetitionnaire = await createDossier(db, {
-    nom: "Carrière de calcaire",
-    numéro_démarche: DEFAULT_NUMERO_DEMARCHE,
-    prochaine_action_attendue_par: "Pétitionnaire",
+  const petitionnaireAction = await createDossier(db, {
+    name: "Carrière de calcaire",
+    demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    next_action_expected_from: "Pétitionnaire",
   });
-  for (const d of [aMoi, auPetitionnaire]) {
+  for (const d of [instructeurAction, petitionnaireAction]) {
     await attachDossierToGroupe(db, d.id, groupeId);
     await attachPersonneSuitDossier(db, personneId, d.id);
   }
@@ -345,17 +348,17 @@ test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux
 
   // « à enjeux » is hidden on this page, replaced by the prochaine-action quick filter.
   await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
-  const bouton = page.getByRole("button", { name: "Moi en charge de la prochaine action" });
-  await expect(bouton).toBeVisible();
+  const button = page.getByRole("button", { name: "Moi en charge de la prochaine action" });
+  await expect(button).toBeVisible();
 
-  await bouton.click();
+  await button.click();
   await expect(page).toHaveURL(/actionInstructeur=1/);
-  const cartes = page.getByTestId("carte-dossier");
-  await expect(cartes).toHaveCount(1);
-  await expect(cartes).toContainText("Parc photovoltaïque à Anglet");
+  const cards = page.getByTestId("card-dossier");
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toContainText("Parc photovoltaïque à Anglet");
 
   // Toggling it off restores the full list.
-  await bouton.click();
+  await button.click();
   await expect(page).not.toHaveURL(/actionInstructeur=1/);
-  await expect(cartes).toHaveCount(2);
+  await expect(cards).toHaveCount(2);
 });

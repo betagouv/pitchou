@@ -20,16 +20,16 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
 
   // optimistically modify the dossier in the store
   const updatedDossier: DossierFull = Object.assign({}, dossier, updates);
-  if (updates.évènementsPhase) {
-    updatedDossier.évènementsPhase = [...updates.évènementsPhase, ...dossier.évènementsPhase];
+  if (updates.evenementsPhase) {
+    updatedDossier.evenementsPhase = [...updates.evenementsPhase, ...dossier.evenementsPhase];
 
     sendEvenement({ type: "changerPhase" });
   }
 
-  if (updates.commentaire_libre) {
+  if (updates.free_comment) {
     sendEvenementModifierCommentaire();
   }
-  if (updates.prochaine_action_attendue_par) {
+  if (updates.next_action_expected_from) {
     sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
 
@@ -110,8 +110,8 @@ export function loadDossiers() {
 
       /* Format the dossiers */
       for (const dossier of dossiers) {
-        dossier.date_dépôt = new Date(dossier.date_dépôt);
-        dossier.date_début_phase = new Date(dossier.date_début_phase);
+        dossier.depot_date = new Date(dossier.depot_date);
+        dossier.phase_start_date = new Date(dossier.phase_start_date);
       }
 
       const dossiersById: PitchouState["dossierSummaries"] = new Map();

@@ -58,7 +58,7 @@
             {#if modification.espece_ministerielle}
               <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Ministère</p>
             {/if}
-            {#if modification.exclu}
+            {#if modification.excluded}
               <p class="fr-badge fr-badge--sm fr-badge--error">Exclue</p>
             {/if}
             <i>{nomsScientifiques[0] ?? "—"}</i>

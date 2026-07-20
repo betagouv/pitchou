@@ -40,13 +40,13 @@ const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
 const JSON_COLUMNS = [
   "communes",
-  "départements",
-  "régions",
-  "cartographie_projet",
-  "scientifique_type_demande",
-  "scientifique_mode_capture",
+  "departments",
+  "regions",
+  "projet_map",
+  "scientifique_demande_type",
+  "scientifique_capture_mode",
   "scientifique_intervenants",
-  "scientifique_finalité_demande",
+  "scientifique_demande_purposes",
 ] as const;
 
 function logJsonFields(label: string, data: Record<string, unknown>) {
@@ -69,11 +69,11 @@ function serializeJsonColumns(data: Record<string, unknown>): Record<string, unk
   return result;
 }
 
-async function stockerPlaceholderPdf(nom: string, transaction: Knex.Transaction) {
+async function stockerPlaceholderPdf(name: string, transaction: Knex.Transaction) {
   const stored = await storeNewFichier(
     {
-      nom,
-      contenu: generatePlaceholderPdf(nom),
+      name,
+      content: generatePlaceholderPdf(name),
       media_type: "application/pdf",
     },
     transaction,
@@ -85,8 +85,8 @@ async function stockerPlaceholderPdf(nom: string, transaction: Knex.Transaction)
 export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
     const person = await transaction("personne").where({ email: SEED_EMAIL }).first();
-    const devCap = person?.code_accès
-      ? await transaction("cap_dossier").where({ personne_cap: person.code_accès }).first()
+    const devCap = person?.access_code
+      ? await transaction("cap_dossier").where({ personne_cap: person.access_code }).first()
       : null;
 
     // Step 0 — entreprises (demandeurs personne morale), referenced by dossiers
@@ -121,14 +121,14 @@ export async function seed(knex: Knex) {
       groupe_instructeur,
       demandeur_personne_physique_email,
       representative_email,
-      déposant_email: deposant_email,
+      deposant_email,
       mandataire_email,
       ...dossierData
     } of SEED_DOSSIERS) {
-      const label = `dossier "${dossierData.nom}" (${dossierData.number_demarches_simplifiées})`;
+      const label = `dossier "${dossierData.name}" (${dossierData.demarche_numerique_number})`;
       try {
         let dossier = await transaction("dossier")
-          .where({ number_demarches_simplifiées: dossierData.number_demarches_simplifiées })
+          .where({ demarche_numerique_number: dossierData.demarche_numerique_number })
           .first();
 
         if (!dossier) {
@@ -136,18 +136,18 @@ export async function seed(knex: Knex) {
             .insert(
               serializeJsonColumns({
                 ...dossierData,
-                numéro_démarche: SEED_DEMARCHE_NUMBER,
+                demarche_number: SEED_DEMARCHE_NUMBER,
                 demandeur_personne_physique: demandeur_personne_physique_email
                   ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
                   : null,
-                déposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
+                deposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
               }),
             )
             .returning("id");
           dossier = inserted;
         }
 
-        dossierIdMap[dossierData.number_demarches_simplifiées!] = dossier.id;
+        dossierIdMap[dossierData.demarche_numerique_number!] = dossier.id;
 
         // Identities shown in the "Porteur de projet" tab (per-dossier snapshots)
         const identites = [];
@@ -158,8 +158,8 @@ export async function seed(knex: Knex) {
           identites.push({
             dossier: dossier.id,
             type: "demandeur",
-            last_name: demandeurFixture.nom,
-            first_names: demandeurFixture.prénoms,
+            last_name: demandeurFixture.last_name,
+            first_names: demandeurFixture.first_names,
             email: demandeurFixture.email,
           });
         }
@@ -170,8 +170,8 @@ export async function seed(knex: Knex) {
           identites.push({
             dossier: dossier.id,
             type: "mandataire",
-            last_name: mandataireFixture.nom,
-            first_names: mandataireFixture.prénoms,
+            last_name: mandataireFixture.last_name,
+            first_names: mandataireFixture.first_names,
             email: mandataireFixture.email,
           });
         }
@@ -182,8 +182,8 @@ export async function seed(knex: Knex) {
           identites.push({
             dossier: dossier.id,
             type: "representant",
-            last_name: representantFixture.nom,
-            first_names: representantFixture.prénoms,
+            last_name: representantFixture.last_name,
+            first_names: representantFixture.first_names,
             email: representantFixture.email,
             phone: representantFixture.phone ?? null,
             role: representantFixture.role ?? null,
@@ -197,28 +197,28 @@ export async function seed(knex: Knex) {
         }
 
         const group = await transaction("groupe_instructeurs")
-          .where({ nom: groupe_instructeur, numéro_démarche: SEED_DEMARCHE_NUMBER })
+          .where({ name: groupe_instructeur, demarche_number: SEED_DEMARCHE_NUMBER })
           .first();
 
         if (group) {
-          const existingLink = await transaction("arête_groupe_instructeurs__dossier")
+          const existingLink = await transaction("edge_groupe_instructeurs__dossier")
             .where({ dossier: dossier.id })
             .first();
 
           if (!existingLink) {
-            await transaction("arête_groupe_instructeurs__dossier").insert({
+            await transaction("edge_groupe_instructeurs__dossier").insert({
               dossier: dossier.id,
               groupe_instructeurs: group.id,
             });
           }
 
           if (devCap) {
-            const existingCapLink = await transaction("arête_cap_dossier__groupe_instructeurs")
+            const existingCapLink = await transaction("edge_cap_dossier__groupe_instructeurs")
               .where({ cap_dossier: devCap.cap, groupe_instructeurs: group.id })
               .first();
 
             if (!existingCapLink) {
-              await transaction("arête_cap_dossier__groupe_instructeurs").insert({
+              await transaction("edge_cap_dossier__groupe_instructeurs").insert({
                 cap_dossier: devCap.cap,
                 groupe_instructeurs: group.id,
               });
@@ -226,13 +226,13 @@ export async function seed(knex: Knex) {
           }
 
           const agentsInGroup = await transaction("personne")
-            .join("cap_dossier", "cap_dossier.personne_cap", "personne.code_accès")
+            .join("cap_dossier", "cap_dossier.personne_cap", "personne.access_code")
             .join(
-              "arête_cap_dossier__groupe_instructeurs",
-              "arête_cap_dossier__groupe_instructeurs.cap_dossier",
+              "edge_cap_dossier__groupe_instructeurs",
+              "edge_cap_dossier__groupe_instructeurs.cap_dossier",
               "cap_dossier.cap",
             )
-            .where({ "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs": group.id })
+            .where({ "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs": group.id })
             .select("personne.id");
 
           for (const { id: personneId } of agentsInGroup) {
@@ -253,13 +253,13 @@ export async function seed(knex: Knex) {
 
     // Step 1b — each agent follows exactly one dossier, randomly chosen from those they can see
     for (const [personneId, visibleDossierIds] of agentVisibleDossiers) {
-      const alreadyFollows = await transaction("arête_personne_suit_dossier")
+      const alreadyFollows = await transaction("edge_personne_follows_dossier")
         .where({ personne: personneId })
         .first();
 
       if (!alreadyFollows) {
         const randomId = visibleDossierIds[Math.floor(Math.random() * visibleDossierIds.length)];
-        await transaction("arête_personne_suit_dossier").insert({
+        await transaction("edge_personne_follows_dossier").insert({
           personne: personneId,
           dossier: randomId,
         });
@@ -275,12 +275,12 @@ export async function seed(knex: Knex) {
       }
 
       try {
-        const existing = await transaction("évènement_phase_dossier")
+        const existing = await transaction("evenement_phase_dossier")
           .where({ dossier: dossierId, phase: evtData.phase })
           .first();
 
         if (!existing) {
-          await transaction("évènement_phase_dossier").insert({ ...evtData, dossier: dossierId });
+          await transaction("evenement_phase_dossier").insert({ ...evtData, dossier: dossierId });
         }
       } catch (err) {
         console.error(
@@ -359,7 +359,7 @@ export async function seed(knex: Knex) {
       }
 
       try {
-        const existing = await transaction("décision_administrative")
+        const existing = await transaction("decision_administrative")
           .where({ id: daData.id })
           .first();
         if (!existing) {
@@ -367,7 +367,7 @@ export async function seed(knex: Knex) {
           if (nom_fichier) {
             fichier = await stockerPlaceholderPdf(nom_fichier, transaction);
           }
-          await transaction("décision_administrative").insert({
+          await transaction("decision_administrative").insert({
             ...daData,
             dossier: dossierId,
             fichier,
@@ -390,22 +390,22 @@ export async function seed(knex: Knex) {
         }
       } catch (err) {
         console.error(
-          `\n  ✗ Erreur insertion prescription ${prescription.id} (décision ${prescription.décision_administrative})`,
+          `\n  ✗ Erreur insertion prescription ${prescription.id} (décision ${prescription.decision_administrative})`,
         );
         throw err;
       }
     }
 
     // Step 6 — contrôles
-    for (const contrôle of SEED_CONTROLES) {
+    for (const controle of SEED_CONTROLES) {
       try {
-        const existing = await transaction("contrôle").where({ id: contrôle.id }).first();
+        const existing = await transaction("controle").where({ id: controle.id }).first();
         if (!existing) {
-          await transaction("contrôle").insert(contrôle);
+          await transaction("controle").insert(controle);
         }
       } catch (err) {
         console.error(
-          `\n  ✗ Erreur insertion contrôle ${contrôle.id} (prescription ${contrôle.prescription})`,
+          `\n  ✗ Erreur insertion contrôle ${controle.id} (prescription ${controle.prescription})`,
         );
         throw err;
       }
@@ -420,7 +420,7 @@ export async function seed(knex: Knex) {
           continue;
         }
 
-        await transaction("arête_personne_suit_dossier")
+        await transaction("edge_personne_follows_dossier")
           .insert({ personne: person.id, dossier: dossierId })
           .onConflict(["personne", "dossier"])
           .ignore();
@@ -443,7 +443,7 @@ export async function seed(knex: Knex) {
 
         // Idempotence: skip if the dossier already has an espèces impactées fichier.
         const dossier = await transaction("dossier").where({ id: dossierId }).first();
-        if (dossier?.espèces_impactées) continue;
+        if (dossier?.especes_impactees) continue;
 
         const cdRefs = [...new Set(lignes.map((l) => l.cd_ref))];
         const rows: EspeceProtegeeRow[] = await transaction("espece_protegee").whereIn(
@@ -498,8 +498,8 @@ export async function seed(knex: Knex) {
         const odsArrayBuffer = await descriptionMenacesEspecesToOdsArrayBuffer(description);
         const { id: fichierId } = await storeNewFichier(
           {
-            nom: nom_fichier,
-            contenu: Buffer.from(odsArrayBuffer),
+            name: nom_fichier,
+            content: Buffer.from(odsArrayBuffer),
             media_type: ODS_MEDIA_TYPE,
           },
           transaction,
@@ -507,15 +507,15 @@ export async function seed(knex: Knex) {
 
         await transaction("dossier")
           .where({ id: dossierId })
-          .update({ espèces_impactées: fichierId });
+          .update({ especes_impactees: fichierId });
       }
     }
 
     console.log("");
     console.log(`  Seed dossiers OK — ${SEED_DOSSIERS.length} dossiers`);
     console.log(`  Email : ${SEED_EMAIL}`);
-    if (person?.code_accès) {
-      console.log(`  Login : ${ORIGIN}/?secret=${person.code_accès}`);
+    if (person?.access_code) {
+      console.log(`  Login : ${ORIGIN}/?secret=${person.access_code}`);
     }
     console.log("");
   });

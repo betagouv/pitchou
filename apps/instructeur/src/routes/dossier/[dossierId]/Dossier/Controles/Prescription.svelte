@@ -21,18 +21,18 @@
   let {
     id,
     description,
-    date_échéance,
-    numéro_article,
-    surface_évitée,
-    surface_compensée,
-    individus_évités,
-    individus_compensés,
-    nids_évités,
-    nids_compensés,
+    due_date,
+    article_number,
+    avoided_surface,
+    compensated_surface,
+    avoided_individus,
+    compensated_individus,
+    avoided_nids,
+    compensated_nids,
   } = $derived(prescription);
 
   let controles: Set<Partial<Controle>> = $derived(
-    prescription.contrôles ? new SvelteSet(prescription.contrôles) : new SvelteSet(),
+    prescription.controles ? new SvelteSet(prescription.controles) : new SvelteSet(),
   );
 
   // $inspect('contrôles', contrôles)
@@ -41,7 +41,7 @@
 
   let sortedControles = $derived(
     [...controles].toSorted(
-      ({ date_contrôle: dc1 }, { date_contrôle: dc2 }) =>
+      ({ controle_date: dc1 }, { controle_date: dc2 }) =>
         (dc2?.getTime() || 0) - (dc1?.getTime() || 0),
     ),
   );
@@ -51,12 +51,12 @@
   function addControle() {
     newControle = {
       prescription: id,
-      date_contrôle: new Date(),
-      résultat: null,
-      commentaire: null,
-      type_action_suite_contrôle: null,
-      date_action_suite_contrôle: null,
-      date_prochaine_échéance: null,
+      controle_date: new Date(),
+      result: null,
+      comment: null,
+      post_controle_action_type: null,
+      post_controle_action_date: null,
+      next_due_date: null,
     };
   }
 
@@ -67,11 +67,11 @@
       const controleId = await sendControle(newControle);
 
       if (
-        newControle.résultat === "Conforme" && // which is compliant
+        newControle.result === "Conforme" && // which is compliant
         // while at least one previous contrôle was not compliant
-        prescription.contrôles &&
-        prescription.contrôles.length >= 2 &&
-        prescription.contrôles.some((c) => c.résultat !== "Conforme")
+        prescription.controles &&
+        prescription.controles.length >= 2 &&
+        prescription.controles.some((c) => c.result !== "Conforme")
       ) {
         sendEvenement({
           type: "retourÀLaConformité",
@@ -105,14 +105,14 @@
 
     // replace editedControle with controleValide in the array of contrôles
     // @ts-ignore
-    const index = prescription.contrôles?.indexOf(editedControle) || -1;
+    const index = prescription.controles?.indexOf(editedControle) || -1;
     if (index !== -1) {
-      prescription.contrôles?.splice(index, 1);
+      prescription.controles?.splice(index, 1);
     }
     editedControle = undefined;
 
     // @ts-ignore
-    prescription.contrôles?.push(controleValide);
+    prescription.controles?.push(controleValide);
 
     await updateControle(controleValide);
 
@@ -144,12 +144,11 @@
     {#snippet summary()}
       {@const lastControle = sortedControles[0]}
       <h6>
-        <TagResultatControle résultatControle={lastControle?.résultat || NOT_PROVIDED}
-        ></TagResultatControle>
+        <TagResultatControle result={lastControle?.result || NOT_PROVIDED}></TagResultatControle>
         {#if description}
           {description}
-        {:else if numéro_article}
-          Numéro article&nbsp;:&nbsp;{numéro_article}
+        {:else if article_number}
+          Numéro article&nbsp;:&nbsp;{article_number}
         {:else}
           (Prescription non renseignée)
         {/if}
@@ -157,34 +156,35 @@
     {/snippet}
     {#snippet content()}
       <section>
-        {#if numéro_article}
-          <p><strong>Numéro article&nbsp;:&nbsp;</strong>{numéro_article}</p>
+        {#if article_number}
+          <p><strong>Numéro article&nbsp;:&nbsp;</strong>{article_number}</p>
         {/if}
         <p>
           <strong>Date d'échéance&nbsp;:</strong>
-          {#if date_échéance}
-            <time datetime={date_échéance?.toISOString()}>{formatDateRelative(date_échéance)}</time>
+          {#if due_date}
+            <time datetime={due_date?.toISOString()}>{formatDateRelative(due_date)}</time>
           {:else}
             {NOT_PROVIDED}
           {/if}
         </p>
 
-        {#if surface_évitée || surface_compensée || individus_évités || surface_compensée || nids_évités || nids_compensés}
+        {#if avoided_surface || compensated_surface || avoided_individus || compensated_individus || avoided_nids || compensated_nids}
           <p class="impacts-quantified">
-            {#if surface_évitée}<span
-                ><strong>Surface évitée&nbsp;:</strong> {surface_évitée}m²</span
+            {#if avoided_surface}<span
+                ><strong>Surface évitée&nbsp;:</strong> {avoided_surface}m²</span
               >{/if}
-            {#if surface_compensée}<span
-                ><strong>Surface compensée&nbsp;:</strong> {surface_compensée}m²</span
+            {#if compensated_surface}<span
+                ><strong>Surface compensée&nbsp;:</strong> {compensated_surface}m²</span
               >{/if}
-            {#if individus_évités}<span
-                ><strong>Individus évités&nbsp;:</strong> {individus_évités}</span
+            {#if avoided_individus}<span
+                ><strong>Individus évités&nbsp;:</strong> {avoided_individus}</span
               >{/if}
-            {#if individus_compensés}<span
-                ><strong>Individus compensés&nbsp;:</strong> {individus_compensés}</span
+            {#if compensated_individus}<span
+                ><strong>Individus compensés&nbsp;:</strong> {compensated_individus}</span
               >{/if}
-            {#if nids_évités}<span><strong>Nids évités&nbsp;:</strong> {nids_évités}</span>{/if}
-            {#if nids_compensés}<span><strong>Nids compensés&nbsp;:</strong> {nids_compensés}</span
+            {#if avoided_nids}<span><strong>Nids évités&nbsp;:</strong> {avoided_nids}</span>{/if}
+            {#if compensated_nids}<span
+                ><strong>Nids compensés&nbsp;:</strong> {compensated_nids}</span
               >{/if}
           </p>
         {/if}
@@ -247,10 +247,10 @@
             {:else}
               <section class="controle">
                 <h6>
-                  Contrôle du <time datetime={controle.date_contrôle?.toISOString()}
-                    >{formatDateAbsolute(controle.date_contrôle)}</time
+                  Contrôle du <time datetime={controle.controle_date?.toISOString()}
+                    >{formatDateAbsolute(controle.controle_date)}</time
                   >
-                  <TagResultatControle résultatControle={controle.résultat || NOT_PROVIDED}
+                  <TagResultatControle result={controle.result || NOT_PROVIDED}
                   ></TagResultatControle>
                   <button
                     class="controles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
@@ -260,17 +260,17 @@
                   </button>
                 </h6>
                 <strong>Commentaire&nbsp;:</strong>
-                {controle.commentaire}<br />
+                {controle.comment}<br />
                 <strong>Action suite au contrôle&nbsp;:</strong>
-                {controle.type_action_suite_contrôle}<br />
+                {controle.post_controle_action_type}<br />
                 <strong>Date action suite au contrôle&nbsp;:</strong>
-                <time datetime={controle.date_action_suite_contrôle?.toISOString()}
-                  >{formatDateRelative(controle.date_action_suite_contrôle)}</time
+                <time datetime={controle.post_controle_action_date?.toISOString()}
+                  >{formatDateRelative(controle.post_controle_action_date)}</time
                 >
                 <br />
                 <strong>Date prochaine échéance&nbsp;:</strong>
-                <time datetime={controle.date_prochaine_échéance?.toISOString()}
-                  >{formatDateRelative(controle.date_prochaine_échéance)}</time
+                <time datetime={controle.next_due_date?.toISOString()}
+                  >{formatDateRelative(controle.next_due_date)}</time
                 >
                 <br />
               </section>

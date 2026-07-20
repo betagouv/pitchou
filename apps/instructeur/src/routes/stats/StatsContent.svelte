@@ -1,21 +1,25 @@
 <script lang="ts">
-  import type { StatsPubliques } from "@pitchou/types/API_Pitchou.ts";
-  import StatistiquesConformites from "./StatistiquesConformites.svelte";
+  import type { PublicStats } from "@pitchou/types/API_Pitchou.ts";
+  import ConformiteStats from "./ConformiteStats.svelte";
 
   type Props = {
-    stats: StatsPubliques;
+    stats: PublicStats;
   };
 
   let { stats }: Props = $props();
 
-  const estimationNbPetitionnairesEnFranceParAn = 1500;
+  const estimatedAnnualPetitionnaireCountInFrance = 1500;
 
-  const pourcentageAvecDecision = $derived(
-    Math.round(
-      (stats.nbDossiersEnPhaseContrôleAvecDécision / stats.nbDossiersEnPhaseContrôle) * 100,
-    ),
+  const withDecisionPercentage = $derived(
+    stats.controlePhaseDossierCount
+      ? Math.round(
+          (stats.controlePhaseDossierWithDecisionCount / stats.controlePhaseDossierCount) * 100,
+        )
+      : 0,
   );
-  const pourcentageSansDecision = $derived(100 - pourcentageAvecDecision);
+  const withoutDecisionPercentage = $derived(
+    stats.controlePhaseDossierCount ? 100 - withDecisionPercentage : 0,
+  );
 </script>
 
 <div class="fr-grid-row fr-mt-6w fr-grid-row--center">
@@ -24,7 +28,7 @@
       <h1>Pitchou - Statistiques publiques</h1>
       <p class="fr-text--lg fr-mb-0">
         Ces données statistiques reposent sur un total de <strong
-          >{stats.totalDossiers} dossiers
+          >{stats.dossierCount} dossiers
         </strong> enregistrés dans la base de données Pitchou.
       </p>
     </header>
@@ -37,7 +41,7 @@
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-6">
                 <div class="stat-item total-stat">
-                  <span class="stat-number">{stats.nbPétitionnairesDepuisSept2024}</span>
+                  <span class="stat-number">{stats.petitionnaireCountSinceSeptember2024}</span>
                   <span class="stat-label"
                     >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
                       >(depuis 09/2024)</span
@@ -47,7 +51,7 @@
               </div>
               <div class="fr-col-6">
                 <div class="stat-item">
-                  <span class="stat-number">{estimationNbPetitionnairesEnFranceParAn}</span>
+                  <span class="stat-number">{estimatedAnnualPetitionnaireCountInFrance}</span>
                   <span class="stat-label"
                     >Pétitionnaires en France<br /><span class="fr-text--xs">(référence)</span
                     ></span
@@ -84,12 +88,12 @@
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleAvecDécision}</span>
-                  <span class="stat-label">Avec décision<br />{pourcentageAvecDecision}%</span>
+                  <span class="stat-number">{stats.controlePhaseDossierWithDecisionCount}</span>
+                  <span class="stat-label">Avec décision<br />{withDecisionPercentage}%</span>
                 </div>
                 <div class="progress-label progress-label--right">
-                  <span class="stat-number">{stats.nbDossiersEnPhaseContrôleSansDécision}</span>
-                  <span class="stat-label">Sans décision<br />{pourcentageSansDecision}%</span>
+                  <span class="stat-number">{stats.controlePhaseDossierWithoutDecisionCount}</span>
+                  <span class="stat-label">Sans décision<br />{withoutDecisionPercentage}%</span>
                 </div>
               </div>
               <div
@@ -97,16 +101,16 @@
                 style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
               >
                 <div
-                  style="width: {pourcentageAvecDecision}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
+                  style="width: {withDecisionPercentage}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
                 ></div>
                 <div
-                  style="width: {pourcentageSansDecision}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
+                  style="width: {withoutDecisionPercentage}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
                 ></div>
               </div>
               <div class="progress-total fr-mt-1w">
                 <span class="stat-label"
                   >Total dossiers en phase Contrôle : <strong
-                    >{stats.nbDossiersEnPhaseContrôle}</strong
+                    >{stats.controlePhaseDossierCount}</strong
                   ></span
                 >
               </div>
@@ -145,24 +149,29 @@
             <div class="progress-stats-wrapper">
               <div class="progress-labels">
                 <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.nbPrescriptionsControlees}</span>
+                  <span class="stat-number">{stats.prescriptionWithControleCount}</span>
                   <span class="stat-label"
-                    >Contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
+                    >Contrôlées dans Pitchou<br />{stats.controllablePrescriptionCount > 0
                       ? Math.round(
-                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                          (stats.prescriptionWithControleCount /
+                            stats.controllablePrescriptionCount) *
+                            100,
                         )
                       : 0}%</span
                   >
                 </div>
                 <div class="progress-label progress-label--right">
                   <span class="stat-number"
-                    >{stats.totalPrescriptions - stats.nbPrescriptionsControlees}</span
+                    >{stats.controllablePrescriptionCount -
+                      stats.prescriptionWithControleCount}</span
                   >
                   <span class="stat-label"
-                    >Non contrôlées dans Pitchou<br />{stats.totalPrescriptions > 0
+                    >Non contrôlées dans Pitchou<br />{stats.controllablePrescriptionCount > 0
                       ? 100 -
                         Math.round(
-                          (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100,
+                          (stats.prescriptionWithControleCount /
+                            stats.controllablePrescriptionCount) *
+                            100,
                         )
                       : 0}%</span
                   >
@@ -173,14 +182,15 @@
                 style="height: 1.5rem; background: var(--background-alt-grey); border-radius: 8px; overflow: hidden;"
               >
                 <div
-                  style="width: {stats.totalPrescriptions > 0
-                    ? (stats.nbPrescriptionsControlees / stats.totalPrescriptions) * 100
+                  style="width: {stats.controllablePrescriptionCount > 0
+                    ? (stats.prescriptionWithControleCount / stats.controllablePrescriptionCount) *
+                      100
                     : 0}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
                 ></div>
                 <div
-                  style="width: {stats.totalPrescriptions > 0
-                    ? ((stats.totalPrescriptions - stats.nbPrescriptionsControlees) /
-                        stats.totalPrescriptions) *
+                  style="width: {stats.controllablePrescriptionCount > 0
+                    ? ((stats.controllablePrescriptionCount - stats.prescriptionWithControleCount) /
+                        stats.controllablePrescriptionCount) *
                       100
                     : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
                 ></div>
@@ -188,7 +198,7 @@
               <div class="progress-total fr-mt-1w">
                 <span class="stat-label"
                   >Total prescriptions contrôlables dans Pitchou : <strong
-                    >{stats.totalPrescriptions}</strong
+                    >{stats.controllablePrescriptionCount}</strong
                   ></span
                 >
               </div>
@@ -198,9 +208,9 @@
       </div>
     </section>
 
-    <StatistiquesConformites
-      statsConformite={stats.statsConformité}
-      totalPrescriptions={stats.totalPrescriptions}
+    <ConformiteStats
+      conformiteStats={stats.conformiteStats}
+      controllablePrescriptionCount={stats.controllablePrescriptionCount}
     />
     <section class="fr-mt-4w">
       <h2 class="fr-mt-2w">Impact biodiversité des prescriptions conformes</h2>
@@ -210,48 +220,48 @@
             <div class="biodiv-chiffres">
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_prescriptions_conformes}</span
+                  >{stats.biodiversiteImpactStats.conformePrescriptionCount}</span
                 >
                 <span class="stat-label">Prescriptions conformes</span>
               </div>
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_surface_évitée.toLocaleString()} m²</span
+                  >{stats.biodiversiteImpactStats.avoidedSurfaceTotal.toLocaleString()} m²</span
                 >
                 <span class="stat-label">Surface évitée</span>
               </div>
               <div class="biodiv-chiffre-item">
                 <span class="stat-number"
-                  >{stats.statsImpactBiodiversité.total_surface_compensée.toLocaleString()} m²</span
+                  >{stats.biodiversiteImpactStats.compensatedSurfaceTotal.toLocaleString()} m²</span
                 >
                 <span class="stat-label">Surface compensée</span>
               </div>
-              {#if stats.statsImpactBiodiversité.total_nids_évités > 0}
+              {#if stats.biodiversiteImpactStats.avoidedNidsCount > 0}
                 <div class="biodiv-chiffre-item">
-                  <span class="stat-number">{stats.statsImpactBiodiversité.total_nids_évités}</span>
+                  <span class="stat-number">{stats.biodiversiteImpactStats.avoidedNidsCount}</span>
                   <span class="stat-label">Nids évités</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_nids_compensés > 0}
+              {#if stats.biodiversiteImpactStats.compensatedNidsCount > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_nids_compensés}</span
+                    >{stats.biodiversiteImpactStats.compensatedNidsCount}</span
                   >
                   <span class="stat-label">Nids compensés</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_individus_évités > 0}
+              {#if stats.biodiversiteImpactStats.avoidedIndividusCount > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_individus_évités}</span
+                    >{stats.biodiversiteImpactStats.avoidedIndividusCount}</span
                   >
                   <span class="stat-label">Individus évités</span>
                 </div>
               {/if}
-              {#if stats.statsImpactBiodiversité.total_individus_compensés > 0}
+              {#if stats.biodiversiteImpactStats.compensatedIndividusCount > 0}
                 <div class="biodiv-chiffre-item">
                   <span class="stat-number"
-                    >{stats.statsImpactBiodiversité.total_individus_compensés}</span
+                    >{stats.biodiversiteImpactStats.compensatedIndividusCount}</span
                   >
                   <span class="stat-label">Individus compensés</span>
                 </div>

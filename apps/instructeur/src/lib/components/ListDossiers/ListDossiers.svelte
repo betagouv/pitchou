@@ -19,7 +19,7 @@
     instructeurFollowsDossier,
     instructeurLeavesDossier,
   } from "$lib/dossier/suiviDossier.ts";
-  import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
+  import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
   import CardDossier from "./CardDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
@@ -32,14 +32,14 @@
     title: string;
     email?: string;
     dossiers: DossierSummary[];
-    relationSuivis?: PitchouState["relationSuivis"];
+    followRelations?: PitchouState["followRelations"];
     /** Names of the instructeur's services (groupes instructeurs) */
     services?: string[];
     recentSearches?: string[];
-    /** Show the instructeur·ice filter (quick button + modal section) — irrelevant on « mes dossiers » */
+    /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
     showFilterInstructeurice?: boolean;
     showFilterEnjeu?: boolean;
-    /** Show the « prochaine action à moi » quick filter — for « mes dossiers » */
+    /** Show the « prochaine action à moi » quick filter for « mes dossiers » */
     showFilterActionInstructeur?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
   };
@@ -48,7 +48,7 @@
     title,
     email = "",
     dossiers,
-    relationSuivis,
+    followRelations,
     services = [],
     recentSearches = [],
     showFilterInstructeurice = false,
@@ -74,7 +74,7 @@
   let statusMessage = $state("");
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
-  const ctx = $derived({ notificationByDossier, relationSuivis });
+  const ctx = $derived({ notificationByDossier, followRelations });
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
   const sortedDossiers = $derived(
     [...filteredDossiers].sort((a, b) =>
@@ -108,10 +108,10 @@
 
   const activeFilterCount = $derived(countActiveFilters(query));
   const filterChips = $derived(buildActiveFilterChips(query));
-  const instructeurCount = $derived(listAvailableInstructeurs(relationSuivis).length);
+  const instructeurCount = $derived(listAvailableInstructeurs(followRelations).length);
 
   const dossierIdsFollowedByCurrentInstructeur = $derived(
-    relationSuivis?.get(email) ?? new Set<Dossier["id"]>(),
+    followRelations?.get(email) ?? new Set<Dossier["id"]>(),
   );
 
   /** Reflects the given query into the URL, which is the single source of truth */
@@ -128,7 +128,7 @@
   function applySearch(next: DossiersQuery) {
     navigate(next);
     const count = filterDossiers(dossiers, next, ctx).length;
-    _sendEvenementRechercherUnDossier(buildSearchEvent(next, count, { instructeurCount, email }));
+    sendDossierSearchEvent(buildSearchEvent(next, count, { instructeurCount, email }));
     statusMessage = `${count} dossiers affichés sur ${dossiers.length}`;
     setTimeout(() => (statusMessage = ""), 400);
   }
@@ -137,7 +137,7 @@
     applySearch({ ...copyDossiersQuery(query), text, page: 1 });
   }
 
-  function onToggleSansInstructeurice() {
+  function onToggleWithoutInstructeur() {
     const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
       ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
       : [...query.instructeur, WITHOUT_INSTRUCTEUR];
@@ -183,7 +183,6 @@
     // and announces the final count once.
     applySearch({ ...copyDossiersQuery(draft), page: 1 });
   }
-
   function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
@@ -200,7 +199,7 @@
     {showFilterInstructeurice}
     {showFilterEnjeu}
     {showFilterActionInstructeur}
-    sansInstructeuriceActive={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
+    withoutInstructeurActive={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
     enjeuActive={query.enjeu}
     actionInstructeurActive={query.actionInstructeur}
     {activeFilterCount}
@@ -210,7 +209,7 @@
     sortKey={query.sort}
     sortOrder={query.order}
     {onSearch}
-    {onToggleSansInstructeurice}
+    {onToggleWithoutInstructeur}
     onToggleEnjeu={() => toggleFilter("enjeu")}
     onToggleActionInstructeur={() => toggleFilter("actionInstructeur")}
     onOpenFilters={openFilters}
@@ -229,7 +228,7 @@
   open={modalOpen}
   bind:draft
   {dossiers}
-  {relationSuivis}
+  {followRelations}
   {showFilterInstructeurice}
   numberResults={filteredDossiers.length}
   onApply={applyFilters}
@@ -248,7 +247,7 @@
             dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(
               dossier.id,
             )}
-            nouveautéVueParInstructeur={notificationByDossier.get(dossier.id)?.vue ?? true}
+            notificationViewed={notificationByDossier.get(dossier.id)?.viewed ?? true}
           />
         </li>
       {/each}

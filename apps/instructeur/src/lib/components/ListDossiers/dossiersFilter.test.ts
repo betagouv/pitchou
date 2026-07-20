@@ -36,9 +36,9 @@ describe("filterDossiers", () => {
 
   test("keeps a dossier when any of its départements is selected", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), départements: ["44", "49"] }),
-      makeDossier({ id: dossierId(2), départements: ["33"] }),
-      makeDossier({ id: dossierId(3), départements: ["75"] }),
+      makeDossier({ id: dossierId(1), departments: ["44", "49"] }),
+      makeDossier({ id: dossierId(2), departments: ["33"] }),
+      makeDossier({ id: dossierId(3), departments: ["75"] }),
     ];
     const result = filterDossiers(
       dossiers,
@@ -51,8 +51,8 @@ describe("filterDossiers", () => {
   test("« nouveaute oui » keeps only dossiers with an unseen notification", () => {
     const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { vue: false, date_dernière_mise_à_jour: new Date("2024-05-01") }],
-      [dossierId(2), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-02") }],
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
     ]);
 
     const result = filterDossiers(
@@ -65,14 +65,14 @@ describe("filterDossiers", () => {
 
   test("« sans instructeur·ice » keeps only dossiers nobody follows", () => {
     const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
-    const relationSuivis = new Map<string, Set<DossierSummary["id"]>>([
+    const followRelations = new Map<string, Set<DossierSummary["id"]>>([
       ["jane@doe.fr", new Set([dossierId(1)])],
     ]);
 
     const result = filterDossiers(
       dossiers,
       makeQuery({ instructeur: [WITHOUT_INSTRUCTEUR] }),
-      makeContext({ relationSuivis }),
+      makeContext({ followRelations }),
     );
     expect(result.map((d) => d.id)).toEqual([2]);
   });
@@ -83,7 +83,7 @@ describe("filterDossiers", () => {
       makeDossier({ id: dossierId(2) }),
       makeDossier({ id: dossierId(3) }),
     ];
-    const relationSuivis = new Map<string, Set<DossierSummary["id"]>>([
+    const followRelations = new Map<string, Set<DossierSummary["id"]>>([
       ["jane@doe.fr", new Set([dossierId(1)])],
       ["john@doe.fr", new Set([dossierId(3)])],
     ]);
@@ -91,7 +91,7 @@ describe("filterDossiers", () => {
     const result = filterDossiers(
       dossiers,
       makeQuery({ instructeur: [WITHOUT_INSTRUCTEUR, "jane@doe.fr"] }),
-      makeContext({ relationSuivis }),
+      makeContext({ followRelations }),
     );
     // 1 is followed by jane, 2 is unfollowed; 3 is followed only by john → excluded
     expect(result.map((d) => d.id)).toEqual([1, 2]);
@@ -108,11 +108,11 @@ describe("filterDossiers", () => {
 
   test("« décision non-renseignée » keeps dossiers without any décision administrative", () => {
     const decision = [
-      { numéro: "AP-2024-042" },
-    ] as unknown as DossierSummary["décisionsAdministratives"];
+      { number: "AP-2024-042" },
+    ] as unknown as DossierSummary["decisionsAdministratives"];
     const dossiers = [
-      makeDossier({ id: dossierId(1), décisionsAdministratives: [] }),
-      makeDossier({ id: dossierId(2), décisionsAdministratives: decision }),
+      makeDossier({ id: dossierId(1), decisionsAdministratives: [] }),
+      makeDossier({ id: dossierId(2), decisionsAdministratives: decision }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ decisionAbsente: true }), makeContext());
     expect(result.map((d) => d.id)).toEqual([1]);
@@ -122,15 +122,15 @@ describe("filterDossiers", () => {
     const dossiers = [
       makeDossier({
         id: dossierId(1),
-        décisionsAdministratives: [
-          { numéro: "AP-2024-042" },
-        ] as unknown as DossierSummary["décisionsAdministratives"],
+        decisionsAdministratives: [
+          { number: "AP-2024-042" },
+        ] as unknown as DossierSummary["decisionsAdministratives"],
       }),
       makeDossier({
         id: dossierId(2),
-        décisionsAdministratives: [
-          { numéro: "AP-2023-999" },
-        ] as unknown as DossierSummary["décisionsAdministratives"],
+        decisionsAdministratives: [
+          { number: "AP-2023-999" },
+        ] as unknown as DossierSummary["decisionsAdministratives"],
       }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ decisionText: "2024-042" }), makeContext());
@@ -168,8 +168,8 @@ describe("filterDossiers", () => {
 
   test("routes the text search through the filter (digit query matches a département code)", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), départements: ["64"] }),
-      makeDossier({ id: dossierId(2), départements: ["33"] }),
+      makeDossier({ id: dossierId(1), departments: ["64"] }),
+      makeDossier({ id: dossierId(2), departments: ["33"] }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ text: "64" }), makeContext());
     expect(result.map((d) => d.id)).toEqual([1]);
@@ -177,9 +177,9 @@ describe("filterDossiers", () => {
 
   test("keeps only the chosen activité, dropping dossiers with none", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), activité_principale: "Carrières" }),
-      makeDossier({ id: dossierId(2), activité_principale: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(3), activité_principale: null }),
+      makeDossier({ id: dossierId(1), main_activite: "Carrières" }),
+      makeDossier({ id: dossierId(2), main_activite: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(3), main_activite: null }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ activite: ["Carrières"] }), makeContext());
     expect(result.map((d) => d.id)).toEqual([1]);
@@ -187,8 +187,8 @@ describe("filterDossiers", () => {
 
   test("« actionInstructeur » keeps dossiers awaiting the instructeur", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), prochaine_action_attendue_par: "Instructeur" }),
-      makeDossier({ id: dossierId(2), prochaine_action_attendue_par: "Pétitionnaire" }),
+      makeDossier({ id: dossierId(1), next_action_expected_from: "Instructeur" }),
+      makeDossier({ id: dossierId(2), next_action_expected_from: "Pétitionnaire" }),
     ];
     const result = filterDossiers(dossiers, makeQuery({ actionInstructeur: true }), makeContext());
     expect(result.map((d) => d.id)).toEqual([1]);
@@ -196,9 +196,9 @@ describe("filterDossiers", () => {
 
   test("keeps dossiers matching any selected prochaine action (OR)", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), prochaine_action_attendue_par: "Instructeur" }),
-      makeDossier({ id: dossierId(2), prochaine_action_attendue_par: "Pétitionnaire" }),
-      makeDossier({ id: dossierId(3), prochaine_action_attendue_par: null }),
+      makeDossier({ id: dossierId(1), next_action_expected_from: "Instructeur" }),
+      makeDossier({ id: dossierId(2), next_action_expected_from: "Pétitionnaire" }),
+      makeDossier({ id: dossierId(3), next_action_expected_from: null }),
     ];
     const result = filterDossiers(
       dossiers,
@@ -215,8 +215,8 @@ describe("filterDossiers", () => {
       makeDossier({ id: dossierId(3) }),
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { vue: false, date_dernière_mise_à_jour: new Date("2024-05-01") }],
-      [dossierId(2), { vue: true, date_dernière_mise_à_jour: new Date("2024-05-02") }],
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
     ]);
     const result = filterDossiers(
       dossiers,

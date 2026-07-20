@@ -1,5 +1,5 @@
 import parseArgs from "minimist";
-import { resetSecretGeoMCE, getSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
+import { resetSecretGeoMCE, getSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);

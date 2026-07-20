@@ -13,7 +13,7 @@ import type Message from "./database/public/Message.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
 import type Notification from "./database/public/Notification.ts";
-import type ResultatSynchronisationDS88444 from "./database/public/ResultatSynchronisationDS88444.ts";
+import type DemarcheNumerique88444SynchronizationResult from "./database/public/DemarcheNumerique88444SynchronizationResult.ts";
 
 export type ActivitesMethodesMoyensDePoursuiteBundle = {
   activités: ByClassification<Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>>;
@@ -32,11 +32,8 @@ export type PitchouState = {
   dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
   fullDossiers: Map<DossierFull["id"], DossierFull>;
   messagesByDossierId: Map<DossierFull["id"], Message[]>;
-  relationSuivis?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
-  notificationByDossier: Map<
-    Dossier["id"],
-    Pick<Notification, "vue" | "date_dernière_mise_à_jour">
-  >;
+  followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
+  notificationByDossier: Map<Dossier["id"], Pick<Notification, "viewed" | "updated_at">>;
   identité?: IdentiteInstructeurPitchou;
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;
@@ -47,5 +44,5 @@ export type PitchouState = {
   /** Last searches typed in the dossiers search bar, most recent first */
   recentSearches?: string[];
   errors: Set<{ message: string }>;
-  résultatsSynchronisationDS88444?: ResultatSynchronisationDS88444[];
+  demarcheNumerique88444SynchronizationResults?: DemarcheNumerique88444SynchronizationResult[];
 };

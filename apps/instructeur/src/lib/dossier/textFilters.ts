@@ -19,21 +19,16 @@ export function createTextFilter(
   // If the text contains digits, use direct search
   if (textToSearch.match(/\d[\dA-Za-z\-]*/)) {
     return (dossier) => {
-      const {
-        id,
-        départements,
-        communes,
-        number_demarches_simplifiées,
-        historique_identifiant_demande_onagre,
-      } = dossier;
+      const { id, departments, communes, demarche_numerique_number, onagre_demande_identifier } =
+        dossier;
       const communesCodes = communes?.map(({ postalCode }) => postalCode).filter((c) => c) || [];
 
       return (
         String(id) === textToSearch ||
-        départements?.includes(textToSearch || "") ||
+        departments?.includes(textToSearch || "") ||
         communesCodes?.includes(textToSearch || "") ||
-        number_demarches_simplifiées === textToSearch ||
-        historique_identifiant_demande_onagre === textToSearch
+        demarche_numerique_number === textToSearch ||
+        onagre_demande_identifier === textToSearch
       );
     };
   } else {

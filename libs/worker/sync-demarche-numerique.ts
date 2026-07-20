@@ -6,11 +6,11 @@ import {
   dumpEntreprises,
   closeDatabaseConnection,
   createTransaction,
-  addResultatSynchronisationDS88444,
+  addDemarcheNumerique88444SynchronizationResult,
 } from "@pitchou/server/database.ts";
 import {
   dumpDossiers,
-  getDossierIdsFromDS_Ids,
+  getDossierIdsFromDS_Ids as getDossierIdsFromDNIds,
   dumpDossierMessages,
   deleteDossierByDSNumber,
   synchronizeDossierInGroupeInstructeur,
@@ -39,7 +39,7 @@ import {
 import { makeCommonDossierColumnsForSync88444 } from "./synchronization-ds/makeCommonDossierColumnsForSync88444.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/arete_dossier__fichier_pieces_jointes_petitionnaire.ts";
+import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/edge_dossier__fichier_pieces_jointes_petitionnaire.ts";
 import { updateNotification } from "./synchronization-ds/synchronization-notification.ts";
 
 import type { default as DatabaseDossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -48,7 +48,7 @@ import type {
   PersonneInitializer,
 } from "@pitchou/types/database/public/Personne.ts";
 import type { default as Entreprise } from "@pitchou/types/database/public/Entreprise.ts";
-import type { default as ResultatSynchronisationDS88444 } from "@pitchou/types/database/public/ResultatSynchronisationDS88444.ts";
+import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { Message, DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type {
@@ -56,16 +56,16 @@ import type {
   ChampDescriptor,
 } from "@pitchou/types/demarche-numerique/schema.ts";
 import type {
+  DossierDemarcheNumerique88444,
+  AnnotationsPriveesDemarcheNumerique88444,
+} from "@pitchou/types/demarche-numerique/Demarche88444.ts";
+import type {
   DossierEntreprisesPersonneInitializersForInsert,
   DossierEntreprisesPersonneInitializersForUpdate,
   DossierForInsert,
   DossierForUpdate,
   IdentiteDossierData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
-import type {
-  DossierDemarcheNumerique88444,
-  AnnotationsPriveesDemarcheNumerique88444,
-} from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   GetPersonnesEntreprisesData,
   MakeCommonDossierColumnsForSync,
@@ -164,12 +164,12 @@ export const pitchouKeyToAnnotationDS = new Map(
 const allPersonnesCurrentlyInDatabaseP = listAllPersonnes(synchronizationTransactionDS);
 // const allEntreprisesCurrentlyInDatabase = listAllEntreprises();
 
-const dossiersAlreadyInDB = await getDossierIdsFromDS_Ids(
+const dossiersAlreadyInDB = await getDossierIdsFromDNIds(
   dossiersDS.map((d: DossierDS88444) => d.id),
   synchronizationTransactionDS,
 );
 const dossierNumberToDossierId = new Map(
-  dossiersAlreadyInDB.map((d) => [d.number_demarches_simplifiées, d.id]),
+  dossiersAlreadyInDB.map((d) => [d.demarche_numerique_number, d.id]),
 );
 
 /** Download the new 'motivation' files */
@@ -235,14 +235,14 @@ function collectPersonne(personne: PersonneInitializer | undefined) {
   if (personne.email) {
     personnesInDossiersWithEmail.set(personne.email, personne);
   } else {
-    personnesInDossiersWithoutEmail.set(`${personne.prénoms}|${personne.nom}`, personne);
+    personnesInDossiersWithoutEmail.set(`${personne.first_names}|${personne.last_name}`, personne);
   }
 }
 
 for (const {
-  dossier: { déposant, demandeur_personne_physique },
+  dossier: { deposant, demandeur_personne_physique },
 } of dossiersForSynchronization) {
-  collectPersonne(déposant);
+  collectPersonne(deposant);
   collectPersonne(demandeur_personne_physique);
 }
 
@@ -262,12 +262,14 @@ function getPersonneId(
     return personne && personne.id;
   }
 
-  const personneByNomPrenom = allPersonnesCurrentlyInDatabase.find(
-    ({ email, nom, prénoms }) =>
-      !email && descriptionPersonne.nom === nom && descriptionPersonne.prénoms === prénoms,
+  const personneByName = allPersonnesCurrentlyInDatabase.find(
+    ({ email, last_name, first_names }) =>
+      !email &&
+      descriptionPersonne.last_name === last_name &&
+      descriptionPersonne.first_names === first_names,
   );
 
-  return personneByNomPrenom && personneByNomPrenom.id;
+  return personneByName && personneByName.id;
 }
 
 const personnesInDossiersWithoutId = [
@@ -288,7 +290,7 @@ if (personnesInDossiersWithoutId.length >= 1) {
 
   // Register the newly created personnes in the lookup structures used by getPersonneId().
   // Without this, only the deduplicated object receives the new id: every other dossier
-  // of the batch referencing the same personne (same email, or same nom/prénoms when
+  // of the batch referencing the same personne (same email, or same name when
   // there is no email) would be linked to null.
   for (const personne of personnesInDossiersWithoutId) {
     if (personne.email) {
@@ -308,13 +310,13 @@ if (personnesInDossiersWithoutId.length >= 1) {
 const entreprisesInDossiersBySiret = new Map<Entreprise["siret"], Entreprise>();
 
 for (const {
-  dossier: { demandeur_personne_morale, id_demarches_simplifiées },
+  dossier: { demandeur_personne_morale, demarche_numerique_id },
 } of dossiersForSynchronization) {
   if (demandeur_personne_morale) {
     const { siret } = demandeur_personne_morale;
     if (demandeur_personne_morale && !siret) {
       throw new TypeError(
-        `Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id_DS: ${id_demarches_simplifiées})`,
+        `Siret manquant pour l'entreprise ${JSON.stringify(demandeur_personne_morale)} (id_DN: ${demarche_numerique_id})`,
       );
     }
 
@@ -339,7 +341,7 @@ function _replacePersonneEntreprise(
 ) {
   const {
     dossier: {
-      déposant,
+      deposant,
       demandeur_personne_physique,
       demandeur_personne_morale,
       // The identities are stored in the identite_dossier table, not as dossier columns.
@@ -351,7 +353,7 @@ function _replacePersonneEntreprise(
 
   return {
     dossier: {
-      déposant: getPersonneId(déposant) || null,
+      deposant: getPersonneId(deposant) || null,
       demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
       demandeur_personne_morale:
         (demandeur_personne_morale && demandeur_personne_morale.siret) || null,
@@ -447,16 +449,16 @@ await Promise.all([synchronizedDossiers, deletedDossiers]);
  * Synchronization of everything that needs a Dossier['id']
  */
 
-const dossierIds = await getDossierIdsFromDS_Ids(
+const dossierIds = await getDossierIdsFromDNIds(
   dossiersDS.map((d: DossierDS88444) => d.id),
   synchronizationTransactionDS,
 );
-const dossierIdByDS_id = new Map<NonNullable<DossierDS88444["id"]>, DatabaseDossier["id"]>();
-const dossierIdByDS_number = new Map<DossierDS88444["number"], DatabaseDossier["id"]>();
+const dossierIdByDNId = new Map<NonNullable<DossierDS88444["id"]>, DatabaseDossier["id"]>();
+const dossierIdByDNNumber = new Map<DossierDS88444["number"], DatabaseDossier["id"]>();
 
-for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of dossierIds) {
-  dossierIdByDS_id.set(id_demarches_simplifiées, id);
-  dossierIdByDS_number.set(Number(number_demarches_simplifiées), id);
+for (const { id, demarche_numerique_id, demarche_numerique_number } of dossierIds) {
+  dossierIdByDNId.set(demarche_numerique_id, id);
+  dossierIdByDNNumber.set(Number(demarche_numerique_number), id);
 }
 
 /** Sync of the identities (demandeur, mandataire, representant) shown in the Porteur de projet tab */
@@ -464,9 +466,9 @@ for (const { id, id_demarches_simplifiées, number_demarches_simplifiées } of d
 const identitesByDossierId = new Map<DatabaseDossier["id"], IdentiteDossierData[]>();
 
 for (const {
-  dossier: { identites, number_demarches_simplifiées },
+  dossier: { identites, demarche_numerique_number },
 } of dossiersForSynchronization) {
-  const dossierId = dossierIdByDS_number.get(Number(number_demarches_simplifiées));
+  const dossierId = dossierIdByDNNumber.get(Number(demarche_numerique_number));
   if (dossierId) {
     identitesByDossierId.set(dossierId, identites);
   }
@@ -476,16 +478,16 @@ const identitesSynced = syncIdentitesDossier(identitesByDossierId, synchronizati
 
 /** Synchronization of the messaging */
 
-const messagesToStoreInDBWithDossierId_DS = new Map<
-  NonNullable<DatabaseDossier["id_demarches_simplifiées"]>,
+const messagesToStoreInDBWithDossierDNId = new Map<
+  NonNullable<DatabaseDossier["demarche_numerique_id"]>,
   Message[]
->(dossiersDS.map(({ id: id_DS, messages }: DossierDS88444) => [id_DS, messages]));
+>(dossiersDS.map(({ id: idDN, messages }: DossierDS88444) => [idDN, messages]));
 
 let synchronizedMessages;
 
 const messagesToStoreInDBWithDossierId = new Map<DatabaseDossier["id"], Message[]>();
-for (const [id_DS, messages] of messagesToStoreInDBWithDossierId_DS) {
-  const dossierId = dossierIdByDS_id.get(id_DS);
+for (const [idDN, messages] of messagesToStoreInDBWithDossierDNId) {
+  const dossierId = dossierIdByDNId.get(idDN);
 
   messagesToStoreInDBWithDossierId.set(dossierId!, messages);
 }
@@ -534,9 +536,9 @@ const synchronizedFichiersPiecesJointesPetitionnaire =
 
       const downloadedFichiersPiecesJointesPetitionnaireByDossierId = new Map(
         [...downloadedFichiersPiecesJointesPetitionnaire].map(([number, fichiers]) => {
-          const id = dossierIdByDS_number.get(number);
+          const id = dossierIdByDNNumber.get(number);
           if (!id) {
-            console.log("dossierIdByDS_number", dossierIdByDS_number);
+            console.log("dossierIdByDNNumber", dossierIdByDNNumber);
             throw `Id de dossier manquant pour dossier DS ${number}`;
           }
 
@@ -546,7 +548,7 @@ const synchronizedFichiersPiecesJointesPetitionnaire =
       return synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
         downloadedFichiersPiecesJointesPetitionnaireByDossierId,
         dossiersDS,
-        dossierIdByDS_number,
+        dossierIdByDNNumber,
         pitchouKeyToChampDS,
         champsWithPiecesJointes88444,
         synchronizationTransactionDS,
@@ -559,7 +561,7 @@ const synchronizedFichiersPiecesJointesPetitionnaire =
 */
 const updateNotificationP = updateNotification(
   dossiersDS,
-  dossierIdByDS_number,
+  dossierIdByDNNumber,
   synchronizationTransactionDS,
 );
 
@@ -576,28 +578,28 @@ Promise.all([
 ])
   .then(() => {
     console.log("Sync terminé avec succès, commit de la transaction");
-    const syncResult: ResultatSynchronisationDS88444 = {
-      succès: true,
-      horodatage: new Date(),
-      erreur: null,
+    const syncResult: DemarcheNumerique88444SynchronizationResult = {
+      success: true,
+      timestamp: new Date(),
+      error: null,
     };
 
     return Promise.allSettled([
-      addResultatSynchronisationDS88444(syncResult),
+      addDemarcheNumerique88444SynchronizationResult(syncResult),
       synchronizationTransactionDS.commit(),
     ]);
   })
   .catch((err) => {
     console.error("Sync échoué", err, "rollback de la transaction");
 
-    const syncResult: ResultatSynchronisationDS88444 = {
-      succès: false,
-      horodatage: new Date(),
-      erreur: err.toString(),
+    const syncResult: DemarcheNumerique88444SynchronizationResult = {
+      success: false,
+      timestamp: new Date(),
+      error: err.toString(),
     };
 
     return Promise.allSettled([
-      addResultatSynchronisationDS88444(syncResult),
+      addDemarcheNumerique88444SynchronizationResult(syncResult),
       synchronizationTransactionDS.rollback(),
     ]);
   })

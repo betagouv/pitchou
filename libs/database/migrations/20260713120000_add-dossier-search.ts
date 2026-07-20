@@ -10,7 +10,7 @@ export async function up(knex: Knex) {
 
     table.text("text").notNullable().comment("Text typed in the dossiers search bar");
 
-    // Unlike évènement_métrique.date (day resolution), a real timestamp so recency
+    // Unlike evenement_metrique.date (day resolution), a real timestamp so recency
     // ordering is precise
     table
       .timestamp("date", { useTz: true })

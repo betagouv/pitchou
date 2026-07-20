@@ -47,27 +47,27 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
   //console.log('checksumsDS', checksumsDS)
 
   // Find the (dossier, fichier) pairs to unlink: files linked to a dossier of the batch via the pétitionnaire PJ join,
-  // but whose DS_checksum is no longer in the list of DS candidates for these dossiers
-  const aretesToDelete = await databaseConnection(
-    "arête_dossier__fichier_pièces_jointes_pétitionnaire as a",
+  // but whose Démarche Numérique checksum is no longer in the list of candidates for these dossiers
+  const edgesToDelete = await databaseConnection(
+    "edge_dossier__fichier_pieces_jointes_petitionnaire as a",
   )
     .select(["a.dossier as dossier", "a.fichier as fichier"])
     .innerJoin("file as f", "f.id", "a.fichier")
     .whereIn("a.dossier", [...dossierIds])
-    .andWhere("f.DS_checksum", "not in", [...checksumsDS]);
+    .andWhere("f.demarche_numerique_checksum", "not in", [...checksumsDS]);
 
   let orphanFichiersCleanedUp: Promise<any> = Promise.resolve();
 
-  if (aretesToDelete.length >= 1) {
-    const candidateFichierIdsToDelete = [...new Set(aretesToDelete.map((a) => a.fichier))];
+  if (edgesToDelete.length >= 1) {
+    const candidateFichierIdsToDelete = [...new Set(edgesToDelete.map((edge) => edge.fichier))];
 
     orphanFichiersCleanedUp = (async () => {
       // 1. Unlink: delete the concerned pétitionnaire PJ edges (the file may still be used elsewhere)
-      await databaseConnection("arête_dossier__fichier_pièces_jointes_pétitionnaire")
+      await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
         .delete()
         .whereIn(
           ["dossier", "fichier"],
-          aretesToDelete.map((a) => [a.dossier, a.fichier]),
+          edgesToDelete.map((edge) => [edge.dossier, edge.fichier]),
         );
 
       // 2. Delete the files now that the edges are gone, only
@@ -76,7 +76,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     })();
   }
 
-  const aretesFichierDossierPiecesJointePetitionnaires = [
+  const edgesFichierDossierPiecesJointePetitionnaires = [
     ...fichiersPiecesJointesPetitionnaireByDossierId,
   ]
     .map(([dossierId, fichierIds]) =>
@@ -86,11 +86,11 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
 
   let newFichiersSynchronized: Promise<any> = Promise.resolve();
 
-  if (aretesFichierDossierPiecesJointePetitionnaires.length >= 1) {
+  if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
     newFichiersSynchronized = databaseConnection(
-      "arête_dossier__fichier_pièces_jointes_pétitionnaire",
+      "edge_dossier__fichier_pieces_jointes_petitionnaire",
     )
-      .insert(aretesFichierDossierPiecesJointePetitionnaires)
+      .insert(edgesFichierDossierPiecesJointePetitionnaires)
       .onConflict(["dossier", "fichier"])
       .ignore();
   }

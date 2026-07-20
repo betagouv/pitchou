@@ -35,16 +35,16 @@ export async function createInstructeurWithCapToGroup(
     email?: string;
     codeAcces?: string;
     nomGroupe?: string;
-    numéroDémarche?: number;
+    demarcheNumber?: number;
   } = {},
 ): Promise<InstructeurWithCap> {
   const personne = await createPersonne(db, {
     email: overrides.email,
-    code_accès: overrides.codeAcces,
+    access_code: overrides.codeAcces,
   });
   const groupe = await createGroupeInstructeurs(db, {
-    nom: overrides.nomGroupe,
-    numéro_démarche: overrides.numéroDémarche,
+    name: overrides.nomGroupe,
+    demarche_number: overrides.demarcheNumber,
   });
   const { cap } = await createCapDossier(db, personne.codeAcces);
   await attachCapToGroupe(db, cap, groupe.id);
@@ -66,19 +66,19 @@ export async function createInstructeurWithDossier(
     codeAcces?: string;
     nomGroupe?: string;
     dossierNom?: string;
-    numéroDémarche?: number;
+    demarcheNumber?: number;
   } = {},
 ): Promise<InstructeurWithDossier> {
-  const numeroDemarche = overrides.numéroDémarche ?? DEFAULT_NUMERO_DEMARCHE;
+  const demarcheNumber = overrides.demarcheNumber ?? DEFAULT_NUMERO_DEMARCHE;
   const base = await createInstructeurWithCapToGroup(db, {
     email: overrides.email,
     codeAcces: overrides.codeAcces,
     nomGroupe: overrides.nomGroupe,
-    numéroDémarche: numeroDemarche,
+    demarcheNumber,
   });
   const dossier = await createDossier(db, {
-    nom: overrides.dossierNom ?? "Dossier de test",
-    numéro_démarche: numeroDemarche,
+    name: overrides.dossierNom ?? "Dossier de test",
+    demarche_number: demarcheNumber,
   });
   await attachDossierToGroupe(db, dossier.id, base.groupeId);
   return { ...base, dossier };

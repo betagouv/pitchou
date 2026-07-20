@@ -2,22 +2,22 @@ import { DossierPhase, DossierNextActionExpectedFrom } from "./API_Pitchou";
 import Dossier from "./database/public/Dossier";
 import { default as Prescription } from "./database/public/Prescription";
 
-export type EvenementRechercheDossiersDetails = {
-  filtres: {
-    suiviPar?: {
-      nombreSéléctionnées: number;
-      nombreTotal: number;
-      inclusSoiMême: boolean;
+export type DossierSearchEventDetails = {
+  filters: {
+    followedBy?: {
+      selectedCount: number;
+      totalCount: number;
+      includesSelf: boolean;
     };
-    sansInstructeurice?: boolean;
-    texte?: string;
+    withoutInstructeur?: boolean;
+    text?: string;
     phases?: DossierPhase[];
-    prochaineActionAttenduePar?: Array<DossierNextActionExpectedFrom | "(vide)">;
-    activitésPrincipales?: NonNullable<Dossier["activité_principale"]>[];
-    départements?: string[];
-    nouveauté?: boolean;
+    nextActionExpectedFrom?: Array<DossierNextActionExpectedFrom | "(vide)">;
+    activitesPrincipales?: NonNullable<Dossier["main_activite"]>[];
+    departements?: string[];
+    nouveaute?: boolean;
   };
-  nombreRésultats: number;
+  resultCount: number;
 };
 
 export type EvenementPieceJointeSource =
@@ -99,7 +99,7 @@ export type EvenementMetrique =
 
   // Consultation events
   // Use the search and filter feature in the dossier list
-  | { type: "rechercherDesDossiers"; détails: EvenementRechercheDossiersDetails }
+  | { type: "rechercherDesDossiers"; détails: DossierSearchEventDetails }
   // Display the list of dossiers the user follows
   | { type: "afficherLesDossiersSuivis" }
   // Access the “Projet” tab of a dossier

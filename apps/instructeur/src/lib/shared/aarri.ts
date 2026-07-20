@@ -5,10 +5,7 @@ import { addRecentSearch } from "$lib/components/ListDossiers/dossiersSearch.ts"
 import debounce from "just-debounce-it";
 
 import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
-import type {
-  EvenementMetrique,
-  EvenementRechercheDossiersDetails,
-} from "@pitchou/types/evenement.d.ts";
+import type { EvenementMetrique, DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
 
 /**
  * Loads AARRI indicators from the backend
@@ -59,11 +56,11 @@ function isIndicatorsAARRI(indicators: any): indicators is IndicatorsAARRI {
   return false;
 }
 
-export function sendEvenement(évènement: EvenementMetrique) {
-  if (store.capabilities.créerÉvènementMetrique) {
+export function sendEvenement(event: EvenementMetrique) {
+  if (store.capabilities.creerEvenementMetrique) {
     store.capabilities
-      .créerÉvènementMetrique(évènement)
-      .catch((e) => console.warn(`Échec lors de la création de l’évènement:`, e, évènement));
+      .creerEvenementMetrique(event)
+      .catch((e) => console.warn(`Échec lors de la création de l’évènement:`, e, event));
   }
 }
 
@@ -76,13 +73,13 @@ export const sendEvenementModifierCommentaire = debounce(
 // Trailing edge: the search bar filters as the user types, so we wait until they stop
 // typing before recording the event. This groups a whole search session into a single
 // event carrying the final query, instead of the first keystroke.
-export const sendEvenementRechercherUnDossier = debounce(
-  (détails: EvenementRechercheDossiersDetails) => {
-    sendEvenement({ type: "rechercherDesDossiers", détails });
+export const sendDossierSearchEvent = debounce(
+  (details: DossierSearchEventDetails) => {
+    sendEvenement({ type: "rechercherDesDossiers", détails: details });
 
     // The server records the search alongside the event; mirror it locally so the
     // suggestions stay fresh without a refetch
-    const text = détails.filtres.texte?.trim();
+    const text = details.filters.text?.trim();
     if (text) {
       store.recentSearches = addRecentSearch(store.recentSearches ?? [], text);
     }
@@ -98,7 +95,7 @@ export const sendEvenementRechercherUnDossier = debounce(
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      sendEvenementRechercherUnDossier.flush();
+      sendDossierSearchEvent.flush();
     }
   });
 }

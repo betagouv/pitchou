@@ -1,16 +1,16 @@
 import { error, json } from "@sveltejs/kit";
 
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { addAttachmentAutre } from "@pitchou/server/database/attachment_autre.ts";
+import { addOtherAttachment } from "@pitchou/server/database/other_attachment.ts";
 
 import type { RequestHandler } from "./$types";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
 async function readFileField(file: File) {
   return {
-    nom: file.name,
+    name: file.name,
     media_type: file.type || null,
-    contenu: Buffer.from(await file.arrayBuffer()),
+    content: Buffer.from(await file.arrayBuffer()),
   };
 }
 
@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     error(400, `Aucun fichier fourni`);
   }
 
-  const ids = await addAttachmentAutre({
+  const ids = await addOtherAttachment({
     dossier,
     type: type.trim(),
     attachment_date:

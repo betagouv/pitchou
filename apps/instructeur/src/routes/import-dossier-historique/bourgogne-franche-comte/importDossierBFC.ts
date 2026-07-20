@@ -2,8 +2,8 @@ import { addMonths } from "date-fns";
 import { isValidDateString } from "@pitchou/common/typeFormat.ts";
 import {
   extractFirstMail,
-  extractNom,
-  extractNomFromMail,
+  extractName,
+  extractNameFromEmail,
   formatDepartementFromValue,
   extractCommunes,
   getCommuneData,
@@ -12,8 +12,8 @@ import {
 import type { AdditionalDataForDossierCreation } from "../importDossierUtils.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { PartialBy } from "@pitchou/types/tools.d.ts";
-import type { EvenementPhaseDossierInitializer as EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
-import type { DecisionAdministrativeInitializer as DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { DecisionAdministrativeInitializer } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 
 export type DossierBFCRow = {
@@ -123,7 +123,7 @@ function convertThematiqueToActivitePrincipale(
   return "Autre";
 }
 
-export function createNomForDossier(row: DossierBFCRow): string {
+export function createDossierName(row: DossierBFCRow): string {
   return "N° Dossier DEROG " + row["N° Dossier DEROG"] + " - " + row["OBJET"];
 }
 
@@ -143,7 +143,7 @@ export async function createDossierFromRow(
       createAdditionalDataFromRow(row),
     ),
 
-    "Nom du projet premettant de l'identifier clairement": createNomForDossier(row),
+    "Nom du projet premettant de l'identifier clairement": createDossierName(row),
     "Dans quel département se localise majoritairement votre projet ?":
       localisationsData["Dans quel département se localise majoritairement votre projet ?"],
     "Avez-vous réalisé un état des lieux écologique complet ?": true, // By default, we answer 'Yes' to this question otherwise the other questions don't show up on DS and the answers are not saved.
@@ -192,32 +192,32 @@ function generateDemandeursData(
       ? "une personne physique"
       : "une personne morale";
 
-  const nomContactMailValue = row["Nom contact – mail"];
+  const contactNameAndEmail = row["Nom contact – mail"];
 
-  const mail = extractFirstMail(nomContactMailValue) || "";
+  const email = extractFirstMail(contactNameAndEmail) || "";
 
-  let prenomNom:
-    | Partial<{ prénom: string | undefined; nom: string | undefined }>
+  let contactName:
+    | Partial<{ firstName: string | undefined; lastName: string | undefined }>
     | undefined
-    | null = extractNom(nomContactMailValue);
+    | null = extractName(contactNameAndEmail);
 
   // If no name, we try to retrieve the last and first name from the email
-  if (!prenomNom && mail) {
-    prenomNom = extractNomFromMail(nomContactMailValue);
+  if (!contactName && email) {
+    contactName = extractNameFromEmail(contactNameAndEmail);
   }
 
   if (typeDemandeur === "une personne morale") {
     return {
       "Le demandeur est…": typeDemandeur,
-      "Nom du représentant": prenomNom?.nom ?? "",
-      "Prénom du représentant": prenomNom?.prénom ?? "",
-      "Adresse mail de contact": mail,
+      "Nom du représentant": contactName?.lastName ?? "",
+      "Prénom du représentant": contactName?.firstName ?? "",
+      "Adresse mail de contact": email,
       "Qualité du représentant": row["PETITIONNAIRE"],
     };
   } else {
     return {
       "Le demandeur est…": typeDemandeur,
-      "Adresse mail de contact": mail,
+      "Adresse mail de contact": email,
       "Nom du représentant": "",
       "Prénom du représentant": "",
       "Qualité du représentant": "",
@@ -232,9 +232,9 @@ function generateAutorisationEnvironnementaleData(
   | "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?"
   | "À quelle procédure le projet est-il soumis ?"
 > {
-  const procedure_associee = row["Procédure associée"].toLowerCase();
+  const associatedProcedure = row["Procédure associée"].toLowerCase();
 
-  if (procedure_associee === "autorisation environnementale") {
+  if (associatedProcedure === "autorisation environnementale") {
     return {
       "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?":
         "Oui",
@@ -299,22 +299,22 @@ async function generateLocalisationsData(row: {
         departementColumn ?? firstCommuneDepartement,
     };
   } else {
-    const départements = Array.isArray(foundDepartements)
+    const departments = Array.isArray(foundDepartements)
       ? foundDepartements
       : [{ code: "25", nom: "Doubs" }]; // The default value is the département of the DREAL BFC head office
     return {
       "Commune(s) où se situe le projet": undefined,
-      "Département(s) où se situe le projet": départements,
+      "Département(s) où se situe le projet": departments,
       "Le projet se situe au niveau…": "d'un ou plusieurs départements",
-      "Dans quel département se localise majoritairement votre projet ?": départements[0],
+      "Dans quel département se localise majoritairement votre projet ?": departments[0],
     };
   }
 }
 
 /**
- * This function fills the "prochaine_action_attendue_par" field in the database
+ * This function fills the "next_action_expected_from" field in the database
  */
-function generateProchaineActionAttenduePar(row: DossierBFCRow): string {
+function generateNextActionExpectedFrom(row: DossierBFCRow): string {
   const value = row["Stade de l’avis"].trim();
 
   if (value === "En attente d’éléments pétitionnaire") {
@@ -350,7 +350,7 @@ function createEvenementPhaseDossierData(
   ) {
     evenementPhaseDossierData.push({
       phase: "Accompagnement amont",
-      horodatage: isValidDateString(row["Date de sollicitation"].toString())
+      timestamp: isValidDateString(row["Date de sollicitation"].toString())
         ? new Date(row["Date de sollicitation"])
         : today,
     });
@@ -365,7 +365,7 @@ function createEvenementPhaseDossierData(
     }
     evenementPhaseDossierData.push({
       phase: "Instruction",
-      horodatage: isValidDateString(row["Date de dépôt DEP"])
+      timestamp: isValidDateString(row["Date de dépôt DEP"])
         ? new Date(row["Date de dépôt DEP"])
         : isValidDateString(row["Date de sollicitation"].toString())
           ? new Date(row["Date de sollicitation"])
@@ -374,7 +374,7 @@ function createEvenementPhaseDossierData(
   } else if (rowEtapeProjet === "Phase d’instruction") {
     evenementPhaseDossierData.push({
       phase: "Instruction",
-      horodatage: isValidDateString(row["Date de dépôt DEP"])
+      timestamp: isValidDateString(row["Date de dépôt DEP"])
         ? new Date(row["Date de dépôt DEP"])
         : isValidDateString(row["Date de sollicitation"].toString())
           ? addMonths(new Date(row["Date de sollicitation"]), 1)
@@ -386,12 +386,12 @@ function createEvenementPhaseDossierData(
   if (isValidDateString(row["Date AP"])) {
     evenementPhaseDossierData.push({
       phase: "Contrôle",
-      horodatage: new Date(row["Date AP"]),
+      timestamp: new Date(row["Date AP"]),
     });
   } else if (rowEtapeProjet === "Contrôle") {
     evenementPhaseDossierData.push({
       phase: "Contrôle",
-      horodatage: isValidDateString(row["Date de sollicitation"].toString())
+      timestamp: isValidDateString(row["Date de sollicitation"].toString())
         ? addMonths(new Date(row["Date de sollicitation"]), 3)
         : today,
     });
@@ -407,50 +407,48 @@ function createEvenementPhaseDossierData(
 function createDecisionAdministrativeData(
   row: DossierBFCRow,
 ): PartialBy<DecisionAdministrativeInitializer, "dossier">[] | undefined {
-  let décision_administrative;
+  let decisionAdministrative;
 
   const rowDerogationAccordee = row["Dérogation accordée"].trim().toLowerCase();
 
-  let date_signature = isValidDateString(row["Date AP"])
+  let signatureDate = isValidDateString(row["Date AP"])
     ? new Date(row["Date AP"])
     : addMonths(new Date(row["Date de sollicitation"]), 3);
 
   if (rowDerogationAccordee === "non") {
-    décision_administrative = {
-      date_signature,
+    decisionAdministrative = {
+      signature_date: signatureDate,
       type: "Arrêté refus",
     };
   } else if (rowDerogationAccordee === "oui" || rowDerogationAccordee === "autorisé avec dep") {
-    décision_administrative = {
-      date_signature,
+    decisionAdministrative = {
+      signature_date: signatureDate,
       type: "Arrêté dérogation",
     };
   }
 
-  if (décision_administrative) {
-    return [décision_administrative];
+  if (decisionAdministrative) {
+    return [decisionAdministrative];
   }
 }
 
 function createAvisExpertData(
   row: DossierBFCRow,
 ): PartialBy<AvisExpertInitializer, "dossier">[] | undefined {
-  const saisine_csrpn_cnpn = row["Saisine CSRPN/CNPN"];
-  const date_saisine_csrpn_cnpn = row["Date saisine CSRPN/CNPN"];
-  const avis_csrpn_cnpn = row["Avis CSRPN/CNPN"];
-  const date_avis_csrpn_cnpn = row["Date avis CSRPN/CNPN"];
+  const saisineCsrpnCnpn = row["Saisine CSRPN/CNPN"];
+  const saisineDateCsrpnCnpn = row["Date saisine CSRPN/CNPN"];
+  const avisCsrpnCnpn = row["Avis CSRPN/CNPN"];
+  const avisDateCsrpnCnpn = row["Date avis CSRPN/CNPN"];
 
-  if (saisine_csrpn_cnpn && saisine_csrpn_cnpn.trim().length >= 1) {
+  if (saisineCsrpnCnpn && saisineCsrpnCnpn.trim().length >= 1) {
     return [
       {
-        expert: saisine_csrpn_cnpn,
-        date_saisine: isValidDateString(date_saisine_csrpn_cnpn)
-          ? new Date(date_saisine_csrpn_cnpn)
+        expert: saisineCsrpnCnpn,
+        saisine_date: isValidDateString(saisineDateCsrpnCnpn)
+          ? new Date(saisineDateCsrpnCnpn)
           : undefined,
-        avis: avis_csrpn_cnpn && avis_csrpn_cnpn.length >= 1 ? avis_csrpn_cnpn : undefined,
-        date_avis: isValidDateString(date_avis_csrpn_cnpn)
-          ? new Date(date_avis_csrpn_cnpn)
-          : undefined,
+        avis: avisCsrpnCnpn && avisCsrpnCnpn.length >= 1 ? avisCsrpnCnpn : undefined,
+        avis_date: isValidDateString(avisDateCsrpnCnpn) ? new Date(avisDateCsrpnCnpn) : undefined,
       },
     ];
   }
@@ -470,7 +468,7 @@ export function createAdditionalDataFromRow(row: DossierBFCRow): AdditionalDataF
     row["Sollicitation OFB pour avis"].toLowerCase() === "oui"
       ? "Ce dossier nécessite une sollicitation OFB pour avis."
       : null;
-  const commentaire_libre = [description, observations, sollicitationOFB]
+  const freeComment = [description, observations, sollicitationOFB]
     .filter((value) => value?.trim())
     .join("\n");
 
@@ -480,30 +478,31 @@ export function createAdditionalDataFromRow(row: DossierBFCRow): AdditionalDataF
 
   const foundEmail = extractFirstMail(row["POUR\nATTRIBUTION"]);
 
-  const personnes_qui_suivent = foundEmail ? [{ email: foundEmail }] : undefined;
+  const followers = foundEmail ? [{ email: foundEmail }] : undefined;
 
   const evenementPhaseDossierData = createEvenementPhaseDossierData(row);
 
-  const décision_administrative = createDecisionAdministrativeData(row);
+  const decisionAdministrative = createDecisionAdministrativeData(row);
 
-  const avis_expert = createAvisExpertData(row);
+  const avisExpert = createAvisExpertData(row);
 
+  // The shared type also accepts historical decrypted payloads with legacy accented keys.
   return {
     dossier: {
-      commentaire_libre: commentaire_libre,
-      date_dépôt: isValidDateString(row["Date de sollicitation"].toString())
+      free_comment: freeComment,
+      depot_date: isValidDateString(row["Date de sollicitation"].toString())
         ? row["Date de sollicitation"]
         : new Date(),
-      historique_identifiant_demande_onagre:
+      onagre_demande_identifier:
         row["N° de l’avis Onagre ou interne"] &&
         row["N° de l’avis Onagre ou interne"].trim().length >= 1
           ? row["N° de l’avis Onagre ou interne"]
           : undefined,
-      prochaine_action_attendue_par: generateProchaineActionAttenduePar(row),
+      next_action_expected_from: generateNextActionExpectedFrom(row),
     },
-    évènement_phase_dossier: evenementPhaseDossierData,
-    avis_expert,
-    décision_administrative,
-    personnes_qui_suivent,
-  };
+    evenement_phase_dossier: evenementPhaseDossierData,
+    avis_expert: avisExpert,
+    decision_administrative: decisionAdministrative,
+    followers,
+  } as unknown as AdditionalDataForDossierCreation;
 }

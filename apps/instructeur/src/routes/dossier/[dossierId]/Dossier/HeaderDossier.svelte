@@ -29,7 +29,7 @@
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let phase = $derived(
-    (dossier.évènementsPhase[0] && dossier.évènementsPhase[0].phase) || "Accompagnement amont",
+    (dossier.evenementsPhase[0] && dossier.evenementsPhase[0].phase) || "Accompagnement amont",
   );
 
   // Email of the project holder (demandeur): the legal representative's email for a
@@ -45,8 +45,8 @@
   // Only show the deposant line when the deposant is a different person from the
   // project holder (e.g. a mandataire such as an engineering firm).
   let showDeposant = $derived(
-    Boolean(dossier.déposant_nom || dossier.déposant_prénoms || dossier.déposant_email) &&
-      (dossier.déposant_email !== porteurEmail ||
+    Boolean(dossier.deposant_last_name || dossier.deposant_first_names || dossier.deposant_email) &&
+      (dossier.deposant_email !== porteurEmail ||
         formatDeposant(dossier) !== formatPorteurDeProjet(dossier)),
   );
 
@@ -87,9 +87,9 @@
     </button>
     <h1 class="title-dossier fr-mb-0">
       <span class="number"
-        >Dossier n°{dossier.number_demarches_simplifiées ?? "non renseigné"}&nbsp;:</span
+        >Dossier n°{dossier.demarche_numerique_number ?? "non renseigné"}&nbsp;:</span
       >
-      {dossier.nom}
+      {dossier.name}
     </h1>
   </div>
 
@@ -117,8 +117,8 @@
           <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
           <span>
             Personne qui dépose le dossier&nbsp;:&nbsp;
-            {#if dossier.déposant_email}
-              <a href={`mailto:${dossier.déposant_email}`} target="_blank" rel="noopener noreferrer"
+            {#if dossier.deposant_email}
+              <a href={`mailto:${dossier.deposant_email}`} target="_blank" rel="noopener noreferrer"
                 >{formatDeposant(dossier)}</a
               >
             {:else}
@@ -129,7 +129,7 @@
       {/if}
       <div>
         <span class="fr-icon-briefcase-fill fr-icon--sm" aria-hidden="true"></span>
-        {dossier.activité_principale}
+        {dossier.main_activite}
       </div>
     </section>
 
@@ -140,7 +140,7 @@
 
       <div>
         <strong>Prochaine action de&nbsp;:&nbsp;</strong>
-        {displayString(dossier.prochaine_action_attendue_par)}
+        {displayString(dossier.next_action_expected_from)}
       </div>
 
       {#if dossier.enjeu}
@@ -149,7 +149,7 @@
         </div>
       {/if}
 
-      {#if dossier.rattaché_au_régime_ae}
+      {#if dossier.linked_to_ae_regime}
         <div>
           <span class="fr-icon-pantone-fill fr-icon--sm" aria-hidden="true"></span>
           Autorisation environnementale

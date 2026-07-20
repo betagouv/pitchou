@@ -42,18 +42,18 @@ describe("storeNewFichier", () => {
   it("uploads to S3, then inserts file row, returning the file", async () => {
     putObject.mockResolvedValue();
     // @ts-ignore branded id
-    addFile.mockResolvedValue({ id: "file-1", nom: "f.pdf" });
+    addFile.mockResolvedValue({ id: "file-1", name: "f.pdf" });
     const db = fakeDatabase().build();
-    const contenu = Buffer.from("DATA");
+    const content = Buffer.from("DATA");
 
     // @ts-ignore branded id
     const result = await storeNewFichier(
       {
-        nom: "f.pdf",
-        contenu,
+        name: "f.pdf",
+        content,
         media_type: "application/pdf",
-        DS_checksum: "abc",
-        DS_createdAt: new Date(0),
+        demarche_numerique_checksum: "abc",
+        demarche_numerique_created_at: new Date(0),
       },
       db.knex,
     );
@@ -61,20 +61,20 @@ describe("storeNewFichier", () => {
     expect(putObject).toHaveBeenCalledTimes(1);
     expect(addFile).toHaveBeenCalledTimes(1);
     expect(deleteObject).not.toHaveBeenCalled();
-    expect(result).toEqual({ id: "file-1", nom: "f.pdf" });
+    expect(result).toEqual({ id: "file-1", name: "f.pdf" });
 
     const [putKey, putBody, putContentType] = putObject.mock.calls[0];
     expect(putKey).toMatch(/^files\//);
-    expect(putBody).toBe(contenu);
+    expect(putBody).toBe(content);
     expect(putContentType).toBe("application/pdf");
 
     // The file row reuses the same UUID as the S3 key.
     const fileIdFromKey = putKey.slice("files/".length);
     expect(addFile.mock.calls[0][0]).toMatchObject({
       id: fileIdFromKey,
-      nom: "f.pdf",
+      name: "f.pdf",
       media_type: "application/pdf",
-      taille: String(contenu.byteLength),
+      size: String(content.byteLength),
     });
 
     // putObject happens before addFile.
@@ -87,7 +87,7 @@ describe("storeNewFichier", () => {
     const db = fakeDatabase().build();
 
     await expect(
-      storeNewFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
+      storeNewFichier({ name: "f.pdf", content: Buffer.from(""), media_type: null }, db.knex),
     ).rejects.toThrow(/S3 down/);
 
     expect(addFile).not.toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe("storeNewFichier", () => {
     const db = fakeDatabase().build();
 
     await expect(
-      storeNewFichier({ nom: "f.pdf", contenu: Buffer.from(""), media_type: null }, db.knex),
+      storeNewFichier({ name: "f.pdf", content: Buffer.from(""), media_type: null }, db.knex),
     ).rejects.toThrow(/file insert failed/);
 
     expect(deleteObject).toHaveBeenCalledTimes(1);

@@ -28,7 +28,7 @@ test("GET /caps expose les caps métriques quand la personne en a une", async ()
 
   expect(res.status).toBe(200);
   const body = await res.json();
-  expect(body.créerÉvènementMetrique).toBe(`/api/metriques/evenements?cap=${cap}`);
+  expect(body.creerEvenementMetrique).toBe(`/api/metriques/evenements?cap=${cap}`);
   // Reading recent searches shares the metric cap value
   expect(body.listRecentSearches).toBe(`/api/metriques/dernieres-recherches?cap=${cap}`);
 });

@@ -6,14 +6,14 @@ import { addEvenementFromCap } from "@pitchou/server/database/evenements_metriqu
 
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
-  const evenement = await request.json();
+  const event = await request.json();
 
-  if (!evenementMetriqueGuard(evenement)) {
+  if (!evenementMetriqueGuard(event)) {
     error(400, "Objet évènement mal formé");
   }
 
   try {
-    await addEvenementFromCap(cap, evenement);
+    await addEvenementFromCap(cap, event);
   } catch (e) {
     // TODO: improve error handling here
     console.error(e);

@@ -1,6 +1,6 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-import { nomParCodeDépartement } from "@pitchou/common/départements.ts";
+import { departementNameByCode } from "@pitchou/common/departements.ts";
 import type { DossiersContext } from "./dossiersQuery.ts";
 
 /** Strips accents and lowercases so the search is accent- and case-insensitive. */
@@ -34,11 +34,11 @@ export function addRecentSearch(searches: string[], text: string, max = 3): stri
 /** Emails of the instructeurs following the given dossier. */
 function instructeurEmailsForDossier(
   dossierId: DossierSummary["id"],
-  relationSuivis: DossiersContext["relationSuivis"],
+  followRelations: DossiersContext["followRelations"],
 ): string[] {
-  if (!relationSuivis) return [];
+  if (!followRelations) return [];
   const emails: string[] = [];
-  for (const [email, dossiers] of relationSuivis) {
+  for (const [email, dossiers] of followRelations) {
     if (dossiers.has(dossierId)) emails.push(email);
   }
   return emails;
@@ -52,32 +52,32 @@ function instructeurEmailsForDossier(
  */
 export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
   const parts: (string | null | undefined)[] = [
-    dossier.nom,
-    dossier.commentaire_libre,
-    dossier.activité_principale,
-    dossier.number_demarches_simplifiées,
-    dossier.historique_identifiant_demande_onagre,
-    dossier.déposant_nom,
-    dossier.déposant_prénoms,
-    dossier.demandeur_personne_physique_nom,
-    dossier.demandeur_personne_physique_prénoms,
-    dossier.demandeur_personne_morale_raison_sociale,
+    dossier.name,
+    dossier.free_comment,
+    dossier.main_activite,
+    dossier.demarche_numerique_number,
+    dossier.onagre_demande_identifier,
+    dossier.deposant_last_name,
+    dossier.deposant_first_names,
+    dossier.demandeur_personne_physique_last_name,
+    dossier.demandeur_personne_physique_first_names,
+    dossier.demandeur_personne_morale_legal_name,
     dossier.demandeur_personne_morale_siret,
   ];
 
-  for (const code of dossier.départements ?? []) {
-    parts.push(code, nomParCodeDépartement.get(code));
+  for (const code of dossier.departments ?? []) {
+    parts.push(code, departementNameByCode.get(code));
   }
   for (const commune of dossier.communes ?? []) {
     parts.push(commune.name, commune.postalCode);
   }
-  for (const region of dossier.régions ?? []) {
+  for (const region of dossier.regions ?? []) {
     parts.push(region);
   }
-  for (const decision of dossier.décisionsAdministratives ?? []) {
-    parts.push(decision.numéro);
+  for (const decision of dossier.decisionsAdministratives ?? []) {
+    parts.push(decision.number);
   }
-  parts.push(...instructeurEmailsForDossier(dossier.id, ctx.relationSuivis));
+  parts.push(...instructeurEmailsForDossier(dossier.id, ctx.followRelations));
 
   return normalize(parts.filter(Boolean).join(" "));
 }

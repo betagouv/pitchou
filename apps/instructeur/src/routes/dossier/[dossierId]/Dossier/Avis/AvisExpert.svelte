@@ -47,7 +47,7 @@
     <ul>
       <li>
         <span
-          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_saisine)}
+          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.saisine_date)}
         </span>
         {#if avisExpert.saisine_fichier_url}
           <a
@@ -61,10 +61,10 @@
           Aucun fichier de saisine n'est lié à ce dossier
         {/if}
       </li>
-      {#if avisExpert.avis_fichier_url || avisExpert.date_avis || avisExpert.avis === "Avis favorable tacite"}
+      {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
         <li>
           <span
-            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.date_avis)}
+            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.avis_date)}
           </span>
           {#if avisExpert.avis_fichier_url}
             <a

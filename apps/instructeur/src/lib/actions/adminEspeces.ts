@@ -24,8 +24,8 @@ export type ModificationEspeceAdmin = {
   cd_type_statuts: string[] | null;
   espece_ministerielle: boolean | null;
   espece_cnpn: boolean | null;
-  exclu: boolean;
-  modifie_par: string | null;
+  excluded: boolean;
+  modified_by: string | null;
   created_at: string;
   updated_at: string;
   reference_noms_scientifiques: string[] | null;
@@ -42,7 +42,7 @@ export type PatchModificationEspece = {
   cd_type_statuts: string[] | null;
   espece_ministerielle: boolean | null;
   espece_cnpn: boolean | null;
-  exclu: boolean;
+  excluded: boolean;
 };
 
 /** Reads the stored code d'accès, or throws {@link AccessDeniedError} if absent. */

@@ -1,29 +1,10 @@
 const prettier = require("prettier");
-const { markAsGenerated, defaultGetMetadata } = require("kanel");
+const { markAsGenerated } = require("kanel");
 
-// Strip French accents so generated TypeScript type & file names stay
-// accent-free (e.g. `contrôle` table -> `Controle` type/file). Column
-// properties are left untouched (getPropertyMetadata is not overridden), so
-// they keep the exact accented names of the real database columns.
-function deaccent(str) {
-  return str.normalize("NFD").replace(/[̀-ͯ]/g, "");
-}
+function setEvenementPhaseDossierPhaseType(output) {
+  const evenementPhaseDossierKey = "libs/types/src/database/public/EvenementPhaseDossier";
 
-// Wrap Kanel's default metadata resolver to de-accent the emitted type name
-// and output file path, without changing anything else.
-function getMetadata(details, generateFor, instantiatedConfig) {
-  const metadata = defaultGetMetadata(details, generateFor, instantiatedConfig);
-  return {
-    ...metadata,
-    name: deaccent(metadata.name),
-    path: deaccent(metadata.path),
-  };
-}
-
-function EvenementPhaseDossier_phase_typeDossierPhase(output) {
-  const EvenementPhaseDossierKey = "libs/types/src/database/public/EvenementPhaseDossier";
-
-  const { declarations } = output[EvenementPhaseDossierKey];
+  const { declarations } = output[evenementPhaseDossierKey];
 
   for (const { properties } of declarations) {
     for (const prop of properties) {
@@ -40,8 +21,6 @@ function EvenementPhaseDossier_phase_typeDossierPhase(output) {
         prop.typeName = "DossierPhase";
       }
     }
-
-    //console.log('properties', intface.properties)
   }
 
   return output;
@@ -55,7 +34,7 @@ function EvenementPhaseDossier_phase_typeDossierPhase(output) {
  * @returns
  */
 function makePreRenderHook(outputKey, propertyName, typeName) {
-  return function Dossier_scientifique_type_demande(output) {
+  return function setPropertyType(output) {
     const { declarations } = output[outputKey];
 
     for (const { properties } of declarations) {
@@ -72,14 +51,14 @@ function makePreRenderHook(outputKey, propertyName, typeName) {
   };
 }
 
-const Dossier_scientifique_type_demande = makePreRenderHook(
+const dossierScientifiqueDemandeType = makePreRenderHook(
   "libs/types/src/database/public/Dossier",
-  "scientifique_type_demande",
+  "scientifique_demande_type",
   "string[]",
 );
-const Dossier_scientifique_mode_capture = makePreRenderHook(
+const dossierScientifiqueCaptureMode = makePreRenderHook(
   "libs/types/src/database/public/Dossier",
-  "scientifique_mode_capture",
+  "scientifique_capture_mode",
   "string[]",
 );
 
@@ -109,15 +88,14 @@ async function formatWithPrettier(path, lines) {
 
 module.exports = {
   enumStyle: "type",
-  getMetadata,
   customTypeMap: {
     "pg_catalog.bytea": "Buffer",
   },
 
   preRenderHooks: [
-    EvenementPhaseDossier_phase_typeDossierPhase,
-    Dossier_scientifique_type_demande,
-    Dossier_scientifique_mode_capture,
+    setEvenementPhaseDossierPhaseType,
+    dossierScientifiqueDemandeType,
+    dossierScientifiqueCaptureMode,
   ],
 
   // Providing postRenderHooks replaces Kanel's default `[markAsGenerated]`

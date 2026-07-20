@@ -18,8 +18,8 @@ function isAvisExpertToUpdate(
 
 export async function addOrUpdateAvisExpertWithFichiers(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
-  fichierSaisine?: { nom: string; contenu: Buffer; media_type: string },
-  fichierAvis?: { nom: string; contenu: Buffer; media_type: string },
+  fichierSaisine?: { name: string; content: Buffer; media_type: string },
+  fichierAvis?: { name: string; content: Buffer; media_type: string },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {
@@ -154,7 +154,7 @@ export async function deleteAvisExpert(
  * are present. Used to filter dossiers missing a saisine or avis file.
  */
 export function getPresenceFichiersAvisExpertByCap(
-  cap_dossier: CapDossier["cap"],
+  capDossier: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
   { dossier: Dossier["id"]; saisineFichierPresent: boolean; avisFichierPresent: boolean }[]
@@ -165,14 +165,14 @@ export function getPresenceFichiersAvisExpertByCap(
       databaseConnection.raw('avis_expert.saisine_fichier is not null as "saisineFichierPresent"'),
     )
     .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "avisFichierPresent"'))
-    .join("arête_groupe_instructeurs__dossier", {
-      "arête_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
     })
-    .join("arête_cap_dossier__groupe_instructeurs", {
-      "arête_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "arête_groupe_instructeurs__dossier.groupe_instructeurs",
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
-    .where({ "arête_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": capDossier });
 }
 
 export function getFichiersAvisSaisineAvisExpert(

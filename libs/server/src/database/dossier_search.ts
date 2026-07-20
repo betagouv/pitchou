@@ -17,7 +17,7 @@ export async function addDossierSearch(
 
 /**
  * The 3 most-recently-used distinct search texts of the personne holding the given
- * `cap_évènement_métrique` cap, most recent first.
+ * `cap_evenement_metrique` cap, most recent first.
  */
 export async function getRecentSearchesFromCap(
   cap: string,
@@ -25,8 +25,8 @@ export async function getRecentSearchesFromCap(
 ): Promise<string[]> {
   const rows = await databaseConnection("dossier_search")
     .join("personne", "personne.id", "dossier_search.personne")
-    .join("cap_évènement_métrique", "cap_évènement_métrique.personne_cap", "personne.code_accès")
-    .where("cap_évènement_métrique.cap", cap)
+    .join("cap_evenement_metrique", "cap_evenement_metrique.personne_cap", "personne.access_code")
+    .where("cap_evenement_metrique.cap", cap)
     .groupBy("dossier_search.text")
     .select("dossier_search.text")
     .max("dossier_search.date as last_date")

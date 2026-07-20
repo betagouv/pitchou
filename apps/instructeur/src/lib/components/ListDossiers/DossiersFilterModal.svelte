@@ -9,7 +9,7 @@
     open: boolean;
     draft: DossiersQuery;
     dossiers: DossierSummary[];
-    relationSuivis?: PitchouState["relationSuivis"];
+    followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
     /** Live count of dossiers matching the current draft, shown on the footer button */
     numberResults: number;
@@ -21,7 +21,7 @@
     open,
     draft = $bindable(),
     dossiers,
-    relationSuivis,
+    followRelations,
     showFilterInstructeurice,
     numberResults,
     onApply,
@@ -68,7 +68,7 @@
     </header>
 
     <div class="filters-modal__sections">
-      <DossiersFilterSections bind:draft {dossiers} {relationSuivis} {showFilterInstructeurice} />
+      <DossiersFilterSections bind:draft {dossiers} {followRelations} {showFilterInstructeurice} />
     </div>
 
     <footer class="filters-modal__footer">

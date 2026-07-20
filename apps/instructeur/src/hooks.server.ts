@@ -1,5 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
-import { setupSecretGeoMCE } from "@pitchou/server/database/capability-geomce.ts";
+import { setupSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { sequence } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
 if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {

@@ -18,8 +18,8 @@
 
   let sortedAvisExpert = $derived(
     [...dossier.avisExpert].sort((a, b) => {
-      const dateA = new Date(a.date_avis ?? a.date_saisine ?? 0);
-      const dateB = new Date(b.date_avis ?? b.date_saisine ?? 0);
+      const dateA = new Date(a.avis_date ?? a.saisine_date ?? 0);
+      const dateB = new Date(b.avis_date ?? b.saisine_date ?? 0);
       return differenceInDays(dateB, dateA);
     }),
   );

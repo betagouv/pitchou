@@ -4,81 +4,81 @@ import type {
   EvenementAjouterPieceJointeDetails,
   EvenementMetrique,
   EvenementOuvrirModaleAjouterPieceJointeDetails,
-  EvenementRechercheDossiersDetails,
+  DossierSearchEventDetails,
 } from "@pitchou/types/evenement.d.ts";
 
-function isDossierDetails(détails: any): détails is { dossierId: number } {
-  if (Object(détails) === détails) {
-    return Number.isInteger(détails.dossierId);
+function isDossierDetails(details: any): details is { dossierId: number } {
+  if (Object(details) === details) {
+    return Number.isInteger(details.dossierId);
   } else {
     return false;
   }
 }
 
-function isRechercheDossierDetails(détails: any): détails is EvenementRechercheDossiersDetails {
-  if (Object(détails) !== détails) {
+function isRechercheDossierDetails(details: any): details is DossierSearchEventDetails {
+  if (Object(details) !== details) {
     return false;
   }
 
-  if (typeof détails.nombreRésultats !== "number") {
+  if (typeof details.resultCount !== "number") {
     return false;
   }
 
-  if (!détails.filtres) {
+  if (!details.filters) {
     return false;
   }
 
-  const filtres = détails.filtres;
+  const filters = details.filters;
 
-  if (filtres.suiviPar) {
-    const suiviPar = filtres.suiviPar;
-    const isSuiviPar =
-      typeof suiviPar.nombreSéléctionnées === "number" &&
-      typeof suiviPar.nombreTotal === "number" &&
-      typeof suiviPar.inclusSoiMême === "boolean";
+  if (filters.followedBy) {
+    const followedBy = filters.followedBy;
+    const isFollowedBy =
+      typeof followedBy.selectedCount === "number" &&
+      typeof followedBy.totalCount === "number" &&
+      typeof followedBy.includesSelf === "boolean";
 
-    if (!isSuiviPar) {
+    if (!isFollowedBy) {
       return false;
     }
   }
 
-  if (filtres.sansInstructeurice !== undefined && typeof filtres.sansInstructeurice !== "boolean") {
+  if (filters.withoutInstructeur !== undefined && typeof filters.withoutInstructeur !== "boolean") {
     return false;
   }
 
-  if (filtres.texte !== undefined && typeof filtres.texte !== "string") {
+  if (filters.text !== undefined && typeof filters.text !== "string") {
     return false;
   }
 
-  if (filtres.activitésPrincipales && Array.isArray(filtres.activitésPrincipales)) {
-    const isActivitesPrincipales = filtres.activitésPrincipales.every(
+  if (filters.activitesPrincipales && Array.isArray(filters.activitesPrincipales)) {
+    const hasValidMainActivites = filters.activitesPrincipales.every(
       (activite: any) => typeof activite === "string",
     );
 
-    if (!isActivitesPrincipales) {
+    if (!hasValidMainActivites) {
       return false;
     }
   }
 
-  if (filtres.phases && Array.isArray(filtres.phases)) {
-    const isPhases = filtres.phases.every((maybePhase: any) => {
+  if (filters.phases && Array.isArray(filters.phases)) {
+    const hasValidPhases = filters.phases.every((maybePhase: any) => {
       return phases.has(maybePhase);
     });
-    if (!isPhases) {
+    if (!hasValidPhases) {
       return false;
     }
   }
 
-  if (filtres.prochaineActionAttenduePar && Array.isArray(filtres.prochaineActionAttenduePar)) {
-    const isProchaineActionAttenduePar = filtres.prochaineActionAttenduePar.every(
-      (maybeProchaineActionPar: any) => {
+  if (filters.nextActionExpectedFrom && Array.isArray(filters.nextActionExpectedFrom)) {
+    const hasValidNextActionExpectedFrom = filters.nextActionExpectedFrom.every(
+      (maybeNextActionExpectedFrom: any) => {
         return (
-          maybeProchaineActionPar === "(vide)" ||
-          prochaineActionAttenduePar.has(maybeProchaineActionPar)
+          maybeNextActionExpectedFrom === "(vide)" ||
+          prochaineActionAttenduePar.has(maybeNextActionExpectedFrom)
         );
       },
     );
-    if (!isProchaineActionAttenduePar) {
+    if (!hasValidNextActionExpectedFrom) {
       return false;
     }
   }
@@ -86,7 +86,7 @@ function isRechercheDossierDetails(détails: any): détails is EvenementRecherch
   return true;
 }
 
-const sourcesOuvertureModaleAjouterPieceJointe = new Set([
+const pieceJointeModalSources = new Set([
   "enteteDossier",
   "ongletPiecesJointes",
   "ongletAvis",
@@ -94,7 +94,7 @@ const sourcesOuvertureModaleAjouterPieceJointe = new Set([
   "ongletInstruction",
 ]);
 
-const typesPieceJointe = new Set([
+const pieceJointeTypes = new Set([
   "Décision administrative",
   "Avis expert",
   "Saisine expert",
@@ -102,91 +102,91 @@ const typesPieceJointe = new Set([
 ]);
 
 function isOuvertureModaleAjouterPieceJointeDetails(
-  détails: any,
-): détails is EvenementOuvrirModaleAjouterPieceJointeDetails {
+  details: any,
+): details is EvenementOuvrirModaleAjouterPieceJointeDetails {
   return (
-    Object(détails) === détails &&
-    Number.isInteger(détails.dossierId) &&
-    sourcesOuvertureModaleAjouterPieceJointe.has(détails.source)
+    Object(details) === details &&
+    Number.isInteger(details.dossierId) &&
+    pieceJointeModalSources.has(details.source)
   );
 }
 
-function isAjouterPieceJointeDetails(détails: any): détails is EvenementAjouterPieceJointeDetails {
+function isAjouterPieceJointeDetails(details: any): details is EvenementAjouterPieceJointeDetails {
   return (
-    Object(détails) === détails &&
-    Number.isInteger(détails.dossierId) &&
-    sourcesOuvertureModaleAjouterPieceJointe.has(détails.source) &&
-    typesPieceJointe.has(détails.typePieceJointe) &&
-    Number.isInteger(détails.nombreFichiers) &&
-    détails.nombreFichiers > 0
+    Object(details) === details &&
+    Number.isInteger(details.dossierId) &&
+    pieceJointeModalSources.has(details.source) &&
+    pieceJointeTypes.has(details.typePieceJointe) &&
+    Number.isInteger(details.nombreFichiers) &&
+    details.nombreFichiers > 0
   );
 }
 
-export function evenementMetriqueGuard(évènement: any): évènement is EvenementMetrique {
-  if (!évènement.type) {
+export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
+  if (!event.type) {
     return false;
   }
 
-  const type: EvenementMetrique["type"] = évènement.type;
+  const type: EvenementMetrique["type"] = event.type;
 
   switch (type) {
     case "seConnecter":
-      return !("détails" in évènement);
+      return !("détails" in event);
     case "suivreUnDossier":
-      return isDossierDetails(évènement.détails);
+      return isDossierDetails(event.détails);
     case "rechercherDesDossiers":
-      return isRechercheDossierDetails(évènement.détails);
+      return isRechercheDossierDetails(event.détails);
     case "modifierCommentaireInstruction":
-      return !("détails" in évènement);
+      return !("détails" in event);
     case "afficherLesDossiersSuivis":
-      return !("détails" in évènement);
+      return !("détails" in event);
     case "consulterUnDossier":
-      return isDossierDetails(évènement.détails);
+      return isDossierDetails(event.détails);
     case "téléchargerListeÉspècesImpactées":
-      return isDossierDetails(évènement.détails);
+      return isDossierDetails(event.détails);
     case "téléchargerCartographieProjet":
-      return isDossierDetails(évènement.détails);
+      return isDossierDetails(event.détails);
     case "changerPhase": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "changerProchaineActionAttendueDe": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "ajouterDécisionAdministrative":
     case "modifierDécisionAdministrative":
     case "supprimerDécisionAdministrative": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "ajouterPrescription":
     case "modifierPrescription":
     case "supprimerPrescription": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "ajouterContrôle":
     case "modifierContrôle":
     case "supprimerContrôle": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "ajouterAvisExpert": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "modifierAvisExpert": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "supprimerAvisExpert": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "ouvrirModaleAjouterPieceJointe": {
-      return isOuvertureModaleAjouterPieceJointeDetails(évènement.détails);
+      return isOuvertureModaleAjouterPieceJointeDetails(event.détails);
     }
     case "ajouterPieceJointe": {
-      return isAjouterPieceJointeDetails(évènement.détails);
+      return isAjouterPieceJointeDetails(event.détails);
     }
     case "générerUnDocument": {
-      return !("details" in évènement);
+      return !("détails" in event);
     }
     case "retourÀLaConformité": {
-      return typeof évènement.détails.prescription === "string";
+      return typeof event.détails.prescription === "string";
     }
     default: {
       // So that TypeScript detects if we forgot a 'case'

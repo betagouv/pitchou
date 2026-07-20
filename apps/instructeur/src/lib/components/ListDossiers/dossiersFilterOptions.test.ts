@@ -1,7 +1,7 @@
 import { expect, test, describe } from "vitest";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import { départements as officialDepartements } from "@pitchou/common/départements.ts";
+import { departements as officialDepartements } from "@pitchou/common/departements.ts";
 import {
   parseDossiersQuery,
   countActiveFilters,
@@ -39,34 +39,34 @@ describe("buildClearFiltersUpdates", () => {
 describe("list available options", () => {
   test("listAvailableActivites dedupes, drops null and sorts alphabetically", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), activité_principale: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(2), activité_principale: "Carrières" }),
-      makeDossier({ id: dossierId(3), activité_principale: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(4), activité_principale: null }),
+      makeDossier({ id: dossierId(1), main_activite: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(2), main_activite: "Carrières" }),
+      makeDossier({ id: dossierId(3), main_activite: "Conservation des espèces" }),
+      makeDossier({ id: dossierId(4), main_activite: null }),
     ];
     expect(listAvailableActivites(dossiers)).toEqual(["Carrières", "Conservation des espèces"]);
   });
 
   test("listAvailableDepartements keeps the official list and appends unknown codes", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), départements: ["64"] }),
-      makeDossier({ id: dossierId(2), départements: ["999"] }),
+      makeDossier({ id: dossierId(1), departments: ["64"] }),
+      makeDossier({ id: dossierId(2), departments: ["999"] }),
     ];
     const result = listAvailableDepartements(dossiers);
 
     expect(result).toHaveLength(officialDepartements.length + 1);
-    expect(result.find((d) => d.code === "64")?.nom).toBe("Pyrénées-Atlantiques");
+    expect(result.find((d) => d.code === "64")?.name).toBe("Pyrénées-Atlantiques");
     // An unknown code is surfaced with the code itself as label so it stays filterable.
-    expect(result.some((d) => d.code === "999" && d.nom === "999")).toBe(true);
+    expect(result.some((d) => d.code === "999" && d.name === "999")).toBe(true);
   });
 
   test("listAvailableInstructeurs keeps only those following a dossier, sorted", () => {
-    const relationSuivis = new Map<string, Set<DossierSummary["id"]>>([
+    const followRelations = new Map<string, Set<DossierSummary["id"]>>([
       ["zoe@doe.fr", new Set([dossierId(1)])],
       ["amir@doe.fr", new Set([dossierId(2)])],
       ["personne@doe.fr", new Set()],
     ]);
-    expect(listAvailableInstructeurs(relationSuivis)).toEqual(["amir@doe.fr", "zoe@doe.fr"]);
+    expect(listAvailableInstructeurs(followRelations)).toEqual(["amir@doe.fr", "zoe@doe.fr"]);
   });
 });
 

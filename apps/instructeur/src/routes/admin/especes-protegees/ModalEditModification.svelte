@@ -222,14 +222,14 @@
         <FieldYesNo
           label="Exclue de la liste publique"
           toggleLabel="Exclure cette espèce"
-          value={current.exclu}
+          value={current.excluded}
           {saving}
-          onSave={(v) => saveField({ exclu: v })}
+          onSave={(v) => saveField({ excluded: v })}
         />
 
-        {#if current.modifie_par}
+        {#if current.modified_by}
           <p class="audit">
-            Dernière modification par {current.modifie_par}{current.updated_at
+            Dernière modification par {current.modified_by}{current.updated_at
               ? ` le ${formatDate(current.updated_at)}`
               : ""}
           </p>

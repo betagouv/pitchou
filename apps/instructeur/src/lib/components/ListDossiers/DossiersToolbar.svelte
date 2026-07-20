@@ -12,7 +12,7 @@
     showFilterInstructeurice: boolean;
     showFilterEnjeu: boolean;
     showFilterActionInstructeur: boolean;
-    sansInstructeuriceActive: boolean;
+    withoutInstructeurActive: boolean;
     enjeuActive: boolean;
     actionInstructeurActive: boolean;
     activeFilterCount: number;
@@ -24,7 +24,7 @@
     sortKey: SortKey;
     sortOrder: SortOrder;
     onSearch: (text: string) => void;
-    onToggleSansInstructeurice: () => void;
+    onToggleWithoutInstructeur: () => void;
     onToggleEnjeu: () => void;
     onToggleActionInstructeur: () => void;
     onOpenFilters: () => void;
@@ -39,7 +39,7 @@
     showFilterInstructeurice,
     showFilterEnjeu,
     showFilterActionInstructeur,
-    sansInstructeuriceActive,
+    withoutInstructeurActive,
     enjeuActive,
     actionInstructeurActive,
     activeFilterCount,
@@ -49,7 +49,7 @@
     sortKey,
     sortOrder,
     onSearch,
-    onToggleSansInstructeurice,
+    onToggleWithoutInstructeur,
     onToggleEnjeu,
     onToggleActionInstructeur,
     onOpenFilters,
@@ -70,9 +70,9 @@
       <button
         type="button"
         class="fr-btn fr-btn--secondary"
-        aria-pressed={sansInstructeuriceActive}
-        class:active={sansInstructeuriceActive}
-        onclick={onToggleSansInstructeurice}
+        aria-pressed={withoutInstructeurActive}
+        class:active={withoutInstructeurActive}
+        onclick={onToggleWithoutInstructeur}
       >
         Dossiers sans instructeur·ice
       </button>

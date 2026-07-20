@@ -5,6 +5,7 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { GeoAPIDepartement, GeoAPICommune } from "@pitchou/types/GeoAPI.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
+// TODO: Remove the retired BFC and Corse historical import tools in a dedicated cleanup PR.
 export type { AdditionalDataForDossierCreation } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 /**
@@ -119,12 +120,12 @@ async function formatDepartementFromValue(
       }
     }
 
-    const départements = results.map((result) => result.data).filter((dep) => dep !== null);
+    const departments = results.map((result) => result.data).filter((dep) => dep !== null);
 
-    if (départements.length >= 1) {
+    if (departments.length >= 1) {
       // We force the cast because the logic guarantees a non-empty array
       return {
-        data: départements as [GeoAPIDepartement, ...GeoAPIDepartement[]],
+        data: departments as [GeoAPIDepartement, ...GeoAPIDepartement[]],
         alertes,
       };
     } else {
@@ -146,15 +147,15 @@ export { memoizedFormatDepartementFromValue as formatDepartementFromValue };
  * Attempts to extract a first name and a last name from a text string.
  *
  * @example
- *   extractNom("Jean Dupont <jean.dupont@email.fr>") // { prénom: "Jean", nom: "Dupont" }
+ *   extractName("Jean Dupont <jean.dupont@email.fr>") // { firstName: "Jean", lastName: "Dupont" }
  */
-export function extractNom(text: string): Partial<{ prénom: string; nom: string }> | null {
+export function extractName(text: string): Partial<{ firstName: string; lastName: string }> | null {
   const nameRegex = /['"]?([\p{L}'-]+)\s+([\p{L}'-]+)/u;
 
   const match = nameRegex.exec(text);
 
   if (match) {
-    return { prénom: match[1], nom: match[2] };
+    return { firstName: match[1], lastName: match[2] };
   }
   return null;
 }
@@ -178,12 +179,14 @@ export function extractFirstMail(text: string): string | null {
  * Attempts to extract a first name and a last name from an email address.
  *
  * @example
- *   extractNomFromMail("jean.dupont@email.fr") // { prénom: "Jean", nom: "Dupont" }
+ *   extractNameFromEmail("jean.dupont@email.fr") // { firstName: "Jean", lastName: "Dupont" }
  */
-export function extractNomFromMail(mail: string): Partial<{ prénom: string; nom: string }> {
-  if (!mail.includes("@")) return { prénom: "", nom: "" };
+export function extractNameFromEmail(
+  email: string,
+): Partial<{ firstName: string; lastName: string }> {
+  if (!email.includes("@")) return { firstName: "", lastName: "" };
 
-  const localPart = mail.split("@")[0];
+  const localPart = email.split("@")[0];
 
   // Common separators
   const parts = localPart.split(/[._\-]/).filter((s) => s.length >= 1);
@@ -193,14 +196,14 @@ export function extractNomFromMail(mail: string): Partial<{ prénom: string; nom
 
     // We assume the first part is the first name.
     return {
-      prénom: capitalize(a),
-      nom: capitalize(b),
+      firstName: capitalize(a),
+      lastName: capitalize(b),
     };
   }
 
   return {
-    prénom: "",
-    nom: "",
+    firstName: "",
+    lastName: "",
   };
 }
 

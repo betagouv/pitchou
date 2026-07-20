@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/byte-size": "^8.1.2",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.3.0"
+    "@types/node": "^22.3.0",
+    "vitest": "^4.1.7"
   }
 }

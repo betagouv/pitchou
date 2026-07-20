@@ -216,11 +216,11 @@ const AJOUTS: EspeceProtegeeModificationInitializer[] = [
 ] as unknown as EspeceProtegeeModificationInitializer[];
 
 // One exclusion example (tombstone): hides a reference species from the view.
-const EXCLU = "100";
+const EXCLUDED = "100";
 
 export async function seed(knex: Knex) {
   await knex.batchInsert("espece_protegee_modification", AJOUTS, 1000);
-  await knex("espece_protegee_modification").insert({ cd_ref: EXCLU, exclu: true });
+  await knex("espece_protegee_modification").insert({ cd_ref: EXCLUDED, excluded: true });
 
   console.log(`  Seed modifications ajouts OK (${AJOUTS.length} ajouts + 1 exclusion)`);
 }

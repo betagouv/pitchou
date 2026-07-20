@@ -5,12 +5,12 @@ function lastModifiedDate(
   dossierId: DossierSummary["id"],
   notificationByDossier: DossiersContext["notificationByDossier"],
 ): Date | undefined {
-  return notificationByDossier.get(dossierId)?.date_dernière_mise_à_jour ?? undefined;
+  return notificationByDossier.get(dossierId)?.updated_at ?? undefined;
 }
 
 /**
  * « nouveaute » sort: unseen notifications first (most recent first),
- * then by date_dépôt descending.
+ * then by depot_date descending.
  */
 function compareByNouveaute(
   a: DossierSummary,
@@ -20,10 +20,8 @@ function compareByNouveaute(
   const notificationA = notificationByDossier.get(a.id);
   const notificationB = notificationByDossier.get(b.id);
 
-  const unseenDateA =
-    notificationA?.vue === false ? notificationA.date_dernière_mise_à_jour : undefined;
-  const unseenDateB =
-    notificationB?.vue === false ? notificationB.date_dernière_mise_à_jour : undefined;
+  const unseenDateA = notificationA?.viewed === false ? notificationA.updated_at : undefined;
+  const unseenDateB = notificationB?.viewed === false ? notificationB.updated_at : undefined;
 
   if (unseenDateA && unseenDateB) {
     return unseenDateA > unseenDateB ? -1 : 1;
@@ -33,7 +31,7 @@ function compareByNouveaute(
     return 1;
   }
 
-  return a.date_dépôt > b.date_dépôt ? -1 : 1;
+  return a.depot_date > b.depot_date ? -1 : 1;
 }
 
 export function compareDossiers(
@@ -47,10 +45,10 @@ export function compareDossiers(
 
   switch (sortKey) {
     case "name":
-      return (a.nom ?? "").localeCompare(b.nom ?? "", "fr") * direction;
+      return (a.name ?? "").localeCompare(b.name ?? "", "fr") * direction;
     case "depositDate":
-      if (a.date_dépôt > b.date_dépôt) return direction;
-      if (a.date_dépôt < b.date_dépôt) return -direction;
+      if (a.depot_date > b.depot_date) return direction;
+      if (a.depot_date < b.depot_date) return -direction;
       return 0;
     case "lastModified": {
       const dateA = lastModifiedDate(a.id, notificationByDossier);

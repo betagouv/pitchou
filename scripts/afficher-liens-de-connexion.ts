@@ -24,8 +24,8 @@ for (const email of emailsEnArgument) {
   if (!personne) {
     console.log(`${email}\tPersonne non trouvée en base de données`);
   } else {
-    if (personne.code_accès) {
-      const lienDeConnexion = `${origin}/?secret=${personne.code_accès}`;
+    if (personne.access_code) {
+      const lienDeConnexion = `${origin}/?secret=${personne.access_code}`;
 
       console.log(`${email}\tLien de connexion: ${lienDeConnexion}`);
     } else {

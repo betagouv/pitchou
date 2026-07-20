@@ -13,9 +13,9 @@ const commune = (name: string, postalCode = "33000"): Commune => ({
 
 function makeDossier(
   id: number,
-  { nom = "Dossier test", communes = [] }: { nom?: string; communes?: Commune[] } = {},
+  { name = "Dossier test", communes = [] }: { name?: string; communes?: Commune[] } = {},
 ): DossierSummary {
-  return { id: id as DossierSummary["id"], nom, communes } as DossierSummary;
+  return { id: id as DossierSummary["id"], name, communes } as DossierSummary;
 }
 
 /** Ids kept by the text filter, in input order */
@@ -25,16 +25,16 @@ function search(text: string, dossiers: DossierSummary[]): number[] {
 
 const dossiers = [
   makeDossier(1, {
-    nom: "Centrale photovoltaïque de Cleyrac",
+    name: "Centrale photovoltaïque de Cleyrac",
     communes: [commune("Cleyrac", "33540")],
   }),
-  makeDossier(2, { nom: "Parc éolien", communes: [commune("Saint-Émilion", "33330")] }),
-  makeDossier(3, { nom: "Méthaniseur", communes: [commune("Bordeaux", "33000")] }),
+  makeDossier(2, { name: "Parc éolien", communes: [commune("Saint-Émilion", "33330")] }),
+  makeDossier(3, { name: "Méthaniseur", communes: [commune("Bordeaux", "33000")] }),
   makeDossier(4, {
-    nom: "Projet multi-sites",
+    name: "Projet multi-sites",
     communes: [commune("Talence", "33400"), commune("Pessac", "33600")],
   }),
-  makeDossier(5, { nom: "Projet sans localisation", communes: [] }),
+  makeDossier(5, { name: "Projet sans localisation", communes: [] }),
 ];
 
 describe("createTextFilter — recherche par localisation", () => {

@@ -13,8 +13,8 @@
 
   let { dossier, messages = [] }: Props = $props();
 
-  const numdos = $derived(dossier.number_demarches_simplifiées);
-  const numéro_démarche = $derived(dossier.numéro_démarche);
+  const numdos = $derived(dossier.demarche_numerique_number);
+  const demarcheNumber = $derived(dossier.demarche_number);
 
   let sortedMessages = $derived(
     messages.toSorted(
@@ -30,23 +30,23 @@
   <a
     class="fr-btn fr-mb-w"
     target="_blank"
-    href={`${originDemarcheNumerique}/procedures/${numéro_démarche}/dossiers/${numdos}/messagerie`}
+    href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}/messagerie`}
   >
     Répondre sur Démarche Numérique
   </a>
 </div>
 
 <article class="messages fr-mt-2w fr-mb-4w">
-  {#each sortedMessages as { contenu, date, email_expéditeur }}
+  {#each sortedMessages as { content, date, sender_email }}
     {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
     <section class="fr-accordion">
       <h3 class="fr-accordion__title">
         <button
           class="fr-accordion__btn"
-          aria-expanded={email_expéditeur !== "contact@demarches-simplifiees.fr"}
+          aria-expanded={sender_email !== "contact@demarches-simplifiees.fr"}
           aria-controls={accordionId}
         >
-          <span>{email_expéditeur}</span>
+          <span>{sender_email}</span>
           <span title={formatDateAbsolute(date)}>{formatDateRelative(date)}</span>
         </button>
       </h3>
@@ -56,7 +56,7 @@
                 Actuellement, les contenus viennent de Démarche Numérique et on
                 leur fait confiance pour assainir le HTML, mais
             -->
-        {@html contenu}
+        {@html content}
       </div>
     </section>
   {/each}
