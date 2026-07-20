@@ -86,7 +86,9 @@
     margin: 0 0 0 auto;
     height: 100vh;
     max-height: 100vh;
-    width: min(28rem, 100vw);
+    // Roughly a third of the screen, kept wide enough that the date range stays on
+    // one line and the search placeholder is not truncated, and never wider than the viewport.
+    width: clamp(28rem, 33vw, 100vw);
     max-width: 100vw;
     border: 0;
     padding: 0;

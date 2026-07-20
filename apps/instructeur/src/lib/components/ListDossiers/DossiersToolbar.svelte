@@ -69,7 +69,7 @@
     {#if showFilterInstructeurice}
       <button
         type="button"
-        class="fr-btn fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary"
         aria-pressed={withoutInstructeurActive}
         class:active={withoutInstructeurActive}
         onclick={onToggleWithoutInstructeur}
@@ -81,7 +81,7 @@
     {#if showFilterEnjeu}
       <button
         type="button"
-        class="fr-btn fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary"
         aria-pressed={enjeuActive}
         class:active={enjeuActive}
         onclick={onToggleEnjeu}
@@ -93,7 +93,7 @@
     {#if showFilterActionInstructeur}
       <button
         type="button"
-        class="fr-btn fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary"
         aria-pressed={actionInstructeurActive}
         class:active={actionInstructeurActive}
         onclick={onToggleActionInstructeur}
@@ -104,7 +104,7 @@
 
     <button
       type="button"
-      class="fr-btn fr-icon-filter-line fr-btn--icon-left"
+      class="fr-btn fr-btn--sm fr-icon-filter-line fr-btn--icon-left"
       onclick={onOpenFilters}
     >
       Filtres{#if activeFilterCount > 0}&nbsp;<span class="filter-counter">{activeFilterCount}</span
