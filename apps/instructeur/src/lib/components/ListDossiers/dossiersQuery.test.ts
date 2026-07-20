@@ -40,7 +40,7 @@ describe("parseDossiersQuery", () => {
       dateField: "phaseStart",
       from: "2024-01-01",
       to: "2024-02-01",
-      sort: "name",
+      sort: "lastModified",
       order: "asc",
       page: "3",
     });
@@ -62,7 +62,7 @@ describe("parseDossiersQuery", () => {
       dateField: "phaseStart",
       dateStart: "2024-01-01",
       dateEnd: "2024-02-01",
-      sort: "name",
+      sort: "lastModified",
       order: "asc",
       page: 3,
     });
@@ -94,8 +94,8 @@ describe("readDossiersQuery", () => {
   });
 
   test("keeps the sort carried by the URL", () => {
-    const query = readDossiersQuery(new URLSearchParams({ sort: "name", order: "asc" }));
-    expect(query.sort).toBe("name");
+    const query = readDossiersQuery(new URLSearchParams({ sort: "lastModified", order: "asc" }));
+    expect(query.sort).toBe("lastModified");
     expect(query.order).toBe("asc");
   });
 });
@@ -122,7 +122,7 @@ describe("buildDossiersSearchParams", () => {
       dateField: "phaseStart",
       dateStart: "2024-01-01",
       dateEnd: "2024-02-01",
-      sort: "name",
+      sort: "lastModified",
       order: "asc",
       page: 3,
     });

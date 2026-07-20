@@ -22,8 +22,6 @@
       order: "asc",
       label: "Date de dernière modification : les plus anciennes",
     },
-    { key: "name", order: "asc", label: "Nom du dossier : ordre alphabétique" },
-    { key: "name", order: "desc", label: "Nom du dossier : ordre anti-alphabétique" },
   ];
 
   const sortLabel = $derived(
@@ -49,7 +47,7 @@
 <div class="sort" bind:this={sortRoot}>
   <button
     type="button"
-    class="fr-btn fr-btn--tertiary"
+    class="fr-btn fr-btn--sm fr-btn--tertiary"
     aria-haspopup="true"
     aria-expanded={sortMenuOpen}
     onclick={() => (sortMenuOpen = !sortMenuOpen)}

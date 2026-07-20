@@ -43,9 +43,15 @@ export function compareDossiers(
 ): number {
   const direction = sortOrder === "asc" ? 1 : -1;
 
+  // Dossiers with an unseen nouveauté always float to the top, whatever the chosen sort.
+  // The « nouveaute » sort handles this ordering itself, so it is excluded here.
+  if (sortKey !== "nouveaute") {
+    const unseenA = notificationByDossier.get(a.id)?.viewed === false;
+    const unseenB = notificationByDossier.get(b.id)?.viewed === false;
+    if (unseenA !== unseenB) return unseenA ? -1 : 1;
+  }
+
   switch (sortKey) {
-    case "name":
-      return (a.name ?? "").localeCompare(b.name ?? "", "fr") * direction;
     case "depositDate":
       if (a.depot_date > b.depot_date) return direction;
       if (a.depot_date < b.depot_date) return -direction;

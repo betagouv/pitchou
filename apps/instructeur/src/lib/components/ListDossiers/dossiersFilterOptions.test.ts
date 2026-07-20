@@ -22,7 +22,7 @@ describe("buildClearFiltersUpdates", () => {
       nouveaute: "oui",
       actionInstructeur: "1",
       from: "2024-01-01",
-      sort: "name",
+      sort: "lastModified",
     });
     // Apply the updates: every param set to null is removed from the URL.
     for (const [key, value] of Object.entries(buildClearFiltersUpdates())) {
@@ -32,7 +32,7 @@ describe("buildClearFiltersUpdates", () => {
 
     expect(countActiveFilters(next)).toBe(0);
     expect(next.text).toBe("photovoltaïque");
-    expect(next.sort).toBe("name");
+    expect(next.sort).toBe("lastModified");
   });
 });
 
@@ -77,7 +77,7 @@ describe("clearFilters", () => {
       phase: ["Instruction"],
       enjeu: true,
       avisExpertManquant: true,
-      sort: "name",
+      sort: "lastModified",
       order: "asc",
       page: 3,
     });
@@ -85,7 +85,7 @@ describe("clearFilters", () => {
 
     expect(countActiveFilters(cleared)).toBe(0);
     expect(cleared.text).toBe("photovoltaïque");
-    expect(cleared.sort).toBe("name");
+    expect(cleared.sort).toBe("lastModified");
     expect(cleared.order).toBe("asc");
     expect(cleared.page).toBe(1);
   });

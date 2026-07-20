@@ -13,7 +13,7 @@ export type ActivitePrincipale = NonNullable<DossierSummary["main_activite"]>;
 /** Dossier date the « dates » filter applies to */
 export type DateField = "deposit" | "phaseStart" | "lastModified";
 
-export type SortKey = "nouveaute" | "depositDate" | "name" | "lastModified";
+export type SortKey = "nouveaute" | "depositDate" | "lastModified";
 export type SortOrder = "asc" | "desc";
 
 /** « nouveaute » state: with / without / no filter */
@@ -22,7 +22,6 @@ export type Nouveaute = "" | "oui" | "non";
 export const SORT_OPTIONS: { key: SortKey; label: string; orderable: boolean }[] = [
   { key: "nouveaute", label: "Nouveauté", orderable: false },
   { key: "depositDate", label: "Date de dépôt", orderable: true },
-  { key: "name", label: "Nom du dossier", orderable: true },
   { key: "lastModified", label: "Dernière modification", orderable: true },
 ];
 
