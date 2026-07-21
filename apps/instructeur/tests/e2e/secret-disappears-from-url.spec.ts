@@ -9,7 +9,8 @@ test("le paramètre ?secret est retiré de l'URL après connexion", async ({ pag
 
   await page.goto(`/?secret=${codeAcces}`);
 
-  await expect(page.getByRole("heading", { name: /Tableau de suivi/ })).toBeVisible();
+  // Login lands on the home page, now "Mes dossiers"
+  await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
   await expect.poll(() => new URL(page.url()).searchParams.get("secret")).toBeNull();
 });
