@@ -149,32 +149,6 @@
   {/each}
 </fieldset>
 
-<!-- Pièces jointes -->
-<div class="section">
-  <h3 class="section-title">
-    <span class="fr-icon-file-text-line fr-icon--sm" aria-hidden="true"></span>
-    Pièces jointes
-  </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
-    <input type="checkbox" id="avis-manquant" bind:checked={draft.avisExpertManquant} />
-    <label class="fr-label" for="avis-manquant">Avis CNPN/CSRPN non renseigné</label>
-  </div>
-  <div class="fr-input-group fr-mt-1w fr-mb-0">
-    <label class="fr-sr-only fr-label" for="decision-numero">Numéro d'arrêté préfectoral</label>
-    <input
-      class="fr-input"
-      id="decision-numero"
-      type="text"
-      placeholder="Saisissez votre numéro d'arrêté préfectoral, de courrier…"
-      bind:value={draft.decisionText}
-    />
-  </div>
-  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mt-1w">
-    <input type="checkbox" id="decision-absente" bind:checked={draft.decisionAbsente} />
-    <label class="fr-label" for="decision-absente">Décision administrative non renseignée</label>
-  </div>
-</div>
-
 <!-- Date -->
 <fieldset class="section">
   <legend class="section-title">
@@ -252,6 +226,32 @@
   <div class="fr-checkbox-group fr-checkbox-group--sm">
     <input type="checkbox" id="especes-absente" bind:checked={draft.especesImpacteesAbsente} />
     <label class="fr-label" for="especes-absente">Liste des espèces impactées non-renseignée</label>
+  </div>
+</div>
+
+<!-- Pièces jointes -->
+<div class="section">
+  <h3 class="section-title">
+    <span class="fr-icon-file-text-line fr-icon--sm" aria-hidden="true"></span>
+    Pièces jointes
+  </h3>
+  <div class="fr-checkbox-group fr-checkbox-group--sm">
+    <input type="checkbox" id="avis-manquant" bind:checked={draft.avisExpertManquant} />
+    <label class="fr-label" for="avis-manquant">Avis CNPN/CSRPN non renseigné</label>
+  </div>
+  <div class="fr-input-group fr-mt-1w fr-mb-0">
+    <label class="fr-sr-only fr-label" for="decision-numero">Numéro d'arrêté préfectoral</label>
+    <input
+      class="fr-input"
+      id="decision-numero"
+      type="text"
+      placeholder="Saisissez votre numéro d'arrêté préfectoral, de courrier…"
+      bind:value={draft.decisionText}
+    />
+  </div>
+  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mt-1w">
+    <input type="checkbox" id="decision-absente" bind:checked={draft.decisionAbsente} />
+    <label class="fr-label" for="decision-absente">Décision administrative non renseignée</label>
   </div>
 </div>
 
