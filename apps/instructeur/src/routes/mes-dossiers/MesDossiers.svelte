@@ -27,6 +27,17 @@
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
+{#snippet emptyListMessage({ wholeListEmpty }: { wholeListEmpty: boolean })}
+  {#if wholeListEmpty}
+    <p>
+      Vous ne suivez aucun dossier pour le moment. Vous pouvez consulter
+      <a class="fr-link" href="/tous-les-dossiers">tous les dossiers</a> pour commencer à en suivre.
+    </p>
+  {:else}
+    <p>Aucun dossier n'a été trouvé.</p>
+  {/if}
+{/snippet}
+
 <!-- « à enjeux » is replaced by the « prochaine action à moi » quick filter: on this page
      every dossier is followed by the instructeur, so their own next action matters more -->
 <ListDossiers
@@ -39,4 +50,5 @@
   {notificationByDossier}
   showFilterEnjeu={false}
   showFilterActionInstructeur
+  {emptyListMessage}
 />

@@ -2,6 +2,7 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+  import type { Snippet } from "svelte";
   import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
   import {
     WITHOUT_INSTRUCTEUR,
@@ -42,6 +43,8 @@
     /** Show the « prochaine action à moi » quick filter for « mes dossiers » */
     showFilterActionInstructeur?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
+    /** Empty state, overriding the default message. Receives whether the whole (unfiltered) list is empty. */
+    emptyListMessage?: Snippet<[{ wholeListEmpty: boolean }]>;
   };
 
   let {
@@ -55,6 +58,7 @@
     showFilterEnjeu = true,
     showFilterActionInstructeur = false,
     notificationByDossier,
+    emptyListMessage,
   }: Props = $props();
 
   const NUMBER_DOSSIERS_PER_PAGE = 10;
@@ -253,6 +257,8 @@
       {/each}
     </ul>
   </div>
+{:else if emptyListMessage}
+  {@render emptyListMessage({ wholeListEmpty: dossiers.length === 0 })}
 {:else}
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
