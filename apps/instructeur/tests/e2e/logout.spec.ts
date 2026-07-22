@@ -16,6 +16,6 @@ test("se déconnecter renvoie vers la page de connexion", async ({ page, db }) =
   await page.getByRole("button", { name: "Se déconnecter" }).click();
 
   // Signing out must land on the sign-in page without needing a manual reload
-  await expect(page.getByRole("heading", { level: 1, name: "Connexion par email" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Connexion à Pitchou" })).toBeVisible();
   await expect.poll(() => new URL(page.url()).pathname).toBe("/connexion");
 });
