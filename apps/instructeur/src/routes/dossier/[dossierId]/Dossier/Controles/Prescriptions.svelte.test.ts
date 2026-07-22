@@ -35,13 +35,42 @@ function renderPrescriptions() {
   return render(Prescriptions, { dossierId: DOSSIER_ID, decisionAdministrative });
 }
 
+test("la date peut être saisie dans le champ", async () => {
+  renderPrescriptions();
+
+  await page.getByRole("button", { name: "Ajouter une prescription" }).click();
+
+  const input = page.getByLabelText("Date", { exact: true });
+  await input.fill("n'importe quoi");
+  await expect.element(input).toHaveValue("");
+
+  await input.fill("260520261234");
+  await expect.element(input).toHaveValue("26/05/2026");
+
+  await input.fill("99999999");
+  await expect.element(input).toHaveValue("99/99/9999");
+  await expect.element(input).toHaveAttribute("aria-invalid", "true");
+  input.element().blur();
+  await expect.element(input).toHaveValue("26/05/2026");
+
+  await input.fill("");
+  await input.fill("26/05/2026");
+
+  await expect.element(input).toHaveValue("26/05/2026");
+
+  await page.getByRole("button", { name: "Modifications terminées" }).click();
+  expect(store.capabilities.addOrUpdatePrescription).toHaveBeenCalledWith(
+    expect.objectContaining({ due_date: expect.any(Date) }),
+  );
+});
+
 test("la date sélectionnée dans le calendrier s'affiche dans le champ date", async () => {
   renderPrescriptions();
 
   await page.getByRole("button", { name: "Ajouter une prescription" }).click();
 
-  // Open the date picker of the new prescription row
-  await page.getByRole("button", { name: "Date : jj/mm/aaaa" }).click();
+  // Open the date picker by clicking the date field
+  await page.getByLabelText("Date", { exact: true }).click();
 
   // Pick the 15th of the displayed month (the day buttons are labelled with the full date)
   const target = new Date();
@@ -52,6 +81,6 @@ test("la date sélectionnée dans le calendrier s'affiche dans le champ date", a
 
   // The field must display the picked date instead of the empty placeholder
   await expect
-    .element(page.getByRole("button", { name: `Date : ${format(target, "dd/MM/yyyy")}` }))
-    .toBeVisible();
+    .element(page.getByLabelText("Date", { exact: true }))
+    .toHaveValue(format(target, "dd/MM/yyyy"));
 });

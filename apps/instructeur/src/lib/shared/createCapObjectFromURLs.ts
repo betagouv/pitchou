@@ -130,6 +130,12 @@ function wrapGetDossierFull(
     if (ret.depot_date) {
       ret.depot_date = new Date(ret.depot_date);
     }
+    if (ret.public_consultation_start_date) {
+      ret.public_consultation_start_date = new Date(ret.public_consultation_start_date);
+    }
+    if (ret.public_consultation_end_date) {
+      ret.public_consultation_end_date = new Date(ret.public_consultation_end_date);
+    }
 
     // The espèces impactées file is served on demand via espècesImpactées.url
     if (ret.especesImpactees) {
