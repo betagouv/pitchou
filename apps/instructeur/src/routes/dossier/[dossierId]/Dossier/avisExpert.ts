@@ -7,6 +7,10 @@ import type {
 } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
+function serializeDate(date: Date | string): string {
+  return typeof date === "string" ? date : date.toJSON();
+}
+
 /**
  * Adds an expert avis.
  */
@@ -53,7 +57,7 @@ export function addOrUpdateAvisExpert(
   }
 
   if (avisExpert.avis_date) {
-    form.append("avis_date", avisExpert.avis_date.toJSON());
+    form.append("avis_date", serializeDate(avisExpert.avis_date));
   }
 
   if (avisExpert.expert) {
@@ -61,7 +65,7 @@ export function addOrUpdateAvisExpert(
   }
 
   if (avisExpert.saisine_date) {
-    form.append("saisine_date", avisExpert.saisine_date.toJSON());
+    form.append("saisine_date", serializeDate(avisExpert.saisine_date));
   }
 
   if (fileFichierSaisine) {
