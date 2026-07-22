@@ -15,8 +15,12 @@
 
   let emailInProgress: Promise<unknown> | undefined = $state();
 
+  let showDomains = $state(false);
+
   const domaine = $derived(normalizeEmail(email).split("@")[1] ?? "");
   const domaineAutorise = $derived(authorizedEmailDomains.has(domaine));
+
+  const sortedDomains = $derived([...authorizedEmailDomains].sort((a, b) => a.localeCompare(b)));
 
   function onSubmit() {
     if (!domaineAutorise) return;
@@ -28,72 +32,116 @@
   <title>Connexion — Pitchou</title>
 </svelte:head>
 
-<div class="fr-grid-row fr-mt-6w fr-grid-row--center">
-  <div class="fr-col-8">
-    <h1>Connexion par email</h1>
+<div class="fr-grid-row fr-grid-row--center fr-my-8w">
+  <div class="fr-col-12 fr-col-md-9 fr-col-lg-7">
+    <div class="fr-background-alt--grey fr-px-4w fr-px-md-8w fr-py-6w fr-py-md-8w">
+      <h1>Connexion à Pitchou</h1>
 
-    <p>
-      Saisissez votre adresse email ici et vous recevrez un email avec un lien secret pour vous
-      connecter à Pitchou.
-    </p>
-    <p>
-      ⚠️ Seules les adresses emails venant d'un de ces domaine peuvent recevoir un lien de connexion
-      :
-      {#each [...authorizedEmailDomains] as authorizedEmailDomain, i}
-        {#if i !== 0}
-          ,&nbsp;
-        {/if}
-        <code class="hostname">{authorizedEmailDomain}</code>
-      {/each}
-    </p>
-  </div>
-</div>
+      <p>
+        Saisissez votre adresse email et vous recevrez un email avec un lien secret pour vous
+        connecter à Pitchou.
+      </p>
 
-<div class="fr-grid-row fr-pb-6w fr-grid-row--center">
-  <div class="fr-col-6">
-    <form onsubmit={preventDefault(onSubmit)}>
-      <div class="fr-input-group" class:fr-input-group--error={domaine && !domaineAutorise}>
-        <label class="fr-label" for="email">Adresse email</label>
-        <input
-          class="fr-input"
-          class:fr-input--error={domaine && !domaineAutorise}
-          autocomplete="email"
-          type="email"
-          id="email"
-          aria-describedby={domaine && !domaineAutorise ? "email-erreur" : undefined}
-          bind:value={email}
-        />
-        {#if domaine && !domaineAutorise}
-          <p id="email-erreur" class="fr-error-text">
-            Le domaine «&nbsp;{domaine}&nbsp;» ne fait pas partie des domaines autorisés à se
-            connecter.
-          </p>
+      <form onsubmit={preventDefault(onSubmit)}>
+        <div class="fr-input-group" class:fr-input-group--error={domaine && !domaineAutorise}>
+          <label class="fr-label" for="email">
+            Adresse email
+            <span class="fr-hint-text">Format attendu&nbsp;: nom@domaine.gouv.fr</span>
+          </label>
+          <input
+            class="fr-input"
+            class:fr-input--error={domaine && !domaineAutorise}
+            autocomplete="email"
+            type="email"
+            id="email"
+            aria-describedby={domaine && !domaineAutorise ? "email-erreur" : undefined}
+            bind:value={email}
+          />
+          {#if domaine && !domaineAutorise}
+            <p id="email-erreur" class="fr-error-text">
+              Le domaine «&nbsp;{domaine}&nbsp;» ne fait pas partie des domaines autorisés à se
+              connecter.
+            </p>
+          {/if}
+        </div>
+
+        <ul class="fr-btns-group fr-mt-2w">
+          <li>
+            <button class="fr-btn" disabled={!domaineAutorise}>
+              Obtenir un lien de connexion par email
+            </button>
+          </li>
+        </ul>
+
+        {#if emailInProgress}
+          {#await emailInProgress}
+            <Loader />
+          {:then}
+            <div class="fr-alert fr-alert--success fr-alert--sm fr-mt-2w">
+              <p>📧 Vous devriez avoir reçu un email avec votre lien de connexion.</p>
+            </div>
+          {:catch}
+            <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-2w">
+              <p>
+                Une erreur est survenue lors de l'envoi de l'email de connexion. Vérifiez votre
+                adresse ou réessayez plus tard.
+              </p>
+            </div>
+          {/await}
         {/if}
-      </div>
-      <button class="fr-btn fr-mt-2w" disabled={!domaineAutorise}>
-        Obtenir un lien de connexion par email
-      </button>
-      {#if emailInProgress}
-        {#await emailInProgress}
-          <Loader />
-        {/await}
-      {/if}
-    </form>
-    {#if emailInProgress}
-      {#await emailInProgress then}
-        ✅ 📧 Vous devriez avoir reçu un email avec votre lien de connexion
-      {:catch}
-        <p class="fr-error-text fr-mt-2w">
-          Une erreur est survenue lors de l'envoi de l'email de connexion. Vérifiez votre adresse ou
-          réessayez plus tard.
+      </form>
+
+      <hr class="fr-mt-4w fr-pb-4w" />
+
+      <div class="fr-alert fr-alert--info fr-alert--sm">
+        <p>
+          Seules les adresses email des services de l'État autorisés (ministère, préfectures…)
+          peuvent recevoir un lien de connexion.
         </p>
-      {/await}
-    {/if}
+        <p class="fr-mt-1w">
+          <button
+            type="button"
+            class="fr-link"
+            aria-expanded={showDomains}
+            onclick={() => (showDomains = !showDomains)}
+          >
+            {showDomains ? "Masquer" : "Consulter"} la liste des {authorizedEmailDomains.size} domaines
+            autorisés
+          </button>
+        </p>
+      </div>
+
+      {#if showDomains}
+        <ul class="domaines-list fr-mt-2w">
+          {#each sortedDomains as authorizedEmailDomain}
+            <li>{authorizedEmailDomain}</li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style lang="scss">
-  code.hostname {
-    white-space: nowrap;
+  // Full-width primary button, following the DSFR login page model
+  .fr-btns-group .fr-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  // One domain per row
+  .domaines-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      padding: 0.25rem 0;
+      white-space: nowrap;
+
+      & + li {
+        border-top: 1px solid var(--border-default-grey);
+      }
+    }
   }
 </style>
