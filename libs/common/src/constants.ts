@@ -14,6 +14,7 @@ export const authorizedEmailDomains = new Set([
   "loir-et-cher.gouv.fr",
   "mer.gouv.fr",
   "indre-et-loire.gouv.fr",
+  "eure-et-loir.gouv.fr",
   "guyane.gouv.fr",
   "alpes-de-haute-provence.gouv.fr",
   "hautes-alpes.gouv.fr",
