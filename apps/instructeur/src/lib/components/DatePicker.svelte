@@ -10,6 +10,8 @@
     isSameDay,
     isSameMonth,
     isToday,
+    isValid,
+    parse,
     parseISO,
     startOfMonth,
     startOfWeek,
@@ -29,17 +31,18 @@
   let { id, label, value, min, max, onChange }: Props = $props();
 
   const ISO = "yyyy-MM-dd";
+  const DISPLAY = "dd/MM/yyyy";
   const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
 
   let open = $state(false);
   let openAbove = $state(false);
   let root: HTMLElement | undefined = $state();
   let viewMonth = $state(startOfMonth(new Date()));
+  let inputValue = $state("");
 
   const selectedDate = $derived(value ? parseISO(value) : undefined);
   const minDate = $derived(min ? parseISO(min) : undefined);
   const maxDate = $derived(max ? parseISO(max) : undefined);
-  const triggerLabel = $derived(selectedDate ? format(selectedDate, "dd/MM/yyyy") : "jj/mm/aaaa");
   const monthLabel = $derived(format(viewMonth, "LLLL yyyy", { locale: fr }));
   const days = $derived(
     eachDayOfInterval({
@@ -47,9 +50,27 @@
       end: endOfWeek(endOfMonth(viewMonth), { weekStartsOn: 1 }),
     }),
   );
+  const inputDate = $derived(parseInputDate(inputValue));
+  const inputInvalid = $derived(inputValue.length === 10 && !inputDate);
+
+  $effect(() => {
+    inputValue = selectedDate ? format(selectedDate, DISPLAY) : "";
+  });
 
   const isDisabled = (day: Date) =>
     (minDate && isBefore(day, minDate)) || (maxDate && isAfter(day, maxDate));
+
+  function parseInputDate(input: string) {
+    const date = parse(input, DISPLAY, new Date());
+    return isValid(date) && format(date, DISPLAY) === input && !isDisabled(date) ? date : undefined;
+  }
+
+  function formatInputDate(input: string) {
+    const digits = input.replace(/\D/g, "").slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  }
 
   function openPanel() {
     viewMonth = startOfMonth(selectedDate ?? new Date());
@@ -69,6 +90,40 @@
     open = false;
   }
 
+  function typeDate(event: Event & { currentTarget: HTMLInputElement }) {
+    inputValue = formatInputDate(event.currentTarget.value);
+    event.currentTarget.value = inputValue;
+
+    if (!inputValue) {
+      onChange(null);
+      return;
+    }
+
+    if (inputDate) {
+      onChange(format(inputDate, ISO));
+    }
+  }
+
+  function resetInvalidInput() {
+    if (inputValue && !inputDate) {
+      inputValue = selectedDate ? format(selectedDate, DISPLAY) : "";
+    }
+  }
+
+  function confirmDate(event: KeyboardEvent) {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (inputDate) {
+      onChange(format(inputDate, ISO));
+      open = false;
+    } else {
+      resetInvalidInput();
+    }
+  }
+
   function onBodyClick(event: MouseEvent) {
     if (open && root && !root.contains(event.target as Node)) open = false;
   }
@@ -77,18 +132,30 @@
 <svelte:body onclick={onBodyClick} />
 
 <div class="datepicker" bind:this={root}>
-  <button
-    type="button"
-    class="fr-select datepicker-trigger fr-icon-calendar-line fr-btn--icon-left"
-    class:placeholder={!selectedDate}
-    aria-haspopup="dialog"
-    aria-expanded={open}
-    aria-controls="{id}-panel"
-    aria-label="{label} : {triggerLabel}"
-    onclick={() => (open ? (open = false) : openPanel())}
+  <div
+    class="fr-select datepicker-field fr-icon-calendar-line fr-btn--icon-left"
+    class:fr-select--error={inputInvalid}
   >
-    {triggerLabel}
-  </button>
+    <input
+      {id}
+      type="text"
+      class="datepicker-input"
+      aria-label={label}
+      aria-haspopup="dialog"
+      aria-controls="{id}-panel"
+      aria-invalid={inputInvalid}
+      autocomplete="off"
+      data-form-type="other"
+      inputmode="numeric"
+      maxlength="10"
+      placeholder="jj/mm/aaaa"
+      value={inputValue}
+      onblur={resetInvalidInput}
+      onclick={() => !open && openPanel()}
+      oninput={typeDate}
+      onkeydown={confirmDate}
+    />
+  </div>
 
   {#if open}
     <div
@@ -162,15 +229,35 @@
     min-width: 0;
   }
 
-  .datepicker-trigger {
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    white-space: nowrap;
+  .datepicker-field {
+    position: relative;
+    min-height: 2.5rem;
 
-    &.placeholder {
-      color: var(--text-mention-grey);
+    &::before {
+      position: relative;
+      z-index: 2;
+      pointer-events: none;
     }
+
+    &:focus-within {
+      outline: 2px solid var(--border-active-blue-france);
+      outline-offset: 2px;
+    }
+  }
+
+  .datepicker-input {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding-right: 3rem;
+    padding-left: 2.5rem;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
   }
 
   .datepicker-panel {

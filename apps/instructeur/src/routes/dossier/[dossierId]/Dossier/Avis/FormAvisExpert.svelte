@@ -181,7 +181,11 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
         <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
-        <DateInput bind:date={avisExpert.saisine_date} />
+        <DateInput
+          id="input-champ-date-saisine"
+          label="Date saisine"
+          bind:date={avisExpert.saisine_date}
+        />
       </div>
     </div>
 
@@ -220,7 +224,7 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
         <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-        <DateInput id={"input-champ-date-avis"} bind:date={avisExpert.avis_date} />
+        <DateInput id="input-champ-date-avis" label="Date avis" bind:date={avisExpert.avis_date} />
       </div>
     </div>
     {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}
