@@ -35,10 +35,10 @@
     <script>
       var _paq = (window._paq = window._paq || []);
       // Site ID is set per deploy (staging / production). Empty in dev = no-op.
+      // This only bootstraps the tracker; page views (initial + client-side SPA
+      // navigations) are sent from the SvelteKit layout (afterNavigate).
       var matomoSiteId = "%sveltekit.env.PUBLIC_MATOMO_SITE_ID%";
       if (matomoSiteId) {
-        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-        _paq.push(["trackPageView"]);
         _paq.push(["enableLinkTracking"]);
         (function () {
           var u = "https://stats.beta.gouv.fr/";
