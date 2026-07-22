@@ -25,10 +25,11 @@
     value: string;
     min?: string;
     max?: string;
+    align?: "left" | "right";
     onChange: (value: string | null) => void;
   };
 
-  let { id, label, value, min, max, onChange }: Props = $props();
+  let { id, label, value, min, max, align = "left", onChange }: Props = $props();
 
   const ISO = "yyyy-MM-dd";
   const DISPLAY = "dd/MM/yyyy";
@@ -161,6 +162,7 @@
     <div
       class="datepicker-panel"
       class:open-above={openAbove}
+      class:align-right={align === "right"}
       id="{id}-panel"
       role="dialog"
       aria-label={label}
@@ -276,6 +278,11 @@
     &.open-above {
       top: auto;
       bottom: calc(100% + 0.25rem);
+    }
+
+    &.align-right {
+      right: 0;
+      left: auto;
     }
   }
 
