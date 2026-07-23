@@ -7,6 +7,7 @@ declare global {
     }
     interface PageData {
       user?: { email: string; name: string } | null;
+      isAdmin?: boolean;
     }
     // interface PageState {}
     // interface Platform {}

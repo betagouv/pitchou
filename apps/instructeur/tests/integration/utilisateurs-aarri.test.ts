@@ -1,7 +1,6 @@
 import { expect, test, describe } from "vitest";
 
 import { db } from "../setup/db.ts";
-import { INTEGRATION_BASE_URL, TEST_ADMIN_EMAIL } from "../setup/integration-global.ts";
 import {
   createPersonne,
   createInstructeurWithCapToGroup,
@@ -11,7 +10,6 @@ import {
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
-import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
 // A fixed Wednesday so several events for one personne land in the same week.
 const WEEK_DAY = new Date("2026-02-04T12:00:00.000Z");
@@ -102,54 +100,5 @@ describe("getUtilisateursAARRI", () => {
 
     expect(emails).toContain("instructeur@dept.gouv.fr");
     expect(emails).not.toContain("membre@beta.gouv.fr");
-  });
-});
-
-describe("GET /api/admin/utilisateurs-aarri", () => {
-  async function createAdmin(): Promise<string> {
-    const code = `admin-secret-${Math.random().toString(36).slice(2)}`;
-    await createPersonne(db, { email: TEST_ADMIN_EMAIL, access_code: code });
-    return code;
-  }
-
-  function appeler(secret?: string): Promise<Response> {
-    const url = new URL(`${INTEGRATION_BASE_URL}/api/admin/utilisateurs-aarri`);
-    if (secret !== undefined) url.searchParams.set("secret", secret);
-    return fetch(url);
-  }
-
-  test("returns the users for an admin secret", async () => {
-    const adminCode = await createAdmin();
-    const instructeur = await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
-    await ajouterEvenements(instructeur.id, "seConnecter", 1);
-
-    const res = await appeler(adminCode);
-    expect(res.status).toBe(200);
-
-    const body: UtilisateurAARRI[] = await res.json();
-    expect(Array.isArray(body)).toBe(true);
-    const instructeurRow = body.find((u) => u.email === "instructeur@dept.gouv.fr");
-    expect(instructeurRow?.niveau).toBe("acquis");
-  });
-
-  test("answers 403 for a non-admin secret", async () => {
-    const instructeur = await createPersonne(db, {
-      email: "instructeur@dept.gouv.fr",
-      access_code: "non-admin-secret",
-    });
-    expect(instructeur.codeAcces).toBe("non-admin-secret");
-
-    const res = await appeler("non-admin-secret");
-    expect(res.status).toBe(403);
-  });
-
-  test("answers 403 for an unknown secret", async () => {
-    const res = await appeler("does-not-exist");
-    expect(res.status).toBe(403);
-  });
-
-  test("answers 400 when the secret is missing", async () => {
-    const res = await appeler();
-    expect(res.status).toBe(400);
   });
 });

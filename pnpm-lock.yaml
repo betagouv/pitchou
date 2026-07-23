@@ -318,6 +318,16 @@ importers:
         version: 22.19.19
 
   libs/ui:
+    dependencies:
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       svelte:
         specifier: ^5.46.4

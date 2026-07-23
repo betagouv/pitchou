@@ -1,19 +1,7 @@
-import remember from "remember";
-
-import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
-
 import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
 
 export async function downloadEvenementsCSV(): Promise<void> {
-  const stored = await remember(PITCHOU_SECRET_STORAGE_KEY);
-  const secret = typeof stored === "string" ? stored : "";
-  if (!secret) {
-    throw new Error("Vous devez être connecté·e pour accéder à cette page.");
-  }
-
-  const response = await fetch(
-    `/api/admin/evenements-metriques-csv?secret=${encodeURIComponent(secret)}`,
-  );
+  const response = await fetch(`/api/evenements-metriques-csv`);
 
   if (response.status === 403) {
     throw new Error("Accès réservé aux administrateurs.");
@@ -35,20 +23,12 @@ export async function downloadEvenementsCSV(): Promise<void> {
 }
 
 /**
- * Loads the AARRI level of every Pitchou user for the admin page. The stored
- * secret (the personne's code d'accès) authenticates the request; the server
- * enforces that it belongs to an admin and answers 403 otherwise.
+ * Loads the AARRI level of every Pitchou user for the admin page. The Admin app
+ * session cookie authenticates the request; the server answers 403 if the
+ * session does not belong to an admin.
  */
 export async function loadUtilisateursAARRI(): Promise<UtilisateurAARRI[]> {
-  const stored = await remember(PITCHOU_SECRET_STORAGE_KEY);
-  const secret = typeof stored === "string" ? stored : "";
-  if (!secret) {
-    throw new Error("Vous devez être connecté·e pour accéder à cette page.");
-  }
-
-  const response = await fetch(
-    `/api/admin/utilisateurs-aarri?secret=${encodeURIComponent(secret)}`,
-  );
+  const response = await fetch(`/api/utilisateurs-aarri`);
 
   if (response.status === 403) {
     throw new Error("Accès réservé aux administrateurs.");
@@ -61,7 +41,7 @@ export async function loadUtilisateursAARRI(): Promise<UtilisateurAARRI[]> {
 
   const result = await response.json();
   if (!Array.isArray(result)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/admin/utilisateurs-aarri.");
+    throw new Error("Réponse invalide reçue du serveur pour /api/utilisateurs-aarri.");
   }
   return result as UtilisateurAARRI[];
 }

@@ -21,7 +21,7 @@
   serviceTagline="Administration"
   tools={data.user ? tools : undefined}
   menuLinks={data.user ? menuLinks : undefined}
-  nav={data.user ? mainNav : undefined}
+  nav={data.isAdmin ? mainNav : undefined}
 />
 
 <main tabindex="-1" id="main">
@@ -45,6 +45,12 @@
     <ul class="fr-nav__list">
       <li class="fr-nav__item">
         <a class="fr-nav__link" href="/">Accueil</a>
+      </li>
+      <li class="fr-nav__item">
+        <a class="fr-nav__link" href="/aarri">Utilisateurs</a>
+      </li>
+      <li class="fr-nav__item">
+        <a class="fr-nav__link" href="/especes-protegees">Espèces protégées</a>
       </li>
     </ul>
   </nav>

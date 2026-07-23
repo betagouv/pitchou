@@ -1,13 +1,10 @@
-import remember from "remember";
-
-import { PITCHOU_SECRET_STORAGE_KEY } from "../shared/main.ts";
 import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
 /**
- * Thrown when the user is not connected or not an admin (no secret, or 403).
+ * Thrown when the session does not belong to an admin (403).
  */
 export class AccessDeniedError extends Error {
   constructor(message = "Accès réservé aux administrateurs.") {
@@ -45,25 +42,13 @@ export type PatchModificationEspece = {
   excluded: boolean;
 };
 
-/** Reads the stored code d'accès, or throws {@link AccessDeniedError} if absent. */
-async function storedSecret(): Promise<string> {
-  const stored = await remember(PITCHOU_SECRET_STORAGE_KEY);
-  const secret = typeof stored === "string" ? stored : "";
-  if (!secret) {
-    throw new AccessDeniedError("Vous devez être connecté·e pour accéder à cette page.");
-  }
-  return secret;
-}
-
 /**
- * Loads the full especes_protegees list for the admin page. The stored secret
- * authenticates the request; the server enforces
- * that it belongs to an admin and answers 403 otherwise.
+ * Loads the full especes_protegees list for the admin page. The Admin app
+ * session cookie authenticates the request; the server answers 403 if the
+ * session does not belong to an admin.
  */
 export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
-  const secret = await storedSecret();
-
-  const response = await fetch(`/api/admin/especes-protegees?secret=${encodeURIComponent(secret)}`);
+  const response = await fetch(`/api/especes-protegees`);
 
   if (response.status === 403) {
     throw new AccessDeniedError();
@@ -76,7 +61,7 @@ export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
 
   const rows: EspeceProtegeeRow[] = await response.json();
   if (!Array.isArray(rows)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/admin/especes-protegees.");
+    throw new Error("Réponse invalide reçue du serveur pour /api/especes-protegees.");
   }
 
   return rows.map(dbRowToEspeceProtegee);
@@ -84,14 +69,10 @@ export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
 
 /**
  * Loads the manual-layer modifications (enriched with reference context) for the
- * admin edition page. Throws {@link AccessDeniedError} when not connected or 403.
+ * admin edition page. Throws {@link AccessDeniedError} on 403.
  */
 export async function loadModificationsEspecesAdmin(): Promise<ModificationEspeceAdmin[]> {
-  const secret = await storedSecret();
-
-  const response = await fetch(
-    `/api/admin/especes-protegees/modifications?secret=${encodeURIComponent(secret)}`,
-  );
+  const response = await fetch(`/api/especes-protegees/modifications`);
 
   if (response.status === 403) {
     throw new AccessDeniedError();
@@ -118,10 +99,8 @@ export async function saveModificationEspece(
   cd_ref: string,
   patch: Partial<PatchModificationEspece>,
 ): Promise<void> {
-  const secret = await storedSecret();
-
   const response = await fetch(
-    `/api/admin/especes-protegees/modifications/${encodeURIComponent(cd_ref)}?secret=${encodeURIComponent(secret)}`,
+    `/api/especes-protegees/modifications/${encodeURIComponent(cd_ref)}`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -142,10 +121,8 @@ export async function saveModificationEspece(
 
 /** Removes the manual modification for `cd_ref`, reverting it to the reference. */
 export async function deleteModificationEspece(cd_ref: string): Promise<void> {
-  const secret = await storedSecret();
-
   const response = await fetch(
-    `/api/admin/especes-protegees/modifications/${encodeURIComponent(cd_ref)}?secret=${encodeURIComponent(secret)}`,
+    `/api/especes-protegees/modifications/${encodeURIComponent(cd_ref)}`,
     { method: "DELETE" },
   );
 

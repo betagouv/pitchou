@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-  import Pagination from "$lib/components/DSFR/Pagination.svelte";
+  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import {
     filterEspeces,
@@ -11,9 +11,9 @@
     type SortOrder,
     type Statut,
     type ListeFilter,
-  } from "../../especes-protegees/especesList.ts";
-  import EspecesFilterPanel from "../../especes-protegees/EspecesFilterPanel.svelte";
-  import EspecesSortPanel from "../../especes-protegees/EspecesSortPanel.svelte";
+  } from "@pitchou/ui/especes/especesList.ts";
+  import EspecesFilterPanel from "@pitchou/ui/especes/EspecesFilterPanel.svelte";
+  import EspecesSortPanel from "@pitchou/ui/especes/EspecesSortPanel.svelte";
 
   type Props = {
     especes: EspeceProtegee[];

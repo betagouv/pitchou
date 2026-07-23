@@ -1,14 +1,12 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireAdmin } from "$lib/server/auth.ts";
 import {
   upsertEspeceProtegeeModification,
   deleteEspeceProtegeeModification,
   validatePatchModification,
 } from "@pitchou/server/especeProtegee.ts";
 
-export const PUT: RequestHandler = async ({ url, request, params }) => {
-  const email = await requireAdmin(url);
+export const PUT: RequestHandler = async ({ request, params, locals }) => {
   const { cd_ref } = params;
   if (!cd_ref) {
     error(400, "Paramètre 'cd_ref' manquant");
@@ -19,13 +17,15 @@ export const PUT: RequestHandler = async ({ url, request, params }) => {
     error(400, validation.message);
   }
 
-  // `modified_by` is always the resolved admin email, never trusted from the client.
-  await upsertEspeceProtegeeModification(cd_ref, { ...validation.value, modified_by: email });
+  // `modified_by` is always the logged-in admin email, never trusted from the client.
+  await upsertEspeceProtegeeModification(cd_ref, {
+    ...validation.value,
+    modified_by: locals.user!.email,
+  });
   return json({ succès: true });
 };
 
-export const DELETE: RequestHandler = async ({ url, params }) => {
-  await requireAdmin(url);
+export const DELETE: RequestHandler = async ({ params }) => {
   const { cd_ref } = params;
   if (!cd_ref) {
     error(400, "Paramètre 'cd_ref' manquant");
