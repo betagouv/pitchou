@@ -6,10 +6,12 @@
   "dependencies": {
     "@gouvfr/dsfr": "^1.11.2",
     "@pitchou/common": "workspace:*",
+    "@pitchou/server": "workspace:*",
     "@pitchou/server-utils": "workspace:*",
     "@pitchou/types": "workspace:*",
     "@pitchou/ui": "workspace:*",
     "@sentry/sveltekit": "^10.65.0",
+    "jose": "^5.9.6",
     "knex": "^3.1.0",
     "pg": "^8.11.5"
   },
