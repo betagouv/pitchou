@@ -11,10 +11,6 @@
     {
       "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx delete-expired-sessions.ts",
       "size": "S"
-    },
-    {
-      "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx supprimer-codes-connexion-expires.ts",
-      "size": "S"
     }
   ]
 }
