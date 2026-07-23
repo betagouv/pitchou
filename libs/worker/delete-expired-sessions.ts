@@ -1,7 +1,7 @@
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 import { deleteExpiredSessions } from "@pitchou/server/session.ts";
 
-const nombreSupprimees = await deleteExpiredSessions();
-console.log(nombreSupprimees, `sessions expirées supprimées`);
+const deletedCount = await deleteExpiredSessions();
+console.log(deletedCount, `sessions expirées supprimées`);
 
 await closeDatabaseConnection();
