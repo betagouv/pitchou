@@ -24,7 +24,7 @@
 
   let errorMessage: string | null = $state(null);
 
-  let loadingAddOrUpdateAvisExpertP: Promise<void> = $state(Promise.resolve());
+  let inProgress = $state(false);
 
   let serviceOuPersonneExperte: string = $state(
     avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
@@ -38,8 +38,9 @@
       : (avisExpert?.expert ?? ""),
   );
 
-  function saveAvisExpert(e: SubmitEvent) {
+  async function saveAvisExpert(e: SubmitEvent) {
     e.preventDefault();
+    errorMessage = null;
 
     let fichierSaisine: File | undefined;
     let fichierAvis: File | undefined;
@@ -72,14 +73,16 @@
       ? { id: avisExpertInitial.id, dossier: dossierId, ...avisExpert }
       : { dossier: dossierId, ...avisExpert };
 
-    if (avisExpertToAddOrUpdate) {
-      loadingAddOrUpdateAvisExpertP = addOrUpdateAvisExpert(
-        avisExpertToAddOrUpdate,
-        fichierSaisine,
-        fichierAvis,
-      )
-        .then(() => refreshDossierFull(dossierId).then(() => closeForm()))
-        .catch((e) => (errorMessage = e.message));
+    inProgress = true;
+    try {
+      await addOrUpdateAvisExpert(avisExpertToAddOrUpdate, fichierSaisine, fichierAvis);
+      await refreshDossierFull(dossierId);
+      closeForm();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errorMessage = `L'enregistrement de l'avis a échoué : ${message}`;
+    } finally {
+      inProgress = false;
     }
   }
 </script>
@@ -178,7 +181,11 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
         <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
-        <DateInput bind:date={avisExpert.saisine_date} />
+        <DateInput
+          id="input-champ-date-saisine"
+          label="Date saisine"
+          bind:date={avisExpert.saisine_date}
+        />
       </div>
     </div>
 
@@ -217,7 +224,7 @@
     <div class="fr-fieldset__element">
       <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
         <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-        <DateInput id={"input-champ-date-avis"} bind:date={avisExpert.avis_date} />
+        <DateInput id="input-champ-date-avis" label="Date avis" bind:date={avisExpert.avis_date} />
       </div>
     </div>
     {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}
@@ -247,7 +254,7 @@
       aria-live="polite"
     >
       {#if errorMessage}
-        <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w">
+        <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
           <p>{errorMessage}</p>
         </div>
       {/if}
@@ -260,18 +267,9 @@
         <button type="button" class="fr-btn fr-btn--secondary" onclick={closeForm}>Annuler</button>
       </li>
       <li>
-        {#await loadingAddOrUpdateAvisExpertP}
-          <p aria-labelledby="sauvegarde-en-cours" class="fr-sr-only" role="alert">
-            Sauvegarde en cours
-          </p>
-          <button id="sauvegarde-en-cours" type="submit" class="fr-btn"
-            >Sauvegarde en cours...</button
-          >
-        {:then}
-          <button type="submit" class="fr-btn">Sauvegarder</button>
-        {:catch}
-          <button type="submit" class="fr-btn">Sauvegarder</button>
-        {/await}
+        <button type="submit" class="fr-btn" disabled={inProgress}>
+          {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
+        </button>
       </li>
     </ul>
   </fieldset>

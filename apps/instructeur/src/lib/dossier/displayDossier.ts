@@ -80,3 +80,38 @@ export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): st
     }
   }
 }
+
+// "Nom Prénom" from a last/first name pair, ignoring missing parts.
+function formatName(
+  lastName: string | null | undefined,
+  firstNames: string | null | undefined,
+): string {
+  return [lastName, firstNames].filter(Boolean).join(" ");
+}
+
+export function hasMandataire(dossier: DossierFull): boolean {
+  return Boolean(dossier.mandataire_last_name || dossier.mandataire_first_names);
+}
+
+export function formatMandataire(dossier: DossierFull): string {
+  return formatName(dossier.mandataire_last_name, dossier.mandataire_first_names) || "(inconnu)";
+}
+
+// The human contact behind the demandeur: for a personne morale the demandeur is the
+// company itself, so its human contact is the legal representative (représentant);
+// for a personne physique it is that person.
+export function formatDemandeurContact(dossier: DossierFull): string {
+  if (dossier.demandeur_personne_morale_siret) {
+    return (
+      formatName(dossier.representative_last_name, dossier.representative_first_names) ||
+      dossier.demandeur_personne_morale_legal_name ||
+      "(inconnu)"
+    );
+  }
+  return (
+    formatName(
+      dossier.demandeur_personne_physique_last_name,
+      dossier.demandeur_personne_physique_first_names,
+    ) || "(inconnu)"
+  );
+}

@@ -11,7 +11,7 @@
   } from "./dossiersList.ts";
   import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
   import MultiSelectFilter from "./MultiSelectFilter.svelte";
-  import DatePicker from "./DatePicker.svelte";
+  import DatePicker from "$lib/components/DatePicker.svelte";
 
   type Props = {
     draft: DossiersQuery;

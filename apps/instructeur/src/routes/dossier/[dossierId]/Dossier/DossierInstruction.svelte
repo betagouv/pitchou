@@ -17,6 +17,7 @@
   } from "$lib/dossier/suiviDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
+  import DateInput from "../DateInput.svelte";
 
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -74,11 +75,11 @@
     return details.join(" - ");
   }
 
-  let publicConsultationStartDateString = $state(
-    untrack(() => dateToInputValue(dossier.public_consultation_start_date)),
+  let publicConsultationStartDate = $state<Date | null | undefined>(
+    untrack(() => dossier.public_consultation_start_date),
   );
-  let publicConsultationEndDateString = $state(
-    untrack(() => dateToInputValue(dossier.public_consultation_end_date)),
+  let publicConsultationEndDate = $state<Date | null | undefined>(
+    untrack(() => dossier.public_consultation_end_date),
   );
 
   /**
@@ -162,19 +163,17 @@
     }
 
     if (
-      dateToInputValue(dossier.public_consultation_start_date) !== publicConsultationStartDateString
+      dateToInputValue(dossier.public_consultation_start_date) !==
+      dateToInputValue(publicConsultationStartDate)
     ) {
-      updates.public_consultation_start_date = publicConsultationStartDateString
-        ? new Date(publicConsultationStartDateString)
-        : null;
+      updates.public_consultation_start_date = publicConsultationStartDate ?? null;
     }
 
     if (
-      dateToInputValue(dossier.public_consultation_end_date) !== publicConsultationEndDateString
+      dateToInputValue(dossier.public_consultation_end_date) !==
+      dateToInputValue(publicConsultationEndDate)
     ) {
-      updates.public_consultation_end_date = publicConsultationEndDateString
-        ? new Date(publicConsultationEndDateString)
-        : null;
+      updates.public_consultation_end_date = publicConsultationEndDate ?? null;
     }
 
     // Business rule: er_mesures_sufficient is always NULL if ddep_required is NULL
@@ -292,28 +291,24 @@
     {/if}
 
     <h2 class="fr-mt-3w">Dates de consultation du public ou enquête publique</h2>
-    <div class="fr-input-group">
+    <div class="fr-input-group" onfocusin={dismissAlert}>
       <label class="fr-label" for="public_consultation_start_date">
         <strong>Date de début</strong>
       </label>
-      <input
-        onfocus={dismissAlert}
-        class="fr-input"
+      <DateInput
         id="public_consultation_start_date"
-        type="date"
-        bind:value={publicConsultationStartDateString}
+        label="Date de début"
+        bind:date={publicConsultationStartDate}
       />
     </div>
-    <div class="fr-input-group">
+    <div class="fr-input-group" onfocusin={dismissAlert}>
       <label class="fr-label" for="public_consultation_end_date">
         <strong>Date de fin</strong>
       </label>
-      <input
-        onfocus={dismissAlert}
-        class="fr-input"
+      <DateInput
         id="public_consultation_end_date"
-        type="date"
-        bind:value={publicConsultationEndDateString}
+        label="Date de fin"
+        bind:date={publicConsultationEndDate}
       />
     </div>
 

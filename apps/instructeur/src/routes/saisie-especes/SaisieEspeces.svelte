@@ -440,7 +440,7 @@
                 <li>
                   <span class="fr-text--lg"
                     >Ajouter le document récapitulatif dans votre dossier Démarche Numérique,
-                    section "3. Espèces concernées par la dérogation".</span
+                    section "Espèces concernées par la dérogation".</span
                   >
                 </li>
                 <li>
