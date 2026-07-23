@@ -21,7 +21,7 @@
   serviceTagline="Administration"
   tools={data.user ? tools : undefined}
   menuLinks={data.user ? menuLinks : undefined}
-  nav={data.user ? mainNav : undefined}
+  nav={data.isAdmin ? mainNav : undefined}
 />
 
 <main tabindex="-1" id="main">
