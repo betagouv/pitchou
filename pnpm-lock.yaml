@@ -44,6 +44,9 @@ importers:
       '@pitchou/common':
         specifier: workspace:*
         version: link:../../libs/common
+      '@pitchou/server':
+        specifier: workspace:*
+        version: link:../../libs/server
       '@pitchou/server-utils':
         specifier: workspace:*
         version: link:../../libs/server-utils
@@ -56,6 +59,9 @@ importers:
       '@sentry/sveltekit':
         specifier: ^10.65.0
         version: 10.65.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))(@sveltejs/kit@2.61.0(@opentelemetry/api@1.9.1)(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))(svelte@5.55.9)(typescript@5.9.3)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3)))(rollup@4.60.4)(svelte@5.55.9)(vite@8.0.14(@types/node@22.19.19)(esbuild@0.28.0)(sass@1.99.0)(terser@5.47.1)(tsx@4.22.3))
+      jose:
+        specifier: ^5.9.6
+        version: 5.10.0
       knex:
         specifier: ^3.1.0
         version: 3.2.10(pg@8.21.0)
@@ -312,6 +318,16 @@ importers:
         version: 22.19.19
 
   libs/ui:
+    dependencies:
+      '@pitchou/common':
+        specifier: workspace:*
+        version: link:../common
+      '@pitchou/types':
+        specifier: workspace:*
+        version: link:../types
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       svelte:
         specifier: ^5.46.4
@@ -2101,6 +2117,9 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  jose@5.10.0:
+    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -4752,6 +4771,8 @@ snapshots:
   is-unicode-supported@2.1.0: {}
 
   isexe@2.0.0: {}
+
+  jose@5.10.0: {}
 
   js-tokens@4.0.0: {}
 

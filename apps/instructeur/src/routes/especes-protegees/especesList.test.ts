@@ -1,7 +1,12 @@
 import { describe, it, expect } from "vitest";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-import { parseEspecesQuery, filterEspeces, matchesText, compareEspeces } from "./especesList.ts";
+import {
+  parseEspecesQuery,
+  filterEspeces,
+  matchesText,
+  compareEspeces,
+} from "@pitchou/ui/especes/especesList.ts";
 
 // Builds an EspèceProtégée with sensible defaults; override only what a test cares about.
 function makeEspece(overrides: Partial<EspeceProtegee> = {}): EspeceProtegee {

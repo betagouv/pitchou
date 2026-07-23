@@ -10,6 +10,7 @@ class FakeDatabaseBuilder {
   private selectRowsByTable: Map<string, unknown[]> = new Map();
   private defaultSelectRows: unknown[] = [];
   private deleteImpl: () => Promise<unknown> = () => Promise.resolve(1);
+  private deleteReturningRows: unknown[] = [];
 
   insertResolves(value: unknown): this {
     this.insertImpl = () => Promise.resolve(value);
@@ -51,10 +52,17 @@ class FakeDatabaseBuilder {
     return this;
   }
 
+  /** Rows returned by a `.del().returning(...)` chain. */
+  deleteReturning(rows: unknown[]): this {
+    this.deleteReturningRows = rows;
+    return this;
+  }
+
   build() {
     const insertImpl = this.insertImpl;
     const updateImpl = this.updateImpl;
     const deleteImpl = this.deleteImpl;
+    const deleteReturningRows = this.deleteReturningRows;
     const defaultRows = this.defaultSelectRows;
     const rowsByTable = this.selectRowsByTable;
     // SELECT response depends on the most recent table(...) call, so we track it here.
@@ -63,17 +71,23 @@ class FakeDatabaseBuilder {
     const rowsForLastTable = () => rowsByTable.get(lastTable) ?? defaultRows;
 
     // Thenable that resolves to the SELECT rows for the current table, and
-    // supports `.first()`, `.update()`, `.delete()` continuations.
+    // supports `.first()`, `.andWhere()`, `.update()`, `.delete()`/`.del()` continuations.
     const buildWhereResult = () => {
       const rows = rowsForLastTable();
       const thenable: any = Promise.resolve(rows);
       thenable.first = () => Promise.resolve(rows[0]);
+      thenable.andWhere = andWhere;
       thenable.update = update;
       thenable.delete = deleteQuery;
+      thenable.del = deleteQuery;
       return thenable;
     };
 
-    const where = vi.fn((_criteria: AnyValues) => buildWhereResult());
+    const where = vi.fn((..._args: unknown[]) => buildWhereResult());
+
+    // `.andWhere(...)` chains exactly like `.where(...)`; tracked separately so
+    // tests can assert the extra predicate (e.g. the `date_expired` guard).
+    const andWhere = vi.fn((..._args: unknown[]) => buildWhereResult());
 
     // Tracks every whereIn call regardless of the chain (select vs delete).
     const whereIn = vi.fn();
@@ -92,6 +106,7 @@ class FakeDatabaseBuilder {
       const thenable: any = deleteImpl();
       thenable.where = where;
       thenable.whereIn = whereInForDelete;
+      thenable.returning = () => Promise.resolve(deleteReturningRows);
       return thenable;
     });
 
@@ -125,16 +140,22 @@ class FakeDatabaseBuilder {
       lastTable = tableName;
       return { insert, where, whereIn, select, delete: deleteQuery, update };
     });
+    // Knex SQL helpers used in predicates (e.g. `databaseConnection.fn.now()`).
+    // Attached via a cast so `table`'s call-signature typing stays intact.
+    const fnNow = vi.fn(() => "now()");
+    (table as unknown as { fn: { now: typeof fnNow } }).fn = { now: fnNow };
 
     return {
       knex: table as unknown as Knex,
       table,
       insert,
       where,
+      andWhere,
       whereIn,
       update,
       select,
       delete: deleteQuery,
+      fnNow,
     };
   }
 }

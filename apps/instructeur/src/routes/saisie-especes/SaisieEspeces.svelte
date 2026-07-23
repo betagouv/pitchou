@@ -4,7 +4,7 @@
   import ModalPrefillFromText from "./SaisieEspeces/ModalPrefillFromText.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import TileSaisieEspece from "./SaisieEspeces/TileSaisieEspece.svelte";
   import { tick } from "svelte";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";

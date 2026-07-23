@@ -1,7 +1,7 @@
 <script lang="ts">
   import { preventDefault } from "svelte/legacy";
 
-  import Loader from "$lib/components/Loader.svelte";
+  import Loader from "@pitchou/ui/Loader.svelte";
   import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
   type Props = {

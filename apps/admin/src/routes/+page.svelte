@@ -7,8 +7,6 @@
 <h1 class="fr-mb-1w">Tableau de bord</h1>
 <p class="fr-text--lead fr-mb-4w">Accès rapide aux outils de l'équipe Pitchou.</p>
 
-<p class="fr-mb-4w"><strong>Base de données :</strong> {data.databaseStatus}</p>
-
 {#if data.links.length > 0}
   <ul class="dashboard-grid">
     {#each data.links as link (link.title)}

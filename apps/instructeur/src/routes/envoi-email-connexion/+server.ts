@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { authorizedEmailDomains } from "@pitchou/common/constants.ts";
 import { createPersonneOrUpdateCodeAcces } from "@pitchou/server/database/personne.ts";
-import { sendConnexionEmail } from "@pitchou/server/emails.ts";
+import { sendLoginEmail } from "@pitchou/server/emails.ts";
 
 export const POST: RequestHandler = async ({ url }) => {
   const rawEmail = url.searchParams.get("email");
@@ -17,8 +17,8 @@ export const POST: RequestHandler = async ({ url }) => {
   }
 
   const codeAcces = await createPersonneOrUpdateCodeAcces(email);
-  const connexionLink = `${process.env.PUBLIC_SITE_URL_PITCHOU}/?secret=${codeAcces}`;
-  await sendConnexionEmail(email, connexionLink);
+  const loginLink = `${process.env.PUBLIC_SITE_URL_PITCHOU}/?secret=${codeAcces}`;
+  await sendLoginEmail(email, loginLink);
 
   return new Response(null, { status: 204 });
 };
