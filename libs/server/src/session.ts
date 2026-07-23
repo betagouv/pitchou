@@ -20,11 +20,11 @@ const RENEW_THROTTLE_SECONDS = 60 * 60;
 type SessionRow = {
   id: string;
   email: string;
-  nom: string;
+  name: string;
   id_token: string | null;
 };
 
-export type Session = { email: string; nom: string; idToken: string | null };
+export type Session = { email: string; name: string; idToken: string | null };
 
 /**
  * Cookie domain shared across sibling subdomains. Unset (host-only) for localhost
@@ -44,14 +44,14 @@ function expiryFromNow(): Date {
 }
 
 export async function createSession(
-  { email, nom, idToken }: { email: string; nom: string; idToken: string | null },
+  { email, name, idToken }: { email: string; name: string; idToken: string | null },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<string> {
   const token = randomBytes(32).toString("base64url");
   await databaseConnection("session").insert({
     id: hashToken(token),
     email,
-    nom,
+    name,
     id_token: idToken,
     date_expired: expiryFromNow(),
   });
@@ -64,7 +64,7 @@ export async function readSession(
 ): Promise<Session | null> {
   const id = hashToken(token);
   const row = await databaseConnection<SessionRow>("session")
-    .select("email", "nom", "id_token")
+    .select("email", "name", "id_token")
     .where({ id })
     .andWhere("date_expired", ">", databaseConnection.fn.now())
     .first();
@@ -80,7 +80,7 @@ export async function readSession(
     .andWhere("date_expired", "<", slideThreshold)
     .update({ date_expired: expiryFromNow() });
 
-  return { email: row.email, nom: row.nom, idToken: row.id_token };
+  return { email: row.email, name: row.name, idToken: row.id_token };
 }
 
 /** Deletes the session and returns its stored id_token (for the logout id_token_hint). */

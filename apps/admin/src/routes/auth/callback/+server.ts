@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
   // Create the session for any authenticated user, so it can be reused by the other
   // Pitchou apps; the admin app then applies its own authorization below.
-  const token = await createSession({ email: user.email, nom: user.name, idToken: user.idToken });
+  const token = await createSession({ email: user.email, name: user.name, idToken: user.idToken });
   setSessionCookie(cookies, token);
 
   if (!isAdminEmail(user.email)) {

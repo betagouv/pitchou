@@ -22,7 +22,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
 
   const token = readSessionToken(event.cookies);
   const session = token ? await readSession(token) : null;
-  event.locals.user = session ? { email: session.email, name: session.nom } : null;
+  event.locals.user = session ? { email: session.email, name: session.name } : null;
   // Re-set the cookie so its lifetime slides along with the session row.
   if (token && session) setSessionCookie(event.cookies, token);
 

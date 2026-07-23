@@ -8,7 +8,7 @@ export async function up(knex: Knex) {
   await knex.schema.createTable("session", function (table) {
     table.text("id").primary();
     table.text("email").notNullable();
-    table.text("nom").notNullable().defaultTo("");
+    table.text("name").notNullable().defaultTo("");
     // OIDC id_token, kept only for the logout id_token_hint.
     table.text("id_token");
     table.timestamp("date_created", { useTz: true }).notNullable().defaultTo(knex.fn.now());

@@ -9,7 +9,7 @@
       "size": "S"
     },
     {
-      "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx supprimer-sessions-expirees.ts",
+      "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx delete-expired-sessions.ts",
       "size": "S"
     },
     {

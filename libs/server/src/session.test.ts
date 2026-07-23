@@ -8,7 +8,7 @@ import { fakeDatabase } from "./database/fakeDatabase.ts";
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
 
 describe("createSession", () => {
-  const newSession = { email: "agent@pitchou.test", nom: "Agent Test", idToken: "id-token-xyz" };
+  const newSession = { email: "agent@pitchou.test", name: "Agent Test", idToken: "id-token-xyz" };
 
   it("only touches the session table", async () => {
     const db = fakeDatabase().build();
@@ -51,19 +51,19 @@ describe("createSession", () => {
     await createSession(newSession, db.knex);
     const inserted = db.insert.mock.calls[0][0] as {
       email: string;
-      nom: string;
+      name: string;
       id_token: string | null;
       date_expired: Date;
     };
     expect(inserted.email).toBe("agent@pitchou.test");
-    expect(inserted.nom).toBe("Agent Test");
+    expect(inserted.name).toBe("Agent Test");
     expect(inserted.id_token).toBe("id-token-xyz");
     expect(inserted.date_expired.getTime()).toBeGreaterThan(before);
   });
 
   it("accepts a null id_token", async () => {
     const db = fakeDatabase().build();
-    await createSession({ email: "a@b.fr", nom: "", idToken: null }, db.knex);
+    await createSession({ email: "a@b.fr", name: "", idToken: null }, db.knex);
     const inserted = db.insert.mock.calls[0][0] as { id_token: string | null };
     expect(inserted.id_token).toBeNull();
   });
@@ -74,7 +74,7 @@ describe("readSession", () => {
 
   it("looks the row up by the hashed token and guards on expiry", async () => {
     const db = fakeDatabase()
-      .selectResolves([{ email: "a@b.fr", nom: "Nom", id_token: "tok" }])
+      .selectResolves([{ email: "a@b.fr", name: "Nom", id_token: "tok" }])
       .build();
     await readSession(token, db.knex);
     expect(db.where).toHaveBeenCalledWith({ id: sha256(token) });
@@ -83,15 +83,15 @@ describe("readSession", () => {
 
   it("returns the identity for a live session", async () => {
     const db = fakeDatabase()
-      .selectResolves([{ email: "a@b.fr", nom: "Nom", id_token: "tok" }])
+      .selectResolves([{ email: "a@b.fr", name: "Nom", id_token: "tok" }])
       .build();
     const session = await readSession(token, db.knex);
-    expect(session).toEqual({ email: "a@b.fr", nom: "Nom", idToken: "tok" });
+    expect(session).toEqual({ email: "a@b.fr", name: "Nom", idToken: "tok" });
   });
 
   it("slides the expiry, throttled to rows older than the renewal window", async () => {
     const db = fakeDatabase()
-      .selectResolves([{ email: "a@b.fr", nom: "Nom", id_token: "tok" }])
+      .selectResolves([{ email: "a@b.fr", name: "Nom", id_token: "tok" }])
       .build();
     await readSession(token, db.knex);
     // The slide only updates rows whose expiry is below the throttle threshold.
