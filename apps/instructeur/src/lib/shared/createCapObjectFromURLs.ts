@@ -21,7 +21,10 @@ function wrapGETUrl(url: string | undefined): (() => Promise<any>) | undefined {
   return () => json(url, commonRequestInit);
 }
 
-function wrapPOSTUrl(url: string | undefined): ((body: any) => Promise<any>) | undefined {
+function wrapPOSTUrl(
+  url: string | undefined,
+  extraInit: RequestInit = {},
+): ((body: any) => Promise<any>) | undefined {
   if (!url) return undefined;
 
   return (args: any) =>
@@ -29,6 +32,7 @@ function wrapPOSTUrl(url: string | undefined): ((body: any) => Promise<any>) | u
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(args),
+      ...extraInit,
     });
 }
 
@@ -281,7 +285,10 @@ export default function (
     addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
     addOtherAttachment: wrapPOSTMultipart(capURLs.addOtherAttachment),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
-    creerEvenementMetrique: wrapPOSTUrl(capURLs.creerEvenementMetrique),
+    // keepalive lets the request survive the page being closed, since search events
+    // are flushed when the page becomes hidden (see aarri.ts)
+    creerEvenementMetrique: wrapPOSTUrl(capURLs.creerEvenementMetrique, { keepalive: true }),
+    listRecentSearches: wrapGETUrl(capURLs.listRecentSearches),
     identité: capURLs.identité,
     listerNotifications: wrapGETUrl(capURLs.listerNotifications),
     updateNotificationForDossier: wrapPOSTUrl(capURLs.updateNotificationForDossier),

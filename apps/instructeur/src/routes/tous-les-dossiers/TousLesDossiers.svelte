@@ -8,6 +8,8 @@
     email?: string;
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
+    services?: string[];
+    recentSearches?: string[];
     notificationByDossier?: PitchouState["notificationByDossier"];
   };
 
@@ -15,6 +17,8 @@
     email = "",
     dossiers,
     followRelations,
+    services = [],
+    recentSearches = [],
     notificationByDossier = new SvelteMap(),
   }: Props = $props();
 </script>
@@ -28,6 +32,8 @@
   {email}
   {dossiers}
   {followRelations}
+  {services}
+  {recentSearches}
   {notificationByDossier}
-  showFilterSansInstructeurice
+  showFilterInstructeurice
 />

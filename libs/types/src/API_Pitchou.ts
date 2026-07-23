@@ -130,6 +130,23 @@ type DossierDataForStats = {
 };
 
 /**
+ * The consulted expert and the presence of the saisine and avis files for each
+ * avis expert of a dossier. Lets the front filter dossiers by their avis files
+ * (e.g. « no CNPN/CSRPN avis file »), without transferring the files themselves.
+ */
+type DossierAvisExpertSummary = {
+  avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
+};
+
+/**
+ * Whether the pétitionnaire provided the impacted-species file. Lets the front filter
+ * dossiers whose impacted-species list is « non-renseignée », without transferring the file.
+ */
+type DossierEspecesImpacteesSummary = {
+  especesImpacteesRenseignees: boolean;
+};
+
+/**
  * The DossierSummary type contains the data needed to display the tracking table
  * and to be able to perform searches in the tracking table
  * or the summary panel shared across the tabs of the screens showing a single dossier
@@ -150,7 +167,9 @@ export type DossierSummary = Pick<
 > & { phase: DossierPhase; phase_start_date: Date } & DossierLocalisation &
   DossierPersonnesImpliqueesSummary &
   DossierActivitePrincipale &
-  DossierDataForStats;
+  DossierDataForStats &
+  DossierAvisExpertSummary &
+  DossierEspecesImpacteesSummary;
 
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
@@ -162,6 +181,8 @@ export type FrontEndFichier = Pick<File, "media_type" | "name"> & {
 export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
   fichier_url: string | undefined;
   fichier_description?: FrontEndFichier;
+  /** Whether the decision has an attached file. Set on the dossiers list summary. */
+  hasFile?: boolean;
 } & { prescriptions: FrontEndPrescription[] | undefined };
 
 export type DecisionAdministrativeForTransfer = Partial<

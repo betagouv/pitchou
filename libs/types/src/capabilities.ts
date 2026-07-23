@@ -47,6 +47,8 @@ export interface PitchouInstructeurCapabilities {
   addOtherAttachment: (form: FormData) => Promise<string>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
   creerEvenementMetrique: (evenement: EvenementMetrique) => Promise<void>;
+  /** The instructeur's last 3 distinct search-bar texts, most recent first */
+  listRecentSearches: () => Promise<string[]>;
   listerNotifications: () => Promise<Notification[]>;
   updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
 }
@@ -54,4 +56,6 @@ export interface PitchouInstructeurCapabilities {
 export interface IdentiteInstructeurPitchou {
   email: string;
   estAdmin: boolean;
+  /** Names of the groupes instructeurs (services) the instructeur belongs to (may be empty) */
+  groupesInstructeurs: string[];
 }

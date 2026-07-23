@@ -25,7 +25,7 @@ test("recharger /dossier/[id] ne déclenche pas une 500", async ({ page, db }) =
 
   // Log in via the URL (the working path), then reload to reproduce the bug.
   await page.goto(`/?secret=${codeAcces}`);
-  await expect(page.getByRole("heading", { name: /Tableau de suivi/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
   await page.goto(`/dossier/${dossier.id}`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();

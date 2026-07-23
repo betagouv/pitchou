@@ -7,7 +7,7 @@ import {
 } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
 import { sendEvenementModifierCommentaire, sendEvenement } from "$lib/shared/aarri.ts";
-import { loadRelationSuivi } from "$lib/shared/main.ts";
+import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -100,6 +100,7 @@ export async function especesImpacteesFromFichierOdsArrayBuffer(
 
 export function loadDossiers() {
   loadRelationSuivi();
+  loadRecentSearches();
 
   if (store.capabilities?.listerDossiers) {
     return store.capabilities?.listerDossiers().then((dossiers) => {

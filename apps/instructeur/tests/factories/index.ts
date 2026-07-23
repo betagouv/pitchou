@@ -17,7 +17,8 @@ export {
   attachDossierToGroupe,
   DEFAULT_NUMERO_DEMARCHE,
 } from "./dossier.ts";
-export { createCapDossier, attachCapToGroupe } from "./cap.ts";
+export { createCapDossier, attachCapToGroupe, createCapEvenementMetrique } from "./cap.ts";
+export { createDossierSearch } from "./dossierSearch.ts";
 
 export type InstructeurWithCap = CreatedPersonne & {
   cap: string;

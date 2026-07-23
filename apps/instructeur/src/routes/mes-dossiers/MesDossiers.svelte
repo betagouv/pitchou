@@ -8,21 +8,47 @@
     email?: string;
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
+    services?: string[];
+    recentSearches?: string[];
     notificationByDossier: PitchouState["notificationByDossier"];
   };
 
-  let { email = "", dossiers = [], followRelations, notificationByDossier }: Props = $props();
+  let {
+    email = "",
+    dossiers = [],
+    followRelations,
+    services = [],
+    recentSearches = [],
+    notificationByDossier,
+  }: Props = $props();
 </script>
 
 <svelte:head>
   <title>Mes dossiers — Pitchou</title>
 </svelte:head>
 
+{#snippet emptyListMessage({ wholeListEmpty }: { wholeListEmpty: boolean })}
+  {#if wholeListEmpty}
+    <p>
+      Vous ne suivez aucun dossier pour le moment. Vous pouvez consulter
+      <a class="fr-link" href="/tous-les-dossiers">tous les dossiers</a> pour commencer à en suivre.
+    </p>
+  {:else}
+    <p>Aucun dossier n'a été trouvé.</p>
+  {/if}
+{/snippet}
+
+<!-- « à enjeux » is replaced by the « prochaine action à moi » quick filter: on this page
+     every dossier is followed by the instructeur, so their own next action matters more -->
 <ListDossiers
   title="Mes dossiers"
   {email}
   {dossiers}
   {followRelations}
-  showFilterActionInstructeur
+  {services}
+  {recentSearches}
   {notificationByDossier}
+  showFilterEnjeu={false}
+  showFilterActionInstructeur
+  {emptyListMessage}
 />

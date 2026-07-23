@@ -56,6 +56,22 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     .where({ access_code: accessCode })
     .first();
 
+  const groupesInstructeursP = databaseConnection("cap_dossier")
+    .join(
+      "edge_cap_dossier__groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap",
+    )
+    .join(
+      "groupe_instructeurs",
+      "groupe_instructeurs.id",
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    )
+    .where("cap_dossier.personne_cap", accessCode)
+    .distinct("groupe_instructeurs.name")
+    .orderBy("groupe_instructeurs.name")
+    .then((rows) => rows.map((row) => row.name));
+
   const listDossiersP = databaseConnection("cap_dossier")
     .select("cap")
     .where({ personne_cap: accessCode })
@@ -92,6 +108,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     updateDecisionAdministrativeInDossierP,
     createEvenementMetriqueP,
     identiteP,
+    groupesInstructeursP,
     listNotificationsP,
     updateNotificationP,
   ]).then(
@@ -107,6 +124,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
       updateDecisionAdministrativeInDossier,
       createEvenementMetrique,
       identite,
+      groupesInstructeurs,
       listNotifications,
       updateNotificationForDossier,
     ]) => {
@@ -120,9 +138,15 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
         listerMessages: listMessages,
         modifierDossier: updateDossier,
         identité: identite
-          ? { email: identite.email, estAdmin: isAdminEmail(identite.email) }
+          ? {
+              email: identite.email,
+              estAdmin: isAdminEmail(identite.email),
+              groupesInstructeurs,
+            }
           : undefined,
         creerEvenementMetrique: createEvenementMetrique,
+        // Reading recent searches shares the metric cap value
+        listRecentSearches: createEvenementMetrique,
         modifierDecisionAdministrativeDansDossier: updateDecisionAdministrativeInDossier,
         listerNotifications: listNotifications,
         updateNotificationForDossier,

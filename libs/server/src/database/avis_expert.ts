@@ -5,6 +5,7 @@ import type {
 } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { Knex } from "knex";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
+import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
@@ -145,6 +146,37 @@ export async function deleteAvisExpert(
   }
 
   return result;
+}
+
+/**
+ * For every avis expert of the dossiers accessible through `cap_dossier`,
+ * returns which dossier it belongs to, the consulted expert and whether its
+ * saisine and avis files exist. Used to filter dossiers by their avis files.
+ */
+export function getAvisExpertFilesByCap(
+  capDossier: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<
+  {
+    dossier: Dossier["id"];
+    expert: AvisExpert["expert"];
+    hasSaisineFile: boolean;
+    hasAvisFile: boolean;
+  }[]
+> {
+  return databaseConnection("avis_expert")
+    .select("avis_expert.dossier as dossier")
+    .select("avis_expert.expert as expert")
+    .select(databaseConnection.raw('avis_expert.saisine_fichier is not null as "hasSaisineFile"'))
+    .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "hasAvisFile"'))
+    .join("edge_groupe_instructeurs__dossier", {
+      "edge_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
+    })
+    .join("edge_cap_dossier__groupe_instructeurs", {
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
+        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
+    })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": capDossier });
 }
 
 export function getFichiersAvisSaisineAvisExpert(

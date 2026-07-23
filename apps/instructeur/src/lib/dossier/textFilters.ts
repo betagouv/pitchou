@@ -32,13 +32,17 @@ export function createTextFilter(
       );
     };
   } else {
-    // Otherwise, use lunr for text search
-    const textWithoutAccents = removeAccents(textToSearch);
-    // To search communes that contain hyphens with lunr,
-    // we need to pass the string between "".
-    const toSearch = textWithoutAccents.match(/(\w-)+/)
-      ? `"${textWithoutAccents}"`
-      : textWithoutAccents;
+    // Otherwise, use lunr for text search.
+    // Split the text into words (hyphens separate compound commune names)
+    // then, for each word, search both the exact term — run through the French
+    // stemmer — and its prefix (`word*`). Partial input thus finds the commune
+    // before typing ends (« cleyra » → « Cleyrac »), while keeping the stemmed
+    // word matches that the prefix alone would miss (« bordeaux » is indexed
+    // « bordeau », so `bordeaux*` would not match).
+    const words = removeAccents(textToSearch)
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean);
+    const toSearch = words.map((word) => `${word} ${word}*`).join(" ");
     const dossierIdsMatchingText = findDossierIdsMatchingText(toSearch, dossiers);
 
     return (dossier) => {

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
-import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { createCapEvenementMetrique, createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 test("GET /caps?secret=<codeAcces> renvoie les capabilities de l'instructeur", async () => {
@@ -12,8 +12,25 @@ test("GET /caps?secret=<codeAcces> renvoie les capabilities de l'instructeur", a
 
   expect(res.status).toBe(200);
   const body = await res.json();
-  expect(body.identité).toEqual({ email, estAdmin: false });
+  expect(body.identité).toEqual({
+    email,
+    estAdmin: false,
+    groupesInstructeurs: ["Groupe de test"],
+  });
   expect(body).toHaveProperty("listerDossiers");
+});
+
+test("GET /caps expose les caps métriques quand la personne en a une", async () => {
+  const { codeAcces } = await createInstructeurWithCapToGroup(db);
+  const { cap } = await createCapEvenementMetrique(db, codeAcces);
+
+  const res = await fetch(`${INTEGRATION_BASE_URL}/caps?secret=${codeAcces}`);
+
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body.creerEvenementMetrique).toBe(`/api/metriques/evenements?cap=${cap}`);
+  // Reading recent searches shares the metric cap value
+  expect(body.listRecentSearches).toBe(`/api/metriques/dernieres-recherches?cap=${cap}`);
 });
 
 test("GET /caps sans paramètre secret renvoie 400", async () => {

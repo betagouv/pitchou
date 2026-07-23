@@ -30,7 +30,9 @@
   );
 
   function logoutAndRedirect() {
-    logout().then(() => goto("/"));
+    // Send straight to the sign-in page: the route guards only run on load, so
+    // redirecting through "/" would land back on the current (now empty) page.
+    logout().then(() => goto("/connexion"));
   }
 </script>
 

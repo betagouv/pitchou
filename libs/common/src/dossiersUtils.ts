@@ -30,6 +30,12 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // Next action
     next_action_expected_from,
 
+    // Avis d'expert (for the presence of the files)
+    avisExpert,
+
+    // especes impactees file, for presence
+    especesImpactees,
+
     // Events used to extract the phase
     evenementsPhase,
   } = dossierFull;
@@ -51,7 +57,16 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     free_comment,
     linked_to_ae_regime,
     onagre_demande_identifier,
-    decisionsAdministratives,
+    decisionsAdministratives: decisionsAdministratives?.map((decision) => ({
+      ...decision,
+      hasFile: decision.fichier_url !== undefined,
+    })),
+    avisExperts: avisExpert.map((ae) => ({
+      expert: ae.expert,
+      hasSaisineFile: ae.saisine_fichier_url !== undefined,
+      hasAvisFile: ae.avis_fichier_url !== undefined,
+    })),
+    especesImpacteesRenseignees: especesImpactees !== undefined,
 
     // Statistics
     depot_date,

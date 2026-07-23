@@ -1,29 +1,50 @@
 <script lang="ts">
-  import type { DossierSummary, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
-  import type { ChangeEventHandler, EventHandler } from "svelte/elements";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
+  import type { Snippet } from "svelte";
+  import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
+  import {
+    WITHOUT_INSTRUCTEUR,
+    buildActiveFilterChips,
+    buildDossiersSearchParams,
+    buildSearchEvent,
+    compareDossiers,
+    copyDossiersQuery,
+    countActiveFilters,
+    filterDossiers,
+    listAvailableInstructeurs,
+    readDossiersQuery,
+  } from "./dossiersList.ts";
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
   } from "$lib/dossier/suiviDossier.ts";
+  import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
   import CardDossier from "./CardDossier.svelte";
   import Pagination from "$lib/components/DSFR/Pagination.svelte";
-  import { createTextFilter } from "$lib/dossier/textFilters.ts";
-  import { SvelteMap } from "svelte/reactivity";
-  import { tick } from "svelte";
-  import { sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier } from "$lib/shared/aarri.ts";
-  import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
+  import DossiersToolbar from "./DossiersToolbar.svelte";
+  import DossiersFilterModal from "./DossiersFilterModal.svelte";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
+  import { tick, untrack } from "svelte";
 
   type Props = {
     title: string;
     email?: string;
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
-    showFilterSansInstructeurice?: boolean;
+    /** Names of the instructeur's services (groupes instructeurs) */
+    services?: string[];
+    recentSearches?: string[];
+    /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
+    showFilterInstructeurice?: boolean;
+    showFilterEnjeu?: boolean;
+    /** Show the « prochaine action à moi » quick filter for « mes dossiers » */
     showFilterActionInstructeur?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
+    /** Empty state, overriding the default message. Receives whether the whole (unfiltered) list is empty. */
+    emptyListMessage?: Snippet<[{ wholeListEmpty: boolean }]>;
   };
 
   let {
@@ -31,309 +52,195 @@
     email = "",
     dossiers,
     followRelations,
-    showFilterSansInstructeurice = false,
+    services = [],
+    recentSearches = [],
+    showFilterInstructeurice = false,
+    showFilterEnjeu = true,
     showFilterActionInstructeur = false,
     notificationByDossier,
+    emptyListMessage,
   }: Props = $props();
 
-  const DOSSIERS_PER_PAGE = 10;
+  const NUMBER_DOSSIERS_PER_PAGE = 10;
 
-  type FilterKey = "texte" | "sansInstructeurice" | "phase" | "actionInstructeur" | "nouveauté";
-  const allFilters = new SvelteMap<FilterKey, (d: DossierSummary) => boolean>();
+  // The applied query lives entirely in the URL: search, filters, sort and page are all
+  // reflected as query params, so the view is shareable and survives a reload.
+  const query = $derived(readDossiersQuery(page.url.searchParams));
 
-  const filteredDossiers = $derived.by(() => {
-    let result = [...dossiers];
-
-    for (const filter of allFilters.values()) {
-      result = result.filter(filter);
-    }
-
-    return result;
-  });
-
-  function sendEvenementRechercherUnDossier() {
-    const filtres: EvenementRechercheDossiersDetails["filtres"] = {
-      sansInstructeurice: allFilters.has("sansInstructeurice"),
-      nouveauté: allFilters.has("nouveauté"),
-    };
-
-    if (textToSearch) {
-      filtres.texte = textToSearch;
-    }
-
-    if (allFilters.has("phase") && selectedPhase) {
-      filtres.phases = [selectedPhase];
-    }
-
-    if (allFilters.has("actionInstructeur")) {
-      filtres.prochaineActionAttenduePar = ["Instructeur"];
-    }
-
-    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: filteredDossiers.length });
-  }
-
-  let selectedPageNumber = $state(1);
+  // The draft edited inside the filters modal. It is mirrored to the URL live (see the
+  // effect below), so the background list re-filters as each filter is toggled.
+  let draft = $state<DossiersQuery>(readDossiersQuery(new URLSearchParams()));
+  let modalOpen = $state(false);
+  // Applied filters (page excluded) captured when the modal opens, to tell an untouched
+  // draft (keep the current page) apart from an edited one (reset to the first page).
+  let filterParamsAtOpening = "";
 
   let statusMessage = $state("");
-
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
 
-  /** Total number of pages */
-  const pageCount = $derived.by(() => {
-    if (filteredDossiers.length === 0) return 1;
-    return Math.ceil(filteredDossiers.length / DOSSIERS_PER_PAGE);
-  });
+  const ctx = $derived({ notificationByDossier, followRelations });
+  const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
+  const sortedDossiers = $derived(
+    [...filteredDossiers].sort((a, b) =>
+      compareDossiers(a, b, query.sort, query.order, notificationByDossier),
+    ),
+  );
 
-  /** Text to display for the page */
-  const pageText = $derived.by(() => {
-    if (allFilters.has("texte") && textToSearch && textToSearch.trim() !== "") {
-      return `Résultats de recherche pour «${textToSearch}» : Page ${selectedPageNumber} sur ${pageCount}`;
-    }
-    return `Page ${selectedPageNumber} sur ${pageCount}`;
-  });
-
-  /**
-   * Updates the aria-live message with the number of filtered dossiers
-   */
-  function updateFilterMessage() {
-    const filteredCount = filteredDossiers.length;
-    const totalCount = dossiers.length;
-
-    statusMessage = `${filteredCount} dossiers affichés sur ${totalCount}`;
-    setTimeout(() => {
-      statusMessage = "";
-    }, 400);
-  }
-
-  let textToSearch: string | undefined = $state();
-
-  let selectedPhase: DossierPhase | undefined = $state();
-
-  const dossierIdsFollowedByCurrentInstructeur = $derived(followRelations?.get(email) ?? new Set());
+  const numberPages = $derived(
+    Math.max(1, Math.ceil(sortedDossiers.length / NUMBER_DOSSIERS_PER_PAGE)),
+  );
+  const currentPage = $derived(Math.min(Math.max(1, query.page), numberPages));
+  const displayedDossiers = $derived(
+    sortedDossiers.slice(
+      NUMBER_DOSSIERS_PER_PAGE * (currentPage - 1),
+      NUMBER_DOSSIERS_PER_PAGE * currentPage,
+    ),
+  );
 
   type PageSelector = () => void;
-  let pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
-    if (filteredDossiers.length >= DOSSIERS_PER_PAGE + 1) {
-      const selectors: PageSelector[] = [
-        ...Array.from({ length: pageCount }, (_v, i) => () => {
-          selectedPageNumber = i + 1;
-          tick().then(() => pageTitleElement?.focus());
-        }),
-      ];
-
-      return [undefined, ...selectors];
-    } else {
-      return undefined;
-    }
+  const pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
+    if (sortedDossiers.length <= NUMBER_DOSSIERS_PER_PAGE) return undefined;
+    const selectors = Array.from({ length: numberPages }, (_v, i) => () => goToPage(i + 1));
+    return [undefined, ...selectors];
   });
 
-  let displayedDossiers: typeof dossiers = $derived.by(() => {
-    // We display the dossiers sorted first by the most recent last-modification date (nouveauté)
-    // then by submission date
-    const sortedDossiers = [...filteredDossiers].sort((a, b) => {
-      const notificationA = notificationByDossier.get(a.id);
-      const notificationB = notificationByDossier.get(b.id);
+  const pageText = $derived(
+    query.text.trim()
+      ? `Résultats de recherche pour «${query.text}» : Page ${currentPage} sur ${numberPages}`
+      : `Page ${currentPage} sur ${numberPages}`,
+  );
 
-      const dateNotificationNonVueA =
-        notificationA?.viewed === false ? notificationA.updated_at : undefined;
-      const dateNotificationNonVueB =
-        notificationB?.viewed === false ? notificationB.updated_at : undefined;
+  const activeFilterCount = $derived(countActiveFilters(query));
+  const filterChips = $derived(buildActiveFilterChips(query));
+  const instructeurCount = $derived(listAvailableInstructeurs(followRelations).length);
 
-      if (dateNotificationNonVueA && dateNotificationNonVueB) {
-        return dateNotificationNonVueA > dateNotificationNonVueB ? -1 : 1;
-      } else if (dateNotificationNonVueA && dateNotificationNonVueB === undefined) {
-        return -1;
-      } else if (dateNotificationNonVueA === undefined && dateNotificationNonVueB) {
-        return 1;
-      }
+  const dossierIdsFollowedByCurrentInstructeur = $derived(
+    followRelations?.get(email) ?? new Set<Dossier["id"]>(),
+  );
 
-      return a.depot_date > b.depot_date ? -1 : 1;
+  /** Reflects the given query into the URL, which is the single source of truth */
+  function navigate(next: DossiersQuery) {
+    const search = buildDossiersSearchParams(next).toString();
+    goto(search ? `?${search}` : page.url.pathname, {
+      replaceState: true,
+      keepFocus: true,
+      noScroll: true,
     });
+  }
 
-    if (!pageSelectors) return sortedDossiers;
-    else {
-      return sortedDossiers.slice(
-        DOSSIERS_PER_PAGE * (selectedPageNumber - 1),
-        DOSSIERS_PER_PAGE * selectedPageNumber,
-      );
-    }
+  /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
+  function applySearch(next: DossiersQuery) {
+    navigate(next);
+    const count = filterDossiers(dossiers, next, ctx).length;
+    sendDossierSearchEvent(buildSearchEvent(next, count, { instructeurCount, email }));
+    statusMessage = `${count} dossiers affichés sur ${dossiers.length}`;
+    setTimeout(() => (statusMessage = ""), 400);
+  }
+
+  function onSearch(text: string) {
+    applySearch({ ...copyDossiersQuery(query), text, page: 1 });
+  }
+
+  function onToggleWithoutInstructeur() {
+    const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
+      ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
+      : [...query.instructeur, WITHOUT_INSTRUCTEUR];
+    applySearch({ ...copyDossiersQuery(query), instructeur, page: 1 });
+  }
+
+  /** Toggles one of the boolean quick filters and reapplies the search */
+  function toggleFilter(key: "enjeu" | "actionInstructeur") {
+    applySearch({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
+  }
+
+  function onSort(key: SortKey, order: SortOrder) {
+    navigate({ ...copyDossiersQuery(query), sort: key, order });
+  }
+
+  function goToPage(number: number) {
+    navigate({ ...copyDossiersQuery(query), page: number });
+    tick().then(() => pageTitleElement?.focus());
+  }
+
+  function openFilters() {
+    draft = copyDossiersQuery(query);
+    filterParamsAtOpening = buildDossiersSearchParams({ ...query, page: 1 }).toString();
+    modalOpen = true;
+  }
+
+  // While the modal is open, reflect its draft into the URL on every change so the list
+  // updates live. The page is reset to the first one only once the filters actually differ
+  // from those applied when the modal opened (so merely opening it does not jump the page).
+  $effect(() => {
+    if (!modalOpen) return;
+    const filtersUnchanged =
+      buildDossiersSearchParams({ ...draft, page: 1 }).toString() === filterParamsAtOpening;
+    const target = filtersUnchanged ? { ...draft } : { ...draft, page: 1 };
+    // `navigate` reads `page.url`; untrack it so the effect depends only on the draft and the
+    // open state, and writing the URL does not re-trigger the effect.
+    untrack(() => navigate(target));
   });
 
-  const submitTextSearch: EventHandler<SubmitEvent, HTMLFormElement> = (e) => {
-    e.preventDefault();
-    if (!textToSearch || textToSearch.trim() === "") {
-      allFilters.delete("texte");
-    } else {
-      allFilters.set("texte", createTextFilter(textToSearch, dossiers));
-    }
-    sendEvenementRechercherUnDossier();
-  };
-
-  /**
-   * Checks whether a dossier is followed by at least one person
-   */
-  function dossierIsFollowed(dossierId: Dossier["id"]): boolean {
-    if (!followRelations) return false;
-    for (const followedDossiers of followRelations.values()) {
-      if (followedDossiers.has(dossierId)) {
-        return true;
-      }
-    }
-    return false;
+  function applyFilters() {
+    modalOpen = false;
+    // The URL already reflects the draft (applied live); this records the search analytics
+    // and announces the final count once.
+    applySearch({ ...copyDossiersQuery(draft), page: 1 });
   }
-
-  /**
-   * Resets the page to 1 when a filter is changed
-   */
-  function resetPage() {
-    selectedPageNumber = 1;
-    updateFilterMessage();
-  }
-
-  function toggleFilterSansInstructeurice() {
-    if (!allFilters.has("sansInstructeurice")) {
-      allFilters.set("sansInstructeurice", (dossier) => !dossierIsFollowed(dossier.id));
-    } else {
-      allFilters.delete("sansInstructeurice");
-    }
-    sendEvenementRechercherUnDossier();
-    resetPage();
-  }
-
-  function toggleFilterActionInstructeur() {
-    if (!allFilters.has("actionInstructeur")) {
-      allFilters.set(
-        "actionInstructeur",
-        (dossier) => dossier.next_action_expected_from === "Instructeur",
-      );
-    } else {
-      allFilters.delete("actionInstructeur");
-    }
-    sendEvenementRechercherUnDossier();
-    resetPage();
-  }
-
-  function toggleFilterNouveaute() {
-    if (!allFilters.has("nouveauté")) {
-      allFilters.set(
-        "nouveauté",
-        (dossier) => notificationByDossier.get(dossier.id)?.viewed === false,
-      );
-    } else {
-      allFilters.delete("nouveauté");
-    }
-    sendEvenementRechercherUnDossier();
-    resetPage();
-  }
-
-  const selectPhase: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    e.preventDefault();
-    const phase = e.currentTarget.value;
-    if (phase === "") {
-      allFilters.delete("phase");
-    } else {
-      // Select the phase
-      allFilters.set("phase", (dossier) => dossier.phase === phase);
-    }
-    sendEvenementRechercherUnDossier();
-    resetPage();
-  };
-
   function currentInstructeurFollowsDossier(id: Dossier["id"]) {
     return instructeurFollowsDossier(email, id);
   }
-
   function currentInstructeurLeavesDossier(id: Dossier["id"]) {
     return instructeurLeavesDossier(email, id);
   }
 </script>
 
 <div class="header">
-  <div class="title-and-search-bar">
-    <h1>{title}</h1>
-    <form onsubmit={submitTextSearch}>
-      <div class="fr-search-bar search-bar" role="search">
-        <label class="fr-label" for="search-input">Rechercher un dossier</label>
-        <input
-          bind:value={textToSearch}
-          name="texte-de-recherche"
-          class="fr-input"
-          aria-describedby="search-input-messages"
-          placeholder="Rechercher"
-          id="search-input"
-          type="search"
-        />
-        <button title="Rechercher un dossier" type="submit" class="fr-btn"
-          >Rechercher un dossier</button
-        >
-      </div>
-    </form>
-  </div>
+  <DossiersToolbar
+    {title}
+    searchText={query.text}
+    {recentSearches}
+    {showFilterInstructeurice}
+    {showFilterEnjeu}
+    {showFilterActionInstructeur}
+    withoutInstructeurActive={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
+    enjeuActive={query.enjeu}
+    actionInstructeurActive={query.actionInstructeur}
+    {activeFilterCount}
+    numberFiltered={filteredDossiers.length}
+    {services}
+    chips={filterChips}
+    sortKey={query.sort}
+    sortOrder={query.order}
+    {onSearch}
+    {onToggleWithoutInstructeur}
+    onToggleEnjeu={() => toggleFilter("enjeu")}
+    onToggleActionInstructeur={() => toggleFilter("actionInstructeur")}
+    onOpenFilters={openFilters}
+    onRemoveFilter={applySearch}
+    {onSort}
+  />
+
   <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
-    {#if statusMessage}
-      {statusMessage}
-    {/if}
+    {#if statusMessage}{statusMessage}{/if}
   </div>
-  <fieldset>
-    <legend class="fr-sr-only">Filtrer…</legend>
-    <div class="filters-and-dossiers-counter">
-      <div class="filters">
-        <div class="fr-select-group filter-by-phase">
-          <label class="fr-label" for="select-phase"> Filtrer par phase </label>
-          <select
-            bind:value={selectedPhase}
-            onchange={selectPhase}
-            aria-label="Phase choisie"
-            class="fr-select select-phase"
-            id="select-phase"
-            name="select-phase"
-          >
-            <option value="" selected>Toutes les phases</option>
-            {#each allPhases as phase}
-              <option value={phase}>{phase}</option>
-            {/each}
-          </select>
-        </div>
-        {#if showFilterSansInstructeurice}
-          <button
-            type="button"
-            class="fr-tag"
-            onclick={toggleFilterSansInstructeurice}
-            aria-pressed={allFilters.has("sansInstructeurice")}
-          >
-            Dossier sans instructeur·ice
-          </button>
-        {/if}
-        {#if showFilterActionInstructeur}
-          <button
-            type="button"
-            class="fr-tag"
-            onclick={toggleFilterActionInstructeur}
-            aria-pressed={allFilters.has("actionInstructeur")}
-          >
-            Action : Instructeur·ice
-          </button>
-        {/if}
-        <button
-          type="button"
-          class="fr-tag"
-          onclick={toggleFilterNouveaute}
-          aria-pressed={allFilters.has("nouveauté")}
-        >
-          Nouveauté
-        </button>
-      </div>
-      <p class="counter" data-testid={"compteur-dossier"}>
-        <span class="fr-text--lead">{filteredDossiers.length}</span><span class="fr-text--lg"
-          >/{dossiers.length} dossiers</span
-        >
-      </p>
-    </div>
-  </fieldset>
+
   <h2 bind:this={pageTitleElement} tabindex="-1" class="page-title">{pageText}</h2>
 </div>
+
+<DossiersFilterModal
+  open={modalOpen}
+  bind:draft
+  {dossiers}
+  {followRelations}
+  {showFilterInstructeurice}
+  numberResults={filteredDossiers.length}
+  onApply={applyFilters}
+  onClose={() => (modalOpen = false)}
+/>
+
 {#if displayedDossiers.length >= 1}
-  <div class="dossier-list fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
+  <div class="dossiers-list fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
     <ul>
       {#each displayedDossiers as dossier (dossier.id)}
         <li>
@@ -350,26 +257,19 @@
       {/each}
     </ul>
   </div>
+{:else if emptyListMessage}
+  {@render emptyListMessage({ wholeListEmpty: dossiers.length === 0 })}
 {:else}
   <p>Aucun dossier n'a été trouvé.</p>
 {/if}
+
 {#if pageSelectors}
-  <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
+  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
 
 <style>
-  .dossier-list {
+  .dossiers-list {
     background: var(--background-contrast-grey);
-  }
-
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  h2 {
-    margin-left: auto;
   }
 
   ul {
@@ -381,76 +281,18 @@
   li:not(:last-child) {
     margin-bottom: 1rem;
   }
+
   .header {
     display: flex;
     flex-direction: column;
     margin-top: 1rem;
-
-    .title-and-search-bar {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      @media (max-width: 768px) {
-        flex-direction: column;
-        justify-content: stretch;
-        align-items: start;
-        form {
-          width: 100%;
-          margin-bottom: 2rem;
-        }
-      }
-    }
-
-    .counter {
-      margin-bottom: 0.25rem;
-    }
-
-    .filter-by-phase {
-      margin-bottom: 0;
-      @media (max-width: 768px) {
-        margin-bottom: 1rem;
-      }
-    }
-
-    .filters-and-dossiers-counter {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: end;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .filters {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        align-items: end;
-
-        @media (max-width: 768px) {
-          flex-direction: column;
-          gap: 0.5rem;
-          align-items: start;
-        }
-      }
-    }
-  }
-
-  .search-bar {
-    min-width: 28rem;
-    @media (max-width: 768px) {
-      min-width: unset;
-    }
   }
 
   .page-title {
     font-size: 1rem;
     font-weight: normal;
     margin-bottom: 0;
+    margin-left: auto;
   }
 
   .page-title:focus {

@@ -36,6 +36,16 @@ export function loadRelationSuivi() {
   }
 }
 
+export function loadRecentSearches() {
+  store.capabilities?.listRecentSearches?.().then((recentSearches) => {
+    if (!Array.isArray(recentSearches)) {
+      throw new TypeError("On attendait un tableau de recherches récentes ici !");
+    }
+
+    store.recentSearches = recentSearches;
+  });
+}
+
 export function loadNotificationByDossierForCurrentInstructeur() {
   if (store.capabilities?.listerNotifications) {
     store.capabilities?.listerNotifications().then((notificationsDB) => {
@@ -101,6 +111,7 @@ export async function logout() {
   store.messagesByDossierId = new SvelteMap();
   store.followRelations = new SvelteMap();
   store.notificationByDossier = new SvelteMap();
+  store.recentSearches = undefined;
 
   return forget(PITCHOU_SECRET_STORAGE_KEY);
 }

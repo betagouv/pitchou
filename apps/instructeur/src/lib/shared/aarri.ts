@@ -1,13 +1,11 @@
 import { json } from "d3-fetch";
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { store } from "$lib/state/store.svelte.ts";
+import { addRecentSearch } from "$lib/components/ListDossiers/dossiersSearch.ts";
 import debounce from "just-debounce-it";
 
 import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
-import type {
-  EvenementMetrique,
-  EvenementRechercheDossiersDetails,
-} from "@pitchou/types/evenement.d.ts";
+import type { EvenementMetrique, DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
 
 /**
  * Loads AARRI indicators from the backend
@@ -72,12 +70,35 @@ export const sendEvenementModifierCommentaire = debounce(
   true,
 );
 
-export const sendEvenementRechercherUnDossier = debounce(
-  (details: EvenementRechercheDossiersDetails) =>
-    sendEvenement({ type: "rechercherDesDossiers", détails: details }),
+// Trailing edge: the search bar filters as the user types, so we wait until they stop
+// typing before recording the event. This groups a whole search session into a single
+// event carrying the final query, instead of the first keystroke.
+export const sendDossierSearchEvent = debounce(
+  (details: DossierSearchEventDetails) => {
+    sendEvenement({ type: "rechercherDesDossiers", détails: details });
+
+    // The server records the search alongside the event; mirror it locally so the
+    // suggestions stay fresh without a refetch
+    const text = details.filters.text?.trim();
+    if (text) {
+      store.recentSearches = addRecentSearch(store.recentSearches ?? [], text);
+    }
+  },
   10 * 1000,
-  true,
+  false,
 );
+
+// Last chance to record a pending search before the page dies (tab closed, reload,
+// mobile browser backgrounded): send it as soon as the page becomes hidden. The metric
+// POST uses keepalive so the request survives the page teardown. Only this trailing-edge
+// debounce is flushed — flushing the leading-edge ones would send their event twice.
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      sendDossierSearchEvent.flush();
+    }
+  });
+}
 
 export const sendEvenementModifierPrescription = debounce(
   () => sendEvenement({ type: "modifierPrescription" }),

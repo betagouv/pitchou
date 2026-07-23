@@ -12,7 +12,7 @@ export type FiltersLocalStorage = {
   phases: DossierPhase[];
   "prochaine action attendue de": DossierNextActionExpectedFrom[];
   instructeurs: NonNullable<Personne["email"]>[];
-  activitésPrincipales: NonNullable<Dossier["main_activite"]>[];
+  activitesPrincipales: NonNullable<Dossier["main_activite"]>[];
   texte: string;
 };
 

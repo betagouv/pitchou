@@ -28,15 +28,24 @@
 
   const email = $derived(store.identité?.email);
   const followRelations = $derived(store.followRelations);
+  const services = $derived(store.identité?.groupesInstructeurs ?? []);
+  const recentSearches = $derived(store.recentSearches ?? []);
   const notificationByDossier = $derived(store.notificationByDossier);
 
   const dossiers = $derived.by(() => {
-    const tous = [...store.dossierSummaries.values()];
+    const allDossiers = [...store.dossierSummaries.values()];
     if (!email || !followRelations) return [];
-    const suivis = followRelations.get(email);
-    if (!suivis) return [];
-    return tous.filter((d) => suivis.has(d.id));
+    const followedDossiers = followRelations.get(email);
+    if (!followedDossiers) return [];
+    return allDossiers.filter((dossier) => followedDossiers.has(dossier.id));
   });
 </script>
 
-<MesDossiers {email} {dossiers} {followRelations} {notificationByDossier} />
+<MesDossiers
+  {email}
+  {dossiers}
+  {followRelations}
+  {services}
+  {recentSearches}
+  {notificationByDossier}
+/>

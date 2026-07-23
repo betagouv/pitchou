@@ -103,7 +103,7 @@ function detailsFor(type: EventType, i: number): Record<string, unknown> | null 
     case "téléchargerListeÉspècesImpactées":
       return { dossierId: 999000001 + (i % 3) };
     case "rechercherDesDossiers":
-      return { filtres: {}, nombreRésultats: (i % 7) + 1 };
+      return { filters: {}, resultCount: (i % 7) + 1 };
     case "retourÀLaConformité":
       return { prescription: 1000 + i };
     default:

@@ -26,7 +26,7 @@
   }: Props = $props();
 </script>
 
-<div class="card fr-p-2w" data-testid="carte-dossier">
+<div class="card fr-p-2w" data-testid="card-dossier">
   <div class="header">
     <div class="tag-nouveaute-and-nom-projet">
       {#if notificationViewed === false}

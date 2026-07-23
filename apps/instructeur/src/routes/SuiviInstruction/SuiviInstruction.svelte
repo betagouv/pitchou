@@ -27,7 +27,7 @@
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import {
     sendEvenement,
-    sendEvenementRechercherUnDossier as _sendEvenementRechercherUnDossier,
+    sendDossierSearchEvent as sendDossierSearchAnalyticsEvent,
   } from "$lib/shared/aarri.ts";
 
   import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
@@ -40,13 +40,13 @@
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
-  import type { EvenementRechercheDossiersDetails } from "@pitchou/types/evenement.d.ts";
+  import type { DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
 
   type Props = {
     email: string;
     dossiers?: DossierSummary[];
     followRelations: PitchouState["followRelations"];
-    activitésPrincipales?: string[] | undefined;
+    activitesPrincipales?: string[] | undefined;
     selectedSortId?: TableSort["id"] | undefined;
     selectedFilters?: Partial<FiltersLocalStorage>;
     rememberSortFilters: any;
@@ -56,7 +56,7 @@
     email,
     dossiers = [],
     followRelations,
-    activitésPrincipales: activitesPrincipales = [],
+    activitesPrincipales = [],
     selectedSortId = undefined,
     selectedFilters = {},
     rememberSortFilters,
@@ -222,27 +222,27 @@
     }
   }
 
-  function sendEvenementRechercherUnDossier() {
-    const filtres: EvenementRechercheDossiersDetails["filtres"] = {
-      suiviPar: {
-        nombreSéléctionnées: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
+  function sendDossierSearchEvent() {
+    const filters: DossierSearchEventDetails["filters"] = {
+      followedBy: {
+        selectedCount: selectedInstructeurs.has(AUCUN_INSTRUCTEUR)
           ? selectedInstructeurs.size - 1
           : selectedInstructeurs.size,
         // do not count “(aucun instructeur)”
-        nombreTotal: instructeursOptions.size - 1,
-        inclusSoiMême: selectedInstructeurs.has(email),
+        totalCount: instructeursOptions.size - 1,
+        includesSelf: selectedInstructeurs.has(email),
       },
-      sansInstructeurice: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
+      withoutInstructeur: selectedInstructeurs.has(AUCUN_INSTRUCTEUR),
       phases: [...selectedPhases],
-      prochaineActionAttenduePar: [...selectedProchainesActionsAttenduesPar],
-      activitésPrincipales: [...selectedActivitesPrincipales],
+      nextActionExpectedFrom: [...selectedProchainesActionsAttenduesPar],
+      activitesPrincipales: [...selectedActivitesPrincipales],
     };
 
     if (textToSearch) {
-      filtres.texte = textToSearch;
+      filters.text = textToSearch;
     }
 
-    _sendEvenementRechercherUnDossier({ filtres, nombreRésultats: selectedDossiers.length });
+    sendDossierSearchAnalyticsEvent({ filters, resultCount: selectedDossiers.length });
   }
 
   const phaseOptions: Set<DossierPhase> = new SvelteSet([...phases]);
@@ -270,7 +270,7 @@
       //selectedPhases = selectedPhases; // re-render
 
       filterDossiers();
-      sendEvenementRechercherUnDossier();
+      sendDossierSearchEvent();
     };
   }
 
@@ -318,7 +318,7 @@
     selectedProchainesActionsAttenduesPar = new SvelteSet(_selectedProchainesActionsAttenduesPar);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   let unselectedProchainesActionsAttenduesPar = $derived(
@@ -336,7 +336,7 @@
     addTextFilter(_textToSearch);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   function onDeleteTextFilter(e: Event) {
@@ -398,7 +398,7 @@
     selectedInstructeurs = new SvelteSet(_selectedInstructeurs);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   function filterFollowedByMe() {
@@ -421,8 +421,8 @@
     untrack(
       () =>
         new SvelteSet(
-          selectedFilters.activitésPrincipales
-            ? selectedFilters.activitésPrincipales
+          selectedFilters.activitesPrincipales
+            ? selectedFilters.activitesPrincipales
             : activitesPrincipalesOptions,
         ),
     ),
@@ -441,7 +441,7 @@
     selectedActivitesPrincipales = new Set(_selectedActivitesPrincipales);
 
     filterDossiers();
-    sendEvenementRechercherUnDossier();
+    sendDossierSearchEvent();
   }
 
   let unselectedActivitesPrincipales = $derived(
@@ -453,7 +453,7 @@
       phases: selectedPhases,
       "prochaine action attendue de": selectedProchainesActionsAttenduesPar,
       instructeurs: selectedInstructeurs,
-      activitésPrincipales: selectedActivitesPrincipales,
+      activitesPrincipales: selectedActivitesPrincipales,
       texte: textToSearch,
     });
   });

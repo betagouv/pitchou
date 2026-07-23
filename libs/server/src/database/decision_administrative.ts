@@ -70,6 +70,7 @@ export function getDecisionsAdministratives(
 ): Promise<FrontEndDecisionAdministrative[]> {
   return databaseConnection("decision_administrative")
     .select("decision_administrative.*")
+    .select(databaseConnection.raw('decision_administrative.fichier is not null as "hasFile"'))
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "decision_administrative.dossier",
     })

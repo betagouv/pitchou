@@ -3,6 +3,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
 import { getOtherAttachmentsForDossier } from "./other_attachment.ts";
 import { getDecisionsAdministratives } from "./decision_administrative.ts";
+import { getAvisExpertFilesByCap } from "./avis_expert.ts";
 import { getPrescriptions } from "./prescription.ts";
 import { getControles } from "./controle.ts";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
@@ -907,6 +908,10 @@ export async function getDossiersSummariesByCap(
 
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(dossierSummaryColumns)
+    // Presence of the especes impactees file, without transferring the file itself.
+    .select(
+      transaction.raw('dossier."especes_impactees" is not null as "especesImpacteesRenseignees"'),
+    )
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })
@@ -932,55 +937,71 @@ export async function getDossiersSummariesByCap(
 
   const decisionsAdministrativesP = getDecisionsAdministratives(cap, transaction);
 
-  const result = Promise.all([dossiersP, evenementsPhaseDossierP, decisionsAdministrativesP]).then(
-    ([dossiers, evenementsPhaseDossier, decisionsAdministratives]) => {
-      const evenementsPhaseDossierById: Map<Dossier["id"], EvenementPhaseDossier> = new Map();
+  const avisExpertFilesP = getAvisExpertFilesByCap(cap, transaction);
 
-      for (const evenementPhaseDossier of evenementsPhaseDossier) {
-        evenementsPhaseDossierById.set(evenementPhaseDossier.dossier, evenementPhaseDossier);
+  const result = Promise.all([
+    dossiersP,
+    evenementsPhaseDossierP,
+    decisionsAdministrativesP,
+    avisExpertFilesP,
+  ]).then(([dossiers, evenementsPhaseDossier, decisionsAdministratives, avisExpertFiles]) => {
+    const evenementsPhaseDossierById: Map<Dossier["id"], EvenementPhaseDossier> = new Map();
+
+    for (const evenementPhaseDossier of evenementsPhaseDossier) {
+      evenementsPhaseDossierById.set(evenementPhaseDossier.dossier, evenementPhaseDossier);
+    }
+
+    for (const dossier of dossiers) {
+      const evenementPhaseDossier = evenementsPhaseDossierById.get(dossier.id);
+
+      if (evenementPhaseDossier) {
+        dossier.phase = evenementPhaseDossier.phase;
+        dossier.phase_start_date = evenementPhaseDossier.timestamp;
+      } else {
+        // dossier submission
+        dossier.phase = "Accompagnement amont";
+        dossier.phase_start_date = dossier.depot_date;
       }
+    }
 
-      for (const dossier of dossiers) {
-        const evenementPhaseDossier = evenementsPhaseDossierById.get(dossier.id);
+    const decisionsAdministrativesById: Map<Dossier["id"], FrontEndDecisionAdministrative[]> =
+      new Map();
+    for (const decisionAdministrative of decisionsAdministratives) {
+      const decisionsAdministrativesForThisId =
+        decisionsAdministrativesById.get(decisionAdministrative.dossier) || [];
+      decisionsAdministrativesForThisId.push(decisionAdministrative);
+      decisionsAdministrativesById.set(
+        decisionAdministrative.dossier,
+        decisionsAdministrativesForThisId,
+      );
+    }
 
-        if (evenementPhaseDossier) {
-          dossier.phase = evenementPhaseDossier.phase;
-          dossier.phase_start_date = evenementPhaseDossier.timestamp;
-        } else {
-          // dossier submission
-          dossier.phase = "Accompagnement amont";
-          dossier.phase_start_date = dossier.depot_date;
-        }
+    for (const dossier of dossiers) {
+      const decisionAdministrative = decisionsAdministrativesById.get(dossier.id);
+
+      if (decisionAdministrative) {
+        dossier.decisionsAdministratives = decisionAdministrative;
       }
+    }
 
-      const decisionsAdministrativesById: Map<Dossier["id"], FrontEndDecisionAdministrative[]> =
-        new Map();
-      for (const decisionAdministrative of decisionsAdministratives) {
-        const decisionsAdministrativesForThisId =
-          decisionsAdministrativesById.get(decisionAdministrative.dossier) || [];
-        decisionsAdministrativesForThisId.push(decisionAdministrative);
-        decisionsAdministrativesById.set(
-          decisionAdministrative.dossier,
-          decisionsAdministrativesForThisId,
-        );
-      }
+    const avisExpertsById = new Map<Dossier["id"], DossierSummary["avisExperts"]>();
+    for (const { dossier, expert, hasSaisineFile, hasAvisFile } of avisExpertFiles) {
+      const avisExperts = avisExpertsById.get(dossier) ?? [];
+      avisExperts.push({ expert, hasSaisineFile, hasAvisFile });
+      avisExpertsById.set(dossier, avisExperts);
+    }
 
-      for (const dossier of dossiers) {
-        const decisionAdministrative = decisionsAdministrativesById.get(dossier.id);
+    for (const dossier of dossiers) {
+      dossier.avisExperts = avisExpertsById.get(dossier.id) ?? [];
+    }
 
-        if (decisionAdministrative) {
-          dossier.decisionsAdministratives = decisionAdministrative;
-        }
-      }
-
-      return dossiers;
-    },
-  );
+    return dossiers;
+  });
 
   if (!databaseConnection.isTransaction) {
     // transaction local to this function
     // so we close it manually
-    Promise.all([dossiersP, evenementsPhaseDossierP])
+    Promise.all([dossiersP, evenementsPhaseDossierP, decisionsAdministrativesP, avisExpertFilesP])
       .then(transaction.commit)
       .catch(transaction.rollback);
   }

@@ -4,7 +4,7 @@ import type {
   EvenementAjouterPieceJointeDetails,
   EvenementMetrique,
   EvenementOuvrirModaleAjouterPieceJointeDetails,
-  EvenementRechercheDossiersDetails,
+  DossierSearchEventDetails,
 } from "@pitchou/types/evenement.d.ts";
 
 function isDossierDetails(details: any): details is { dossierId: number } {
@@ -15,43 +15,43 @@ function isDossierDetails(details: any): details is { dossierId: number } {
   }
 }
 
-function isRechercheDossierDetails(details: any): details is EvenementRechercheDossiersDetails {
+function isRechercheDossierDetails(details: any): details is DossierSearchEventDetails {
   if (Object(details) !== details) {
     return false;
   }
 
-  if (typeof details.nombreRésultats !== "number") {
+  if (typeof details.resultCount !== "number") {
     return false;
   }
 
-  if (!details.filtres) {
+  if (!details.filters) {
     return false;
   }
 
-  const filters = details.filtres;
+  const filters = details.filters;
 
-  if (filters.suiviPar) {
-    const followedBy = filters.suiviPar;
+  if (filters.followedBy) {
+    const followedBy = filters.followedBy;
     const isFollowedBy =
-      typeof followedBy.nombreSéléctionnées === "number" &&
-      typeof followedBy.nombreTotal === "number" &&
-      typeof followedBy.inclusSoiMême === "boolean";
+      typeof followedBy.selectedCount === "number" &&
+      typeof followedBy.totalCount === "number" &&
+      typeof followedBy.includesSelf === "boolean";
 
     if (!isFollowedBy) {
       return false;
     }
   }
 
-  if (filters.sansInstructeurice !== undefined && typeof filters.sansInstructeurice !== "boolean") {
+  if (filters.withoutInstructeur !== undefined && typeof filters.withoutInstructeur !== "boolean") {
     return false;
   }
 
-  if (filters.texte !== undefined && typeof filters.texte !== "string") {
+  if (filters.text !== undefined && typeof filters.text !== "string") {
     return false;
   }
 
-  if (filters.activitésPrincipales && Array.isArray(filters.activitésPrincipales)) {
-    const hasValidMainActivites = filters.activitésPrincipales.every(
+  if (filters.activitesPrincipales && Array.isArray(filters.activitesPrincipales)) {
+    const hasValidMainActivites = filters.activitesPrincipales.every(
       (activite: any) => typeof activite === "string",
     );
 
@@ -69,8 +69,8 @@ function isRechercheDossierDetails(details: any): details is EvenementRechercheD
     }
   }
 
-  if (filters.prochaineActionAttenduePar && Array.isArray(filters.prochaineActionAttenduePar)) {
-    const hasValidNextActionExpectedFrom = filters.prochaineActionAttenduePar.every(
+  if (filters.nextActionExpectedFrom && Array.isArray(filters.nextActionExpectedFrom)) {
+    const hasValidNextActionExpectedFrom = filters.nextActionExpectedFrom.every(
       (maybeNextActionExpectedFrom: any) => {
         return (
           maybeNextActionExpectedFrom === "(vide)" ||

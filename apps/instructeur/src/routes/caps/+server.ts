@@ -60,6 +60,9 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.creerEvenementMetrique) {
     ret.creerEvenementMetrique = `/api/metriques/evenements?cap=${capBundle.creerEvenementMetrique}`;
   }
+  if (capBundle.listRecentSearches) {
+    ret.listRecentSearches = `/api/metriques/dernieres-recherches?cap=${capBundle.listRecentSearches}`;
+  }
   if (capBundle.identité) {
     ret.identité = capBundle.identité;
   }
