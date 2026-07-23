@@ -3,7 +3,9 @@
   import {
     formatLocalisation,
     formatPorteurDeProjet,
-    formatDeposant,
+    hasMandataire,
+    formatMandataire,
+    formatDemandeurContact,
   } from "$lib/dossier/displayDossier.ts";
   import { displayString } from "./displayValues.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
@@ -32,22 +34,34 @@
     (dossier.evenementsPhase[0] && dossier.evenementsPhase[0].phase) || "Accompagnement amont",
   );
 
-  // Email of the project holder (demandeur): the legal representative's email for a
-  // personne morale, otherwise the personne physique's email. We intentionally do not
-  // fall back to the deposant's email: the deposant is a distinct person who now has
-  // their own line in the header.
-  let porteurEmail = $derived(
+  // Email of the demandeur: the legal representative's email for a personne morale,
+  // otherwise the personne physique's email.
+  let demandeurEmail = $derived(
     dossier.demandeur_personne_morale_siret
       ? dossier.representative_email
       : dossier.demandeur_personne_physique_email,
   );
 
-  // Only show the deposant line when the deposant is a different person from the
-  // project holder (e.g. a mandataire such as an engineering firm).
-  let showDeposant = $derived(
-    Boolean(dossier.deposant_last_name || dossier.deposant_first_names || dossier.deposant_email) &&
-      (dossier.deposant_email !== porteurEmail ||
-        formatDeposant(dossier) !== formatPorteurDeProjet(dossier)),
+  // "Personne qui dépose le dossier (demandeur/mandataire)" line: shows the mandataire
+  // when a third party filed the dossier, otherwise the demandeur's human contact.
+  // Clicking mails the mandataire (with the demandeur in copy) when there is one,
+  // otherwise the demandeur directly.
+  let deposeurName = $derived(
+    hasMandataire(dossier) ? formatMandataire(dossier) : formatDemandeurContact(dossier),
+  );
+  let deposeurTo = $derived(hasMandataire(dossier) ? dossier.mandataire_email : demandeurEmail);
+  let deposeurCc = $derived(hasMandataire(dossier) ? demandeurEmail : null);
+  let deposeurMailto = $derived(
+    deposeurTo
+      ? `mailto:${deposeurTo}${deposeurCc ? `?cc=${encodeURIComponent(deposeurCc)}` : ""}`
+      : undefined,
+  );
+
+  // Hide this line when it would merely duplicate "Porteur de projet": that happens for
+  // a personne physique with no mandataire (same person, same email). For a personne
+  // morale it still adds the representative's human name, so we keep it.
+  let showDeposeur = $derived(
+    hasMandataire(dossier) || Boolean(dossier.demandeur_personne_morale_siret),
   );
 
   function currentInstructeurFollowsDossier(id: Dossier["id"]) {
@@ -103,8 +117,8 @@
         <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
         <span>
           Porteur de projet&nbsp;:&nbsp;
-          {#if porteurEmail}
-            <a href={`mailto:${porteurEmail}`} target="_blank" rel="noopener noreferrer"
+          {#if demandeurEmail}
+            <a href={`mailto:${demandeurEmail}`} target="_blank" rel="noopener noreferrer"
               >{formatPorteurDeProjet(dossier)}</a
             >
           {:else}
@@ -112,17 +126,15 @@
           {/if}
         </span>
       </div>
-      {#if showDeposant}
+      {#if showDeposeur}
         <div>
           <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
           <span>
-            Personne qui dépose le dossier&nbsp;:&nbsp;
-            {#if dossier.deposant_email}
-              <a href={`mailto:${dossier.deposant_email}`} target="_blank" rel="noopener noreferrer"
-                >{formatDeposant(dossier)}</a
-              >
+            Personne qui dépose le dossier (demandeur/mandataire)&nbsp;:&nbsp;
+            {#if deposeurMailto}
+              <a href={deposeurMailto} target="_blank" rel="noopener noreferrer">{deposeurName}</a>
             {:else}
-              {formatDeposant(dossier)}
+              {deposeurName}
             {/if}
           </span>
         </div>
