@@ -101,9 +101,13 @@
       {/if}
     </legend>
     <!-- Section Expert -->
-    <h4 class="section-title fr-h6">Expert</h4>
+    <h4
+      class="fr-h6 fr-mt-0 fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
+    >
+      Expert
+    </h4>
     <div class="fr-fieldset__element">
-      <fieldset class="fr-fieldset radio-service-ou-personne-experte">
+      <fieldset class="fr-fieldset fr-mb-0">
         <legend class="fr-fieldset__legend">Service ou personne experte</legend>
         {#each ["CSRPN", "CNPN", "Ministre", "Autre expert"] as service}
           {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${dossierId}`}
@@ -143,7 +147,11 @@
     </div>
 
     <!-- Section Saisine -->
-    <h4 class="section-title fr-h6">Saisine</h4>
+    <h4
+      class="fr-h6 fr-mt-3w fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
+    >
+      Saisine
+    </h4>
     <div class="fr-fieldset__element">
       <div class="fr-upload-fichier-saisine-group">
         <label class="fr-label" for="upload-fichier-saisine"
@@ -190,7 +198,11 @@
     </div>
 
     <!-- Section Avis -->
-    <h4 class="section-title fr-h6">Avis</h4>
+    <h4
+      class="fr-h6 fr-mt-3w fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
+    >
+      Avis
+    </h4>
     <div class="fr-fieldset__element">
       <div class="fr-upload-fichier-avis-group">
         <label class="fr-label" for="upload-fichier-avis"
@@ -274,21 +286,3 @@
     </ul>
   </fieldset>
 </form>
-
-<style lang="scss">
-  .radio-service-ou-personne-experte {
-    margin-bottom: 0;
-  }
-
-  .section-title {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-default-grey);
-    width: 100%;
-    padding-bottom: 0.5rem;
-  }
-
-  .section-title:first-of-type {
-    margin-top: 0;
-  }
-</style>
