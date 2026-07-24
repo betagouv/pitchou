@@ -134,7 +134,7 @@
   }
 </script>
 
-<form onsubmit={formSubmit}>
+<form class="fr-mt-2w" onsubmit={formSubmit}>
   <div class="fr-upload-group">
     <label class="fr-label" for="upload-fichier-décision"
       >Fichier de la décision administrative
@@ -210,7 +210,7 @@
     {/if}
   </div>
 
-  <div class="buttons">
+  <div class="flex flex-wrap gap-4 items-center">
     <button type="submit" class="fr-btn" disabled={inProgress}>
       {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
     </button>
@@ -230,16 +230,3 @@
     {/if}
   </div>
 </form>
-
-<style lang="scss">
-  form {
-    margin-top: 1rem;
-  }
-
-  .buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-  }
-</style>
