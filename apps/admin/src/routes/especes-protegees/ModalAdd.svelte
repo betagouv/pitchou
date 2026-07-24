@@ -72,21 +72,33 @@
   {onClose}
 >
   {#if step === "choix"}
-    <div class="choices">
-      <button type="button" class="choice" onclick={() => (step = "selecteur")}>
-        <span class="choice-label">Modifier une espèce protégée existante</span>
-        <span class="choice-desc">{sousTitreExistante}</span>
+    <div class="flex flex-col gap-3 fr-p-3w">
+      <button
+        type="button"
+        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-[0.25rem] bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
+        onclick={() => (step = "selecteur")}
+      >
+        <span class="fr-text--bold">Modifier une espèce protégée existante</span>
+        <span class="text-[color:var(--text-mention-grey)] text-[0.875rem]"
+          >{sousTitreExistante}</span
+        >
       </button>
-      <button type="button" class="choice" onclick={() => (step = "taxref")}>
-        <span class="choice-label">Ajouter une nouvelle espèce protégée</span>
-        <span class="choice-desc">Rechercher une espèce dans le référentiel TAXREF</span>
+      <button
+        type="button"
+        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-[0.25rem] bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
+        onclick={() => (step = "taxref")}
+      >
+        <span class="fr-text--bold">Ajouter une nouvelle espèce protégée</span>
+        <span class="text-[color:var(--text-mention-grey)] text-[0.875rem]"
+          >Rechercher une espèce dans le référentiel TAXREF</span
+        >
       </button>
     </div>
   {:else if step === "selecteur"}
     {#if loading}
-      <div class="loader-wrap"><Loader /></div>
+      <div class="fr-p-3w"><Loader /></div>
     {:else if error}
-      <div class="alert-wrap">
+      <div class="fr-p-3w">
         <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
           <p>{error}</p>
         </div>
@@ -98,42 +110,3 @@
     <SelectorTaxref existingCdRefs={protectedCdRefs} onSelect={onSelectTaxref} />
   {/if}
 </Modal>
-
-<style lang="scss">
-  .choices {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.5rem;
-  }
-
-  .choice {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    text-align: left;
-    padding: 1rem;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    background: var(--background-default-grey);
-    cursor: pointer;
-
-    &:hover {
-      background: var(--background-alt-grey);
-    }
-
-    .choice-label {
-      font-weight: 700;
-    }
-
-    .choice-desc {
-      color: var(--text-mention-grey);
-      font-size: 0.875rem;
-    }
-  }
-
-  .loader-wrap,
-  .alert-wrap {
-    padding: 1.5rem;
-  }
-</style>
