@@ -2,3 +2,67 @@ packages:
   - "apps/*"
   - "libs/*"
   - "scripts"
+# Lifecycle build scripts stay disabled by default (see .npmrc: ignore-scripts).
+# The app has always run with these skipped; keep them off unless a need arises.
+allowBuilds:
+  "@gouvfr/dsfr": false
+  "@parcel/watcher": false
+  "@sentry/cli": false
+  esbuild: false
+
+# Single source of truth for third-party dependency versions.
+# Packages reference these with "catalog:" instead of repeating the range.
+# peerDependencies keep their own (wider) ranges and are intentionally not catalog-ed.
+catalog:
+  "@aws-sdk/client-s3": "^3.1054.0"
+  "@gouvfr/dsfr": "1.15.0"
+  "@odfjs/odfjs": "github:odfjs/odfjs#v0.30.0"
+  "@playwright/test": "^1.56.0"
+  "@sentry/sveltekit": "^10.65.0"
+  "@sveltejs/adapter-node": "^5.5.4"
+  "@sveltejs/kit": "^2.61.0"
+  "@sveltejs/vite-plugin-svelte": "^7.1.2"
+  "@tailwindcss/vite": "^4.3.3"
+  "@testing-library/jest-dom": "^7.0.0"
+  "@testing-library/svelte": "^5.2.6"
+  "@types/byte-size": "^8.1.2"
+  "@types/d3-dsv": "^3.0.7"
+  "@types/d3-fetch": "^3.0.7"
+  "@types/lunr": "^2.3.7"
+  "@types/minimist": "^1.2.5"
+  "@types/node": "^24.0.0"
+  "@vitest/browser": "^4.1.7"
+  "@vitest/browser-playwright": "^4.1.7"
+  "byte-size": "^9.0.1"
+  "clsx": "^2.1.1"
+  "csv-parse": "^7.0.1"
+  "csv-stringify": "^6.5.0"
+  "d3-dsv": "^3.0.1"
+  "d3-fetch": "^3.0.1"
+  "date-fns": "^4.1.0"
+  "jose": "^6.2.4"
+  "json-schema-to-typescript": "^15.0.0"
+  "just-debounce-it": "^3.2.0"
+  "just-memoize": "^2.2.0"
+  "kanel": "^4.0.3"
+  "knex": "^3.1.0"
+  "ky": "^2.0.2"
+  "lunr": "^2.3.9"
+  "lunr-languages": "^1.14.0"
+  "maplibre-gl": "^6.0.0"
+  "minimist": "^1.2.8"
+  "p-limit": "^7.3.1"
+  "pg": "^8.11.5"
+  "prettier": "^3.3.3"
+  "prettier-plugin-svelte": "^4.1.1"
+  "remember": "github:DavidBruant/remember#v1.0.2"
+  "rust-just": "^1.51.0"
+  "sass": "^1.58.3"
+  "svelte": "^5.46.4"
+  "svelte-check": "^4.0.0"
+  "tailwindcss": "^4.3.3"
+  "tsx": "^4.22.3"
+  "typescript": "^5.8.3"
+  "vite": "^8.0.14"
+  "vitest": "^4.1.7"
+  "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

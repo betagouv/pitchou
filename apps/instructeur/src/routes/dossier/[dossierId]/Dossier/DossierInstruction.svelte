@@ -86,10 +86,7 @@
    * Converts the two fields ddep_required and er_mesures_sufficient into a composite value for the select
    */
   function getDDEPCompositeValue():
-    | "oui"
-    | "non_sans_objet"
-    | "non_er_mesures_sufficient"
-    | "a_determiner" {
+    "oui" | "non_sans_objet" | "non_er_mesures_sufficient" | "a_determiner" {
     if (ddepRequired === true) {
       return "oui";
     } else if (ddepRequired === false) {
@@ -359,8 +356,7 @@
         aria-describedby="input-commentaire-libre-messages"
         id="input-commentaire-libre"
         bind:value={freeComment}
-        rows={8}
-      ></textarea>
+        rows={8}></textarea>
       <div class="fr-messages-group" id="input-commentaire-libre-messages" aria-live="polite"></div>
     </div>
 

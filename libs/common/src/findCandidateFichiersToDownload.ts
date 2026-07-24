@@ -18,9 +18,7 @@ export default function findCandidateFichiersToDownload(
       .map(({ number, champs, annotations }) => {
         // @ts-ignore
         const champFichier:
-          | ChampDSPieceJustificative
-          | ChampRepeteDSPieceJustificative
-          | undefined =
+          ChampDSPieceJustificative | ChampRepeteDSPieceJustificative | undefined =
           champs.find((c) => c.id === champDescriptorId) ||
           annotations.find((c) => c.id === champDescriptorId);
 

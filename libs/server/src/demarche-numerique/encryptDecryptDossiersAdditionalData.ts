@@ -1,4 +1,5 @@
 import { subtle, randomBytes } from "node:crypto";
+import type { webcrypto } from "node:crypto";
 import { Buffer } from "node:buffer";
 
 const ALGORITHM_NAME = "AES-GCM";
@@ -8,7 +9,7 @@ const IV_LENGTH = 12;
 const LEGACY_IV = Buffer.from("000000000000");
 const ENCODING = "utf-8";
 
-let keyPromise: Promise<CryptoKey> | undefined;
+let keyPromise: Promise<webcrypto.CryptoKey> | undefined;
 function getKey() {
   if (!keyPromise) {
     const keyData = process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER;

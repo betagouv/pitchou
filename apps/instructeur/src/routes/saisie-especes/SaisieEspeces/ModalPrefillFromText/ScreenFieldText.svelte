@@ -140,8 +140,7 @@
         bind:value={especesText}
         class="fr-input fr-mb-2w"
         rows="14"
-        aria-labelledby="label-champ-texte-espece"
-      ></textarea>
+        aria-labelledby="label-champ-texte-espece"></textarea>
     </div>
     <div class="fr-col">
       <h3 class="fr-h6">Les espèces trouvées</h3>
