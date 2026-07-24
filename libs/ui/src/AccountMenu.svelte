@@ -59,18 +59,19 @@
 
 <svelte:window onclick={onWindowClick} onkeydown={onWindowKeydown} />
 
-<div class="account-menu" bind:this={containerEl}>
+<div class="relative" bind:this={containerEl}>
   <button
     type="button"
-    class="fr-btn fr-btn--tertiary-no-outline fr-icon-account-circle-line fr-btn--icon-left account-menu__btn"
-    class:account-menu__btn--ouvert={ouvert}
+    class="fr-btn fr-btn--tertiary-no-outline fr-icon-account-circle-line fr-btn--icon-left {ouvert
+      ? 'bg-[var(--background-action-low-blue-france)]'
+      : ''}"
     aria-expanded={ouvert}
     aria-controls={panelId}
     onclick={toggle}
   >
     Mon espace
     <span
-      class="fr-icon--sm account-menu__chevron"
+      class="fr-icon--sm fr-ml-1v"
       class:fr-icon-arrow-up-s-line={ouvert}
       class:fr-icon-arrow-down-s-line={!ouvert}
       aria-hidden="true"
@@ -79,17 +80,23 @@
 
   {#if ouvert}
     <div
-      class="account-menu__panel"
-      class:account-menu__panel--start={align === "start"}
+      class="absolute top-[calc(100%+0.25rem)] z-[100] min-w-[18rem] fr-p-2w bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] shadow-[var(--raised-shadow,0_4px_12px_rgba(0,0,0,0.16))] {align ===
+      'start'
+        ? 'left-0 right-auto'
+        : 'right-0'}"
       id={panelId}
     >
       {#if email}
-        <p class="account-menu__email">{email}</p>
+        <p
+          class="fr-mt-0 fr-mx-0 fr-mb-2w fr-pb-2w fr-text--bold [overflow-wrap:anywhere] border-b border-b-[color:var(--border-default-grey)]"
+        >
+          {email}
+        </p>
       {/if}
       {#each links ?? [] as link}
         <a
           href={link.href}
-          class={`fr-btn fr-btn--tertiary ${link.icon ?? ""} fr-btn--icon-left account-menu__action`}
+          class={`fr-btn fr-btn--tertiary ${link.icon ?? ""} fr-btn--icon-left w-full justify-start [&+&]:mt-2`}
           onclick={close}
         >
           {link.label}
@@ -97,7 +104,7 @@
       {/each}
       <button
         type="button"
-        class="fr-btn fr-btn--tertiary fr-btn--icon-left account-menu__action"
+        class="fr-btn fr-btn--tertiary fr-btn--icon-left w-full justify-start [&+&]:mt-2"
         class:fr-icon-moon-line={theme !== "dark"}
         class:fr-icon-sun-line={theme === "dark"}
         onclick={toggleTheme}
@@ -107,7 +114,7 @@
       {#if onLogout}
         <button
           type="button"
-          class="fr-btn fr-btn--tertiary fr-icon-logout-box-r-line fr-btn--icon-left account-menu__action"
+          class="fr-btn fr-btn--tertiary fr-icon-logout-box-r-line fr-btn--icon-left w-full justify-start [&+&]:mt-2"
           onclick={deconnecter}
         >
           Se déconnecter
@@ -116,51 +123,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  .account-menu {
-    position: relative;
-  }
-
-  .account-menu__btn--ouvert {
-    background-color: var(--background-action-low-blue-france);
-  }
-
-  .account-menu__chevron {
-    margin-left: 0.25rem;
-  }
-
-  .account-menu__panel {
-    position: absolute;
-    top: calc(100% + 0.25rem);
-    right: 0;
-    z-index: 100;
-    min-width: 18rem;
-    padding: 1rem;
-    background-color: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    box-shadow: var(--raised-shadow, 0 4px 12px rgba(0, 0, 0, 0.16));
-  }
-
-  .account-menu__panel--start {
-    right: auto;
-    left: 0;
-  }
-
-  .account-menu__email {
-    margin: 0 0 1rem;
-    padding-bottom: 1rem;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-    border-bottom: 1px solid var(--border-default-grey);
-  }
-
-  .account-menu__action {
-    width: 100%;
-    justify-content: flex-start;
-
-    & + & {
-      margin-top: 0.5rem;
-    }
-  }
-</style>
