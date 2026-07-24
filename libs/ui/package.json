@@ -13,7 +13,8 @@
   "dependencies": {
     "@pitchou/common": "workspace:*",
     "@pitchou/types": "workspace:*",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

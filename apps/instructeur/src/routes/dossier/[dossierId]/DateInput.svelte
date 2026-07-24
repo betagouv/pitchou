@@ -1,7 +1,7 @@
 <script lang="ts">
   import { format, parse } from "date-fns";
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
-  import DatePicker from "$lib/components/DatePicker.svelte";
+  import DatePicker from "@pitchou/ui/DatePicker.svelte";
 
   type Props = {
     YYYYMMDD?: string;
