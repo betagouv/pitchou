@@ -235,11 +235,7 @@ export type DossierFull = Omit<
   } & { otherAttachments: FrontEndOtherAttachment[] };
 
 export type TypeDecisionAdministrative =
-  | "Arrêté dérogation"
-  | "Arrêté refus"
-  | "Arrêté modificatif"
-  | "Courrier"
-  | "Autre décision";
+  "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
 
 export type ResultatControle =
   | "Conforme"
@@ -248,9 +244,7 @@ export type ResultatControle =
   | "En cours"
   | "Non conforme (Pas d'informations reçues)";
 export type TypesActionSuiteControle =
-  | "Email"
-  | "Courrier"
-  | "Courrier recommandé avec accusé de réception";
+  "Email" | "Courrier" | "Courrier recommandé avec accusé de réception";
 
 // - - - - - Statistics - - - - - - //
 export interface PublicStats {

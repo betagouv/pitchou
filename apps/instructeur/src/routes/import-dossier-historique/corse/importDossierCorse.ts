@@ -527,8 +527,7 @@ function createAdditionalDataFromRow(
 function createEvenementPhaseDossierData(
   row: DossierCorseRow,
 ):
-  | { data: PartialBy<EvenementPhaseDossierInitializer, "dossier">[]; alertes: Alert[] }
-  | undefined {
+  { data: PartialBy<EvenementPhaseDossierInitializer, "dossier">[]; alertes: Alert[] } | undefined {
   const evenementPhaseDossierData: PartialBy<EvenementPhaseDossierInitializer, "dossier">[] = [];
 
   let alertes: Alert[] = [];

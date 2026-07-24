@@ -197,9 +197,8 @@ function generateDemandeursData(
   const email = extractFirstMail(contactNameAndEmail) || "";
 
   let contactName:
-    | Partial<{ firstName: string | undefined; lastName: string | undefined }>
-    | undefined
-    | null = extractName(contactNameAndEmail);
+    Partial<{ firstName: string | undefined; lastName: string | undefined }> | undefined | null =
+    extractName(contactNameAndEmail);
 
   // If no name, we try to retrieve the last and first name from the email
   if (!contactName && email) {

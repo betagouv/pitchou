@@ -21,17 +21,10 @@ export type DossierSearchEventDetails = {
 };
 
 export type EvenementPieceJointeSource =
-  | "enteteDossier"
-  | "ongletPiecesJointes"
-  | "ongletAvis"
-  | "ongletControles"
-  | "ongletInstruction";
+  "enteteDossier" | "ongletPiecesJointes" | "ongletAvis" | "ongletControles" | "ongletInstruction";
 
 export type EvenementPieceJointeType =
-  | "Décision administrative"
-  | "Avis expert"
-  | "Saisine expert"
-  | "Autre";
+  "Décision administrative" | "Avis expert" | "Saisine expert" | "Autre";
 
 export type EvenementOpenModalAddPieceJointeDetails = {
   dossierId: number;

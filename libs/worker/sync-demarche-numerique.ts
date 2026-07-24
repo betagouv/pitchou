@@ -221,8 +221,7 @@ for (const personne of allPersonnesCurrentlyInDatabase) {
 }
 
 const dossiersForSynchronization: readonly (
-  | DossierEntreprisesPersonneInitializersForInsert
-  | DossierEntreprisesPersonneInitializersForUpdate
+  DossierEntreprisesPersonneInitializersForInsert | DossierEntreprisesPersonneInitializersForUpdate
 )[] = Object.freeze([...dossiersToInitializeForSync, ...dossiersToUpdateForSync]);
 
 const personnesInDossiersWithEmail = new Map<PersonneInitializer["email"], PersonneInitializer>();
