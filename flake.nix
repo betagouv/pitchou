@@ -50,7 +50,7 @@
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            nodejs_22
+            nodejs_24
           ];
           nativeBuildInputs = with pkgs; [
             awscli2
@@ -62,7 +62,7 @@
           shellHook = ''
             mkdir -p "$PWD/.corepack"
             corepack enable --install-directory="$PWD/.corepack"
-            corepack prepare pnpm@10.27.0 --activate
+            corepack prepare pnpm@11.17.0 --activate
             export PATH="$PWD/.corepack:$PATH"
             ${pkgs.lib.optionalString isLinux ''
               export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath playwrightLibs}:''${LD_LIBRARY_PATH:-}"

@@ -2,3 +2,10 @@ packages:
   - "apps/*"
   - "libs/*"
   - "scripts"
+# Lifecycle build scripts stay disabled by default (see .npmrc: ignore-scripts).
+# The app has always run with these skipped; keep them off unless a need arises.
+allowBuilds:
+  "@gouvfr/dsfr": false
+  "@parcel/watcher": false
+  "@sentry/cli": false
+  esbuild: false
