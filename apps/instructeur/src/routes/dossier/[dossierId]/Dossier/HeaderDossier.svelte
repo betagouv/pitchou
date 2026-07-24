@@ -193,7 +193,7 @@
           onclick={() =>
             sendEvenement({
               type: "ouvrirModaleAjouterPieceJointe",
-              détails: { dossierId: dossier.id, source: "enteteDossier" },
+              details: { dossierId: dossier.id, source: "enteteDossier" },
             })}
         >
           Ajouter une pièce jointe

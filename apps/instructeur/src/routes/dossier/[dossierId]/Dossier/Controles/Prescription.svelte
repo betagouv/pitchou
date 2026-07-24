@@ -76,7 +76,7 @@
         sendEvenement({
           type: "retourÀLaConformité",
           // @ts-ignore
-          détails: { prescription: prescription.id },
+          details: { prescription: prescription.id },
         });
       }
 

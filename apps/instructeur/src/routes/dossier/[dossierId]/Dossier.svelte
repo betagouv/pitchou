@@ -89,7 +89,7 @@
   }: Props = $props();
 
   const sendEvenementConsulterUnDossier = debounce(
-    () => sendEvenement({ type: "consulterUnDossier", détails: { dossierId: dossier.id } }),
+    () => sendEvenement({ type: "consulterUnDossier", details: { dossierId: dossier.id } }),
     15 * 60 * 1000,
     true,
   );

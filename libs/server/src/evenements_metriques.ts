@@ -1,9 +1,10 @@
 import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
 import type {
-  EvenementAjouterPieceJointeDetails,
+  EvenementAddPieceJointeDetails,
+  EvenementClickNavbarLinkDetails,
   EvenementMetrique,
-  EvenementOuvrirModaleAjouterPieceJointeDetails,
+  EvenementOpenModalAddPieceJointeDetails,
   DossierSearchEventDetails,
 } from "@pitchou/types/evenement.d.ts";
 
@@ -15,7 +16,7 @@ function isDossierDetails(details: any): details is { dossierId: number } {
   }
 }
 
-function isRechercheDossierDetails(details: any): details is DossierSearchEventDetails {
+function isSearchDossierDetails(details: any): details is DossierSearchEventDetails {
   if (Object(details) !== details) {
     return false;
   }
@@ -101,9 +102,9 @@ const pieceJointeTypes = new Set([
   "Autre",
 ]);
 
-function isOuvertureModaleAjouterPieceJointeDetails(
+function isOpenModalAddPieceJointeDetails(
   details: any,
-): details is EvenementOuvrirModaleAjouterPieceJointeDetails {
+): details is EvenementOpenModalAddPieceJointeDetails {
   return (
     Object(details) === details &&
     Number.isInteger(details.dossierId) &&
@@ -111,7 +112,7 @@ function isOuvertureModaleAjouterPieceJointeDetails(
   );
 }
 
-function isAjouterPieceJointeDetails(details: any): details is EvenementAjouterPieceJointeDetails {
+function isAddPieceJointeDetails(details: any): details is EvenementAddPieceJointeDetails {
   return (
     Object(details) === details &&
     Number.isInteger(details.dossierId) &&
@@ -120,6 +121,19 @@ function isAjouterPieceJointeDetails(details: any): details is EvenementAjouterP
     Number.isInteger(details.nombreFichiers) &&
     details.nombreFichiers > 0
   );
+}
+
+const navbarLinks = new Set([
+  "mes-dossiers",
+  "tous-les-dossiers",
+  "tableau-de-suivi",
+  "saisie-especes",
+  "preremplissage-derogation",
+  "aide-pitchou",
+]);
+
+function isClickNavbarLinkDetails(details: any): details is EvenementClickNavbarLinkDetails {
+  return Object(details) === details && navbarLinks.has(details.link);
 }
 
 export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
@@ -131,62 +145,64 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
 
   switch (type) {
     case "seConnecter":
-      return !("détails" in event);
+      return !("details" in event);
     case "suivreUnDossier":
-      return isDossierDetails(event.détails);
+      return isDossierDetails(event.details);
     case "rechercherDesDossiers":
-      return isRechercheDossierDetails(event.détails);
+      return isSearchDossierDetails(event.details);
     case "modifierCommentaireInstruction":
-      return !("détails" in event);
+      return !("details" in event);
     case "afficherLesDossiersSuivis":
-      return !("détails" in event);
+      return !("details" in event);
+    case "clickNavbarLink":
+      return isClickNavbarLinkDetails(event.details);
     case "consulterUnDossier":
-      return isDossierDetails(event.détails);
+      return isDossierDetails(event.details);
     case "téléchargerListeÉspècesImpactées":
-      return isDossierDetails(event.détails);
+      return isDossierDetails(event.details);
     case "téléchargerCartographieProjet":
-      return isDossierDetails(event.détails);
+      return isDossierDetails(event.details);
     case "changerPhase": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "changerProchaineActionAttendueDe": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "ajouterDécisionAdministrative":
     case "modifierDécisionAdministrative":
     case "supprimerDécisionAdministrative": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "ajouterPrescription":
     case "modifierPrescription":
     case "supprimerPrescription": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "ajouterContrôle":
     case "modifierContrôle":
     case "supprimerContrôle": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "ajouterAvisExpert": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "modifierAvisExpert": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "supprimerAvisExpert": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "ouvrirModaleAjouterPieceJointe": {
-      return isOuvertureModaleAjouterPieceJointeDetails(event.détails);
+      return isOpenModalAddPieceJointeDetails(event.details);
     }
     case "ajouterPieceJointe": {
-      return isAjouterPieceJointeDetails(event.détails);
+      return isAddPieceJointeDetails(event.details);
     }
     case "générerUnDocument": {
-      return !("détails" in event);
+      return !("details" in event);
     }
     case "retourÀLaConformité": {
-      return typeof event.détails.prescription === "string";
+      return typeof event.details.prescription === "string";
     }
     default: {
       // So that TypeScript detects if we forgot a 'case'

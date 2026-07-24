@@ -136,7 +136,7 @@
   function sendEvenementAddPieceJointe(typePieceJointe: TypePieceJointe, nombreFichiers: number) {
     sendEvenement({
       type: "ajouterPieceJointe",
-      détails: {
+      details: {
         dossierId: dossier.id,
         source,
         typePieceJointe,

@@ -75,7 +75,7 @@ export const sendEvenementModifierCommentaire = debounce(
 // event carrying the final query, instead of the first keystroke.
 export const sendDossierSearchEvent = debounce(
   (details: DossierSearchEventDetails) => {
-    sendEvenement({ type: "rechercherDesDossiers", détails: details });
+    sendEvenement({ type: "rechercherDesDossiers", details });
 
     // The server records the search alongside the event; mirror it locally so the
     // suggestions stay fresh without a refetch

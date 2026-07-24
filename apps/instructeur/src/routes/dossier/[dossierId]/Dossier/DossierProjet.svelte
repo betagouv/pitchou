@@ -60,7 +60,7 @@
 
     sendEvenement({
       type: "téléchargerListeÉspècesImpactées",
-      détails: { dossierId: dossier.id },
+      details: { dossierId: dossier.id },
     });
 
     const response = await fetch(especes.url);
@@ -81,7 +81,7 @@
 
     sendEvenement({
       type: "téléchargerCartographieProjet",
-      détails: { dossierId: dossier.id },
+      details: { dossierId: dossier.id },
     });
 
     return new Blob([JSON.stringify(fc)], { type: "application/geo+json" });
