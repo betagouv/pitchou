@@ -46,26 +46,19 @@ aws-usage:
 build:
     {{ all }} vite build
 
-# Run the fast static checks (format, types, svelte-check)
-check:
-    just sync
-    just check-format
-    # just check-lint
-    just check-types
-    just check-svelte
+# Run the fast static checks (format, types, svelte-check). check-lint is disabled for now.
+check: sync check-format check-types check-svelte
 
 # Check formatting without modifying files
 check-format:
     prettier --check .
 
 # Check Svelte components (CI svelte-check job), per app
-check-svelte:
-    just sync
+check-svelte: sync
     {{ all }} svelte-check --fail-on-warnings
 
 # Check TypeScript / JSDoc types across every workspace package
-check-types:
-    just sync
+check-types: sync
     corepack pnpm -r exec tsc
 
 # Fail if any .svelte/.ts file exceeds the max line count (default 300)
@@ -73,10 +66,7 @@ check-file-length MAX="300":
     {{ tsx }} scripts/check-file-length.ts --max {{ MAX }}
 
 # Run all CI checks (check + build + tests). Use before pushing.
-ci:
-    just check
-    just build
-    just test
+ci: check build test
 
 # Wipe the whole DB (drop + recreate the public schema, also clears migration history) and the whole S3 bucket
 data-clear:
@@ -96,10 +86,7 @@ db-migrate-up:
     {{ knex }} migrate:up --env docker_dev
 
 # Reset the DB and the S3 bucket from scratch: wipe everything, replay migrations, then insert seeds
-data-reset:
-    just data-clear
-    just db-migrate-latest
-    just data-seed
+data-reset: data-clear db-migrate-latest data-seed
 
 # Insert dev data into the DB and S3 buckets
 data-seed:
@@ -110,8 +97,7 @@ db-size:
     psql "$DATABASE_URL" -c "SELECT relname, pg_size_pretty(pg_total_relation_size(relid)) AS total FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;"
 
 # Deploy to staging after all CI checks
-deploy-staging:
-    just ci
+deploy-staging: ci
     git push staging staging:main
 
 # Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
@@ -159,9 +145,7 @@ sync:
     {{ all }} svelte-kit sync
 
 # Generate all types (database + Démarche Numérique)
-generate-types:
-    just generate-types-db
-    just generate-types-ds
+generate-types: generate-types-db generate-types-ds
 
 # Generate types from the database schema
 generate-types-db:
@@ -188,10 +172,7 @@ generate-especes-protegees:
     {{ worker }} refresh-reference-especes.ts
 
 # Génère les deux tables sources (TAXREF + BDC) puis la référence (raccourci dev/prod).
-generate-especes-sources:
-    just generate-taxref
-    just generate-bdc
-    just generate-especes-protegees
+generate-especes-sources: generate-taxref generate-bdc generate-especes-protegees
 
 # [ONE-OFF prod] Génère espece_protegee_modification depuis les .ods (drapeaux ministérielle/CNPN + ajouts « Protection Pitchou »), en matchant la référence déjà construite. À lancer une fois au déploiement ; ce script et les .ods seront ensuite supprimés.
 generate-modifications-especes:
@@ -202,24 +183,18 @@ sync-ds lastModified="":
     {{ worker }} sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
 # Run all tests (unit + component + integration + e2e)
-test:
-    just test-unit
-    just test-component
-    just test-integration
-    just test-e2e
+test: test-unit test-component test-integration test-e2e
 
 # Run Svelte component tests (vitest browser mode)
 test-component:
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=component
 
 # Run end-to-end tests with playwright (optional flags passed to playwright, e.g. just test-e2e --grep "mon test" --headed)
-test-e2e *flags:
-    just build
+test-e2e *flags: build
     {{ instructeur }} playwright test --config tests/playwright.config.ts {{ flags }}
 
 # Run integration tests (endpoints + real DB)
-test-integration:
-    just build
+test-integration: build
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=integration
 
 # Run unit tests with vitest (every app)
