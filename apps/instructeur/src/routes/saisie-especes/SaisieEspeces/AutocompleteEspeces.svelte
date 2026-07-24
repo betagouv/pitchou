@@ -194,7 +194,7 @@
   let optionsRefs: HTMLElement[] = $state([]);
 </script>
 
-<div class="autocomplete-container" title={text}>
+<div class="relative" title={text}>
   <input
     {id}
     class="fr-input"
@@ -212,9 +212,16 @@
     bind:value={text}
   />
 
-  <ul id="combobox-{id}-option-list" aria-labelledby={id} role="listbox" hidden={!showListBox}>
+  <ul
+    id="combobox-{id}-option-list"
+    class="absolute w-full m-0 z-[1] bg-[var(--border-default-grey)] ps-0"
+    aria-labelledby={id}
+    role="listbox"
+    hidden={!showListBox}
+  >
     {#each relevantEspeces as espece, indexOption}
       <li
+        class="w-full cursor-pointer bg-[var(--background-contrast-grey)] list-none [padding:0.3rem] hover:bg-[var(--background-contrast-grey-active)] [&[aria-selected=true]]:bg-[var(--background-contrast-grey-active)]"
         role="option"
         aria-selected={indexOption === selectedOption}
         aria-posinset={indexOption + 1}
@@ -231,7 +238,14 @@
     {/each}
 
     {#if relevantEspeces.length === 0}
-      <li role="option" aria-disabled="true" aria-selected="false">Pas de résultat</li>
+      <li
+        class="w-full cursor-pointer bg-[var(--background-contrast-grey)] list-none [padding:0.3rem] hover:bg-[var(--background-contrast-grey-active)] [&[aria-selected=true]]:bg-[var(--background-contrast-grey-active)]"
+        role="option"
+        aria-disabled="true"
+        aria-selected="false"
+      >
+        Pas de résultat
+      </li>
     {/if}
   </ul>
 
@@ -246,33 +260,3 @@
     sélectionner.
   </span>
 </div>
-
-<style lang="scss">
-  .autocomplete-container {
-    position: relative;
-
-    ul {
-      position: absolute;
-      width: 100%;
-      margin: 0;
-
-      z-index: 1;
-      background-color: var(--border-default-grey);
-      padding-inline-start: 0;
-
-      li {
-        width: 100%;
-        cursor: pointer;
-
-        background-color: var(--background-contrast-grey);
-        list-style-type: none;
-        padding: 0.3rem;
-
-        &[aria-selected="true"],
-        &:hover {
-          background-color: var(--background-contrast-grey-active);
-        }
-      }
-    }
-  }
-</style>
