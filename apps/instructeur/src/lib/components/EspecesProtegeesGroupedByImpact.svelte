@@ -30,8 +30,8 @@
 </script>
 
 {#each especesImpacteesParActivite as { activité: activite, espèces: especes, impactsQuantifiés: impactsQuantifies }}
-  <section class="especes-list">
-    <h3>{activite}</h3>
+  <section class="fr-mt-4w fr-mb-4w">
+    <h3 class="fr-mb-2w">{activite}</h3>
     <table class="fr-table">
       <thead>
         <tr>
@@ -65,14 +65,3 @@
     </table>
   </section>
 {/each}
-
-<style lang="scss">
-  .especes-list {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-
-    h3 {
-      margin-bottom: 1rem;
-    }
-  }
-</style>
