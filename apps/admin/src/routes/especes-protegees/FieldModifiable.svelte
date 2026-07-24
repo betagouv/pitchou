@@ -29,10 +29,12 @@
   }: Props = $props();
 </script>
 
-<div class="field">
-  <div class="field-head">
-    <span class="field-label">{label}</span>
-    <div class="field-head-actions">
+<div
+  class="field flex flex-col gap-2 border-t border-t-[color:var(--border-default-grey)] fr-pt-3v [&_.field-value]:[word-break:break-word] [&_.hint]:text-[color:var(--text-mention-grey)] [&_.hint]:italic [&_.hint]:m-0"
+>
+  <div class="flex flex-row justify-between items-center gap-4 min-h-8">
+    <span class="fr-text--bold">{label}</span>
+    <div class="flex flex-row gap-1">
       {#if editing}
         {#if canAdd}
           <button
@@ -73,59 +75,8 @@
   </div>
 
   {#if editing}
-    <div class="field-edit">{@render edit()}</div>
+    <div class="flex flex-col gap-2 [&_.inherit]:mb-1">{@render edit()}</div>
   {:else}
     {@render display()}
   {/if}
 </div>
-
-<style lang="scss">
-  .field {
-    border-top: 1px solid var(--border-default-grey);
-    padding-top: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .field-head {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    min-height: 2rem;
-  }
-
-  .field-head-actions {
-    display: flex;
-    flex-direction: row;
-    gap: 0.25rem;
-  }
-
-  .field-label {
-    font-weight: 700;
-  }
-
-  .field-edit {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  // The display/edit content is provided by the concrete field components (via snippets),
-  // so these shared bits are matched with :global within this field's subtree.
-  .field :global(.field-value) {
-    word-break: break-word;
-  }
-
-  .field :global(.hint) {
-    color: var(--text-mention-grey);
-    font-style: italic;
-    margin: 0;
-  }
-
-  .field-edit :global(.inherit) {
-    margin-bottom: 0.25rem;
-  }
-</style>
