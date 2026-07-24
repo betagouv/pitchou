@@ -15,11 +15,16 @@
   const typeOptions = $derived<FilterOption[]>(types.map((type) => ({ value: type, label: type })));
 </script>
 
-<fieldset id="filter-panel" class="panel">
-  <legend class="panel-title">Filtrer les évènements</legend>
-  <div class="filters">
-    <div class="filter-row">
-      <span class="fr-label filter-label" id="label-evenement">Type d'évènement</span>
+<fieldset
+  id="filter-panel"
+  class="border border-[color:var(--border-default-grey)] rounded-[0.25rem] fr-p-2w"
+>
+  <legend class="text-[1.25rem] fr-text--bold fr-mb-2w fr-p-0">Filtrer les évènements</legend>
+  <div class="flex flex-col gap-3 max-w-[48rem]">
+    <div
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_12rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
+    >
+      <span class="fr-label" id="label-evenement">Type d'évènement</span>
       <MultiSelectFilter
         id="filtre-evenement"
         label="Type d'évènement"
@@ -29,8 +34,10 @@
         onChange={(evenements) => onChange({ evenements })}
       />
     </div>
-    <div class="filter-row">
-      <label class="fr-label filter-label" for="date-from">À partir du</label>
+    <div
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_12rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
+    >
+      <label class="fr-label" for="date-from">À partir du</label>
       <DatePicker
         id="date-from"
         label="À partir du"
@@ -39,8 +46,10 @@
         onChange={(value) => onChange({ dateFrom: value ?? "" })}
       />
     </div>
-    <div class="filter-row">
-      <label class="fr-label filter-label" for="date-to">Jusqu'au</label>
+    <div
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_12rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
+    >
+      <label class="fr-label" for="date-to">Jusqu'au</label>
       <DatePicker
         id="date-to"
         label="Jusqu'au"
@@ -52,53 +61,3 @@
     </div>
   </div>
 </fieldset>
-
-<style lang="scss">
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .panel {
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    padding: 1rem;
-  }
-
-  .panel-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    padding: 0;
-  }
-
-  .filters {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 48rem;
-  }
-
-  .filter-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-
-    .filter-label {
-      flex: 0 0 12rem;
-      margin-bottom: 0;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.25rem;
-
-      .filter-label {
-        flex: none;
-      }
-    }
-  }
-</style>
