@@ -49,9 +49,9 @@
   }
 
   function changeClass(change: number): string {
-    if (change > 0) return "evolution-positive";
-    if (change < 0) return "evolution-negative";
-    return "evolution-neutral";
+    if (change > 0) return "text-[color:var(--text-default-success,#18753c)] font-bold";
+    if (change < 0) return "text-[color:var(--text-default-error,#ce0500)] font-bold";
+    return "text-[color:var(--text-mention-grey,#666)]";
   }
 </script>
 
@@ -67,11 +67,11 @@
         Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI
         aujourd'hui.
       </p>
-      <div class="bars-container">
+      <div class="flex flex-col gap-2">
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Impact</span>
           <div
-            class="bar bar-impact"
+            class="h-10 bg-[var(--artwork-minor-red-marianne)]"
             style={`width:${(indicatorsToday.nombreUtilisateuriceImpact / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
           <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceImpact}</span>
@@ -79,7 +79,7 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Retenu</span>
           <div
-            class="bar bar-retenu"
+            class="h-10 bg-[var(--artwork-minor-yellow-moutarde)]"
             style={`width:${(indicatorsToday.nombreUtilisateuriceRetenu / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
           <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceRetenu}</span>
@@ -87,7 +87,7 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Activé</span>
           <div
-            class="bar bar-actif"
+            class="h-10 bg-[var(--artwork-minor-green-menthe)]"
             style={`width:${(indicatorsToday.nombreUtilisateuriceActif / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
           <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceActif}</span>
@@ -95,14 +95,17 @@
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Acquis</span>
           <div
-            class="bar bar-acquis"
+            class="h-10 bg-[var(--artwork-minor-brown-caramel)]"
             style={`width:${(indicatorsToday.nombreUtilisateuriceAcquis / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
           ></div>
           <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceAcquis}</span>
         </div>
         <div class="fr-grid-row fr-grid-row--middle">
           <span class="fr-col-1">Base</span>
-          <div class="bar bar-base" style={`width:${baseBarWidth}%`}></div>
+          <div
+            class="h-10 bg-[var(--artwork-minor-blue-ecume)]"
+            style={`width:${baseBarWidth}%`}
+          ></div>
           <span class="fr-ml-1w">{indicatorsToday.nombreBaseUtilisateuricePotentielle}</span>
         </div>
       </div>
@@ -194,18 +197,28 @@
 
         <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurice par phase entre deux dates</h3>
 
-        <div class="dates-comparison">
-          <div class="fr-select-group">
-            <label class="fr-label" for="select-debut">De</label>
-            <select bind:value={startDate} class="fr-select" id="select-debut" name="select-debut">
+        <div class="flex flex-wrap items-center gap-[0.5rem_1.5rem] fr-mb-3w">
+          <div class="fr-select-group flex items-center gap-2 fr-mb-0">
+            <label class="fr-label fr-mb-0 whitespace-nowrap" for="select-debut">De</label>
+            <select
+              bind:value={startDate}
+              class="fr-select fr-mt-0 w-auto min-w-[11rem]"
+              id="select-debut"
+              name="select-debut"
+            >
               {#each possibleStartDates as date}
                 <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
             </select>
           </div>
-          <div class="fr-select-group">
-            <label class="fr-label" for="select-fin">à</label>
-            <select bind:value={endDate} class="fr-select" id="select-fin" name="select-fin">
+          <div class="fr-select-group flex items-center gap-2 fr-mb-0">
+            <label class="fr-label fr-mb-0 whitespace-nowrap" for="select-fin">à</label>
+            <select
+              bind:value={endDate}
+              class="fr-select fr-mt-0 w-auto min-w-[11rem]"
+              id="select-fin"
+              name="select-fin"
+            >
               {#each possibleEndDates as date}
                 <option value={date}>{formatDateAbsolute(date)}</option>
               {/each}
@@ -238,7 +251,10 @@
                         {@const change = (row.after ?? 0) - (row.before ?? 0)}
                         <tr id={`table-0-row-key-${i + 1}`} data-row-key={i + 1}>
                           <td>
-                            <span class="phase-dot" style={`background-color:${row.color}`}></span>
+                            <span
+                              class="inline-block w-3 h-3 rounded-full fr-mr-1w align-middle"
+                              style={`background-color:${row.color}`}
+                            ></span>
                             {row.phase}
                           </td>
                           <td>{row.before}</td>
@@ -263,77 +279,3 @@
     {/await}
   {/await}
 </div>
-
-<style lang="scss">
-  $color-base: var(--artwork-minor-blue-ecume);
-  $color-acquis: var(--artwork-minor-brown-caramel);
-  $color-actif: var(--artwork-minor-green-menthe);
-  $color-retenu: var(--artwork-minor-yellow-moutarde);
-  $color-impact: var(--artwork-minor-red-marianne);
-
-  .bars-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .phase-dot {
-    display: inline-block;
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-    vertical-align: middle;
-  }
-  .dates-comparison {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.5rem;
-
-    .fr-select-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0;
-    }
-    .fr-label {
-      margin-bottom: 0;
-      white-space: nowrap;
-    }
-    .fr-select {
-      margin-top: 0;
-      width: auto;
-      min-width: 11rem;
-    }
-  }
-  .evolution-positive {
-    color: var(--text-default-success, #18753c);
-    font-weight: 700;
-  }
-  .evolution-negative {
-    color: var(--text-default-error, #ce0500);
-    font-weight: 700;
-  }
-  .evolution-neutral {
-    color: var(--text-mention-grey, #666);
-  }
-  .bar {
-    height: 40px;
-    &.bar-base {
-      background-color: $color-base;
-    }
-    &.bar-acquis {
-      background-color: $color-acquis;
-    }
-    &.bar-actif {
-      background-color: $color-actif;
-    }
-    &.bar-retenu {
-      background-color: $color-retenu;
-    }
-    &.bar-impact {
-      background-color: $color-impact;
-    }
-  }
-</style>
