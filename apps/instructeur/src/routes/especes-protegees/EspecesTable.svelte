@@ -25,8 +25,8 @@
 </script>
 
 {#if especes.length >= 1}
-  <div class="fr-table fr-table--bordered fr-table--layout-fixed">
-    <table>
+  <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+    <table class="w-full min-w-[48rem]">
       <colgroup>
         <col />
         <col />
@@ -46,7 +46,7 @@
       <tbody>
         {#each especes as espece (espece.CD_REF)}
           <tr
-            class="clickable"
+            class="cursor-pointer hover:bg-[var(--background-contrast-grey)] focus-visible:[outline:2px_solid_var(--bf500)] focus-visible:[outline-offset:-2px]"
             role="button"
             tabindex="0"
             title="Voir le détail de {firstName(espece.nomsScientifiques)}"
@@ -68,7 +68,7 @@
               <i>{firstName(espece.nomsScientifiques)}</i>
               {#if espece.nomsScientifiques.size > 1}
                 <span
-                  class="synonymes-badge fr-badge fr-badge--sm"
+                  class="fr-ml-1w fr-badge fr-badge--sm"
                   title="{espece.nomsScientifiques.size - 1} autre(s) nom(s) scientifique(s)"
                 >
                   +{espece.nomsScientifiques.size - 1}
@@ -101,32 +101,3 @@
 {:else}
   <p>Aucune espèce protégée n'a été trouvée.</p>
 {/if}
-
-<style lang="scss">
-  // Below ~768px the table keeps its min-width and the container scrolls horizontally
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-    min-width: 48rem;
-  }
-
-  tr.clickable {
-    cursor: pointer;
-  }
-
-  tr.clickable:hover {
-    background-color: var(--background-contrast-grey);
-  }
-
-  tr.clickable:focus-visible {
-    outline: 2px solid var(--bf500);
-    outline-offset: -2px;
-  }
-
-  .synonymes-badge {
-    margin-left: 0.5rem;
-  }
-</style>
