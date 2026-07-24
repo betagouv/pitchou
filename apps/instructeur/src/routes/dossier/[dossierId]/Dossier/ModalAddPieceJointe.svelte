@@ -292,7 +292,9 @@
           <div class="fr-modal__content">
             <h2 id={idTitleH2} class="fr-modal__title">Ajouter une pièce jointe</h2>
             <p class="fr-text--sm fr-mb-2w">
-              <span class="required-asterisk">*</span>
+              <span class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                >*</span
+              >
               Champs obligatoires
             </p>
             {#if showTypePieceJointeField}
@@ -302,9 +304,12 @@
                   id="champ-type-piece-jointe-group"
                 >
                   Type de pièce jointe
-                  <span class="required-asterisk">*</span>
+                  <span
+                    class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                    >*</span
+                  >
                 </legend>
-                <div class="radio-buttons-container">
+                <div class="w-full flex flex-row [&_.fr-fieldset__element]:flex-[unset]">
                   {#each typesPiecesJointes as type}
                     {@const idRadio = `type-piece-jointe-${type.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                     <div class="fr-fieldset__element">
@@ -347,7 +352,10 @@
                     {:else}
                       Choisir un ou plusieurs fichiers
                     {/if}
-                    <span class="required-asterisk">*</span>
+                    <span
+                      class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                      >*</span
+                    >
                     <span class="fr-hint-text"
                       >{uploadSizeHint()} Formats supportés&nbsp;: xls, ods, pdf, odt.</span
                     >
@@ -378,9 +386,12 @@
                       id="champ-service-expert-group"
                     >
                       Service ou personne experte
-                      <span class="required-asterisk">*</span>
+                      <span
+                        class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                        >*</span
+                      >
                     </legend>
-                    <div class="radio-buttons-container">
+                    <div class="w-full flex flex-row [&_.fr-fieldset__element]:flex-[unset]">
                       {#each OPTIONS_SERVICE_EXPERT as service}
                         {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                         <div class="fr-fieldset__element">
@@ -434,7 +445,7 @@
                     >
                       Sélectionner la saisine correspondante
                     </legend>
-                    <div class="radio-buttons-container-vertical">
+                    <div class="w-full flex flex-col gap-2 [&_.fr-fieldset__element]:flex-[unset]">
                       {#if saisinesWithoutAvis.length > 0}
                         {#each saisinesWithoutAvis as saisine}
                           {@const idRadio = `avis-expert-selection-${saisine.id}-${id}`}
@@ -483,9 +494,12 @@
                         id="champ-service-expert-group"
                       >
                         Service ou personne experte
-                        <span class="required-asterisk">*</span>
+                        <span
+                          class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                          >*</span
+                        >
                       </legend>
-                      <div class="radio-buttons-container">
+                      <div class="w-full flex flex-row [&_.fr-fieldset__element]:flex-[unset]">
                         {#each OPTIONS_SERVICE_EXPERT as service}
                           {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                           <div class="fr-fieldset__element">
@@ -531,9 +545,12 @@
                         id="champ-avis-expert-group"
                       >
                         Avis de l'expert
-                        <span class="required-asterisk">*</span>
+                        <span
+                          class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                          >*</span
+                        >
                       </legend>
-                      <div class="">
+                      <div class="[&_.fr-fieldset__element]:flex-[unset]">
                         {#each ["Avis favorable", "Avis favorable sous condition", "Avis défavorable"] as avisOption}
                           {@const idRadio = `avis-expert-${avisOption.replace(/\s+/g, "-").toLowerCase()}-${id}`}
                           <div class="fr-fieldset__element">
@@ -567,7 +584,10 @@
                   <div class="fr-input-group fr-mt-3w">
                     <label class="fr-label" for="other-attachment-type-{id}">
                       Autre : Précisez le type de pièce jointe
-                      <span class="required-asterisk">*</span>
+                      <span
+                        class="text-[color:var(--text-title-blue-france,#000091)] fr-ml-1v font-bold"
+                        >*</span
+                      >
                     </label>
                     <input
                       required
@@ -618,28 +638,3 @@
     </div>
   </div>
 </dialog>
-
-<style>
-  .radio-buttons-container {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
-
-  .fr-fieldset__element {
-    flex: unset;
-  }
-
-  .radio-buttons-container-vertical {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .required-asterisk {
-    color: var(--text-title-blue-france, #000091);
-    margin-left: 0.25rem;
-    font-weight: bold;
-  }
-</style>
