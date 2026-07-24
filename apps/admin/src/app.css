@@ -25,3 +25,18 @@
 
 /* Scan the shared UI library for utility classes used in its components. */
 @source "../../../libs/ui/src";
+
+/*
+ * Sticky footer: keep the footer at the bottom when the page content is shorter
+ * than the viewport. Applies app-wide; `body` cannot be targeted from a
+ * component, so it lives here rather than in the layout.
+ */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}

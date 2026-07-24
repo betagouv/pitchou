@@ -60,16 +60,3 @@
     </ul>
   </nav>
 {/snippet}
-
-<style lang="scss">
-  // Sticky footer: keep the footer at the bottom when the content is shorter than the viewport
-  :global(body) {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  main {
-    flex: 1 0 auto;
-  }
-</style>
