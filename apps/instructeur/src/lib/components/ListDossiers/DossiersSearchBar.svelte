@@ -30,7 +30,10 @@
 
 <svelte:body onclick={onBodyClick} />
 
-<div class="search-bar" bind:this={searchRoot}>
+<div
+  class="relative min-w-[20rem] flex-[0_1_32rem] ml-auto max-[768px]:[min-width:unset] max-[768px]:basis-full max-[768px]:ml-0"
+  bind:this={searchRoot}
+>
   <form
     class="fr-search-bar"
     role="search"
@@ -57,15 +60,24 @@
   </form>
 
   {#if suggestionsOpen && visibleSuggestions.length > 0}
-    <ul class="suggestions" role="listbox" aria-label="Recherches récentes">
-      <li class="suggestions__title" role="presentation">Recherches récentes</li>
+    <ul
+      class="absolute z-10 top-[calc(100%+0.25rem)] left-0 right-0 fr-m-0 fr-py-1v fr-px-0 list-none bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      role="listbox"
+      aria-label="Recherches récentes"
+    >
+      <li
+        class="fr-pt-1w fr-px-2w fr-pb-1v text-[color:var(--text-mention-grey)] text-[0.75rem] uppercase"
+        role="presentation"
+      >
+        Recherches récentes
+      </li>
       {#each visibleSuggestions as suggestion (suggestion)}
         <li role="none">
           <button
             type="button"
             role="option"
             aria-selected="false"
-            class="suggestions__option fr-icon-time-line fr-btn--icon-left"
+            class="block w-full text-left fr-py-1w fr-px-2w bg-none border-0 cursor-pointer hover:bg-[var(--background-contrast-grey)] fr-icon-time-line fr-btn--icon-left"
             onclick={() => selectSuggestion(suggestion)}
           >
             {suggestion}
@@ -75,54 +87,3 @@
     </ul>
   {/if}
 </div>
-
-<style lang="scss">
-  .search-bar {
-    position: relative;
-    min-width: 20rem;
-    flex: 0 1 32rem;
-    margin-left: auto;
-
-    @media (max-width: 768px) {
-      min-width: unset;
-      flex-basis: 100%;
-      margin-left: 0;
-    }
-  }
-
-  .suggestions {
-    position: absolute;
-    z-index: 10;
-    top: calc(100% + 0.25rem);
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 0.25rem 0;
-    list-style: none;
-    background: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
-  }
-
-  .suggestions__title {
-    padding: 0.5rem 1rem 0.25rem;
-    color: var(--text-mention-grey);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-  }
-
-  .suggestions__option {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.5rem 1rem;
-    background: none;
-    border: 0;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--background-contrast-grey);
-    }
-  }
-</style>
