@@ -1,18 +1,23 @@
 /*
  * Tailwind CSS entry point.
  *
- * The DSFR (see the <link> tags in app.html) is our primary design system.
- * Tailwind is a fallback for the cases the DSFR does not cover, and should be
- * preferred over ad-hoc CSS in Svelte components.
+ * The DSFR (loaded via the <link> tags in app.html) is our primary design
+ * system and provides all base and element styling. Tailwind is a fallback for
+ * the cases the DSFR does not cover, and is preferred over ad-hoc CSS in Svelte
+ * components.
  *
- * We intentionally do NOT load Tailwind's Preflight (its base reset): it would
- * override the DSFR's own resets and base styles. We only pull in the theme
- * (custom properties) and the utility classes.
+ * Cascade setup:
+ * - We do NOT load Tailwind's Preflight (its base reset): it would override the
+ *   DSFR's own resets and base element styles.
+ * - The theme (the custom properties that power the utilities) stays layered.
+ * - The utilities are imported UNLAYERED, and the app CSS loads after the DSFR,
+ *   so a Tailwind class wins over the DSFR's own rules when it is deliberately
+ *   applied, while everything the DSFR styles by default is left untouched.
  */
-@layer theme, base, components, utilities;
+@layer theme;
 
 @import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss/utilities.css";
 
 /* Scan the shared UI library for utility classes used in its components. */
 @source "../../../libs/ui/src";

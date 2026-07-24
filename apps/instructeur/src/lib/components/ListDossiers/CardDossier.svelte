@@ -26,20 +26,28 @@
   }: Props = $props();
 </script>
 
-<div class="card fr-p-2w" data-testid="card-dossier">
-  <div class="header">
-    <div class="tag-nouveaute-and-nom-projet">
+<div
+  class="fr-p-2w bg-[var(--background-default-grey)] rounded-[0.25rem]"
+  data-testid="card-dossier"
+>
+  <div class="flex flex-row items-center justify-between gap-4 mb-3 min-w-0">
+    <div
+      class="flex flex-row items-center gap-2 min-w-0 max-[768px]:flex-col max-[768px]:items-stretch"
+    >
       {#if notificationViewed === false}
         <p class="fr-badge fr-badge--new">Nouveauté</p>
       {/if}
-      <h3>
-        <a href={`/dossier/${dossier.id}`} class="fr-link">
+      <h3 class="m-0 leading-[1.2rem] min-w-0">
+        <a
+          href={`/dossier/${dossier.id}`}
+          class="fr-link flex flex-row gap-2 min-w-0 text-[1.25rem] leading-[1.25rem] text-[color:var(--text-title-grey)]"
+        >
           <span class="truncate">{dossier.name || "(nom non renseigné)"}</span>
           <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
         </a>
       </h3>
     </div>
-    <div class="action-buttons">
+    <div class="flex flex-nowrap">
       {#if dossier.free_comment && dossier.free_comment !== ""}
         {@const dsfrModaleId = `dsfr-modale-commentaire-${dossier.id}`}
         <ModalButton id={dsfrModaleId}>
@@ -54,17 +62,17 @@
             </button>
           {/snippet}
           {#snippet content()}
-            <header class="modal-title">
-              <h1 class="fr-modal__title">
+            <header>
+              <h1 class="fr-modal__title mb-[0.8rem]">
                 Commentaire dossier {dossier.name}
               </h1>
-              <h2 class="fr-modal__title">
+              <h2 class="fr-modal__title mb-[0.6rem] text-[1.1rem]">
                 {formatPorteurDeProjet(dossier)}
                 &nbsp;-&nbsp;
                 {formatLocalisation(dossier)}
               </h2>
             </header>
-            <div class="modal-content">
+            <div class="[white-space:preserve]">
               {dossier.free_comment}
             </div>
           {/snippet}
@@ -86,9 +94,9 @@
     </div>
   </div>
 
-  <div class="content">
-    <div class="first-line">
-      <div>
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-row justify-between flex-wrap">
+      <div class="flex flex-row items-center gap-4 flex-wrap">
         <BadgePhase phase={dossier.phase} />
         <div>
           <span class="fr-icon-user-shared-2-line fr-icon--sm" aria-hidden="true"></span>
@@ -96,8 +104,8 @@
           {dossier.next_action_expected_from || "(non renseignée)"}
         </div>
       </div>
-      <div>
-        <p class="dossier-number fr-text--sm">
+      <div class="flex flex-row items-center gap-4 flex-wrap">
+        <p class="fr-text--sm mb-0 text-[color:var(--text-mention-grey)]">
           Dossier n°{dossier.demarche_numerique_number}
         </p>
         {#if dossier.enjeu}
@@ -105,20 +113,22 @@
         {/if}
       </div>
     </div>
-    <div class="second-line">
-      <div class="date-depot">
+    <div class="flex flex-row gap-16 flex-wrap max-[768px]:gap-2">
+      <div class="whitespace-nowrap">
         <span class="fr-icon-calendar-event-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Date de dépôt</span>
         <time datetime={formatDateAbsolute(dossier.depot_date, "yyyy-MM-dd")}
           >{formatDateAbsolute(dossier.depot_date, "dd/MM/yyyy")}</time
         >
       </div>
-      <div class="porteur-de-projet">
+      <div class="flex-1 whitespace-nowrap overflow-hidden text-ellipsis max-[768px]:basis-full">
         <span class="fr-icon-group-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Porteur de projet</span>
         {formatPorteurDeProjet(dossier) || "(non renseigné)"}
       </div>
-      <div class="location">
+      <div
+        class="flex justify-end items-center gap-1 whitespace-nowrap overflow-hidden text-ellipsis max-[768px]:basis-full max-[768px]:inline"
+      >
         <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span>
         <span class="fr-sr-only">Localisation</span>
         {formatLocalisation(dossier) || "(non renseignée)"}
@@ -126,135 +136,3 @@
     </div>
   </div>
 </div>
-
-<style lang="scss">
-  .card {
-    background: var(--background-default-grey);
-    border-radius: 0.25rem;
-  }
-
-  .header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    min-width: 0;
-    align-items: center;
-
-    .tag-nouveaute-and-nom-projet {
-      min-width: 0;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 0.5rem;
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: unset;
-      }
-    }
-
-    .action-buttons {
-      display: flex;
-      flex-wrap: nowrap;
-    }
-
-    h3 {
-      margin: 0;
-      /* Permet d'aligner verticalement le titre avec les boutons d'actions */
-      line-height: 1.2rem;
-      min-width: 0;
-
-      a {
-        color: var(--text-title-grey);
-        font-size: 1.25rem;
-        line-height: 1.25rem;
-        min-width: 0;
-
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-
-        .truncate {
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
-        }
-      }
-    }
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    .first-line {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .first-line > div {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .second-line {
-      display: flex;
-      flex-direction: row;
-      gap: 4rem;
-      flex-wrap: wrap;
-      @media (max-width: 768px) {
-        gap: 0.5rem;
-      }
-      .date-depot {
-        white-space: nowrap;
-      }
-      .location {
-        display: flex;
-        justify-content: end;
-        gap: 0.25rem;
-        align-items: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        @media (max-width: 768px) {
-          flex-basis: 100%;
-          display: unset;
-        }
-      }
-      .porteur-de-projet {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex: 1;
-        @media (max-width: 768px) {
-          flex-basis: 100%;
-        }
-      }
-    }
-  }
-
-  .dossier-number {
-    margin-bottom: 0;
-    color: var(--text-mention-grey);
-  }
-
-  .modal-title {
-    h1 {
-      margin-bottom: 0.8rem;
-    }
-    h2 {
-      margin-bottom: 0.6rem;
-      font-size: 1.1rem;
-    }
-  }
-  .modal-content {
-    white-space: preserve;
-  }
-</style>
