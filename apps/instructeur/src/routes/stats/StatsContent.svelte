@@ -35,14 +35,20 @@
 
     <section class="fr-mb-4w">
       <h2 class="fr-mt-2w">Utilisation de Pitchou depuis septembre 2024</h2>
-      <div class="fr-card fr-card--no-arrow">
+      <div
+        class="border-[1.5px] border-[color:var(--border-default-grey)] rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[var(--background-default-grey)] max-w-[100vw] mt-0 mx-[-16px] mb-10 pt-[2.5rem] px-8 pb-8 max-[900px]:pt-6 max-[900px]:px-2 max-[900px]:pb-4 max-[900px]:mt-0 max-[900px]:mx-[-8px] max-[900px]:mb-6 fr-card fr-card--no-arrow"
+      >
         <div class="fr-card__body">
           <div class="fr-card__content">
             <div class="fr-grid-row fr-grid-row--gutters">
               <div class="fr-col-6">
-                <div class="stat-item total-stat">
-                  <span class="stat-number">{stats.petitionnaireCountSinceSeptember2024}</span>
-                  <span class="stat-label"
+                <div
+                  class="flex flex-col items-center text-center fr-p-2w rounded-[6px] bg-[var(--background-action-high-blue-france)] text-white"
+                >
+                  <span class="text-[2rem] fr-text--bold block text-white"
+                    >{stats.petitionnaireCountSinceSeptember2024}</span
+                  >
+                  <span class="text-[0.875rem] fr-mt-1v text-white"
                     >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
                       >(depuis 09/2024)</span
                     ></span
@@ -50,9 +56,14 @@
                 </div>
               </div>
               <div class="fr-col-6">
-                <div class="stat-item">
-                  <span class="stat-number">{estimatedAnnualPetitionnaireCountInFrance}</span>
-                  <span class="stat-label"
+                <div
+                  class="flex flex-col items-center text-center fr-p-2w rounded-[6px] bg-[var(--background-alt-grey)]"
+                >
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)]"
+                    >{estimatedAnnualPetitionnaireCountInFrance}</span
+                  >
+                  <span class="text-[0.875rem] fr-mt-1v text-[color:var(--text-mention-grey)]"
                     >Pétitionnaires en France<br /><span class="fr-text--xs">(référence)</span
                     ></span
                   >
@@ -72,28 +83,44 @@
       <h2 class="fr-mt-2w">
         Dossiers en phase <strong>Contrôle</strong> : avec ou sans décision administrative
       </h2>
-      <div class="fr-card fr-card--no-arrow">
+      <div
+        class="border-[1.5px] border-[color:var(--border-default-grey)] rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[var(--background-default-grey)] max-w-[100vw] mt-0 mx-[-16px] mb-10 pt-[2.5rem] px-8 pb-8 max-[900px]:pt-6 max-[900px]:px-2 max-[900px]:pb-4 max-[900px]:mt-0 max-[900px]:mx-[-8px] max-[900px]:mb-6 fr-card fr-card--no-arrow"
+      >
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <div class="definitions-in-card fr-mb-2w">
-              <div class="definition-block">
-                <strong>Qu'est-ce qu'une décision administrative&nbsp;?</strong><br />
-                <span
+            <div class="flex flex-col gap-4 fr-mb-2w">
+              <div
+                class="bg-[var(--background-alt-grey)] rounded-[8px] fr-p-2w border border-[color:var(--border-default-grey)] fr-mb-3v"
+              >
+                <strong class="fr-text--bold text-[color:var(--text-default-info)]"
+                  >Qu'est-ce qu'une décision administrative&nbsp;?</strong
+                ><br />
+                <span class="text-[0.95rem] text-[color:var(--text-mention-grey)] fr-mt-1w"
                   >Une décision administrative correspond à un arrêté de dérogation, un arrêté de
                   refus, un arrêté modificatif ou tout autre document administratif finalisant
                   l'instruction du dossier.</span
                 >
               </div>
             </div>
-            <div class="progress-stats-wrapper">
-              <div class="progress-labels">
-                <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.controlePhaseDossierWithDecisionCount}</span>
-                  <span class="stat-label">Avec décision<br />{withDecisionPercentage}%</span>
+            <div class="w-full fr-mt-4w fr-mx-0 fr-mb-2w">
+              <div class="flex justify-between items-center fr-mb-1w">
+                <div class="flex flex-col items-center text-[1rem]">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)]"
+                    >{stats.controlePhaseDossierWithDecisionCount}</span
+                  >
+                  <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
+                    >Avec décision<br />{withDecisionPercentage}%</span
+                  >
                 </div>
-                <div class="progress-label progress-label--right">
-                  <span class="stat-number">{stats.controlePhaseDossierWithoutDecisionCount}</span>
-                  <span class="stat-label">Sans décision<br />{withoutDecisionPercentage}%</span>
+                <div class="flex flex-col items-center text-[1rem]">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-mention-grey)]"
+                    >{stats.controlePhaseDossierWithoutDecisionCount}</span
+                  >
+                  <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
+                    >Sans décision<br />{withoutDecisionPercentage}%</span
+                  >
                 </div>
               </div>
               <div
@@ -107,8 +134,8 @@
                   style="width: {withoutDecisionPercentage}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
                 ></div>
               </div>
-              <div class="progress-total fr-mt-1w">
-                <span class="stat-label"
+              <div class="text-center fr-mt-1w">
+                <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
                   >Total dossiers en phase Contrôle : <strong
                     >{stats.controlePhaseDossierCount}</strong
                   ></span
@@ -123,11 +150,15 @@
     <!-- Controlled prescriptions block (bar) -->
     <section class="fr-mt-4w">
       <h2 class="fr-mt-2w">Prescriptions et contrôles réalisés dans Pitchou</h2>
-      <div class="fr-card fr-card--no-arrow stat-prescriptions-card">
+      <div
+        class="border-[1.5px] border-[color:var(--border-default-grey)] rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[var(--background-default-grey)] max-w-[100vw] mt-0 mx-[-16px] mb-10 pt-[2.5rem] px-8 pb-8 max-[900px]:pt-6 max-[900px]:px-2 max-[900px]:pb-4 max-[900px]:mt-0 max-[900px]:mx-[-8px] max-[900px]:mb-6 fr-card fr-card--no-arrow"
+      >
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <div class="definitions-in-card fr-mb-2w">
-              <div class="definition-block">
+            <div class="flex flex-col gap-4 fr-mb-2w">
+              <div
+                class="bg-[var(--background-alt-grey)] rounded-[8px] fr-p-2w border border-[color:var(--border-default-grey)] fr-mb-3v [&_strong]:font-bold [&_strong]:text-[color:var(--text-default-info)] [&_span]:text-[0.95rem] [&_span]:text-[color:var(--text-mention-grey)] [&_span]:mt-2"
+              >
                 <strong>Qu'est-ce qu'une prescription&nbsp;?</strong><br />
                 <span
                   >Une prescription est une exigence, mesure ou condition imposée par l’autorité
@@ -136,7 +167,9 @@
                   prescription est soumise à des <strong>contrôles</strong>.</span
                 >
               </div>
-              <div class="definition-block">
+              <div
+                class="bg-[var(--background-alt-grey)] rounded-[8px] fr-p-2w border border-[color:var(--border-default-grey)] fr-mb-3v [&_strong]:font-bold [&_strong]:text-[color:var(--text-default-info)] [&_span]:text-[0.95rem] [&_span]:text-[color:var(--text-mention-grey)] [&_span]:mt-2"
+              >
                 <strong>Qu'est-ce qu'un contrôle&nbsp;?</strong><br />
                 <span
                   >Un contrôle est vérification ou évaluation d’une <strong>prescription</strong>.
@@ -146,11 +179,14 @@
                 >
               </div>
             </div>
-            <div class="progress-stats-wrapper">
-              <div class="progress-labels">
-                <div class="progress-label progress-label--left">
-                  <span class="stat-number">{stats.prescriptionWithControleCount}</span>
-                  <span class="stat-label"
+            <div class="w-full fr-mt-4w fr-mx-0 fr-mb-2w">
+              <div class="flex justify-between items-center fr-mb-1w">
+                <div class="flex flex-col items-center text-[1rem]">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)]"
+                    >{stats.prescriptionWithControleCount}</span
+                  >
+                  <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
                     >Contrôlées dans Pitchou<br />{stats.controllablePrescriptionCount > 0
                       ? Math.round(
                           (stats.prescriptionWithControleCount /
@@ -160,12 +196,13 @@
                       : 0}%</span
                   >
                 </div>
-                <div class="progress-label progress-label--right">
-                  <span class="stat-number"
+                <div class="flex flex-col items-center text-[1rem]">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-mention-grey)]"
                     >{stats.controllablePrescriptionCount -
                       stats.prescriptionWithControleCount}</span
                   >
-                  <span class="stat-label"
+                  <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
                     >Non contrôlées dans Pitchou<br />{stats.controllablePrescriptionCount > 0
                       ? 100 -
                         Math.round(
@@ -195,8 +232,8 @@
                     : 0}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
                 ></div>
               </div>
-              <div class="progress-total fr-mt-1w">
-                <span class="stat-label"
+              <div class="text-center fr-mt-1w">
+                <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
                   >Total prescriptions contrôlables dans Pitchou : <strong
                     >{stats.controllablePrescriptionCount}</strong
                   ></span
@@ -214,60 +251,92 @@
     />
     <section class="fr-mt-4w">
       <h2 class="fr-mt-2w">Impact biodiversité des prescriptions conformes</h2>
-      <div class="fr-card fr-card--no-arrow stat-biodiv-card">
+      <div
+        class="border-[1.5px] border-[color:var(--border-default-grey)] rounded-[12px] shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[var(--background-default-grey)] max-w-[100vw] mt-0 mx-[-16px] mb-10 pt-[2.5rem] px-8 pb-8 max-[900px]:pt-6 max-[900px]:px-2 max-[900px]:pb-4 max-[900px]:mt-0 max-[900px]:mx-[-8px] max-[900px]:mb-6 fr-card fr-card--no-arrow"
+      >
         <div class="fr-card__body">
           <div class="fr-card__content">
-            <div class="biodiv-chiffres">
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number"
+            <div class="flex flex-wrap justify-around gap-x-6 gap-y-8 fr-mb-3w">
+              <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                <span
+                  class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                   >{stats.biodiversiteImpactStats.conformePrescriptionCount}</span
                 >
-                <span class="stat-label">Prescriptions conformes</span>
+                <span
+                  class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                  >Prescriptions conformes</span
+                >
               </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number"
+              <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                <span
+                  class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                   >{stats.biodiversiteImpactStats.avoidedSurfaceTotal.toLocaleString()} m²</span
                 >
-                <span class="stat-label">Surface évitée</span>
+                <span
+                  class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                  >Surface évitée</span
+                >
               </div>
-              <div class="biodiv-chiffre-item">
-                <span class="stat-number"
+              <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                <span
+                  class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                   >{stats.biodiversiteImpactStats.compensatedSurfaceTotal.toLocaleString()} m²</span
                 >
-                <span class="stat-label">Surface compensée</span>
+                <span
+                  class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                  >Surface compensée</span
+                >
               </div>
               {#if stats.biodiversiteImpactStats.avoidedNidsCount > 0}
-                <div class="biodiv-chiffre-item">
-                  <span class="stat-number">{stats.biodiversiteImpactStats.avoidedNidsCount}</span>
-                  <span class="stat-label">Nids évités</span>
+                <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
+                    >{stats.biodiversiteImpactStats.avoidedNidsCount}</span
+                  >
+                  <span
+                    class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                    >Nids évités</span
+                  >
                 </div>
               {/if}
               {#if stats.biodiversiteImpactStats.compensatedNidsCount > 0}
-                <div class="biodiv-chiffre-item">
-                  <span class="stat-number"
+                <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                     >{stats.biodiversiteImpactStats.compensatedNidsCount}</span
                   >
-                  <span class="stat-label">Nids compensés</span>
+                  <span
+                    class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                    >Nids compensés</span
+                  >
                 </div>
               {/if}
               {#if stats.biodiversiteImpactStats.avoidedIndividusCount > 0}
-                <div class="biodiv-chiffre-item">
-                  <span class="stat-number"
+                <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                     >{stats.biodiversiteImpactStats.avoidedIndividusCount}</span
                   >
-                  <span class="stat-label">Individus évités</span>
+                  <span
+                    class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                    >Individus évités</span
+                  >
                 </div>
               {/if}
               {#if stats.biodiversiteImpactStats.compensatedIndividusCount > 0}
-                <div class="biodiv-chiffre-item">
-                  <span class="stat-number"
+                <div class="flex flex-col items-center min-w-[120px] fr-mb-1w">
+                  <span
+                    class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)] fr-mb-1v"
                     >{stats.biodiversiteImpactStats.compensatedIndividusCount}</span
                   >
-                  <span class="stat-label">Individus compensés</span>
+                  <span
+                    class="text-[1rem] text-[color:var(--text-mention-grey)] mt-[0.15rem] font-medium text-center"
+                    >Individus compensés</span
+                  >
                 </div>
               {/if}
             </div>
-            <div class="biodiv-note fr-mt-2w fr-text--xs">
+            <div class="text-center text-[color:var(--text-mention-grey)] fr-mt-2w fr-text--xs">
               <em
                 >Ces chiffres agrègent les prescriptions dont le dernier contrôle est "Conforme" et
                 pour lesquelles des valeurs quantitatives ont été renseignées.</em
@@ -279,141 +348,3 @@
     </section>
   </article>
 </div>
-
-<style lang="scss">
-  .fr-card,
-  .stat-prescriptions-card {
-    border: 1.5px solid var(--border-default-grey);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    background: var(--background-default-grey);
-    max-width: 100vw;
-    margin: 0 -16px 2.5rem -16px;
-    padding: 2.5rem 2rem 2rem 2rem;
-  }
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 1rem;
-    background-color: var(--background-alt-grey);
-    border-radius: 6px;
-  }
-  .stat-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--text-default-info);
-    display: block;
-  }
-  .stat-label {
-    font-size: 0.875rem;
-    color: var(--text-mention-grey);
-    margin-top: 0.25rem;
-  }
-  .stat-item.total-stat {
-    background-color: var(--background-action-high-blue-france);
-    color: white;
-  }
-  .stat-item.total-stat .stat-number {
-    color: white;
-  }
-  .stat-item.total-stat .stat-label {
-    color: white;
-  }
-  .progress-stats-wrapper {
-    width: 100%;
-    margin: 2rem 0 1rem 0;
-  }
-  .progress-labels {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-  .progress-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 1rem;
-  }
-  .progress-label--left .stat-number {
-    color: var(--text-default-info);
-  }
-  .progress-label--right .stat-number {
-    color: var(--text-mention-grey);
-  }
-  .progress-total {
-    text-align: center;
-    margin-top: 0.5rem;
-  }
-  .definitions-in-card {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  .definitions-in-card .definition-block {
-    background-color: var(--background-alt-grey);
-    border-radius: 8px;
-    padding: 1rem;
-    border: 1px solid var(--border-default-grey);
-    margin-bottom: 0.75rem;
-  }
-  .definition-block strong {
-    font-weight: bold;
-    color: var(--text-default-info);
-  }
-  .definition-block span {
-    font-size: 0.95rem;
-    color: var(--text-mention-grey);
-    margin-top: 0.5rem;
-  }
-  .stat-biodiv-card {
-    border: 1.5px solid var(--border-default-grey);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    background: var(--background-default-grey);
-    max-width: 100vw;
-    margin: 0 -16px 2.5rem -16px;
-    padding: 2.5rem 2rem 2rem 2rem;
-  }
-  .biodiv-chiffres {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 2rem 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .biodiv-chiffre-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 120px;
-    margin-bottom: 0.5rem;
-  }
-  .biodiv-chiffre-item .stat-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--text-default-info);
-    margin-bottom: 0.25rem;
-  }
-  .biodiv-chiffre-item .stat-label {
-    font-size: 1rem;
-    color: var(--text-mention-grey);
-    margin-top: 0.15rem;
-    font-weight: 500;
-    text-align: center;
-  }
-  .biodiv-note {
-    text-align: center;
-    color: var(--text-mention-grey);
-  }
-  @media (max-width: 900px) {
-    .fr-card,
-    .stat-prescriptions-card {
-      padding: 1.5rem 0.5rem 1rem 0.5rem;
-      margin: 0 -8px 1.5rem -8px;
-    }
-  }
-</style>

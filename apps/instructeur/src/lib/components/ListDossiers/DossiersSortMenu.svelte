@@ -44,7 +44,7 @@
 
 <svelte:body onclick={onBodyClick} />
 
-<div class="sort" bind:this={sortRoot}>
+<div class="relative" bind:this={sortRoot}>
   <button
     type="button"
     class="fr-btn fr-btn--sm fr-btn--tertiary"
@@ -55,14 +55,17 @@
     Tri : {sortLabel}
   </button>
   {#if sortMenuOpen}
-    <ul class="sort__menu" role="menu">
+    <ul
+      class="absolute z-10 top-[calc(100%+0.25rem)] right-0 min-w-[16rem] fr-m-0 fr-py-1v fr-px-0 list-none bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      role="menu"
+    >
       {#each SORT_MENU_OPTIONS as option (option.key + option.order)}
         <li role="none">
           <button
             type="button"
             role="menuitemradio"
             aria-checked={option.key === sortKey && option.order === sortOrder}
-            class="sort__option"
+            class="block w-full text-left fr-py-1w fr-px-2w bg-none border-0 cursor-pointer hover:bg-[var(--background-contrast-grey)] [&.active]:font-bold"
             class:active={option.key === sortKey && option.order === sortOrder}
             onclick={() => selectSort(option.key, option.order)}
           >
@@ -73,42 +76,3 @@
     </ul>
   {/if}
 </div>
-
-<style lang="scss">
-  .sort {
-    position: relative;
-  }
-
-  .sort__menu {
-    position: absolute;
-    z-index: 10;
-    top: calc(100% + 0.25rem);
-    right: 0;
-    min-width: 16rem;
-    margin: 0;
-    padding: 0.25rem 0;
-    list-style: none;
-    background: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
-  }
-
-  .sort__option {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.5rem 1rem;
-    background: none;
-    border: 0;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--background-contrast-grey);
-    }
-
-    &.active {
-      font-weight: 700;
-    }
-  }
-</style>

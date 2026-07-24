@@ -107,7 +107,9 @@
   let autocomplete: AutocompleteEspeces;
 </script>
 
-<div class="tuile-espece">
+<div
+  class="[text-align:inherit] fr-p-2w border border-[color:var(--border-default-grey)] border-b-[0.25rem] border-b-[color:var(--border-active-blue-france)] fr-mb-4w"
+>
   <fieldset class="fr-fieldset">
     <legend class="fr-sr-only"
       >Espèce impactée #{index} {espece ? especeLabel(espece) : "Non selectionnée"}</legend
@@ -125,7 +127,7 @@
         />
       </div>
 
-      <div class="fr-col-md-4 fr-col input-info">
+      <div class="fr-col-md-4 fr-col flex items-center pt-9">
         <button
           aria-controls={idModaleEspeceNonTrouvee}
           data-fr-opened="false"
@@ -135,7 +137,7 @@
         >
       </div>
 
-      <div class="fr-col-md-4 fr-col action-buttons">
+      <div class="fr-col-md-4 fr-col flex gap-4 items-center justify-end pt-9">
         <button
           onclick={onDupliquerEspece}
           class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line"
@@ -159,7 +161,7 @@
 
     {#if especeClassification}
       {#each descriptionImpacts as impact, indexImpact (impact)}
-        <hr class="fr-hr" />
+        <hr class="fr-hr w-4/5 m-auto" />
 
         <ImpactEspece
           bind:this={referencesImpact[indexImpact]}
@@ -177,9 +179,9 @@
         />
       {/each}
 
-      <hr class="fr-hr" />
+      <hr class="fr-hr w-4/5 m-auto" />
 
-      <div class="fr-fieldset__element fr-input-group container-ajouter-impact">
+      <div class="fr-fieldset__element fr-input-group fr-mb-0">
         <button class="fr-btn fr-btn--secondary" type="button" onclick={addImpact}>
           Ajouter un autre impact
         </button>
@@ -187,36 +189,3 @@
     {/if}
   </fieldset>
 </div>
-
-<style>
-  .input-info {
-    display: flex;
-    align-items: center;
-    padding-top: 2.25rem;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: end;
-    padding-top: 2.25rem;
-  }
-
-  .tuile-espece {
-    text-align: inherit;
-    padding: 1rem;
-    border: 1px solid var(--border-default-grey);
-    border-bottom: 0.25rem solid var(--border-active-blue-france);
-    margin-bottom: 2rem;
-  }
-
-  .container-ajouter-impact {
-    margin-bottom: 0;
-  }
-
-  hr {
-    width: 80%;
-    margin: auto;
-  }
-</style>

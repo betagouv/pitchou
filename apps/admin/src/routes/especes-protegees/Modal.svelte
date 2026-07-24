@@ -23,23 +23,30 @@
 <svelte:window onkeydown={onKeydown} />
 
 <div
-  class="overlay"
+  class="fixed inset-0 z-[1000] bg-[rgba(0,0,0,0.4)] flex items-start justify-center fr-py-4w fr-px-2w overflow-y-auto"
   role="presentation"
   onclick={(e) => {
     if (e.target === e.currentTarget) onClose();
   }}
 >
+  <!-- Never taller than the viewport (minus the overlay padding): the content scrolls,
+       the header and footer stay pinned. -->
   <div
-    class="dialog"
-    class:large={size === "large"}
-    class:xlarge={size === "xlarge"}
+    class="bg-[var(--background-default-grey)] rounded-[0.5rem] w-full max-h-[calc(100vh-4rem)] flex flex-col shadow-[0_4px_24px_rgba(0,0,0,0.3)] [transition:max-width_0.15s_ease] {size ===
+    'large'
+      ? 'max-w-[48rem]'
+      : size === 'xlarge'
+        ? 'max-w-[72rem]'
+        : 'max-w-[42rem]'}"
     role="dialog"
     aria-modal="true"
     aria-label={title}
   >
-    <header class="dialog-header">
+    <header
+      class="flex-[0_0_auto] flex flex-row items-center gap-4 fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"
+    >
       {@render headerStart?.()}
-      <h2 class="dialog-title">{title}</h2>
+      <h2 class="my-0 ml-0 mr-auto text-[1.25rem]">{title}</h2>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-icon-close-line"
@@ -49,83 +56,17 @@
       ></button>
     </header>
 
-    <div class="dialog-content">
+    <!-- Padding-free on purpose: each consumer pads its own content (the selector brings its own). -->
+    <div class="flex-[1_1_auto] overflow-y-auto">
       {@render children()}
     </div>
 
     {#if footer}
-      <footer class="dialog-footer">
+      <footer
+        class="flex-[0_0_auto] flex flex-row items-center gap-2 flex-wrap fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
+      >
         {@render footer()}
       </footer>
     {/if}
   </div>
 </div>
-
-<style lang="scss">
-  .overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem 1rem;
-    overflow-y: auto;
-  }
-
-  .dialog {
-    background: var(--background-default-grey);
-    border-radius: 0.5rem;
-    width: 100%;
-    max-width: 42rem;
-    // Never taller than the viewport (minus the overlay padding): the content scrolls,
-    // the header and footer stay pinned.
-    max-height: calc(100vh - 4rem);
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-    transition: max-width 0.15s ease;
-
-    &.large {
-      max-width: 48rem;
-    }
-
-    &.xlarge {
-      max-width: 72rem;
-    }
-  }
-
-  .dialog-header {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-default-grey);
-  }
-
-  .dialog-title {
-    margin: 0;
-    margin-right: auto;
-    font-size: 1.25rem;
-  }
-
-  // Padding-free on purpose: each consumer pads its own content (the selector brings its own).
-  .dialog-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-  }
-
-  .dialog-footer {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-default-grey);
-  }
-</style>

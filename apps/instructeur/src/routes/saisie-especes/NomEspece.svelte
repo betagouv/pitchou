@@ -29,6 +29,3 @@
 <span {title}>
   {firstNomVernaculaire} (<i>{firstNomScientifique}</i>)
 </span>
-
-<style lang="scss">
-</style>

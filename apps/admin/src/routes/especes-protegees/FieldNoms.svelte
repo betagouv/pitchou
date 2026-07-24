@@ -67,11 +67,11 @@
     {#if hasReference}
       <InheritanceCheckbox id={inheritId} {source} bind:checked={inherit} />
     {/if}
-    <div class="name-list">
+    <div class="flex flex-col gap-2">
       {#each draft as _name, i (i)}
-        <div class="name-row">
+        <div class="flex flex-row items-center gap-2">
           <input
-            class="fr-input"
+            class="fr-input flex-1"
             type="text"
             disabled={inherit}
             aria-label={`Nom ${i + 1}`}
@@ -93,22 +93,3 @@
     </div>
   {/snippet}
 </FieldModifiable>
-
-<style lang="scss">
-  .name-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .name-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-
-    .fr-input {
-      flex: 1;
-    }
-  }
-</style>

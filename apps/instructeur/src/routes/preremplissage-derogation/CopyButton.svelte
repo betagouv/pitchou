@@ -30,38 +30,10 @@
   }
 </script>
 
-<button class={classname} bind:this={copyButton} onclick={onClick}>
+<button
+  class="{classname} relative z-[1] [font-size:inherit] [font-family:inherit] before:content-[''] before:z-[-1] before:absolute before:inset-0 before:bg-[#444] before:origin-right before:scale-x-0 before:[transition:transform_0.4s_ease-in-out] [&.animate]:text-white [&.animate]:before:origin-left [&.animate]:before:scale-x-100"
+  bind:this={copyButton}
+  onclick={onClick}
+>
   {initialLabel}
 </button>
-
-<style lang="scss">
-  button {
-    z-index: 1;
-    position: relative;
-    font-size: inherit;
-    font-family: inherit;
-
-    &::before {
-      content: "";
-      z-index: -1;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #444;
-      transform-origin: center right;
-      transform: scaleX(0);
-      transition: transform 0.4s ease-in-out;
-    }
-
-    &.animate {
-      color: white;
-    }
-
-    &.animate::before {
-      transform-origin: center left;
-      transform: scaleX(1);
-    }
-  }
-</style>

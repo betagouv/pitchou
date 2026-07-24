@@ -16,8 +16,8 @@
   let { rows, onSelect }: Props = $props();
 </script>
 
-<div class="fr-table fr-table--bordered fr-table--layout-fixed">
-  <table>
+<div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+  <table class="w-full min-w-[48rem]">
     <colgroup>
       <col />
       <col />
@@ -39,7 +39,7 @@
         {@const nomsScientifiques = effectiveNomsScientifiques(modification)}
         {@const nomsVernaculaires = effectiveNomsVernaculaires(modification)}
         <tr
-          class="clickable"
+          class="cursor-pointer hover:bg-[var(--background-contrast-grey)] focus-visible:[outline:2px_solid_var(--bf500)] focus-visible:[outline-offset:-2px]"
           role="button"
           tabindex="0"
           title="Modifier cette espèce"
@@ -77,27 +77,3 @@
     </tbody>
   </table>
 </div>
-
-<style lang="scss">
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-    min-width: 48rem;
-  }
-
-  tr.clickable {
-    cursor: pointer;
-  }
-
-  tr.clickable:hover {
-    background-color: var(--background-contrast-grey);
-  }
-
-  tr.clickable:focus-visible {
-    outline: 2px solid var(--bf500);
-    outline-offset: -2px;
-  }
-</style>

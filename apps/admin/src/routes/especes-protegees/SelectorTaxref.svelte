@@ -101,10 +101,10 @@
   }
 </script>
 
-<div class="selecteur">
-  <div class="action-bar">
-    <form onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar search-bar" role="search">
+<div class="flex flex-col gap-4 fr-p-3w">
+  <div class="flex flex-row items-start gap-3 max-[768px]:flex-col max-[768px]:items-stretch">
+    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
+      <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-taxref-ajout">Rechercher un taxon</label>
         <input
           value={query.searchText}
@@ -126,12 +126,15 @@
     >
       Filtrer
       {#if activeFilterCount > 0}
-        <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
-          >{activeFilterCount}</span
+        <span
+          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
+          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
         >
       {/if}
       <span
-        class="chevron {filterPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -144,7 +147,9 @@
     >
       Trier
       <span
-        class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -163,7 +168,7 @@
     <TaxrefSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
   {/if}
 
-  <p class="count" aria-live="polite">
+  <p class="fr-m-0" aria-live="polite">
     <span class="fr-text--lead">{total.toLocaleString("fr-FR")}</span><span class="fr-text--lg"
       >&nbsp;{total > 1 ? "taxons" : "taxon"}</span
     >
@@ -176,8 +181,11 @@
   {:else if loading && rows.length === 0}
     <Loader />
   {:else if rows.length >= 1}
-    <div class="fr-table fr-table--bordered fr-table--layout-fixed" class:loading>
-      <table>
+    <div
+      class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto [&.loading]:opacity-50 [&.loading]:[transition:opacity_0.15s_ease]"
+      class:loading
+    >
+      <table class="w-full">
         <colgroup>
           <col style="width: 100px" />
           <col style="width: 100px" />
@@ -200,7 +208,7 @@
           {#each rows as row (row.id)}
             {@const alreadyListed = existingCdRefs.has(row.cd_ref)}
             <tr
-              class="row"
+              class="[&.clickable]:cursor-pointer [&.clickable.hovered]:bg-[var(--background-contrast-grey)] [&.clickable]:focus-visible:[outline:2px_solid_var(--bf500)] [&.clickable]:focus-visible:[outline-offset:-2px] [&.no-bottom-line]:bg-none"
               class:clickable={!alreadyListed}
               class:hovered={hoveredCdNom === row.cd_nom}
               class:no-bottom-line={alreadyListed}
@@ -225,7 +233,7 @@
               <td>{row.classe}</td>
             </tr>
             {#if alreadyListed}
-              <tr class="row flagged-row" aria-hidden="true">
+              <tr class="[&_td]:pt-0 [&_td]:pb-3" aria-hidden="true">
                 <td colspan="6">
                   <span class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">
                     Déjà une espèce protégée
@@ -245,96 +253,3 @@
     <p>Aucun taxon ne correspond à cette recherche.</p>
   {/if}
 </div>
-
-<style lang="scss">
-  .selecteur {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .action-bar {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 0.75rem;
-
-    form {
-      flex: 1;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .chevron {
-      margin-left: 0.25rem;
-    }
-
-    .chevron::before {
-      --icon-size: 1rem;
-    }
-
-    .filter-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 1.25rem;
-      height: 1.25rem;
-      margin-left: 0.25rem;
-      padding: 0 0.25rem;
-      border-radius: 0.625rem;
-      background-color: var(--background-action-high-blue-france);
-      color: var(--text-inverted-blue-france);
-      font-size: 0.75rem;
-      line-height: 1;
-    }
-  }
-
-  .search-bar {
-    width: 100%;
-  }
-
-  .count {
-    margin: 0;
-  }
-
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-  }
-
-  // While a request is in flight, dim the current rows instead of clearing them.
-  .loading {
-    opacity: 0.5;
-    transition: opacity 0.15s ease;
-  }
-
-  tr.clickable {
-    cursor: pointer;
-  }
-
-  tr.clickable.hovered {
-    background-color: var(--background-contrast-grey);
-  }
-
-  tr.clickable:focus-visible {
-    outline: 2px solid var(--bf500);
-    outline-offset: -2px;
-  }
-
-  // Fuse an already-listed row with its badge sub-row: drop the divider between them.
-  tr.no-bottom-line {
-    background-image: none;
-  }
-
-  tr.flagged-row td {
-    padding-top: 0;
-    padding-bottom: 0.75rem;
-  }
-</style>

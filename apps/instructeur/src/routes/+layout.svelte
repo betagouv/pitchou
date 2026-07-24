@@ -3,6 +3,8 @@
   // cf scripts/front-end/before-ses-lockdown.ts
   import "./Layout/before-ses-lockdown.ts";
 
+  import "../app.css";
+
   import { afterNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
@@ -61,10 +63,10 @@
 <main tabindex="-1" id="main">
   <div class="fr-container">
     {#if store.errors.size >= 1}
-      <section class="errors fr-grid-row fr-grid-row--center">
-        <div class="fr-col">
+      <section class="relative h-0 fr-grid-row fr-grid-row--center">
+        <div class="fr-col w-full">
           {#each [...store.errors] as error}
-            <div class="fr-alert-background fr-mb-1w">
+            <div class="fr-alert-background fr-mb-1w bg-[var(--background-default-grey)]">
               <div class="fr-alert fr-alert--error fr-alert--sm">
                 <p><strong>Erreur&nbsp;:&nbsp;</strong>{error.message}</p>
                 <button onclick={() => store.errors.delete(error)} class="fr-link--close fr-link"
@@ -84,29 +86,3 @@
 <Footer
   demarcheNumerique88444SynchronizationResults={store.demarcheNumerique88444SynchronizationResults}
 />
-
-<style lang="scss">
-  // Sticky footer: keep the footer at the bottom when the content is shorter than the viewport
-  :global(body) {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  main {
-    flex: 1 0 auto;
-  }
-
-  section.errors {
-    position: relative;
-    height: 0;
-
-    .fr-col {
-      width: 100%;
-
-      .fr-alert-background {
-        background: var(--background-default-grey);
-      }
-    }
-  }
-</style>

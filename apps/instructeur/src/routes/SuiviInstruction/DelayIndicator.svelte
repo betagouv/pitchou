@@ -27,60 +27,26 @@
     adjustedQuantity = Math.round(adjustedQuantity * 2) / 2;
   });
 
-  let baseClasses = $derived(["line", style]);
+  const styleToBorderColor: Record<IndicatorStyle, string> = {
+    info: "border-t-[color:var(--border-plain-info)]",
+    success: "border-t-[color:var(--border-plain-success)]",
+    warning: "border-t-[color:var(--border-plain-warning)]",
+    error: "border-t-[color:var(--border-plain-error)]",
+  };
+
+  // Each segment: a 2px top border coloured by `style`, full width (1.5rem = w-6) or
+  // half width (0.75rem = w-3) for the trailing fractional segment.
+  const lineBase = "h-1/2 translate-y-1/2 border-0 border-t-2 border-solid mr-[0.2rem]";
 
   let lineClasses = $derived(
-    [...Array(Math.ceil(adjustedQuantity))].map((_, i) => {
-      if (adjustedQuantity - i >= 1) {
-        return baseClasses;
-      } else {
-        return [...baseClasses, "half"];
-      }
-    }),
+    [...Array(Math.ceil(adjustedQuantity))].map((_, i) =>
+      clsx(lineBase, styleToBorderColor[style], adjustedQuantity - i >= 1 ? "w-6" : "w-3"),
+    ),
   );
 </script>
 
-<div class="delay" title={alt}>
+<div class="h-4 flex flex-row items-center justify-start" title={alt}>
   {#each lineClasses as classes}
-    <span class={clsx(classes)}></span>
+    <span class={classes}></span>
   {/each}
 </div>
-
-<style lang="scss">
-  $line-width: 1.5rem;
-
-  .delay {
-    height: 1rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-
-    .line {
-      width: $line-width;
-      height: 50%;
-      transform: translateY(50%);
-
-      border: none;
-      border-top: 2px solid var(--border-default-grey);
-      margin-right: 0.2rem;
-
-      &.half {
-        width: calc($line-width/2);
-      }
-
-      &.info {
-        border-color: var(--border-plain-info);
-      }
-      &.success {
-        border-color: var(--border-plain-success);
-      }
-      &.warning {
-        border-color: var(--border-plain-warning);
-      }
-      &.error {
-        border-color: var(--border-plain-error);
-      }
-    }
-  }
-</style>

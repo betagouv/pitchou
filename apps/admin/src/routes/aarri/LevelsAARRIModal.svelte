@@ -28,7 +28,9 @@
               a atteint au cours de son utilisation.
             </p>
 
-            <div class="niveau">
+            <div
+              class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-3w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
+            >
               <BadgeNiveauAARRI niveau="base" />
               <p>
                 A un compte Pitchou (un code d'accès lui a été créé) mais ne s'est encore jamais
@@ -36,12 +38,16 @@
               </p>
             </div>
 
-            <div class="niveau">
+            <div
+              class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-3w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
+            >
               <BadgeNiveauAARRI niveau="acquis" />
               <p>S'est connectée à Pitchou au moins une fois.</p>
             </div>
 
-            <div class="niveau">
+            <div
+              class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-3w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
+            >
               <BadgeNiveauAARRI niveau="actif" />
               <p>
                 A effectué au moins <strong>5 actions de modification</strong> (modification de dossier,
@@ -49,7 +55,9 @@
               </p>
             </div>
 
-            <div class="niveau">
+            <div
+              class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-3w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
+            >
               <BadgeNiveauAARRI niveau="retenu" />
               <p>
                 Utilise Pitchou régulièrement : elle a validé au moins
@@ -59,7 +67,9 @@
               </p>
             </div>
 
-            <div class="niveau">
+            <div
+              class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-3w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
+            >
               <BadgeNiveauAARRI niveau="impact" />
               <p>
                 A produit au moins un <strong>retour à la conformité</strong> (un contrôle qui fait revenir
@@ -76,21 +86,3 @@
     </div>
   </div>
 </dialog>
-
-<style lang="scss">
-  .niveau {
-    display: grid;
-    grid-template-columns: 6rem 1fr;
-    align-items: baseline;
-    column-gap: 0.75rem;
-    margin-top: 1.5rem;
-
-    p {
-      margin-bottom: 0;
-    }
-
-    :global(.fr-badge) {
-      justify-self: start;
-    }
-  }
-</style>

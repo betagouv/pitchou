@@ -110,8 +110,8 @@
     </div>
   {/if}
 
-  <form onsubmit={generateDoc}>
-    <div class="fr-upload-group">
+  <form class="fr-mb-4w" onsubmit={generateDoc}>
+    <div class="fr-upload-group fr-mb-4w">
       <label class="fr-label" for="file-upload"
         >Ajouter un document-type
         <!--
@@ -139,39 +139,16 @@
       >
         Télécharger le document généré
       </a>
-      <details>
-        <summary>Voir le texte brut</summary>
+      <details class="[cursor:initial]">
+        <summary class="cursor-pointer">Voir le texte brut</summary>
         {#await textDocumentGenerated}
           (... en chargement ...)
         {:then text}
-          <div class="text-document-generated">{text}</div>
+          <div class="[white-space:preserve] fr-p-2w bg-[var(--background-contrast-grey)]">
+            {text}
+          </div>
         {/await}
       </details>
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  form {
-    margin-bottom: 2rem;
-
-    .fr-upload-group {
-      margin-bottom: 2rem;
-    }
-  }
-
-  details {
-    cursor: initial;
-
-    summary {
-      cursor: pointer;
-    }
-  }
-
-  .text-document-generated {
-    white-space: preserve;
-    padding: 1rem;
-
-    background-color: var(--background-contrast-grey);
-  }
-</style>

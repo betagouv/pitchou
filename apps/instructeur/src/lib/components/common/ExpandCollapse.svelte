@@ -16,44 +16,11 @@
   let { open = false, summary, content }: Props = $props();
 </script>
 
-<details {open}>
-  <summary>
+<details {open} class="group [cursor:initial]">
+  <summary
+    class="flex flex-row items-baseline cursor-pointer marker:content-[''] after:ml-[0.5em] after:[padding:0.2em_0.4em] after:content-['Déplier_→'] after:[white-space:pre] after:text-[0.8rem] after:text-[color:var(--border-action-high-blue-france)] after:border after:border-[color:var(--border-action-high-blue-france)] group-open:after:content-['Replier_↓']"
+  >
     {@render summary?.()}
   </summary>
   {@render content?.()}
 </details>
-
-<style lang="scss">
-  details {
-    cursor: initial;
-
-    summary {
-      display: flex;
-      flex-direction: row;
-      align-items: baseline;
-
-      cursor: pointer;
-
-      &::marker {
-        content: "";
-      }
-
-      &::after {
-        padding: 0.2em 0.4em;
-        margin-left: 0.5em;
-
-        content: "Déplier →";
-        white-space: pre;
-        font-size: 0.8rem;
-        color: var(--border-action-high-blue-france);
-        border: 1px solid var(--border-action-high-blue-france);
-      }
-    }
-
-    &[open] {
-      summary::after {
-        content: "Replier ↓";
-      }
-    }
-  }
-</style>

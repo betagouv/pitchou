@@ -149,7 +149,9 @@
         Aucune espèce n'a été trouvée.
       {:else}
         {#if oiseauxToPrefill.size >= 1}
-          <section class="section-espece-by-classification fr-mb-1w">
+          <section
+            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
+          >
             <h4>
               {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
             </h4>
@@ -174,7 +176,9 @@
           </section>
         {/if}
         {#if fauneNonOiseauxToPrefill.size >= 1}
-          <section class="section-espece-by-classification fr-mb-1w">
+          <section
+            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
+          >
             <h4>
               {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
             </h4>
@@ -199,7 +203,9 @@
           </section>
         {/if}
         {#if floreToPrefill.size >= 1}
-          <section class="section-espece-by-classification fr-mb-1w">
+          <section
+            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
+          >
             <h4>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h4>
             <ul>
               {#each [...floreToPrefill] as espece (espece)}
@@ -259,20 +265,3 @@
     >{`Ajouter ${especesImpacteesToPrefill.length} ${especesImpacteesToPrefill.length >= 2 ? "espèces" : "espèce"}`}</button
   >
 </div>
-
-<style>
-  .section-espece-by-classification {
-    ul {
-      margin: 0;
-      list-style: none;
-    }
-    li {
-      padding: 0 !important;
-      font-size: 0.9rem !important;
-    }
-    h4 {
-      font-size: 1.125rem;
-      margin-bottom: 0;
-    }
-  }
-</style>

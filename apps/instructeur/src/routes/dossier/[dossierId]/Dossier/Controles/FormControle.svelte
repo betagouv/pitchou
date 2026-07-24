@@ -39,7 +39,7 @@
   }
 </script>
 
-<form onsubmit={formSubmit}>
+<form class="fr-mt-2w fr-mb-4w" onsubmit={formSubmit}>
   <div class="fr-input-group">
     <label class="fr-label" for="text-input"> Date du contrôle </label>
     <DateInput bind:date={editedControle.controle_date}></DateInput>
@@ -100,10 +100,3 @@
     {@render buttonDelete()}
   {/if}
 </form>
-
-<style lang="scss">
-  form {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-  }
-</style>

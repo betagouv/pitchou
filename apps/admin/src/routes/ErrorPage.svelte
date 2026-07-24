@@ -70,12 +70,14 @@
         </a>
       </li>
     </ul>
-    <p class="fr-text--sm fr-mt-5w fr-mb-1w email-contact__label">Ou écrivez-nous directement :</p>
-    <p class="email-contact fr-mb-0">
-      <span class="email-contact__adresse fr-text--bold">{CONTACT_EMAIL}</span>
+    <p class="fr-text--sm fr-mt-5w fr-mb-1w fr-text-mention--grey">Ou écrivez-nous directement :</p>
+    <p
+      class="inline-flex items-center gap-3 max-w-full fr-py-1v fr-pr-1v fr-pl-2w border border-[color:var(--border-default-grey)] fr-mb-0"
+    >
+      <span class="[overflow-wrap:anywhere] fr-text--bold">{CONTACT_EMAIL}</span>
       <button
         type="button"
-        class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left"
+        class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left flex-none border-l border-l-[color:var(--border-default-grey)] rounded-none"
         class:fr-icon-clipboard-line={!emailCopié}
         class:fr-icon-check-line={emailCopié}
         onclick={copierEmail}
@@ -87,61 +89,34 @@
   </div>
   <div class="fr-col-12 fr-col-md-3 fr-col-offset-md-1 fr-px-6w fr-px-md-0 fr-py-0">
     <svg
-      class="illustration"
+      class="w-full h-auto max-w-[14rem] block mx-auto"
       aria-hidden="true"
       viewBox="0 0 160 160"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="68" cy="68" r="46" class="trait" fill="none" stroke-width="6" />
-      <line x1="101" y1="101" x2="140" y2="140" class="trait" stroke-width="8" />
-      <text x="68" y="68" class="code" text-anchor="middle" dominant-baseline="central"
-        >{status}</text
+      <circle
+        cx="68"
+        cy="68"
+        r="46"
+        class="stroke-[var(--blue-france-sun-113-625)] [stroke-linecap:round]"
+        fill="none"
+        stroke-width="6"
+      />
+      <line
+        x1="101"
+        y1="101"
+        x2="140"
+        y2="140"
+        class="stroke-[var(--blue-france-sun-113-625)] [stroke-linecap:round]"
+        stroke-width="8"
+      />
+      <text
+        x="68"
+        y="68"
+        class="fill-[var(--text-title-grey)] text-[2.5rem] fr-text--bold"
+        text-anchor="middle"
+        dominant-baseline="central">{status}</text
       >
     </svg>
   </div>
 </div>
-
-<style lang="scss">
-  .illustration {
-    width: 100%;
-    height: auto;
-    max-width: 14rem;
-    display: block;
-    margin: 0 auto;
-
-    .trait {
-      stroke: var(--blue-france-sun-113-625);
-      stroke-linecap: round;
-    }
-
-    .code {
-      fill: var(--text-title-grey);
-      font-size: 2.5rem;
-      font-weight: 700;
-    }
-  }
-
-  .email-contact__label {
-    color: var(--text-mention-grey);
-  }
-
-  .email-contact {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: 100%;
-    padding: 0.25rem 0.25rem 0.25rem 1rem;
-    border: 1px solid var(--border-default-grey);
-  }
-
-  .email-contact__adresse {
-    overflow-wrap: anywhere;
-    font-weight: 700;
-  }
-
-  .email-contact button {
-    flex: none;
-    border-left: 1px solid var(--border-default-grey);
-    border-radius: 0;
-  }
-</style>

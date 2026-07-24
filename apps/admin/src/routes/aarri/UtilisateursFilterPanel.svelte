@@ -12,11 +12,16 @@
   let { selectedNiveau, selectedGroupe, groupes, onChange }: Props = $props();
 </script>
 
-<fieldset id="filter-panel" class="panel">
-  <legend class="panel-title">Filtrer les utilisateurices</legend>
-  <div class="filters">
-    <div class="filter-row">
-      <label class="fr-label filter-label" for="select-niveau">Niveau AARRI</label>
+<fieldset
+  id="filter-panel"
+  class="border border-[color:var(--border-default-grey)] rounded-[0.25rem] fr-p-2w"
+>
+  <legend class="text-[1.25rem] fr-text--bold fr-mb-2w fr-p-0">Filtrer les utilisateurices</legend>
+  <div class="flex flex-col gap-3 max-w-[48rem]">
+    <div
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+    >
+      <label class="fr-label" for="select-niveau">Niveau AARRI</label>
       <select
         value={selectedNiveau}
         onchange={(e) => onChange({ niveau: e.currentTarget.value as NiveauAARRI | "" })}
@@ -30,8 +35,10 @@
         {/each}
       </select>
     </div>
-    <div class="filter-row">
-      <label class="fr-label filter-label" for="select-groupe">Groupe instructeur</label>
+    <div
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+    >
+      <label class="fr-label" for="select-groupe">Groupe instructeur</label>
       <select
         value={selectedGroupe}
         onchange={(e) => onChange({ groupe: e.currentTarget.value })}
@@ -47,57 +54,3 @@
     </div>
   </div>
 </fieldset>
-
-<style lang="scss">
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .panel {
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    padding: 1rem;
-  }
-
-  .panel-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    padding: 0;
-  }
-
-  .filters {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 48rem;
-  }
-
-  .filter-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-
-    .filter-label {
-      flex: 0 0 18rem;
-      margin-bottom: 0;
-    }
-
-    .fr-select {
-      flex: 1 1 auto;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.25rem;
-
-      .filter-label {
-        flex: none;
-      }
-    }
-  }
-</style>

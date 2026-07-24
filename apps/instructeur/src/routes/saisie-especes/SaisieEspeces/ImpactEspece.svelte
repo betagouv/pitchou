@@ -81,7 +81,7 @@
   let selectImpact: HTMLElement;
 </script>
 
-<fieldset class="fr-fieldset fr-input-group fr-fieldset__element">
+<fieldset class="fr-fieldset fr-input-group fr-fieldset__element fr-m-0 fr-p-0">
   {#if indexImpact && indexEspece}
     <legend class="fr-sr-only">Impact #{indexImpact} sur l'espèce #{indexEspece}</legend>
   {:else}
@@ -92,7 +92,7 @@
       <label class="fr-label" for="input-espece-{indexEspece}-impact-{indexImpact}">
         Type d’impact
       </label>
-      <div class="input-button-with-delete-button">
+      <div class="flex fr-mt-1w gap-2 min-[62em]:gap-6">
         <select
           bind:this={selectImpact}
           bind:value={impact.activité}
@@ -231,28 +231,3 @@
     </div>
   {/if}
 </fieldset>
-
-<style>
-  fieldset {
-    margin: 0;
-    padding: 0;
-  }
-
-  .input-button-with-delete-button {
-    display: flex;
-    margin-top: 0.5rem;
-    gap: 0.5rem;
-  }
-
-  /* .input-button, .input-select {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        } */
-
-  @media (min-width: 62em) {
-    .input-button-with-delete-button {
-      gap: 1.5rem;
-    }
-  }
-</style>

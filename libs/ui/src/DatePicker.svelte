@@ -132,15 +132,15 @@
 
 <svelte:body onclick={onBodyClick} />
 
-<div class="datepicker" bind:this={root}>
+<div class="relative flex-[1_1_auto] min-w-0" bind:this={root}>
   <div
-    class="fr-select datepicker-field fr-icon-calendar-line fr-btn--icon-left"
+    class="fr-select relative min-h-[2.5rem] fr-icon-calendar-line fr-btn--icon-left before:relative before:z-[2] before:pointer-events-none focus-within:[outline:2px_solid_var(--border-active-blue-france)] focus-within:[outline-offset:2px]"
     class:fr-select--error={inputInvalid}
   >
     <input
       {id}
       type="text"
-      class="datepicker-input"
+      class="absolute z-[1] inset-0 w-full h-full fr-pr-6w fr-pl-5w border-0 outline-0 bg-transparent text-inherit [font:inherit]"
       aria-label={label}
       aria-haspopup="dialog"
       aria-controls="{id}-panel"
@@ -160,21 +160,21 @@
 
   {#if open}
     <div
-      class="datepicker-panel"
+      class="absolute z-[1000] top-[calc(100%+0.25rem)] left-0 w-[18rem] max-w-[calc(100vw-2rem)] fr-p-3v bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))] [&.open-above]:top-auto [&.open-above]:bottom-[calc(100%+0.25rem)] [&.align-right]:right-0 [&.align-right]:left-auto"
       class:open-above={openAbove}
       class:align-right={align === "right"}
       id="{id}-panel"
       role="dialog"
       aria-label={label}
     >
-      <div class="datepicker-header">
+      <div class="flex items-center justify-between fr-mb-1w">
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-s-line"
           aria-label="Mois précédent"
           onclick={() => (viewMonth = subMonths(viewMonth, 1))}
         ></button>
-        <span class="datepicker-month" aria-live="polite">{monthLabel}</span>
+        <span class="fr-text--bold capitalize" aria-live="polite">{monthLabel}</span>
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-right-s-line"
@@ -183,16 +183,20 @@
         ></button>
       </div>
 
-      <div class="datepicker-grid" role="grid">
+      <div class="grid grid-cols-7 gap-[0.125rem]" role="grid">
         {#each WEEKDAYS as weekday, index (index)}
-          <span class="datepicker-weekday" role="columnheader" aria-hidden="true">{weekday}</span>
+          <span
+            class="flex items-center justify-center h-8 text-[0.75rem] fr-text--bold text-[color:var(--text-mention-grey)]"
+            role="columnheader"
+            aria-hidden="true">{weekday}</span
+          >
         {/each}
         {#each days as day (day.getTime())}
           {@const outside = !isSameMonth(day, viewMonth)}
           {@const selected = selectedDate && isSameDay(day, selectedDate)}
           <button
             type="button"
-            class="datepicker-day"
+            class="flex items-center justify-center h-8 border-0 rounded-[0.25rem] bg-transparent text-[color:var(--text-default-grey)] text-[0.875rem] cursor-pointer enabled:hover:bg-[var(--background-alt-grey-hover,rgba(0,0,0,0.06))] [&.outside]:text-[color:var(--text-disabled-grey)] [&.today]:shadow-[inset_0_0_0_1px_var(--border-active-blue-france)] [&.selected]:bg-[var(--background-action-high-blue-france)] [&.selected]:text-[color:var(--text-inverted-blue-france)] disabled:text-[color:var(--text-disabled-grey)] disabled:cursor-not-allowed"
             class:outside
             class:selected
             class:today={isToday(day)}
@@ -207,7 +211,7 @@
       </div>
 
       {#if selectedDate}
-        <div class="datepicker-footer">
+        <div class="flex justify-end fr-mt-1w">
           <button
             type="button"
             class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
@@ -223,135 +227,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  .datepicker {
-    position: relative;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .datepicker-field {
-    position: relative;
-    min-height: 2.5rem;
-
-    &::before {
-      position: relative;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    &:focus-within {
-      outline: 2px solid var(--border-active-blue-france);
-      outline-offset: 2px;
-    }
-  }
-
-  .datepicker-input {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    padding-right: 3rem;
-    padding-left: 2.5rem;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-  }
-
-  .datepicker-panel {
-    position: absolute;
-    z-index: 1000;
-    top: calc(100% + 0.25rem);
-    left: 0;
-    width: 18rem;
-    max-width: calc(100vw - 2rem);
-    padding: 0.75rem;
-    background-color: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
-
-    &.open-above {
-      top: auto;
-      bottom: calc(100% + 0.25rem);
-    }
-
-    &.align-right {
-      right: 0;
-      left: auto;
-    }
-  }
-
-  .datepicker-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .datepicker-month {
-    font-weight: 700;
-    text-transform: capitalize;
-  }
-
-  .datepicker-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.125rem;
-  }
-
-  .datepicker-weekday {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 2rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-mention-grey);
-  }
-
-  .datepicker-day {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 2rem;
-    border: 0;
-    border-radius: 0.25rem;
-    background: none;
-    color: var(--text-default-grey);
-    font-size: 0.875rem;
-    cursor: pointer;
-
-    &:hover:not(:disabled) {
-      background-color: var(--background-alt-grey-hover, rgba(0, 0, 0, 0.06));
-    }
-
-    &.outside {
-      color: var(--text-disabled-grey);
-    }
-
-    &.today {
-      box-shadow: inset 0 0 0 1px var(--border-active-blue-france);
-    }
-
-    &.selected {
-      background-color: var(--background-action-high-blue-france);
-      color: var(--text-inverted-blue-france);
-    }
-
-    &:disabled {
-      color: var(--text-disabled-grey);
-      cursor: not-allowed;
-    }
-  }
-
-  .datepicker-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
-  }
-</style>

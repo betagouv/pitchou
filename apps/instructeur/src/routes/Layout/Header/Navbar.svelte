@@ -28,7 +28,7 @@
         class="fr-nav__link"
         href="/tableau-de-suivi"
         onclick={() => trackNavbarLinkClick("tableau-de-suivi")}
-        >Tableau de suivi <span class="fr-badge fr-badge--sm">Obsolète</span></a
+        >Tableau de suivi <span class="fr-badge fr-badge--sm text-[0.55rem]">Obsolète</span></a
       >
     </li>
     <li class="fr-nav__item">
@@ -56,9 +56,3 @@
     </li>
   </ul>
 </nav>
-
-<style lang="scss">
-  nav span.fr-badge {
-    font-size: 0.55rem;
-  }
-</style>

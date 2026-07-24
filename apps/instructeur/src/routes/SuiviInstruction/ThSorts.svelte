@@ -16,11 +16,18 @@
   };
 </script>
 
-<ul class="fr-mt-1w">
+<ul class="fr-mt-1w list-none pointer-events-auto fr-p-0">
   {#each sorts as sort}
-    <li class="fr-mb-1v">
+    <li class="fr-mb-1v flex list-none fr-p-0">
       <button
-        class={clsx(["fr-pt-1v", "fr-pb-1v", { selected: selectedSort === sort }])}
+        class={clsx([
+          "fr-pt-1v",
+          "fr-pb-1v",
+          "text-left bg-[var(--background-overlap-grey)] hover:bg-[var(--background-overlap-grey-hover)] active:bg-[var(--background-overlap-grey-active)] shadow-[inset_0_1px_0_0_var(--border-open-blue-france)]",
+          selectedSort === sort
+            ? "text-[color:var(--text-active-grey)]"
+            : "text-[color:var(--text-mention-grey)]",
+        ])}
         type="button"
         onclick={() => {
           selectSort(sort);
@@ -35,36 +42,3 @@
     </li>
   {/each}
 </ul>
-
-<style lang="scss">
-  ul {
-    list-style: none;
-    pointer-events: auto;
-    padding: 0;
-
-    li {
-      padding: 0;
-      display: flex;
-      list-style: none;
-    }
-  }
-
-  button {
-    color: var(--text-mention-grey);
-    text-align: left;
-    background-color: var(--background-overlap-grey);
-
-    &:hover {
-      background-color: var(--background-overlap-grey-hover);
-    }
-    &:active {
-      background-color: var(--background-overlap-grey-active);
-    }
-
-    box-shadow: inset 0 1px 0 0 var(--border-open-blue-france);
-
-    &.selected {
-      color: var(--text-active-grey);
-    }
-  }
-</style>

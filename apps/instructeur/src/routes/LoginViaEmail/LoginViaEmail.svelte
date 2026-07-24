@@ -67,7 +67,7 @@
 
         <ul class="fr-btns-group fr-mt-2w">
           <li>
-            <button class="fr-btn" disabled={!domaineAutorise}>
+            <button class="fr-btn w-full justify-center" disabled={!domaineAutorise}>
               Obtenir un lien de connexion par email
             </button>
           </li>
@@ -112,36 +112,16 @@
       </div>
 
       {#if showDomains}
-        <ul class="domaines-list fr-mt-2w">
+        <ul class="m-0 p-0 list-none fr-mt-2w">
           {#each sortedDomains as authorizedEmailDomain}
-            <li>{authorizedEmailDomain}</li>
+            <li
+              class="py-1 whitespace-nowrap [&+&]:border-t [&+&]:border-t-[color:var(--border-default-grey)]"
+            >
+              {authorizedEmailDomain}
+            </li>
           {/each}
         </ul>
       {/if}
     </div>
   </div>
 </div>
-
-<style lang="scss">
-  // Full-width primary button, following the DSFR login page model
-  .fr-btns-group .fr-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  // One domain per row
-  .domaines-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-      padding: 0.25rem 0;
-      white-space: nowrap;
-
-      & + li {
-        border-top: 1px solid var(--border-default-grey);
-      }
-    }
-  }
-</style>

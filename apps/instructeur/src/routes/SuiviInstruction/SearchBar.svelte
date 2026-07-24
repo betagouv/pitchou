@@ -16,8 +16,8 @@
 </script>
 
 <form onsubmit={onUpdateSelectedValue} role="search">
-  <div class="form-search">
-    <label class="sr-only" for="recherche-texte">{title}</label>
+  <div class="flex w-[70%]">
+    <label class="fr-sr-only" for="recherche-texte">{title}</label>
     <input
       type="text"
       name="recherche-texte"
@@ -34,22 +34,3 @@
     dossier, numéro Onagre.
   </p>
 </form>
-
-<style lang="scss">
-  .form-search {
-    display: flex;
-    width: 70%;
-  }
-
-  .sr-only {
-    border: none;
-    clip: rect(1px, 1px, 1px, 1px);
-    clip-path: inset(50%);
-    height: 1px;
-    margin: -1px;
-    width: 1px;
-    overflow: hidden;
-    position: absolute !important;
-    word-wrap: normal !important;
-  }
-</style>

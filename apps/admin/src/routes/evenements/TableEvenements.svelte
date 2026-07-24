@@ -41,19 +41,9 @@
           <td>{formatDate(evenement.date)}</td>
           <td>{evenement.email ?? "—"}</td>
           <td>{evenement.evenement}</td>
-          <td class="details" title={details}>{details}</td>
+          <td class="truncate font-[monospace] text-[0.875rem]" title={details}>{details}</td>
         </tr>
       {/each}
     </tbody>
   </table>
 </div>
-
-<style lang="scss">
-  .details {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: monospace;
-    font-size: 0.875rem;
-  }
-</style>

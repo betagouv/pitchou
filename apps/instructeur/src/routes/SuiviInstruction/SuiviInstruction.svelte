@@ -542,7 +542,7 @@
         {/each}
       </div>
 
-      <div class="filters">
+      <div class="flex items-center mb-2">
         <FilterAmongOptions
           title="Filtrer par activité principale"
           options={activitesPrincipalesOptions}
@@ -565,7 +565,7 @@
         {/if}
       </div>
 
-      <section class="active-filters fr-mb-1w">
+      <section class="fr-mb-1w">
         <div class="fr-mb-1w">
           <span>Dossiers suivis par&nbsp;:</span>
           {#if unselectedInstructeurs.size === 0}
@@ -648,11 +648,13 @@
       </section>
 
       <h2 class="fr-mt-2w">
-        {selectedDossiers.length}<small>/{dossiers.length}</small> dossiers sélectionnés
+        {selectedDossiers.length}<small class="text-[0.7em] text-[color:var(--text-mention-grey)]"
+          >/{dossiers.length}</small
+        > dossiers sélectionnés
       </h2>
 
       <div class="fr-table fr-table--bordered">
-        <table class="fr-mb-2w">
+        <table class="fr-mb-2w [&_td]:align-top [&_th]:align-top [&_th]:min-w-24">
           <thead>
             <tr>
               <th>Voir le dossier</th>
@@ -700,7 +702,7 @@
               <tr>
                 <td>
                   <a
-                    class="fr-btn view-dossier fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
+                    class="fr-btn whitespace-pre fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
                     href={`/dossier/${id}`}>Voir le dossier</a
                   >
 
@@ -717,18 +719,18 @@
                         </button>
                       {/snippet}
                       {#snippet content()}
-                        <header class="modal-title">
-                          <h1 class="fr-modal__title">
+                        <header>
+                          <h1 class="fr-modal__title mb-[0.8rem]">
                             Commentaire dossier {name}
                           </h1>
-                          <h2 class="fr-modal__title">
+                          <h2 class="fr-modal__title mb-[0.6rem] text-[1.1rem]">
                             {formatPorteurDeProjet(dossier)}
                             &nbsp;-&nbsp;
                             {formatLocalisation({ communes, departments, regions })}
                           </h2>
                         </header>
 
-                        <div class="modal-content">
+                        <div class="[white-space:preserve]">
                           {free_comment}
                         </div>
                       {/snippet}
@@ -796,47 +798,3 @@
     {/if}
   </div>
 </div>
-
-<style lang="scss">
-  td,
-  th {
-    vertical-align: top;
-  }
-
-  th {
-    min-width: 6rem;
-  }
-
-  h2 small {
-    font-size: 0.7em;
-    color: var(--text-mention-grey);
-  }
-
-  .filters {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .active-filters {
-    margin-bottom: 0.5rem;
-  }
-
-  .view-dossier {
-    white-space: pre;
-  }
-
-  .modal-title {
-    h1 {
-      margin-bottom: 0.8rem;
-    }
-    h2 {
-      margin-bottom: 0.6rem;
-      font-size: 1.1rem;
-    }
-  }
-
-  .modal-content {
-    white-space: preserve;
-  }
-</style>

@@ -120,10 +120,10 @@
   );
 </script>
 
-<section class="pieces-jointes">
+<section class="flex flex-col gap-5">
   <button
     type="button"
-    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line button-add-piece-jointe"
+    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line self-start"
     aria-controls={idModalAddPieceJointe}
     data-fr-opened="false"
     onclick={() =>
@@ -135,8 +135,10 @@
     Ajouter une pièce jointe
   </button>
 
-  <section class="section-pieces-jointes">
-    <div class="header-section-pieces-jointes">
+  <section class="fr-p-0 [&_p:last-child]:mb-0">
+    <div
+      class="flex items-start justify-between gap-4 fr-mb-3v max-[48rem]:flex-col max-[48rem]:gap-1 [&_h3]:m-0"
+    >
       <h3>Projet</h3>
       <button
         type="button"
@@ -149,10 +151,12 @@
     {#if dossier.piecesJointesPetitionnaires.length === 0}
       <p>Aucune pièce jointe n'a été déposée par le pétitionnaire.</p>
     {:else}
-      <ul class="list-cards-pieces-jointes">
+      <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
         {#each dossier.piecesJointesPetitionnaires as { url, demarche_numerique_created_at, name, media_type, size }}
-          <li class="card-piece-jointe">
-            <div class="piece-jointe-fichier">
+          <li
+            class="flex items-start justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col"
+          >
+            <div class="min-w-0">
               <a class="fr-link fr-link--download" href={url} title={name} data-sveltekit-reload>
                 {name || "(fichier sans nom)"}
                 <span class="fr-link__detail">
@@ -168,8 +172,10 @@
     {/if}
   </section>
 
-  <section class="section-pieces-jointes">
-    <div class="header-section-pieces-jointes">
+  <section class="fr-p-0 [&_p:last-child]:mb-0">
+    <div
+      class="flex items-start justify-between gap-4 fr-mb-3v max-[48rem]:flex-col max-[48rem]:gap-1 [&_h3]:m-0"
+    >
       <h3>Avis d'experts</h3>
       <button
         type="button"
@@ -182,11 +188,13 @@
     {#if piecesJointesAvis.length === 0}
       <p>Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</p>
     {:else}
-      <ul class="list-cards-pieces-jointes">
+      <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
         {#each piecesJointesAvis as pieceJointe}
           {@const details = detailsPieceJointeWithContext(pieceJointe)}
-          <li class="card-piece-jointe">
-            <div class="piece-jointe-fichier">
+          <li
+            class="flex items-start justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col"
+          >
+            <div class="min-w-0">
               <a
                 class="fr-link fr-link--download"
                 href={pieceJointe.url}
@@ -205,8 +213,10 @@
     {/if}
   </section>
 
-  <section class="section-pieces-jointes">
-    <div class="header-section-pieces-jointes">
+  <section class="fr-p-0 [&_p:last-child]:mb-0">
+    <div
+      class="flex items-start justify-between gap-4 fr-mb-3v max-[48rem]:flex-col max-[48rem]:gap-1 [&_h3]:m-0"
+    >
       <h3>Décisions administratives</h3>
       <button
         type="button"
@@ -219,11 +229,13 @@
     {#if piecesJointesArretes.length === 0}
       <p>Aucun fichier d'arrêté ou de décision administrative n'est associé à ce dossier.</p>
     {:else}
-      <ul class="list-cards-pieces-jointes">
+      <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
         {#each piecesJointesArretes as pieceJointe}
           {@const details = detailsPieceJointeWithContext(pieceJointe)}
-          <li class="card-piece-jointe">
-            <div class="piece-jointe-fichier">
+          <li
+            class="flex items-start justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col"
+          >
+            <div class="min-w-0">
               <a
                 class="fr-link fr-link--download"
                 href={pieceJointe.url}
@@ -242,8 +254,10 @@
     {/if}
   </section>
 
-  <section class="section-pieces-jointes">
-    <div class="header-section-pieces-jointes">
+  <section class="fr-p-0 [&_p:last-child]:mb-0">
+    <div
+      class="flex items-start justify-between gap-4 fr-mb-3v max-[48rem]:flex-col max-[48rem]:gap-1 [&_h3]:m-0"
+    >
       <h3>Autres</h3>
       <button
         type="button"
@@ -256,11 +270,13 @@
     {#if piecesJointesAutres.length === 0}
       <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
     {:else}
-      <ul class="list-cards-pieces-jointes">
+      <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
         {#each piecesJointesAutres as pieceJointe}
           {@const details = detailsPieceJointeWithContext(pieceJointe)}
-          <li class="card-piece-jointe">
-            <div class="piece-jointe-fichier">
+          <li
+            class="flex items-start justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col"
+          >
+            <div class="min-w-0">
               <a
                 class="fr-link fr-link--download"
                 href={pieceJointe.url}
@@ -286,70 +302,3 @@
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletPiecesJointes"
 />
-
-<style lang="scss">
-  .pieces-jointes {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .button-add-piece-jointe {
-    align-self: flex-start;
-  }
-
-  .section-pieces-jointes {
-    padding: 0;
-
-    p:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .header-section-pieces-jointes {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-
-    h3 {
-      margin: 0;
-    }
-  }
-
-  .list-cards-pieces-jointes {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .card-piece-jointe {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.5rem;
-    background-color: var(--background-alt-grey, #f6f6f6);
-  }
-
-  .piece-jointe-fichier {
-    min-width: 0;
-  }
-
-  @media (max-width: 48rem) {
-    .header-section-pieces-jointes {
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .card-piece-jointe {
-      flex-direction: column;
-    }
-  }
-</style>

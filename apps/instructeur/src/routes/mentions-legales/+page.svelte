@@ -2,8 +2,8 @@
   <title>Mentions légales — Pitchou</title>
 </svelte:head>
 
-<div class="fr-container fr-mt-2w fr-mb-6w legal-notice">
-  <h1>Mentions légales Pitchou 08/07/2026</h1>
+<div class="fr-container fr-mt-2w fr-mb-6w max-w-none">
+  <h1 class="fr-mb-5w">Mentions légales Pitchou 08/07/2026</h1>
 
   <section>
     <h2>Éditeur de la plateforme</h2>
@@ -19,7 +19,7 @@
     <p>01 40 81 21 22</p>
   </section>
 
-  <section>
+  <section class="fr-mt-6w">
     <h2>Directeur de publication</h2>
 
     <p>
@@ -27,7 +27,7 @@
     </p>
   </section>
 
-  <section>
+  <section class="fr-mt-6w">
     <h2>Hébergement de la plateforme</h2>
 
     <p>
@@ -44,7 +44,7 @@
     <p>support@scalingo.com</p>
   </section>
 
-  <section>
+  <section class="fr-mt-6w">
     <h2>Nous contacter</h2>
 
     <p>
@@ -53,17 +53,3 @@
     </p>
   </section>
 </div>
-
-<style lang="scss">
-  .legal-notice {
-    max-width: none;
-
-    h1 {
-      margin-bottom: 2.5rem;
-    }
-
-    section + section {
-      margin-top: 3rem;
-    }
-  }
-</style>

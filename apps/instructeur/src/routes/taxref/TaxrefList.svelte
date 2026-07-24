@@ -124,16 +124,16 @@
   }
 </script>
 
-<div class="header">
-  <h1>TAXREF</h1>
-  <p class="fr-text--sm intro">
+<div class="flex flex-col fr-mt-2w gap-4">
+  <h1 class="fr-mb-0">TAXREF</h1>
+  <p class="fr-text--sm fr-text-mention--grey fr-mb-0">
     Référentiel taxonomique national (TAXREF) : recherchez un taxon par nom scientifique,
     vernaculaire ou code.
   </p>
 
-  <div class="action-bar">
-    <form onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar search-bar" role="search">
+  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
+    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
+      <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-taxref">Rechercher un taxon</label>
         <input
           value={query.searchText}
@@ -156,12 +156,15 @@
     >
       Filtrer
       {#if activeFilterCount > 0}
-        <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
-          >{activeFilterCount}</span
+        <span
+          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
+          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
         >
       {/if}
       <span
-        class="chevron {filterPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -174,7 +177,9 @@
     >
       Trier
       <span
-        class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -193,13 +198,19 @@
     <TaxrefSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
   {/if}
 
-  <div class="count-and-page">
-    <p class="count" data-testid="compteur-taxref" aria-live="polite">
+  <div class="flex flex-row justify-between items-baseline gap-4">
+    <p class="fr-mb-0" data-testid="compteur-taxref" aria-live="polite">
       <span class="fr-text--lead">{total.toLocaleString("fr-FR")}</span><span class="fr-text--lg"
         >&nbsp;{total > 1 ? "résultats" : "résultat"}</span
       >
     </p>
-    <h2 bind:this={pageTitleElement} tabindex="-1" class="page-title">{pageText}</h2>
+    <h2
+      bind:this={pageTitleElement}
+      tabindex="-1"
+      class="text-[1rem] fr-text--regular fr-mb-0 focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
+    >
+      {pageText}
+    </h2>
   </div>
 </div>
 
@@ -209,7 +220,8 @@
     <p>{erreur}</p>
   </div>
 {:else}
-  <div class:loading>
+  <!-- While a request is in flight, dim the current rows instead of clearing them. -->
+  <div class={loading ? "opacity-50 [transition:opacity_0.15s_ease]" : ""}>
     <TaxrefTable {rows} />
   </div>
 {/if}
@@ -217,93 +229,3 @@
 {#if pageSelectors}
   <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
-
-<style lang="scss">
-  .header {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
-    gap: 1rem;
-
-    h1 {
-      margin-bottom: 0;
-    }
-
-    .intro {
-      margin-bottom: 0;
-      color: var(--text-mention-grey);
-    }
-
-    .action-bar {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 1rem;
-
-      form {
-        flex: 1;
-      }
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .chevron {
-        margin-left: 0.25rem;
-      }
-
-      .chevron::before {
-        --icon-size: 1rem;
-      }
-
-      .filter-count {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 1.25rem;
-        height: 1.25rem;
-        margin-left: 0.25rem;
-        padding: 0 0.25rem;
-        border-radius: 0.625rem;
-        background-color: var(--background-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
-        font-size: 0.75rem;
-        line-height: 1;
-      }
-    }
-
-    .count-and-page {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 1rem;
-    }
-
-    .count {
-      margin-bottom: 0;
-    }
-  }
-
-  .search-bar {
-    width: 100%;
-  }
-
-  .page-title {
-    font-size: 1rem;
-    font-weight: normal;
-    margin-bottom: 0;
-  }
-
-  .page-title:focus {
-    outline: 2px solid var(--bf500);
-    outline-offset: 2px;
-  }
-
-  // While a request is in flight, dim the current rows instead of clearing them.
-  .loading {
-    opacity: 0.5;
-    transition: opacity 0.15s ease;
-  }
-</style>

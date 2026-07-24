@@ -54,7 +54,7 @@
 </script>
 
 <nav class="fr-pagination" aria-label="Pagination">
-  <ul class="fr-pagination__list">
+  <ul class="fr-pagination__list justify-center">
     <li>
       <button
         class="fr-pagination__link fr-pagination__link--first"
@@ -116,9 +116,3 @@
     </li>
   </ul>
 </nav>
-
-<style lang="scss">
-  nav ul {
-    justify-content: center;
-  }
-</style>

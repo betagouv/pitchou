@@ -24,8 +24,8 @@
   );
 </script>
 
-<div class="row">
-  <h2>Échanges avec le pétitionnaire</h2>
+<div class="flex flex-row justify-between fr-mb-4w">
+  <h2 class="fr-mb-0">Échanges avec le pétitionnaire</h2>
 
   <a
     class="fr-btn fr-mb-w"
@@ -36,13 +36,13 @@
   </a>
 </div>
 
-<article class="messages fr-mt-2w fr-mb-4w">
+<article class="list-none fr-mx-0 fr-p-0 fr-mt-2w fr-mb-4w">
   {#each sortedMessages as { content, date, sender_email }}
     {@const accordionId = `accordion-content-${Math.random().toString(36).slice(2)}`}
-    <section class="fr-accordion">
+    <section class="fr-accordion fr-mb-6w">
       <h3 class="fr-accordion__title">
         <button
-          class="fr-accordion__btn"
+          class="fr-accordion__btn justify-between [&_span]:flex-1 [&_span]:block"
           aria-expanded={sender_email !== "contact@demarches-simplifiees.fr"}
           aria-controls={accordionId}
         >
@@ -50,7 +50,7 @@
           <span title={formatDateAbsolute(date)}>{formatDateRelative(date)}</span>
         </button>
       </h3>
-      <div class="content-message fr-collapse" id={accordionId}>
+      <div class="[white-space:pre-line] fr-collapse" id={accordionId}>
         <!--
                 Avertissement : Source de problèmes de sécurité potentiels
                 Actuellement, les contenus viennent de Démarche Numérique et on
@@ -61,40 +61,3 @@
     </section>
   {/each}
 </article>
-
-<style lang="scss">
-  .row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    margin-bottom: 2rem;
-
-    h2 {
-      margin-bottom: 0;
-    }
-  }
-
-  section {
-    margin-bottom: 3rem;
-  }
-
-  article.messages {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    button.fr-accordion__btn {
-      justify-content: space-between;
-
-      span {
-        flex: 1;
-        display: block;
-      }
-    }
-
-    .content-message {
-      white-space: pre-line;
-    }
-  }
-</style>

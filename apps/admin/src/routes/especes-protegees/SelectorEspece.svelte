@@ -78,10 +78,10 @@
   }
 </script>
 
-<div class="selecteur">
-  <div class="action-bar">
-    <form onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar search-bar" role="search">
+<div class="flex flex-col gap-4 fr-p-3w">
+  <div class="flex flex-row items-start gap-3 max-[768px]:flex-col max-[768px]:items-stretch">
+    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
+      <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-espece-existante">Rechercher une espèce</label>
         <input
           value={query.searchText}
@@ -103,12 +103,15 @@
     >
       Filtrer
       {#if activeFilterCount > 0}
-        <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
-          >{activeFilterCount}</span
+        <span
+          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
+          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
         >
       {/if}
       <span
-        class="chevron {filterPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -121,7 +124,9 @@
     >
       Trier
       <span
-        class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -140,15 +145,15 @@
     <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
   {/if}
 
-  <p class="count" aria-live="polite">
+  <p class="fr-m-0" aria-live="polite">
     <span class="fr-text--lead">{filtered.length}</span><span class="fr-text--lg"
       >/{especes.length} espèces</span
     >
   </p>
 
   {#if displayed.length >= 1}
-    <div class="fr-table fr-table--bordered fr-table--layout-fixed">
-      <table>
+    <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+      <table class="w-full">
         <colgroup>
           <col />
           <col />
@@ -167,7 +172,7 @@
           {#each displayed as espece (espece.CD_REF)}
             {@const alreadyListed = existingCdRefs.has(espece.CD_REF)}
             <tr
-              class="clickable"
+              class="cursor-pointer [&.hovered]:bg-[var(--background-contrast-grey)] [&.already-listed_i]:text-[color:var(--text-mention-grey)] [&.no-bottom-line]:bg-none focus-visible:[outline:2px_solid_var(--bf500)] focus-visible:[outline-offset:-2px]"
               class:already-listed={alreadyListed}
               class:hovered={hoveredCdRef === espece.CD_REF}
               class:no-bottom-line={alreadyListed}
@@ -193,7 +198,7 @@
             </tr>
             {#if alreadyListed}
               <tr
-                class="clickable flagged-row"
+                class="cursor-pointer [&.hovered]:bg-[var(--background-contrast-grey)] [&_td]:pt-0 [&_td]:pb-3"
                 class:hovered={hoveredCdRef === espece.CD_REF}
                 aria-hidden="true"
                 onmouseenter={() => (hoveredCdRef = espece.CD_REF)}
@@ -219,95 +224,3 @@
     <p>Aucune espèce ne correspond à cette recherche.</p>
   {/if}
 </div>
-
-<style lang="scss">
-  .selecteur {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .action-bar {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 0.75rem;
-
-    form {
-      flex: 1;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .chevron {
-      margin-left: 0.25rem;
-    }
-
-    .chevron::before {
-      --icon-size: 1rem;
-    }
-
-    .filter-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 1.25rem;
-      height: 1.25rem;
-      margin-left: 0.25rem;
-      padding: 0 0.25rem;
-      border-radius: 0.625rem;
-      background-color: var(--background-action-high-blue-france);
-      color: var(--text-inverted-blue-france);
-      font-size: 0.75rem;
-      line-height: 1;
-    }
-  }
-
-  .search-bar {
-    width: 100%;
-  }
-
-  .count {
-    margin: 0;
-  }
-
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-  }
-
-  tr.clickable {
-    cursor: pointer;
-  }
-
-  tr.clickable.hovered {
-    background-color: var(--background-contrast-grey);
-  }
-
-  tr.clickable:focus-visible {
-    outline: 2px solid var(--bf500);
-    outline-offset: -2px;
-  }
-
-  tr.already-listed i {
-    color: var(--text-mention-grey);
-  }
-
-  // Fuse the data row with its badge sub-row: drop the divider line between them.
-  tr.no-bottom-line {
-    background-image: none;
-  }
-
-  // The badge sits on its own full-width line, snug under the data row.
-  tr.flagged-row td {
-    padding-top: 0;
-    padding-bottom: 0.75rem;
-  }
-</style>

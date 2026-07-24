@@ -47,7 +47,7 @@
               </h1>
 
               {#if espece.espèceCNPN || espece.espèceMinistérielle}
-                <p class="badges">
+                <p class="flex flex-wrap gap-2 fr-mb-2w">
                   {#if espece.espèceCNPN}
                     <span class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</span>
                   {/if}
@@ -57,7 +57,7 @@
                 </p>
               {/if}
 
-              <ul class="infos">
+              <ul class="list-none fr-p-0 fr-m-0">
                 <li><strong>CD_REF</strong> : {espece.CD_REF}</li>
                 <li><strong>Classification</strong> : {espece.classification}</li>
               </ul>
@@ -71,7 +71,7 @@
                         statutProtection.statut
                       ] ?? statutProtection.statut}
                       {#if statutProtection.documents.length >= 1}
-                        <span class="documents">
+                        <span class="inline-flex flex-wrap gap-2 fr-ml-1w">
                           {#each statutProtection.documents as document}
                             <a
                               href={document.doc_url}
@@ -113,25 +113,3 @@
     </div>
   </div>
 </dialog>
-
-<style lang="scss">
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .infos {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .documents {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-left: 0.5rem;
-  }
-</style>

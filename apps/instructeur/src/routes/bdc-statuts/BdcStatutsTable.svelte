@@ -9,8 +9,8 @@
 </script>
 
 {#if rows.length >= 1}
-  <div class="fr-table fr-table--bordered fr-table--layout-fixed">
-    <table>
+  <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+    <table class="w-full min-w-[62rem]">
       <colgroup>
         <col />
         <col />
@@ -60,15 +60,3 @@
 {:else}
   <p>Aucun statut ne correspond à cette recherche.</p>
 {/if}
-
-<style lang="scss">
-  // Below ~768px the table keeps its min-width and the container scrolls horizontally
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-    min-width: 62rem;
-  }
-</style>

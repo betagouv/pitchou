@@ -90,8 +90,12 @@
   }
 </script>
 
-<header class="fr-mb-2w">
-  <div class="header-title">
+<header
+  class="fr-mb-2w flex flex-col overflow-hidden rounded-[0.5rem] border border-[color:var(--border-default-grey)]"
+>
+  <div
+    class="flex flex-row items-center gap-4 px-4 py-3 bg-[var(--background-alt-grey)] border-b border-[color:var(--border-default-grey)]"
+  >
     <button
       type="button"
       class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left"
@@ -99,22 +103,28 @@
     >
       Retour
     </button>
-    <h1 class="title-dossier fr-mb-0">
-      <span class="number"
+    <h1 class="fr-mb-0 text-[1.5rem] leading-[1.3] text-[color:var(--text-title-grey)]">
+      <span class="font-normal text-[color:var(--text-mention-grey)]"
         >Dossier n°{dossier.demarche_numerique_number ?? "non renseigné"}&nbsp;:</span
       >
       {dossier.name}
     </h1>
   </div>
 
-  <div class="header-infos">
-    <section>
-      <div>
-        <span class="fr-icon-map-pin-2-fill fr-icon--sm" aria-hidden="true"></span>
+  <div class="flex flex-row gap-8 px-4 py-6">
+    <section class="flex-[2]">
+      <div class="flex items-center gap-2 mb-2">
+        <span
+          class="fr-icon-map-pin-2-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+          aria-hidden="true"
+        ></span>
         {formatLocalisation(dossier)}
       </div>
-      <div>
-        <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+      <div class="flex items-center gap-2 mb-2">
+        <span
+          class="fr-icon-user-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+          aria-hidden="true"
+        ></span>
         <span>
           Porteur de projet&nbsp;:&nbsp;
           {#if demandeurEmail}
@@ -127,8 +137,11 @@
         </span>
       </div>
       {#if showDeposeur}
-        <div>
-          <span class="fr-icon-user-fill fr-icon--sm" aria-hidden="true"></span>
+        <div class="flex items-center gap-2 mb-2">
+          <span
+            class="fr-icon-user-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+            aria-hidden="true"
+          ></span>
           <span>
             Personne qui dépose le dossier (demandeur/mandataire)&nbsp;:&nbsp;
             {#if deposeurMailto}
@@ -139,36 +152,42 @@
           </span>
         </div>
       {/if}
-      <div>
-        <span class="fr-icon-briefcase-fill fr-icon--sm" aria-hidden="true"></span>
+      <div class="flex items-center gap-2 mb-0">
+        <span
+          class="fr-icon-briefcase-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+          aria-hidden="true"
+        ></span>
         {dossier.main_activite}
       </div>
     </section>
 
-    <section>
-      <div>
+    <section class="flex-1 pl-8 border-l border-[color:var(--border-default-grey)]">
+      <div class="flex items-center gap-2 mb-2">
         <strong>Phase&nbsp;:&nbsp;</strong><TagPhase {phase}></TagPhase>
       </div>
 
-      <div>
+      <div class="flex items-center gap-2 mb-2">
         <strong>Prochaine action de&nbsp;:&nbsp;</strong>
         {displayString(dossier.next_action_expected_from)}
       </div>
 
       {#if dossier.enjeu}
-        <div>
+        <div class="flex items-center gap-2 mb-2">
           <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
         </div>
       {/if}
 
       {#if dossier.linked_to_ae_regime}
-        <div>
-          <span class="fr-icon-pantone-fill fr-icon--sm" aria-hidden="true"></span>
+        <div class="flex items-center gap-2 mb-2">
+          <span
+            class="fr-icon-pantone-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+            aria-hidden="true"
+          ></span>
           Autorisation environnementale
         </div>
       {/if}
 
-      <div class="header-actions">
+      <div class="flex items-center gap-2 mb-0 flex-wrap mt-4">
         {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
           {#if currentDossierFollowedByCurrentInstructeur}
             <button
@@ -216,73 +235,3 @@
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="enteteDossier"
 />
-
-<style lang="scss">
-  header {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.5rem;
-    overflow: hidden;
-  }
-
-  .header-title {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background-color: var(--background-alt-grey);
-    border-bottom: 1px solid var(--border-default-grey);
-  }
-
-  .title-dossier {
-    font-size: 1.5rem;
-    line-height: 1.3;
-    color: var(--text-title-grey);
-
-    .number {
-      color: var(--text-mention-grey);
-      font-weight: 400;
-    }
-  }
-
-  .header-infos {
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    padding: 1.5rem 1rem;
-
-    & > :nth-child(1) {
-      flex: 2;
-    }
-    & > :nth-child(2) {
-      flex: 1;
-      padding-left: 2rem;
-      border-left: 1px solid var(--border-default-grey);
-    }
-
-    section > div {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    section > div:last-child {
-      margin-bottom: 0;
-    }
-
-    .header-actions {
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 1rem;
-    }
-
-    // mute and shrink the leading icons of the info rows (not the buttons)
-    section span[class*="fr-icon-"] {
-      color: var(--text-mention-grey);
-      flex: none;
-    }
-  }
-</style>

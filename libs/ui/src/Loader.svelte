@@ -1,7 +1,8 @@
 <script lang="ts"></script>
 
-<div>
+<div class="inline-block w-16 align-middle">
   <svg
+    class="w-full align-middle"
     version="1.1"
     id="L4"
     xmlns="http://www.w3.org/2000/svg"
@@ -41,16 +42,3 @@
     </circle>
   </svg>
 </div>
-
-<style lang="scss">
-  div {
-    display: inline-block;
-    width: 4rem;
-    vertical-align: middle;
-  }
-
-  svg {
-    width: 100%;
-    vertical-align: middle;
-  }
-</style>

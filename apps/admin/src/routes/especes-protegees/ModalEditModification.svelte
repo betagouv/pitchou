@@ -112,7 +112,7 @@
 
 {#snippet deleteFooter()}
   {#if confirmingDelete}
-    <span class="confirm-label">Supprimer cette modification&nbsp;?</span>
+    <span class="fr-text--bold">Supprimer cette modification&nbsp;?</span>
     <button type="button" class="fr-btn fr-btn--sm" disabled={saving} onclick={doDelete}>
       Confirmer la suppression
     </button>
@@ -136,9 +136,9 @@
 {/snippet}
 
 <Modal title={titre} {onClose} footer={created ? deleteFooter : undefined}>
-  <div class="body">
+  <div class="fr-py-2w fr-px-3w flex flex-col gap-3">
     {#if creation && !created}
-      <div class="creation">
+      <div class="flex flex-col gap-4">
         <div class="fr-input-group">
           <label class="fr-label" for="creation-cd-ref">CD_REF</label>
           <input id="creation-cd-ref" class="fr-input" type="text" bind:value={draftCdRef} />
@@ -151,11 +151,11 @@
             {/each}
           </select>
         </div>
-        <p class="hint">
+        <p class="text-[color:var(--text-mention-grey)] italic m-0">
           Le CD_REF et la classification sont requis à la création. Les autres champs seront
           modifiables ensuite, un par un.
         </p>
-        <div class="creation-actions">
+        <div class="flex flex-row gap-2 flex-wrap">
           <button type="button" class="fr-btn" disabled={saving} onclick={createFiche}>
             Créer la fiche
           </button>
@@ -170,7 +170,9 @@
         </div>
       </div>
     {:else}
-      <div class="fields">
+      <div
+        class="flex flex-col gap-3 [&_.field:first-child]:border-t-0 [&_.field:first-child]:pt-0!"
+      >
         <FieldClassification
           value={current.classification}
           referenceClassification={current.reference_classification}
@@ -228,7 +230,7 @@
         />
 
         {#if current.modified_by}
-          <p class="audit">
+          <p class="m-0 text-[color:var(--text-mention-grey)] text-[0.875rem]">
             Dernière modification par {current.modified_by}{current.updated_at
               ? ` le ${formatDate(current.updated_at)}`
               : ""}
@@ -244,53 +246,3 @@
     {/if}
   </div>
 </Modal>
-
-<style lang="scss">
-  .body {
-    padding: 1rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .fields {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-
-    // The first field sits right under the header divider, so drop its own top border.
-    :global(.field:first-child) {
-      border-top: 0;
-      padding-top: 0;
-    }
-  }
-
-  .creation {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .creation-actions {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .hint {
-    color: var(--text-mention-grey);
-    font-style: italic;
-    margin: 0;
-  }
-
-  .audit {
-    margin: 0;
-    color: var(--text-mention-grey);
-    font-size: 0.875rem;
-  }
-
-  .confirm-label {
-    font-weight: 700;
-  }
-</style>

@@ -47,18 +47,23 @@
 <!-- Clicking the backdrop (the dialog element itself, outside its content) closes the modal. -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- Right-anchored full-height drawer. Width is roughly a third of the screen, kept wide
+     enough that the date range stays on one line and the search placeholder is not
+     truncated, and never wider than the viewport. -->
 <dialog
   bind:this={dialogElement}
-  class="filters-modal"
+  class="my-0 mr-0 ml-auto h-screen max-h-screen w-[clamp(28rem,33vw,100vw)] max-w-[100vw] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
   aria-labelledby="filtres-modal-titre"
   onclose={onClose}
   onclick={(event) => {
     if (event.target === dialogElement) onClose();
   }}
 >
-  <div class="filters-modal__content">
-    <header class="filters-modal__header">
-      <h2 id="filtres-modal-titre">Tous les filtres</h2>
+  <div class="flex flex-col h-full bg-[var(--background-default-grey)]">
+    <header
+      class="flex items-center justify-between fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"
+    >
+      <h2 id="filtres-modal-titre" class="fr-m-0">Tous les filtres</h2>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-icon-close-line"
@@ -67,11 +72,13 @@
       >
     </header>
 
-    <div class="filters-modal__sections">
+    <div class="flex-[1_1_auto] overflow-y-auto fr-py-2w fr-px-3w">
       <DossiersFilterSections bind:draft {dossiers} {followRelations} {showFilterInstructeurice} />
     </div>
 
-    <footer class="filters-modal__footer">
+    <footer
+      class="flex justify-between gap-4 fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
+    >
       <button type="button" class="fr-btn fr-btn--secondary" onclick={clearAll}>
         Tout effacer
       </button>
@@ -79,56 +86,3 @@
     </footer>
   </div>
 </dialog>
-
-<style lang="scss">
-  // Right-anchored full-height drawer.
-  .filters-modal {
-    margin: 0 0 0 auto;
-    height: 100vh;
-    max-height: 100vh;
-    // Roughly a third of the screen, kept wide enough that the date range stays on
-    // one line and the search placeholder is not truncated, and never wider than the viewport.
-    width: clamp(28rem, 33vw, 100vw);
-    max-width: 100vw;
-    border: 0;
-    padding: 0;
-    box-shadow: var(--overlap-shadow, 0 2px 12px rgba(0, 0, 0, 0.2));
-
-    &::backdrop {
-      background: rgba(22, 22, 22, 0.64);
-    }
-  }
-
-  .filters-modal__content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: var(--background-default-grey);
-  }
-
-  .filters-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-default-grey);
-
-    h2 {
-      margin: 0;
-    }
-  }
-
-  .filters-modal__sections {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 1rem 1.5rem;
-  }
-
-  .filters-modal__footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-default-grey);
-  }
-</style>

@@ -30,11 +30,11 @@
   }
 </script>
 
-<div class="avis-layout">
-  <div class="section-list-avis-expert">
+<div class="flex items-start gap-8 max-[62rem]:flex-col">
+  <div class="flex flex-col flex-[1_1_0] min-w-0">
     <h2>Avis d'experts</h2>
     {#if sortedAvisExpert.length >= 1}
-      <div class="list-avis-expert">
+      <div class="flex flex-col gap-6">
         {#each sortedAvisExpert as avisExpert}
           <AvisExpert dossierId={dossier.id} {avisExpert} {deleteAvisExpert} />
         {/each}
@@ -63,21 +63,23 @@
     </button>
   </div>
 
-  <aside class="protocole-cnpn fr-callout">
+  <aside
+    class="fr-callout flex-[1_1_0] min-w-0 max-[62rem]:flex-[0_0_auto] max-[62rem]:self-stretch"
+  >
     <h3 class="fr-callout__title">Vous devez saisir le CNPN ?</h3>
     <div class="fr-callout__text">
-      <p class="protocole-cnpn__intro">Voici le protocole&nbsp;:</p>
-      <ol>
+      <p class="fr-text--bold fr-mb-2w">Voici le protocole&nbsp;:</p>
+      <ol class="flex flex-col gap-4 fr-m-0">
         <li>
           Vérifier que le dossier est prêt
-          <span class="fr-hint-text protocole-cnpn__precision">
+          <span class="fr-hint-text block">
             (liste des espèces et de leurs impacts, dates de début des travaux, cartographie de
             l'emprise, etc.)
           </span>
         </li>
         <li>
           Préparer le mail&nbsp;:
-          <ul>
+          <ul class="fr-mt-1w fr-mb-0">
             <li>
               Produire
               <a
@@ -96,9 +98,9 @@
         <li>
           Envoyer le mail au secrétariat du CNPN (avec toutes les PJ et la demande d'accusé de
           réception)
-          <p class="protocole-cnpn__lien">
+          <p class="fr-mt-1v fr-mx-0 fr-mb-0">
             <a
-              class="fr-link protocole-cnpn__email"
+              class="fr-link [overflow-wrap:anywhere]"
               href="mailto:derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr"
               >derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr</a
             >
@@ -107,7 +109,7 @@
         <li>Stocker la saisine CNPN dans cet onglet</li>
         <li>Quand vous le recevrez, stocker l'avis CNPN dans cet onglet</li>
       </ol>
-      <p class="protocole-cnpn__details">
+      <p class="fr-mt-3w fr-mb-0">
         <strong>Pour plus de détails&nbsp;: </strong>
         <a
           class="fr-link"
@@ -121,77 +123,3 @@
 </div>
 
 <ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
-
-<style lang="scss">
-  .avis-layout {
-    display: flex;
-    align-items: flex-start;
-    gap: 2rem;
-  }
-
-  .section-list-avis-expert {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .list-avis-expert {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .protocole-cnpn {
-    flex: 1 1 0;
-    min-width: 0;
-
-    &__intro {
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-
-    ol {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin: 0;
-    }
-
-    ul {
-      margin-top: 0.5rem;
-      margin-bottom: 0;
-    }
-
-    /* Wrapper only: the link itself must stay inline, otherwise the DSFR
-       underline (a background-image on the box) spans the whole width. */
-    &__lien {
-      margin: 0.25rem 0 0;
-    }
-
-    &__precision {
-      display: block;
-    }
-
-    &__email {
-      overflow-wrap: anywhere;
-    }
-
-    &__details {
-      margin-top: 1.5rem;
-      margin-bottom: 0;
-    }
-  }
-
-  /* Not enough room left for two columns: stack the guidelines under the list */
-  @media (max-width: 62rem) {
-    .avis-layout {
-      flex-direction: column;
-    }
-
-    .protocole-cnpn {
-      flex: 0 0 auto;
-      align-self: stretch;
-    }
-  }
-</style>

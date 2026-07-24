@@ -43,28 +43,35 @@
 </script>
 
 {#snippet field(label: string, value: string | null | undefined, large = false)}
-  <div class="field" class:field--large={large}>
-    <dt>{label}</dt>
-    <dd class:address={large}>{value || NOT_PROVIDED}</dd>
+  <div class="fr-m-0 [&.field--large]:[grid-column:1/-1]" class:field--large={large}>
+    <dt class="text-[color:var(--text-mention-grey)] text-[0.875rem] fr-mb-1v">{label}</dt>
+    <dd
+      class="fr-m-0 font-medium [word-break:break-word] [&.address]:[white-space:pre-line]"
+      class:address={large}
+    >
+      {value || NOT_PROVIDED}
+    </dd>
   </div>
 {/snippet}
 
 {#snippet fieldAddress(value: string | null | undefined)}
-  <div class="field field--large">
-    <div class="field-header">
-      <dt>Adresse</dt>
+  <div class="fr-m-0 [grid-column:1/-1]">
+    <div class="flex items-center gap-2 fr-mb-1v">
+      <dt class="text-[color:var(--text-mention-grey)] text-[0.875rem]">Adresse</dt>
       {#if value}
         <CopyIconButton textToCopy={value} label="Copier" />
       {/if}
     </div>
-    <dd class="address">{value || NOT_PROVIDED}</dd>
+    <dd class="fr-m-0 font-medium [word-break:break-word] [white-space:pre-line]">
+      {value || NOT_PROVIDED}
+    </dd>
   </div>
 {/snippet}
 
 {#snippet fieldMail(label: string, email: string | null | undefined)}
-  <div class="field">
-    <dt>{label}</dt>
-    <dd>
+  <div class="fr-m-0">
+    <dt class="text-[color:var(--text-mention-grey)] text-[0.875rem] fr-mb-1v">{label}</dt>
+    <dd class="fr-m-0 font-medium [word-break:break-word]">
       {#if email}
         <a href={`mailto:${email}`}>{email}</a>
       {:else}
@@ -75,9 +82,11 @@
 {/snippet}
 
 {#snippet identiteDemandeurCard()}
-  <section class="card">
+  <section
+    class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+  >
     <h3>Identité du demandeur</h3>
-    <dl class="grid grid--single-row">
+    <dl class="flex flex-wrap gap-[1rem_4rem] fr-m-0">
       {@render field("Nom", dossier.deposant_last_name)}
       {@render field("Prénom", dossier.deposant_first_names)}
       {@render fieldMail("Adresse mail", dossier.deposant_email)}
@@ -86,9 +95,11 @@
 {/snippet}
 
 {#snippet mandataireCard()}
-  <section class="card">
+  <section
+    class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+  >
     <h3>Identité du mandataire</h3>
-    <dl class="grid grid--single-row">
+    <dl class="flex flex-wrap gap-[1rem_4rem] fr-m-0">
       {@render field("Nom", dossier.mandataire_last_name)}
       {@render field("Prénom", dossier.mandataire_first_names)}
       {@render fieldMail("Adresse mail", dossier.mandataire_email)}
@@ -96,9 +107,9 @@
   </section>
 {/snippet}
 
-<section class="porteur-de-projet">
-  <div class="header">
-    <h2>Porteur de projet</h2>
+<section>
+  <div class="flex items-center gap-4 flex-wrap fr-mb-3w">
+    <h2 class="fr-m-0">Porteur de projet</h2>
     <p class="fr-badge fr-badge--info fr-badge--no-icon">{typeDemandeur}</p>
   </div>
 
@@ -113,9 +124,11 @@
       </div>
     {/if}
 
-    <section class="card fr-mb-3w">
+    <section
+      class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] fr-mb-3w [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+    >
       <h3>Entreprise</h3>
-      <dl class="grid">
+      <dl class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-[1rem_1.5rem] fr-m-0">
         {@render field("SIRET", dossier.demandeur_personne_morale_siret)}
         {@render field("Dénomination", dossier.demandeur_personne_morale_legal_name)}
         {@render field("Forme juridique", dossier.demandeur_personne_morale_legal_form)}
@@ -127,9 +140,11 @@
 
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-md-6">
-        <section class="card">
+        <section
+          class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+        >
           <h3>Représentant</h3>
-          <dl class="grid grid--narrow">
+          <dl class="grid grid-cols-[1fr] gap-[1rem_1.5rem] fr-m-0">
             {@render field("Nom", dossier.representative_last_name)}
             {@render field("Prénom", dossier.representative_first_names)}
             {@render field("Qualité", dossier.representative_role)}
@@ -140,9 +155,11 @@
       </div>
 
       <div class="fr-col-12 fr-col-md-6">
-        <section class="card">
+        <section
+          class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+        >
           <h3>Adresse</h3>
-          <dl class="grid grid--narrow">
+          <dl class="grid grid-cols-[1fr] gap-[1rem_1.5rem] fr-m-0">
             {@render fieldAddress(dossier.demandeur_address)}
             {@render field("Code postal", dossier.demandeur_personne_morale_postal_code)}
             {@render field("Département", dossier.demandeur_personne_morale_department)}
@@ -154,9 +171,11 @@
   {:else}
     <div class="fr-grid-row fr-grid-row--gutters">
       <div class="fr-col-12 fr-col-md-4">
-        <section class="card">
+        <section
+          class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+        >
           <h3>Identité du demandeur</h3>
-          <dl class="grid grid--narrow">
+          <dl class="grid grid-cols-[1fr] gap-[1rem_1.5rem] fr-m-0">
             {@render field("Nom", dossier.demandeur_personne_physique_last_name)}
             {@render field("Prénoms", dossier.demandeur_personne_physique_first_names)}
             {@render field("Qualification", dossier.demandeur_personne_physique_role)}
@@ -172,9 +191,11 @@
       {/if}
 
       <div class="fr-col-12 fr-col-md-4">
-        <section class="card">
+        <section
+          class="h-full border border-[color:var(--border-default-grey)] rounded-[0.5rem] fr-py-5v fr-px-3w bg-[var(--background-default-grey)] [&_h3]:mt-0 [&_h3]:mx-0 [&_h3]:mb-4 [&_h3]:text-[1.125rem] [&_h3]:text-[color:var(--text-title-blue-france)]"
+        >
           <h3>Contact</h3>
-          <dl class="grid grid--narrow">
+          <dl class="grid grid-cols-[1fr] gap-[1rem_1.5rem] fr-m-0">
             {@render field("Téléphone", dossier.demandeur_personne_physique_phone)}
             {@render fieldMail("Adresse mail", dossier.demandeur_personne_physique_email)}
           </dl>
@@ -183,91 +204,3 @@
     </div>
   {/if}
 </section>
-
-<style lang="scss">
-  .porteur-de-projet {
-    h2 {
-      margin-top: 2rem;
-    }
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-
-    h2 {
-      margin: 0;
-    }
-  }
-
-  .card {
-    height: 100%;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.5rem;
-    padding: 1.25rem 1.5rem;
-    background-color: var(--background-default-grey);
-
-    h3 {
-      margin: 0 0 1rem;
-      font-size: 1.125rem;
-      color: var(--text-title-blue-france);
-    }
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem 1.5rem;
-    margin: 0;
-
-    &.grid--narrow {
-      grid-template-columns: 1fr;
-    }
-
-    // Fields laid out side by side at their natural width, so a long value
-    // (e.g. an email) stays on a single line; wraps only on narrow screens.
-    &.grid--single-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem 4rem;
-    }
-  }
-
-  .field {
-    margin: 0;
-
-    &.field--large {
-      grid-column: 1 / -1;
-    }
-
-    dt {
-      color: var(--text-mention-grey);
-      font-size: 0.875rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .field-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
-
-      dt {
-        margin-bottom: 0;
-      }
-    }
-
-    dd {
-      margin: 0;
-      font-weight: 500;
-      word-break: break-word;
-
-      &.address {
-        white-space: pre-line;
-      }
-    }
-  }
-</style>

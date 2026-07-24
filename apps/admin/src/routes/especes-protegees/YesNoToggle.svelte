@@ -7,10 +7,14 @@
   let { value = $bindable(false), label }: Props = $props();
 </script>
 
-<div class="toggle" role="radiogroup" aria-label={label}>
+<div
+  class="inline-grid grid-cols-2 w-max border border-[color:var(--border-action-high-blue-france)] rounded-[0.5rem] overflow-hidden"
+  role="radiogroup"
+  aria-label={label}
+>
   <button
     type="button"
-    class="toggle-option"
+    class="border-0 bg-[var(--background-default-grey)] cursor-pointer fr-py-1v fr-px-5v text-[0.875rem] font-medium text-[color:var(--text-action-high-blue-france)] [transition:background-color_0.15s_ease,color_0.15s_ease] hover:bg-[var(--background-action-low-blue-france-hover)] [&.active]:bg-[var(--background-action-high-blue-france)] [&.active]:text-[color:var(--text-inverted-blue-france)] [&.active]:hover:bg-[var(--background-action-high-blue-france-hover)]"
     class:active={value}
     role="radio"
     aria-checked={value}
@@ -20,7 +24,7 @@
   </button>
   <button
     type="button"
-    class="toggle-option"
+    class="border-0 bg-[var(--background-default-grey)] cursor-pointer fr-py-1v fr-px-5v text-[0.875rem] font-medium text-[color:var(--text-action-high-blue-france)] [transition:background-color_0.15s_ease,color_0.15s_ease] hover:bg-[var(--background-action-low-blue-france-hover)] [&.active]:bg-[var(--background-action-high-blue-france)] [&.active]:text-[color:var(--text-inverted-blue-france)] [&.active]:hover:bg-[var(--background-action-high-blue-france-hover)]"
     class:active={!value}
     role="radio"
     aria-checked={!value}
@@ -29,40 +33,3 @@
     Non
   </button>
 </div>
-
-<style lang="scss">
-  .toggle {
-    display: inline-grid;
-    grid-template-columns: 1fr 1fr;
-    width: max-content;
-    border: 1px solid var(--border-action-high-blue-france);
-    border-radius: 0.5rem;
-    overflow: hidden;
-  }
-
-  .toggle-option {
-    border: 0;
-    background: var(--background-default-grey);
-    cursor: pointer;
-    padding: 0.25rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-action-high-blue-france);
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
-  }
-
-  .toggle-option:hover {
-    background: var(--background-action-low-blue-france-hover);
-  }
-
-  .toggle-option.active {
-    background: var(--background-action-high-blue-france);
-    color: var(--text-inverted-blue-france);
-  }
-
-  .toggle-option.active:hover {
-    background: var(--background-action-high-blue-france-hover);
-  }
-</style>

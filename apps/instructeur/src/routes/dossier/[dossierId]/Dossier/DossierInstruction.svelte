@@ -229,8 +229,8 @@
   }
 </script>
 
-<section class="row">
-  <section>
+<section class="flex flex-row gap-4 fr-mb-4w">
+  <section class="fr-mb-4w flex-[3]">
     {#if errorMessage}
       <div class="fr-alert fr-alert--error fr-mb-3w">
         <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
@@ -243,7 +243,7 @@
       </div>
     {/if}
     <h2>Historique</h2>
-    <ol>
+    <ol class="list-none fr-mt-0 fr-pl-0">
       {#each dossier.evenementsPhase as { phase, timestamp }}
         <li>
           <TagPhase {phase}></TagPhase>
@@ -264,13 +264,13 @@
 
     <h2 class="fr-mt-3w">Personnes qui suivent ce dossier</h2>
     {#if dossierFollowers.length >= 1}
-      <ul>
+      <ul class="list-none fr-mt-0 fr-pl-0">
         {#each dossierFollowers as follower}
           <li id={follower}>{follower}</li>
         {/each}
       </ul>
     {:else}
-      <div class="col">
+      <div class="flex flex-col">
         <span>Personne ne suit ce dossier pour l'instant.</span>
         {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
           {#if currentDossierFollowedByCurrentInstructeur}
@@ -316,7 +316,7 @@
     {#if otherAttachments.length === 0}
       <p>Aucune autre pièce jointe n'est associée à ce dossier.</p>
     {:else}
-      <ul class="other-attachments">
+      <ul class="list-none fr-mt-0 fr-pl-0 flex flex-col gap-2">
         {#each otherAttachments as attachment}
           {@const details = attachmentDetails(attachment)}
           <li>
@@ -337,7 +337,7 @@
     {/if}
   </section>
 
-  <section>
+  <section class="fr-mb-4w flex-[2]">
     <div class="fr-toggle">
       <input
         type="checkbox"
@@ -355,7 +355,7 @@
       >
       <textarea
         onfocus={dismissAlert}
-        class="fr-input resize-vertical"
+        class="fr-input resize-y"
         aria-describedby="input-commentaire-libre-messages"
         id="input-commentaire-libre"
         bind:value={freeComment}
@@ -432,51 +432,3 @@
   typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
   source="ongletInstruction"
 />
-
-<style lang="scss">
-  .row {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-
-    & > :nth-child(1) {
-      flex: 3;
-    }
-
-    & > :nth-child(2) {
-      flex: 2;
-    }
-  }
-
-  section {
-    margin-bottom: 2rem;
-  }
-
-  ol,
-  ul {
-    list-style: none;
-    margin-top: 0;
-    padding-left: 0;
-
-    li {
-      &::marker {
-        content: none;
-      }
-    }
-  }
-
-  .resize-vertical {
-    resize: vertical;
-  }
-
-  .col {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .other-attachments {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-</style>
