@@ -136,9 +136,9 @@
   }
 </script>
 
-<div class="header">
-  <div class="title-row">
-    <h1>Administration - espèces protégées modifiées</h1>
+<div class="flex flex-col fr-mt-2w gap-4">
+  <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
+    <h1 class="fr-mb-0">Administration - espèces protégées modifiées</h1>
     <button
       type="button"
       class="fr-btn fr-icon-add-line fr-btn--icon-left"
@@ -148,9 +148,9 @@
     </button>
   </div>
 
-  <div class="action-bar">
-    <form onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar search-bar" role="search">
+  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
+    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
+      <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-modification">Rechercher une modification</label>
         <input
           value={query.searchText}
@@ -173,12 +173,15 @@
     >
       Filtrer
       {#if activeFilterCount > 0}
-        <span class="filter-count" aria-label="{activeFilterCount} filtre(s) actif(s)"
-          >{activeFilterCount}</span
+        <span
+          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
+          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
         >
       {/if}
       <span
-        class="chevron {filterPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -191,7 +194,9 @@
     >
       Trier
       <span
-        class="chevron {sortPanelOpen ? 'fr-icon-arrow-up-s-line' : 'fr-icon-arrow-down-s-line'}"
+        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
+          ? 'fr-icon-arrow-up-s-line'
+          : 'fr-icon-arrow-down-s-line'}"
         aria-hidden="true"
       ></span>
     </button>
@@ -215,7 +220,7 @@
     />
   {/if}
 
-  <p class="count" aria-live="polite">
+  <p class="fr-mb-0" aria-live="polite">
     <span class="fr-text--lead">{filtered.length}</span><span class="fr-text--lg"
       >/{modifications.length} modification{modifications.length > 1 ? "s" : ""}</span
     >
@@ -258,72 +263,3 @@
     onClose={() => (modal = null)}
   />
 {/if}
-
-<style lang="scss">
-  .header {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
-    gap: 1rem;
-
-    h1 {
-      margin-bottom: 0;
-    }
-
-    .title-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .action-bar {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 1rem;
-
-      form {
-        flex: 1;
-      }
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .chevron {
-        margin-left: 0.25rem;
-      }
-
-      .chevron::before {
-        --icon-size: 1rem;
-      }
-
-      .filter-count {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 1.25rem;
-        height: 1.25rem;
-        margin-left: 0.25rem;
-        padding: 0 0.25rem;
-        border-radius: 0.625rem;
-        background-color: var(--background-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
-        font-size: 0.75rem;
-        line-height: 1;
-      }
-    }
-
-    .count {
-      margin-bottom: 0;
-    }
-  }
-
-  .search-bar {
-    width: 100%;
-  }
-</style>
