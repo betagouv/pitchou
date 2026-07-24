@@ -61,8 +61,10 @@
 </script>
 
 <!-- Phase -->
-<fieldset class="section">
-  <legend class="section-title">
+<fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <legend
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-time-line fr-icon--sm" aria-hidden="true"></span> Phase
   </legend>
   {#each allPhases as phase (phase)}
@@ -75,8 +77,10 @@
 
 {#if showFilterInstructeurice}
   <!-- Instructeur·ice suivant le dossier -->
-  <div class="section">
-    <h3 class="section-title">
+  <div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+    <h3
+      class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+    >
       <span class="fr-icon-account-circle-line fr-icon--sm" aria-hidden="true"></span>
       Instructeur·ice suivant le dossier
     </h3>
@@ -101,8 +105,10 @@
 {/if}
 
 <!-- Activité -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-building-line fr-icon--sm" aria-hidden="true"></span> Activité
   </h3>
   <MultiSelectFilter
@@ -116,8 +122,10 @@
 </div>
 
 <!-- Département -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span> Département
   </h3>
   <MultiSelectFilter
@@ -131,8 +139,10 @@
 </div>
 
 <!-- Entité en charge de la prochaine action -->
-<fieldset class="section">
-  <legend class="section-title">
+<fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <legend
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-bank-line fr-icon--sm" aria-hidden="true"></span>
     Entité en charge de la prochaine action
   </legend>
@@ -150,8 +160,10 @@
 </fieldset>
 
 <!-- Date -->
-<fieldset class="section">
-  <legend class="section-title">
+<fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <legend
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-calendar-line fr-icon--sm" aria-hidden="true"></span> Date
   </legend>
   <div class="fr-radio-group fr-radio-group--sm">
@@ -166,7 +178,7 @@
     <input type="radio" id="date-modif" value="lastModified" bind:group={draft.dateField} />
     <label class="fr-label" for="date-modif">de dernière modification</label>
   </div>
-  <div class="date-range fr-mt-1w">
+  <div class="flex items-center gap-2 fr-mt-1w">
     <span>Du</span>
     <DatePicker
       id="date-du"
@@ -188,8 +200,10 @@
 </fieldset>
 
 <!-- Nouveaux événements -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-notification-3-line fr-icon--sm" aria-hidden="true"></span>
     Nouveaux événements
   </h3>
@@ -207,8 +221,10 @@
 </div>
 
 <!-- Dossiers à enjeu -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-alarm-warning-line fr-icon--sm" aria-hidden="true"></span>
     Dossiers à enjeu
   </h3>
@@ -219,8 +235,10 @@
 </div>
 
 <!-- Espèce impactée -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-leaf-line fr-icon--sm" aria-hidden="true"></span> Espèce impactée
   </h3>
   <div class="fr-checkbox-group fr-checkbox-group--sm">
@@ -230,8 +248,10 @@
 </div>
 
 <!-- Pièces jointes -->
-<div class="section">
-  <h3 class="section-title">
+<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
+  <h3
+    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
+  >
     <span class="fr-icon-file-text-line fr-icon--sm" aria-hidden="true"></span>
     Pièces jointes
   </h3>
@@ -254,31 +274,3 @@
     <label class="fr-label" for="decision-absente">Décision administrative non renseignée</label>
   </div>
 </div>
-
-<style lang="scss">
-  .section {
-    border: 0;
-    margin: 0 0 1.5rem;
-    padding: 0;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-
-    // Section icons in DSFR blue, matching the design.
-    span[class*="fr-icon"] {
-      color: var(--text-action-high-blue-france, #000091);
-    }
-  }
-
-  .date-range {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-</style>
