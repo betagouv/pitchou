@@ -2,6 +2,7 @@ import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
 import type {
   EvenementAddPieceJointeDetails,
+  EvenementClickNavbarLinkDetails,
   EvenementMetrique,
   EvenementOpenModalAddPieceJointeDetails,
   DossierSearchEventDetails,
@@ -122,6 +123,19 @@ function isAddPieceJointeDetails(details: any): details is EvenementAddPieceJoin
   );
 }
 
+const navbarLinks = new Set([
+  "mes-dossiers",
+  "tous-les-dossiers",
+  "tableau-de-suivi",
+  "saisie-especes",
+  "preremplissage-derogation",
+  "aide-pitchou",
+]);
+
+function isClickNavbarLinkDetails(details: any): details is EvenementClickNavbarLinkDetails {
+  return Object(details) === details && navbarLinks.has(details.link);
+}
+
 export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
   if (!event.type) {
     return false;
@@ -140,6 +154,8 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
       return !("details" in event);
     case "afficherLesDossiersSuivis":
       return !("details" in event);
+    case "clickNavbarLink":
+      return isClickNavbarLinkDetails(event.details);
     case "consulterUnDossier":
       return isDossierDetails(event.details);
     case "téléchargerListeÉspècesImpactées":

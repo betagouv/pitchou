@@ -45,6 +45,18 @@ export type EvenementAddPieceJointeDetails = {
   nombreFichiers: number;
 };
 
+export type EvenementNavbarLink =
+  | "mes-dossiers"
+  | "tous-les-dossiers"
+  | "tableau-de-suivi"
+  | "saisie-especes"
+  | "preremplissage-derogation"
+  | "aide-pitchou";
+
+export type EvenementClickNavbarLinkDetails = {
+  link: EvenementNavbarLink;
+};
+
 export type EvenementMetrique =
   | {
       // We consider that a connection corresponds to loading Pitchou and successfully retrieving the caps URLs
@@ -102,6 +114,8 @@ export type EvenementMetrique =
   | { type: "rechercherDesDossiers"; details: DossierSearchEventDetails }
   // Display the list of dossiers the user follows
   | { type: "afficherLesDossiersSuivis" }
+  // Click a link in the main navbar
+  | { type: "clickNavbarLink"; details: EvenementClickNavbarLinkDetails }
   // Access the “Projet” tab of a dossier
   | { type: "consulterUnDossier"; details: { dossierId: number } }
   // Download the list of impacted species of a dossier
