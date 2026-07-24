@@ -58,18 +58,18 @@
   }: Props = $props();
 </script>
 
-<div class="toolbar">
-  <div class="toolbar__header">
-    <h1>{title}</h1>
+<div class="flex flex-col gap-4 fr-mt-2w">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="fr-m-0">{title}</h1>
 
     <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />
   </div>
 
-  <div class="toolbar__actions">
+  <div class="flex flex-wrap items-center gap-4">
     {#if showFilterInstructeurice}
       <button
         type="button"
-        class="fr-btn fr-btn--sm fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary [&.active]:shadow-[inset_0_0_0_2px_var(--border-active-blue-france,#000091)]"
         aria-pressed={withoutInstructeurActive}
         class:active={withoutInstructeurActive}
         onclick={onToggleWithoutInstructeur}
@@ -81,7 +81,7 @@
     {#if showFilterEnjeu}
       <button
         type="button"
-        class="fr-btn fr-btn--sm fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary [&.active]:shadow-[inset_0_0_0_2px_var(--border-active-blue-france,#000091)]"
         aria-pressed={enjeuActive}
         class:active={enjeuActive}
         onclick={onToggleEnjeu}
@@ -93,7 +93,7 @@
     {#if showFilterActionInstructeur}
       <button
         type="button"
-        class="fr-btn fr-btn--sm fr-btn--secondary"
+        class="fr-btn fr-btn--sm fr-btn--secondary [&.active]:shadow-[inset_0_0_0_2px_var(--border-active-blue-france,#000091)]"
         aria-pressed={actionInstructeurActive}
         class:active={actionInstructeurActive}
         onclick={onToggleActionInstructeur}
@@ -107,7 +107,9 @@
       class="fr-btn fr-btn--sm fr-icon-filter-line fr-btn--icon-left"
       onclick={onOpenFilters}
     >
-      Filtres{#if activeFilterCount > 0}&nbsp;<span class="filter-counter">{activeFilterCount}</span
+      Filtres{#if activeFilterCount > 0}&nbsp;<span
+          class="inline-flex items-center justify-center min-w-5 h-5 fr-py-0 fr-px-1v rounded-[0.75rem] bg-[var(--background-default-grey)] text-[color:var(--text-action-high-blue-france,#000091)] text-[0.75rem] leading-none"
+          >{activeFilterCount}</span
         >{/if}
     </button>
 
@@ -115,7 +117,7 @@
   </div>
 
   {#if chips.length > 0}
-    <ul class="fr-tags-group fr-tags-group--sm toolbar__chips" data-testid="filtres-actifs">
+    <ul class="fr-tags-group fr-tags-group--sm fr-m-0" data-testid="filtres-actifs">
       {#each chips as chip (chip.key)}
         <li>
           <button
@@ -131,64 +133,8 @@
     </ul>
   {/if}
 
-  <p class="counter" data-testid="compteur-dossier">
+  <p class="fr-m-0" data-testid="compteur-dossier">
     <span class="fr-text--lead">{numberFiltered}</span>
     <span class="fr-text--lg">{serviceLabel(services)}</span>
   </p>
 </div>
-
-<style lang="scss">
-  .toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  // Title on the left, search bar pushed to the right on the same row.
-  .toolbar__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-
-    h1 {
-      margin: 0;
-    }
-  }
-
-  .toolbar__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  // Pressed quick-filter buttons read as active.
-  .fr-btn.active {
-    box-shadow: inset 0 0 0 2px var(--border-active-blue-france, #000091);
-  }
-
-  .filter-counter {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.25rem;
-    height: 1.25rem;
-    padding: 0 0.25rem;
-    border-radius: 0.75rem;
-    background: var(--background-default-grey);
-    color: var(--text-action-high-blue-france, #000091);
-    font-size: 0.75rem;
-    line-height: 1;
-  }
-
-  .toolbar__chips {
-    margin: 0;
-  }
-
-  .counter {
-    margin: 0;
-  }
-</style>
