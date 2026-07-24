@@ -34,9 +34,11 @@
   }
 </script>
 
-<div class="card-avis-expert">
-  <div class="title">
-    <h3 class="fr-h5">
+<div
+  class="flex flex-col fr-p-3w border border-[color:var(--border-default-grey)] rounded-[4px] bg-[var(--background-default-grey)]"
+>
+  <div class="flex flex-row justify-between items-start fr-mb-2w">
+    <h3 class="fr-h5 fr-m-0">
       {avisExpert.expert ?? "Expert"}
       -
       {#if avisExpert.expert === "Ministre" || avisExpert.expert === "CNPN" || avisExpert.expert === "CSRPN"}
@@ -54,8 +56,8 @@
     {/if}
   </div>
   {#if !isEditing}
-    <ul>
-      <li>
+    <ul class="list-none ps-0 flex flex-col gap-3 fr-m-0">
+      <li class="flex justify-between items-center gap-2 py-2">
         <span
           ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.saisine_date)}
         </span>
@@ -72,7 +74,7 @@
         {/if}
       </li>
       {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
-        <li>
+        <li class="flex justify-between items-center gap-2 py-2">
           <span
             ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.avis_date)}
           </span>
@@ -103,16 +105,16 @@
 </div>
 
 {#if showDeleteConfirmation}
-  <div class="confirmation-overlay">
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center fr-p-2w bg-[rgba(0,0,0,0.4)]">
     <div
-      class="confirmation"
+      class="max-w-[32rem] fr-py-3w fr-px-4w rounded-[0.5rem] bg-[var(--background-default-grey)]"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby={deleteConfirmationTitleId}
     >
-      <h5 id={deleteConfirmationTitleId}>Supprimer cet avis d'expert ?</h5>
+      <h5 id={deleteConfirmationTitleId} class="fr-mt-0">Supprimer cet avis d'expert ?</h5>
       <p>Cette action est irréversible.</p>
-      <div class="buttons">
+      <div class="flex justify-end gap-3">
         <button
           type="button"
           class="fr-btn fr-btn--secondary"
@@ -128,70 +130,3 @@
     </div>
   </div>
 {/if}
-
-<style lang="scss">
-  .title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 1rem;
-  }
-  .card-avis-expert {
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-    border: 1px solid var(--border-default-grey);
-    border-radius: 4px;
-    background-color: var(--background-default-grey);
-
-    ul {
-      list-style: none;
-      padding-inline-start: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin: 0;
-    }
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
-    }
-
-    h3 {
-      margin: 0;
-    }
-  }
-
-  .confirmation-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
-
-  .confirmation {
-    max-width: 32rem;
-    padding: 1.5rem 2rem;
-    border-radius: 0.5rem;
-    background-color: var(--background-default-grey);
-
-    h5 {
-      margin-top: 0;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
-  }
-</style>
