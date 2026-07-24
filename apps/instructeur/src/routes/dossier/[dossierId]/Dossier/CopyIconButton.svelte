@@ -25,16 +25,10 @@
 
 <button
   type="button"
-  class="copy-button fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left {copied
+  class="fr-py-1v fr-px-0 fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left {copied
     ? 'fr-icon-check-line'
     : 'fr-icon-clipboard-line'}"
   onclick={onClick}
 >
   {copied ? "Copié !" : label}
 </button>
-
-<style lang="scss">
-  .copy-button {
-    padding: 0.25rem 0;
-  }
-</style>
