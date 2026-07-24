@@ -1,51 +1,53 @@
 <script lang="ts">
+  import MultiSelectFilter, { type FilterOption } from "@pitchou/ui/MultiSelectFilter.svelte";
+  import DatePicker from "@pitchou/ui/DatePicker.svelte";
+
   type Props = {
     types: string[];
-    selectedType: string;
+    selectedTypes: string[];
     dateFrom: string;
     dateTo: string;
-    onChange: (updates: { evenement?: string; dateFrom?: string; dateTo?: string }) => void;
+    onChange: (updates: { evenements?: string[]; dateFrom?: string; dateTo?: string }) => void;
   };
 
-  let { types, selectedType, dateFrom, dateTo, onChange }: Props = $props();
+  let { types, selectedTypes, dateFrom, dateTo, onChange }: Props = $props();
+
+  const typeOptions = $derived<FilterOption[]>(types.map((type) => ({ value: type, label: type })));
 </script>
 
 <fieldset id="filter-panel" class="panel">
   <legend class="panel-title">Filtrer les évènements</legend>
   <div class="filters">
     <div class="filter-row">
-      <label class="fr-label filter-label" for="select-evenement">Type d'évènement</label>
-      <select
-        value={selectedType}
-        onchange={(e) => onChange({ evenement: e.currentTarget.value })}
-        aria-label="Type d'évènement choisi"
-        class="fr-select"
-        id="select-evenement"
-      >
-        <option value="">Tous les types</option>
-        {#each types as type}
-          <option value={type}>{type}</option>
-        {/each}
-      </select>
+      <span class="fr-label filter-label" id="label-evenement">Type d'évènement</span>
+      <MultiSelectFilter
+        id="filtre-evenement"
+        label="Type d'évènement"
+        allLabel="Tous les types"
+        options={typeOptions}
+        selected={selectedTypes}
+        onChange={(evenements) => onChange({ evenements })}
+      />
     </div>
     <div class="filter-row">
       <label class="fr-label filter-label" for="date-from">À partir du</label>
-      <input
-        value={dateFrom}
-        onchange={(e) => onChange({ dateFrom: e.currentTarget.value })}
-        class="fr-input"
+      <DatePicker
         id="date-from"
-        type="date"
+        label="À partir du"
+        value={dateFrom}
+        max={dateTo || undefined}
+        onChange={(value) => onChange({ dateFrom: value ?? "" })}
       />
     </div>
     <div class="filter-row">
       <label class="fr-label filter-label" for="date-to">Jusqu'au</label>
-      <input
-        value={dateTo}
-        onchange={(e) => onChange({ dateTo: e.currentTarget.value })}
-        class="fr-input"
+      <DatePicker
         id="date-to"
-        type="date"
+        label="Jusqu'au"
+        value={dateTo}
+        min={dateFrom || undefined}
+        align="right"
+        onChange={(value) => onChange({ dateTo: value ?? "" })}
       />
     </div>
   </div>
@@ -87,11 +89,6 @@
     .filter-label {
       flex: 0 0 12rem;
       margin-bottom: 0;
-    }
-
-    .fr-select,
-    .fr-input {
-      flex: 1 1 auto;
     }
 
     @media (max-width: 768px) {

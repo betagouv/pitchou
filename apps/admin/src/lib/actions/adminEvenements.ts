@@ -15,8 +15,8 @@ export type EvenementSortOrder = "asc" | "desc";
 
 export type EvenementsQuery = {
   search: string;
-  /** Exact event type, or "" for every type. */
-  evenement: string;
+  /** Event types to keep, or [] for every type. */
+  evenements: string[];
   /** YYYY-MM-DD, or "" for no bound. */
   dateFrom: string;
   dateTo: string;
@@ -34,7 +34,7 @@ export type EvenementsPage = {
 export function defaultEvenementsQuery(): EvenementsQuery {
   return {
     search: "",
-    evenement: "",
+    evenements: [],
     dateFrom: "",
     dateTo: "",
     sort: "date",
@@ -56,7 +56,7 @@ export async function loadEvenements(query: EvenementsQuery): Promise<Evenements
     order: query.order,
   });
   if (query.search.trim()) params.set("search", query.search.trim());
-  if (query.evenement) params.set("evenement", query.evenement);
+  for (const evenement of query.evenements) params.append("evenement", evenement);
   if (query.dateFrom) params.set("dateFrom", query.dateFrom);
   if (query.dateTo) params.set("dateTo", query.dateTo);
 

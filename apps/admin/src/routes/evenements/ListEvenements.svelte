@@ -33,7 +33,7 @@
   const paginated = $derived(pageCount > 1);
 
   const activeFilterCount = $derived(
-    (query.evenement ? 1 : 0) + (query.dateFrom ? 1 : 0) + (query.dateTo ? 1 : 0),
+    (query.evenements.length > 0 ? 1 : 0) + (query.dateFrom ? 1 : 0) + (query.dateTo ? 1 : 0),
   );
 
   type PageSelector = () => void;
@@ -78,7 +78,7 @@
     searchTimer = setTimeout(reload, 300);
   }
 
-  function onFilterChange(updates: { evenement?: string; dateFrom?: string; dateTo?: string }) {
+  function onFilterChange(updates: { evenements?: string[]; dateFrom?: string; dateTo?: string }) {
     query = { ...query, ...updates, page: 1 };
     reload();
   }
@@ -130,7 +130,7 @@
   {#if filterPanelOpen}
     <EvenementsFilterPanel
       {types}
-      selectedType={query.evenement}
+      selectedTypes={query.evenements}
       dateFrom={query.dateFrom}
       dateTo={query.dateTo}
       onChange={onFilterChange}

@@ -26,7 +26,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const { evenements, total } = await listEvenementsMetriques({
     page: Number(params.get("page")) || 1,
     pageSize: Number(params.get("pageSize")) || 50,
-    evenement: params.get("evenement") ?? undefined,
+    evenements: params.getAll("evenement"),
     search: params.get("search") ?? undefined,
     dateFrom: params.get("dateFrom") ?? undefined,
     dateTo: params.get("dateTo") ?? undefined,

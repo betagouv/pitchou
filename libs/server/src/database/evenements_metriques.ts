@@ -110,8 +110,8 @@ export type ListEvenementsMetriquesOptions = {
   /** 1-based page number. */
   page: number;
   pageSize: number;
-  /** Exact event type to filter on (empty/undefined means every type). */
-  evenement?: string;
+  /** Event types to keep (empty/undefined means every type). */
+  evenements?: string[];
   /** Case-insensitive substring matched against the user email. */
   search?: string;
   /** Inclusive lower bound on the event date (YYYY-MM-DD). */
@@ -134,10 +134,10 @@ const EVENEMENT_SORT_COLUMNS: Record<EvenementMetriqueSortKey, string> = {
  */
 function filterEvenementsMetriques(
   query: Knex.QueryBuilder,
-  { evenement, search, dateFrom, dateTo }: ListEvenementsMetriquesOptions,
+  { evenements, search, dateFrom, dateTo }: ListEvenementsMetriquesOptions,
 ): void {
-  if (evenement) {
-    query.where("evenement_metrique.evenement", evenement);
+  if (evenements && evenements.length > 0) {
+    query.whereIn("evenement_metrique.evenement", evenements);
   }
   if (search) {
     query.whereILike("personne.email", `%${search}%`);

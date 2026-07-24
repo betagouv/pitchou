@@ -10,8 +10,8 @@
     listAvailableInstructeurs,
   } from "./dossiersList.ts";
   import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
-  import MultiSelectFilter from "./MultiSelectFilter.svelte";
-  import DatePicker from "$lib/components/DatePicker.svelte";
+  import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
+  import DatePicker from "@pitchou/ui/DatePicker.svelte";
 
   type Props = {
     draft: DossiersQuery;
