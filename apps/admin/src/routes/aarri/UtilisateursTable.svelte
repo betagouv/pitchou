@@ -19,8 +19,8 @@
 </script>
 
 {#if utilisateurs.length >= 1}
-  <div class="fr-table fr-table--bordered fr-table--layout-fixed">
-    <table>
+  <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+    <table class="w-full min-w-[56rem]">
       <colgroup>
         <col />
         <col style="width: 14rem" />
@@ -43,9 +43,9 @@
             <td>{utilisateur.email ?? "—"}</td>
             <td>
               {#if utilisateur.groupesInstructeurs.length >= 1}
-                <ul class="groupes">
+                <ul class="list-none fr-m-0 fr-p-0 flex flex-wrap gap-1">
                   {#each utilisateur.groupesInstructeurs as groupe}
-                    <li><p class="fr-tag fr-tag--sm">{groupe}</p></li>
+                    <li class="fr-m-0 fr-p-0"><p class="fr-tag fr-tag--sm">{groupe}</p></li>
                   {/each}
                 </ul>
               {:else}
@@ -63,29 +63,3 @@
 {:else}
   <p>Aucune utilisateurice n'a été trouvée.</p>
 {/if}
-
-<style lang="scss">
-  // Below ~768px the table keeps its min-width and the container scrolls horizontally
-  .fr-table {
-    overflow-x: auto;
-  }
-
-  .fr-table table {
-    width: 100%;
-    min-width: 56rem;
-  }
-
-  .groupes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  .groupes li {
-    margin: 0;
-    padding: 0;
-  }
-</style>
