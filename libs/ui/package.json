@@ -13,13 +13,13 @@
   "dependencies": {
     "@pitchou/common": "workspace:*",
     "@pitchou/types": "workspace:*",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0"
+    "clsx": "catalog:",
+    "date-fns": "catalog:"
   },
   "peerDependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "catalog:"
   },
   "devDependencies": {
-    "svelte": "^5.46.4"
+    "svelte": "catalog:"
   }
 }

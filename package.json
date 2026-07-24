@@ -12,14 +12,14 @@
     "build": "pnpm --filter @pitchou/app-$PITCHOU_APP exec vite build"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "kanel": "^4.0.3",
-    "prettier": "^3.3.3",
-    "prettier-plugin-svelte": "^4.1.1",
-    "rust-just": "^1.51.0",
-    "sass": "^1.58.3",
-    "svelte": "^5.46.4",
-    "tsx": "^4.22.3",
-    "typescript": "^5.8.3"
+    "@types/node": "catalog:",
+    "kanel": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-svelte": "catalog:",
+    "rust-just": "catalog:",
+    "sass": "catalog:",
+    "svelte": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }
