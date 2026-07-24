@@ -21,9 +21,16 @@
   }
 </script>
 
-<fieldset id="sort-panel" class="panel">
-  <legend class="panel-title">Trier les utilisateurices</legend>
-  <div class="sort" role="group" aria-label="Trier les utilisateurices">
+<fieldset
+  id="sort-panel"
+  class="border border-[color:var(--border-default-grey)] rounded-[0.25rem] fr-p-2w"
+>
+  <legend class="text-[1.25rem] fr-text--bold fr-mb-2w fr-p-0">Trier les utilisateurices</legend>
+  <div
+    class="flex flex-row flex-wrap items-center gap-2"
+    role="group"
+    aria-label="Trier les utilisateurices"
+  >
     {#each SORT_OPTIONS as option}
       {@const active = selectedSort === option.key}
       <button
@@ -38,7 +45,7 @@
         {option.label}
         {#if active}
           <span
-            class="sort-arrow {sortOrder === 'asc'
+            class="fr-ml-1v before:[--icon-size:1rem] {sortOrder === 'asc'
               ? 'fr-icon-arrow-up-line'
               : 'fr-icon-arrow-down-line'}"
             aria-hidden="true"
@@ -48,40 +55,3 @@
     {/each}
   </div>
 </fieldset>
-
-<style lang="scss">
-  fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .panel {
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    padding: 1rem;
-  }
-
-  .panel-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    padding: 0;
-  }
-
-  .sort {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-
-    .sort-arrow {
-      margin-left: 0.25rem;
-    }
-
-    .sort-arrow::before {
-      --icon-size: 1rem;
-    }
-  }
-</style>
