@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { sentrySvelteKit } from "@sentry/sveltekit";
+import tailwindcss from "@tailwindcss/vite";
 
 // The app runs with CWD = this folder (apps/admin); the .env lives at the repo root.
 try {
@@ -15,6 +16,7 @@ export default defineConfig({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       adapter: "node",
     }),
+    tailwindcss(),
     sveltekit(),
   ],
   server: {

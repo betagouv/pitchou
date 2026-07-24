@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "../app.css";
+
   import Header from "@pitchou/ui/Header.svelte";
   import Footer from "@pitchou/ui/Footer.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";

@@ -3,6 +3,8 @@
   // cf scripts/front-end/before-ses-lockdown.ts
   import "./Layout/before-ses-lockdown.ts";
 
+  import "../app.css";
+
   import { afterNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
   import { env } from "$env/dynamic/public";
