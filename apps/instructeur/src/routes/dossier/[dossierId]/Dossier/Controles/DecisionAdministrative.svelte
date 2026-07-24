@@ -82,7 +82,7 @@
 
 <CardDecisionAdministrative>
   {#if editedDecision}
-    <h4>Modifier décision administrative</h4>
+    <h4 class="fr-mt-0 fr-mb-2w">Modifier décision administrative</h4>
 
     <FormDecisionAdministrative
       decisionAdministrative={editedDecision}
@@ -91,7 +91,7 @@
       onDelete={() => (showDeleteConfirmation = true)}
     />
   {:else}
-    <h4>
+    <h4 class="fr-mt-0 fr-mb-2w">
       {type ? labelForDecisionAdministrativeType(type) : "Décision de type inconnu"}
       {number || ""} du {formatDateAbsolute(signature_date)}
       <button
@@ -123,16 +123,18 @@
 </CardDecisionAdministrative>
 
 {#if showDeleteConfirmation}
-  <div class="confirmation-overlay">
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center fr-p-2w bg-[rgba(0,0,0,0.4)]">
     <div
-      class="confirmation"
+      class="max-w-[32rem] fr-py-3w fr-px-4w rounded-[0.5rem] bg-[var(--background-default-grey)]"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="confirmation-suppression-titre"
     >
-      <h5 id="confirmation-suppression-titre">Supprimer cette décision administrative ?</h5>
+      <h5 id="confirmation-suppression-titre" class="fr-mt-0">
+        Supprimer cette décision administrative ?
+      </h5>
       <p>Cette action est irréversible.</p>
-      <div class="buttons">
+      <div class="flex flex-wrap gap-4 justify-end">
         <button
           type="button"
           class="fr-btn fr-btn--secondary"
@@ -148,39 +150,3 @@
     </div>
   </div>
 {/if}
-
-<style lang="scss">
-  h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
-
-  .confirmation-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
-
-  .confirmation {
-    max-width: 32rem;
-    padding: 1.5rem 2rem;
-    border-radius: 0.5rem;
-    background-color: var(--background-default-grey);
-
-    h5 {
-      margin-top: 0;
-    }
-
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: flex-end;
-    }
-  }
-</style>
