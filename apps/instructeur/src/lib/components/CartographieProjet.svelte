@@ -114,12 +114,7 @@
   });
 </script>
 
-<div class="cartographie-projet" bind:this={mapContainer}></div>
-
-<style lang="scss">
-  .cartographie-projet {
-    width: 100%;
-    height: 30rem;
-    border: 1px solid var(--border-default-grey, #dddddd);
-  }
-</style>
+<div
+  class="w-full h-[30rem] border border-[color:var(--border-default-grey,#dddddd)]"
+  bind:this={mapContainer}
+></div>
