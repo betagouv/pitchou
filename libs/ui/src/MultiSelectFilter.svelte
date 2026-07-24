@@ -37,10 +37,10 @@
 
 <svelte:body onclick={onBodyClick} />
 
-<div class="multiselect" bind:this={root}>
+<div class="relative flex-[1_1_auto] min-w-0" bind:this={root}>
   <button
     type="button"
-    class="fr-select multiselect-trigger"
+    class="fr-select w-full text-left truncate cursor-pointer [&.placeholder]:text-[color:var(--text-mention-grey)]"
     class:placeholder={selected.length === 0}
     aria-haspopup="true"
     aria-expanded={open}
@@ -51,8 +51,13 @@
   </button>
 
   {#if open}
-    <div class="multiselect-panel" id="{id}-options" role="group" aria-label={label}>
-      <div class="multiselect-actions">
+    <div
+      class="absolute z-10 top-[calc(100%+0.25rem)] left-0 right-0 min-w-[16rem] max-h-[18rem] overflow-y-auto [padding:0.5rem_1rem_0.75rem] bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      id="{id}-options"
+      role="group"
+      aria-label={label}
+    >
+      <div class="flex gap-2 mb-1">
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
@@ -68,7 +73,7 @@
           Aucun
         </button>
       </div>
-      <ul class="multiselect-list">
+      <ul class="list-none m-0 p-0">
         {#each options as option (option.value)}
           {@const checkboxId = `${id}-option-${option.value}`}
           <li>
@@ -87,53 +92,3 @@
     </div>
   {/if}
 </div>
-
-<style lang="scss">
-  .multiselect {
-    position: relative;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  // Reuse the DSFR select look (border + caret) on a button, left-aligned and truncating.
-  .multiselect-trigger {
-    width: 100%;
-    text-align: left;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: pointer;
-
-    &.placeholder {
-      color: var(--text-mention-grey);
-    }
-  }
-
-  .multiselect-panel {
-    position: absolute;
-    z-index: 10;
-    top: calc(100% + 0.25rem);
-    left: 0;
-    right: 0;
-    min-width: 16rem;
-    max-height: 18rem;
-    overflow-y: auto;
-    padding: 0.5rem 1rem 0.75rem;
-    background-color: var(--background-default-grey);
-    border: 1px solid var(--border-default-grey);
-    border-radius: 0.25rem;
-    box-shadow: var(--overlap-shadow, 0 2px 6px rgba(0, 0, 0, 0.16));
-  }
-
-  .multiselect-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .multiselect-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-</style>
