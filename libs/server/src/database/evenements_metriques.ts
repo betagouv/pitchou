@@ -22,13 +22,13 @@ export async function addEvenementFromCap(cap: string, event: EvenementMetrique)
 
   await directDatabaseConnection("evenement_metrique").insert({
     evenement: event.type,
-    details: "détails" in event ? event.détails : null,
+    details: "details" in event ? event.details : null,
     personne: personne.id,
   });
 
   // Text searches also feed the recent-searches suggestions of the search bar
   if (event.type === "rechercherDesDossiers") {
-    const text = event.détails.filters.text?.trim();
+    const text = event.details.filters.text?.trim();
     if (text) {
       await addDossierSearch(personne.id, text);
     }

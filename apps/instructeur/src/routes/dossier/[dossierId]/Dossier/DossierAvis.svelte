@@ -56,7 +56,7 @@
       onclick={() =>
         sendEvenement({
           type: "ouvrirModaleAjouterPieceJointe",
-          détails: { dossierId: dossier.id, source: "ongletAvis" },
+          details: { dossierId: dossier.id, source: "ongletAvis" },
         })}
     >
       Ajouter un avis ou une saisine

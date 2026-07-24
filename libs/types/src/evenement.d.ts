@@ -33,12 +33,12 @@ export type EvenementPieceJointeType =
   | "Saisine expert"
   | "Autre";
 
-export type EvenementOuvrirModaleAjouterPieceJointeDetails = {
+export type EvenementOpenModalAddPieceJointeDetails = {
   dossierId: number;
   source: EvenementPieceJointeSource;
 };
 
-export type EvenementAjouterPieceJointeDetails = {
+export type EvenementAddPieceJointeDetails = {
   dossierId: number;
   source: EvenementPieceJointeSource;
   typePieceJointe: EvenementPieceJointeType;
@@ -53,7 +53,7 @@ export type EvenementMetrique =
 
   // Modification events
   // Follow a dossier
-  | { type: "suivreUnDossier"; détails: { dossierId: number } }
+  | { type: "suivreUnDossier"; details: { dossierId: number } }
   // Edit the instruction comment
   | { type: "modifierCommentaireInstruction" }
   // Change the phase of a dossier
@@ -87,27 +87,27 @@ export type EvenementMetrique =
   // Open an attachment-adding modal
   | {
       type: "ouvrirModaleAjouterPieceJointe";
-      détails: EvenementOuvrirModaleAjouterPieceJointeDetails;
+      details: EvenementOpenModalAddPieceJointeDetails;
     }
   // Add an attachment from a modal
   | {
       type: "ajouterPieceJointe";
-      détails: EvenementAjouterPieceJointeDetails;
+      details: EvenementAddPieceJointeDetails;
     }
   // Generate a document
   | { type: "générerUnDocument" }
 
   // Consultation events
   // Use the search and filter feature in the dossier list
-  | { type: "rechercherDesDossiers"; détails: DossierSearchEventDetails }
+  | { type: "rechercherDesDossiers"; details: DossierSearchEventDetails }
   // Display the list of dossiers the user follows
   | { type: "afficherLesDossiersSuivis" }
   // Access the “Projet” tab of a dossier
-  | { type: "consulterUnDossier"; détails: { dossierId: number } }
+  | { type: "consulterUnDossier"; details: { dossierId: number } }
   // Download the list of impacted species of a dossier
-  | { type: "téléchargerListeÉspècesImpactées"; détails: { dossierId: number } }
+  | { type: "téléchargerListeÉspècesImpactées"; details: { dossierId: number } }
   // Download the project cartography of a dossier
-  | { type: "téléchargerCartographieProjet"; détails: { dossierId: number } }
+  | { type: "téléchargerCartographieProjet"; details: { dossierId: number } }
 
   // For impact
-  | { type: "retourÀLaConformité"; détails: { prescription: Prescription["id"] } };
+  | { type: "retourÀLaConformité"; details: { prescription: Prescription["id"] } };

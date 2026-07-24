@@ -7,7 +7,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ouvrirModaleAjouterPieceJointe",
-        détails: { dossierId: 123, source: "enteteDossier" },
+        details: { dossierId: 123, source: "enteteDossier" },
       }),
     ).toBe(true);
   });
@@ -16,7 +16,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ouvrirModaleAjouterPieceJointe",
-        détails: { dossierId: 123, source: "ailleurs" },
+        details: { dossierId: 123, source: "ailleurs" },
       }),
     ).toBe(false);
   });
@@ -25,7 +25,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ouvrirModaleAjouterPieceJointe",
-        détails: { source: "enteteDossier" },
+        details: { source: "enteteDossier" },
       }),
     ).toBe(false);
   });
@@ -34,7 +34,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ajouterPieceJointe",
-        détails: {
+        details: {
           dossierId: 123,
           source: "ongletPiecesJointes",
           typePieceJointe: "Autre",
@@ -48,7 +48,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ajouterPieceJointe",
-        détails: {
+        details: {
           dossierId: 123,
           source: "ongletPiecesJointes",
           typePieceJointe: "Autre",
@@ -62,7 +62,7 @@ describe("evenementMetriqueGuard", () => {
     expect(
       evenementMetriqueGuard({
         type: "ajouterPieceJointe",
-        détails: {
+        details: {
           dossierId: 123,
           source: "ongletPiecesJointes",
           typePieceJointe: "Inconnu",

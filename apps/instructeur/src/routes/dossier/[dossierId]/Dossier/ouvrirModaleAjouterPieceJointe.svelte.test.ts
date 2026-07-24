@@ -79,7 +79,7 @@ function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
 function expectTracking(source: string) {
   expect(sendEvenement).toHaveBeenCalledWith({
     type: "ouvrirModaleAjouterPieceJointe",
-    détails: { dossierId: DOSSIER_ID, source },
+    details: { dossierId: DOSSIER_ID, source },
   });
 }
 
@@ -175,7 +175,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
   await waitFor(() =>
     expect(sendEvenement).toHaveBeenCalledWith({
       type: "ajouterPieceJointe",
-      détails: {
+      details: {
         dossierId: DOSSIER_ID,
         source: "enteteDossier",
         typePieceJointe: "Autre",

@@ -23,7 +23,7 @@ export function instructeurFollowsDossier(
   relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
   store.followRelations = relationsSuivi;
 
-  sendEvenement({ type: "suivreUnDossier", détails: { dossierId } });
+  sendEvenement({ type: "suivreUnDossier", details: { dossierId } });
 
   return updateFollowRelation("suivre", instructeurEmail, dossierId);
 }

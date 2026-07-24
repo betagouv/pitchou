@@ -74,7 +74,7 @@
     onclick={() =>
       sendEvenement({
         type: "ouvrirModaleAjouterPieceJointe",
-        détails: { dossierId: dossier.id, source: "ongletControles" },
+        details: { dossierId: dossier.id, source: "ongletControles" },
       })}
   >
     Rajouter une décision administrative
