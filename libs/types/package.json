@@ -8,6 +8,6 @@
     "./*": "./src/*"
   },
   "devDependencies": {
-    "@types/node": "^22.3.0"
+    "@types/node": "^24.0.0"
   }
 }

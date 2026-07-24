@@ -15,12 +15,12 @@
     "date-fns": "^4.1.0",
     "just-memoize": "^2.2.0",
     "knex": "^3.1.0",
-    "ky": "^1.7.5",
+    "ky": "^2.0.2",
     "pg": "^8.11.5"
   },
   "devDependencies": {
     "@types/d3-dsv": "^3.0.7",
-    "@types/node": "^22.3.0",
+    "@types/node": "^24.0.0",
     "vitest": "^4.1.7"
   }
 }

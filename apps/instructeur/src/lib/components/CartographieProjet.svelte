@@ -60,7 +60,8 @@
     (async () => {
       // Client-only: maplibre-gl touches browser globals, so it is imported dynamically
       // to avoid SvelteKit SSR issues. The CSS is imported alongside it.
-      const maplibregl = (await import("maplibre-gl")).default;
+      // maplibre-gl v6 dropped the default export, so we use the named exports.
+      const maplibregl = await import("maplibre-gl");
       await import("maplibre-gl/dist/maplibre-gl.css");
       if (cancelled) return;
 
