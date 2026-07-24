@@ -187,7 +187,7 @@
 {/if}
 
 {#if importTableRows.length >= 1}
-  <h2>
+  <h2 class="fr-mb-2w">
     {#if showAllDossiers}
       Tous les dossiers du fichier chargé ({importTableRows.length})
     {:else}
@@ -204,7 +204,7 @@
       bind:checked={showAllDossiers}
     />
     <label
-      class="fr-toggle__label"
+      class="fr-toggle__label before:max-w-20"
       for="toggle"
       data-fr-checked-label="Activé"
       data-fr-unchecked-label="Désactivé"
@@ -214,10 +214,13 @@
     <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
   </div>
 
-  <div class="progression">
+  <div class="flex flex-row items-center">
     <div>{numberDossiersToImport} / {importTableRows.length}</div>
 
-    <div class="fr-progress-bar" title={`${numberDossiersToImport} / ${importTableRows.length}`}>
+    <div
+      class="fr-progress-bar flex-1 h-6 fr-ml-2w rounded-[8px] overflow-hidden bg-[var(--background-alt-grey)]"
+      title={`${numberDossiersToImport} / ${importTableRows.length}`}
+    >
       <div
         style="width: {percentageOfDossiersCreatedInDB}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
       ></div>
@@ -228,7 +231,9 @@
     <div class="fr-table__wrapper">
       <div class="fr-table__container">
         <div class="fr-table__content">
-          <table class="tableau-dossier-a-creer">
+          <table
+            class="[&_th]:max-h-8 [&_th]:overflow-auto [&_td:not(:last-of-type)]:max-h-8 [&_td:not(:last-of-type)]:overflow-auto"
+          >
             <thead>
               <tr>
                 <th> Nom du projet (OBJET) </th>
@@ -288,38 +293,3 @@
     <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
   {/if}
 {/if}
-
-<style lang="scss">
-  h2 {
-    margin-bottom: 1rem;
-  }
-
-  .fr-toggle label::before {
-    max-width: 5rem;
-  }
-
-  .progression {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    .fr-progress-bar {
-      flex: 1;
-
-      height: 1.5rem;
-      margin-left: 1rem;
-      border-radius: 8px;
-      overflow: hidden;
-
-      background: var(--background-alt-grey);
-    }
-  }
-
-  .tableau-dossier-a-creer {
-    th,
-    td:not(:last-of-type) {
-      max-height: 2rem;
-      overflow: auto;
-    }
-  }
-</style>
