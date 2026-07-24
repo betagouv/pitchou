@@ -137,9 +137,9 @@
   }
 </script>
 
-<section class="prescriptions">
+<section>
   {#if prescriptions.length === 0}
-    <h5>Prescriptions</h5>
+    <h5 class="fr-mb-2w">Prescriptions</h5>
     <section class="fr-mb-3w">
       <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
@@ -169,7 +169,7 @@
       </div>
     </section>
   {:else}
-    <h5>{prescriptions.length} prescriptions</h5>
+    <h5 class="fr-mb-2w">{prescriptions.length} prescriptions</h5>
 
     {#if viewPrescription === "view"}
       {#each prescriptions as prescription}
@@ -184,7 +184,9 @@
         Modifier les prescriptions
       </button>
     {:else}
-      <table class="prescriptions">
+      <table
+        class="[&_.prescription>*]:mx-[2px] [&_.prescription>*:nth-child(1)]:w-20 [&_.prescription>*:nth-child(2)]:w-80 [&_.prescription>*:nth-child(3)]:w-44 [&_.prescription>*:nth-child(n+4)]:w-24 [&_thead>tr>*]:mx-[2px] [&_thead>tr>*:nth-child(1)]:w-20 [&_thead>tr>*:nth-child(2)]:w-80 [&_thead>tr>*:nth-child(3)]:w-44 [&_thead>tr>*:nth-child(n+4)]:w-24"
+      >
         <thead>
           <tr>
             <th>Numéro article</th>
@@ -249,32 +251,3 @@
     {/if}
   {/if}
 </section>
-
-<style lang="scss">
-  h5 {
-    margin-bottom: 1rem;
-  }
-
-  table.prescriptions {
-    .prescription,
-    thead > tr {
-      & > * {
-        margin: 0 2px;
-      }
-
-      & > :nth-child(1) {
-        width: 5rem;
-      }
-      & > :nth-child(2) {
-        width: 20rem;
-      }
-      & > :nth-child(3) {
-        width: 11rem;
-      }
-
-      & > :nth-child(n + 4) {
-        width: 6rem;
-      }
-    }
-  }
-</style>
