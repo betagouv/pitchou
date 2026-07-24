@@ -201,7 +201,7 @@
 </svelte:head>
 
 <article>
-  <header>
+  <header class="flex flex-row justify-between items-center fr-mt-4w">
     <h1>Espèces protégées impactées</h1>
 
     <div class="fr-toggle">
@@ -211,7 +211,7 @@
         class="fr-toggle__input"
         id="toggle-mode-lecture"
       />
-      <label class="fr-toggle__label" for="toggle-mode-lecture"> Mode lecture </label>
+      <label class="fr-toggle__label w-full" for="toggle-mode-lecture"> Mode lecture </label>
     </div>
 
     <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
@@ -291,7 +291,7 @@
                   <div class="fr-mb-4w">
                     <span class="fr-text--sm">
                       Vous pouvez choisir :
-                      <ul>
+                      <ul class="[list-style-type:'-_']">
                         <li>un document déjà généré avec cet outil</li>
                         <li>
                           un document .ods qui respecte le format décrit dans <a
@@ -324,7 +324,7 @@
                       <div class="fr-messages-group" id="file-upload-messages" aria-live="polite">
                         {#if messageErreurPreRemplirAvecDocumentOds}
                           <p
-                            class="fr-message fr-message--error"
+                            class="fr-message fr-message--error [display:unset]"
                             id="file-upload-message-error-format-incorrect"
                           >
                             {@html messageErreurPreRemplirAvecDocumentOds}
@@ -399,7 +399,7 @@
       {transportsParClassificationEtreVivant}
     />
   {/if}
-  <footer class="fr-mb-4w">
+  <footer class="fr-mb-4w flex justify-end">
     <button
       aria-controls="modale-validation-saisie"
       data-fr-opened="false"
@@ -422,12 +422,12 @@
               <h2 id="modale-validation-saisie-title" class="fr-modal__title">
                 Dernière étape : Ajouter votre saisie à votre dossier Démarche Numérique
               </h2>
-              <ol id="liste-des-étapes-pour-ajouter-saisie-à-DS">
+              <ol id="liste-des-étapes-pour-ajouter-saisie-à-DS" class="flex flex-col gap-12">
                 <li>
                   <span class="fr-text--lg"
                     >Télécharger le document récapitulatif de votre saisie.</span
                   >
-                  <div class="flex-justify-content-center">
+                  <div class="flex justify-center">
                     <DownloadButton
                       classname="fr-btn fr-mt-4v"
                       label={`Télécharger le document récapitulatif (${nombreEspecesSaisies} espèce${nombreEspecesSaisies > 1 ? "s" : ""})`}
@@ -460,7 +460,7 @@
                 title="Fermer"
                 type="button"
                 id="button-fermer-modale-validation-saisie"
-                class="fr-btn fr-btn--secondary">Fermer la fenêtre</button
+                class="fr-btn fr-btn--secondary mx-auto">Fermer la fenêtre</button
               >
             </div>
           </div>
@@ -469,50 +469,3 @@
     </div>
   </dialog>
 </article>
-
-<style lang="scss">
-  article {
-    header {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 2rem;
-    }
-
-    #liste-des-étapes-pour-ajouter-saisie-à-DS {
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-    }
-
-    #button-fermer-modale-validation-saisie {
-      margin-inline: auto;
-    }
-
-    .flex-justify-content-center {
-      display: flex;
-      justify-content: center;
-    }
-
-    footer {
-      display: flex;
-      justify-content: end;
-    }
-
-    #modale-préremplir-depuis-import {
-      ul {
-        list-style: "- ";
-      }
-    }
-
-    #file-upload-message-error-format-incorrect {
-      display: unset;
-    }
-    .fr-toggle {
-      label {
-        width: 100%;
-      }
-    }
-  }
-</style>
