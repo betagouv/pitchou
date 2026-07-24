@@ -40,3 +40,24 @@ body {
 main {
   flex: 1 0 auto;
 }
+
+/*
+ * DSFR file inputs (`.fr-upload`): Tailwind's Preflight resets
+ * `::file-selector-button` (border/padding/background/border-radius to zero),
+ * which strips the native button chrome. The DSFR only styles the older
+ * `::-webkit-file-upload-button` alias and never re-adds those properties, so
+ * the "Choose File" control renders as plain, un-clickable-looking text.
+ * Restore the native button appearance here, unlayered, so it beats the
+ * layered Preflight.
+ */
+.fr-upload::file-selector-button {
+  -webkit-appearance: button;
+  appearance: button;
+  border: revert;
+  padding: revert;
+  background-color: revert;
+  border-radius: revert;
+  cursor: pointer;
+  font: inherit;
+  margin-right: 0.5rem;
+}
