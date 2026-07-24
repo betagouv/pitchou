@@ -144,6 +144,3 @@
     </section>
   </article>
 </div>
-
-<style lang="scss">
-</style>
