@@ -109,19 +109,26 @@
 {#if points.length === 0}
   <p>Aucune donnée à afficher pour le moment.</p>
 {:else}
-  <figure class="aarri-chart">
+  <figure class="fr-m-0">
     <svg
       viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
       preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="Évolution du nombre d'utilisateurices par phase AARRI au cours du temps"
+      class="w-full h-auto"
       onmouseleave={() => (hoveredIndex = null)}
     >
       <!-- horizontal gridlines + y axis labels -->
       {#each yTicks as tick}
-        <line class="grid" x1={MARGIN.left} x2={WIDTH - MARGIN.right} y1={y(tick)} y2={y(tick)} />
+        <line
+          class="stroke-[var(--border-default-grey,#ddd)] stroke-1"
+          x1={MARGIN.left}
+          x2={WIDTH - MARGIN.right}
+          y1={y(tick)}
+          y2={y(tick)}
+        />
         <text
-          class="axis-label"
+          class="fill-[var(--text-mention-grey,#666)] text-[12px]"
           x={MARGIN.left - 8}
           y={y(tick)}
           text-anchor="end"
@@ -133,7 +140,7 @@
       {#each points as point, i}
         {#if i % xLabelStep === 0 || i === points.length - 1}
           <text
-            class="axis-label"
+            class="fill-[var(--text-mention-grey,#666)] text-[12px]"
             x={x(i)}
             y={HEIGHT - MARGIN.bottom + 18}
             text-anchor="end"
@@ -145,15 +152,20 @@
 
       <!-- one curve (+ point markers) per phase -->
       {#each series as s}
-        <path class="line" d={linePath(s.key)} fill="none" stroke={s.color} />
+        <path
+          class="[stroke-width:2.5] fill-none"
+          d={linePath(s.key)}
+          fill="none"
+          stroke={s.color}
+        />
         {#each points as point, i}
-          <circle class="dot" cx={x(i)} cy={y(point[s.key])} r="3" fill={s.color}>
+          <circle cx={x(i)} cy={y(point[s.key])} r="3" fill={s.color}>
             <title>{s.label} — {labelDate(point.date)} : {point[s.key]}</title>
           </circle>
         {/each}
         <!-- last (rightmost) value of the curve -->
         <text
-          class="value-label"
+          class="text-[13px] font-bold"
           x={x(points.length - 1) + 6}
           y={y(points[points.length - 1][s.key])}
           fill={s.color}
@@ -165,25 +177,40 @@
       {#if hoveredIndex !== null}
         {@const hi = hoveredIndex}
         <line
-          class="hover-guide"
+          class="stroke-[var(--text-mention-grey,#666)] stroke-1 [stroke-dasharray:4_3]"
           x1={x(hi)}
           x2={x(hi)}
           y1={MARGIN.top}
           y2={MARGIN.top + innerHeight}
         />
         {#each series as s}
-          <circle class="dot-hover" cx={x(hi)} cy={y(points[hi][s.key])} r="5" fill={s.color} />
+          <circle
+            class="stroke-[var(--background-default-grey,#fff)] stroke-2"
+            cx={x(hi)}
+            cy={y(points[hi][s.key])}
+            r="5"
+            fill={s.color}
+          />
         {/each}
         <g transform={`translate(${tooltipX(hi)} ${MARGIN.top})`} pointer-events="none">
-          <rect class="tooltip-box" width={TOOLTIP_WIDTH} height={tooltipHeight} rx="4" />
-          <text class="tooltip-date" x="8" y="18"
+          <rect
+            class="fill-[var(--background-default-grey,#fff)] stroke-[var(--border-default-grey,#ddd)] [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.2))]"
+            width={TOOLTIP_WIDTH}
+            height={tooltipHeight}
+            rx="4"
+          />
+          <text class="text-[12px] font-bold fill-[var(--text-default-grey,#161616)]" x="8" y="18"
             >{longDateFormat.format(new Date(points[hi].date))}</text
           >
           {#each series as s, j}
             <rect x="8" y={28 + j * TOOLTIP_ROW} width="10" height="10" rx="2" fill={s.color} />
-            <text class="tooltip-label" x="24" y={37 + j * TOOLTIP_ROW}>{s.label}</text>
             <text
-              class="tooltip-value"
+              class="text-[12px] fill-[var(--text-default-grey,#161616)]"
+              x="24"
+              y={37 + j * TOOLTIP_ROW}>{s.label}</text
+            >
+            <text
+              class="text-[12px] font-bold fill-[var(--text-default-grey,#161616)]"
               x={TOOLTIP_WIDTH - 8}
               y={37 + j * TOOLTIP_ROW}
               text-anchor="end">{points[hi][s.key]}</text
@@ -196,7 +223,7 @@
       {#each points as _point, i}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <rect
-          class="hit-area"
+          class="fill-transparent"
           x={x(i) - columnWidth / 2}
           y={MARGIN.top}
           width={columnWidth}
@@ -206,88 +233,14 @@
       {/each}
     </svg>
 
-    <figcaption class="legend">
+    <figcaption class="flex flex-wrap gap-6 justify-center mt-2">
       {#each series as s}
-        <span class="legend-item">
-          <span class="legend-dot" style={`background-color:${s.color}`}></span>
+        <span class="inline-flex items-center gap-2">
+          <span class="inline-block w-4 h-4 rounded-[2px]" style={`background-color:${s.color}`}
+          ></span>
           {s.label}
         </span>
       {/each}
     </figcaption>
   </figure>
 {/if}
-
-<style lang="scss">
-  .aarri-chart {
-    margin: 0;
-  }
-  svg {
-    width: 100%;
-    height: auto;
-  }
-  .grid {
-    stroke: var(--border-default-grey, #ddd);
-    stroke-width: 1;
-  }
-  .axis-label {
-    fill: var(--text-mention-grey, #666);
-    font-size: 12px;
-  }
-  .line {
-    stroke-width: 2.5;
-    fill: none;
-  }
-  .value-label {
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .hover-guide {
-    stroke: var(--text-mention-grey, #666);
-    stroke-width: 1;
-    stroke-dasharray: 4 3;
-  }
-  .dot-hover {
-    stroke: var(--background-default-grey, #fff);
-    stroke-width: 2;
-  }
-  .hit-area {
-    fill: transparent;
-  }
-  .tooltip-box {
-    fill: var(--background-default-grey, #fff);
-    stroke: var(--border-default-grey, #ddd);
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-  }
-  .tooltip-date {
-    font-size: 12px;
-    font-weight: 700;
-    fill: var(--text-default-grey, #161616);
-  }
-  .tooltip-label {
-    font-size: 12px;
-    fill: var(--text-default-grey, #161616);
-  }
-  .tooltip-value {
-    font-size: 12px;
-    font-weight: 700;
-    fill: var(--text-default-grey, #161616);
-  }
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .legend-dot {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 2px;
-  }
-</style>
