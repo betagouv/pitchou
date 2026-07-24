@@ -139,7 +139,9 @@
   }
 </script>
 
-<section class="prescription-viewed">
+<section
+  class="fr-p-1w fr-mb-1w border-b border-[color:var(--border-default-grey)] hover:bg-[var(--background-contrast-grey)] [&_h6]:mb-[0.4rem] [&_p]:mb-[0.4rem]"
+>
   <ExpandCollapse>
     {#snippet summary()}
       {@const lastControle = sortedControles[0]}
@@ -169,7 +171,9 @@
         </p>
 
         {#if avoided_surface || compensated_surface || avoided_individus || compensated_individus || avoided_nids || compensated_nids}
-          <p class="impacts-quantified">
+          <p
+            class="[&_span]:inline-block [&_span]:[white-space:wrap] [&_span]:after:content-['|'] [&_span]:after:px-4 [&_span]:after:py-0 [&_span:first-child]:pl-0 [&_span:last-child]:after:content-none"
+          >
             {#if avoided_surface}<span
                 ><strong>Surface évitée&nbsp;:</strong> {avoided_surface}m²</span
               >{/if}
@@ -189,7 +193,7 @@
           </p>
         {/if}
 
-        <section class="controles">
+        <section>
           <h6>
             {#if controles.size === 1}1 contrôle{:else}{controles.size} contrôles
             {/if}
@@ -233,7 +237,7 @@
                   </button>
                 {/snippet}
                 {#snippet buttonDelete()}
-                  <div class="button-delete">
+                  <div class="fr-mt-4w">
                     <button
                       type="button"
                       class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
@@ -245,7 +249,7 @@
                 {/snippet}
               </FormControle>
             {:else}
-              <section class="controle">
+              <section class="fr-mb-1w">
                 <h6>
                   Contrôle du <time datetime={controle.controle_date?.toISOString()}
                     >{formatDateAbsolute(controle.controle_date)}</time
@@ -253,7 +257,7 @@
                   <TagResultatControle result={controle.result || NOT_PROVIDED}
                   ></TagResultatControle>
                   <button
-                    class="controles fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
+                    class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
                     onclick={() => editControle(controle)}
                   >
                     Modifier
@@ -281,54 +285,3 @@
     {/snippet}
   </ExpandCollapse>
 </section>
-
-<style lang="scss">
-  .prescription-viewed {
-    --prescription-padding-top: 0.5rem;
-
-    padding: var(--prescription-padding-top);
-    margin-bottom: var(--prescription-padding-top);
-    border-bottom: 1px solid var(--border-default-grey);
-
-    &:hover {
-      background-color: var(--background-contrast-grey);
-    }
-
-    h6,
-    p {
-      margin-bottom: 0.4rem;
-    }
-
-    .impacts-quantified {
-      span {
-        display: inline-block;
-        white-space: wrap;
-
-        &::after {
-          content: "|";
-          padding: 0 1rem;
-        }
-
-        &:first-child {
-          padding-left: 0;
-        }
-
-        &:last-child {
-          &::after {
-            content: none;
-          }
-        }
-      }
-    }
-
-    section.controles {
-      section.controle {
-        margin-bottom: 0.5rem;
-      }
-
-      .button-delete {
-        margin-top: 2rem;
-      }
-    }
-  }
-</style>
