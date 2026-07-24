@@ -15,12 +15,19 @@
 
   let { result, size = "SM", classes = [] }: Props = $props();
 
+  const conformeClasses =
+    "bg-[var(--background-flat-success)] text-[color:var(--text-inverted-success)]";
+  const nonConformeClasses =
+    "bg-[var(--background-flat-error)] text-[color:var(--text-inverted-error)]";
+  const otherClasses =
+    "bg-[var(--background-flat-beige-gris-galet)] text-[color:var(--text-inverted-beige-gris-galet)]";
+
   const resultatToClass = new Map<ResultatControle, string>([
-    ["Conforme", "result--conforme"],
-    ["Non conforme", "result--non-conforme"],
-    ["Non conforme (Pas d'informations reçues)", "result--non-conforme-pas-information"],
-    ["En cours", "result--en-cours"],
-    ["Trop tard", "result--trop-tard"],
+    ["Conforme", conformeClasses],
+    ["Non conforme", nonConformeClasses],
+    ["Non conforme (Pas d'informations reçues)", nonConformeClasses],
+    ["En cours", otherClasses],
+    ["Trop tard", otherClasses],
   ]);
 
   const sizeToClass = new Map<Size, string>([
@@ -28,44 +35,14 @@
     ["MD", "fr-tag--md"],
   ]);
 
+  // `bg-none hover:bg-none` overrides the DSFR tag background image.
   let allClasses = $derived([
     "fr-tag",
+    "bg-none hover:bg-none",
     sizeToClass.get(size),
-    resultatToClass.get(result as ResultatControle) || "result--autre",
+    resultatToClass.get(result as ResultatControle) || otherClasses,
     ...classes,
   ]);
 </script>
 
 <p class={clsx(allClasses)}>{result}</p>
-
-<style lang="scss">
-  $conforme-result-color: var(--background-flat-success);
-  $non-conforme-result-color: var(--background-flat-error);
-  $other-result-color: var(--background-flat-beige-gris-galet);
-
-  p {
-    // DSFR override
-    &,
-    &:hover {
-      background-image: none;
-    }
-
-    &.result--en-cours,
-    &.result--trop-tard,
-    &.result--autre {
-      background-color: $other-result-color;
-      color: var(--text-inverted-beige-gris-galet);
-    }
-
-    &.result--conforme {
-      background-color: $conforme-result-color;
-      color: var(--text-inverted-success);
-    }
-
-    &.result--non-conforme,
-    &.result--non-conforme-pas-information {
-      background-color: $non-conforme-result-color;
-      color: var(--text-inverted-error);
-    }
-  }
-</style>
