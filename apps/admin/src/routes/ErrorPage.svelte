@@ -1,5 +1,5 @@
 <script lang="ts">
-  const CONTACT_EMAIL = "pitchou@beta.gouv.fr";
+  const CONTACT_EMAIL = "support@pitchou.beta.gouv.fr";
 
   type Props = {
     status?: number;
