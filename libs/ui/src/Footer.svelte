@@ -30,8 +30,9 @@
         <p class="fr-footer__content-desc">{description}</p>
         <p class="fr-footer__content-desc">
           <strong>Besoin d'aide pour utiliser pitchou ?</strong><br />
-          <a class="fr-footer__content-link" href="mailto:support@pitchou.beta.gouv.fr"
-            >support@pitchou.beta.gouv.fr</a
+          <a
+            class="fr-footer__content-link support-email-link"
+            href="mailto:support@pitchou.beta.gouv.fr">support@pitchou.beta.gouv.fr</a
           >
         </p>
         <ul class="fr-footer__content-list">
@@ -120,3 +121,10 @@
     </div>
   </div>
 </footer>
+
+<style>
+  .support-email-link {
+    font-weight: normal;
+    text-decoration: underline;
+  }
+</style>
