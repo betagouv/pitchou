@@ -55,7 +55,7 @@
     {#if hasReference}
       <InheritanceCheckbox id="inherit-statuts" source="BDC-Statuts" bind:checked={inherit} />
     {/if}
-    <div class="statuts">
+    <div class="flex flex-row flex-wrap gap-x-6 gap-y-2">
       {#each STATUTS as statut}
         <div class="fr-checkbox-group">
           <input
@@ -71,12 +71,3 @@
     </div>
   {/snippet}
 </FieldModifiable>
-
-<style lang="scss">
-  .statuts {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-  }
-</style>
