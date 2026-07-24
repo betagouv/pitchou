@@ -49,12 +49,14 @@
 
 <svelte:body onclick={detailsOnClick} />
 
-<details bind:open bind:this={details}>
+<details class="inline fr-mr-1w" bind:open bind:this={details}>
   <summary class="fr-btn fr-btn--secondary fr-btn--sm">
     {title}
   </summary>
 
-  <section class="filter-options">
+  <section
+    class="fr-mt-1w fr-p-2w bg-[var(--background-contrast-grey)] border border-[color:var(--border-default-grey)] absolute z-[2]"
+  >
     <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick={selectAll}
       >Sélectionner tout</button
     >
@@ -62,7 +64,7 @@
       >Sélectionner rien</button
     >
 
-    <ul>
+    <ul class="list-none">
       {#each options as option}
         <li>
           <label>
@@ -78,23 +80,3 @@
     </ul>
   </section>
 </details>
-
-<style lang="scss">
-  details {
-    display: inline;
-    margin-right: 0.5rem;
-  }
-
-  .filter-options {
-    margin-top: 0.5rem;
-    padding: 1rem;
-    background-color: var(--background-contrast-grey);
-    border: 1px solid var(--border-default-grey);
-    position: absolute;
-    z-index: 2;
-
-    ul {
-      list-style: none;
-    }
-  }
-</style>
