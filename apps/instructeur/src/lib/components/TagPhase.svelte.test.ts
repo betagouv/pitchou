@@ -13,9 +13,9 @@ test("affiche le libellé de la phase et la classe fr-tag", async () => {
 
 test("applique la classe spécifique à chaque phase connue", async () => {
   const cases = [
-    { phase: "Accompagnement amont", className: "phase--accompagnement-amont" },
-    { phase: "Instruction", className: "phase--instruction" },
-    { phase: "Contrôle", className: "phase--contrôle" },
+    { phase: "Accompagnement amont", className: "bg-[var(--artwork-minor-yellow-tournesol)]" },
+    { phase: "Instruction", className: "bg-[var(--background-flat-blue-cumulus)]" },
+    { phase: "Contrôle", className: "bg-[var(--background-flat-pink-tuile)]" },
   ] as const;
 
   for (const { phase, className } of cases) {
