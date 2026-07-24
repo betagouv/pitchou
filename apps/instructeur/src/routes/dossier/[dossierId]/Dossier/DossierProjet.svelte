@@ -122,9 +122,11 @@
   }
 </script>
 
-<section class="row">
-  <section class="column">
-    <h2>Informations du projet</h2>
+<section
+  class="flex flex-row [&>*:nth-child(1)]:flex-[3] [&>*:nth-child(1)]:mr-4 [&>*:nth-child(2)]:flex-[2]"
+>
+  <section>
+    <h2 class="fr-mt-0">Informations du projet</h2>
     <p>
       <strong>Dossier n°&nbsp;:</strong>
       {dossier.demarche_numerique_number ?? "non renseigné"}
@@ -228,8 +230,8 @@
       <strong>Durée de la dérogation&nbsp;:</strong>
       {dossier.intervention_duration ? dossier.intervention_duration + " années" : "Non renseignée"}
     </p>
-    <div class="container-title-especes-impactees">
-      <h2>Espèces impactées</h2>
+    <div class="inline-flex items-center justify-between w-full">
+      <h2 class="fr-m-0 whitespace-nowrap">Espèces impactées</h2>
       {#if dossier.especesImpactees}
         <!-- In Svelte, a child component does not have access to the style classes defined in the parent component in which it is called. So we use an inline style. -->
         {@const styleDownloadButton = "width: 15rem;"}
@@ -268,8 +270,8 @@
     {/if}
 
     {#if cartographieProjet && cartographieProjet.features.length >= 1}
-      <div class="container-title-cartographie">
-        <h2>Cartographie du projet</h2>
+      <div class="inline-flex items-center justify-between w-full fr-mt-6w">
+        <h2 class="fr-m-0 whitespace-nowrap">Cartographie du projet</h2>
         <!-- Inline style because a child component does not access the parent's classes -->
         <DownloadButton
           makeFileContentBlob={makeCartographieBlob}
@@ -287,7 +289,7 @@
     {/if}
 
     {#if dossier.scientifique_demande_type}
-      <h2>Données scientifiques</h2>
+      <h2 class="fr-mt-6w">Données scientifiques</h2>
       <h3>Type de demande</h3>
       <ul>
         {#each dossier.scientifique_demande_type as typeDemande}
@@ -363,14 +365,14 @@
     {/if}
   </section>
 
-  <section class="column">
-    <h2>{dossier.piecesJointesPetitionnaires.length} pièces jointes</h2>
+  <section>
+    <h2 class="fr-mt-0">{dossier.piecesJointesPetitionnaires.length} pièces jointes</h2>
     {#if dossier.piecesJointesPetitionnaires.length === 0}
       (aucune pièce jointe n'a été déposée par le pétitionnaire)
     {:else}
-      <ul class="pieces-jointes-petitionnaire">
+      <ul class="list-none fr-p-0">
         {#each dossier.piecesJointesPetitionnaires as { url, demarche_numerique_created_at, name, media_type, size }}
-          <li>
+          <li class="mb-[0.3rem]">
             <a class="fr-link fr-link--download" href={url} title={name} data-sveltekit-reload>
               <!--
                             We truncate the name because if it wraps onto 2 lines, the DSFR makes the second
@@ -388,7 +390,7 @@
       </ul>
     {/if}
 
-    <h2>Dossier déposé</h2>
+    <h2 class="fr-mt-6w">Dossier déposé</h2>
     <a
       class="fr-btn fr-btn--secondary fr-mb-1w"
       target="_blank"
@@ -397,61 +399,3 @@
     >
   </section>
 </section>
-
-<style lang="scss">
-  .column {
-    h2 {
-      margin-top: 3rem;
-    }
-    & > :nth-child(1) {
-      margin-top: 0;
-    }
-  }
-  .row {
-    display: flex;
-    flex-direction: row;
-
-    & > :nth-child(1) {
-      flex: 3;
-      margin-right: 1rem;
-    }
-
-    & > :nth-child(2) {
-      flex: 2;
-    }
-  }
-
-  .container-title-especes-impactees {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .container-title-especes-impactees h2 {
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .container-title-cartographie {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 3rem;
-  }
-
-  .container-title-cartographie h2 {
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .pieces-jointes-petitionnaire {
-    list-style: none;
-    padding: 0;
-
-    li {
-      margin-bottom: 0.3rem;
-    }
-  }
-</style>
