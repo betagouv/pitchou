@@ -34,6 +34,16 @@ const phaseEventProperties = new Set([
 
 type DossierUpdate = Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>;
 
+// 23505 = unique_violation in PostgreSQL.
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: unknown }).code === "23505"
+  );
+}
+
 function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDossier {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     error(400, "Chaque évènement de phase doit être un objet.");
@@ -163,6 +173,14 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   } catch (err) {
     if (!transaction.isCompleted()) {
       await transaction.rollback();
+    }
+    // Re-submitting an identical phase event hits the (dossier, phase, timestamp)
+    // unique constraint. That is an expected conflict (double submit / replayed
+    // sync), not a server bug, so surface it as a handled error: the whole update
+    // is still rolled back above, but SvelteKit no longer logs/reports it as an
+    // unexpected crash.
+    if (isUniqueViolation(err)) {
+      error(500, "Un évènement de phase identique existe déjà pour ce dossier.");
     }
     throw err;
   }
