@@ -195,7 +195,7 @@
   }
 </script>
 
-<div class="header">
+<div class="flex flex-col fr-mt-2w">
   <DossiersToolbar
     {title}
     searchText={query.text}
@@ -225,7 +225,13 @@
     {#if statusMessage}{statusMessage}{/if}
   </div>
 
-  <h2 bind:this={pageTitleElement} tabindex="-1" class="page-title">{pageText}</h2>
+  <h2
+    bind:this={pageTitleElement}
+    tabindex="-1"
+    class="text-[1rem] fr-text--regular fr-mb-0 ml-auto focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
+  >
+    {pageText}
+  </h2>
 </div>
 
 <DossiersFilterModal
@@ -240,10 +246,10 @@
 />
 
 {#if displayedDossiers.length >= 1}
-  <div class="dossiers-list fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
-    <ul>
+  <div class="bg-[var(--background-contrast-grey)] fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
+    <ul class="list-none fr-p-0 fr-m-0">
       {#each displayedDossiers as dossier (dossier.id)}
-        <li>
+        <li class="[&:not(:last-child)]:mb-4">
           <CardDossier
             {dossier}
             {currentInstructeurFollowsDossier}
@@ -266,37 +272,3 @@
 {#if pageSelectors}
   <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
 {/if}
-
-<style>
-  .dossiers-list {
-    background: var(--background-contrast-grey);
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li:not(:last-child) {
-    margin-bottom: 1rem;
-  }
-
-  .header {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
-  }
-
-  .page-title {
-    font-size: 1rem;
-    font-weight: normal;
-    margin-bottom: 0;
-    margin-left: auto;
-  }
-
-  .page-title:focus {
-    outline: 2px solid var(--bf500);
-    outline-offset: 2px;
-  }
-</style>
