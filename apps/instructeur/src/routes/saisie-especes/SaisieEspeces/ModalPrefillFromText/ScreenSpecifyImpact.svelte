@@ -168,16 +168,16 @@
       Aucune espèce n'a été renseignée.
     {:else}
       {#if oiseauxToPrefill.size >= 1}
-        <section class="section-espece-by-classification">
-          <h3>
+        <section class="fr-mb-4w">
+          <h3 class="fr-mb-3v text-[1.25rem]">
             {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
           </h3>
-          <ul>
+          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
             {#each [...oiseauxToPrefill] as espece (espece)}
               {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
-              <li>
+              <li class="fr-p-0 text-[0.9rem]!">
                 <NomEspece espèce={espece} />
                 <button
                   bind:this={deleteButtonRefs[indexInList]}
@@ -201,16 +201,16 @@
         </section>
       {/if}
       {#if fauneNonOiseauxToPrefill.size >= 1}
-        <section class="section-espece-by-classification">
-          <h3>
+        <section class="fr-mb-4w">
+          <h3 class="fr-mb-3v text-[1.25rem]">
             {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
           </h3>
-          <ul>
+          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
             {#each [...fauneNonOiseauxToPrefill] as espece (espece)}
               {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
-              <li>
+              <li class="fr-p-0 text-[0.9rem]!">
                 <NomEspece espèce={espece} />
                 <button
                   bind:this={deleteButtonRefs[indexInList]}
@@ -234,14 +234,16 @@
         </section>
       {/if}
       {#if floreToPrefill.size >= 1}
-        <section class="section-espece-by-classification">
-          <h3>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h3>
-          <ul>
+        <section class="fr-mb-4w">
+          <h3 class="fr-mb-3v text-[1.25rem]">
+            {`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}
+          </h3>
+          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
             {#each [...floreToPrefill] as espece (espece)}
               {@const indexInList = especesImpacteesToPrefill.findIndex(
                 ({ espèce: especeImpactee }) => especeImpactee === espece,
               )}
-              <li>
+              <li class="fr-p-0 text-[0.9rem]!">
                 <NomEspece espèce={espece} />
                 <button
                   bind:this={deleteButtonRefs[indexInList]}
@@ -282,22 +284,3 @@
     onclick={onClickAddAll}>Tout ajouter</button
   >
 </div>
-
-<style>
-  .section-espece-by-classification {
-    margin-bottom: 2rem;
-    h3 {
-      margin-bottom: 0.75rem;
-      font-size: 1.25rem;
-    }
-    ul {
-      margin: 0;
-      margin-bottom: 2rem;
-      list-style: none;
-    }
-    li {
-      padding: 0 !important;
-      font-size: 0.9rem !important;
-    }
-  }
-</style>
