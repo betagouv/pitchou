@@ -53,6 +53,18 @@ export const load: PageServerLoad = async () => {
       detail: "Apprentissages, déploiement et point produit",
       icon: "fr-icon-file-text-line",
     },
+    {
+      href: privateEnv.URL_FICHIERS,
+      title: "Fichiers",
+      detail: "Espace de stockage des fichiers de l'équipe",
+      icon: "fr-icon-folder-2-line",
+    },
+    {
+      href: privateEnv.URL_GOOGLE_DRIVE,
+      title: "Google Drive",
+      detail: "Documents partagés de l'équipe",
+      icon: "fr-icon-google-line",
+    },
   ];
 
   const links: DashboardLink[] = candidates.filter((link): link is DashboardLink =>
