@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { departementName } from "@pitchou/common/departements.ts";
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
 import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
 
@@ -62,6 +63,12 @@ export function getDocumentGenerationTags(
     scientifique_other_intervenants_details: scientifiqueOtherIntervenantsDetails,
   } = dossier;
 
+  // json column, so it may not be an array at runtime
+  const departmentCodes: string[] | undefined = Array.isArray(departments)
+    ? departments
+    : undefined;
+  const mainDepartmentCode: string | undefined = departmentCodes?.[0];
+
   // Transform the impacted especes if they exist
   const groupedEspecesByImpact: EspecesByActivite[] | undefined = createEspecesGroupedByImpact(
     especesImpactees,
@@ -91,8 +98,10 @@ export function getDocumentGenerationTags(
     date_fin_consultation_public: publicConsultationEndDate,
     description,
     date_dépôt: depotDate,
-    département_principal: Array.isArray(departments) ? departments[0] : undefined,
-    liste_départements: departments || undefined,
+    département_principal: mainDepartmentCode,
+    nom_département_principal: mainDepartmentCode && departementName(mainDepartmentCode),
+    liste_départements: departmentCodes,
+    liste_noms_départements: departmentCodes?.map(departementName),
     enjeu,
     justification_absence_autre_solution_satisfaisante: noOtherSatisfactorySolutionJustification,
     mesures_erc_prévues: ercMesuresPlanned === null ? "Non renseigné" : ercMesuresPlanned,

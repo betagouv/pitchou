@@ -119,7 +119,7 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{département_principal}</code></th>
                             <td> texte</td>
-                            <td> Code du département principale du dossier (<code>33</code>, <code>2B</code>, etc.)</td>
+                            <td> Code du département principal du dossier (<code>33</code>, <code>2B</code>, etc.). Voir <code>{nom_département_principal}</code> pour le nom en toutes lettres.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{description}</code></th>
@@ -169,7 +169,12 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{liste_départements}</code></th>
                             <td> liste de textes</td>
-                            <td> Code des codes de départements dossier</code>.</td>
+                            <td> Codes des départements du dossier (<code>33</code>, <code>2B</code>, etc.). Voir <code>{liste_noms_départements}</code> pour les noms en toutes lettres.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{liste_noms_départements}</code></th>
+                            <td> liste de textes</td>
+                            <td> Noms des départements du dossier (<code>Gironde</code>, <code>Haute-Corse</code>, etc.), dans le même ordre que <code>{liste_départements}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{localisation}</code></th>
@@ -215,6 +220,11 @@ Les balises ont des types qui peuvent être :
                             <th scope="row"> <code>{nom}</code></th>
                             <td> texte</td>
                             <td> Nom du dossier</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{nom_département_principal}</code></th>
+                            <td> texte</td>
+                            <td> Nom du département principal du dossier (<code>Gironde</code>, <code>Haute-Corse</code>, etc.)</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{régime_autorisation_environnementale}</code></th>
@@ -627,6 +637,34 @@ Voici les oiseaux les plus importants au monde :
 🐦 oiseau impacté : fauvette pitchou
 🐦 oiseau impacté : aigle botté
 🐦 oiseau impacté : coucou geai
+```
+
+### Afficher les départements
+
+Les départements du dossier sont disponibles sous deux formes : les codes (<code>{département_principal}</code> et <code>{liste_départements}</code>) et les noms en toutes lettres (<code>{nom_département_principal}</code> et <code>{liste_noms_départements}</code>). Vous pouvez utiliser l'une, l'autre, ou les deux ensemble.
+
+Imaginons un dossier situé dans les départements <code>33</code>, <code>40</code> et <code>64</code>, et un document-type qui contient :
+
+```
+Le projet se situe principalement dans le département suivant : { nom_département_principal } ({ département_principal }).
+
+Il concerne au total les départements suivants :
+
+{#each liste_noms_départements as département}
+- {département}
+{/each}
+```
+
+Le document généré ressemblera à :
+
+```
+Le projet se situe principalement dans le département suivant : Gironde (33).
+
+Il concerne au total les départements suivants :
+
+- Gironde
+- Landes
+- Pyrénées-Atlantiques
 ```
 
 ## Points de vigilance

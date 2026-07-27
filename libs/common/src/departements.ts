@@ -122,3 +122,11 @@ export const departements: Departement[] = [
 export const departementNameByCode: Map<string, string> = new Map(
   departements.map(({ code, name }) => [code, name]),
 );
+
+/**
+ * Departement name for an INSEE code, falling back to the code itself when unknown,
+ * so that a dossier carrying an unexpected code still displays something.
+ */
+export function departementName(code: string): string {
+  return departementNameByCode.get(code) ?? code;
+}
