@@ -22,6 +22,7 @@ import {
 import { getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
@@ -57,7 +58,7 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   expect(detail.evenementsPhase[0].caused_by_email).toBe(ADMIN_EMAIL);
 
   // The instructeurs of the groupe see the dossier through their cap.
-  const summaries = await getDossiersSummariesByCap(instructeur.cap, db);
+  const summaries = await getDossiersSummariesByCap(instructeur.cap as CapDossierCap, db);
   expect(summaries.map((summary) => summary.id)).toContain(id);
 
   // The "pitchou" source filter finds it, the "dn" filter does not.

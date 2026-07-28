@@ -1,97 +1,15 @@
 import { AccessDeniedError } from "./adminEspeces.ts";
+import type {
+  AdminDossierCreationPayload,
+  AdminDossierDetail,
+  AdminDossierUpdatePayload,
+  AdminGroupeInstructeurs,
+  DossiersPage,
+  DossiersQuery,
+} from "./adminDossierTypes.ts";
 
 export { AccessDeniedError };
-
-export type AdminDossierSummary = {
-  id: number;
-  name: string | null;
-  demarche_numerique_number: string | null;
-  depot_date: string;
-  phase: string;
-  demandeur_last_name: string | null;
-  demandeur_first_names: string | null;
-  demandeur_entreprise: string | null;
-  groupe_name: string | null;
-};
-
-export type DossiersQuery = {
-  search: string;
-  /** "" for every phase */
-  phase: string;
-  /** "" | "pitchou" | "dn" */
-  source: string;
-  page: number;
-  pageSize: number;
-};
-
-export type DossiersPage = {
-  dossiers: AdminDossierSummary[];
-  total: number;
-};
-
-export type AdminGroupeInstructeurs = {
-  id: string;
-  name: string;
-  demarche_number: number | null;
-};
-
-export type AdminPhaseHistoryEntry = {
-  phase: string;
-  timestamp: string;
-  caused_by_email: string | null;
-  demarche_numerique_agent_email: string | null;
-};
-
-export type AdminPieceJointe = {
-  id: string;
-  name: string;
-  media_type: string | null;
-  size: number | null;
-  created_at: string;
-  demarche_numerique_created_at: string | null;
-};
-
-export type AdminDossierDetail = {
-  dossier: Record<string, unknown> & {
-    id: number;
-    name: string | null;
-    demarche_numerique_number: string | null;
-    demarche_number: number | null;
-    depot_date: string;
-  };
-  managedByDn: boolean;
-  phase: string;
-  demandeur_personne_physique: {
-    last_name: string | null;
-    first_names: string | null;
-    email: string | null;
-  } | null;
-  demandeur_personne_morale: { siret: string; legal_name: string | null } | null;
-  groupe: { id: string; name: string } | null;
-  identites: unknown[];
-  evenementsPhase: AdminPhaseHistoryEntry[];
-  piecesJointes: AdminPieceJointe[];
-  especesImpactees: { id: string; name: string; media_type: string | null } | null;
-};
-
-export type AdminDossierCreationPayload = {
-  name: string;
-  depot_date: string;
-  phase: string;
-  groupe_instructeurs: string;
-  demandeur_personne_physique: {
-    last_name: string;
-    first_names: string;
-    email: string | null;
-  } | null;
-  demandeur_personne_morale: { siret: string; legal_name: string | null } | null;
-  columns?: Record<string, unknown>;
-};
-
-export type AdminDossierUpdatePayload = {
-  columns?: Record<string, unknown>;
-  evenementsPhase?: { phase: string; timestamp: string }[];
-};
+export type * from "./adminDossierTypes.ts";
 
 export function defaultDossiersQuery(): DossiersQuery {
   return { search: "", phase: "", source: "", page: 1, pageSize: 50 };
@@ -191,6 +109,13 @@ export async function uploadEspecesImpactees(dossierId: number, file: File): Pro
     body: form,
   });
   await checkResponse(response, "de l'envoi du fichier espèces impactées");
+}
+
+export async function deleteEspecesImpactees(dossierId: number): Promise<void> {
+  const response = await fetch(`/api/dossiers/${dossierId}/especes-impactees`, {
+    method: "DELETE",
+  });
+  await checkResponse(response, "de la suppression du fichier espèces impactées");
 }
 
 export async function loadGroupesInstructeurs(): Promise<AdminGroupeInstructeurs[]> {

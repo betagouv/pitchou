@@ -1,7 +1,10 @@
 import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
-import { setEspecesImpacteesFromAdmin } from "@pitchou/server/database/dossier_admin_files.ts";
+import {
+  deleteEspecesImpacteesFromAdmin,
+  setEspecesImpacteesFromAdmin,
+} from "@pitchou/server/database/dossier_admin_files.ts";
 import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
 
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
@@ -24,4 +27,17 @@ export const POST: RequestHandler = async ({ params, request }) => {
   } catch (err) {
     throwHttpErrorForAdminDossier(err);
   }
+};
+
+export const DELETE: RequestHandler = async ({ params }) => {
+  const dossierId = parseDossierId(params.dossierId!);
+
+  try {
+    const deleted = await deleteEspecesImpacteesFromAdmin(dossierId);
+    if (!deleted) error(404, "No fichier especes impactees found for this dossier.");
+  } catch (err) {
+    throwHttpErrorForAdminDossier(err);
+  }
+
+  return new Response(null, { status: 204 });
 };

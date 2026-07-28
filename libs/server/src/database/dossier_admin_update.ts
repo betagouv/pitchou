@@ -1,0 +1,62 @@
+import type { Knex } from "knex";
+
+import { directDatabaseConnection } from "../database.ts";
+import { updateDossier } from "./dossier.ts";
+import { DossierManagedByDnError } from "./dossier_admin_errors.ts";
+import { ensurePersonneIdByEmail } from "./dossier_admin_personne.ts";
+import {
+  assertEditableDossierColumns,
+  DN_DERIVED_DOSSIER_COLUMNS,
+  getDossierSyncStatus,
+} from "./dossier_admin_policy.ts";
+import { updateDossierAdminRelations } from "./dossier_admin_relations.ts";
+
+import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { AdminDossierUpdate } from "./dossier_admin_types.ts";
+
+/** Updates dossier fields, phase events, and relations on behalf of an admin. */
+export async function updateDossierFromAdmin(
+  dossierId: DossierId,
+  update: AdminDossierUpdate,
+  adminEmail: string,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
+  assertEditableDossierColumns(update.columns);
+
+  await databaseConnection.transaction(async (trx) => {
+    const { managedByDn } = await getDossierSyncStatus(dossierId, trx);
+
+    if (managedByDn) {
+      if (update.relations) {
+        throw new DossierManagedByDnError(dossierId, ["relations"]);
+      }
+      const dnFields = Object.keys(update.columns ?? {}).filter((key) =>
+        DN_DERIVED_DOSSIER_COLUMNS.has(key as keyof Dossier),
+      );
+      if (dnFields.length >= 1) {
+        throw new DossierManagedByDnError(dossierId, dnFields);
+      }
+    }
+
+    const adminPersonneId = await ensurePersonneIdByEmail(adminEmail, trx);
+    const evenementsPhase = update.evenementsPhase?.map(({ phase, timestamp }) => ({
+      dossier: dossierId,
+      phase,
+      timestamp,
+      caused_by_personne: null,
+      demarche_numerique_agent_email: null,
+      demarche_numerique_motivation: null,
+    }));
+
+    await updateDossier(
+      dossierId,
+      { ...update.columns, ...(evenementsPhase ? { evenementsPhase } : {}) },
+      adminPersonneId,
+      trx,
+    );
+
+    if (update.relations) {
+      await updateDossierAdminRelations(dossierId, update.relations, trx);
+    }
+  });
+}

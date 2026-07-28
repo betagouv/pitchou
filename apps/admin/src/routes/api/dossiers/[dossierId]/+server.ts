@@ -42,7 +42,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     await updateDossierFromAdmin(dossierId, update, locals.user!.email);
   } catch (err) {
     if (isUniqueViolation(err)) {
-      error(409, "Un évènement de phase identique existe déjà pour ce dossier.");
+      error(409, "An identical phase event already exists for this dossier.");
     }
     throwHttpErrorForAdminDossier(err);
   }

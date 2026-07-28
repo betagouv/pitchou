@@ -90,3 +90,23 @@ export async function setEspecesImpacteesFromAdmin(
     return stored;
   });
 }
+
+/** Clears the fichier especes impactees and deletes it if it is now orphaned. */
+export async function deleteEspecesImpacteesFromAdmin(
+  dossierId: DossierId,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<boolean> {
+  return databaseConnection.transaction(async (trx) => {
+    await requireNativeDossier(dossierId, trx);
+
+    const current = await trx("dossier")
+      .select("especes_impactees")
+      .where({ id: dossierId })
+      .first();
+    if (!current?.especes_impactees) return false;
+
+    await trx("dossier").update({ especes_impactees: null }).where({ id: dossierId });
+    await deleteFichiersWithoutOtherReferences([current.especes_impactees], trx);
+    return true;
+  });
+}

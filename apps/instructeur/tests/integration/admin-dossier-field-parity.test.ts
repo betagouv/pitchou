@@ -1,0 +1,107 @@
+import { expect, test } from "vitest";
+
+import { db } from "../setup/db.ts";
+import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
+import {
+  createDossierFromAdmin,
+  DN_DERIVED_DOSSIER_COLUMNS,
+  updateDossierFromAdmin,
+} from "@pitchou/server/database/dossier_admin.ts";
+import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
+import {
+  dossierMainActiviteOptions,
+  motifDerogationOptions,
+  scientifiqueDemandePurposeOptions,
+  scientifiqueDemandeTypeOptions,
+} from "@pitchou/common/dossierFormOptions.ts";
+
+import type { DossierId, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
+import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
+
+const ADMIN_EMAIL = "admin-parity@pitchou.test";
+const communes = [{ name: "Lyon", code: "69123", postalCode: "69001" }];
+const projetMap = {
+  type: "FeatureCollection",
+  features: [{ type: "Feature", geometry: { type: "Point", coordinates: [4.83, 45.76] } }],
+};
+const intervenants = [{ nom_complet: "Camille Martin", qualification: "Ecologue" }];
+
+const allDnColumns = {
+  name: "Dossier complet",
+  description: "Description complète",
+  depot_date: new Date("2026-07-10"),
+  main_activite: dossierMainActiviteOptions[0],
+  type: "Hirondelle",
+  intervention_start_date: new Date("2026-08-01"),
+  intervention_end_date: new Date("2026-08-31"),
+  commissioning_date: new Date("2026-09-01"),
+  intervention_duration: 12,
+  communes: JSON.stringify(communes),
+  departments: JSON.stringify(["69"]),
+  regions: JSON.stringify(["Auvergne-Rhône-Alpes"]),
+  projet_map: JSON.stringify(projetMap),
+  linked_to_ae_regime: true,
+  mesures_erc_planned: false,
+  ecological_inventory_completed: true,
+  especes_present_in_influence_area: true,
+  risk_despite_erc_mesures: false,
+  no_other_satisfactory_solution_justification: "Aucune autre solution",
+  motif_derogation: motifDerogationOptions[0],
+  motif_derogation_justification: "Motif justifié",
+  dossier_oiseau_simple_destroyed_nids_count: 3,
+  dossier_oiseau_simple_compensated_nids_count: 6,
+  scientifique_demande_type: JSON.stringify([scientifiqueDemandeTypeOptions[0]]),
+  scientifique_demande_purposes: JSON.stringify([scientifiqueDemandePurposeOptions[0]]),
+  scientifique_previous_assessment: true,
+  scientifique_suivi_protocol_description: "Protocole",
+  scientifique_capture_mode: JSON.stringify(["Manuelle", "Piège adapté"]),
+  scientifique_light_source_conditions: "Éclairage limité",
+  scientifique_marking_conditions: "Marquage temporaire",
+  scientifique_transport_conditions: "Transport ventilé",
+  scientifique_intervention_perimeter: "Métropole de Lyon",
+  scientifique_intervenants: JSON.stringify(intervenants),
+  scientifique_other_intervenants_details: "Participation de bénévoles",
+} as unknown as DossierMutator;
+
+test("all DN intake columns round-trip on a native dossier", async () => {
+  const instructeur = await createInstructeurWithCapToGroup(db);
+  const { id } = await createDossierFromAdmin(
+    {
+      name: "Dossier initial",
+      depot_date: new Date("2026-07-01"),
+      phase: "Accompagnement amont",
+      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
+      demandeur_personne_physique: { last_name: "Martin", first_names: "Camille" },
+    },
+    ADMIN_EMAIL,
+    db,
+  );
+
+  await updateDossierFromAdmin(id, { columns: allDnColumns }, ADMIN_EMAIL, db);
+  const { dossier } = await getDossierDetailForAdmin(id, db);
+
+  expect(dossier).toMatchObject({
+    name: "Dossier complet",
+    main_activite: dossierMainActiviteOptions[0],
+    type: "Hirondelle",
+    intervention_duration: 12,
+    linked_to_ae_regime: true,
+    mesures_erc_planned: false,
+    motif_derogation: motifDerogationOptions[0],
+    scientifique_previous_assessment: true,
+  });
+  expect(dossier.communes).toEqual(communes);
+  expect(dossier.departments).toEqual(["69"]);
+  expect(dossier.regions).toEqual(["Auvergne-Rhône-Alpes"]);
+  expect(dossier.projet_map).toEqual(projetMap);
+  expect(dossier.scientifique_intervenants).toEqual(intervenants);
+  expect(dossier.scientifique_capture_mode).toEqual(["Manuelle", "Piège adapté"]);
+});
+
+test("every DN intake column is rejected on a synchronized dossier", async () => {
+  const dossier = await createDossier(db, { demarche_numerique_number: "910200" });
+
+  await expect(
+    updateDossierFromAdmin(dossier.id as DossierId, { columns: allDnColumns }, ADMIN_EMAIL, db),
+  ).rejects.toMatchObject({ fields: [...DN_DERIVED_DOSSIER_COLUMNS] });
+});

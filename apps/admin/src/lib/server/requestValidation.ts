@@ -5,11 +5,11 @@ export async function readJsonObject(request: Request): Promise<Record<string, u
   try {
     value = await request.json();
   } catch {
-    error(400, "Corps JSON invalide.");
+    error(400, "Invalid JSON body.");
   }
 
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    error(400, "Le corps de la requête doit être un objet JSON.");
+    error(400, "The request body must be a JSON object.");
   }
 
   return value as Record<string, unknown>;
@@ -21,6 +21,6 @@ export function rejectUnknownProperties(
 ): void {
   const unknownProperty = Object.keys(value).find((property) => !allowedProperties.has(property));
   if (unknownProperty) {
-    error(400, `Propriété non reconnue '${unknownProperty}'.`);
+    error(400, `Unknown property '${unknownProperty}'.`);
   }
 }

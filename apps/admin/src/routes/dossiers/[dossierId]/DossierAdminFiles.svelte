@@ -3,6 +3,7 @@
     uploadPieceJointe,
     deletePieceJointe,
     uploadEspecesImpactees,
+    deleteEspecesImpactees,
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
 
@@ -119,7 +120,17 @@
 
   <h2 class="fr-h4">Espèces impactées</h2>
   {#if detail.especesImpactees}
-    <p>Fichier actuel : {detail.especesImpactees.name}</p>
+    <div class="flex items-center gap-4 flex-wrap fr-mb-2w">
+      <p class="fr-mb-0">Fichier actuel : {detail.especesImpactees.name}</p>
+      <button
+        type="button"
+        class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line fr-btn--icon-left"
+        disabled={busy}
+        onclick={() => run(() => deleteEspecesImpactees(detail.dossier.id))}
+      >
+        Supprimer
+      </button>
+    </div>
   {:else}
     <p>Aucun fichier d'espèces impactées.</p>
   {/if}
