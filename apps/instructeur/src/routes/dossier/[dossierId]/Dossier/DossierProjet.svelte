@@ -391,11 +391,17 @@
     {/if}
 
     <h2 class="fr-mt-6w">Dossier déposé</h2>
-    <a
-      class="fr-btn fr-btn--secondary fr-mb-1w"
-      target="_blank"
-      href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}`}
-      >Dossier sur Démarche Numérique</a
-    >
+    {#if numdos}
+      <a
+        class="fr-btn fr-btn--secondary fr-mb-1w"
+        target="_blank"
+        href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}`}
+        >Dossier sur Démarche Numérique</a
+      >
+    {:else}
+      <p class="fr-text-mention--grey">
+        Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
+      </p>
+    {/if}
   </section>
 </section>

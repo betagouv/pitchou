@@ -27,14 +27,22 @@
 <div class="flex flex-row justify-between fr-mb-4w">
   <h2 class="fr-mb-0">Échanges avec le pétitionnaire</h2>
 
-  <a
-    class="fr-btn fr-mb-w"
-    target="_blank"
-    href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}/messagerie`}
-  >
-    Répondre sur Démarche Numérique
-  </a>
+  {#if numdos}
+    <a
+      class="fr-btn fr-mb-w"
+      target="_blank"
+      href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}/messagerie`}
+    >
+      Répondre sur Démarche Numérique
+    </a>
+  {/if}
 </div>
+
+{#if !numdos}
+  <p class="fr-text-mention--grey">
+    Ce dossier a été créé directement dans Pitchou : il n'a pas de messagerie Démarches Numériques.
+  </p>
+{/if}
 
 <article class="list-none fr-mx-0 fr-p-0 fr-mt-2w fr-mb-4w">
   {#each sortedMessages as { content, date, sender_email }}

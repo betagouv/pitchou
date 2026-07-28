@@ -105,7 +105,9 @@
     </button>
     <h1 class="fr-mb-0 text-[1.5rem] leading-[1.3] text-[color:var(--text-title-grey)]">
       <span class="font-normal text-[color:var(--text-mention-grey)]"
-        >Dossier n°{dossier.demarche_numerique_number ?? "non renseigné"}&nbsp;:</span
+        >{dossier.demarche_numerique_number
+          ? `Dossier n°${dossier.demarche_numerique_number}`
+          : `Dossier Pitchou n°${dossier.id}`}&nbsp;:</span
       >
       {dossier.name}
     </h1>

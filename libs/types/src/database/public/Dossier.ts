@@ -133,7 +133,7 @@ export default interface Dossier {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type: TypeDossier | null;
 
-  demarche_number: number;
+  demarche_number: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed: boolean | null;
@@ -290,7 +290,7 @@ export interface DossierInitializer {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type?: TypeDossier | null;
 
-  demarche_number: number;
+  demarche_number?: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed?: boolean | null;
@@ -443,7 +443,7 @@ export interface DossierMutator {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type?: TypeDossier | null;
 
-  demarche_number?: number;
+  demarche_number?: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed?: boolean | null;

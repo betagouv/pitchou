@@ -155,7 +155,8 @@ export function getDocumentGenerationTags(
       intervenants: scientifiqueIntervenants,
       précisions_autres_intervenants: scientifiqueOtherIntervenantsDetails,
     },
-    numéro_dossier: dossier.demarche_numerique_number,
+    // Dossiers created directly in Pitchou have no DN number: fall back to the Pitchou id
+    numéro_dossier: dossier.demarche_numerique_number ?? String(dossier.id),
     // deprecated
     identifiant_pitchou: dossier.id,
     //Functions

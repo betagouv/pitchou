@@ -1165,8 +1165,11 @@ async function getDescriptionsPiecesJointesPetitionnaire(
     .where({ dossier: dossierId });
 }
 
-export function deleteDossierByDSNumber(numbers: number[]) {
-  return directDatabaseConnection("dossier").whereIn("demarche_numerique_number", numbers).delete();
+export function deleteDossierByDSNumber(
+  numbers: number[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+) {
+  return databaseConnection("dossier").whereIn("demarche_numerique_number", numbers).delete();
 }
 
 export async function updateDossier(
