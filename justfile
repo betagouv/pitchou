@@ -61,8 +61,8 @@ check-svelte: sync
 check-types: sync
     corepack pnpm -r exec tsc
 
-# Fail if any .svelte/.ts file exceeds the max line count (default 300)
-check-file-length MAX="300":
+# Fail if any .svelte/.ts file exceeds the max line count (default 200)
+check-file-length MAX="200":
     {{ tsx }} scripts/check-file-length.ts --max {{ MAX }}
 
 # Run all CI checks (check + build + tests). Use before pushing.
@@ -147,9 +147,9 @@ sync:
 # Generate all types (database + Démarche Numérique)
 generate-types: generate-types-db generate-types-ds
 
-# Generate types from the database schema
+# Generate types from the database schema (connection + output configured in .kanelrc.cjs)
 generate-types-db:
-    kanel -d "$DATABASE_URL" -o ./libs/types/src/database
+    kanel -c .kanelrc.cjs
 
 # Generate Démarche Numérique schema types (downloads the latest schema version)
 generate-types-ds:

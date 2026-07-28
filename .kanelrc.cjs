@@ -87,6 +87,9 @@ async function formatWithPrettier(path, lines) {
 }
 
 module.exports = {
+  // Kanel 4 dropped the -d/-o CLI flags; connection and output live here now.
+  connection: process.env.DATABASE_URL,
+  outputPath: "./libs/types/src/database",
   enumStyle: "type",
   customTypeMap: {
     "pg_catalog.bytea": "Buffer",
