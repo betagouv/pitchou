@@ -1,7 +1,7 @@
 /** Thrown when the target dossier does not exist. */
 export class DossierNotFoundError extends Error {
   constructor(dossierId: number) {
-    super(`Dossier ${dossierId} not found`);
+    super(`Dossier ${dossierId} introuvable`);
     this.name = "DossierNotFoundError";
   }
 }
