@@ -94,7 +94,7 @@
   }
 </script>
 
-<form class="w-full flex flex-col gap-6 fr-mt-3w" onsubmit={save}>
+<form class="w-full flex flex-col gap-6 fr-mt-3w" style="overflow-anchor: none" onsubmit={save}>
   {#if managedByDn}
     <p class="fr-hint-text fr-mb-0">
       Les sections importées de Démarches Numériques sont affichées en lecture seule.
