@@ -18,7 +18,7 @@
 
   const dossierId = Number(page.params.dossierId);
 
-  let detail = $state<AdminDossierDetail | null>(data.detail);
+  let detail = $derived<AdminDossierDetail | null>(data.detail);
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
 
@@ -50,7 +50,6 @@
       deleting = false;
     }
   }
-
 </script>
 
 <svelte:head>
