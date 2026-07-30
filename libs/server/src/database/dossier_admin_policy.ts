@@ -35,6 +35,7 @@ export const DN_DERIVED_DOSSIER_COLUMNS = new Set<keyof Dossier>([
   "communes",
   "departments",
   "regions",
+  "location_scope",
   "projet_map",
   "linked_to_ae_regime",
   "mesures_erc_planned",

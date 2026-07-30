@@ -1,6 +1,7 @@
 import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
 export type TriState = "" | "oui" | "non";
+export type LocationScope = "" | "communes" | "departements" | "regions" | "france";
 export type Commune = {
   name: string;
   code?: string;
@@ -13,7 +14,13 @@ export type ScientificIntervenant = {
 };
 export type FeatureCollection = {
   type: "FeatureCollection";
-  features: unknown[];
+  features: ProjectMapFeature[];
+  [key: string]: unknown;
+};
+export type ProjectMapFeature = {
+  type: "Feature";
+  geometry: { type: string; coordinates?: unknown; geometries?: unknown };
+  properties: Record<string, unknown> | null;
   [key: string]: unknown;
 };
 
@@ -31,6 +38,15 @@ const nullableText = (value: string) => value.trim() || null;
 const nullableDate = (value: string) => value || null;
 const nullableBoolean = (value: TriState) =>
   value === "oui" ? true : value === "non" ? false : null;
+const locationScope = (value: unknown, dossier: AdminDossierDetail["dossier"]): LocationScope => {
+  if (["communes", "departements", "regions", "france"].includes(value as string)) {
+    return value as LocationScope;
+  }
+  if (Array.isArray(dossier.communes) && dossier.communes.length >= 1) return "communes";
+  if (Array.isArray(dossier.regions) && dossier.regions.length >= 1) return "regions";
+  if (Array.isArray(dossier.departments) && dossier.departments.length >= 1) return "departements";
+  return "";
+};
 
 function communes(value: unknown): Commune[] {
   if (!Array.isArray(value)) return [];
@@ -77,6 +93,7 @@ export function createDossierAdminColumnModel(dossier: AdminDossierDetail["dossi
     communes: communes(dossier.communes),
     departments: stringList(dossier.departments),
     regions: stringList(dossier.regions),
+    locationScope: locationScope(dossier.location_scope, dossier),
     projetMap: featureCollection(dossier.projet_map),
     linkedToAeRegime: triState(dossier.linked_to_ae_regime),
     mesuresErcPlanned: triState(dossier.mesures_erc_planned),
@@ -138,6 +155,7 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
     communes: model.communes,
     departments: model.departments,
     regions: model.regions,
+    location_scope: nullableText(model.locationScope),
     projet_map: model.projetMap,
     linked_to_ae_regime: nullableBoolean(model.linkedToAeRegime),
     mesures_erc_planned: nullableBoolean(model.mesuresErcPlanned),

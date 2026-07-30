@@ -157,6 +157,9 @@ export default interface Dossier {
   commissioning_date: Date | null;
 
   projet_map: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -317,6 +320,9 @@ export interface DossierInitializer {
   commissioning_date?: Date | null;
 
   projet_map?: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -467,4 +473,7 @@ export interface DossierMutator {
   commissioning_date?: Date | null;
 
   projet_map?: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope?: string | null;
 }

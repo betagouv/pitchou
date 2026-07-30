@@ -13,6 +13,7 @@
     "@sentry/sveltekit": "catalog:",
     "jose": "catalog:",
     "knex": "catalog:",
+    "maplibre-gl": "catalog:",
     "pg": "catalog:"
   },
   "devDependencies": {

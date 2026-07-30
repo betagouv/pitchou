@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
@@ -13,11 +12,13 @@
   } from "$lib/actions/adminDossiers.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
-  import DossierAdminFiles from "./DossierAdminFiles.svelte";
+  import type { PageData } from "./$types";
+
+  let { data }: { data: PageData } = $props();
 
   const dossierId = Number(page.params.dossierId);
 
-  let detail = $state<AdminDossierDetail | null>(null);
+  let detail = $state<AdminDossierDetail | null>(data.detail);
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
 
@@ -50,7 +51,6 @@
     }
   }
 
-  onMount(reload);
 </script>
 
 <svelte:head>
@@ -115,13 +115,11 @@
     </div>
   {/if}
 
-  <DossierAdminForm {detail} onSaved={(updated) => (detail = updated)} />
+  <DossierAdminForm {detail} onSaved={(updated) => (detail = updated)} onFilesChanged={reload} />
 
   <DossierPhaseHistory {detail} onChanged={(updated) => (detail = updated)} />
 
   {#if !detail.managedByDn}
-    <DossierAdminFiles {detail} onChanged={reload} />
-
     <section class="fr-mt-6w fr-pt-3w border-t border-[color:var(--border-default-grey)]">
       <h2 class="fr-h4">Supprimer le dossier</h2>
       {#if !confirmingDelete}

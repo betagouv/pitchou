@@ -50,6 +50,7 @@ export const COLUMN_KINDS: Record<string, ColumnKind> = {
   scientifique_capture_mode: "stringArray",
   departments: "stringArray",
   regions: "stringArray",
+  location_scope: "string",
   communes: "communes",
   scientifique_intervenants: "intervenants",
   projet_map: "geoJson",

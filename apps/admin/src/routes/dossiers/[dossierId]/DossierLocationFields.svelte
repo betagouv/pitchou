@@ -1,10 +1,10 @@
 <script lang="ts">
   import MultiSelectFilter, { type FilterOption } from "@pitchou/ui/MultiSelectFilter.svelte";
-  import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
-  import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
+  import type { DossierAdminFormModel, LocationScope } from "./dossierAdminFormModel.ts";
   import CommuneSelector from "./CommuneSelector.svelte";
+  import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
   import DossierProjectMapField from "./DossierProjectMapField.svelte";
 
   type Props = { model: DossierAdminFormModel; disabled: boolean };
@@ -20,60 +20,78 @@
     ];
   }
 
-  const departmentOptions = $derived(
-    includeLegacy(
-      departements.map(({ code, name }) => ({ value: code, label: `${code} - ${name}` })),
-      model.departments,
-    ),
-  );
   const regionOptions = $derived(
     includeLegacy(
       dossierRegionOptions.map((region) => ({ value: region, label: region })),
       model.regions,
     ),
   );
+
+  const scopes: { value: LocationScope; label: string }[] = [
+    { value: "communes", label: "d'une ou plusieurs communes" },
+    { value: "departements", label: "d'un ou plusieurs départements" },
+    { value: "regions", label: "d'une ou plusieurs régions" },
+    { value: "france", label: "de toute la France" },
+    { value: "", label: "Non renseigné" },
+  ];
 </script>
 
-<fieldset class="fr-fieldset w-full" aria-label="Localisation" {disabled}>
-  <legend class="fr-fieldset__legend fr-text--bold">Localisation</legend>
-  <div class="fr-fieldset__element">
+<div class="w-full flex flex-col gap-6">
+  <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="edit-location-scope-legend">
+    <legend class="fr-fieldset__legend fr-text--regular" id="edit-location-scope-legend">
+      Le projet se situe au niveau…
+    </legend>
+    {#each scopes as scope (scope.value)}
+      <div class="fr-fieldset__element">
+        <div class="fr-radio-group">
+          <input
+            id={`edit-location-scope-${scope.value || "empty"}`}
+            type="radio"
+            name="edit-location-scope"
+            value={scope.value}
+            checked={model.locationScope === scope.value}
+            onchange={() => (model.locationScope = scope.value)}
+          />
+          <label class="fr-label" for={`edit-location-scope-${scope.value || "empty"}`}>
+            {scope.label}
+          </label>
+        </div>
+      </div>
+    {/each}
+  </fieldset>
+
+  {#if model.locationScope === "communes"}
     <CommuneSelector
       value={model.communes}
       {disabled}
       onChange={(value) => (model.communes = value)}
     />
-  </div>
-  <div class="fr-fieldset__element">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-      <div class="fr-select-group w-full">
-        <label class="fr-label" for="edit-departments">Départements</label>
-        <MultiSelectFilter
-          id="edit-departments"
-          label="Départements"
-          allLabel="Aucun département"
-          options={departmentOptions}
-          selected={model.departments}
-          onChange={(value) => (model.departments = value)}
-        />
-      </div>
-      <div class="fr-select-group w-full">
-        <label class="fr-label" for="edit-regions">Régions</label>
-        <MultiSelectFilter
-          id="edit-regions"
-          label="Régions"
-          allLabel="Aucune région"
-          options={regionOptions}
-          selected={model.regions}
-          onChange={(value) => (model.regions = value)}
-        />
-      </div>
+  {:else if model.locationScope === "departements"}
+    <DepartmentMultiSelect
+      id="edit-location-departments"
+      label="Département(s) où se situe le projet"
+      selected={model.departments}
+      onChange={(value) => (model.departments = value)}
+    />
+  {:else if model.locationScope === "regions"}
+    <div class="fr-select-group w-full">
+      <label class="fr-label" for="edit-regions">Région(s) où se situe le projet</label>
+      <MultiSelectFilter
+        id="edit-regions"
+        label="Régions"
+        allLabel="Aucune région"
+        options={regionOptions}
+        selected={model.regions}
+        onChange={(value) => (model.regions = value)}
+      />
     </div>
-  </div>
-  <div class="fr-fieldset__element">
+  {/if}
+
+  <div>
     <DossierProjectMapField
       value={model.projetMap}
       {disabled}
       onChange={(value) => (model.projetMap = value)}
     />
   </div>
-</fieldset>
+</div>

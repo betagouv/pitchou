@@ -43,6 +43,13 @@ export const dossierMainActiviteOptions = [
   "Autre",
 ] as const;
 
+export const dossierLocationScopeOptions = [
+  "communes",
+  "departements",
+  "regions",
+  "france",
+] as const;
+
 export const motifDerogationOptions = [
   "Pour des raisons impératives d'intérêt public majeur (RIIPM) (santé, sécurité publique, sociale, économique conséquences bénéfiques primordiales pour l’environnement)",
   "Dans l’intérêt de la sécurité aérienne",

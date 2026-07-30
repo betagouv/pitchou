@@ -181,77 +181,88 @@
       </div>
     </fieldset>
 
-    <fieldset class="fr-fieldset" aria-label="Demandeur">
-      <legend class="fr-fieldset__legend fr-text--bold">Demandeur</legend>
+    <fieldset class="fr-fieldset w-full" aria-label="Porteur de projet">
+      <legend class="fr-fieldset__legend fr-h3">Porteur de projet</legend>
 
       <div class="fr-fieldset__element">
-        <div class="fr-radio-group fr-radio-group--inline">
-          <input
-            type="radio"
-            id="demandeur-pp"
-            value="personne_physique"
-            bind:group={demandeurType}
-          />
-          <label class="fr-label" for="demandeur-pp">Personne physique</label>
-        </div>
-        <div class="fr-radio-group fr-radio-group--inline">
-          <input
-            type="radio"
-            id="demandeur-pm"
-            value="personne_morale"
-            bind:group={demandeurType}
-          />
-          <label class="fr-label" for="demandeur-pm">Personne morale</label>
+        <h3 class="fr-h6 fr-mb-2w">Type de demandeur</h3>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div class="fr-radio-group">
+            <input
+              type="radio"
+              id="demandeur-pp"
+              value="personne_physique"
+              bind:group={demandeurType}
+            />
+            <label class="fr-label" for="demandeur-pp">Personne physique</label>
+          </div>
+          <div class="fr-radio-group">
+            <input
+              type="radio"
+              id="demandeur-pm"
+              value="personne_morale"
+              bind:group={demandeurType}
+            />
+            <label class="fr-label" for="demandeur-pm">Personne morale</label>
+          </div>
         </div>
       </div>
 
       {#if demandeurType === "personne_physique"}
-        <div class="fr-fieldset__element fr-fieldset__element--inline">
-          <div class="fr-input-group">
-            <label class="fr-label" for="pp-last-name">Nom</label>
-            <input
-              class="fr-input"
-              id="pp-last-name"
-              type="text"
-              required
-              bind:value={ppLastName}
-            />
-          </div>
-        </div>
-        <div class="fr-fieldset__element fr-fieldset__element--inline">
-          <div class="fr-input-group">
-            <label class="fr-label" for="pp-first-names">Prénom(s)</label>
-            <input class="fr-input" id="pp-first-names" type="text" bind:value={ppFirstNames} />
-          </div>
-        </div>
-        <div class="fr-fieldset__element">
-          <div class="fr-input-group">
-            <label class="fr-label" for="pp-email">
-              Adresse e-mail <span class="fr-hint-text">Facultatif</span>
-            </label>
-            <input class="fr-input" id="pp-email" type="email" bind:value={ppEmail} />
+        <div class="fr-fieldset__element w-full flex flex-col gap-4">
+          <h3 class="fr-h6 fr-mb-0">Identité du demandeur ou déposant</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
+            <div class="fr-input-group w-full">
+              <label class="fr-label" for="pp-last-name">Nom</label>
+              <input
+                class="fr-input w-full"
+                id="pp-last-name"
+                type="text"
+                required
+                bind:value={ppLastName}
+              />
+            </div>
+            <div class="fr-input-group w-full">
+              <label class="fr-label" for="pp-first-names">Prénom(s)</label>
+              <input
+                class="fr-input w-full"
+                id="pp-first-names"
+                type="text"
+                bind:value={ppFirstNames}
+              />
+            </div>
+            <div class="fr-input-group w-full">
+              <label class="fr-label" for="pp-email">Adresse e-mail (facultatif)</label>
+              <input class="fr-input w-full" id="pp-email" type="email" bind:value={ppEmail} />
+            </div>
           </div>
         </div>
       {:else}
-        <div class="fr-fieldset__element fr-fieldset__element--inline">
-          <div class="fr-input-group">
-            <label class="fr-label" for="pm-siret">
-              SIRET <span class="fr-hint-text">14 chiffres</span>
-            </label>
-            <input
-              class="fr-input"
-              id="pm-siret"
-              type="text"
-              required
-              minlength="14"
-              bind:value={pmSiret}
-            />
-          </div>
-        </div>
-        <div class="fr-fieldset__element">
-          <div class="fr-input-group">
-            <label class="fr-label" for="pm-legal-name">Raison sociale</label>
-            <input class="fr-input" id="pm-legal-name" type="text" bind:value={pmLegalName} />
+        <div class="fr-fieldset__element w-full flex flex-col gap-4">
+          <h3 class="fr-h6 fr-mb-0">Informations de la personne morale</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div class="fr-input-group w-full">
+              <label class="fr-label" for="pm-siret">
+                SIRET <span class="fr-hint-text">14 chiffres</span>
+              </label>
+              <input
+                class="fr-input w-full"
+                id="pm-siret"
+                type="text"
+                required
+                minlength="14"
+                bind:value={pmSiret}
+              />
+            </div>
+            <div class="fr-input-group w-full">
+              <label class="fr-label" for="pm-legal-name">Raison sociale</label>
+              <input
+                class="fr-input w-full"
+                id="pm-legal-name"
+                type="text"
+                bind:value={pmLegalName}
+              />
+            </div>
           </div>
         </div>
       {/if}

@@ -13,6 +13,8 @@ export { buildDossierUpdateColumns, buildDossierRelations };
 export type {
   Commune,
   FeatureCollection,
+  LocationScope,
+  ProjectMapFeature,
   ScientificIntervenant,
   TriState,
 } from "./dossierAdminColumnModel.ts";

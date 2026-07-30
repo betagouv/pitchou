@@ -12,7 +12,7 @@
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Dérogation" {disabled}>
-  <legend class="fr-fieldset__legend fr-text--bold">Dérogation</legend>
+  <legend class="fr-fieldset__legend fr-h3">4. Justifications de la demande de dérogation</legend>
   <div class="fr-fieldset__element">
     <div class="fr-input-group w-full">
       <label class="fr-label" for="edit-no-other-solution">
@@ -41,44 +41,18 @@
       </select>
     </div>
   </div>
-  <div class="fr-fieldset__element">
-    <div class="fr-input-group w-full">
-      <label class="fr-label" for="edit-motif-justification">
-        Justification du motif de dérogation
-      </label>
-      <textarea
-        class="fr-input w-full"
-        id="edit-motif-justification"
-        rows="4"
-        bind:value={model.motifDerogationJustification}></textarea>
-    </div>
-  </div>
-  <div class="fr-fieldset__element">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-      <div class="fr-input-group">
-        <label class="fr-label" for="edit-destroyed-nids">Nombre de nids détruits</label>
-        <input
-          class="fr-input"
-          id="edit-destroyed-nids"
-          type="number"
-          min="0"
-          step="1"
-          bind:value={model.destroyedNidsCount}
-        />
-      </div>
-      <div class="fr-input-group">
-        <label class="fr-label" for="edit-compensated-nids">
-          Nombre de nids artificiels posés en compensation
+  {#if model.motifDerogation}
+    <div class="fr-fieldset__element">
+      <div class="fr-input-group w-full">
+        <label class="fr-label" for="edit-motif-justification">
+          Synthèse des éléments justifiant le motif de la dérogation
         </label>
-        <input
-          class="fr-input"
-          id="edit-compensated-nids"
-          type="number"
-          min="0"
-          step="1"
-          bind:value={model.compensatedNidsCount}
-        />
+        <textarea
+          class="fr-input w-full"
+          id="edit-motif-justification"
+          rows="4"
+          bind:value={model.motifDerogationJustification}></textarea>
       </div>
     </div>
-  </div>
+  {/if}
 </fieldset>

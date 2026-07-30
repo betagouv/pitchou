@@ -2,6 +2,7 @@ import { error } from "@sveltejs/kit";
 
 import { departements } from "@pitchou/common/departements.ts";
 import {
+  dossierLocationScopeOptions,
   dossierMainActiviteOptions,
   dossierRegionOptions,
   motifDerogationOptions,
@@ -23,6 +24,7 @@ const SCIENTIFIQUE_DEMANDE_TYPE_VALUES = new Set<string>(scientifiqueDemandeType
 const SCIENTIFIQUE_DEMANDE_PURPOSE_VALUES = new Set<string>(scientifiqueDemandePurposeOptions);
 const DEPARTEMENT_VALUES = new Set<string>(departements.map(({ code }) => code));
 const REGION_VALUES = new Set<string>(dossierRegionOptions);
+const LOCATION_SCOPE_VALUES = new Set<string>(dossierLocationScopeOptions);
 
 function parseDate(column: string, raw: unknown): Date {
   if (typeof raw !== "string" || Number.isNaN(Date.parse(raw))) {
@@ -47,6 +49,9 @@ function parseString(column: string, raw: unknown): string {
   }
   if (column === "motif_derogation" && !MOTIF_DEROGATION_VALUES.has(raw)) {
     error(400, `Property 'motif_derogation' is invalid.`);
+  }
+  if (column === "location_scope" && !LOCATION_SCOPE_VALUES.has(raw)) {
+    error(400, `Property 'location_scope' is invalid.`);
   }
   return raw;
 }

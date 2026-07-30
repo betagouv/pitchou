@@ -84,6 +84,16 @@ export function makeCommonDossierColumnsForSync88444(
   const projetSitue = champById.get(
     pitchouKeyToChampDS.get("Le projet se situe au niveau…"),
   )?.stringValue;
+  const locationScope =
+    projetSitue === `d'une ou plusieurs communes`
+      ? "communes"
+      : projetSitue === `d'un ou plusieurs départements`
+        ? "departements"
+        : projetSitue === `d'une ou plusieurs régions`
+          ? "regions"
+          : projetSitue === "de toute la France"
+            ? "france"
+            : null;
   const champCommunes: ChampDSCommunes = champById.get(
     pitchouKeyToChampDS.get("Commune(s) où se situe le projet"),
   );
@@ -385,6 +395,7 @@ export function makeCommonDossierColumnsForSync88444(
     communes: JSON.stringify(communes),
     departments: JSON.stringify(departments),
     regions: JSON.stringify(regions),
+    location_scope: locationScope,
     // GeoJSON FeatureCollection stringified for the jsonb column (or null if no map champ)
     projet_map: projetMap,
 

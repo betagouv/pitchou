@@ -39,6 +39,7 @@ const allDnColumns = {
   communes: JSON.stringify(communes),
   departments: JSON.stringify(["69"]),
   regions: JSON.stringify(["Auvergne-Rhône-Alpes"]),
+  location_scope: "communes",
   projet_map: JSON.stringify(projetMap),
   linked_to_ae_regime: true,
   mesures_erc_planned: false,
@@ -89,6 +90,7 @@ test("all DN intake columns round-trip on a native dossier", async () => {
     mesures_erc_planned: false,
     motif_derogation: motifDerogationOptions[0],
     scientifique_previous_assessment: true,
+    location_scope: "communes",
   });
   expect(dossier.communes).toEqual(communes);
   expect(dossier.departments).toEqual(["69"]);
