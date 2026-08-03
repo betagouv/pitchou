@@ -343,6 +343,9 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "dossier.name as name",
   "description",
+  "urgent_contact_phone",
+  "request_context",
+  "accompaniment_need",
 
   "intervention_start_date",
   "intervention_end_date",
@@ -359,12 +362,31 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   //@ts-expect-error not exactly a keyof DossierFull, but still
   "file_especes_impactees.media_type as especes_impactees_media_type",
   "linked_to_ae_regime",
+  "ae_procedures",
+  "ae_other_procedure",
+  "limited_specimen_type",
+  "scientifique_mortality_measures_taken",
+  "scientifique_mortality_measures_details",
+  "eolien_commissioning_year",
+  "eolien_turbines_count",
+  "eolien_tip_height",
+  "eolien_rotor_diameter",
+  "eolien_ground_clearance",
+  "eolien_monitored_turbines_count",
+  "eolien_field_inventory_period",
+  "eolien_monitoring_visits_count",
+  "eolien_weekly_monitoring_visits_count",
+  "eolien_mortality_actions",
+  "eolien_carcass_collection_method",
+  "eolien_carcass_preservation_method",
+  "eolien_carcass_examination_address",
   "main_activite",
 
   // localisation
   "departments",
   "communes",
   "regions",
+  "primary_department",
   "projet_map",
 
   // next expected action

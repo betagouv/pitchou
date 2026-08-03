@@ -72,23 +72,34 @@ export async function setEspecesImpacteesFromAdmin(
   file: AdminFileUpload,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Partial<File>> {
-  return databaseConnection.transaction(async (trx) => {
-    await requireNativeDossier(dossierId, trx);
+  let storedFileId: FileId | undefined;
+  try {
+    return await databaseConnection.transaction(async (trx) => {
+      await requireNativeDossier(dossierId, trx);
 
-    const current = await trx("dossier")
-      .select("especes_impactees")
-      .where({ id: dossierId })
-      .first();
+      const current = await trx("dossier")
+        .select("especes_impactees")
+        .where({ id: dossierId })
+        .first();
 
-    const stored = await storeNewFichier(file, trx);
-    await trx("dossier").update({ especes_impactees: stored.id }).where({ id: dossierId });
+      const stored = await storeNewFichier(file, trx);
+      storedFileId = stored.id;
+      await trx("dossier").update({ especes_impactees: stored.id }).where({ id: dossierId });
 
-    if (current?.especes_impactees) {
-      await deleteFichiersWithoutOtherReferences([current.especes_impactees], trx);
+      if (current?.especes_impactees) {
+        await deleteFichiersWithoutOtherReferences([current.especes_impactees], trx);
+      }
+
+      return stored;
+    });
+  } catch (error) {
+    if (storedFileId) {
+      await deleteFichiersWithoutOtherReferences([storedFileId], directDatabaseConnection).catch(
+        () => {},
+      );
     }
-
-    return stored;
-  });
+    throw error;
+  }
 }
 
 /** Clears the fichier especes impactees and deletes it if it is now orphaned. */

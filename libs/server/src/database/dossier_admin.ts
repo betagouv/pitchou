@@ -6,7 +6,6 @@ export {
   getDossierSyncStatus,
 } from "./dossier_admin_policy.ts";
 export type {
-  AdminDemandeurPersonnePhysique,
   AdminDossierCreation,
   AdminDossierUpdate,
   AdminPhaseEvent,

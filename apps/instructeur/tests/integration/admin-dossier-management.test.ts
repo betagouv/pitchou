@@ -5,6 +5,7 @@ import {
   createDossier as createDossierRow,
   createInstructeurWithCapToGroup,
 } from "../factories/index.ts";
+import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import {
   createDossierFromAdmin,
   updateDossierFromAdmin,
@@ -36,11 +37,16 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
       name: "Dossier né dans Pitchou",
       depot_date: new Date("2026-07-01"),
       phase: "Instruction",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: {
-        last_name: "Martin",
-        first_names: "Camille",
-        email: "camille.martin@example.org",
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Martin",
+        "Camille",
+        "camille.martin@example.org",
+      ),
+      columns: {
+        urgent_contact_phone: "0612345678",
+        request_context: "Vous souhaitez bénéficier d'un accompagnement amont",
+        accompaniment_need: "Cadrer le contenu attendu du dossier",
       },
     },
     ADMIN_EMAIL,
@@ -52,8 +58,12 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   expect(detail.phase).toBe("Instruction");
   expect(detail.groupe?.id).toBe(instructeur.groupeId);
   expect(detail.demandeur_personne_physique?.last_name).toBe("Martin");
-  // The initial phase event must carry the admin's personne, otherwise it would
-  // be filtered out as sync noise everywhere in the app.
+  expect(detail.dossier).toMatchObject({
+    urgent_contact_phone: "0612345678",
+    request_context: "Vous souhaitez bénéficier d'un accompagnement amont",
+    accompaniment_need: "Cadrer le contenu attendu du dossier",
+  });
+  // Keep the admin's personne so the event is not filtered out as sync noise.
   expect(detail.evenementsPhase).toHaveLength(1);
   expect(detail.evenementsPhase[0].caused_by_email).toBe(ADMIN_EMAIL);
 
@@ -70,13 +80,13 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
 
 test("modification admin d'un dossier natif : champs DN-derivés et changement de phase", async () => {
   const instructeur = await createInstructeurWithCapToGroup(db);
+  const groupeId = instructeur.groupeId as GroupeInstructeursId;
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier à modifier",
       depot_date: new Date("2026-07-02"),
       phase: "Accompagnement amont",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Durand", first_names: "Alex" },
+      relations: physicalAdminDossierRelations(groupeId, "Durand", "Alex"),
     },
     ADMIN_EMAIL,
     db,
@@ -86,9 +96,7 @@ test("modification admin d'un dossier natif : champs DN-derivés et changement d
     id,
     {
       columns: { name: "Nom modifié par l'admin", description: "Nouvelle description" },
-      // The timestamp column has second precision: an event in the same second as
-      // the creation event would tie in the "latest phase" ordering. Real phase
-      // changes happen later, so pick a clearly later timestamp.
+      // Avoid tying with the second-precision creation event.
       evenementsPhase: [{ phase: "Contrôle", timestamp: new Date(Date.now() + 60_000) }],
     },
     ADMIN_EMAIL,
@@ -133,8 +141,11 @@ test("suppression admin : refusée sur un dossier DN, effective sur un dossier n
       name: "Dossier à supprimer",
       depot_date: new Date("2026-07-03"),
       phase: "Accompagnement amont",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Petit", first_names: "Lou" },
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Petit",
+        "Lou",
+      ),
     },
     ADMIN_EMAIL,
     db,
@@ -155,8 +166,11 @@ test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dos
       name: "Dossier avec pièces jointes",
       depot_date: new Date("2026-07-04"),
       phase: "Accompagnement amont",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Roux", first_names: "Sam" },
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Roux",
+        "Sam",
+      ),
     },
     ADMIN_EMAIL,
     db,

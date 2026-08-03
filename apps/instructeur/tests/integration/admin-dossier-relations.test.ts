@@ -6,6 +6,7 @@ import {
   createInstructeurWithCapToGroup,
   createPersonne,
 } from "../factories/index.ts";
+import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import {
   createDossierFromAdmin,
   updateDossierFromAdmin,
@@ -30,8 +31,11 @@ test("a native dossier can change groupe and physical demandeur without mutating
       name: "Dossier relations",
       depot_date: new Date("2026-07-11"),
       phase: "Instruction",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Initial", first_names: "Person" },
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Initial",
+        "Person",
+      ),
     },
     ADMIN_EMAIL,
     db,
@@ -105,8 +109,11 @@ test("a native dossier can switch to a legal demandeur without changing shared c
       name: "Dossier personne morale",
       depot_date: new Date("2026-07-12"),
       phase: "Instruction",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Initial", first_names: "Person" },
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Initial",
+        "Person",
+      ),
     },
     ADMIN_EMAIL,
     db,

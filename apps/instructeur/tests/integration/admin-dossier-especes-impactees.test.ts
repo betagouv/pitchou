@@ -3,6 +3,7 @@ import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
 import {
   deleteEspecesImpacteesFromAdmin,
@@ -19,8 +20,11 @@ test("the fichier especes impactees can be replaced and removed from a native do
       name: "Dossier espèces impactées",
       depot_date: new Date("2026-07-13"),
       phase: "Instruction",
-      groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
-      demandeur_personne_physique: { last_name: "Martin", first_names: "Camille" },
+      relations: physicalAdminDossierRelations(
+        instructeur.groupeId as GroupeInstructeursId,
+        "Martin",
+        "Camille",
+      ),
     },
     "admin-files@pitchou.test",
     db,
