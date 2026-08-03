@@ -131,6 +131,24 @@
       <strong>Dossier n°&nbsp;:</strong>
       {dossier.demarche_numerique_number ?? "non renseigné"}
     </p>
+    {#if dossier.urgent_contact_phone}
+      <p>
+        <strong>Téléphone en cas de demande urgente&nbsp;:</strong>
+        {dossier.urgent_contact_phone}
+      </p>
+    {/if}
+    {#if dossier.request_context}
+      <p>
+        <strong>Situation du demandeur&nbsp;:</strong>
+        {dossier.request_context}
+      </p>
+    {/if}
+    {#if dossier.accompaniment_need}
+      <p>
+        <strong>Besoin d'accompagnement&nbsp;:</strong>
+        {dossier.accompaniment_need}
+      </p>
+    {/if}
     <p>
       <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
       {#if typeof dossier.ecological_inventory_completed === "boolean"}
