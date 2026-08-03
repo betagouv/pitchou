@@ -56,11 +56,59 @@ export async function loadDossierDetail(dossierId: number): Promise<AdminDossier
   return (await response.json()) as AdminDossierDetail;
 }
 
-export async function createDossier(payload: AdminDossierCreationPayload): Promise<{ id: number }> {
+export async function createDossier(
+  payload: AdminDossierCreationPayload,
+  speciesFile?: File | null,
+  attachments: {
+    purpose: File[];
+    previousAssessment: File[];
+    mortalityMeasures: File[];
+    windFarmPlan: File[];
+    eolienProtocol: File[];
+    intervenantCv: File[];
+    completeDossier: File[];
+    noDerogationArgument: File[];
+    supplemental: File[];
+  } = {
+    purpose: [],
+    previousAssessment: [],
+    mortalityMeasures: [],
+    windFarmPlan: [],
+    eolienProtocol: [],
+    intervenantCv: [],
+    completeDossier: [],
+    noDerogationArgument: [],
+    supplemental: [],
+  },
+): Promise<{ id: number }> {
+  const usesMultipart =
+    !!speciesFile || Object.values(attachments).some((files) => files.length >= 1);
+  const body = usesMultipart
+    ? (() => {
+        const form = new FormData();
+        form.set("payload", JSON.stringify(payload));
+        if (speciesFile) form.set("speciesFile", speciesFile);
+        for (const file of attachments.purpose) form.append("purposeAttachments", file);
+        for (const file of attachments.previousAssessment)
+          form.append("previousAssessmentAttachments", file);
+        for (const file of attachments.mortalityMeasures)
+          form.append("mortalityMeasureAttachments", file);
+        for (const file of attachments.windFarmPlan) form.append("windFarmPlanAttachments", file);
+        for (const file of attachments.eolienProtocol)
+          form.append("eolienProtocolAttachments", file);
+        for (const file of attachments.intervenantCv) form.append("intervenantCvAttachments", file);
+        for (const file of attachments.completeDossier)
+          form.append("completeDossierAttachments", file);
+        for (const file of attachments.noDerogationArgument)
+          form.append("noDerogationArgumentAttachments", file);
+        for (const file of attachments.supplemental) form.append("supplementalAttachments", file);
+        return form;
+      })()
+    : JSON.stringify(payload);
   const response = await fetch(`/api/dossiers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: usesMultipart ? undefined : { "Content-Type": "application/json" },
+    body,
   });
   await checkResponse(response, "de la création du dossier");
   return (await response.json()) as { id: number };

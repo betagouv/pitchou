@@ -123,13 +123,7 @@ export type AdminDossierCreationPayload = {
   name: string;
   depot_date: string;
   phase: string;
-  groupe_instructeurs: string;
-  demandeur_personne_physique: {
-    last_name: string;
-    first_names: string;
-    email: string | null;
-  } | null;
-  demandeur_personne_morale: { siret: string; legal_name: string | null } | null;
+  relations: AdminDossierRelationsPayload;
   columns?: Record<string, unknown>;
 };
 
