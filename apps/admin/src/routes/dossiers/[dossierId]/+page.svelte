@@ -132,9 +132,8 @@
   {#if detail.managedByDn}
     <div class="fr-alert fr-alert--info fr-my-2w">
       <p>
-        Ce dossier est synchronisé depuis Démarches Numériques : les champs importés sont en lecture
-        seule (la prochaine synchronisation les écraserait). Les champs propres à Pitchou restent
-        modifiables.
+        Ce dossier est synchronisé depuis Démarches Numériques et affiché en lecture seule. Les
+        champs propres à Pitchou restent modifiables depuis l'application instructeurs.
       </p>
     </div>
   {/if}
