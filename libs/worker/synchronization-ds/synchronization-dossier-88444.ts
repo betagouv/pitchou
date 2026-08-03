@@ -39,11 +39,13 @@ export async function getPiecesJointesPetitionnaire88444(
   pitchouKeyToChampDS: Map<ChampFormulaire88444, ChampDescriptor["id"]>,
   champsWithPiecesJointes: ChampFormulaire88444[],
   databaseConnection: Knex.Transaction | Knex,
+  optionalChamps: ReadonlySet<ChampFormulaire88444> = new Set(),
 ): Promise<Map<DossierDS88444["number"], FileId[]>> {
   const fichiersP: Map<DossierDS88444["number"], FileId[]> = new Map();
 
   for (const champ of champsWithPiecesJointes) {
     const champId = pitchouKeyToChampDS.get(champ);
+    if (!champId && optionalChamps.has(champ)) continue;
     if (!champId) {
       throw new Error(`champId for ${champ} is undefined`);
     }

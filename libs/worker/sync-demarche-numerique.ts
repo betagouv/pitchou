@@ -393,6 +393,7 @@ const downloadedFichiersEspecesImpacteesP: Promise<
 const champsWithPiecesJointes88444: ChampFormulaire88444[] = [
   "Dépot du dossier complet de demande de dérogation",
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande",
+  "Ajoutez ici les pièces jointes supplémentaires nécessaires à votre dossier",
   "Diagnostic écologique",
   "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.",
   "Joindre les pièces justifiant de la finalité de la demande",
@@ -401,7 +402,13 @@ const champsWithPiecesJointes88444: ChampFormulaire88444[] = [
   "Plan des installations",
   `Joindre une carte du périmètre d'intervention si besoin`,
   "Pièces jointes décrivant précisément le protocole qui sera mis en place",
+  "Qualification des intervenants",
 ];
+const optionalChampsWithPiecesJointes88444 = new Set<ChampFormulaire88444>([
+  "Diagnostic écologique",
+  "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande",
+  "Ajoutez ici les pièces jointes supplémentaires nécessaires à votre dossier",
+]);
 
 /** Download the pièces jointes attached to the dossier by the pétitionnaire */
 const downloadedFichiersPiecesJointesPetitionnaireP = (async () => {
@@ -411,6 +418,7 @@ const downloadedFichiersPiecesJointesPetitionnaireP = (async () => {
       pitchouKeyToChampDS,
       champsWithPiecesJointes88444,
       synchronizationTransactionDS,
+      optionalChampsWithPiecesJointes88444,
     );
   } else {
     throw new Error(

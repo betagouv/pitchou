@@ -11,6 +11,13 @@ import type {
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
+import {
+  eolienMortalityActionOptions,
+  requiresScientificDemandeType,
+  restaurationMainActivite,
+  scientifiqueDemandeTypeOptions,
+  transportMainActivites,
+} from "@pitchou/common/dossierFormOptions.ts";
 
 /**
  * Returns the dossier filled with the fields common to the DS dossiers from Démarche 88444 to initialize and to the DS dossiers to modify for the synchronization.
@@ -58,9 +65,14 @@ export function makeCommonDossierColumnsForSync88444(
   /** @type {DossierDemarcheNumerique88444[‘Date de mise en service’]} */
   const commissioningDate = champById.get(pitchouKeyToChampDS.get("Date de mise en service"))?.date;
   /** @type {DossierDemarcheNumerique88444['Durée de la dérogation']} */
-  const interventionDuration = Number(
-    champById.get(pitchouKeyToChampDS.get("Durée de la dérogation"))?.stringValue,
-  );
+  const interventionDurationValue =
+    champs.find((champ) => champ.label === "Durée de la dérogation (en années)")?.stringValue ??
+    champById.get(pitchouKeyToChampDS.get("Durée de la dérogation"))?.stringValue;
+  const parsedInterventionDuration = Number(interventionDurationValue);
+  const interventionDuration =
+    Number.isFinite(parsedInterventionDuration) && parsedInterventionDuration > 0
+      ? parsedInterventionDuration
+      : null;
 
   /** @type {DossierDemarcheNumerique88444[`Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet`]} */
   const noOtherSatisfactorySolutionJustification = champById
@@ -176,6 +188,12 @@ export function makeCommonDossierColumnsForSync88444(
   if (linkedToAeRegimeValue === "Non" || linkedToAeRegimeValue === "false") {
     linkedToAeRegime = false;
   }
+  const aeProcedures = champById.get(
+    pitchouKeyToChampDS.get("À quelle procédure le projet est-il soumis ?"),
+  )?.values;
+  const aeOtherProcedure = champs.find(
+    (champ) => champ.label === "Préciser la procédure justifiant l'AE",
+  )?.stringValue;
 
   /** Mesures ERC planned */
   const ercMesuresPlannedChamp = champById.get(
@@ -218,12 +236,72 @@ export function makeCommonDossierColumnsForSync88444(
   const scientifiquePreviousAssessment = champById.get(
     pitchouKeyToChampDS.get("Cette demande concerne un programme de suivi déjà existant"),
   )?.checked;
+  const limitedSpecimenType = champById.get(
+    pitchouKeyToChampDS.get("Prise ou détention limité ou spécifié - Précisez"),
+  )?.stringValue;
+  const scientifiqueMortalityMeasuresTaken = champById.get(
+    pitchouKeyToChampDS.get(
+      "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?",
+    ),
+  )?.checked;
+  const scientifiqueMortalityMeasuresDetails = champById.get(
+    pitchouKeyToChampDS.get("Précisez ces mesures :"),
+  )?.stringValue;
+  const numberChamp = (label: keyof DossierDemarcheNumerique88444) => {
+    const value = Number(champById.get(pitchouKeyToChampDS.get(label))?.stringValue);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  };
+  const eolienCommissioningYear = numberChamp("Année de mise en service");
+  const eolienTurbinesCount = numberChamp("Nombre d'éoliennes");
+  const eolienTipHeight = numberChamp("Hauteur totale bout de pale (m)");
+  const eolienRotorDiameter = numberChamp("Diamètre du rotor (m)");
+  const eolienGroundClearance = numberChamp("Garde au sol (m)");
   // "Non renseigné" is transformed into 'false'
 
   /** @type {DossierDemarcheNumerique88444['Description du protocole de suivi']} */
   const scientifiqueSuiviProtocolDescription = champById.get(
     pitchouKeyToChampDS.get("Description du protocole de suivi"),
   )?.stringValue;
+  const eolienMonitoredTurbinesCountValue = champById.get(
+    pitchouKeyToChampDS.get("Nombre d'éoliennes à suivre"),
+  )?.stringValue;
+  const eolienMonitoredTurbinesCount = Number(eolienMonitoredTurbinesCountValue);
+  const eolienFieldInventoryPeriod = champById.get(
+    pitchouKeyToChampDS.get("Période des inventaires terrain"),
+  )?.stringValue;
+  const eolienMonitoringVisitsCountValue = champById.get(
+    pitchouKeyToChampDS.get("Nombre de passages pendant le suivi"),
+  )?.stringValue;
+  const eolienMonitoringVisitsCount = Number(eolienMonitoringVisitsCountValue);
+  const eolienWeeklyMonitoringVisitsCountValue = champById.get(
+    pitchouKeyToChampDS.get("Nombre de passages par semaine de suivi"),
+  )?.stringValue;
+  const eolienWeeklyMonitoringVisitsCount = Number(eolienWeeklyMonitoringVisitsCountValue);
+  const eolienMortalityActions = champById.get(
+    pitchouKeyToChampDS.get("Suivi de mortalité - Votre demande concerne :"),
+  )?.values;
+  const windMortality =
+    mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  const showsOperationDetails = requiresScientificDemandeType(motifDerogation) || windMortality;
+  const validEolienMortalityActions = (eolienMortalityActions ?? []).filter((value: string) =>
+    eolienMortalityActionOptions.includes(value as never),
+  );
+  const showsCarcassAnalysis =
+    windMortality && validEolienMortalityActions.includes(eolienMortalityActionOptions[1]);
+  const eolienCarcassCollectionMethod = champById.get(
+    pitchouKeyToChampDS.get("Description du mode de collecte sur le terrain"),
+  )?.stringValue;
+  const eolienCarcassPreservationMethod = champById.get(
+    pitchouKeyToChampDS.get("Méthode de conservation"),
+  )?.stringValue;
+  const eolienCarcassExaminationAddress = champById.get(
+    pitchouKeyToChampDS.get("Adresse des locaux où seront examinés les cadavres"),
+  )?.stringValue;
+  const showsScientificCaptureDetails =
+    requiresScientificDemandeType(motifDerogation) &&
+    (scientifiqueDemandeTypeValues ?? []).some((value: string) =>
+      scientifiqueDemandeTypeOptions.slice(0, 3).includes(value as never),
+    );
 
   /** @type {DossierDemarcheNumerique88444[`En cas de nécessité de capture d'individus, précisez le mode de capture`][]} */
   const scientifiqueCaptureModeValues = champById.get(
@@ -242,9 +320,9 @@ export function makeCommonDossierColumnsForSync88444(
     ? new Set(scientifiqueCaptureModeValues)
     : new Set();
 
-  if (scientifiqueOtherCaptureMode) {
-    scientifiqueCaptureModeSet.delete("Autre moyen de capture (préciser)");
-    scientifiqueCaptureModeSet.add(scientifiqueOtherCaptureMode);
+  scientifiqueCaptureModeSet.delete("Autre moyen de capture (préciser)");
+  if (scientifiqueOtherCaptureMode?.trim()) {
+    scientifiqueCaptureModeSet.add(scientifiqueOtherCaptureMode.trim());
   }
 
   const scientifiqueCaptureMode = JSON.stringify([...scientifiqueCaptureModeSet]);
@@ -363,6 +441,9 @@ export function makeCommonDossierColumnsForSync88444(
     : railOrElectricTransportChamp === "Destruction de nids de Cigognes"
       ? "Cigogne"
       : null;
+  const requiresCompensatedNidsCount =
+    (mainActivite === restaurationMainActivite && type === "Hirondelle") ||
+    (transportMainActivites.includes(mainActivite as never) && type === "Cigogne");
 
   return {
     // metadata
@@ -381,9 +462,9 @@ export function makeCommonDossierColumnsForSync88444(
     name,
     description,
     main_activite: mainActivite,
-    intervention_start_date: interventionStartDate,
-    intervention_end_date: interventionEndDate,
-    commissioning_date: commissioningDate,
+    intervention_start_date: interventionStartDate ?? null,
+    intervention_end_date: interventionEndDate ?? null,
+    commissioning_date: commissioningDate ?? null,
     intervention_duration: interventionDuration,
 
     no_other_satisfactory_solution_justification: noOtherSatisfactorySolutionJustification,
@@ -396,11 +477,14 @@ export function makeCommonDossierColumnsForSync88444(
     departments: JSON.stringify(departments),
     regions: JSON.stringify(regions),
     location_scope: locationScope,
+    primary_department: champDepartementPrincipal?.departement?.code,
     // GeoJSON FeatureCollection stringified for the jsonb column (or null if no map champ)
     projet_map: projetMap,
 
     // régime AE
     linked_to_ae_regime: linkedToAeRegime,
+    ae_procedures: aeProcedures ? JSON.stringify(aeProcedures) : null,
+    ae_other_procedure: aeOtherProcedure || null,
 
     // mesures ERC planned
     mesures_erc_planned: ercMesuresPlanned,
@@ -416,17 +500,77 @@ export function makeCommonDossierColumnsForSync88444(
       ? JSON.stringify(scientifiqueDemandePurposes)
       : undefined,
     scientifique_previous_assessment: scientifiquePreviousAssessment,
-    scientifique_suivi_protocol_description: scientifiqueSuiviProtocolDescription,
+    limited_specimen_type: limitedSpecimenType || null,
+    scientifique_mortality_measures_taken: scientifiqueMortalityMeasuresTaken ?? null,
+    scientifique_mortality_measures_details: scientifiqueMortalityMeasuresDetails || null,
+    eolien_commissioning_year: eolienCommissioningYear,
+    eolien_turbines_count: eolienTurbinesCount,
+    eolien_tip_height: eolienTipHeight,
+    eolien_rotor_diameter: eolienRotorDiameter,
+    eolien_ground_clearance: eolienGroundClearance,
+    scientifique_suivi_protocol_description: showsOperationDetails
+      ? scientifiqueSuiviProtocolDescription || null
+      : null,
+    eolien_monitored_turbines_count:
+      windMortality &&
+      Number.isInteger(eolienMonitoredTurbinesCount) &&
+      eolienMonitoredTurbinesCount > 0
+        ? eolienMonitoredTurbinesCount
+        : null,
+    eolien_field_inventory_period: windMortality ? eolienFieldInventoryPeriod || null : null,
+    eolien_monitoring_visits_count:
+      windMortality &&
+      Number.isInteger(eolienMonitoringVisitsCount) &&
+      eolienMonitoringVisitsCount > 0
+        ? eolienMonitoringVisitsCount
+        : null,
+    eolien_weekly_monitoring_visits_count:
+      windMortality &&
+      Number.isInteger(eolienWeeklyMonitoringVisitsCount) &&
+      eolienWeeklyMonitoringVisitsCount > 0
+        ? eolienWeeklyMonitoringVisitsCount
+        : null,
     //@ts-ignore Columns of database type 'json' are inserted as a string after a JSON.stringify
-    scientifique_capture_mode: scientifiqueCaptureMode,
-    scientifique_light_source_conditions: scientifiqueLightSourceConditions,
-    scientifique_marking_conditions: scientifiqueMarkingConditions,
-    scientifique_transport_conditions: scientifiqueTransportConditions,
+    eolien_mortality_actions:
+      windMortality && validEolienMortalityActions.length >= 1
+        ? JSON.stringify(validEolienMortalityActions)
+        : null,
+    eolien_carcass_collection_method: showsCarcassAnalysis
+      ? eolienCarcassCollectionMethod || null
+      : null,
+    eolien_carcass_preservation_method: showsCarcassAnalysis
+      ? eolienCarcassPreservationMethod || null
+      : null,
+    eolien_carcass_examination_address: showsCarcassAnalysis
+      ? eolienCarcassExaminationAddress || null
+      : null,
+    //@ts-ignore Columns of database type 'json' are inserted as a string after a JSON.stringify
+    scientifique_capture_mode: showsScientificCaptureDetails ? scientifiqueCaptureMode : null,
+    scientifique_light_source_conditions: showsScientificCaptureDetails
+      ? (scientifiqueLightSourceConditions ?? null)
+      : null,
+    scientifique_marking_conditions:
+      showsScientificCaptureDetails &&
+      (scientifiqueDemandeTypeValues ?? []).includes(scientifiqueDemandeTypeOptions[1])
+        ? (scientifiqueMarkingConditions ?? null)
+        : null,
+    scientifique_transport_conditions:
+      showsScientificCaptureDetails &&
+      (scientifiqueDemandeTypeValues ?? []).includes(scientifiqueDemandeTypeOptions[2])
+        ? (scientifiqueTransportConditions ?? null)
+        : null,
     scientifique_intervention_perimeter: scientifiqueInterventionPerimeter,
-    scientifique_intervenants: JSON.stringify(scientifiqueIntervenants),
-    scientifique_other_intervenants_details: scientifiqueOtherIntervenantsDetails,
+    scientifique_intervenants:
+      showsOperationDetails && scientifiqueIntervenants
+        ? JSON.stringify(scientifiqueIntervenants)
+        : null,
+    scientifique_other_intervenants_details: showsOperationDetails
+      ? scientifiqueOtherIntervenantsDetails || null
+      : null,
 
-    dossier_oiseau_simple_compensated_nids_count: compensatedNidsCount,
+    dossier_oiseau_simple_compensated_nids_count: requiresCompensatedNidsCount
+      ? compensatedNidsCount
+      : null,
     dossier_oiseau_simple_destroyed_nids_count: destroyedNidsCount,
 
     type,
