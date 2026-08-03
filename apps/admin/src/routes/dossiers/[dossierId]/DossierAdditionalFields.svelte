@@ -57,19 +57,22 @@
           bind:value={model.destroyedNidsCount}
         />
       </div>
-      <div class="fr-input-group">
-        <label class="fr-label" for="edit-compensated-nids">
-          Nombre de nids artificiels posés en compensation
-        </label>
-        <input
-          class="fr-input"
-          id="edit-compensated-nids"
-          type="number"
-          min="0"
-          step="1"
-          bind:value={model.compensatedNidsCount}
-        />
-      </div>
+      {#if ["Hirondelle", "Cigogne"].includes(model.type)}
+        <div class="fr-input-group">
+          <label class="fr-label" for="edit-compensated-nids">
+            Nombre de nids artificiels posés en compensation
+          </label>
+          <input
+            class="fr-input"
+            id="edit-compensated-nids"
+            type="number"
+            min="1"
+            step="1"
+            required
+            bind:value={model.compensatedNidsCount}
+          />
+        </div>
+      {/if}
     </div>
   </div>
 </fieldset>

@@ -3,14 +3,27 @@
 
   import type { Commune } from "./dossierAdminFormModel.ts";
 
-  type ApiCommune = { nom: string; code: string; codesPostaux: string[] };
+  type ApiCommune = {
+    nom: string;
+    code: string;
+    codesPostaux: string[];
+    codeDepartement?: string;
+  };
   type Props = {
+    id?: string;
+    label?: string;
     value: Commune[];
     disabled?: boolean;
     onChange: (value: Commune[]) => void;
   };
 
-  let { value, disabled = false, onChange }: Props = $props();
+  let {
+    id = "edit-commune-search",
+    label = "Communes",
+    value,
+    disabled = false,
+    onChange,
+  }: Props = $props();
   let query = $state("");
   let results = $state<ApiCommune[]>([]);
   let loading = $state(false);
@@ -21,6 +34,7 @@
   function queueSearch() {
     clearTimeout(timer);
     controller?.abort();
+    results = [];
     searchError = null;
     const search = query.trim();
     if (search.length < 2) {
@@ -37,7 +51,7 @@
     loading = true;
     try {
       const response = await fetch(
-        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux&limit=10`,
+        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux,codeDepartement&limit=10`,
         { signal: currentController.signal },
       );
       if (!response.ok) throw new Error("Recherche indisponible");
@@ -54,10 +68,14 @@
   }
 
   function selectCommune(result: ApiCommune) {
+    clearTimeout(timer);
+    controller?.abort();
+    loading = false;
     const commune: Commune = {
       name: result.nom,
       code: result.code,
       postalCode: result.codesPostaux[0] ?? "",
+      departmentCode: result.codeDepartement,
     };
     const duplicate = value.some(
       (item) => item.code === commune.code && item.postalCode === commune.postalCode,
@@ -74,31 +92,44 @@
 </script>
 
 <div class="fr-input-group w-full">
-  <label class="fr-label" for="edit-commune-search">
-    Communes
-    <span class="fr-hint-text">Saisissez au moins deux caractères puis choisissez une commune.</span
-    >
+  <label class="fr-label" for={id}>
+    {label}
+    <span class="fr-hint-text" id={`${id}-hint`}>
+      Saisissez au moins deux caractères puis choisissez une commune.
+    </span>
   </label>
   <div class="relative">
     <input
       class="fr-input w-full"
-      id="edit-commune-search"
+      {id}
       type="search"
       autocomplete="off"
       data-form-type="other"
       {disabled}
       bind:value={query}
       oninput={queueSearch}
-      role="combobox"
-      aria-autocomplete="list"
-      aria-controls="edit-commune-results"
-      aria-expanded={results.length > 0}
+      aria-describedby={`${id}-hint`}
+      onkeydown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const search = query.trim();
+          if (search.length >= 2) {
+            clearTimeout(timer);
+            controller?.abort();
+            results = [];
+            searchCommunes(search);
+          }
+        }
+      }}
     />
-    {#if loading}<p class="fr-hint-text fr-mt-1v">Recherche…</p>{/if}
-    {#if searchError}<p class="fr-error-text">{searchError}</p>{/if}
+    {#if loading}<p class="fr-hint-text fr-mt-1v" role="status" aria-live="polite">
+        Recherche…
+      </p>{/if}
+    {#if searchError}<p class="fr-error-text" role="alert">{searchError}</p>{/if}
     {#if results.length > 0}
       <ul
-        id="edit-commune-results"
+        id={`${id}-results`}
+        aria-label="Suggestions de communes"
         class="absolute z-10 left-0 right-0 max-h-64 overflow-y-auto list-none m-0 p-0 bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] shadow-md"
       >
         {#each results as result (`${result.code}-${result.codesPostaux.join("-")}`)}

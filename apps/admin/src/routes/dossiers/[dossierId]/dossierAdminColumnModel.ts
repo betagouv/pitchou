@@ -1,4 +1,6 @@
 import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import { communeDepartmentCode } from "$lib/dossierLocation.ts";
+import { requiresScientificDemandeType } from "@pitchou/common/dossierFormOptions.ts";
 
 export type TriState = "" | "oui" | "non";
 export type LocationScope = "" | "communes" | "departements" | "regions" | "france";
@@ -34,6 +36,8 @@ const stringList = (value: unknown) =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 const integer = (value: unknown) =>
   typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;
+const positiveNumber = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
 const nullableText = (value: string) => value.trim() || null;
 const nullableDate = (value: string) => value || null;
 const nullableBoolean = (value: TriState) =>
@@ -89,11 +93,12 @@ export function createDossierAdminColumnModel(dossier: AdminDossierDetail["dossi
     interventionStartDate: date(dossier.intervention_start_date),
     interventionEndDate: date(dossier.intervention_end_date),
     commissioningDate: date(dossier.commissioning_date),
-    interventionDuration: integer(dossier.intervention_duration),
+    interventionDuration: positiveNumber(dossier.intervention_duration),
     communes: communes(dossier.communes),
     departments: stringList(dossier.departments),
     regions: stringList(dossier.regions),
     locationScope: locationScope(dossier.location_scope, dossier),
+    primaryDepartment: text(dossier.primary_department),
     projetMap: featureCollection(dossier.projet_map),
     linkedToAeRegime: triState(dossier.linked_to_ae_regime),
     mesuresErcPlanned: triState(dossier.mesures_erc_planned),
@@ -142,6 +147,16 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
   };
   if (managedByDn) return nativeColumns;
 
+  const departments =
+    model.locationScope === "communes"
+      ? [...new Set(model.communes.map(communeDepartmentCode).filter((value) => !!value))]
+      : model.locationScope === "departements"
+        ? model.departments
+        : [];
+  const showsIntervenants =
+    requiresScientificDemandeType(model.motifDerogation) ||
+    model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+
   return {
     name: nullableText(model.name),
     description: nullableText(model.description),
@@ -152,10 +167,11 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
     intervention_end_date: nullableDate(model.interventionEndDate),
     commissioning_date: nullableDate(model.commissioningDate),
     intervention_duration: model.interventionDuration,
-    communes: model.communes,
-    departments: model.departments,
+    communes: model.communes.map(({ departmentCode: _, ...commune }) => commune),
+    departments,
     regions: model.regions,
     location_scope: nullableText(model.locationScope),
+    primary_department: nullableText(model.primaryDepartment),
     projet_map: model.projetMap,
     linked_to_ae_regime: nullableBoolean(model.linkedToAeRegime),
     mesures_erc_planned: nullableBoolean(model.mesuresErcPlanned),
@@ -168,7 +184,9 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
     motif_derogation: nullableText(model.motifDerogation),
     motif_derogation_justification: nullableText(model.motifDerogationJustification),
     dossier_oiseau_simple_destroyed_nids_count: model.destroyedNidsCount,
-    dossier_oiseau_simple_compensated_nids_count: model.compensatedNidsCount,
+    dossier_oiseau_simple_compensated_nids_count: ["Hirondelle", "Cigogne"].includes(model.type)
+      ? model.compensatedNidsCount
+      : null,
     scientifique_demande_type: model.scientifiqueDemandeType,
     scientifique_demande_purposes: model.scientifiqueDemandePurposes,
     scientifique_previous_assessment: nullableBoolean(model.scientifiquePreviousAssessment),
@@ -180,13 +198,15 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
     scientifique_marking_conditions: nullableText(model.scientifiqueMarkingConditions),
     scientifique_transport_conditions: nullableText(model.scientifiqueTransportConditions),
     scientifique_intervention_perimeter: nullableText(model.scientifiqueInterventionPerimeter),
-    scientifique_intervenants: model.scientifiqueIntervenants.map((item) => ({
-      nom_complet: nullableText(item.nom_complet ?? ""),
-      qualification: nullableText(item.qualification ?? ""),
-    })),
-    scientifique_other_intervenants_details: nullableText(
-      model.scientifiqueOtherIntervenantsDetails,
-    ),
+    scientifique_intervenants: showsIntervenants
+      ? model.scientifiqueIntervenants.map((item) => ({
+          nom_complet: nullableText(item.nom_complet ?? ""),
+          qualification: nullableText(item.qualification ?? ""),
+        }))
+      : null,
+    scientifique_other_intervenants_details: showsIntervenants
+      ? nullableText(model.scientifiqueOtherIntervenantsDetails)
+      : null,
     ...nativeColumns,
   };
 }

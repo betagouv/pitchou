@@ -63,14 +63,14 @@
         </div>
         <div class="fr-input-group min-w-[14rem] max-w-3xl">
           <label class="fr-label" for="edit-intervention-duration">
-            Durée de la dérogation <span class="fr-hint-text">En années</span>
+            Durée de la dérogation (en années)
           </label>
           <input
             class="fr-input"
             id="edit-intervention-duration"
             type="number"
-            min="0"
-            step="1"
+            min="0.001"
+            step="0.001"
             bind:value={model.interventionDuration}
           />
         </div>

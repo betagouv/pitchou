@@ -1,5 +1,6 @@
 <script lang="ts">
   import MultiSelectFilter, { type FilterOption } from "@pitchou/ui/MultiSelectFilter.svelte";
+  import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
   import type { DossierAdminFormModel, LocationScope } from "./dossierAdminFormModel.ts";
@@ -37,6 +38,23 @@
 </script>
 
 <div class="w-full flex flex-col gap-6">
+  <div class="fr-select-group w-full">
+    <label class="fr-label" for="edit-primary-department">
+      Département dans lequel se situe majoritairement le projet
+    </label>
+    <select
+      class="fr-select"
+      id="edit-primary-department"
+      {disabled}
+      bind:value={model.primaryDepartment}
+    >
+      <option value="">Non renseigné</option>
+      {#each departements as department (department.code)}
+        <option value={department.code}>{department.code} - {department.name}</option>
+      {/each}
+    </select>
+  </div>
+
   <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="edit-location-scope-legend">
     <legend class="fr-fieldset__legend fr-text--regular" id="edit-location-scope-legend">
       Le projet se situe au niveau…
