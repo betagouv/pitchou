@@ -152,9 +152,9 @@ export function createDossierCreationModelFromDetail(
   const dossier = detail.dossier;
   const mainActivite = detailText(dossier.main_activite) as MainActivite;
   const type = detailText(dossier.type);
+  const demandeurIdentity = detail.identites.find(({ type }) => type === "demandeur");
   const representative =
-    detail.identites.find(({ type }) => type === "representant") ??
-    detail.identites.find(({ type }) => type === "demandeur");
+    detail.identites.find(({ type }) => type === "representant") ?? demandeurIdentity;
   const captureModes = detailStrings(dossier.scientifique_capture_mode);
   const knownCaptureModes = captureModes.filter((value) =>
     scientifiqueCaptureModeOptions.includes(value as never),
@@ -195,7 +195,7 @@ export function createDossierCreationModelFromDetail(
     model.physicalQualification = demandeur?.role ?? "";
     model.physicalAddress = demandeur?.address ?? "";
     model.contactPhone = demandeur?.phone ?? "";
-    model.contactEmail = demandeur?.email ?? "";
+    model.contactEmail = demandeur?.email ?? demandeurIdentity?.email ?? "";
   }
 
   model.primaryDepartment = detailText(dossier.primary_department);
