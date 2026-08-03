@@ -39,7 +39,7 @@
   let demandeurEmail = $derived(
     dossier.demandeur_personne_morale_siret
       ? dossier.representative_email
-      : dossier.demandeur_personne_physique_email,
+      : (dossier.demandeur_personne_physique_email ?? dossier.deposant_email),
   );
 
   // "Personne qui dépose le dossier (demandeur/mandataire)" line: shows the mandataire

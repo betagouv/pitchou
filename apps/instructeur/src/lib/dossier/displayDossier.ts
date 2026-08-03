@@ -67,7 +67,9 @@ export function formatDeposant(dossier: DossierFull | DossierSummary): string {
 
 export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {
   if (dossier.demandeur_personne_morale_siret) {
-    return `${dossier.demandeur_personne_morale_legal_name} (${dossier.demandeur_personne_morale_siret})`;
+    return dossier.demandeur_personne_morale_legal_name
+      ? `${dossier.demandeur_personne_morale_legal_name} (${dossier.demandeur_personne_morale_siret})`
+      : `SIRET ${dossier.demandeur_personne_morale_siret}`;
   } else {
     if (dossier.demandeur_personne_physique_last_name) {
       return (
