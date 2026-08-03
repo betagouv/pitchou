@@ -3,8 +3,6 @@
   import { goto } from "$app/navigation";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import DatePicker from "@pitchou/ui/DatePicker.svelte";
-  import { phases } from "@pitchou/common/phases.ts";
 
   import {
     createDossier,
@@ -13,72 +11,198 @@
     type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
 
+  import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
+  import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
+  import DossierCreationDetailsSection from "./DossierCreationDetailsSection.svelte";
+  import DossierCreationInformationSection from "./DossierCreationInformationSection.svelte";
+  import DossierCreationLocationSection from "./DossierCreationLocationSection.svelte";
+  import DossierCreationJustificationSection from "./DossierCreationJustificationSection.svelte";
+  import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
+  import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
+  import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
+  import {
+    buildCreationPayload,
+    createDossierCreationModel,
+    showsSpeciesSection,
+    showsDestroyedNidsCount,
+    showsPreviousAssessment,
+    showsScientificPurposes,
+    showsWindFarmDetails,
+    showsCompensatedNidsCount,
+    showsOperationDetails,
+    showsCompleteDossierFiles,
+    showsNoDerogationArgumentFiles,
+  } from "./dossierCreationModel.ts";
+  import { requiresScientificDemandeType } from "@pitchou/common/dossierFormOptions.ts";
+
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
   let groupes = $state<AdminGroupeInstructeurs[]>([]);
   let loadError = $state<string | null>(null);
-
-  let name = $state("");
-  let depotDate = $state(new Date().toISOString().slice(0, 10));
-  let phase = $state("Accompagnement amont");
-  let groupeInstructeurs = $state("");
-  let demandeurType = $state<"personne_physique" | "personne_morale">("personne_physique");
-  let ppLastName = $state("");
-  let ppFirstNames = $state("");
-  let ppEmail = $state("");
-  let pmSiret = $state("");
-  let pmLegalName = $state("");
-  let description = $state("");
-
+  let model = $state(createDossierCreationModel());
   let saving = $state(false);
   let saveError = $state<string | null>(null);
 
   onMount(async () => {
     try {
       groupes = await loadGroupesInstructeurs();
-      groupeInstructeurs = groupes[0]?.id ?? "";
+      model.groupeInstructeurs = groupes[0]?.id ?? "";
       etat = "autorise";
-    } catch (e) {
-      if (e instanceof AccessDeniedError) {
-        etat = "refuse";
-      } else {
-        loadError = e instanceof Error ? e.message : String(e);
-        etat = "refuse";
+    } catch (error) {
+      if (!(error instanceof AccessDeniedError)) {
+        loadError = error instanceof Error ? error.message : String(error);
       }
+      etat = "refuse";
     }
   });
 
   async function submit(event: SubmitEvent) {
     event.preventDefault();
-    if (!depotDate) {
+    if (!model.depotDate) {
       saveError = "La date de dépôt est requise.";
       return;
     }
+    const needsSpeciesFile = showsSpeciesSection(model);
+    if (needsSpeciesFile && !model.speciesFile) {
+      saveError = "Le fichier des espèces concernées est requis.";
+      requestAnimationFrame(() => document.getElementById("species-file-button")?.focus());
+      return;
+    }
+    if (
+      needsSpeciesFile &&
+      (!model.noOtherSatisfactorySolutionJustification.trim() ||
+        !model.motifDerogation ||
+        !model.motifDerogationJustification.trim())
+    ) {
+      saveError = "Les justifications de la demande de dérogation sont requises.";
+      return;
+    }
+    if (showsCompleteDossierFiles(model) && model.completeDossierFiles.length === 0) {
+      saveError = "Le dossier complet de demande de dérogation est requis.";
+      return;
+    }
+    if (showsNoDerogationArgumentFiles(model) && model.noDerogationArgumentFiles.length === 0) {
+      saveError = "L'argumentaire concluant à l'absence de nécessité de dérogation est requis.";
+      return;
+    }
+    if (model.supplementalFiles.length === 0) {
+      saveError = "Ajoutez les pièces jointes supplémentaires nécessaires au dossier.";
+      return;
+    }
+    const submissionFiles = [
+      ...(needsSpeciesFile && model.speciesFile ? [model.speciesFile] : []),
+      ...(showsScientificPurposes(model) ? model.purposeFiles : []),
+      ...(showsPreviousAssessment(model) && model.scientifiquePreviousAssessment === "oui"
+        ? model.previousAssessmentFiles
+        : []),
+      ...(model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité" &&
+      model.scientifiqueMortalityMeasuresTaken === "oui"
+        ? model.mortalityMeasureFiles
+        : []),
+      ...(showsWindFarmDetails(model)
+        ? [...model.windFarmPlanFiles, ...model.eolienProtocolFiles]
+        : []),
+      ...(showsOperationDetails(model)
+        ? model.scientifiqueIntervenants.flatMap(({ cvFiles }) => cvFiles)
+        : []),
+      ...(showsCompleteDossierFiles(model) ? model.completeDossierFiles : []),
+      ...(showsNoDerogationArgumentFiles(model) ? model.noDerogationArgumentFiles : []),
+      ...model.supplementalFiles,
+    ];
+    if (submissionFiles.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
+      saveError = "La taille totale des fichiers ne doit pas dépasser 65 Mo.";
+      return;
+    }
+    if (!model.description.trim() || !model.aeRegime) {
+      saveError = "La description du projet et son régime d'autorisation sont requis.";
+      return;
+    }
+    if (model.aeRegime === "oui" && model.aeProcedures.length === 0) {
+      saveError = "Sélectionnez au moins une procédure d'autorisation environnementale.";
+      return;
+    }
+    if (model.aeProcedures.includes("Autre") && !model.aeOtherProcedure.trim()) {
+      saveError = "Précisez la procédure justifiant l'autorisation environnementale.";
+      return;
+    }
+    if (
+      showsDestroyedNidsCount(model) &&
+      (!model.destroyedNidsCount || model.destroyedNidsCount < 1)
+    ) {
+      saveError = "Le nombre de nids d'Hirondelles à détruire est requis.";
+      return;
+    }
+    if (requiresScientificDemandeType(model.motifDerogation) && !model.limitedSpecimenType) {
+      saveError = "Précisez le type de prise ou de détention.";
+      return;
+    }
+    if (showsPreviousAssessment(model) && !model.scientifiquePreviousAssessment) {
+      saveError = "Indiquez si la demande concerne un programme de suivi existant.";
+      return;
+    }
+    if (
+      showsPreviousAssessment(model) &&
+      model.scientifiquePreviousAssessment === "oui" &&
+      model.previousAssessmentFiles.length === 0
+    ) {
+      saveError = "Le bilan des opérations antérieures est requis.";
+      return;
+    }
+    if (
+      model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité" &&
+      !model.scientifiqueMortalityMeasuresTaken
+    ) {
+      saveError = "Indiquez si des mesures complémentaires ont été prises.";
+      return;
+    }
+    if (
+      showsCompensatedNidsCount(model) &&
+      (!model.compensatedNidsCount || model.compensatedNidsCount < 1)
+    ) {
+      saveError = "Le nombre de nids artificiels posés en compensation est requis.";
+      return;
+    }
+    if (
+      needsSpeciesFile &&
+      requiresScientificDemandeType(model.motifDerogation) &&
+      model.scientifiqueDemandeType.length === 0
+    ) {
+      saveError = "Sélectionnez au moins un type de demande scientifique.";
+      return;
+    }
+
     saving = true;
     saveError = null;
     try {
-      const { id } = await createDossier({
-        name: name.trim(),
-        depot_date: depotDate,
-        phase,
-        groupe_instructeurs: groupeInstructeurs,
-        demandeur_personne_physique:
-          demandeurType === "personne_physique"
-            ? {
-                last_name: ppLastName.trim(),
-                first_names: ppFirstNames.trim(),
-                email: ppEmail.trim() || null,
-              }
-            : null,
-        demandeur_personne_morale:
-          demandeurType === "personne_morale"
-            ? { siret: pmSiret.replaceAll(" ", ""), legal_name: pmLegalName.trim() || null }
-            : null,
-        columns: description.trim() ? { description: description.trim() } : undefined,
-      });
+      const { id } = await createDossier(
+        buildCreationPayload(model),
+        needsSpeciesFile ? model.speciesFile : null,
+        {
+          purpose: showsScientificPurposes(model) ? model.purposeFiles : [],
+          previousAssessment:
+            showsPreviousAssessment(model) && model.scientifiquePreviousAssessment === "oui"
+              ? model.previousAssessmentFiles
+              : [],
+          mortalityMeasures:
+            model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité" &&
+            model.scientifiqueMortalityMeasuresTaken === "oui"
+              ? model.mortalityMeasureFiles
+              : [],
+          windFarmPlan: showsWindFarmDetails(model) ? model.windFarmPlanFiles : [],
+          eolienProtocol: showsWindFarmDetails(model) ? model.eolienProtocolFiles : [],
+          intervenantCv: showsOperationDetails(model)
+            ? model.scientifiqueIntervenants.flatMap(({ cvFiles }) => cvFiles)
+            : [],
+          completeDossier: showsCompleteDossierFiles(model) ? model.completeDossierFiles : [],
+          noDerogationArgument: showsNoDerogationArgumentFiles(model)
+            ? model.noDerogationArgumentFiles
+            : [],
+          supplemental: model.supplementalFiles,
+        },
+      );
       await goto(`/dossiers/${id}`);
-    } catch (e) {
-      saveError = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+      saveError = error instanceof Error ? error.message : String(error);
     } finally {
       saving = false;
     }
@@ -105,176 +229,32 @@
   <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
     Retour aux dossiers
   </a>
-  <h1 class="fr-mt-2w">Créer un dossier</h1>
-  <p class="fr-text-mention--grey">
-    Le dossier est créé directement dans Pitchou, sans passer par Démarches Numériques. Les autres
-    champs (projet, localisation, dérogation…) sont modifiables après création.
-  </p>
+  <div class="fr-mt-3w fr-mb-5w max-w-4xl">
+    <p class="fr-text--lead fr-mb-1w">Nouveau dossier</p>
+    <h1 class="fr-mb-2w">Créer une demande de dérogation</h1>
+    <p class="fr-text-mention--grey fr-mb-0">
+      Le dossier est créé directement dans Pitchou, sans passer par Démarches Numériques.
+    </p>
+  </div>
 
-  <form class="w-full flex flex-col gap-6" onsubmit={submit}>
-    <fieldset class="fr-fieldset" aria-label="Informations générales">
-      <legend class="fr-fieldset__legend fr-text--bold">Informations générales</legend>
-
-      <div class="fr-fieldset__element">
-        <div class="fr-input-group">
-          <label class="fr-label" for="dossier-name">Nom du dossier</label>
-          <input
-            class="fr-input"
-            id="dossier-name"
-            type="text"
-            required
-            autocomplete="off"
-            data-form-type="other"
-            data-1p-ignore
-            bind:value={name}
-          />
-        </div>
-      </div>
-
-      <div class="fr-fieldset__element fr-fieldset__element--inline">
-        <div class="fr-input-group min-w-[14rem]">
-          <label class="fr-label" for="dossier-depot-date">Date de dépôt</label>
-          <DatePicker
-            id="dossier-depot-date"
-            label="Date de dépôt"
-            value={depotDate}
-            onChange={(value) => (depotDate = value ?? "")}
-          />
-        </div>
-      </div>
-
-      <div class="fr-fieldset__element fr-fieldset__element--inline">
-        <div class="fr-select-group">
-          <label class="fr-label" for="dossier-phase">Phase initiale</label>
-          <select class="fr-select" id="dossier-phase" bind:value={phase}>
-            {#each [...phases] as phaseOption (phaseOption)}
-              <option value={phaseOption}>{phaseOption}</option>
-            {/each}
-          </select>
-        </div>
-      </div>
-
-      <div class="fr-fieldset__element">
-        <div class="fr-select-group">
-          <label class="fr-label" for="dossier-groupe">
-            Groupe instructeurs
-            <span class="fr-hint-text">
-              Le dossier ne sera visible que par les instructeurs de ce groupe.
-            </span>
-          </label>
-          <select class="fr-select" id="dossier-groupe" required bind:value={groupeInstructeurs}>
-            {#each groupes as groupe (groupe.id)}
-              <option value={groupe.id}>{groupe.name}</option>
-            {/each}
-          </select>
-        </div>
-      </div>
-
-      <div class="fr-fieldset__element">
-        <div class="fr-input-group">
-          <label class="fr-label" for="dossier-description">
-            Description du projet <span class="fr-hint-text">Facultatif</span>
-          </label>
-          <textarea class="fr-input" id="dossier-description" rows="3" bind:value={description}
-          ></textarea>
-        </div>
-      </div>
-    </fieldset>
-
-    <fieldset class="fr-fieldset w-full" aria-label="Porteur de projet">
-      <legend class="fr-fieldset__legend fr-h3">Porteur de projet</legend>
-
-      <div class="fr-fieldset__element">
-        <h3 class="fr-h6 fr-mb-2w">Type de demandeur</h3>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <div class="fr-radio-group">
-            <input
-              type="radio"
-              id="demandeur-pp"
-              value="personne_physique"
-              bind:group={demandeurType}
-            />
-            <label class="fr-label" for="demandeur-pp">Personne physique</label>
-          </div>
-          <div class="fr-radio-group">
-            <input
-              type="radio"
-              id="demandeur-pm"
-              value="personne_morale"
-              bind:group={demandeurType}
-            />
-            <label class="fr-label" for="demandeur-pm">Personne morale</label>
-          </div>
-        </div>
-      </div>
-
-      {#if demandeurType === "personne_physique"}
-        <div class="fr-fieldset__element w-full flex flex-col gap-4">
-          <h3 class="fr-h6 fr-mb-0">Identité du demandeur ou déposant</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-            <div class="fr-input-group w-full">
-              <label class="fr-label" for="pp-last-name">Nom</label>
-              <input
-                class="fr-input w-full"
-                id="pp-last-name"
-                type="text"
-                required
-                bind:value={ppLastName}
-              />
-            </div>
-            <div class="fr-input-group w-full">
-              <label class="fr-label" for="pp-first-names">Prénom(s)</label>
-              <input
-                class="fr-input w-full"
-                id="pp-first-names"
-                type="text"
-                bind:value={ppFirstNames}
-              />
-            </div>
-            <div class="fr-input-group w-full">
-              <label class="fr-label" for="pp-email">Adresse e-mail (facultatif)</label>
-              <input class="fr-input w-full" id="pp-email" type="email" bind:value={ppEmail} />
-            </div>
-          </div>
-        </div>
-      {:else}
-        <div class="fr-fieldset__element w-full flex flex-col gap-4">
-          <h3 class="fr-h6 fr-mb-0">Informations de la personne morale</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            <div class="fr-input-group w-full">
-              <label class="fr-label" for="pm-siret">
-                SIRET <span class="fr-hint-text">14 chiffres</span>
-              </label>
-              <input
-                class="fr-input w-full"
-                id="pm-siret"
-                type="text"
-                required
-                minlength="14"
-                bind:value={pmSiret}
-              />
-            </div>
-            <div class="fr-input-group w-full">
-              <label class="fr-label" for="pm-legal-name">Raison sociale</label>
-              <input
-                class="fr-input w-full"
-                id="pm-legal-name"
-                type="text"
-                bind:value={pmLegalName}
-              />
-            </div>
-          </div>
-        </div>
-      {/if}
-    </fieldset>
+  <form class="w-full flex flex-col gap-10" onsubmit={submit}>
+    <DossierCreationInformationSection {model} />
+    <DossierCreationProjectSection {model} />
+    <DossierCreationDemandeurSection {model} />
+    <DossierCreationLocationSection {model} />
+    <DossierCreationMapSection {model} />
+    {#if showsSpeciesSection(model)}
+      <DossierCreationSpeciesSection {model} />
+      <DossierCreationJustificationSection {model} />
+    {/if}
+    <DossierCreationDetailsSection {model} />
+    <DossierCreationAdminSection {model} {groupes} />
 
     {#if saveError}
-      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
-        <p>{saveError}</p>
-      </div>
+      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>
     {/if}
 
-    <div class="flex flex-row gap-4">
+    <div class="flex flex-row flex-wrap gap-4">
       <button class="fr-btn" type="submit" disabled={saving}>
         {saving ? "Création…" : "Créer le dossier"}
       </button>
