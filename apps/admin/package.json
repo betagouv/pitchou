@@ -11,6 +11,7 @@
     "@pitchou/types": "workspace:*",
     "@pitchou/ui": "workspace:*",
     "@sentry/sveltekit": "catalog:",
+    "@xmldom/xmldom": "0.9.10",
     "jose": "catalog:",
     "knex": "catalog:",
     "maplibre-gl": "catalog:",

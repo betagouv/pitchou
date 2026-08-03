@@ -4,6 +4,7 @@
 
   import type { FeatureCollection, ProjectMapFeature } from "./dossierAdminFormModel.ts";
   import { findAddressCoordinates } from "./projectMapAddress.ts";
+  import { parseMapCoordinates } from "./projectMapCoordinates.ts";
   import { ParcelHoverLoader } from "./projectMapCadastre.ts";
   import {
     emptyFeatureCollection,
@@ -34,6 +35,8 @@
   let mode = $state<ProjectMapMode>("navigate");
   let draft = $state<Position[]>([]);
   let address = $state("");
+  let coordinateInput = $state("");
+  let coordinateError = $state<string | null>(null);
   let error = $state<string | null>(null);
   let parcelLoading = $state(false);
   const parcelHover = new ParcelHoverLoader();
@@ -80,7 +83,10 @@
       const previous = draft[index - 1];
       return !previous || previous[0] !== position[0] || previous[1] !== position[1];
     });
-    if (coordinates.length >= 2) {
+    if (mode === "polygon" && coordinates.length >= 3) {
+      coordinates.push(coordinates[0]);
+      addFeatures([selectionFeature({ type: "Polygon", coordinates: [coordinates] })]);
+    } else if (mode === "line" && coordinates.length >= 2) {
       addFeatures([selectionFeature({ type: "LineString", coordinates })]);
     }
     selectMode("navigate");
@@ -127,7 +133,7 @@
     if (mode === "point") {
       addFeatures([selectionFeature({ type: "Point", coordinates: position })]);
       selectMode("navigate");
-    } else if (mode === "line") {
+    } else if (["line", "polygon"].includes(mode)) {
       draft = [...draft, position];
       updateDraft();
     } else if (mode === "rectangle") {
@@ -152,6 +158,18 @@
     }
   }
 
+  function addCoordinatePoint() {
+    const position = parseMapCoordinates(coordinateInput);
+    if (!position) {
+      coordinateError = "Saisissez des coordonnées valides.";
+      return;
+    }
+    coordinateError = null;
+    addFeatures([selectionFeature({ type: "Point", coordinates: position })]);
+    map?.flyTo({ center: position, zoom: 17 });
+    coordinateInput = "";
+  }
+
   $effect(() => {
     value;
     if (loaded) updateMap();
@@ -169,7 +187,7 @@
       },
       onClick: (event) => void handleClick(event),
       onDoubleClick: (event) => {
-        if (mode !== "line") return;
+        if (!["line", "polygon"].includes(mode)) return;
         event.preventDefault();
         finishLine();
       },
@@ -206,6 +224,39 @@
 
 {#if error}<p class="fr-error-text" role="alert">{error}</p>{/if}
 <div
-  class="w-full h-[32rem] border border-[color:var(--border-default-grey)]"
+  class="w-full h-[36rem] border border-[color:var(--border-default-grey)]"
   bind:this={mapContainer}
 ></div>
+
+{#if !disabled}
+  <div class="fr-input-group fr-mt-3w">
+    <label class="fr-label" for="project-map-coordinates">
+      Ajouter un point sur la carte
+      <span class="fr-hint-text">Exemple : 43°48'06&quot;N 006°14'59&quot;E</span>
+    </label>
+    <div class="flex gap-2">
+      <input
+        class="fr-input flex-1"
+        id="project-map-coordinates"
+        type="text"
+        placeholder={`43°48'06"N 006°14'59"E`}
+        bind:value={coordinateInput}
+        onkeydown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            addCoordinatePoint();
+          }
+        }}
+      />
+      <button
+        class="fr-btn fr-icon-add-line"
+        type="button"
+        title="Ajouter le point"
+        onclick={addCoordinatePoint}
+      >
+        <span class="fr-sr-only">Ajouter le point</span>
+      </button>
+    </div>
+    {#if coordinateError}<p class="fr-error-text" role="alert">{coordinateError}</p>{/if}
+  </div>
+{/if}

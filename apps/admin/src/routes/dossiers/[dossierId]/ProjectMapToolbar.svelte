@@ -14,6 +14,7 @@
     ["navigate", "Déplacer"],
     ["point", "Point"],
     ["line", "Ligne"],
+    ["polygon", "Polygone"],
     ["rectangle", "Rectangle"],
     ["parcel", "Parcelle cadastrale"],
   ];
@@ -30,14 +31,15 @@
       onclick={() => onSelect(tool[0])}>{tool[1]}</button
     >
   {/each}
-  {#if mode === "line" && draftCount >= 2}
-    <button type="button" class="fr-btn fr-btn--sm" onclick={onFinishLine}>Terminer la ligne</button
-    >
+  {#if ["line", "polygon"].includes(mode) && draftCount >= (mode === "polygon" ? 3 : 2)}
+    <button type="button" class="fr-btn fr-btn--sm" onclick={onFinishLine}>
+      Terminer {mode === "polygon" ? "le polygone" : "la ligne"}
+    </button>
   {/if}
 </div>
 <p class="fr-hint-text fr-mt-0">
-  {mode === "line"
-    ? "Cliquez pour ajouter des sommets, puis double-cliquez ou terminez la ligne."
+  {["line", "polygon"].includes(mode)
+    ? `Cliquez pour ajouter des sommets, puis double-cliquez ou terminez ${mode === "polygon" ? "le polygone" : "la ligne"}.`
     : mode === "rectangle"
       ? "Cliquez sur deux coins opposés du rectangle."
       : mode === "parcel"

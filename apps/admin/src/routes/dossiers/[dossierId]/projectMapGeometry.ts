@@ -1,7 +1,7 @@
 import type { FeatureCollection, ProjectMapFeature } from "./dossierAdminFormModel.ts";
 
 export type Position = [number, number];
-export type ProjectMapMode = "navigate" | "point" | "line" | "rectangle" | "parcel";
+export type ProjectMapMode = "navigate" | "point" | "line" | "polygon" | "rectangle" | "parcel";
 
 export const emptyFeatureCollection = (): FeatureCollection => ({
   type: "FeatureCollection",
