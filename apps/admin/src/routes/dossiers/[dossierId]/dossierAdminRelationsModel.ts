@@ -66,6 +66,7 @@ export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
   return {
     groupeInstructeurs: detail.groupe?.id ?? "",
     demandeurType,
+    hasDemandeurIdentity: !!demandeurIdentity,
     demandeurIdentity: identity(demandeurIdentity),
     personnePhysique: {
       address: text(personnePhysique?.address),
@@ -104,7 +105,10 @@ function buildIdentity(
 export function buildDossierRelations(
   model: DossierAdminRelationsModel,
 ): AdminDossierRelationsPayload {
-  const identites = [buildIdentity("demandeur", model.demandeurIdentity)];
+  const identites: AdminDossierIdentite[] = [];
+  if (model.demandeurType === "personne_physique" || model.hasDemandeurIdentity) {
+    identites.push(buildIdentity("demandeur", model.demandeurIdentity));
+  }
   if (model.hasMandataire) identites.push(buildIdentity("mandataire", model.mandataire));
   if (model.demandeurType === "personne_morale" && model.hasRepresentant) {
     identites.push(buildIdentity("representant", model.representant));

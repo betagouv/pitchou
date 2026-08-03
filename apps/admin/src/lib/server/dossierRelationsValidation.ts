@@ -127,9 +127,6 @@ function parseIdentites(raw: unknown): AdminDossierIdentite[] {
   });
   const types = identites.map(({ type }) => type);
   if (new Set(types).size !== types.length) error(400, `Identity types must be unique.`);
-  if (!types.includes("demandeur")) error(400, `A demandeur identity is required.`);
-  const demandeur = identites.find(({ type }) => type === "demandeur")!;
-  if (!demandeur.last_name?.trim()) error(400, `The demandeur last_name is required.`);
   return identites;
 }
 
@@ -144,6 +141,8 @@ export function parseDossierRelations(raw: unknown): AdminDossierRelations {
     if (value.demandeur_personne_morale !== null) {
       error(400, `Property 'demandeur_personne_morale' must be null for a physical demandeur.`);
     }
+    const demandeur = identites.find(({ type }) => type === "demandeur");
+    if (!demandeur) error(400, `A demandeur identity is required.`);
     return {
       groupe_instructeurs: groupe as GroupeInstructeursId,
       demandeur_type: demandeurType,

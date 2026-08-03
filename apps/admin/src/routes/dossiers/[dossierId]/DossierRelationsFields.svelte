@@ -37,14 +37,12 @@
     </div>
   </div>
 
-  <div class="fr-fieldset__element w-full flex flex-col gap-4">
-    <h3 class="fr-h6 fr-mb-0">Identité du demandeur ou déposant</h3>
-    <DossierIdentityFields
-      identity={model.demandeurIdentity}
-      idPrefix="edit-demandeur"
-      lastNameRequired={true}
-    />
-  </div>
+  {#if model.demandeurType === "personne_physique"}
+    <div class="fr-fieldset__element w-full flex flex-col gap-4">
+      <h3 class="fr-h6 fr-mb-0">Identité du demandeur ou déposant</h3>
+      <DossierIdentityFields identity={model.demandeurIdentity} idPrefix="edit-demandeur" />
+    </div>
+  {/if}
 
   <div class="fr-fieldset__element w-full flex flex-col gap-4">
     {#if model.demandeurType === "personne_physique"}

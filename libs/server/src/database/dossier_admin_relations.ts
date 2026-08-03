@@ -117,19 +117,26 @@ export async function updateDossierAdminRelations(
     .insert({ ...entreprise, siren: entreprise.siret.slice(0, 9) })
     .onConflict("siret")
     .ignore();
+  if (entreprise.legal_name) {
+    await trx("entreprise")
+      .where({ siret: entreprise.siret })
+      .whereNull("legal_name")
+      .update({ legal_name: entreprise.legal_name });
+  }
 
   const demandeur = relations.identites.find(({ type }) => type === "demandeur");
-  if (!demandeur) throw new TypeError("A demandeur identity is required");
-  const deposantId = await insertDossierPersonne(
-    {
-      last_name: demandeur.last_name,
-      first_names: demandeur.first_names,
-      email: demandeur.email,
-      phone: demandeur.phone,
-      role: demandeur.role,
-    },
-    trx,
-  );
+  const deposantId = demandeur
+    ? await insertDossierPersonne(
+        {
+          last_name: demandeur.last_name,
+          first_names: demandeur.first_names,
+          email: demandeur.email,
+          phone: demandeur.phone,
+          role: demandeur.role,
+        },
+        trx,
+      )
+    : null;
   await trx("dossier").where({ id: dossierId }).update({
     demandeur_personne_physique: null,
     demandeur_personne_morale: entreprise.siret,

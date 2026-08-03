@@ -49,4 +49,26 @@ describe("parseDossierRelations", () => {
       }),
     ).toThrow();
   });
+
+  test("accepts a legal demandeur with only a representative identity", () => {
+    const legalRelations = {
+      ...physicalRelations,
+      demandeur_type: "personne_morale",
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: {
+        siret: "12345678901234",
+        legal_name: "Entreprise test",
+        address: null,
+        postal_code: null,
+        department: null,
+        region: null,
+      },
+      identites: [{ ...physicalRelations.identites[0], type: "representant" }],
+    };
+
+    expect(parseDossierRelations(legalRelations)).toMatchObject({
+      demandeur_type: "personne_morale",
+      identites: [{ type: "representant" }],
+    });
+  });
 });
