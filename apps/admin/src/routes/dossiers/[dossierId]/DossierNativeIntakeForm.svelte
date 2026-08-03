@@ -1,9 +1,6 @@
 <script lang="ts">
   import {
-    loadDossierDetail,
     updateDossier,
-    uploadEspecesImpactees,
-    uploadPieceJointe,
     type AdminDossierDetail,
     type AdminDossierRelationsPayload,
     type AdminDossierUpdatePayload,
@@ -81,12 +78,14 @@
         },
         relations: mergeRelations(intake.relations),
       };
-      await updateDossier(detail.dossier.id, payload);
-      if (model.speciesFile) await uploadEspecesImpactees(detail.dossier.id, model.speciesFile);
-      for (const file of attachments) await uploadPieceJointe(detail.dossier.id, file);
+      const updated = await updateDossier(
+        detail.dossier.id,
+        payload,
+        model.speciesFile,
+        attachments,
+      );
       clearSelectedDossierFiles(model);
       formVersion += 1;
-      const updated = await loadDossierDetail(detail.dossier.id);
       onSaved(updated);
       saved = true;
     } catch (error) {

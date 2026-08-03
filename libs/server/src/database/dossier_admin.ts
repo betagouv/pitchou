@@ -12,5 +12,8 @@ export type {
 } from "./dossier_admin_types.ts";
 export { ensurePersonneIdByEmail } from "./dossier_admin_personne.ts";
 export { createDossierFromAdmin } from "./dossier_admin_create.ts";
-export { updateDossierFromAdmin } from "./dossier_admin_update.ts";
+export {
+  updateDossierFromAdmin,
+  updateDossierFromAdminInTransaction,
+} from "./dossier_admin_update.ts";
 export { deleteDossierFromAdmin } from "./dossier_admin_delete.ts";

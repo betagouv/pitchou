@@ -130,11 +130,23 @@ export async function createMinimalDossier(
 export async function updateDossier(
   dossierId: number,
   payload: AdminDossierUpdatePayload,
+  speciesFile: File | null = null,
+  attachments: File[] = [],
 ): Promise<AdminDossierDetail> {
+  const usesMultipart = !!speciesFile || attachments.length >= 1;
+  const body = usesMultipart
+    ? (() => {
+        const form = new FormData();
+        form.set("payload", JSON.stringify(payload));
+        if (speciesFile) form.set("speciesFile", speciesFile);
+        for (const file of attachments) form.append("attachments", file);
+        return form;
+      })()
+    : JSON.stringify(payload);
   const response = await fetch(`/api/dossiers/${dossierId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: usesMultipart ? undefined : { "Content-Type": "application/json" },
+    body,
   });
   await checkResponse(response, "de la modification du dossier");
   return (await response.json()) as AdminDossierDetail;
