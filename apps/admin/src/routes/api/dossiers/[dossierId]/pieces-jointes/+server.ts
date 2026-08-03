@@ -13,6 +13,9 @@ export const POST: RequestHandler = async ({ params, request }) => {
   if (!(file instanceof File) || file.size === 0) {
     error(400, "Champ 'file' manquant ou vide.");
   }
+  if (file.size > 65 * 1024 * 1024) {
+    error(400, "La taille du fichier ne doit pas dépasser 65 Mo.");
+  }
 
   try {
     const stored = await addPieceJointeFromAdmin(dossierId, {
