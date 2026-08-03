@@ -18,10 +18,12 @@
   let { data }: { data: PageData } = $props();
 
   const dossierId = Number(page.params.dossierId);
+  const editFormId = "dossier-admin-edit-form";
 
   let detail = $derived<AdminDossierDetail | null>(data.detail);
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
+  let saving = $state(false);
 
   let confirmingDelete = $state(false);
   let deleting = $state(false);
@@ -57,53 +59,75 @@
   <title>Administration - dossier {detail?.dossier.name ?? dossierId} — Pitchou</title>
 </svelte:head>
 
-<a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
-  Retour aux dossiers
-</a>
-
 {#if accessDenied}
+  <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
+    Retour aux dossiers
+  </a>
   <div class="fr-alert fr-alert--error fr-my-3w" role="alert">
     <h3 class="fr-alert__title">Accès réservé aux administrateurs</h3>
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else if loadError}
+  <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
+    Retour aux dossiers
+  </a>
   <div class="fr-alert fr-alert--error fr-my-3w" role="alert">
     <h3 class="fr-alert__title">Erreur lors du chargement du dossier</h3>
     <p>{loadError}</p>
   </div>
 {:else if !detail}
+  <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
+    Retour aux dossiers
+  </a>
   <Loader />
 {:else}
-  <div class="flex flex-row items-center gap-4 flex-wrap fr-mt-2w">
-    <h1 class="fr-mb-0">{detail.dossier.name || `Dossier ${detail.dossier.id}`}</h1>
-    {#if detail.managedByDn}
-      <span class="fr-badge fr-badge--info fr-badge--no-icon">
-        DN nº{detail.dossier.demarche_numerique_number}
-      </span>
-    {:else}
-      <span class="fr-badge fr-badge--green-emeraude">Créé dans Pitchou</span>
-    {/if}
-    <span class="fr-badge fr-badge--sm fr-badge--no-icon">{detail.phase}</span>
-  </div>
+  <header
+    class="sticky top-0 z-40 bg-[var(--background-default-grey)] fr-py-2w border-b border-[color:var(--border-default-grey)]"
+  >
+    <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
+      Retour aux dossiers
+    </a>
+    <div class="flex flex-row items-center gap-4 flex-wrap fr-mt-2w">
+      <h1 class="fr-mb-0">{detail.dossier.name || `Dossier ${detail.dossier.id}`}</h1>
+      {#if detail.managedByDn}
+        <span class="fr-badge fr-badge--info fr-badge--no-icon">
+          DN nº{detail.dossier.demarche_numerique_number}
+        </span>
+      {:else}
+        <span class="fr-badge fr-badge--green-emeraude">Créé dans Pitchou</span>
+      {/if}
+      <span class="fr-badge fr-badge--sm fr-badge--no-icon">{detail.phase}</span>
+      {#if !detail.managedByDn}
+        <button
+          class="fr-btn fr-icon-save-line fr-btn--icon-left ml-auto"
+          type="submit"
+          form={editFormId}
+          disabled={saving}
+        >
+          {saving ? "Enregistrement…" : "Enregistrer"}
+        </button>
+      {/if}
+    </div>
 
-  <p class="fr-text-mention--grey fr-mt-1w">
-    {#if detail.groupe}
-      Groupe instructeurs : {detail.groupe.name} ·
-    {/if}
-    Demandeur :
-    {#if detail.demandeur_personne_morale}
-      {detail.demandeur_personne_morale.legal_name ?? detail.demandeur_personne_morale.siret}
-    {:else if detail.demandeur_personne_physique}
-      {[
-        detail.demandeur_personne_physique.last_name,
-        detail.demandeur_personne_physique.first_names,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    {:else}
-      (inconnu)
-    {/if}
-  </p>
+    <p class="fr-text-mention--grey fr-mt-1w fr-mb-0">
+      {#if detail.groupe}
+        Groupe instructeurs : {detail.groupe.name} ·
+      {/if}
+      Demandeur :
+      {#if detail.demandeur_personne_morale}
+        {detail.demandeur_personne_morale.legal_name ?? detail.demandeur_personne_morale.siret}
+      {:else if detail.demandeur_personne_physique}
+        {[
+          detail.demandeur_personne_physique.last_name,
+          detail.demandeur_personne_physique.first_names,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      {:else}
+        (inconnu)
+      {/if}
+    </p>
+  </header>
 
   {#if detail.managedByDn}
     <div class="fr-alert fr-alert--info fr-my-2w">
@@ -116,10 +140,18 @@
   {/if}
 
   {#if detail.managedByDn}
-    <DossierAdminForm {detail} onSaved={(updated) => (detail = updated)} onFilesChanged={reload} />
+    <DossierAdminForm
+      {detail}
+      formId={editFormId}
+      onSavingChange={(value) => (saving = value)}
+      onSaved={(updated) => (detail = updated)}
+      onFilesChanged={reload}
+    />
   {:else}
     <DossierNativeIntakeForm
       {detail}
+      formId={editFormId}
+      onSavingChange={(value) => (saving = value)}
       onSaved={(updated) => (detail = updated)}
       onFilesChanged={reload}
     />

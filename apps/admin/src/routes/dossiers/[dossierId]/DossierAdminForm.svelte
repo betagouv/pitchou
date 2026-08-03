@@ -1,12 +1,8 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
   import {
-    loadGroupesInstructeurs,
     updateDossier,
     type AdminDossierDetail,
     type AdminDossierUpdatePayload,
-    type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
 
   import {
@@ -14,24 +10,28 @@
     buildDossierUpdateColumns,
     createDossierAdminFormModel,
   } from "./dossierAdminFormModel.ts";
-  import DossierAdditionalFields from "./DossierAdditionalFields.svelte";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
   import DossierDescriptionFields from "./DossierDescriptionFields.svelte";
   import DossierDerogationFields from "./DossierDerogationFields.svelte";
-  import DossierGroupeField from "./DossierGroupeField.svelte";
   import DossierIntroductionFields from "./DossierIntroductionFields.svelte";
   import DossierOperationPeriodFields from "./DossierOperationPeriodFields.svelte";
-  import DossierScientificFields from "./DossierScientificFields.svelte";
-  import DossierInstructionFields from "./DossierInstructionFields.svelte";
   import DossierRelationsFields from "./DossierRelationsFields.svelte";
 
   type Props = {
     detail: AdminDossierDetail;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
+    formId?: string;
+    onSavingChange?: (saving: boolean) => void;
   };
 
-  let { detail, onSaved, onFilesChanged }: Props = $props();
+  let {
+    detail,
+    onSaved,
+    onFilesChanged,
+    formId = "dossier-admin-edit-form",
+    onSavingChange = () => {},
+  }: Props = $props();
 
   // The parent replaces detail after saving, but this mounted form keeps its local edits.
   // svelte-ignore state_referenced_locally
@@ -39,35 +39,10 @@
   // svelte-ignore state_referenced_locally
   const managedByDn = detail.managedByDn;
   // svelte-ignore state_referenced_locally
-  const currentGroupe = detail.groupe;
-  // svelte-ignore state_referenced_locally
   let model = $state(createDossierAdminFormModel(detail));
-  let saving = $state(false);
   let saveError = $state<string | null>(null);
   let saved = $state(false);
-  let groupes = $state<AdminGroupeInstructeurs[]>(
-    currentGroupe ? [{ ...currentGroupe, demarche_number: null }] : [],
-  );
-  let groupesLoadError = $state<string | null>(null);
   const completeEcologicalInventory = $derived(model.ecologicalInventoryCompleted === "oui");
-
-  onMount(async () => {
-    if (managedByDn) return;
-    try {
-      const loadedGroupes = await loadGroupesInstructeurs();
-      groupes = currentGroupe
-        ? [
-            ...loadedGroupes,
-            ...(!loadedGroupes.some(({ id }) => id === currentGroupe.id)
-              ? [{ ...currentGroupe, demarche_number: null }]
-              : []),
-          ]
-        : loadedGroupes;
-    } catch {
-      groupesLoadError =
-        "Impossible de charger les groupes instructeurs. Le groupe actuel reste disponible.";
-    }
-  });
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
@@ -75,7 +50,7 @@
       saveError = "La date de dépôt est requise.";
       return;
     }
-    saving = true;
+    onSavingChange(true);
     saveError = null;
     saved = false;
     try {
@@ -89,12 +64,17 @@
     } catch (error) {
       saveError = error instanceof Error ? error.message : String(error);
     } finally {
-      saving = false;
+      onSavingChange(false);
     }
   }
 </script>
 
-<form class="w-full flex flex-col gap-6 fr-mt-3w" style="overflow-anchor: none" onsubmit={save}>
+<form
+  id={formId}
+  class="w-full flex flex-col gap-6 fr-mt-3w"
+  style="overflow-anchor: none"
+  onsubmit={save}
+>
   {#if managedByDn}
     <p class="fr-hint-text fr-mb-0">
       Les sections importées de Démarches Numériques sont affichées en lecture seule.
@@ -132,16 +112,6 @@
     />
   {/if}
 
-  <details class="fr-mt-2w fr-p-3w border border-[color:var(--border-default-grey)]">
-    <summary class="fr-h4 fr-mb-0 cursor-pointer">Informations complémentaires Pitchou</summary>
-    <div class="flex flex-col gap-6 fr-mt-3w">
-      <DossierAdditionalFields {model} disabled={managedByDn} />
-      <DossierScientificFields {model} disabled={managedByDn} />
-      {#if !managedByDn}<DossierGroupeField {model} {groupes} {groupesLoadError} />{/if}
-      <DossierInstructionFields {model} />
-    </div>
-  </details>
-
   {#if saveError}
     <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>
   {/if}
@@ -150,10 +120,4 @@
       <p>Dossier enregistré.</p>
     </div>
   {/if}
-
-  <div>
-    <button class="fr-btn" type="submit" disabled={saving}
-      >{saving ? "Enregistrement…" : "Enregistrer"}</button
-    >
-  </div>
 </form>

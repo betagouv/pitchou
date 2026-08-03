@@ -1,11 +1,12 @@
 <script lang="ts">
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  let { model, showTopBorder = true }: { model: DossierCreationModel; showTopBorder?: boolean } =
+    $props();
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
+  class={`fr-pt-4w ${showTopBorder ? "border-t border-[color:var(--border-default-grey)]" : ""}`}
   aria-labelledby="information-title"
 >
   <h2 class="fr-h2" id="information-title">1. Information à consulter avant de démarrer</h2>

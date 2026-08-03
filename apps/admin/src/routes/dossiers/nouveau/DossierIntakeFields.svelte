@@ -18,18 +18,20 @@
     model,
     groupes,
     showAdminSection = true,
+    showFirstSectionTopBorder = true,
     existingSpeciesFiles,
     existingAttachments,
   }: {
     model: DossierCreationModel;
     groupes: AdminGroupeInstructeurs[];
     showAdminSection?: boolean;
+    showFirstSectionTopBorder?: boolean;
     existingSpeciesFiles?: Snippet;
     existingAttachments?: Snippet;
   } = $props();
 </script>
 
-<DossierCreationInformationSection {model} />
+<DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
 <DossierCreationProjectSection {model} />
 <DossierCreationDemandeurSection {model} />
 <DossierCreationLocationSection {model} />

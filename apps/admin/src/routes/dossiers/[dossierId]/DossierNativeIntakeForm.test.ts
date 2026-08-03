@@ -42,7 +42,7 @@ test("renders the completed intake form for a native dossier", () => {
 
   expect(body).toContain("1. Information à consulter avant de démarrer");
   expect(body).toContain("8.5. Pièces jointes");
-  expect(body).toContain("Enregistrer");
+  expect(body).toContain('id="dossier-admin-edit-form"');
   expect(body).not.toContain("brouillon");
   expect(body).not.toContain("Affectation dans Pitchou");
   expect(body).not.toContain("Informations complémentaires Pitchou");

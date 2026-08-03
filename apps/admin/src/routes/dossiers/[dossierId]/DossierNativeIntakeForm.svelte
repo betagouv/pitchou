@@ -22,13 +22,20 @@
     detail: AdminDossierDetail;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
+    formId?: string;
+    onSavingChange?: (saving: boolean) => void;
   };
 
-  let { detail, onSaved, onFilesChanged }: Props = $props();
+  let {
+    detail,
+    onSaved,
+    onFilesChanged,
+    formId = "dossier-admin-edit-form",
+    onSavingChange = () => {},
+  }: Props = $props();
   // These models intentionally retain in-progress edits when the parent refreshes its detail.
   // svelte-ignore state_referenced_locally
   let model = $state(createDossierCreationModelFromDetail(detail));
-  let saving = $state(false);
   let saveError = $state<string | null>(null);
   let saved = $state(false);
   let formVersion = $state(0);
@@ -56,7 +63,7 @@
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
-    saving = true;
+    onSavingChange(true);
     saved = false;
     saveError = null;
     try {
@@ -85,12 +92,13 @@
     } catch (error) {
       saveError = error instanceof Error ? error.message : String(error);
     } finally {
-      saving = false;
+      onSavingChange(false);
     }
   }
 </script>
 
 <form
+  id={formId}
   class="w-full flex flex-col gap-10 fr-mt-3w"
   style="overflow-anchor: none"
   novalidate
@@ -126,6 +134,7 @@
       {model}
       groupes={[]}
       showAdminSection={false}
+      showFirstSectionTopBorder={false}
       {existingSpeciesFiles}
       {existingAttachments}
     />
@@ -139,10 +148,4 @@
       <p>Dossier enregistré.</p>
     </div>
   {/if}
-
-  <div>
-    <button class="fr-btn" type="submit" disabled={saving}>
-      {saving ? "Enregistrement…" : "Enregistrer"}
-    </button>
-  </div>
 </form>

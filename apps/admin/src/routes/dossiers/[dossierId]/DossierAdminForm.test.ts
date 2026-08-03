@@ -78,7 +78,6 @@ describe("DossierAdminForm", () => {
       "3. Espèces concernées par la dérogation",
       'aria-label="Dérogation"',
       'id="project-details-title"',
-      "Informations complémentaires Pitchou",
     ];
 
     const positions = sections.map((section) => body.indexOf(section));
