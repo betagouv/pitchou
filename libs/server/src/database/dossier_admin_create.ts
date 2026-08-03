@@ -17,8 +17,6 @@ export async function createDossierFromAdmin(
   assertEditableDossierColumns(creation.columns);
 
   return databaseConnection.transaction(async (trx) => {
-    const adminPersonneId = await ensurePersonneIdByEmail(adminEmail, trx);
-
     const [{ id: dossierId }] = await trx("dossier")
       .insert({
         ...creation.columns,
@@ -31,12 +29,17 @@ export async function createDossierFromAdmin(
       .returning("id");
 
     await updateDossierAdminRelations(dossierId, creation.relations, trx);
-    await trx("evenement_phase_dossier").insert({
-      dossier: dossierId,
-      phase: creation.phase,
-      timestamp: new Date(),
-      caused_by_personne: adminPersonneId,
-    });
+    // The instructeur UI derives the initial Accompagnement phase from depot_date.
+    // Persist only a non-default initial phase to avoid displaying it twice.
+    if (creation.phase !== "Accompagnement amont") {
+      const adminPersonneId = await ensurePersonneIdByEmail(adminEmail, trx);
+      await trx("evenement_phase_dossier").insert({
+        dossier: dossierId,
+        phase: creation.phase,
+        timestamp: new Date(),
+        caused_by_personne: adminPersonneId,
+      });
+    }
 
     return { id: dossierId };
   });

@@ -5,11 +5,11 @@ import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
 import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
 
-test("renders the completed intake form for a native draft", () => {
+test("renders the completed intake form for a native dossier", () => {
   const detail: AdminDossierDetail = {
     dossier: {
       id: 1,
-      name: "Brouillon test",
+      name: "Dossier test",
       demarche_numerique_number: null,
       demarche_number: null,
       depot_date: "2026-08-03",
@@ -40,10 +40,10 @@ test("renders the completed intake form for a native draft", () => {
     },
   }).body;
 
-  expect(body).toContain("Ce dossier est un brouillon");
   expect(body).toContain("1. Information à consulter avant de démarrer");
   expect(body).toContain("8.5. Pièces jointes");
-  expect(body).toContain("Enregistrer le brouillon");
+  expect(body).toContain("Enregistrer");
+  expect(body).not.toContain("brouillon");
   expect(body).not.toContain("Affectation dans Pitchou");
   expect(body).not.toContain("Informations complémentaires Pitchou");
   expect(body).not.toContain("Fichiers déjà enregistrés");

@@ -467,7 +467,7 @@ describe("dossier creation model", () => {
     });
   });
 
-  it("builds nullable columns for an incomplete draft", () => {
+  it("builds nullable columns for an incomplete dossier", () => {
     const payload = buildCreationPayload(createDossierCreationModel());
     expect(payload.columns).toMatchObject({
       main_activite: null,

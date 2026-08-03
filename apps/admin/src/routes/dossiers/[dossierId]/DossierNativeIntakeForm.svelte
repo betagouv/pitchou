@@ -32,7 +32,6 @@
   let saveError = $state<string | null>(null);
   let saved = $state(false);
   let formVersion = $state(0);
-  const isDraft = $derived(model.phase === "Accompagnement amont");
 
   function mergeRelations(relations: AdminDossierRelationsPayload): AdminDossierRelationsPayload {
     const identites = [
@@ -97,12 +96,6 @@
   novalidate
   onsubmit={save}
 >
-  {#if isDraft}
-    <div class="fr-alert fr-alert--info fr-alert--sm">
-      <p>Ce dossier est un brouillon : vous pouvez enregistrer un formulaire encore incomplet.</p>
-    </div>
-  {/if}
-
   {#snippet existingSpeciesFiles()}
     {#if detail.especesImpactees}
       <DossierAdminFiles
@@ -143,13 +136,13 @@
   {/if}
   {#if saved}
     <div class="fr-alert fr-alert--success fr-alert--sm" role="status">
-      <p>{isDraft ? "Brouillon enregistré." : "Dossier enregistré."}</p>
+      <p>Dossier enregistré.</p>
     </div>
   {/if}
 
   <div>
     <button class="fr-btn" type="submit" disabled={saving}>
-      {saving ? "Enregistrement…" : isDraft ? "Enregistrer le brouillon" : "Enregistrer"}
+      {saving ? "Enregistrement…" : "Enregistrer"}
     </button>
   </div>
 </form>

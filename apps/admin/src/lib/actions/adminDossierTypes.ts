@@ -127,7 +127,7 @@ export type AdminDossierCreationPayload = {
   columns?: Record<string, unknown>;
 };
 
-export type AdminDossierDraftPayload = {
+export type AdminDossierMinimalCreationPayload = {
   name: string;
   groupe_instructeurs: string;
 };

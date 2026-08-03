@@ -12,7 +12,7 @@
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
   import TableDossiers from "./TableDossiers.svelte";
-  import CreateDossierDraftModal from "./CreateDossierDraftModal.svelte";
+  import CreateDossierModal from "./CreateDossierModal.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
   let dossiers = $state<AdminDossierSummary[]>([]);
@@ -20,7 +20,7 @@
   let loading = $state(false);
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
-  let creatingDraft = $state(false);
+  let creatingDossier = $state(false);
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -95,7 +95,7 @@
       <button
         class="fr-btn fr-icon-add-line fr-btn--icon-left"
         type="button"
-        onclick={() => (creatingDraft = true)}
+        onclick={() => (creatingDossier = true)}
       >
         Créer un dossier
       </button>
@@ -175,6 +175,6 @@
   {/if}
 {/if}
 
-{#if creatingDraft}
-  <CreateDossierDraftModal onClose={() => (creatingDraft = false)} />
+{#if creatingDossier}
+  <CreateDossierModal onClose={() => (creatingDossier = false)} />
 {/if}
