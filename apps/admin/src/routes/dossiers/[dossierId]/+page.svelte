@@ -11,6 +11,7 @@
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
+  import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
   import type { PageData } from "./$types";
 
@@ -114,7 +115,15 @@
     </div>
   {/if}
 
-  <DossierAdminForm {detail} onSaved={(updated) => (detail = updated)} onFilesChanged={reload} />
+  {#if detail.managedByDn}
+    <DossierAdminForm {detail} onSaved={(updated) => (detail = updated)} onFilesChanged={reload} />
+  {:else}
+    <DossierNativeIntakeForm
+      {detail}
+      onSaved={(updated) => (detail = updated)}
+      onFilesChanged={reload}
+    />
+  {/if}
 
   <DossierPhaseHistory {detail} onChanged={(updated) => (detail = updated)} />
 

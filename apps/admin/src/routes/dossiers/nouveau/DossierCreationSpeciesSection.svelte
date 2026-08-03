@@ -1,9 +1,11 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   import { speciesFileError } from "$lib/speciesFile.ts";
 
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  let { model, existingFiles }: { model: DossierCreationModel; existingFiles?: Snippet } = $props();
   let input: HTMLInputElement;
   let error = $state<string | null>(null);
   let dragging = $state(false);
@@ -110,4 +112,5 @@
     {/if}
     {#if error}<p class="fr-error-text" id="species-file-error" role="alert">{error}</p>{/if}
   </div>
+  {@render existingFiles?.()}
 </section>

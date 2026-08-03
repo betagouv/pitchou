@@ -11,15 +11,7 @@
     type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
 
-  import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
-  import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
-  import DossierCreationDetailsSection from "./DossierCreationDetailsSection.svelte";
-  import DossierCreationInformationSection from "./DossierCreationInformationSection.svelte";
-  import DossierCreationLocationSection from "./DossierCreationLocationSection.svelte";
-  import DossierCreationJustificationSection from "./DossierCreationJustificationSection.svelte";
-  import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
-  import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
-  import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
+  import DossierIntakeFields from "./DossierIntakeFields.svelte";
   import {
     buildCreationPayload,
     createDossierCreationModel,
@@ -238,17 +230,7 @@
   </div>
 
   <form class="w-full flex flex-col gap-10" onsubmit={submit}>
-    <DossierCreationInformationSection {model} />
-    <DossierCreationProjectSection {model} />
-    <DossierCreationDemandeurSection {model} />
-    <DossierCreationLocationSection {model} />
-    <DossierCreationMapSection {model} />
-    {#if showsSpeciesSection(model)}
-      <DossierCreationSpeciesSection {model} />
-      <DossierCreationJustificationSection {model} />
-    {/if}
-    <DossierCreationDetailsSection {model} />
-    <DossierCreationAdminSection {model} {groupes} />
+    <DossierIntakeFields {model} {groupes} />
 
     {#if saveError}
       <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>

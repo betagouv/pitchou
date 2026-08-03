@@ -1,0 +1,42 @@
+<script lang="ts">
+  import type { Snippet } from "svelte";
+
+  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
+
+  import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
+  import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
+  import DossierCreationDetailsSection from "./DossierCreationDetailsSection.svelte";
+  import DossierCreationInformationSection from "./DossierCreationInformationSection.svelte";
+  import DossierCreationJustificationSection from "./DossierCreationJustificationSection.svelte";
+  import DossierCreationLocationSection from "./DossierCreationLocationSection.svelte";
+  import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
+  import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
+  import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
+  import { showsSpeciesSection, type DossierCreationModel } from "./dossierCreationModel.ts";
+
+  let {
+    model,
+    groupes,
+    showAdminSection = true,
+    existingSpeciesFiles,
+    existingAttachments,
+  }: {
+    model: DossierCreationModel;
+    groupes: AdminGroupeInstructeurs[];
+    showAdminSection?: boolean;
+    existingSpeciesFiles?: Snippet;
+    existingAttachments?: Snippet;
+  } = $props();
+</script>
+
+<DossierCreationInformationSection {model} />
+<DossierCreationProjectSection {model} />
+<DossierCreationDemandeurSection {model} />
+<DossierCreationLocationSection {model} />
+<DossierCreationMapSection {model} />
+{#if showsSpeciesSection(model)}
+  <DossierCreationSpeciesSection {model} existingFiles={existingSpeciesFiles} />
+  <DossierCreationJustificationSection {model} />
+{/if}
+<DossierCreationDetailsSection {model} {existingAttachments} />
+{#if showAdminSection}<DossierCreationAdminSection {model} {groupes} />{/if}

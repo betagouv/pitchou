@@ -478,9 +478,10 @@ export function parseDossierUpdate(body: Record<string, unknown>): AdminDossierU
       "eolien_carcass_collection_method",
       "eolien_carcass_preservation_method",
       "eolien_carcass_examination_address",
-    ].some((column) => column in update.columns!)
+    ].some((column) => update.columns![column as keyof DossierMutator] != null) &&
+    update.columns.main_activite !== "Production énergie renouvelable - Éolien -  Suivi mortalité"
   ) {
-    error(400, `Wind farm properties can only be set during dossier creation.`);
+    error(400, `Wind farm properties require the wind mortality main activity.`);
   }
   if (
     update.columns?.intervention_start_date instanceof Date &&

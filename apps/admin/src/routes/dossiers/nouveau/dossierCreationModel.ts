@@ -9,12 +9,18 @@ import {
   requiresCompleteDossierAttachment,
   requiresNoDerogationArgumentAttachment,
   scientifiqueDemandeTypeOptions,
+  scientifiqueCaptureModeOptions,
   requiresSpeciesFile,
   restaurationMainActivite,
+  restaurationDemandeOptions,
+  transportDemandeOptions,
   transportMainActivites,
 } from "@pitchou/common/dossierFormOptions.ts";
 
-import type { AdminDossierCreationPayload } from "$lib/actions/adminDossiers.ts";
+import type {
+  AdminDossierCreationPayload,
+  AdminDossierDetail,
+} from "$lib/actions/adminDossiers.ts";
 import { communeDepartmentCode } from "$lib/dossierLocation.ts";
 
 type CreationCommune = {
@@ -132,6 +138,174 @@ export function createDossierCreationModel() {
   };
 }
 
+const detailText = (value: unknown) => (typeof value === "string" ? value : "");
+const detailNumber = (value: unknown) => (typeof value === "number" ? value : null);
+const detailDate = (value: unknown) =>
+  typeof value === "string" && !Number.isNaN(Date.parse(value)) ? value.slice(0, 10) : "";
+const detailStrings = (value: unknown) =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+
+export function createDossierCreationModelFromDetail(
+  detail: AdminDossierDetail,
+): DossierCreationModel {
+  const model = createDossierCreationModel();
+  const dossier = detail.dossier;
+  const mainActivite = detailText(dossier.main_activite) as MainActivite;
+  const type = detailText(dossier.type);
+  const representative =
+    detail.identites.find(({ type }) => type === "representant") ??
+    detail.identites.find(({ type }) => type === "demandeur");
+  const captureModes = detailStrings(dossier.scientifique_capture_mode);
+  const knownCaptureModes = captureModes.filter((value) =>
+    scientifiqueCaptureModeOptions.includes(value as never),
+  );
+  const otherCaptureMode = captureModes.find(
+    (value) => !scientifiqueCaptureModeOptions.includes(value as never),
+  );
+
+  model.name = detailText(dossier.name);
+  model.urgentContactPhone = detailText(dossier.urgent_contact_phone);
+  model.mainActivite = mainActivite;
+  model.activiteDetail =
+    mainActivite === restaurationMainActivite
+      ? type === "Hirondelle"
+        ? restaurationDemandeOptions[0]
+        : restaurationDemandeOptions[1]
+      : transportMainActivites.includes(mainActivite as never)
+        ? type === "Cigogne"
+          ? transportDemandeOptions[0]
+          : transportDemandeOptions[1]
+        : "";
+  model.requestContext = detailText(dossier.request_context);
+  model.accompanimentNeed = detailText(dossier.accompaniment_need);
+
+  if (detail.demandeur_personne_morale) {
+    model.demandeurType = "personne_morale";
+    model.legalSiret = detail.demandeur_personne_morale.siret;
+    model.representativeLastName = representative?.last_name ?? "";
+    model.representativeFirstNames = representative?.first_names ?? "";
+    model.representativeRole = representative?.role ?? "";
+    model.contactPhone = representative?.phone ?? "";
+    model.contactEmail = representative?.email ?? "";
+  } else {
+    const demandeur = detail.demandeur_personne_physique;
+    model.demandeurType = "personne_physique";
+    model.physicalLastName = demandeur?.last_name ?? "";
+    model.physicalFirstNames = demandeur?.first_names ?? "";
+    model.physicalQualification = demandeur?.role ?? "";
+    model.physicalAddress = demandeur?.address ?? "";
+    model.contactPhone = demandeur?.phone ?? "";
+    model.contactEmail = demandeur?.email ?? "";
+  }
+
+  model.primaryDepartment = detailText(dossier.primary_department);
+  model.locationScope = detailText(dossier.location_scope) as DossierCreationModel["locationScope"];
+  model.communes = Array.isArray(dossier.communes)
+    ? (dossier.communes.filter(
+        (commune): commune is CreationCommune =>
+          !!commune && typeof commune === "object" && typeof commune.name === "string",
+      ) as CreationCommune[])
+    : [];
+  model.locationDepartments = detailStrings(dossier.departments);
+  model.locationRegions = detailStrings(dossier.regions);
+  model.projectMap =
+    dossier.projet_map &&
+    typeof dossier.projet_map === "object" &&
+    (dossier.projet_map as { type?: unknown }).type === "FeatureCollection"
+      ? (dossier.projet_map as CreationProjectMap)
+      : null;
+
+  model.noOtherSatisfactorySolutionJustification = detailText(
+    dossier.no_other_satisfactory_solution_justification,
+  );
+  model.motifDerogation = detailText(dossier.motif_derogation);
+  model.motifDerogationJustification = detailText(dossier.motif_derogation_justification);
+  model.scientifiqueDemandeType = detailStrings(dossier.scientifique_demande_type);
+  model.description = detailText(dossier.description);
+  model.aeRegime =
+    dossier.linked_to_ae_regime === true
+      ? "oui"
+      : dossier.linked_to_ae_regime === false
+        ? "non"
+        : "unknown";
+  model.aeProcedures = detailStrings(dossier.ae_procedures);
+  model.aeOtherProcedure = detailText(dossier.ae_other_procedure);
+  model.destroyedNidsCount = detailNumber(dossier.dossier_oiseau_simple_destroyed_nids_count);
+  model.limitedSpecimenType = detailText(dossier.limited_specimen_type);
+  model.scientifiqueDemandePurposes = detailStrings(dossier.scientifique_demande_purposes);
+  model.scientifiquePreviousAssessment =
+    dossier.scientifique_previous_assessment === true
+      ? "oui"
+      : dossier.scientifique_previous_assessment === false
+        ? "non"
+        : "";
+  model.scientifiqueMortalityMeasuresTaken =
+    dossier.scientifique_mortality_measures_taken === true
+      ? "oui"
+      : dossier.scientifique_mortality_measures_taken === false
+        ? "non"
+        : "";
+  model.scientifiqueMortalityMeasuresDetails = detailText(
+    dossier.scientifique_mortality_measures_details,
+  );
+  model.eolienCommissioningYear = detailNumber(dossier.eolien_commissioning_year);
+  model.eolienTurbinesCount = detailNumber(dossier.eolien_turbines_count);
+  model.eolienTipHeight = detailNumber(dossier.eolien_tip_height);
+  model.eolienRotorDiameter = detailNumber(dossier.eolien_rotor_diameter);
+  model.eolienGroundClearance = detailNumber(dossier.eolien_ground_clearance);
+  model.interventionStartDate = detailDate(dossier.intervention_start_date);
+  model.interventionEndDate = detailDate(dossier.intervention_end_date);
+  model.commissioningDate = detailDate(dossier.commissioning_date);
+  model.interventionDuration = detailNumber(dossier.intervention_duration);
+  model.scientifiqueSuiviProtocolDescription = detailText(
+    dossier.scientifique_suivi_protocol_description,
+  );
+  model.eolienMonitoredTurbinesCount = detailNumber(dossier.eolien_monitored_turbines_count);
+  model.eolienFieldInventoryPeriod = detailText(dossier.eolien_field_inventory_period);
+  model.eolienMonitoringVisitsCount = detailNumber(dossier.eolien_monitoring_visits_count);
+  model.eolienWeeklyMonitoringVisitsCount = detailNumber(
+    dossier.eolien_weekly_monitoring_visits_count,
+  );
+  model.eolienMortalityActions = detailStrings(dossier.eolien_mortality_actions);
+  model.eolienCarcassCollectionMethod = detailText(dossier.eolien_carcass_collection_method);
+  model.eolienCarcassPreservationMethod = detailText(dossier.eolien_carcass_preservation_method);
+  model.eolienCarcassExaminationAddress = detailText(dossier.eolien_carcass_examination_address);
+  model.scientifiqueCaptureModes = [
+    ...knownCaptureModes,
+    ...(otherCaptureMode ? ["Autre moyen de capture (préciser)"] : []),
+  ];
+  model.scientifiqueOtherCaptureMode = otherCaptureMode ?? "";
+  model.scientifiqueLightSourceConditions = detailText(
+    dossier.scientifique_light_source_conditions,
+  );
+  model.scientifiqueUsesLightSources = model.scientifiqueLightSourceConditions ? "oui" : "";
+  model.scientifiqueMarkingConditions = detailText(dossier.scientifique_marking_conditions);
+  model.scientifiqueTransportConditions = detailText(dossier.scientifique_transport_conditions);
+  model.scientifiqueIntervenants = Array.isArray(dossier.scientifique_intervenants)
+    ? dossier.scientifique_intervenants
+        .filter((value) => !!value && typeof value === "object")
+        .map((value) => {
+          const intervenant = value as Record<string, unknown>;
+          return {
+            nom_complet: detailText(intervenant.nom_complet),
+            qualification: detailText(intervenant.qualification),
+            cvFiles: [] as File[],
+          };
+        })
+    : [];
+  if (model.scientifiqueIntervenants.length === 0) {
+    model.scientifiqueIntervenants = [{ nom_complet: "", qualification: "", cvFiles: [] }];
+  }
+  model.scientifiqueOtherIntervenantsDetails = detailText(
+    dossier.scientifique_other_intervenants_details,
+  );
+  model.compensatedNidsCount = detailNumber(dossier.dossier_oiseau_simple_compensated_nids_count);
+  model.depotDate = detailDate(dossier.depot_date);
+  model.phase = detail.phase;
+  model.groupeInstructeurs = detail.groupe?.id ?? "";
+  return model;
+}
+
 export function showsRequestContext(mainActivite: MainActivite): boolean {
   return !!mainActivite && !ACTIVITES_WITHOUT_REQUEST_CONTEXT.has(mainActivite);
 }
@@ -223,6 +397,40 @@ export function showsCompleteDossierFiles(model: DossierCreationModel): boolean 
 
 export function showsNoDerogationArgumentFiles(model: DossierCreationModel): boolean {
   return requiresNoDerogationArgumentAttachment(model.requestContext);
+}
+
+export function selectedDossierAttachmentFiles(model: DossierCreationModel): File[] {
+  return [
+    ...(showsScientificPurposes(model) ? model.purposeFiles : []),
+    ...(showsPreviousAssessment(model) && model.scientifiquePreviousAssessment === "oui"
+      ? model.previousAssessmentFiles
+      : []),
+    ...(showsWindFarmDetails(model) && model.scientifiqueMortalityMeasuresTaken === "oui"
+      ? model.mortalityMeasureFiles
+      : []),
+    ...(showsWindFarmDetails(model)
+      ? [...model.windFarmPlanFiles, ...model.eolienProtocolFiles]
+      : []),
+    ...(showsOperationDetails(model)
+      ? model.scientifiqueIntervenants.flatMap(({ cvFiles }) => cvFiles)
+      : []),
+    ...(showsCompleteDossierFiles(model) ? model.completeDossierFiles : []),
+    ...(showsNoDerogationArgumentFiles(model) ? model.noDerogationArgumentFiles : []),
+    ...model.supplementalFiles,
+  ];
+}
+
+export function clearSelectedDossierFiles(model: DossierCreationModel): void {
+  model.speciesFile = null;
+  model.purposeFiles = [];
+  model.previousAssessmentFiles = [];
+  model.mortalityMeasureFiles = [];
+  model.windFarmPlanFiles = [];
+  model.eolienProtocolFiles = [];
+  for (const intervenant of model.scientifiqueIntervenants) intervenant.cvFiles = [];
+  model.completeDossierFiles = [];
+  model.noDerogationArgumentFiles = [];
+  model.supplementalFiles = [];
 }
 
 export function suggestedMotifDerogation(model: DossierCreationModel): string {
@@ -349,7 +557,7 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     columns: {
       description: nullable(model.description),
       urgent_contact_phone: model.urgentContactPhone.trim(),
-      main_activite: model.mainActivite,
+      main_activite: nullable(model.mainActivite),
       type,
       request_context: requestContext,
       accompaniment_need:

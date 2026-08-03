@@ -204,8 +204,18 @@ describe("parseDossierCreation", () => {
     ).toThrow();
   });
 
-  it("rejects wind farm fields through the context-free update endpoint", () => {
+  it("requires the wind mortality context when updating wind farm fields", () => {
     expect(() => parseDossierUpdate({ columns: { eolien_turbines_count: 4 } })).toThrow();
+    expect(
+      parseDossierUpdate({
+        columns: {
+          main_activite: "Production énergie renouvelable - Éolien -  Suivi mortalité",
+          eolien_turbines_count: 4,
+        },
+      }).columns,
+    ).toMatchObject({
+      eolien_turbines_count: 4,
+    });
   });
 
   it("rejects an operation end date before its start date", () => {

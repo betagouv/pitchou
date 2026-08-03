@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+
 import {
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
@@ -10,6 +12,7 @@ import {
 import {
   buildCreationPayload,
   createDossierCreationModel,
+  createDossierCreationModelFromDetail,
   motifDerogationGuidance,
   showsSpeciesSection,
   suggestedMotifDerogation,
@@ -407,5 +410,69 @@ describe("dossier creation model", () => {
 
     model.motifDerogation = motifDerogationOptions[4];
     expect(showsCompleteDossierFiles(model)).toBe(false);
+  });
+
+  it("hydrates the shared intake form from a native dossier", () => {
+    const detail: AdminDossierDetail = {
+      dossier: {
+        id: 42,
+        name: "Suivi éolien",
+        demarche_numerique_number: null,
+        demarche_number: null,
+        depot_date: "2026-08-03T10:00:00.000Z",
+        urgent_contact_phone: "0612345678",
+        main_activite: "Production énergie renouvelable - Éolien -  Suivi mortalité",
+        description: "Suivi du parc",
+        linked_to_ae_regime: false,
+        eolien_turbines_count: 8,
+        scientifique_previous_assessment: true,
+        scientifique_intervenants: [{ nom_complet: "Camille Martin", qualification: "Écologue" }],
+      },
+      managedByDn: false,
+      phase: "Accompagnement amont",
+      demandeur_personne_physique: {
+        last_name: "Martin",
+        first_names: "Camille",
+        email: "camille@example.org",
+        address: "1 rue des Lilas, Lyon",
+        phone: "0611223344",
+        role: "Écologue",
+      },
+      demandeur_personne_morale: null,
+      groupe: { id: "groupe-1", name: "Groupe test" },
+      identites: [],
+      evenementsPhase: [],
+      piecesJointes: [],
+      especesImpactees: null,
+    };
+
+    const model = createDossierCreationModelFromDetail(detail);
+
+    expect(model).toMatchObject({
+      name: "Suivi éolien",
+      depotDate: "2026-08-03",
+      urgentContactPhone: "0612345678",
+      demandeurType: "personne_physique",
+      physicalLastName: "Martin",
+      groupeInstructeurs: "groupe-1",
+      eolienTurbinesCount: 8,
+      scientifiquePreviousAssessment: "oui",
+      scientifiqueIntervenants: [
+        { nom_complet: "Camille Martin", qualification: "Écologue", cvFiles: [] },
+      ],
+    });
+    expect(buildCreationPayload(model).columns).toMatchObject({
+      main_activite: "Production énergie renouvelable - Éolien -  Suivi mortalité",
+      eolien_turbines_count: 8,
+    });
+  });
+
+  it("builds nullable columns for an incomplete draft", () => {
+    const payload = buildCreationPayload(createDossierCreationModel());
+    expect(payload.columns).toMatchObject({
+      main_activite: null,
+      request_context: null,
+      location_scope: null,
+    });
   });
 });

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   import {
     aeProcedureOptions,
     limitedSpecimenTypeOptions,
@@ -21,7 +23,10 @@
   import DossierCreationIntervenantsSection from "./DossierCreationIntervenantsSection.svelte";
   import DossierCreationFileUpload from "./DossierCreationFileUpload.svelte";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  let {
+    model,
+    existingAttachments,
+  }: { model: DossierCreationModel; existingAttachments?: Snippet } = $props();
   let windFarmPlanInput = $state<HTMLInputElement>();
   let windFarmPlanError = $state("");
 
@@ -499,5 +504,6 @@
       required
       bind:uploadedFiles={model.supplementalFiles}
     />
+    {@render existingAttachments?.()}
   </section>
 </section>

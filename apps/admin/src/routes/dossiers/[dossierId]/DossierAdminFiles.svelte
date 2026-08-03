@@ -12,9 +12,11 @@
     onChanged: () => Promise<void>;
     kind: "pieces-jointes" | "especes-impactees";
     title: string;
+    allowUpload?: boolean;
+    embedded?: boolean;
   };
 
-  let { detail, onChanged, kind, title }: Props = $props();
+  let { detail, onChanged, kind, title, allowUpload = true, embedded = false }: Props = $props();
 
   let busy = $state(false);
   let fileError = $state<string | null>(null);
@@ -58,8 +60,8 @@
   }
 </script>
 
-<section class="fr-pt-3w border-t border-[color:var(--border-default-grey)]">
-  <h2 class="fr-h4">{title}</h2>
+<section class={embedded ? "" : "fr-pt-3w border-t border-[color:var(--border-default-grey)]"}>
+  {#if embedded}<h4 class="fr-h5">{title}</h4>{:else}<h2 class="fr-h4">{title}</h2>{/if}
 
   {#if fileError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
@@ -104,22 +106,24 @@
       <p>Aucune pièce jointe.</p>
     {/if}
 
-    <div class="fr-upload-group fr-mb-3w">
-      <label class="fr-label" for="upload-piece-jointe">
-        Ajouter une pièce jointe
-        <span class="fr-hint-text"
-          >Le fichier apparaîtra dans l'onglet Pièces jointes du dossier.</span
-        >
-      </label>
-      <input
-        class="fr-upload"
-        id="upload-piece-jointe"
-        type="file"
-        disabled={busy}
-        bind:this={pieceJointeInput}
-        onchange={onPieceJointeSelected}
-      />
-    </div>
+    {#if allowUpload}
+      <div class="fr-upload-group fr-mb-3w">
+        <label class="fr-label" for="upload-piece-jointe">
+          Ajouter une pièce jointe
+          <span class="fr-hint-text"
+            >Le fichier apparaîtra dans l'onglet Pièces jointes du dossier.</span
+          >
+        </label>
+        <input
+          class="fr-upload"
+          id="upload-piece-jointe"
+          type="file"
+          disabled={busy}
+          bind:this={pieceJointeInput}
+          onchange={onPieceJointeSelected}
+        />
+      </div>
+    {/if}
   {:else}
     {#if detail.especesImpactees}
       <div class="flex items-center gap-4 flex-wrap fr-mb-2w">
@@ -136,21 +140,23 @@
     {:else}
       <p>Aucun fichier d'espèces impactées.</p>
     {/if}
-    <div class="fr-upload-group">
-      <label class="fr-label" for="upload-especes-impactees">
-        {detail.especesImpactees ? "Remplacer le fichier" : "Ajouter le fichier"}
-        <span class="fr-hint-text">
-          Fichier issu de l'outil de saisie des espèces (.ods) - il remplace l'actuel.
-        </span>
-      </label>
-      <input
-        class="fr-upload"
-        id="upload-especes-impactees"
-        type="file"
-        disabled={busy}
-        bind:this={especesInput}
-        onchange={onEspecesSelected}
-      />
-    </div>
+    {#if allowUpload}
+      <div class="fr-upload-group">
+        <label class="fr-label" for="upload-especes-impactees">
+          {detail.especesImpactees ? "Remplacer le fichier" : "Ajouter le fichier"}
+          <span class="fr-hint-text">
+            Fichier issu de l'outil de saisie des espèces (.ods) - il remplace l'actuel.
+          </span>
+        </label>
+        <input
+          class="fr-upload"
+          id="upload-especes-impactees"
+          type="file"
+          disabled={busy}
+          bind:this={especesInput}
+          onchange={onEspecesSelected}
+        />
+      </div>
+    {/if}
   {/if}
 </section>

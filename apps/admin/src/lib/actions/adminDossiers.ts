@@ -1,6 +1,7 @@
 import { AccessDeniedError } from "./adminEspeces.ts";
 import type {
   AdminDossierCreationPayload,
+  AdminDossierDraftPayload,
   AdminDossierDetail,
   AdminDossierUpdatePayload,
   AdminGroupeInstructeurs,
@@ -111,6 +112,18 @@ export async function createDossier(
     body,
   });
   await checkResponse(response, "de la création du dossier");
+  return (await response.json()) as { id: number };
+}
+
+export async function createDossierDraft(
+  payload: AdminDossierDraftPayload,
+): Promise<{ id: number }> {
+  const response = await fetch(`/api/dossiers/drafts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  await checkResponse(response, "de la création du brouillon");
   return (await response.json()) as { id: number };
 }
 

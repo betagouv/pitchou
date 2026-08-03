@@ -127,6 +127,11 @@ export type AdminDossierCreationPayload = {
   columns?: Record<string, unknown>;
 };
 
+export type AdminDossierDraftPayload = {
+  name: string;
+  groupe_instructeurs: string;
+};
+
 export type AdminDossierUpdatePayload = {
   columns?: Record<string, unknown>;
   evenementsPhase?: { phase: string; timestamp: string }[];

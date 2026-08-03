@@ -12,6 +12,7 @@
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
   import TableDossiers from "./TableDossiers.svelte";
+  import CreateDossierDraftModal from "./CreateDossierDraftModal.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
   let dossiers = $state<AdminDossierSummary[]>([]);
@@ -19,6 +20,7 @@
   let loading = $state(false);
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
+  let creatingDraft = $state(false);
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -90,9 +92,13 @@
   <div class="flex flex-col fr-mt-2w gap-4">
     <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
       <h1 class="fr-mb-0">Dossiers</h1>
-      <a class="fr-btn fr-icon-add-line fr-btn--icon-left" href="/dossiers/nouveau">
+      <button
+        class="fr-btn fr-icon-add-line fr-btn--icon-left"
+        type="button"
+        onclick={() => (creatingDraft = true)}
+      >
         Créer un dossier
-      </a>
+      </button>
     </div>
 
     <div class="flex flex-row items-end gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
@@ -167,4 +173,8 @@
   {:else if !loading}
     <p class="fr-mt-2w">Aucun dossier ne correspond à cette recherche.</p>
   {/if}
+{/if}
+
+{#if creatingDraft}
+  <CreateDossierDraftModal onClose={() => (creatingDraft = false)} />
 {/if}
