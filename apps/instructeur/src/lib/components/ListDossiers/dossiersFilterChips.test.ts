@@ -76,6 +76,12 @@ describe("buildActiveFilterChips", () => {
     expect(chip.next.instructeur).toEqual([]);
   });
 
+  test("labels the instructeur action filter", () => {
+    const [chip] = buildActiveFilterChips(makeQuery({ actionInstructeur: true }));
+    expect(chip.label).toBe("Dossiers où je dois agir");
+    expect(chip.next.actionInstructeur).toBe(false);
+  });
+
   test("covers the boolean filters", () => {
     const chips = buildActiveFilterChips(
       makeQuery({

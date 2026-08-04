@@ -100,7 +100,7 @@ export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
   if (query.actionInstructeur) {
     chips.push({
       key: "actionInstructeur",
-      label: "Action de l'instructeur·ice attendue",
+      label: "Dossiers où je dois agir",
       next: withUpdates({ actionInstructeur: false }),
     });
   }
