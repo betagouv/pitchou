@@ -98,7 +98,7 @@
         class:active={actionInstructeurActive}
         onclick={onToggleActionInstructeur}
       >
-        Moi en charge de la prochaine action
+        Dossiers où je dois agir
       </button>
     {/if}
 
