@@ -9,6 +9,7 @@ export const EVENEMENTS_CONSULTATIONS: EvenementMetrique["type"][] = [
 
 export const EVENEMENTS_MODIFICATIONS: EvenementMetrique["type"][] = [
   "suivreUnDossier",
+  "assignDossierFollowers",
   "modifierCommentaireInstruction",
   "changerPhase",
   "changerProchaineActionAttendueDe",

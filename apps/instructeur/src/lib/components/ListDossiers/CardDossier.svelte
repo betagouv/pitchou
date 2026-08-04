@@ -7,6 +7,7 @@
     formatPorteurDeProjet,
   } from "$lib/dossier/displayDossier.ts";
   import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
+  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import BadgePhase from "./BadgePhase.svelte";
 
   type Props = {
@@ -91,6 +92,7 @@
           onclick={() => currentInstructeurFollowsDossier(dossier.id)}>Suivre</button
         >
       {/if}
+      <DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />
     </div>
   </div>
 

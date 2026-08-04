@@ -11,6 +11,7 @@
   import TagPhase from "$lib/components/TagPhase.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
+  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
 
   import {
     instructeurLeavesDossier,
@@ -193,16 +194,18 @@
             <button
               onclick={() => currentInstructeurLeavesDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-              >Ne plus suivre</button
+              >Ne plus suivre ce dossier</button
             >
           {:else}
             <button
               onclick={() => currentInstructeurFollowsDossier(dossier.id)}
               class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-              >Suivre</button
+              >Suivre ce dossier</button
             >
           {/if}
         {/if}
+
+        <DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />
 
         <button
           type="button"

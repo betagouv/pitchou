@@ -48,7 +48,7 @@ export function loadRecentSearches() {
 
 export function loadNotificationByDossierForCurrentInstructeur() {
   if (store.capabilities?.listerNotifications) {
-    store.capabilities?.listerNotifications().then((notificationsDB) => {
+    return store.capabilities.listerNotifications().then((notificationsDB) => {
       if (!notificationsDB || !Array.isArray(notificationsDB)) {
         throw new TypeError("On attendait un tableau de notifications ici !");
       }

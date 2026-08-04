@@ -89,6 +89,8 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
   const getDossierFullP = listDossiersP;
   const listRelationSuiviP = listDossiersP;
   const updateRelationSuiviP = listDossiersP;
+  const listDossierFollowerCandidatesP = listDossiersP;
+  const updateDossierFollowersP = listDossiersP;
   const listEvenementsPhaseDossierP = listDossiersP;
   const listMessagesP = listDossiersP;
   const updateDossierP = listDossiersP;
@@ -111,6 +113,8 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     groupesInstructeursP,
     listNotificationsP,
     updateNotificationP,
+    listDossierFollowerCandidatesP,
+    updateDossierFollowersP,
   ]).then(
     ([
       fillAnnotations,
@@ -127,6 +131,8 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
       groupesInstructeurs,
       listNotifications,
       updateNotificationForDossier,
+      listDossierFollowerCandidates,
+      updateDossierFollowers,
     ]) => {
       const ret: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>> = {
         remplirAnnotations: undefined,
@@ -134,6 +140,8 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
         recupérerDossierComplet: getDossierFull,
         listFollowRelations: listRelationSuivi,
         updateFollowRelation: updateRelationSuivi,
+        listDossierFollowerCandidates,
+        updateDossierFollowers,
         listerEvenementsPhaseDossier: listEvenementsPhaseDossier,
         listerMessages: listMessages,
         modifierDossier: updateDossier,

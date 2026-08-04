@@ -1,5 +1,6 @@
 # Editors
 .vscode/
+.claude/settings.local.json
 .~lock*
 
 # Dependencies

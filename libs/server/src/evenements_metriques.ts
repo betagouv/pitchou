@@ -2,6 +2,7 @@ import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
 import type {
   EvenementAddPieceJointeDetails,
+  EvenementAssignDossierFollowersDetails,
   EvenementClickNavbarLinkDetails,
   EvenementMetrique,
   EvenementOpenModalAddPieceJointeDetails,
@@ -14,6 +15,34 @@ function isDossierDetails(details: any): details is { dossierId: number } {
   } else {
     return false;
   }
+}
+
+function isAssignDossierFollowersDetails(
+  details: any,
+): details is EvenementAssignDossierFollowersDetails {
+  if (Object(details) !== details) return false;
+
+  const addedPersonneEmails = details.addedPersonneEmails;
+  const removedPersonneEmails = details.removedPersonneEmails;
+  if (
+    !Number.isInteger(details.dossierId) ||
+    !Number.isInteger(details.followerCount) ||
+    details.followerCount < 0 ||
+    !Array.isArray(addedPersonneEmails) ||
+    !Array.isArray(removedPersonneEmails) ||
+    !addedPersonneEmails.every((email: unknown) => Boolean(typeof email === "string" && email)) ||
+    !removedPersonneEmails.every((email: unknown) => Boolean(typeof email === "string" && email))
+  ) {
+    return false;
+  }
+
+  const addedEmails = new Set(addedPersonneEmails);
+  const removedEmails = new Set(removedPersonneEmails);
+  return (
+    addedEmails.size === addedPersonneEmails.length &&
+    removedEmails.size === removedPersonneEmails.length &&
+    [...addedEmails].every((email) => !removedEmails.has(email))
+  );
 }
 
 function isSearchDossierDetails(details: any): details is DossierSearchEventDetails {
@@ -148,6 +177,8 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
       return !("details" in event);
     case "suivreUnDossier":
       return isDossierDetails(event.details);
+    case "assignDossierFollowers":
+      return isAssignDossierFollowersDetails(event.details);
     case "rechercherDesDossiers":
       return isSearchDossierDetails(event.details);
     case "modifierCommentaireInstruction":

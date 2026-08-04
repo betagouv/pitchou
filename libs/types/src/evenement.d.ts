@@ -50,6 +50,13 @@ export type EvenementClickNavbarLinkDetails = {
   link: EvenementNavbarLink;
 };
 
+export type EvenementAssignDossierFollowersDetails = {
+  dossierId: number;
+  followerCount: number;
+  addedPersonneEmails: string[];
+  removedPersonneEmails: string[];
+};
+
 export type EvenementMetrique =
   | {
       // We consider that a connection corresponds to loading Pitchou and successfully retrieving the caps URLs
@@ -59,6 +66,10 @@ export type EvenementMetrique =
   // Modification events
   // Follow a dossier
   | { type: "suivreUnDossier"; details: { dossierId: number } }
+  | {
+      type: "assignDossierFollowers";
+      details: EvenementAssignDossierFollowersDetails;
+    }
   // Edit the instruction comment
   | { type: "modifierCommentaireInstruction" }
   // Change the phase of a dossier

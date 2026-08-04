@@ -71,4 +71,41 @@ describe("evenementMetriqueGuard", () => {
       }),
     ).toBe(false);
   });
+
+  test("accepts a dossier follower assignment with a non-negative count", () => {
+    expect(
+      evenementMetriqueGuard({
+        type: "assignDossierFollowers",
+        details: {
+          dossierId: 123,
+          followerCount: 2,
+          addedPersonneEmails: ["added-one@test.fr", "added-two@test.fr"],
+          removedPersonneEmails: ["removed@test.fr"],
+        },
+      }),
+    ).toBe(true);
+  });
+
+  test("rejects a dossier follower assignment with an invalid count", () => {
+    expect(
+      evenementMetriqueGuard({
+        type: "assignDossierFollowers",
+        details: {
+          dossierId: 123,
+          followerCount: -1,
+          addedPersonneEmails: [],
+          removedPersonneEmails: [],
+        },
+      }),
+    ).toBe(false);
+  });
+
+  test("rejects a dossier follower assignment without personne email lists", () => {
+    expect(
+      evenementMetriqueGuard({
+        type: "assignDossierFollowers",
+        details: { dossierId: 123, followerCount: 2 },
+      }),
+    ).toBe(false);
+  });
 });

@@ -13,7 +13,17 @@ export function updateNotificationForDossier(
     );
   }
 
-  updateNotificationForDossier(notification).catch((e) =>
-    console.warn(`Échec lors de la mise à jour de la notification :`, e, notification),
-  );
+  return updateNotificationForDossier(notification)
+    .then(() => {
+      const currentNotification = store.notificationByDossier.get(notification.dossier);
+      if (currentNotification) {
+        store.notificationByDossier.set(notification.dossier, {
+          ...currentNotification,
+          ...notification,
+        });
+      }
+    })
+    .catch((e) =>
+      console.warn(`Échec lors de la mise à jour de la notification :`, e, notification),
+    );
 }
