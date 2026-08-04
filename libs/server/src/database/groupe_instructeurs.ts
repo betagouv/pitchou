@@ -226,11 +226,21 @@ async function deletePersonnesFromGroupeByEmail(
     .whereIn("email", [...emails])
     .leftJoin("cap_dossier", { "personne.access_code": "cap_dossier.personne_cap" });
 
+  const memberships = capDossierForTheseEmails.map(({ cap: cap_dossier }) => [
+    groupe_instructeurs,
+    cap_dossier,
+  ]);
+
+  // Follower assignment takes these locks in cap order before changing a dossier's
+  // followers. Use the same order here to avoid a synchronization/assignment deadlock.
+  await databaseConnection("edge_cap_dossier__groupe_instructeurs")
+    .select(["groupe_instructeurs", "cap_dossier"])
+    .whereIn(["groupe_instructeurs", "cap_dossier"], memberships)
+    .orderBy("cap_dossier")
+    .forUpdate();
+
   return databaseConnection("edge_cap_dossier__groupe_instructeurs")
-    .whereIn(
-      ["groupe_instructeurs", "cap_dossier"],
-      capDossierForTheseEmails.map(({ cap: cap_dossier }) => [groupe_instructeurs, cap_dossier]),
-    )
+    .whereIn(["groupe_instructeurs", "cap_dossier"], memberships)
     .delete();
 }
 

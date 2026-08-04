@@ -1,9 +1,25 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
 import { sendEvenement } from "$lib/shared/aarri.ts";
+import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
 
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
+
+const pendingUpdates = new Map<Dossier["id"], Promise<void>>();
+
+export function queueDossierFollowUpdate(
+  dossierId: Dossier["id"],
+  update: () => Promise<void>,
+): Promise<void> {
+  const previousUpdate = pendingUpdates.get(dossierId) ?? Promise.resolve();
+  const queuedUpdate = previousUpdate.then(update, update);
+  pendingUpdates.set(dossierId, queuedUpdate);
+
+  return queuedUpdate.finally(() => {
+    if (pendingUpdates.get(dossierId) === queuedUpdate) pendingUpdates.delete(dossierId);
+  });
+}
 
 export function instructeurFollowsDossier(
   instructeurEmail: NonNullable<Personne["email"]>,
@@ -17,15 +33,28 @@ export function instructeurFollowsDossier(
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.followRelations || new SvelteMap();
-  const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
-  dossiersSuivisParInstructeur.add(dossierId);
-  relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.followRelations = relationsSuivi;
+  return queueDossierFollowUpdate(dossierId, async () => {
+    const relationsSuivi = store.followRelations || new SvelteMap();
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
+    const alreadyFollowed = dossiersSuivisParInstructeur.has(dossierId);
+    dossiersSuivisParInstructeur.add(dossierId);
+    relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
+    store.followRelations = relationsSuivi;
 
-  sendEvenement({ type: "suivreUnDossier", details: { dossierId } });
+    try {
+      await updateFollowRelation("suivre", instructeurEmail, dossierId);
+    } catch (error) {
+      if (!alreadyFollowed) dossiersSuivisParInstructeur.delete(dossierId);
+      throw error;
+    }
 
-  return updateFollowRelation("suivre", instructeurEmail, dossierId);
+    sendEvenement({ type: "suivreUnDossier", details: { dossierId } });
+    try {
+      await loadNotificationByDossierForCurrentInstructeur();
+    } catch (error) {
+      console.warn("Failed to reload dossier notifications", error);
+    }
+  });
 }
 
 export function instructeurLeavesDossier(
@@ -38,11 +67,25 @@ export function instructeurLeavesDossier(
     throw new Error(`Pas les droits suffisants pour modifier une relation de suivi`);
   }
 
-  const relationsSuivi = store.followRelations || new SvelteMap();
-  const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
-  dossiersSuivisParInstructeur.delete(dossierId);
-  relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
-  store.followRelations = relationsSuivi;
+  return queueDossierFollowUpdate(dossierId, async () => {
+    const relationsSuivi = store.followRelations || new SvelteMap();
+    const dossiersSuivisParInstructeur = relationsSuivi.get(instructeurEmail) || new SvelteSet();
+    const alreadyFollowed = dossiersSuivisParInstructeur.has(dossierId);
+    dossiersSuivisParInstructeur.delete(dossierId);
+    relationsSuivi.set(instructeurEmail, dossiersSuivisParInstructeur);
+    store.followRelations = relationsSuivi;
 
-  return updateFollowRelation("laisser", instructeurEmail, dossierId);
+    try {
+      await updateFollowRelation("laisser", instructeurEmail, dossierId);
+    } catch (error) {
+      if (alreadyFollowed) dossiersSuivisParInstructeur.add(dossierId);
+      throw error;
+    }
+
+    try {
+      await loadNotificationByDossierForCurrentInstructeur();
+    } catch (error) {
+      console.warn("Failed to reload dossier notifications", error);
+    }
+  });
 }

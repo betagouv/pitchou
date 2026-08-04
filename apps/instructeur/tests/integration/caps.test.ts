@@ -18,6 +18,8 @@ test("GET /caps?secret=<codeAcces> renvoie les capabilities de l'instructeur", a
     groupesInstructeurs: ["Groupe de test"],
   });
   expect(body).toHaveProperty("listerDossiers");
+  expect(body.listDossierFollowerCandidates).toContain("/dossier/:dossierId/followers?cap=");
+  expect(body.updateDossierFollowers).toContain("/dossier/:dossierId/followers?cap=");
 });
 
 test("GET /caps expose les caps métriques quand la personne en a une", async () => {
