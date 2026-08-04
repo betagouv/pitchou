@@ -6,6 +6,7 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
+  import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
   import DateInput from "../DateInput.svelte";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
 
@@ -46,6 +47,12 @@
     return typePieceJointeInitial ?? (!showTypeChoice ? (typesPiecesJointes[0] ?? null) : null);
   }
 
+  function getCurrentDate() {
+    const date = new Date();
+    Object.defineProperty(date, "toJSON", { value: toJSONPerserveDate });
+    return date;
+  }
+
   // User-facing radio labels; the TypePièceJointe values stay unchanged.
   function pieceJointeTypeLabel(type: TypePieceJointe): string {
     switch (type) {
@@ -67,13 +74,13 @@
   // expert's avis (favorable, unfavorable...)
   let avis: string | null = $state(null);
 
-  let dateSaisine: FrontEndAvisExpert["saisine_date"] | undefined = $state();
+  let dateSaisine: FrontEndAvisExpert["saisine_date"] | undefined = $state(getCurrentDate());
 
-  let dateAvis: FrontEndAvisExpert["avis_date"] | undefined = $state();
+  let dateAvis: FrontEndAvisExpert["avis_date"] | undefined = $state(getCurrentDate());
 
   let otherAttachmentType = $state("");
 
-  let otherAttachmentDate: Date | undefined | null = $state();
+  let otherAttachmentDate: Date | undefined | null = $state(getCurrentDate());
 
   let selectedAvisExpert: FrontEndAvisExpert["id"] | "nouvel-avis-expert" | null = $state(null);
 
@@ -255,12 +262,12 @@
     serviceOuPersonneExperte = null;
     otherExpertText = null;
     avis = null;
-    dateSaisine = null;
+    dateSaisine = getCurrentDate();
     selectedAvisExpert = null;
     errorMessage = null;
-    dateAvis = null;
+    dateAvis = getCurrentDate();
     otherAttachmentType = "";
-    otherAttachmentDate = null;
+    otherAttachmentDate = getCurrentDate();
   }
 
   function closeModal() {
@@ -334,7 +341,7 @@
             {/if}
             {#if typePieceJointe === "Décision administrative"}
               <FormDecisionAdministrative
-                decisionAdministrative={{ dossier: dossier.id }}
+                decisionAdministrative={{ dossier: dossier.id, signature_date: getCurrentDate() }}
                 onValidate={addDecisionAdministrative}
                 onCancel={closeModal}
               />
