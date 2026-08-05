@@ -52,14 +52,6 @@
       return;
     }
 
-    if (!especesImpacts) {
-      // @ts-ignore
-      documentGenerationError = new Error(
-        "Attention, il est impossible de générer des documents pour ce dossier si aucune liste d'espèce n'a été saisie par le pétitionnaire.",
-      );
-      return;
-    }
-
     const tags = getDocumentGenerationTags(
       dossier,
       especesImpacts,
