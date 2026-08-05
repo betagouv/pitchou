@@ -586,7 +586,7 @@ export async function up(knex: Knex) {
   await knex.schema.createTable("type_impact", function (table) {
     table.comment(
       "Types of impact a projet can have on a protected species, and the criteres that can " +
-        "qualify each of them. 'Type d'impact' is called 'Activité' by the European Commission.",
+        "qualify each of them. Type of impact is called Activité by the European Commission.",
     );
 
     table
@@ -679,7 +679,7 @@ export async function up(knex: Knex) {
   await knex.schema.createTable("moyen_de_poursuite", function (table) {
     table.comment(
       "Means of pursuit used to reach the impacted species, offered when the type impact has " +
-        "critere_moyen_de_poursuite. Holds no flore row: the directive defines none. Also called 'Transport'.",
+        "critere_moyen_de_poursuite. Holds no flore row: the directive defines none. Also called Transport.",
     );
 
     table
