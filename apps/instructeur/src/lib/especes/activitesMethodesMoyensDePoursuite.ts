@@ -81,15 +81,42 @@ export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
     return Promise.resolve(store.ActivitésMéthodesMoyensDePoursuite);
   }
 
-  const response = await fetch("/api/referentiel-type-impact-methode-moyen-de-poursuite");
-  if (!response.ok) {
-    throw new Error(`Échec du chargement du référentiel des types d'impact (${response.status})`);
-  }
-  const rows: ReferentielRows = await response.json();
-
-  const ret = referentielRowsToBundle(rows);
+  const ret = referentielRowsToBundle(await loadReferentielRows());
 
   store.ActivitésMéthodesMoyensDePoursuite = ret;
 
   return ret;
+}
+
+// Cached as a promise so concurrent callers share one request. Not in the store: the rows are
+// immutable reference data, and what the rest of the app reads is the bundle above.
+let referentielRowsP: Promise<ReferentielRows> | undefined;
+
+/**
+ * The referential rows as the API serves them, before they are indexed into the bundle.
+ *
+ * The référentiel page reads them rather than the bundle because two columns do not survive the
+ * conversion: the Onagre correspondence list, and the European code of a méthode or d'un moyen de
+ * poursuite. Everything the saisie form needs is in the bundle; everything the specification says
+ * is in the rows.
+ */
+export function loadReferentielRows(): Promise<ReferentielRows> {
+  if (!referentielRowsP) {
+    referentielRowsP = fetch("/api/referentiel-type-impact-methode-moyen-de-poursuite")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Échec du chargement du référentiel des types d'impact (${response.status})`,
+          );
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        // Don't keep a rejected promise cached
+        referentielRowsP = undefined;
+        throw error;
+      });
+  }
+
+  return referentielRowsP;
 }

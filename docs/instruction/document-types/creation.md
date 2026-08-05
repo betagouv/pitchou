@@ -164,7 +164,7 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{liste_espèces_par_impact}</code></th>
                             <td> liste</td>
-                            <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
+                            <td> Liste les types d'impact saisis sur le dossier et les espèces concernées par chacun. Chaque élément de la liste contient les propriétés : <code>{impact}</code>, <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_départements}</code></th>
@@ -319,7 +319,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>{impact}</code></th>
                             <td> texte</td>
-                            <td> Type d'impact (ex : destruction, capture, cueillette…)</td>
+                            <td> Libellé du type d'impact choisi lors de la saisie des espèces (ex : <em>Destruction/mutilation de spécimens</em>, <em>Capture/relâcher immédiat</em>). Vaut <em>Type d'impact non-renseignée</em> pour les espèces saisies sans type d'impact. La liste complète est consultable dans le <a href="../referentiel-type-impact">référentiel des types d'impact</a>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces}</code></th>
@@ -329,7 +329,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>{liste_noms_impacts_quantifiés}</code></th>
                             <td> liste</td>
-                            <td> Liste des noms des impacts quantifiés (Surface, Nombre d'individus...)</td>
+                            <td> Noms des critères chiffrés que ce type d'impact permet de renseigner, parmi <em>Nombre d'individus</em>, <em>Nids</em>, <em>Œufs</em> et <em>Surface habitat détruit (m²)</em>. Cette liste n'est pas la même d'un type d'impact à l'autre : elle vient du <a href="../referentiel-type-impact">référentiel des types d'impact</a>. Un type d'impact peut n'en avoir aucun, auquel cas la liste est vide.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -359,7 +359,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                         <tr>
                             <th scope="row"> <code>{liste_impacts_quantifiés}</code></th>
                             <td> liste</td>
-                            <td> Liste des impacts quantifiés (Surface, nombre d'individus...). Cette liste est alignée avec <code>{liste_noms_impacts_quantifiés}</code>.</td>
+                            <td> Valeurs saisies pour cette espèce (<code>11-100</code>, <code>250m²</code>…), dans le même ordre que <code>{liste_noms_impacts_quantifiés}</code> : le n-ième élément de cette liste correspond au n-ième nom de l'autre. Vaut <code>(non renseigné)</code> quand le critère n'a pas été rempli.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{nomScientifique}</code></th>
