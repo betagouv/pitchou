@@ -17,6 +17,10 @@
     "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
     "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg" +
     "&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}";
+  const IGN_CADASTRE_TILES =
+    "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
+    "&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png" +
+    "&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}";
 
   const ATTRIBUTION =
     '<a href="https://www.geoportail.gouv.fr/" target="_blank" rel="noopener">IGN-F/Géoportail</a> — © OpenStreetMap';
@@ -65,6 +69,9 @@
       await import("maplibre-gl/dist/maplibre-gl.css");
       if (cancelled) return;
 
+      // Values read from the Svelte store are reactive proxies, which cannot be sent
+      // to MapLibre's Web Worker through the structured clone algorithm.
+      const mapData = JSON.parse(JSON.stringify(featureCollection)) as GeoJSONFeatureCollection;
       map = new maplibregl.Map({
         container: mapContainer,
         style: {
@@ -76,8 +83,22 @@
               tileSize: 256,
               attribution: ATTRIBUTION,
             },
+            "ign-cadastre": {
+              type: "raster",
+              tiles: [IGN_CADASTRE_TILES],
+              tileSize: 256,
+            },
           },
-          layers: [{ id: "ign-ortho", type: "raster", source: "ign-ortho" }],
+          layers: [
+            { id: "ign-ortho", type: "raster", source: "ign-ortho" },
+            {
+              id: "ign-cadastre",
+              type: "raster",
+              source: "ign-cadastre",
+              minzoom: 14,
+              paint: { "raster-opacity": 0.35 },
+            },
+          ],
         },
         center: [2.35, 46.8], // centre of metropolitan France, overridden by fitBounds
         zoom: 4,
@@ -87,7 +108,7 @@
 
       map.on("load", () => {
         if (!map) return;
-        map.addSource("cartographie-projet", { type: "geojson", data: featureCollection });
+        map.addSource("cartographie-projet", { type: "geojson", data: mapData });
         map.addLayer({
           id: "cartographie-projet-fill",
           type: "fill",
@@ -101,7 +122,7 @@
           paint: { "line-color": ZONE_COLOR, "line-width": 2 },
         });
 
-        const bounds = computeBounds(featureCollection);
+        const bounds = computeBounds(mapData);
         if (bounds) {
           map.fitBounds(bounds, { padding: 40, maxZoom: 16, duration: 0 });
         }
