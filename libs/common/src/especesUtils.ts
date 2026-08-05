@@ -452,6 +452,10 @@ function getXLSXTableRawContent(file: ArrayBuffer): TableRawContent {
 
     if (sheet["!ref"]) {
       const range = XLSX.utils.decode_range(sheet["!ref"]);
+      const cellCount = (range.e.r - range.s.r + 1) * (range.e.c - range.s.c + 1);
+      if (cellCount > 250_000) {
+        throw new TypeError("Le tableur contient trop de cellules.");
+      }
 
       for (let r = range.s.r; r <= range.e.r; r++) {
         const row: SheetRawContent[number] = [];
@@ -482,6 +486,33 @@ function getTableRawContent(file: ArrayBuffer): Promise<TableRawContent> {
   return isODSFile(file)
     ? getODSTableRawContent(file)
     : Promise.resolve(getXLSXTableRawContent(file));
+}
+
+export async function assertSpeciesSpreadsheet(file: ArrayBuffer): Promise<void> {
+  let tables: TableRawContent;
+  try {
+    tables = await getTableRawContent(file);
+  } catch {
+    throw new TypeError("Le fichier n'est pas un tableur ODS ou XLSX valide.");
+  }
+
+  const speciesSheets = new Set(["oiseau", "faune non-oiseau", "faune_non-oiseau", "flore"]);
+  const hasSpeciesTable = [...tables].some(([name, rows]) => {
+    if (!speciesSheets.has(name.trim().toLowerCase())) return false;
+    const headerIndex = rows.findIndex((row) =>
+      row.some(({ value }) => String(value).trim() === "CD_REF"),
+    );
+    if (headerIndex < 0) return false;
+    const cdRefIndex = rows[headerIndex].findIndex(
+      ({ value }) => String(value).trim() === "CD_REF",
+    );
+    return rows
+      .slice(headerIndex + 1)
+      .some((row) => String(row[cdRefIndex]?.value ?? "").trim() !== "");
+  });
+  if (!hasSpeciesTable) {
+    throw new TypeError("Le tableur ne contient pas de feuille d'espèces Pitchou valide.");
+  }
 }
 
 async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(

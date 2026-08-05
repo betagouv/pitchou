@@ -57,6 +57,24 @@ export default interface Dossier {
 
   /** Indicates whether the dossier is linked to the Autorisation Environnementale regime */
   linked_to_ae_regime: boolean | null;
+  ae_procedures: unknown | null;
+  ae_other_procedure: string | null;
+  especes_prise_detention_limitee_type: string | null;
+  scientifique_mortality_measures_taken: boolean | null;
+  scientifique_mortality_measures_details: string | null;
+  eolien_commissioning_year: number | null;
+  eolien_turbines_count: number | null;
+  eolien_tip_height: number | null;
+  eolien_rotor_diameter: number | null;
+  eolien_ground_clearance: number | null;
+  eolien_monitored_turbines_count: number | null;
+  eolien_field_inventory_period: string | null;
+  eolien_monitoring_visits_count: number | null;
+  eolien_weekly_monitoring_visits_count: number | null;
+  eolien_mortality_actions: string[] | null;
+  eolien_carcass_collection_method: string | null;
+  eolien_carcass_preservation_method: string | null;
+  eolien_carcass_examination_address: string | null;
 
   /** Indicates who must take the next action ("Instructeur", "CNPN/CSRPN", "Consultation du public", "Pétitionnaire", "Autre administration") */
   next_action_expected_from: string | null;
@@ -133,7 +151,7 @@ export default interface Dossier {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type: TypeDossier | null;
 
-  demarche_number: number;
+  demarche_number: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed: boolean | null;
@@ -157,6 +175,21 @@ export default interface Dossier {
   commissioning_date: Date | null;
 
   projet_map: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope: string | null;
+
+  /** Department in which most of the project is located */
+  primary_department: string | null;
+
+  /** Phone number to use when the dossier requires an urgent response */
+  urgent_contact_phone: string | null;
+
+  /** Applicant's situation when starting the derogation request */
+  request_context: string | null;
+
+  /** Details supplied when the applicant requests upstream support */
+  accompaniment_need: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -214,6 +247,24 @@ export interface DossierInitializer {
 
   /** Indicates whether the dossier is linked to the Autorisation Environnementale regime */
   linked_to_ae_regime?: boolean | null;
+  ae_procedures?: unknown | null;
+  ae_other_procedure?: string | null;
+  especes_prise_detention_limitee_type?: string | null;
+  scientifique_mortality_measures_taken?: boolean | null;
+  scientifique_mortality_measures_details?: string | null;
+  eolien_commissioning_year?: number | null;
+  eolien_turbines_count?: number | null;
+  eolien_tip_height?: number | null;
+  eolien_rotor_diameter?: number | null;
+  eolien_ground_clearance?: number | null;
+  eolien_monitored_turbines_count?: number | null;
+  eolien_field_inventory_period?: string | null;
+  eolien_monitoring_visits_count?: number | null;
+  eolien_weekly_monitoring_visits_count?: number | null;
+  eolien_mortality_actions?: string[] | null;
+  eolien_carcass_collection_method?: string | null;
+  eolien_carcass_preservation_method?: string | null;
+  eolien_carcass_examination_address?: string | null;
 
   /** Indicates who must take the next action ("Instructeur", "CNPN/CSRPN", "Consultation du public", "Pétitionnaire", "Autre administration") */
   next_action_expected_from?: string | null;
@@ -290,7 +341,7 @@ export interface DossierInitializer {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type?: TypeDossier | null;
 
-  demarche_number: number;
+  demarche_number?: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed?: boolean | null;
@@ -317,6 +368,21 @@ export interface DossierInitializer {
   commissioning_date?: Date | null;
 
   projet_map?: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope?: string | null;
+
+  /** Department in which most of the project is located */
+  primary_department?: string | null;
+
+  /** Phone number to use when the dossier requires an urgent response */
+  urgent_contact_phone?: string | null;
+
+  /** Applicant's situation when starting the derogation request */
+  request_context?: string | null;
+
+  /** Details supplied when the applicant requests upstream support */
+  accompaniment_need?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -367,6 +433,24 @@ export interface DossierMutator {
 
   /** Indicates whether the dossier is linked to the Autorisation Environnementale regime */
   linked_to_ae_regime?: boolean | null;
+  ae_procedures?: unknown | null;
+  ae_other_procedure?: string | null;
+  especes_prise_detention_limitee_type?: string | null;
+  scientifique_mortality_measures_taken?: boolean | null;
+  scientifique_mortality_measures_details?: string | null;
+  eolien_commissioning_year?: number | null;
+  eolien_turbines_count?: number | null;
+  eolien_tip_height?: number | null;
+  eolien_rotor_diameter?: number | null;
+  eolien_ground_clearance?: number | null;
+  eolien_monitored_turbines_count?: number | null;
+  eolien_field_inventory_period?: string | null;
+  eolien_monitoring_visits_count?: number | null;
+  eolien_weekly_monitoring_visits_count?: number | null;
+  eolien_mortality_actions?: string[] | null;
+  eolien_carcass_collection_method?: string | null;
+  eolien_carcass_preservation_method?: string | null;
+  eolien_carcass_examination_address?: string | null;
 
   /** Indicates who must take the next action ("Instructeur", "CNPN/CSRPN", "Consultation du public", "Pétitionnaire", "Autre administration") */
   next_action_expected_from?: string | null;
@@ -443,7 +527,7 @@ export interface DossierMutator {
   /** Dossier type. Instructeurs often encounter recurring dossier categories such as "Hirondelle" dossiers and "Cigogne" dossiers. */
   type?: TypeDossier | null;
 
-  demarche_number?: number;
+  demarche_number?: number | null;
 
   /** Answer to the question: "Avez-vous réalisé un état des lieux écologique complet $1" */
   ecological_inventory_completed?: boolean | null;
@@ -467,4 +551,19 @@ export interface DossierMutator {
   commissioning_date?: Date | null;
 
   projet_map?: unknown | null;
+
+  /** Geographic level selected for the project: communes, departements, regions, or france */
+  location_scope?: string | null;
+
+  /** Department in which most of the project is located */
+  primary_department?: string | null;
+
+  /** Phone number to use when the dossier requires an urgent response */
+  urgent_contact_phone?: string | null;
+
+  /** Applicant's situation when starting the derogation request */
+  request_context?: string | null;
+
+  /** Details supplied when the applicant requests upstream support */
+  accompaniment_need?: string | null;
 }

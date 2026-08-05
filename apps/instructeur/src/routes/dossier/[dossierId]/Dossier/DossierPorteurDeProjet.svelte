@@ -197,7 +197,10 @@
           <h3>Contact</h3>
           <dl class="grid grid-cols-[1fr] gap-[1rem_1.5rem] fr-m-0">
             {@render field("Téléphone", dossier.demandeur_personne_physique_phone)}
-            {@render fieldMail("Adresse mail", dossier.demandeur_personne_physique_email)}
+            {@render fieldMail(
+              "Adresse mail",
+              dossier.demandeur_personne_physique_email ?? dossier.deposant_email,
+            )}
           </dl>
         </section>
       </div>
