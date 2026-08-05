@@ -21,7 +21,7 @@ import type { EspecesByActivite } from "$lib/especes/createEspecesGroupedByImpac
  */
 export function getDocumentGenerationTags(
   dossier: DossierFull,
-  especesImpactees: DescriptionMenacesEspeces,
+  especesImpactees: DescriptionMenacesEspeces | undefined,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
     ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
@@ -70,10 +70,12 @@ export function getDocumentGenerationTags(
   const mainDepartmentCode: string | undefined = departmentCodes?.[0];
 
   // Transform the impacted especes if they exist
-  const groupedEspecesByImpact: EspecesByActivite[] | undefined = createEspecesGroupedByImpact(
-    especesImpactees,
-    identifiantPitchouVersActiviteEtImpactsQuantifies,
-  );
+  const groupedEspecesByImpact: EspecesByActivite[] | undefined = especesImpactees
+    ? createEspecesGroupedByImpact(
+        especesImpactees,
+        identifiantPitchouVersActiviteEtImpactsQuantifies,
+      )
+    : undefined;
 
   const hirondelleTags: BalisesGenerationDocument["hirondelles"] =
     type === "Hirondelle"
