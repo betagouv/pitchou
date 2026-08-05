@@ -240,7 +240,6 @@ export interface DossierDemarcheNumerique88444 {
    */
   "Déposez ici l'argumentaire précis vous ayant permis de conclure à l'absence de risque suffisament caractérisé pour les espèces protégées et leurs habitats.": ChampDSPieceJustificative;
   "Si nécessaire, vous pouvez déposer ici des pièces jointes complétant votre demande": ChampDSPieceJustificative[];
-  "Ajoutez ici les pièces jointes supplémentaires nécessaires à votre dossier": ChampDSPieceJustificative;
   /**
    * Cette question est là pour des raisons techniques.
    * La réponse à cette question n'a aucune incidence sur l'instruction de votre dossier.

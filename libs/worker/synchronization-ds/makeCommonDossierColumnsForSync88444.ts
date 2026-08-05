@@ -65,9 +65,9 @@ export function makeCommonDossierColumnsForSync88444(
   /** @type {DossierDemarcheNumerique88444[‘Date de mise en service’]} */
   const commissioningDate = champById.get(pitchouKeyToChampDS.get("Date de mise en service"))?.date;
   /** @type {DossierDemarcheNumerique88444['Durée de la dérogation']} */
-  const interventionDurationValue =
-    champs.find((champ) => champ.label === "Durée de la dérogation (en années)")?.stringValue ??
-    champById.get(pitchouKeyToChampDS.get("Durée de la dérogation"))?.stringValue;
+  const interventionDurationValue = champById.get(
+    pitchouKeyToChampDS.get("Durée de la dérogation"),
+  )?.stringValue;
   const parsedInterventionDuration = Number(interventionDurationValue);
   const interventionDuration =
     Number.isFinite(parsedInterventionDuration) && parsedInterventionDuration > 0
@@ -191,9 +191,6 @@ export function makeCommonDossierColumnsForSync88444(
   const aeProcedures = champById.get(
     pitchouKeyToChampDS.get("À quelle procédure le projet est-il soumis ?"),
   )?.values;
-  const aeOtherProcedure = champs.find(
-    (champ) => champ.label === "Préciser la procédure justifiant l'AE",
-  )?.stringValue;
 
   /** Mesures ERC planned */
   const ercMesuresPlannedChamp = champById.get(
@@ -484,7 +481,7 @@ export function makeCommonDossierColumnsForSync88444(
     // régime AE
     linked_to_ae_regime: linkedToAeRegime,
     ae_procedures: aeProcedures ? JSON.stringify(aeProcedures) : null,
-    ae_other_procedure: aeOtherProcedure || null,
+    ae_other_procedure: null,
 
     // mesures ERC planned
     mesures_erc_planned: ercMesuresPlanned,
