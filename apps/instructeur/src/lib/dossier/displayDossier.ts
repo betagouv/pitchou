@@ -7,39 +7,27 @@ export function formatLocalisation({
   communes,
   departments,
   regions,
+  location_scope: locationScope,
+  primary_department: primaryDepartment,
 }: Partial<DossierFull>): string {
-  // Clean up the case where a dossier said it spanned several communes, but the communes were not entered
-  if (Array.isArray(communes) && communes.length === 0) {
-    communes = undefined;
+  communes = communes?.length ? communes : undefined;
+  departments = departments?.length ? departments : undefined;
+  regions = regions?.length ? regions : undefined;
+
+  if (locationScope === "france") return "France entière";
+  if (locationScope === "regions" && regions) return `Régions: ${regions.join(", ")}`;
+  if (locationScope === "departements" && departments) return departments.join(", ");
+
+  if (communes) {
+    const names = communes.map(({ name }) => name).join(", ");
+    return departments ? `${names} (${departments.join(", ")})` : names;
   }
 
-  // Régions
-  if (!communes && !departments && regions) {
-    return `Régions: ${regions.join(", ")}`;
-  }
-
-  // Départements
-  if (!communes && departments) {
-    return departments.join(", ");
-  }
-
-  // Communes
-  if (
-    !communes ||
-    (!communes && !departments) ||
-    (communes &&
-      Array.isArray(communes) &&
-      communes.length === 0 &&
-      (!departments || departments.length === 0))
-  ) {
-    return "(inconnue)";
-  }
-
-  return (
-    communes.map(({ name }) => name).join(", ") +
-    " " +
-    `(${Array.isArray(departments) ? departments.join(", ") : ""})`
-  );
+  // Legacy dossiers have no location_scope, so retain the former data-driven fallbacks.
+  if (departments) return departments.join(", ");
+  if (regions) return `Régions: ${regions.join(", ")}`;
+  if (primaryDepartment) return primaryDepartment;
+  return "(inconnue)";
 }
 
 export function formatDeposant(dossier: DossierFull | DossierSummary): string {
