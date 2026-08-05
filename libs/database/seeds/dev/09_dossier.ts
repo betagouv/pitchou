@@ -1,11 +1,8 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-
 import type { Knex } from "knex";
 
 import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
+import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "@pitchou/server/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 import {
-  buildActivitesMethodesMoyensDePoursuite,
   dbRowToEspeceProtegee,
   descriptionMenacesEspecesToOdsArrayBuffer,
 } from "@pitchou/common/especesUtils.ts";
@@ -30,10 +27,6 @@ import { generatePlaceholderPdf } from "../fixtures/placeholder-pdf.ts";
 import type { FileId } from "@pitchou/types/database/public/File.js";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
-const ACTIVITES_ODS_PATH = join(
-  import.meta.dirname,
-  "../../../../data/activites-methodes-moyens-de-poursuite.ods",
-);
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
@@ -429,10 +422,10 @@ export async function seed(knex: Knex) {
 
     // Step 8 — espèces impactées (generated ODS fichier)
     if (SEED_ESPECES_IMPACTEES.length > 0) {
-      const activitesBuffer = await readFile(ACTIVITES_ODS_PATH);
-      const activites = await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
+      // Read from the referential tables, which the migrations have already filled.
+      const referentiel = await getReferentielTypeImpactMethodeMoyenDePoursuite(transaction);
       const activiteParIdentifiantPitchou =
-        activites.identifiantPitchouVersActivitéEtImpactsQuantifiés;
+        referentiel.identifiantPitchouVersActivitéEtImpactsQuantifiés;
 
       for (const { dossier: dsNumber, nom_fichier, lignes } of SEED_ESPECES_IMPACTEES) {
         const dossierId = dossierIdMap[dsNumber];

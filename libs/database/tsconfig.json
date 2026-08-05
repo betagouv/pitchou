@@ -1,4 +1,4 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["migrations/**/*.ts", "seeds/**/*.ts", "knexfile.ts"]
+  "include": ["migrations/**/*.ts", "seeds/**/*.ts", "knexfile.ts", "*.test.ts"]
 }
