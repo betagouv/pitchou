@@ -40,14 +40,16 @@ test("le détail d'un type d'impact donne le libellé européen et les activité
 }) => {
   await page.goto("/referentiel-type-impact");
 
-  // Les deux colonnes que le formulaire de saisie n'affiche pas, et pour lesquelles cette page
-  // existe.
   await page
-    .getByRole("button", { name: "Voir le détail de Capture/relâcher immédiat" })
+    .locator("table")
+    .first()
+    .locator("tbody tr")
+    .filter({ hasText: "Capture/relâcher immédiat" })
     .first()
     .click();
 
   const modal = page.getByRole("dialog");
+  await expect(modal).toBeVisible();
   await expect(modal).toContainText("Libellé de la directive européenne");
   await expect(modal).toContainText("Activités Onagre correspondantes");
   await expect(modal).toContainText("Capture et marquage (baguage)");
