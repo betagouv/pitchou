@@ -18,7 +18,9 @@ export async function getReferentielRows(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ReferentielRows> {
   const [typesImpact, methodes, moyensDePoursuite] = await Promise.all([
-    databaseConnection("type_impact").select("*").orderBy(["classification", "identifiant_pitchou"]),
+    databaseConnection("type_impact")
+      .select("*")
+      .orderBy(["classification", "identifiant_pitchou"]),
     databaseConnection("methode").select("*").orderBy(["classification", "code"]),
     databaseConnection("moyen_de_poursuite").select("*").orderBy(["classification", "code"]),
   ]);

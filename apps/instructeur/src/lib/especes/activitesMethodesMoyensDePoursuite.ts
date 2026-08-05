@@ -83,9 +83,7 @@ export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
 
   const response = await fetch("/api/referentiel-type-impact-methode-moyen-de-poursuite");
   if (!response.ok) {
-    throw new Error(
-      `Échec du chargement du référentiel des types d'impact (${response.status})`,
-    );
+    throw new Error(`Échec du chargement du référentiel des types d'impact (${response.status})`);
   }
   const rows: ReferentielRows = await response.json();
 

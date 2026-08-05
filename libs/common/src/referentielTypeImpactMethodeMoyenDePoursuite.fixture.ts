@@ -1,26 +1,6 @@
 import type { ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
 import type { PitchouState } from "@pitchou/types/pitchouState.ts";
 
-/**
- * Characterization fixture for the type impact / methode / moyen de poursuite referential.
- *
- * The referential is reference data: for a given source it always holds the same value.
- * `projectReferentiel` reduces it to the fields that make up the contract, so that the
- * expected value below can be compared against any producer of that referential — today
- * the `.ods` parser, tomorrow a database loader. The assertion never changes; only the
- * producer does.
- *
- * Deliberately left out of the projection:
- *  - `Libellé activité directive européenne`: up to 508 characters of directive text.
- *    Asserted non-empty in the test rather than spelled out here, so the expected value
- *    stays reviewable.
- *  - The Onagre correspondence list: the `.ods` parser concatenates its lines without a
- *    separator, so its current value cannot be compared with the `text[]` the database
- *    will hold. It is the one field whose shape changes on purpose.
- *  - `Ce qu'il y a dans Pitchou/DS au 24/07/2025`: a dated working note, not part of the
- *    specification.
- */
-
 type Referentiel = NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>;
 
 const CLASSIFICATIONS = ["oiseau", "faune non-oiseau", "flore"] as const;
@@ -61,12 +41,6 @@ function byClassificationThenKey<T extends { classification: ClassificationEtreV
   };
 }
 
-/**
- * Reduces the referential to plain sorted arrays holding only the contract fields.
- *
- * The rows are sorted so the expected value reads in a stable order: the source spreadsheet
- * lists them in neither code nor identifier order (the Méthodes sheet reads 0, 2, 1).
- */
 export function projectReferentiel(referentiel: Referentiel): ReferentielProjete {
   const typesImpact: TypeImpactProjete[] = [];
   const methodes: ValeurProjetee[] = [];
@@ -116,13 +90,6 @@ export function projectReferentiel(referentiel: Referentiel): ReferentielProjete
   };
 }
 
-/**
- * The referential as it stands today, read from `data/activites-methodes-moyens-de-poursuite.ods`.
- *
- * 21 types impact (10 oiseau, 9 faune non-oiseau, 2 flore), 8 methodes and 8 moyens de poursuite.
- * `nids` and `oeufs` are false for every faune non-oiseau and flore row because those sheets have
- * no such column: the critere does not apply to them.
- */
 export const REFERENTIEL_ATTENDU: ReferentielProjete = {
   typesImpact: [
     {
