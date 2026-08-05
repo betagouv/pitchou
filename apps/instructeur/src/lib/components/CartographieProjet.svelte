@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Map as MapLibreMap } from "maplibre-gl";
+  import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
   import type { GeoJSONFeatureCollection } from "@pitchou/types/API_Pitchou.ts";
 
@@ -72,6 +73,7 @@
       // Values read from the Svelte store are reactive proxies, which cannot be sent
       // to MapLibre's Web Worker through the structured clone algorithm.
       const mapData = JSON.parse(JSON.stringify(featureCollection)) as GeoJSONFeatureCollection;
+      maplibregl.setWorkerUrl(maplibreWorkerUrl);
       map = new maplibregl.Map({
         container: mapContainer,
         style: {

@@ -24,7 +24,7 @@ const maplibre = vi.hoisted(() => {
     }
   }
 
-  return { Map: MockMap, NavigationControl: class {}, maps };
+  return { Map: MockMap, NavigationControl: class {}, maps, setWorkerUrl: vi.fn() };
 });
 
 vi.mock("maplibre-gl", () => maplibre);
@@ -63,6 +63,7 @@ test("sends plain parcel data to MapLibre and displays cadastral context", async
   const component = render(CartographieProjet, { featureCollection: parcel });
 
   await vi.waitFor(() => expect(maplibre.maps).toHaveLength(1));
+  expect(maplibre.setWorkerUrl).toHaveBeenCalledWith(expect.any(String));
   const [map] = maplibre.maps;
   await vi.waitFor(() => expect(map.addSource).toHaveBeenCalledOnce());
   const source = map.addSource.mock.calls[0][1] as {
