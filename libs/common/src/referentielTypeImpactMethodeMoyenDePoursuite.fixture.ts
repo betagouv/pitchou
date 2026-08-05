@@ -33,7 +33,6 @@ type TypeImpactProjete = {
   codeEuropeen: string;
   classification: ClassificationEtreVivant;
   libellePitchou: string;
-  /** Whether the critere is applicable to this type impact — not whether it is mandatory. */
   criteres: Record<CritereName, boolean>;
 };
 
