@@ -1,6 +1,6 @@
-# Modèles de documents types
+# Modèles de documents
 
-Vous trouverez sur cette page plusieurs modèles téléchargeables. Il peuvent servir comme documents types pour faire de la génération de document
+Vous trouverez sur cette page plusieurs modèles téléchargeables. Ils peuvent servir de modèles de documents pour générer des documents.
 
 - [Mail de saisine CNPN officiel](./bibliotheque/Mail%20Saisine%20CNPN.odt)
 - [Saisine CNPN ou CSRPN scientifique](./bibliotheque/Saisine CNPN CSRPN Scientifique.odt) pour les projets à caractère scientifique.
