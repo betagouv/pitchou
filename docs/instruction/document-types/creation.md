@@ -1,4 +1,4 @@
-# Document-types
+# Modèles de documents
 
 ## Table des matières
 
@@ -11,9 +11,9 @@
 
 ---
 
-Les [document-types](../index.md) sont des "modèles" vous permettant ensuite de **générer en un clic des documents remplis avec les données d'un dossier.**
+Les [modèles de documents](../index.md) vous permettent de **générer en un clic des documents remplis avec les données d'un dossier.**
 
-Les document-types sont :
+Les modèles de documents sont :
 
 - des **fichiers .odt** (comme vous avez l'habitude d'en lire et écrire avec LibreOffice (ou Microsoft Word))
 - dans lesquels le contenu est composé de **balises qui seront remplacées par les données du dossier**
@@ -456,9 +456,9 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
     </div>
 </div>
 
-### Exemples d'utilisation des fonctions dans un document-type
+### Exemples d'utilisation des fonctions dans un modèle de document
 
-Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
+Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre modèle de document :
 
 <div class="fr-table">
     <div class="fr-table__wrapper">
@@ -468,7 +468,7 @@ Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) o
                     <caption>Exemples d'affichage de dates</caption>
                     <thead>
                         <tr> 
-                            <th scope="col"> Dans le document-type</th>
+                            <th scope="col"> Dans le modèle de document</th>
                             <th scope="col"> Dans le document généré</th>
                         </tr>
                     </thead>
@@ -498,9 +498,9 @@ Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) o
 
 Imaginons que la DREAL Île-de-France reçoive un dossier nommé "Éoliennes sur le toit de la Tour Séquoïa" porté par la Région Île-de-France à La Défense. On souhaite générer un accusé de réception du dossier.
 
-#### Document-type pour accusé de réception
+#### Modèle de document pour accusé de réception
 
-Le document-type ressemblerait à :
+Le modèle de document ressemblerait à :
 
 ```
 Bonjour { demandeur },
@@ -514,7 +514,7 @@ Nous vous souhaitons une belle journée,
 La DREAL Île-de-France
 ```
 
-#### Accusé de réception issu du document-type
+#### Accusé de réception issu du modèle de document
 
 ```
 Bonjour Région Île-de-France,
@@ -618,7 +618,7 @@ Contenu qui est répété pour chaque {ÉLÉMENT}
 
 Imaginons une liste <code>liste_espèces</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
 
-et un document-type qui contient:
+et un modèle de document qui contient:
 
 ```
 Voici les oiseaux les plus importants au monde :
@@ -643,7 +643,7 @@ Voici les oiseaux les plus importants au monde :
 
 Les départements du dossier sont disponibles sous deux formes : les codes (<code>{département_principal}</code> et <code>{liste_départements}</code>) et les noms en toutes lettres (<code>{nom_département_principal}</code> et <code>{liste_noms_départements}</code>). Vous pouvez utiliser l'une, l'autre, ou les deux ensemble.
 
-Imaginons un dossier situé dans les départements <code>33</code>, <code>40</code> et <code>64</code>, et un document-type qui contient :
+Imaginons un dossier situé dans les départements <code>33</code>, <code>40</code> et <code>64</code>, et un modèle de document qui contient :
 
 ```
 Le projet se situe principalement dans le département suivant : { nom_département_principal } ({ département_principal }).
@@ -681,4 +681,4 @@ Le mécanisme ne fonctionnera pas non plus si une balise est insérée dans le m
 ❌ { deman deur } # espace au milieu du nom
 ```
 
-**💡 Conseil :** Ne pas écrire les zones à remplir à la main, mais plutôt les copier-coller d'un autre document-type qui fonctionne
+**💡 Conseil :** Ne pas écrire les zones à remplir à la main, mais plutôt les copier-coller d'un autre modèle de document qui fonctionne

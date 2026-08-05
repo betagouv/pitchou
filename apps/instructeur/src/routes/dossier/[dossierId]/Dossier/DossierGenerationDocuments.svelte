@@ -81,19 +81,28 @@
   <h2>Génération de documents</h2>
 
   <p>
-    Générer des documents à partir d'un <a
-      target="_blank"
-      href="https://betagouv.github.io/pitchou/instruction/document-types/">document-type</a
-    >
-    et des données de ce dossier
-    <br />
-    Vous pouvez
-    <a
-      target="_blank"
-      href="https://betagouv.github.io/pitchou/instruction/document-types/creation.html"
-      >créer vos propres document-types</a
-    >
+    Ici, vous pouvez compléter des <strong>modèles de documents</strong> (mails types, saisines,
+    etc.) avec les <strong>informations de ce dossier</strong>. Le document généré reste modifiable
+    a posteriori.
   </p>
+
+  <p>Pour vous aider :</p>
+  <ul>
+    <li>
+      <a
+        target="_blank"
+        href="https://betagouv.github.io/pitchou/instruction/document-types/creation.html"
+        >Documentation pour <strong>créer vos propres modèles</strong> de documents</a
+      >
+    </li>
+    <li>
+      <a
+        target="_blank"
+        href="https://betagouv.github.io/pitchou/instruction/document-types/modeles.html"
+        >Bibliothèque de modèles mis à disposition</a
+      >
+    </li>
+  </ul>
 
   {#if documentGenerationError}
     <div class="fr-alert fr-alert--error fr-mb-3w">
@@ -105,7 +114,7 @@
   <form class="fr-mb-4w" onsubmit={generateDoc}>
     <div class="fr-upload-group fr-mb-4w">
       <label class="fr-label" for="file-upload"
-        >Ajouter un document-type
+        >Ajouter un modèle de document
         <!--
                     <span class="fr-hint-text">Taille maximale : 500 Mo. Formats supportés : jpg, png, pdf. Plusieurs fichiers possibles. Lorem ipsum dolor sit amet, consectetur adipiscing.</span>
                 -->
