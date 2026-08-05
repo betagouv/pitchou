@@ -4,6 +4,7 @@ import {
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
   motifDerogationOptions,
+  requiresEspecesPriseDetentionLimiteeType,
   requiresScientificPurposes,
   requiresScientificDemandeType,
   requiresCompleteDossierAttachment,
@@ -20,6 +21,7 @@ import {
 import type {
   AdminDossierCreationPayload,
   AdminDossierDetail,
+  AdminDossierRelationsPayload,
 } from "$lib/actions/adminDossiers.ts";
 import { communeDepartmentCode } from "$lib/dossierLocation.ts";
 
@@ -44,6 +46,7 @@ export type DemandeurType = "" | "personne_physique" | "personne_morale";
 export type MainActivite = (typeof dossierMainActiviteOptions)[number] | "";
 
 export type DossierCreationModel = ReturnType<typeof createDossierCreationModel>;
+export type CompanyDetailsChoice = "" | "keep" | "reset";
 
 const ACTIVITES_WITHOUT_REQUEST_CONTEXT = new Set<MainActivite>([
   ...dossierMainActivitesWithoutRequestContext,
@@ -91,7 +94,7 @@ export function createDossierCreationModel() {
     aeProcedures: [] as string[],
     aeOtherProcedure: "",
     destroyedNidsCount: null as number | null,
-    limitedSpecimenType: "",
+    especesPriseDetentionLimiteeType: "",
     scientifiqueDemandePurposes: [] as string[],
     purposeFiles: [] as File[],
     scientifiquePreviousAssessment: "" as "" | "oui" | "non",
@@ -231,7 +234,7 @@ export function createDossierCreationModelFromDetail(
   model.aeProcedures = detailStrings(dossier.ae_procedures);
   model.aeOtherProcedure = detailText(dossier.ae_other_procedure);
   model.destroyedNidsCount = detailNumber(dossier.dossier_oiseau_simple_destroyed_nids_count);
-  model.limitedSpecimenType = detailText(dossier.limited_specimen_type);
+  model.especesPriseDetentionLimiteeType = detailText(dossier.especes_prise_detention_limitee_type);
   model.scientifiqueDemandePurposes = detailStrings(dossier.scientifique_demande_purposes);
   model.scientifiquePreviousAssessment =
     dossier.scientifique_previous_assessment === true
@@ -304,6 +307,46 @@ export function createDossierCreationModelFromDetail(
   model.phase = detail.phase;
   model.groupeInstructeurs = detail.groupe?.id ?? "";
   return model;
+}
+
+export function hasLegalSiretChanged(detail: AdminDossierDetail, legalSiret: string): boolean {
+  return (
+    !!detail.demandeur_personne_morale &&
+    detail.demandeur_personne_morale.siret !== legalSiret.replaceAll(" ", "")
+  );
+}
+
+export function mergeDossierRelationsForEdit(
+  relations: AdminDossierRelationsPayload,
+  detail: AdminDossierDetail,
+  companyDetailsChoice: CompanyDetailsChoice,
+): AdminDossierRelationsPayload {
+  const identites = [
+    ...relations.identites,
+    ...detail.identites.filter(
+      ({ type }) =>
+        type === "mandataire" && !relations.identites.some((item) => item.type === type),
+    ),
+  ];
+  if (relations.demandeur_type !== "personne_morale" || !detail.demandeur_personne_morale) {
+    return { ...relations, identites };
+  }
+
+  const siretChanged =
+    detail.demandeur_personne_morale.siret !== relations.demandeur_personne_morale.siret;
+  const demandeurPersonneMorale =
+    !siretChanged || companyDetailsChoice === "keep"
+      ? {
+          ...detail.demandeur_personne_morale,
+          siret: relations.demandeur_personne_morale.siret,
+        }
+      : relations.demandeur_personne_morale;
+
+  return {
+    ...relations,
+    identites,
+    demandeur_personne_morale: demandeurPersonneMorale,
+  };
 }
 
 export function showsRequestContext(mainActivite: MainActivite): boolean {
@@ -595,8 +638,10 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
       dossier_oiseau_simple_destroyed_nids_count: showsDestroyedNidsCount(model)
         ? model.destroyedNidsCount
         : null,
-      limited_specimen_type: requiresScientificDemandeType(model.motifDerogation)
-        ? nullable(model.limitedSpecimenType)
+      especes_prise_detention_limitee_type: requiresEspecesPriseDetentionLimiteeType(
+        model.motifDerogation,
+      )
+        ? nullable(model.especesPriseDetentionLimiteeType)
         : null,
       scientifique_demande_purposes: showsScientificPurposes(model)
         ? model.scientifiqueDemandePurposes

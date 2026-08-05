@@ -1,8 +1,22 @@
 <script lang="ts">
   import PhysicalDemandeurFields from "./PhysicalDemandeurFields.svelte";
-  import type { DossierCreationModel } from "./dossierCreationModel.ts";
+  import { type CompanyDetailsChoice, type DossierCreationModel } from "./dossierCreationModel.ts";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  let {
+    model,
+    originalLegalSiret,
+    companyDetailsChoice = "",
+    onCompanyDetailsChoice = () => {},
+  }: {
+    model: DossierCreationModel;
+    originalLegalSiret?: string | null;
+    companyDetailsChoice?: CompanyDetailsChoice;
+    onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
+  } = $props();
+
+  const legalSiretChanged = $derived(
+    !!originalLegalSiret && originalLegalSiret !== model.legalSiret.replaceAll(" ", ""),
+  );
 </script>
 
 <section
@@ -64,6 +78,48 @@
           bind:value={model.legalSiret}
         />
       </div>
+
+      {#if legalSiretChanged}
+        <fieldset class="fr-fieldset fr-alert fr-alert--warning">
+          <legend class="fr-fieldset__legend fr-alert__title">
+            Vous modifiez le numéro de SIRET
+          </legend>
+          <p>
+            Voulez-vous conserver les informations actuelles de l'entreprise ou les réinitialiser
+            pour le nouveau SIRET ?
+          </p>
+          <div class="fr-fieldset__element">
+            <div class="fr-radio-group">
+              <input
+                id="company-details-keep"
+                type="radio"
+                name="company-details-choice"
+                value="keep"
+                checked={companyDetailsChoice === "keep"}
+                onchange={() => onCompanyDetailsChoice("keep")}
+              />
+              <label class="fr-label" for="company-details-keep">
+                Conserver les informations actuelles
+              </label>
+            </div>
+          </div>
+          <div class="fr-fieldset__element">
+            <div class="fr-radio-group">
+              <input
+                id="company-details-reset"
+                type="radio"
+                name="company-details-choice"
+                value="reset"
+                checked={companyDetailsChoice === "reset"}
+                onchange={() => onCompanyDetailsChoice("reset")}
+              />
+              <label class="fr-label" for="company-details-reset">
+                Réinitialiser les informations de l'entreprise
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      {/if}
 
       <div class="fr-input-group w-full">
         <label class="fr-label" for="representative-last-name">

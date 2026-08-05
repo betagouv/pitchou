@@ -10,7 +10,7 @@ import {
   legacyMotifDerogationOptions,
   dossierRegionOptions,
   motifDerogationOptions,
-  limitedSpecimenTypeOptions,
+  especesPriseDetentionLimiteeTypeOptions,
   scientifiqueDemandePurposeOptions,
   scientifiqueDemandeTypeOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
@@ -33,7 +33,9 @@ const MOTIF_DEROGATION_VALUES = new Set<string>([
 ]);
 const AE_PROCEDURE_VALUES = new Set<string>(aeProcedureOptions);
 const EOLIEN_MORTALITY_ACTION_VALUES = new Set<string>(eolienMortalityActionOptions);
-const LIMITED_SPECIMEN_TYPE_VALUES = new Set<string>(limitedSpecimenTypeOptions);
+const ESPECES_PRISE_DETENTION_LIMITEE_TYPE_VALUES = new Set<string>(
+  especesPriseDetentionLimiteeTypeOptions,
+);
 const SCIENTIFIQUE_DEMANDE_TYPE_VALUES = new Set<string>(scientifiqueDemandeTypeOptions);
 const SCIENTIFIQUE_DEMANDE_PURPOSE_VALUES = new Set<string>(scientifiqueDemandePurposeOptions);
 const DEPARTEMENT_VALUES = new Set<string>(departements.map(({ code }) => code));
@@ -72,8 +74,11 @@ function parseString(column: string, raw: unknown): string {
   if (column === "motif_derogation" && !MOTIF_DEROGATION_VALUES.has(raw)) {
     error(400, `Property 'motif_derogation' is invalid.`);
   }
-  if (column === "limited_specimen_type" && !LIMITED_SPECIMEN_TYPE_VALUES.has(raw)) {
-    error(400, `Property 'limited_specimen_type' is invalid.`);
+  if (
+    column === "especes_prise_detention_limitee_type" &&
+    !ESPECES_PRISE_DETENTION_LIMITEE_TYPE_VALUES.has(raw)
+  ) {
+    error(400, `Property 'especes_prise_detention_limitee_type' is invalid.`);
   }
   if (column === "location_scope" && !LOCATION_SCOPE_VALUES.has(raw)) {
     error(400, `Property 'location_scope' is invalid.`);

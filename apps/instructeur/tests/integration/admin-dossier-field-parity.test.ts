@@ -46,7 +46,7 @@ const allDnColumns = {
   linked_to_ae_regime: true,
   ae_procedures: JSON.stringify(["Autorisation ICPE"]),
   ae_other_procedure: "Procédure locale",
-  limited_specimen_type: "Espèces autres que oiseaux",
+  especes_prise_detention_limitee_type: "Espèces autres que oiseaux",
   scientifique_mortality_measures_taken: true,
   scientifique_mortality_measures_details: "Bridage supplémentaire",
   eolien_commissioning_year: 2020,

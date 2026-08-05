@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import {
+    loadGroupesInstructeurs,
     updateDossier,
     type AdminDossierDetail,
-    type AdminDossierRelationsPayload,
+    type AdminGroupeInstructeurs,
     type AdminDossierUpdatePayload,
   } from "$lib/actions/adminDossiers.ts";
 
@@ -11,7 +14,10 @@
     buildCreationPayload,
     clearSelectedDossierFiles,
     createDossierCreationModelFromDetail,
+    hasLegalSiretChanged,
+    mergeDossierRelationsForEdit,
     selectedDossierAttachmentFiles,
+    type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
 
@@ -33,33 +39,40 @@
   // These models intentionally retain in-progress edits when the parent refreshes its detail.
   // svelte-ignore state_referenced_locally
   let model = $state(createDossierCreationModelFromDetail(detail));
+  // svelte-ignore state_referenced_locally
+  let initialRelations = structuredClone(
+    mergeDossierRelationsForEdit(buildCreationPayload(model).relations, detail, ""),
+  );
   let saveError = $state<string | null>(null);
   let saved = $state(false);
   let formVersion = $state(0);
+  let groupes = $state<AdminGroupeInstructeurs[]>([]);
+  let groupesLoadError = $state<string | null>(null);
+  let companyDetailsChoice = $state<CompanyDetailsChoice>("");
+  const missingGroupe = $derived(detail.groupe === null);
+  const legalSiretChanged = $derived(
+    model.demandeurType === "personne_morale" && hasLegalSiretChanged(detail, model.legalSiret),
+  );
 
-  function mergeRelations(relations: AdminDossierRelationsPayload): AdminDossierRelationsPayload {
-    const identites = [
-      ...relations.identites,
-      ...detail.identites.filter(
-        ({ type }) =>
-          type === "mandataire" && !relations.identites.some((item) => item.type === type),
-      ),
-    ];
-    if (relations.demandeur_type === "personne_morale" && detail.demandeur_personne_morale) {
-      return {
-        ...relations,
-        identites,
-        demandeur_personne_morale: {
-          ...detail.demandeur_personne_morale,
-          siret: relations.demandeur_personne_morale.siret,
-        },
-      };
+  onMount(async () => {
+    if (!missingGroupe) return;
+    try {
+      groupes = await loadGroupesInstructeurs();
+    } catch {
+      groupesLoadError = "Impossible de charger les groupes instructeurs.";
     }
-    return { ...relations, identites };
-  }
+  });
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
+    if (!model.groupeInstructeurs) {
+      saveError = "Sélectionnez un groupe instructeurs avant d'enregistrer le dossier.";
+      return;
+    }
+    if (legalSiretChanged && !companyDetailsChoice) {
+      saveError = "Indiquez si les informations de l'entreprise doivent être conservées.";
+      return;
+    }
     onSavingChange(true);
     saved = false;
     saveError = null;
@@ -76,8 +89,15 @@
           name: intake.name,
           depot_date: intake.depot_date,
         },
-        relations: mergeRelations(intake.relations),
       };
+      const relations = mergeDossierRelationsForEdit(
+        intake.relations,
+        detail,
+        companyDetailsChoice,
+      );
+      if (JSON.stringify(relations) !== JSON.stringify(initialRelations)) {
+        payload.relations = relations;
+      }
       const updated = await updateDossier(
         detail.dossier.id,
         payload,
@@ -85,6 +105,7 @@
         attachments,
       );
       clearSelectedDossierFiles(model);
+      initialRelations = structuredClone(relations);
       formVersion += 1;
       onSaved(updated);
       saved = true;
@@ -129,11 +150,42 @@
   {/snippet}
 
   {#key formVersion}
+    {#if missingGroupe}
+      <div class="fr-alert fr-alert--warning" role="alert">
+        <h2 class="fr-alert__title">Groupe instructeurs à réattribuer</h2>
+        <p>
+          Le groupe précédemment associé à ce dossier n'existe plus. Sélectionnez un nouveau groupe
+          pour rendre le dossier de nouveau accessible aux instructeurs.
+        </p>
+      </div>
+      <div class="fr-select-group">
+        <label class="fr-label" for="native-dossier-groupe">
+          Nouveau groupe instructeurs
+          <span class="fr-hint-text">Le dossier ne sera visible que par ce groupe.</span>
+        </label>
+        <select
+          class="fr-select"
+          id="native-dossier-groupe"
+          required
+          bind:value={model.groupeInstructeurs}
+        >
+          <option value="">Sélectionner un groupe</option>
+          {#each groupes as groupe (groupe.id)}
+            <option value={groupe.id}>{groupe.name} (DN {groupe.demarche_number})</option>
+          {/each}
+        </select>
+        {#if groupesLoadError}<p class="fr-error-text">{groupesLoadError}</p>{/if}
+      </div>
+    {/if}
+
     <DossierIntakeFields
       {model}
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}
+      originalLegalSiret={detail.demandeur_personne_morale?.siret}
+      {companyDetailsChoice}
+      onCompanyDetailsChoice={(choice) => (companyDetailsChoice = choice)}
       {existingSpeciesFiles}
       {existingAttachments}
     />

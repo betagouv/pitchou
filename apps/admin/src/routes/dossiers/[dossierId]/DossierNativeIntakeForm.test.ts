@@ -5,8 +5,8 @@ import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
 import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
 
-test("renders the completed intake form for a native dossier", () => {
-  const detail: AdminDossierDetail = {
+function makeDetail(groupe: AdminDossierDetail["groupe"]): AdminDossierDetail {
+  return {
     dossier: {
       id: 1,
       name: "Dossier test",
@@ -25,20 +25,26 @@ test("renders the completed intake form for a native dossier", () => {
       role: null,
     },
     demandeur_personne_morale: null,
-    groupe: { id: "groupe-1", name: "Groupe test" },
+    groupe,
     identites: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,
   };
+}
 
-  const body = render(DossierNativeIntakeForm, {
+function renderForm(detail: AdminDossierDetail): string {
+  return render(DossierNativeIntakeForm, {
     props: {
       detail,
       onSaved: () => undefined,
       onFilesChanged: async () => undefined,
     },
   }).body;
+}
+
+test("renders the completed intake form for a native dossier", () => {
+  const body = renderForm(makeDetail({ id: "groupe-1", name: "Groupe test" }));
 
   expect(body).toContain("1. Information à consulter avant de démarrer");
   expect(body).toContain("8.5. Pièces jointes");
@@ -47,4 +53,11 @@ test("renders the completed intake form for a native dossier", () => {
   expect(body).not.toContain("Affectation dans Pitchou");
   expect(body).not.toContain("Informations complémentaires Pitchou");
   expect(body).not.toContain("Fichiers déjà enregistrés");
+});
+
+test("requires a new group when the previous group no longer exists", () => {
+  const body = renderForm(makeDetail(null));
+
+  expect(body).toContain("Groupe instructeurs à réattribuer");
+  expect(body).toContain('id="native-dossier-groupe"');
 });

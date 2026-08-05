@@ -138,6 +138,15 @@ export function requiresScientificDemandeType(motifDerogation: string | null | u
   );
 }
 
+export function requiresEspecesPriseDetentionLimiteeType(
+  motifDerogation: string | null | undefined,
+): boolean {
+  return (
+    motifDerogation === motifDerogationOptions[6] ||
+    motifDerogation === legacyMotifDerogationOptions[6]
+  );
+}
+
 export const scientifiqueDemandeTypeOptions = [
   "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage",
   "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage",
@@ -157,7 +166,7 @@ export const aeProcedureOptions = [
   "Autre",
 ] as const;
 
-export const limitedSpecimenTypeOptions = [
+export const especesPriseDetentionLimiteeTypeOptions = [
   "Espèces autres que oiseaux",
   "Oiseaux autre que pour la fauconnerie",
   "Oiseaux pour la fauconnerie",

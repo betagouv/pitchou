@@ -13,6 +13,8 @@ import {
   buildCreationPayload,
   createDossierCreationModel,
   createDossierCreationModelFromDetail,
+  hasLegalSiretChanged,
+  mergeDossierRelationsForEdit,
   motifDerogationGuidance,
   showsSpeciesSection,
   suggestedMotifDerogation,
@@ -253,13 +255,15 @@ describe("dossier creation model", () => {
     model.aeRegime = "oui";
     model.aeProcedures = ["Autorisation ICPE", "Autre"];
     model.aeOtherProcedure = "Procédure locale";
+    model.motifDerogation = motifDerogationOptions[6];
+    model.especesPriseDetentionLimiteeType = "Espèces autres que oiseaux";
 
     expect(buildCreationPayload(model).columns).toMatchObject({
       description: "Description",
       linked_to_ae_regime: true,
       ae_procedures: ["Autorisation ICPE", "Autre"],
       ae_other_procedure: "Procédure locale",
-      limited_specimen_type: null,
+      especes_prise_detention_limitee_type: "Espèces autres que oiseaux",
       scientifique_previous_assessment: null,
     });
   });
@@ -474,6 +478,53 @@ describe("dossier creation model", () => {
     expect(buildCreationPayload(model).columns).toMatchObject({
       main_activite: "Production énergie renouvelable - Éolien -  Suivi mortalité",
       eolien_turbines_count: 8,
+    });
+  });
+
+  it("keeps or resets company details explicitly when the SIRET changes", () => {
+    const detail: AdminDossierDetail = {
+      dossier: {
+        id: 42,
+        name: "Projet entreprise",
+        demarche_numerique_number: null,
+        demarche_number: null,
+        depot_date: "2026-08-03",
+      },
+      managedByDn: false,
+      phase: "Accompagnement amont",
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: {
+        siret: "12345678901234",
+        legal_name: "Entreprise actuelle",
+        address: "1 rue actuelle",
+        postal_code: "75001",
+        department: "75",
+        region: "Île-de-France",
+      },
+      groupe: { id: "groupe-1", name: "Groupe test" },
+      identites: [],
+      evenementsPhase: [],
+      piecesJointes: [],
+      especesImpactees: null,
+    };
+    const model = createDossierCreationModelFromDetail(detail);
+    model.legalSiret = "98765432109876";
+    const relations = buildCreationPayload(model).relations;
+
+    expect(hasLegalSiretChanged(detail, model.legalSiret)).toBe(true);
+    expect(
+      mergeDossierRelationsForEdit(relations, detail, "keep").demandeur_personne_morale,
+    ).toMatchObject({
+      siret: "98765432109876",
+      legal_name: "Entreprise actuelle",
+      address: "1 rue actuelle",
+    });
+    expect(
+      mergeDossierRelationsForEdit(relations, detail, "reset").demandeur_personne_morale,
+    ).toMatchObject({
+      siret: "98765432109876",
+      legal_name: null,
+      address: null,
     });
   });
 

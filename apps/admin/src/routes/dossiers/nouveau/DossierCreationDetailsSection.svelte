@@ -3,8 +3,8 @@
 
   import {
     aeProcedureOptions,
-    limitedSpecimenTypeOptions,
-    requiresScientificDemandeType,
+    especesPriseDetentionLimiteeTypeOptions,
+    requiresEspecesPriseDetentionLimiteeType,
     scientifiqueDemandePurposeOptions,
   } from "@pitchou/common/dossierFormOptions.ts";
 
@@ -136,12 +136,12 @@
     </div>
   {/if}
 
-  {#if requiresScientificDemandeType(model.motifDerogation)}
+  {#if requiresEspecesPriseDetentionLimiteeType(model.motifDerogation)}
     <fieldset class="fr-fieldset fr-mb-4w">
       <legend class="fr-fieldset__legend font-normal"
         >Prise ou détention limité ou spécifié - Précisez *</legend
       >
-      {#each limitedSpecimenTypeOptions as option, index}
+      {#each especesPriseDetentionLimiteeTypeOptions as option, index}
         <div class="fr-fieldset__element">
           <div class="fr-radio-group">
             <input
@@ -150,7 +150,7 @@
               name="limited-specimen"
               value={option}
               required
-              bind:group={model.limitedSpecimenType}
+              bind:group={model.especesPriseDetentionLimiteeType}
             /><label class="fr-label" for={`limited-specimen-${index}`}>{option}</label>
           </div>
         </div>

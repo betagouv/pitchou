@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  limitedSpecimenTypeOptions,
+  especesPriseDetentionLimiteeTypeOptions,
   dossierRequestContextOptions,
   motifDerogationOptions,
   scientifiqueDemandeTypeOptions,
@@ -44,7 +44,7 @@ const validCreation = {
     linked_to_ae_regime: "unknown",
     ae_procedures: null,
     ae_other_procedure: null,
-    limited_specimen_type: null,
+    especes_prise_detention_limitee_type: null,
     scientifique_demande_purposes: null,
     scientifique_previous_assessment: null,
     scientifique_mortality_measures_taken: null,
@@ -174,9 +174,26 @@ describe("parseDossierCreation", () => {
           intervention_end_date: null,
           motif_derogation: motifDerogationOptions[4],
           scientifique_demande_type: [scientifiqueDemandeTypeOptions[0]],
-          limited_specimen_type: limitedSpecimenTypeOptions[0],
           scientifique_demande_purposes: [],
           scientifique_previous_assessment: false,
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("requires the specimen type only for the limited-taking reason", () => {
+    const columns = {
+      ...validCreation.columns,
+      motif_derogation: motifDerogationOptions[6],
+    };
+
+    expect(() => parseDossierCreation({ ...validCreation, columns })).toThrow();
+    expect(() =>
+      parseDossierCreation({
+        ...validCreation,
+        columns: {
+          ...columns,
+          especes_prise_detention_limitee_type: especesPriseDetentionLimiteeTypeOptions[0],
         },
       }),
     ).not.toThrow();

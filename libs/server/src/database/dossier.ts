@@ -364,7 +364,7 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   "linked_to_ae_regime",
   "ae_procedures",
   "ae_other_procedure",
-  "limited_specimen_type",
+  "especes_prise_detention_limitee_type",
   "scientifique_mortality_measures_taken",
   "scientifique_mortality_measures_details",
   "eolien_commissioning_year",

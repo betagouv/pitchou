@@ -25,7 +25,10 @@
     showsCompleteDossierFiles,
     showsNoDerogationArgumentFiles,
   } from "./dossierCreationModel.ts";
-  import { requiresScientificDemandeType } from "@pitchou/common/dossierFormOptions.ts";
+  import {
+    requiresEspecesPriseDetentionLimiteeType,
+    requiresScientificDemandeType,
+  } from "@pitchou/common/dossierFormOptions.ts";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
@@ -124,7 +127,10 @@
       saveError = "Le nombre de nids d'Hirondelles à détruire est requis.";
       return;
     }
-    if (requiresScientificDemandeType(model.motifDerogation) && !model.limitedSpecimenType) {
+    if (
+      requiresEspecesPriseDetentionLimiteeType(model.motifDerogation) &&
+      !model.especesPriseDetentionLimiteeType
+    ) {
       saveError = "Précisez le type de prise ou de détention.";
       return;
     }

@@ -20,7 +20,7 @@ export const COLUMN_KINDS: Record<string, ColumnKind> = {
   motif_derogation: "string",
   motif_derogation_justification: "string",
   ae_other_procedure: "string",
-  limited_specimen_type: "string",
+  especes_prise_detention_limitee_type: "string",
   scientifique_mortality_measures_details: "string",
   eolien_field_inventory_period: "string",
   eolien_carcass_collection_method: "string",

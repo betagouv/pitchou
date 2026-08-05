@@ -46,6 +46,8 @@
             <a href="/dossiers/{dossier.id}">{dossier.name || `Dossier ${dossier.id}`}</a>
             {#if dossier.groupe_name}
               <p class="fr-text--xs fr-text-mention--grey fr-mb-0">{dossier.groupe_name}</p>
+            {:else if !dossier.demarche_numerique_number}
+              <p class="fr-text--xs fr-text-default--warning fr-mb-0">Groupe à réattribuer</p>
             {/if}
           </td>
           <td>{formatDemandeur(dossier)}</td>

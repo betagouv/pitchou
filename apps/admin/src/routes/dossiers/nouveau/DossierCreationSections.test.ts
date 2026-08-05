@@ -103,6 +103,18 @@ describe("dossier creation sections", () => {
     expect(legalBody).toContain("Personne en charge du projet au sein de la personne morale");
     expect(legalBody).not.toContain('id="legal-name"');
     expect(legalBody).not.toContain('id="physical-address-search"');
+
+    legal.legalSiret = "98765432109876";
+    const changedSiretBody = render(DossierCreationDemandeurSection, {
+      props: {
+        model: legal,
+        originalLegalSiret: "12345678901234",
+        companyDetailsChoice: "",
+      },
+    }).body;
+    expect(changedSiretBody).toContain("Vous modifiez le numéro de SIRET");
+    expect(changedSiretBody).toContain('id="company-details-keep"');
+    expect(changedSiretBody).toContain('id="company-details-reset"');
   });
 
   it("stacks the demandeur choices and contact fields like DN", () => {
@@ -200,10 +212,15 @@ describe("dossier creation sections", () => {
     const conditionalBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(conditionalBody).toContain('id="ae-procedure-0"');
     expect(conditionalBody).toContain('id="ae-other-procedure"');
-    expect(conditionalBody).toContain('id="limited-specimen-0"');
+    expect(conditionalBody).not.toContain('id="limited-specimen-0"');
     expect(conditionalBody).toContain('id="previous-assessment-oui"');
 
+    model.motifDerogation = motifDerogationOptions[6];
+    const limitedTakingBody = render(DossierCreationDetailsSection, { props: { model } }).body;
+    expect(limitedTakingBody).toContain('id="limited-specimen-0"');
+
     model.mainActivite = "Production énergie renouvelable - Éolien -  Suivi mortalité";
+    model.motifDerogation = motifDerogationOptions[4];
     const windBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(windBody).toContain("8.1. Description du parc éolien concerné");
     expect(windBody).toContain('id="eolien-commissioning-year"');

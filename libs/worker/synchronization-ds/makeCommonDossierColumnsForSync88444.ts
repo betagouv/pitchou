@@ -233,7 +233,7 @@ export function makeCommonDossierColumnsForSync88444(
   const scientifiquePreviousAssessment = champById.get(
     pitchouKeyToChampDS.get("Cette demande concerne un programme de suivi déjà existant"),
   )?.checked;
-  const limitedSpecimenType = champById.get(
+  const especesPriseDetentionLimiteeType = champById.get(
     pitchouKeyToChampDS.get("Prise ou détention limité ou spécifié - Précisez"),
   )?.stringValue;
   const scientifiqueMortalityMeasuresTaken = champById.get(
@@ -497,7 +497,7 @@ export function makeCommonDossierColumnsForSync88444(
       ? JSON.stringify(scientifiqueDemandePurposes)
       : undefined,
     scientifique_previous_assessment: scientifiquePreviousAssessment,
-    limited_specimen_type: limitedSpecimenType || null,
+    especes_prise_detention_limitee_type: especesPriseDetentionLimiteeType || null,
     scientifique_mortality_measures_taken: scientifiqueMortalityMeasuresTaken ?? null,
     scientifique_mortality_measures_details: scientifiqueMortalityMeasuresDetails || null,
     eolien_commissioning_year: eolienCommissioningYear,

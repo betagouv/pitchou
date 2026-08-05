@@ -4,7 +4,7 @@ export async function up(knex: Knex) {
   await knex.schema.alterTable("dossier", (table) => {
     table.jsonb("ae_procedures");
     table.text("ae_other_procedure");
-    table.text("limited_specimen_type");
+    table.text("especes_prise_detention_limitee_type");
     table.boolean("scientifique_mortality_measures_taken");
     table.text("scientifique_mortality_measures_details");
     table.integer("eolien_commissioning_year");
@@ -28,7 +28,7 @@ export async function down(knex: Knex) {
     table.dropColumns(
       "ae_procedures",
       "ae_other_procedure",
-      "limited_specimen_type",
+      "especes_prise_detention_limitee_type",
       "scientifique_mortality_measures_taken",
       "scientifique_mortality_measures_details",
       "eolien_commissioning_year",

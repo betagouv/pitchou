@@ -12,13 +12,20 @@
   import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
   import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
   import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
-  import { showsSpeciesSection, type DossierCreationModel } from "./dossierCreationModel.ts";
+  import {
+    showsSpeciesSection,
+    type CompanyDetailsChoice,
+    type DossierCreationModel,
+  } from "./dossierCreationModel.ts";
 
   let {
     model,
     groupes,
     showAdminSection = true,
     showFirstSectionTopBorder = true,
+    originalLegalSiret,
+    companyDetailsChoice = "",
+    onCompanyDetailsChoice = () => {},
     existingSpeciesFiles,
     existingAttachments,
   }: {
@@ -26,6 +33,9 @@
     groupes: AdminGroupeInstructeurs[];
     showAdminSection?: boolean;
     showFirstSectionTopBorder?: boolean;
+    originalLegalSiret?: string | null;
+    companyDetailsChoice?: CompanyDetailsChoice;
+    onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
     existingSpeciesFiles?: Snippet;
     existingAttachments?: Snippet;
   } = $props();
@@ -33,7 +43,12 @@
 
 <DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
 <DossierCreationProjectSection {model} />
-<DossierCreationDemandeurSection {model} />
+<DossierCreationDemandeurSection
+  {model}
+  {originalLegalSiret}
+  {companyDetailsChoice}
+  {onCompanyDetailsChoice}
+/>
 <DossierCreationLocationSection {model} />
 <DossierCreationMapSection {model} />
 {#if showsSpeciesSection(model)}

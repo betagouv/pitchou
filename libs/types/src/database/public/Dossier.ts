@@ -59,7 +59,7 @@ export default interface Dossier {
   linked_to_ae_regime: boolean | null;
   ae_procedures: unknown | null;
   ae_other_procedure: string | null;
-  limited_specimen_type: string | null;
+  especes_prise_detention_limitee_type: string | null;
   scientifique_mortality_measures_taken: boolean | null;
   scientifique_mortality_measures_details: string | null;
   eolien_commissioning_year: number | null;
@@ -249,7 +249,7 @@ export interface DossierInitializer {
   linked_to_ae_regime?: boolean | null;
   ae_procedures?: unknown | null;
   ae_other_procedure?: string | null;
-  limited_specimen_type?: string | null;
+  especes_prise_detention_limitee_type?: string | null;
   scientifique_mortality_measures_taken?: boolean | null;
   scientifique_mortality_measures_details?: string | null;
   eolien_commissioning_year?: number | null;
@@ -435,7 +435,7 @@ export interface DossierMutator {
   linked_to_ae_regime?: boolean | null;
   ae_procedures?: unknown | null;
   ae_other_procedure?: string | null;
-  limited_specimen_type?: string | null;
+  especes_prise_detention_limitee_type?: string | null;
   scientifique_mortality_measures_taken?: boolean | null;
   scientifique_mortality_measures_details?: string | null;
   eolien_commissioning_year?: number | null;

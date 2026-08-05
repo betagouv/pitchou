@@ -5,6 +5,7 @@ import {
   dossierMainActivitesWithoutRequestContext,
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
+  requiresEspecesPriseDetentionLimiteeType,
   requiresSpeciesFile,
   requiresScientificDemandeType,
   requiresScientificPurposes,
@@ -206,14 +207,15 @@ function parseCreationColumns(raw: unknown): DossierMutator {
     error(400, `Property 'dossier_oiseau_simple_destroyed_nids_count' does not apply.`);
   }
 
-  const researchReason = requiresScientificDemandeType(columns.motif_derogation);
-  if (researchReason && typeof columns.limited_specimen_type !== "string") {
-    error(400, `Property 'limited_specimen_type' is required.`);
+  const limitedTakingReason = requiresEspecesPriseDetentionLimiteeType(columns.motif_derogation);
+  if (limitedTakingReason && typeof columns.especes_prise_detention_limitee_type !== "string") {
+    error(400, `Property 'especes_prise_detention_limitee_type' is required.`);
   }
-  if (!researchReason && columns.limited_specimen_type !== null) {
-    error(400, `Property 'limited_specimen_type' does not apply.`);
+  if (!limitedTakingReason && columns.especes_prise_detention_limitee_type !== null) {
+    error(400, `Property 'especes_prise_detention_limitee_type' does not apply.`);
   }
 
+  const researchReason = requiresScientificDemandeType(columns.motif_derogation);
   const scientificTypes = Array.isArray(rawColumns.scientifique_demande_type)
     ? rawColumns.scientifique_demande_type.filter(
         (value): value is string => typeof value === "string",
