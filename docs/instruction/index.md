@@ -14,5 +14,5 @@ Vous y trouverez :
 - [Pourquoi le CERFA n'est-il plus nécessaire ?](./cerfa)
 - [Quand et comment le pétitionnaire doit-il déposer son dossier sur Pitchou ?](./depot-dossier-petitionnaires)
 - [Quelles sont les **données** à remplir dans Démarche Numérique et **indispensables pour l'instruction** ?](./donnees-indispensables)
-- [Utiliser et créer des **document-types** pour la génération de documents](./document-types)
+- [Utiliser et créer des **modèles de documents** pour la génération de documents](./document-types)
 - [L'articulation entre Démarche Numérique et Pitchou](./articulation-dn-pitchou)
