@@ -39,6 +39,7 @@
 
 <div class="relative flex-[1_1_auto] min-w-0" bind:this={root}>
   <button
+    {id}
     type="button"
     class="fr-select w-full text-left truncate cursor-pointer [&.placeholder]:text-[color:var(--text-mention-grey)]"
     class:placeholder={selected.length === 0}

@@ -1,6 +1,6 @@
 # Articulation Démarche Numérique et Pitchou
 
-**Dernière mise à jour : mi-février 2026**
+**Dernière mise à jour : fin juillet 2026**
 
 Pitchou (le projet) repose principalement sur deux morceaux techniques : Démarches Numériques (DN) et pitchou.beta.gouv.fr
 
@@ -42,7 +42,7 @@ linkStyle default stroke:#444,stroke-width:2px;
 
 Quand un pétitionnaire met à jour son dossier, les éléments mis à jour sont automatiquement transmis à Pitchou
 
-⚠️ **Attention** : la mise à jour entre DN et Pitchou **n'est pas instantanée**. Elle se fait **environ toutes les 15 minutes**. Il est donc possible que les informations sur Pitchou ne soient pas immédiatement mises à jour. Il suffit d'attendre un peu.
+⚠️ **Attention** : la mise à jour entre DN et Pitchou **n'est pas instantanée**. Elle se fait **environ toutes les 10 minutes**. Il est donc possible que les informations sur Pitchou ne soient pas immédiatement mises à jour. Il suffit d'attendre un peu.
 
 ## Différences entre DN et Pitchou
 

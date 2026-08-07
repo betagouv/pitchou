@@ -117,7 +117,7 @@
 
 <svelte:head>
   <title
-    >{`${dossier.name} — Dossier n°${dossier.demarche_numerique_number ?? "non renseigné"} — Pitchou`}</title
+    >{`${dossier.name} — Dossier n°${dossier.demarche_numerique_number ?? dossier.id} — Pitchou`}</title
   >
 </svelte:head>
 

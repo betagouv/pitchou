@@ -106,7 +106,11 @@
       </div>
       <div class="flex flex-row items-center gap-4 flex-wrap">
         <p class="fr-text--sm mb-0 text-[color:var(--text-mention-grey)]">
-          Dossier n°{dossier.demarche_numerique_number}
+          {#if dossier.demarche_numerique_number}
+            Dossier n°{dossier.demarche_numerique_number}
+          {:else}
+            Dossier Pitchou n°{dossier.id}
+          {/if}
         </p>
         {#if dossier.enjeu}
           <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>

@@ -35,6 +35,7 @@ export function getDocumentGenerationTags(
     description,
     depot_date: depotDate,
     departments,
+    primary_department: primaryDepartment,
     enjeu,
     no_other_satisfactory_solution_justification: noOtherSatisfactorySolutionJustification,
     mesures_erc_planned: ercMesuresPlanned,
@@ -67,7 +68,7 @@ export function getDocumentGenerationTags(
   const departmentCodes: string[] | undefined = Array.isArray(departments)
     ? departments
     : undefined;
-  const mainDepartmentCode: string | undefined = departmentCodes?.[0];
+  const mainDepartmentCode: string | undefined = primaryDepartment ?? departmentCodes?.[0];
 
   // Transform the impacted especes if they exist
   const groupedEspecesByImpact: EspecesByActivite[] | undefined = especesImpactees
@@ -122,7 +123,18 @@ export function getDocumentGenerationTags(
       adresse: dossier.demandeur_address,
       nom:
         dossier.demandeur_personne_morale_legal_name ||
-        `${dossier.demandeur_personne_physique_first_names} ${dossier.demandeur_personne_physique_last_name}`,
+        (dossier.demandeur_personne_morale_siret
+          ? `SIRET ${dossier.demandeur_personne_morale_siret}`
+          : null) ||
+        [
+          dossier.demandeur_personne_physique_first_names,
+          dossier.demandeur_personne_physique_last_name,
+        ]
+          .filter(Boolean)
+          .join(" ") ||
+        dossier.demandeur_personne_physique_email ||
+        dossier.deposant_email ||
+        "Non renseigné",
       toString() {
         return formatPorteurDeProjet(dossier);
       },
@@ -166,7 +178,8 @@ export function getDocumentGenerationTags(
       intervenants: scientifiqueIntervenants,
       précisions_autres_intervenants: scientifiqueOtherIntervenantsDetails,
     },
-    numéro_dossier: dossier.demarche_numerique_number,
+    // Dossiers created directly in Pitchou have no DN number: fall back to the Pitchou id
+    numéro_dossier: dossier.demarche_numerique_number ?? String(dossier.id),
     // deprecated
     identifiant_pitchou: dossier.id,
     //Functions

@@ -11,6 +11,7 @@
     prochaineActionAttenduePar,
   } from "$lib/dossier/displayDossier.ts";
   import { updateDossier } from "$lib/dossier/dossier.ts";
+  import { withoutRedundantDepositPhase } from "$lib/dossier/phaseHistory.ts";
   import {
     instructeurLeavesDossier,
     instructeurFollowsDossier,
@@ -36,6 +37,9 @@
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe";
 
   const otherAttachments = $derived(dossier.otherAttachments);
+  const phaseHistory = $derived(
+    withoutRedundantDepositPhase(dossier.evenementsPhase, dossier.depot_date),
+  );
 
   let currentPhase = $derived(
     (dossier.evenementsPhase[0] && dossier.evenementsPhase[0].phase) || "Accompagnement amont",
@@ -241,7 +245,7 @@
     {/if}
     <h2>Historique</h2>
     <ol class="list-none fr-mt-0 fr-pl-0">
-      {#each dossier.evenementsPhase as { phase, timestamp }}
+      {#each phaseHistory as { phase, timestamp }}
         <li>
           <TagPhase {phase}></TagPhase>
           -

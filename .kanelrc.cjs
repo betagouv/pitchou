@@ -61,6 +61,11 @@ const dossierScientifiqueCaptureMode = makePreRenderHook(
   "scientifique_capture_mode",
   "string[]",
 );
+const dossierEolienMortalityActions = makePreRenderHook(
+  "libs/types/src/database/public/Dossier",
+  "eolien_mortality_actions",
+  "string[]",
+);
 
 // With `enumStyle: "type"`, Kanel emits `type X = ...;` then `export default X;`.
 // That separate re-export of a type is rejected under `verbatimModuleSyntax`
@@ -87,6 +92,9 @@ async function formatWithPrettier(path, lines) {
 }
 
 module.exports = {
+  // Kanel 4 dropped the -d/-o CLI flags; connection and output live here now.
+  connection: process.env.DATABASE_URL,
+  outputPath: "./libs/types/src/database",
   enumStyle: "type",
   customTypeMap: {
     "pg_catalog.bytea": "Buffer",
@@ -96,6 +104,7 @@ module.exports = {
     setEvenementPhaseDossierPhaseType,
     dossierScientifiqueDemandeType,
     dossierScientifiqueCaptureMode,
+    dossierEolienMortalityActions,
   ],
 
   // Providing postRenderHooks replaces Kanel's default `[markAsGenerated]`

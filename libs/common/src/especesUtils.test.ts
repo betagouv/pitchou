@@ -3,6 +3,7 @@ import { createOdsFile } from "@odfjs/odfjs";
 import * as XLSX from "xlsx";
 
 import {
+  assertSpeciesSpreadsheet,
   dbRowToEspeceProtegee,
   importDescriptionMenacesEspecesFromOdsArrayBuffer,
 } from "./especesUtils.ts";
@@ -148,5 +149,21 @@ describe("importDescriptionMenacesEspècesFromOdsArrayBuffer", () => {
     // Full equivalence is what makes every downstream consumer (impacted-espece
     // display, document generation) format-agnostic.
     expect(fromXlsx).toEqual(fromOds);
+  });
+
+  it("validates Pitchou ODS and XLSX workbooks", async () => {
+    await expect(assertSpeciesSpreadsheet(await buildOds())).resolves.toBeUndefined();
+    await expect(assertSpeciesSpreadsheet(buildXlsx())).resolves.toBeUndefined();
+    await expect(
+      assertSpeciesSpreadsheet(new TextEncoder().encode("invalid").buffer),
+    ).rejects.toThrow();
+
+    const emptyWorkbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(emptyWorkbook, XLSX.utils.aoa_to_sheet([headers]), "oiseau");
+    const emptyFile = XLSX.write(emptyWorkbook, {
+      type: "array",
+      bookType: "xlsx",
+    }) as ArrayBuffer;
+    await expect(assertSpeciesSpreadsheet(emptyFile)).rejects.toThrow();
   });
 });

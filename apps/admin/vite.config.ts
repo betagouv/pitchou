@@ -23,6 +23,9 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
   },
+  optimizeDeps: {
+    exclude: ["maplibre-gl"],
+  },
   ssr: {
     external: ["knex", "pg"],
   },
