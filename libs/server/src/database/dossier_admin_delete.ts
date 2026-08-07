@@ -3,6 +3,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
 import { DossierManagedByDnError } from "./dossier_admin_errors.ts";
 import { getDossierSyncStatus } from "./dossier_admin_policy.ts";
+import { deleteUnreferencedDossierPersonnes } from "./dossier_admin_relations.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -17,8 +18,18 @@ export async function deleteDossierFromAdmin(
     const { managedByDn } = await getDossierSyncStatus(dossierId, trx);
     if (managedByDn) throw new DossierManagedByDnError(dossierId);
 
+    const dossier = await trx("dossier")
+      .select("demandeur_personne_physique", "deposant")
+      .where({ id: dossierId })
+      .first();
     const fileIds = await collectDossierFileIds(dossierId, trx);
     await trx("dossier").where({ id: dossierId }).delete();
+    if (dossier) {
+      await deleteUnreferencedDossierPersonnes(
+        [dossier.demandeur_personne_physique, dossier.deposant],
+        trx,
+      );
+    }
     await deleteFichiersWithoutOtherReferences(fileIds, trx);
   });
 }

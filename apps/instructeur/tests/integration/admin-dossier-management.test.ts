@@ -163,11 +163,18 @@ test("suppression admin : refusée sur un dossier DN, effective sur un dossier n
     ADMIN_EMAIL,
     db,
   );
+  const dossierToDelete = await db("dossier")
+    .select("demandeur_personne_physique")
+    .where({ id })
+    .first();
+  const demandeurPersonneId = dossierToDelete?.demandeur_personne_physique;
+  if (!demandeurPersonneId) throw new Error("Missing test demandeur");
 
   await deleteDossierFromAdmin(id, db);
 
   expect(await db("dossier").where({ id }).first()).toBeUndefined();
   expect(await db("evenement_phase_dossier").where({ dossier: id })).toHaveLength(0);
+  expect(await db("personne").where({ id: demandeurPersonneId }).first()).toBeUndefined();
 });
 
 test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dossier DN", async () => {

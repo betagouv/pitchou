@@ -146,7 +146,7 @@ async function updateOrInsertDossierPersonne(
   return currentPersonneId;
 }
 
-async function deleteUnreferencedDossierPersonnes(
+export async function deleteUnreferencedDossierPersonnes(
   personneIds: Array<PersonneId | null>,
   trx: Knex.Transaction,
 ): Promise<void> {
