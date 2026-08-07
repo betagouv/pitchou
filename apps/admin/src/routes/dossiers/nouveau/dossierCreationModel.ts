@@ -9,6 +9,7 @@ import {
   requiresScientificDemandeType,
   requiresCompleteDossierAttachment,
   requiresNoDerogationArgumentAttachment,
+  requiresOperationDates,
   scientifiqueDemandeTypeOptions,
   scientifiqueCaptureModeOptions,
   requiresSpeciesFile,
@@ -383,11 +384,7 @@ export function showsWindFarmDetails(model: DossierCreationModel): boolean {
 }
 
 export function showsOperationDates(model: DossierCreationModel): boolean {
-  return (
-    showsRequestContext(model.mainActivite) &&
-    (model.requestContext === dossierRequestContextOptions[1] ||
-      model.requestContext === dossierRequestContextOptions[2])
-  );
+  return requiresOperationDates(model.mainActivite, model.requestContext);
 }
 
 export function showsDerogationDuration(model: DossierCreationModel): boolean {

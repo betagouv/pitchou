@@ -6,6 +6,7 @@ import {
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
   requiresEspecesPriseDetentionLimiteeType,
+  requiresOperationDates,
   requiresSpeciesFile,
   requiresScientificDemandeType,
   requiresScientificPurposes,
@@ -269,9 +270,7 @@ function parseCreationColumns(raw: unknown): DossierMutator {
   if (!windMortality && windFarmValues.some((value) => value !== null && value !== undefined)) {
     error(400, `Wind farm properties do not apply to this application.`);
   }
-  const showsOperationDates =
-    requestContext === dossierRequestContextOptions[1] ||
-    requestContext === dossierRequestContextOptions[2];
+  const showsOperationDates = requiresOperationDates(mainActivite, requestContext as string | null);
   if (
     showsOperationDates &&
     (!(columns.intervention_start_date instanceof Date) ||

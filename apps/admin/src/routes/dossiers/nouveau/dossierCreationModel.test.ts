@@ -21,6 +21,7 @@ import {
   showsRequestContext,
   showsCompleteDossierFiles,
   showsNoDerogationArgumentFiles,
+  showsOperationDates,
 } from "./dossierCreationModel.ts";
 
 describe("dossier creation model", () => {
@@ -311,6 +312,15 @@ describe("dossier creation model", () => {
       intervention_end_date: null,
       commissioning_date: null,
       intervention_duration: null,
+    });
+
+    model.mainActivite = "Demande à caractère scientifique";
+    model.requestContext = "";
+    expect(showsOperationDates(model)).toBe(true);
+    expect(buildCreationPayload(model).columns).toMatchObject({
+      intervention_start_date: "2026-09-01",
+      intervention_end_date: "2026-09-30",
+      commissioning_date: "2026-10-01",
     });
   });
 

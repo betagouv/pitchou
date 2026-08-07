@@ -79,6 +79,19 @@ export function requiresSpeciesFile(
   );
 }
 
+export function requiresOperationDates(
+  mainActivite: string | null | undefined,
+  requestContext: string | null | undefined,
+): boolean {
+  return (
+    requestContext === dossierRequestContextOptions[1] ||
+    requestContext === dossierRequestContextOptions[2] ||
+    dossierMainActivitesWithoutRequestContext.includes(
+      mainActivite as (typeof dossierMainActivitesWithoutRequestContext)[number],
+    )
+  );
+}
+
 export function requiresCompleteDossierAttachment(
   mainActivite: string | null | undefined,
   requestContext: string | null | undefined,

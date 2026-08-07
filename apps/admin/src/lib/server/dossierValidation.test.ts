@@ -170,6 +170,25 @@ describe("parseDossierCreation", () => {
           ...validCreation.columns,
           main_activite: "Demande à caractère scientifique",
           request_context: null,
+          intervention_start_date: "2026-08-01",
+          intervention_end_date: "2026-08-31",
+          motif_derogation: motifDerogationOptions[4],
+          scientifique_demande_type: [scientifiqueDemandeTypeOptions[0]],
+          scientifique_demande_purposes: [],
+          scientifique_previous_assessment: false,
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("requires operation dates for direct requests", () => {
+    expect(() =>
+      parseDossierCreation({
+        ...validCreation,
+        columns: {
+          ...validCreation.columns,
+          main_activite: "Demande à caractère scientifique",
+          request_context: null,
           intervention_start_date: null,
           intervention_end_date: null,
           motif_derogation: motifDerogationOptions[4],
@@ -178,7 +197,7 @@ describe("parseDossierCreation", () => {
           scientifique_previous_assessment: false,
         },
       }),
-    ).not.toThrow();
+    ).toThrow();
   });
 
   it("requires the specimen type only for the limited-taking reason", () => {
