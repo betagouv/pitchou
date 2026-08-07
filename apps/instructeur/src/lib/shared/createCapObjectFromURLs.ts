@@ -8,6 +8,7 @@ import type {
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
 
 const commonHeaders = {
   Accept: "application/json",
@@ -266,6 +267,7 @@ export default function (
     recupérerDossierComplet: wrapGetDossierFull(capURLs.recupérerDossierComplet),
     listFollowRelations: wrapGETUrl(capURLs.listFollowRelations),
     updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),
+    ...createDossierFollowerCapabilities(capURLs),
     listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
     listerMessages: wrapListerMessages(capURLs.listerMessages),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),

@@ -32,6 +32,12 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.updateFollowRelation) {
     ret.updateFollowRelation = `/dossiers/relation-suivis?cap=${capBundle.updateFollowRelation}`;
   }
+  if (capBundle.listDossierFollowerCandidates) {
+    ret.listDossierFollowerCandidates = `/dossier/:dossierId/followers?cap=${capBundle.listDossierFollowerCandidates}`;
+  }
+  if (capBundle.updateDossierFollowers) {
+    ret.updateDossierFollowers = `/dossier/:dossierId/followers?cap=${capBundle.updateDossierFollowers}`;
+  }
   if (capBundle.listerEvenementsPhaseDossier) {
     ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }

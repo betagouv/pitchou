@@ -15,6 +15,13 @@ import type DecisionAdministrative from "./database/public/DecisionAdministrativ
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 
+export type DossierFollowerCandidate = {
+  email: NonNullable<Personne["email"]>;
+  firstNames: Personne["first_names"];
+  lastName: Personne["last_name"];
+  followsDossier: boolean;
+};
+
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
   recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
@@ -25,6 +32,11 @@ export interface PitchouInstructeurCapabilities {
     direction: "suivre" | "laisser",
     personneEmail: NonNullable<Personne["email"]>,
     dossierId: Dossier["id"],
+  ) => Promise<void>;
+  listDossierFollowerCandidates: (dossierId: Dossier["id"]) => Promise<DossierFollowerCandidate[]>;
+  updateDossierFollowers: (
+    dossierId: Dossier["id"],
+    personneEmails: NonNullable<Personne["email"]>[],
   ) => Promise<void>;
   listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
