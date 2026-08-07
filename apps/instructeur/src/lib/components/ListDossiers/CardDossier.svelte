@@ -108,10 +108,14 @@
       </div>
       <div class="flex flex-row items-center gap-4 flex-wrap">
         <p class="fr-text--sm mb-0 text-[color:var(--text-mention-grey)]">
-          {#if dossier.demarche_numerique_number}
-            Dossier n°{dossier.demarche_numerique_number}
-          {:else}
+          {#if dossier.source === "demarche_numerique"}
+            {dossier.demarche_numerique_number
+              ? `Dossier n°${dossier.demarche_numerique_number}`
+              : `Dossier DN · identifiant Pitchou n°${dossier.id}`}
+          {:else if dossier.source === "pitchou"}
             Dossier Pitchou n°{dossier.id}
+          {:else}
+            Dossier n°{dossier.id} · source inconnue
           {/if}
         </p>
         {#if dossier.enjeu}

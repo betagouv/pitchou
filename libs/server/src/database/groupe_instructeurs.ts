@@ -257,7 +257,9 @@ export async function deleteNowInaccessibleSuivis(
   await databaseConnection("edge_personne_follows_dossier")
     .whereIn(
       "dossier",
-      databaseConnection("dossier").select("id").where({ demarche_number: demarcheNumber }),
+      databaseConnection("dossier")
+        .select("id")
+        .where({ demarche_number: demarcheNumber, source: "demarche_numerique" }),
     )
     // keep only follows for which the personne has NO remaining access path to the dossier
     .whereNotExists(function () {

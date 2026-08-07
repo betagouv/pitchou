@@ -14,6 +14,7 @@ function makeDetail(groupe: AdminDossierDetail["groupe"]): AdminDossierDetail {
       demarche_number: null,
       depot_date: "2026-08-03",
     },
+    source: "pitchou",
     managedByDn: false,
     phase: "Accompagnement amont",
     demandeur_personne_physique: {

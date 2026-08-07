@@ -2,15 +2,16 @@ import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { deleteDossierByDSNumber, dumpDossiers } from "@pitchou/server/database/dossier.ts";
+import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 
-// Dossiers created directly in Pitchou (demarche_numerique_number IS NULL) must
-// be invisible to the DN synchronization: its updates and deletions are keyed
-// on demarche_numerique_number only. These tests lock that guarantee in.
+// Only dossiers explicitly sourced from DN may be updated or deleted by its synchronization.
 
 test("la mise à jour de la synchronisation DN ne touche pas les dossiers créés dans Pitchou", async () => {
   const nativeDossier = await createDossier(db, {
     name: "Dossier né dans Pitchou",
+    source: "pitchou",
     demarche_numerique_number: null,
     demarche_number: null,
   });
@@ -36,6 +37,7 @@ test("la mise à jour de la synchronisation DN ne touche pas les dossiers créé
 test("la suppression pilotée par DN ne touche pas les dossiers créés dans Pitchou", async () => {
   const nativeDossier = await createDossier(db, {
     name: "Dossier né dans Pitchou",
+    source: "pitchou",
     demarche_numerique_number: null,
     demarche_number: null,
   });
@@ -51,4 +53,34 @@ test("la suppression pilotée par DN ne touche pas les dossiers créés dans Pit
 
   expect(nativeAfter).toBeDefined();
   expect(dnAfter).toBeUndefined();
+});
+
+test("la suppression DN ignore un dossier Pitchou même s'il porte un ancien numéro DN", async () => {
+  const nativeDossier = await createDossier(db, {
+    name: "Dossier Pitchou avec métadonnée historique",
+    source: "pitchou",
+    demarche_numerique_number: "910003",
+    demarche_number: null,
+  });
+
+  await deleteDossierByDSNumber([910003], db);
+
+  expect(await db("dossier").where({ id: nativeDossier.id }).first()).toBeDefined();
+});
+
+test("la synchronisation du fichier espèces ignore un dossier Pitchou avec un ancien numéro DN", async () => {
+  const nativeDossier = await createDossier(db, {
+    name: "Dossier Pitchou avec métadonnée historique",
+    source: "pitchou",
+    demarche_numerique_number: "910004",
+    demarche_number: null,
+  });
+
+  await synchronizeFichiersEspecesImpacteesFromDS88444(
+    new Map([[910004, "00000000-0000-0000-0000-000000000001" as FileId]]),
+    db,
+  );
+
+  const dossierAfter = await db("dossier").where({ id: nativeDossier.id }).first();
+  expect(dossierAfter.especes_impactees).toBeNull();
 });

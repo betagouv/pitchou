@@ -5,6 +5,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // Properties copied directly
     id,
     demarche_numerique_number,
+    source,
     name,
     main_activite,
     enjeu,
@@ -51,6 +52,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // Simple properties
     id,
     demarche_numerique_number,
+    source,
     name,
     main_activite,
     enjeu,

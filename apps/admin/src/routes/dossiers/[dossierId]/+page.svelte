@@ -89,15 +89,19 @@
     </a>
     <div class="flex flex-row items-center gap-4 flex-wrap fr-mt-2w">
       <h1 class="fr-mb-0">{detail.dossier.name || `Dossier ${detail.dossier.id}`}</h1>
-      {#if detail.managedByDn}
+      {#if detail.source === "demarche_numerique"}
         <span class="fr-badge fr-badge--info fr-badge--no-icon">
-          DN nº{detail.dossier.demarche_numerique_number}
+          {detail.dossier.demarche_numerique_number
+            ? `DN nº${detail.dossier.demarche_numerique_number}`
+            : "Démarches Numériques"}
         </span>
-      {:else}
+      {:else if detail.source === "pitchou"}
         <span class="fr-badge fr-badge--green-emeraude">Créé dans Pitchou</span>
+      {:else}
+        <span class="fr-badge fr-badge--grey">Source inconnue</span>
       {/if}
       <span class="fr-badge fr-badge--sm fr-badge--no-icon">{detail.phase}</span>
-      {#if !detail.managedByDn}
+      {#if detail.source === "pitchou"}
         <button
           class="fr-btn fr-icon-save-line fr-btn--icon-left ml-auto"
           type="submit"
@@ -129,16 +133,20 @@
     </p>
   </header>
 
-  {#if detail.managedByDn}
+  {#if detail.source === "demarche_numerique"}
     <div class="fr-alert fr-alert--info fr-my-2w">
       <p>
         Ce dossier est synchronisé depuis Démarches Numériques et affiché en lecture seule. Les
         champs propres à Pitchou restent modifiables depuis l'application instructeurs.
       </p>
     </div>
+  {:else if detail.source === "unknown"}
+    <div class="fr-alert fr-alert--warning fr-my-2w">
+      <p>La source de ce dossier est inconnue. Il est affiché en lecture seule.</p>
+    </div>
   {/if}
 
-  {#if detail.managedByDn}
+  {#if detail.source !== "pitchou"}
     <DossierAdminForm
       {detail}
       formId={editFormId}
@@ -156,9 +164,13 @@
     />
   {/if}
 
-  <DossierPhaseHistory {detail} onChanged={(updated) => (detail = updated)} />
+  <DossierPhaseHistory
+    {detail}
+    readOnly={detail.source === "unknown"}
+    onChanged={(updated) => (detail = updated)}
+  />
 
-  {#if !detail.managedByDn}
+  {#if detail.source === "pitchou"}
     <section class="fr-mt-6w fr-pt-3w border-t border-[color:var(--border-default-grey)]">
       <h2 class="fr-h4">Supprimer le dossier</h2>
       {#if !confirmingDelete}

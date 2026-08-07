@@ -37,6 +37,7 @@ describe("dossier admin relations model", () => {
           role: "Directrice",
         },
       ],
+      source: "pitchou",
       managedByDn: false,
       phase: "Accompagnement amont",
       evenementsPhase: [],

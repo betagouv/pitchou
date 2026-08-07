@@ -16,6 +16,7 @@ export async function createDossier(
   const defaults: DossierInitializer = {
     name: "Dossier de test",
     demarche_number: DEFAULT_NUMERO_DEMARCHE,
+    source: "demarche_numerique",
     depot_date: new Date(),
   };
   const insert = { ...defaults, ...overrides };

@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { DossierManagedByDnError } from "./dossier_admin_errors.ts";
+import { DossierNotCreatedInPitchouError } from "./dossier_admin_errors.ts";
 import { getDossierSyncStatus } from "./dossier_admin_policy.ts";
 import { deleteUnreferencedDossierPersonnes } from "./dossier_admin_relations.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
@@ -15,8 +15,8 @@ export async function deleteDossierFromAdmin(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   await databaseConnection.transaction(async (trx) => {
-    const { managedByDn } = await getDossierSyncStatus(dossierId, trx);
-    if (managedByDn) throw new DossierManagedByDnError(dossierId);
+    const { createdInPitchou } = await getDossierSyncStatus(dossierId, trx);
+    if (!createdInPitchou) throw new DossierNotCreatedInPitchouError(dossierId);
 
     const dossier = await trx("dossier")
       .select("demandeur_personne_physique", "deposant")

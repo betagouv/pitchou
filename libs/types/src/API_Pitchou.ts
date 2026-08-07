@@ -1,4 +1,5 @@
 import type Dossier from "./database/public/Dossier.ts";
+import type { DossierSource } from "./dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "./demarche-numerique/Demarche88444.ts";
 import type File from "./database/public/File.ts";
 import type EvenementPhaseDossier from "./database/public/EvenementPhaseDossier.ts";
@@ -95,6 +96,8 @@ type DossierLocalisation = {
   primary_department?: Dossier["primary_department"];
 };
 
+type DossierProvenance = { source: DossierSource };
+
 type DossierActivitePrincipale = {
   main_activite: DossierDemarcheNumerique88444["Activité principale"] | null;
 };
@@ -167,6 +170,7 @@ export type DossierSummary = Pick<
   | "free_comment"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierLocalisation &
+  DossierProvenance &
   DossierPersonnesImpliqueesSummary &
   DossierActivitePrincipale &
   DossierDataForStats &
@@ -217,9 +221,10 @@ export type FrontEndOtherAttachment = {
  */
 export type DossierFull = Omit<
   Dossier,
-  "communes" | "departments" | "regions" | "main_activite" | "projet_map"
+  "communes" | "departments" | "regions" | "main_activite" | "projet_map" | "source"
 > &
   DossierLocalisation &
+  DossierProvenance &
   DossierPersonnesImpliqueesFull &
   DossierActivitePrincipale &
   DossierProjetMap & {

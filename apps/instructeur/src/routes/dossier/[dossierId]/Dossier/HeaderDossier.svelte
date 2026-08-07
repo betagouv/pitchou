@@ -106,9 +106,13 @@
     </button>
     <h1 class="fr-mb-0 text-[1.5rem] leading-[1.3] text-[color:var(--text-title-grey)]">
       <span class="font-normal text-[color:var(--text-mention-grey)]"
-        >{dossier.demarche_numerique_number
-          ? `Dossier n°${dossier.demarche_numerique_number}`
-          : `Dossier Pitchou n°${dossier.id}`}&nbsp;:</span
+        >{dossier.source === "demarche_numerique"
+          ? dossier.demarche_numerique_number
+            ? `Dossier n°${dossier.demarche_numerique_number}`
+            : `Dossier DN · identifiant Pitchou n°${dossier.id}`
+          : dossier.source === "pitchou"
+            ? `Dossier Pitchou n°${dossier.id}`
+            : `Dossier n°${dossier.id} · source inconnue`}&nbsp;:</span
       >
       {dossier.name}
     </h1>

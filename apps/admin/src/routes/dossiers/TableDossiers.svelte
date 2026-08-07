@@ -46,7 +46,7 @@
             <a href="/dossiers/{dossier.id}">{dossier.name || `Dossier ${dossier.id}`}</a>
             {#if dossier.groupe_name}
               <p class="fr-text--xs fr-text-mention--grey fr-mb-0">{dossier.groupe_name}</p>
-            {:else if !dossier.demarche_numerique_number}
+            {:else if dossier.source === "pitchou"}
               <p class="fr-text--xs fr-text-default--warning fr-mb-0">Groupe à réattribuer</p>
             {/if}
           </td>
@@ -54,12 +54,16 @@
           <td>{dossier.phase}</td>
           <td>{formatDate(dossier.depot_date)}</td>
           <td>
-            {#if dossier.demarche_numerique_number}
+            {#if dossier.source === "demarche_numerique"}
               <span class="fr-badge fr-badge--info fr-badge--sm fr-badge--no-icon">
-                DN nº{dossier.demarche_numerique_number}
+                {dossier.demarche_numerique_number
+                  ? `DN nº${dossier.demarche_numerique_number}`
+                  : "Démarches Numériques"}
               </span>
-            {:else}
+            {:else if dossier.source === "pitchou"}
               <span class="fr-badge fr-badge--green-emeraude fr-badge--sm">Pitchou</span>
+            {:else}
+              <span class="fr-badge fr-badge--grey fr-badge--sm">Source inconnue</span>
             {/if}
           </td>
         </tr>

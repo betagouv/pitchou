@@ -1,4 +1,9 @@
-export { DossierManagedByDnError, DossierNotFoundError } from "./dossier_admin_errors.ts";
+export {
+  DossierManagedByDnError,
+  DossierNotCreatedInPitchouError,
+  DossierNotFoundError,
+  DossierUnknownSourceError,
+} from "./dossier_admin_errors.ts";
 export {
   ADMIN_EDITABLE_DOSSIER_COLUMNS,
   APP_NATIVE_DOSSIER_COLUMNS,

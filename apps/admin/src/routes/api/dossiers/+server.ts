@@ -35,8 +35,8 @@ function parsePhaseFilter(value: string | null): DossierPhase | undefined {
 
 function parseSourceFilter(value: string | null): ListAdminDossiersOptions["source"] {
   if (!value) return undefined;
-  if (value !== "pitchou" && value !== "dn") {
-    error(400, `Source inconnue : '${value}' (attendu : 'pitchou' ou 'dn').`);
+  if (value !== "pitchou" && value !== "dn" && value !== "unknown") {
+    error(400, `Source inconnue : '${value}'.`);
   }
   return value;
 }

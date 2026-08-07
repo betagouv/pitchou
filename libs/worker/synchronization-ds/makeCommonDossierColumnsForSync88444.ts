@@ -446,6 +446,7 @@ export function makeCommonDossierColumnsForSync88444(
     // metadata
     demarche_numerique_id: demarcheNumeriqueId,
     demarche_numerique_number: demarcheNumeriqueNumber,
+    source: "demarche_numerique",
 
     // demandeur_personne_physique,
     // demandeur_personne_morale,

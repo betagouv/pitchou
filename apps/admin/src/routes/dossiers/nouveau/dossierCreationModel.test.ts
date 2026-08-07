@@ -442,6 +442,7 @@ describe("dossier creation model", () => {
         scientifique_previous_assessment: true,
         scientifique_intervenants: [{ nom_complet: "Camille Martin", qualification: "Écologue" }],
       },
+      source: "pitchou",
       managedByDn: false,
       phase: "Accompagnement amont",
       demandeur_personne_physique: {
@@ -500,6 +501,7 @@ describe("dossier creation model", () => {
         demarche_number: null,
         depot_date: "2026-08-03",
       },
+      source: "pitchou",
       managedByDn: false,
       phase: "Accompagnement amont",
       demandeur_personne_physique: null,

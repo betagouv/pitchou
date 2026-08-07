@@ -21,6 +21,7 @@ function detail(
       especes_present_in_influence_area: especesPresentInInfluenceArea,
       location_scope: locationScope,
     },
+    source: "pitchou",
     managedByDn: false,
     phase: "construction",
     demandeur_personne_physique: {

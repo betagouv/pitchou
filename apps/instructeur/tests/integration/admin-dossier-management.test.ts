@@ -11,6 +11,8 @@ import {
   updateDossierFromAdmin,
   deleteDossierFromAdmin,
   DossierManagedByDnError,
+  DossierNotCreatedInPitchouError,
+  DossierUnknownSourceError,
 } from "@pitchou/server/database/dossier_admin.ts";
 import {
   getDossierDetailForAdmin,
@@ -60,6 +62,8 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
 
   const detail = await getDossierDetailForAdmin(id, db);
   expect(detail.managedByDn).toBe(false);
+  expect(detail.source).toBe("pitchou");
+  expect(detail.dossier.source).toBe("pitchou");
   expect(detail.phase).toBe("Instruction");
   expect(detail.groupe?.id).toBe(instructeur.groupeId);
   expect(detail.demandeur_personne_physique?.last_name).toBe("Martin");
@@ -76,6 +80,7 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   const summaries = await getDossiersSummariesByCap(instructeur.cap as CapDossierCap, db);
   expect(summaries.map((summary) => summary.id)).toContain(id);
   expect(summaries.find((summary) => summary.id === id)).toMatchObject({
+    source: "pitchou",
     location_scope: "france",
     primary_department: "69",
   });
@@ -142,10 +147,40 @@ test("les champs importés de DN sont refusés en modification sur un dossier sy
   expect(row.name).toBe("Dossier de test");
 });
 
+test("la provenance explicite distingue DN sans numéro, Pitchou et source inconnue", async () => {
+  const dnWithoutNumber = await createDossierRow(db, {
+    source: "demarche_numerique",
+    demarche_numerique_number: null,
+  });
+  const unknown = await createDossierRow(db, {
+    source: "unknown",
+    demarche_numerique_number: null,
+  });
+
+  const dnOnly = await listDossiersForAdmin({ page: 1, pageSize: 200, source: "dn" }, db);
+  expect(dnOnly.dossiers.map(({ id }) => id)).toContain(dnWithoutNumber.id);
+  expect(dnOnly.dossiers.map(({ id }) => id)).not.toContain(unknown.id);
+
+  const unknownOnly = await listDossiersForAdmin({ page: 1, pageSize: 200, source: "unknown" }, db);
+  expect(unknownOnly.dossiers.map(({ id }) => id)).toContain(unknown.id);
+
+  await expect(
+    updateDossierFromAdmin(
+      unknown.id as DossierId,
+      { columns: { free_comment: "Ne doit pas être appliqué" } },
+      ADMIN_EMAIL,
+      db,
+    ),
+  ).rejects.toBeInstanceOf(DossierUnknownSourceError);
+  await expect(deleteDossierFromAdmin(unknown.id as DossierId, db)).rejects.toBeInstanceOf(
+    DossierNotCreatedInPitchouError,
+  );
+});
+
 test("suppression admin : refusée sur un dossier DN, effective sur un dossier natif", async () => {
   const dnDossier = await createDossierRow(db, { demarche_numerique_number: "910101" });
   await expect(deleteDossierFromAdmin(dnDossier.id as DossierId, db)).rejects.toBeInstanceOf(
-    DossierManagedByDnError,
+    DossierNotCreatedInPitchouError,
   );
 
   const instructeur = await createInstructeurWithCapToGroup(db);
@@ -216,5 +251,5 @@ test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dos
       { name: "refuse.pdf", media_type: "application/pdf", content: Buffer.from("x") },
       db,
     ),
-  ).rejects.toBeInstanceOf(DossierManagedByDnError);
+  ).rejects.toBeInstanceOf(DossierNotCreatedInPitchouError);
 });

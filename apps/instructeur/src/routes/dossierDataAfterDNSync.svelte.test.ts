@@ -44,6 +44,7 @@ function fakeDossierFull(nom: string): DossierFull {
     departments: ["01"],
     regions: null,
     main_activite: "Travaux",
+    source: "demarche_numerique",
     demarche_numerique_number: "456",
     demandeur_personne_morale_siret: null,
     demandeur_personne_morale_legal_name: "",
@@ -77,6 +78,7 @@ function fakeDossierSummary(nom: string): DossierSummary {
   return {
     id: DOSSIER_ID,
     name: nom,
+    source: "demarche_numerique",
     demarche_numerique_number: "456",
     main_activite: "Travaux",
     linked_to_ae_regime: false,

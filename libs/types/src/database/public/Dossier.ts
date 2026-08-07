@@ -5,6 +5,7 @@ import type { PersonneId } from "./Personne";
 import type { EntrepriseSiret } from "./Entreprise";
 import type { FileId } from "./File";
 import type { default as TypeDossier } from "./TypeDossier";
+import type { DossierSource } from "../../dossierSource.ts";
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: "public.dossier" };
@@ -208,6 +209,9 @@ export default interface Dossier {
   eolien_carcass_preservation_method: string | null;
 
   eolien_carcass_examination_address: string | null;
+
+  /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
+  source: DossierSource;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -419,6 +423,12 @@ export interface DossierInitializer {
   eolien_carcass_preservation_method?: string | null;
 
   eolien_carcass_examination_address?: string | null;
+
+  /**
+   * Explicit dossier provenance. Unknown is the safe default for legacy imports.
+   * Default value: 'unknown'::text
+   */
+  source?: DossierSource;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -620,4 +630,7 @@ export interface DossierMutator {
   eolien_carcass_preservation_method?: string | null;
 
   eolien_carcass_examination_address?: string | null;
+
+  /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
+  source?: DossierSource;
 }
