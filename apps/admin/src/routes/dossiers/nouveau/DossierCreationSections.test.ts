@@ -203,6 +203,9 @@ describe("dossier creation sections", () => {
     expect(baseBody).not.toContain('id="ae-procedure-0"');
     expect(baseBody).toContain("8.5. Pièces jointes");
     expect(baseBody).toContain('id="supplemental-files"');
+    expect(baseBody.match(/<input[^>]*id="supplemental-files"[^>]*>/)?.[0]).not.toContain(
+      "required",
+    );
     expect(baseBody).not.toContain('id="complete-dossier-files"');
     expect(baseBody).not.toContain('id="no-derogation-argument-files"');
 

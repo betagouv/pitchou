@@ -80,10 +80,6 @@
       saveError = "L'argumentaire concluant à l'absence de nécessité de dérogation est requis.";
       return;
     }
-    if (model.supplementalFiles.length === 0) {
-      saveError = "Ajoutez les pièces jointes supplémentaires nécessaires au dossier.";
-      return;
-    }
     const submissionFiles = [
       ...(needsSpeciesFile && model.speciesFile ? [model.speciesFile] : []),
       ...(showsScientificPurposes(model) ? model.purposeFiles : []),

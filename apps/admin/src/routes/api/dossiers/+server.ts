@@ -133,9 +133,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   if (!needsNoDerogationArgument && noDerogationArgumentAttachments.length >= 1) {
     error(400, "L'argumentaire ne s'applique pas à cette demande.");
   }
-  if (supplementalAttachments.length === 0) {
-    error(400, "Les pièces jointes supplémentaires sont requises.");
-  }
   if (
     creation.columns?.scientifique_previous_assessment === true &&
     previousAssessmentAttachments.length === 0

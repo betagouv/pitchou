@@ -500,8 +500,7 @@
 
     <DossierCreationFileUpload
       id="supplemental-files"
-      label="Ajoutez ici les pièces jointes supplémentaires nécessaires à votre dossier"
-      required
+      label="Ajoutez ici, si nécessaire, les pièces jointes supplémentaires à votre dossier"
       bind:uploadedFiles={model.supplementalFiles}
     />
     {@render existingAttachments?.()}
