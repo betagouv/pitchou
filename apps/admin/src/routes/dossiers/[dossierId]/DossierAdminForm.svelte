@@ -37,7 +37,7 @@
   // svelte-ignore state_referenced_locally
   const dossier = detail.dossier;
   // svelte-ignore state_referenced_locally
-  const managedByDn = detail.managedByDn;
+  const readOnly = detail.source !== "pitchou";
   // svelte-ignore state_referenced_locally
   let model = $state(createDossierAdminFormModel(detail));
   let saveError = $state<string | null>(null);
@@ -46,7 +46,7 @@
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
-    if (!managedByDn && !model.depotDate) {
+    if (!readOnly && !model.depotDate) {
       saveError = "La date de dépôt est requise.";
       return;
     }
@@ -55,9 +55,9 @@
     saved = false;
     try {
       const payload: AdminDossierUpdatePayload = {
-        columns: buildDossierUpdateColumns(model, managedByDn),
+        columns: buildDossierUpdateColumns(model, readOnly),
       };
-      if (!managedByDn) payload.relations = buildDossierRelations(model);
+      if (!readOnly) payload.relations = buildDossierRelations(model);
       const updated = await updateDossier(dossier.id, payload);
       onSaved(updated);
       saved = true;
@@ -75,18 +75,16 @@
   style="overflow-anchor: none"
   onsubmit={save}
 >
-  {#if managedByDn}
-    <p class="fr-hint-text fr-mb-0">
-      Les sections importées de Démarches Numériques sont affichées en lecture seule.
-    </p>
+  {#if readOnly}
+    <p class="fr-hint-text fr-mb-0">Les données importées sont affichées en lecture seule.</p>
   {/if}
 
-  <DossierIntroductionFields {model} disabled={managedByDn} />
+  <DossierIntroductionFields {model} disabled={readOnly} />
 
   {#if completeEcologicalInventory}
-    {#if !managedByDn}<DossierRelationsFields {model} />{/if}
-    <DossierDescriptionFields {model} disabled={managedByDn} />
-    {#if !managedByDn}
+    {#if !readOnly}<DossierRelationsFields {model} />{/if}
+    <DossierDescriptionFields {model} disabled={readOnly} />
+    {#if !readOnly}
       <DossierAdminFiles
         {detail}
         onChanged={onFilesChanged}
@@ -94,16 +92,16 @@
         title="3. Espèces concernées par la dérogation"
       />
     {/if}
-    <DossierDerogationFields {model} disabled={managedByDn} />
+    <DossierDerogationFields {model} disabled={readOnly} />
     <section aria-labelledby="project-details-title">
       <h2 class="fr-h3" id="project-details-title">5. Détails du projet</h2>
-      <DossierOperationPeriodFields {model} disabled={managedByDn} complete={true} />
+      <DossierOperationPeriodFields {model} disabled={readOnly} complete={true} />
     </section>
   {:else}
-    <DossierOperationPeriodFields {model} disabled={managedByDn} complete={false} />
+    <DossierOperationPeriodFields {model} disabled={readOnly} complete={false} />
   {/if}
 
-  {#if !managedByDn}
+  {#if !readOnly}
     <DossierAdminFiles
       {detail}
       onChanged={onFilesChanged}

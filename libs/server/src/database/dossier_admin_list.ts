@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -20,6 +21,7 @@ export type AdminDossierSummary = {
   id: DossierId;
   name: string | null;
   demarche_numerique_number: string | null;
+  source: DossierSource;
   depot_date: Date;
   phase: DossierPhase;
   demandeur_last_name: string | null;
@@ -33,8 +35,7 @@ export type ListAdminDossiersOptions = {
   pageSize: number;
   search?: string;
   phase?: DossierPhase;
-  /** "pitchou" = created in Pitchou, "dn" = imported from Demarche Numerique. */
-  source?: "pitchou" | "dn";
+  source?: "pitchou" | "dn" | "unknown";
 };
 
 /** Latest meaningful phase event per dossier, excluding sync noise. */
@@ -89,9 +90,11 @@ function filterAdminDossiers(
     query.whereRaw(`COALESCE(latest_phase.phase, ?) = ?`, [DEFAULT_PHASE, phase]);
   }
   if (source === "pitchou") {
-    query.whereNull("dossier.demarche_numerique_number");
+    query.where("dossier.source", "pitchou");
   } else if (source === "dn") {
-    query.whereNotNull("dossier.demarche_numerique_number");
+    query.where("dossier.source", "demarche_numerique");
+  } else if (source === "unknown") {
+    query.where("dossier.source", "unknown");
   }
 }
 
@@ -117,6 +120,7 @@ export async function listDossiersForAdmin(
       "dossier.id",
       "dossier.name",
       "dossier.demarche_numerique_number",
+      "dossier.source",
       "dossier.depot_date",
       databaseConnection.raw(`COALESCE(latest_phase.phase, ?) as phase`, [DEFAULT_PHASE]),
       "demandeur_pp.last_name as demandeur_last_name",

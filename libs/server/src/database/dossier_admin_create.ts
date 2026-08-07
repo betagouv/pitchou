@@ -25,6 +25,7 @@ export async function createDossierFromAdmin(
         demarche_numerique_id: null,
         demarche_numerique_number: null,
         demarche_number: null,
+        source: "pitchou",
       })
       .returning("id");
 

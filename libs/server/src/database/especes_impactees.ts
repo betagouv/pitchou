@@ -14,13 +14,15 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   const previousFichierIdRows = await databaseConnection("dossier")
     .select(["especes_impactees"])
     .whereIn("demarche_numerique_number", [...especesImpacteesByDossierNumber.keys()])
+    .where("source", "demarche_numerique")
     .andWhereNot({ especes_impactees: null });
 
   // Associate the new espèces impactées files with the right dossier
   const updatePs = [...especesImpacteesByDossierNumber].map(([dossierNumber, fichierId]) => {
-    return databaseConnection("dossier")
-      .update({ especes_impactees: fichierId })
-      .where({ demarche_numerique_number: dossierNumber });
+    return databaseConnection("dossier").update({ especes_impactees: fichierId }).where({
+      demarche_numerique_number: dossierNumber,
+      source: "demarche_numerique",
+    });
   });
 
   // Delete the files that were attached to a dossier and are no longer relevant

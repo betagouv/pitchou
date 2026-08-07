@@ -2,6 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { DossierNotFoundError } from "./dossier_admin_errors.ts";
+import { isDossierSource, type DossierSource } from "@pitchou/types/dossierSource.ts";
 
 import type {
   default as Dossier,
@@ -96,15 +97,20 @@ export function assertEditableDossierColumns(columns: DossierMutator | undefined
   }
 }
 
-/** Loads whether the dossier was imported by the Demarche Numerique sync. */
+/** Loads explicit dossier provenance. Unknown values fail closed as unknown. */
 export async function getDossierSyncStatus(
   dossierId: DossierId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<{ managedByDn: boolean }> {
+): Promise<{ source: DossierSource; managedByDn: boolean; createdInPitchou: boolean }> {
   const dossier = await databaseConnection("dossier")
-    .select("demarche_numerique_number")
+    .select("source")
     .where({ id: dossierId })
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
-  return { managedByDn: dossier.demarche_numerique_number !== null };
+  const source: DossierSource = isDossierSource(dossier.source) ? dossier.source : "unknown";
+  return {
+    source,
+    managedByDn: source === "demarche_numerique",
+    createdInPitchou: source === "pitchou",
+  };
 }

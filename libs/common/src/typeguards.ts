@@ -8,6 +8,7 @@ import type {
   ChampRepeteDSPieceJustificative,
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+import { isDossierSource } from "@pitchou/types/dossierSource.ts";
 import type {
   OiseauAtteint,
   FauneNonOiseauAtteinte,
@@ -46,6 +47,7 @@ function isDossierSummary(x: any): x is DossierSummary {
     typeof x.id === "number" &&
     (typeof x.name === "string" || x.name === null) &&
     (typeof x.demarche_numerique_number === "string" || x.demarche_numerique_number === null) &&
+    isDossierSource(x.source) &&
     (typeof x.main_activite === "string" || x.main_activite === null) &&
     (typeof x.linked_to_ae_regime === "boolean" || x.linked_to_ae_regime === null) &&
     (typeof x.onagre_demande_identifier === "string" || x.onagre_demande_identifier === null);

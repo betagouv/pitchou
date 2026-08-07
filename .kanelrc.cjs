@@ -26,6 +26,30 @@ function setEvenementPhaseDossierPhaseType(output) {
   return output;
 }
 
+function setDossierSourceType(output) {
+  const { declarations } = output["libs/types/src/database/public/Dossier"];
+
+  for (const { properties } of declarations) {
+    if (!properties) continue;
+    for (const prop of properties) {
+      if (prop.name === "source") {
+        prop.typeImports = [
+          {
+            name: "DossierSource",
+            path: "libs/types/src/dossierSource.ts",
+            isAbsolute: false,
+            isDefault: false,
+            importAsType: true,
+          },
+        ];
+        prop.typeName = "DossierSource";
+      }
+    }
+  }
+
+  return output;
+}
+
 /**
  *
  * @param {string} outputKey
@@ -102,6 +126,7 @@ module.exports = {
 
   preRenderHooks: [
     setEvenementPhaseDossierPhaseType,
+    setDossierSourceType,
     dossierScientifiqueDemandeType,
     dossierScientifiqueCaptureMode,
     dossierEolienMortalityActions,

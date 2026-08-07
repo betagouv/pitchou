@@ -20,3 +20,19 @@ export class DossierManagedByDnError extends Error {
     this.fields = fields;
   }
 }
+
+/** Thrown when an operation is unsafe because the dossier provenance is unknown. */
+export class DossierUnknownSourceError extends Error {
+  constructor(dossierId: number) {
+    super(`Dossier ${dossierId} has an unknown source and is read-only`);
+    this.name = "DossierUnknownSourceError";
+  }
+}
+
+/** Thrown when an operation is reserved for dossiers explicitly created in Pitchou. */
+export class DossierNotCreatedInPitchouError extends Error {
+  constructor(dossierId: number) {
+    super(`Dossier ${dossierId} was not created in Pitchou`);
+    this.name = "DossierNotCreatedInPitchouError";
+  }
+}

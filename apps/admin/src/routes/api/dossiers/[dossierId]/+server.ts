@@ -4,7 +4,7 @@ import type { RequestHandler } from "./$types";
 import { assertSpeciesSpreadsheet } from "@pitchou/common/especesUtils.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import {
-  DossierManagedByDnError,
+  DossierNotCreatedInPitchouError,
   deleteDossierFromAdmin,
   getDossierSyncStatus,
   updateDossierFromAdmin,
@@ -133,8 +133,8 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     }
 
     await directDatabaseConnection.transaction(async (trx) => {
-      const { managedByDn } = await getDossierSyncStatus(dossierId, trx);
-      if (managedByDn) throw new DossierManagedByDnError(dossierId, ["files"]);
+      const { createdInPitchou } = await getDossierSyncStatus(dossierId, trx);
+      if (!createdInPitchou) throw new DossierNotCreatedInPitchouError(dossierId);
 
       await updateDossierFromAdminInTransaction(dossierId, update, locals.user!.email, trx);
 

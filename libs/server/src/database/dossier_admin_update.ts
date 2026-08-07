@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { updateDossier } from "./dossier.ts";
-import { DossierManagedByDnError } from "./dossier_admin_errors.ts";
+import { DossierManagedByDnError, DossierUnknownSourceError } from "./dossier_admin_errors.ts";
 import { ensurePersonneIdByEmail } from "./dossier_admin_personne.ts";
 import {
   assertEditableDossierColumns,
@@ -23,7 +23,9 @@ export async function updateDossierFromAdminInTransaction(
 ): Promise<void> {
   assertEditableDossierColumns(update.columns);
 
-  const { managedByDn } = await getDossierSyncStatus(dossierId, trx);
+  const { managedByDn, source } = await getDossierSyncStatus(dossierId, trx);
+
+  if (source === "unknown") throw new DossierUnknownSourceError(dossierId);
 
   if (managedByDn) {
     if (update.relations) {

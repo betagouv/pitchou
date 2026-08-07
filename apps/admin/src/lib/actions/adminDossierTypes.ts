@@ -1,7 +1,10 @@
+import type { DossierSource } from "@pitchou/types/dossierSource.ts";
+
 export type AdminDossierSummary = {
   id: number;
   name: string | null;
   demarche_numerique_number: string | null;
+  source: DossierSource;
   depot_date: string;
   phase: string;
   demandeur_last_name: string | null;
@@ -14,8 +17,7 @@ export type DossiersQuery = {
   search: string;
   /** "" for every phase */
   phase: string;
-  /** "" | "pitchou" | "dn" */
-  source: string;
+  source: "" | "pitchou" | "dn" | "unknown";
   page: number;
   pageSize: number;
 };
@@ -101,6 +103,7 @@ export type AdminDossierDetail = {
     demarche_number: number | null;
     depot_date: string;
   };
+  source: DossierSource;
   managedByDn: boolean;
   phase: string;
   demandeur_personne_physique: {

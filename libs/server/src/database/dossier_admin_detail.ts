@@ -2,6 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { DossierNotFoundError } from "./dossier_admin_errors.ts";
+import { isDossierSource, type DossierSource } from "@pitchou/types/dossierSource.ts";
 
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -33,6 +34,7 @@ export type AdminPieceJointe = {
 
 export type AdminDossierDetail = {
   dossier: Dossier;
+  source: DossierSource;
   managedByDn: boolean;
   phase: DossierPhase;
   demandeur_personne_physique: Pick<
@@ -117,9 +119,11 @@ export async function getDossierDetailForAdmin(
         .first()
     : null;
 
+  const source: DossierSource = isDossierSource(dossier.source) ? dossier.source : "unknown";
   return {
     dossier,
-    managedByDn: dossier.demarche_numerique_number !== null,
+    source,
+    managedByDn: source === "demarche_numerique",
     phase: evenementsPhase[0]?.phase ?? DEFAULT_PHASE,
     demandeur_personne_physique: demandeurPersonnePhysique ?? null,
     demandeur_personne_morale: demandeurPersonneMorale ?? null,

@@ -413,6 +413,7 @@ async function makeChampsDossierForInitialization(
       ...(additionalData?.dossier || {}),
       depot_date: additionalData?.dossier?.depot_date ?? dossierDS.dateDepot,
       demarche_number: demarcheNumber,
+      source: "demarche_numerique",
     },
     evenement_phase_dossier: additionalData?.evenement_phase_dossier,
     avis_expert: additionalData?.avis_expert,

@@ -121,7 +121,10 @@ export async function seed(knex: Knex) {
       const label = `dossier "${dossierData.name}" (${dossierData.demarche_numerique_number})`;
       try {
         let dossier = await transaction("dossier")
-          .where({ demarche_numerique_number: dossierData.demarche_numerique_number })
+          .where({
+            demarche_numerique_number: dossierData.demarche_numerique_number,
+            source: "demarche_numerique",
+          })
           .first();
 
         if (!dossier) {
@@ -130,6 +133,7 @@ export async function seed(knex: Knex) {
               serializeJsonColumns({
                 ...dossierData,
                 demarche_number: SEED_DEMARCHE_NUMBER,
+                source: "demarche_numerique",
                 demandeur_personne_physique: demandeur_personne_physique_email
                   ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
                   : null,

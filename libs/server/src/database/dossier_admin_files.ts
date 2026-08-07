@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
-import { DossierManagedByDnError, getDossierSyncStatus } from "./dossier_admin.ts";
+import { DossierNotCreatedInPitchouError, getDossierSyncStatus } from "./dossier_admin.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { default as File, FileId } from "@pitchou/types/database/public/File.ts";
@@ -22,8 +22,8 @@ async function requireNativeDossier(
   dossierId: DossierId,
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
-  const { managedByDn } = await getDossierSyncStatus(dossierId, databaseConnection);
-  if (managedByDn) throw new DossierManagedByDnError(dossierId);
+  const { createdInPitchou } = await getDossierSyncStatus(dossierId, databaseConnection);
+  if (!createdInPitchou) throw new DossierNotCreatedInPitchouError(dossierId);
 }
 
 /** Uploads a piece jointe and links it to the dossier (petitionnaire PJ tab). */

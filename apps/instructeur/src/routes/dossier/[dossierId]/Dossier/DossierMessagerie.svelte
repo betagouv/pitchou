@@ -27,7 +27,7 @@
 <div class="flex flex-row justify-between fr-mb-4w">
   <h2 class="fr-mb-0">Échanges avec le pétitionnaire</h2>
 
-  {#if numdos}
+  {#if dossier.source === "demarche_numerique" && numdos && demarcheNumber}
     <a
       class="fr-btn fr-mb-w"
       target="_blank"
@@ -38,9 +38,15 @@
   {/if}
 </div>
 
-{#if !numdos}
+{#if dossier.source === "pitchou"}
   <p class="fr-text-mention--grey">
     Ce dossier a été créé directement dans Pitchou : il n'a pas de messagerie Démarches Numériques.
+  </p>
+{:else if dossier.source === "unknown"}
+  <p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>
+{:else if !numdos || !demarcheNumber}
+  <p class="fr-text-mention--grey">
+    Ce dossier provient de Démarches Numériques, mais sa messagerie n'est pas disponible.
   </p>
 {/if}
 

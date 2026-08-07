@@ -16,7 +16,9 @@ import {
 } from "@pitchou/common/dossierFormOptions.ts";
 import {
   DossierManagedByDnError,
+  DossierNotCreatedInPitchouError,
   DossierNotFoundError,
+  DossierUnknownSourceError,
   type AdminDossierCreation,
   type AdminDossierUpdate,
   type AdminPhaseEvent,
@@ -504,6 +506,8 @@ export function parseDossierUpdate(body: Record<string, unknown>): AdminDossierU
 export function throwHttpErrorForAdminDossier(err: unknown): never {
   if (err instanceof DossierNotFoundError) error(404, err.message);
   if (err instanceof DossierManagedByDnError) error(409, err.message);
+  if (err instanceof DossierUnknownSourceError) error(409, err.message);
+  if (err instanceof DossierNotCreatedInPitchouError) error(409, err.message);
   if (err instanceof TypeError) error(400, err.message);
   throw err;
 }

@@ -51,7 +51,8 @@ export function getDossierIdsFromDS_Ids(
 > {
   return databaseConnection("dossier")
     .select(["id", "demarche_numerique_id", "demarche_numerique_number"])
-    .whereIn("demarche_numerique_id", DS_ids);
+    .whereIn("demarche_numerique_id", DS_ids)
+    .where("source", "demarche_numerique");
 }
 
 export async function dumpDossierMessages(
@@ -164,6 +165,7 @@ export async function dumpDossiers(
     updatePromises = dossiersForUpdate.map(({ dossier: dossierToUpdate }) => {
       return databaseConnection("dossier")
         .where("demarche_numerique_number", dossierToUpdate.demarche_numerique_number)
+        .where("source", "demarche_numerique")
         .update(dossierToUpdate)
         .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]);
     });
@@ -291,6 +293,7 @@ export async function synchronizeDossierInGroupeInstructeur(
       "demarche_numerique_number",
       dossierDS.map((d: { number: string }) => d.number),
     )
+    .where("source", "demarche_numerique")
     .then((dossiers) => {
       const dossierNumberDSToId = new Map();
       for (const { id, demarche_numerique_number } of dossiers) {
@@ -381,6 +384,7 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   "eolien_carcass_preservation_method",
   "eolien_carcass_examination_address",
   "main_activite",
+  "source",
 
   // localisation
   "departments",
@@ -882,6 +886,7 @@ const dossierSummaryColumns: (keyof DossierSummary)[] = [
   "dossier.name as name",
   "linked_to_ae_regime",
   "main_activite",
+  "source",
 
   // localisation
   "departments",
@@ -1194,7 +1199,10 @@ export function deleteDossierByDSNumber(
   numbers: number[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  return databaseConnection("dossier").whereIn("demarche_numerique_number", numbers).delete();
+  return databaseConnection("dossier")
+    .whereIn("demarche_numerique_number", numbers)
+    .where("source", "demarche_numerique")
+    .delete();
 }
 
 export async function updateDossier(
