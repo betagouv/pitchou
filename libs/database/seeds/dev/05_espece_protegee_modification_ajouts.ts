@@ -1,9 +1,7 @@
 import type { Knex } from "knex";
 
-import { AJOUTS_CHUNK_1 } from "./espece-protegee-modification-ajouts/chunk-1.ts";
-import { AJOUTS_CHUNK_2 } from "./espece-protegee-modification-ajouts/chunk-2.ts";
+import { AJOUTS } from "./data/espece-protegee-modification-ajouts.ts";
 
-const AJOUTS = [...AJOUTS_CHUNK_1, ...AJOUTS_CHUNK_2];
 const EXCLUDED = "100";
 
 export async function seed(knex: Knex) {

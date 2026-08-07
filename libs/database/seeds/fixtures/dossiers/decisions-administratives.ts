@@ -1,6 +1,6 @@
 import type { SeedDecisionAdministrative } from "./types.ts";
 
-export const SEED_DECISIONS_ADMINISTRATIVES_CHUNK_1: SeedDecisionAdministrative[] = [
+export const SEED_DECISIONS_ADMINISTRATIVES: SeedDecisionAdministrative[] = [
   // D1 – éolien Bretagne – arrêté dérogation préfectoral
   {
     id: "da000001-0000-4000-a000-000000000001",

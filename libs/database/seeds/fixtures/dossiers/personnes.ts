@@ -1,6 +1,6 @@
 import type { SeedPersonne } from "./types.ts";
 
-export const SEED_PERSONNES_CHUNK_1: SeedPersonne[] = [
+export const SEED_PERSONNES: SeedPersonne[] = [
   // Representative of L'ECHAPPEE BELLE (D10 & D11)
   {
     last_name: "Le Goff",

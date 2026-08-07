@@ -1,6 +1,6 @@
 import type { SeedEntreprise } from "./types.ts";
 
-export const SEED_ENTREPRISES_CHUNK_1: SeedEntreprise[] = [
+export const SEED_ENTREPRISES: SeedEntreprise[] = [
   // D10 & D11 — demandeur personne morale
   {
     siret: "88800620200020",

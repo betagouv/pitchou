@@ -4,7 +4,7 @@ import { SEED_DOSSIERS } from "../fixtures/dossiers.ts";
 import { seedDossierActors } from "./dossier/actors.ts";
 import { seedDecisions } from "./dossier/decisions.ts";
 import { seedDevFollowers } from "./dossier/dev-followers.ts";
-import { seedDossierRows } from "./dossier/dossiers.ts";
+import { seedDossierRows } from "./dossier/rows.ts";
 import { seedEspecesImpactees } from "./dossier/especes-impactees.ts";
 import { seedExpertAvis } from "./dossier/expert-avis.ts";
 import { seedRandomFollowers } from "./dossier/followers.ts";

@@ -1,6 +1,6 @@
 import type { SeedEspecesImpactees } from "./types.ts";
 
-export const SEED_ESPECES_IMPACTEES_CHUNK_1: SeedEspecesImpactees[] = [
+export const SEED_ESPECES_IMPACTEES: SeedEspecesImpactees[] = [
   // D10 — Aménagement de lotissement
   // Hirondelle rousseline (CNPN, oiseau) impacted twice; Grenouille des champs
   // (ministérielle, faune non-oiseau) impacted once.

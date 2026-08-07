@@ -1,6 +1,6 @@
 import type { SeedControle } from "./types.ts";
 
-export const SEED_CONTROLES_CHUNK_1: SeedControle[] = [
+export const SEED_CONTROLES: SeedControle[] = [
   // --- D1 prescriptions (a0000001–a0000004) ---
 
   {

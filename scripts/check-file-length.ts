@@ -36,6 +36,10 @@ const IGNORES = [
   "test-results",
   // Applied migrations are immutable historical artifacts, not maintainability refactor targets.
   "libs/database/migrations",
+  // Declarative bulk seed data, not executable seed logic.
+  "libs/database/seeds/dev/data/espece-taxref.ts",
+  "libs/database/seeds/dev/data/espece-protegee-modification-ajouts.ts",
+  "libs/database/seeds/fixtures/dossiers/records.ts",
 ];
 
 const args = parseArgs(process.argv.slice(2), {

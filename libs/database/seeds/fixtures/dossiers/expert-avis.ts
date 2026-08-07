@@ -1,6 +1,6 @@
 import type { SeedAvisExpert } from "./types.ts";
 
-export const SEED_AVIS_EXPERTS_CHUNK_1: SeedAvisExpert[] = [
+export const SEED_AVIS_EXPERTS: SeedAvisExpert[] = [
   // D1 – éolien Bretagne – CSRPN Bretagne favorable sous conditions
   {
     id: "ae000001-0000-4000-a000-000000000001",
