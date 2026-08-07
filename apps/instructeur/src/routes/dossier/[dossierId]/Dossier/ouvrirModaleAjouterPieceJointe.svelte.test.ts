@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, render, waitFor } from "@testing-library/svelte";
+import { format } from "date-fns";
 import { tick } from "svelte";
 
 vi.mock(import("$app/navigation"), () => ({
@@ -202,4 +203,40 @@ test("affiche des libellés experts détaillés pour la saisine et l'avis", asyn
   // The generic labels are no longer displayed as-is.
   expect(libelles).not.toContain("Saisine expert");
   expect(libelles).not.toContain("Avis expert");
+});
+
+test("sélectionne la date du jour pour chaque type de pièce jointe", async () => {
+  const { container } = render(ModalAddPieceJointe, {
+    id: "modale-test-dates",
+    dossier: dossier(),
+    typesPiecesJointes: ["Saisine expert", "Avis expert", "Décision administrative", "Autre"],
+    source: "ongletPiecesJointes",
+  });
+
+  const today = format(new Date(), "dd/MM/yyyy");
+  const selectType = async (type: string) => {
+    const input = container.querySelector<HTMLInputElement>(`input[type="radio"][value="${type}"]`);
+    if (!input) throw new Error(`type de pièce jointe ${type} introuvable`);
+    input.click();
+    await tick();
+  };
+
+  await selectType("Saisine expert");
+  expect(
+    container.querySelector<HTMLInputElement>("#modale-date-saisine-modale-test-dates")?.value,
+  ).toBe(today);
+
+  await selectType("Avis expert");
+  expect(
+    container.querySelector<HTMLInputElement>("#modale-date-avis-modale-test-dates")?.value,
+  ).toBe(today);
+
+  await selectType("Autre");
+  expect(
+    container.querySelector<HTMLInputElement>("#other-attachment-date-modale-test-dates")?.value,
+  ).toBe(today);
+
+  await selectType("Décision administrative");
+  expect(container.querySelector<HTMLInputElement>("#input-date-signature")?.value).toBe(today);
+  expect(container.querySelector<HTMLInputElement>("#input-date-fin-obligations")?.value).toBe("");
 });

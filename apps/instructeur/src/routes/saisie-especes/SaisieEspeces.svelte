@@ -263,6 +263,18 @@
     </div>
   </header>
 
+  <p class="fr-mt-1w fr-mb-2w">
+    <a
+      href="/referentiel-type-impact"
+      target="_blank"
+      rel="noopener"
+      title="Référentiel des types d'impact et de leurs critères - nouvelle fenêtre"
+      class="fr-link fr-icon-question-line fr-link--icon-left fr-text--sm"
+    >
+      Quels types d'impact existe-t-il, et quels critères peut-on renseigner pour chacun&nbsp;?
+    </a>
+  </p>
+
   <div class="fr-grid-row">
     <div class="fr-col">
       <dialog

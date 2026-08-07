@@ -1,36 +1,19 @@
-import { join } from "node:path";
-import { readFile } from "node:fs/promises";
 import { arrayBuffer } from "node:stream/consumers";
 
-import memoize from "just-memoize";
 import type { Knex } from "knex";
 
 import { byteFormat } from "@pitchou/common/typeFormat.ts";
 import { directDatabaseConnection } from "../database.ts";
 import { loadFichierContent } from "./fichier.ts";
-import {
-  buildActivitesMethodesMoyensDePoursuite,
-  importDescriptionMenacesEspecesFromOdsArrayBuffer,
-} from "@pitchou/common/especesUtils.ts";
+import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
 import { getEspecesProtegees, dbRowToEspeceProtegee } from "@pitchou/server/especeProtegee.ts";
+import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "@pitchou/server/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 import type { GeoMceMessage, DossierForGeoMCE } from "@pitchou/types/geomce.ts";
-import type { PitchouState } from "@pitchou/types/pitchouState.ts";
 import type { EspeceProtegee, DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
-
-const DATA_DIR = join(import.meta.dirname, "../../../../data");
-
-const loadActivitesMethodesMoyensDePoursuite: () => Promise<
-  NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
-> = memoize(async function loadActivitesMethodesMoyensDePoursuite() {
-  const activitesBuffer = await readFile(
-    join(DATA_DIR, "activites-methodes-moyens-de-poursuite.ods"),
-  );
-  return await buildActivitesMethodesMoyensDePoursuite(activitesBuffer);
-});
 
 type EspeceByCD_REF = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
 
@@ -116,7 +99,7 @@ async function getDossiersByIds(
     dossiers,
   ] = await Promise.all([
     loadEspeceListByCD_REF(databaseConnection),
-    loadActivitesMethodesMoyensDePoursuite(),
+    getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
     instructeursByDossierIdP,
     dossiersP,
   ]);

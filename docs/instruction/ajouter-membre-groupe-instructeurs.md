@@ -1,5 +1,6 @@
-**Ajouter un·e instructeur ou instructrice à mon groupe  
-**_Vous pouvez aussi vous référer à la documentation_ [_démarche.numérique_](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-instructeur#c.-la-gestion-de-la-liste-des-instructeurs)
+# Ajouter un·e instructeur ou instructrice à mon groupe
+
+_Vous pouvez aussi vous référer à la documentation_ [_démarche.numérique_](https://doc.demarches-simplifiees.fr/tutoriels/tutoriel-instructeur#c.-la-gestion-de-la-liste-des-instructeurs)
 
 **1/ Se connecter en tant qu'instructeur sur la démarche** [**n°88444**](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
 

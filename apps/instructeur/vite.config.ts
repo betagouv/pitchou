@@ -25,6 +25,8 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["lunr", "lunr-languages/lunr.stemmer.support", "lunr-languages/lunr.fr", "remember"],
+    // MapLibre v6's worker entry is lost when Vite pre-bundles the package.
+    exclude: ["maplibre-gl"],
   },
   ssr: {
     external: ["knex", "pg", "@aws-sdk/client-s3"],

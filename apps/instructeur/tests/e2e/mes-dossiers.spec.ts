@@ -317,10 +317,7 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   await expect(cards).toContainText("Parc photovoltaïque à Anglet");
 });
 
-test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux »", async ({
-  page,
-  db,
-}) => {
+test("le filtre « Dossiers où je dois agir » remplace « à enjeux »", async ({ page, db }) => {
   const { id: personneId, groupeId } = await createInstructeurWithCapToGroup(db, {
     email: "jane@doe.fr",
     codeAcces: CODE,
@@ -345,7 +342,7 @@ test("le filtre « Moi en charge de la prochaine action » remplace « à enjeux
 
   // « à enjeux » is hidden on this page, replaced by the prochaine-action quick filter.
   await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
-  const button = page.getByRole("button", { name: "Moi en charge de la prochaine action" });
+  const button = page.getByRole("button", { name: "Dossiers où je dois agir", exact: true });
   await expect(button).toBeVisible();
 
   await button.click();

@@ -1,4 +1,4 @@
-# Document-types
+# Modèles de documents
 
 ## Table des matières
 
@@ -11,9 +11,9 @@
 
 ---
 
-Les [document-types](../index.md) sont des "modèles" vous permettant ensuite de **générer en un clic des documents remplis avec les données d'un dossier.**
+Les [modèles de documents](../index.md) vous permettent de **générer en un clic des documents remplis avec les données d'un dossier.**
 
-Les document-types sont :
+Les modèles de documents sont :
 
 - des **fichiers .odt** (comme vous avez l'habitude d'en lire et écrire avec LibreOffice (ou Microsoft Word))
 - dans lesquels le contenu est composé de **balises qui seront remplacées par les données du dossier**
@@ -119,7 +119,7 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{département_principal}</code></th>
                             <td> texte</td>
-                            <td> Code du département principale du dossier (<code>33</code>, <code>2B</code>, etc.)</td>
+                            <td> Code du département principal du dossier (<code>33</code>, <code>2B</code>, etc.). Voir <code>{nom_département_principal}</code> pour le nom en toutes lettres.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{description}</code></th>
@@ -164,12 +164,17 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{liste_espèces_par_impact}</code></th>
                             <td> liste</td>
-                            <td> Liste les impacts et les espèces concernées par cet impact. Chaque élément de la liste contient les propriétés : <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
+                            <td> Liste les types d'impact saisis sur le dossier et les espèces concernées par chacun. Chaque élément de la liste contient les propriétés : <code>{impact}</code>, <code>{liste_noms_impacts_quantifiés}</code> et <code>{liste_espèces}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_départements}</code></th>
                             <td> liste de textes</td>
-                            <td> Code des codes de départements dossier</code>.</td>
+                            <td> Codes des départements du dossier (<code>33</code>, <code>2B</code>, etc.). Voir <code>{liste_noms_départements}</code> pour les noms en toutes lettres.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{liste_noms_départements}</code></th>
+                            <td> liste de textes</td>
+                            <td> Noms des départements du dossier (<code>Gironde</code>, <code>Haute-Corse</code>, etc.), dans le même ordre que <code>{liste_départements}</code>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{localisation}</code></th>
@@ -215,6 +220,11 @@ Les balises ont des types qui peuvent être :
                             <th scope="row"> <code>{nom}</code></th>
                             <td> texte</td>
                             <td> Nom du dossier</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{nom_département_principal}</code></th>
+                            <td> texte</td>
+                            <td> Nom du département principal du dossier (<code>Gironde</code>, <code>Haute-Corse</code>, etc.)</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{régime_autorisation_environnementale}</code></th>
@@ -309,7 +319,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>{impact}</code></th>
                             <td> texte</td>
-                            <td> Type d'impact (ex : destruction, capture, cueillette…)</td>
+                            <td> Libellé du type d'impact choisi lors de la saisie des espèces (ex : <em>Destruction/mutilation de spécimens</em>, <em>Capture/relâcher immédiat</em>). Vaut <em>Type d'impact non-renseignée</em> pour les espèces saisies sans type d'impact. La liste complète est consultable dans le <a href="../referentiel-type-impact">référentiel des types d'impact</a>.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{liste_espèces}</code></th>
@@ -319,7 +329,7 @@ Pour la liste {liste_espèces_par_impact}, chaque élément de la liste contient
                         <tr>
                             <th scope="row"> <code>{liste_noms_impacts_quantifiés}</code></th>
                             <td> liste</td>
-                            <td> Liste des noms des impacts quantifiés (Surface, Nombre d'individus...)</td>
+                            <td> Noms des critères chiffrés que ce type d'impact permet de renseigner, parmi <em>Nombre d'individus</em>, <em>Nids</em>, <em>Œufs</em> et <em>Surface habitat détruit (m²)</em>. Cette liste n'est pas la même d'un type d'impact à l'autre : elle vient du <a href="../referentiel-type-impact">référentiel des types d'impact</a>. Un type d'impact peut n'en avoir aucun, auquel cas la liste est vide.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -349,7 +359,7 @@ Pour la liste {liste_espèces}, chaque élément de la liste contient :
                         <tr>
                             <th scope="row"> <code>{liste_impacts_quantifiés}</code></th>
                             <td> liste</td>
-                            <td> Liste des impacts quantifiés (Surface, nombre d'individus...). Cette liste est alignée avec <code>{liste_noms_impacts_quantifiés}</code>.</td>
+                            <td> Valeurs saisies pour cette espèce (<code>11-100</code>, <code>250m²</code>…), dans le même ordre que <code>{liste_noms_impacts_quantifiés}</code> : le n-ième élément de cette liste correspond au n-ième nom de l'autre. Vaut <code>(non renseigné)</code> quand le critère n'a pas été rempli.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{nomScientifique}</code></th>
@@ -446,9 +456,9 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
     </div>
 </div>
 
-### Exemples d'utilisation des fonctions dans un document-type
+### Exemples d'utilisation des fonctions dans un modèle de document
 
-Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre document-type :
+Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre modèle de document :
 
 <div class="fr-table">
     <div class="fr-table__wrapper">
@@ -458,7 +468,7 @@ Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) o
                     <caption>Exemples d'affichage de dates</caption>
                     <thead>
                         <tr> 
-                            <th scope="col"> Dans le document-type</th>
+                            <th scope="col"> Dans le modèle de document</th>
                             <th scope="col"> Dans le document généré</th>
                         </tr>
                     </thead>
@@ -488,9 +498,9 @@ Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) o
 
 Imaginons que la DREAL Île-de-France reçoive un dossier nommé "Éoliennes sur le toit de la Tour Séquoïa" porté par la Région Île-de-France à La Défense. On souhaite générer un accusé de réception du dossier.
 
-#### Document-type pour accusé de réception
+#### Modèle de document pour accusé de réception
 
-Le document-type ressemblerait à :
+Le modèle de document ressemblerait à :
 
 ```
 Bonjour { demandeur },
@@ -504,7 +514,7 @@ Nous vous souhaitons une belle journée,
 La DREAL Île-de-France
 ```
 
-#### Accusé de réception issu du document-type
+#### Accusé de réception issu du modèle de document
 
 ```
 Bonjour Région Île-de-France,
@@ -608,7 +618,7 @@ Contenu qui est répété pour chaque {ÉLÉMENT}
 
 Imaginons une liste <code>liste_espèces</code> qui contient 4 éléments ("bruant des roseaux", "fauvette pitchou," "aigle botté" et "coucou geai")
 
-et un document-type qui contient:
+et un modèle de document qui contient:
 
 ```
 Voici les oiseaux les plus importants au monde :
@@ -629,6 +639,34 @@ Voici les oiseaux les plus importants au monde :
 🐦 oiseau impacté : coucou geai
 ```
 
+### Afficher les départements
+
+Les départements du dossier sont disponibles sous deux formes : les codes (<code>{département_principal}</code> et <code>{liste_départements}</code>) et les noms en toutes lettres (<code>{nom_département_principal}</code> et <code>{liste_noms_départements}</code>). Vous pouvez utiliser l'une, l'autre, ou les deux ensemble.
+
+Imaginons un dossier situé dans les départements <code>33</code>, <code>40</code> et <code>64</code>, et un modèle de document qui contient :
+
+```
+Le projet se situe principalement dans le département suivant : { nom_département_principal } ({ département_principal }).
+
+Il concerne au total les départements suivants :
+
+{#each liste_noms_départements as département}
+- {département}
+{/each}
+```
+
+Le document généré ressemblera à :
+
+```
+Le projet se situe principalement dans le département suivant : Gironde (33).
+
+Il concerne au total les départements suivants :
+
+- Gironde
+- Landes
+- Pyrénées-Atlantiques
+```
+
 ## Points de vigilance
 
 **ℹ️ Point d'attention :**
@@ -643,4 +681,4 @@ Le mécanisme ne fonctionnera pas non plus si une balise est insérée dans le m
 ❌ { deman deur } # espace au milieu du nom
 ```
 
-**💡 Conseil :** Ne pas écrire les zones à remplir à la main, mais plutôt les copier-coller d'un autre document-type qui fonctionne
+**💡 Conseil :** Ne pas écrire les zones à remplir à la main, mais plutôt les copier-coller d'un autre modèle de document qui fonctionne

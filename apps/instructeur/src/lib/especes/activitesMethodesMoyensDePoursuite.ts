@@ -1,14 +1,11 @@
-import { buffer } from "d3-fetch";
 import { store } from "$lib/state/store.svelte.ts";
-import { ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA } from "$lib/shared/dataPaths.ts";
-import {
-  dbRowToEspeceProtegee,
-  buildActivitesMethodesMoyensDePoursuite,
-} from "@pitchou/common/especesUtils.ts";
+import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
+import { referentielRowsToBundle } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
+import type { ReferentielRows } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
 export async function loadEspecesProtegeesList(): Promise<{
   espècesProtégéesParClassification: NonNullable<PitchouState["espècesProtégéesParClassification"]>;
@@ -62,18 +59,17 @@ export async function loadEspecesProtegeesList(): Promise<{
 }
 
 /**
- * Loads and organizes data about activities, methods and transports from the external CSV files.
+ * Loads the referential of types d'impact, méthodes and moyens de poursuite from the database.
  *
  * Returns:
- * - activités: Map indexed by espèce classification (oiseau, faune non-oiseau, flore) containing the threatening activities indexed by their code
+ * - activités: Map indexed by espèce classification (oiseau, faune non-oiseau, flore) containing the threatening activities indexed by their identifiant Pitchou
  * - méthodes: Map indexed by espèce classification containing the threatening methods indexed by their code
- * - transports: Map indexed by espèce classification containing the threatening transports indexed by their code
+ * - moyensDePoursuite: Map indexed by espèce classification containing the threatening means of pursuit indexed by their code
  *
  * @remarks
- * - The function uses a cache in the store to avoid unnecessary reloads
- * - The data is automatically frozen (Object.freeze) to prevent modifications
- * - This function also updates the store with the activities indexed by code
- * - Empty rows in the CSV files are automatically ignored
+ * - The function uses a cache in the store to avoid unnecessary reloads. Keep it: the objects it
+ *   hands out are what the `<select>`s bind to, and the impacted-espèce importer resolves impacts
+ *   to those same instances.
  *
  * @see {@link https://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd}
  * Reference of the XML schema of the Habides 2.0 directive, defining the activity types.
@@ -85,11 +81,42 @@ export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
     return Promise.resolve(store.ActivitésMéthodesMoyensDePoursuite);
   }
 
-  const odsData = await buffer(ACTIVITES_METHODES_MOYENS_DE_POURSUITE_DATA);
-  // @ts-ignore
-  const ret = await buildActivitesMethodesMoyensDePoursuite(odsData);
+  const ret = referentielRowsToBundle(await loadReferentielRows());
 
   store.ActivitésMéthodesMoyensDePoursuite = ret;
 
   return ret;
+}
+
+// Cached as a promise so concurrent callers share one request. Not in the store: the rows are
+// immutable reference data, and what the rest of the app reads is the bundle above.
+let referentielRowsP: Promise<ReferentielRows> | undefined;
+
+/**
+ * The referential rows as the API serves them, before they are indexed into the bundle.
+ *
+ * The référentiel page reads them rather than the bundle because two columns do not survive the
+ * conversion: the Onagre correspondence list, and the European code of a méthode or d'un moyen de
+ * poursuite. Everything the saisie form needs is in the bundle; everything the specification says
+ * is in the rows.
+ */
+export function loadReferentielRows(): Promise<ReferentielRows> {
+  if (!referentielRowsP) {
+    referentielRowsP = fetch("/api/referentiel-type-impact-methode-moyen-de-poursuite")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Échec du chargement du référentiel des types d'impact (${response.status})`,
+          );
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        // Don't keep a rejected promise cached
+        referentielRowsP = undefined;
+        throw error;
+      });
+  }
+
+  return referentielRowsP;
 }

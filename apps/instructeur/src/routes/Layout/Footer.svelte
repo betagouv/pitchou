@@ -71,6 +71,11 @@
           <a class="fr-footer__top-link" href="/especes-protegees">Liste des espèces protégées</a>
         </li>
         <li>
+          <a class="fr-footer__top-link" href="/referentiel-type-impact"
+            >Référentiel des types d’impact</a
+          >
+        </li>
+        <li>
           <a class="fr-footer__top-link" href="/taxref">TAXREF</a>
         </li>
         <li>

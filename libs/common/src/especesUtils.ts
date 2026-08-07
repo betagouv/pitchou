@@ -15,7 +15,6 @@ import type {
   ActiviteMenancante,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
-  QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type {
@@ -24,7 +23,6 @@ import type {
   FloreAtteinteOds_V1,
   OiseauAtteintOds_V1,
 } from "@pitchou/types/especesFichierOds.d.ts";
-import type { PitchouState } from "@pitchou/types/pitchouState.ts";
 
 const classificationEtreVivants: Set<"oiseau" | "faune non-oiseau" | "flore"> = new Set([
   "oiseau",
@@ -675,72 +673,13 @@ async function importDescriptionMenacesEspecesFromOdsArrayBuffer_version_1(
   return descriptionMenacesEspeces;
 }
 
-export async function buildActivitesMethodesMoyensDePoursuite(
-  odsData: Buffer,
-): Promise<NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>> {
-  const rawActivitesMethodesMoyensDePoursuite =
-    await getODSTableRawContent(odsData).then(tableRawContentToObjects);
-
-  // The rows are reassigned into new objects so that they have the `Object.prototype.toString` method
-  // used by Svelte
-
-  const rawActivites: ByClassification<ActiviteMenancante[]> = {
-    oiseau: rawActivitesMethodesMoyensDePoursuite
-      .get("Activités oiseau")!
-      .map((row) => Object.assign({}, row)),
-    "faune non-oiseau": rawActivitesMethodesMoyensDePoursuite
-      .get("Activités faune non oiseau")!
-      .map((row) => Object.assign({}, row)),
-    flore: rawActivitesMethodesMoyensDePoursuite
-      .get("Activités flore")!
-      .map((row) => Object.assign({}, row)),
-  };
-
-  const rawMethodes: MethodeMenancante[] = rawActivitesMethodesMoyensDePoursuite
-    .get("Méthodes")!
-    .map((row) => Object.assign({}, row));
-  const moyensPoursuite: MoyenDePoursuiteMenacant[] = rawActivitesMethodesMoyensDePoursuite
-    .get("Moyens de poursuite")!
-    .map((row) => Object.assign({}, row));
-
-  const ActivitesMethodesMoyensDePoursuite = actMetTransArraysToMapBundle(
-    rawActivites,
-    rawMethodes,
-    moyensPoursuite,
-  );
-
-  const identifiantPitchouVersActiviteEtImpactsQuantifies = new Map(
-    Object.values(ActivitesMethodesMoyensDePoursuite.activités).flatMap((activites) => {
-      return [...activites.entries()].map(([code, activite]) => {
-        const impactsQuantifies: QuantifiedImpact[] = [
-          "Nombre d'individus",
-          "Nids",
-          "Œufs",
-          "Surface habitat détruit (m²)",
-        ];
-
-        const filteredImpactsQuantifies = impactsQuantifies.filter((secondaryData) => {
-          return activite[secondaryData] === "Oui";
-        });
-
-        const ret: [
-          ActiviteMenancante["Identifiant Pitchou"],
-          ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] },
-        ] = [code, { ...activite, impactsQuantifiés: filteredImpactsQuantifies }];
-        return ret;
-      });
-    }),
-  );
-
-  const ret = {
-    identifiantPitchouVersActivitéEtImpactsQuantifiés:
-      identifiantPitchouVersActiviteEtImpactsQuantifies,
-    ...ActivitesMethodesMoyensDePoursuite,
-  };
-
-  return ret;
-}
-
+/**
+ * Indexes the referential by classification, then by identifiant Pitchou or code.
+ *
+ * Only two callers left, and they hand it clean rows: `referentielRowsToBundle`, which reads the
+ * referential tables, and the historical `20241129155523` migration, which reads the CSVs that
+ * preceded them. The empty-row and `.toString()` handling below is there for the latter.
+ */
 export function actMetTransArraysToMapBundle(
   rawActivites: ByClassification<ActiviteMenancante[]>,
   rawMethodes: MethodeMenancante[],

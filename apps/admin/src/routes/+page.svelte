@@ -2,6 +2,12 @@
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
+
+  function triggerSentryTestError() {
+    if (!window.confirm("Déclencher une erreur de test dans Sentry ?")) return;
+
+    throw new Error("Sentry test error triggered from the administration dashboard");
+  }
 </script>
 
 <h1 class="fr-mb-1w">Tableau de bord</h1>
@@ -42,3 +48,11 @@
     <code>.env</code>.
   </p>
 {/if}
+
+<section class="fr-mt-6w">
+  <h2>Outils techniques</h2>
+  <p>Déclenche une erreur dans le navigateur pour vérifier son signalement dans Sentry.</p>
+  <button class="fr-btn fr-btn--secondary" type="button" onclick={triggerSentryTestError}>
+    Tester Sentry
+  </button>
+</section>

@@ -66,7 +66,9 @@ export type BalisesGenerationDocument = {
   date_dépôt: Date;
 
   département_principal: string | undefined;
+  nom_département_principal: string | undefined;
   liste_départements: string[] | undefined;
+  liste_noms_départements: string[] | undefined;
 
   régime_autorisation_environnementale_renseigné: boolean;
   régime_autorisation_environnementale: boolean | "Non renseigné";

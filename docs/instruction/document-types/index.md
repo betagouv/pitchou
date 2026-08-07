@@ -1,8 +1,8 @@
-# Document-types
+# Modèles de documents
 
 Pitchou permet de **générer des documents** à partir :
 
-- d'un document-type
+- d'un modèle de document
 - et des données d'un dossier DDEP.
 
 L'outil de génération de documents est volontairement très flexible pour permettre de générer en un clic des documents variés comme :
@@ -17,11 +17,11 @@ Cette flexibilité permet de prendre en compte les pratiques diverses des diffé
 
 1. Dans Pitchou, se rendre dans le dossier concerné
 2. Aller dans l'onglet **Génération de documents**
-3. **Ajoutez un document-type**.
+3. **Ajoutez un modèle de document**.
 4. Cliquez sur le bouton **Générer le document !**
 
-## Les document-types
+## Les modèles de documents
 
-Une page détaille [comment créer vos document-types](./creation.md)
+Une page détaille [comment créer vos modèles de documents](./creation.md)
 
 Vous pouvez trouver [ici quelques modèles à utiliser ou pour vous inspirer.](./modeles.md)

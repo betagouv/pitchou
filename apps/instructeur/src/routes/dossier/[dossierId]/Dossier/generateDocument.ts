@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
+import { departementName } from "@pitchou/common/departements.ts";
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
 import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
 
@@ -20,7 +21,7 @@ import type { EspecesByActivite } from "$lib/especes/createEspecesGroupedByImpac
  */
 export function getDocumentGenerationTags(
   dossier: DossierFull,
-  especesImpactees: DescriptionMenacesEspeces,
+  especesImpactees: DescriptionMenacesEspeces | undefined,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
     ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
@@ -63,11 +64,19 @@ export function getDocumentGenerationTags(
     scientifique_other_intervenants_details: scientifiqueOtherIntervenantsDetails,
   } = dossier;
 
+  // json column, so it may not be an array at runtime
+  const departmentCodes: string[] | undefined = Array.isArray(departments)
+    ? departments
+    : undefined;
+  const mainDepartmentCode: string | undefined = primaryDepartment ?? departmentCodes?.[0];
+
   // Transform the impacted especes if they exist
-  const groupedEspecesByImpact: EspecesByActivite[] | undefined = createEspecesGroupedByImpact(
-    especesImpactees,
-    identifiantPitchouVersActiviteEtImpactsQuantifies,
-  );
+  const groupedEspecesByImpact: EspecesByActivite[] | undefined = especesImpactees
+    ? createEspecesGroupedByImpact(
+        especesImpactees,
+        identifiantPitchouVersActiviteEtImpactsQuantifies,
+      )
+    : undefined;
 
   const hirondelleTags: BalisesGenerationDocument["hirondelles"] =
     type === "Hirondelle"
@@ -92,9 +101,10 @@ export function getDocumentGenerationTags(
     date_fin_consultation_public: publicConsultationEndDate,
     description,
     date_dépôt: depotDate,
-    département_principal:
-      primaryDepartment ?? (Array.isArray(departments) ? departments[0] : undefined),
-    liste_départements: departments || undefined,
+    département_principal: mainDepartmentCode,
+    nom_département_principal: mainDepartmentCode && departementName(mainDepartmentCode),
+    liste_départements: departmentCodes,
+    liste_noms_départements: departmentCodes?.map(departementName),
     enjeu,
     justification_absence_autre_solution_satisfaisante: noOtherSatisfactorySolutionJustification,
     mesures_erc_prévues: ercMesuresPlanned === null ? "Non renseigné" : ercMesuresPlanned,
