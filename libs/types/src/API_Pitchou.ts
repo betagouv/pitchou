@@ -91,6 +91,8 @@ type DossierLocalisation = {
   communes: DossierDemarcheSimplifiee88444Communes[] | null | undefined;
   departments: string[] | null | undefined;
   regions: string[] | null | undefined;
+  location_scope?: Dossier["location_scope"];
+  primary_department?: Dossier["primary_department"];
 };
 
 type DossierActivitePrincipale = {

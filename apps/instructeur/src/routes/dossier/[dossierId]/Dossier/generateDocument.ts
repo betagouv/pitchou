@@ -34,6 +34,7 @@ export function getDocumentGenerationTags(
     description,
     depot_date: depotDate,
     departments,
+    primary_department: primaryDepartment,
     enjeu,
     no_other_satisfactory_solution_justification: noOtherSatisfactorySolutionJustification,
     mesures_erc_planned: ercMesuresPlanned,
@@ -91,7 +92,8 @@ export function getDocumentGenerationTags(
     date_fin_consultation_public: publicConsultationEndDate,
     description,
     date_dépôt: depotDate,
-    département_principal: Array.isArray(departments) ? departments[0] : undefined,
+    département_principal:
+      primaryDepartment ?? (Array.isArray(departments) ? departments[0] : undefined),
     liste_départements: departments || undefined,
     enjeu,
     justification_absence_autre_solution_satisfaisante: noOtherSatisfactorySolutionJustification,

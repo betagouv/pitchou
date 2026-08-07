@@ -20,7 +20,7 @@ import {
   addPieceJointeFromAdmin,
   deletePieceJointeFromAdmin,
 } from "@pitchou/server/database/dossier_admin_files.ts";
-import { getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull, getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
@@ -47,6 +47,11 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
         urgent_contact_phone: "0612345678",
         request_context: "Vous souhaitez bénéficier d'un accompagnement amont",
         accompaniment_need: "Cadrer le contenu attendu du dossier",
+        location_scope: "france",
+        primary_department: "69",
+        departments: [],
+        communes: [],
+        regions: [],
       },
     },
     ADMIN_EMAIL,
@@ -70,6 +75,14 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   // The instructeurs of the groupe see the dossier through their cap.
   const summaries = await getDossiersSummariesByCap(instructeur.cap as CapDossierCap, db);
   expect(summaries.map((summary) => summary.id)).toContain(id);
+  expect(summaries.find((summary) => summary.id === id)).toMatchObject({
+    location_scope: "france",
+    primary_department: "69",
+  });
+  expect(await getDossierFull(id, instructeur.cap as CapDossierCap, db)).toMatchObject({
+    location_scope: "france",
+    primary_department: "69",
+  });
 
   // The "pitchou" source filter finds it, the "dn" filter does not.
   const pitchouOnly = await listDossiersForAdmin({ page: 1, pageSize: 200, source: "pitchou" }, db);

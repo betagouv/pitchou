@@ -386,6 +386,7 @@ const dossierFullColumns: (keyof DossierFull)[] = [
   "departments",
   "communes",
   "regions",
+  "location_scope",
   "primary_department",
   "projet_map",
 
@@ -886,6 +887,8 @@ const dossierSummaryColumns: (keyof DossierSummary)[] = [
   "departments",
   "communes",
   "regions",
+  "location_scope",
+  "primary_department",
 
   // next expected action
   "next_action_expected_from",
