@@ -11,8 +11,12 @@ import {
 import { attachPersonneSuitDossier, createNotification } from "../factories/notification.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
-async function createGroupeMember(groupeId: string, email: string) {
-  const personne = await createPersonne(db, { email });
+async function createGroupeMember(
+  groupeId: string,
+  email: string,
+  identity: { first_names?: string; last_name?: string } = {},
+) {
+  const personne = await createPersonne(db, { email, ...identity });
   const { cap } = await createCapDossier(db, personne.codeAcces);
   await attachCapToGroupe(db, cap, groupeId);
   return { ...personne, cap };
@@ -33,16 +37,24 @@ function updateFollowers(cap: string, dossierId: number, personneEmails: string[
 test("GET lists every member of the dossier groupe and their follow state", async () => {
   const assigner = await createInstructeurWithDossier(db, { email: "assigner@test.fr" });
   const existingFollower = await createGroupeMember(assigner.groupeId, "existing@test.fr");
-  await createGroupeMember(assigner.groupeId, "available@test.fr");
+  await createGroupeMember(assigner.groupeId, "available@test.fr", {
+    first_names: "Camille",
+    last_name: "Martin",
+  });
   await attachPersonneSuitDossier(db, existingFollower.id, assigner.dossier.id);
 
   const response = await listCandidates(assigner.cap, assigner.dossier.id);
 
   expect(response.status).toBe(200);
   await expect(response.json()).resolves.toEqual([
-    { email: "assigner@test.fr", followsDossier: false },
-    { email: "available@test.fr", followsDossier: false },
-    { email: "existing@test.fr", followsDossier: true },
+    { email: "assigner@test.fr", firstNames: null, lastName: null, followsDossier: false },
+    {
+      email: "available@test.fr",
+      firstNames: "Camille",
+      lastName: "Martin",
+      followsDossier: false,
+    },
+    { email: "existing@test.fr", firstNames: null, lastName: null, followsDossier: true },
   ]);
 });
 

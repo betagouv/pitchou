@@ -5,6 +5,7 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
   import { queueDossierFollowUpdate } from "$lib/dossier/suiviDossier.ts";
+  import DossierFollowerCombobox from "./DossierFollowerCombobox.svelte";
   import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
@@ -58,7 +59,7 @@
     }
   }
 
-  function addFollower(email: string) {
+  function addFollower({ email }: DossierFollowerCandidate) {
     const next = new Set(selectedEmails);
     next.add(email);
     selectedEmails = next;
@@ -130,7 +131,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <dialog
   bind:this={dialogElement}
-  class="w-[min(42rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
+  class="w-[min(48rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
   style="margin: auto;"
   aria-labelledby={titleId}
   onclose={onClose}
@@ -163,7 +164,7 @@
     </header>
 
     <div class="flex min-h-0 flex-1 flex-col overflow-hidden fr-p-3w">
-      <p class="flex-none">
+      <p id={`assign-dossier-followers-help-${dossierId}`} class="flex-none fr-mb-2w">
         Ajoutez ou retirez les membres du groupe instructeur qui doivent suivre ce dossier.
       </p>
 
@@ -172,10 +173,28 @@
       {:else if candidates.length === 0 && !errorMessage}
         <p>Aucun membre n’est disponible dans ce groupe instructeur.</p>
       {:else}
-        <div class="flex min-h-0 flex-1 flex-col gap-6">
-          <section class="flex-none" aria-labelledby={`current-followers-title-${dossierId}`}>
-            <h3 id={`current-followers-title-${dossierId}`} class="fr-h5 fr-mb-1w">
-              Personnes qui suivent le dossier ({followers.length})
+        <div class="flex min-h-0 flex-1 flex-col gap-4">
+          <DossierFollowerCombobox
+            id={`dossier-follower-candidate-${dossierId}`}
+            candidates={availableCandidates}
+            disabled={saving || availableCandidates.length === 0}
+            describedBy={`assign-dossier-followers-help-${dossierId}`}
+            onSelect={addFollower}
+          />
+
+          <section
+            class="flex min-h-0 flex-1 flex-col"
+            aria-labelledby={`current-followers-title-${dossierId}`}
+          >
+            <h3
+              id={`current-followers-title-${dossierId}`}
+              class="fr-h5 flex flex-none items-center gap-2 fr-mb-1w"
+            >
+              <span
+                class="fr-icon-user-fill fr-icon--sm text-[color:var(--text-action-high-blue-france)]"
+                aria-hidden="true"
+              ></span>
+              Instructeur·ice(s) suivant le dossier
             </h3>
             {#if followers.length === 0}
               <p class="fr-text--sm fr-mb-0 text-[color:var(--text-mention-grey)]">
@@ -183,7 +202,7 @@
               </p>
             {:else}
               <ul
-                class="list-none border border-[color:var(--border-default-grey)] fr-m-0 fr-p-0"
+                class="min-h-0 list-none overflow-y-auto border border-[color:var(--border-default-grey)] fr-m-0 fr-p-0"
                 aria-live="polite"
               >
                 {#each followers as follower (follower.email)}
@@ -193,46 +212,11 @@
                     <span class="min-w-0 [overflow-wrap:anywhere]">{follower.email}</span>
                     <button
                       type="button"
-                      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-down-line flex-none"
+                      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line flex-none"
                       aria-label={`Retirer ${follower.email} des personnes qui suivent le dossier`}
                       title={`Retirer ${follower.email}`}
                       disabled={saving}
                       onclick={() => removeFollower(follower.email)}
-                    ></button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-          </section>
-
-          <section
-            class="flex min-h-0 flex-1 flex-col"
-            aria-labelledby={`available-candidates-title-${dossierId}`}
-          >
-            <h3 id={`available-candidates-title-${dossierId}`} class="fr-h5 flex-none fr-mb-1w">
-              Personnes pouvant suivre le dossier ({availableCandidates.length})
-            </h3>
-            {#if availableCandidates.length === 0}
-              <p class="fr-text--sm fr-mb-0 text-[color:var(--text-mention-grey)]">
-                Toutes les personnes du groupe instructeur suivent déjà ce dossier.
-              </p>
-            {:else}
-              <ul
-                class="min-h-0 flex-1 list-none overflow-y-auto border border-[color:var(--border-default-grey)] fr-m-0 fr-p-0"
-                aria-live="polite"
-              >
-                {#each availableCandidates as candidate (candidate.email)}
-                  <li
-                    class="flex items-center justify-between gap-4 border-b border-[color:var(--border-default-grey)] fr-py-1w fr-px-2w last:border-b-0"
-                  >
-                    <span class="min-w-0 [overflow-wrap:anywhere]">{candidate.email}</span>
-                    <button
-                      type="button"
-                      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-up-line flex-none"
-                      aria-label={`Ajouter ${candidate.email} aux personnes qui suivent le dossier`}
-                      title={`Ajouter ${candidate.email}`}
-                      disabled={saving}
-                      onclick={() => addFollower(candidate.email)}
                     ></button>
                   </li>
                 {/each}

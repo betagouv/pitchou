@@ -17,6 +17,8 @@ import type { EvenementMetrique } from "./evenement.ts";
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
+  firstNames: Personne["first_names"];
+  lastName: Personne["last_name"];
   followsDossier: boolean;
 };
 

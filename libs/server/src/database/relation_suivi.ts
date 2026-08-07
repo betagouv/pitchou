@@ -10,6 +10,8 @@ import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
 type GroupeMember = {
   id: Personne["id"];
   email: NonNullable<Personne["email"]>;
+  firstNames: Personne["first_names"];
+  lastName: Personne["last_name"];
 };
 
 async function getAccessibleDossierGroupeMembers(
@@ -56,7 +58,12 @@ async function getAccessibleDossierGroupeMembers(
   }
 
   return databaseConnection("edge_cap_dossier__groupe_instructeurs")
-    .distinct(["personne.id", "personne.email"])
+    .distinct([
+      "personne.id",
+      "personne.email",
+      "personne.first_names as firstNames",
+      "personne.last_name as lastName",
+    ])
     .join("cap_dossier", {
       "cap_dossier.cap": "edge_cap_dossier__groupe_instructeurs.cap_dossier",
     })
@@ -88,8 +95,10 @@ export async function listDossierFollowerCandidatesFromCap(
       .then((rows) => rows.map(({ personne }) => personne)),
   );
 
-  return members.map(({ id, email }) => ({
+  return members.map(({ id, email, firstNames, lastName }) => ({
     email,
+    firstNames,
+    lastName,
     followsDossier: followedPersonneIds.has(id),
   }));
 }

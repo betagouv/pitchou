@@ -9,8 +9,14 @@ import {
 } from "../factories/index.ts";
 import { attachPersonneSuitDossier } from "../factories/notification.ts";
 
-async function createGroupeMember(db: Knex, groupeId: string, email: string, codeAcces: string) {
-  const personne = await createPersonne(db, { email, access_code: codeAcces });
+async function createGroupeMember(
+  db: Knex,
+  groupeId: string,
+  email: string,
+  codeAcces: string,
+  identity: { first_names?: string; last_name?: string } = {},
+) {
+  const personne = await createPersonne(db, { email, access_code: codeAcces, ...identity });
   const { cap } = await createCapDossier(db, personne.codeAcces);
   await attachCapToGroupe(db, cap, groupeId);
   return personne;
@@ -34,6 +40,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     assigner.groupeId,
     "member-one@test.fr",
     "member-one-code",
+    { first_names: "Camille", last_name: "Martin" },
   );
   const memberTwo = await createGroupeMember(
     db,
@@ -58,11 +65,17 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   const dialog = page.getByRole("dialog", { name: "Faire suivre le dossier" });
   await expect(dialog).toBeVisible();
   await expect(
-    dialog.getByRole("heading", { name: /Personnes qui suivent le dossier/ }),
+    dialog.getByRole("heading", { name: "Instructeur·ice(s) suivant le dossier" }),
   ).toBeVisible();
+  const followerSelector = dialog.getByLabel("Ajouter une personne au suivi du dossier");
+  await expect(followerSelector).toBeVisible();
+  await followerSelector.click();
+  await expect(dialog.getByRole("option", { name: assigner.email, exact: true })).toBeVisible();
   await expect(
-    dialog.getByRole("heading", { name: /Personnes pouvant suivre le dossier/ }),
+    dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/ }),
   ).toBeVisible();
+  await expect(dialog.getByRole("option", { name: memberTwo.email, exact: true })).toBeVisible();
+  await followerSelector.press("Escape");
   const dialogBox = await dialog.boundingBox();
   const viewport = page.viewportSize();
   expect(dialogBox).not.toBeNull();
@@ -75,26 +88,15 @@ test("assigning a dossier adds and removes followers and marks it as new", async
       name: `Retirer ${formerMember.email} des personnes qui suivent le dossier`,
     })
     .click();
-  await expect(
-    dialog.getByRole("button", {
-      name: `Ajouter ${formerMember.email} aux personnes qui suivent le dossier`,
-    }),
-  ).toBeVisible();
-  await dialog
-    .getByRole("button", {
-      name: `Ajouter ${memberOne.email} aux personnes qui suivent le dossier`,
-    })
-    .click();
+  await followerSelector.fill("camille");
+  await dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/ }).click();
   await expect(
     dialog.getByRole("button", {
       name: `Retirer ${memberOne.email} des personnes qui suivent le dossier`,
     }),
   ).toBeVisible();
-  await dialog
-    .getByRole("button", {
-      name: `Ajouter ${memberTwo.email} aux personnes qui suivent le dossier`,
-    })
-    .click();
+  await followerSelector.fill(memberTwo.email);
+  await dialog.getByRole("option", { name: memberTwo.email, exact: true }).click();
   await dialog.getByRole("button", { name: "Attribuer le dossier" }).click();
   await expect(dialog).toBeHidden();
 
@@ -149,11 +151,9 @@ test("assigning oneself while viewing a dossier immediately marks it as viewed",
   await page.getByRole("button", { name: /Plus d’actions/ }).click();
   await page.getByRole("menuitem", { name: "Faire suivre le dossier" }).click();
   const dialog = page.getByRole("dialog", { name: "Faire suivre le dossier" });
-  await dialog
-    .getByRole("button", {
-      name: `Ajouter ${assigner.email} aux personnes qui suivent le dossier`,
-    })
-    .click();
+  const followerSelector = dialog.getByLabel("Ajouter une personne au suivi du dossier");
+  await followerSelector.fill(assigner.email);
+  await dialog.getByRole("option", { name: assigner.email, exact: true }).click();
   await dialog.getByRole("button", { name: "Attribuer le dossier" }).click();
   await expect(dialog).toBeHidden();
 
