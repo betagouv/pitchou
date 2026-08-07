@@ -61,6 +61,11 @@ const dossierScientifiqueCaptureMode = makePreRenderHook(
   "scientifique_capture_mode",
   "string[]",
 );
+const dossierEolienMortalityActions = makePreRenderHook(
+  "libs/types/src/database/public/Dossier",
+  "eolien_mortality_actions",
+  "string[]",
+);
 
 // With `enumStyle: "type"`, Kanel emits `type X = ...;` then `export default X;`.
 // That separate re-export of a type is rejected under `verbatimModuleSyntax`
@@ -99,6 +104,7 @@ module.exports = {
     setEvenementPhaseDossierPhaseType,
     dossierScientifiqueDemandeType,
     dossierScientifiqueCaptureMode,
+    dossierEolienMortalityActions,
   ],
 
   // Providing postRenderHooks replaces Kanel's default `[markAsGenerated]`
