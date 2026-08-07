@@ -2,11 +2,11 @@
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
+  import AARRIEvolutionChart from "./IndicatorsAARRI/AARRIEvolutionChart.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
-  import MatrixImpact from "./MatrixImpact.svelte";
-  import AARRICurrentState from "./AARRICurrentState.svelte";
+  import MatrixImpact from "./IndicatorsAARRI/MatrixImpact.svelte";
+  import AARRICurrentState from "./IndicatorsAARRI/AARRICurrentState.svelte";
 
   type Props = {
     indicatorsByDateP: Promise<IndicatorsAARRI[]>;

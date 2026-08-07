@@ -2,15 +2,15 @@
   import { uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
-  import PieceJointeForm from "./PieceJointeForm.svelte";
-  import { savePieceJointe, type TypePieceJointe } from "./savePieceJointe.ts";
+  import PieceJointeForm from "./ModalAddPieceJointe/PieceJointeForm.svelte";
+  import { savePieceJointe, type TypePieceJointe } from "./ModalAddPieceJointe/savePieceJointe.ts";
   import {
     currentAttachmentDate,
     defaultPieceJointeType,
     pieceJointeLabel,
     saisinesWithoutAvis,
     trackPieceJointe,
-  } from "./pieceJointeTypes.ts";
+  } from "./ModalAddPieceJointe/pieceJointeTypes.ts";
   import type {
     DecisionAdministrativeForTransfer,
     DossierFull,

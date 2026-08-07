@@ -8,8 +8,8 @@
     getCalendarDays,
     isDateDisabled,
     parseInputDate,
-  } from "./datePicker.ts";
-  import DatePickerCalendar from "./DatePickerCalendar.svelte";
+  } from "./DatePicker/datePicker.ts";
+  import DatePickerCalendar from "./DatePicker/DatePickerCalendar.svelte";
 
   type Props = {
     id: string;

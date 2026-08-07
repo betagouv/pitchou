@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PublicStats } from "@pitchou/types/API_Pitchou.ts";
-  import ConformiteStats from "./ConformiteStats.svelte";
-  import PrescriptionStats from "./PrescriptionStats.svelte";
-  import BiodiversiteImpactStats from "./BiodiversiteImpactStats.svelte";
+  import ConformiteStats from "./StatsContent/ConformiteStats.svelte";
+  import PrescriptionStats from "./StatsContent/PrescriptionStats.svelte";
+  import BiodiversiteImpactStats from "./StatsContent/BiodiversiteImpactStats.svelte";
 
   type Props = {
     stats: PublicStats;

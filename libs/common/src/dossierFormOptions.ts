@@ -165,7 +165,7 @@ export {
   scientifiqueCaptureModeOptions,
   scientifiqueDemandePurposeOptions,
   scientifiqueDemandeTypeOptions,
-} from "./dossierFormScientificOptions.ts";
+} from "./dossierFormOptions/dossierFormScientificOptions.ts";
 
 export const aeProcedureOptions = [
   "Autorisation ICPE",
@@ -187,4 +187,4 @@ export const eolienMortalityActionOptions = [
   "Envoi des cadavres collectés vers le MNHN/UMR CESCO pour abonder au programme de veille sanitaire",
 ] as const;
 
-export { dossierRegionOptions } from "./dossierRegionOptions.ts";
+export { dossierRegionOptions } from "./dossierFormOptions/dossierRegionOptions.ts";

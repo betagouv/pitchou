@@ -4,14 +4,14 @@ import {
   createGroupesInstructeurs,
   deleteGroupesInstructeurs,
   getGroupesInstructeurs,
-} from "./groupe_instructeurs_groups.ts";
+} from "./groupe_instructeurs/groupe_instructeurs_groups.ts";
 import {
   addPersonnesToGroupeByEmails,
   createAndReturnInstructeurPersonne,
   deleteNowInaccessibleSuivis,
   deletePersonnesFromGroupeByEmail,
-} from "./groupe_instructeurs_members.ts";
-import { createInstructeurCapsAndCompleteInstructeurIds } from "./groupe_instructeurs_caps.ts";
+} from "./groupe_instructeurs/groupe_instructeurs_members.ts";
+import { createInstructeurCapsAndCompleteInstructeurIds } from "./groupe_instructeurs/groupe_instructeurs_caps.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 import type * as API_DS from "@pitchou/types/demarche-numerique/apiSchema.ts";
 

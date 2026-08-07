@@ -19,8 +19,8 @@
   } from "./adminModificationsList.ts";
   import ModificationsListControls from "./ModificationsListControls.svelte";
   import TableModifications from "./TableModifications.svelte";
-  import ModalAdd from "./ModalAdd.svelte";
-  import ModalEditModification from "./ModalEditModification.svelte";
+  import ModalAdd from "./ModalAdd/ModalAdd.svelte";
+  import ModalEditModification from "./ModalEditModification/ModalEditModification.svelte";
 
   type Props = {
     modifications: ModificationEspeceAdmin[];

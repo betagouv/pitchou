@@ -3,7 +3,7 @@ import type {
   ReferentielProjete,
   TypeImpactProjete,
   ValeurProjetee,
-} from "./referentielTypeImpactMethodeMoyenDePoursuite.fixture.types.ts";
+} from "./referentielTypeImpactMethodeMoyenDePoursuite.fixture/types.ts";
 
 type Referentiel = NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>;
 const CLASSIFICATIONS = ["oiseau", "faune non-oiseau", "flore"] as const;
@@ -60,4 +60,4 @@ export function projectReferentiel(referentiel: Referentiel): ReferentielProjete
   };
 }
 
-export { REFERENTIEL_ATTENDU } from "./referentielTypeImpactMethodeMoyenDePoursuite.fixture.expected.ts";
+export { REFERENTIEL_ATTENDU } from "./referentielTypeImpactMethodeMoyenDePoursuite.fixture/expected.ts";

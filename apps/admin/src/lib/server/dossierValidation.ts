@@ -12,10 +12,13 @@ import {
 import type { AdminDossierRelations } from "@pitchou/server/database/dossier_admin_relations.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
-import { parseColumns } from "./dossierColumnValidation";
-import { isValidPhone, validateCreationCore } from "./dossierCreationCoreValidation.ts";
-import { validateCreationScientific } from "./dossierCreationScientificValidation.ts";
-import { parseDossierRelations } from "./dossierRelationsValidation";
+import { parseColumns } from "./dossierValidation/dossierColumnValidation";
+import {
+  isValidPhone,
+  validateCreationCore,
+} from "./dossierValidation/dossierCreationCoreValidation.ts";
+import { validateCreationScientific } from "./dossierValidation/dossierCreationScientificValidation.ts";
+import { parseDossierRelations } from "./dossierValidation/dossierRelationsValidation";
 import { rejectUnknownProperties } from "./requestValidation";
 
 export function parseDossierId(raw: string): DossierId {

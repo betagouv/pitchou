@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SvelteMap } from "svelte/reactivity";
-  import Prescription from "./Prescription.svelte";
-  import PrescriptionsEditTable from "./PrescriptionsEditTable.svelte";
+  import Prescription from "./Prescriptions/Prescription.svelte";
+  import PrescriptionsEditTable from "./Prescriptions/PrescriptionsEditTable.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";

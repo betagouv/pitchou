@@ -9,14 +9,14 @@ import type { default as Dossier } from "@pitchou/types/database/public/Dossier.
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
-import { formatDossierFull } from "./formatDossierFull.ts";
+import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
 import {
   wrapDeleteById,
   wrapGETUrl,
   wrapPOSTMultipart,
   wrapPOSTUrl,
   wrapTextPOST,
-} from "./capUrlWrappers.ts";
+} from "./createCapObjectFromURLs/capUrlWrappers.ts";
 
 const commonHeaders = {
   Accept: "application/json",

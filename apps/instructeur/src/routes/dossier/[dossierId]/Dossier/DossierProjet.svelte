@@ -8,9 +8,9 @@
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
-  import ProjetInformation from "./ProjetInformation.svelte";
-  import ProjetScientifique from "./ProjetScientifique.svelte";
-  import ProjetSidebar from "./ProjetSidebar.svelte";
+  import ProjetInformation from "./DossierProjet/ProjetInformation.svelte";
+  import ProjetScientifique from "./DossierProjet/ProjetScientifique.svelte";
+  import ProjetSidebar from "./DossierProjet/ProjetSidebar.svelte";
 
   type Props = {
     dossier: DossierFull;
