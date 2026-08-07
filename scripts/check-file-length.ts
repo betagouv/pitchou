@@ -26,7 +26,17 @@ import ts from "typescript";
 const DEFAULT_MAX = 200;
 
 // Folders and files to skip. Tooling/build output first, then project exceptions.
-const IGNORES = ["node_modules", ".git", ".svelte-kit", ".direnv", "build", "dist", "test-results"];
+const IGNORES = [
+  "node_modules",
+  ".git",
+  ".svelte-kit",
+  ".direnv",
+  "build",
+  "dist",
+  "test-results",
+  // Applied migrations are immutable historical artifacts, not maintainability refactor targets.
+  "libs/database/migrations",
+];
 
 const args = parseArgs(process.argv.slice(2), {
   default: { max: DEFAULT_MAX },
