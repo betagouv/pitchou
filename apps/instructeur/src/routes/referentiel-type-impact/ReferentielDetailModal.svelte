@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DetailSection } from "./referentielDetails.ts";
+  import type { DetailSection } from "./details.ts";
 
   type Props = {
     id: string;

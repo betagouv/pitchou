@@ -5,7 +5,7 @@
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import PhaseDelayIndicator from "./PhaseDelayIndicator.svelte";
   import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
-  import type { SuiviInstructionState } from "./suiviInstructionState.svelte.ts";
+  import type { SuiviInstructionState } from "./state.svelte.ts";
   import type { TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   type Props = {

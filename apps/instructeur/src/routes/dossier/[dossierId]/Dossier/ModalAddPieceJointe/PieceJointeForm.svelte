@@ -4,7 +4,7 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
-  import type { TypePieceJointe } from "./savePieceJointe.ts";
+  import type { TypePieceJointe } from "./submission.ts";
   type Props = {
     id: string;
     type: TypePieceJointe;

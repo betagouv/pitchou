@@ -9,13 +9,13 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type {
   GetPersonnesEntreprisesData,
   MakeCommonDossierColumnsForSync,
-} from "./makeDossiersForSynchronization/dossierSynchronizationTypes.ts";
+} from "./makeDossiersForSynchronization/mappingContracts.ts";
 import {
   makeChampsDossierForInitialization,
   makeDecisionAdministrativeFromTraitementDS,
   makeEvenementsPhaseDossierFromTraitementsDS,
   splitDossiersToInitializeAndToUpdate,
-} from "./makeDossiersForSynchronization/makeDossierSynchronizationData.ts";
+} from "./makeDossiersForSynchronization/persistenceMapping.ts";
 
 export type { GetPersonnesEntreprisesData, MakeCommonDossierColumnsForSync };
 export { getPersonnesEntreprisesData88444 } from "./makeDossiersForSynchronization/getPersonnesEntreprisesData88444.ts";

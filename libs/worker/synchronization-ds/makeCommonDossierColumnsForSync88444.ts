@@ -6,9 +6,9 @@ import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-nume
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { DossierInitializer, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
-import { indexDossier88444Champs } from "./makeCommonDossierColumnsForSync88444/dossier88444FieldMaps.ts";
-import { makeDossierLocationColumns88444 } from "./makeCommonDossierColumnsForSync88444/makeDossierLocationColumns88444.ts";
-import { makeDossierScientificColumns88444 } from "./makeCommonDossierColumnsForSync88444/makeDossierScientificColumns88444.ts";
+import { indexDossier88444Champs } from "./makeCommonDossierColumnsForSync88444/fieldMaps.ts";
+import { makeDossierLocationColumns88444 } from "./makeCommonDossierColumnsForSync88444/locationColumns.ts";
+import { makeDossierScientificColumns88444 } from "./makeCommonDossierColumnsForSync88444/scientificColumns.ts";
 
 export function makeCommonDossierColumnsForSync88444(
   dossierDS: DossierDS88444,

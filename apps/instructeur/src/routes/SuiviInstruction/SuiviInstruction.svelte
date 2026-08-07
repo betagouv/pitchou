@@ -7,7 +7,7 @@
   } from "$lib/dossier/suiviDossier.ts";
   import SuiviInstructionFilters from "./SuiviInstructionFilters.svelte";
   import SuiviInstructionTable from "./SuiviInstructionTable.svelte";
-  import { SuiviInstructionState } from "./suiviInstructionState.svelte.ts";
+  import { SuiviInstructionState } from "./state.svelte.ts";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";

@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import type { DossiersQuery } from "./dossiersList.ts";
+  import type { DossiersQuery } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     PROCHAINE_ACTION_OPTIONS,
     listAvailableActivites,
     listAvailableDepartements,
     listAvailableInstructeurs,
-  } from "./dossiersList.ts";
+  } from "./listModel.ts";
   import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import DossiersAdditionalFilters from "./DossiersAdditionalFilters.svelte";

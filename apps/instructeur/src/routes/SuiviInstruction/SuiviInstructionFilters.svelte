@@ -2,7 +2,7 @@
   import FilterAmongOptions from "./FilterAmongOptions.svelte";
   import SearchBar from "./SearchBar.svelte";
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import { NO_INSTRUCTEUR, type SuiviInstructionState } from "./suiviInstructionState.svelte.ts";
+  import { NO_INSTRUCTEUR, type SuiviInstructionState } from "./state.svelte.ts";
   type Props = { state: SuiviInstructionState };
   let { state }: Props = $props();
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { format, isSameDay, isSameMonth, isToday } from "date-fns";
   import { fr } from "date-fns/locale";
-  import { WEEKDAYS } from "./datePicker.ts";
+  import { WEEKDAYS } from "./calendarInput.ts";
 
   type Props = {
     id: string;

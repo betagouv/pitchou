@@ -2,7 +2,7 @@
   import TagPhase from "$lib/components/TagPhase.svelte";
   import DateInput from "../../DateInput.svelte";
   import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
-  import { attachmentDetails } from "./dossierInstruction.ts";
+  import { attachmentDetails } from "./fieldValues.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   type Props = {

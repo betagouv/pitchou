@@ -1,6 +1,6 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
-  import type { DossiersQuery } from "./dossiersList.ts";
+  import type { DossiersQuery } from "./listModel.ts";
   type Props = { draft: DossiersQuery };
   let { draft = $bindable() }: Props = $props();
   const newModifications = $derived(draft.nouveaute === "oui");

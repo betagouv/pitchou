@@ -3,7 +3,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
-  import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
+  import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     buildActiveFilterChips,
@@ -15,7 +15,7 @@
     filterDossiers,
     listAvailableInstructeurs,
     readDossiersQuery,
-  } from "./dossiersList.ts";
+  } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
@@ -27,7 +27,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { untrack } from "svelte";
-  import { navigateDossiers } from "./dossiersNavigation.ts";
+  import { navigateDossiers } from "./navigation.ts";
 
   type Props = {
     title: string;

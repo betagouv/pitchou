@@ -16,7 +16,7 @@ import {
   wrapPOSTMultipart,
   wrapPOSTUrl,
   wrapTextPOST,
-} from "./createCapObjectFromURLs/capUrlWrappers.ts";
+} from "./createCapObjectFromURLs/requestWrappers.ts";
 
 const commonHeaders = {
   Accept: "application/json",

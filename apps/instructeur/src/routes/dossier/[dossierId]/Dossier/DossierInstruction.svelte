@@ -11,7 +11,7 @@
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import DossierInstructionHistory from "./DossierInstruction/DossierInstructionHistory.svelte";
   import DossierInstructionFields from "./DossierInstruction/DossierInstructionFields.svelte";
-  import { dateToInputValue, ddepCompositeValue } from "./DossierInstruction/dossierInstruction.ts";
+  import { dateToInputValue, ddepCompositeValue } from "./DossierInstruction/fieldValues.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 

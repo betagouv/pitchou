@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { parseMapCoordinates } from "./projectMapCoordinates.ts";
-  import type { Position } from "./projectMapGeometry.ts";
+  import { parseMapCoordinates } from "./coordinates.ts";
+  import type { Position } from "./geometry.ts";
   let { onAdd }: { onAdd: (position: Position) => void } = $props();
   let value = $state("");
   let error = $state<string | null>(null);

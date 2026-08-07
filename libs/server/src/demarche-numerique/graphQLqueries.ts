@@ -3,9 +3,9 @@ export {
   annotationCheckboxMutationQuery,
   annotationDateMutationQuery,
   annotationTextMutationQuery,
-} from "./graphQLqueries/graphQLqueries_mutations.ts";
+} from "./graphQLqueries/mutations.ts";
 export {
   deletedDossiersQuery,
   pendingDeletedDossiersQuery,
-} from "./graphQLqueries/graphQLqueries_deleted.ts";
-export { dossiersQuery } from "./graphQLqueries/graphQLqueries_dossiers.ts";
+} from "./graphQLqueries/deletedDossiers.ts";
+export { dossiersQuery } from "./graphQLqueries/dossiers.ts";

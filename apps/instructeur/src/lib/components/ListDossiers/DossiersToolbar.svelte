@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./dossiersList.ts";
-  import { serviceLabel } from "./dossiersList.ts";
+  import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./listModel.ts";
+  import { serviceLabel } from "./listModel.ts";
   import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
 

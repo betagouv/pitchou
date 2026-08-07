@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { FeatureCollection } from "../dossierAdminFormModel.ts";
-  import { featureLabel } from "./projectMapGeometry.ts";
+  import { featureLabel } from "./geometry.ts";
 
   type Props = {
     value: FeatureCollection;

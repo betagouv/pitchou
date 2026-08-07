@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
-  import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generateDocument.ts";
+  import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import DocumentTemplateSelection from "./DossierGenerationDocuments/DocumentTemplateSelection.svelte";
@@ -9,7 +9,7 @@
   import {
     documentTemplateKey,
     mergeDocumentTemplates,
-  } from "./DossierGenerationDocuments/documentTemplates.ts";
+  } from "./DossierGenerationDocuments/templates.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";

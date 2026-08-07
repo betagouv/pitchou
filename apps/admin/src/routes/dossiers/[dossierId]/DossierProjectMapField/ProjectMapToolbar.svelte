@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectMapMode } from "./projectMapGeometry.ts";
+  import type { ProjectMapMode } from "./geometry.ts";
 
   type Props = {
     mode: ProjectMapMode;

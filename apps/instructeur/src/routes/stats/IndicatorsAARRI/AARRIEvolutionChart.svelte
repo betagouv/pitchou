@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import AARRIChartTooltip from "./AARRIChartTooltip.svelte";
-  import { AARRI_SERIES, niceChartStep } from "./aarriChart.ts";
+  import { AARRI_SERIES, niceChartStep } from "./chart.ts";
 
   type Props = {
     indicators: IndicatorsAARRI[];

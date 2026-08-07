@@ -10,7 +10,7 @@
   import { tick } from "svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import { flattenImpactedEspeces } from "./SaisieEspeces/saisieEspecesUtils.ts";
+  import { flattenImpactedEspeces } from "./SaisieEspeces/impactedEspeces.ts";
   import type {
     ActiviteMenancante,
     ByClassification,

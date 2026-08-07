@@ -9,18 +9,10 @@
     MoyenDePoursuiteRow,
   } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
-  import {
-    CLASSIFICATIONS,
-    criteresApplicables,
-    parClassification,
-  } from "./referentielTypeImpact.ts";
+  import { CLASSIFICATIONS, criteresApplicables, parClassification } from "./typeImpacts.ts";
   import ReferentielDetailModal from "./ReferentielDetailModal.svelte";
   import ReferentielValueTable from "./ReferentielValueTable.svelte";
-  import {
-    referentielValueDetail,
-    typeImpactDetail,
-    type ReferentielDetail,
-  } from "./referentielDetails.ts";
+  import { referentielValueDetail, typeImpactDetail, type ReferentielDetail } from "./details.ts";
 
   type Props = {
     referentiel: ReferentielRows;

@@ -3,14 +3,14 @@
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
   import PieceJointeForm from "./ModalAddPieceJointe/PieceJointeForm.svelte";
-  import { savePieceJointe, type TypePieceJointe } from "./ModalAddPieceJointe/savePieceJointe.ts";
+  import { savePieceJointe, type TypePieceJointe } from "./ModalAddPieceJointe/submission.ts";
   import {
     currentAttachmentDate,
     defaultPieceJointeType,
     pieceJointeLabel,
     saisinesWithoutAvis,
     trackPieceJointe,
-  } from "./ModalAddPieceJointe/pieceJointeTypes.ts";
+  } from "./ModalAddPieceJointe/formModel.ts";
   import type {
     DecisionAdministrativeForTransfer,
     DossierFull,

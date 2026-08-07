@@ -3,22 +3,18 @@
   import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 
   import type { FeatureCollection, ProjectMapFeature } from "../dossierAdminFormModel.ts";
-  import { ParcelHoverLoader } from "./projectMapCadastre.ts";
+  import { ParcelHoverLoader } from "./cadastre.ts";
   import {
     emptyFeatureCollection,
     rectangle,
     selectionFeature,
     type Position,
     type ProjectMapMode,
-  } from "./projectMapGeometry.ts";
-  import { createProjectMap } from "./projectMapSetup.ts";
-  import * as projectMapDrawing from "./projectMapDrawing.ts";
-  import { projectMapError } from "./projectMapError.ts";
-  import {
-    cadastralFeatureCollection,
-    draftFeatureCollection,
-    setMapData,
-  } from "./projectMapSources.ts";
+  } from "./geometry.ts";
+  import { createProjectMap } from "./initialization.ts";
+  import * as projectMapDrawing from "./drawing.ts";
+  import { projectMapError } from "./errorMessage.ts";
+  import { cadastralFeatureCollection, draftFeatureCollection, setMapData } from "./sources.ts";
   import ProjectMapSearch from "./ProjectMapSearch.svelte";
   import ProjectMapToolbar from "./ProjectMapToolbar.svelte";
   import ProjectMapCoordinateInput from "./ProjectMapCoordinateInput.svelte";

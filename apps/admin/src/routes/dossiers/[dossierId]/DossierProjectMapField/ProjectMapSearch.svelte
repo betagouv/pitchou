@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { findAddressCoordinates } from "./projectMapAddress.ts";
-  import type { Position } from "./projectMapGeometry.ts";
+  import { findAddressCoordinates } from "./address.ts";
+  import type { Position } from "./geometry.ts";
   import ProjectMapAddressSearch from "./ProjectMapAddressSearch.svelte";
   let {
     onFound,
