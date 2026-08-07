@@ -1,12 +1,16 @@
 <script lang="ts">
   import DateInput from "../../DateInput.svelte";
 
-  import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
   import {
     typesDecisionAdministrative,
     labelForDecisionAdministrativeType,
   } from "@pitchou/common/decisionAdministrative.js";
-  import { uploadSizeHint, uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import {
+    preserveDecisionDates,
+    readDecisionFile,
+    readableDecisionError,
+  } from "./decisionAdministrativeForm.ts";
 
   import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";
 
@@ -28,8 +32,6 @@
 
   let fichiers: FileList | undefined = $state();
 
-  const ACCEPTED_FORMATS = [".pdf"];
-
   // File-related error, shown under the upload field
   let fileErrorMessage: string | null = $state(null);
   // "type" field error, shown under the select
@@ -37,15 +39,6 @@
   // Save error (network, server), shown next to the buttons
   let errorMessage: string | null = $state(null);
   let inProgress = $state(false);
-
-  function readableErrorMessage(error: unknown): string {
-    const message = error instanceof Error ? error.message : String(error);
-    // d3-fetch rejects with a message like "413 Payload Too Large"
-    if (/^413\b/.test(message)) {
-      return `Le fichier est trop volumineux pour être envoyé.`;
-    }
-    return `L'enregistrement de la décision administrative a échoué : ${message}`;
-  }
 
   async function formSubmit(e: Event) {
     //console.log('submit', fichiers)
@@ -61,73 +54,22 @@
       return;
     }
 
-    if (decision.signature_date) {
-      Object.defineProperty(decision.signature_date, "toJSON", {
-        value: toJSONPerserveDate,
-      });
-    }
-    if (decision.obligations_end_date) {
-      Object.defineProperty(decision.obligations_end_date, "toJSON", {
-        value: toJSONPerserveDate,
-      });
-    }
+    preserveDecisionDates(decision);
 
     if (fichiers && fichiers.length >= 1) {
-      const fichier = fichiers[0];
-
-      const lowercaseName = fichier.name.toLowerCase();
-      const isValidFormat = ACCEPTED_FORMATS.some((extension) => lowercaseName.endsWith(extension));
-      if (!isValidFormat) {
-        fileErrorMessage = `Format de fichier non supporté. Formats acceptés : ${ACCEPTED_FORMATS.join(", ")}.`;
-        return;
-      }
-
-      const sizeError = uploadSizeError(fichiers);
-      if (sizeError) {
-        fileErrorMessage = sizeError;
-        return;
-      }
-
-      const fileName = fichier.name;
-      const mediaType = fichier.type;
-
-      const base64ContentPromise = new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.addEventListener(
-          "load",
-          () => {
-            resolve(reader.result as string);
-          },
-          false,
-        );
-        reader.addEventListener("error", reject);
-        reader.readAsDataURL(fichier);
-      });
-
-      let base64Content: string;
       try {
-        base64Content = await base64ContentPromise;
-      } catch {
-        fileErrorMessage = `La lecture du fichier a échoué. Veuillez réessayer.`;
+        decision.fichier_base64 = await readDecisionFile(fichiers);
+      } catch (error) {
+        fileErrorMessage = error instanceof Error ? error.message : String(error);
         return;
       }
-
-      // remove the dataURL prefix to keep only the base64 content
-      const dataURLPrefix = `data:${mediaType};base64,`;
-      base64Content = base64Content.slice(dataURLPrefix.length);
-
-      decision.fichier_base64 = {
-        name: fileName,
-        media_type: mediaType,
-        contenuBase64: base64Content,
-      };
     }
 
     inProgress = true;
     try {
       await onValidate(decision);
     } catch (error) {
-      errorMessage = readableErrorMessage(error);
+      errorMessage = readableDecisionError(error);
     } finally {
       inProgress = false;
     }

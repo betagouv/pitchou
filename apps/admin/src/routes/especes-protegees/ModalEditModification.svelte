@@ -7,10 +7,7 @@
 
   import { CLASSIFICATIONS, displayedNom } from "./adminModificationsList.ts";
   import Modal from "./Modal.svelte";
-  import FieldClassification from "./FieldClassification.svelte";
-  import FieldNoms from "./FieldNoms.svelte";
-  import FieldStatuts from "./FieldStatuts.svelte";
-  import FieldYesNo from "./FieldYesNo.svelte";
+  import ModificationFields from "./ModificationFields.svelte";
 
   type Props = {
     seed: ModificationEspeceAdmin;
@@ -45,13 +42,6 @@
   // A net-new (off-reference) species has no TAXREF/BDC row: nothing to inherit from. The
   // reference always has a non-null classification, so its absence is the reliable signal.
   const hasReference = $derived(current.reference_classification !== null);
-
-  function formatDate(iso: string): string {
-    const date = new Date(iso);
-    return Number.isNaN(date.getTime())
-      ? iso
-      : date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
-  }
 
   /** Saves one field's patch; returns true on success so the field can leave edit mode. */
   async function saveField(patch: Partial<PatchModificationEspece>): Promise<boolean> {
@@ -170,73 +160,7 @@
         </div>
       </div>
     {:else}
-      <div
-        class="flex flex-col gap-3 [&_.field:first-child]:border-t-0 [&_.field:first-child]:pt-0!"
-      >
-        <FieldClassification
-          value={current.classification}
-          referenceClassification={current.reference_classification}
-          {hasReference}
-          {saving}
-          onSave={(v) => saveField({ classification: v })}
-        />
-        <FieldNoms
-          label="Noms scientifiques"
-          source="TAXREF"
-          inheritId="inherit-noms-scientifiques"
-          values={current.noms_scientifiques}
-          referenceValues={current.reference_noms_scientifiques}
-          {hasReference}
-          {saving}
-          onSave={(v) => saveField({ noms_scientifiques: v })}
-        />
-        <FieldNoms
-          label="Noms vernaculaires"
-          source="TAXREF"
-          inheritId="inherit-noms-vernaculaires"
-          values={current.noms_vernaculaires}
-          referenceValues={current.reference_noms_vernaculaires}
-          {hasReference}
-          {saving}
-          onSave={(v) => saveField({ noms_vernaculaires: v })}
-        />
-        <FieldStatuts
-          values={current.cd_type_statuts}
-          referenceValues={current.reference_cd_type_statuts}
-          {hasReference}
-          {saving}
-          onSave={(v) => saveField({ cd_type_statuts: v })}
-        />
-        <FieldYesNo
-          label="Espèce ministérielle"
-          toggleLabel="Espèce ministérielle"
-          value={current.espece_ministerielle ?? false}
-          {saving}
-          onSave={(v) => saveField({ espece_ministerielle: v })}
-        />
-        <FieldYesNo
-          label="Espèce CNPN"
-          toggleLabel="Espèce CNPN"
-          value={current.espece_cnpn ?? false}
-          {saving}
-          onSave={(v) => saveField({ espece_cnpn: v })}
-        />
-        <FieldYesNo
-          label="Exclue de la liste publique"
-          toggleLabel="Exclure cette espèce"
-          value={current.excluded}
-          {saving}
-          onSave={(v) => saveField({ excluded: v })}
-        />
-
-        {#if current.modified_by}
-          <p class="m-0 text-[color:var(--text-mention-grey)] text-[0.875rem]">
-            Dernière modification par {current.modified_by}{current.updated_at
-              ? ` le ${formatDate(current.updated_at)}`
-              : ""}
-          </p>
-        {/if}
-      </div>
+      <ModificationFields {current} {hasReference} {saving} onSave={saveField} />
     {/if}
 
     {#if error}

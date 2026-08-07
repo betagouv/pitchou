@@ -8,10 +8,8 @@
   import { text } from "d3-fetch";
   import { getODSTableRawContent, sheetRawContentToObjects, isRowNotEmpty } from "@odfjs/odfjs";
 
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
-
   import { createDossierFromRow, createDossierName } from "./importDossierBFC.ts";
-  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
+  import ImportDossierBFCResults from "./ImportDossierBFCResults.svelte";
 
   type Props = {
     dossiers?: DossierSummary[];
@@ -187,109 +185,17 @@
 {/if}
 
 {#if importTableRows.length >= 1}
-  <h2 class="fr-mb-2w">
-    {#if showAllDossiers}
-      Tous les dossiers du fichier chargé ({importTableRows.length})
-    {:else}
-      Dossiers restants à importer ({numberDossiersToImport} / {importTableRows.length})
-    {/if}
-  </h2>
-
-  <div class="fr-toggle">
-    <input
-      type="checkbox"
-      class="fr-toggle__input"
-      id="toggle"
-      aria-describedby="toggle-messages"
-      bind:checked={showAllDossiers}
-    />
-    <label
-      class="fr-toggle__label before:max-w-20"
-      for="toggle"
-      data-fr-checked-label="Activé"
-      data-fr-unchecked-label="Désactivé"
-    >
-      Afficher tous les dossiers
-    </label>
-    <div class="fr-messages-group" id="toggle-messages" aria-live="polite"></div>
-  </div>
-
-  <div class="flex flex-row items-center">
-    <div>{numberDossiersToImport} / {importTableRows.length}</div>
-
-    <div
-      class="fr-progress-bar flex-1 h-6 fr-ml-2w rounded-[8px] overflow-hidden bg-[var(--background-alt-grey)]"
-      title={`${numberDossiersToImport} / ${importTableRows.length}`}
-    >
-      <div
-        style="width: {percentageOfDossiersCreatedInDB}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
-      ></div>
-    </div>
-  </div>
-
-  <div class="fr-table">
-    <div class="fr-table__wrapper">
-      <div class="fr-table__container">
-        <div class="fr-table__content">
-          <table
-            class="[&_th]:max-h-8 [&_th]:overflow-auto [&_td:not(:last-of-type)]:max-h-8 [&_td:not(:last-of-type)]:overflow-auto"
-          >
-            <thead>
-              <tr>
-                <th> Nom du projet (OBJET) </th>
-                <th> Détails </th>
-                <th> Actions </th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each displayedImportTableRows as displayedImportTableRow, index}
-                <tr data-row-key="1">
-                  <td>{createDossierName(displayedImportTableRow)}</td>
-                  <td>
-                    <ModalButton id={`dsfr-modale-${index}`}>
-                      {#snippet openButton()}
-                        <button type="button">Voir les détails</button>
-                      {/snippet}
-                      {#snippet content()}
-                        <div>{JSON.stringify(displayedImportTableRow)}</div>
-                      {/snippet}
-                    </ModalButton>
-                  </td>
-                  <td>
-                    {#if isDossierRowInDatabase(displayedImportTableRow)}
-                      <p class="fr-badge fr-badge--success">En base de données</p>
-                      <a
-                        href={`/dossier/${nomToDossierId.get(createDossierName(displayedImportTableRow))}`}
-                        target="_blank"
-                        class="fr-btn fr-btn--secondary fr-ml-2w"
-                      >
-                        Ouvrir dossier
-                      </a>
-                    {:else if rowToLienPreremplissage.get(displayedImportTableRow)}
-                      <a
-                        href={rowToLienPreremplissage.get(displayedImportTableRow)}
-                        target="_blank"
-                        class="fr-btn">Créer dossier</a
-                      >
-                    {:else}
-                      <button
-                        type="button"
-                        class="fr-btn fr-btn--secondary"
-                        onclick={() => handleCreateLienPreRemplissage(displayedImportTableRow)}
-                        >Préparer préremplissage</button
-                      >
-                    {/if}
-                  </td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {#if pageSelectors}
-    <Pagination {pageSelectors} currentPage={pageSelectors[selectedPageNumber]}></Pagination>
-  {/if}
+  <ImportDossierBFCResults
+    allRows={importTableRows}
+    rows={displayedImportTableRows}
+    bind:showAll={showAllDossiers}
+    remaining={numberDossiersToImport}
+    percentage={percentageOfDossiersCreatedInDB}
+    dossierIds={nomToDossierId}
+    links={rowToLienPreremplissage}
+    isImported={isDossierRowInDatabase}
+    prepare={handleCreateLienPreRemplissage}
+    {pageSelectors}
+    selectedPage={selectedPageNumber}
+  />
 {/if}

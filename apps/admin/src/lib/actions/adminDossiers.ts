@@ -5,16 +5,11 @@ import type {
   AdminDossierDetail,
   AdminDossierUpdatePayload,
   AdminGroupeInstructeurs,
-  DossiersPage,
-  DossiersQuery,
 } from "./adminDossierTypes.ts";
 
 export { AccessDeniedError };
 export type * from "./adminDossierTypes.ts";
-
-export function defaultDossiersQuery(): DossiersQuery {
-  return { search: "", phase: "", source: "", page: 1, pageSize: 50 };
-}
+export { defaultDossiersQuery, loadDossiers } from "./adminDossierList.ts";
 
 async function checkResponse(response: Response, action: string): Promise<void> {
   if (response.ok) return;
@@ -29,26 +24,6 @@ async function checkResponse(response: Response, action: string): Promise<void> 
     // no JSON body
   }
   throw new Error(message || `Erreur ${response.status} lors de ${action}.`);
-}
-
-/** Loads one server-side-filtered page of dossiers. */
-export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> {
-  const params = new URLSearchParams({
-    page: String(query.page),
-    pageSize: String(query.pageSize),
-  });
-  if (query.search.trim()) params.set("search", query.search.trim());
-  if (query.phase) params.set("phase", query.phase);
-  if (query.source) params.set("source", query.source);
-
-  const response = await fetch(`/api/dossiers?${params.toString()}`);
-  await checkResponse(response, "du chargement des dossiers");
-
-  const page = await response.json();
-  if (!page || !Array.isArray(page.dossiers) || typeof page.total !== "number") {
-    throw new Error("Réponse invalide reçue du serveur pour les dossiers.");
-  }
-  return page as DossiersPage;
 }
 
 export async function loadDossierDetail(dossierId: number): Promise<AdminDossierDetail> {

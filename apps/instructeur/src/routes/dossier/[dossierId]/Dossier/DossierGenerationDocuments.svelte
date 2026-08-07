@@ -4,12 +4,15 @@
   import { getDocumentGenerationTags } from "./generateDocument.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
+  import DocumentTemplateSelection from "./DocumentTemplateSelection.svelte";
+  import GeneratedDocuments from "./GeneratedDocuments.svelte";
+  import { documentTemplateKey, mergeDocumentTemplates } from "./documentTemplates.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
   let templateFiles: File[] = $state([]);
-  let fileInput: HTMLInputElement;
+  let fileInput: HTMLInputElement | undefined = $state();
   let isDraggingTemplates = $state(false);
   let templateSelectionError: string | undefined = $state();
 
@@ -38,23 +41,12 @@
 
   onDestroy(revokeGeneratedDocumentUrls);
 
-  function templateKey(template: File): string {
-    return `${template.name}:${template.size}:${template.lastModified}`;
-  }
+  const templateKey = documentTemplateKey;
 
   function addTemplates(files: FileList | null) {
-    const selectedFiles = Array.from(files ?? []);
-    const validTemplates = selectedFiles.filter((file) => file.name.toLowerCase().endsWith(".odt"));
-    const existingTemplateKeys = new Set(templateFiles.map(templateKey));
-
-    templateSelectionError =
-      validTemplates.length === selectedFiles.length
-        ? undefined
-        : "Seuls les modèles au format ODT peuvent être ajoutés.";
-    templateFiles = [
-      ...templateFiles,
-      ...validTemplates.filter((template) => !existingTemplateKeys.has(templateKey(template))),
-    ];
+    const result = mergeDocumentTemplates(templateFiles, files);
+    templateFiles = result.templates;
+    templateSelectionError = result.error;
   }
 
   function handleFileInputChange(event: Event) {
@@ -182,93 +174,22 @@
   {/if}
 
   <form class="fr-mb-4w" onsubmit={generateDoc}>
-    <div class="fr-upload-group fr-mb-4w">
-      <p class="fr-label fr-mt-4w">Ajouter un ou plusieurs modèles de documents</p>
-      <p class="fr-hint-text fr-mb-2w">Format accepté : ODT. Plusieurs fichiers possibles.</p>
-
-      <div
-        role="group"
-        aria-label="Ajout de modèles de documents"
-        class="border-2 border-dashed border-[color:var(--border-default-grey)] bg-[var(--background-contrast-grey)] p-8 text-center {isDraggingTemplates
-          ? 'border-[color:var(--border-action-high-blue-france)]'
-          : ''}"
-        ondragover={handleTemplatesDragOver}
-        ondragleave={() => (isDraggingTemplates = false)}
-        ondrop={handleTemplatesDrop}
-      >
-        <span class="fr-icon-upload-2-line fr-icon--lg" aria-hidden="true"></span>
-        <p class="fr-mb-1w fr-mt-1w">Glissez-déposez vos modèles ici</p>
-        <p class="fr-mb-1w">ou</p>
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={() => fileInput.click()}
-          >Choisir des fichiers</button
-        >
-      </div>
-
-      <input
-        bind:this={fileInput}
-        class="fr-sr-only"
-        type="file"
-        accept=".odt"
-        id="file-upload"
-        multiple
-        onchange={handleFileInputChange}
-      />
-
-      {#if templateSelectionError}
-        <p class="fr-error-text fr-mt-1w">{templateSelectionError}</p>
-      {/if}
-
-      {#if templateFiles.length > 0}
-        <div class="fr-mt-3w" aria-live="polite">
-          <p class="font-bold fr-mb-1w">
-            {templateFiles.length}
-            {templateFiles.length === 1 ? "modèle sélectionné" : "modèles sélectionnés"}
-          </p>
-          <ul class="m-0 p-0 list-none">
-            {#each templateFiles as template (templateKey(template))}
-              <li
-                class="flex items-center gap-4 border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-p-2w [&+&]:border-t-0"
-              >
-                <span class="fr-icon-file-text-line flex-none" aria-hidden="true"></span>
-                <span class="min-w-0 flex-1 break-all">{template.name}</span>
-                <button
-                  class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline fr-icon-delete-line flex-none"
-                  type="button"
-                  onclick={() => removeTemplate(template)}
-                >
-                  <span class="fr-sr-only">Retirer {template.name}</span>
-                </button>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
-    </div>
+    <DocumentTemplateSelection
+      templates={templateFiles}
+      bind:dragging={isDraggingTemplates}
+      error={templateSelectionError}
+      bind:fileInput
+      {templateKey}
+      onInput={handleFileInputChange}
+      onDragOver={handleTemplatesDragOver}
+      onDrop={handleTemplatesDrop}
+      onRemove={removeTemplate}
+    />
 
     <button class="fr-btn" type="submit" disabled={templateFiles.length === 0}
       >Générer le(s) document(s)</button
     >
   </form>
 
-  {#each generatedDocuments as generatedDocument}
-    <div class="fr-mb-3w">
-      <a
-        class="fr-link fr-link--download"
-        download={generatedDocument.name}
-        href={generatedDocument.url}
-      >
-        Télécharger {generatedDocument.name}
-      </a>
-      <details class="[cursor:initial]">
-        <summary class="cursor-pointer">Voir le texte brut</summary>
-        {#await generatedDocument.text}
-          (... en chargement ...)
-        {:then text}
-          <div class="[white-space:preserve] fr-p-2w bg-[var(--background-contrast-grey)]">
-            {text}
-          </div>
-        {/await}
-      </details>
-    </div>
-  {/each}
+  <GeneratedDocuments documents={generatedDocuments} />
 </div>

@@ -2,13 +2,8 @@ import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
-  departements as allDepartements,
-  departementNameByCode,
-} from "@pitchou/common/departements.ts";
-import {
   WITHOUT_INSTRUCTEUR,
   defaultDossiersQuery,
-  type ActivitePrincipale,
   type DateField,
   type DossiersContext,
   type DossiersQuery,
@@ -143,48 +138,6 @@ export function filterDossiers(
   }
 
   return result;
-}
-
-export type DepartementOption = { code: string; name: string };
-
-/** Activités principales present in the dossiers, sorted alphabetically */
-export function listAvailableActivites(dossiers: DossierSummary[]): ActivitePrincipale[] {
-  const activites = new Set<ActivitePrincipale>();
-  for (const dossier of dossiers) {
-    if (dossier.main_activite) activites.add(dossier.main_activite);
-  }
-  return [...activites].sort((a, b) => a.localeCompare(b, "fr"));
-}
-
-/**
- * Full list of départements (code + name) offered to the filter.
- * Starts from the official list and adds codes present in the dossiers but missing
- * from it, so that no dossier becomes impossible to filter.
- */
-export function listAvailableDepartements(dossiers: DossierSummary[]): DepartementOption[] {
-  const presentCodes = new Set<string>();
-  for (const dossier of dossiers) {
-    for (const code of dossier.departments ?? []) presentCodes.add(code);
-  }
-  const unknownCodes = [...presentCodes]
-    .filter((code) => !departementNameByCode.has(code))
-    .map((code) => ({ code, name: code }));
-
-  return [...allDepartements, ...unknownCodes].sort((a, b) =>
-    a.code.localeCompare(b.code, "fr", { numeric: true }),
-  );
-}
-
-/** Instructeurs following at least one dossier, identified by email, sorted alphabetically */
-export function listAvailableInstructeurs(
-  followRelations: DossiersContext["followRelations"],
-): string[] {
-  if (!followRelations) return [];
-  const emails: string[] = [];
-  for (const [instructeurEmail, followedDossiers] of followRelations) {
-    if (followedDossiers.size > 0) emails.push(instructeurEmail);
-  }
-  return emails.sort((a, b) => a.localeCompare(b, "fr"));
 }
 
 /** URL param keys driven by the Filtrer panel (text search, sort and page excluded) */

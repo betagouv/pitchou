@@ -3,6 +3,14 @@ import { page } from "vitest/browser";
 import { cleanup, render, waitFor } from "@testing-library/svelte";
 import { format } from "date-fns";
 import { tick } from "svelte";
+import {
+  chooseFichiers,
+  DOSSIER_ID,
+  dossier,
+  expectTracking,
+  fillTypeAutre,
+  setupDsfrModalMock,
+} from "./ouvrirModaleAjouterPieceJointe.testHelpers.ts";
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -32,81 +40,14 @@ import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 import HeaderDossier from "./HeaderDossier.svelte";
 import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-
-const DOSSIER_ID = 123;
-
 beforeEach(() => {
   vi.mocked(sendEvenement).mockReset();
   vi.mocked(addOtherAttachment).mockClear();
   vi.mocked(refreshDossierFull).mockClear();
-  Object.assign(window, {
-    dsfr: vi.fn(() => ({ modal: { conceal: vi.fn() } })),
-  });
+  setupDsfrModalMock();
 });
 
 afterEach(cleanup);
-
-function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
-  return {
-    id: DOSSIER_ID,
-    name: "Dossier test",
-    communes: null,
-    departments: ["01"],
-    regions: null,
-    main_activite: "Travaux",
-    demarche_numerique_number: 456,
-    demandeur_personne_morale_siret: null,
-    demandeur_personne_morale_legal_name: "",
-    representative_email: null,
-    demandeur_personne_physique_last_name: "Durand",
-    demandeur_personne_physique_first_names: "Alice",
-    demandeur_personne_physique_email: null,
-    deposant_last_name: "Durand",
-    deposant_first_names: "Alice",
-    deposant_email: null,
-    next_action_expected_from: null,
-    enjeu: false,
-    linked_to_ae_regime: false,
-    evenementsPhase: [],
-    avisExpert: [],
-    decisionsAdministratives: [],
-    piecesJointesPetitionnaires: [],
-    otherAttachments: [],
-    ...overrides,
-  } as unknown as DossierFull;
-}
-
-function expectTracking(source: string) {
-  expect(sendEvenement).toHaveBeenCalledWith({
-    type: "ouvrirModaleAjouterPieceJointe",
-    details: { dossierId: DOSSIER_ID, source },
-  });
-}
-
-async function chooseFichiers(container: HTMLElement, fichiers: File[]) {
-  const input = container.querySelector<HTMLInputElement>('input[type="file"]');
-  if (!input) throw new Error("input fichier introuvable");
-
-  const dataTransfer = new DataTransfer();
-  for (const fichier of fichiers) {
-    dataTransfer.items.add(fichier);
-  }
-  input.files = dataTransfer.files;
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-  input.dispatchEvent(new Event("change", { bubbles: true }));
-  await tick();
-}
-
-async function fillTypeAutre(container: HTMLElement, type: string) {
-  const input = container.querySelector<HTMLInputElement>('input[id^="other-attachment-type-"]');
-  if (!input) throw new Error("input type autre introuvable");
-
-  input.value = type;
-  input.dispatchEvent(new Event("input", { bubbles: true }));
-  input.dispatchEvent(new Event("change", { bubbles: true }));
-  await tick();
-}
 
 test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
   render(HeaderDossier, {

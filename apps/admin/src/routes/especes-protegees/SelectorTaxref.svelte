@@ -14,6 +14,7 @@
   } from "@pitchou/ui/taxref/taxrefList.ts";
   import TaxrefFilterPanel from "@pitchou/ui/taxref/TaxrefFilterPanel.svelte";
   import TaxrefSortPanel from "@pitchou/ui/taxref/TaxrefSortPanel.svelte";
+  import TaxrefSelectionTable from "./TaxrefSelectionTable.svelte";
 
   type Props = {
     /** CD_REFs already protected: flagged "déjà dans la liste" and not selectable. */
@@ -40,7 +41,6 @@
   let filtres = $state<TaxrefFiltres | null>(null);
   let filterPanelOpen = $state(false);
   let sortPanelOpen = $state(false);
-  let hoveredCdNom = $state<string | null>(null);
 
   // Discards out-of-order responses: only the latest request may update the table.
   let requestId = 0;
@@ -181,70 +181,7 @@
   {:else if loading && rows.length === 0}
     <Loader />
   {:else if rows.length >= 1}
-    <div
-      class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto [&.loading]:opacity-50 [&.loading]:[transition:opacity_0.15s_ease]"
-      class:loading
-    >
-      <table class="w-full">
-        <colgroup>
-          <col style="width: 100px" />
-          <col style="width: 100px" />
-          <col />
-          <col />
-          <col style="width: 110px" />
-          <col style="width: 110px" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">CD_NOM</th>
-            <th scope="col">CD_REF</th>
-            <th scope="col">Nom scientifique</th>
-            <th scope="col">Nom vernaculaire</th>
-            <th scope="col">Règne</th>
-            <th scope="col">Classe</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each rows as row (row.id)}
-            {@const alreadyListed = existingCdRefs.has(row.cd_ref)}
-            <tr
-              class="[&.clickable]:cursor-pointer [&.clickable.hovered]:bg-[var(--background-contrast-grey)] [&.clickable]:focus-visible:[outline:2px_solid_var(--bf500)] [&.clickable]:focus-visible:[outline-offset:-2px] [&.no-bottom-line]:bg-none"
-              class:clickable={!alreadyListed}
-              class:hovered={hoveredCdNom === row.cd_nom}
-              class:no-bottom-line={alreadyListed}
-              role={alreadyListed ? undefined : "button"}
-              tabindex={alreadyListed ? undefined : 0}
-              title={alreadyListed ? "Déjà une espèce protégée" : "Ajouter ce taxon"}
-              onmouseenter={() => (hoveredCdNom = row.cd_nom)}
-              onmouseleave={() => (hoveredCdNom = null)}
-              onclick={() => !alreadyListed && onSelect(row)}
-              onkeydown={(e) => {
-                if (!alreadyListed && (e.key === "Enter" || e.key === " ")) {
-                  e.preventDefault();
-                  onSelect(row);
-                }
-              }}
-            >
-              <td>{row.cd_nom}</td>
-              <td>{row.cd_ref}</td>
-              <td><i>{row.lb_nom}</i></td>
-              <td>{row.nom_vern}</td>
-              <td>{row.regne}</td>
-              <td>{row.classe}</td>
-            </tr>
-            {#if alreadyListed}
-              <tr class="[&_td]:pt-0 [&_td]:pb-3" aria-hidden="true">
-                <td colspan="6">
-                  <span class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">
-                    Déjà une espèce protégée
-                  </span>
-                </td>
-              </tr>
-            {/if}
-          {/each}
-        </tbody>
-      </table>
-    </div>
+    <TaxrefSelectionTable {rows} {existingCdRefs} {loading} {onSelect} />
 
     {#if pageSelectors}
       <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />

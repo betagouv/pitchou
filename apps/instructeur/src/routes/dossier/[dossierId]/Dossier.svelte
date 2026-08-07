@@ -9,67 +9,31 @@
   import DossierControles from "./Dossier/DossierControles.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
-  import { MediaTypeError } from "@pitchou/common/errors.ts";
-  import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
+  import DossierTabList from "./Dossier/DossierTabList.svelte";
+  import type { DossierTab } from "./Dossier/dossierTabs.ts";
+  import { loadEspecesImpactees } from "./Dossier/loadEspecesImpactees.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
-  type Tab =
-    | "instruction"
-    | "projet"
-    | "porteur-de-projet"
-    | "avis"
-    | "controles"
-    | "pieces-jointes"
-    | "generation-document"
-    | "echanges";
-
-  function changeTab(newTab: Tab) {
+  function changeTab(newTab: DossierTab) {
     activeTab = newTab;
     // Update the URL without reloading the page
     window.history.replaceState(null, "", `#${newTab}`);
   }
 
-  function handleTabClick(tab: Tab) {
+  function handleTabClick(tab: DossierTab) {
     changeTab(tab);
-  }
-
-  // Petitionnaires may upload the impacted-espece file as .ods (Pitchou's
-  // template) or as .xlsx; both are parsed by espècesImpactéesDepuisFichierOdsArrayBuffer.
-  const EXTENSIONS_ATTENDUES = [".ods", ".xlsx"];
-
-  function getEspecesImpactes(
-    dossier: DossierFull,
-  ): ReturnType<typeof especesImpacteesFromFichierOdsArrayBuffer> | undefined {
-    const especesImpactees = dossier.especesImpactees;
-
-    if (!especesImpactees || !especesImpactees.url) {
-      return undefined;
-    }
-
-    const extension = "." + especesImpactees.name?.split(".").pop();
-
-    if (!EXTENSIONS_ATTENDUES.includes(extension)) {
-      return Promise.reject(
-        new MediaTypeError({ expected: EXTENSIONS_ATTENDUES.join(", "), obtained: extension }),
-      );
-    }
-
-    // The file content is fetched on demand from the Object Storage
-    return fetch(especesImpactees.url)
-      .then((response) => response.arrayBuffer())
-      .then((arrayBuffer) => especesImpacteesFromFichierOdsArrayBuffer(arrayBuffer));
   }
 
   type Props = {
     dossier: DossierFull;
-    initialActiveTab: Tab;
+    initialActiveTab: DossierTab;
     messages: any;
     email: string;
     dossierFollowers: NonNullable<Personne["email"]>[];
@@ -110,7 +74,7 @@
   let activeTab = $derived(initialActiveTab);
 
   let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
-    getEspecesImpactes(dossier),
+    loadEspecesImpactees(dossier),
   );
 </script>
 
@@ -125,122 +89,7 @@
     <HeaderDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></HeaderDossier>
 
     <div class="fr-tabs">
-      <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-instruction"
-            aria-controls="tabpanel-instruction-panel"
-            class="fr-tabs__tab {activeTab === 'instruction' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "instruction" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "instruction"}
-            onclick={() => handleTabClick("instruction")}
-          >
-            Instruction
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-projet"
-            aria-controls="tabpanel-projet-panel"
-            class="fr-tabs__tab {activeTab === 'projet' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "projet" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "projet"}
-            onclick={() => handleTabClick("projet")}
-          >
-            Projet
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-porteur-de-projet"
-            aria-controls="tabpanel-porteur-de-projet-panel"
-            class="fr-tabs__tab {activeTab === 'porteur-de-projet' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "porteur-de-projet" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "porteur-de-projet"}
-            onclick={() => handleTabClick("porteur-de-projet")}
-          >
-            Porteur de projet
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-echanges"
-            aria-controls="tabpanel-echanges-panel"
-            class="fr-tabs__tab {activeTab === 'echanges' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "echanges" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "echanges"}
-            onclick={() => handleTabClick("echanges")}
-          >
-            Échanges
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-avis"
-            aria-controls="tabpanel-avis-panel"
-            class="fr-tabs__tab {activeTab === 'avis' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "avis" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "avis"}
-            onclick={() => handleTabClick("avis")}
-          >
-            Avis
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-controles"
-            aria-controls="tabpanel-controles-panel"
-            class="fr-tabs__tab {activeTab === 'controles' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "controles" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "controles"}
-            onclick={() => handleTabClick("controles")}
-          >
-            Contrôles
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-pieces-jointes"
-            aria-controls="tabpanel-pieces-jointes-panel"
-            class="fr-tabs__tab {activeTab === 'pieces-jointes' ? 'fr-tabs__tab--selected' : ''}"
-            tabindex={activeTab === "pieces-jointes" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "pieces-jointes"}
-            onclick={() => handleTabClick("pieces-jointes")}
-          >
-            Pièces jointes
-          </button>
-        </li>
-        <li role="presentation">
-          <button
-            type="button"
-            id="tabpanel-generation-document"
-            aria-controls="tabpanel-generation-document-panel"
-            class="fr-tabs__tab {activeTab === 'generation-document'
-              ? 'fr-tabs__tab--selected'
-              : ''}"
-            tabindex={activeTab === "generation-document" ? 0 : -1}
-            role="tab"
-            aria-selected={activeTab === "generation-document"}
-            onclick={() => handleTabClick("generation-document")}
-          >
-            Génération document
-          </button>
-        </li>
-      </ul>
+      <DossierTabList {activeTab} onSelect={handleTabClick} />
       <div
         id="tabpanel-instruction-panel"
         aria-labelledby="tabpanel-instruction"

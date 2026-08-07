@@ -4,6 +4,7 @@
  */
 export * from "./dossiersQuery.ts";
 export * from "./dossiersFilter.ts";
+export * from "./dossiersFilterOptions.ts";
 export * from "./dossiersSort.ts";
 export * from "./dossiersFilterChips.ts";
 export * from "./dossiersSearchEvent.ts";

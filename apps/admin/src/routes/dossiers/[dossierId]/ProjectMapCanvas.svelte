@@ -3,8 +3,6 @@
   import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 
   import type { FeatureCollection, ProjectMapFeature } from "./dossierAdminFormModel.ts";
-  import { findAddressCoordinates } from "./projectMapAddress.ts";
-  import { parseMapCoordinates } from "./projectMapCoordinates.ts";
   import { ParcelHoverLoader } from "./projectMapCadastre.ts";
   import {
     emptyFeatureCollection,
@@ -14,13 +12,16 @@
     type ProjectMapMode,
   } from "./projectMapGeometry.ts";
   import { createProjectMap } from "./projectMapSetup.ts";
+  import * as projectMapDrawing from "./projectMapDrawing.ts";
+  import { projectMapError } from "./projectMapError.ts";
   import {
     cadastralFeatureCollection,
     draftFeatureCollection,
     setMapData,
   } from "./projectMapSources.ts";
-  import ProjectMapAddressSearch from "./ProjectMapAddressSearch.svelte";
+  import ProjectMapSearch from "./ProjectMapSearch.svelte";
   import ProjectMapToolbar from "./ProjectMapToolbar.svelte";
+  import ProjectMapCoordinateInput from "./ProjectMapCoordinateInput.svelte";
 
   type Props = {
     value: FeatureCollection | null;
@@ -34,20 +35,13 @@
   let loaded = $state(false);
   let mode = $state<ProjectMapMode>("navigate");
   let draft = $state<Position[]>([]);
-  let address = $state("");
-  let coordinateInput = $state("");
-  let coordinateError = $state<string | null>(null);
   let error = $state<string | null>(null);
   let parcelLoading = $state(false);
   const parcelHover = new ParcelHoverLoader();
 
-  function reportMapError(caught: unknown) {
-    error = caught instanceof Error ? caught.message : String(caught);
-  }
-
   function updateSource(sourceId: string, data: FeatureCollection) {
     if (!loaded) return;
-    void setMapData(map, sourceId, data).catch(reportMapError);
+    void setMapData(map, sourceId, data).catch((caught) => (error = projectMapError(caught)));
   }
 
   const updateMap = (data = value ?? emptyFeatureCollection()) => {
@@ -62,10 +56,7 @@
   }
 
   function addFeatures(features: ProjectMapFeature[]) {
-    const next: FeatureCollection = {
-      type: "FeatureCollection",
-      features: [...(value?.features ?? []), ...features],
-    };
+    const next = projectMapDrawing.appendMapFeatures(value, features);
     onChange(next);
     updateMap(next);
   }
@@ -79,16 +70,8 @@
   }
 
   function finishLine() {
-    const coordinates = draft.filter((position, index) => {
-      const previous = draft[index - 1];
-      return !previous || previous[0] !== position[0] || previous[1] !== position[1];
-    });
-    if (mode === "polygon" && coordinates.length >= 3) {
-      coordinates.push(coordinates[0]);
-      addFeatures([selectionFeature({ type: "Polygon", coordinates: [coordinates] })]);
-    } else if (mode === "line" && coordinates.length >= 2) {
-      addFeatures([selectionFeature({ type: "LineString", coordinates })]);
-    }
+    const feature = projectMapDrawing.completedDraftFeature(mode, draft);
+    if (feature) addFeatures([feature]);
     selectMode("navigate");
   }
 
@@ -98,9 +81,7 @@
     error = null;
     try {
       const feature = await parcelHover.at(map, event);
-      const knownIds = new Set(
-        (value?.features ?? []).map(({ properties }) => String(properties?.idu ?? "")),
-      );
+      const knownIds = projectMapDrawing.selectedParcelIds(value);
       if (!feature || knownIds.has(String(feature.properties?.idu ?? ""))) {
         error = "Aucune nouvelle parcelle trouvée à cet endroit.";
       } else {
@@ -147,27 +128,9 @@
     } else if (mode === "parcel") await selectParcel(event);
   }
 
-  async function searchAddress() {
-    if (!map || !address.trim()) return;
-    error = null;
-    try {
-      const coordinates = await findAddressCoordinates(address);
-      map.flyTo({ center: coordinates, zoom: 17 });
-    } catch (caught) {
-      error = caught instanceof Error ? caught.message : String(caught);
-    }
-  }
-
-  function addCoordinatePoint() {
-    const position = parseMapCoordinates(coordinateInput);
-    if (!position) {
-      coordinateError = "Saisissez des coordonnées valides.";
-      return;
-    }
-    coordinateError = null;
+  function addCoordinatePoint(position: Position) {
     addFeatures([selectionFeature({ type: "Point", coordinates: position })]);
     map?.flyTo({ center: position, zoom: 17 });
-    coordinateInput = "";
   }
 
   $effect(() => {
@@ -210,7 +173,10 @@
   });
 </script>
 
-<ProjectMapAddressSearch bind:address onSearch={searchAddress} />
+<ProjectMapSearch
+  onFound={(position) => map?.flyTo({ center: position, zoom: 17 })}
+  onError={(caught) => (error = projectMapError(caught))}
+/>
 
 {#if !disabled}
   <ProjectMapToolbar
@@ -229,34 +195,5 @@
 ></div>
 
 {#if !disabled}
-  <div class="fr-input-group fr-mt-3w">
-    <label class="fr-label" for="project-map-coordinates">
-      Ajouter un point sur la carte
-      <span class="fr-hint-text">Exemple : 43°48'06&quot;N 006°14'59&quot;E</span>
-    </label>
-    <div class="flex gap-2">
-      <input
-        class="fr-input flex-1"
-        id="project-map-coordinates"
-        type="text"
-        placeholder={`43°48'06"N 006°14'59"E`}
-        bind:value={coordinateInput}
-        onkeydown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            addCoordinatePoint();
-          }
-        }}
-      />
-      <button
-        class="fr-btn fr-icon-add-line"
-        type="button"
-        title="Ajouter le point"
-        onclick={addCoordinatePoint}
-      >
-        <span class="fr-sr-only">Ajouter le point</span>
-      </button>
-    </div>
-    {#if coordinateError}<p class="fr-error-text" role="alert">{coordinateError}</p>{/if}
-  </div>
+  <ProjectMapCoordinateInput onAdd={addCoordinatePoint} />
 {/if}

@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
+  import AARRIChartTooltip from "./AARRIChartTooltip.svelte";
+  import { AARRI_SERIES, niceChartStep } from "./aarriChart.ts";
 
   type Props = {
     indicators: IndicatorsAARRI[];
@@ -15,28 +17,7 @@
   const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
 
   // One curve per AARRI phase. Colors match the bars in IndicatorsAARRI.svelte.
-  const series = [
-    {
-      key: "nombreUtilisateuriceAcquis",
-      label: "Acquis",
-      color: "var(--artwork-minor-brown-caramel)",
-    },
-    {
-      key: "nombreUtilisateuriceActif",
-      label: "Activé",
-      color: "var(--artwork-minor-green-menthe)",
-    },
-    {
-      key: "nombreUtilisateuriceRetenu",
-      label: "Retenu",
-      color: "var(--artwork-minor-yellow-moutarde)",
-    },
-    {
-      key: "nombreUtilisateuriceImpact",
-      label: "Impact",
-      color: "var(--artwork-minor-red-marianne)",
-    },
-  ] as const;
+  const series = AARRI_SERIES;
 
   type SeriesKey = (typeof series)[number]["key"];
 
@@ -50,15 +31,7 @@
   // Picks the spacing between Y-axis gridlines so the labels are round numbers
   // (1/2/5 × a power of 10), aiming for ~targetTicks lines. We only plot integer
   // user counts, so the step is clamped to at least 1 (never fractional).
-  function niceStep(max: number, targetTicks: number): number {
-    const rough = max / targetTicks;
-    const magnitude = Math.pow(10, Math.floor(Math.log10(rough)));
-    const normalized = rough / magnitude;
-    const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
-    return Math.max(1, step * magnitude);
-  }
-
-  let step = $derived(niceStep(maxValue, 4));
+  let step = $derived(niceChartStep(maxValue, 4));
   let yMax = $derived(Math.ceil(maxValue / step) * step);
   let yTicks = $derived(Array.from({ length: yMax / step + 1 }, (_, i) => i * step));
 
@@ -176,47 +149,20 @@
       <!-- hover crosshair + tooltip for the hovered week -->
       {#if hoveredIndex !== null}
         {@const hi = hoveredIndex}
-        <line
-          class="stroke-[var(--text-mention-grey,#666)] stroke-1 [stroke-dasharray:4_3]"
-          x1={x(hi)}
-          x2={x(hi)}
-          y1={MARGIN.top}
-          y2={MARGIN.top + innerHeight}
+        <AARRIChartTooltip
+          index={hi}
+          point={points[hi]}
+          {series}
+          {x}
+          {y}
+          {tooltipX}
+          marginTop={MARGIN.top}
+          {innerHeight}
+          width={TOOLTIP_WIDTH}
+          height={tooltipHeight}
+          rowHeight={TOOLTIP_ROW}
+          date={longDateFormat.format(new Date(points[hi].date))}
         />
-        {#each series as s}
-          <circle
-            class="stroke-[var(--background-default-grey,#fff)] stroke-2"
-            cx={x(hi)}
-            cy={y(points[hi][s.key])}
-            r="5"
-            fill={s.color}
-          />
-        {/each}
-        <g transform={`translate(${tooltipX(hi)} ${MARGIN.top})`} pointer-events="none">
-          <rect
-            class="fill-[var(--background-default-grey,#fff)] stroke-[var(--border-default-grey,#ddd)] [filter:drop-shadow(0_1px_3px_rgba(0,0,0,0.2))]"
-            width={TOOLTIP_WIDTH}
-            height={tooltipHeight}
-            rx="4"
-          />
-          <text class="text-[12px] font-bold fill-[var(--text-default-grey,#161616)]" x="8" y="18"
-            >{longDateFormat.format(new Date(points[hi].date))}</text
-          >
-          {#each series as s, j}
-            <rect x="8" y={28 + j * TOOLTIP_ROW} width="10" height="10" rx="2" fill={s.color} />
-            <text
-              class="text-[12px] fill-[var(--text-default-grey,#161616)]"
-              x="24"
-              y={37 + j * TOOLTIP_ROW}>{s.label}</text
-            >
-            <text
-              class="text-[12px] font-bold fill-[var(--text-default-grey,#161616)]"
-              x={TOOLTIP_WIDTH - 8}
-              y={37 + j * TOOLTIP_ROW}
-              text-anchor="end">{points[hi][s.key]}</text
-            >
-          {/each}
-        </g>
       {/if}
 
       <!-- transparent hit areas to detect the hovered week -->

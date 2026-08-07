@@ -1,8 +1,6 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
   import {
-    formatLocalisation,
-    formatPorteurDeProjet,
     hasMandataire,
     formatMandataire,
     formatDemandeurContact,
@@ -12,6 +10,7 @@
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
+  import HeaderDossierIdentity from "./HeaderDossierIdentity.svelte";
 
   import {
     instructeurLeavesDossier,
@@ -119,54 +118,13 @@
   </div>
 
   <div class="flex flex-row gap-8 px-4 py-6">
-    <section class="flex-[2]">
-      <div class="flex items-center gap-2 mb-2">
-        <span
-          class="fr-icon-map-pin-2-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
-          aria-hidden="true"
-        ></span>
-        {formatLocalisation(dossier)}
-      </div>
-      <div class="flex items-center gap-2 mb-2">
-        <span
-          class="fr-icon-user-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
-          aria-hidden="true"
-        ></span>
-        <span>
-          Porteur de projet&nbsp;:&nbsp;
-          {#if demandeurEmail}
-            <a href={`mailto:${demandeurEmail}`} target="_blank" rel="noopener noreferrer"
-              >{formatPorteurDeProjet(dossier)}</a
-            >
-          {:else}
-            {formatPorteurDeProjet(dossier)}
-          {/if}
-        </span>
-      </div>
-      {#if showDeposeur}
-        <div class="flex items-center gap-2 mb-2">
-          <span
-            class="fr-icon-user-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
-            aria-hidden="true"
-          ></span>
-          <span>
-            Personne qui dépose le dossier (demandeur/mandataire)&nbsp;:&nbsp;
-            {#if deposeurMailto}
-              <a href={deposeurMailto} target="_blank" rel="noopener noreferrer">{deposeurName}</a>
-            {:else}
-              {deposeurName}
-            {/if}
-          </span>
-        </div>
-      {/if}
-      <div class="flex items-center gap-2 mb-0">
-        <span
-          class="fr-icon-briefcase-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
-          aria-hidden="true"
-        ></span>
-        {dossier.main_activite}
-      </div>
-    </section>
+    <HeaderDossierIdentity
+      {dossier}
+      {demandeurEmail}
+      {showDeposeur}
+      {deposeurMailto}
+      {deposeurName}
+    />
 
     <section class="flex-1 pl-8 border-l border-[color:var(--border-default-grey)]">
       <div class="flex items-center gap-2 mb-2">

@@ -1,9 +1,5 @@
 <script lang="ts">
-  export type DetailSection = {
-    title: string;
-    /** Rendered as a paragraph when it is a string, as a list when it is an array. */
-    content: string | string[];
-  };
+  import type { DetailSection } from "./referentielDetails.ts";
 
   type Props = {
     id: string;

@@ -2,15 +2,16 @@ import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import parseArgs from "minimist";
+import ts from "typescript";
 
 /**
- * CI guard: fail if any .svelte or .ts file exceeds a maximum number of lines.
+ * CI guard: fail if any .svelte or .ts file exceeds a maximum number of non-comment lines.
  *
  * Usage:
  *   node --import tsx scripts/check-file-length.ts [roots...] [--max <n>]
  *
  * Options:
- *   --max <n>  Maximum allowed line count (default: 300)
+ *   --max <n>  Maximum allowed line count (default: 200)
  *
  * Examples:
  *   node --import tsx scripts/check-file-length.ts
@@ -22,7 +23,7 @@ import parseArgs from "minimist";
  * "apps/admin/src/legacy.ts") matches that exact path relative to the repo root.
  */
 
-const DEFAULT_MAX = 300;
+const DEFAULT_MAX = 200;
 
 // Folders and files to skip. Tooling/build output first, then project exceptions.
 const IGNORES = ["node_modules", ".git", ".svelte-kit", ".direnv", "build", "dist", "test-results"];
@@ -81,8 +82,47 @@ async function collectFiles(dir: string, found: string[]): Promise<void> {
 function countLines(filePath: string): number {
   const content = readFileSync(filePath, "utf8");
   if (content === "") return 0;
-  // A trailing newline does not start a new line, so drop it before counting.
-  return content.replace(/\n$/, "").split("\n").length;
+
+  const withoutComments = [...content];
+  const scanner = ts.createScanner(
+    ts.ScriptTarget.Latest,
+    false,
+    ts.LanguageVariant.Standard,
+    content,
+  );
+  let token = scanner.scan();
+
+  while (token !== ts.SyntaxKind.EndOfFileToken) {
+    if (
+      token === ts.SyntaxKind.SingleLineCommentTrivia ||
+      token === ts.SyntaxKind.MultiLineCommentTrivia
+    ) {
+      blankRange(withoutComments, scanner.getTokenPos(), scanner.getTextPos());
+    }
+    token = scanner.scan();
+  }
+
+  if (filePath.endsWith(".svelte")) {
+    for (const match of content.matchAll(/<!--[\s\S]*?-->/g)) {
+      blankRange(withoutComments, match.index, match.index + match[0].length);
+    }
+  }
+
+  const originalLines = dropTrailingNewline(content).split("\n");
+  const uncommentedLines = dropTrailingNewline(withoutComments.join("")).split("\n");
+  return originalLines.filter(
+    (line, index) => line.trim() === "" || uncommentedLines[index]?.trim() !== "",
+  ).length;
+}
+
+function blankRange(content: string[], start: number, end: number): void {
+  for (let index = start; index < end; index++) {
+    if (content[index] !== "\n" && content[index] !== "\r") content[index] = " ";
+  }
+}
+
+function dropTrailingNewline(content: string): string {
+  return content.replace(/\r?\n$/, "");
 }
 
 const files: string[] = [];
@@ -96,7 +136,7 @@ const violations = files
   .sort((a, b) => b.lines - a.lines);
 
 if (violations.length > 0) {
-  console.error(`The following ${violations.length} file(s) exceed ${max} lines:\n`);
+  console.error(`The following ${violations.length} file(s) exceed ${max} non-comment lines:\n`);
   for (const { file, lines } of violations) {
     console.error(`  ${lines}\t${file}`);
   }
@@ -106,4 +146,4 @@ if (violations.length > 0) {
   process.exit(1);
 }
 
-console.log(`OK: all ${files.length} .svelte/.ts file(s) are within ${max} lines.`);
+console.log(`OK: all ${files.length} .svelte/.ts file(s) are within ${max} non-comment lines.`);

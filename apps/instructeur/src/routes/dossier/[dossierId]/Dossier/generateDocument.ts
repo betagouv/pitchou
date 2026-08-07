@@ -1,6 +1,3 @@
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-
 import { departementName } from "@pitchou/common/departements.ts";
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
 import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
@@ -13,6 +10,11 @@ import type {
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { EspecesByActivite } from "$lib/especes/createEspecesGroupedByImpact.ts";
+import {
+  formatDocumentDate,
+  formatNumber,
+  formatSimpleDocumentDate,
+} from "./generateDocumentFormatting.ts";
 
 /**
  * List of tags provided to the instructeur.i.ces.
@@ -187,33 +189,4 @@ export function getDocumentGenerationTags(
     formatter_date: formatDocumentDate,
     formatter_date_simple: formatSimpleDocumentDate,
   };
-}
-
-function formatNumber(value: any, precision: number = 2): string | undefined {
-  if (typeof value === "string") {
-    value = parseFloat(value);
-  }
-
-  if (typeof value === "number") {
-    if (Number.isNaN(value)) {
-      return "(erreur de calcul)";
-    }
-
-    if (Number.isInteger(value)) return value.toString(10);
-    else {
-      return value.toFixed(precision);
-    }
-  }
-
-  return undefined;
-}
-
-function formatDocumentDate(date: any, formatString: string): string | undefined {
-  if (!date) return undefined;
-  date = new Date(date);
-  return format(date, formatString, { locale: fr });
-}
-
-function formatSimpleDocumentDate(date: any): string | undefined {
-  return formatDocumentDate(date, "d MMMM yyyy");
 }

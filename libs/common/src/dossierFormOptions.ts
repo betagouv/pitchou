@@ -160,18 +160,12 @@ export function requiresEspecesPriseDetentionLimiteeType(
   );
 }
 
-export const scientifiqueDemandeTypeOptions = [
-  "Une/des capture(s)/relâcher(s) immédiat(s) sur place sans marquage",
-  "Une/des capture(s)/relâcher(s) immédiat(s) sur place avec marquage",
-  "Prélèvement de matériel biologique",
-  "Autre cas",
-] as const;
-
-export const scientifiqueDemandePurposeOptions = [
-  "Pour établissement public ayant une activité de recherche, pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre d'études scientifiques",
-  "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'évaluation préalable et du suivi des impacts sur la biodiversité de projets de travaux, d'ouvrages et d'aménagements",
-  "Pour la réalisation d'inventaires de populations d'espèces sauvages dans le cadre de l'élaboration ou du suivi de plans, de schémas, de programmes ou d'autres documents de planification nécessitant l'acquisition de connaissances ou visant à la préservation du patrimoine naturel prévus par des dispositions du code de l'environnement.",
-] as const;
+export {
+  requiresScientificPurposes,
+  scientifiqueCaptureModeOptions,
+  scientifiqueDemandePurposeOptions,
+  scientifiqueDemandeTypeOptions,
+} from "./dossierFormScientificOptions.ts";
 
 export const aeProcedureOptions = [
   "Autorisation ICPE",
@@ -193,31 +187,4 @@ export const eolienMortalityActionOptions = [
   "Envoi des cadavres collectés vers le MNHN/UMR CESCO pour abonder au programme de veille sanitaire",
 ] as const;
 
-export function requiresScientificPurposes(scientifiqueDemandeType: readonly string[]): boolean {
-  return scientifiqueDemandeType.some((value) =>
-    scientifiqueDemandeTypeOptions.slice(0, 3).includes(value as never),
-  );
-}
-
-export const scientifiqueCaptureModeOptions = ["Manuelle", "Au filet", "Avec épuisette"] as const;
-
-export const dossierRegionOptions = [
-  "Auvergne-Rhône-Alpes",
-  "Bourgogne-Franche-Comté",
-  "Bretagne",
-  "Centre-Val de Loire",
-  "Corse",
-  "Grand Est",
-  "Guadeloupe",
-  "Guyane",
-  "Hauts-de-France",
-  "Île-de-France",
-  "La Réunion",
-  "Martinique",
-  "Mayotte",
-  "Normandie",
-  "Nouvelle-Aquitaine",
-  "Occitanie",
-  "Pays de la Loire",
-  "Provence-Alpes-Côte d'Azur",
-] as const;
+export { dossierRegionOptions } from "./dossierRegionOptions.ts";

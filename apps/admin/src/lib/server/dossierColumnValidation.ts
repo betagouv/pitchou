@@ -1,19 +1,5 @@
 import { error } from "@sveltejs/kit";
 
-import { departements } from "@pitchou/common/departements.ts";
-import {
-  aeProcedureOptions,
-  dossierLocationScopeOptions,
-  dossierMainActiviteOptions,
-  dossierRequestContextOptions,
-  eolienMortalityActionOptions,
-  legacyMotifDerogationOptions,
-  dossierRegionOptions,
-  motifDerogationOptions,
-  especesPriseDetentionLimiteeTypeOptions,
-  scientifiqueDemandePurposeOptions,
-  scientifiqueDemandeTypeOptions,
-} from "@pitchou/common/dossierFormOptions.ts";
 import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
 import type { DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
@@ -22,25 +8,22 @@ import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 import { isValidProjectMap } from "$lib/projectMapValidation.ts";
 
 import { COLUMN_KINDS, type ColumnKind } from "./dossierColumnKinds.ts";
+import {
+  AE_PROCEDURE_VALUES,
+  DEPARTEMENT_VALUES,
+  EOLIEN_MORTALITY_ACTION_VALUES,
+  ESPECES_PRISE_DETENTION_LIMITEE_TYPE_VALUES,
+  LOCATION_SCOPE_VALUES,
+  MAIN_ACTIVITE_VALUES,
+  MOTIF_DEROGATION_VALUES,
+  REGION_VALUES,
+  REQUEST_CONTEXT_VALUES,
+  SCIENTIFIQUE_DEMANDE_PURPOSE_VALUES,
+  SCIENTIFIQUE_DEMANDE_TYPE_VALUES,
+} from "./dossierColumnAcceptedValues.ts";
 
 const NON_NULLABLE_COLUMNS = new Set(["free_comment", "onagre_demande_identifier", "enjeu"]);
 const TYPE_DOSSIER_VALUES = new Set(["Hirondelle", "Cigogne"]);
-const MAIN_ACTIVITE_VALUES = new Set<string>(dossierMainActiviteOptions);
-const REQUEST_CONTEXT_VALUES = new Set<string>(dossierRequestContextOptions);
-const MOTIF_DEROGATION_VALUES = new Set<string>([
-  ...motifDerogationOptions,
-  ...legacyMotifDerogationOptions,
-]);
-const AE_PROCEDURE_VALUES = new Set<string>(aeProcedureOptions);
-const EOLIEN_MORTALITY_ACTION_VALUES = new Set<string>(eolienMortalityActionOptions);
-const ESPECES_PRISE_DETENTION_LIMITEE_TYPE_VALUES = new Set<string>(
-  especesPriseDetentionLimiteeTypeOptions,
-);
-const SCIENTIFIQUE_DEMANDE_TYPE_VALUES = new Set<string>(scientifiqueDemandeTypeOptions);
-const SCIENTIFIQUE_DEMANDE_PURPOSE_VALUES = new Set<string>(scientifiqueDemandePurposeOptions);
-const DEPARTEMENT_VALUES = new Set<string>(departements.map(({ code }) => code));
-const REGION_VALUES = new Set<string>(dossierRegionOptions);
-const LOCATION_SCOPE_VALUES = new Set<string>(dossierLocationScopeOptions);
 const EOLIEN_DECIMAL_COLUMNS = new Set([
   "eolien_tip_height",
   "eolien_rotor_diameter",

@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import { untrack } from "svelte";
 
   import { addOrUpdateAvisExpert } from "../avisExpert.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
-  import DateInput from "../../DateInput.svelte";
+  import AvisExpertFields from "./AvisExpertFields.svelte";
 
   type Props = {
     dossierId: DossierFull["id"];
@@ -27,15 +27,19 @@
   let inProgress = $state(false);
 
   let serviceOuPersonneExperte: string = $state(
-    avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
-      ? avisExpert.expert
-      : "Autre expert",
+    untrack(() =>
+      avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
+        ? avisExpert.expert
+        : "Autre expert",
+    ),
   );
 
   let otherExpertText: string | null = $state(
-    avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
-      ? null
-      : (avisExpert?.expert ?? ""),
+    untrack(() =>
+      avisExpert?.expert && ["CSRPN", "CNPN", "Ministre"].includes(avisExpert.expert)
+        ? null
+        : (avisExpert?.expert ?? ""),
+    ),
   );
 
   async function saveAvisExpert(e: SubmitEvent) {
@@ -100,166 +104,15 @@
         Ajouter un nouvel avis d'expert
       {/if}
     </legend>
-    <!-- Section Expert -->
-    <h4
-      class="fr-h6 fr-mt-0 fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
-    >
-      Expert
-    </h4>
-    <div class="fr-fieldset__element">
-      <fieldset class="fr-fieldset fr-mb-0">
-        <legend class="fr-fieldset__legend">Service ou personne experte</legend>
-        {#each ["CSRPN", "CNPN", "Ministre", "Autre expert"] as service}
-          {@const idRadio = `service-expert-${service.replace(/\s+/g, "-").toLowerCase()}-${dossierId}`}
-          <div class="fr-fieldset__element">
-            <div class="fr-radio-group fr-ml-2w">
-              <input
-                id={idRadio}
-                type="radio"
-                value={service}
-                name="serviceOuPersonneExperte"
-                bind:group={serviceOuPersonneExperte}
-                onchange={() => {
-                  if (service !== "Autre expert") otherExpertText = null;
-                }}
-              />
-              <label class="fr-label" for={idRadio}>
-                {service}
-              </label>
-            </div>
-          </div>
-        {/each}
-        {#if serviceOuPersonneExperte === "Autre expert"}
-          <div class="fr-fieldset__element">
-            <div class="fr-input-group fr-mt-3w">
-              <label class="fr-label" for="autre-expert-texte">Précisez l'expert</label>
-              <input
-                class="fr-input"
-                type="text"
-                id="autre-expert-texte"
-                bind:value={otherExpertText}
-                placeholder="Nom de l'expert"
-              />
-            </div>
-          </div>
-        {/if}
-      </fieldset>
-    </div>
-
-    <!-- Section Saisine -->
-    <h4
-      class="fr-h6 fr-mt-3w fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
-    >
-      Saisine
-    </h4>
-    <div class="fr-fieldset__element">
-      <div class="fr-upload-fichier-saisine-group">
-        <label class="fr-label" for="upload-fichier-saisine"
-          >Fichier de la saisine
-          <span class="fr-hint-text"
-            >Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span
-          >
-        </label>
-        {#if avisExpertInitial?.saisine_fichier_url}
-          <a
-            class="fr-btn fr-btn--secondary fr-btn--sm"
-            href={avisExpertInitial.saisine_fichier_url}
-            data-sveltekit-reload
-          >
-            Télécharger le fichier de la saisine
-          </a>
-        {:else}
-          <input
-            accept=".pdf"
-            bind:files={fileListFichierSaisine}
-            class="fr-upload"
-            aria-describedby="upload-fichier-saisine-messages"
-            type="file"
-            id="upload-fichier-saisine"
-            name="upload"
-          />
-          <div
-            class="fr-messages-group"
-            id="upload-fichier-saisine-messages"
-            aria-live="polite"
-          ></div>
-        {/if}
-      </div>
-    </div>
-    <div class="fr-fieldset__element">
-      <div class="fr-input-group fr-mt-3w" id="champ-date-saisine-group">
-        <label class="fr-label" for="input-champ-date-saisine">Date saisine</label>
-        <DateInput
-          id="input-champ-date-saisine"
-          label="Date saisine"
-          bind:date={avisExpert.saisine_date}
-        />
-      </div>
-    </div>
-
-    <!-- Section Avis -->
-    <h4
-      class="fr-h6 fr-mt-3w fr-mb-1w fr-pb-1w w-full border-b border-[color:var(--border-default-grey)]"
-    >
-      Avis
-    </h4>
-    <div class="fr-fieldset__element">
-      <div class="fr-upload-fichier-avis-group">
-        <label class="fr-label" for="upload-fichier-avis"
-          >Fichier de l'avis de l'expert
-          <span class="fr-hint-text"
-            >Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span
-          >
-        </label>
-        {#if avisExpertInitial?.avis_fichier_url}
-          <a
-            class="fr-btn fr-btn--secondary fr-btn--sm"
-            href={avisExpertInitial.avis_fichier_url}
-            data-sveltekit-reload
-          >
-            Télécharger le fichier de l'avis
-          </a>
-        {:else}
-          <input
-            accept=".pdf"
-            bind:files={fileListFichierAvis}
-            class="fr-upload"
-            aria-describedby="upload-fichier-avis-messages"
-            type="file"
-            id="upload-fichier-avis"
-            name="upload"
-          />
-          <div class="fr-messages-group" id="upload-fichier-avis-messages" aria-live="polite"></div>
-        {/if}
-      </div>
-    </div>
-    <div class="fr-fieldset__element">
-      <div class="fr-input-group fr-mt-3w" id="champ-date-avis-group">
-        <label class="fr-label" for="input-champ-date-avis">Date avis</label>
-        <DateInput id="input-champ-date-avis" label="Date avis" bind:date={avisExpert.avis_date} />
-      </div>
-    </div>
-    {#if serviceOuPersonneExperte === "Ministre" || serviceOuPersonneExperte === "CNPN" || serviceOuPersonneExperte === "CSRPN"}
-      <div class="fr-fieldset__element">
-        <div class="fr-input-group" id="champ-avis-group">
-          <p class="fr-label fr-mb-2w">Avis de l’expert</p>
-
-          {#each ["Avis favorable", "Avis favorable tacite", "Avis favorable sous condition", "Avis défavorable"] as value}
-            {@const id = `avis-${value.replace(/\s+/g, "-").toLowerCase()}`}
-            <div class="fr-fieldset__element">
-              <div class="fr-radio-group fr-ml-2w">
-                <input type="radio" {id} name="champ-avis" {value} bind:group={avisExpert.avis} />
-                <label class="fr-label" for={id}>
-                  {value}
-                </label>
-              </div>
-            </div>
-          {/each}
-
-          <div class="fr-messages-group" id="champ-avis-group-messages" aria-live="polite"></div>
-        </div>
-      </div>
-    {/if}
+    <AvisExpertFields
+      {dossierId}
+      initial={avisExpertInitial}
+      bind:avis={avisExpert}
+      bind:service={serviceOuPersonneExperte}
+      bind:otherExpert={otherExpertText}
+      bind:saisineFiles={fileListFichierSaisine}
+      bind:avisFiles={fileListFichierAvis}
+    />
     <div
       class="fr-messages-group"
       id="formulaire-ajouter-avis-expert-fieldset-messages"
