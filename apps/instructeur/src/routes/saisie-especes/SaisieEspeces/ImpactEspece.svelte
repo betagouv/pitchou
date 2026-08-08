@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { individusRanges } from "./especeFieldset.ts";
+  import QuantifiedImpactFields from "./QuantifiedImpactFields.svelte";
 
   import type {
     ByClassification,
@@ -163,71 +163,5 @@
     {/if}
   </div>
 
-  {#if impact.activité}
-    <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-      {#if impact.activité["Nombre d'individus"] === "Oui"}
-        <div class="fr-col-md-3 fr-col-12 input-select">
-          <label class="fr-label" for="input-espece-{indexEspece}-nombre-individus-{indexImpact}">
-            Nombre d’individus
-          </label>
-          <select
-            bind:value={impact.nombreIndividus}
-            class="fr-select"
-            id="input-espece-{indexEspece}-nombre-individus-{indexImpact}"
-          >
-            <option value={undefined}>-</option>
-            {#each individusRanges as range}
-              <option value={range}>{range}</option>
-            {/each}
-          </select>
-        </div>
-      {/if}
-
-      {#if impact.activité["Nids"] === "Oui"}
-        <div class="fr-col-md-3 fr-col-12 input-button">
-          <label class="fr-label" for="input-espece-{indexEspece}-nids-{indexImpact}"> Nids </label>
-          <input
-            type="number"
-            bind:value={impact.nombreNids}
-            min="0"
-            step="1"
-            class="fr-input"
-            id="input-espece-{indexEspece}-nids-{indexImpact}"
-          />
-        </div>
-      {/if}
-
-      {#if impact.activité["Œufs"] === "Oui"}
-        <div class="fr-col-md-3 fr-col-12 input-button">
-          <label class="fr-label" for="input-espece-{indexEspece}-oeufs-{indexImpact}">
-            Œufs
-          </label>
-          <input
-            type="number"
-            bind:value={impact.nombreOeufs}
-            min="0"
-            step="1"
-            class="fr-input"
-            id="input-espece-{indexEspece}-oeufs-{indexImpact}"
-          />
-        </div>
-      {/if}
-
-      {#if impact.activité["Surface habitat détruit (m²)"] === "Oui"}
-        <div class="fr-col-md-3 fr-col-12 input-button">
-          <label class="fr-label" for="input-espece-{indexEspece}-surface-{indexImpact}">
-            Surface habitat détruit (m²)
-          </label>
-          <input
-            type="number"
-            bind:value={impact.surfaceHabitatDétruit}
-            min="0"
-            step="1"
-            class="fr-input"
-            id="input-espece-{indexEspece}-surface-{indexImpact}"
-          />
-        </div>
-      {/if}
-    </div>
-  {/if}
+  <QuantifiedImpactFields bind:impact {indexEspece} {indexImpact} />
 </fieldset>

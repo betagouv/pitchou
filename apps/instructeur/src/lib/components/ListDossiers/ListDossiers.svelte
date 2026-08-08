@@ -3,7 +3,7 @@
   import type { PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
-  import type { DossiersQuery, SortKey, SortOrder } from "./dossiersList.ts";
+  import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     buildActiveFilterChips,
@@ -15,19 +15,19 @@
     filterDossiers,
     listAvailableInstructeurs,
     readDossiersQuery,
-  } from "./dossiersList.ts";
+  } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
   } from "$lib/dossier/suiviDossier.ts";
   import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
-  import CardDossier from "./CardDossier.svelte";
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import PaginatedDossiers from "./PaginatedDossiers.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
   import DossiersFilterModal from "./DossiersFilterModal.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
-  import { tick, untrack } from "svelte";
+  import { untrack } from "svelte";
+  import { navigateDossiers } from "./navigation.ts";
 
   type Props = {
     title: string;
@@ -61,8 +61,6 @@
     emptyListMessage,
   }: Props = $props();
 
-  const NUMBER_DOSSIERS_PER_PAGE = 10;
-
   // The applied query lives entirely in the URL: search, filters, sort and page are all
   // reflected as query params, so the view is shareable and survives a reload.
   const query = $derived(readDossiersQuery(page.url.searchParams));
@@ -76,38 +74,12 @@
   let filterParamsAtOpening = "";
 
   let statusMessage = $state("");
-  let pageTitleElement: HTMLHeadingElement | undefined = $state();
-
   const ctx = $derived({ notificationByDossier, followRelations });
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
   const sortedDossiers = $derived(
     [...filteredDossiers].sort((a, b) =>
       compareDossiers(a, b, query.sort, query.order, notificationByDossier),
     ),
-  );
-
-  const numberPages = $derived(
-    Math.max(1, Math.ceil(sortedDossiers.length / NUMBER_DOSSIERS_PER_PAGE)),
-  );
-  const currentPage = $derived(Math.min(Math.max(1, query.page), numberPages));
-  const displayedDossiers = $derived(
-    sortedDossiers.slice(
-      NUMBER_DOSSIERS_PER_PAGE * (currentPage - 1),
-      NUMBER_DOSSIERS_PER_PAGE * currentPage,
-    ),
-  );
-
-  type PageSelector = () => void;
-  const pageSelectors: undefined | [undefined, ...rest: PageSelector[]] = $derived.by(() => {
-    if (sortedDossiers.length <= NUMBER_DOSSIERS_PER_PAGE) return undefined;
-    const selectors = Array.from({ length: numberPages }, (_v, i) => () => goToPage(i + 1));
-    return [undefined, ...selectors];
-  });
-
-  const pageText = $derived(
-    query.text.trim()
-      ? `Résultats de recherche pour «${query.text}» : Page ${currentPage} sur ${numberPages}`
-      : `Page ${currentPage} sur ${numberPages}`,
   );
 
   const activeFilterCount = $derived(countActiveFilters(query));
@@ -119,14 +91,7 @@
   );
 
   /** Reflects the given query into the URL, which is the single source of truth */
-  function navigate(next: DossiersQuery) {
-    const search = buildDossiersSearchParams(next).toString();
-    goto(search ? `?${search}` : page.url.pathname, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true,
-    });
-  }
+  const navigate = (next: DossiersQuery) => navigateDossiers(goto, page.url.pathname, next);
 
   /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
   function applySearch(next: DossiersQuery) {
@@ -159,7 +124,6 @@
 
   function goToPage(number: number) {
     navigate({ ...copyDossiersQuery(query), page: number });
-    tick().then(() => pageTitleElement?.focus());
   }
 
   function openFilters() {
@@ -186,12 +150,6 @@
     // The URL already reflects the draft (applied live); this records the search analytics
     // and announces the final count once.
     applySearch({ ...copyDossiersQuery(draft), page: 1 });
-  }
-  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
-    return instructeurFollowsDossier(email, id);
-  }
-  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
-    return instructeurLeavesDossier(email, id);
   }
 </script>
 
@@ -224,14 +182,6 @@
   <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
     {#if statusMessage}{statusMessage}{/if}
   </div>
-
-  <h2
-    bind:this={pageTitleElement}
-    tabindex="-1"
-    class="text-[1rem] fr-text--regular fr-mb-0 ml-auto focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
-  >
-    {pageText}
-  </h2>
 </div>
 
 <DossiersFilterModal
@@ -245,30 +195,15 @@
   onClose={() => (modalOpen = false)}
 />
 
-{#if displayedDossiers.length >= 1}
-  <div class="bg-[var(--background-contrast-grey)] fr-mb-2w fr-py-4w fr-px-4w fr-px-md-15w">
-    <ul class="list-none fr-p-0 fr-m-0">
-      {#each displayedDossiers as dossier (dossier.id)}
-        <li class="[&:not(:last-child)]:mb-4">
-          <CardDossier
-            {dossier}
-            {currentInstructeurFollowsDossier}
-            {currentInstructeurLeavesDossier}
-            dossierFollowedByCurrentInstructeur={dossierIdsFollowedByCurrentInstructeur.has(
-              dossier.id,
-            )}
-            notificationViewed={notificationByDossier.get(dossier.id)?.viewed ?? true}
-          />
-        </li>
-      {/each}
-    </ul>
-  </div>
-{:else if emptyListMessage}
-  {@render emptyListMessage({ wholeListEmpty: dossiers.length === 0 })}
-{:else}
-  <p>Aucun dossier n'a été trouvé.</p>
-{/if}
-
-{#if pageSelectors}
-  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
-{/if}
+<PaginatedDossiers
+  dossiers={sortedDossiers}
+  requestedPage={query.page}
+  searchText={query.text}
+  wholeListEmpty={dossiers.length === 0}
+  followedIds={dossierIdsFollowedByCurrentInstructeur}
+  notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
+  follow={(id) => instructeurFollowsDossier(email, id)}
+  leave={(id) => instructeurLeavesDossier(email, id)}
+  navigatePage={goToPage}
+  {emptyListMessage}
+/>

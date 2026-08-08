@@ -9,13 +9,10 @@
     MoyenDePoursuiteRow,
   } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
-  import {
-    CLASSIFICATIONS,
-    criteresApplicables,
-    parClassification,
-  } from "./referentielTypeImpact.ts";
+  import { CLASSIFICATIONS, criteresApplicables, parClassification } from "./typeImpacts.ts";
   import ReferentielDetailModal from "./ReferentielDetailModal.svelte";
-  import type { DetailSection } from "./ReferentielDetailModal.svelte";
+  import ReferentielValueTable from "./ReferentielValueTable.svelte";
+  import { referentielValueDetail, typeImpactDetail, type ReferentielDetail } from "./details.ts";
 
   type Props = {
     referentiel: ReferentielRows;
@@ -47,12 +44,7 @@
     ),
   );
 
-  let detail: {
-    title: string;
-    subtitle?: string;
-    badges: string[];
-    sections: DetailSection[];
-  } | null = $state(null);
+  let detail: ReferentielDetail | null = $state(null);
   let triggerDetail: HTMLButtonElement | undefined = $state();
 
   async function openDetail(next: NonNullable<typeof detail>) {
@@ -62,24 +54,11 @@
   }
 
   function openTypeImpactDetail(typeImpact: TypeImpactRow) {
-    openDetail({
-      title: typeImpact.libelle_pitchou,
-      subtitle: `${typeImpact.identifiant_pitchou} — ${typeImpact.classification} — code européen ${typeImpact.code_europeen}`,
-      badges: criteresApplicables(typeImpact),
-      sections: [
-        { title: "Libellé de la directive européenne", content: typeImpact.libelle_europeen },
-        { title: "Activités Onagre correspondantes", content: typeImpact.activites_onagre },
-      ],
-    });
+    openDetail(typeImpactDetail(typeImpact));
   }
 
   function openValeurDetail(valeur: MethodeRow | MoyenDePoursuiteRow, nature: string) {
-    openDetail({
-      title: valeur.libelle_pitchou,
-      subtitle: `${nature} — ${valeur.classification} — code européen ${valeur.code}`,
-      badges: [],
-      sections: [{ title: "Libellé de la directive européenne", content: valeur.libelle_europeen }],
-    });
+    openDetail(referentielValueDetail(valeur, nature));
   }
 </script>
 
@@ -174,106 +153,20 @@
   </table>
 </div>
 
-<h2 class="fr-h4 fr-mt-4w">Méthodes <span class="fr-text--sm">({methodes.length})</span></h2>
-
-<p>
-  Proposées lorsque le type d’impact a le critère « Méthode ». La flore n’en a aucune : la directive
-  n’en définit pas.
-</p>
-
-{#if methodes.length === 0}
-  <p class="fr-mb-0">Aucune méthode ne s’applique à cette classification d’espèce.</p>
-{:else}
-  <div class="fr-table fr-table--bordered overflow-x-auto">
-    <table class="w-full min-w-[36rem]">
-      <colgroup>
-        <col style="width: 110px" />
-        <col style="width: 150px" />
-        <col />
-      </colgroup>
-      <thead>
-        <tr>
-          <th scope="col">Code européen</th>
-          <th scope="col">Classification</th>
-          <th scope="col">Libellé Pitchou</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each methodes as methode (methode.classification + methode.code)}
-          <tr
-            class="cursor-pointer hover:bg-[var(--background-contrast-grey)] focus-visible:[outline:2px_solid_var(--bf500)] focus-visible:[outline-offset:-2px]"
-            role="button"
-            tabindex="0"
-            title="Voir le détail de la méthode {methode.code}"
-            onclick={() => openValeurDetail(methode, "Méthode")}
-            onkeydown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                openValeurDetail(methode, "Méthode");
-              }
-            }}
-          >
-            <td>{methode.code}</td>
-            <td>{methode.classification}</td>
-            <td>{methode.libelle_pitchou}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-{/if}
-
-<h2 class="fr-h4 fr-mt-4w">
-  Moyens de poursuite <span class="fr-text--sm">({moyensDePoursuite.length})</span>
-</h2>
-
-<p>
-  Proposés lorsque le type d’impact a le critère « Moyen de poursuite ». Un même code ne désigne pas
-  la même chose chez les oiseaux et chez la faune non-oiseau : c’est la classification qui les
-  distingue.
-</p>
-
-{#if moyensDePoursuite.length === 0}
-  <p class="fr-mb-0">Aucun moyen de poursuite ne s’applique à cette classification d’espèce.</p>
-{:else}
-  <div class="fr-table fr-table--bordered overflow-x-auto">
-    <table class="w-full min-w-[36rem]">
-      <colgroup>
-        <col style="width: 110px" />
-        <col style="width: 150px" />
-        <col />
-      </colgroup>
-      <thead>
-        <tr>
-          <th scope="col">Code européen</th>
-          <th scope="col">Classification</th>
-          <th scope="col">Libellé Pitchou</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each moyensDePoursuite as moyenDePoursuite (moyenDePoursuite.classification + moyenDePoursuite.code)}
-          <tr
-            class="cursor-pointer hover:bg-[var(--background-contrast-grey)] focus-visible:[outline:2px_solid_var(--bf500)] focus-visible:[outline-offset:-2px]"
-            role="button"
-            tabindex="0"
-            title="Voir le détail du moyen de poursuite {moyenDePoursuite.code}"
-            onclick={() => openValeurDetail(moyenDePoursuite, "Moyen de poursuite")}
-            onkeydown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                openValeurDetail(moyenDePoursuite, "Moyen de poursuite");
-              }
-            }}
-          >
-            <td>{moyenDePoursuite.code}</td>
-            <td>{moyenDePoursuite.classification}</td>
-            <td>{moyenDePoursuite.libelle_pitchou}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
-{/if}
+<ReferentielValueTable
+  title="Méthodes"
+  description="Proposées lorsque le type d’impact a le critère « Méthode ». La flore n’en a aucune : la directive n’en définit pas."
+  emptyMessage="Aucune méthode ne s’applique à cette classification d’espèce."
+  values={methodes}
+  onOpen={openValeurDetail}
+/>
+<ReferentielValueTable
+  title="Moyens de poursuite"
+  description="Proposés lorsque le type d’impact a le critère « Moyen de poursuite ». Un même code ne désigne pas la même chose chez les oiseaux et chez la faune non-oiseau : c’est la classification qui les distingue."
+  emptyMessage="Aucun moyen de poursuite ne s’applique à cette classification d’espèce."
+  values={moyensDePoursuite}
+  onOpen={openValeurDetail}
+/>
 
 <button
   bind:this={triggerDetail}

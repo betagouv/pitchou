@@ -17,7 +17,8 @@
   } from "@pitchou/ui/taxref/taxrefList.ts";
   import TaxrefFilterPanel from "@pitchou/ui/taxref/TaxrefFilterPanel.svelte";
   import TaxrefSortPanel from "@pitchou/ui/taxref/TaxrefSortPanel.svelte";
-  import TaxrefTable from "./TaxrefTable.svelte";
+  import TaxrefResults from "./TaxrefResults.svelte";
+  import TaxrefSearchControls from "./TaxrefSearchControls.svelte";
 
   const query = $derived(parseTaxrefQuery(page.url.searchParams));
 
@@ -131,59 +132,15 @@
     vernaculaire ou code.
   </p>
 
-  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
-    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar w-full" role="search">
-        <label class="fr-label" for="recherche-taxref">Rechercher un taxon</label>
-        <input
-          value={query.searchText}
-          oninput={(e) => onSearchInput(e.currentTarget.value)}
-          name="texte-de-recherche"
-          class="fr-input"
-          placeholder="Nom scientifique, vernaculaire, CD_NOM ou CD_REF"
-          id="recherche-taxref"
-          type="search"
-        />
-        <button title="Rechercher un taxon" type="submit" class="fr-btn">Rechercher</button>
-      </div>
-    </form>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
-      aria-expanded={filterPanelOpen}
-      aria-controls="filter-panel-taxref"
-      onclick={toggleFilterPanel}
-    >
-      Filtrer
-      {#if activeFilterCount > 0}
-        <span
-          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
-          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
-        >
-      {/if}
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
-      aria-expanded={sortPanelOpen}
-      aria-controls="sort-panel-taxref"
-      onclick={() => (sortPanelOpen = !sortPanelOpen)}
-    >
-      Trier
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-  </div>
+  <TaxrefSearchControls
+    searchText={query.searchText}
+    {activeFilterCount}
+    {filterPanelOpen}
+    {sortPanelOpen}
+    onSearch={onSearchInput}
+    onToggleFilter={toggleFilterPanel}
+    onToggleSort={() => (sortPanelOpen = !sortPanelOpen)}
+  />
 
   {#if filterPanelOpen}
     <TaxrefFilterPanel
@@ -214,17 +171,7 @@
   </div>
 </div>
 
-{#if erreur}
-  <div class="fr-alert fr-alert--error fr-mb-3w">
-    <h3 class="fr-alert__title">Erreur lors du chargement de TAXREF</h3>
-    <p>{erreur}</p>
-  </div>
-{:else}
-  <!-- While a request is in flight, dim the current rows instead of clearing them. -->
-  <div class={loading ? "opacity-50 [transition:opacity_0.15s_ease]" : ""}>
-    <TaxrefTable {rows} />
-  </div>
-{/if}
+<TaxrefResults {rows} {loading} {erreur} />
 
 {#if pageSelectors}
   <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />

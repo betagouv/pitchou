@@ -1,8 +1,8 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
-  import NomEspece from "../../NomEspece.svelte";
-  import ImpactEspece from "../ImpactEspece.svelte";
+  import ClassificationImpactSection from "./ClassificationImpactSection.svelte";
   import { tick } from "svelte";
+  import { removePrefillEspece } from "./removePrefillEspece.ts";
 
   import type {
     EspeceProtegee,
@@ -100,40 +100,13 @@
   });
 
   async function removeEspeceImpacteeFromClassification(espece: EspeceProtegee) {
-    const indexInList = especesImpacteesToPrefill.findIndex(
-      ({ espèce: especeImpactee }) => especeImpactee === espece,
+    await removePrefillEspece(
+      espece,
+      especesImpacteesToPrefill,
+      removeEspeceImpactee,
+      deleteButtonRefs,
+      backButton,
     );
-    if (indexInList >= 0) {
-      removeEspeceImpactee(indexInList);
-
-      await tick();
-
-      if (especesImpacteesToPrefill.length === 0) {
-        backButton?.focus();
-      } else {
-        let indexToFocus =
-          indexInList === especesImpacteesToPrefill.length ? indexInList - 1 : indexInList;
-
-        let especeToFocus = especesImpacteesToPrefill[indexToFocus]?.espèce;
-
-        if (especeToFocus) {
-          const buttonToFocus = deleteButtonRefs.find((ref, idx) => {
-            // Check if the reference exists and if the espèce at this index matches
-            return ref !== null && especesImpacteesToPrefill[idx]?.espèce === especeToFocus;
-          });
-
-          if (buttonToFocus) {
-            buttonToFocus.focus();
-          } else {
-            // Fallback: focus on the back button
-            backButton?.focus;
-          }
-        } else {
-          // Fallback : focus sur le bouton Retour
-          backButton?.focus;
-        }
-      }
-    }
   }
 
   function onClickAddAll() {
@@ -167,105 +140,45 @@
     {#if oiseauxToPrefill.size === 0 && fauneNonOiseauxToPrefill.size === 0 && floreToPrefill.size === 0}
       Aucune espèce n'a été renseignée.
     {:else}
-      {#if oiseauxToPrefill.size >= 1}
-        <section class="fr-mb-4w">
-          <h3 class="fr-mb-3v text-[1.25rem]">
-            {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
-          </h3>
-          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
-            {#each [...oiseauxToPrefill] as espece (espece)}
-              {@const indexInList = especesImpacteesToPrefill.findIndex(
-                ({ espèce: especeImpactee }) => especeImpactee === espece,
-              )}
-              <li class="fr-p-0 text-[0.9rem]!">
-                <NomEspece espèce={espece} />
-                <button
-                  bind:this={deleteButtonRefs[indexInList]}
-                  type="button"
-                  class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                >
-                  Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                </button>
-              </li>
-            {/each}
-          </ul>
-          <ImpactEspece
-            bind:impact={impactForEachOiseau}
-            indexEspèce={0}
-            espèceClassification={"oiseau"}
-            {activitesParClassificationEtreVivant}
-            méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
-            {transportsParClassificationEtreVivant}
-          />
-        </section>
-      {/if}
-      {#if fauneNonOiseauxToPrefill.size >= 1}
-        <section class="fr-mb-4w">
-          <h3 class="fr-mb-3v text-[1.25rem]">
-            {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
-          </h3>
-          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
-            {#each [...fauneNonOiseauxToPrefill] as espece (espece)}
-              {@const indexInList = especesImpacteesToPrefill.findIndex(
-                ({ espèce: especeImpactee }) => especeImpactee === espece,
-              )}
-              <li class="fr-p-0 text-[0.9rem]!">
-                <NomEspece espèce={espece} />
-                <button
-                  bind:this={deleteButtonRefs[indexInList]}
-                  type="button"
-                  class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                >
-                  Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                </button>
-              </li>
-            {/each}
-          </ul>
-          <ImpactEspece
-            bind:impact={impactForEachFauneNonOiseau}
-            indexEspèce={1}
-            espèceClassification={"faune non-oiseau"}
-            {activitesParClassificationEtreVivant}
-            méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
-            {transportsParClassificationEtreVivant}
-          />
-        </section>
-      {/if}
-      {#if floreToPrefill.size >= 1}
-        <section class="fr-mb-4w">
-          <h3 class="fr-mb-3v text-[1.25rem]">
-            {`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}
-          </h3>
-          <ul class="fr-mt-0 fr-mx-0 fr-mb-4w list-none">
-            {#each [...floreToPrefill] as espece (espece)}
-              {@const indexInList = especesImpacteesToPrefill.findIndex(
-                ({ espèce: especeImpactee }) => especeImpactee === espece,
-              )}
-              <li class="fr-p-0 text-[0.9rem]!">
-                <NomEspece espèce={espece} />
-                <button
-                  bind:this={deleteButtonRefs[indexInList]}
-                  type="button"
-                  class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                  onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                >
-                  Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                </button>
-              </li>
-            {/each}
-          </ul>
-          <ImpactEspece
-            bind:impact={impactForEachFlore}
-            indexEspèce={2}
-            espèceClassification={"flore"}
-            {activitesParClassificationEtreVivant}
-            méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
-            {transportsParClassificationEtreVivant}
-          />
-        </section>
-      {/if}
+      {#if oiseauxToPrefill.size}<ClassificationImpactSection
+          especes={oiseauxToPrefill}
+          all={especesImpacteesToPrefill}
+          label={oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}
+          classification="oiseau"
+          bind:impact={impactForEachOiseau}
+          index={0}
+          bind:deleteButtonRefs
+          onRemove={removeEspeceImpacteeFromClassification}
+          activites={activitesParClassificationEtreVivant}
+          methodes={methodesParClassificationEtreVivant}
+          transports={transportsParClassificationEtreVivant}
+        />{/if}
+      {#if fauneNonOiseauxToPrefill.size}<ClassificationImpactSection
+          especes={fauneNonOiseauxToPrefill}
+          all={especesImpacteesToPrefill}
+          label={`${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
+          classification="faune non-oiseau"
+          bind:impact={impactForEachFauneNonOiseau}
+          index={1}
+          bind:deleteButtonRefs
+          onRemove={removeEspeceImpacteeFromClassification}
+          activites={activitesParClassificationEtreVivant}
+          methodes={methodesParClassificationEtreVivant}
+          transports={transportsParClassificationEtreVivant}
+        />{/if}
+      {#if floreToPrefill.size}<ClassificationImpactSection
+          especes={floreToPrefill}
+          all={especesImpacteesToPrefill}
+          label={floreToPrefill.size >= 2 ? "flores" : "flore"}
+          classification="flore"
+          bind:impact={impactForEachFlore}
+          index={2}
+          bind:deleteButtonRefs
+          onRemove={removeEspeceImpacteeFromClassification}
+          activites={activitesParClassificationEtreVivant}
+          methodes={methodesParClassificationEtreVivant}
+          transports={transportsParClassificationEtreVivant}
+        />{/if}
     {/if}
   </div>
 </div>

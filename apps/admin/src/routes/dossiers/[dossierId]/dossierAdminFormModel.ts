@@ -3,11 +3,11 @@ import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 import {
   buildDossierUpdateColumns,
   createDossierAdminColumnModel,
-} from "./dossierAdminColumnModel.ts";
+} from "./dossierAdminFormModel/columnModel.ts";
 import {
   buildDossierRelations,
   createDossierAdminRelationsModel,
-} from "./dossierAdminRelationsModel.ts";
+} from "./dossierAdminFormModel/relationsModel.ts";
 
 export { buildDossierUpdateColumns, buildDossierRelations };
 export type {
@@ -17,8 +17,8 @@ export type {
   ProjectMapFeature,
   ScientificIntervenant,
   TriState,
-} from "./dossierAdminColumnModel.ts";
-export type { DemandeurType, IdentityFormModel } from "./dossierAdminRelationsModel.ts";
+} from "./dossierAdminFormModel/columnModel.ts";
+export type { DemandeurType, IdentityFormModel } from "./dossierAdminFormModel/relationsModel.ts";
 
 export type DossierAdminFormModel = ReturnType<typeof createDossierAdminFormModel>;
 

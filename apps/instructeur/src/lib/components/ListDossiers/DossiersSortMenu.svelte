@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SortKey, SortOrder } from "./dossiersList.ts";
+  import type { SortKey, SortOrder } from "./listModel.ts";
 
   type Props = {
     sortKey: SortKey;

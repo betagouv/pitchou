@@ -19,6 +19,7 @@
   import EspecesSortPanel from "@pitchou/ui/especes/EspecesSortPanel.svelte";
   import EspecesTable from "./EspecesTable.svelte";
   import EspecesGenerationModal from "./EspecesGenerationModal.svelte";
+  import EspecesListControls from "./EspecesListControls.svelte";
 
   type Props = {
     especes: EspeceProtegee[];
@@ -120,71 +121,16 @@
 </script>
 
 <div class="flex flex-col fr-mt-2w gap-4">
-  <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-    <h1 class="fr-mb-0">Espèces protégées</h1>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
-      aria-controls={generationModalId}
-      data-fr-opened="false"
-    >
-      Comment cette liste est générée&nbsp;?
-    </button>
-  </div>
-
-  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
-    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar w-full" role="search">
-        <label class="fr-label" for="recherche-espece">Rechercher une espèce</label>
-        <input
-          value={query.searchText}
-          oninput={(e) => onSearchInput(e.currentTarget.value)}
-          name="texte-de-recherche"
-          class="fr-input"
-          placeholder="Nom scientifique ou vernaculaire"
-          id="recherche-espece"
-          type="search"
-        />
-        <button title="Rechercher une espèce" type="submit" class="fr-btn">Rechercher</button>
-      </div>
-    </form>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
-      aria-expanded={filterPanelOpen}
-      aria-controls="filter-panel-especes"
-      onclick={() => (filterPanelOpen = !filterPanelOpen)}
-    >
-      Filtrer
-      {#if activeFilterCount > 0}
-        <span
-          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
-          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
-        >
-      {/if}
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
-      aria-expanded={sortPanelOpen}
-      aria-controls="sort-panel-especes"
-      onclick={() => (sortPanelOpen = !sortPanelOpen)}
-    >
-      Trier
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-  </div>
+  <EspecesListControls
+    searchText={query.searchText}
+    {activeFilterCount}
+    {filterPanelOpen}
+    {sortPanelOpen}
+    {generationModalId}
+    onSearch={onSearchInput}
+    toggleFilter={() => (filterPanelOpen = !filterPanelOpen)}
+    toggleSort={() => (sortPanelOpen = !sortPanelOpen)}
+  />
 
   {#if filterPanelOpen}
     <EspecesFilterPanel

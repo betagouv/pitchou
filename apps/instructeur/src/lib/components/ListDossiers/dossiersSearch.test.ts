@@ -7,8 +7,8 @@ import {
   searchTerms,
   searchableText,
   dossierMatchesSearch,
-} from "./dossiersList.ts";
-import { dossierId, makeQuery, makeDossier, makeContext } from "./dossiersTestHelpers.ts";
+} from "./listModel.ts";
+import { dossierId, makeQuery, makeDossier, makeContext } from "./testHelpers.ts";
 
 /** Ids kept by the text search of `filterDossiers`, in input order */
 function search(

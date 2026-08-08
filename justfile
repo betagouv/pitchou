@@ -66,7 +66,7 @@ check-file-length MAX="200":
     {{ tsx }} scripts/check-file-length.ts --max {{ MAX }}
 
 # Run all CI checks (check + build + tests). Use before pushing.
-ci: check build test
+ci: check check-file-length build test
 
 # Wipe the whole DB (drop + recreate the public schema, also clears migration history) and the whole S3 bucket
 data-clear:

@@ -1,7 +1,7 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { departementNameByCode } from "@pitchou/common/departements.ts";
-import type { DossiersContext } from "./dossiersQuery.ts";
+import type { DossiersContext } from "./query.ts";
 
 /** Strips accents and lowercases so the search is accent- and case-insensitive. */
 function normalize(text: string): string {

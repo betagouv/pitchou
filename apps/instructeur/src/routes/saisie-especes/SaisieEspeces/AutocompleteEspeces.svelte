@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
-  import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
   import { especeLabel } from "@pitchou/common/especesUtils.ts";
+  import AutocompleteEspecesList from "./AutocompleteEspecesList.svelte";
+  import { filterEspecesByText } from "./filterEspeces.ts";
 
   type Props = {
     espèces: EspeceProtegee[];
@@ -45,7 +46,7 @@
       showListBox = false;
       relevantEspeces = [];
     } else {
-      relevantEspeces = filterEspeces(text);
+      relevantEspeces = filterEspecesByText(especes, text);
       if (relevantEspeces.length === 0) {
         liveMessage("Pas de résultat");
       } else {
@@ -68,15 +69,6 @@
       showListBox = false;
       selectedOption = null;
     }
-  }
-
-  function onOptionClick(espece: EspeceProtegee) {
-    selectEspece(espece);
-  }
-
-  function onOptionMouseDown(e: MouseEvent) {
-    // Avoids losing focus and closing the option list
-    e.preventDefault();
   }
 
   function focusElement(elementToFocus: number | null) {
@@ -136,36 +128,6 @@
 
   let relevantEspeces: EspeceProtegee[] = $state([]);
 
-  function filterEspeces(text: string) {
-    if (text.trim().length === 0) return [];
-
-    return especes
-      .filter(({ nomsScientifiques, nomsVernaculaires }) => {
-        const textParts = text
-          .trim()
-          .split(" ")
-          .map(normalizeEspeceText)
-          .filter((x) => x.length >= 1);
-
-        return textParts.every((part: string) => {
-          for (let name of nomsScientifiques) {
-            name = normalizeEspeceName(name);
-            if (name.includes(part)) {
-              return true;
-            }
-          }
-
-          for (let name of nomsVernaculaires) {
-            name = normalizeEspeceName(name);
-            if (name.includes(part)) {
-              return true;
-            }
-          }
-        });
-      })
-      .slice(0, 12);
-  }
-
   function liveMessage(text: string) {
     statusMessage = text;
     setTimeout(() => {
@@ -212,42 +174,16 @@
     bind:value={text}
   />
 
-  <ul
-    id="combobox-{id}-option-list"
-    class="absolute w-full m-0 z-[1] bg-[var(--border-default-grey)] ps-0"
-    aria-labelledby={id}
-    role="listbox"
-    hidden={!showListBox}
-  >
-    {#each relevantEspeces as espece, indexOption}
-      <li
-        class="w-full cursor-pointer bg-[var(--background-contrast-grey)] list-none [padding:0.3rem] hover:bg-[var(--background-contrast-grey-active)] [&[aria-selected=true]]:bg-[var(--background-contrast-grey-active)]"
-        role="option"
-        aria-selected={indexOption === selectedOption}
-        aria-posinset={indexOption + 1}
-        aria-setsize={relevantEspeces.length}
-        tabindex="-1"
-        onblur={(e) => onOptionBlur(e, indexOption)}
-        onclick={() => onOptionClick(espece)}
-        onkeydown={onKeyDown}
-        onmousedown={onOptionMouseDown}
-        bind:this={optionsRefs[indexOption]}
-      >
-        {especeLabel(espece)}
-      </li>
-    {/each}
-
-    {#if relevantEspeces.length === 0}
-      <li
-        class="w-full cursor-pointer bg-[var(--background-contrast-grey)] list-none [padding:0.3rem] hover:bg-[var(--background-contrast-grey-active)] [&[aria-selected=true]]:bg-[var(--background-contrast-grey-active)]"
-        role="option"
-        aria-disabled="true"
-        aria-selected="false"
-      >
-        Pas de résultat
-      </li>
-    {/if}
-  </ul>
+  <AutocompleteEspecesList
+    {id}
+    especes={relevantEspeces}
+    shown={showListBox}
+    {selectedOption}
+    bind:optionsRefs
+    onBlur={onOptionBlur}
+    onSelect={selectEspece}
+    {onKeyDown}
+  />
 
   <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
     {#if statusMessage}

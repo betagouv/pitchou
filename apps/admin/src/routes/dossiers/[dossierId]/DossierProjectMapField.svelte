@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { FeatureCollection } from "./dossierAdminFormModel.ts";
-  import { parseProjectMapFile } from "./projectMapFile.ts";
-  import ProjectMapCanvas from "./ProjectMapCanvas.svelte";
-  import ProjectMapFeatureList from "./ProjectMapFeatureList.svelte";
+  import { parseProjectMapFile } from "./DossierProjectMapField/fileImport.ts";
+  import ProjectMapCanvas from "./DossierProjectMapField/ProjectMapCanvas.svelte";
+  import ProjectMapFeatureList from "./DossierProjectMapField/ProjectMapFeatureList.svelte";
 
   type Props = {
     value: FeatureCollection | null;

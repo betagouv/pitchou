@@ -2,10 +2,11 @@
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
+  import AARRIEvolutionChart from "./IndicatorsAARRI/AARRIEvolutionChart.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
-  import MatrixImpact from "./MatrixImpact.svelte";
+  import MatrixImpact from "./IndicatorsAARRI/MatrixImpact.svelte";
+  import AARRICurrentState from "./IndicatorsAARRI/AARRICurrentState.svelte";
 
   type Props = {
     indicatorsByDateP: Promise<IndicatorsAARRI[]>;
@@ -28,8 +29,6 @@
       startDate = indicatorsByDate[indicatorsByDate.length - 1].date;
     }
   });
-
-  const baseBarWidth = 80;
 
   function formatEvolution(change: number): string {
     return change > 0 ? `+${change}` : `${change}`;
@@ -61,86 +60,7 @@
   {#await indicatorsTodayP}
     <Loader></Loader>
   {:then indicatorsToday}
-    <section class="fr-mt-4w">
-      <h2>État des lieux</h2>
-      <p>
-        Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI
-        aujourd'hui.
-      </p>
-      <div class="flex flex-col gap-2">
-        <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Impact</span>
-          <div
-            class="h-10 bg-[var(--artwork-minor-red-marianne)]"
-            style={`width:${(indicatorsToday.nombreUtilisateuriceImpact / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
-          ></div>
-          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceImpact}</span>
-        </div>
-        <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Retenu</span>
-          <div
-            class="h-10 bg-[var(--artwork-minor-yellow-moutarde)]"
-            style={`width:${(indicatorsToday.nombreUtilisateuriceRetenu / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
-          ></div>
-          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceRetenu}</span>
-        </div>
-        <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Activé</span>
-          <div
-            class="h-10 bg-[var(--artwork-minor-green-menthe)]"
-            style={`width:${(indicatorsToday.nombreUtilisateuriceActif / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
-          ></div>
-          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceActif}</span>
-        </div>
-        <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Acquis</span>
-          <div
-            class="h-10 bg-[var(--artwork-minor-brown-caramel)]"
-            style={`width:${(indicatorsToday.nombreUtilisateuriceAcquis / indicatorsToday.nombreBaseUtilisateuricePotentielle) * baseBarWidth}%`}
-          ></div>
-          <span class="fr-ml-1w">{indicatorsToday.nombreUtilisateuriceAcquis}</span>
-        </div>
-        <div class="fr-grid-row fr-grid-row--middle">
-          <span class="fr-col-1">Base</span>
-          <div
-            class="h-10 bg-[var(--artwork-minor-blue-ecume)]"
-            style={`width:${baseBarWidth}%`}
-          ></div>
-          <span class="fr-ml-1w">{indicatorsToday.nombreBaseUtilisateuricePotentielle}</span>
-        </div>
-      </div>
-    </section>
-    <section class="fr-mt-4w">
-      <h2>Notre démarche</h2>
-      <h3>Cible d'utilisateurices potentiel.les</h3>
-      <p>
-        Le nombre de personnes qui instruisent et interviennent dans le cadre de la dérogation
-        espèce protégée est fluctuant. On l'estime à 300.
-      </p>
-      <h3>Acquisition</h3>
-      <p>
-        Une personne acquise est une personne qui suite à une rencontre (webinaire, mail, échange)
-        s’est connectée pour la première fois à pitchou.beta.gouv.fr.
-      </p>
-      <h3>Activation</h3>
-      <p>
-        Une personne activée est une personne qui a effectué 5 actions de modifications
-        (principalement des modifications de dossier) sur une période de 7 jours.
-      </p>
-      <h3>Rétention</h3>
-      <p>
-        Une personne est passée en rétention (on dira qu'elle est régulièrement active) lorsqu'elle
-        a fait des actions de modification et de consultation très régulièrement. On le traduit
-        comme suit : la personne a renouvelé 5 actions de consultation ou de modification sur 7
-        jours glissants sur les 5 dernières semaines.
-      </p>
-      <h3>Impact</h3>
-      <p>
-        Pitchou vise à avoir un réel impact sur la biodiversité. Cet impact se mesure grâce à la
-        surface d'habitat et à la population d'une espèce. À ce niveau, on mesure le nombre
-        d'utilisateurices ayant fait au moins un contrôle qui produit un retour à la conformité.
-      </p>
-    </section>
+    <AARRICurrentState indicators={indicatorsToday} />
     {#await indicatorsByDateP}
       <Loader></Loader>
     {:then indicatorsByDate}

@@ -2,15 +2,15 @@
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
   import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
-  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
-  import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+  import ProjetInformation from "./DossierProjet/ProjetInformation.svelte";
+  import ProjetScientifique from "./DossierProjet/ProjetScientifique.svelte";
+  import ProjetSidebar from "./DossierProjet/ProjetSidebar.svelte";
 
   type Props = {
     dossier: DossierFull;
@@ -18,9 +18,6 @@
   };
 
   let { dossier, especesImpactees }: Props = $props();
-
-  const numdos = $derived(dossier.demarche_numerique_number);
-  const demarcheNumber = $derived(dossier.demarche_number);
 
   /**
    * Computes the number of espèces CNPN
@@ -92,162 +89,13 @@
   }
 
   const referentielsPromise = loadActivitesMethodesMoyensDePoursuite();
-
-  // @ts-ignore
-  let scientifiquesIntervenants: { nom_complet: string; qualification: string }[] | undefined =
-    $derived(dossier.scientifique_intervenants);
-
-  // @ts-ignore
-  let scientifiqueFinaliteDemande: string[] | undefined = $derived(
-    dossier.scientifique_demande_purposes,
-  );
-
-  function truncateNomFichier(filename: string | null, maxLength = 43, ellipsis = "(…)") {
-    if (!filename) {
-      return "(fichier sans nom)";
-    }
-
-    if (filename.length <= maxLength) {
-      return filename;
-    }
-
-    const lastDotIndex = filename.lastIndexOf(".");
-
-    const extension = filename.substring(lastDotIndex);
-    const nameWithoutExt = filename.substring(0, lastDotIndex);
-
-    const availableLength = maxLength - extension.length - ellipsis.length;
-
-    return nameWithoutExt.substring(0, availableLength) + ellipsis + extension;
-  }
 </script>
 
 <section
   class="flex flex-row [&>*:nth-child(1)]:flex-[3] [&>*:nth-child(1)]:mr-4 [&>*:nth-child(2)]:flex-[2]"
 >
   <section>
-    <h2 class="fr-mt-0">Informations du projet</h2>
-    <p>
-      <strong>Dossier n°&nbsp;:</strong>
-      {dossier.demarche_numerique_number ?? "non renseigné"}
-    </p>
-    {#if dossier.urgent_contact_phone}
-      <p>
-        <strong>Téléphone en cas de demande urgente&nbsp;:</strong>
-        {dossier.urgent_contact_phone}
-      </p>
-    {/if}
-    {#if dossier.request_context}
-      <p>
-        <strong>Situation du demandeur&nbsp;:</strong>
-        {dossier.request_context}
-      </p>
-    {/if}
-    {#if dossier.accompaniment_need}
-      <p>
-        <strong>Besoin d'accompagnement&nbsp;:</strong>
-        {dossier.accompaniment_need}
-      </p>
-    {/if}
-    <p>
-      <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
-      {#if typeof dossier.ecological_inventory_completed === "boolean"}
-        {dossier.ecological_inventory_completed ? "Oui" : "Non"}
-      {:else}
-        Non renseigné
-      {/if}
-    </p>
-
-    <p>
-      <strong
-        >Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du
-        projet ?&nbsp;:</strong
-      >
-      {#if typeof dossier.especes_present_in_influence_area === "boolean"}
-        {dossier.especes_present_in_influence_area ? "Oui" : "Non"}
-      {:else}
-        Non renseigné
-      {/if}
-    </p>
-
-    <p>
-      <strong
-        >Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment
-        caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong
-      >
-      {#if typeof dossier.risk_despite_erc_mesures === "boolean"}
-        {dossier.risk_despite_erc_mesures ? "Oui" : "Non"}
-      {:else}
-        Non renseigné
-      {/if}
-    </p>
-
-    <p>
-      <strong>Description&nbsp;:</strong>
-      {dossier.description && dossier.description.length >= 1
-        ? dossier.description
-        : "Non renseignée"}
-    </p>
-
-    <p>
-      <strong
-        >Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet&nbsp;:</strong
-      >
-      {dossier.no_other_satisfactory_solution_justification &&
-      dossier.no_other_satisfactory_solution_justification.length >= 1
-        ? dossier.no_other_satisfactory_solution_justification
-        : `Non renseignée`}
-    </p>
-
-    <p>
-      <strong>Motif de la dérogation&nbsp;:</strong>
-      {dossier.motif_derogation ?? `Non renseigné`}
-    </p>
-
-    <p>
-      <strong>Synthèse des éléments justifiant le motif de la dérogation&nbsp;:</strong>
-      {dossier.motif_derogation_justification && dossier.motif_derogation_justification.length >= 1
-        ? dossier.motif_derogation_justification
-        : `Non renseignée`}
-    </p>
-
-    <p>
-      <strong>Date de début d'intervention ou des travaux&nbsp;:</strong>
-      {#if dossier.intervention_start_date}
-        <time datetime={dossier.intervention_start_date.toISOString()}>
-          {formatDateRelative(dossier.intervention_start_date)}
-        </time>
-      {:else}
-        Non renseignée
-      {/if}
-    </p>
-
-    <p>
-      <strong>Date de fin d'intervention ou des travaux&nbsp;:</strong>
-      {#if dossier.intervention_end_date}
-        <time datetime={new Date(dossier.intervention_end_date).toISOString()}>
-          {formatDateRelative(dossier.intervention_end_date)}
-        </time>
-      {:else}
-        Non renseignée
-      {/if}
-    </p>
-
-    <p>
-      <strong>Date de mise en service de l'exploitation&nbsp;:</strong>
-      {#if dossier.commissioning_date}
-        <time datetime={new Date(dossier.commissioning_date).toISOString()}>
-          {formatDateRelative(dossier.commissioning_date)}
-        </time>
-      {:else}
-        Non renseignée
-      {/if}
-    </p>
-
-    <p>
-      <strong>Durée de la dérogation&nbsp;:</strong>
-      {dossier.intervention_duration ? dossier.intervention_duration + " années" : "Non renseignée"}
-    </p>
+    <ProjetInformation {dossier} />
     <div class="inline-flex items-center justify-between w-full">
       <h2 class="fr-m-0 whitespace-nowrap">Espèces impactées</h2>
       {#if dossier.especesImpactees}
@@ -306,128 +154,7 @@
       <CartographieProjet featureCollection={cartographieProjet} />
     {/if}
 
-    {#if dossier.scientifique_demande_type}
-      <h2 class="fr-mt-6w">Données scientifiques</h2>
-      <h3>Type de demande</h3>
-      <ul>
-        {#each dossier.scientifique_demande_type as typeDemande}
-          <li>{typeDemande}</li>
-        {/each}
-      </ul>
-
-      <h3>Programme de suivi antérieur</h3>
-      <p>
-        {#if dossier.scientifique_previous_assessment === null}
-          Non renseigné
-        {:else}
-          {dossier.scientifique_previous_assessment ? "Oui" : "Non"}
-        {/if}
-      </p>
-
-      <h3>Finalité de la demande</h3>
-      {#if Array.isArray(scientifiqueFinaliteDemande) && scientifiqueFinaliteDemande.length >= 1}
-        <ul>
-          {#each scientifiqueFinaliteDemande as finalite}
-            <li>{finalite}</li>
-          {/each}
-        </ul>
-      {:else}
-        Non renseigné
-      {/if}
-
-      <h3>Protocole de suivi</h3>
-      <p>
-        {dossier.scientifique_suivi_protocol_description ?? "Non renseigné"}
-      </p>
-
-      <h3>Méthodes</h3>
-
-      <p>
-        <strong> Modes de capture&nbsp;:</strong>
-        {dossier.scientifique_capture_mode && dossier.scientifique_capture_mode.length >= 1
-          ? dossier.scientifique_capture_mode.join(", ")
-          : "Non renseignées"}
-      </p>
-      <p>
-        <strong> Source lumineuse&nbsp;:</strong>
-        {dossier.scientifique_light_source_conditions ?? "Non renseignée"}
-      </p>
-      <p>
-        <strong> Marquage&nbsp;:</strong>
-        {dossier.scientifique_marking_conditions ?? "Non renseigné"}
-      </p>
-      <p>
-        <strong> Transport&nbsp;:</strong>
-        {dossier.scientifique_transport_conditions ?? "Non renseigné"}
-      </p>
-
-      <h3>Périmètre et intervenant.e.s</h3>
-      <p>
-        <strong> Périmètre&nbsp;: </strong>{dossier.scientifique_intervention_perimeter ??
-          "Non renseigné"}
-      </p>
-      <p>
-        <strong> Intervenant.e.s&nbsp;: </strong>
-        {#if scientifiquesIntervenants && scientifiquesIntervenants.length >= 1}
-          {#each scientifiquesIntervenants as { nom_complet, qualification }}
-            {nom_complet} - {qualification}
-          {/each}
-        {:else}
-          Non renseigné.e.s
-        {/if}
-      </p>
-      <p>
-        <strong> Précisions&nbsp;: </strong>{dossier.scientifique_other_intervenants_details ??
-          "Non renseignées"}
-      </p>
-    {/if}
+    <ProjetScientifique {dossier} />
   </section>
-
-  <section>
-    <h2 class="fr-mt-0">{dossier.piecesJointesPetitionnaires.length} pièces jointes</h2>
-    {#if dossier.piecesJointesPetitionnaires.length === 0}
-      (aucune pièce jointe n'a été déposée par le pétitionnaire)
-    {:else}
-      <ul class="list-none fr-p-0">
-        {#each dossier.piecesJointesPetitionnaires as { url, demarche_numerique_created_at, name, media_type, size }}
-          <li class="mb-[0.3rem]">
-            <a class="fr-link fr-link--download" href={url} title={name} data-sveltekit-reload>
-              <!--
-                            We truncate the name because if it wraps onto 2 lines, the DSFR makes the second
-                            line overlap with the details below
-                        -->
-              {truncateNomFichier(name)}
-              <span class="fr-link__detail">
-                {media_type} - {byteFormat.format(size)}{demarche_numerique_created_at
-                  ? ` - Date de dépôt : ${formatDateAbsolute(demarche_numerique_created_at)}`
-                  : ""}
-              </span>
-            </a>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-
-    <h2 class="fr-mt-6w">Dossier déposé</h2>
-    {#if dossier.source === "demarche_numerique"}
-      {#if numdos && demarcheNumber}
-        <a
-          class="fr-btn fr-btn--secondary fr-mb-1w"
-          target="_blank"
-          href={`${originDemarcheNumerique}/procedures/${demarcheNumber}/dossiers/${numdos}`}
-          >Dossier sur Démarche Numérique</a
-        >
-      {:else}
-        <p class="fr-text-mention--grey">
-          Ce dossier provient de Démarches Numériques, mais son lien n'est pas disponible.
-        </p>
-      {/if}
-    {:else if dossier.source === "pitchou"}
-      <p class="fr-text-mention--grey">
-        Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
-      </p>
-    {:else}
-      <p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>
-    {/if}
-  </section>
+  <ProjetSidebar {dossier} />
 </section>

@@ -1,17 +1,17 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import type { DossiersQuery } from "./dossiersList.ts";
+  import type { DossiersQuery } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     PROCHAINE_ACTION_OPTIONS,
     listAvailableActivites,
     listAvailableDepartements,
     listAvailableInstructeurs,
-  } from "./dossiersList.ts";
+  } from "./listModel.ts";
   import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
-  import DatePicker from "@pitchou/ui/DatePicker.svelte";
+  import DossiersAdditionalFilters from "./DossiersAdditionalFilters.svelte";
 
   type Props = {
     draft: DossiersQuery;
@@ -52,11 +52,6 @@
   function toggleWithoutInstructeur(checked: boolean) {
     const named = selectedInstructeurs;
     draft.instructeur = checked ? [...named, WITHOUT_INSTRUCTEUR] : named;
-  }
-
-  const newModifications = $derived(draft.nouveaute === "oui");
-  function toggleNewModifications(checked: boolean) {
-    draft.nouveaute = checked ? "oui" : "";
   }
 </script>
 
@@ -159,118 +154,4 @@
   {/each}
 </fieldset>
 
-<!-- Date -->
-<fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <legend
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-calendar-line fr-icon--sm" aria-hidden="true"></span> Date
-  </legend>
-  <div class="fr-radio-group fr-radio-group--sm">
-    <input type="radio" id="date-deposit" value="deposit" bind:group={draft.dateField} />
-    <label class="fr-label" for="date-deposit">de dépôt</label>
-  </div>
-  <div class="fr-radio-group fr-radio-group--sm">
-    <input type="radio" id="date-phase" value="phaseStart" bind:group={draft.dateField} />
-    <label class="fr-label" for="date-phase">de début de phase</label>
-  </div>
-  <div class="fr-radio-group fr-radio-group--sm">
-    <input type="radio" id="date-modif" value="lastModified" bind:group={draft.dateField} />
-    <label class="fr-label" for="date-modif">de dernière modification</label>
-  </div>
-  <div class="flex items-center gap-2 fr-mt-1w">
-    <span>Du</span>
-    <DatePicker
-      id="date-du"
-      label="Du"
-      value={draft.dateStart}
-      max={draft.dateEnd || undefined}
-      onChange={(value) => (draft.dateStart = value ?? "")}
-    />
-    <span>au</span>
-    <DatePicker
-      id="date-au"
-      label="au"
-      value={draft.dateEnd}
-      min={draft.dateStart || undefined}
-      align="right"
-      onChange={(value) => (draft.dateEnd = value ?? "")}
-    />
-  </div>
-</fieldset>
-
-<!-- Nouveaux événements -->
-<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <h3
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-notification-3-line fr-icon--sm" aria-hidden="true"></span>
-    Nouveaux événements
-  </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
-    <input
-      type="checkbox"
-      id="nouvelles-modifications"
-      checked={newModifications}
-      onchange={(e) => toggleNewModifications(e.currentTarget.checked)}
-    />
-    <label class="fr-label" for="nouvelles-modifications"
-      >Dossiers avec nouvelles modifications</label
-    >
-  </div>
-</div>
-
-<!-- Dossiers à enjeu -->
-<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <h3
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-alarm-warning-line fr-icon--sm" aria-hidden="true"></span>
-    Dossiers à enjeu
-  </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
-    <input type="checkbox" id="enjeu-uniquement" bind:checked={draft.enjeu} />
-    <label class="fr-label" for="enjeu-uniquement">Dossiers à enjeux uniquement</label>
-  </div>
-</div>
-
-<!-- Espèce impactée -->
-<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <h3
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-leaf-line fr-icon--sm" aria-hidden="true"></span> Espèce impactée
-  </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
-    <input type="checkbox" id="especes-absente" bind:checked={draft.especesImpacteesAbsente} />
-    <label class="fr-label" for="especes-absente">Liste des espèces impactées non-renseignée</label>
-  </div>
-</div>
-
-<!-- Pièces jointes -->
-<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <h3
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-file-text-line fr-icon--sm" aria-hidden="true"></span>
-    Pièces jointes
-  </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
-    <input type="checkbox" id="avis-manquant" bind:checked={draft.avisExpertManquant} />
-    <label class="fr-label" for="avis-manquant">Avis CNPN/CSRPN non renseigné</label>
-  </div>
-  <div class="fr-input-group fr-mt-1w fr-mb-0">
-    <label class="fr-sr-only fr-label" for="decision-numero">Numéro d'arrêté préfectoral</label>
-    <input
-      class="fr-input"
-      id="decision-numero"
-      type="text"
-      placeholder="Saisissez votre numéro d'arrêté préfectoral, de courrier…"
-      bind:value={draft.decisionText}
-    />
-  </div>
-  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mt-1w">
-    <input type="checkbox" id="decision-absente" bind:checked={draft.decisionAbsente} />
-    <label class="fr-label" for="decision-absente">Décision administrative non renseignée</label>
-  </div>
-</div>
+<DossiersAdditionalFilters bind:draft />

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
-  import NomEspece from "../../NomEspece.svelte";
+  import EspeceSelectionList from "./EspeceSelectionList.svelte";
   import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
   import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
@@ -147,85 +147,30 @@
       {#if especesText !== "" && oiseauxToPrefill.size === 0 && fauneNonOiseauxToPrefill.size === 0 && floreToPrefill.size === 0}
         Aucune espèce n'a été trouvée.
       {:else}
-        {#if oiseauxToPrefill.size >= 1}
-          <section
-            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
-          >
-            <h4>
-              {`${oiseauxToPrefill.size} ${oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}`}
-            </h4>
-            <ul>
-              {#each [...oiseauxToPrefill] as espece (espece)}
-                {@const indexInList = especesImpacteesToPrefill.findIndex(
-                  ({ espèce: especeImpactee }) => especeImpactee === espece,
-                )}
-                <li>
-                  <NomEspece espèce={espece} />
-                  <button
-                    bind:this={deleteButtonRefs[indexInList]}
-                    type="button"
-                    class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                  >
-                    Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                  </button>
-                </li>
-              {/each}
-            </ul>
-          </section>
-        {/if}
-        {#if fauneNonOiseauxToPrefill.size >= 1}
-          <section
-            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
-          >
-            <h4>
-              {`${fauneNonOiseauxToPrefill.size} ${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
-            </h4>
-            <ul>
-              {#each [...fauneNonOiseauxToPrefill] as espece (espece)}
-                {@const indexInList = especesImpacteesToPrefill.findIndex(
-                  ({ espèce: especeImpactee }) => especeImpactee === espece,
-                )}
-                <li>
-                  <NomEspece espèce={espece} />
-                  <button
-                    bind:this={deleteButtonRefs[indexInList]}
-                    type="button"
-                    class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                  >
-                    Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                  </button>
-                </li>
-              {/each}
-            </ul>
-          </section>
-        {/if}
-        {#if floreToPrefill.size >= 1}
-          <section
-            class="fr-mb-1w [&_ul]:m-0 [&_ul]:list-none [&_li]:p-0! [&_li]:text-[0.9rem]! [&_h4]:text-[1.125rem] [&_h4]:mb-0"
-          >
-            <h4>{`${floreToPrefill.size} ${floreToPrefill.size >= 2 ? "flores" : "flore"}`}</h4>
-            <ul>
-              {#each [...floreToPrefill] as espece (espece)}
-                {@const indexInList = especesImpacteesToPrefill.findIndex(
-                  ({ espèce: especeImpactee }) => especeImpactee === espece,
-                )}
-                <li>
-                  <NomEspece espèce={espece} />
-                  <button
-                    bind:this={deleteButtonRefs[indexInList]}
-                    type="button"
-                    class="fr-btn fr-btn--sm fr-icon-delete-line fr-btn--tertiary-no-outline"
-                    onclick={() => removeEspeceImpacteeFromClassification(espece)}
-                  >
-                    Supprimer l'espèce {[...espece.nomsVernaculaires].join(",")}
-                  </button>
-                </li>
-              {/each}
-            </ul>
-          </section>
-        {/if}
+        {#if oiseauxToPrefill.size}<EspeceSelectionList
+            especes={oiseauxToPrefill}
+            all={especesImpacteesToPrefill}
+            label={oiseauxToPrefill.size >= 2 ? "oiseaux" : "oiseau"}
+            bind:deleteButtonRefs
+            onRemove={removeEspeceImpacteeFromClassification}
+            compact
+          />{/if}
+        {#if fauneNonOiseauxToPrefill.size}<EspeceSelectionList
+            especes={fauneNonOiseauxToPrefill}
+            all={especesImpacteesToPrefill}
+            label={`${fauneNonOiseauxToPrefill.size >= 2 ? "faunes" : "faune"} non-oiseau`}
+            bind:deleteButtonRefs
+            onRemove={removeEspeceImpacteeFromClassification}
+            compact
+          />{/if}
+        {#if floreToPrefill.size}<EspeceSelectionList
+            especes={floreToPrefill}
+            all={especesImpacteesToPrefill}
+            label={floreToPrefill.size >= 2 ? "flores" : "flore"}
+            bind:deleteButtonRefs
+            onRemove={removeEspeceImpacteeFromClassification}
+            compact
+          />{/if}
       {/if}
     </div>
   </div>

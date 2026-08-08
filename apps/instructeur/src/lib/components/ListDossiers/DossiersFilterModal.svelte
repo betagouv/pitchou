@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import type { DossiersQuery } from "./dossiersList.ts";
-  import { clearFilters } from "./dossiersList.ts";
+  import type { DossiersQuery } from "./listModel.ts";
+  import { clearFilters } from "./listModel.ts";
   import DossiersFilterSections from "./DossiersFilterSections.svelte";
 
   type Props = {

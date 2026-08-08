@@ -5,7 +5,7 @@
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
   import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
-  import DossierCreationDetailsSection from "./DossierCreationDetailsSection.svelte";
+  import DossierCreationDetailsSection from "./DossierCreationDetailsSection/DossierCreationDetailsSection.svelte";
   import DossierCreationInformationSection from "./DossierCreationInformationSection.svelte";
   import DossierCreationJustificationSection from "./DossierCreationJustificationSection.svelte";
   import DossierCreationLocationSection from "./DossierCreationLocationSection.svelte";

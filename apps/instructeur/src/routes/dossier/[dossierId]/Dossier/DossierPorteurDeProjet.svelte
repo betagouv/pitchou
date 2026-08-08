@@ -1,6 +1,11 @@
 <script lang="ts">
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import CopyIconButton from "./CopyIconButton.svelte";
+  import {
+    entrepriseCreationDate,
+    entrepriseStatus,
+    hasDossierMandataire,
+  } from "./dossierPorteurDeProjet.ts";
 
   type Props = {
     dossier: DossierFull;
@@ -12,34 +17,13 @@
 
   const isPersonneMorale = $derived(Boolean(dossier.demandeur_personne_morale_siret));
 
-  const hasMandataire = $derived(
-    Boolean(
-      dossier.mandataire_last_name || dossier.mandataire_first_names || dossier.mandataire_email,
-    ),
-  );
+  const hasMandataire = $derived(hasDossierMandataire(dossier));
 
   const typeDemandeur = $derived(isPersonneMorale ? "Personne morale" : "Personne physique");
 
   // "Actif" / "Ferme" as provided by Démarche Numérique, displayed like DN.
-  const statutAdministratif = $derived.by(() => {
-    switch (dossier.demandeur_personne_morale_admin_status) {
-      case "Actif":
-        return "En activité";
-      case "Ferme":
-        return "Fermé";
-      default:
-        return null;
-    }
-  });
-
-  const formattedCreationDate = $derived.by(() => {
-    const date = dossier.demandeur_personne_morale_creation_date;
-    if (!date) {
-      return null;
-    }
-    const parsed = new Date(date);
-    return Number.isNaN(parsed.getTime()) ? date : parsed.toLocaleDateString("fr-FR");
-  });
+  const statutAdministratif = $derived(entrepriseStatus(dossier));
+  const formattedCreationDate = $derived(entrepriseCreationDate(dossier));
 </script>
 
 {#snippet field(label: string, value: string | null | undefined, large = false)}
