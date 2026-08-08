@@ -20,7 +20,7 @@ catalog:
   "@playwright/test": "^1.56.0"
   "@sentry/sveltekit": "^10.65.0"
   "@sveltejs/adapter-node": "^5.5.4"
-  "@sveltejs/kit": "^2.61.0"
+  "@sveltejs/kit": "^2.70.2"
   "@sveltejs/vite-plugin-svelte": "^7.1.2"
   "@tailwindcss/vite": "^4.3.3"
   "@testing-library/jest-dom": "^7.0.0"
