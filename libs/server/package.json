@@ -13,7 +13,6 @@
     "@aws-sdk/client-s3": "catalog:",
     "d3-dsv": "catalog:",
     "date-fns": "catalog:",
-    "just-memoize": "catalog:",
     "knex": "catalog:",
     "ky": "catalog:",
     "pg": "catalog:"

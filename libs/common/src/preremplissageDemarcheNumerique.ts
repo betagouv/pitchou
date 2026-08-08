@@ -24,10 +24,10 @@ import type { GeoAPICommune, GeoAPIDepartement } from "@pitchou/types/GeoAPI.ts"
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
 
-export const keyAE: keyof DossierDemarcheNumerique88444 =
+const keyAE: keyof DossierDemarcheNumerique88444 =
   "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?";
 
-export function schemaToChampLabelToChampId(
+function schemaToChampLabelToChampId(
   schema: SchemaDemarcheSimplifiee,
 ): Map<keyof DossierDemarcheNumerique88444, string> {
   //@ts-expect-error the schema labels are the keys of DossierDemarcheNumerique88444 and TS cannot understand this
