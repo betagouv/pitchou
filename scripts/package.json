@@ -16,7 +16,6 @@
     "pg": "catalog:"
   },
   "devDependencies": {
-    "@playwright/test": "catalog:",
     "@types/minimist": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:"
