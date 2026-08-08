@@ -36,6 +36,8 @@ const IGNORES = [
   "test-results",
   // Applied migrations are immutable historical artifacts, not maintainability refactor targets.
   "libs/database/migrations",
+  // Generated database types are Kanel artifacts, not manual refactoring targets.
+  "libs/types/src/database/public",
   // Declarative bulk seed data, not executable seed logic.
   "libs/database/seeds/dev/data/espece-taxref.ts",
   "libs/database/seeds/dev/data/espece-protegee-modification-ajouts.ts",
