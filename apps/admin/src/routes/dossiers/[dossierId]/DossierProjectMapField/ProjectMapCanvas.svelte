@@ -170,7 +170,10 @@
 </script>
 
 <ProjectMapSearch
-  onFound={(position) => map?.flyTo({ center: position, zoom: 17 })}
+  onFound={(position) => {
+    error = null;
+    map?.flyTo({ center: position, zoom: 17 });
+  }}
   onError={(caught) => (error = projectMapError(caught))}
 />
 
