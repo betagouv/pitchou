@@ -18,7 +18,7 @@ export type DecisionWithFile = DecisionAdministrative & {
   file_size: number | null;
 };
 
-export function getAvisExpertDossier(
+export async function getAvisExpertDossier(
   dossierId: Dossier["id"],
   db: Knex.Transaction,
 ): Promise<AvisWithFiles[]> {
@@ -37,7 +37,7 @@ export function getAvisExpertDossier(
     .where({ dossier: dossierId });
 }
 
-export function getDecisionsDossier(
+export async function getDecisionsDossier(
   dossierId: Dossier["id"],
   db: Knex.Transaction,
 ): Promise<DecisionWithFile[]> {
@@ -52,7 +52,7 @@ export function getDecisionsDossier(
     .where({ dossier: dossierId });
 }
 
-export function getPiecesJointes(
+export async function getPiecesJointes(
   dossierId: Dossier["id"],
   db: Knex.Transaction,
 ): Promise<

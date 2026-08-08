@@ -43,7 +43,7 @@ function eventsByCap(cap: CapDossier["cap"], databaseConnection: Knex.Transactio
   );
 }
 
-export function getLatestEvenementsPhaseDossiers(
+export async function getLatestEvenementsPhaseDossiers(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
@@ -55,14 +55,14 @@ export function getLatestEvenementsPhaseDossiers(
     ]);
 }
 
-export function getEvenementsPhaseDossiers(
+export async function getEvenementsPhaseDossiers(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
   return eventsByCap(cap, databaseConnection);
 }
 
-export function getEvenementsPhaseDossier(
+export async function getEvenementsPhaseDossier(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<EvenementPhaseDossier[]> {

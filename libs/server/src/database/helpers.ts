@@ -16,13 +16,13 @@ export function dumpEntreprises(
   return databaseConnection("entreprise").insert(entreprises).onConflict("siret").merge();
 }
 
-export function getDemarcheNumerique88444SynchronizationResults(
+export async function getDemarcheNumerique88444SynchronizationResults(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DemarcheNumerique88444SynchronizationResult[]> {
   return databaseConnection("demarche_numerique_88444_synchronization_result").select("*");
 }
 
-export function addDemarcheNumerique88444SynchronizationResult(
+export async function addDemarcheNumerique88444SynchronizationResult(
   result: DemarcheNumerique88444SynchronizationResult,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {

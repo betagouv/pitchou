@@ -67,7 +67,7 @@ export async function createGroupesInstructeurs(
   return databaseConnection("edge_cap_dossier__groupe_instructeurs").insert(edges);
 }
 
-export function deleteGroupesInstructeurs(
+export async function deleteGroupesInstructeurs(
   ids: GroupeInstructeurs["id"][],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
