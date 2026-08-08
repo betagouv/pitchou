@@ -9,6 +9,9 @@
         )
       : 0,
   );
+  const uncontrolledPercentage = $derived(
+    stats.controllablePrescriptionCount > 0 ? 100 - controlledPercentage : 0,
+  );
 </script>
 
 <section class="fr-mt-4w">
@@ -57,7 +60,7 @@
                 >{stats.controllablePrescriptionCount - stats.prescriptionWithControleCount}</span
               >
               <span class="text-[0.875rem] text-[color:var(--text-mention-grey)] fr-mt-1v"
-                >Non contrôlées dans Pitchou<br />{100 - controlledPercentage}%</span
+                >Non contrôlées dans Pitchou<br />{uncontrolledPercentage}%</span
               >
             </div>
           </div>
@@ -69,8 +72,7 @@
               style="width: {controlledPercentage}%; background: var(--background-action-high-blue-france); height: 100%; display: inline-block;"
             ></div>
             <div
-              style="width: {100 -
-                controlledPercentage}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
+              style="width: {uncontrolledPercentage}%; background: var(--background-contrast-grey); height: 100%; display: inline-block;"
             ></div>
           </div>
           <div class="text-center fr-mt-1w">
