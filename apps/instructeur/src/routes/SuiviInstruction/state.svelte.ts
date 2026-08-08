@@ -34,6 +34,7 @@ export class SuiviInstructionState {
   followRelations: PitchouState["followRelations"];
   remember: any;
   selectedDossiers: DossierSummary[] = $state([]);
+  pageSelectors: ReturnType<typeof suiviPageSelectors> = $state();
   selectedPage = $state(1);
   selectedSort: TableSort | undefined = $state();
   text = $state("");
@@ -74,7 +75,7 @@ export class SuiviInstructionState {
     this.text = untrack(() => props.filters.texte ?? "");
     const sorts = createSuiviInstructionSorts(
       () => this.selectedDossiers,
-      (value) => (this.selectedDossiers = value),
+      (value) => this.setSelectedDossiers(value),
     );
     this.activitySorts = sorts.activity;
     this.nameSorts = sorts.name;
@@ -110,15 +111,11 @@ export class SuiviInstructionState {
   get unselectedActivities() {
     return this.activityOptions.difference(this.selectedActivities);
   }
-  get pageSelectors(): [undefined, ...(() => void)[]] | undefined {
-    return suiviPageSelectors(this.selectedDossiers.length, (page) => (this.selectedPage = page));
+  get currentPage() {
+    return this.pageSelectors?.[this.selectedPage];
   }
   get displayed() {
-    return displayedSuiviPage(
-      this.selectedDossiers,
-      this.selectedPage,
-      Boolean(this.pageSelectors),
-    );
+    return displayedSuiviPage(this.selectedDossiers, this.selectedPage, !!this.pageSelectors);
   }
   installFilters() {
     this.filters.set("phase", (dossier) => this.selectedPhases.has(dossier.phase));
@@ -143,9 +140,15 @@ export class SuiviInstructionState {
         ),
     );
   }
+  setSelectedDossiers(value: DossierSummary[]) {
+    this.selectedDossiers = value;
+    this.pageSelectors = suiviPageSelectors(value.length, (page) => (this.selectedPage = page));
+  }
   apply() {
-    this.selectedDossiers = this.dossiers.filter((dossier) =>
-      [...this.filters.values()].every((filter) => filter(dossier)),
+    this.setSelectedDossiers(
+      this.dossiers.filter((dossier) =>
+        [...this.filters.values()].every((filter) => filter(dossier)),
+      ),
     );
     this.selectedSort?.sort();
   }

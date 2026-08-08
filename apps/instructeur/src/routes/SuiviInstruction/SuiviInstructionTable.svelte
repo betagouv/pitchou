@@ -91,6 +91,6 @@
   </table>
   {#if state.pageSelectors}<Pagination
       pageSelectors={state.pageSelectors}
-      currentPage={state.pageSelectors[state.selectedPage]}
+      currentPage={state.currentPage}
     />{/if}
 </div>
