@@ -2,16 +2,17 @@
   import { onMount } from "svelte";
 
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
-  import { phases } from "@pitchou/common/phases.ts";
 
   import {
     loadDossiers,
+    downloadDossiersCSV,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
   import TableDossiers from "./TableDossiers.svelte";
+  import DossiersListControls from "./DossiersListControls.svelte";
   import CreateDossierModal from "./CreateDossierModal.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
@@ -21,6 +22,10 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let creatingDossier = $state(false);
+  let downloading = $state(false);
+  let downloadError = $state<string | null>(null);
+
+  const currentYear = new Date().getFullYear();
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -80,6 +85,23 @@
     reload();
   }
 
+  async function downloadCurrentYear() {
+    downloading = true;
+    downloadError = null;
+    try {
+      await downloadDossiersCSV(currentYear);
+    } catch (e) {
+      downloadError =
+        e instanceof AccessDeniedError
+          ? "Accès réservé aux administrateurs."
+          : e instanceof Error
+            ? e.message
+            : String(e);
+    } finally {
+      downloading = false;
+    }
+  }
+
   onMount(reload);
 </script>
 
@@ -92,62 +114,32 @@
   <div class="flex flex-col fr-mt-2w gap-4">
     <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
       <h1 class="fr-mb-0">Dossiers</h1>
-      <button
-        class="fr-btn fr-icon-add-line fr-btn--icon-left"
-        type="button"
-        onclick={() => (creatingDossier = true)}
-      >
-        Créer un dossier
-      </button>
-    </div>
-
-    <div class="flex flex-row items-end gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
-      <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-        <div class="fr-search-bar w-full" role="search">
-          <label class="fr-label" for="recherche-dossier">Rechercher un dossier</label>
-          <input
-            value={query.search}
-            oninput={(e) => onSearchInput(e.currentTarget.value)}
-            name="texte-de-recherche"
-            class="fr-input"
-            placeholder="Nom, demandeur ou numéro DN"
-            id="recherche-dossier"
-            type="search"
-          />
-          <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher</button>
-        </div>
-      </form>
-
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-phase">Phase</label>
-        <select
-          class="fr-select"
-          id="filtre-phase"
-          bind:value={query.phase}
-          onchange={onFilterChange}
+      <div class="flex flex-row items-center gap-4 flex-wrap">
+        <button
+          class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left"
+          type="button"
+          disabled={downloading}
+          onclick={downloadCurrentYear}
         >
-          <option value="">Toutes</option>
-          {#each [...phases] as phase (phase)}
-            <option value={phase}>{phase}</option>
-          {/each}
-        </select>
-      </div>
-
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-source">Source</label>
-        <select
-          class="fr-select"
-          id="filtre-source"
-          bind:value={query.source}
-          onchange={onFilterChange}
+          Télécharger les dossiers de l'année en cours
+        </button>
+        <button
+          class="fr-btn fr-icon-add-line fr-btn--icon-left"
+          type="button"
+          onclick={() => (creatingDossier = true)}
         >
-          <option value="">Toutes</option>
-          <option value="pitchou">Créé dans Pitchou</option>
-          <option value="dn">Importé de Démarches Numériques</option>
-          <option value="unknown">Source inconnue</option>
-        </select>
+          Créer un dossier
+        </button>
       </div>
     </div>
+
+    {#if downloadError}
+      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
+        <p>{downloadError}</p>
+      </div>
+    {/if}
+
+    <DossiersListControls bind:query onSearch={onSearchInput} onFilter={onFilterChange} />
 
     <p class="fr-mb-0" aria-live="polite">
       <span class="fr-text--lead">{total}</span><span class="fr-text--lg"
