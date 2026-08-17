@@ -404,6 +404,9 @@ importers:
 
   libs/database:
     dependencies:
+      '@odfjs/odfjs':
+        specifier: 'catalog:'
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
       '@pitchou/common':
         specifier: workspace:*
         version: link:../common

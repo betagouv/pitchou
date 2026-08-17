@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@pitchou/types": "workspace:*",
+    "@odfjs/odfjs": "catalog:",
     "@pitchou/common": "workspace:*",
     "@pitchou/server": "workspace:*",
+    "@pitchou/types": "workspace:*",
     "d3-dsv": "catalog:",
     "knex": "catalog:",
     "pg": "catalog:",
