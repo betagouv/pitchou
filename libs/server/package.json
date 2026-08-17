@@ -8,13 +8,14 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@pitchou/types": "workspace:*",
-    "@pitchou/common": "workspace:*",
     "@aws-sdk/client-s3": "catalog:",
+    "@pitchou/common": "workspace:*",
+    "@pitchou/types": "workspace:*",
     "d3-dsv": "catalog:",
     "date-fns": "catalog:",
     "knex": "catalog:",
     "ky": "catalog:",
+    "p-limit": "catalog:",
     "pg": "catalog:"
   },
   "devDependencies": {

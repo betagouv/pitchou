@@ -8,13 +8,14 @@
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
   import ProjetInformation from "./DossierProjet/ProjetInformation.svelte";
   import ProjetScientifique from "./DossierProjet/ProjetScientifique.svelte";
   import ProjetSidebar from "./DossierProjet/ProjetSidebar.svelte";
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<DescriptionMenacesEspeces> | undefined;
+    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
   };
 
   let { dossier, especesImpactees }: Props = $props();
@@ -106,7 +107,7 @@
           {makeFilename}
           style={styleDownloadButton}
           classname="fr-btn fr-btn--secondary"
-          label="Télécharger le fichier des espèces impactées"
+          label="Télécharger le fichier original"
         />
       {/if}
     </div>
@@ -114,9 +115,28 @@
       {#if especesImpactees}
         {#await Promise.all([especesImpactees, referentielsPromise])}
           <Loader></Loader>
-        {:then [especesImpactees, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
+        {:then [{ impactEspece, anomalies }, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
           {@const { numberEspecesCNPN, numberEspecesMinisterielles } =
-            getNumberEspecesMinisterielleCNPN(especesImpactees)}
+            getNumberEspecesMinisterielleCNPN(impactEspece)}
+          {#if anomalies.length >= 1}
+            <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
+              <h3 class="fr-alert__title">
+                {anomalies.length}
+                {anomalies.length > 1 ? "lignes du fichier n’ont" : "ligne du fichier n’a"} pas pu être
+                lue{anomalies.length > 1 ? "s" : ""}
+              </h3>
+              <ul>
+                {#each anomalies as anomalie}
+                  <li>
+                    {#if anomalie.classification && anomalie.ligne}
+                      Feuille « {anomalie.classification} », ligne {anomalie.ligne} :
+                    {/if}
+                    {anomalie.message}
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
           <p class="fr-badge fr-badge--blue-ecume">
             {numberEspecesCNPN}
             {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
@@ -126,7 +146,7 @@
             {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
           </p>
           <EspecesProtegeesGroupedByImpact
-            espècesImpactées={especesImpactees}
+            espècesImpactées={impactEspece}
             identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
           />
         {/await}

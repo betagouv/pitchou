@@ -1,3 +1,4 @@
+import { createOdsFile } from "@odfjs/odfjs";
 import type { Knex } from "knex";
 
 import {
@@ -10,6 +11,7 @@ import type EspeceProtegeeRow from "@pitchou/types/database/public/EspeceProtege
 import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
 import { SEED_ESPECES_IMPACTEES } from "../../fixtures/dossiers.ts";
+import { SEED_FICHIER_ESPECES_INCORRECT } from "../../fixtures/dossiers/especes-impactees-incorrect.ts";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 
@@ -99,4 +101,46 @@ export async function seedEspecesImpactees(
         .update({ especes_impactees: fichierId });
     }
   }
+
+  await seedFichierEspecesIncorrect(transaction, dossierIdMap);
+}
+
+/**
+ * Attaches a faulty file to one dossier, so the anomalies reported on the onglet Projet can be
+ * seen in a dev environment.
+ *
+ * Built from raw cells: the loop above resolves everything against the référentiel and throws on
+ * what it does not know, which is precisely what this file is meant to contain.
+ */
+async function seedFichierEspecesIncorrect(
+  transaction: Knex.Transaction,
+  dossierIdMap: Record<string, number>,
+) {
+  const { dossier: dsNumber, nom_fichier, feuilles } = SEED_FICHIER_ESPECES_INCORRECT;
+
+  const dossierId = dossierIdMap[dsNumber];
+  if (!dossierId) {
+    console.warn(`  ⚠ espèces impactées incorrectes — dossier DS ${dsNumber} non résolu`);
+    return;
+  }
+
+  const dossier = await transaction("dossier").where({ id: dossierId }).first();
+  if (dossier?.especes_impactees) return;
+
+  const sheets = new Map(
+    Object.entries(feuilles).map(([nom, { colonnes, lignes }]) => [
+      nom,
+      [colonnes, ...lignes].map((ligne) =>
+        ligne.map((value) => ({ type: "string" as const, value })),
+      ),
+    ]),
+  );
+
+  const odsArrayBuffer = await createOdsFile(sheets as Parameters<typeof createOdsFile>[0]);
+  const { id: fichierId } = await storeNewFichier(
+    { name: nom_fichier, content: Buffer.from(odsArrayBuffer), media_type: ODS_MEDIA_TYPE },
+    transaction,
+  );
+
+  await transaction("dossier").where({ id: dossierId }).update({ especes_impactees: fichierId });
 }

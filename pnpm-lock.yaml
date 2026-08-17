@@ -404,6 +404,9 @@ importers:
 
   libs/database:
     dependencies:
+      '@odfjs/odfjs':
+        specifier: 'catalog:'
+        version: https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335
       '@pitchou/common':
         specifier: workspace:*
         version: link:../common
@@ -459,6 +462,9 @@ importers:
       ky:
         specifier: 'catalog:'
         version: 2.0.2
+      p-limit:
+        specifier: 'catalog:'
+        version: 7.3.1
       pg:
         specifier: 'catalog:'
         version: 8.22.0
@@ -1875,6 +1881,7 @@ packages:
   '@xmldom/xmldom@0.9.10':
     resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@zip.js/zip.js@2.8.34':
     resolution: {integrity: sha512-+6a3lyqq69rpseLbvDPiVIWsZ/HdTGAAD6afFtug6ECPDGttb2dHnPC6cJgdPofYkzL9OvXizegq+DQVfL2rnA==}

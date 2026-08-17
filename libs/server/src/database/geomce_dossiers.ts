@@ -2,31 +2,14 @@ import { arrayBuffer } from "node:stream/consumers";
 import type { Knex } from "knex";
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
 import { directDatabaseConnection } from "../database.ts";
-import { dbRowToEspeceProtegee, getEspecesProtegees } from "../especeProtegee.ts";
+import { loadEspeceByCD_REF } from "../especeProtegee.ts";
 import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "../referentielTypeImpactMethodeMoyenDePoursuite.ts";
 import { loadFichierContent } from "./fichier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
-import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";
+import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 import type { DossierForGeoMCE } from "@pitchou/types/geomce.ts";
-
-type EspeceMap = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
-const especesByConnection = new WeakMap<Knex.Transaction | Knex, Promise<EspeceMap>>();
-
-function loadEspeces(databaseConnection: Knex.Transaction | Knex): Promise<EspeceMap> {
-  let promise = especesByConnection.get(databaseConnection);
-  if (!promise) {
-    promise = getEspecesProtegees(databaseConnection)
-      .then((rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])))
-      .catch((error) => {
-        especesByConnection.delete(databaseConnection);
-        throw error;
-      });
-    especesByConnection.set(databaseConnection, promise);
-  }
-  return promise;
-}
 
 function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
@@ -63,7 +46,7 @@ export async function getDossiersForGeoMCE(
       return byDossier;
     });
   const [especes, maps, instructeurs, dossiers] = await Promise.all([
-    loadEspeces(databaseConnection),
+    loadEspeceByCD_REF(databaseConnection),
     getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
     instructeursP,
     dossiersP,

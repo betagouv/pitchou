@@ -78,6 +78,9 @@ test("la synchronisation du fichier espèces ignore un dossier Pitchou avec un a
 
   await synchronizeFichiersEspecesImpacteesFromDS88444(
     new Map([[910004, "00000000-0000-0000-0000-000000000001" as FileId]]),
+    // Empty on purpose: the dossier is a Pitchou one, so the synchronization has no id for that
+    // Démarche Numérique number and nothing may be imported for it.
+    new Map(),
     db,
   );
 

@@ -105,3 +105,16 @@ export interface SimplifiedEspece {
   CD_REF: EspeceProtegee["CD_REF"];
   nom: string;
 }
+
+export interface AnomalieFichierEspeces {
+  classification?: ClassificationEtreVivant;
+  /** Row number as the spreadsheet shows it, header included, so the message can point at it. */
+  ligne?: number;
+  /** French, shown as is to the instructrice. */
+  message: string;
+}
+
+export interface ResultatImportFichierEspeces {
+  description: DescriptionMenacesEspeces;
+  anomalies: AnomalieFichierEspeces[];
+}

@@ -12,7 +12,7 @@
   } from "./DossierGenerationDocuments/templates.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
   let templateFiles: File[] = $state([]);
   let fileInput: HTMLInputElement | undefined = $state();
@@ -23,7 +23,7 @@
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<DescriptionMenacesEspeces> | undefined;
+    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
   };
 
   let { dossier, especesImpactees }: Props = $props();
@@ -93,7 +93,9 @@
 
     try {
       // let any errors surface here to be handled below
-      especesImpacts = await especesImpactees;
+      // Only the espèces here: the anomalies are the Projet tab's business, and a generated
+      // document reports what could be read, exactly as the tab displays it.
+      especesImpacts = (await especesImpactees)?.impactEspece;
     } catch (e) {
       // @ts-ignore
       documentGenerationError = e;

@@ -88,6 +88,22 @@ describe("importDescriptionMenacesEspècesFromOdsArrayBuffer", () => {
   const methodes = emptyParClassification<MethodeMenancante>();
   const moyensDePoursuite = emptyParClassification<MoyenDePoursuiteMenacant>();
 
+  // The référentiel has to know the codes the file names: a code it cannot resolve now costs the
+  // line, since we would be unable to say how the espèce is impacted.
+  const activite: ActiviteMenancante = {
+    "Code rapportage européen": "2",
+    "Identifiant Pitchou": "P-2-1",
+    "Libellé activité directive européenne": "Capture délibérée par n'importe quelle méthode",
+    "Libellé Pitchou": "Capture pour captivité temporaire ou définitive",
+    Méthode: "Non",
+    "Moyen de poursuite": "Non",
+    "Nombre d'individus": "Oui",
+    Nids: "Non",
+    Œufs: "Non",
+    "Surface habitat détruit (m²)": "Non",
+  };
+  activites.oiseau.set("P-2-1", activite);
+
   const headers = ["CD_REF", "nombre individus", "identifiant pitchou activité"];
   // CD_REF is intentionally a number to exercise the .xlsx normalization path.
   const dataRow: (string | number)[] = [2437, 5, "P-2-1"];
@@ -131,6 +147,7 @@ describe("importDescriptionMenacesEspècesFromOdsArrayBuffer", () => {
     expect(description.oiseau).toHaveLength(1);
     expect(description.oiseau[0].espèce).toBe(espece);
     expect(description.oiseau[0].nombreIndividus).toBe(5);
+    expect(description.oiseau[0].activité).toBe(activite);
   });
 
   it("parses an impacted-espece file from an .xlsx array buffer (numeric CD_REF)", async () => {

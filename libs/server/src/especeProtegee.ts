@@ -3,14 +3,19 @@ import type { Knex } from "knex";
 // Relative imports (not the `$` aliases) so this module also resolves under `tsx`,
 // which runs the CLI generator and the seeds.
 import { directDatabaseConnection } from "./database.ts";
+import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 
 import type { default as EspeceProtegee } from "@pitchou/types/database/public/EspeceProtegee.ts";
-import type { ProtectionDocument, StatutProtection } from "@pitchou/types/especes.d.ts";
+import type {
+  EspeceProtegee as EspeceProtegeeDomaine,
+  ProtectionDocument,
+  StatutProtection,
+} from "@pitchou/types/especes.d.ts";
 
 // Re-exported so server consumers can convert rows from the same module they fetch
 // them with. The implementation is knex-free and lives in `commun` so the front-end
 // can reuse it on rows received from the API.
-export { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
+export { dbRowToEspeceProtegee };
 export {
   deleteEspeceProtegeeModification,
   getEspecesProtegeesModifications,
@@ -26,6 +31,29 @@ export type {
 export type EspeceProtegeeAvecStatutsProtection = EspeceProtegee & {
   statuts_protection: StatutProtection[];
 };
+
+type EspeceByCD_REF = Map<EspeceProtegeeDomaine["CD_REF"], EspeceProtegeeDomaine>;
+
+const especeByCD_REFByConnection = new WeakMap<Knex.Transaction | Knex, Promise<EspeceByCD_REF>>();
+
+export function loadEspeceByCD_REF(
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<EspeceByCD_REF> {
+  let promise = especeByCD_REFByConnection.get(databaseConnection);
+
+  if (!promise) {
+    promise = getEspecesProtegees(databaseConnection)
+      .then((rows) => new Map(rows.map((row) => [row.cd_ref, dbRowToEspeceProtegee(row)])))
+      .catch((error) => {
+        // Don't keep a rejected promise cached
+        especeByCD_REFByConnection.delete(databaseConnection);
+        throw error;
+      });
+    especeByCD_REFByConnection.set(databaseConnection, promise);
+  }
+
+  return promise;
+}
 
 /**
  * Reads the merged `espece_protegee` view (reference table + manual layer fused by

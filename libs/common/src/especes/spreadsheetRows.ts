@@ -3,23 +3,24 @@ import type {
   FloreAtteinteOds_V1,
   OiseauAtteintOds_V1,
 } from "@pitchou/types/especesFichierOds.d.ts";
-import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";
+import type { DescriptionMenacesEspeces } from "@pitchou/types/especesImpact.d.ts";
+import { validateCriteria } from "./spreadsheetRows/criteria.ts";
+import { getEspece, isSpecified, resolve } from "./spreadsheetRows/resolution.ts";
+import type { EspeceMap, LineFile, ReportAnomalie } from "./spreadsheetRows/resolution.ts";
+
 import type { ReferentielMaps } from "./types.ts";
 
-type EspeceMap = Map<EspeceProtegee["CD_REF"], EspeceProtegee>;
-
-function getEspece(cdRef: string, especes: EspeceMap): EspeceProtegee {
-  const espece = especes.get(cdRef);
-  if (!espece) throw new Error(`Espèce avec CD_REF ${cdRef} manquante`);
-  return espece;
-}
+export type { LineFile, ReportAnomalie };
 
 export function parseOiseaux(
-  rows: OiseauAtteintOds_V1[],
+  lignes: LineFile<OiseauAtteintOds_V1>[],
   especes: EspeceMap,
   maps: ReferentielMaps,
+  report: ReportAnomalie,
 ): NonNullable<DescriptionMenacesEspeces["oiseau"]> {
-  return rows.map((row) => {
+  const classification = "oiseau";
+
+  return lignes.flatMap(({ row, ligne }) => {
     const {
       CD_REF,
       "nombre individus": nombreIndividus,
@@ -30,8 +31,15 @@ export function parseOiseaux(
       "code méthode": codeMethode,
       "code transport": codeMoyen,
     } = row;
+
+    const espece = getEspece(CD_REF, especes, classification, ligne, report);
+    if (!espece) return [];
+
+    // Legacy files, before the identifiant Pitchou column existed in version 1.1.0, only carry the
+    // European code. A file that names no type d'impact at all is not an error: the column is
+    // optional, and such lines are displayed apart, under « Type d'impact non renseigné ».
     let activiteId = row["identifiant pitchou activité"];
-    if (!activiteId) {
+    if (!activiteId && isSpecified(codeActivite)) {
       if (codeActivite === "4") {
         activiteId =
           (nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0) ? "P-4-1" : "P-4-2";
@@ -41,25 +49,54 @@ export function parseOiseaux(
         activiteId = `P-${codeActivite}`;
       }
     }
-    return {
-      espèce: getEspece(CD_REF, especes),
+    const refActivites = maps.activites[classification];
+    const refMethodes = maps.methodes[classification];
+    const refMoyensDePoursuite = maps.moyens[classification];
+
+    const activite = resolve(
+      activiteId,
+      refActivites,
+      "le type d’impact",
+      classification,
+      ligne,
+      report,
+    );
+    const methode = resolve(codeMethode, refMethodes, "la méthode", classification, ligne, report);
+    const moyen = resolve(
+      codeMoyen,
+      refMoyensDePoursuite,
+      "le moyen de poursuite",
+      classification,
+      ligne,
+      report,
+    );
+    if (!activite.valid || !methode.valid || !moyen.valid) return [];
+
+    const impact = {
+      espèce: espece,
       nombreIndividus,
       nombreNids,
       nombreOeufs,
       surfaceHabitatDétruit: surfaceHabitatDetruit,
-      activité: maps.activites.oiseau.get(activiteId),
-      méthode: maps.methodes.oiseau.get(codeMethode),
-      moyenDePoursuite: maps.moyens.oiseau.get(codeMoyen),
+      activité: activite.value,
+      méthode: methode.value,
+      moyenDePoursuite: moyen.value,
     };
+
+    validateCriteria(impact, classification, ligne, report);
+    return [impact];
   });
 }
 
 export function parseFaunes(
-  rows: FauneNonOiseauAtteinteOds_V1[],
+  lignes: LineFile<FauneNonOiseauAtteinteOds_V1>[],
   especes: EspeceMap,
   maps: ReferentielMaps,
+  report: ReportAnomalie,
 ): NonNullable<DescriptionMenacesEspeces["faune non-oiseau"]> {
-  return rows.map((row) => {
+  const classification = "faune non-oiseau";
+
+  return lignes.flatMap(({ row, ligne }) => {
     const {
       CD_REF,
       "nombre individus": nombreIndividus,
@@ -68,25 +105,64 @@ export function parseFaunes(
       "code méthode": codeMethode,
       "code transport": codeMoyen,
     } = row;
+
+    const espece = getEspece(CD_REF, especes, classification, ligne, report);
+    if (!espece) return [];
+
     let activiteId = row["identifiant pitchou activité"];
-    if (!activiteId) activiteId = codeActivite === "70" ? "P-70-2" : `P-${codeActivite}`;
-    return {
-      espèce: getEspece(CD_REF, especes),
+    if (!activiteId && isSpecified(codeActivite)) {
+      activiteId = codeActivite === "70" ? "P-70-2" : `P-${codeActivite}`;
+    }
+
+    const activite = resolve(
+      activiteId,
+      maps.activites[classification],
+      "le type d’impact",
+      classification,
+      ligne,
+      report,
+    );
+    const methode = resolve(
+      codeMethode,
+      maps.methodes[classification],
+      "la méthode",
+      classification,
+      ligne,
+      report,
+    );
+    const moyen = resolve(
+      codeMoyen,
+      maps.moyens[classification],
+      "le moyen de poursuite",
+      classification,
+      ligne,
+      report,
+    );
+    if (!activite.valid || !methode.valid || !moyen.valid) return [];
+
+    const impact = {
+      espèce: espece,
       nombreIndividus,
       surfaceHabitatDétruit: surfaceHabitatDetruit,
-      activité: maps.activites["faune non-oiseau"].get(activiteId),
-      méthode: maps.methodes["faune non-oiseau"].get(codeMethode),
-      moyenDePoursuite: maps.moyens["faune non-oiseau"].get(codeMoyen),
+      activité: activite.value,
+      méthode: methode.value,
+      moyenDePoursuite: moyen.value,
     };
+
+    validateCriteria(impact, classification, ligne, report);
+    return [impact];
   });
 }
 
 export function parseFlores(
-  rows: FloreAtteinteOds_V1[],
+  lignes: LineFile<FloreAtteinteOds_V1>[],
   especes: EspeceMap,
   maps: ReferentielMaps,
+  report: ReportAnomalie,
 ): NonNullable<DescriptionMenacesEspeces["flore"]> {
-  return rows.map((row) => {
+  const classification = "flore";
+
+  return lignes.flatMap(({ row, ligne }) => {
     const {
       CD_REF,
       "nombre individus": nombreIndividus,
@@ -94,11 +170,28 @@ export function parseFlores(
       "code activité": codeActivite,
       "identifiant pitchou activité": activiteId,
     } = row;
-    return {
-      espèce: getEspece(CD_REF, especes),
+
+    const espece = getEspece(CD_REF, especes, classification, ligne, report);
+    if (!espece) return [];
+
+    const activite = resolve(
+      activiteId || (isSpecified(codeActivite) ? `P-${codeActivite}` : undefined),
+      maps.activites[classification],
+      "le type d’impact",
+      classification,
+      ligne,
+      report,
+    );
+    if (!activite.valid) return [];
+
+    const impact = {
+      espèce: espece,
       nombreIndividus,
       surfaceHabitatDétruit: surfaceHabitatDetruit,
-      activité: maps.activites.flore.get(activiteId || `P-${codeActivite}`),
+      activité: activite.value,
     };
+
+    validateCriteria(impact, classification, ligne, report);
+    return [impact];
   });
 }

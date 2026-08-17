@@ -7,23 +7,23 @@ import type {
   QuantifiedImpact,
 } from "@pitchou/types/especes.d.ts";
 import type { ActivitesMethodesMoyensDePoursuiteBundle } from "@pitchou/types/pitchouState.ts";
-import type { default as TypeImpact } from "@pitchou/types/database/public/TypeImpact.ts";
-import type { default as Methode } from "@pitchou/types/database/public/Methode.ts";
-import type { default as MoyenDePoursuite } from "@pitchou/types/database/public/MoyenDePoursuite.ts";
+import type { default as ImpactType } from "@pitchou/types/database/public/ImpactType.ts";
+import type { default as ImpactMethode } from "@pitchou/types/database/public/ImpactMethode.ts";
+import type { default as ImpactMoyenDePoursuite } from "@pitchou/types/database/public/ImpactMoyenDePoursuite.ts";
 
 /**
  * The generated table types with their key columns widened back to `string`.
  *
- * Kanel brands key columns (`TypeImpactIdentifiantPitchou` and friends), which a row read from
+ * Kanel brands key columns (`ImpactTypeIdentifiantPitchou` and friends), which a row read from
  * the database satisfies but a row written by hand — in a migration or a test — does not. Since
  * this module only ever reads those columns, widening them keeps the column list tied to the
  * generated types while accepting both.
  */
-export type TypeImpactRow = Omit<TypeImpact, "identifiant_pitchou"> & {
+export type TypeImpactRow = Omit<ImpactType, "identifiant_pitchou"> & {
   identifiant_pitchou: string;
 };
-export type MethodeRow = Omit<Methode, "code"> & { code: string };
-export type MoyenDePoursuiteRow = Omit<MoyenDePoursuite, "code" | "classification"> & {
+export type MethodeRow = Omit<ImpactMethode, "code"> & { code: string };
+export type MoyenDePoursuiteRow = Omit<ImpactMoyenDePoursuite, "code" | "classification"> & {
   code: string;
   classification: string;
 };
