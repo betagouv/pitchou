@@ -166,9 +166,11 @@ export function parseOiseaux(
     const espece = getEspece(CD_REF, especes, classification, ligne, report);
     if (!espece) return [];
 
+    // Legacy files, before the identifiant Pitchou column existed in version 1.1.0, only carry the
+    // European code. A file that names no type d'impact at all is not an error: the column is
+    // optional, and such lines are displayed apart, under « Type d'impact non renseigné ».
     let activiteId = row["identifiant pitchou activité"];
-    if (!activiteId) {
-      // Legacy files, before the identifiant Pitchou column existed in version 1.1.0
+    if (!activiteId && isSpecified(codeActivite)) {
       if (codeActivite === "4") {
         activiteId =
           (nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0) ? "P-4-1" : "P-4-2";
@@ -239,7 +241,9 @@ export function parseFaunes(
     if (!espece) return [];
 
     let activiteId = row["identifiant pitchou activité"];
-    if (!activiteId) activiteId = codeActivite === "70" ? "P-70-2" : `P-${codeActivite}`;
+    if (!activiteId && isSpecified(codeActivite)) {
+      activiteId = codeActivite === "70" ? "P-70-2" : `P-${codeActivite}`;
+    }
 
     const activite = resolve(
       activiteId,
@@ -302,7 +306,7 @@ export function parseFlores(
     if (!espece) return [];
 
     const activite = resolve(
-      activiteId || `P-${codeActivite}`,
+      activiteId || (isSpecified(codeActivite) ? `P-${codeActivite}` : undefined),
       maps.activites[classification],
       "le type d’impact",
       classification,
