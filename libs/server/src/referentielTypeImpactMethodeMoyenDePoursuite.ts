@@ -22,9 +22,7 @@ export async function getReferentielRows(
       .select("*")
       .orderBy(["classification", "identifiant_pitchou"]),
     databaseConnection("impact_methode").select("*").orderBy(["classification", "code"]),
-    databaseConnection("impact_moyen_de_poursuite")
-      .select("*")
-      .orderBy(["classification", "code"]),
+    databaseConnection("impact_moyen_de_poursuite").select("*").orderBy(["classification", "code"]),
   ]);
 
   return { typesImpact, methodes, moyensDePoursuite };

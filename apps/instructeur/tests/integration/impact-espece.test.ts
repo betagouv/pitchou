@@ -8,6 +8,7 @@ import { createDossier } from "../factories/dossier.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
 
 import { dumpImpactEspeceFromFichier } from "@pitchou/server/database/impact_espece/dumpImpactEspeceFromFichier.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 
@@ -58,7 +59,8 @@ async function dossierAvecFichier(bytes: Buffer, mediaType = ODS_MEDIA_TYPE) {
     especes_impactees: fichier.id,
   });
 
-  return { dossier, fichier };
+  // The factory hands back a plain number; the generated type brands dossier ids.
+  return { dossier: { ...dossier, id: dossier.id as DossierId }, fichier };
 }
 
 test("le fichier espèces impactées est dumpé dans impact_espece", async () => {
