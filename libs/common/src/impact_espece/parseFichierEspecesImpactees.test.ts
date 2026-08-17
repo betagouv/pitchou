@@ -1,90 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { createOdsFile } from "@odfjs/odfjs";
-import * as XLSX from "xlsx";
 
 import { parseFichierEspecesImpactees } from "./parseFichierEspecesImpactees.ts";
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "../especesUtils.ts";
-
-import type {
-  ActiviteMenancante,
-  EspeceProtegee,
-  MethodeMenancante,
-  MoyenDePoursuiteMenacant,
-} from "@pitchou/types/especes.d.ts";
-import type { ActivitesMethodesMoyensDePoursuiteBundle } from "@pitchou/types/pitchouState.ts";
-
-const OISEAU: EspeceProtegee = { CD_REF: "2437", classification: "oiseau" } as EspeceProtegee;
-const FLEUR = { CD_REF: "99999", classification: "flore" } as EspeceProtegee;
-
-const especeByCD_REF = new Map([
-  [OISEAU.CD_REF, OISEAU],
-  [FLEUR.CD_REF, FLEUR],
-]);
-
-/** Accepts a nombre d'individus and a méthode, nothing else. */
-const CAPTURE: ActiviteMenancante = {
-  "Code rapportage européen": "2",
-  "Identifiant Pitchou": "P-2-1",
-  "Libellé activité directive européenne": "Capture délibérée",
-  "Libellé Pitchou": "Capture pour captivité temporaire ou définitive",
-  Méthode: "Oui",
-  "Moyen de poursuite": "Non",
-  "Nombre d'individus": "Oui",
-  Nids: "Non",
-  Œufs: "Non",
-  "Surface habitat détruit (m²)": "Non",
-};
-
-const METHODE_SELECTIVE: MethodeMenancante = {
-  Code: "0",
-  Espèces: "oiseau",
-  "Libellé activité directive européenne": "non concerné",
-  "Libellé Pitchou": "Par une méthode sélective, non massive",
-};
-
-const referentiel: ActivitesMethodesMoyensDePoursuiteBundle = {
-  activités: {
-    oiseau: new Map([["P-2-1", CAPTURE]]),
-    "faune non-oiseau": new Map(),
-    flore: new Map(),
-  },
-  méthodes: {
-    oiseau: new Map([["0", METHODE_SELECTIVE]]),
-    "faune non-oiseau": new Map(),
-    flore: new Map(),
-  },
-  moyensDePoursuite: {
-    oiseau: new Map<string, MoyenDePoursuiteMenacant>(),
-    "faune non-oiseau": new Map(),
-    flore: new Map(),
-  },
-  identifiantPitchouVersActivitéEtImpactsQuantifiés: new Map(),
-};
-
-type Cellule = string | number;
-
-function feuilleOiseau(headers: string[], rows: Cellule[][]) {
-  return new Map([
-    [
-      "oiseau",
-      [headers, ...rows].map((row) =>
-        row.map((value) =>
-          typeof value === "number"
-            ? { value, type: "float" as const }
-            : { value, type: "string" as const },
-        ),
-      ),
-    ],
-  ]);
-}
-
-const ods = (headers: string[], rows: Cellule[][]) => createOdsFile(feuilleOiseau(headers, rows));
-
-function xlsx(headers: string[], rows: Cellule[][]): ArrayBuffer {
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([headers, ...rows]), "oiseau");
-  return XLSX.write(workbook, { type: "array", bookType: "xlsx" }) as ArrayBuffer;
-}
+import {
+  CAPTURE,
+  OISEAU,
+  especeByCD_REF,
+  ods,
+  referentiel,
+  xlsx,
+  type Cellule,
+} from "./parseFichierEspecesImpactees.fixture.ts";
 
 const parse = (fichier: ArrayBuffer) =>
   parseFichierEspecesImpactees(fichier, especeByCD_REF, referentiel);
