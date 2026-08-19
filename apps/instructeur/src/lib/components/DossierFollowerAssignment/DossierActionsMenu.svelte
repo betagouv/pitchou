@@ -1,18 +1,24 @@
 <script lang="ts">
   import { tick } from "svelte";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
+  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
+  import PartageDossierModal from "$lib/components/PartageDossierModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
+    /** Context-specific entries appended after the shared ones. */
+    extraItems?: { label: string; onClick: () => void }[];
   };
 
-  let { dossierId, dossierName }: Props = $props();
+  let { dossierId, dossierName, extraItems = [] }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
   let modalOpen = $state(false);
+  let dueDateModalOpen = $state(false);
+  let partageModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuItemElement: HTMLButtonElement | undefined = $state();
@@ -35,6 +41,26 @@
 
   function closeAssignmentModal() {
     modalOpen = false;
+    void tick().then(() => triggerElement?.focus());
+  }
+
+  function openDueDateModal() {
+    menuOpen = false;
+    dueDateModalOpen = true;
+  }
+
+  function closeDueDateModal() {
+    dueDateModalOpen = false;
+    void tick().then(() => triggerElement?.focus());
+  }
+
+  function openPartageModal() {
+    menuOpen = false;
+    partageModalOpen = true;
+  }
+
+  function closePartageModal() {
+    partageModalOpen = false;
     void tick().then(() => triggerElement?.focus());
   }
 
@@ -82,7 +108,7 @@
   {#if menuOpen}
     <ul
       id={menuId}
-      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 min-w-[14rem] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-[22rem] max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="menu"
     >
       <li role="none">
@@ -96,10 +122,53 @@
           Faire suivre le dossier
         </button>
       </li>
+      <li role="none">
+        <button
+          type="button"
+          role="menuitem"
+          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+          onclick={openDueDateModal}
+        >
+          Modifier la date de la prochaine échéance
+        </button>
+      </li>
+      <li role="none">
+        <button
+          type="button"
+          role="menuitem"
+          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+          onclick={openPartageModal}
+        >
+          Partager le dossier en lecture seule
+        </button>
+      </li>
+      {#each extraItems as item}
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            onclick={() => {
+              closeMenu();
+              item.onClick();
+            }}
+          >
+            {item.label}
+          </button>
+        </li>
+      {/each}
     </ul>
   {/if}
 </div>
 
 {#if modalOpen}
   <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeAssignmentModal} />
+{/if}
+
+{#if dueDateModalOpen}
+  <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
+{/if}
+
+{#if partageModalOpen}
+  <PartageDossierModal {dossierId} {dossierName} onClose={closePartageModal} />
 {/if}

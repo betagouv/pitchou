@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
+import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import {
   getNotificationsForPersonneFromCap,
@@ -33,6 +33,9 @@ export const GET: RequestHandler = async ({ url }) => {
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
   const notification = parseNotificationUpdate(await readJsonObject(request));
+  // The update upserts, so an unchecked dossier id would create a notification
+  // row for a dossier the cap cannot reach.
+  await requireDossierAccessByCap(notification.dossier, cap);
   await updateNotificationDossierFromCap(cap, notification);
   return new Response(null, { status: 204 });
 };

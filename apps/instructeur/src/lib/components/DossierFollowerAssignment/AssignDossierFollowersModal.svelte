@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import { SvelteMap, SvelteSet } from "svelte/reactivity";
   import { store } from "$lib/state/store.svelte.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
   import { queueDossierFollowUpdate } from "$lib/dossier/suiviDossier.ts";
   import DossierFollowerCombobox from "./DossierFollowerCombobox.svelte";
@@ -82,12 +81,6 @@
 
     saving = true;
     errorMessage = "";
-    const addedPersonneEmails = candidates
-      .filter(({ email, followsDossier }) => !followsDossier && selectedEmails.has(email))
-      .map(({ email }) => email);
-    const removedPersonneEmails = candidates
-      .filter(({ email, followsDossier }) => followsDossier && !selectedEmails.has(email))
-      .map(({ email }) => email);
     try {
       await queueDossierFollowUpdate(dossierId, () =>
         updateFollowers(dossierId, [...selectedEmails]),
@@ -106,15 +99,7 @@
       notificationPromise?.catch((error) =>
         console.warn("Failed to reload dossier notifications", error),
       );
-      sendEvenement({
-        type: "assignDossierFollowers",
-        details: {
-          dossierId,
-          followerCount: selectedEmails.size,
-          addedPersonneEmails,
-          removedPersonneEmails,
-        },
-      });
+      // The metric event is recorded server-side, with the historique entries.
       dialogElement?.close();
     } catch (error) {
       console.error("Failed to update dossier followers", error);

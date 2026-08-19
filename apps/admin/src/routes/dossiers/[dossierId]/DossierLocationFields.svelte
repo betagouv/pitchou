@@ -1,5 +1,6 @@
 <script lang="ts">
   import MultiSelectFilter, { type FilterOption } from "@pitchou/ui/MultiSelectFilter.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
@@ -28,6 +29,14 @@
     ),
   );
 
+  const primaryDepartmentOptions = [
+    { value: "", label: "Non renseigné" },
+    ...departements.map((department) => ({
+      value: department.code,
+      label: `${department.code} - ${department.name}`,
+    })),
+  ];
+
   const scopes: { value: LocationScope; label: string }[] = [
     { value: "communes", label: "d'une ou plusieurs communes" },
     { value: "departements", label: "d'un ou plusieurs départements" },
@@ -42,17 +51,13 @@
     <label class="fr-label" for="edit-primary-department">
       Département dans lequel se situe majoritairement le projet
     </label>
-    <select
-      class="fr-select"
+    <Select
       id="edit-primary-department"
+      class="fr-mt-1w"
       {disabled}
+      options={primaryDepartmentOptions}
       bind:value={model.primaryDepartment}
-    >
-      <option value="">Non renseigné</option>
-      {#each departements as department (department.code)}
-        <option value={department.code}>{department.code} - {department.name}</option>
-      {/each}
-    </select>
+    />
   </div>
 
   <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="edit-location-scope-legend">

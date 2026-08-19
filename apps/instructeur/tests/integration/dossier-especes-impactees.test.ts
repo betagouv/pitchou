@@ -28,5 +28,6 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose espè
   expect(result!.especesImpactees).toBeDefined();
   expect(result!.especesImpactees!.name).toBe("especes-impactées.ods");
   expect(result!.especesImpactees!.media_type).toBe(ODS_MEDIA_TYPE);
-  expect(result!.especesImpactees!.url).toBe(`/especes-impactees/${fichier.id}`);
+  // The download route authorizes on the cap, so the URL carries it.
+  expect(result!.especesImpactees!.url).toBe(`/especes-impactees/${fichier.id}?cap=${cap}`);
 });

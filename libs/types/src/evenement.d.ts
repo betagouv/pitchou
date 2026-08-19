@@ -57,6 +57,14 @@ export type EvenementAssignDossierFollowersDetails = {
   removedPersonneEmails: string[];
 };
 
+export type EvenementPartagerDossierDetails = {
+  dossierId: number;
+  /** Number of services the dossier is shared with after the change. */
+  groupeCount: number;
+  addedGroupes: string[];
+  removedGroupes: string[];
+};
+
 export type EvenementMetrique =
   | {
       // We consider that a connection corresponds to loading Pitchou and successfully retrieving the caps URLs
@@ -70,12 +78,21 @@ export type EvenementMetrique =
       type: "assignDossierFollowers";
       details: EvenementAssignDossierFollowersDetails;
     }
+  // Share a dossier in read-only mode with other services
+  | {
+      type: "partagerDossier";
+      details: EvenementPartagerDossierDetails;
+    }
   // Edit the instruction comment
   | { type: "modifierCommentaireInstruction" }
   // Change the phase of a dossier
   | { type: "changerPhase" }
   // Change the next expected action from
   | { type: "changerProchaineActionAttendueDe" }
+  // Set or clear the next expected action
+  | { type: "changerProchaineActionAttendue" }
+  // Set or clear the date of the dossier's next échéance
+  | { type: "changerDateProchaineEcheance" }
   // Add an administrative decision
   | { type: "ajouterDécisionAdministrative" }
   // Edit an administrative decision

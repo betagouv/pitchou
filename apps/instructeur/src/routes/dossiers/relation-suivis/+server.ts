@@ -6,8 +6,10 @@ import {
   findRelationPersonneFromCap,
   instructeurFollowsDossier,
   instructeurLeavesDossier,
+  personneFollowsDossier,
 } from "@pitchou/server/database/relation_suivi.ts";
-import { getPersonneByEmail } from "@pitchou/server/database/personne.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByEmail, getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { PitchouInstructeurCapabilities } from "@pitchou/types/capabilities.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
@@ -54,6 +56,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
       error(400, `Pas de personne avec l'adresse email ${personneEmail}`);
     }
 
+    const alreadyFollowing = await personneFollowsDossier(personne.id, dossierId, transaction);
+
     if (direction === "suivre") {
       await instructeurFollowsDossier(personne.id, dossierId, transaction);
     } else if (direction === "laisser") {
@@ -61,6 +65,28 @@ export const POST: RequestHandler = async ({ url, request }) => {
     } else {
       await transaction.rollback();
       error(500, `Direction ${direction} non reconnue.`);
+    }
+
+    // Historique entry, only when the follow relation actually changed.
+    if ((direction === "suivre") !== alreadyFollowing) {
+      const actor = await getPersonneByDossierCap(cap);
+      await logDossierActions(
+        [
+          {
+            dossier: dossierId,
+            type: direction === "suivre" ? "dossier_suivi" : "dossier_suivi_termine",
+            data: {
+              follower: personneEmail,
+              requested_by:
+                direction === "suivre" && actor?.email && actor.email !== personneEmail
+                  ? actor.email
+                  : null,
+            },
+            author_personne: actor?.id ?? null,
+          },
+        ],
+        transaction,
+      );
     }
 
     await transaction.commit();

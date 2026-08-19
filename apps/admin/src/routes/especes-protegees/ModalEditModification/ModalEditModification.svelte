@@ -5,6 +5,8 @@
   } from "$lib/actions/adminEspeces.ts";
   import { saveModificationEspece, deleteModificationEspece } from "$lib/actions/adminEspeces.ts";
 
+  import Select from "@pitchou/ui/Select.svelte";
+
   import { CLASSIFICATIONS, displayedNom } from "../adminModificationsList.ts";
   import Modal from "../Modal.svelte";
   import ModificationFields from "./ModificationFields.svelte";
@@ -32,6 +34,11 @@
 
   let draftCdRef = $state("");
   let draftClassification = $state<string>(CLASSIFICATIONS[0]);
+
+  const classificationOptions = CLASSIFICATIONS.map((classification) => ({
+    value: classification as string,
+    label: classification,
+  }));
 
   const titre = $derived(
     creation && !created
@@ -135,11 +142,12 @@
         </div>
         <div class="fr-input-group">
           <label class="fr-label" for="creation-classification">Classification</label>
-          <select id="creation-classification" class="fr-select" bind:value={draftClassification}>
-            {#each CLASSIFICATIONS as classification}
-              <option value={classification}>{classification}</option>
-            {/each}
-          </select>
+          <Select
+            id="creation-classification"
+            class="fr-mt-1w"
+            options={classificationOptions}
+            bind:value={draftClassification}
+          />
         </div>
         <p class="text-[color:var(--text-mention-grey)] italic m-0">
           Le CD_REF et la classification sont requis à la création. Les autres champs seront

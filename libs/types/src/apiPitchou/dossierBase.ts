@@ -55,8 +55,12 @@ export type DossierNextActionExpectedFrom =
   | "Pétitionnaire"
   | "Consultation du public"
   | "Autre administration"
+  | "Préfet·e"
   | "Autre"
   | "Personne";
+
+export type DossierNextActionExpected =
+  "Compléter le dossier" | "Envoyer la saisine" | "Consulter le dossier" | "Signer l'arrêté";
 
 type DossierLocalisation = {
   communes: { name: string; code: string; postalCode: string }[] | null | undefined;
@@ -96,11 +100,14 @@ export type DossierSummary = Pick<
   | "enjeu"
   | "linked_to_ae_regime"
   | "next_action_expected_from"
-  | "free_comment"
+  | "next_action_expected"
+  | "next_due_date"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
   DossierPersonnesImpliqueesSummary & {
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
     especesImpacteesRenseignees: boolean;
+    /** Content of the dossier's most recent commentaire. */
+    latestCommentaire: string | null;
   };

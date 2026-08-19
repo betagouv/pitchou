@@ -146,7 +146,9 @@ function filterEvenementsMetriques(
     query.where("evenement_metrique.date", ">=", dateFrom);
   }
   if (dateTo) {
-    query.where("evenement_metrique.date", "<=", dateTo);
+    // The bound is a day, the column a timestamp: « jusqu'au 15 » has to keep the
+    // events of the 15th, so the whole day is included by excluding the next one.
+    query.whereRaw("evenement_metrique.date < (?::date + interval '1 day')", [dateTo]);
   }
 }
 

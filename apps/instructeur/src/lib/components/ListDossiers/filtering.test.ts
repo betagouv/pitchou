@@ -51,8 +51,8 @@ describe("filterDossiers", () => {
   test("« nouveaute oui » keeps only dossiers with an unseen notification", () => {
     const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02"), viewed_at: null }],
     ]);
 
     const result = filterDossiers(
@@ -155,8 +155,8 @@ describe("filterDossiers", () => {
       makeDossier({ id: dossierId(3) }),
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02"), viewed_at: null }],
     ]);
     const result = filterDossiers(
       dossiers,
