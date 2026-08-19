@@ -11,6 +11,12 @@ export type HistoriqueEntry = {
   /** Bold detail appended after the label. */
   value?: string;
   date: Date;
+  /**
+   * Whether the time of day is meaningful. Recorded actions carry a real
+   * timestamp; milestones read from a date-only field (the consultation du
+   * public) would otherwise all claim to have happened at midnight.
+   */
+  timeKnown: boolean;
   /** "par claire.morin", "par le pétitionnaire", "à la demande de…" */
   author?: string;
 };
@@ -22,93 +28,95 @@ const emailName = (email: string | null): string | null => email?.split("@")[0] 
 const day = (value: string | null): string | null =>
   value ? formatDateAbsolute(new Date(value), "dd/MM/yyyy") : null;
 
-const displayByType: Record<string, (data: Data) => Omit<HistoriqueEntry, "id" | "tone" | "date">> =
-  {
-    champ_modifie: (d) => ({
-      icon: "fr-icon-pencil-line",
-      label: `Champ ${str(d, "field") ?? "du formulaire"} renseigné`,
-    }),
-    especes_renseignees: () => ({
-      icon: "fr-icon-leaf-line",
-      label: "Espèces impactées renseignées",
-    }),
-    piece_jointe_importee: (d) => ({
-      icon: "fr-icon-attachment-line",
-      label: "Pièce jointe importée :",
-      value: str(d, "name") ?? undefined,
-    }),
-    dossier_suivi: (d) => ({
-      icon: "fr-icon-star-fill",
-      label: "Dossier suivi par",
-      value: emailName(str(d, "follower")) ?? "?",
-    }),
-    dossier_suivi_termine: (d) => ({
-      icon: "fr-icon-star-line",
-      label: "Dossier cessé d'être suivi par",
-      value: emailName(str(d, "follower")) ?? "?",
-    }),
-    dates_consultation_renseignees: (d) => ({
-      icon: "fr-icon-calendar-line",
-      label: "Dates de consultation du public renseignées :",
-      value: `${day(str(d, "start")) ?? "?"} → ${day(str(d, "end")) ?? "?"}`,
-    }),
-    phase_renseignee: (d) => ({
-      icon: "fr-icon-time-line",
-      label: "Phase renseignée :",
-      value: str(d, "value") ?? undefined,
-    }),
-    echeance_renseignee: (d) => {
-      const value = day(str(d, "value"));
-      return value
-        ? {
-            icon: "fr-icon-calendar-event-line",
-            label: "Date de prochaine échéance renseignée :",
-            value,
-          }
-        : { icon: "fr-icon-calendar-event-line", label: "Date de prochaine échéance retirée" };
-    },
-    prochaine_action_renseignee: (d) => ({
-      icon: "fr-icon-bank-line",
-      label: "Entité en charge de la prochaine action renseignée :",
-      value: str(d, "value") ?? undefined,
-    }),
-    prochaine_action_attendue_renseignee: (d) => {
-      const value = str(d, "value");
-      return value
-        ? { icon: "fr-icon-todo-line", label: "Prochaine action attendue renseignée :", value }
-        : { icon: "fr-icon-todo-line", label: "Prochaine action attendue retirée" };
-    },
-    ddep_renseignee: (d) => ({
-      icon: "fr-icon-seedling-line",
-      label: "Nécessité d'une DDEP renseignée :",
-      value: str(d, "value") ?? undefined,
-    }),
-    enjeu_renseigne: (d) => ({
-      icon: "fr-icon-alarm-warning-line",
-      label: "Dossier à enjeu renseigné :",
-      value: str(d, "value") ?? undefined,
-    }),
-    onagre_renseigne: (d) => ({
-      icon: "fr-icon-hashtag",
-      label: "N° de dossier Onagre renseigné :",
-      value: str(d, "value") ?? undefined,
-    }),
-    commentaire_ajoute: (d) => ({
-      icon: "fr-icon-chat-2-line",
-      label: "Commentaire ajouté :",
-      value: str(d, "excerpt") ?? undefined,
-    }),
-    saisine_importee: () => ({ icon: "fr-icon-attachment-line", label: "Saisine importée" }),
-    avis_importe: (d) => ({
-      icon: "fr-icon-quote-line",
-      label: "Avis d'expert importé" + (str(d, "avis") ? " :" : ""),
-      value: str(d, "avis") ?? undefined,
-    }),
-    decision_importee: () => ({
-      icon: "fr-icon-attachment-line",
-      label: "Décision administrative importée",
-    }),
-  };
+const displayByType: Record<
+  string,
+  (data: Data) => Omit<HistoriqueEntry, "id" | "tone" | "date" | "timeKnown">
+> = {
+  champ_modifie: (d) => ({
+    icon: "fr-icon-pencil-line",
+    label: `Champ ${str(d, "field") ?? "du formulaire"} renseigné`,
+  }),
+  especes_renseignees: () => ({
+    icon: "fr-icon-leaf-line",
+    label: "Espèces impactées renseignées",
+  }),
+  piece_jointe_importee: (d) => ({
+    icon: "fr-icon-attachment-line",
+    label: "Pièce jointe importée :",
+    value: str(d, "name") ?? undefined,
+  }),
+  dossier_suivi: (d) => ({
+    icon: "fr-icon-star-fill",
+    label: "Dossier suivi par",
+    value: emailName(str(d, "follower")) ?? "?",
+  }),
+  dossier_suivi_termine: (d) => ({
+    icon: "fr-icon-star-line",
+    label: "Dossier cessé d'être suivi par",
+    value: emailName(str(d, "follower")) ?? "?",
+  }),
+  dates_consultation_renseignees: (d) => ({
+    icon: "fr-icon-calendar-line",
+    label: "Dates de consultation du public renseignées :",
+    value: `${day(str(d, "start")) ?? "?"} → ${day(str(d, "end")) ?? "?"}`,
+  }),
+  phase_renseignee: (d) => ({
+    icon: "fr-icon-time-line",
+    label: "Phase renseignée :",
+    value: str(d, "value") ?? undefined,
+  }),
+  echeance_renseignee: (d) => {
+    const value = day(str(d, "value"));
+    return value
+      ? {
+          icon: "fr-icon-calendar-event-line",
+          label: "Date de prochaine échéance renseignée :",
+          value,
+        }
+      : { icon: "fr-icon-calendar-event-line", label: "Date de prochaine échéance retirée" };
+  },
+  prochaine_action_renseignee: (d) => ({
+    icon: "fr-icon-bank-line",
+    label: "Entité en charge de la prochaine action renseignée :",
+    value: str(d, "value") ?? undefined,
+  }),
+  prochaine_action_attendue_renseignee: (d) => {
+    const value = str(d, "value");
+    return value
+      ? { icon: "fr-icon-todo-line", label: "Prochaine action attendue renseignée :", value }
+      : { icon: "fr-icon-todo-line", label: "Prochaine action attendue retirée" };
+  },
+  ddep_renseignee: (d) => ({
+    icon: "fr-icon-seedling-line",
+    label: "Nécessité d'une DDEP renseignée :",
+    value: str(d, "value") ?? undefined,
+  }),
+  enjeu_renseigne: (d) => ({
+    icon: "fr-icon-alarm-warning-line",
+    label: "Dossier à enjeu renseigné :",
+    value: str(d, "value") ?? undefined,
+  }),
+  onagre_renseigne: (d) => ({
+    icon: "fr-icon-hashtag",
+    label: "N° de dossier Onagre renseigné :",
+    value: str(d, "value") ?? undefined,
+  }),
+  commentaire_ajoute: (d) => ({
+    icon: "fr-icon-chat-2-line",
+    label: "Commentaire ajouté :",
+    value: str(d, "excerpt") ?? undefined,
+  }),
+  saisine_importee: () => ({ icon: "fr-icon-attachment-line", label: "Saisine importée" }),
+  avis_importe: (d) => ({
+    icon: "fr-icon-quote-line",
+    label: "Avis d'expert importé" + (str(d, "avis") ? " :" : ""),
+    value: str(d, "avis") ?? undefined,
+  }),
+  decision_importee: () => ({
+    icon: "fr-icon-attachment-line",
+    label: "Décision administrative importée",
+  }),
+};
 
 function entryFromAction(action: DossierAction): HistoriqueEntry {
   const data = (action.data ?? {}) as Data;
@@ -122,6 +130,7 @@ function entryFromAction(action: DossierAction): HistoriqueEntry {
     id: action.id,
     tone: action.author_petitionnaire ? "petitionnaire" : authorName ? "instructeur" : "system",
     date: new Date(action.created_at),
+    timeKnown: true,
     author: requestedBy
       ? `à la demande de ${requestedBy}`
       : action.author_petitionnaire
@@ -154,6 +163,7 @@ function virtualEntries(dossier: DossierFull): HistoriqueEntry[] {
       tone: viaDN ? "petitionnaire" : "system",
       label: depotLabelBySource[dossier.source] ?? depotLabelBySource.unknown,
       date: new Date(dossier.depot_date),
+      timeKnown: true,
       author: viaDN ? "par le pétitionnaire" : undefined,
     });
   }
@@ -178,6 +188,8 @@ function virtualEntries(dossier: DossierFull): HistoriqueEntry[] {
         tone: "system",
         label,
         date: new Date(date),
+        // Entered as a day in the instruction form: it has no time of day.
+        timeKnown: false,
       });
     }
   }

@@ -58,7 +58,10 @@
               {#if entry.value}<strong>{entry.value}</strong>{/if}
             </p>
             <p class="fr-mb-0 fr-text--xs text-[color:var(--text-mention-grey)]">
-              Le {formatDateAbsolute(entry.date, "dd/MM/yyyy")}
+              Le {formatDateAbsolute(
+                entry.date,
+                entry.timeKnown ? "dd/MM/yyyy 'à' HH:mm" : "dd/MM/yyyy",
+              )}
               {entry.author ?? ""}
             </p>
           </div>

@@ -19,7 +19,8 @@
 
   function formatDate(value: string): string {
     const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("fr-FR");
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
   }
 
   async function addPhaseEvent(event: SubmitEvent) {
