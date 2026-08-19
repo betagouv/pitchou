@@ -16,19 +16,24 @@ async function owningGroupeForCap(
   cap: CapDossier["cap"],
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex,
-): Promise<GroupeInstructeurs["id"] | undefined> {
-  const row = await databaseConnection("edge_groupe_instructeurs__dossier")
-    .select("edge_groupe_instructeurs__dossier.groupe_instructeurs as id")
+): Promise<Pick<GroupeInstructeurs, "id" | "demarche_number"> | undefined> {
+  return databaseConnection("edge_groupe_instructeurs__dossier")
+    .select([
+      "edge_groupe_instructeurs__dossier.groupe_instructeurs as id",
+      "groupe_instructeurs.demarche_number",
+    ])
     .join("edge_cap_dossier__groupe_instructeurs", {
       "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
         "edge_groupe_instructeurs__dossier.groupe_instructeurs",
+    })
+    .join("groupe_instructeurs", {
+      "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
     })
     .where({
       "edge_groupe_instructeurs__dossier.dossier": dossierId,
       "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap,
     })
     .first();
-  return row?.id;
 }
 
 /**
@@ -44,11 +49,6 @@ export async function listDossierPartageCandidates(
   const owningGroupe = await owningGroupeForCap(cap, dossierId, databaseConnection);
   if (!owningGroupe) return undefined;
 
-  const dossier = await databaseConnection("dossier")
-    .select("demarche_number")
-    .where({ id: dossierId })
-    .first();
-
   const shared = new Set<GroupeInstructeurs["id"]>(
     await databaseConnection("edge_groupe_instructeurs__dossier_lecture")
       .select("groupe_instructeurs")
@@ -56,11 +56,13 @@ export async function listDossierPartageCandidates(
       .then((rows) => rows.map(({ groupe_instructeurs }) => groupe_instructeurs)),
   );
 
+  // The démarche comes from the owning groupe, not from the dossier: a dossier
+  // created in Pitchou has no `demarche_number`.
   const groupes = await databaseConnection("groupe_instructeurs")
     .select(["id", "name"])
-    .where({ demarche_number: dossier?.demarche_number })
+    .where({ demarche_number: owningGroupe.demarche_number })
     // A service does not share a dossier with itself.
-    .andWhereNot({ id: owningGroupe })
+    .andWhereNot({ id: owningGroupe.id })
     .orderBy("name");
 
   return groupes.map(({ id, name }) => ({ id, name, sharesDossier: shared.has(id) }));

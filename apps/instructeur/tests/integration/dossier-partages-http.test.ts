@@ -132,6 +132,26 @@ test("un service destinataire ne peut pas repartager le dossier", async () => {
   ).resolves.toHaveLength(1);
 });
 
+test("un dossier créé dans Pitchou, sans demarche_number, reste partageable", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, {
+    email: "instructeur@dossier-pitchou.fr",
+  });
+  const invite = await createGroupeInstructeurs(db, { name: "Service invité" });
+  // A dossier created directly in Pitchou has no démarche: the candidates come
+  // from the groupe instructing it, not from the dossier.
+  await db("dossier").where({ id: dossier.id }).update({ demarche_number: null });
+
+  const candidates: DossierPartageCandidate[] = await (
+    await fetch(partagesURL(dossier.id, cap))
+  ).json();
+  expect(candidates.map(({ id }) => id)).toContain(invite.id);
+
+  expect((await setPartages(dossier.id, cap, [invite.id])).status).toBe(204);
+  await expect(
+    db("edge_groupe_instructeurs__dossier_lecture").where({ dossier: dossier.id }),
+  ).resolves.toHaveLength(1);
+});
+
 test("POST /dossier/:id/partages refuse un groupe qui n'est pas candidat", async () => {
   const { cap, dossier, groupeId } = await createInstructeurWithDossier(db, {
     email: "instructeur@partage-invalide.fr",
