@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
+  import { getOdtTextContent } from "@odfjs/odfjs";
+  import { fillTemplates } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { store } from "$lib/state/store.svelte.ts";
@@ -112,22 +113,7 @@
 
     try {
       const datetime = new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length);
-      const documents = await Promise.all(
-        templates.map(async (template) => {
-          const templateAB = await template.arrayBuffer();
-          const documentArrayBuffer = await fillOdtTemplate(templateAB, tags);
-          const blob = new Blob([documentArrayBuffer], { type: template.type });
-          const extensionStart = template.name.lastIndexOf(".");
-          const basename =
-            extensionStart === -1 ? template.name : template.name.slice(0, extensionStart);
-          const extension = extensionStart === -1 ? "" : template.name.slice(extensionStart);
-
-          return {
-            blob,
-            name: `${basename}-${datetime}${extension}`,
-          };
-        }),
-      );
+      const documents = await fillTemplates(templates, tags, datetime);
 
       revokeGeneratedDocumentUrls();
       generatedDocuments = documents.map(({ blob, name }) => ({

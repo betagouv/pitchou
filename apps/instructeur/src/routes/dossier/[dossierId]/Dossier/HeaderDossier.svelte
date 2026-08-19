@@ -6,14 +6,10 @@
   import TagEcheance from "$lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
-  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
   import { readOnlyMode } from "./readOnly.ts";
-
-  import {
-    instructeurLeavesDossier,
-    instructeurFollowsDossier,
-  } from "$lib/dossier/suiviDossier.ts";
+  import HeaderActions from "./HeaderDossier/HeaderActions.svelte";
+  import { followersLabel, titleSizeClass } from "./HeaderDossier/labels.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
@@ -51,22 +47,9 @@
 
   const nouveauteLabel = $derived(formatLastModified(notification?.updated_at));
 
-  // Long titles step down in size so the header keeps a stable height.
-  const titleClass = $derived(
-    !dossier.name || dossier.name.length <= 50
-      ? "text-[1.75rem]"
-      : dossier.name.length <= 90
-        ? "text-[1.5rem]"
-        : "text-[1.25rem]",
-  );
+  const titleClass = $derived(titleSizeClass(dossier.name));
 
-  const followersLabel = $derived(
-    dossierFollowers.length === 0
-      ? "Suivi par 0 personne"
-      : dossierFollowers.length === 1
-        ? `Suivi par ${dossierFollowers[0]}`
-        : `Suivi par ${dossierFollowers.length} personnes`,
-  );
+  const followers = $derived(followersLabel(dossierFollowers));
 
   function openPieceJointeModal() {
     sendEvenement({
@@ -138,57 +121,17 @@
           {formatLocalisation(dossier)}
         </p>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Read-only mode hides every write action, so the followers are
-               shown as plain text rather than as a way to open the modal. -->
-          {#if readOnly.current}
-            <p class="fr-mb-0 fr-text--sm max-w-[16rem] truncate">{followersLabel}</p>
-          {:else}
-            <button
-              type="button"
-              class="fr-link fr-text--sm max-w-[16rem] truncate"
-              onclick={() => (followersModalOpen = true)}
-            >
-              {followersLabel}
-            </button>
-
-            {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
-              {#if currentDossierFollowedByCurrentInstructeur}
-                <button
-                  onclick={() => instructeurLeavesDossier(email, dossier.id)}
-                  class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-                  >Vous suivez ce dossier</button
-                >
-              {:else}
-                <button
-                  onclick={() => instructeurFollowsDossier(email, dossier.id)}
-                  class="fr-btn fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-                  >Suivre ce dossier</button
-                >
-              {/if}
-            {/if}
-
-            <button
-              type="button"
-              class="fr-btn fr-btn--secondary fr-btn--sm {unread
-                ? 'fr-icon-mail-open-line'
-                : 'fr-icon-mail-line'}"
-              title={unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
-              onclick={() => onSetRead(unread)}
-            >
-              {unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
-            </button>
-
-            <DossierActionsMenu
-              dossierId={dossier.id}
-              dossierName={dossier.name}
-              extraItems={[
-                { label: "Ajouter une pièce jointe", onClick: openPieceJointeModal },
-                { label: "Voir le dossier en lecture seule", onClick: onEnterReadOnly },
-              ]}
-            />
-          {/if}
-        </div>
+        <HeaderActions
+          {dossier}
+          {email}
+          {unread}
+          followersLabel={followers}
+          followedByCurrentInstructeur={currentDossierFollowedByCurrentInstructeur}
+          onOpenFollowers={() => (followersModalOpen = true)}
+          onAddPieceJointe={openPieceJointeModal}
+          {onSetRead}
+          {onEnterReadOnly}
+        />
       </div>
     </div>
   </div>
