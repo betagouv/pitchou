@@ -1,4 +1,5 @@
 import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 import type { DossierAction } from "@pitchou/types/capabilities.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
@@ -167,6 +168,11 @@ const displayByType: Record<
     icon: "fr-icon-success-line",
     label: "Retour à la conformité d'une prescription",
   }),
+  document_genere: (d) => ({
+    icon: "fr-icon-file-download-line",
+    label: "Document généré :",
+    value: str(d, "name") ?? undefined,
+  }),
 };
 
 function entryFromAction(action: DossierAction): HistoriqueEntry {
@@ -181,7 +187,7 @@ function entryFromAction(action: DossierAction): HistoriqueEntry {
     id: action.id,
     tone: action.author_petitionnaire ? "petitionnaire" : authorName ? "instructeur" : "system",
     date: new Date(action.created_at),
-    timeKnown: true,
+    timeKnown: isTimeOfDayKnown(action.created_at),
     author: requestedBy
       ? `à la demande de ${requestedBy}`
       : action.author_petitionnaire
@@ -214,7 +220,8 @@ function virtualEntries(dossier: DossierFull): HistoriqueEntry[] {
       tone: viaDN ? "petitionnaire" : "system",
       label: depotLabelBySource[dossier.source] ?? depotLabelBySource.unknown,
       date: new Date(dossier.depot_date),
-      timeKnown: true,
+      // Imported dossiers often only carry the day of their dépôt.
+      timeKnown: isTimeOfDayKnown(dossier.depot_date),
       author: viaDN ? "par le pétitionnaire" : undefined,
     });
   }

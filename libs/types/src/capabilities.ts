@@ -61,6 +61,8 @@ export interface PitchouInstructeurCapabilities {
   ) => Promise<void>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
   listerActionsDossier: (dossierId: Dossier["id"]) => Promise<DossierAction[]>;
+  /** Records in the historique the documents the browser just generated. */
+  enregistrerDocumentsGeneres: (dossierId: Dossier["id"], documents: string[]) => Promise<void>;
   listerCommentaires: (dossierId: Dossier["id"]) => Promise<DossierCommentaire[]>;
   ajouterCommentaire: (dossierId: Dossier["id"], content: string) => Promise<DossierCommentaire>;
   modifierCommentaire: (

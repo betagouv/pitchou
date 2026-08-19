@@ -64,6 +64,7 @@ const metricByActionType: Record<string, (action: ActionDossierInitializer) => E
     controle_ajoute: () => ({ type: "ajouterContrôle" }),
     controle_modifie: () => ({ type: "modifierContrôle" }),
     controle_supprime: () => ({ type: "supprimerContrôle" }),
+    document_genere: () => ({ type: "générerUnDocument" }),
     controle_retour_conformite: ({ data }) => ({
       type: "retourÀLaConformité",
       details: {

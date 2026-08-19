@@ -8,11 +8,14 @@ import type {
 
 const dossierIdURLParam = ":dossierId";
 
-type CommentaireCapabilityNames =
+type CommentaireCapabilityURLNames =
   "listerCommentaires" | "ajouterCommentaire" | "modifierCommentaire" | "listerActionsDossier";
 
+/** Recording a generated document reuses the historique URL, so it has no URL of its own. */
+type CommentaireCapabilityNames = CommentaireCapabilityURLNames | "enregistrerDocumentsGeneres";
+
 export function createDossierCommentaireCapabilities(
-  capURLs: StringValues<Pick<PitchouInstructeurCapabilities, CommentaireCapabilityNames>>,
+  capURLs: StringValues<Pick<PitchouInstructeurCapabilities, CommentaireCapabilityURLNames>>,
 ): Pick<Partial<PitchouInstructeurCapabilities>, CommentaireCapabilityNames> {
   const listURL = capURLs.listerCommentaires;
   const addURL = capURLs.ajouterCommentaire;
@@ -29,6 +32,16 @@ export function createDossierCommentaireCapabilities(
             );
             return actions ?? [];
           }
+        : undefined,
+    // Same route as the historique listing, which the same cap already grants.
+    enregistrerDocumentsGeneres:
+      actionsURL && actionsURL.includes(dossierIdURLParam)
+        ? (dossierId, documents) =>
+            text(actionsURL.replace(dossierIdURLParam, String(dossierId)), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ documents }),
+            }).then(() => undefined)
         : undefined,
     listerCommentaires:
       listURL && listURL.includes(dossierIdURLParam)
