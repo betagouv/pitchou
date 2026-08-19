@@ -99,9 +99,22 @@ const columnLabels: Partial<Record<keyof Dossier, string>> = {
   eolien_carcass_examination_address: "Adresse d'examen des cadavres",
 };
 
+/**
+ * The calendar day a Date stands for, in the zone the process runs in. Postgres
+ * returns a `date` column as local midnight while Démarche Numérique sends the
+ * same day as a "YYYY-MM-DD" string: rendering the Date in UTC would move it to
+ * the day before in any positive offset, and every synchronization would then
+ * report an unchanged date as modified.
+ */
+function toLocalDay(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 function normalize(value: unknown): string {
   if (value === null || value === undefined) return "";
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (value instanceof Date) return toLocalDay(value);
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
