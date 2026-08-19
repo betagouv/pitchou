@@ -83,3 +83,23 @@ export async function deleteChangelogEntry(id: number): Promise<void> {
   const response = await fetch(`/api/changelog/${id}`, { method: "DELETE" });
   await checkResponse(response, "de la suppression de l'entrée");
 }
+
+/** Uploads one media file (image or video) for entry `id`; returns its serving URL. */
+export async function uploadChangelogMedia(id: number, file: File): Promise<string> {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await fetch(`/api/changelog/${id}/media`, { method: "POST", body });
+  await checkResponse(response, "de l'envoi du média");
+
+  const { url } = await response.json();
+  if (typeof url !== "string") {
+    throw new Error("Réponse invalide reçue du serveur à l'envoi du média.");
+  }
+  return url;
+}
+
+/** Deletes stored media that the saved contenu of entry `id` no longer references. */
+export async function cleanupChangelogMedia(id: number): Promise<void> {
+  const response = await fetch(`/api/changelog/${id}/media`, { method: "DELETE" });
+  await checkResponse(response, "du nettoyage des médias");
+}

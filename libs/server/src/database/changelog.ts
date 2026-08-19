@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { deleteAllChangelogMedia } from "../changelogMedia.ts";
 import { sanitizeChangelogContenu } from "./changelog/sanitize.ts";
 
 export { sanitizeChangelogContenu } from "./changelog/sanitize.ts";
@@ -64,9 +65,12 @@ export async function listPublishedChangelogEntries(
       "contenu",
     )
     .where("published", true)
+    // Version order, not date order: entries can be written retroactively, and
+    // the public prev/next navigation must follow the version sequence.
     .orderBy([
-      { column: "date", order: "desc" },
-      { column: "id", order: "desc" },
+      { column: "version_major", order: "desc" },
+      { column: "version_minor", order: "desc" },
+      { column: "version_patch", order: "desc" },
     ]);
 
   // Published entries always carry a complete version (enforced at write time).
@@ -76,28 +80,43 @@ export async function listPublishedChangelogEntries(
   }));
 }
 
+function adminColumns(databaseConnection: Knex.Transaction | Knex) {
+  return [
+    "id",
+    "version_major",
+    "version_minor",
+    "version_patch",
+    databaseConnection.raw(DATE_AS_STRING),
+    "titre",
+    "contenu",
+    "published",
+    "updated_by",
+    "created_at",
+    "updated_at",
+  ];
+}
+
 /** Every entry, drafts included, most recent first, for the admin pages. */
 export function listChangelogEntries(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ChangelogEntry[]> {
   return databaseConnection("changelog")
-    .select(
-      "id",
-      "version_major",
-      "version_minor",
-      "version_patch",
-      databaseConnection.raw(DATE_AS_STRING),
-      "titre",
-      "contenu",
-      "published",
-      "updated_by",
-      "created_at",
-      "updated_at",
-    )
+    .select(adminColumns(databaseConnection))
     .orderBy([
       { column: "date", order: "desc" },
       { column: "id", order: "desc" },
     ]);
+}
+
+/** One entry (draft or published), or `undefined` when `id` does not exist. */
+export function getChangelogEntry(
+  id: number,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<ChangelogEntry | undefined> {
+  return databaseConnection("changelog")
+    .select(adminColumns(databaseConnection))
+    .where({ id })
+    .first();
 }
 
 /**
@@ -109,8 +128,9 @@ export async function createChangelogEntry(
   entry: ChangelogEntryColumns,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {
+  // A not-yet-created entry cannot have uploads, hence the `null` media scope.
   const [row] = await databaseConnection("changelog")
-    .insert({ ...entry, contenu: sanitizeChangelogContenu(entry.contenu) })
+    .insert({ ...entry, contenu: sanitizeChangelogContenu(entry.contenu, null) })
     .returning<{ id: number }[]>("id");
   return row.id;
 }
@@ -125,7 +145,7 @@ export async function updateChangelogEntry(
     .where({ id })
     .update({
       ...entry,
-      contenu: sanitizeChangelogContenu(entry.contenu),
+      contenu: sanitizeChangelogContenu(entry.contenu, id),
       updated_at: databaseConnection.fn.now(),
     });
 }
@@ -135,4 +155,8 @@ export async function deleteChangelogEntry(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   await databaseConnection("changelog").where({ id }).delete();
+  // Best-effort: a leftover S3 object is invisible (nothing links to it anymore).
+  await deleteAllChangelogMedia(id).catch((err) => {
+    console.error(`Échec suppression des médias S3 du changelog ${id}`, err.message);
+  });
 }

@@ -3,7 +3,8 @@
   import { goto } from "$app/navigation";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import Modal from "$lib/components/Modal.svelte";
+  import EntryCard from "./EntryCard.svelte";
+  import DeleteEntryModal from "./DeleteEntryModal.svelte";
   import {
     loadChangelogAdmin,
     createChangelogEntry,
@@ -75,35 +76,9 @@
     return () => pageHeader.clearAction();
   });
 
-  function formatDate(date: string): string {
-    // Noon keeps the plain YYYY-MM-DD date on the right day in every timezone.
-    return new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  }
-
-  function formatTimestamp(iso: string): string {
-    const date = new Date(iso);
-    return Number.isNaN(date.getTime()) ? iso : date.toLocaleDateString("fr-FR");
-  }
-
-  /** « X.Y.Z » when complete, `null` while the version is empty or half-typed. */
-  function versionOf(entry: ChangelogEntryAdmin): string | null {
-    const { version_major, version_minor, version_patch } = entry;
-    if (version_major === null || version_minor === null || version_patch === null) return null;
-    return `${version_major}.${version_minor}.${version_patch}`;
-  }
-
   let entryToDelete = $state<ChangelogEntryAdmin | null>(null);
   let deleting = $state(false);
   let deleteError = $state<string | null>(null);
-
-  function requestDelete(entry: ChangelogEntryAdmin) {
-    entryToDelete = entry;
-    deleteError = null;
-  }
 
   function closeDeleteModal() {
     if (deleting) return;
@@ -161,115 +136,24 @@
   {:else}
     <ul class="mt-2 flex list-none flex-col gap-2 p-0">
       {#each entries as entry (entry.id)}
-        <li
-          class="group relative rounded-lg border border-solid border-gray-200 bg-white shadow-sm transition hover:border-blue-300 hover:shadow-md"
-        >
-          <a href={`/changelog/${entry.id}`} class="fr-raw-link block p-4 pr-24 no-underline">
-            <div class="flex flex-wrap items-center gap-3">
-              {#if versionOf(entry)}
-                <span class="font-semibold">Version {versionOf(entry)}</span>
-              {:else}
-                <span class="font-semibold text-gray-400 italic">Sans version</span>
-              {/if}
-              <span class="text-sm text-gray-500">{formatDate(entry.date)}</span>
-              {#if entry.published}
-                <span
-                  class="inline-flex items-center gap-1.5 rounded-full border border-solid border-green-700/40 bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-800"
-                >
-                  <span class="size-1.5 rounded-full bg-green-600" aria-hidden="true"></span>
-                  Publiée
-                </span>
-              {:else}
-                <span
-                  class="inline-flex items-center gap-1.5 rounded-full border border-solid border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
-                >
-                  <span class="size-1.5 rounded-full bg-gray-400" aria-hidden="true"></span>
-                  Brouillon
-                </span>
-              {/if}
-            </div>
-            <p class="fr-mb-0 mt-1 truncate text-lg">
-              {#if entry.titre}{entry.titre}{:else}<span class="text-gray-400 italic"
-                  >Sans titre</span
-                >{/if}
-            </p>
-            <p class="fr-mb-0 mt-1 text-sm text-gray-500">
-              Modifiée le {formatTimestamp(entry.updated_at)} par {entry.updated_by}
-            </p>
-          </a>
-          <span
-            class="fr-icon-arrow-right-s-line absolute top-1/2 right-14 -translate-y-1/2 text-gray-300 transition group-hover:text-blue-500"
-            aria-hidden="true"
-          ></span>
-          <button
-            type="button"
-            class="absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-            title={versionOf(entry)
-              ? `Supprimer la version ${versionOf(entry)}`
-              : "Supprimer le brouillon"}
-            onclick={() => requestDelete(entry)}
-          >
-            <span class="fr-icon-delete-line" aria-hidden="true"></span>
-            <span class="sr-only">
-              {versionOf(entry)
-                ? `Supprimer la version ${versionOf(entry)}`
-                : "Supprimer le brouillon"}
-            </span>
-          </button>
-        </li>
+        <EntryCard
+          {entry}
+          onDelete={(candidate) => {
+            entryToDelete = candidate;
+            deleteError = null;
+          }}
+        />
       {/each}
     </ul>
   {/if}
 
-  {#snippet deleteFooter()}
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary ml-auto"
-      onclick={closeDeleteModal}
-      disabled={deleting}
-    >
-      Annuler
-    </button>
-    <button
-      type="button"
-      class="fr-btn bg-red-600 hover:bg-red-700"
-      onclick={confirmDelete}
-      disabled={deleting}
-    >
-      {#if deleting}
-        <span class="fr-icon-refresh-line inline-block animate-spin fr-mr-1w" aria-hidden="true"
-        ></span>
-        Suppression…
-      {:else}
-        Supprimer
-      {/if}
-    </button>
-  {/snippet}
-
   {#if entryToDelete}
-    <Modal title="Supprimer l'entrée" onClose={closeDeleteModal} footer={deleteFooter}>
-      <div class="fr-p-3w">
-        <p class="fr-mb-1w">
-          {#if versionOf(entryToDelete)}
-            Supprimer la version <strong>{versionOf(entryToDelete)}</strong>
-            («&nbsp;{entryToDelete.titre || "Sans titre"}&nbsp;»)&nbsp;?
-          {:else}
-            Supprimer ce brouillon du <strong>{formatDate(entryToDelete.date)}</strong>&nbsp;?
-          {/if}
-        </p>
-        {#if entryToDelete.published}
-          <p class="fr-mb-0 text-sm text-gray-600">
-            Elle disparaîtra immédiatement de la page publique « Nouveautés ».
-          </p>
-        {:else}
-          <p class="fr-mb-0 text-sm text-gray-600">Cette action est définitive.</p>
-        {/if}
-        {#if deleteError}
-          <p class="fr-error-text fr-mt-2w fr-mb-0">
-            Échec de la suppression : {deleteError}
-          </p>
-        {/if}
-      </div>
-    </Modal>
+    <DeleteEntryModal
+      entry={entryToDelete}
+      {deleting}
+      error={deleteError}
+      onCancel={closeDeleteModal}
+      onConfirm={confirmDelete}
+    />
   {/if}
 {/if}
