@@ -1,4 +1,5 @@
 import { AccessDeniedError } from "./adminEspeces.ts";
+import { checkResponse } from "./adminResponse.ts";
 import type {
   AdminDossierCreationPayload,
   AdminDossierMinimalCreationPayload,
@@ -10,21 +11,7 @@ import type {
 export { AccessDeniedError };
 export type * from "./adminDossierTypes.ts";
 export { defaultDossiersQuery, loadDossiers } from "./adminDossierList.ts";
-
-async function checkResponse(response: Response, action: string): Promise<void> {
-  if (response.ok) return;
-  if (response.status === 403) {
-    throw new AccessDeniedError();
-  }
-  // Surface the server's own message (validation, DN conflict…) when available.
-  let message = "";
-  try {
-    message = (await response.json())?.message ?? "";
-  } catch {
-    // no JSON body
-  }
-  throw new Error(message || `Erreur ${response.status} lors de ${action}.`);
-}
+export { simulateDossierSync, type SimulatedAction } from "./adminDossierSync.ts";
 
 export async function loadDossierDetail(dossierId: number): Promise<AdminDossierDetail> {
   const response = await fetch(`/api/dossiers/${dossierId}`);
@@ -175,31 +162,4 @@ export async function loadGroupesInstructeurs(): Promise<AdminGroupeInstructeurs
     throw new Error("Réponse invalide reçue du serveur pour les groupes instructeurs.");
   }
   return groupes as AdminGroupeInstructeurs[];
-}
-
-/** An entry of a dossier's historique, as returned by the synchronization simulation. */
-export type SimulatedAction = {
-  id: string;
-  type: string;
-  data: Record<string, unknown>;
-  created_at: string | Date;
-  author_petitionnaire: boolean;
-};
-
-/**
- * Replays a pétitionnaire modification through the real synchronization path.
- * Only available outside production.
- */
-export async function simulateDossierSync(
-  dossierId: number,
-  champ: string,
-  valeur: string,
-): Promise<{ changed: boolean; actions: SimulatedAction[] }> {
-  const response = await fetch(`/api/dossiers/${dossierId}/simuler-synchronisation`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ champ, valeur }),
-  });
-  await checkResponse(response, "de la simulation de synchronisation");
-  return await response.json();
 }
