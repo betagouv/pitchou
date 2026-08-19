@@ -101,7 +101,9 @@ export async function refreshDossierFull(
 
   const dossierFull = await store.capabilities.recupérerDossierComplet(id, readOnly);
 
-  if (readOnly) {
+  // The server strips the dossier as soon as the cap only has read access, even
+  // when it was not asked to, so the payload decides where it is cached.
+  if (dossierFull.access === "lecture" || readOnly) {
     // Never through `setDossierFull`: a stripped dossier must not reach
     // `fullDossiers`, nor overwrite the summary the dossier list is built from.
     store.readOnlyDossiers.set(id, dossierFull);
