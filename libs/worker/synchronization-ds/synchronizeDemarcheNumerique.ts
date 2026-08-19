@@ -1,3 +1,4 @@
+import { registerActiviteLabels } from "@pitchou/server/database/activite.ts";
 import {
   dumpDossiers,
   deleteDossierByDSNumber,
@@ -81,6 +82,12 @@ export async function synchronizeDemarcheNumerique({
       makeCommonDossierColumnsForSync88444 as unknown as MakeCommonDossierColumnsForSync,
     );
   const dossiersForSync = [...dossiersToInitializeForSync, ...dossiersToUpdateForSync];
+  const activiteLabels = new Set(
+    dossiersForSync
+      .map(({ dossier }) => dossier.main_activite)
+      .filter((label): label is string => !!label),
+  );
+  await registerActiviteLabels([...activiteLabels], transaction);
   const { dossiersToInitialize, dossiersToUpdate } = await prepareDossiersForPersistence(
     dossiersToInitializeForSync,
     dossiersToUpdateForSync,
