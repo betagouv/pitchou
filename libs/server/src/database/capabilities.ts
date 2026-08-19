@@ -68,7 +68,6 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     listDossierFollowerCandidates: listDossiers,
     updateDossierFollowers: listDossiers,
     listerEvenementsPhaseDossier: listDossiers,
-    listerMessages: listDossiers,
     modifierDossier: listDossiers,
     identité: identite
       ? { email: identite.email, estAdmin: isAdminEmail(identite.email), groupesInstructeurs }

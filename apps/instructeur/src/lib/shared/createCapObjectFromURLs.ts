@@ -6,7 +6,6 @@ import type {
   PitchouInstructeurCapabilities,
 } from "@pitchou/types/capabilities.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
 import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
@@ -60,28 +59,13 @@ function wrapModifierDossier(
   return modifierDossier;
 }
 
-function wrapListerMessages(
-  url: string | undefined,
-): ((dossierId: Dossier["id"]) => Promise<Message[]>) | undefined {
-  if (!url) return undefined;
-
-  if (!url.includes(dossierIdURLParam)) {
-    throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`);
-  }
-
-  return function listerMessages(dossierId: Dossier["id"]): Promise<Message[]> {
-    // @ts-ignore
-    return json(url.replace(dossierIdURLParam, dossierId), commonRequestInit);
-  };
-}
-
 function wrapGetDossierFull(
   url: string | undefined,
 ): ((dossierId: Dossier["id"]) => Promise<DossierFull>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
-    throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`);
+    throw new Error(`La capability recupérerDossierComplet ne contient pas '${dossierIdURLParam}'`);
   }
 
   /**
@@ -132,7 +116,6 @@ export default function (
     updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),
     ...createDossierFollowerCapabilities(capURLs),
     listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
-    listerMessages: wrapListerMessages(capURLs.listerMessages),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
     remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
     modifierDecisionAdministrativeDansDossier: wrapTextPOST(

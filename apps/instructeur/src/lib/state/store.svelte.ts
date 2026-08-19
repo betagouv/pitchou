@@ -14,7 +14,6 @@ export const store: PitchouState = $state({
   capabilities: {},
   dossierSummaries: new SvelteMap(),
   fullDossiers: new SvelteMap(),
-  messagesByDossierId: new SvelteMap(),
   notificationByDossier: new SvelteMap(),
   errors: new SvelteSet(),
 });

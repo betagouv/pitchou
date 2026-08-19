@@ -1,6 +1,6 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { getDossierFull, loadDossierMessages } from "$lib/dossier/dossier.ts";
+import { getDossierFull } from "$lib/dossier/dossier.ts";
 import {
   loadNotificationByDossierForCurrentInstructeur,
   loadRelationSuivi,
@@ -18,11 +18,7 @@ export const load: PageLoad = async ({ params, parent }) => {
 
   loadNotificationByDossierForCurrentInstructeur();
 
-  const [dossier] = await Promise.all([
-    getDossierFull(id),
-    loadDossierMessages(id),
-    loadRelationSuivi(),
-  ]);
+  const [dossier] = await Promise.all([getDossierFull(id), loadRelationSuivi()]);
 
   if (!dossier) {
     redirect(307, "/");

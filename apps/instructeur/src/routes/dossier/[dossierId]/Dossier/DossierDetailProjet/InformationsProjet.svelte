@@ -1,12 +1,23 @@
 <script lang="ts">
   import { formatDateRelative } from "$lib/dossier/displayDossier.ts";
+  import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
+  import Scientifique from "./Scientifique.svelte";
+  import Cartographie from "./Cartographie.svelte";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+
   type Props = { dossier: DossierFull };
   let { dossier }: Props = $props();
+
+  function displayBoolean(value: boolean | null | undefined): string {
+    return typeof value === "boolean" ? (value ? "Oui" : "Non") : "Non renseigné";
+  }
 </script>
 
-<h2 class="fr-mt-0">Informations du projet</h2>
-<p><strong>Dossier n°&nbsp;:</strong> {dossier.demarche_numerique_number ?? "non renseigné"}</p>
+<p>
+  <strong>Dossier n°&nbsp;:</strong>
+  {dossier.demarche_numerique_number ?? dossier.id}
+</p>
+<p><strong>Activité&nbsp;:</strong> {dossier.main_activite ?? "Non renseignée"}</p>
 {#if dossier.urgent_contact_phone}<p>
     <strong>Téléphone en cas de demande urgente&nbsp;:</strong>
     {dossier.urgent_contact_phone}
@@ -21,33 +32,21 @@
   </p>{/if}
 <p>
   <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
-  {typeof dossier.ecological_inventory_completed === "boolean"
-    ? dossier.ecological_inventory_completed
-      ? "Oui"
-      : "Non"
-    : "Non renseigné"}
+  {displayBoolean(dossier.ecological_inventory_completed)}
 </p>
 <p>
   <strong
     >Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du
     projet ?&nbsp;:</strong
   >
-  {typeof dossier.especes_present_in_influence_area === "boolean"
-    ? dossier.especes_present_in_influence_area
-      ? "Oui"
-      : "Non"
-    : "Non renseigné"}
+  {displayBoolean(dossier.especes_present_in_influence_area)}
 </p>
 <p>
   <strong
     >Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment
     caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong
   >
-  {typeof dossier.risk_despite_erc_mesures === "boolean"
-    ? dossier.risk_despite_erc_mesures
-      ? "Oui"
-      : "Non"
-    : "Non renseigné"}
+  {displayBoolean(dossier.risk_despite_erc_mesures)}
 </p>
 <p>
   <strong>Description&nbsp;:</strong>
@@ -80,3 +79,21 @@
   <strong>Durée de la dérogation&nbsp;:</strong>
   {dossier.intervention_duration ? `${dossier.intervention_duration} années` : "Non renseignée"}
 </p>
+
+<Scientifique {dossier} />
+
+<Cartographie {dossier} />
+
+<h4 class="fr-mt-4w fr-text--md font-bold">Dossier déposé</h4>
+{#if dossier.source === "demarche_numerique"}
+  {#if dossier.demarche_numerique_number && dossier.demarche_number}<a
+      class="fr-btn fr-btn--secondary fr-mb-1w"
+      target="_blank"
+      href={`${originDemarcheNumerique}/procedures/${dossier.demarche_number}/dossiers/${dossier.demarche_numerique_number}`}
+      >Dossier sur Démarche Numérique</a
+    >{:else}<p class="fr-text-mention--grey">
+      Ce dossier provient de Démarches Numériques, mais son lien n'est pas disponible.
+    </p>{/if}
+{:else if dossier.source === "pitchou"}<p class="fr-text-mention--grey">
+    Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
+  </p>{:else}<p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>{/if}

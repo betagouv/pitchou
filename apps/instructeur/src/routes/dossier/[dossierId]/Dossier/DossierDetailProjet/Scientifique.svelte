@@ -10,12 +10,12 @@
 </script>
 
 {#if dossier.scientifique_demande_type}
-  <h2 class="fr-mt-6w">Données scientifiques</h2>
-  <h3>Type de demande</h3>
+  <h4 class="fr-mt-4w fr-text--md font-bold">Données scientifiques</h4>
+  <h5 class="fr-text--md">Type de demande</h5>
   <ul>
     {#each dossier.scientifique_demande_type as type}<li>{type}</li>{/each}
   </ul>
-  <h3>Programme de suivi antérieur</h3>
+  <h5 class="fr-text--md">Programme de suivi antérieur</h5>
   <p>
     {dossier.scientifique_previous_assessment === null
       ? "Non renseigné"
@@ -23,13 +23,13 @@
         ? "Oui"
         : "Non"}
   </p>
-  <h3>Finalité de la demande</h3>
+  <h5 class="fr-text--md">Finalité de la demande</h5>
   {#if finalites?.length}<ul>
       {#each finalites as finalite}<li>{finalite}</li>{/each}
     </ul>{:else}Non renseigné{/if}
-  <h3>Protocole de suivi</h3>
+  <h5 class="fr-text--md">Protocole de suivi</h5>
   <p>{dossier.scientifique_suivi_protocol_description ?? "Non renseigné"}</p>
-  <h3>Méthodes</h3>
+  <h5 class="fr-text--md">Méthodes</h5>
   <p>
     <strong>Modes de capture&nbsp;:</strong>
     {dossier.scientifique_capture_mode?.length
@@ -48,7 +48,7 @@
     <strong>Transport&nbsp;:</strong>
     {dossier.scientifique_transport_conditions ?? "Non renseigné"}
   </p>
-  <h3>Périmètre et intervenant.e.s</h3>
+  <h5 class="fr-text--md">Périmètre et intervenant.e.s</h5>
   <p>
     <strong>Périmètre&nbsp;:</strong>
     {dossier.scientifique_intervention_perimeter ?? "Non renseigné"}

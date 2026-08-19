@@ -41,9 +41,6 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.listerEvenementsPhaseDossier) {
     ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }
-  if (capBundle.listerMessages) {
-    ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`;
-  }
   if (capBundle.modifierDossier) {
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`;
   }

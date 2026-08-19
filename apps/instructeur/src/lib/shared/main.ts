@@ -108,7 +108,6 @@ export async function logout() {
 
   store.dossierSummaries = new SvelteMap();
   store.fullDossiers = new SvelteMap();
-  store.messagesByDossierId = new SvelteMap();
   store.followRelations = new SvelteMap();
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;

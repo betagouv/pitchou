@@ -1,20 +1,28 @@
 export type DossierTab =
+  | "detail-du-projet"
   | "instruction"
-  | "projet"
-  | "porteur-de-projet"
   | "avis"
   | "controles"
   | "pieces-jointes"
-  | "generation-document"
-  | "echanges";
+  | "generation-document";
 
-export const dossierTabs: { id: DossierTab; label: string }[] = [
-  { id: "instruction", label: "Instruction" },
-  { id: "projet", label: "Projet" },
-  { id: "porteur-de-projet", label: "Porteur de projet" },
-  { id: "echanges", label: "Échanges" },
-  { id: "avis", label: "Avis" },
-  { id: "controles", label: "Contrôles" },
-  { id: "pieces-jointes", label: "Pièces jointes" },
-  { id: "generation-document", label: "Génération document" },
+export const dossierTabs: { id: DossierTab; label: string; icon: string }[] = [
+  { id: "detail-du-projet", label: "Détail du projet", icon: "fr-icon-briefcase-line" },
+  { id: "instruction", label: "Instruction", icon: "fr-icon-survey-line" },
+  { id: "avis", label: "Avis d’experts", icon: "fr-icon-quote-line" },
+  { id: "controles", label: "Contrôle", icon: "fr-icon-eye-line" },
+  { id: "pieces-jointes", label: "Pièces jointes", icon: "fr-icon-attachment-line" },
+  { id: "generation-document", label: "Générateur de documents", icon: "fr-icon-file-text-line" },
 ];
+
+/** Tab ids that existed before the tab rework, mapped to their replacement. */
+const legacyTabAliases: Record<string, DossierTab> = {
+  projet: "detail-du-projet",
+  "porteur-de-projet": "detail-du-projet",
+};
+
+export function parseDossierTab(hash: string): DossierTab | undefined {
+  const tab = hash.replace(/^#/, "");
+  if (dossierTabs.some(({ id }) => id === tab)) return tab as DossierTab;
+  return legacyTabAliases[tab];
+}

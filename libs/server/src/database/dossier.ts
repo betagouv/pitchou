@@ -1,4 +1,4 @@
-export { dumpDossierMessages, getDossierMessages } from "./dossier/messages.ts";
+export { dumpDossierMessages } from "./dossier/messages.ts";
 export { dumpDossiers, getDossierIdsFromDS_Ids } from "./dossier/sync.ts";
 export { synchronizeDossierInGroupeInstructeur } from "./dossier/groupe.ts";
 export { getDossierFull, listAllDossiersFull } from "./dossier/full.ts";

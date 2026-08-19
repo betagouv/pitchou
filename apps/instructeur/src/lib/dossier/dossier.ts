@@ -13,7 +13,6 @@ import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
 export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull>): Promise<void> {
@@ -81,18 +80,6 @@ export function updateDossierNextDueDate(
       throw err;
     })
     .then(() => undefined);
-}
-
-export async function loadDossierMessages(id: DossierFull["id"]): Promise<Message[]> {
-  if (!store.capabilities?.listerMessages)
-    throw new TypeError(`Capability listerMessages manquante`);
-
-  const messagesP = store.capabilities?.listerMessages(id).then((messages: Message[]) => {
-    store.messagesByDossierId.set(id, messages);
-    return messages;
-  });
-
-  return store.messagesByDossierId.get(id) || messagesP;
 }
 
 export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull> {

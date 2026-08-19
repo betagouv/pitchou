@@ -6,7 +6,6 @@ import type {
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
-import type Message from "./database/public/Message.ts";
 import type Notification from "./database/public/Notification.ts";
 import type { NotificationMutator } from "./database/public/Notification.ts";
 import type Prescription from "./database/public/Prescription.ts";
@@ -38,7 +37,6 @@ export interface PitchouInstructeurCapabilities {
     dossierId: Dossier["id"],
     personneEmails: NonNullable<Personne["email"]>[],
   ) => Promise<void>;
-  listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;

@@ -6,7 +6,7 @@
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
-  type LinkedTab = "instruction" | "projet" | "avis" | "controles";
+  type LinkedTab = "instruction" | "detail-du-projet" | "avis" | "controles";
 
   type Props = {
     dossier: DossierFull;
@@ -108,9 +108,9 @@
   <PieceJointeSection
     title="Projet"
     emptyMessage="Aucune pièce jointe n'a été déposée par le pétitionnaire."
-    tabLabel="Projet"
+    tabLabel="Détail du projet"
     pieces={piecesJointesProjet}
-    openTab={() => openTab("projet")}
+    openTab={() => openTab("detail-du-projet")}
   />
   <PieceJointeSection
     title="Avis d'experts"

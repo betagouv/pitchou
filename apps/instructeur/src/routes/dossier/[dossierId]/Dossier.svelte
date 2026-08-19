@@ -1,10 +1,8 @@
 <script lang="ts">
   import HeaderDossier from "./Dossier/HeaderDossier.svelte";
 
-  import DossierMessagerie from "./Dossier/DossierMessagerie.svelte";
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
-  import DossierProjet from "./Dossier/DossierProjet.svelte";
-  import DossierPorteurDeProjet from "./Dossier/DossierPorteurDeProjet.svelte";
+  import DossierDetailProjet from "./Dossier/DossierDetailProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
   import DossierControles from "./Dossier/DossierControles.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
@@ -34,7 +32,6 @@
   type Props = {
     dossier: DossierFull;
     initialActiveTab: DossierTab;
-    messages: any;
     email: string;
     dossierFollowers: NonNullable<Personne["email"]>[];
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
@@ -44,7 +41,6 @@
   let {
     dossier,
     initialActiveTab,
-    messages,
     email,
     dossierFollowers,
     currentDossierFollowedByCurrentInstructeur,
@@ -66,7 +62,7 @@
   });
 
   $effect(() => {
-    if (activeTab === "projet") {
+    if (activeTab === "detail-du-projet") {
       sendEvenementConsulterUnDossier();
     }
   });
@@ -91,6 +87,16 @@
     <div class="fr-tabs">
       <DossierTabList {activeTab} onSelect={handleTabClick} />
       <div
+        id="tabpanel-detail-du-projet-panel"
+        aria-labelledby="tabpanel-detail-du-projet"
+        class="fr-tabs__panel"
+        class:fr-tabs__panel--selected={activeTab === "detail-du-projet"}
+        role="tabpanel"
+        tabindex="0"
+      >
+        <DossierDetailProjet {dossier} {especesImpactees}></DossierDetailProjet>
+      </div>
+      <div
         id="tabpanel-instruction-panel"
         aria-labelledby="tabpanel-instruction"
         class="fr-tabs__panel"
@@ -104,36 +110,6 @@
           {currentDossierFollowedByCurrentInstructeur}
           {email}
         ></DossierInstruction>
-      </div>
-      <div
-        id="tabpanel-projet-panel"
-        aria-labelledby="tabpanel-projet"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "projet"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierProjet {dossier} {especesImpactees}></DossierProjet>
-      </div>
-      <div
-        id="tabpanel-porteur-de-projet-panel"
-        aria-labelledby="tabpanel-porteur-de-projet"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "porteur-de-projet"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierPorteurDeProjet {dossier}></DossierPorteurDeProjet>
-      </div>
-      <div
-        id="tabpanel-echanges-panel"
-        aria-labelledby="tabpanel-echanges"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "echanges"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierMessagerie {dossier} {messages}></DossierMessagerie>
       </div>
       <div
         id="tabpanel-avis-panel"

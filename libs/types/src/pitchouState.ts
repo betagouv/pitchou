@@ -9,7 +9,6 @@ import type {
   MoyenDePoursuiteMenacant,
   QuantifiedImpact,
 } from "./especes.d.ts";
-import type Message from "./database/public/Message.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
 import type Notification from "./database/public/Notification.ts";
@@ -31,7 +30,6 @@ export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
   dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
   fullDossiers: Map<DossierFull["id"], DossierFull>;
-  messagesByDossierId: Map<DossierFull["id"], Message[]>;
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
   notificationByDossier: Map<Dossier["id"], Pick<Notification, "viewed" | "updated_at">>;
   identité?: IdentiteInstructeurPitchou;
