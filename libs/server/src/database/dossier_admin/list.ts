@@ -20,6 +20,13 @@ export type AdminDossierSummary = {
 };
 export type AdminDossierSortKey = "depot_date" | "name" | "phase";
 
+/** A summary plus the extra columns the yearly statistics export needs. */
+export type AdminDossierExportRow = AdminDossierSummary & {
+  primary_department: string | null;
+  departments: unknown | null;
+  communes: unknown | null;
+  regions: unknown | null;
+};
 export type ListAdminDossiersOptions = {
   page: number;
   pageSize: number;
@@ -56,6 +63,21 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
     .leftJoin("groupe_instructeurs", {
       "groupe_instructeurs.id": "edge_groupe.groupe_instructeurs",
     });
+}
+function summaryColumns(db: Knex.Transaction | Knex) {
+  return [
+    "dossier.id",
+    "dossier.name",
+    "dossier.demarche_numerique_number",
+    "dossier.source",
+    "dossier.depot_date",
+    "dossier.main_activite",
+    db.raw(`COALESCE(latest_phase.phase, ?) as phase`, ["Accompagnement amont"]),
+    "demandeur_pp.last_name as demandeur_last_name",
+    "demandeur_pp.first_names as demandeur_first_names",
+    "entreprise.legal_name as demandeur_entreprise",
+    "groupe_instructeurs.name as groupe_name",
+  ];
 }
 function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): void {
   if (options.search)
@@ -101,23 +123,34 @@ export async function listDossiersForAdmin(
     .first();
   const dossiers = await withRelations(db("dossier"), db)
     .modify((q) => filter(q, options))
-    .select([
-      "dossier.id",
-      "dossier.name",
-      "dossier.demarche_numerique_number",
-      "dossier.source",
-      "dossier.depot_date",
-      "dossier.main_activite",
-      db.raw(`COALESCE(latest_phase.phase, ?) as phase`, ["Accompagnement amont"]),
-      "demandeur_pp.last_name as demandeur_last_name",
-      "demandeur_pp.first_names as demandeur_first_names",
-      "entreprise.legal_name as demandeur_entreprise",
-      "groupe_instructeurs.name as groupe_name",
-    ])
+    .select(summaryColumns(db))
     .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
   return { dossiers, total: Number(count?.count ?? 0) };
+}
+/**
+ *
+ * @param year
+ * @param db
+ * @returns list of dossiers from the current year, which means dossier with a "depot_date" equal to this year
+ */
+export function listDossiersDeposesDuringYear(
+  year: number,
+  db: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<AdminDossierExportRow[]> {
+  return withRelations(db("dossier"), db)
+    .where("dossier.depot_date", ">=", new Date(year, 0, 1))
+    .where("dossier.depot_date", "<", new Date(year + 1, 0, 1))
+    .select([
+      ...summaryColumns(db),
+      "dossier.primary_department",
+      "dossier.departments",
+      "dossier.communes",
+      "dossier.regions",
+    ])
+    .orderBy("dossier.depot_date", "desc")
+    .orderBy("dossier.id", "desc");
 }
 
 export function listGroupesInstructeursForAdmin(

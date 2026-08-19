@@ -5,6 +5,7 @@
 
   import {
     loadDossiers,
+    downloadDossiersCSV,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
@@ -23,6 +24,10 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let creatingDossier = $state(false);
+  let downloading = $state(false);
+  let downloadError = $state<string | null>(null);
+
+  const currentYear = new Date().getFullYear();
 
   // The "create" entry point lives in the shell header ("+").
   $effect(() => {
@@ -97,6 +102,23 @@
     reload();
   }
 
+  async function downloadCurrentYear() {
+    downloading = true;
+    downloadError = null;
+    try {
+      await downloadDossiersCSV(currentYear);
+    } catch (e) {
+      downloadError =
+        e instanceof AccessDeniedError
+          ? "Accès réservé aux administrateurs."
+          : e instanceof Error
+            ? e.message
+            : String(e);
+    } finally {
+      downloading = false;
+    }
+  }
+
   onMount(reload);
 </script>
 
@@ -114,6 +136,23 @@
     onFilter={onFilterChange}
     onSort={onSortChange}
   />
+
+  <div class="flex flex-row justify-end fr-mt-2w">
+    <button
+      class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left"
+      type="button"
+      disabled={downloading}
+      onclick={downloadCurrentYear}
+    >
+      Télécharger les dossiers de l'année en cours
+    </button>
+  </div>
+
+  {#if downloadError}
+    <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-2w" role="alert">
+      <p>{downloadError}</p>
+    </div>
+  {/if}
 
   {#if loadError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-my-2w" role="alert">
