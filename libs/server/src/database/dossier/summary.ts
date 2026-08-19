@@ -22,6 +22,7 @@ const columns = [
   "location_scope",
   "primary_department",
   "next_action_expected_from",
+  "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
   "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
+  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
@@ -13,6 +14,7 @@
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
   let modalOpen = $state(false);
+  let dueDateModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuItemElement: HTMLButtonElement | undefined = $state();
@@ -35,6 +37,16 @@
 
   function closeAssignmentModal() {
     modalOpen = false;
+    void tick().then(() => triggerElement?.focus());
+  }
+
+  function openDueDateModal() {
+    menuOpen = false;
+    dueDateModalOpen = true;
+  }
+
+  function closeDueDateModal() {
+    dueDateModalOpen = false;
     void tick().then(() => triggerElement?.focus());
   }
 
@@ -96,10 +108,24 @@
           Faire suivre le dossier
         </button>
       </li>
+      <li role="none">
+        <button
+          type="button"
+          role="menuitem"
+          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+          onclick={openDueDateModal}
+        >
+          Modifier la date de la prochaine échéance
+        </button>
+      </li>
     </ul>
   {/if}
 </div>
 
 {#if modalOpen}
   <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeAssignmentModal} />
+{/if}
+
+{#if dueDateModalOpen}
+  <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
 {/if}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { phases, prochaineActionAttenduePar } from "$lib/dossier/displayDossier.ts";
+  import DateInput from "$lib/components/DateInput.svelte";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   type Props = {
     enjeu: boolean | null;
@@ -9,6 +10,7 @@
     erSufficient?: boolean | null;
     phase: string;
     nextAction?: DossierFull["next_action_expected_from"];
+    nextDueDate?: Date | null;
     onagre?: string | null;
     dismiss: () => void;
   };
@@ -20,6 +22,7 @@
     erSufficient = $bindable(),
     phase = $bindable(),
     nextAction = $bindable(),
+    nextDueDate = $bindable(),
     onagre = $bindable(),
     dismiss,
   }: Props = $props();
@@ -96,6 +99,12 @@
       >{#each prochaineActionAttenduePar as actor}<option value={actor}>{actor}</option
         >{/each}</select
     >
+  </div>
+  <div class="fr-input-group">
+    <label class="fr-label" for="next_due_date"
+      ><strong>Date de la prochaine échéance</strong></label
+    >
+    <DateInput id="next_due_date" label="Date de la prochaine échéance" bind:date={nextDueDate} />
   </div>
   <div class="fr-input-group">
     <label class="fr-label" for="onagre_demande_identifier"

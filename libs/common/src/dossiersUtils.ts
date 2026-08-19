@@ -30,6 +30,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
 
     // Next action
     next_action_expected_from,
+    next_due_date,
 
     // Avis d'expert (for the presence of the files)
     avisExpert,
@@ -90,6 +91,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     phase: currentPhase,
     phase_start_date: currentPhaseStartDate,
     next_action_expected_from,
+    next_due_date,
   };
 
   Object.freeze(dossierSummary);

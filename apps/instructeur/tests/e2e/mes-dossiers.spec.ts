@@ -1,10 +1,7 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { gotoMesDossiers, setupMesDossiers as setup } from "./mesDossiersFixtures.ts";
 
-test("dossiers triés : notifications non vues (récentes d'abord) puis depot_date décroissante", async ({
-  page,
-  db,
-}) => {
+test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
@@ -13,6 +10,7 @@ test("dossiers triés : notifications non vues (récentes d'abord) puis depot_da
     "4 dossiers dans votre service : Groupe de test",
   );
 
+  // A dossier with an unseen nouveauté is no longer pinned on top: only the dépôt date counts.
   const cards = await page.getByTestId("card-dossier").all();
   const expectedOrder = [
     fixtures.unviewedRecent.name,

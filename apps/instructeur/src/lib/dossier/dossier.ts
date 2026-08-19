@@ -1,3 +1,5 @@
+import { SvelteMap } from "svelte/reactivity";
+
 import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
@@ -10,7 +12,7 @@ import { sendEvenementModifierCommentaire, sendEvenement } from "$lib/shared/aar
 import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 
@@ -32,6 +34,10 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
   if (updates.next_action_expected_from) {
     sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
+  // The échéance can be cleared, so an explicit `null` is a change too.
+  if ("next_due_date" in updates) {
+    sendEvenement({ type: "changerDateProchaineEcheance" });
+  }
 
   setDossierFull(updatedDossier);
 
@@ -40,6 +46,41 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
     setDossierFull(dossier);
     throw err;
   });
+}
+
+/**
+ * Sets (or clears, with `null`) a dossier's next échéance from the list, where only the
+ * summary is loaded. The summary and the full dossier — when it is cached — are updated
+ * together, so the tile and the dossier page never disagree on the date.
+ */
+export function updateDossierNextDueDate(
+  id: DossierSummary["id"],
+  nextDueDate: Date | null,
+): Promise<void> {
+  if (!store.capabilities.modifierDossier)
+    throw new TypeError(`Capability modifierDossier manquante`);
+
+  const summary = store.dossierSummaries.get(id);
+  const full = store.fullDossiers.get(id);
+
+  if (summary) {
+    store.dossierSummaries.set(id, Object.freeze({ ...summary, next_due_date: nextDueDate }));
+  }
+  if (full) {
+    store.fullDossiers.set(id, { ...full, next_due_date: nextDueDate });
+  }
+
+  sendEvenement({ type: "changerDateProchaineEcheance" });
+
+  return store.capabilities
+    .modifierDossier(id, { next_due_date: nextDueDate })
+    .catch((err) => {
+      // on error, put the dossier back the way it was before the optimistic update
+      if (summary) store.dossierSummaries.set(id, summary);
+      if (full) store.fullDossiers.set(id, full);
+      throw err;
+    })
+    .then(() => undefined);
 }
 
 export async function loadDossierMessages(id: DossierFull["id"]): Promise<Message[]> {
@@ -112,9 +153,13 @@ export function loadDossiers() {
       for (const dossier of dossiers) {
         dossier.depot_date = new Date(dossier.depot_date);
         dossier.phase_start_date = new Date(dossier.phase_start_date);
+        if (dossier.next_due_date) dossier.next_due_date = new Date(dossier.next_due_date);
       }
 
-      const dossiersById: PitchouState["dossierSummaries"] = new Map();
+      // A SvelteMap, like the store's initial one: `$state` does not proxy Map instances,
+      // so a plain Map here would freeze the list — later `.set()` calls (e.g. the optimistic
+      // update of an échéance from a tile) would update the data without notifying the UI.
+      const dossiersById: PitchouState["dossierSummaries"] = new SvelteMap();
 
       for (const dossier of dossiers) {
         Object.freeze(dossier);

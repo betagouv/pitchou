@@ -14,6 +14,7 @@ import type EvenementPhaseDossier from "@pitchou/types/database/public/Evenement
 const dossierUpdateProperties = new Set([
   "free_comment",
   "next_action_expected_from",
+  "next_due_date",
   "onagre_demande_identifier",
   "enjeu",
   "ddep_required",
@@ -116,6 +117,7 @@ function parseDossierUpdate(value: Record<string, unknown>, dossierId: DossierId
   for (const property of [
     "public_consultation_start_date",
     "public_consultation_end_date",
+    "next_due_date",
   ] as const) {
     const rawDate = value[property];
     if (rawDate === undefined || rawDate === null) continue;

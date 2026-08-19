@@ -47,6 +47,7 @@ export const dossierFullColumns = [
   "primary_department",
   "projet_map",
   "next_action_expected_from",
+  "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
   "identite_demandeur.email as deposant_email",

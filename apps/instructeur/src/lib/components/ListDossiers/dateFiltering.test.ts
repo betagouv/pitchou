@@ -56,6 +56,20 @@ describe("filterDossiers — date range", () => {
     expect(result.map((d) => d.id)).toEqual([1]);
   });
 
+  test("filters on the next échéance, leaving out dossiers that have none", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), next_due_date: new Date("2026-08-15T12:00:00") }),
+      makeDossier({ id: dossierId(2), next_due_date: new Date("2026-10-15T12:00:00") }),
+      makeDossier({ id: dossierId(3) }),
+    ];
+    const result = filterDossiers(
+      dossiers,
+      makeQuery({ dateField: "nextDue", dateStart: "2026-08-01", dateEnd: "2026-08-31" }),
+      makeContext(),
+    );
+    expect(result.map((d) => d.id)).toEqual([1]);
+  });
+
   test("excludes dossiers that lack the chosen date", () => {
     const dossiers = [
       makeDossier({ id: dossierId(1), phase_start_date: new Date("2024-06-15T12:00:00") }),

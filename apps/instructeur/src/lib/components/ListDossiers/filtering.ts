@@ -35,6 +35,9 @@ export function dossierDate(
       return dossier.phase_start_date ?? undefined;
     case "lastModified":
       return notificationByDossier.get(dossier.id)?.updated_at ?? undefined;
+    case "nextDue":
+      // A dossier with no échéance never matches an échéance date range.
+      return dossier.next_due_date ? new Date(dossier.next_due_date) : undefined;
     case "deposit":
     default:
       return dossier.depot_date ?? undefined;

@@ -4,9 +4,11 @@
     hasMandataire,
     formatMandataire,
     formatDemandeurContact,
+    formatDateAbsolute,
   } from "$lib/dossier/displayDossier.ts";
   import { displayString } from "./displayValues.ts";
   import TagPhase from "$lib/components/TagPhase.svelte";
+  import TagEcheance from "$lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
@@ -135,6 +137,14 @@
         <strong>Prochaine action de&nbsp;:&nbsp;</strong>
         {displayString(dossier.next_action_expected_from)}
       </div>
+
+      {#if dossier.next_due_date}
+        <div class="flex items-center gap-2 mb-2">
+          <strong>Prochaine échéance&nbsp;:&nbsp;</strong>
+          {formatDateAbsolute(dossier.next_due_date, "dd/MM/yyyy")}
+          <TagEcheance dueDate={dossier.next_due_date} />
+        </div>
+      {/if}
 
       {#if dossier.enjeu}
         <div class="flex items-center gap-2 mb-2">

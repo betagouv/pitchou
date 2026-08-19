@@ -17,6 +17,7 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
     case "afficherLesDossiersSuivis":
     case "changerPhase":
     case "changerProchaineActionAttendueDe":
+    case "changerDateProchaineEcheance":
     case "ajouterDécisionAdministrative":
     case "modifierDécisionAdministrative":
     case "supprimerDécisionAdministrative":
