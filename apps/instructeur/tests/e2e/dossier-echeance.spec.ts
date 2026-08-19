@@ -6,7 +6,9 @@ import {
 } from "../factories/index.ts";
 import { attachPersonneSuitDossier } from "../factories/notification.ts";
 
+// The tile modal keeps the long label, the dossier page field uses the short one.
 const ECHEANCE_LABEL = "Date de la prochaine échéance";
+const PAGE_ECHEANCE_LABEL = "Prochaine échéance";
 
 test("l'échéance saisie sur le dossier est persistée, puis peut être vidée", async ({
   page,
@@ -22,19 +24,19 @@ test("l'échéance saisie sur le dossier est persistée, puis peut être vidée"
   await page.goto(`/dossier/${dossier.id}`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await page.getByLabel(ECHEANCE_LABEL).fill("15/09/2026");
+  await page.getByLabel(PAGE_ECHEANCE_LABEL).fill("15/09/2026");
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   await page.reload();
-  await expect(page.getByLabel(ECHEANCE_LABEL)).toHaveValue("15/09/2026");
+  await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("15/09/2026");
   // The dossier header shows the échéance countdown tag.
   await expect(page.locator("main header")).toContainText(/Échéance J-\d+|Échéance jour J|Retard/);
 
-  await page.getByLabel(ECHEANCE_LABEL).fill("");
+  await page.getByLabel(PAGE_ECHEANCE_LABEL).fill("");
   await page.waitForLoadState("networkidle");
   await page.reload();
-  await expect(page.getByLabel(ECHEANCE_LABEL)).toHaveValue("");
+  await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("");
 });
 
 test("l'échéance se modifie depuis le menu d'une tuile et reste cohérente avec le dossier", async ({
@@ -71,7 +73,7 @@ test("l'échéance se modifie depuis le menu d'une tuile et reste cohérente ave
 
   // The dossier page shows the date set from the tile.
   await page.goto(`/dossier/${dossier.id}`);
-  await expect(page.getByLabel(ECHEANCE_LABEL)).toHaveValue("15/09/2026");
+  await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("15/09/2026");
 });
 
 test("les dossiers se filtrent et se trient sur la date de prochaine échéance", async ({

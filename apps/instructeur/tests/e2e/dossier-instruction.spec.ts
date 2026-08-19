@@ -42,10 +42,10 @@ test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a 
   await page.goto(`/dossier/${dossier.id}`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await expect(page.locator("#toggle-enjeu")).not.toBeChecked();
+  await expect(page.locator("#enjeu")).toHaveValue("non");
 });
 
-test("Clicking the'Dossier à enjeu' toggle changes the stake value of the case, and when reloading, this modified value persists.", async ({
+test("Changing the 'Dossier à enjeu' select changes the stake value of the case, and when reloading, this modified value persists.", async ({
   page,
   db,
   loginAs,
@@ -59,11 +59,11 @@ test("Clicking the'Dossier à enjeu' toggle changes the stake value of the case,
   await page.goto(`/dossier/${dossier.id}`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await expect(page.locator("#toggle-enjeu")).not.toBeChecked();
-  await page.locator('label[for="toggle-enjeu"]').click();
+  await expect(page.locator("#enjeu")).toHaveValue("non");
+  await page.locator("#enjeu").selectOption("oui");
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.locator("#toggle-enjeu")).toBeChecked();
+  await expect(page.locator("#enjeu")).toHaveValue("oui");
 });

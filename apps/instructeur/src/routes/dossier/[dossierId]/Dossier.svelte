@@ -120,12 +120,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierInstruction
-          {dossier}
-          {dossierFollowers}
-          {currentDossierFollowedByCurrentInstructeur}
-          {email}
-        ></DossierInstruction>
+        <DossierInstruction {dossier}></DossierInstruction>
       </div>
       <div
         id="tabpanel-avis-panel"

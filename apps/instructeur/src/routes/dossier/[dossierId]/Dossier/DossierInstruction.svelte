@@ -3,30 +3,16 @@
   import { untrack } from "svelte";
   import debounce from "just-debounce-it";
   import { updateDossier } from "$lib/dossier/dossier.ts";
-  import { withoutRedundantDepositPhase } from "$lib/dossier/phaseHistory.ts";
-  import {
-    instructeurLeavesDossier,
-    instructeurFollowsDossier,
-  } from "$lib/dossier/suiviDossier.ts";
-  import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
-  import DossierInstructionHistory from "./DossierInstruction/DossierInstructionHistory.svelte";
+  import PhaseTimeline from "./DossierInstruction/PhaseTimeline.svelte";
   import DossierInstructionFields from "./DossierInstruction/DossierInstructionFields.svelte";
   import { dateToInputValue, ddepCompositeValue } from "./DossierInstruction/fieldValues.ts";
-  import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossier: DossierFull;
-    dossierFollowers: NonNullable<Personne["email"]>[];
-    email: string;
-    currentDossierFollowedByCurrentInstructeur: boolean | undefined;
   };
-  let { dossier, dossierFollowers, currentDossierFollowedByCurrentInstructeur, email }: Props =
-    $props();
+  let { dossier }: Props = $props();
 
-  const phaseHistory = $derived(
-    withoutRedundantDepositPhase(dossier.evenementsPhase, dossier.depot_date),
-  );
   const currentPhase = $derived(dossier.evenementsPhase[0]?.phase || "Accompagnement amont");
   let phase = $derived(currentPhase);
   let ddepRequired = $state(untrack(() => dossier.ddep_required));
@@ -109,34 +95,34 @@
 {#if showSuccessMessage}<div class="fr-alert fr-alert--success fr-mb-3w">
     <p>Le dossier a bien été mis à jour.</p>
   </div>{/if}
-<section class="flex flex-row gap-4 fr-mb-4w">
-  <DossierInstructionHistory
-    {dossier}
-    history={phaseHistory}
-    followers={dossierFollowers}
-    followed={currentDossierFollowedByCurrentInstructeur}
-    bind:start={publicConsultationStartDate}
-    bind:end={publicConsultationEndDate}
-    dismiss={dismissAlert}
-    follow={() => instructeurFollowsDossier(email, dossier.id)}
-    leave={() => instructeurLeavesDossier(email, dossier.id)}
-  />
-  <DossierInstructionFields
-    bind:enjeu
-    bind:comment={freeComment}
-    bind:ddepValue
-    bind:ddep={ddepRequired}
-    bind:erSufficient={erMesuresSufficient}
-    bind:phase
-    bind:nextAction={nextActionExpectedFrom}
-    bind:nextDueDate
-    bind:onagre={onagreDemandeIdentifier}
-    dismiss={dismissAlert}
-  />
+
+<section class="fr-mb-4w">
+  <h2 class="fr-mb-3w fr-text--lg">Avancement du dossier</h2>
+  <PhaseTimeline events={dossier.evenementsPhase} depotDate={dossier.depot_date} />
 </section>
-<ModalAddPieceJointe
-  id="modale-ajouter-piece-jointe"
-  {dossier}
-  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
-  source="ongletInstruction"
+
+<DossierInstructionFields
+  bind:enjeu
+  bind:ddepValue
+  bind:ddep={ddepRequired}
+  bind:erSufficient={erMesuresSufficient}
+  bind:phase
+  bind:nextAction={nextActionExpectedFrom}
+  bind:nextDueDate
+  bind:onagre={onagreDemandeIdentifier}
+  bind:consultationStart={publicConsultationStartDate}
+  bind:consultationEnd={publicConsultationEndDate}
+  dismiss={dismissAlert}
 />
+
+<section class="fr-mt-4w fr-mb-4w max-w-[48rem]">
+  <h2 class="fr-mb-2w fr-text--lg">Commentaires</h2>
+  <div class="fr-input-group" onfocusin={dismissAlert}>
+    <label class="fr-label" for="input-commentaire-libre">Commentaire libre</label>
+    <textarea
+      class="fr-input resize-y"
+      id="input-commentaire-libre"
+      bind:value={freeComment}
+      rows={6}></textarea>
+  </div>
+</section>
