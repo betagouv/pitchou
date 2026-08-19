@@ -69,8 +69,10 @@ export async function updateNotificationDossierFromCap(
   }
 
   // Upsert: marking a dossier unread must work even when no notification row
-  // exists yet. `updated_at` is only set on insert so the change date written
-  // by the synchronization is preserved. Reading stamps `viewed_at`; marking
+  // exists yet. `updated_at` belongs to the synchronization — it dates the
+  // pétitionnaire's last change and drives « Modifié le … » and the list sort —
+  // so reading never writes it, and the insert leaves it null rather than
+  // letting the column default stamp now(). Reading stamps `viewed_at`; marking
   // unread keeps it, since the dossier has still been read at that point.
   const readAt: Pick<Notification, "viewed_at"> | {} = notification.viewed
     ? { viewed_at: new Date() }
@@ -80,6 +82,7 @@ export async function updateNotificationDossierFromCap(
       dossier: notification.dossier,
       personne: personne.id,
       viewed: notification.viewed,
+      updated_at: null,
       ...readAt,
     })
     .onConflict(["dossier", "personne"])
