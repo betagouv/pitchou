@@ -19,6 +19,7 @@
     consultationStart?: Date | null;
     consultationEnd?: Date | null;
     dismiss: () => void;
+    disabled?: boolean;
   };
   let {
     enjeu = $bindable(),
@@ -33,6 +34,7 @@
     consultationStart = $bindable(),
     consultationEnd = $bindable(),
     dismiss,
+    disabled = false,
   }: Props = $props();
 
   const phaseOptions = $derived([...phases].map((phase) => ({ value: phase, label: phase })));
@@ -96,7 +98,7 @@
       <span class="fr-icon-time-line {iconClass}" aria-hidden="true"></span>
       Phase en cours
     </label>
-    <Select id="phase" options={phaseOptions} bind:value={phase} />
+    <Select id="phase" options={phaseOptions} bind:value={phase} {disabled} />
   </div>
 
   <div class={rowClass}>
@@ -110,6 +112,7 @@
         options={nextActionOptions}
         value={nextActionValue(nextAction ?? null, nextActionExpected ?? null)}
         onChange={setNextAction}
+        {disabled}
       />
       <!-- A closed select only shows the option label, so « Autre » alone would
            not say who is waited on. -->
@@ -126,7 +129,7 @@
       <span class="fr-icon-calendar-line {iconClass}" aria-hidden="true"></span>
       Prochaine échéance
     </label>
-    <DateInput id="next_due_date" label="Prochaine échéance" bind:date={nextDueDate} />
+    <DateInput id="next_due_date" label="Prochaine échéance" bind:date={nextDueDate} {disabled} />
   </div>
 
   <div class={rowClass}>
@@ -139,12 +142,14 @@
         id="public_consultation_start_date"
         label="Date de début de la consultation du public"
         bind:date={consultationStart}
+        {disabled}
       />
       <span class="text-[color:var(--text-mention-grey)]" aria-hidden="true">→</span>
       <DateInput
         id="public_consultation_end_date"
         label="Date de fin de la consultation du public"
         bind:date={consultationEnd}
+        {disabled}
       />
     </div>
   </div>
@@ -156,7 +161,13 @@
       <span class="fr-icon-leaf-line {iconClass}" aria-hidden="true"></span>
       Nécessité d’une DDEP
     </label>
-    <Select id="ddep-necessaire" options={ddepOptions} bind:value={ddepValue} onChange={setDdep} />
+    <Select
+      id="ddep-necessaire"
+      options={ddepOptions}
+      bind:value={ddepValue}
+      onChange={setDdep}
+      {disabled}
+    />
   </div>
 
   <div class={rowClass}>
@@ -164,7 +175,7 @@
       <span class="fr-icon-alarm-warning-line {iconClass}" aria-hidden="true"></span>
       Dossier à enjeu
     </label>
-    <Select id="enjeu" options={enjeuOptions} value={enjeuValue} onChange={setEnjeu} />
+    <Select id="enjeu" options={enjeuOptions} value={enjeuValue} onChange={setEnjeu} {disabled} />
   </div>
 
   <div class={rowClass}>
@@ -172,6 +183,12 @@
       <span class="fr-icon-hashtag {iconClass}" aria-hidden="true"></span>
       N° de dossier Onagre
     </label>
-    <input class="fr-input fr-m-0" id="onagre_demande_identifier" type="text" bind:value={onagre} />
+    <input
+      class="fr-input fr-m-0"
+      id="onagre_demande_identifier"
+      type="text"
+      bind:value={onagre}
+      {disabled}
+    />
   </div>
 </section>

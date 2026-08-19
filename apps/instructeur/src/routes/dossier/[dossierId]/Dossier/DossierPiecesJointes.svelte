@@ -2,6 +2,8 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import PieceJointeSection from "./PieceJointeSection.svelte";
+  import { readOnlyMode } from "./readOnly.ts";
+  import { isOfficialAvisExpert } from "$lib/dossier/avisExpert.ts";
   import type { PieceJointeSimple } from "./PieceJointeSection.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
@@ -15,18 +17,24 @@
 
   let { dossier, openTab }: Props = $props();
 
+  const readOnly = readOnlyMode();
+
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
   function labelAvisExpert(avisExpert: FrontEndAvisExpert) {
     return avisExpert.expert ?? "Expert";
   }
 
+  // Read-only mode shares the official avis files only: no saisine, and nothing
+  // from the other experts consulted by the instructeur.
   const piecesJointesAvis: PieceJointeSimple[] = $derived(
     dossier.avisExpert.flatMap((avisExpert) => {
       const pieces: PieceJointeSimple[] = [];
       const expert = labelAvisExpert(avisExpert);
 
-      if (avisExpert.saisine_fichier_url) {
+      if (readOnly.current && !isOfficialAvisExpert(avisExpert.expert)) return pieces;
+
+      if (avisExpert.saisine_fichier_url && !readOnly.current) {
         pieces.push({
           label: `Saisine - ${expert}`,
           description: avisExpert.saisine_fichier_description,
@@ -91,19 +99,21 @@
 </script>
 
 <section class="flex flex-col gap-5">
-  <button
-    type="button"
-    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line self-start"
-    aria-controls={idModalAddPieceJointe}
-    data-fr-opened="false"
-    onclick={() =>
-      sendEvenement({
-        type: "ouvrirModaleAjouterPieceJointe",
-        details: { dossierId: dossier.id, source: "ongletPiecesJointes" },
-      })}
-  >
-    Ajouter une pièce jointe
-  </button>
+  {#if !readOnly.current}
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line self-start"
+      aria-controls={idModalAddPieceJointe}
+      data-fr-opened="false"
+      onclick={() =>
+        sendEvenement({
+          type: "ouvrirModaleAjouterPieceJointe",
+          details: { dossierId: dossier.id, source: "ongletPiecesJointes" },
+        })}
+    >
+      Ajouter une pièce jointe
+    </button>
+  {/if}
 
   <PieceJointeSection
     title="Projet"
@@ -114,7 +124,9 @@
   />
   <PieceJointeSection
     title="Avis d'experts"
-    emptyMessage="Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."
+    emptyMessage={readOnly.current
+      ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
+      : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
     tabLabel="Avis"
     pieces={piecesJointesAvis}
     openTab={() => openTab("avis")}
@@ -126,18 +138,23 @@
     pieces={piecesJointesArretes}
     openTab={() => openTab("controles")}
   />
-  <PieceJointeSection
-    title="Autres"
-    emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
-    tabLabel="Instruction"
-    pieces={piecesJointesAutres}
-    openTab={() => openTab("instruction")}
-  />
+  <!-- The attachments added by the instructeur stay internal to the service. -->
+  {#if !readOnly.current}
+    <PieceJointeSection
+      title="Autres"
+      emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
+      tabLabel="Instruction"
+      pieces={piecesJointesAutres}
+      openTab={() => openTab("instruction")}
+    />
+  {/if}
 </section>
 
-<ModalAddPieceJointe
-  id={idModalAddPieceJointe}
-  {dossier}
-  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
-  source="ongletPiecesJointes"
-/>
+{#if !readOnly.current}
+  <ModalAddPieceJointe
+    id={idModalAddPieceJointe}
+    {dossier}
+    typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+    source="ongletPiecesJointes"
+  />
+{/if}

@@ -8,7 +8,7 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
-  import ModalLectureSeule from "./ModalLectureSeule.svelte";
+  import { readOnlyMode } from "./readOnly.ts";
 
   import {
     instructeurLeavesDossier,
@@ -27,6 +27,8 @@
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
     /** Marks the dossier read/unread for the current instructeur. */
     onSetRead: (viewed: boolean) => void;
+    /** Switches the dossier to read-only mode. */
+    onEnterReadOnly: () => void;
   };
 
   let {
@@ -36,12 +38,14 @@
     dossierFollowers,
     notification,
     onSetRead,
+    onEnterReadOnly,
   }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let followersModalOpen = $state(false);
-  let lectureSeuleModalOpen = $state(false);
 
   const unread = $derived(notification?.viewed === false);
 
@@ -135,52 +139,55 @@
         </p>
 
         <div class="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            class="fr-link fr-text--sm max-w-[16rem] truncate"
-            onclick={() => (followersModalOpen = true)}
-          >
-            {followersLabel}
-          </button>
+          <!-- Read-only mode hides every write action, so the followers are
+               shown as plain text rather than as a way to open the modal. -->
+          {#if readOnly.current}
+            <p class="fr-mb-0 fr-text--sm max-w-[16rem] truncate">{followersLabel}</p>
+          {:else}
+            <button
+              type="button"
+              class="fr-link fr-text--sm max-w-[16rem] truncate"
+              onclick={() => (followersModalOpen = true)}
+            >
+              {followersLabel}
+            </button>
 
-          {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
-            {#if currentDossierFollowedByCurrentInstructeur}
-              <button
-                onclick={() => instructeurLeavesDossier(email, dossier.id)}
-                class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-                >Vous suivez ce dossier</button
-              >
-            {:else}
-              <button
-                onclick={() => instructeurFollowsDossier(email, dossier.id)}
-                class="fr-btn fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-                >Suivre ce dossier</button
-              >
+            {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
+              {#if currentDossierFollowedByCurrentInstructeur}
+                <button
+                  onclick={() => instructeurLeavesDossier(email, dossier.id)}
+                  class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
+                  >Vous suivez ce dossier</button
+                >
+              {:else}
+                <button
+                  onclick={() => instructeurFollowsDossier(email, dossier.id)}
+                  class="fr-btn fr-btn--sm fr-icon-star-line fr-btn--icon-left"
+                  >Suivre ce dossier</button
+                >
+              {/if}
             {/if}
+
+            <button
+              type="button"
+              class="fr-btn fr-btn--secondary fr-btn--sm {unread
+                ? 'fr-icon-mail-open-line'
+                : 'fr-icon-mail-line'}"
+              title={unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
+              onclick={() => onSetRead(unread)}
+            >
+              {unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
+            </button>
+
+            <DossierActionsMenu
+              dossierId={dossier.id}
+              dossierName={dossier.name}
+              extraItems={[
+                { label: "Ajouter une pièce jointe", onClick: openPieceJointeModal },
+                { label: "Voir le dossier en lecture seule", onClick: onEnterReadOnly },
+              ]}
+            />
           {/if}
-
-          <button
-            type="button"
-            class="fr-btn fr-btn--secondary fr-btn--sm {unread
-              ? 'fr-icon-mail-open-line'
-              : 'fr-icon-mail-line'}"
-            title={unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
-            onclick={() => onSetRead(unread)}
-          >
-            {unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
-          </button>
-
-          <DossierActionsMenu
-            dossierId={dossier.id}
-            dossierName={dossier.name}
-            extraItems={[
-              { label: "Ajouter une pièce jointe", onClick: openPieceJointeModal },
-              {
-                label: "Voir le dossier en lecture seule",
-                onClick: () => (lectureSeuleModalOpen = true),
-              },
-            ]}
-          />
         </div>
       </div>
     </div>
@@ -195,13 +202,11 @@
   />
 {/if}
 
-{#if lectureSeuleModalOpen}
-  <ModalLectureSeule onClose={() => (lectureSeuleModalOpen = false)} />
+{#if !readOnly.current}
+  <ModalAddPieceJointe
+    id={idModalAddPieceJointe}
+    {dossier}
+    typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+    source="enteteDossier"
+  />
 {/if}
-
-<ModalAddPieceJointe
-  id={idModalAddPieceJointe}
-  {dossier}
-  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
-  source="enteteDossier"
-/>

@@ -56,6 +56,7 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
     currentDossierFollowedByCurrentInstructeur: false,
     dossierFollowers: [],
     onSetRead: vi.fn(),
+    onEnterReadOnly: vi.fn(),
   });
 
   // The entry point now lives in the "…" actions menu.

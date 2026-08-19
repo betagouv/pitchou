@@ -1,11 +1,15 @@
 <script lang="ts">
-  import { dossierTabs, type DossierTab } from "./dossierTabs.ts";
+  import { visibleDossierTabs, type DossierTab } from "./dossierTabs.ts";
+  import { readOnlyMode } from "./readOnly.ts";
   type Props = { activeTab: DossierTab; onSelect: (tab: DossierTab) => void };
   let { activeTab, onSelect }: Props = $props();
+
+  const readOnly = readOnlyMode();
+  const tabs = $derived(visibleDossierTabs(readOnly.current));
 </script>
 
 <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
-  {#each dossierTabs as tab}
+  {#each tabs as tab}
     <li role="presentation">
       <button
         type="button"

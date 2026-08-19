@@ -7,6 +7,7 @@
   import DossierInstructionFields from "./DossierInstruction/DossierInstructionFields.svelte";
   import Commentaires from "./DossierInstruction/Commentaires.svelte";
   import { dateToInputValue, ddepCompositeValue } from "./DossierInstruction/fieldValues.ts";
+  import { readOnlyMode } from "./readOnly.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -14,6 +15,8 @@
     email: string;
   };
   let { dossier, email }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   const currentPhase = $derived(dossier.evenementsPhase[0]?.phase || "Accompagnement amont");
   let phase = $derived(currentPhase);
@@ -41,6 +44,10 @@
   const updateFieldWithDebounce = debounce(updateField, 1000);
 
   run(() => {
+    // The fields are disabled in read-only mode, but the guard also covers the
+    // reconciliation that runs when the dossier itself changes.
+    if (readOnly.current) return;
+
     const updates: Partial<DossierFull> = {};
     if (currentPhase !== phase) {
       updates.evenementsPhase = [
@@ -60,8 +67,12 @@
       updates.next_action_expected = nextActionExpected ?? null;
     if (dateToInputValue(dossier.next_due_date) !== dateToInputValue(nextDueDate))
       updates.next_due_date = nextDueDate ?? null;
-    if (dossier.onagre_demande_identifier !== onagreDemandeIdentifier?.trim())
-      updates.onagre_demande_identifier = onagreDemandeIdentifier?.trim();
+    // An absent Onagre number is null on the dossier but empty in the input, so
+    // both sides are compared as strings — otherwise `null !== undefined` made
+    // every mount look like a change and saved the dossier for nothing.
+    const onagre = onagreDemandeIdentifier?.trim() ?? "";
+    if ((dossier.onagre_demande_identifier ?? "") !== onagre)
+      updates.onagre_demande_identifier = onagre;
     if (dossier.enjeu !== enjeu) updates.enjeu = enjeu;
     if (dossier.ddep_required !== ddepRequired) updates.ddep_required = ddepRequired;
     if (dossier.er_mesures_sufficient !== erMesuresSufficient)
@@ -79,7 +90,8 @@
     if (ddepRequired === null && dossier.er_mesures_sufficient !== null)
       updates.er_mesures_sufficient = null;
     if (Object.keys(updates).length) {
-      if (updates.onagre_demande_identifier) updateFieldWithDebounce(updates);
+      // The Onagre number is typed character by character, clearing it included.
+      if ("onagre_demande_identifier" in updates) updateFieldWithDebounce(updates);
       else updateField(updates);
     }
   });
@@ -116,6 +128,10 @@
   bind:consultationStart={publicConsultationStartDate}
   bind:consultationEnd={publicConsultationEndDate}
   dismiss={dismissAlert}
+  disabled={readOnly.current}
 />
 
-<Commentaires {dossier} {email} />
+<!-- Commentaires are internal to the service and never shared. -->
+{#if !readOnly.current}
+  <Commentaires {dossier} {email} />
+{/if}

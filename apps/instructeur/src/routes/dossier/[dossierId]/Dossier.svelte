@@ -12,8 +12,10 @@
   import debounce from "just-debounce-it";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
   import DossierTabList from "./Dossier/DossierTabList.svelte";
+  import ReadOnlyBanner from "./Dossier/ReadOnlyBanner.svelte";
   import type { DossierTab } from "./Dossier/dossierTabs.ts";
   import { loadEspecesImpactees } from "./Dossier/loadEspecesImpactees.ts";
+  import { provideReadOnly } from "./Dossier/readOnly.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
@@ -28,6 +30,14 @@
     dossierFollowers: NonNullable<Personne["email"]>[];
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
+    /** Hides every action writing to the dossier, the current user included. */
+    readOnly: boolean;
+    onReadOnlyChange: (readOnly: boolean) => void;
+    /**
+     * Whether the current user may edit this dossier at all. Read-only mode
+     * looks the same for everyone, so only the way back out depends on it.
+     */
+    canEdit: boolean;
   };
 
   let {
@@ -38,7 +48,12 @@
     dossierFollowers,
     currentDossierFollowedByCurrentInstructeur,
     notification,
+    readOnly,
+    onReadOnlyChange,
+    canEdit,
   }: Props = $props();
+
+  provideReadOnly(() => readOnly);
 
   const sendEvenementConsulterUnDossier = debounce(
     () => sendEvenement({ type: "consulterUnDossier", details: { dossierId: dossier.id } }),
@@ -51,7 +66,9 @@
   let manuallyMarkedUnread = $state(false);
 
   $effect(() => {
-    if (notification?.viewed === false && !manuallyMarkedUnread) {
+    // Consulting in read-only mode leaves the dossier untouched, so it must not
+    // consume the notification either.
+    if (notification?.viewed === false && !manuallyMarkedUnread && !readOnly) {
       // When the dossier has a notification not seen by the current instructrice,
       // it disappears — but only after the instructrice stayed a few seconds, so
       // a quick glance keeps the dossier unread.
@@ -88,6 +105,10 @@
   <!-- min-w-0 lets the column shrink below its content width (long title, wide
        tab bar) instead of forcing the page to scroll horizontally. -->
   <div class="fr-col min-w-0">
+    {#if readOnly}
+      <ReadOnlyBanner onLeave={canEdit ? () => onReadOnlyChange(false) : undefined} />
+    {/if}
+
     <HeaderDossier
       {dossier}
       {currentDossierFollowedByCurrentInstructeur}
@@ -95,6 +116,7 @@
       {dossierFollowers}
       {notification}
       onSetRead={setDossierRead}
+      onEnterReadOnly={() => onReadOnlyChange(true)}
     ></HeaderDossier>
 
     <div class="fr-tabs">
@@ -139,18 +161,22 @@
       >
         <DossierControles {dossier}></DossierControles>
       </div>
-      <div
-        id="tabpanel-historique-panel"
-        aria-labelledby="tabpanel-historique"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "historique"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        {#if activeTab === "historique"}
-          <DossierHistorique {dossier}></DossierHistorique>
-        {/if}
-      </div>
+      <!-- The historique and the document generator are hidden in read-only
+           mode: their panels are not rendered at all, not merely unreachable. -->
+      {#if !readOnly}
+        <div
+          id="tabpanel-historique-panel"
+          aria-labelledby="tabpanel-historique"
+          class="fr-tabs__panel"
+          class:fr-tabs__panel--selected={activeTab === "historique"}
+          role="tabpanel"
+          tabindex="0"
+        >
+          {#if activeTab === "historique"}
+            <DossierHistorique {dossier}></DossierHistorique>
+          {/if}
+        </div>
+      {/if}
       <div
         id="tabpanel-pieces-jointes-panel"
         aria-labelledby="tabpanel-pieces-jointes"
@@ -161,16 +187,18 @@
       >
         <DossierPiecesJointes {dossier} openTab={onTabChange}></DossierPiecesJointes>
       </div>
-      <div
-        id="tabpanel-generation-document-panel"
-        aria-labelledby="tabpanel-generation-document"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "generation-document"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierGenerationDocuments {dossier} {especesImpactees}></DossierGenerationDocuments>
-      </div>
+      {#if !readOnly}
+        <div
+          id="tabpanel-generation-document-panel"
+          aria-labelledby="tabpanel-generation-document"
+          class="fr-tabs__panel"
+          class:fr-tabs__panel--selected={activeTab === "generation-document"}
+          role="tabpanel"
+          tabindex="0"
+        >
+          <DossierGenerationDocuments {dossier} {especesImpactees}></DossierGenerationDocuments>
+        </div>
+      {/if}
     </div>
   </div>
 </div>

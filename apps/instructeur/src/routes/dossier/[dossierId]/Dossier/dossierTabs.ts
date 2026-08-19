@@ -17,6 +17,25 @@ export const dossierTabs: { id: DossierTab; label: string; icon: string }[] = [
   { id: "generation-document", label: "Générateur de documents", icon: "fr-icon-file-text-line" },
 ];
 
+/**
+ * Tabs left out of read-only mode: the historique exposes who did what inside
+ * the service, and the document generator is an instruction tool.
+ */
+const tabsHiddenWhenReadOnly: ReadonlySet<DossierTab> = new Set([
+  "historique",
+  "generation-document",
+]);
+
+export const defaultDossierTab: DossierTab = "detail-du-projet";
+
+export function isDossierTabVisible(tab: DossierTab, readOnly: boolean): boolean {
+  return !readOnly || !tabsHiddenWhenReadOnly.has(tab);
+}
+
+export function visibleDossierTabs(readOnly: boolean): typeof dossierTabs {
+  return readOnly ? dossierTabs.filter(({ id }) => isDossierTabVisible(id, readOnly)) : dossierTabs;
+}
+
 /** Tab ids that existed before the tab rework, mapped to their replacement. */
 const legacyTabAliases: Record<string, DossierTab> = {
   projet: "detail-du-projet",

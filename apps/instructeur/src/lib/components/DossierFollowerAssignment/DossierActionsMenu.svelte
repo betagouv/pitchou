@@ -96,7 +96,7 @@
   {#if menuOpen}
     <ul
       id={menuId}
-      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 min-w-[14rem] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-[22rem] max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="menu"
     >
       <li role="none">

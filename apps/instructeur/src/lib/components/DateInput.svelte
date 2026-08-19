@@ -8,6 +8,7 @@
     date?: Date | null | undefined;
     id?: string;
     label?: string;
+    disabled?: boolean;
   };
 
   let {
@@ -15,6 +16,7 @@
     date = $bindable(undefined),
     id,
     label = "Date",
+    disabled = false,
   }: Props = $props();
 
   const fallbackId = $props.id();
@@ -29,4 +31,4 @@
   }
 </script>
 
-<DatePicker id={inputId} {label} value={internal} onChange={setDate} />
+<DatePicker id={inputId} {label} value={internal} onChange={setDate} {disabled} />
