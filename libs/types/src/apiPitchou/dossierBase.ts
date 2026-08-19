@@ -68,6 +68,10 @@ type DossierLocalisation = {
 
 export type DossierCommonData = DossierLocalisation & { source: DossierSource } & {
   main_activite: DossierDemarcheNumerique88444["Activité principale"] | null;
+  /** Code of the Pitchou activity the raw label resolves to (« autre » when unmapped). */
+  activite_code: string | null;
+  /** Display name of that activity, decided by administrators. */
+  activite_label: string | null;
 };
 
 export type GeoJSONGeometry = {

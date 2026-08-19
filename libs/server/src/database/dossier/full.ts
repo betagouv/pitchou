@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { withResolvedActivite } from "../activite.ts";
 import { getControles } from "../controle.ts";
 import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts";
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
@@ -22,7 +23,7 @@ export function listAllDossiersFull(
           dossier.url_fichier_especes_impactees = `/especes-impactees/${dossier.especes_impactees_id}`;
         }
       }
-      return dossiers;
+      return dossiers.map(withResolvedActivite);
     },
   );
 }
@@ -82,15 +83,17 @@ export async function getDossierFull(
   if (!databaseConnection.isTransaction) all.then(transaction.commit).catch(transaction.rollback);
   return all.then(
     ([dossier, events, avis, pieces, decisions, attachments, prescriptions, controles]) =>
-      formatDossierFull(
-        dossier,
-        events,
-        avis,
-        pieces,
-        decisions,
-        attachments,
-        prescriptions,
-        controles,
+      withResolvedActivite(
+        formatDossierFull(
+          dossier,
+          events,
+          avis,
+          pieces,
+          decisions,
+          attachments,
+          prescriptions,
+          controles,
+        ),
       ),
   );
 }

@@ -1,7 +1,8 @@
 import {
-  restaurationMainActivite,
-  transportMainActivites,
-} from "@pitchou/common/dossierFormOptions.ts";
+  activiteCodeForLabel,
+  RESTAURATION_BATIMENTS_ACTIVITE_CODE,
+  TRANSPORT_ACTIVITE_CODES,
+} from "@pitchou/common/activiteCodes.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
@@ -13,6 +14,7 @@ import { makeDossierScientificColumns88444 } from "./makeCommonDossierColumnsFor
 export function makeCommonDossierColumnsForSync88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+  activiteCodeByLabel: ReadonlyMap<string, string>,
 ): DossierInitializer | DossierMutator {
   const { id, number, champs } = dossierDS;
   const champById = indexDossier88444Champs(champs);
@@ -23,6 +25,10 @@ export function makeCommonDossierColumnsForSync88444(
   const name = stringValue("Nom du projet premettant de l'identifier clairement");
   const description = stringValue("Description synthétique du projet");
   const mainActivite = stringValue("Activité principale");
+  // Business rules below compare activity codes, not raw labels, so an option renamed in DN
+  // keeps its behaviour once an admin grouped the new label (labels unknown at this point
+  // resolve to "autre" until then).
+  const activiteCode = activiteCodeForLabel(mainActivite, activiteCodeByLabel);
   const interventionStartDate = champById.get(
     pitchouKeyToChampDS.get("Date de début d’intervention"),
   )?.date;
@@ -70,8 +76,8 @@ export function makeCommonDossierColumnsForSync88444(
       ? "Cigogne"
       : null;
   const requiresCompensatedNidsCount =
-    (mainActivite === restaurationMainActivite && type === "Hirondelle") ||
-    (transportMainActivites.includes(mainActivite as never) && type === "Cigogne");
+    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && type === "Hirondelle") ||
+    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && type === "Cigogne");
 
   // JSON columns are serialized before insertion even though generated row types describe reads.
   // @ts-expect-error Serialized JSON values intentionally differ from Kanel's read-side types.
@@ -106,7 +112,7 @@ export function makeCommonDossierColumnsForSync88444(
     ...makeDossierScientificColumns88444(
       champById,
       pitchouKeyToChampDS,
-      mainActivite,
+      activiteCode,
       motifDerogation,
     ),
     dossier_oiseau_simple_compensated_nids_count: requiresCompensatedNidsCount

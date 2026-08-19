@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { withResolvedActivite } from "../activite.ts";
 import { getAvisExpertFilesByCap } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { getLatestEvenementsPhaseDossiers } from "./access.ts";
@@ -15,6 +16,8 @@ const columns = [
   "dossier.name as name",
   "linked_to_ae_regime",
   "main_activite",
+  "activite.code as activite_code",
+  "activite.label as activite_label",
   "source",
   "departments",
   "communes",
@@ -64,7 +67,10 @@ export async function getDossiersSummariesByCap(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap });
+    .leftJoin("activite_label", { "activite_label.label": "dossier.main_activite" })
+    .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+    .then((dossiers: DossierSummary[]) => dossiers.map(withResolvedActivite));
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
   const decisionsP = getDecisionsAdministratives(cap, transaction);
   const avisP = getAvisExpertFilesByCap(cap, transaction);

@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { withResolvedActivite } from "../activite.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
@@ -13,6 +14,8 @@ export type AdminDossierSummary = {
   depot_date: Date;
   phase: DossierPhase;
   main_activite: string | null;
+  activite_code: string | null;
+  activite_label: string | null;
   demandeur_last_name: string | null;
   demandeur_first_names: string | null;
   demandeur_entreprise: string | null;
@@ -62,7 +65,9 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
     })
     .leftJoin("groupe_instructeurs", {
       "groupe_instructeurs.id": "edge_groupe.groupe_instructeurs",
-    });
+    })
+    .leftJoin("activite_label", { "activite_label.label": "dossier.main_activite" })
+    .leftJoin("activite", { "activite.code": "activite_label.activite_code" });
 }
 function summaryColumns(db: Knex.Transaction | Knex) {
   return [
@@ -72,6 +77,8 @@ function summaryColumns(db: Knex.Transaction | Knex) {
     "dossier.source",
     "dossier.depot_date",
     "dossier.main_activite",
+    "activite.code as activite_code",
+    "activite.label as activite_label",
     db.raw(`COALESCE(latest_phase.phase, ?) as phase`, ["Accompagnement amont"]),
     "demandeur_pp.last_name as demandeur_last_name",
     "demandeur_pp.first_names as demandeur_first_names",
@@ -121,13 +128,13 @@ export async function listDossiersForAdmin(
     .modify((q) => filter(q, options))
     .count<{ count: string }>({ count: "dossier.id" })
     .first();
-  const dossiers = await withRelations(db("dossier"), db)
+  const dossiers: AdminDossierSummary[] = await withRelations(db("dossier"), db)
     .modify((q) => filter(q, options))
     .select(summaryColumns(db))
     .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
-  return { dossiers, total: Number(count?.count ?? 0) };
+  return { dossiers: dossiers.map(withResolvedActivite), total: Number(count?.count ?? 0) };
 }
 /**
  *
@@ -150,7 +157,8 @@ export function listDossiersDeposesDuringYear(
       "dossier.regions",
     ])
     .orderBy("dossier.depot_date", "desc")
-    .orderBy("dossier.id", "desc");
+    .orderBy("dossier.id", "desc")
+    .then((rows: AdminDossierExportRow[]) => rows.map(withResolvedActivite));
 }
 
 export function listGroupesInstructeursForAdmin(

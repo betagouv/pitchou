@@ -39,6 +39,8 @@ export const dossierFullColumns = [
   "eolien_carcass_preservation_method",
   "eolien_carcass_examination_address",
   "main_activite",
+  "activite.code as activite_code",
+  "activite.label as activite_label",
   "source",
   "departments",
   "communes",
@@ -135,5 +137,7 @@ export function joinDossierIdentities<T extends { leftJoin: Function }>(query: T
     })
     .leftJoin("file as file_especes_impactees", {
       "file_especes_impactees.id": "dossier.especes_impactees",
-    });
+    })
+    .leftJoin("activite_label", { "activite_label.label": "dossier.main_activite" })
+    .leftJoin("activite", { "activite.code": "activite_label.activite_code" });
 }

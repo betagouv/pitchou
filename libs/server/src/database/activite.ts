@@ -20,7 +20,32 @@ export type ActiviteReferentiel = {
 };
 
 /** Activity every label unknown to the referentiel is parked under, pending admin review. */
-export const AUTRE_ACTIVITE_CODE = "autre";
+export { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
+import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
+
+/**
+ * Resolved activity of a dossier, derived from its raw `main_activite` label. Attached to dossier
+ * payloads by the list queries (see `withResolvedActivite`).
+ */
+export type ResolvedActiviteColumns = {
+  activite_code: string | null;
+  activite_label: string | null;
+};
+
+/**
+ * Completes the resolved activity of a dossier row read with the activite joins: a raw label
+ * missing from the referentiel falls back to « Autre » — the same place the sync parks unknown
+ * labels — instead of leaving the dossier without an activity.
+ */
+export function withResolvedActivite<
+  Row extends { main_activite: string | null } & ResolvedActiviteColumns,
+>(row: Row): Row {
+  if (row.main_activite && !row.activite_code) {
+    row.activite_code = AUTRE_ACTIVITE_CODE;
+    row.activite_label = "Autre";
+  }
+  return row;
+}
 
 export async function getActiviteReferentiel(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -62,6 +87,7 @@ export async function createActivite(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   await databaseConnection("activite").insert({ code, label });
+  await registerCanonicalLabel(code, label, databaseConnection);
 }
 
 /** Returns false when no activity has this code. */
@@ -71,7 +97,24 @@ export async function renameActivite(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<boolean> {
   const updated = await databaseConnection("activite").where({ code }).update({ label });
+  if (updated > 0) await registerCanonicalLabel(code, label, databaseConnection);
   return updated > 0;
+}
+
+/**
+ * Keeps the display name of an activity resolvable as a label: dossiers created in Pitchou store
+ * the name the form offered, so every current or past display name must have a row here. Former
+ * names keep their row (dossiers may carry them); an existing mapping is never overridden.
+ */
+async function registerCanonicalLabel(
+  code: string,
+  label: string,
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<void> {
+  await databaseConnection("activite_label")
+    .insert({ label, activite_code: code, needs_review: false })
+    .onConflict("label")
+    .ignore();
 }
 
 /**
