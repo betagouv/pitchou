@@ -1,10 +1,17 @@
 /**
  * Tools that fabricate data to see how the product reacts. They must never be
- * reachable in production, where the dossiers are real: the check is deliberately
- * doubled, so a missing or mistyped PUBLIC_PITCHOU_ENV is not enough to open them.
+ * reachable in production, where the dossiers are real.
+ *
+ * Staging is deployed exactly like production — same build, same `node build/index.js`,
+ * so `NODE_ENV` is `production` there too. Only `PUBLIC_PITCHOU_ENV` tells the two
+ * apart, as `scripts/start.sh` does to decide whether to wipe and reseed. Hence an
+ * allowlist: a value that is missing or misspelled leaves the tools closed.
  */
 export function simulationAllowed(): boolean {
-  return process.env.PUBLIC_PITCHOU_ENV !== "production" && process.env.NODE_ENV !== "production";
+  const environment = process.env.PUBLIC_PITCHOU_ENV;
+  if (environment) return environment === "staging";
+  // No environment named: a developer's machine, unless this was built to be deployed.
+  return process.env.NODE_ENV !== "production";
 }
 
 /** Champs a simulated pétitionnaire modification may touch, with their label. */
