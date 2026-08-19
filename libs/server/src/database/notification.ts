@@ -38,13 +38,18 @@ export async function updateNotificationDossierFromCap(
 
   // Upsert: marking a dossier unread must work even when no notification row
   // exists yet. `updated_at` is only set on insert so the change date written
-  // by the synchronization is preserved.
+  // by the synchronization is preserved. Reading stamps `viewed_at`; marking
+  // unread keeps it, since the dossier has still been read at that point.
+  const readAt: Pick<Notification, "viewed_at"> | {} = notification.viewed
+    ? { viewed_at: new Date() }
+    : {};
   return await databaseConnection("notification")
     .insert({
       dossier: notification.dossier,
       personne: personne.id,
       viewed: notification.viewed,
+      ...readAt,
     })
     .onConflict(["dossier", "personne"])
-    .merge(["viewed"]);
+    .merge(["viewed", ...(notification.viewed ? (["viewed_at"] as const) : [])]);
 }

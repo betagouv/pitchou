@@ -26,7 +26,7 @@
     email: string;
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
     dossierFollowers: NonNullable<Personne["email"]>[];
-    notification?: Pick<Notification, "viewed" | "updated_at">;
+    notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
     /** Marks the dossier read/unread for the current instructeur. */
     onSetRead: (viewed: boolean) => void;
   };

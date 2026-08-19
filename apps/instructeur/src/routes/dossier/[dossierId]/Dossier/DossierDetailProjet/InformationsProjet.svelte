@@ -1,26 +1,44 @@
 <script lang="ts">
-  import { formatDateRelative } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import Scientifique from "./Scientifique.svelte";
   import Cartographie from "./Cartographie.svelte";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
-  type Props = { dossier: DossierFull };
-  let { dossier }: Props = $props();
+  type Props = {
+    dossier: DossierFull;
+    /** Unread pétitionnaire modification dates, keyed by the champ label of the historique. */
+    modifiedFields?: Map<string, Date>;
+  };
+  let { dossier, modifiedFields }: Props = $props();
 
   function displayBoolean(value: boolean | null | undefined): string {
     return typeof value === "boolean" ? (value ? "Oui" : "Non") : "Non renseigné";
   }
 </script>
 
+<!-- The field names match the labels logged by the synchronization diff
+     (syncActions.ts trackedColumns). -->
+{#snippet modifie(field: string)}
+  {@const date = modifiedFields?.get(field)}
+  {#if date}
+    <span class="fr-badge fr-badge--sm fr-badge--new fr-ml-1w"
+      >Modifié le {formatDateAbsolute(date, "dd/MM/yyyy")}</span
+    >
+  {/if}
+{/snippet}
+
 <p>
   <strong>Dossier n°&nbsp;:</strong>
   {dossier.demarche_numerique_number ?? dossier.id}
 </p>
-<p><strong>Activité&nbsp;:</strong> {dossier.main_activite ?? "Non renseignée"}</p>
+<p>
+  <strong>Activité&nbsp;:</strong>
+  {dossier.main_activite ?? "Non renseignée"}{@render modifie("Activité principale")}
+</p>
 {#if dossier.urgent_contact_phone}<p>
     <strong>Téléphone en cas de demande urgente&nbsp;:</strong>
-    {dossier.urgent_contact_phone}
+    {dossier.urgent_contact_phone}{@render modifie("Téléphone en cas de demande urgente")}
   </p>{/if}
 {#if dossier.request_context}<p>
     <strong>Situation du demandeur&nbsp;:</strong>
@@ -32,25 +50,33 @@
   </p>{/if}
 <p>
   <strong>Un état des lieux écologique complet a-t-il été réalisé ?&nbsp;:</strong>
-  {displayBoolean(dossier.ecological_inventory_completed)}
+  {displayBoolean(dossier.ecological_inventory_completed)}{@render modifie(
+    "État des lieux écologique",
+  )}
 </p>
 <p>
   <strong
     >Des spécimens ou habitats d'espèces protégées sont-ils présents dans l'aire d'influence du
     projet ?&nbsp;:</strong
   >
-  {displayBoolean(dossier.especes_present_in_influence_area)}
+  {displayBoolean(dossier.especes_present_in_influence_area)}{@render modifie(
+    "Présence d'espèces protégées dans l'aire d'influence",
+  )}
 </p>
 <p>
   <strong
     >Après mises en oeuvre de mesures d'évitement et de réduction, un risque suffisamment
     caractérisé pour les espèces protégées demeure-t-il ?&nbsp;:</strong
   >
-  {displayBoolean(dossier.risk_despite_erc_mesures)}
+  {displayBoolean(dossier.risk_despite_erc_mesures)}{@render modifie(
+    "Risque malgré les mesures d'évitement et de réduction",
+  )}
 </p>
 <p>
   <strong>Description&nbsp;:</strong>
-  {dossier.description?.length ? dossier.description : "Non renseignée"}
+  {dossier.description?.length ? dossier.description : "Non renseignée"}{@render modifie(
+    "Description",
+  )}
 </p>
 <p>
   <strong
@@ -58,26 +84,35 @@
   >
   {dossier.no_other_satisfactory_solution_justification?.length
     ? dossier.no_other_satisfactory_solution_justification
-    : "Non renseignée"}
+    : "Non renseignée"}{@render modifie(
+    "Synthèse des éléments démontrant qu'il n'existe aucune alternative",
+  )}
 </p>
-<p><strong>Motif de la dérogation&nbsp;:</strong> {dossier.motif_derogation ?? "Non renseigné"}</p>
+<p>
+  <strong>Motif de la dérogation&nbsp;:</strong>
+  {dossier.motif_derogation ?? "Non renseigné"}{@render modifie("Motif de la dérogation")}
+</p>
 <p>
   <strong>Synthèse des éléments justifiant le motif de la dérogation&nbsp;:</strong>
   {dossier.motif_derogation_justification?.length
     ? dossier.motif_derogation_justification
-    : "Non renseignée"}
+    : "Non renseignée"}{@render modifie(
+    "Synthèse des éléments justifiant le motif de la dérogation",
+  )}
 </p>
 {#each [["Date de début d'intervention ou des travaux", dossier.intervention_start_date], ["Date de fin d'intervention ou des travaux", dossier.intervention_end_date], ["Date de mise en service de l'exploitation", dossier.commissioning_date]] as item}
   <p>
     <strong>{item[0]}&nbsp;:</strong>
     {#if item[1]}<time datetime={new Date(item[1]).toISOString()}
         >{formatDateRelative(new Date(item[1]))}</time
-      >{:else}Non renseignée{/if}
+      >{:else}Non renseignée{/if}{@render modifie(String(item[0]))}
   </p>
 {/each}
 <p>
   <strong>Durée de la dérogation&nbsp;:</strong>
-  {dossier.intervention_duration ? `${dossier.intervention_duration} années` : "Non renseignée"}
+  {dossier.intervention_duration
+    ? `${dossier.intervention_duration} années`
+    : "Non renseignée"}{@render modifie("Durée de la dérogation")}
 </p>
 
 <Scientifique {dossier} />

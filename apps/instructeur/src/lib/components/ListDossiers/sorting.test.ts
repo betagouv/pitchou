@@ -37,8 +37,8 @@ describe("compareDossiers", () => {
       makeDossier({ id: dossierId(3) }),
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: true, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-10") }],
+      [dossierId(1), { viewed: true, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-10"), viewed_at: null }],
       // 3 has no notification → unknown date
     ]);
     expect(sortIds(dossiers, "lastModified", "desc", notificationByDossier)).toEqual([2, 1, 3]);
@@ -64,9 +64,9 @@ describe("compareDossiers", () => {
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
       // Only the oldest dossier has an unseen nouveauté; it stays where its date puts it.
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
-      [dossierId(3), { viewed: true, updated_at: new Date("2024-05-03") }],
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02"), viewed_at: null }],
+      [dossierId(3), { viewed: true, updated_at: new Date("2024-05-03"), viewed_at: null }],
     ]);
     expect(sortIds(dossiers, "depositDate", "desc", notificationByDossier)).toEqual([3, 2, 1]);
   });

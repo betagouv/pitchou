@@ -21,6 +21,7 @@ export function updateNotificationForDossier(
       store.notificationByDossier.set(notification.dossier, {
         viewed: notification.viewed ?? currentNotification?.viewed ?? true,
         updated_at: notification.updated_at ?? currentNotification?.updated_at ?? null,
+        viewed_at: notification.viewed ? new Date() : (currentNotification?.viewed_at ?? null),
       });
     })
     .catch((e) =>

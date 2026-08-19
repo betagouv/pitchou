@@ -27,7 +27,7 @@
     email: string;
     dossierFollowers: NonNullable<Personne["email"]>[];
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
-    notification?: Pick<Notification, "viewed" | "updated_at">;
+    notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
   };
 
   let {
@@ -107,7 +107,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierDetailProjet {dossier} {especesImpactees}></DossierDetailProjet>
+        <DossierDetailProjet {dossier} {especesImpactees} {notification}></DossierDetailProjet>
       </div>
       <div
         id="tabpanel-instruction-panel"

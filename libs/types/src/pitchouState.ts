@@ -31,7 +31,10 @@ export type PitchouState = {
   dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
   fullDossiers: Map<DossierFull["id"], DossierFull>;
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
-  notificationByDossier: Map<Dossier["id"], Pick<Notification, "viewed" | "updated_at">>;
+  notificationByDossier: Map<
+    Dossier["id"],
+    Pick<Notification, "viewed" | "updated_at" | "viewed_at">
+  >;
   identité?: IdentiteInstructeurPitchou;
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;
