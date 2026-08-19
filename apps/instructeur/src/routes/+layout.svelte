@@ -86,5 +86,6 @@
 </main>
 
 <Footer
+  compact={nav}
   demarcheNumerique88444SynchronizationResults={store.demarcheNumerique88444SynchronizationResults}
 />

@@ -31,21 +31,8 @@
         >Tableau de suivi <span class="fr-badge fr-badge--sm text-[0.55rem]">Obsolète</span></a
       >
     </li>
-    <li class="fr-nav__item">
-      <a
-        class="fr-nav__link"
-        href="/saisie-especes"
-        onclick={() => trackNavbarLinkClick("saisie-especes")}>Saisie espèces protégées</a
-      >
-    </li>
-    <li class="fr-nav__item">
-      <a
-        class="fr-nav__link"
-        href="/preremplissage-derogation"
-        onclick={() => trackNavbarLinkClick("preremplissage-derogation")}
-        >Pré-remplissage dérogation</a
-      >
-    </li>
+    <!-- « Saisie espèces protégées » and « Pré-remplissage dérogation » are not in the
+         menu anymore: the footer orientation blocks point to them instead. -->
     <li class="fr-nav__item">
       <a
         class="fr-nav__link"
