@@ -95,6 +95,7 @@ export async function dumpDossiers(
   );
   const follows: EdgePersonneFollowsDossier[] = [];
   let avis: PartialBy<AvisExpertInitializer, "dossier">[] = [];
+  const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
   if (dossiersForInsert.length) {
     const inserted: { id: DossierId }[] = await db("dossier")
       .insert(dossiersForInsert.map(({ dossier }) => dossier))
@@ -116,6 +117,12 @@ export async function dumpDossiers(
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
       const source = dossiersForInsert[index];
+      // An imported free comment also becomes the dossier's first (authorless)
+      // commentaire, so the thread and the dossier list show it.
+      const freeComment = source.dossier.free_comment;
+      if (typeof freeComment === "string" && freeComment.trim()) {
+        commentaires.push({ dossier: id, personne: null, content: freeComment });
+      }
       source.evenement_phase_dossier?.forEach((event) => {
         event.dossier = id;
       });
@@ -143,6 +150,7 @@ export async function dumpDossiers(
           .merge()
       : Promise.resolve([]),
     avis.length ? db("avis_expert").insert(avis) : Promise.resolve([]),
+    commentaires.length ? db("commentaire").insert(commentaires) : Promise.resolve([]),
     decisions.length ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
     follows.length
       ? db("edge_personne_follows_dossier")

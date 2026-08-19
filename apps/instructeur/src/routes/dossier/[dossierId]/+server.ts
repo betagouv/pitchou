@@ -22,7 +22,6 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 
 const dossierUpdateProperties = new Set([
-  "free_comment",
   "next_action_expected_from",
   "next_action_expected",
   "next_due_date",
@@ -95,10 +94,11 @@ function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDo
 function parseDossierUpdate(value: Record<string, unknown>, dossierId: DossierId): DossierUpdate {
   rejectUnknownProperties(value, dossierUpdateProperties);
 
-  for (const property of ["free_comment", "onagre_demande_identifier"] as const) {
-    if (value[property] !== undefined && typeof value[property] !== "string") {
-      error(400, `La propriété '${property}' doit être une chaîne.`);
-    }
+  if (
+    value.onagre_demande_identifier !== undefined &&
+    typeof value.onagre_demande_identifier !== "string"
+  ) {
+    error(400, `La propriété 'onagre_demande_identifier' doit être une chaîne.`);
   }
 
   if (

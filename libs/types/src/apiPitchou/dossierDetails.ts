@@ -55,6 +55,8 @@ export type DossierFull = Omit<
 > &
   DossierCommonData &
   DossierPersonnesImpliqueesFull & {
+    /** Content of the dossier's most recent commentaire. */
+    latestCommentaire: string | null;
     projet_map: GeoJSONFeatureCollection | null;
     especesImpactees: (Pick<File, "media_type" | "name"> & { url: string }) | undefined;
     evenementsPhase: EvenementPhaseDossier[];

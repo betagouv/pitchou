@@ -13,6 +13,14 @@ export type CommentaireView = Pick<Commentaire, "id" | "content" | "created_at" 
   author_email: string | null;
 };
 
+/**
+ * Raw SQL selecting the content of a dossier's most recent commentaire, to embed in
+ * queries on the `dossier` table.
+ */
+export const latestCommentaireSubquery = `(select content from commentaire
+  where commentaire.dossier = dossier.id
+  order by created_at desc limit 1) as "latestCommentaire"`;
+
 const viewColumns = [
   "commentaire.id",
   "commentaire.content",

@@ -61,6 +61,7 @@ function fakeDossierFull(nom: string): DossierFull {
     linked_to_ae_regime: false,
     onagre_demande_identifier: null,
     free_comment: "",
+    latestCommentaire: null,
     ddep_required: null,
     er_mesures_sufficient: null,
     public_consultation_start_date: null,
@@ -98,7 +99,7 @@ function fakeDossierSummary(nom: string): DossierSummary {
     depot_date: "2026-01-15",
     phase_start_date: "2026-01-15",
     enjeu: false,
-    free_comment: "",
+    latestCommentaire: null,
   } as unknown as DossierSummary;
 }
 

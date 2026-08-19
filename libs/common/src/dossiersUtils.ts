@@ -9,7 +9,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     name,
     main_activite,
     enjeu,
-    free_comment,
+    latestCommentaire,
     linked_to_ae_regime,
     onagre_demande_identifier,
     depot_date,
@@ -58,7 +58,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     name,
     main_activite,
     enjeu,
-    free_comment,
+    latestCommentaire,
     linked_to_ae_regime,
     onagre_demande_identifier,
     decisionsAdministratives: decisionsAdministratives?.map((decision) => ({

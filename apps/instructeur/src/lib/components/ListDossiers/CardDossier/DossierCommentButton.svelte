@@ -35,7 +35,7 @@
       </h2>
     </header>
     <div class="[white-space:preserve]">
-      {dossier.free_comment}
+      {dossier.latestCommentaire}
     </div>
   {/snippet}
 </ModalButton>

@@ -102,11 +102,12 @@ export type DossierSummary = Pick<
   | "next_action_expected_from"
   | "next_action_expected"
   | "next_due_date"
-  | "free_comment"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
   DossierPersonnesImpliqueesSummary & {
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
     especesImpacteesRenseignees: boolean;
+    /** Content of the dossier's most recent commentaire. */
+    latestCommentaire: string | null;
   };

@@ -135,7 +135,7 @@
   </div>
 
   <div class="flex flex-none flex-row items-start justify-end">
-    {#if dossier.free_comment && dossier.free_comment !== ""}
+    {#if dossier.latestCommentaire}
       <DossierCommentButton {dossier} />
     {/if}
     <DossierActionsMenu

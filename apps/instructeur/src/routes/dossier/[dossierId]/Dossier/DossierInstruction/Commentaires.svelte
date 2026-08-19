@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
+  import { setDossierFull, store } from "$lib/state/store.svelte.ts";
+  import { sendEvenementModifierCommentaire } from "$lib/shared/aarri.ts";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { authorInitials, authorName, avatarClass } from "./commentaires.ts";
   import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
@@ -33,6 +34,15 @@
       : written;
   }
 
+  // The dossier list and the tableau de suivi display the most recent commentaire,
+  // so the cached dossier is refreshed alongside the thread.
+  function syncLatestCommentaire() {
+    const latest = commentaires[0]?.content ?? null;
+    if (dossier.latestCommentaire !== latest) {
+      setDossierFull({ ...dossier, latestCommentaire: latest });
+    }
+  }
+
   async function submit() {
     const content = newContent.trim();
     if (!content) return;
@@ -41,6 +51,8 @@
       const commentaire = await store.capabilities.ajouterCommentaire?.(dossier.id, content);
       if (commentaire) commentaires = [commentaire, ...commentaires];
       newContent = "";
+      sendEvenementModifierCommentaire();
+      syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être enregistré.";
     }
@@ -63,6 +75,8 @@
           : existing,
       );
       editingId = null;
+      sendEvenementModifierCommentaire();
+      syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être modifié.";
     }

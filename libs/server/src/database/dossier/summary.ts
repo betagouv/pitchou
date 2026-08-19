@@ -3,6 +3,7 @@ import { directDatabaseConnection } from "../../database.ts";
 import { getAvisExpertFilesByCap } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { getLatestEvenementsPhaseDossiers } from "./access.ts";
+import { latestCommentaireSubquery } from "../commentaire.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -31,7 +32,6 @@ const columns = [
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
   "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
-  "free_comment",
   "onagre_demande_identifier",
 ] as (keyof DossierSummary)[];
 
@@ -47,6 +47,7 @@ export async function getDossiersSummariesByCap(
     .select(
       transaction.raw('dossier."especes_impactees" is not null as "especesImpacteesRenseignees"'),
     )
+    .select(transaction.raw(latestCommentaireSubquery))
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })

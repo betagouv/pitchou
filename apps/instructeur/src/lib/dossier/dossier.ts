@@ -8,7 +8,7 @@ import {
   loadEspecesProtegeesList,
 } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
-import { sendEvenementModifierCommentaire, sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "$lib/shared/aarri.ts";
 import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
@@ -27,9 +27,6 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
     sendEvenement({ type: "changerPhase" });
   }
 
-  if (updates.free_comment) {
-    sendEvenementModifierCommentaire();
-  }
   if (updates.next_action_expected_from) {
     sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
