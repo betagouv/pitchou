@@ -30,6 +30,12 @@ export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
   dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
   fullDossiers: Map<DossierFull["id"], DossierFull>;
+  /**
+   * Dossiers fetched in read-only mode. The server strips what is not shared, so
+   * these are deliberately kept apart from `fullDossiers` — mixing the two would
+   * leak the full dossier into read-only mode, or the stripped one out of it.
+   */
+  readOnlyDossiers: Map<DossierFull["id"], DossierFull>;
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
   notificationByDossier: Map<
     Dossier["id"],

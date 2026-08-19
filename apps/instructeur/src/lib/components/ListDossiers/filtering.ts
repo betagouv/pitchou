@@ -1,6 +1,6 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-import { isOfficialAvisExpert } from "$lib/dossier/avisExpert.ts";
+import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
   WITHOUT_INSTRUCTEUR,

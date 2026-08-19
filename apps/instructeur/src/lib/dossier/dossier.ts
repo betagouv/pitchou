@@ -68,28 +68,46 @@ export function updateDossierNextDueDate(
     .then(() => undefined);
 }
 
-export async function getDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
-  const dossierFullInStore = store.fullDossiers.get(id);
+/**
+ * A read-only dossier is a different, narrower resource than the full one — the
+ * server strips what is not shared — so the two are cached separately. Reading
+ * one for the other would defeat the whole point of the server-side filtering.
+ */
+export async function getDossierFull(
+  id: DossierFull["id"],
+  { readOnly = false }: { readOnly?: boolean } = {},
+): Promise<DossierFull> {
+  const dossierFullInStore = (readOnly ? store.readOnlyDossiers : store.fullDossiers).get(id);
 
   if (dossierFullInStore) {
     // stale-while-revalidate: return the cached dossier for instant navigation,
     // and refresh it in the background so the store catches up with changes
     // made elsewhere (e.g. a synchronization with DN)
-    refreshDossierFull(id).catch((err) => {
+    refreshDossierFull(id, { readOnly }).catch((err) => {
       console.error(`Échec du rafraîchissement du dossier ${id}`, err);
     });
     return dossierFullInStore;
   }
 
-  return refreshDossierFull(id);
+  return refreshDossierFull(id, { readOnly });
 }
 
-export async function refreshDossierFull(id: DossierFull["id"]): Promise<DossierFull> {
+export async function refreshDossierFull(
+  id: DossierFull["id"],
+  { readOnly = false }: { readOnly?: boolean } = {},
+): Promise<DossierFull> {
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const dossierFull = await store.capabilities.recupérerDossierComplet(id);
-  setDossierFull(dossierFull);
+  const dossierFull = await store.capabilities.recupérerDossierComplet(id, readOnly);
+
+  if (readOnly) {
+    // Never through `setDossierFull`: a stripped dossier must not reach
+    // `fullDossiers`, nor overwrite the summary the dossier list is built from.
+    store.readOnlyDossiers.set(id, dossierFull);
+  } else {
+    setDossierFull(dossierFull);
+  }
 
   return dossierFull;
 }

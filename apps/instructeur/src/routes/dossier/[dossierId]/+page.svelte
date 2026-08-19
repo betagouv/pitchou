@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterNavigate, pushState, replaceState } from "$app/navigation";
+  import { afterNavigate, goto, replaceState } from "$app/navigation";
   import { store } from "$lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
   import {
@@ -16,7 +16,13 @@
 
   const id = $derived(data.dossierId);
 
-  const dossier = $derived(store.fullDossiers.get(id));
+  // Read-only mode is decided by the load, which is also what fetched the
+  // matching payload — the two can never disagree.
+  const readOnly = $derived(data.readOnly);
+
+  // The read-only dossier is the narrower one the server sends for sharing; it
+  // is cached apart from the full dossier, so the mode picks the source.
+  const dossier = $derived(readOnly ? store.readOnlyDossiers.get(id) : store.fullDossiers.get(id));
   const email = $derived(store.identité?.email);
   const followRelations = $derived(store.followRelations);
   const notification = $derived(store.notificationByDossier?.get(id));
@@ -48,57 +54,50 @@
     );
   }
 
-  // Read-only mode lives in the URL too, so it survives a reload and can be
-  // shared as a link.
-  function readOnlyFromLocation(): boolean {
-    return new URL(location.href).searchParams.get("lecture") === "1";
+  let requestedTab: DossierTab = $state(tabFromLocation());
+
+  // Read-only mode hides some tabs, so a link pointing at one of them falls back
+  // to the default tab without losing what the URL asked for.
+  const activeTab = $derived(
+    isDossierTabVisible(requestedTab, readOnly) ? requestedTab : defaultDossierTab,
+  );
+
+  function readTabFromLocation() {
+    requestedTab = tabFromLocation();
   }
-
-  let activeTab: DossierTab = $state(defaultDossierTab);
-  let readOnly = $state(false);
-
-  // Read-only mode hides some tabs, so a link pointing at one of them — or the
-  // tab being read when switching modes — falls back to the default tab.
-  function readLocation() {
-    readOnly = readOnlyFromLocation();
-    const tab = tabFromLocation();
-    activeTab = isDossierTabVisible(tab, readOnly) ? tab : defaultDossierTab;
-  }
-
-  readLocation();
 
   // Re-read the URL when navigating between dossiers. Shallow routing keeps the
   // page mounted, and going back through one of its entries fires popstate
   // without an `afterNavigate`, so both are needed.
-  afterNavigate(readLocation);
+  afterNavigate(readTabFromLocation);
 
-  // Shallow routing: reflect the state in the URL without re-running the loads.
-  function syncLocation(newHistoryEntry = false) {
+  // Shallow routing: switching tabs changes nothing the server sends, so it must
+  // not re-run the load.
+  function selectTab(tab: DossierTab) {
+    requestedTab = tab;
     const url = new URL(location.href);
     // The default tab keeps a clean URL, without the query param.
-    if (activeTab === defaultDossierTab) url.searchParams.delete("tab");
-    else url.searchParams.set("tab", activeTab);
-    if (readOnly) url.searchParams.set("lecture", "1");
-    else url.searchParams.delete("lecture");
+    if (tab === defaultDossierTab) url.searchParams.delete("tab");
+    else url.searchParams.set("tab", tab);
     url.hash = "";
-    (newHistoryEntry ? pushState : replaceState)(url, {});
-  }
-
-  function selectTab(tab: DossierTab) {
-    activeTab = tab;
-    syncLocation();
+    replaceState(url, {});
   }
 
   function setReadOnly(value: boolean) {
-    readOnly = value;
-    if (!isDossierTabVisible(activeTab, readOnly)) activeTab = defaultDossierTab;
-    // Read-only mode offers no way back — it must look the same to everyone —
-    // so it gets its own history entry and the browser's Back button exits it.
-    syncLocation(true);
+    const url = new URL(location.href);
+    if (value) url.searchParams.set("lecture", "1");
+    else url.searchParams.delete("lecture");
+    // The current tab may not exist on the other side of the switch.
+    if (!isDossierTabVisible(requestedTab, value)) url.searchParams.delete("tab");
+    url.hash = "";
+    // A real navigation, unlike the tab: the mode decides which payload the
+    // server sends, so the load has to run again. It also gets its own history
+    // entry, so the browser's Back button leaves read-only mode.
+    void goto(url, { noScroll: true });
   }
 </script>
 
-<svelte:window onpopstate={readLocation} />
+<svelte:window onpopstate={readTabFromLocation} />
 
 {#if dossier && email}
   <Dossier

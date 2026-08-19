@@ -6,7 +6,7 @@
   import { differenceInDays } from "date-fns";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { readOnlyMode } from "./readOnly.ts";
-  import { isOfficialAvisExpert } from "$lib/dossier/avisExpert.ts";
+  import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 

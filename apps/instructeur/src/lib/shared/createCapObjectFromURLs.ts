@@ -72,12 +72,19 @@ function wrapGetDossierFull(
   /**
    * Fetches the dossier data and formats it.
    */
-  return async function getDossierFull(dossierId: Dossier["id"]): Promise<DossierFull> {
-    const ret: DossierFull | undefined = await json(
-      // @ts-ignore
-      url.replace(dossierIdURLParam, dossierId),
-      commonRequestInit,
+  return async function getDossierFull(
+    dossierId: Dossier["id"],
+    readOnly = false,
+  ): Promise<DossierFull> {
+    const dossierURL = new URL(
+      url.replace(dossierIdURLParam, String(dossierId)),
+      globalThis.location.href,
     );
+    // Asking for the read-only projection is the client's half of the contract:
+    // the server is the one that decides what it contains.
+    if (readOnly) dossierURL.searchParams.set("lecture", "1");
+
+    const ret: DossierFull | undefined = await json(dossierURL.toString(), commonRequestInit);
 
     if (!ret) {
       throw new TypeError(`Aucun dossier trouvé avec id '${dossierId}'`);

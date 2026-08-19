@@ -8,7 +8,11 @@ import {
   prochainesActionsAttendues,
 } from "@pitchou/common/phases.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
-import { getDossierFull, updateDossier } from "@pitchou/server/database/dossier.ts";
+import {
+  dossierFullForReadOnly,
+  getDossierFull,
+  updateDossier,
+} from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
@@ -174,7 +178,13 @@ export const GET: RequestHandler = async ({ params, url }) => {
     error(403, `Aucun dossier trouvé avec id '${dossierId}'`);
   }
 
-  return json(dossier);
+  // `lecture` lets an instructeur preview the dossier as the person they share it
+  // with will see it, so the preview goes through the very same projection.
+  // It can only ever narrow the response. Once a cap can itself be read-only,
+  // that cap must force the projection here regardless of the parameter — until
+  // then, someone allowed to write is the only one asking, and dropping the
+  // parameter would just give them back what they may already read.
+  return json(url.searchParams.get("lecture") === "1" ? dossierFullForReadOnly(dossier) : dossier);
 };
 
 export const POST: RequestHandler = async ({ params, url, request }) => {

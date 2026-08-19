@@ -45,7 +45,14 @@ export type DossierCommentaire = {
 
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
-  recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
+  /**
+   * `readOnly` asks the server for the shareable projection of the dossier —
+   * what someone the dossier is shared with receives — instead of the whole one.
+   */
+  recupérerDossierComplet: (
+    dossierId: DossierFull["id"],
+    readOnly?: boolean,
+  ) => Promise<DossierFull>;
   listFollowRelations: () => Promise<
     { personneEmail: Personne["email"]; followedDossierIds: Dossier["id"][] }[]
   >;
