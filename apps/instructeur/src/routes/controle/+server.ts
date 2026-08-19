@@ -2,6 +2,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { createTransaction } from "@pitchou/server/database.ts";
 import {
   addControles,
   updateControle,
@@ -9,8 +10,9 @@ import {
   getDossierIdFromControle,
 } from "@pitchou/server/database/controle.ts";
 import { getDossierIdFromPrescription } from "@pitchou/server/database/prescription.ts";
-import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import type { Knex } from "knex";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -71,9 +73,12 @@ function parseControle(value: Record<string, unknown>): Partial<Controle> {
  * least one that was not. Derived from the stored contrôles rather than from what
  * the browser believes it displays.
  */
-async function backToConformity(controle: Partial<Controle>): Promise<boolean> {
+async function backToConformity(
+  controle: Partial<Controle>,
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<boolean> {
   if (controle.result !== "Conforme" || !controle.prescription) return false;
-  const controles = await getControles([controle.prescription]);
+  const controles = await getControles([controle.prescription], databaseConnection);
   return controles.some(({ id, result }) => id !== controle.id && result !== "Conforme");
 }
 
@@ -82,6 +87,7 @@ async function controleActions(
   dossier: DossierId,
   author: PersonneId | null,
   modification: boolean,
+  databaseConnection: Knex.Transaction | Knex,
 ): Promise<ActionDossierInitializer[]> {
   const actions: ActionDossierInitializer[] = [
     {
@@ -91,7 +97,7 @@ async function controleActions(
       author_personne: author,
     },
   ];
-  if (await backToConformity(controle)) {
+  if (await backToConformity(controle, databaseConnection)) {
     actions.push({
       dossier,
       type: "controle_retour_conformite",
@@ -120,21 +126,32 @@ export const POST: RequestHandler = async ({ url, request }) => {
     );
   }
 
-  const modification = !!controleData.id;
-  let controleId;
-  try {
-    controleId = modification
-      ? await updateControle(controleData)
-      : await addControles(controleData);
-  } catch (err) {
-    error(500, `Erreur lors de l'ajout/modification de contrôle. ${err}`);
+  const author = await getPersonneByDossierCap(cap);
+  if (!author) {
+    error(403, "Personne associée à la cap introuvable");
   }
 
-  if (dossierId) {
-    const author = await getPersonneByDossierCap(cap).catch(() => null);
-    await logDossierActionsAfterCommit(
-      controleActions(controleData, dossierId, author?.id ?? null, modification),
-    );
+  const modification = !!controleData.id;
+  // One transaction for the contrôle and its historique: the timeline must never
+  // silently miss a change that went through — and a rolled-back write is safe
+  // for the browser to retry.
+  const transaction = await createTransaction();
+  try {
+    const controleId = modification
+      ? await updateControle(controleData, transaction)
+      : await addControles(controleData, transaction);
+    if (dossierId) {
+      await logDossierActions(
+        await controleActions(controleData, dossierId, author.id, modification, transaction),
+        transaction,
+      );
+    }
+    await transaction.commit();
+    return json(controleId);
+  } catch (err) {
+    if (!transaction.isCompleted()) {
+      await transaction.rollback();
+    }
+    error(500, `Erreur lors de l'ajout/modification de contrôle. ${err}`);
   }
-  return json(controleId);
 };

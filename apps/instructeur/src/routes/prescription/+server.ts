@@ -2,13 +2,14 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { createTransaction } from "@pitchou/server/database.ts";
 import {
   addPrescription,
   updatePrescription,
   getDossierIdFromPrescription,
 } from "@pitchou/server/database/prescription.ts";
 import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
-import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
@@ -93,24 +94,37 @@ export const POST: RequestHandler = async ({ url, request }) => {
   }
   const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
 
-  const modification = !!prescriptionData.id;
-  let prescriptionId;
-  try {
-    prescriptionId = modification
-      ? await updatePrescription(prescriptionData)
-      : await addPrescription(prescriptionData);
-  } catch (err) {
-    error(500, `Erreur lors de l'ajout/modification de prescription. ${err}`);
+  const author = await getPersonneByDossierCap(cap);
+  if (!author) {
+    error(403, "Personne associée à la cap introuvable");
   }
 
-  const author = await getPersonneByDossierCap(cap).catch(() => null);
-  await logDossierActionsAfterCommit([
-    {
-      dossier: authorizedDossierId,
-      type: modification ? "prescription_modifiee" : "prescription_ajoutee",
-      data: { article_number: prescriptionData.article_number ?? null },
-      author_personne: author?.id ?? null,
-    },
-  ]);
-  return json(prescriptionId);
+  const modification = !!prescriptionData.id;
+  // One transaction for the prescription and its historique: the timeline must
+  // never silently miss a change that went through — and a rolled-back write is
+  // safe for the browser to retry.
+  const transaction = await createTransaction();
+  try {
+    const prescriptionId = modification
+      ? await updatePrescription(prescriptionData, transaction)
+      : await addPrescription(prescriptionData, transaction);
+    await logDossierActions(
+      [
+        {
+          dossier: authorizedDossierId,
+          type: modification ? "prescription_modifiee" : "prescription_ajoutee",
+          data: { article_number: prescriptionData.article_number ?? null },
+          author_personne: author.id,
+        },
+      ],
+      transaction,
+    );
+    await transaction.commit();
+    return json(prescriptionId);
+  } catch (err) {
+    if (!transaction.isCompleted()) {
+      await transaction.rollback();
+    }
+    error(500, `Erreur lors de l'ajout/modification de prescription. ${err}`);
+  }
 };
