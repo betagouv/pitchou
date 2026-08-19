@@ -9,7 +9,12 @@
 
   function formatDate(value: string): string {
     const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("fr-FR");
+    if (Number.isNaN(date.getTime())) return value;
+    // Events recorded before the horodatage migration all sit at midnight.
+    return date.toLocaleString("fr-FR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
   }
 
   function formatDetails(details: unknown): string {
