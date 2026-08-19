@@ -89,6 +89,8 @@ test("le badge Nouveauté disparaît après consultation du dossier", async ({ p
 
   await title.click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText(fixtures.unviewedRecent.name);
+  // The dossier is only marked read after staying a few seconds on it.
+  await page.waitForTimeout(5500);
 
   await page.goto("/mes-dossiers");
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();

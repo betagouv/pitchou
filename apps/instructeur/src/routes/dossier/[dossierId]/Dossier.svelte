@@ -61,8 +61,12 @@
   $effect(() => {
     if (notification?.viewed === false && !manuallyMarkedUnread) {
       // When the dossier has a notification not seen by the current instructrice,
-      // it disappears when the dossier is consulted.
-      void updateNotificationForDossier({ dossier: dossier.id, viewed: true });
+      // it disappears — but only after the instructrice stayed a few seconds, so
+      // a quick glance keeps the dossier unread.
+      const timer = setTimeout(() => {
+        void updateNotificationForDossier({ dossier: dossier.id, viewed: true });
+      }, 5000);
+      return () => clearTimeout(timer);
     }
   });
 

@@ -137,7 +137,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   ).toHaveCount(0);
 });
 
-test("assigning oneself while viewing a dossier immediately marks it as viewed", async ({
+test("assigning oneself while viewing a dossier marks it as viewed after the reading delay", async ({
   page,
   db,
 }) => {
@@ -157,12 +157,15 @@ test("assigning oneself while viewing a dossier immediately marks it as viewed",
   await dialog.getByRole("button", { name: "Attribuer le dossier" }).click();
   await expect(dialog).toBeHidden();
 
+  // The dossier being open counts as read, once the 5s reading delay elapsed.
   await expect
-    .poll(async () =>
-      db("notification")
-        .select("viewed")
-        .where({ personne: assigner.id, dossier: assigner.dossier.id })
-        .first(),
+    .poll(
+      async () =>
+        db("notification")
+          .select("viewed")
+          .where({ personne: assigner.id, dossier: assigner.dossier.id })
+          .first(),
+      { timeout: 10_000 },
     )
     .toEqual({ viewed: true });
 

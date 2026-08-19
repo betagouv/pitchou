@@ -6,6 +6,7 @@
   import TagEcheance from "$lib/components/TagEcheance.svelte";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import DossierCommentButton from "./CardDossier/DossierCommentButton.svelte";
+  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
   import PhaseProgress from "./PhaseProgress.svelte";
   import { TILE_GRID } from "./rowLayout.ts";
 
@@ -26,6 +27,15 @@
   }: Props = $props();
 
   const name = $derived(dossier.name || "(nom non renseigné)");
+
+  // Unread tiles stand out: white and bold on the grey page, with a marked
+  // border. Read tiles blend into the background.
+  const unread = $derived(notificationViewed === false);
+  const tileClass = $derived(
+    unread
+      ? "border-[color:var(--border-plain-grey)] bg-[var(--background-default-grey)]"
+      : "border-[color:var(--border-default-grey)] bg-[var(--background-alt-grey)]",
+  );
   const porteurDeProjet = $derived(formatPorteurDeProjet(dossier) || "(non renseigné)");
   const localisation = $derived(formatLocalisation(dossier) || "(non renseignée)");
   const reference = $derived(
@@ -40,7 +50,7 @@
 </script>
 
 <div
-  class="{TILE_GRID} rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-px-2w fr-py-2w"
+  class="{TILE_GRID} {tileClass} rounded-[0.25rem] border fr-px-2w fr-py-2w"
   data-testid="card-dossier"
 >
   <!-- Suivi, activité and nom du projet share a line on narrow screens, and become three
@@ -72,7 +82,9 @@
       <h4 class="fr-mb-0 text-[1rem] leading-[1.4]">
         <a
           href={`/dossier/${dossier.id}`}
-          class="fr-link block truncate text-[color:var(--text-title-grey)]"
+          class="fr-link block truncate text-[color:var(--text-title-grey)] {unread
+            ? 'font-bold'
+            : 'font-normal'}"
           title={name}
         >
           {name}
@@ -123,6 +135,15 @@
     {#if dossier.free_comment && dossier.free_comment !== ""}
       <DossierCommentButton {dossier} />
     {/if}
-    <DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />
+    <DossierActionsMenu
+      dossierId={dossier.id}
+      dossierName={dossier.name}
+      extraItems={[
+        {
+          label: unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu",
+          onClick: () => void updateNotificationForDossier({ dossier: dossier.id, viewed: unread }),
+        },
+      ]}
+    />
   </div>
 </div>
