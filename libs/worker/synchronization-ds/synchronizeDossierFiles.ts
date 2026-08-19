@@ -59,7 +59,11 @@ export function synchronizeDownloadedDossierFiles(
 ) {
   const especesImpactees = downloads.especesImpactees.then((downloadedFiles) => {
     if (downloadedFiles && downloadedFiles.size >= 1) {
-      return synchronizeFichiersEspecesImpacteesFromDS88444(downloadedFiles, transaction);
+      return synchronizeFichiersEspecesImpacteesFromDS88444(
+        downloadedFiles,
+        dossierIdByDNNumber,
+        transaction,
+      );
     }
   });
   const piecesJointesPetitionnaire = downloads.piecesJointesPetitionnaire.then(

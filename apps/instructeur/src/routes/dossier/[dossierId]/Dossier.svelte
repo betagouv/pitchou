@@ -18,7 +18,7 @@
   import { provideReadOnly } from "./Dossier/readOnly.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
@@ -90,7 +90,7 @@
     }
   });
 
-  let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
+  let especesImpactees: Promise<ResultatImportFichierEspeces> | undefined = $derived(
     loadEspecesImpactees(dossier),
   );
 </script>

@@ -1,12 +1,48 @@
+import pLimit from "p-limit";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { logActionsDossier } from "./action_dossier.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { dumpImpactEspeceFromFichier } from "./impact_espece/dumpImpactEspeceFromFichier.ts";
 
+import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
+
+// Each import reads its file back from the object storage, so they are not all started at once.
+const limiteImports = pLimit(4);
+
+async function dumpImpactEspece(
+  fichierEspecesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId>,
+  dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<void> {
+  await Promise.all(
+    [...fichierEspecesImpacteesByDossierNumber].map(([dossierNumber, fichierId]) =>
+      limiteImports(async () => {
+        const dossierId = dossierIdByDNNumber.get(dossierNumber);
+        if (!dossierId) return;
+
+        const anomalies = await dumpImpactEspeceFromFichier(
+          dossierId,
+          fichierId,
+          databaseConnection,
+        );
+
+        if (anomalies.length >= 1) {
+          console.warn(
+            `Dossier ${dossierNumber} — fichier espèces impactées : ${anomalies.length} anomalie(s)`,
+            anomalies.map(({ classification, ligne, message }) =>
+              [classification, ligne && `ligne ${ligne}`, message].filter(Boolean).join(", "),
+            ),
+          );
+        }
+      }),
+    ),
+  );
+}
 
 /**
  * Attaches the freshly downloaded espèces impactées files to their dossier and
@@ -16,6 +52,7 @@ import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema
  */
 export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   especesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId>,
+  dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Set<DossierId>> {
   // Find the files already in place (to delete them below)
@@ -49,6 +86,8 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
 
   // Delete the files that were attached to a dossier and are no longer relevant
   await Promise.all(updatePs);
+
+  await dumpImpactEspece(especesImpacteesByDossierNumber, dossierIdByDNNumber, databaseConnection);
 
   const oldFichierIds = previousFichierIdRows.map(({ especes_impactees }) => especes_impactees);
   await deleteFichiersWithoutOtherReferences(oldFichierIds, databaseConnection);

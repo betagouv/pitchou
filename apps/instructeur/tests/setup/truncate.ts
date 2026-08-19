@@ -5,7 +5,11 @@ import type { Knex } from "knex";
  * méthodes and moyens de poursuite is part of creating the schema (ADR-0001). Emptying it would
  * leave every test running against an application with no specification to read.
  */
-const TABLES_REFERENTIELLES = new Set(["type_impact", "methode", "moyen_de_poursuite"]);
+const TABLES_REFERENTIELLES = new Set([
+  "impact_type",
+  "impact_methode",
+  "impact_moyen_de_poursuite",
+]);
 
 /**
  * TRUNCATE every public table except knex_migrations and the referential ones, restarting

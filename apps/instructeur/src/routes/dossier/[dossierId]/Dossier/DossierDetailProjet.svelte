@@ -12,12 +12,12 @@
 
   import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<DescriptionMenacesEspeces> | undefined;
+    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
   };
 
@@ -73,8 +73,8 @@
     {#snippet badges()}
       {#if modifications.especes}{@render nouveau()}{/if}
       {#if especesImpactees}
-        {#await especesImpactees then description}
-          <span class="fr-badge">{especesCountsLabel(especesCounts(description))}</span>
+        {#await especesImpactees then { impactEspece }}
+          <span class="fr-badge">{especesCountsLabel(especesCounts(impactEspece))}</span>
         {:catch}
           <!-- Unreadable file: no count in the band, the panel explains. -->
         {/await}

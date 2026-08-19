@@ -2,7 +2,7 @@ import { SvelteMap } from "svelte/reactivity";
 
 import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 
-import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
+import { parseFichierEspecesImpactees } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 import {
   loadActivitesMethodesMoyensDePoursuite,
   loadEspecesProtegeesList,
@@ -12,7 +12,7 @@ import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
 export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull>): Promise<void> {
   if (!store.capabilities.modifierDossier)
@@ -114,20 +114,14 @@ export async function refreshDossierFull(
 
 export async function especesImpacteesFromFichierOdsArrayBuffer(
   fichierArrayBuffer: ArrayBuffer,
-): Promise<DescriptionMenacesEspeces> {
+): Promise<ResultatImportFichierEspeces> {
   const especesProtegees = loadEspecesProtegeesList();
   const actMetTrans = loadActivitesMethodesMoyensDePoursuite();
 
   const { espèceByCD_REF: especeByCD_REF } = await especesProtegees;
-  const { activités: activites, méthodes: methodes, moyensDePoursuite } = await actMetTrans;
+  const referentiel = await actMetTrans;
 
-  return importDescriptionMenacesEspecesFromOdsArrayBuffer(
-    fichierArrayBuffer,
-    especeByCD_REF,
-    activites,
-    methodes,
-    moyensDePoursuite,
-  );
+  return parseFichierEspecesImpactees(fichierArrayBuffer, especeByCD_REF, referentiel);
 }
 
 export function loadDossiers() {
