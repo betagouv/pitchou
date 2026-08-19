@@ -29,7 +29,7 @@
 
   const initialActiveTab = $derived.by(() => {
     const hash = typeof location !== "undefined" ? location.hash : "";
-    return parseDossierTab(hash) ?? "instruction";
+    return parseDossierTab(hash) ?? "detail-du-projet";
   });
 </script>
 
