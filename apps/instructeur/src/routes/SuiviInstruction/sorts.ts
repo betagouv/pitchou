@@ -22,7 +22,7 @@ export function createSuiviInstructionSorts(
         sort: () => setDossiers(sortDossiersByColumnAlphabetically(getDossiers(), field).reverse()),
       },
     ] as TableSort[];
-  const activity = alphabetical("main_activite", "ActivitéPrincipale");
+  const activity = alphabetical("activite_label", "ActivitéPrincipale");
   const name = alphabetical("name", "NomProjet");
   const location = alphabetical("localisation", "Localisation");
   const owner = alphabetical("porteur de projet", "PorteurDeProjet");

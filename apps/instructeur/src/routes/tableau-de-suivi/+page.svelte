@@ -10,7 +10,6 @@
   import { logout } from "$lib/shared/main.ts";
   import { loadDossiers } from "$lib/dossier/dossier.ts";
 
-  import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
   import type {
     SortFilterLocalStorage,
     FiltersLocalStorage,
@@ -76,12 +75,14 @@
   const dossiers = $derived([...store.dossierSummaries.values()]);
   const followRelations = $derived(store.followRelations);
 
-  const schemaChamps = $derived<ChampDescriptor[] | undefined>(
-    store.schemaDS88444?.revision.champDescriptors,
-  );
-
+  // Pitchou activity names resolved from the referentiel, so raw labels renamed in DN over time
+  // stay grouped under one filter option.
   const activitesPrincipales = $derived(
-    schemaChamps?.find((c) => c.label === "Activité principale")?.options,
+    [
+      ...new Set(
+        dossiers.map(({ activite_label }) => activite_label).filter((label) => label !== null),
+      ),
+    ].sort((a, b) => a.localeCompare(b, "fr")),
   );
 </script>
 

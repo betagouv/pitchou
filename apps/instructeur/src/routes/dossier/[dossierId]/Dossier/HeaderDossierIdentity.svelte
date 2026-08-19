@@ -52,6 +52,6 @@
       class="fr-icon-briefcase-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
       aria-hidden="true"
     ></span>
-    {dossier.main_activite}
+    {dossier.activite_label ?? dossier.main_activite}
   </div>
 </section>

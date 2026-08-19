@@ -5,7 +5,6 @@ import {
   readDossiersQuery,
   buildDossiersSearchParams,
   WITHOUT_INSTRUCTEUR,
-  type DossiersQuery,
 } from "./listModel.ts";
 import { makeQuery } from "./testHelpers.ts";
 
@@ -32,7 +31,7 @@ describe("parseDossiersQuery", () => {
   test("reads each param", () => {
     const params = new URLSearchParams({
       q: "photovoltaïque",
-      activite: "Élevage",
+      activite: "carrieres",
       action: "Instructeur",
       instructeur: "jane@doe.fr",
       nouveaute: "oui",
@@ -53,7 +52,7 @@ describe("parseDossiersQuery", () => {
     expect(parseDossiersQuery(params)).toMatchObject({
       text: "photovoltaïque",
       phase: ["Instruction", "Contrôle"],
-      activite: ["Élevage"],
+      activite: ["carrieres"],
       prochaineAction: ["Instructeur"],
       departement: ["64", "33"],
       instructeur: ["jane@doe.fr"],
@@ -109,7 +108,7 @@ describe("buildDossiersSearchParams", () => {
     const query = makeQuery({
       text: "photovoltaïque",
       phase: ["Instruction", "Contrôle"],
-      activite: ["Élevage"] as unknown as DossiersQuery["activite"],
+      activite: ["carrieres"],
       prochaineAction: ["Pétitionnaire"],
       departement: ["64", "33"],
       instructeur: [WITHOUT_INSTRUCTEUR, "jane@doe.fr"],

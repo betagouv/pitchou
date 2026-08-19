@@ -1,10 +1,14 @@
 import { expect, test, describe } from "vitest";
 
-import { buildSearchEvent, WITHOUT_INSTRUCTEUR, type DossiersQuery } from "./listModel.ts";
+import { buildSearchEvent, WITHOUT_INSTRUCTEUR } from "./listModel.ts";
 import { makeQuery } from "./testHelpers.ts";
 
 describe("buildSearchEvent", () => {
-  const context = { instructeurCount: 3, email: "jane@doe.fr" };
+  const context = {
+    instructeurCount: 3,
+    email: "jane@doe.fr",
+    activiteLabelByCode: new Map([["carrieres", "Carrières"]]),
+  };
 
   test("an empty query only reports nouveaute: false and the result count", () => {
     const event = buildSearchEvent(makeQuery(), 12, context);
@@ -15,7 +19,7 @@ describe("buildSearchEvent", () => {
     const query = makeQuery({
       text: "photovoltaïque",
       phase: ["Instruction", "Contrôle"],
-      activite: ["Élevage"] as unknown as DossiersQuery["activite"],
+      activite: ["carrieres"],
       departement: ["64"],
       nouveaute: "oui",
     });
@@ -25,7 +29,8 @@ describe("buildSearchEvent", () => {
     expect(event.filters).toMatchObject({
       text: "photovoltaïque",
       phases: ["Instruction", "Contrôle"],
-      activitesPrincipales: ["Élevage"],
+      // Codes are resolved to display names, matching the labels of historical events.
+      activitesPrincipales: ["Carrières"],
       departements: ["64"],
       nouveaute: true,
     });

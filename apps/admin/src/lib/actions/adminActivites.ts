@@ -1,7 +1,7 @@
 import { AccessDeniedError } from "./errors.ts";
 
 /** Activity new labels are parked under by the DN sync, pending admin review. */
-export const AUTRE_ACTIVITE_CODE = "autre";
+export { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 
 /** An activity of the Pitchou referentiel, as received from `/api/activites`. */
 export type ActiviteAdmin = {

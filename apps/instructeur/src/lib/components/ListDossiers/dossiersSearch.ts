@@ -55,6 +55,7 @@ export function searchableText(dossier: DossierSummary, ctx: DossiersContext): s
     dossier.name,
     dossier.free_comment,
     dossier.main_activite,
+    dossier.activite_label,
     dossier.demarche_numerique_number,
     dossier.onagre_demande_identifier,
     dossier.deposant_last_name,

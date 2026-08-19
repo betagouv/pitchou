@@ -67,7 +67,7 @@
               >{state.followedByMe.has(dossier.id) ? "Ne plus suivre" : "Suivre"}</button
             >
           </td>
-          <td>{formatLocalisation(dossier)}</td><td>{dossier.main_activite || ""}</td><td
+          <td>{formatLocalisation(dossier)}</td><td>{dossier.activite_label || ""}</td><td
             >{formatPorteurDeProjet(dossier)}</td
           ><td>{dossier.name || ""}</td><td
             >{#if dossier.enjeu}<p class="fr-badge fr-badge--pink-macaron fr-badge--sm">

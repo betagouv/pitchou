@@ -33,8 +33,12 @@ function dateChipLabel(query: DossiersQuery): string {
 /**
  * One removable tag per active filter (text search included). Clicking a tag applies its
  * `next` query, i.e. the same filters minus the removed value. Order follows the modal's.
+ * `activiteLabelByCode` resolves activity codes to their display names (see filterOptions.ts).
  */
-export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
+export function buildActiveFilterChips(
+  query: DossiersQuery,
+  activiteLabelByCode: ReadonlyMap<string, string> = new Map(),
+): FilterChip[] {
   const chips: FilterChip[] = [];
   // `next` is only ever read (serialized), so sharing the untouched arrays with `query` is safe.
   const withUpdates = (updates: Partial<DossiersQuery>): DossiersQuery => ({
@@ -65,7 +69,7 @@ export function buildActiveFilterChips(query: DossiersQuery): FilterChip[] {
   for (const value of query.activite) {
     chips.push({
       key: `activite:${value}`,
-      label: value,
+      label: activiteLabelByCode.get(value) ?? value,
       next: withUpdates({ activite: query.activite.filter((activite) => activite !== value) }),
     });
   }

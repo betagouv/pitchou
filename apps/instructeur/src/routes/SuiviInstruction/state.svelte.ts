@@ -127,8 +127,8 @@ export class SuiviInstructionState {
         : this.selectedNextActions.has(NO_NEXT_ACTION),
     );
     this.filters.set("activity", (dossier) =>
-      dossier.main_activite
-        ? this.selectedActivities.has(dossier.main_activite)
+      dossier.activite_label
+        ? this.selectedActivities.has(dossier.activite_label)
         : this.selectedActivities.has(NO_ACTIVITY),
     );
     this.filters.set(

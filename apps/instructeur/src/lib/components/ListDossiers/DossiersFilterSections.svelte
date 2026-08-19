@@ -28,7 +28,7 @@
   }: Props = $props();
 
   const activiteOptions = $derived(
-    listAvailableActivites(dossiers).map((activite) => ({ value: activite, label: activite })),
+    listAvailableActivites(dossiers).map(({ code, label }) => ({ value: code, label })),
   );
   const departementOptions = $derived(
     listAvailableDepartements(dossiers).map(({ code, name }) => ({

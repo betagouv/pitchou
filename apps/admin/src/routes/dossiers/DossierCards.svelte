@@ -30,7 +30,10 @@
     >
       <a href="/dossiers/{dossier.id}" class="fr-raw-link block p-4 pr-12 no-underline">
         <div class="flex items-center gap-4">
-          <ActiviteIcon mainActivite={dossier.main_activite} />
+          <ActiviteIcon
+            activiteCode={dossier.activite_code}
+            activiteLabel={dossier.activite_label}
+          />
 
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-3">

@@ -37,6 +37,17 @@ describe("dossiersExportToCSV", () => {
     );
   });
 
+  it("prefers the Pitchou activity name over the raw DN label", () => {
+    const csv = dossiersExportToCSV([
+      makeRow({
+        main_activite: "Production énergie renouvelable - Éolien",
+        activite_code: "energie-eolien",
+        activite_label: "Éolien",
+      }),
+    ]);
+    expect(csv.split("\n")[1]).toContain(",Éolien,");
+  });
+
   it("falls back to the personne physique name when there is no entreprise", () => {
     const csv = dossiersExportToCSV([
       makeRow({

@@ -3,16 +3,36 @@ import {
   departements as allDepartements,
   departementNameByCode,
 } from "@pitchou/common/departements.ts";
-import type { ActivitePrincipale, DossiersContext } from "./query.ts";
+import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
+import type { ActiviteCode, DossiersContext } from "./query.ts";
 
 export type DepartementOption = { code: string; name: string };
 
-export function listAvailableActivites(dossiers: DossierSummary[]): ActivitePrincipale[] {
-  const activites = new Set<ActivitePrincipale>();
+export type ActiviteOption = { code: ActiviteCode; label: string };
+
+/**
+ * The Pitchou activities present among the loaded dossiers, deduplicated by code so raw labels
+ * renamed in DN over time count as one activity. Sorted by name, « Autre » last (catch-all).
+ */
+export function listAvailableActivites(dossiers: DossierSummary[]): ActiviteOption[] {
+  const labelByCode = new Map<ActiviteCode, string>();
   for (const dossier of dossiers) {
-    if (dossier.main_activite) activites.add(dossier.main_activite);
+    if (dossier.activite_code) {
+      labelByCode.set(dossier.activite_code, dossier.activite_label ?? dossier.activite_code);
+    }
   }
-  return [...activites].sort((a, b) => a.localeCompare(b, "fr"));
+  return [...labelByCode]
+    .map(([code, label]) => ({ code, label }))
+    .sort((a, b) => {
+      if (a.code === AUTRE_ACTIVITE_CODE) return 1;
+      if (b.code === AUTRE_ACTIVITE_CODE) return -1;
+      return a.label.localeCompare(b.label, "fr");
+    });
+}
+
+/** Display names of the activities present among the dossiers, for chips and analytics. */
+export function activiteLabelByCode(dossiers: DossierSummary[]): Map<ActiviteCode, string> {
+  return new Map(listAvailableActivites(dossiers).map(({ code, label }) => [code, label]));
 }
 
 export function listAvailableDepartements(dossiers: DossierSummary[]): DepartementOption[] {
