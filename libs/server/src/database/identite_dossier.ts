@@ -70,15 +70,18 @@ async function actionsFromIdentitesChanges(
  * Replace the identities (demandeur, mandataire, representant) of each dossier with the
  * ones freshly extracted from Démarche Numérique. An identity that disappeared in DN
  * (e.g. a mandataire removed) is removed here as well.
+ *
+ * Returns the dossiers whose identities actually changed, so the synchronization
+ * can mark them unread for their followers.
  */
 export async function syncIdentitesDossier(
   identitesByDossierId: Map<DossierId, IdentiteDossierData[]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-) {
+): Promise<Set<DossierId>> {
   const dossierIds = [...identitesByDossierId.keys()];
 
   if (dossierIds.length === 0) {
-    return;
+    return new Set();
   }
 
   // Diffed against the current rows before they are replaced, so the historique
@@ -93,6 +96,9 @@ export async function syncIdentitesDossier(
   );
 
   if (identites.length >= 1) {
-    return databaseConnection("identite_dossier").insert(identites);
+    await databaseConnection("identite_dossier").insert(identites);
   }
+
+  // One action per changed champ, so several can point at the same dossier.
+  return new Set(actions.map(({ dossier }) => dossier));
 }

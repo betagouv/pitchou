@@ -104,12 +104,8 @@ export async function synchronizeDemarcheNumerique({
   );
   const [dossiersChangedByColumns] = await Promise.all([dossierPersistence, deletedDossiers]);
 
-  const { dossierIdByDNNumber, synchronizations } = await synchronizeDossierRelations(
-    dossiersDS,
-    dossiersForSync,
-    demarcheNumber,
-    transaction,
-  );
+  const { dossierIdByDNNumber, identitesSynchronization, synchronizations } =
+    await synchronizeDossierRelations(dossiersDS, dossiersForSync, demarcheNumber, transaction);
   const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
     fileDownloads,
     dossiersDS,
@@ -117,12 +113,14 @@ export async function synchronizeDemarcheNumerique({
     pitchouKeyToChampDS,
     transaction,
   );
-  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes] = await Promise.all([
-    especesImpacteesP,
-    piecesJointesP,
-    groupesInstructeursP,
-    ...synchronizations,
-  ]);
+  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes, dossiersChangedByIdentites] =
+    await Promise.all([
+      especesImpacteesP,
+      piecesJointesP,
+      identitesSynchronization,
+      groupesInstructeursP,
+      ...synchronizations,
+    ]);
 
   // Only the dossiers this synchronization found actually modified are marked
   // unread; what changed in each of them is in its historique.
@@ -133,6 +131,7 @@ export async function synchronizeDemarcheNumerique({
       ...(dossiersChangedByColumns ?? []),
       ...(dossiersChangedByEspeces ?? []),
       ...(dossiersChangedByPiecesJointes ?? []),
+      ...(dossiersChangedByIdentites ?? []),
     ]),
     transaction,
   );
