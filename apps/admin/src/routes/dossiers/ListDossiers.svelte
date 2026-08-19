@@ -128,31 +128,33 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <DossiersListControls
-    {query}
-    {total}
-    {loading}
-    onSearch={onSearchInput}
-    onFilter={onFilterChange}
-    onSort={onSortChange}
-  />
-
-  <div class="flex flex-row justify-end fr-mt-2w">
-    <button
-      class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left"
-      type="button"
-      disabled={downloading}
-      onclick={downloadCurrentYear}
-    >
-      Télécharger les dossiers de l'année en cours
-    </button>
-  </div>
-
-  {#if downloadError}
-    <div class="fr-alert fr-alert--error fr-alert--sm fr-mt-2w" role="alert">
-      <p>{downloadError}</p>
+  <div class="flex flex-col gap-2">
+    <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+        disabled={downloading}
+        onclick={downloadCurrentYear}
+      >
+        Télécharger les dossiers de l'année en cours
+      </button>
     </div>
-  {/if}
+
+    {#if downloadError}
+      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
+        <p>{downloadError}</p>
+      </div>
+    {/if}
+
+    <DossiersListControls
+      {query}
+      {total}
+      {loading}
+      onSearch={onSearchInput}
+      onFilter={onFilterChange}
+      onSort={onSortChange}
+    />
+  </div>
 
   {#if loadError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-my-2w" role="alert">
