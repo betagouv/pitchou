@@ -49,7 +49,9 @@
   function selectTab(tab: DossierTab) {
     activeTab = tab;
     const url = new URL(location.href);
-    url.searchParams.set("tab", tab);
+    // The default tab keeps a clean URL, without the query param.
+    if (tab === "detail-du-projet") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", tab);
     url.hash = "";
     // Shallow routing: reflect the tab in the URL without re-running the loads.
     replaceState(url, {});
