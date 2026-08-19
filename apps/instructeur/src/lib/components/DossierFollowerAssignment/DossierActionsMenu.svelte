@@ -7,9 +7,11 @@
   type Props = {
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
+    /** Context-specific entries appended after the shared ones. */
+    extraItems?: { label: string; onClick: () => void }[];
   };
 
-  let { dossierId, dossierName }: Props = $props();
+  let { dossierId, dossierName, extraItems = [] }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
@@ -118,6 +120,21 @@
           Modifier la date de la prochaine échéance
         </button>
       </li>
+      {#each extraItems as item}
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            onclick={() => {
+              closeMenu();
+              item.onClick();
+            }}
+          >
+            {item.label}
+          </button>
+        </li>
+      {/each}
     </ul>
   {/if}
 </div>

@@ -28,9 +28,8 @@ test("l'échéance saisie sur le dossier est persistée, puis peut être vidée"
 
   await page.reload();
   await expect(page.getByLabel(ECHEANCE_LABEL)).toHaveValue("15/09/2026");
-  // The dossier header shows the same échéance.
-  const headerEcheance = page.locator("main header").filter({ hasText: /Prochaine échéance/ });
-  await expect(headerEcheance).toContainText("15/09/2026");
+  // The dossier header shows the échéance countdown tag.
+  await expect(page.locator("main header")).toContainText(/Échéance J-\d+|Échéance jour J|Retard/);
 
   await page.getByLabel(ECHEANCE_LABEL).fill("");
   await page.waitForLoadState("networkidle");

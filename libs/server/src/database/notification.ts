@@ -36,10 +36,15 @@ export async function updateNotificationDossierFromCap(
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
   }
 
-  const notificationToUpdate = { viewed: notification.viewed };
-
-  return await databaseConnection("notification").update(notificationToUpdate).where({
-    dossier: notification.dossier,
-    personne: personne.id,
-  });
+  // Upsert: marking a dossier unread must work even when no notification row
+  // exists yet. `updated_at` is only set on insert so the change date written
+  // by the synchronization is preserved.
+  return await databaseConnection("notification")
+    .insert({
+      dossier: notification.dossier,
+      personne: personne.id,
+      viewed: notification.viewed,
+    })
+    .onConflict(["dossier", "personne"])
+    .merge(["viewed"]);
 }

@@ -53,13 +53,22 @@
     true,
   );
 
+  // Marking a dossier unread from the header must survive staying on the page,
+  // so the automatic marking below is suspended after a manual action.
+  let manuallyMarkedUnread = $state(false);
+
   $effect(() => {
-    if (notification?.viewed === false) {
+    if (notification?.viewed === false && !manuallyMarkedUnread) {
       // When the dossier has a notification not seen by the current instructrice,
       // it disappears when the dossier is consulted.
       void updateNotificationForDossier({ dossier: dossier.id, viewed: true });
     }
   });
+
+  function setDossierRead(viewed: boolean) {
+    manuallyMarkedUnread = !viewed;
+    void updateNotificationForDossier({ dossier: dossier.id, viewed });
+  }
 
   $effect(() => {
     if (activeTab === "detail-du-projet") {
@@ -82,7 +91,14 @@
 
 <div class="fr-grid-row fr-mt-2w">
   <div class="fr-col">
-    <HeaderDossier {dossier} {currentDossierFollowedByCurrentInstructeur} {email}></HeaderDossier>
+    <HeaderDossier
+      {dossier}
+      {currentDossierFollowedByCurrentInstructeur}
+      {email}
+      {dossierFollowers}
+      {notification}
+      onSetRead={setDossierRead}
+    ></HeaderDossier>
 
     <div class="fr-tabs">
       <DossierTabList {activeTab} onSelect={handleTabClick} />
