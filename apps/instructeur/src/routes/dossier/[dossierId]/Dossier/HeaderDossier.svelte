@@ -10,6 +10,7 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
+  import ModalLectureSeule from "./ModalLectureSeule.svelte";
 
   import {
     instructeurLeavesDossier,
@@ -42,6 +43,7 @@
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let followersModalOpen = $state(false);
+  let lectureSeuleModalOpen = $state(false);
 
   const unread = $derived(notification?.viewed === false);
 
@@ -177,7 +179,13 @@
           <DossierActionsMenu
             dossierId={dossier.id}
             dossierName={dossier.name}
-            extraItems={[{ label: "Ajouter une pièce jointe", onClick: openPieceJointeModal }]}
+            extraItems={[
+              { label: "Ajouter une pièce jointe", onClick: openPieceJointeModal },
+              {
+                label: "Voir le dossier en lecture seule",
+                onClick: () => (lectureSeuleModalOpen = true),
+              },
+            ]}
           />
         </div>
       </div>
@@ -191,6 +199,10 @@
     dossierName={dossier.name}
     onClose={() => (followersModalOpen = false)}
   />
+{/if}
+
+{#if lectureSeuleModalOpen}
+  <ModalLectureSeule onClose={() => (lectureSeuleModalOpen = false)} />
 {/if}
 
 <ModalAddPieceJointe

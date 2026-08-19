@@ -13,7 +13,7 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
 
   await loginAs(codeAcces);
 
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}#instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.getByLabel("Date de début").fill("10/03/2025");
@@ -39,7 +39,7 @@ test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a 
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}#instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await expect(page.locator("#enjeu")).toHaveValue("non");
@@ -56,7 +56,7 @@ test("Changing the 'Dossier à enjeu' select changes the stake value of the case
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}#instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await expect(page.locator("#enjeu")).toHaveValue("non");

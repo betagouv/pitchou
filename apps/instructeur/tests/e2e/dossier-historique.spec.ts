@@ -16,7 +16,7 @@ test("les actions sur le dossier alimentent l'onglet Historique", async ({ page,
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}#instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   // Instructeur actions: field edits, a follow and a comment.
