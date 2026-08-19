@@ -12,6 +12,7 @@
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
     notificationViewed: (id: Dossier["id"]) => boolean;
+    notificationUpdatedAt: (id: Dossier["id"]) => Date | string | null;
     follow: (id: Dossier["id"]) => Promise<void>;
     leave: (id: Dossier["id"]) => Promise<void>;
     emptyListMessage?: Snippet<[{ wholeListEmpty: boolean }]>;
@@ -21,6 +22,7 @@
     wholeListEmpty,
     followedIds,
     notificationViewed,
+    notificationUpdatedAt,
     follow,
     leave,
     emptyListMessage,
@@ -76,6 +78,7 @@
                 currentInstructeurLeavesDossier={leave}
                 dossierFollowedByCurrentInstructeur={followedIds.has(dossier.id)}
                 notificationViewed={notificationViewed(dossier.id)}
+                notificationUpdatedAt={notificationUpdatedAt(dossier.id)}
               />
             </li>
           {/each}

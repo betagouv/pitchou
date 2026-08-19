@@ -202,6 +202,7 @@
   wholeListEmpty={dossiers.length === 0}
   followedIds={dossierIdsFollowedByCurrentInstructeur}
   notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
+  notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
   follow={(id) => instructeurFollowsDossier(email, id)}
   leave={(id) => instructeurLeavesDossier(email, id)}
   navigatePage={goToPage}

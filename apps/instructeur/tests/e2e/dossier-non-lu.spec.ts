@@ -21,17 +21,18 @@ test("un dossier se marque comme lu et non lu depuis la tuile et l'entête", asy
   await loginAs(codeAcces);
   await page.goto("/mes-dossiers");
   const card = page.getByTestId("card-dossier").filter({ hasText: dossier.name! });
-  await expect(card.getByText("Nouveauté")).toBeVisible();
+  const badge = card.locator("p.fr-badge--new");
+  await expect(badge).toBeVisible();
 
-  // The tile menu marks the dossier as read, the Nouveauté tag disappears.
+  // The tile menu marks the dossier as read, the modification badge disappears.
   await card.getByRole("button", { name: /Plus d’actions/ }).click();
   await page.getByRole("menuitem", { name: "Marquer le dossier comme lu" }).click();
-  await expect(card.getByText("Nouveauté")).toBeHidden();
+  await expect(badge).toBeHidden();
 
   // And back to unread.
   await card.getByRole("button", { name: /Plus d’actions/ }).click();
   await page.getByRole("menuitem", { name: "Marquer le dossier comme non lu" }).click();
-  await expect(card.getByText("Nouveauté")).toBeVisible();
+  await expect(badge).toBeVisible();
 
   // The dossier header toggles the same state and it persists.
   await page.goto(`/dossier/${dossier.id}`);
@@ -42,5 +43,5 @@ test("un dossier se marque comme lu et non lu depuis la tuile et l'entête", asy
   await page.waitForLoadState("networkidle");
 
   await page.goto("/mes-dossiers");
-  await expect(card.getByText("Nouveauté")).toBeVisible();
+  await expect(badge).toBeVisible();
 });

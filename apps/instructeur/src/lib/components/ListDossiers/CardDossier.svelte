@@ -1,11 +1,14 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
+  import {
+    formatLastModified,
+    formatLocalisation,
+    formatPorteurDeProjet,
+  } from "$lib/dossier/displayDossier.ts";
   import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
   import TagEcheance from "$lib/components/TagEcheance.svelte";
   import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
-  import DossierCommentButton from "./CardDossier/DossierCommentButton.svelte";
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
   import PhaseProgress from "./PhaseProgress.svelte";
   import { TILE_GRID } from "./rowLayout.ts";
@@ -15,6 +18,8 @@
     currentInstructeurFollowsDossier: (id: Dossier["id"]) => Promise<void>;
     currentInstructeurLeavesDossier: (id: Dossier["id"]) => Promise<void>;
     notificationViewed: boolean;
+    /** When the dossier last changed, to date the « Modifié » badge. */
+    notificationUpdatedAt?: Date | string | null;
     dossierFollowedByCurrentInstructeur: boolean;
   };
 
@@ -24,6 +29,7 @@
     currentInstructeurFollowsDossier,
     currentInstructeurLeavesDossier,
     notificationViewed,
+    notificationUpdatedAt,
   }: Props = $props();
 
   const name = $derived(dossier.name || "(nom non renseigné)");
@@ -56,8 +62,9 @@
   );
 </script>
 
+<!-- `relative` anchors the overlay that makes the whole tile open the dossier. -->
 <div
-  class="{TILE_GRID} {tileClass} rounded-[0.25rem] border fr-px-2w fr-py-2w"
+  class="{TILE_GRID} {tileClass} relative rounded-[0.25rem] border fr-px-2w fr-py-2w"
   data-testid="card-dossier"
 >
   <!-- Suivi, activité and nom du projet share a line on narrow screens, and become three
@@ -66,7 +73,7 @@
     {#if dossierFollowedByCurrentInstructeur}
       <button
         type="button"
-        class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm lg:self-center"
+        class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm relative z-10 lg:self-center"
         onclick={() => currentInstructeurLeavesDossier(dossier.id)}
       >
         Ne plus suivre
@@ -74,7 +81,7 @@
     {:else}
       <button
         type="button"
-        class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm lg:self-center"
+        class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm relative z-10 lg:self-center"
         onclick={() => currentInstructeurFollowsDossier(dossier.id)}
       >
         Suivre
@@ -87,9 +94,12 @@
 
     <div class="min-w-0">
       <h4 class="fr-mb-0 text-[1rem] leading-[1.4]">
+        <!-- The link stretches over the whole tile, so a click anywhere opens the
+             dossier while the page keeps a single, properly named link. Controls
+             that do something else sit above it. -->
         <a
           href={`/dossier/${dossier.id}`}
-          class="fr-link block truncate text-[color:var(--text-title-grey)] {unread
+          class="fr-link block truncate text-[color:var(--text-title-grey)] after:absolute after:inset-0 after:content-[''] {unread
             ? 'font-bold'
             : 'font-normal'}"
           title={name}
@@ -134,17 +144,17 @@
     {/if}
   </div>
 
-  <div class="flex flex-wrap items-start gap-1">
-    {#if notificationViewed === false}
-      <p class="fr-badge fr-badge--sm fr-badge--new">Nouveauté</p>
+  <!-- Alerts stack: when the dossier changed, then how its échéance stands. -->
+  <div class="flex flex-col items-start gap-1">
+    {#if unread}
+      <p class="fr-badge fr-badge--sm fr-badge--new">
+        {formatLastModified(notificationUpdatedAt)}
+      </p>
     {/if}
     <TagEcheance dueDate={dossier.next_due_date} />
   </div>
 
-  <div class="flex flex-none flex-row items-start justify-end">
-    {#if dossier.latestCommentaire}
-      <DossierCommentButton {dossier} />
-    {/if}
+  <div class="relative z-10 flex flex-none flex-row items-start justify-end">
     <DossierActionsMenu
       dossierId={dossier.id}
       dossierName={dossier.name}

@@ -1,9 +1,7 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
-  import { formatDistanceToNow } from "date-fns";
-  import { fr } from "date-fns/locale";
 
-  import { formatLocalisation } from "$lib/dossier/displayDossier.ts";
+  import { formatLastModified, formatLocalisation } from "$lib/dossier/displayDossier.ts";
   import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
   import TagEcheance from "$lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
@@ -47,13 +45,7 @@
 
   const unread = $derived(notification?.viewed === false);
 
-  // "Modifié il y a 2 jours" when the notification carries the change date,
-  // plain "Nouveauté" otherwise.
-  const nouveauteLabel = $derived(
-    notification?.updated_at
-      ? `Modifié ${formatDistanceToNow(notification.updated_at, { addSuffix: true, locale: fr })}`
-      : "Nouveauté",
-  );
+  const nouveauteLabel = $derived(formatLastModified(notification?.updated_at));
 
   // Long titles step down in size so the header keeps a stable height.
   const titleClass = $derived(

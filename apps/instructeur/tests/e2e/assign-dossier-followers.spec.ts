@@ -122,14 +122,14 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberOneCard).toBeVisible();
-  await expect(memberOneCard.getByText("Nouveauté", { exact: true })).toBeVisible();
+  await expect(memberOneCard.locator("p.fr-badge--new")).toBeVisible();
 
   await page.goto(`/?secret=${memberTwo.codeAcces}`);
   const memberTwoCard = page
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberTwoCard).toBeVisible();
-  await expect(memberTwoCard.getByText("Nouveauté", { exact: true })).toBeVisible();
+  await expect(memberTwoCard.locator("p.fr-badge--new")).toBeVisible();
 
   await page.goto(`/?secret=${formerMember.codeAcces}`);
   await expect(
@@ -172,5 +172,5 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
   await page.getByRole("link", { name: "Mes dossiers", exact: true }).click();
   const card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await expect(card).toBeVisible();
-  await expect(card.getByText("Nouveauté", { exact: true })).toHaveCount(0);
+  await expect(card.locator("p.fr-badge--new")).toHaveCount(0);
 });

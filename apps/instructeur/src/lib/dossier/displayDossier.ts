@@ -1,3 +1,6 @@
+import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+
 import type { DossierSummary, DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export {
@@ -6,6 +9,24 @@ export {
   prochainesActionsAttenduesParEntite,
 } from "@pitchou/common/phases.ts";
 export { formatDateAbsolute, formatDateRelative } from "@pitchou/common/formatDate.ts";
+
+/**
+ * Badge of a dossier changed since the instructeur last read it: « Modifié hier »,
+ * « Modifié il y a 3 jours ». Counted in calendar days, so a change made yesterday
+ * evening still reads « hier » this morning. Beyond a month the exact number of
+ * days stops meaning anything, so the wording widens.
+ */
+export function formatLastModified(date: Date | string | null | undefined): string {
+  if (!date) return "Nouveauté";
+  const modifiedAt = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(modifiedAt.getTime())) return "Nouveauté";
+
+  const days = differenceInCalendarDays(new Date(), modifiedAt);
+  if (days <= 0) return "Modifié aujourd'hui";
+  if (days === 1) return "Modifié hier";
+  if (days < 30) return `Modifié il y a ${days} jours`;
+  return `Modifié ${formatDistanceToNow(modifiedAt, { addSuffix: true, locale: fr })}`;
+}
 
 export function formatLocalisation({
   communes,

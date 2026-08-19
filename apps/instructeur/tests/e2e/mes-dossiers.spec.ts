@@ -23,16 +23,21 @@ test("dossiers triés par défaut sur la date de dépôt décroissante", async (
   }
 });
 
-test("les dossiers avec notification non vue portent un badge Nouveauté", async ({ page, db }) => {
+test("les dossiers avec notification non vue portent un badge de modification", async ({
+  page,
+  db,
+}) => {
   await setup(db);
   await gotoMesDossiers(page);
 
   const withBadge = await page
     .getByTestId("card-dossier")
-    .filter({ has: page.locator("p.fr-badge", { hasText: /Nouveauté/i }) })
+    .filter({ has: page.locator("p.fr-badge--new") })
     .all();
 
   expect(withBadge).toHaveLength(2);
+  // The badge dates the change rather than merely flagging it.
+  await expect(page.locator("p.fr-badge--new").first()).toContainText(/^Modifié /i);
 });
 
 test("le filtre Nouveauté ne montre que les dossiers à notification non vue", async ({
@@ -76,13 +81,13 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await expect(tags).toHaveCount(0);
 });
 
-test("le badge Nouveauté disparaît après consultation du dossier", async ({ page, db }) => {
+test("le badge de modification disparaît après consultation du dossier", async ({ page, db }) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
-  const badge = card.locator("p.fr-badge", { hasText: /Nouveauté/i });
+  const badge = card.locator("p.fr-badge--new");
 
   await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
