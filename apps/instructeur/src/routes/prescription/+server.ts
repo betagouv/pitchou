@@ -8,6 +8,8 @@ import {
   getDossierIdFromPrescription,
 } from "@pitchou/server/database/prescription.ts";
 import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
 const prescriptionProperties = new Set([
@@ -89,12 +91,22 @@ export const POST: RequestHandler = async ({ url, request }) => {
       prescriptionData.decision_administrative,
     );
   }
-  await requireDossierAccessByCap(dossierId, cap);
+  const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
 
   try {
-    const prescriptionId = prescriptionData.id
+    const modification = !!prescriptionData.id;
+    const prescriptionId = modification
       ? await updatePrescription(prescriptionData)
       : await addPrescription(prescriptionData);
+    const author = await getPersonneByDossierCap(cap);
+    await logDossierActions([
+      {
+        dossier: authorizedDossierId,
+        type: modification ? "prescription_modifiee" : "prescription_ajoutee",
+        data: { article_number: prescriptionData.article_number ?? null },
+        author_personne: author?.id ?? null,
+      },
+    ]);
     return json(prescriptionId);
   } catch (err) {
     error(500, `Erreur lors de l'ajout/modification de prescription. ${err}`);

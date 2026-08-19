@@ -93,9 +93,3 @@ if (typeof document !== "undefined") {
     }
   });
 }
-
-export const sendEvenementModifierPrescription = debounce(
-  () => sendEvenement({ type: "modifierPrescription" }),
-  15 * 60 * 1000,
-  true,
-);

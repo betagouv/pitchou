@@ -2,7 +2,7 @@ import { error, json } from "@sveltejs/kit";
 
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { addOtherAttachment } from "@pitchou/server/database/other_attachment.ts";
-import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 
 import type { RequestHandler } from "./$types";
@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
   });
 
   const author = await getPersonneByDossierCap(cap);
-  await logActionsDossier(
+  await logDossierActions(
     files.map((file) => ({
       dossier,
       type: "piece_jointe_importee",

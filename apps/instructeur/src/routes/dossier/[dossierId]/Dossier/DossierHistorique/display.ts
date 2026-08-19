@@ -121,6 +121,47 @@ const displayByType: Record<
     icon: "fr-icon-attachment-line",
     label: "Décision administrative importée",
   }),
+  decision_modifiee: (d) => ({
+    icon: "fr-icon-file-text-line",
+    label: "Décision administrative modifiée" + (str(d, "decision_type") ? " :" : ""),
+    value: str(d, "decision_type") ?? undefined,
+  }),
+  decision_supprimee: () => ({
+    icon: "fr-icon-delete-line",
+    label: "Décision administrative supprimée",
+  }),
+  avis_modifie: (d) => ({
+    icon: "fr-icon-quote-line",
+    label: "Avis d'expert modifié" + (str(d, "expert") ? " :" : ""),
+    value: str(d, "expert") ?? undefined,
+  }),
+  avis_supprime: () => ({ icon: "fr-icon-delete-line", label: "Avis d'expert supprimé" }),
+  prescription_ajoutee: (d) => ({
+    icon: "fr-icon-list-unordered",
+    label: "Prescription ajoutée" + (str(d, "article_number") ? " — article" : ""),
+    value: str(d, "article_number") ?? undefined,
+  }),
+  prescription_modifiee: (d) => ({
+    icon: "fr-icon-list-unordered",
+    label: "Prescription modifiée" + (str(d, "article_number") ? " — article" : ""),
+    value: str(d, "article_number") ?? undefined,
+  }),
+  prescription_supprimee: () => ({ icon: "fr-icon-delete-line", label: "Prescription supprimée" }),
+  controle_ajoute: (d) => ({
+    icon: "fr-icon-check-line",
+    label: "Contrôle ajouté" + (str(d, "result") ? " :" : ""),
+    value: str(d, "result") ?? undefined,
+  }),
+  controle_modifie: (d) => ({
+    icon: "fr-icon-check-line",
+    label: "Contrôle modifié" + (str(d, "result") ? " :" : ""),
+    value: str(d, "result") ?? undefined,
+  }),
+  controle_supprime: () => ({ icon: "fr-icon-delete-line", label: "Contrôle supprimé" }),
+  controle_retour_conformite: () => ({
+    icon: "fr-icon-success-line",
+    label: "Retour à la conformité d'une prescription",
+  }),
 };
 
 function entryFromAction(action: DossierAction): HistoriqueEntry {

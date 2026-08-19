@@ -5,6 +5,7 @@ import { directDatabaseConnection } from "../database.ts";
 import type ActionDossier from "@pitchou/types/database/public/ActionDossier.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 
 /** An action as served to the front, its author identified by email. */
@@ -50,6 +51,25 @@ const metricByActionType: Record<string, (action: ActionDossierInitializer) => E
     dossier_suivi: ({ dossier }) => ({
       type: "suivreUnDossier",
       details: { dossierId: dossier as number },
+    }),
+    decision_importee: () => ({ type: "ajouterDécisionAdministrative" }),
+    decision_modifiee: () => ({ type: "modifierDécisionAdministrative" }),
+    decision_supprimee: () => ({ type: "supprimerDécisionAdministrative" }),
+    avis_importe: () => ({ type: "ajouterAvisExpert" }),
+    avis_modifie: () => ({ type: "modifierAvisExpert" }),
+    avis_supprime: () => ({ type: "supprimerAvisExpert" }),
+    prescription_ajoutee: () => ({ type: "ajouterPrescription" }),
+    prescription_modifiee: () => ({ type: "modifierPrescription" }),
+    prescription_supprimee: () => ({ type: "supprimerPrescription" }),
+    controle_ajoute: () => ({ type: "ajouterContrôle" }),
+    controle_modifie: () => ({ type: "modifierContrôle" }),
+    controle_supprime: () => ({ type: "supprimerContrôle" }),
+    controle_retour_conformite: ({ data }) => ({
+      type: "retourÀLaConformité",
+      details: {
+        prescription: ((data as { prescription?: string })?.prescription ??
+          "") as Prescription["id"],
+      },
     }),
   };
 
