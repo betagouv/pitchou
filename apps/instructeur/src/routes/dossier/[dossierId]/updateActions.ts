@@ -1,10 +1,8 @@
+import type { DossierUpdate } from "./updatePayload.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
-import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
-
-type DossierUpdate = Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>;
 
 function isoDay(date: Date | string | null | undefined): string | null {
   return date ? new Date(date).toISOString().slice(0, 10) : null;
