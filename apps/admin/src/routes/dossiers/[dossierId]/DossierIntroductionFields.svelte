@@ -1,5 +1,6 @@
 <script lang="ts">
   import { dossierMainActiviteOptions } from "@pitchou/common/dossierFormOptions.ts";
+  import Select from "@pitchou/ui/Select.svelte";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
   import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
@@ -11,6 +12,16 @@
   const hasLegacyActivity = $derived(
     !!model.mainActivite && !dossierMainActiviteOptions.includes(model.mainActivite as never),
   );
+
+  // A value predating the current list stays selectable, so opening a dossier
+  // never silently drops it.
+  const mainActiviteOptions = $derived([
+    { value: "", label: "Non renseignée" },
+    ...(hasLegacyActivity
+      ? [{ value: model.mainActivite, label: `${model.mainActivite} (valeur historique)` }]
+      : []),
+    ...dossierMainActiviteOptions.map((option) => ({ value: option, label: option })),
+  ]);
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Identification du projet" {disabled}>
@@ -44,15 +55,12 @@
         Activité principale
         <span class="fr-hint-text">Indiquez l'activité principale relative à votre projet.</span>
       </label>
-      <select class="fr-select" id="edit-main-activite" bind:value={model.mainActivite}>
-        <option value="">Non renseignée</option>
-        {#if hasLegacyActivity}
-          <option value={model.mainActivite}>{model.mainActivite} (valeur historique)</option>
-        {/if}
-        {#each dossierMainActiviteOptions as option (option)}
-          <option value={option}>{option}</option>
-        {/each}
-      </select>
+      <Select
+        id="edit-main-activite"
+        class="fr-mt-1w"
+        options={mainActiviteOptions}
+        bind:value={model.mainActivite}
+      />
     </div>
   </div>
   <div class="fr-fieldset__element">

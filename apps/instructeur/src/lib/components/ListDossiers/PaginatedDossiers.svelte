@@ -13,6 +13,7 @@
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
     notificationViewed: (id: Dossier["id"]) => boolean;
+    notificationUpdatedAt: (id: Dossier["id"]) => Date | string | null;
     follow: (id: Dossier["id"]) => Promise<void>;
     leave: (id: Dossier["id"]) => Promise<void>;
     navigatePage: (page: number) => void;
@@ -25,6 +26,7 @@
     wholeListEmpty,
     followedIds,
     notificationViewed,
+    notificationUpdatedAt,
     follow,
     leave,
     navigatePage,
@@ -59,6 +61,7 @@
   {wholeListEmpty}
   {followedIds}
   {notificationViewed}
+  {notificationUpdatedAt}
   {follow}
   {leave}
   {emptyListMessage}

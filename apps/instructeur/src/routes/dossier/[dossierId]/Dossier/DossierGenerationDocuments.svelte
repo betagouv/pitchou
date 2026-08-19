@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { fillOdtTemplate, getOdtTextContent } from "@odfjs/odfjs";
+  import { getOdtTextContent } from "@odfjs/odfjs";
+  import { fillTemplates, generationTimestamp } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import DocumentTemplateSelection from "./DossierGenerationDocuments/DocumentTemplateSelection.svelte";
   import GeneratedDocuments from "./DossierGenerationDocuments/GeneratedDocuments.svelte";
   import {
@@ -111,23 +112,7 @@
     console.log("balises", tags);
 
     try {
-      const datetime = new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length);
-      const documents = await Promise.all(
-        templates.map(async (template) => {
-          const templateAB = await template.arrayBuffer();
-          const documentArrayBuffer = await fillOdtTemplate(templateAB, tags);
-          const blob = new Blob([documentArrayBuffer], { type: template.type });
-          const extensionStart = template.name.lastIndexOf(".");
-          const basename =
-            extensionStart === -1 ? template.name : template.name.slice(0, extensionStart);
-          const extension = extensionStart === -1 ? "" : template.name.slice(extensionStart);
-
-          return {
-            blob,
-            name: `${basename}-${datetime}${extension}`,
-          };
-        }),
-      );
+      const documents = await fillTemplates(templates, tags, generationTimestamp(new Date()));
 
       revokeGeneratedDocumentUrls();
       generatedDocuments = documents.map(({ blob, name }) => ({
@@ -136,7 +121,14 @@
         text: blob.arrayBuffer().then(getOdtTextContent),
       }));
 
-      sendEvenement({ type: "générerUnDocument" });
+      // Documents are assembled here, in the browser: the server only learns of
+      // them when told. Failing to record must not hide the generated documents.
+      store.capabilities
+        .enregistrerDocumentsGeneres?.(
+          dossier.id,
+          documents.map(({ name }) => name),
+        )
+        .catch((err) => console.warn(`Échec de l'enregistrement des documents générés`, err));
     } catch (err) {
       // @ts-ignore
       documentGenerationError = err;

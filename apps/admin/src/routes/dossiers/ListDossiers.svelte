@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
 
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import { phases } from "@pitchou/common/phases.ts";
 
   import {
@@ -75,6 +76,18 @@
     searchTimer = setTimeout(reload, 300);
   }
 
+  const phaseOptions = [
+    { value: "", label: "Toutes" },
+    ...[...phases].map((phase) => ({ value: phase, label: phase })),
+  ];
+
+  const sourceOptions = [
+    { value: "", label: "Toutes" },
+    { value: "pitchou", label: "Créé dans Pitchou" },
+    { value: "dn", label: "Importé de Démarches Numériques" },
+    { value: "unknown", label: "Source inconnue" },
+  ];
+
   function onFilterChange() {
     query.page = 1;
     reload();
@@ -120,32 +133,24 @@
 
       <div class="fr-select-group fr-mb-0">
         <label class="fr-label" for="filtre-phase">Phase</label>
-        <select
-          class="fr-select"
+        <Select
           id="filtre-phase"
+          class="fr-mt-1w"
+          options={phaseOptions}
           bind:value={query.phase}
-          onchange={onFilterChange}
-        >
-          <option value="">Toutes</option>
-          {#each [...phases] as phase (phase)}
-            <option value={phase}>{phase}</option>
-          {/each}
-        </select>
+          onChange={onFilterChange}
+        />
       </div>
 
       <div class="fr-select-group fr-mb-0">
         <label class="fr-label" for="filtre-source">Source</label>
-        <select
-          class="fr-select"
+        <Select
           id="filtre-source"
+          class="fr-mt-1w"
+          options={sourceOptions}
           bind:value={query.source}
-          onchange={onFilterChange}
-        >
-          <option value="">Toutes</option>
-          <option value="pitchou">Créé dans Pitchou</option>
-          <option value="dn">Importé de Démarches Numériques</option>
-          <option value="unknown">Source inconnue</option>
-        </select>
+          onChange={onFilterChange}
+        />
       </div>
     </div>
 

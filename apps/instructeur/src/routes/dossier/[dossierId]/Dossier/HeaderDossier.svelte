@@ -1,79 +1,68 @@
 <script lang="ts">
   import { afterNavigate, goto } from "$app/navigation";
-  import {
-    hasMandataire,
-    formatMandataire,
-    formatDemandeurContact,
-  } from "$lib/dossier/displayDossier.ts";
-  import { displayString } from "./displayValues.ts";
-  import TagPhase from "$lib/components/TagPhase.svelte";
+
+  import { formatLastModified, formatLocalisation } from "$lib/dossier/displayDossier.ts";
+  import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
+  import TagEcheance from "$lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
-  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
-  import HeaderDossierIdentity from "./HeaderDossierIdentity.svelte";
-
-  import {
-    instructeurLeavesDossier,
-    instructeurFollowsDossier,
-  } from "$lib/dossier/suiviDossier.ts";
+  import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
+  import { readOnlyMode } from "./readOnly.ts";
+  import HeaderActions from "./HeaderDossier/HeaderActions.svelte";
+  import { followersLabel, titleSizeClass } from "./HeaderDossier/labels.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+  import type Personne from "@pitchou/types/database/public/Personne.ts";
+  import type Notification from "@pitchou/types/database/public/Notification.ts";
 
   type Props = {
     dossier: DossierFull;
     email: string;
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
+    dossierFollowers: NonNullable<Personne["email"]>[];
+    notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
+    /** Marks the dossier read/unread for the current instructeur. */
+    onSetRead: (viewed: boolean) => void;
+    /** Switches the dossier to read-only mode. */
+    onEnterReadOnly: () => void;
   };
 
-  let { dossier, email, currentDossierFollowedByCurrentInstructeur }: Props = $props();
+  let {
+    dossier,
+    email,
+    currentDossierFollowedByCurrentInstructeur,
+    dossierFollowers,
+    notification,
+    onSetRead,
+    onEnterReadOnly,
+  }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
-  let phase = $derived(
-    (dossier.evenementsPhase[0] && dossier.evenementsPhase[0].phase) || "Accompagnement amont",
-  );
+  let followersModalOpen = $state(false);
 
-  // Email of the demandeur: the legal representative's email for a personne morale,
-  // otherwise the personne physique's email.
-  let demandeurEmail = $derived(
-    dossier.demandeur_personne_morale_siret
-      ? dossier.representative_email
-      : (dossier.demandeur_personne_physique_email ?? dossier.deposant_email),
-  );
+  const unread = $derived(notification?.viewed === false);
 
-  // "Personne qui dépose le dossier (demandeur/mandataire)" line: shows the mandataire
-  // when a third party filed the dossier, otherwise the demandeur's human contact.
-  // Clicking mails the mandataire (with the demandeur in copy) when there is one,
-  // otherwise the demandeur directly.
-  let deposeurName = $derived(
-    hasMandataire(dossier) ? formatMandataire(dossier) : formatDemandeurContact(dossier),
-  );
-  let deposeurTo = $derived(hasMandataire(dossier) ? dossier.mandataire_email : demandeurEmail);
-  let deposeurCc = $derived(hasMandataire(dossier) ? demandeurEmail : null);
-  let deposeurMailto = $derived(
-    deposeurTo
-      ? `mailto:${deposeurTo}${deposeurCc ? `?cc=${encodeURIComponent(deposeurCc)}` : ""}`
-      : undefined,
-  );
+  const nouveauteLabel = $derived(formatLastModified(notification?.updated_at));
 
-  // Hide this line when it would merely duplicate "Porteur de projet": that happens for
-  // a personne physique with no mandataire (same person, same email). For a personne
-  // morale it still adds the representative's human name, so we keep it.
-  let showDeposeur = $derived(
-    hasMandataire(dossier) || Boolean(dossier.demandeur_personne_morale_siret),
-  );
+  const titleClass = $derived(titleSizeClass(dossier.name));
 
-  function currentInstructeurFollowsDossier(id: Dossier["id"]) {
-    return instructeurFollowsDossier(email, id);
-  }
+  const followers = $derived(followersLabel(dossierFollowers));
 
-  function currentInstructeurLeavesDossier(id: Dossier["id"]) {
-    return instructeurLeavesDossier(email, id);
+  function openPieceJointeModal() {
+    sendEvenement({
+      type: "ouvrirModaleAjouterPieceJointe",
+      details: { dossierId: dossier.id, source: "enteteDossier" },
+    });
+    const modalElement = document.getElementById(idModalAddPieceJointe);
+    // @ts-ignore DSFR installs this browser global.
+    if (modalElement) window.dsfr(modalElement).modal.disclose();
   }
 
   // Track whether we reached this dossier through in-app navigation (`from` is
-  // non-null). If so, the back button returns to the browser's previous page.
+  // non-null). If so, the close button returns to the browser's previous page.
   // Otherwise (direct access to the dossier), redirect to the relevant list.
   let navigatedFromApp = $state(false);
 
@@ -81,7 +70,7 @@
     if (from) navigatedFromApp = true;
   });
 
-  function goBack() {
+  function closeDossier() {
     if (navigatedFromApp) {
       history.back();
     } else {
@@ -90,115 +79,77 @@
   }
 </script>
 
-<header
-  class="fr-mb-2w flex flex-col overflow-hidden rounded-[0.5rem] border border-[color:var(--border-default-grey)]"
->
-  <div
-    class="flex flex-row items-center gap-4 px-4 py-3 bg-[var(--background-alt-grey)] border-b border-[color:var(--border-default-grey)]"
-  >
+<header class="fr-mb-2w fr-mt-1w">
+  <div class="flex justify-end">
     <button
       type="button"
-      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left"
-      onclick={goBack}
+      class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line fr-btn--icon-right"
+      onclick={closeDossier}
     >
-      Retour
+      Fermer le dossier
     </button>
-    <h1 class="fr-mb-0 text-[1.5rem] leading-[1.3] text-[color:var(--text-title-grey)]">
-      <span class="font-normal text-[color:var(--text-mention-grey)]"
-        >{dossier.source === "demarche_numerique"
-          ? dossier.demarche_numerique_number
-            ? `Dossier n°${dossier.demarche_numerique_number}`
-            : `Dossier DN · identifiant Pitchou n°${dossier.id}`
-          : dossier.source === "pitchou"
-            ? `Dossier Pitchou n°${dossier.id}`
-            : `Dossier n°${dossier.id} · source inconnue`}&nbsp;:</span
-      >
-      {dossier.name}
-    </h1>
   </div>
 
-  <div class="flex flex-row gap-8 px-4 py-6">
-    <HeaderDossierIdentity
-      {dossier}
-      {demandeurEmail}
-      {showDeposeur}
-      {deposeurMailto}
-      {deposeurName}
-    />
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+    <ActiviteIcon mainActivite={dossier.main_activite} size="size-24 lg:size-28" />
 
-    <section class="flex-1 pl-8 border-l border-[color:var(--border-default-grey)]">
-      <div class="flex items-center gap-2 mb-2">
-        <strong>Phase&nbsp;:&nbsp;</strong><TagPhase {phase}></TagPhase>
-      </div>
-
-      <div class="flex items-center gap-2 mb-2">
-        <strong>Prochaine action de&nbsp;:&nbsp;</strong>
-        {displayString(dossier.next_action_expected_from)}
-      </div>
-
-      {#if dossier.enjeu}
-        <div class="flex items-center gap-2 mb-2">
-          <p class="fr-badge fr-badge--pink-macaron">Dossier à enjeu</p>
+    <div class="flex min-w-0 grow flex-col gap-2">
+      {#if dossier.enjeu || unread || dossier.next_due_date}
+        <div class="flex flex-wrap items-center gap-2">
+          {#if dossier.enjeu}
+            <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine fr-mb-0">
+              Dossier à enjeu
+            </p>
+          {/if}
+          {#if unread}
+            <p class="fr-badge fr-badge--sm fr-badge--new fr-mb-0">{nouveauteLabel}</p>
+          {/if}
+          <TagEcheance dueDate={dossier.next_due_date} />
         </div>
       {/if}
 
-      {#if dossier.linked_to_ae_regime}
-        <div class="flex items-center gap-2 mb-2">
+      <h1 class="fr-mb-0 {titleClass} leading-[1.3] text-[color:var(--text-title-grey)]">
+        {dossier.name}
+      </h1>
+
+      <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <p class="fr-mb-0 flex items-center gap-2">
           <span
-            class="fr-icon-pantone-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+            class="fr-icon-map-pin-2-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
             aria-hidden="true"
           ></span>
-          Autorisation environnementale
-        </div>
-      {/if}
+          {formatLocalisation(dossier)}
+        </p>
 
-      <div class="flex items-center gap-2 mb-0 flex-wrap mt-4">
-        {#if typeof currentDossierFollowedByCurrentInstructeur === "boolean"}
-          {#if currentDossierFollowedByCurrentInstructeur}
-            <button
-              onclick={() => currentInstructeurLeavesDossier(dossier.id)}
-              class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-fill fr-btn--icon-left"
-              >Ne plus suivre ce dossier</button
-            >
-          {:else}
-            <button
-              onclick={() => currentInstructeurFollowsDossier(dossier.id)}
-              class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-star-line fr-btn--icon-left"
-              >Suivre ce dossier</button
-            >
-          {/if}
-        {/if}
-
-        <DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />
-
-        <button
-          type="button"
-          class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-attachment-line"
-          aria-controls={idModalAddPieceJointe}
-          data-fr-opened="false"
-          onclick={() =>
-            sendEvenement({
-              type: "ouvrirModaleAjouterPieceJointe",
-              details: { dossierId: dossier.id, source: "enteteDossier" },
-            })}
-        >
-          Ajouter une pièce jointe
-        </button>
+        <HeaderActions
+          {dossier}
+          {email}
+          {unread}
+          followersLabel={followers}
+          followedByCurrentInstructeur={currentDossierFollowedByCurrentInstructeur}
+          onOpenFollowers={() => (followersModalOpen = true)}
+          onAddPieceJointe={openPieceJointeModal}
+          {onSetRead}
+          {onEnterReadOnly}
+        />
       </div>
-
-      <!--
-          <div>
-              <span class="fr-icon-scales-3-fill" aria-hidden="true"></span>
-              Contentieux
-          </div>
-          -->
-    </section>
+    </div>
   </div>
 </header>
 
-<ModalAddPieceJointe
-  id={idModalAddPieceJointe}
-  {dossier}
-  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
-  source="enteteDossier"
-/>
+{#if followersModalOpen}
+  <AssignDossierFollowersModal
+    dossierId={dossier.id}
+    dossierName={dossier.name}
+    onClose={() => (followersModalOpen = false)}
+  />
+{/if}
+
+{#if !readOnly.current}
+  <ModalAddPieceJointe
+    id={idModalAddPieceJointe}
+    {dossier}
+    typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+    source="enteteDossier"
+  />
+{/if}

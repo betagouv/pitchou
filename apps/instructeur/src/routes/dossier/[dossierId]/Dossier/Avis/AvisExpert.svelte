@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import FormAvisExpert from "./FormAvisExpert.svelte";
+  import { readOnlyMode } from "../readOnly.ts";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
@@ -11,6 +12,8 @@
   };
 
   let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   let isEditing: boolean = $state(false);
   let showDeleteConfirmation = $state(false);
@@ -47,7 +50,7 @@
         {avisExpert.avis_fichier_url ? "Avis rendu" : "Avis en attente"}
       {/if}
     </h3>
-    {#if !isEditing}
+    {#if !isEditing && !readOnly.current}
       <button
         class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
         type="button"
@@ -55,24 +58,29 @@
       >
     {/if}
   </div>
-  {#if !isEditing}
+  <!-- Switching to read-only mode while the form is open closes it. -->
+  {#if !isEditing || readOnly.current}
     <ul class="list-none ps-0 flex flex-col gap-3 fr-m-0">
-      <li class="flex justify-between items-center gap-2 py-2">
-        <span
-          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.saisine_date)}
-        </span>
-        {#if avisExpert.saisine_fichier_url}
-          <a
-            class="fr-btn fr-btn--secondary fr-btn--sm"
-            href={avisExpert.saisine_fichier_url}
-            data-sveltekit-reload
-          >
-            Télécharger le fichier saisine
-          </a>
-        {:else}
-          Aucun fichier de saisine n'est lié à ce dossier
-        {/if}
-      </li>
+      <!-- Saisines are never shared: only the avis itself is. -->
+      {#if !readOnly.current}
+        <li class="flex justify-between items-center gap-2 py-2">
+          <span
+            ><strong>Date de la saisine&nbsp;:</strong>
+            {formatDateAbsolute(avisExpert.saisine_date)}
+          </span>
+          {#if avisExpert.saisine_fichier_url}
+            <a
+              class="fr-btn fr-btn--secondary fr-btn--sm"
+              href={avisExpert.saisine_fichier_url}
+              data-sveltekit-reload
+            >
+              Télécharger le fichier saisine
+            </a>
+          {:else}
+            Aucun fichier de saisine n'est lié à ce dossier
+          {/if}
+        </li>
+      {/if}
       {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
         <li class="flex justify-between items-center gap-2 py-2">
           <span

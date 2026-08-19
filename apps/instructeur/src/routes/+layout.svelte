@@ -61,7 +61,9 @@
 <Header {nav} {email} />
 
 <main tabindex="-1" id="main">
-  <div class="fr-container">
+  <!-- Pages that opt in via `fullWidth` page data (the dossier lists) span the whole
+       viewport instead of the DSFR container, keeping only side paddings. -->
+  <div class={page.data.fullWidth ? "w-full px-4 lg:px-8" : "fr-container"}>
     {#if store.errors.size >= 1}
       <section class="relative h-0 fr-grid-row fr-grid-row--center">
         <div class="fr-col w-full">
@@ -84,5 +86,6 @@
 </main>
 
 <Footer
+  compact={nav}
   demarcheNumerique88444SynchronizationResults={store.demarcheNumerique88444SynchronizationResults}
 />

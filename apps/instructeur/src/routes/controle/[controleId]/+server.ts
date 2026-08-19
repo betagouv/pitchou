@@ -1,6 +1,8 @@
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { deleteControle, getDossierIdFromControle } from "@pitchou/server/database/controle.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { ControleId } from "@pitchou/types/database/public/Controle.ts";
 
 export const DELETE: RequestHandler = async ({ url, params }) => {
@@ -11,5 +13,14 @@ export const DELETE: RequestHandler = async ({ url, params }) => {
   await requireDossierAccessByCap(dossierId, cap);
 
   await deleteControle(controleId);
+  const author = await getPersonneByDossierCap(cap);
+  await logDossierActions([
+    {
+      dossier: dossierId!,
+      type: "controle_supprime",
+      data: {},
+      author_personne: author?.id ?? null,
+    },
+  ]);
   return new Response(null, { status: 204 });
 };

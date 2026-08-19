@@ -34,6 +34,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: true,
     next_action_expected_from: "Pétitionnaire",
+    next_action_expected: "Compléter le dossier",
     main_activite: "Production énergie renouvelable - Éolien",
     description:
       "Projet de construction d'un parc éolien de 5 machines sur les communes de Brasparts et Saint-Rivoal, dans le massif des Monts d'Arrée. Le site est situé à proximité du Parc Naturel Régional d'Armorique et présente des enjeux importants pour les chiroptères (Grand rhinolophe, Murin de Bechstein) et l'avifaune (Milan royal, Busard Saint-Martin).",
@@ -88,11 +89,12 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     name: "Centrale photovoltaïque au sol La Gardiole – Montagnac (34)",
     ddep_required: true,
     free_comment:
-      "Dossier reçu le 18/03/2024. Demande de compléments transmise le 05/06/2024 concernant le protocole de suivi des reptiles. Réponse reçue le 22/09/2024. Instruction en cours.\n- 18/03/2024 : dépôt du dossier\n- 05/06/2024 : demande de compléments (suivi reptiles)\n- 22/09/2024 : réception des compléments",
+      "Dossier reçu le 18/03/2024. Demande de compléments transmise le 05/06/2024 concernant le protocole de suivi des reptiles. Réponse reçue le 22/09/2024. Projet d'arrêté transmis à la signature préfectorale.\n- 18/03/2024 : dépôt du dossier\n- 05/06/2024 : demande de compléments (suivi reptiles)\n- 22/09/2024 : réception des compléments",
     onagre_demande_identifier: "",
     public_consultation_start_date: null,
     linked_to_ae_regime: true,
-    next_action_expected_from: "Instructeur",
+    next_action_expected_from: "Préfet·e",
+    next_action_expected: "Signer l'arrêté",
     main_activite: "Production énergie renouvelable - Photovoltaïque",
     description:
       "Projet de centrale photovoltaïque au sol d'une puissance installée de 12 MWc sur des parcelles de garrigue et friches agricoles sur la commune de Montagnac. La surface clôturée sera de 18 hectares. Des inventaires naturalistes ont mis en évidence la présence de la Couleuvre de Montpellier, du Lézard ocellé et de l'Outarde canepetière.",
@@ -153,6 +155,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: false,
     next_action_expected_from: "Instructeur",
+    next_action_expected: "Consulter le dossier",
     main_activite:
       "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d'art",
     description:
@@ -219,6 +222,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: false,
     next_action_expected_from: "Instructeur",
+    next_action_expected: "Consulter le dossier",
     main_activite: "Demande à caractère scientifique",
     description:
       "Dans le cadre de la mise à jour de l'Atlas des chauves-souris du Puy-de-Dôme, l'association Chauve-Souris Auvergne souhaite réaliser des inventaires dans un réseau de 14 cavités naturelles et ouvrages souterrains. L'objectif est de mettre à jour les données de présence et d'abondance pour six espèces cavernicoles prioritaires : Grand rhinolophe, Petit rhinolophe, Grand murin, Murin de Bechstein, Vespertilion à oreilles échancrées et Minioptère de Schreibers.",
@@ -302,6 +306,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: false,
     next_action_expected_from: "Pétitionnaire",
+    next_action_expected: "Compléter le dossier",
     main_activite: "Conservation des espèces",
     description:
       "Le centre de soins pour la faune sauvage géré par la LPO Pays de la Loire (Nantes, 44) accueille annuellement plusieurs centaines d'animaux sauvages protégés blessés ou en détresse. La dérogation demandée concerne le transport de spécimens d'espèces protégées depuis leur lieu de découverte jusqu'au centre de soins, et leur relâcher ultérieur dans leur milieu naturel après rétablissement.",
@@ -383,6 +388,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: new Date("2023-10-16"),
     linked_to_ae_regime: true,
     next_action_expected_from: "CNPN/CSRPN",
+    next_action_expected: null,
     main_activite: "Infrastructures de transport routières",
     description:
       "Création d'une déviation de 3,4 km de la route départementale 73 au sud d'Yvetot, afin de délester le centre-bourg du trafic de transit. Le tracé traverse une zone bocagère présentant des enjeux pour le Triton crêté, la Rainette verte, plusieurs espèces de chiroptères et le Murin de Bechstein. Une zone humide de 2,4 ha sera impactée de manière résiduelle malgré les mesures d'évitement.",
@@ -448,6 +454,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: false,
     next_action_expected_from: null,
+    next_action_expected: null,
     main_activite: "Carrières",
     description:
       "Extension d'une carrière de calcaire existante vers le nord sur 8 hectares supplémentaires. Les inventaires naturalistes révèlent la présence de pelouses calcicoles abritant plusieurs espèces d'orchidées protégées et un habitat favorable pour le Lézard des souches et le Grand rhinolophe.",
@@ -504,6 +511,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: false,
     next_action_expected_from: "Instructeur",
+    next_action_expected: "Consulter le dossier",
     main_activite:
       "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d'art",
     description:
@@ -572,6 +580,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: true,
     next_action_expected_from: "Instructeur",
+    next_action_expected: null,
     main_activite: "Projets liés à la gestion de l'eau",
     description:
       "Travaux de protection des berges du fleuve Kourou contre les crues et l'érosion, sur une linéaire de 1,2 km en aval de la ville. Le projet prévoit la mise en place d'enrochements et d'épis hydrauliques. Les inventaires identifient la présence du Caïman noir (Melanosuchus niger), du Caïman à lunettes (Caiman crocodilus), de la Tortue-matamata (Chelus fimbriatus) et de plusieurs espèces de poissons protégés.",
@@ -630,6 +639,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: null,
     next_action_expected_from: null,
+    next_action_expected: null,
     main_activite: "Aménagements fonciers (AFAF, remembrement)",
     description: "Aménagement d'un lotissement dans la campagne de ploufragan, ça sera tout calme",
     intervention_start_date: new Date("2026-11-20"),
@@ -696,6 +706,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     public_consultation_start_date: null,
     linked_to_ae_regime: null,
     next_action_expected_from: "Pétitionnaire",
+    next_action_expected: "Compléter le dossier",
     main_activite: "Infrastructures de transport routières",
     description:
       "De plus en plus de bretons souhaitent circuler entre Rennes et Dinan dans des véhicules non mototrisés. Leur nombre est devenu si important que la piste cyclable actuelle est trop petite et dangereuse, les conseils départementaux ont sollicité notre entreprise pour l'élargir. La piste passe par des zones de forêts et d'étangs.",

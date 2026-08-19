@@ -5,9 +5,9 @@
 
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { store } from "$lib/state/store.svelte.ts";
   import { labelForDecisionAdministrativeType } from "@pitchou/common/decisionAdministrative.js";
+  import { readOnlyMode } from "../readOnly.ts";
 
   import type {
     DecisionAdministrativeForTransfer,
@@ -26,6 +26,8 @@
     decisionAdministrative = $bindable(),
     deleteDecisionAdministrative,
   }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   let { number, type, signature_date, obligations_end_date, fichier_url } =
     $derived(decisionAdministrative);
@@ -71,7 +73,6 @@
     // On failure, the error propagates to the form, which displays it and keeps
     // the form open. We only update the view once the save succeeds.
     await modifierDecisionAdministrativeDansDossier(decision);
-    sendEvenement({ type: "modifierDécisionAdministrative" });
 
     decisionAdministrative = Object.assign(decisionAdministrative, decision);
     editedDecision = undefined;
@@ -81,7 +82,8 @@
 </script>
 
 <CardDecisionAdministrative>
-  {#if editedDecision}
+  <!-- Switching to read-only mode while the form is open closes it. -->
+  {#if editedDecision && !readOnly.current}
     <h4 class="fr-mt-0 fr-mb-2w">Modifier décision administrative</h4>
 
     <FormDecisionAdministrative
@@ -94,12 +96,14 @@
     <h4 class="fr-mt-0 fr-mb-2w">
       {type ? labelForDecisionAdministrativeType(type) : "Décision de type inconnu"}
       {number || ""} du {formatDateAbsolute(signature_date)}
-      <button
-        class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
-        onclick={startEditing}
-      >
-        Modifier
-      </button>
+      {#if !readOnly.current}
+        <button
+          class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
+          onclick={startEditing}
+        >
+          Modifier
+        </button>
+      {/if}
     </h4>
 
     <div class="fr-mb-1w">
@@ -118,7 +122,11 @@
       {/if}
     </div>
 
-    <Prescriptions {dossierId} {decisionAdministrative} />
+    <!-- Prescriptions and their contrôles are internal follow-up: read-only mode
+         exposes the décision administrative itself and its file, nothing more. -->
+    {#if !readOnly.current}
+      <Prescriptions {dossierId} {decisionAdministrative} />
+    {/if}
   {/if}
 </CardDecisionAdministrative>
 

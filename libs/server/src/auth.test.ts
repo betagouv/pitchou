@@ -48,7 +48,7 @@ describe("checkDossierAccessByCap", () => {
   });
 
   it("replies 403 when the cap does not grant access to the dossier", async () => {
-    mockedDossiersAccessibleViaCap.mockResolvedValue(new Set());
+    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map());
     const reply = makeReply();
     // @ts-ignore
     const result = await checkDossierAccessByCap(1, "some-cap", reply);
@@ -56,9 +56,19 @@ describe("checkDossierAccessByCap", () => {
     expect(result).toBeUndefined();
   });
 
-  it("returns the dossierId when the cap grants access", async () => {
-    // @ts-ignore — Set<DossierId>
-    mockedDossiersAccessibleViaCap.mockResolvedValue(new Set([1]));
+  it("replies 403 when the dossier is only shared in read-only mode", async () => {
+    // @ts-ignore — Map<DossierId, DossierAccess>
+    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[1, "lecture"]]));
+    const reply = makeReply();
+    // @ts-ignore
+    const result = await checkDossierAccessByCap(1, "some-cap", reply);
+    expect(reply.statusCode).toBe(403);
+    expect(result).toBeUndefined();
+  });
+
+  it("returns the dossierId when the cap grants full access", async () => {
+    // @ts-ignore — Map<DossierId, DossierAccess>
+    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[1, "complet"]]));
     const reply = makeReply();
     // @ts-ignore
     const result = await checkDossierAccessByCap(1, "some-cap", reply);

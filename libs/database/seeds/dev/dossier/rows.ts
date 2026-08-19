@@ -61,20 +61,22 @@ export async function seedDossierRows(
         })
         .first();
 
-      if (!dossier) {
-        const [inserted] = await transaction("dossier")
-          .insert(
-            serializeJsonColumns({
-              ...dossierData,
-              demarche_number: SEED_DEMARCHE_NUMBER,
-              source: "demarche_numerique",
-              demandeur_personne_physique: demandeur_personne_physique_email
-                ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
-                : null,
-              deposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
-            }),
-          )
-          .returning("id");
+      const columns = serializeJsonColumns({
+        ...dossierData,
+        demarche_number: SEED_DEMARCHE_NUMBER,
+        source: "demarche_numerique",
+        demandeur_personne_physique: demandeur_personne_physique_email
+          ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
+          : null,
+        deposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
+      });
+
+      if (dossier) {
+        // Re-seeding realigns existing dev dossiers on the fixtures, so columns
+        // added since the last seed are not left empty until the next data-reset.
+        await transaction("dossier").where({ id: dossier.id }).update(columns);
+      } else {
+        const [inserted] = await transaction("dossier").insert(columns).returning("id");
         dossier = inserted;
       }
 

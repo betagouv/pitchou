@@ -3,6 +3,7 @@ import { directDatabaseConnection } from "../../database.ts";
 import { getControles } from "../controle.ts";
 import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts";
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
+import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -13,18 +14,20 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 export function listAllDossiersFull(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierFull[]> {
-  return joinDossierIdentities(databaseConnection("dossier").select(dossierFullColumns)).then(
-    (dossiers: DossierFull[]) => {
-      for (const dossier of dossiers) {
-        // @ts-ignore The aliased file fields are selected for URL construction.
-        if (dossier.especes_impactees_id) {
-          // @ts-ignore The URL is part of the historical list-all return shape.
-          dossier.url_fichier_especes_impactees = `/especes-impactees/${dossier.especes_impactees_id}`;
-        }
+  return joinDossierIdentities(
+    databaseConnection("dossier")
+      .select(dossierFullColumns)
+      .select(databaseConnection.raw(latestCommentaireSubquery)),
+  ).then((dossiers: DossierFull[]) => {
+    for (const dossier of dossiers) {
+      // @ts-ignore The aliased file fields are selected for URL construction.
+      if (dossier.especes_impactees_id) {
+        // @ts-ignore The URL is part of the historical list-all return shape.
+        dossier.url_fichier_especes_impactees = `/especes-impactees/${dossier.especes_impactees_id}`;
       }
-      return dossiers;
-    },
-  );
+    }
+    return dossiers;
+  });
 }
 
 export async function getDossierFull(
@@ -39,18 +42,15 @@ export async function getDossierFull(
     if (!databaseConnection.isTransaction) await transaction.commit();
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
+  // `dossiersAccessibleViaCap` above is the authorization — including for a
+  // dossier merely shared with the groupe, which the ownership edge would miss —
+  // so the fetch itself selects the dossier by id.
   const dossierP: Promise<LoadedDossier> = joinDossierIdentities(
     transaction("dossier")
       .select(dossierFullColumns)
-      .join("edge_groupe_instructeurs__dossier", {
-        "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
-      })
-      .join("edge_cap_dossier__groupe_instructeurs", {
-        "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-          "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-      }),
+      .select(transaction.raw(latestCommentaireSubquery)),
   )
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap, "dossier.id": dossierId })
+    .where({ "dossier.id": dossierId })
     .first();
   const eventsP = getEvenementsPhaseDossier(dossierId, transaction);
   const avisP = getAvisExpertDossier(dossierId, transaction);
@@ -91,6 +91,7 @@ export async function getDossierFull(
         attachments,
         prescriptions,
         controles,
+        cap,
       ),
   );
 }

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+
   import { CLASSIFICATIONS } from "../adminModificationsList.ts";
   import FieldModifiable from "./FieldModifiable.svelte";
   import InheritanceCheckbox from "./InheritanceCheckbox.svelte";
@@ -17,6 +19,11 @@
   let editing = $state(false);
   let inherit = $state(false);
   let draft = $state<string>(CLASSIFICATIONS[0]);
+
+  const classificationOptions = CLASSIFICATIONS.map((classification) => ({
+    value: classification as string,
+    label: classification,
+  }));
 
   function start() {
     inherit = hasReference && value === null;
@@ -50,10 +57,12 @@
     {#if hasReference}
       <InheritanceCheckbox id="inherit-classification" source="TAXREF" bind:checked={inherit} />
     {/if}
-    <select class="fr-select" disabled={inherit} bind:value={draft}>
-      {#each CLASSIFICATIONS as classification}
-        <option value={classification}>{classification}</option>
-      {/each}
-    </select>
+    <Select
+      id="edit-classification"
+      ariaLabel="Classification"
+      disabled={inherit}
+      options={classificationOptions}
+      bind:value={draft}
+    />
   {/snippet}
 </FieldModifiable>
