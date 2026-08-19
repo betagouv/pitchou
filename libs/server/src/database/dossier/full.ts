@@ -42,19 +42,15 @@ export async function getDossierFull(
     if (!databaseConnection.isTransaction) await transaction.commit();
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
+  // `dossiersAccessibleViaCap` above is the authorization — including for a
+  // dossier merely shared with the groupe, which the ownership edge would miss —
+  // so the fetch itself selects the dossier by id.
   const dossierP: Promise<LoadedDossier> = joinDossierIdentities(
     transaction("dossier")
       .select(dossierFullColumns)
-      .select(transaction.raw(latestCommentaireSubquery))
-      .join("edge_groupe_instructeurs__dossier", {
-        "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
-      })
-      .join("edge_cap_dossier__groupe_instructeurs", {
-        "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-          "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-      }),
+      .select(transaction.raw(latestCommentaireSubquery)),
   )
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap, "dossier.id": dossierId })
+    .where({ "dossier.id": dossierId })
     .first();
   const eventsP = getEvenementsPhaseDossier(dossierId, transaction);
   const avisP = getAvisExpertDossier(dossierId, transaction);
@@ -95,6 +91,7 @@ export async function getDossierFull(
         attachments,
         prescriptions,
         controles,
+        cap,
       ),
   );
 }

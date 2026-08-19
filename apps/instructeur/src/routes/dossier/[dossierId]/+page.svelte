@@ -16,13 +16,17 @@
 
   const id = $derived(data.dossierId);
 
-  // Read-only mode is decided by the load, which is also what fetched the
-  // matching payload — the two can never disagree.
-  const readOnly = $derived(data.readOnly);
-
   // The read-only dossier is the narrower one the server sends for sharing; it
-  // is cached apart from the full dossier, so the mode picks the source.
-  const dossier = $derived(readOnly ? store.readOnlyDossiers.get(id) : store.fullDossiers.get(id));
+  // is cached apart from the full dossier, so what the load asked for picks the
+  // source.
+  const dossier = $derived(
+    data.readOnly ? store.readOnlyDossiers.get(id) : store.fullDossiers.get(id),
+  );
+
+  // Either the instructeur asked to preview the dossier, or their service only
+  // ever gets to read it — in which case the payload is already narrowed and
+  // there is no mode to leave.
+  const readOnly = $derived(data.readOnly || dossier?.access === "lecture");
   const email = $derived(store.identité?.email);
   const followRelations = $derived(store.followRelations);
   const notification = $derived(store.notificationByDossier?.get(id));
@@ -39,9 +43,10 @@
     email ? !!followRelations?.get(email)?.has(id) : false,
   );
 
-  // The server grants the capability only to those allowed to write, so someone
-  // the dossier is merely shared with gets no way to leave read-only mode.
-  const canEdit = $derived(!!store.capabilities.modifierDossier);
+  // Per dossier, not per user: one cap is `complet` for the service's own
+  // dossiers and `lecture` for those another service shared with it. Someone
+  // who cannot edit gets no way out of read-only mode.
+  const canEdit = $derived(dossier?.access === "complet" && !!store.capabilities.modifierDossier);
 
   // The active tab lives in the `tab` query param; legacy links used a hash
   // (#instruction), still honoured as a fallback.

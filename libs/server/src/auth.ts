@@ -3,7 +3,8 @@ import { dossiersAccessibleViaCap } from "./database/dossier.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 
 /**
- * Checks that the cap grants access to the given dossier
+ * Checks that the cap grants full access to the given dossier — a dossier merely
+ * shared in read-only mode with the groupe is refused.
  * Writes a 4xx response on reply and returns `undefined` on failure
  */
 export async function checkDossierAccessByCap(
@@ -21,7 +22,7 @@ export async function checkDossierAccessByCap(
   }
   // @ts-ignore: cap arrives as a raw string from the query parameter
   const accessibleDossiers = await dossiersAccessibleViaCap(dossierId, cap);
-  if (!accessibleDossiers.has(dossierId)) {
+  if (accessibleDossiers.get(dossierId) !== "complet") {
     reply.code(403).send(`La capability ne permet pas d'accéder au dossier ${dossierId}`);
     return undefined;
   }

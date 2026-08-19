@@ -1,6 +1,29 @@
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 
+import type { FichierAttachment } from "../fichier_access.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+
+/**
+ * Whether a read-only viewer may download a file, from how it hangs off its
+ * dossier. This is the download side of `dossierFullForReadOnly`: the projection
+ * decides which URLs are handed out, this decides which are served. They must
+ * agree, which is why they live together.
+ */
+export function isFichierSharedInReadOnly({ relation, expert }: FichierAttachment): boolean {
+  switch (relation) {
+    case "avis":
+      return isOfficialAvisExpert(expert);
+    case "decision-administrative":
+    case "especes-impactees":
+    case "piece-jointe-petitionnaire":
+      return true;
+    // A saisine is part of the instruction, and « Autres » attachments are
+    // whatever the instructeur filed on the dossier.
+    case "saisine":
+    case "attachment-autre":
+      return false;
+  }
+}
 
 /**
  * Narrows a dossier down to what a read-only viewer may see.

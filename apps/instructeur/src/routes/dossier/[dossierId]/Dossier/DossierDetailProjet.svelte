@@ -8,6 +8,7 @@
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
   import { especesCounts, especesCountsLabel } from "./DossierDetailProjet/especes.ts";
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
+  import { readOnlyMode } from "./readOnly.ts";
 
   import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -22,6 +23,8 @@
 
   let { dossier, especesImpactees, notification }: Props = $props();
 
+  const readOnly = readOnlyMode();
+
   // Snapshot of the last read date at mount: staying on the page marks the
   // dossier read after a few seconds, and the badges must not vanish mid-visit.
   const lastReadAt = untrack(() =>
@@ -30,6 +33,13 @@
 
   let actions: DossierAction[] = $state([]);
   $effect(() => {
+    // The badges say « new since you last read this », which means nothing to a
+    // read-only viewer — and the historique is not shared with them, so the
+    // request would be refused.
+    if (readOnly.current) {
+      actions = [];
+      return;
+    }
     void store.capabilities
       .listerActionsDossier?.(dossier.id)
       .then((list) => (actions = list))

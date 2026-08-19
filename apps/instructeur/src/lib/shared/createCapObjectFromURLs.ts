@@ -8,6 +8,7 @@ import type {
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
+import { createDossierPartageCapabilities } from "./dossierPartageCapabilities.ts";
 import { createDossierCommentaireCapabilities } from "./dossierCommentaireCapabilities.ts";
 import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
 import {
@@ -123,6 +124,7 @@ export default function (
     listFollowRelations: wrapGETUrl(capURLs.listFollowRelations),
     updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),
     ...createDossierFollowerCapabilities(capURLs),
+    ...createDossierPartageCapabilities(capURLs),
     ...createDossierCommentaireCapabilities(capURLs),
     listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),

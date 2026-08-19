@@ -5,6 +5,7 @@ import type {
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
+import type GroupeInstructeurs from "./database/public/GroupeInstructeurs.ts";
 import type Personne from "./database/public/Personne.ts";
 import type Notification from "./database/public/Notification.ts";
 import type { NotificationMutator } from "./database/public/Notification.ts";
@@ -13,6 +14,13 @@ import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
+
+/** A service the dossier may be shared with in read-only mode. */
+export type DossierPartageCandidate = {
+  id: GroupeInstructeurs["id"];
+  name: GroupeInstructeurs["name"];
+  sharesDossier: boolean;
+};
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
@@ -62,6 +70,13 @@ export interface PitchouInstructeurCapabilities {
     dossierId: Dossier["id"],
   ) => Promise<void>;
   listDossierFollowerCandidates: (dossierId: Dossier["id"]) => Promise<DossierFollowerCandidate[]>;
+  /** The other services of the démarche, and whether the dossier is shared with them. */
+  listDossierPartageCandidates: (dossierId: Dossier["id"]) => Promise<DossierPartageCandidate[]>;
+  /** Replaces the set of services the dossier is shared with in read-only mode. */
+  updateDossierPartages: (
+    dossierId: Dossier["id"],
+    groupeIds: GroupeInstructeurs["id"][],
+  ) => Promise<void>;
   updateDossierFollowers: (
     dossierId: Dossier["id"],
     personneEmails: NonNullable<Personne["email"]>[],

@@ -38,6 +38,14 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.updateDossierFollowers) {
     ret.updateDossierFollowers = `/dossier/:dossierId/followers?cap=${capBundle.updateDossierFollowers}`;
   }
+  // Both endpoints refuse a dossier the cap does not instruct, so the same cap
+  // is handed out to everyone: only the instructing service can share.
+  if (capBundle.listDossierPartageCandidates) {
+    ret.listDossierPartageCandidates = `/dossier/:dossierId/partages?cap=${capBundle.listDossierPartageCandidates}`;
+  }
+  if (capBundle.updateDossierPartages) {
+    ret.updateDossierPartages = `/dossier/:dossierId/partages?cap=${capBundle.updateDossierPartages}`;
+  }
   if (capBundle.listerEvenementsPhaseDossier) {
     ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }

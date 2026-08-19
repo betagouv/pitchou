@@ -81,7 +81,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
       cap,
       transaction,
     );
-    if (!dossiersAccessibles.has(decisionData.dossier)) {
+    // Full access only: a dossier shared in read-only mode with the groupe is
+    // consulted, never instructed.
+    if (dossiersAccessibles.get(decisionData.dossier) !== "complet") {
       await transaction.rollback();
       error(
         400,

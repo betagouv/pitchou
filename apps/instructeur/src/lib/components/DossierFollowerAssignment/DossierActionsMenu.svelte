@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
   import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
+  import PartageDossierModal from "$lib/components/PartageDossierModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
@@ -17,6 +18,7 @@
   let menuOpen = $state(false);
   let modalOpen = $state(false);
   let dueDateModalOpen = $state(false);
+  let partageModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuItemElement: HTMLButtonElement | undefined = $state();
@@ -49,6 +51,16 @@
 
   function closeDueDateModal() {
     dueDateModalOpen = false;
+    void tick().then(() => triggerElement?.focus());
+  }
+
+  function openPartageModal() {
+    menuOpen = false;
+    partageModalOpen = true;
+  }
+
+  function closePartageModal() {
+    partageModalOpen = false;
     void tick().then(() => triggerElement?.focus());
   }
 
@@ -120,6 +132,16 @@
           Modifier la date de la prochaine échéance
         </button>
       </li>
+      <li role="none">
+        <button
+          type="button"
+          role="menuitem"
+          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+          onclick={openPartageModal}
+        >
+          Partager le dossier en lecture seule
+        </button>
+      </li>
       {#each extraItems as item}
         <li role="none">
           <button
@@ -145,4 +167,8 @@
 
 {#if dueDateModalOpen}
   <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
+{/if}
+
+{#if partageModalOpen}
+  <PartageDossierModal {dossierId} {dossierName} onClose={closePartageModal} />
 {/if}

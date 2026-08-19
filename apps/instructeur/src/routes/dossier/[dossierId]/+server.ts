@@ -1,6 +1,10 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import {
+  requireCap,
+  requireDossierAccessByCap,
+  requireDossierAccessLevelByCap,
+} from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import {
   phases,
@@ -173,18 +177,21 @@ export const GET: RequestHandler = async ({ params, url }) => {
   const cap = requireCap(url);
   const dossierId = parseDossierId(params.dossierId!);
 
+  const { access } = await requireDossierAccessLevelByCap(dossierId, cap);
+
   const dossier = await getDossierFull(dossierId, cap);
   if (!dossier) {
     error(403, `Aucun dossier trouvé avec id '${dossierId}'`);
   }
 
-  // `lecture` lets an instructeur preview the dossier as the person they share it
-  // with will see it, so the preview goes through the very same projection.
-  // It can only ever narrow the response. Once a cap can itself be read-only,
-  // that cap must force the projection here regardless of the parameter — until
-  // then, someone allowed to write is the only one asking, and dropping the
-  // parameter would just give them back what they may already read.
-  return json(url.searchParams.get("lecture") === "1" ? dossierFullForReadOnly(dossier) : dossier);
+  // The cap decides: a dossier merely shared with the groupe is always narrowed,
+  // whatever the request asks for. `lecture` only lets an instructeur who may
+  // write preview what the other service sees — it can never widen the response.
+  const readOnly = access === "lecture" || url.searchParams.get("lecture") === "1";
+
+  // The browser cannot work this out on its own: the same cap is `complet` for
+  // the service's own dossiers and `lecture` for the ones shared with it.
+  return json({ ...(readOnly ? dossierFullForReadOnly(dossier) : dossier), access });
 };
 
 export const POST: RequestHandler = async ({ params, url, request }) => {
