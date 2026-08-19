@@ -3,6 +3,7 @@
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
   import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import Select from "@pitchou/ui/Select.svelte";
 
   type Props = {
     detail: AdminDossierDetail;
@@ -17,6 +18,8 @@
   let newPhase = $state(detail.phase);
   let saving = $state(false);
   let saveError = $state<string | null>(null);
+
+  const phaseOptions = [...phases].map((phase) => ({ value: phase, label: phase }));
 
   function formatDate(value: string): string {
     const date = new Date(value);
@@ -50,11 +53,7 @@
     <form class="flex flex-row items-end gap-4 flex-wrap fr-mb-3w" onsubmit={addPhaseEvent}>
       <div class="fr-select-group fr-mb-0">
         <label class="fr-label" for="nouvelle-phase">Passer le dossier en phase</label>
-        <select class="fr-select" id="nouvelle-phase" bind:value={newPhase}>
-          {#each [...phases] as phase (phase)}
-            <option value={phase}>{phase}</option>
-          {/each}
-        </select>
+        <Select id="nouvelle-phase" class="fr-mt-1w" options={phaseOptions} bind:value={newPhase} />
       </div>
       <button
         class="fr-btn fr-btn--secondary"

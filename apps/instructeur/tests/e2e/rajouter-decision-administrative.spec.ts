@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("rajouter une décision administrative l'ajoute à la liste du dossier", async ({
   page,
@@ -19,7 +20,7 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   await page.getByRole("button", { name: "Rajouter une décision administrative" }).click();
 
   await page.getByLabel("Numéro").fill("AP-E2E-001");
-  await page.getByLabel("Type de décision").selectOption("Arrêté dérogation");
+  await chooseInSelect(page.locator("#select-type"), "Arrêté de dérogation/AE");
   await page.getByLabel("Fichier de la décision administrative").setInputFiles({
     name: "arrete.pdf",
     mimeType: "application/pdf",

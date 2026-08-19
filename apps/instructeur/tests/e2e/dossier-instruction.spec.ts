@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("l'instructeurice saisit les dates de consultation du public et elles sont persistées", async ({
   page,
@@ -62,29 +63,36 @@ test("la prochaine action attendue groupe les actions par entité et est persist
   const action = page.locator("#next_action_expected");
 
   // Each entity is a group, and every group ends with « Autre ».
-  await expect(action.locator("optgroup").first()).toHaveAttribute("label", "Instructeur");
-  await expect(action.locator('optgroup[label="Préfet·e"] option')).toHaveText([
+  await action.click();
+  const options = page.getByRole("listbox");
+  await expect(options.getByRole("group").nth(1)).toHaveAttribute("aria-label", "Instructeur");
+  await expect(options.getByRole("group", { name: "Préfet·e" }).getByRole("option")).toHaveText([
     "Signer l'arrêté",
     "Autre",
   ]);
 
   // Picking an action sets the entity in charge along with it.
-  await action.selectOption({ label: "Envoyer la saisine" });
+  await options.getByRole("option", { name: "Envoyer la saisine", exact: true }).click();
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
   await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(action).toHaveValue("Instructeur|Envoyer la saisine");
+  await expect(action).toHaveText("Envoyer la saisine");
   await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
 
   // « Autre » keeps the entity without a precise action.
-  await action.selectOption("CNPN/CSRPN|");
+  await action.click();
+  await page
+    .getByRole("listbox")
+    .getByRole("group", { name: "CNPN/CSRPN" })
+    .getByRole("option", { name: "Autre", exact: true })
+    .click();
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.locator("#next_action_expected")).toHaveValue("CNPN/CSRPN|");
+  await expect(page.locator("#next_action_expected")).toHaveText("Autre");
   await expect(page.getByText("Entité en charge : CNPN/CSRPN")).toBeVisible();
   await expect(
     db("dossier").select("next_action_expected").where({ id: dossier.id }).first(),
@@ -105,7 +113,7 @@ test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a 
   await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await expect(page.locator("#enjeu")).toHaveValue("non");
+  await expect(page.locator("#enjeu")).toHaveText("Non");
 });
 
 test("Changing the 'Dossier à enjeu' select changes the stake value of the case, and when reloading, this modified value persists.", async ({
@@ -122,11 +130,11 @@ test("Changing the 'Dossier à enjeu' select changes the stake value of the case
   await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await expect(page.locator("#enjeu")).toHaveValue("non");
-  await page.locator("#enjeu").selectOption("oui");
+  await expect(page.locator("#enjeu")).toHaveText("Non");
+  await chooseInSelect(page.locator("#enjeu"), "Oui");
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.locator("#enjeu")).toHaveValue("oui");
+  await expect(page.locator("#enjeu")).toHaveText("Oui");
 });

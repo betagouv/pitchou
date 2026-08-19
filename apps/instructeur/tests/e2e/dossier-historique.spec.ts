@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("les actions sur le dossier alimentent l'onglet Historique", async ({ page, db, loginAs }) => {
   const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
@@ -20,7 +21,7 @@ test("les actions sur le dossier alimentent l'onglet Historique", async ({ page,
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   // Instructeur actions: field edits, a follow and a comment.
-  await page.locator("#enjeu").selectOption("oui");
+  await chooseInSelect(page.locator("#enjeu"), "Oui");
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
   await page.getByRole("button", { name: "Suivre ce dossier" }).click();
   await expect(page.getByRole("button", { name: "Vous suivez ce dossier" })).toBeVisible();

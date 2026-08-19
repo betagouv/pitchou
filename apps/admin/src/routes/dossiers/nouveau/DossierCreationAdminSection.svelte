@@ -1,5 +1,6 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import { phases } from "@pitchou/common/phases.ts";
 
   import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
@@ -7,6 +8,12 @@
 
   let { model, groupes }: { model: DossierCreationModel; groupes: AdminGroupeInstructeurs[] } =
     $props();
+
+  const phaseOptions = [...phases].map((phase) => ({ value: phase, label: phase }));
+
+  const groupeOptions = $derived(
+    groupes.map((groupe) => ({ value: groupe.id, label: groupe.name })),
+  );
 </script>
 
 <details class="fr-p-3w border border-[color:var(--border-default-grey)]">
@@ -22,18 +29,20 @@
     </div>
     <div class="fr-select-group">
       <label class="fr-label" for="dossier-phase">Phase initiale</label>
-      <select class="fr-select" id="dossier-phase" bind:value={model.phase}>
-        {#each [...phases] as phase (phase)}<option value={phase}>{phase}</option>{/each}
-      </select>
+      <Select id="dossier-phase" class="fr-mt-1w" options={phaseOptions} bind:value={model.phase} />
     </div>
     <div class="fr-select-group">
       <label class="fr-label" for="dossier-groupe">
         Groupe instructeurs
         <span class="fr-hint-text">Le dossier ne sera visible que par ce groupe.</span>
       </label>
-      <select class="fr-select" id="dossier-groupe" required bind:value={model.groupeInstructeurs}>
-        {#each groupes as groupe (groupe.id)}<option value={groupe.id}>{groupe.name}</option>{/each}
-      </select>
+      <Select
+        id="dossier-groupe"
+        class="fr-mt-1w"
+        required
+        options={groupeOptions}
+        bind:value={model.groupeInstructeurs}
+      />
     </div>
   </div>
 </details>

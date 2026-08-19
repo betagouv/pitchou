@@ -2,6 +2,7 @@
   import { untrack } from "svelte";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
   import { simulateDossierSync, type SimulatedAction } from "$lib/actions/adminDossiers.ts";
+  import Select from "@pitchou/ui/Select.svelte";
 
   type Props = {
     dossierId: number;
@@ -64,9 +65,12 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div class="fr-select-group">
           <label class="fr-label" for="simulation-champ">Champ modifié</label>
-          <select class="fr-select" id="simulation-champ" bind:value={champ}>
-            {#each champs as option}<option value={option.column}>{option.label}</option>{/each}
-          </select>
+          <Select
+            id="simulation-champ"
+            class="fr-mt-1w"
+            options={champs.map((option) => ({ value: option.column, label: option.label }))}
+            bind:value={champ}
+          />
         </div>
         <div class="fr-input-group">
           <label class="fr-label" for="simulation-valeur">Nouvelle valeur</label>

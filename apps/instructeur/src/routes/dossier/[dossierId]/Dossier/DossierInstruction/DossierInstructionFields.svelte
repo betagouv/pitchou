@@ -2,6 +2,8 @@
   import { phases } from "$lib/dossier/displayDossier.ts";
   import { nextActionGroups, nextActionValue, parseNextActionValue } from "./nextAction.ts";
   import DateInput from "$lib/components/DateInput.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -33,18 +35,29 @@
     dismiss,
   }: Props = $props();
 
+  const phaseOptions = $derived([...phases].map((phase) => ({ value: phase, label: phase })));
+
+  const nextActionOptions: SelectEntry[] = [
+    { value: "", label: "—" },
+    ...nextActionGroups.map((group) => ({ label: group.entity, options: group.options })),
+  ];
+
   // The entity in charge and its expected action are picked together, so a
   // « Compléter le dossier » can never end up attributed to the préfecture.
-  function setNextAction(event: Event) {
-    const { entity, action } = parseNextActionValue(
-      (event.currentTarget as HTMLSelectElement).value,
-    );
+  function setNextAction(value: string) {
+    const { entity, action } = parseNextActionValue(value);
     nextAction = entity;
     nextActionExpected = action;
   }
 
-  function setDdep(event: Event) {
-    const value = (event.currentTarget as HTMLSelectElement).value;
+  const ddepOptions = [
+    { value: "oui", label: "Oui" },
+    { value: "non_er_mesures_sufficient", label: "Non, mesures Éviter, Réduire (ER) suffisantes" },
+    { value: "non_sans_objet", label: "Non, sans objet" },
+    { value: "a_determiner", label: "À déterminer" },
+  ];
+
+  function setDdep(value: string) {
     if (value === "oui") {
       ddep = true;
       erSufficient = false;
@@ -62,8 +75,13 @@
 
   const enjeuValue = $derived(enjeu === true ? "oui" : enjeu === false ? "non" : "a_determiner");
 
-  function setEnjeu(event: Event) {
-    const value = (event.currentTarget as HTMLSelectElement).value;
+  const enjeuOptions = [
+    { value: "oui", label: "Oui" },
+    { value: "non", label: "Non" },
+    { value: "a_determiner", label: "À déterminer" },
+  ];
+
+  function setEnjeu(value: string) {
     enjeu = value === "oui" ? true : value === "non" ? false : null;
   }
 
@@ -78,9 +96,7 @@
       <span class="fr-icon-time-line {iconClass}" aria-hidden="true"></span>
       Phase en cours
     </label>
-    <select bind:value={phase} class="fr-select fr-m-0" id="phase">
-      {#each phases as value}<option {value}>{value}</option>{/each}
-    </select>
+    <Select id="phase" options={phaseOptions} bind:value={phase} />
   </div>
 
   <div class={rowClass}>
@@ -89,20 +105,12 @@
       Prochaine action attendue
     </label>
     <div class="flex flex-col gap-1">
-      <select
-        value={nextActionValue(nextAction ?? null, nextActionExpected ?? null)}
-        onchange={setNextAction}
-        class="fr-select fr-m-0"
+      <Select
         id="next_action_expected"
-      >
-        <option value="">—</option>
-        {#each nextActionGroups as group}
-          <optgroup label={group.entity}>
-            {#each group.options as option}<option value={option.value}>{option.label}</option
-              >{/each}
-          </optgroup>
-        {/each}
-      </select>
+        options={nextActionOptions}
+        value={nextActionValue(nextAction ?? null, nextActionExpected ?? null)}
+        onChange={setNextAction}
+      />
       <!-- A closed select only shows the option label, so « Autre » alone would
            not say who is waited on. -->
       {#if nextAction}
@@ -148,14 +156,7 @@
       <span class="fr-icon-leaf-line {iconClass}" aria-hidden="true"></span>
       Nécessité d’une DDEP
     </label>
-    <select bind:value={ddepValue} onchange={setDdep} class="fr-select fr-m-0" id="ddep-necessaire">
-      <option value="oui">Oui</option>
-      <option value="non_er_mesures_sufficient"
-        >Non, mesures Éviter, Réduire (ER) suffisantes</option
-      >
-      <option value="non_sans_objet">Non, sans objet</option>
-      <option value="a_determiner">À déterminer</option>
-    </select>
+    <Select id="ddep-necessaire" options={ddepOptions} bind:value={ddepValue} onChange={setDdep} />
   </div>
 
   <div class={rowClass}>
@@ -163,11 +164,7 @@
       <span class="fr-icon-alarm-warning-line {iconClass}" aria-hidden="true"></span>
       Dossier à enjeu
     </label>
-    <select value={enjeuValue} onchange={setEnjeu} class="fr-select fr-m-0" id="enjeu">
-      <option value="oui">Oui</option>
-      <option value="non">Non</option>
-      <option value="a_determiner">À déterminer</option>
-    </select>
+    <Select id="enjeu" options={enjeuOptions} value={enjeuValue} onChange={setEnjeu} />
   </div>
 
   <div class={rowClass}>

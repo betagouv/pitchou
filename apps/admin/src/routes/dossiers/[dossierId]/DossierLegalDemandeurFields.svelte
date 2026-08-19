@@ -1,6 +1,7 @@
 <script lang="ts">
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
+  import Select from "@pitchou/ui/Select.svelte";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
 
@@ -15,6 +16,37 @@
     !!model.personneMorale.region &&
       !dossierRegionOptions.includes(model.personneMorale.region as never),
   );
+
+  // A value predating the current list stays selectable, so opening a dossier
+  // never silently drops it.
+  const departmentOptions = $derived([
+    { value: "", label: "Non renseigné" },
+    ...(hasLegacyDepartment
+      ? [
+          {
+            value: model.personneMorale.department,
+            label: `${model.personneMorale.department} (valeur historique)`,
+          },
+        ]
+      : []),
+    ...departements.map((department) => ({
+      value: department.name,
+      label: `${department.code} - ${department.name}`,
+    })),
+  ]);
+
+  const regionOptions = $derived([
+    { value: "", label: "Non renseignée" },
+    ...(hasLegacyRegion
+      ? [
+          {
+            value: model.personneMorale.region,
+            label: `${model.personneMorale.region} (valeur historique)`,
+          },
+        ]
+      : []),
+    ...dossierRegionOptions.map((region) => ({ value: region, label: region })),
+  ]);
 </script>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -68,38 +100,20 @@
   </div>
   <div class="fr-select-group w-full">
     <label class="fr-label" for="edit-legal-department">Département</label>
-    <select
-      class="fr-select w-full"
+    <Select
       id="edit-legal-department"
+      class="fr-mt-1w w-full"
+      options={departmentOptions}
       bind:value={model.personneMorale.department}
-    >
-      <option value="">Non renseigné</option>
-      {#if hasLegacyDepartment}
-        <option value={model.personneMorale.department}>
-          {model.personneMorale.department} (valeur historique)
-        </option>
-      {/if}
-      {#each departements as department (department.code)}
-        <option value={department.name}>{department.code} - {department.name}</option>
-      {/each}
-    </select>
+    />
   </div>
   <div class="fr-select-group w-full">
     <label class="fr-label" for="edit-legal-region">Région</label>
-    <select
-      class="fr-select w-full"
+    <Select
       id="edit-legal-region"
+      class="fr-mt-1w w-full"
+      options={regionOptions}
       bind:value={model.personneMorale.region}
-    >
-      <option value="">Non renseignée</option>
-      {#if hasLegacyRegion}
-        <option value={model.personneMorale.region}>
-          {model.personneMorale.region} (valeur historique)
-        </option>
-      {/if}
-      {#each dossierRegionOptions as region (region)}
-        <option value={region}>{region}</option>
-      {/each}
-    </select>
+    />
   </div>
 </div>
