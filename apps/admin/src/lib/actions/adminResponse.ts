@@ -2,7 +2,8 @@ import { AccessDeniedError } from "./adminEspeces.ts";
 
 /**
  * Turns a failed admin API response into an error. `action` completes the
- * fallback message, e.g. "du chargement du dossier".
+ * fallback message and carries its own preposition, e.g. "du chargement du
+ * dossier" or "de la création du dossier".
  */
 export async function checkResponse(response: Response, action: string): Promise<void> {
   if (response.ok) return;
@@ -16,5 +17,5 @@ export async function checkResponse(response: Response, action: string): Promise
   } catch {
     // no JSON body
   }
-  throw new Error(message || `Erreur ${response.status} lors de ${action}.`);
+  throw new Error(message || `Erreur ${response.status} lors ${action}.`);
 }
