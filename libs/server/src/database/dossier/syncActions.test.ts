@@ -7,22 +7,14 @@ process.env.TZ = "Europe/Paris";
 import { expect, test } from "vitest";
 
 import { actionsFromSyncUpdates } from "./syncActions.ts";
+import { fakeDatabase } from "../fakeDatabase.ts";
 
 import type { Knex } from "knex";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
-/**
- * The query the diff makes is a single chain ending on `.where("source", …)`, so a
- * thenable at that step is enough to stand in for the database.
- */
 function fakeDb(rows: Partial<Dossier>[]): Knex {
-  const query = {
-    select: () => query,
-    whereIn: () => query,
-    where: () => Promise.resolve(rows),
-  };
-  return (() => query) as unknown as Knex;
+  return fakeDatabase().selectResolves(rows).build().knex;
 }
 
 function updateFor(dossier: Partial<Dossier>): DossierForUpdate {
