@@ -3,6 +3,7 @@ export type DossierTab =
   | "instruction"
   | "avis"
   | "controles"
+  | "historique"
   | "pieces-jointes"
   | "generation-document";
 
@@ -11,6 +12,7 @@ export const dossierTabs: { id: DossierTab; label: string; icon: string }[] = [
   { id: "instruction", label: "Instruction", icon: "fr-icon-survey-line" },
   { id: "avis", label: "Avis d’experts", icon: "fr-icon-quote-line" },
   { id: "controles", label: "Contrôle", icon: "fr-icon-eye-line" },
+  { id: "historique", label: "Historique", icon: "fr-icon-time-line" },
   { id: "pieces-jointes", label: "Pièces jointes", icon: "fr-icon-attachment-line" },
   { id: "generation-document", label: "Générateur de documents", icon: "fr-icon-file-text-line" },
 ];

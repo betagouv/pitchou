@@ -7,6 +7,8 @@ import {
   getDossierCommentaires,
   updateCommentaireFromCap,
 } from "@pitchou/server/database/commentaire.ts";
+import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { CommentaireId } from "@pitchou/types/database/public/Commentaire.ts";
 
@@ -31,7 +33,17 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, createProperties);
-  return json(await addCommentaireFromCap(cap, dossierId, parseContent(body)), { status: 201 });
+  const commentaire = await addCommentaireFromCap(cap, dossierId, parseContent(body));
+  const author = await getPersonneByDossierCap(cap);
+  await logActionsDossier([
+    {
+      dossier: dossierId,
+      type: "commentaire_ajoute",
+      data: { excerpt: commentaire.content.slice(0, 80) },
+      author_personne: author?.id ?? null,
+    },
+  ]);
+  return json(commentaire, { status: 201 });
 };
 
 export const PUT: RequestHandler = async ({ params, url, request }) => {

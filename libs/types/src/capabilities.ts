@@ -21,6 +21,17 @@ export type DossierFollowerCandidate = {
   followsDossier: boolean;
 };
 
+/** An entry of a dossier's historique as exchanged with the API. */
+export type DossierAction = {
+  id: string;
+  type: string;
+  /** Type-specific details: field label, new value, follower email… */
+  data: Record<string, unknown>;
+  created_at: string | Date;
+  author_email: string | null;
+  author_petitionnaire: boolean;
+};
+
 /** A dossier comment as exchanged with the API. */
 export type DossierCommentaire = {
   id: string;
@@ -49,6 +60,7 @@ export interface PitchouInstructeurCapabilities {
     personneEmails: NonNullable<Personne["email"]>[],
   ) => Promise<void>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
+  listerActionsDossier: (dossierId: Dossier["id"]) => Promise<DossierAction[]>;
   listerCommentaires: (dossierId: Dossier["id"]) => Promise<DossierCommentaire[]>;
   ajouterCommentaire: (dossierId: Dossier["id"], content: string) => Promise<DossierCommentaire>;
   modifierCommentaire: (

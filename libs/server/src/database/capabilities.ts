@@ -68,6 +68,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     listDossierFollowerCandidates: listDossiers,
     updateDossierFollowers: listDossiers,
     listerEvenementsPhaseDossier: listDossiers,
+    listerActionsDossier: listDossiers,
     listerCommentaires: listDossiers,
     ajouterCommentaire: listDossiers,
     modifierCommentaire: listDossiers,

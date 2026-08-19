@@ -1,6 +1,7 @@
 import { json, text } from "d3-fetch";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type {
+  DossierAction,
   DossierCommentaire,
   PitchouInstructeurCapabilities,
 } from "@pitchou/types/capabilities.ts";
@@ -8,7 +9,7 @@ import type {
 const dossierIdURLParam = ":dossierId";
 
 type CommentaireCapabilityNames =
-  "listerCommentaires" | "ajouterCommentaire" | "modifierCommentaire";
+  "listerCommentaires" | "ajouterCommentaire" | "modifierCommentaire" | "listerActionsDossier";
 
 export function createDossierCommentaireCapabilities(
   capURLs: StringValues<Pick<PitchouInstructeurCapabilities, CommentaireCapabilityNames>>,
@@ -16,8 +17,19 @@ export function createDossierCommentaireCapabilities(
   const listURL = capURLs.listerCommentaires;
   const addURL = capURLs.ajouterCommentaire;
   const updateURL = capURLs.modifierCommentaire;
+  const actionsURL = capURLs.listerActionsDossier;
 
   return {
+    listerActionsDossier:
+      actionsURL && actionsURL.includes(dossierIdURLParam)
+        ? async (dossierId) => {
+            const actions: DossierAction[] | undefined = await json(
+              actionsURL.replace(dossierIdURLParam, String(dossierId)),
+              { headers: { Accept: "application/json" } },
+            );
+            return actions ?? [];
+          }
+        : undefined,
     listerCommentaires:
       listURL && listURL.includes(dossierIdURLParam)
         ? async (dossierId) => {

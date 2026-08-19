@@ -8,6 +8,8 @@ import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
 } from "@pitchou/server/database/decision_administrative.ts";
+import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 const decisionProperties = new Set([
@@ -90,6 +92,21 @@ export const POST: RequestHandler = async ({ url, request }) => {
     const id = decisionData.id
       ? await updateDecisionAdministrative(decisionData, transaction)
       : await addDecisionAdministrativeWithFichier(decisionData, transaction);
+
+    if (!decisionData.id) {
+      const author = await getPersonneByDossierCap(cap);
+      await logActionsDossier(
+        [
+          {
+            dossier: decisionData.dossier,
+            type: "decision_importee",
+            data: { decision_type: decisionData.type ?? null },
+            author_personne: author?.id ?? null,
+          },
+        ],
+        transaction,
+      );
+    }
 
     await transaction.commit();
     return json(id);

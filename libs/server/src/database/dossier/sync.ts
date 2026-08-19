@@ -1,6 +1,8 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { directDatabaseConnection } from "../../database.ts";
+import { logActionsDossier } from "../action_dossier.ts";
+import { actionsFromSyncUpdates } from "./syncActions.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
@@ -79,6 +81,11 @@ export async function dumpDossiers(
       }
     }
   }
+  // Diffed against the current rows before they are overwritten, so the
+  // historique records what the pétitionnaire changed.
+  const syncActions = await actionsFromSyncUpdates(dossiersForUpdate, db);
+  await logActionsDossier(syncActions, db);
+
   const updates = dossiersForUpdate.map(({ dossier }) =>
     db("dossier")
       .where("demarche_numerique_number", dossier.demarche_numerique_number)

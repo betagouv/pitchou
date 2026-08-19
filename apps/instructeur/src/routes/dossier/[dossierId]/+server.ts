@@ -5,7 +5,9 @@ import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestVali
 import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { getDossierFull, updateDossier } from "@pitchou/server/database/dossier.ts";
+import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { actionsFromDossierUpdate } from "./updateActions.ts";
 import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -170,6 +172,10 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   const transaction = await createTransaction();
   try {
     const updated = await updateDossier(dossierId, dossierUpdate, capPersonne.id, transaction);
+    await logActionsDossier(
+      actionsFromDossierUpdate(dossierUpdate, dossierId, capPersonne.id),
+      transaction,
+    );
     await transaction.commit();
     return json(updated);
   } catch (err) {

@@ -5,6 +5,7 @@
   import DossierDetailProjet from "./Dossier/DossierDetailProjet.svelte";
   import DossierAvis from "./Dossier/DossierAvis.svelte";
   import DossierControles from "./Dossier/DossierControles.svelte";
+  import DossierHistorique from "./Dossier/DossierHistorique.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
@@ -141,6 +142,18 @@
         tabindex="0"
       >
         <DossierControles {dossier}></DossierControles>
+      </div>
+      <div
+        id="tabpanel-historique-panel"
+        aria-labelledby="tabpanel-historique"
+        class="fr-tabs__panel"
+        class:fr-tabs__panel--selected={activeTab === "historique"}
+        role="tabpanel"
+        tabindex="0"
+      >
+        {#if activeTab === "historique"}
+          <DossierHistorique {dossier}></DossierHistorique>
+        {/if}
       </div>
       <div
         id="tabpanel-pieces-jointes-panel"
