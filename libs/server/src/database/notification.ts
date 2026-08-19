@@ -23,6 +23,38 @@ export async function getNotificationsForPersonneFromCap(
 }
 
 /**
+ * Marks dossiers unread for every instructeur following them, dating the change
+ * with the moment it happened on the pétitionnaire's side. An unread flag is only
+ * raised when that moment is more recent than the one already stored: replaying an
+ * older synchronization must not resurrect a notification.
+ */
+export async function markDossiersUnreadForFollowers(
+  modifiedAtByDossier: Map<Notification["dossier"], Date>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<void> {
+  if (modifiedAtByDossier.size === 0) return;
+
+  const followers: { dossier: Notification["dossier"]; personne: Notification["personne"] }[] =
+    await databaseConnection("edge_personne_follows_dossier")
+      .select(["dossier", "personne"])
+      .whereIn("dossier", [...modifiedAtByDossier.keys()]);
+  if (followers.length === 0) return;
+
+  await databaseConnection("notification")
+    .insert(
+      followers.map(({ dossier, personne }) => ({
+        dossier,
+        personne,
+        updated_at: modifiedAtByDossier.get(dossier),
+        viewed: false,
+      })),
+    )
+    .onConflict(["dossier", "personne"])
+    .merge()
+    .whereRaw("(notification.updated_at IS NULL OR EXCLUDED.updated_at > notification.updated_at)");
+}
+
+/**
  * Updates the notification of a personne's dossier from its capability.
  */
 export async function updateNotificationDossierFromCap(
