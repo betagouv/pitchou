@@ -133,6 +133,16 @@ function entryFromAction(action: DossierAction): HistoriqueEntry {
   };
 }
 
+/** Dépôt label per provenance; unknown sources are legacy imports. */
+const depotLabelBySource: Record<string, string> = {
+  demarche_numerique: "Dossier déposé sur Démarches Numériques",
+  pitchou: "Dossier créé dans Pitchou",
+  gunenv: "Dossier importé depuis GunEnv",
+  onagre: "Dossier importé depuis Onagre",
+  import_fichier: "Dossier importé depuis un fichier du service",
+  unknown: "Dossier importé dans Pitchou",
+};
+
 /** Milestones derived from the dossier itself rather than stored actions. */
 function virtualEntries(dossier: DossierFull): HistoriqueEntry[] {
   const entries: HistoriqueEntry[] = [];
@@ -142,7 +152,7 @@ function virtualEntries(dossier: DossierFull): HistoriqueEntry[] {
       id: "virtual-depot",
       icon: "fr-icon-file-text-line",
       tone: viaDN ? "petitionnaire" : "system",
-      label: viaDN ? "Dossier déposé sur Démarches Numériques" : "Dossier créé dans Pitchou",
+      label: depotLabelBySource[dossier.source] ?? depotLabelBySource.unknown,
       date: new Date(dossier.depot_date),
       author: viaDN ? "par le pétitionnaire" : undefined,
     });

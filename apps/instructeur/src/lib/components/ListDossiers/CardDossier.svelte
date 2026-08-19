@@ -38,6 +38,11 @@
   );
   const porteurDeProjet = $derived(formatPorteurDeProjet(dossier) || "(non renseigné)");
   const localisation = $derived(formatLocalisation(dossier) || "(non renseignée)");
+  const importPlatforms: Record<string, string> = {
+    gunenv: "GunEnv",
+    onagre: "Onagre",
+    import_fichier: "un fichier du service",
+  };
   const reference = $derived(
     dossier.source === "demarche_numerique"
       ? dossier.demarche_numerique_number
@@ -45,7 +50,9 @@
         : `Dossier DN · identifiant Pitchou n°${dossier.id}`
       : dossier.source === "pitchou"
         ? `Dossier Pitchou n°${dossier.id}`
-        : `Dossier n°${dossier.id} · source inconnue`,
+        : importPlatforms[dossier.source]
+          ? `Dossier n°${dossier.id} · importé depuis ${importPlatforms[dossier.source]}`
+          : `Dossier n°${dossier.id} · source inconnue`,
   );
 </script>
 

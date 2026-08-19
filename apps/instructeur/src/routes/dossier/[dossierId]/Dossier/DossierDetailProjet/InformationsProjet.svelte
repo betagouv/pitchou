@@ -15,6 +15,13 @@
   function displayBoolean(value: boolean | null | undefined): string {
     return typeof value === "boolean" ? (value ? "Oui" : "Non") : "Non renseigné";
   }
+
+  /** Platform name for dossiers imported from another tool. */
+  const importPlatforms: Record<string, string> = {
+    gunenv: "GunEnv",
+    onagre: "Onagre",
+    import_fichier: "un fichier du service",
+  };
 </script>
 
 <!-- The field names match the labels logged by the synchronization diff
@@ -131,4 +138,6 @@
     </p>{/if}
 {:else if dossier.source === "pitchou"}<p class="fr-text-mention--grey">
     Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
+  </p>{:else if importPlatforms[dossier.source]}<p class="fr-text-mention--grey">
+    Ce dossier a été importé depuis {importPlatforms[dossier.source]}.
   </p>{:else}<p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>{/if}
