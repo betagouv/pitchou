@@ -4,6 +4,10 @@ import { expect, test } from "vitest";
 import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
 import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
+import {
+  ACTIVITE_CODE_BY_LABEL_FIXTURE,
+  ACTIVITES_FIXTURE,
+} from "../nouveau/dossierCreationModel/activiteFixture.ts";
 
 function makeDetail(groupe: AdminDossierDetail["groupe"]): AdminDossierDetail {
   return {
@@ -38,6 +42,8 @@ function renderForm(detail: AdminDossierDetail): string {
   return render(DossierNativeIntakeForm, {
     props: {
       detail,
+      activites: ACTIVITES_FIXTURE,
+      activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
       onSaved: () => undefined,
       onFilesChanged: async () => undefined,
     },

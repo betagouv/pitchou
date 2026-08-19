@@ -2,7 +2,6 @@ import { departements } from "@pitchou/common/departements.ts";
 import {
   aeProcedureOptions,
   dossierLocationScopeOptions,
-  dossierMainActiviteOptions,
   dossierRegionOptions,
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
@@ -13,7 +12,8 @@ import {
   scientifiqueDemandeTypeOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
 
-export const MAIN_ACTIVITE_VALUES = new Set<string>(dossierMainActiviteOptions);
+// The accepted « Activité principale » values come from the activity referentiel, not from a
+// hardcoded list — see activiteContext.ts.
 export const REQUEST_CONTEXT_VALUES = new Set<string>(dossierRequestContextOptions);
 export const MOTIF_DEROGATION_VALUES = new Set<string>([
   ...motifDerogationOptions,

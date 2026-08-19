@@ -2,18 +2,27 @@ import { describe, expect, test } from "vitest";
 
 import {
   dossierLocationScopeOptions,
-  dossierMainActiviteOptions,
   dossierRequestContextOptions,
   legacyMotifDerogationOptions,
   motifDerogationOptions,
   scientifiqueDemandeTypeOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
-import { parseColumns } from "./columnValidation.ts";
+import { parseColumns as parseColumnsWithContext } from "./columnValidation.ts";
+
+// A minimal activity referentiel: one canonical label plus a historical (renamed) one.
+const activiteContext = {
+  acceptedLabels: new Set(["Carrières", "Carrières (ancien libellé)"]),
+  codeByLabel: new Map([
+    ["Carrières", "carrieres"],
+    ["Carrières (ancien libellé)", "carrieres"],
+  ]),
+};
+const parseColumns = (raw: unknown) => parseColumnsWithContext(raw, activiteContext);
 
 describe("parseColumns", () => {
   test("accepts constrained DN values and structured columns", () => {
     const parsed = parseColumns({
-      main_activite: dossierMainActiviteOptions[0],
+      main_activite: "Carrières",
       motif_derogation: motifDerogationOptions[0],
       departments: ["69"],
       regions: ["Auvergne-Rhône-Alpes"],
@@ -26,7 +35,7 @@ describe("parseColumns", () => {
     });
 
     expect(parsed).toMatchObject({
-      main_activite: dossierMainActiviteOptions[0],
+      main_activite: "Carrières",
       departments: JSON.stringify(["69"]),
       primary_department: "69",
       scientifique_intervenants: JSON.stringify([
@@ -47,6 +56,12 @@ describe("parseColumns", () => {
     ["scientifique_demande_type", ["Opération inconnue"]],
   ])("rejects an invalid constrained value for %s", (column, value) => {
     expect(() => parseColumns({ [column]: value })).toThrow();
+  });
+
+  test("accepts a historical activity label known to the referentiel", () => {
+    expect(parseColumns({ main_activite: "Carrières (ancien libellé)" })).toMatchObject({
+      main_activite: "Carrières (ancien libellé)",
+    });
   });
 
   test("accepts an already-stored legacy derogation reason", () => {

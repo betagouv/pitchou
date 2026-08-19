@@ -7,6 +7,7 @@ import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
 import { isValidProjectMap } from "$lib/projectMapValidation.ts";
 
+import type { ActiviteContext } from "./activiteContext.ts";
 import { COLUMN_KINDS, type ColumnKind } from "./columnKinds.ts";
 import {
   AE_PROCEDURE_VALUES,
@@ -14,7 +15,6 @@ import {
   EOLIEN_MORTALITY_ACTION_VALUES,
   ESPECES_PRISE_DETENTION_LIMITEE_TYPE_VALUES,
   LOCATION_SCOPE_VALUES,
-  MAIN_ACTIVITE_VALUES,
   MOTIF_DEROGATION_VALUES,
   REGION_VALUES,
   REQUEST_CONTEXT_VALUES,
@@ -37,7 +37,7 @@ function parseDate(column: string, raw: unknown): Date {
   return new Date(raw);
 }
 
-function parseString(column: string, raw: unknown): string {
+function parseString(column: string, raw: unknown, activiteContext: ActiviteContext): string {
   if (typeof raw !== "string") error(400, `Property '${column}' must be a string.`);
   if (
     column === "next_action_expected_from" &&
@@ -48,7 +48,7 @@ function parseString(column: string, raw: unknown): string {
   if (column === "type" && !TYPE_DOSSIER_VALUES.has(raw)) {
     error(400, `Property 'type' must be "Hirondelle" or "Cigogne".`);
   }
-  if (column === "main_activite" && !MAIN_ACTIVITE_VALUES.has(raw)) {
+  if (column === "main_activite" && !activiteContext.acceptedLabels.has(raw)) {
     error(400, `Property 'main_activite' is invalid.`);
   }
   if (column === "request_context" && !REQUEST_CONTEXT_VALUES.has(raw)) {
@@ -132,9 +132,14 @@ function parseStructuredColumn(column: string, raw: unknown): string {
   return JSON.stringify(raw);
 }
 
-function parseColumnValue(column: string, kind: ColumnKind, raw: unknown): unknown {
+function parseColumnValue(
+  column: string,
+  kind: ColumnKind,
+  raw: unknown,
+  activiteContext: ActiviteContext,
+): unknown {
   if (column === "linked_to_ae_regime" && raw === "unknown") return null;
-  if (kind === "string") return parseString(column, raw);
+  if (kind === "string") return parseString(column, raw, activiteContext);
   if (kind === "date") return parseDate(column, raw);
   if (kind === "stringArray") return parseStringArray(column, raw);
   if (["communes", "intervenants", "geoJson"].includes(kind)) {
@@ -170,7 +175,7 @@ function parseColumnValue(column: string, kind: ColumnKind, raw: unknown): unkno
   return raw;
 }
 
-export function parseColumns(raw: unknown): DossierMutator {
+export function parseColumns(raw: unknown, activiteContext: ActiviteContext): DossierMutator {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     error(400, `Property 'columns' must be an object.`);
   }
@@ -185,7 +190,7 @@ export function parseColumns(raw: unknown): DossierMutator {
       }
       columns[column] = null;
     } else {
-      columns[column] = parseColumnValue(column, kind, value);
+      columns[column] = parseColumnValue(column, kind, value, activiteContext);
     }
   }
   return columns as DossierMutator;

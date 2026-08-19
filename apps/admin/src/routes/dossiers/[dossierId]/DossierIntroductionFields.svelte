@@ -1,24 +1,26 @@
 <script lang="ts">
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
-  import { dossierMainActiviteOptions } from "@pitchou/common/dossierFormOptions.ts";
 
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
   import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
   import TriStateRadio from "./TriStateRadio.svelte";
 
-  type Props = { model: DossierAdminFormModel; disabled: boolean };
-  let { model, disabled }: Props = $props();
+  type Props = { model: DossierAdminFormModel; activites: ActiviteAdmin[]; disabled: boolean };
+  let { model, activites, disabled }: Props = $props();
 
+  // A raw label that is not the display name of an activity (typically an option renamed in DN
+  // and grouped since) stays selectable so saving the dossier does not lose it.
   const hasLegacyActivity = $derived(
-    !!model.mainActivite && !dossierMainActiviteOptions.includes(model.mainActivite as never),
+    !!model.mainActivite && !activites.some(({ label }) => label === model.mainActivite),
   );
   const activiteSelectOptions: SelectEntry<string>[] = $derived([
     { value: "", label: "Non renseignée" },
     ...(hasLegacyActivity
       ? [{ value: model.mainActivite, label: `${model.mainActivite} (valeur historique)` }]
       : []),
-    ...dossierMainActiviteOptions.map((option) => ({ value: option, label: option })),
+    ...activites.map(({ label }) => ({ value: label, label })),
   ]);
 </script>
 

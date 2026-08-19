@@ -8,6 +8,7 @@ import {
 } from "@pitchou/common/dossierFormOptions.ts";
 import DossierCreationDetailsSection from "./DossierCreationDetailsSection.svelte";
 import { createDossierCreationModel } from "../dossierCreationModel.ts";
+import { setModelActivite } from "../dossierCreationModel/activiteFixture.ts";
 
 describe("dossier creation details section", () => {
   it("renders section 8 fields according to their DN conditions", () => {
@@ -36,7 +37,7 @@ describe("dossier creation details section", () => {
     expect(render(DossierCreationDetailsSection, { props: { model } }).body).toContain(
       'id="limited-specimen-0"',
     );
-    model.mainActivite = "Production énergie renouvelable - Éolien -  Suivi mortalité";
+    setModelActivite(model, "Production énergie renouvelable - Éolien -  Suivi mortalité");
     model.motifDerogation = motifDerogationOptions[4];
     const windBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(windBody).toContain("8.1. Description du parc éolien concerné");
@@ -56,7 +57,7 @@ describe("dossier creation details section", () => {
     expect(carcassBody).toContain("8.3.1. Précisions sur le transport des cadavres");
     expect(carcassBody).toContain('id="carcass-collection-method"');
     expect(carcassBody).toContain('id="carcass-examination-address"');
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.motifDerogation = motifDerogationOptions[4];
     model.scientifiqueDemandeType = [...scientifiqueDemandeTypeOptions.slice(0, 3)];
     const methodsBody = render(DossierCreationDetailsSection, { props: { model } }).body;
@@ -64,7 +65,7 @@ describe("dossier creation details section", () => {
     expect(methodsBody).toContain('id="scientific-light-sources-oui"');
     expect(methodsBody).toContain('id="scientific-marking-conditions"');
     expect(methodsBody).toContain('id="scientific-transport-conditions"');
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     model.requestContext = dossierRequestContextOptions[1];
     const reviewBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(reviewBody).toContain("8.2. Période de l'opération");
@@ -76,8 +77,10 @@ describe("dossier creation details section", () => {
     const derogationBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(derogationBody).toContain('id="intervention-duration"');
     expect(derogationBody).toContain('id="complete-dossier-files"');
-    model.mainActivite =
-      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art";
+    setModelActivite(
+      model,
+      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+    );
     model.activiteDetail = "Destruction de nids d'Hirondelles";
     expect(render(DossierCreationDetailsSection, { props: { model } }).body).toContain(
       'id="compensated-nids-count"',

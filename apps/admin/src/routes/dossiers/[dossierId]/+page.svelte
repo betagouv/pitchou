@@ -4,13 +4,20 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
+  import { onMount } from "svelte";
+
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import {
+    loadActiviteReferentiel,
+    type ActiviteReferentielAdmin,
+  } from "$lib/actions/adminActivites.ts";
   import {
     loadDossierDetail,
     deleteDossier,
     AccessDeniedError,
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
+  import { activiteCodeByLabel, sortedActivites } from "$lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
@@ -23,6 +30,12 @@
   const editFormId = "dossier-admin-edit-form";
 
   let detail = $derived<AdminDossierDetail | null>(data.detail);
+  // The edit forms resolve the activity through the referentiel, so they render once it loads.
+  let activiteReferentiel = $state<ActiviteReferentielAdmin | null>(null);
+  const activites = $derived(activiteReferentiel ? sortedActivites(activiteReferentiel) : []);
+  const codeByLabel = $derived(
+    activiteReferentiel ? activiteCodeByLabel(activiteReferentiel) : new Map<string, string>(),
+  );
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let saving = $state(false);
@@ -30,6 +43,15 @@
   let confirmingDelete = $state(false);
   let deleting = $state(false);
   let deleteError = $state<string | null>(null);
+
+  onMount(async () => {
+    try {
+      activiteReferentiel = await loadActiviteReferentiel();
+    } catch (e) {
+      if (e instanceof AccessDeniedError) accessDenied = true;
+      else loadError = e instanceof Error ? e.message : String(e);
+    }
+  });
 
   // The shell header shows the dossier name instead of the generic "Dossier".
   $effect(() => {
@@ -104,9 +126,13 @@
     </div>
   {/if}
 
-  {#if detail.source !== "pitchou"}
+  {#if !activiteReferentiel}
+    <Loader />
+  {:else if detail.source !== "pitchou"}
     <DossierAdminForm
       {detail}
+      {activites}
+      activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}
       onSaved={(updated) => (detail = updated)}
@@ -115,6 +141,8 @@
   {:else}
     <DossierNativeIntakeForm
       {detail}
+      {activites}
+      activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}
       onSaved={(updated) => (detail = updated)}

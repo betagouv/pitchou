@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
@@ -21,6 +22,7 @@
   let {
     model,
     groupes,
+    activites,
     showAdminSection = true,
     showFirstSectionTopBorder = true,
     originalLegalSiret,
@@ -31,6 +33,7 @@
   }: {
     model: DossierCreationModel;
     groupes: AdminGroupeInstructeurs[];
+    activites: ActiviteAdmin[];
     showAdminSection?: boolean;
     showFirstSectionTopBorder?: boolean;
     originalLegalSiret?: string | null;
@@ -42,7 +45,7 @@
 </script>
 
 <DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
-<DossierCreationProjectSection {model} />
+<DossierCreationProjectSection {model} {activites} />
 <DossierCreationDemandeurSection
   {model}
   {originalLegalSiret}

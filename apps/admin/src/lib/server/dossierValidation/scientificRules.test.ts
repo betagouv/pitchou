@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { dossierRequestContextOptions } from "@pitchou/common/dossierFormOptions.ts";
-import { parseDossierCreation, parseDossierUpdate } from "../dossierValidation.ts";
-import { relations, validCreation } from "./creationFixture.ts";
+import {
+  parseDossierCreation as parseCreationWithContext,
+  parseDossierUpdate as parseUpdateWithContext,
+} from "../dossierValidation.ts";
+import { activiteContextFixture, relations, validCreation } from "./creationFixture.ts";
+
+const parseDossierCreation = (body: Record<string, unknown>) =>
+  parseCreationWithContext(body, activiteContextFixture);
+const parseDossierUpdate = (body: Record<string, unknown>) =>
+  parseUpdateWithContext(body, activiteContextFixture);
 
 describe("dossier scientific and relation validation", () => {
   it("rejects wind farm values outside the wind mortality branch", () => {

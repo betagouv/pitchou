@@ -1,29 +1,38 @@
 import { error } from "@sveltejs/kit";
 import {
-  dossierMainActivitesWithoutRequestContext,
+  ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT,
+  activiteCodeForLabel,
+  RESTAURATION_BATIMENTS_ACTIVITE_CODE,
+  TRANSPORT_ACTIVITE_CODES,
+} from "@pitchou/common/activiteCodes.ts";
+import {
   dossierRequestContextOptions,
   requiresEspecesPriseDetentionLimiteeType,
   requiresScientificDemandeType,
   requiresSpeciesFile,
-  restaurationMainActivite,
-  transportMainActivites,
 } from "@pitchou/common/dossierFormOptions.ts";
 import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
+import type { ActiviteContext } from "./activiteContext.ts";
 
-const MAIN_ACTIVITES_WITHOUT_CONTEXT = new Set<string>(dossierMainActivitesWithoutRequestContext);
+const CODES_WITHOUT_CONTEXT = new Set<string>(ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT);
 
 export function isValidPhone(phone: string): boolean {
   const digits = phone.replaceAll(/\D/g, "");
   return /^\+?[0-9(). -]+$/.test(phone) && digits.length >= 10 && digits.length <= 15;
 }
 
-export function validateCreationCore(columns: DossierMutator, raw: Record<string, unknown>) {
+export function validateCreationCore(
+  columns: DossierMutator,
+  raw: Record<string, unknown>,
+  activiteContext: ActiviteContext,
+) {
   const phone = columns.urgent_contact_phone;
   if (typeof phone !== "string" || !isValidPhone(phone))
     error(400, `Property 'urgent_contact_phone' must be a valid phone number.`);
   const mainActivite = columns.main_activite;
   if (typeof mainActivite !== "string") error(400, `Property 'main_activite' is required.`);
-  const displaysContext = !MAIN_ACTIVITES_WITHOUT_CONTEXT.has(mainActivite);
+  const activiteCode = activiteCodeForLabel(mainActivite, activiteContext.codeByLabel);
+  const displaysContext = !CODES_WITHOUT_CONTEXT.has(activiteCode ?? "");
   const requestContext = columns.request_context;
   if (displaysContext && typeof requestContext !== "string")
     error(400, `Property 'request_context' is required for this main activity.`);
@@ -38,18 +47,18 @@ export function validateCreationCore(columns: DossierMutator, raw: Record<string
   if (requestContext !== dossierRequestContextOptions[0] && columns.accompaniment_need !== null)
     error(400, `Property 'accompaniment_need' does not apply to this request context.`);
   const requiresDetail =
-    mainActivite === restaurationMainActivite ||
-    transportMainActivites.includes(mainActivite as never);
+    activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE ||
+    TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never);
   if (requiresDetail && !Object.hasOwn(raw, "type"))
     error(400, `Property 'type' is required for this main activity.`);
   if (
-    mainActivite === restaurationMainActivite &&
+    activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE &&
     columns.type !== null &&
     columns.type !== "Hirondelle"
   )
     error(400, `Property 'type' is invalid for this main activity.`);
   if (
-    transportMainActivites.includes(mainActivite as never) &&
+    TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) &&
     columns.type !== null &&
     columns.type !== "Cigogne"
   )
@@ -64,7 +73,7 @@ export function validateCreationCore(columns: DossierMutator, raw: Record<string
     error(400, `Property 'communes' is required for the commune location scope.`);
   if (columns.location_scope === "regions" && !Array.isArray(raw.regions))
     error(400, `Property 'regions' is required for the region location scope.`);
-  const requiresJustification = requiresSpeciesFile(mainActivite, requestContext as string | null);
+  const requiresJustification = requiresSpeciesFile(activiteCode, requestContext as string | null);
   if (requiresJustification) {
     if (
       typeof columns.no_other_satisfactory_solution_justification !== "string" ||
@@ -105,7 +114,7 @@ export function validateCreationCore(columns: DossierMutator, raw: Record<string
   } else if (columns.ae_procedures !== null || columns.ae_other_procedure !== null)
     error(400, `AE procedure properties do not apply to this application.`);
   const destroyedRequired =
-    mainActivite === restaurationMainActivite && columns.type === "Hirondelle";
+    activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle";
   if (
     destroyedRequired &&
     (typeof columns.dossier_oiseau_simple_destroyed_nids_count !== "number" ||

@@ -1,34 +1,38 @@
 <script lang="ts">
+  import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
   import {
-    dossierMainActiviteOptions,
     dossierRequestContextOptions,
     restaurationDemandeOptions,
     transportDemandeOptions,
   } from "@pitchou/common/dossierFormOptions.ts";
 
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     ACCOMPANIMENT_CONTEXT,
     activiteDetailKind,
     showsRequestContext,
     type DossierCreationModel,
-    type MainActivite,
   } from "./dossierCreationModel.ts";
   import SearchableSelect from "./SearchableSelect.svelte";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  type Props = {
+    model: DossierCreationModel;
+    /** The activity referentiel, already sorted for display (see $lib/activiteReferentiel.ts). */
+    activites: ActiviteAdmin[];
+  };
+  let { model, activites }: Props = $props();
 
-  const detailKind = $derived(activiteDetailKind(model.mainActivite));
-  const displayRequestContext = $derived(showsRequestContext(model.mainActivite));
+  const detailKind = $derived(activiteDetailKind(model.activiteCode));
+  const displayRequestContext = $derived(showsRequestContext(model.activiteCode));
 
-  const mainActiviteOptions = dossierMainActiviteOptions.map((option) => ({
-    value: option,
-    label: option,
-  }));
+  const mainActiviteOptions = $derived(activites.map(({ label }) => ({ value: label, label })));
 
   function changeMainActivite(value: string) {
-    model.mainActivite = value as MainActivite;
+    model.mainActivite = value;
+    model.activiteCode =
+      activites.find(({ label }) => label === value)?.code ?? AUTRE_ACTIVITE_CODE;
     model.activiteDetail = "";
-    if (!showsRequestContext(model.mainActivite)) {
+    if (!showsRequestContext(model.activiteCode)) {
       model.requestContext = "";
       model.accompanimentNeed = "";
     }

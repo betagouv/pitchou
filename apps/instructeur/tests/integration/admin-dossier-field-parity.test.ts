@@ -10,7 +10,6 @@ import {
 } from "@pitchou/server/database/dossier_admin.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 import {
-  dossierMainActiviteOptions,
   motifDerogationOptions,
   scientifiqueDemandePurposeOptions,
   scientifiqueDemandeTypeOptions,
@@ -31,7 +30,7 @@ const allDnColumns = {
   name: "Dossier complet",
   description: "Description complète",
   depot_date: new Date("2026-07-10"),
-  main_activite: dossierMainActiviteOptions[0],
+  main_activite: "Aménagements fonciers (AFAF, remembrement)",
   type: "Hirondelle",
   intervention_start_date: new Date("2026-08-01"),
   intervention_end_date: new Date("2026-08-31"),
@@ -108,7 +107,7 @@ test("all DN intake columns round-trip on a native dossier", async () => {
 
   expect(dossier).toMatchObject({
     name: "Dossier complet",
-    main_activite: dossierMainActiviteOptions[0],
+    main_activite: "Aménagements fonciers (AFAF, remembrement)",
     type: "Hirondelle",
     intervention_duration: 12.5,
     linked_to_ae_regime: true,

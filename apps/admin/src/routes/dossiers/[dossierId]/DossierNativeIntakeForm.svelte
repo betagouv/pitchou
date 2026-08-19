@@ -3,34 +3,38 @@
 
   import Select from "@pitchou/ui/Select.svelte";
 
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     loadGroupesInstructeurs,
     updateDossier,
     type AdminDossierDetail,
     type AdminGroupeInstructeurs,
-    type AdminDossierUpdatePayload,
   } from "$lib/actions/adminDossiers.ts";
 
   import DossierIntakeFields from "../nouveau/DossierIntakeFields.svelte";
   import {
     buildCreationPayload,
+    buildNativeEditPayload,
     clearSelectedDossierFiles,
     createDossierCreationModelFromDetail,
     hasLegalSiretChanged,
     mergeDossierRelationsForEdit,
-    selectedDossierAttachmentFiles,
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
 
   let {
     detail,
+    activites,
+    activiteCodeByLabel,
     onSaved,
     onFilesChanged,
     formId = "dossier-admin-edit-form",
     onSavingChange = () => {},
   }: {
     detail: AdminDossierDetail;
+    activites: ActiviteAdmin[];
+    activiteCodeByLabel: ReadonlyMap<string, string>;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
     formId?: string;
@@ -38,7 +42,7 @@
   } = $props();
   // These models intentionally retain in-progress edits when the parent refreshes its detail.
   // svelte-ignore state_referenced_locally
-  let model = $state(createDossierCreationModelFromDetail(detail));
+  let model = $state(createDossierCreationModelFromDetail(detail, activiteCodeByLabel));
   // svelte-ignore state_referenced_locally
   let initialRelations = structuredClone(
     mergeDossierRelationsForEdit(buildCreationPayload(model).relations, detail, ""),
@@ -77,27 +81,12 @@
     saved = false;
     saveError = null;
     try {
-      const intake = buildCreationPayload(model);
-      const attachments = selectedDossierAttachmentFiles(model);
-      const allFiles = [...(model.speciesFile ? [model.speciesFile] : []), ...attachments];
-      if (allFiles.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-        throw new Error("La taille totale des fichiers ne doit pas dépasser 65 Mo.");
-      }
-      const payload: AdminDossierUpdatePayload = {
-        columns: {
-          ...intake.columns,
-          name: intake.name,
-          depot_date: intake.depot_date,
-        },
-      };
-      const relations = mergeDossierRelationsForEdit(
-        intake.relations,
+      const { payload, relations, attachments } = buildNativeEditPayload(
+        model,
         detail,
         companyDetailsChoice,
+        initialRelations,
       );
-      if (JSON.stringify(relations) !== JSON.stringify(initialRelations)) {
-        payload.relations = relations;
-      }
       const updated = await updateDossier(
         detail.dossier.id,
         payload,
@@ -181,6 +170,7 @@
 
     <DossierIntakeFields
       {model}
+      {activites}
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}

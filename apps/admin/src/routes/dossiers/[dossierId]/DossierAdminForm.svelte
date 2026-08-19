@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     updateDossier,
     type AdminDossierDetail,
@@ -19,6 +20,8 @@
 
   type Props = {
     detail: AdminDossierDetail;
+    activites: ActiviteAdmin[];
+    activiteCodeByLabel: ReadonlyMap<string, string>;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
     formId?: string;
@@ -27,6 +30,8 @@
 
   let {
     detail,
+    activites,
+    activiteCodeByLabel,
     onSaved,
     onFilesChanged,
     formId = "dossier-admin-edit-form",
@@ -55,7 +60,7 @@
     saved = false;
     try {
       const payload: AdminDossierUpdatePayload = {
-        columns: buildDossierUpdateColumns(model, readOnly),
+        columns: buildDossierUpdateColumns(model, readOnly, activiteCodeByLabel),
       };
       if (!readOnly) payload.relations = buildDossierRelations(model);
       const updated = await updateDossier(dossier.id, payload);
@@ -79,7 +84,7 @@
     <p class="fr-hint-text fr-mb-0">Les données importées sont affichées en lecture seule.</p>
   {/if}
 
-  <DossierIntroductionFields {model} disabled={readOnly} />
+  <DossierIntroductionFields {model} {activites} disabled={readOnly} />
 
   {#if completeEcologicalInventory}
     {#if !readOnly}<DossierRelationsFields {model} />{/if}

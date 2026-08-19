@@ -1,9 +1,8 @@
+import { activiteCodeForLabel } from "@pitchou/common/activiteCodes.ts";
 import {
   restaurationDemandeOptions,
-  restaurationMainActivite,
   scientifiqueCaptureModeOptions,
   transportDemandeOptions,
-  transportMainActivites,
 } from "@pitchou/common/dossierFormOptions.ts";
 
 import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
@@ -12,8 +11,8 @@ import {
   type CreationCommune,
   type CreationProjectMap,
   type DossierCreationModel,
-  type MainActivite,
 } from "./state.ts";
+import { activiteDetailKind } from "./visibility.ts";
 
 const detailText = (value: unknown) => (typeof value === "string" ? value : "");
 const detailNumber = (value: unknown) => (typeof value === "number" ? value : null);
@@ -110,20 +109,23 @@ function hydrateScientificDetails(
 
 export function createDossierCreationModelFromDetail(
   detail: AdminDossierDetail,
+  activiteCodeByLabel: ReadonlyMap<string, string>,
 ): DossierCreationModel {
   const model = createDossierCreationModel();
   const dossier = detail.dossier;
-  const mainActivite = detailText(dossier.main_activite) as MainActivite;
+  const mainActivite = detailText(dossier.main_activite);
   const type = detailText(dossier.type);
   model.name = detailText(dossier.name);
   model.urgentContactPhone = detailText(dossier.urgent_contact_phone);
   model.mainActivite = mainActivite;
+  model.activiteCode = activiteCodeForLabel(mainActivite, activiteCodeByLabel) ?? "";
+  const detailKind = activiteDetailKind(model.activiteCode);
   model.activiteDetail =
-    mainActivite === restaurationMainActivite
+    detailKind === "restauration"
       ? type === "Hirondelle"
         ? restaurationDemandeOptions[0]
         : restaurationDemandeOptions[1]
-      : transportMainActivites.includes(mainActivite as never)
+      : detailKind === "transport"
         ? type === "Cigogne"
           ? transportDemandeOptions[0]
           : transportDemandeOptions[1]

@@ -1,5 +1,3 @@
-import { dossierMainActiviteOptions } from "@pitchou/common/dossierFormOptions.ts";
-
 export type CreationCommune = {
   name: string;
   code?: string;
@@ -19,7 +17,6 @@ export type CreationProjectMap = {
 };
 
 export type DemandeurType = "" | "personne_physique" | "personne_morale";
-export type MainActivite = (typeof dossierMainActiviteOptions)[number] | "";
 export type DossierCreationModel = ReturnType<typeof createDossierCreationModel>;
 export type CompanyDetailsChoice = "" | "keep" | "reset";
 
@@ -27,7 +24,10 @@ export function createDossierCreationModel() {
   return {
     urgentContactPhone: "",
     name: "",
-    mainActivite: "" as MainActivite,
+    /** Display name of the selected activity, as stored in `dossier.main_activite`. */
+    mainActivite: "",
+    /** Referentiel code of that activity; the conditional logic is keyed on it. */
+    activiteCode: "",
     activiteDetail: "",
     requestContext: "",
     accompanimentNeed: "",
