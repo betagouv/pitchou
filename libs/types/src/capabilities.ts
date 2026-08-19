@@ -21,6 +21,17 @@ export type DossierFollowerCandidate = {
   followsDossier: boolean;
 };
 
+/** A dossier comment as exchanged with the API. */
+export type DossierCommentaire = {
+  id: string;
+  content: string;
+  /** Dates travel as ISO strings on the wire. */
+  created_at: string | Date;
+  updated_at: string | Date | null;
+  /** Null for the comment migrated from the former free comment (« initial »). */
+  author_email: string | null;
+};
+
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
   recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
@@ -38,6 +49,12 @@ export interface PitchouInstructeurCapabilities {
     personneEmails: NonNullable<Personne["email"]>[],
   ) => Promise<void>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
+  listerCommentaires: (dossierId: Dossier["id"]) => Promise<DossierCommentaire[]>;
+  ajouterCommentaire: (dossierId: Dossier["id"], content: string) => Promise<DossierCommentaire>;
+  modifierCommentaire: (
+    dossierId: Dossier["id"],
+    commentaire: Pick<DossierCommentaire, "id" | "content">,
+  ) => Promise<void>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (

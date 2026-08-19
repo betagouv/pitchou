@@ -120,7 +120,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierInstruction {dossier}></DossierInstruction>
+        <DossierInstruction {dossier} {email}></DossierInstruction>
       </div>
       <div
         id="tabpanel-avis-panel"

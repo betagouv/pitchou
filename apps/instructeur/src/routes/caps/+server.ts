@@ -41,6 +41,15 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.listerEvenementsPhaseDossier) {
     ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }
+  if (capBundle.listerCommentaires) {
+    ret.listerCommentaires = `/dossier/:dossierId/commentaires?cap=${capBundle.listerCommentaires}`;
+  }
+  if (capBundle.ajouterCommentaire) {
+    ret.ajouterCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.ajouterCommentaire}`;
+  }
+  if (capBundle.modifierCommentaire) {
+    ret.modifierCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.modifierCommentaire}`;
+  }
   if (capBundle.modifierDossier) {
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`;
   }

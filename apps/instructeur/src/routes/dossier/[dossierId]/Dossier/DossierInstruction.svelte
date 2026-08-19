@@ -5,20 +5,21 @@
   import { updateDossier } from "$lib/dossier/dossier.ts";
   import PhaseTimeline from "./DossierInstruction/PhaseTimeline.svelte";
   import DossierInstructionFields from "./DossierInstruction/DossierInstructionFields.svelte";
+  import Commentaires from "./DossierInstruction/Commentaires.svelte";
   import { dateToInputValue, ddepCompositeValue } from "./DossierInstruction/fieldValues.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossier: DossierFull;
+    email: string;
   };
-  let { dossier }: Props = $props();
+  let { dossier, email }: Props = $props();
 
   const currentPhase = $derived(dossier.evenementsPhase[0]?.phase || "Accompagnement amont");
   let phase = $derived(currentPhase);
   let ddepRequired = $state(untrack(() => dossier.ddep_required));
   let erMesuresSufficient = $state(untrack(() => dossier.er_mesures_sufficient));
   let enjeu = $state(untrack(() => dossier.enjeu));
-  let freeComment = $state(untrack(() => dossier.free_comment));
   let nextActionExpectedFrom = $state(untrack(() => dossier.next_action_expected_from));
   let nextDueDate = $state(untrack(() => dossier.next_due_date));
   let onagreDemandeIdentifier = $state(untrack(() => dossier.onagre_demande_identifier));
@@ -52,7 +53,6 @@
         },
       ];
     }
-    if (dossier.free_comment !== freeComment?.trim()) updates.free_comment = freeComment?.trim();
     if (dossier.next_action_expected_from !== nextActionExpectedFrom)
       updates.next_action_expected_from = nextActionExpectedFrom;
     if (dateToInputValue(dossier.next_due_date) !== dateToInputValue(nextDueDate))
@@ -76,8 +76,7 @@
     if (ddepRequired === null && dossier.er_mesures_sufficient !== null)
       updates.er_mesures_sufficient = null;
     if (Object.keys(updates).length) {
-      if (updates.free_comment || updates.onagre_demande_identifier)
-        updateFieldWithDebounce(updates);
+      if (updates.onagre_demande_identifier) updateFieldWithDebounce(updates);
       else updateField(updates);
     }
   });
@@ -115,14 +114,4 @@
   dismiss={dismissAlert}
 />
 
-<section class="fr-mt-4w fr-mb-4w max-w-[48rem]">
-  <h2 class="fr-mb-2w fr-text--lg">Commentaires</h2>
-  <div class="fr-input-group" onfocusin={dismissAlert}>
-    <label class="fr-label" for="input-commentaire-libre">Commentaire libre</label>
-    <textarea
-      class="fr-input resize-y"
-      id="input-commentaire-libre"
-      bind:value={freeComment}
-      rows={6}></textarea>
-  </div>
-</section>
+<Commentaires {dossier} {email} />
