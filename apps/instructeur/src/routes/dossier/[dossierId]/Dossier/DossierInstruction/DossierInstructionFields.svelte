@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { phases, prochaineActionAttenduePar } from "$lib/dossier/displayDossier.ts";
+  import {
+    phases,
+    prochaineActionAttenduePar,
+    prochainesActionsAttenduesParEntite,
+  } from "$lib/dossier/displayDossier.ts";
   import DateInput from "$lib/components/DateInput.svelte";
-  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     enjeu: boolean | null;
@@ -10,6 +14,7 @@
     erSufficient?: boolean | null;
     phase: string;
     nextAction?: DossierFull["next_action_expected_from"];
+    nextActionExpected?: DossierFull["next_action_expected"];
     nextDueDate?: Date | null;
     onagre?: string | null;
     consultationStart?: Date | null;
@@ -23,12 +28,25 @@
     erSufficient = $bindable(),
     phase = $bindable(),
     nextAction = $bindable(),
+    nextActionExpected = $bindable(),
     nextDueDate = $bindable(),
     onagre = $bindable(),
     consultationStart = $bindable(),
     consultationEnd = $bindable(),
     dismiss,
   }: Props = $props();
+
+  const availableNextActions = $derived(
+    nextAction
+      ? (prochainesActionsAttenduesParEntite.get(nextAction as DossierNextActionExpectedFrom) ?? [])
+      : [],
+  );
+
+  function resetIncompatibleNextAction() {
+    if (nextActionExpected && !(availableNextActions as string[]).includes(nextActionExpected)) {
+      nextActionExpected = null;
+    }
+  }
 
   function setDdep(event: Event) {
     const value = (event.currentTarget as HTMLSelectElement).value;
@@ -75,8 +93,29 @@
       <span class="fr-icon-bank-line {iconClass}" aria-hidden="true"></span>
       Entité en charge de la prochaine action
     </label>
-    <select bind:value={nextAction} class="fr-select fr-m-0" id="next_action_expected_from">
+    <select
+      bind:value={nextAction}
+      onchange={resetIncompatibleNextAction}
+      class="fr-select fr-m-0"
+      id="next_action_expected_from"
+    >
       {#each prochaineActionAttenduePar as actor}<option value={actor}>{actor}</option>{/each}
+    </select>
+  </div>
+
+  <div class={rowClass}>
+    <label class={labelClass} for="next_action_expected">
+      <span class="fr-icon-todo-line {iconClass}" aria-hidden="true"></span>
+      Prochaine action attendue
+    </label>
+    <select
+      bind:value={nextActionExpected}
+      class="fr-select fr-m-0"
+      id="next_action_expected"
+      disabled={availableNextActions.length === 0}
+    >
+      <option value={null}>—</option>
+      {#each availableNextActions as value}<option {value}>{value}</option>{/each}
     </select>
   </div>
 

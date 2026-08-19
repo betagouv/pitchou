@@ -21,6 +21,7 @@
   let erMesuresSufficient = $state(untrack(() => dossier.er_mesures_sufficient));
   let enjeu = $state(untrack(() => dossier.enjeu));
   let nextActionExpectedFrom = $state(untrack(() => dossier.next_action_expected_from));
+  let nextActionExpected = $state(untrack(() => dossier.next_action_expected));
   let nextDueDate = $state(untrack(() => dossier.next_due_date));
   let onagreDemandeIdentifier = $state(untrack(() => dossier.onagre_demande_identifier));
   let publicConsultationStartDate = $state(untrack(() => dossier.public_consultation_start_date));
@@ -55,6 +56,8 @@
     }
     if (dossier.next_action_expected_from !== nextActionExpectedFrom)
       updates.next_action_expected_from = nextActionExpectedFrom;
+    if (dossier.next_action_expected !== (nextActionExpected ?? null))
+      updates.next_action_expected = nextActionExpected ?? null;
     if (dateToInputValue(dossier.next_due_date) !== dateToInputValue(nextDueDate))
       updates.next_due_date = nextDueDate ?? null;
     if (dossier.onagre_demande_identifier !== onagreDemandeIdentifier?.trim())
@@ -107,6 +110,7 @@
   bind:erSufficient={erMesuresSufficient}
   bind:phase
   bind:nextAction={nextActionExpectedFrom}
+  bind:nextActionExpected
   bind:nextDueDate
   bind:onagre={onagreDemandeIdentifier}
   bind:consultationStart={publicConsultationStartDate}

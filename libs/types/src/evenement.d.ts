@@ -76,6 +76,8 @@ export type EvenementMetrique =
   | { type: "changerPhase" }
   // Change the next expected action from
   | { type: "changerProchaineActionAttendueDe" }
+  // Set or clear the next expected action
+  | { type: "changerProchaineActionAttendue" }
   // Set or clear the date of the dossier's next échéance
   | { type: "changerDateProchaineEcheance" }
   // Add an administrative decision

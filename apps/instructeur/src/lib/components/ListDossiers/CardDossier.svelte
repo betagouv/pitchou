@@ -122,6 +122,9 @@
     <p class="fr-mb-0 font-bold leading-tight">
       {dossier.next_action_expected_from || "(non renseignée)"}
     </p>
+    {#if dossier.next_action_expected}
+      <p class="fr-mb-0 leading-tight">→&nbsp;{dossier.next_action_expected}</p>
+    {/if}
   </div>
 
   <div class="flex flex-wrap items-start gap-1">

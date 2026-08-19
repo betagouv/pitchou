@@ -33,6 +33,10 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
   if (updates.next_action_expected_from) {
     sendEvenement({ type: "changerProchaineActionAttendueDe" });
   }
+  // The next expected action can be cleared, so an explicit `null` is a change too.
+  if ("next_action_expected" in updates) {
+    sendEvenement({ type: "changerProchaineActionAttendue" });
+  }
   // The échéance can be cleared, so an explicit `null` is a change too.
   if ("next_due_date" in updates) {
     sendEvenement({ type: "changerDateProchaineEcheance" });

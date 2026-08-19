@@ -45,6 +45,48 @@ test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({
   await expect(page.locator("#enjeu")).toBeVisible();
 });
 
+test("la prochaine action attendue dépend de l'entité en charge et est persistée", async ({
+  page,
+  db,
+  loginAs,
+}) => {
+  const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
+    email: "instr@prochaine-action.fr",
+    dossierNom: "Dossier prochaine action e2e",
+  });
+
+  await loginAs(codeAcces);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
+
+  const entite = page.locator("#next_action_expected_from");
+  const action = page.locator("#next_action_expected");
+
+  // The available actions follow the entity in charge of the next action.
+  await entite.selectOption("Instructeur");
+  await expect(action).toBeEnabled();
+  await expect(action.locator("option")).toHaveText([
+    "—",
+    "Envoyer la saisine",
+    "Consulter le dossier",
+  ]);
+  await action.selectOption("Envoyer la saisine");
+  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
+  await expect(action).toHaveValue("Envoyer la saisine");
+
+  // Switching to an entity without suggested actions clears and disables the select.
+  await entite.selectOption("CNPN/CSRPN");
+  await expect(action).toBeDisabled();
+  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
+  await expect(page.locator("#next_action_expected")).toBeDisabled();
+});
+
 test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a stakeholder file", async ({
   page,
   db,

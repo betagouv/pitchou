@@ -2,13 +2,21 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
+import {
+  phases,
+  prochaineActionAttenduePar,
+  prochainesActionsAttendues,
+} from "@pitchou/common/phases.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { getDossierFull, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
-import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+import type {
+  DossierNextActionExpected,
+  DossierNextActionExpectedFrom,
+  DossierPhase,
+} from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -16,6 +24,7 @@ import type EvenementPhaseDossier from "@pitchou/types/database/public/Evenement
 const dossierUpdateProperties = new Set([
   "free_comment",
   "next_action_expected_from",
+  "next_action_expected",
   "next_due_date",
   "onagre_demande_identifier",
   "enjeu",
@@ -101,6 +110,15 @@ function parseDossierUpdate(value: Record<string, unknown>, dossierId: DossierId
       ))
   ) {
     error(400, `La propriété 'next_action_expected_from' n'est pas valide.`);
+  }
+
+  if (
+    value.next_action_expected !== undefined &&
+    value.next_action_expected !== null &&
+    (typeof value.next_action_expected !== "string" ||
+      !prochainesActionsAttendues.has(value.next_action_expected as DossierNextActionExpected))
+  ) {
+    error(400, `La propriété 'next_action_expected' n'est pas valide.`);
   }
 
   if (value.enjeu !== undefined && typeof value.enjeu !== "boolean") {

@@ -55,8 +55,12 @@ export type DossierNextActionExpectedFrom =
   | "Pétitionnaire"
   | "Consultation du public"
   | "Autre administration"
+  | "Préfet·e"
   | "Autre"
   | "Personne";
+
+export type DossierNextActionExpected =
+  "Compléter le dossier" | "Envoyer la saisine" | "Consulter le dossier" | "Signer l'arrêté";
 
 type DossierLocalisation = {
   communes: { name: string; code: string; postalCode: string }[] | null | undefined;
@@ -96,6 +100,7 @@ export type DossierSummary = Pick<
   | "enjeu"
   | "linked_to_ae_regime"
   | "next_action_expected_from"
+  | "next_action_expected"
   | "next_due_date"
   | "free_comment"
   | "onagre_demande_identifier"

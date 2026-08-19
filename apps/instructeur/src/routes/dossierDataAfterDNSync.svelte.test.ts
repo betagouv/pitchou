@@ -4,6 +4,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
   goto: vi.fn(),
+  replaceState: vi.fn(),
 }));
 
 vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({

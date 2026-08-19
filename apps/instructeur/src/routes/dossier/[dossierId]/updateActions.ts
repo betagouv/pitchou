@@ -36,6 +36,8 @@ export function actionsFromDossierUpdate(
   if (lastPhaseEvent) add("phase_renseignee", { value: lastPhaseEvent.phase });
   if ("next_action_expected_from" in update)
     add("prochaine_action_renseignee", { value: update.next_action_expected_from ?? null });
+  if ("next_action_expected" in update)
+    add("prochaine_action_attendue_renseignee", { value: update.next_action_expected ?? null });
   if ("next_due_date" in update)
     add("echeance_renseignee", { value: isoDay(update.next_due_date) });
   if ("ddep_required" in update || "er_mesures_sufficient" in update)
