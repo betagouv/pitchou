@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/svelte";
+import { render, screen } from "@testing-library/svelte";
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -23,6 +23,7 @@ import { store } from "$lib/state/store.svelte.ts";
 import { getDossierFull } from "$lib/dossier/dossier.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
+import { dossierPageProps, resetDossierPageState } from "./dossierPageTestSetup.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -34,23 +35,18 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 // way. The page must still display the dossier it received.
 
 const DOSSIER_ID = 123 as DossierId;
-const NOM = "Dossier partagé en lecture";
+const DOSSIER_NAME = "Dossier partagé en lecture";
 
-afterEach(() => {
-  cleanup();
-  store.fullDossiers.clear();
-  store.readOnlyDossiers.clear();
-  store.dossierSummaries.clear();
-  store.capabilities = {};
-  store.identité = undefined;
-});
+afterEach(resetDossierPageState);
 
 function setUpSharedDossier() {
   store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
   store.capabilities = {
     recupérerDossierComplet: vi
       .fn()
-      .mockResolvedValue(fakeDossierFull({ id: DOSSIER_ID, name: NOM, access: "lecture" })),
+      .mockResolvedValue(
+        fakeDossierFull({ id: DOSSIER_ID, name: DOSSIER_NAME, access: "lecture" }),
+      ),
   } as unknown as PitchouState["capabilities"];
 }
 
@@ -59,12 +55,9 @@ test("a dossier shared in read-only is displayed even when the URL does not ask 
 
   // same call as the load of the dossier/[dossierId] route, without `?lecture=1`
   await getDossierFull(DOSSIER_ID, { readOnly: false });
-  render(PageDossier, {
-    data: { dossierId: DOSSIER_ID, readOnly: false, fullWidth: true },
-    params: { dossierId: String(DOSSIER_ID) },
-  });
+  render(PageDossier, dossierPageProps(DOSSIER_ID));
 
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(NOM);
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(DOSSIER_NAME);
   // the payload is narrowed, so the page says so, whatever the URL asked for
   expect(screen.getByText("Dossier en lecture seule")).toBeTruthy();
 });
@@ -76,4 +69,22 @@ test("a dossier shared in read-only never reaches the full dossiers cache", asyn
 
   expect(store.fullDossiers.has(DOSSIER_ID)).toBe(false);
   expect(store.readOnlyDossiers.has(DOSSIER_ID)).toBe(true);
+});
+
+test("navigating back to a shared dossier serves the cache instead of waiting for the server", async () => {
+  setUpSharedDossier();
+  await getDossierFull(DOSSIER_ID, { readOnly: false });
+
+  // The server slows to a crawl: the cached dossier must carry the navigation.
+  store.capabilities = {
+    recupérerDossierComplet: vi.fn().mockReturnValue(new Promise(() => {})),
+  } as unknown as PitchouState["capabilities"];
+
+  // same call as the load: the URL still does not ask for read-only
+  const winner = await Promise.race([
+    getDossierFull(DOSSIER_ID, { readOnly: false }).then(({ name }) => name),
+    new Promise((resolve) => setTimeout(() => resolve("bloqué sur le serveur"), 50)),
+  ]);
+
+  expect(winner).toBe(DOSSIER_NAME);
 });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
+import { render, screen, waitFor } from "@testing-library/svelte";
 import { tick } from "svelte";
 
 vi.mock(import("$app/navigation"), () => ({
@@ -23,6 +23,7 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 import { store } from "$lib/state/store.svelte.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
+import { dossierPageProps as pageProps, resetDossierPageState } from "./dossierPageTestSetup.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierAction } from "@pitchou/types/capabilities.ts";
@@ -33,19 +34,12 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 // hold about the dossier they were showing has to go with it. What one dossier is
 // worth must never be written onto, nor read for, the next one.
 
-const PREMIER = 1 as DossierId;
+const FIRST = 1 as DossierId;
 const SECOND = 2 as DossierId;
 
 let modifierDossier: ReturnType<typeof vi.fn>;
 let updateNotificationForDossier: ReturnType<typeof vi.fn>;
 let actionsByDossier: Map<DossierId, DossierAction[]>;
-
-function pageProps(id: DossierId) {
-  return {
-    data: { dossierId: id, readOnly: false, fullWidth: true },
-    params: { dossierId: String(id) },
-  };
-}
 
 beforeEach(() => {
   modifierDossier = vi.fn().mockResolvedValue(undefined);
@@ -59,28 +53,19 @@ beforeEach(() => {
   } as unknown as PitchouState["capabilities"];
 });
 
-afterEach(() => {
-  cleanup();
-  vi.useRealTimers();
-  store.fullDossiers.clear();
-  store.readOnlyDossiers.clear();
-  store.dossierSummaries.clear();
-  store.notificationByDossier.clear();
-  store.capabilities = {};
-  store.identité = undefined;
-});
+afterEach(resetDossierPageState);
 
 test("the instruction champs of a dossier are not saved onto the next one", async () => {
   store.fullDossiers.set(
-    PREMIER,
-    fakeDossierFull({ id: PREMIER, name: "Premier dossier", enjeu: true, ddep_required: true }),
+    FIRST,
+    fakeDossierFull({ id: FIRST, name: "Premier dossier", enjeu: true, ddep_required: true }),
   );
   store.fullDossiers.set(
     SECOND,
     fakeDossierFull({ id: SECOND, name: "Second dossier", enjeu: false, ddep_required: null }),
   );
 
-  const { rerender } = render(PageDossier, pageProps(PREMIER));
+  const { rerender } = render(PageDossier, pageProps(FIRST));
   expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Premier dossier");
 
   await rerender(pageProps(SECOND));
@@ -97,9 +82,9 @@ test("the instruction champs of a dossier are not saved onto the next one", asyn
 test("the « nouvelles modifications » badges are computed against the read date of the dossier shown", async () => {
   // The first dossier was read after its last modification, the second was never
   // read at all — so only the second is entitled to a badge.
-  store.fullDossiers.set(PREMIER, fakeDossierFull({ id: PREMIER, name: "Premier dossier" }));
+  store.fullDossiers.set(FIRST, fakeDossierFull({ id: FIRST, name: "Premier dossier" }));
   store.fullDossiers.set(SECOND, fakeDossierFull({ id: SECOND, name: "Second dossier" }));
-  store.notificationByDossier.set(PREMIER, {
+  store.notificationByDossier.set(FIRST, {
     viewed: true,
     updated_at: new Date("2026-08-01"),
     viewed_at: new Date("2026-08-10"),
@@ -118,7 +103,7 @@ test("the « nouvelles modifications » badges are computed against the read dat
     } as unknown as DossierAction,
   ]);
 
-  const { rerender } = render(PageDossier, pageProps(PREMIER));
+  const { rerender } = render(PageDossier, pageProps(FIRST));
   await waitFor(() => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Premier dossier");
   });
@@ -132,9 +117,9 @@ test("the « nouvelles modifications » badges are computed against the read dat
 
 test("marking a dossier unread does not keep the next one unread", async () => {
   vi.useFakeTimers();
-  store.fullDossiers.set(PREMIER, fakeDossierFull({ id: PREMIER, name: "Premier dossier" }));
+  store.fullDossiers.set(FIRST, fakeDossierFull({ id: FIRST, name: "Premier dossier" }));
   store.fullDossiers.set(SECOND, fakeDossierFull({ id: SECOND, name: "Second dossier" }));
-  store.notificationByDossier.set(PREMIER, {
+  store.notificationByDossier.set(FIRST, {
     viewed: true,
     updated_at: new Date("2026-08-01"),
     viewed_at: new Date("2026-08-10"),
@@ -145,12 +130,12 @@ test("marking a dossier unread does not keep the next one unread", async () => {
     viewed_at: null,
   });
 
-  const { rerender } = render(PageDossier, pageProps(PREMIER));
+  const { rerender } = render(PageDossier, pageProps(FIRST));
   await tick();
 
   screen.getByTitle("Marquer le dossier comme non lu").click();
   await tick();
-  expect(updateNotificationForDossier).toHaveBeenCalledWith({ dossier: PREMIER, viewed: false });
+  expect(updateNotificationForDossier).toHaveBeenCalledWith({ dossier: FIRST, viewed: false });
 
   await rerender(pageProps(SECOND));
   await tick();

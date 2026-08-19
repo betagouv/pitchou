@@ -14,6 +14,17 @@ import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
+/**
+ * Local writes race the background refreshes: a payload fetched before a save
+ * must never overwrite it. Every optimistic write bumps its dossier's version,
+ * and a refresh that saw the version move while its payload travelled discards it.
+ */
+const localWriteVersions = new Map<DossierFull["id"], number>();
+
+function recordLocalWrite(id: DossierFull["id"]) {
+  localWriteVersions.set(id, (localWriteVersions.get(id) ?? 0) + 1);
+}
+
 export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull>): Promise<void> {
   if (!store.capabilities.modifierDossier)
     throw new TypeError(`Capability modifierDossier manquante`);
@@ -26,11 +37,20 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
 
   // The metric events of these changes are recorded by the server, along with the
   // historique of the dossier, so a single act is never reported twice.
+  recordLocalWrite(dossier.id);
   setDossierFull(updatedDossier);
 
   return store.capabilities.modifierDossier(dossier.id, updates).catch((err) => {
-    // on error, restore the previous dossier in the store as it was before the copy
-    setDossierFull(dossier);
+    // On error, roll back the champs of this save only: restoring the whole
+    // pre-save snapshot would also revert what another save merged meanwhile.
+    const current = store.fullDossiers.get(dossier.id);
+    if (current) {
+      const revertedChamps = Object.fromEntries(
+        Object.keys(updates).map((champ) => [champ, dossier[champ as keyof DossierFull]]),
+      );
+      recordLocalWrite(dossier.id);
+      setDossierFull({ ...current, ...revertedChamps });
+    }
     throw err;
   });
 }
@@ -54,15 +74,20 @@ export function updateDossierNextDueDate(
     store.dossierSummaries.set(id, Object.freeze({ ...summary, next_due_date: nextDueDate }));
   }
   if (full) {
+    recordLocalWrite(id);
     store.fullDossiers.set(id, { ...full, next_due_date: nextDueDate });
   }
 
   return store.capabilities
     .modifierDossier(id, { next_due_date: nextDueDate })
     .catch((err) => {
-      // on error, put the dossier back the way it was before the optimistic update
+      // on error, put the échéance back the way it was before the optimistic update
       if (summary) store.dossierSummaries.set(id, summary);
-      if (full) store.fullDossiers.set(id, full);
+      const current = store.fullDossiers.get(id);
+      if (full && current) {
+        recordLocalWrite(id);
+        store.fullDossiers.set(id, { ...current, next_due_date: full.next_due_date });
+      }
       throw err;
     })
     .then(() => undefined);
@@ -70,14 +95,20 @@ export function updateDossierNextDueDate(
 
 /**
  * A read-only dossier is a different, narrower resource than the full one — the
- * server strips what is not shared — so the two are cached separately. Reading
- * one for the other would defeat the whole point of the server-side filtering.
+ * server strips what is not shared — so the two are cached separately. A full
+ * dossier must never be served in read-only mode: the preview exists to show the
+ * narrowed payload. The other way round is fine, and even the only option — for
+ * a dossier merely shared with the groupe, the server narrows the payload
+ * whatever the request asked, so the read-only cache holds all there is and
+ * waiting on `fullDossiers` to fill up would wait forever.
  */
 export async function getDossierFull(
   id: DossierFull["id"],
   { readOnly = false }: { readOnly?: boolean } = {},
 ): Promise<DossierFull> {
-  const dossierFullInStore = (readOnly ? store.readOnlyDossiers : store.fullDossiers).get(id);
+  const dossierFullInStore = readOnly
+    ? store.readOnlyDossiers.get(id)
+    : (store.fullDossiers.get(id) ?? store.readOnlyDossiers.get(id));
 
   if (dossierFullInStore) {
     // stale-while-revalidate: return the cached dossier for instant navigation,
@@ -99,7 +130,16 @@ export async function refreshDossierFull(
   if (!store.capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
+  const versionBeforeFetch = localWriteVersions.get(id) ?? 0;
   const dossierFull = await store.capabilities.recupérerDossierComplet(id, readOnly);
+
+  if ((localWriteVersions.get(id) ?? 0) !== versionBeforeFetch) {
+    // A champ was saved while this payload travelled: it predates the save, and
+    // caching it would undo what the instructeur just did. The next refresh
+    // brings a payload that includes the save.
+    const kept = (readOnly ? store.readOnlyDossiers : store.fullDossiers).get(id);
+    return kept ?? dossierFull;
+  }
 
   // The server strips the dossier as soon as the cap only has read access, even
   // when it was not asked to, so the payload decides where it is cached.
