@@ -300,7 +300,9 @@
       style:top={placement.top === undefined ? undefined : `${placement.top}px`}
       style:bottom={placement.bottom === undefined ? undefined : `${placement.bottom}px`}
     >
-      {#each groups as group (group.label ?? "")}
+      <!-- Keyed on the position: two groups can share a label, and loose options
+           only merge when consecutive, so labels are not unique. -->
+      {#each groups as group, groupIndex (groupIndex)}
         <div role="group" aria-label={group.label ?? undefined}>
           {#if group.label}
             <p
