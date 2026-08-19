@@ -87,3 +87,23 @@ test("POST /dossier/:id rejette un évènement destiné à un autre dossier", as
     db("evenement_phase_dossier").where({ dossier: unrelatedDossier.id }),
   ).resolves.toHaveLength(0);
 });
+
+test("POST /dossier/:id étiquette la ddep avec l'état résultant, pas seulement le delta", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@ddep.fr" });
+
+  expect(
+    (await updateDossier(cap, dossier.id, { ddep_required: false, er_mesures_sufficient: true }))
+      .status,
+  ).toBe(200);
+  // The form only sends what changed: passing from one « Non » to the other
+  // leaves `ddep_required` out, since it is already false on both sides.
+  expect((await updateDossier(cap, dossier.id, { er_mesures_sufficient: false })).status).toBe(200);
+
+  const actions = await db("action_dossier")
+    .where({ dossier: dossier.id, type: "ddep_renseignee" })
+    .orderBy("created_at");
+  expect(actions.map(({ data }) => (data as { value: string }).value)).toEqual([
+    "Non, mesures Éviter, Réduire (ER) suffisantes",
+    "Non, sans objet",
+  ]);
+});

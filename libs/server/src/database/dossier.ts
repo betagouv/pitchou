@@ -10,4 +10,8 @@ export {
   getEvenementsPhaseDossiers,
   getLatestEvenementsPhaseDossiers,
 } from "./dossier/access.ts";
-export { deleteDossierByDSNumber, updateDossier } from "./dossier/write.ts";
+export {
+  deleteDossierByDSNumber,
+  getDossierInstructionState,
+  updateDossier,
+} from "./dossier/write.ts";

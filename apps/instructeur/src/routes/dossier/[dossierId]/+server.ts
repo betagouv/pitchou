@@ -15,6 +15,7 @@ import { createTransaction } from "@pitchou/server/database.ts";
 import {
   dossierFullForReadOnly,
   getDossierFull,
+  getDossierInstructionState,
   updateDossier,
 } from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
@@ -206,9 +207,12 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   const dossierUpdate = parseDossierUpdate(await readJsonObject(request), dossierId);
   const transaction = await createTransaction();
   try {
+    // Read before writing: the historique labels the update against the state
+    // it replaces.
+    const before = await getDossierInstructionState(dossierId, transaction);
     const updated = await updateDossier(dossierId, dossierUpdate, capPersonne.id, transaction);
     await logDossierActions(
-      actionsFromDossierUpdate(dossierUpdate, dossierId, capPersonne.id),
+      actionsFromDossierUpdate(dossierUpdate, dossierId, capPersonne.id, before),
       transaction,
     );
     await transaction.commit();
