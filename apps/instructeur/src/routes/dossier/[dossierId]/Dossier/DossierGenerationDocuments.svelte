@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { getOdtTextContent } from "@odfjs/odfjs";
-  import { fillTemplates } from "./DossierGenerationDocuments/fill.ts";
+  import { fillTemplates, generationTimestamp } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { store } from "$lib/state/store.svelte.ts";
@@ -112,8 +112,7 @@
     console.log("balises", tags);
 
     try {
-      const datetime = new Date().toISOString().slice(0, "YYYY-MM-DD:HH-MM".length);
-      const documents = await fillTemplates(templates, tags, datetime);
+      const documents = await fillTemplates(templates, tags, generationTimestamp(new Date()));
 
       revokeGeneratedDocumentUrls();
       generatedDocuments = documents.map(({ blob, name }) => ({

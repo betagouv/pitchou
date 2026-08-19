@@ -79,8 +79,8 @@ test("génère un document téléchargeable pour chaque modèle sélectionné", 
     container.querySelectorAll<HTMLAnchorElement>("a[download]"),
     (link) => link.download,
   );
-  expect(downloadNames[0]).toMatch(/^mail-saisine-cnpn-\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\.odt$/);
-  expect(downloadNames[1]).toMatch(/^saisine-cnpn-\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\.odt$/);
+  expect(downloadNames[0]).toMatch(/^mail-saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/);
+  expect(downloadNames[1]).toMatch(/^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/);
   await waitFor(() => {
     expect(enregistrerDocumentsGeneres).toHaveBeenCalledTimes(1);
   });
@@ -120,6 +120,6 @@ test("affiche les modèles sélectionnés et permet d'en retirer un", async () =
     expect(container.querySelectorAll("a[download]")).toHaveLength(1);
   });
   expect(container.querySelector<HTMLAnchorElement>("a[download]")?.download).toMatch(
-    /^saisine-cnpn-\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\.odt$/,
+    /^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/,
   );
 });
