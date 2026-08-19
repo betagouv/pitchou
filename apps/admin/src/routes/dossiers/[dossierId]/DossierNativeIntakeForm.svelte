@@ -23,21 +23,19 @@
   } from "../nouveau/dossierCreationModel.ts";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
 
-  type Props = {
-    detail: AdminDossierDetail;
-    onSaved: (detail: AdminDossierDetail) => void;
-    onFilesChanged: () => Promise<void>;
-    formId?: string;
-    onSavingChange?: (saving: boolean) => void;
-  };
-
   let {
     detail,
     onSaved,
     onFilesChanged,
     formId = "dossier-admin-edit-form",
     onSavingChange = () => {},
-  }: Props = $props();
+  }: {
+    detail: AdminDossierDetail;
+    onSaved: (detail: AdminDossierDetail) => void;
+    onFilesChanged: () => Promise<void>;
+    formId?: string;
+    onSavingChange?: (saving: boolean) => void;
+  } = $props();
   // These models intentionally retain in-progress edits when the parent refreshes its detail.
   // svelte-ignore state_referenced_locally
   let model = $state(createDossierCreationModelFromDetail(detail));
