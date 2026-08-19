@@ -55,7 +55,9 @@
           <div class="min-w-0">
             <p class="fr-mb-0 [word-break:break-word]">
               {entry.label}
-              {#if entry.value}<strong>{entry.value}</strong>{/if}
+              {#if entry.valuePrefix}{entry.valuePrefix}{/if}{#if entry.value}<strong
+                  >{entry.value}</strong
+                >{/if}{#if entry.valueSuffix}{entry.valueSuffix}{/if}
             </p>
             <p class="fr-mb-0 fr-text--xs text-[color:var(--text-mention-grey)]">
               Le {formatDateAbsolute(

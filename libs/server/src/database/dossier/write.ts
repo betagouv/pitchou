@@ -16,15 +16,29 @@ export function deleteDossierByDSNumber(
 
 /**
  * The instruction fields whose historique label spans several columns. The form
- * only sends what changed, so labelling « ddep » needs the dossier's state as it
- * was before the update, not just the update itself.
+ * only sends what changed, so labelling « ddep » or the consultation du public
+ * needs the dossier's state as it was before the update, not just the update.
  */
 export function getDossierInstructionState(
   id: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Pick<Dossier, "ddep_required" | "er_mesures_sufficient"> | undefined> {
+): Promise<
+  | Pick<
+      Dossier,
+      | "ddep_required"
+      | "er_mesures_sufficient"
+      | "public_consultation_start_date"
+      | "public_consultation_end_date"
+    >
+  | undefined
+> {
   return databaseConnection("dossier")
-    .select(["ddep_required", "er_mesures_sufficient"])
+    .select([
+      "ddep_required",
+      "er_mesures_sufficient",
+      "public_consultation_start_date",
+      "public_consultation_end_date",
+    ])
     .where({ id })
     .first();
 }

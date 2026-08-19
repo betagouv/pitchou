@@ -11,8 +11,12 @@ export type HistoriqueEntry = {
   /** Drives the bubble colour: purple, yellow or grey. */
   tone: "instructeur" | "petitionnaire" | "system";
   label: string;
+  /** Non-bold context shown right before the bold value, e.g. « 20/08/2026 → ». */
+  valuePrefix?: string;
   /** Bold detail appended after the label. */
   value?: string;
+  /** Non-bold context shown right after the bold value, e.g. « → 29/08/2026 ». */
+  valueSuffix?: string;
   date: Date;
   /**
    * Whether the time of day is meaningful. Recorded actions carry a real

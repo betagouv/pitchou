@@ -8,7 +8,14 @@ function isoDay(date: Date | string | null | undefined): string | null {
   return date ? new Date(date).toISOString().slice(0, 10) : null;
 }
 
-type DdepState = Pick<Dossier, "ddep_required" | "er_mesures_sufficient">;
+type InstructionState = Pick<
+  Dossier,
+  | "ddep_required"
+  | "er_mesures_sufficient"
+  | "public_consultation_start_date"
+  | "public_consultation_end_date"
+>;
+type DdepState = Pick<InstructionState, "ddep_required" | "er_mesures_sufficient">;
 
 /**
  * The label describes the dossier as it stands after the update, so each column
@@ -36,7 +43,7 @@ export function actionsFromDossierUpdate(
   update: DossierUpdate,
   dossierId: DossierId,
   authorPersonne: PersonneId,
-  before?: DdepState,
+  before?: InstructionState,
 ): ActionDossierInitializer[] {
   const actions: ActionDossierInitializer[] = [];
   const add = (type: string, data: Record<string, unknown> = {}) =>
@@ -55,10 +62,23 @@ export function actionsFromDossierUpdate(
   if ("enjeu" in update) add("enjeu_renseigne", { value: update.enjeu ? "Oui" : "Non" });
   if ("onagre_demande_identifier" in update)
     add("onagre_renseigne", { value: update.onagre_demande_identifier ?? null });
-  if ("public_consultation_start_date" in update || "public_consultation_end_date" in update)
+  // The label shows the whole période; the untouched date falls back to the
+  // dossier's current value, and the flags let the historique highlight the
+  // date that actually changed.
+  const startChanged = "public_consultation_start_date" in update;
+  const endChanged = "public_consultation_end_date" in update;
+  if (startChanged || endChanged)
     add("dates_consultation_renseignees", {
-      start: isoDay(update.public_consultation_start_date),
-      end: isoDay(update.public_consultation_end_date),
+      start: isoDay(
+        startChanged
+          ? update.public_consultation_start_date
+          : before?.public_consultation_start_date,
+      ),
+      end: isoDay(
+        endChanged ? update.public_consultation_end_date : before?.public_consultation_end_date,
+      ),
+      start_changed: startChanged,
+      end_changed: endChanged,
     });
 
   return actions;

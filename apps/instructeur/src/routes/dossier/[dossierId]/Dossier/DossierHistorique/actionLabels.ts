@@ -10,6 +10,8 @@ export type ActionDisplay = Omit<HistoriqueEntry, "id" | "tone" | "date" | "time
 
 export const str = (data: ActionData, key: string): string | null =>
   typeof data[key] === "string" && data[key] ? (data[key] as string) : null;
+const bool = (data: ActionData, key: string): boolean | null =>
+  typeof data[key] === "boolean" ? (data[key] as boolean) : null;
 export const emailName = (email: string | null): string | null => email?.split("@")[0] ?? null;
 const day = (value: string | null): string | null =>
   value ? formatDateAbsolute(new Date(value), "dd/MM/yyyy") : null;
@@ -53,11 +55,21 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     label: "Partage en lecture seule retiré à",
     value: str(d, "groupe") ?? "?",
   }),
-  dates_consultation_renseignees: (d) => ({
-    icon: "fr-icon-calendar-line",
-    label: "Dates de consultation du public renseignées :",
-    value: `${day(str(d, "start")) ?? "?"} → ${day(str(d, "end")) ?? "?"}`,
-  }),
+  dates_consultation_renseignees: (d) => {
+    const base = {
+      icon: "fr-icon-calendar-line",
+      label: "Dates de consultation du public renseignées :",
+    };
+    const start = day(str(d, "start")) ?? "?";
+    const end = day(str(d, "end")) ?? "?";
+    // Only the date that changed is bold; actions recorded before the flags
+    // existed do not say which one it was, so the whole période stays bold.
+    if (bool(d, "start_changed") && bool(d, "end_changed") === false)
+      return { ...base, value: start, valueSuffix: ` → ${end}` };
+    if (bool(d, "end_changed") && bool(d, "start_changed") === false)
+      return { ...base, valuePrefix: `${start} → `, value: end };
+    return { ...base, value: `${start} → ${end}` };
+  },
   phase_renseignee: (d) => ({
     icon: "fr-icon-time-line",
     label: "Phase renseignée :",
