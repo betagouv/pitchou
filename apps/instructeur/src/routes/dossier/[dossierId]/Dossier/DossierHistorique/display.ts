@@ -106,6 +106,11 @@ const displayByType: Record<
     label: "Commentaire ajouté :",
     value: str(d, "excerpt") ?? undefined,
   }),
+  commentaire_modifie: (d) => ({
+    icon: "fr-icon-chat-2-line",
+    label: "Commentaire modifié :",
+    value: str(d, "excerpt") ?? undefined,
+  }),
   saisine_importee: () => ({ icon: "fr-icon-attachment-line", label: "Saisine importée" }),
   avis_importe: (d) => ({
     icon: "fr-icon-quote-line",

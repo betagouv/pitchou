@@ -1,6 +1,5 @@
 <script lang="ts">
   import { setDossierFull, store } from "$lib/state/store.svelte.ts";
-  import { sendEvenementModifierCommentaire } from "$lib/shared/aarri.ts";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { authorInitials, authorName, avatarClass } from "./commentaires.ts";
   import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
@@ -51,7 +50,6 @@
       const commentaire = await store.capabilities.ajouterCommentaire?.(dossier.id, content);
       if (commentaire) commentaires = [commentaire, ...commentaires];
       newContent = "";
-      sendEvenementModifierCommentaire();
       syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être enregistré.";
@@ -75,7 +73,6 @@
           : existing,
       );
       editingId = null;
-      sendEvenementModifierCommentaire();
       syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être modifié.";

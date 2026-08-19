@@ -64,12 +64,6 @@ export function sendEvenement(event: EvenementMetrique) {
   }
 }
 
-export const sendEvenementModifierCommentaire = debounce(
-  () => sendEvenement({ type: "modifierCommentaireInstruction" }),
-  15 * 60 * 1000,
-  true,
-);
-
 // Trailing edge: the search bar filters as the user types, so we wait until they stop
 // typing before recording the event. This groups a whole search session into a single
 // event carrying the final query, instead of the first keystroke.

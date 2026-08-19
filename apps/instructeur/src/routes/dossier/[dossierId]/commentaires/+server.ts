@@ -7,7 +7,7 @@ import {
   getDossierCommentaires,
   updateCommentaireFromCap,
 } from "@pitchou/server/database/commentaire.ts";
-import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { CommentaireId } from "@pitchou/types/database/public/Commentaire.ts";
@@ -35,7 +35,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   rejectUnknownProperties(body, createProperties);
   const commentaire = await addCommentaireFromCap(cap, dossierId, parseContent(body));
   const author = await getPersonneByDossierCap(cap);
-  await logActionsDossier([
+  await logDossierActions([
     {
       dossier: dossierId,
       type: "commentaire_ajoute",
@@ -63,5 +63,14 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
   if (!updated) {
     error(403, "Seule l'autrice ou l'auteur d'un commentaire peut le modifier.");
   }
+  const author = await getPersonneByDossierCap(cap);
+  await logDossierActions([
+    {
+      dossier: dossierId,
+      type: "commentaire_modifie",
+      data: { excerpt: parseContent(body).slice(0, 80) },
+      author_personne: author?.id ?? null,
+    },
+  ]);
   return new Response(null, { status: 204 });
 };

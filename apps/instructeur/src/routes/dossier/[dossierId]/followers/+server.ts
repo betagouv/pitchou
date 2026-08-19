@@ -7,7 +7,7 @@ import {
   listDossierFollowerCandidatesFromCap,
   updateDossierFollowersFromCap,
 } from "@pitchou/server/database/relation_suivi.ts";
-import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -64,7 +64,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
       error(403, "Une personne sélectionnée n'appartient pas au groupe instructeur du dossier.");
     }
     const actor = await getPersonneByDossierCap(cap);
-    await logActionsDossier(
+    await logDossierActions(
       [
         ...updated.added.map((follower) => ({
           dossier: dossierId,
@@ -84,6 +84,17 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
         })),
       ],
       transaction,
+      // Assigning several followers at once is a single act for the instructeur,
+      // whatever the number of historique entries it produces.
+      {
+        type: "assignDossierFollowers",
+        details: {
+          dossierId,
+          followerCount: personneEmails.length,
+          addedPersonneEmails: updated.added,
+          removedPersonneEmails: updated.removed,
+        },
+      },
     );
     await transaction.commit();
     return new Response(null, { status: 204 });

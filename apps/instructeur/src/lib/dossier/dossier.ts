@@ -8,7 +8,6 @@ import {
   loadEspecesProtegeesList,
 } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
 import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
@@ -23,22 +22,10 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
   const updatedDossier: DossierFull = Object.assign({}, dossier, updates);
   if (updates.evenementsPhase) {
     updatedDossier.evenementsPhase = [...updates.evenementsPhase, ...dossier.evenementsPhase];
-
-    sendEvenement({ type: "changerPhase" });
   }
 
-  if (updates.next_action_expected_from) {
-    sendEvenement({ type: "changerProchaineActionAttendueDe" });
-  }
-  // The next expected action can be cleared, so an explicit `null` is a change too.
-  if ("next_action_expected" in updates) {
-    sendEvenement({ type: "changerProchaineActionAttendue" });
-  }
-  // The échéance can be cleared, so an explicit `null` is a change too.
-  if ("next_due_date" in updates) {
-    sendEvenement({ type: "changerDateProchaineEcheance" });
-  }
-
+  // The metric events of these changes are recorded by the server, along with the
+  // historique of the dossier, so a single act is never reported twice.
   setDossierFull(updatedDossier);
 
   return store.capabilities.modifierDossier(dossier.id, updates).catch((err) => {
@@ -69,8 +56,6 @@ export function updateDossierNextDueDate(
   if (full) {
     store.fullDossiers.set(id, { ...full, next_due_date: nextDueDate });
   }
-
-  sendEvenement({ type: "changerDateProchaineEcheance" });
 
   return store.capabilities
     .modifierDossier(id, { next_due_date: nextDueDate })

@@ -8,7 +8,7 @@ import {
   instructeurLeavesDossier,
   personneFollowsDossier,
 } from "@pitchou/server/database/relation_suivi.ts";
-import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByEmail, getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { PitchouInstructeurCapabilities } from "@pitchou/types/capabilities.ts";
 
@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     // Historique entry, only when the follow relation actually changed.
     if ((direction === "suivre") !== alreadyFollowing) {
       const actor = await getPersonneByDossierCap(cap);
-      await logActionsDossier(
+      await logDossierActions(
         [
           {
             dossier: dossierId,
