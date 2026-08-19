@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
   import type { EvenementMetriqueRow } from "$lib/actions/adminEvenements.ts";
 
   type Props = {
@@ -10,11 +11,10 @@
   function formatDate(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
-    // Events recorded before the horodatage migration all sit at midnight.
-    return date.toLocaleString("fr-FR", {
-      dateStyle: "short",
-      timeStyle: "short",
-    });
+    // Events predating the horodatage only carry a day.
+    return isTimeOfDayKnown(date)
+      ? date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })
+      : date.toLocaleDateString("fr-FR");
   }
 
   function formatDetails(details: unknown): string {

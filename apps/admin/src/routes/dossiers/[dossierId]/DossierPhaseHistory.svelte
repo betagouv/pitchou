@@ -1,5 +1,6 @@
 <script lang="ts">
   import { phases } from "@pitchou/common/phases.ts";
+  import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
   import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
@@ -20,7 +21,9 @@
   function formatDate(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
-    return date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+    return isTimeOfDayKnown(date)
+      ? date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })
+      : date.toLocaleDateString("fr-FR");
   }
 
   async function addPhaseEvent(event: SubmitEvent) {
