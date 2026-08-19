@@ -1,6 +1,5 @@
 <script lang="ts">
   import { run } from "svelte/legacy";
-  import { untrack } from "svelte";
   import debounce from "just-debounce-it";
   import { updateDossier } from "$lib/dossier/dossier.ts";
   import PhaseTimeline from "./DossierInstruction/PhaseTimeline.svelte";
@@ -19,17 +18,22 @@
   const readOnly = readOnlyMode();
 
   const currentPhase = $derived(dossier.evenementsPhase[0]?.phase || "Accompagnement amont");
+  // Every champ mirrors the dossier: what the instructeur types wins until the
+  // dossier itself changes — the header setting the échéance, a background refresh
+  // bringing what a colleague saved — and then the fresher value takes over. A
+  // value seeded once could not tell an edit from a change received underneath, so
+  // the reconciliation below pushed the champ it still held back over it.
   let phase = $derived(currentPhase);
-  let ddepRequired = $state(untrack(() => dossier.ddep_required));
-  let erMesuresSufficient = $state(untrack(() => dossier.er_mesures_sufficient));
-  let enjeu = $state(untrack(() => dossier.enjeu));
-  let nextActionExpectedFrom = $state(untrack(() => dossier.next_action_expected_from));
-  let nextActionExpected = $state(untrack(() => dossier.next_action_expected));
-  let nextDueDate = $state(untrack(() => dossier.next_due_date));
-  let onagreDemandeIdentifier = $state(untrack(() => dossier.onagre_demande_identifier));
-  let publicConsultationStartDate = $state(untrack(() => dossier.public_consultation_start_date));
-  let publicConsultationEndDate = $state(untrack(() => dossier.public_consultation_end_date));
-  let ddepValue = $state(untrack(() => ddepCompositeValue(ddepRequired, erMesuresSufficient)));
+  let ddepRequired = $derived(dossier.ddep_required);
+  let erMesuresSufficient = $derived(dossier.er_mesures_sufficient);
+  let enjeu = $derived(dossier.enjeu);
+  let nextActionExpectedFrom = $derived(dossier.next_action_expected_from);
+  let nextActionExpected = $derived(dossier.next_action_expected);
+  let nextDueDate = $derived(dossier.next_due_date);
+  let onagreDemandeIdentifier = $derived(dossier.onagre_demande_identifier);
+  let publicConsultationStartDate = $derived(dossier.public_consultation_start_date);
+  let publicConsultationEndDate = $derived(dossier.public_consultation_end_date);
+  let ddepValue = $derived(ddepCompositeValue(ddepRequired, erMesuresSufficient));
   let errorMessage = $state("");
   let showSuccessMessage = $state(false);
 

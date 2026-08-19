@@ -18,9 +18,14 @@
 
   // The read-only dossier is the narrower one the server sends for sharing; it
   // is cached apart from the full dossier, so what the load asked for picks the
-  // source.
+  // source. Asking for the full one is no guarantee of getting it though: a
+  // dossier merely shared with the instructeur's groupe comes back narrowed
+  // whatever the URL said, and lands in the read-only cache — fall back to it
+  // rather than wait forever for a full dossier the server will never send.
   const dossier = $derived(
-    data.readOnly ? store.readOnlyDossiers.get(id) : store.fullDossiers.get(id),
+    data.readOnly
+      ? store.readOnlyDossiers.get(id)
+      : (store.fullDossiers.get(id) ?? store.readOnlyDossiers.get(id)),
   );
 
   // Either the instructeur asked to preview the dossier, or their service only
@@ -105,18 +110,25 @@
 <svelte:window onpopstate={readTabFromLocation} />
 
 {#if dossier && email}
-  <Dossier
-    {dossier}
-    {activeTab}
-    onTabChange={selectTab}
-    {email}
-    {dossierFollowers}
-    {currentDossierFollowedByCurrentInstructeur}
-    {notification}
-    {readOnly}
-    onReadOnlyChange={setReadOnly}
-    {canEdit}
-  />
+  <!-- Going from one dossier to the next keeps this page mounted, and the tree
+       below holds state seeded from the dossier it was showing: the instruction
+       champs waiting to be saved, the date the dossier was last read, whether it
+       was just marked unread. Keying on the id starts that state over rather than
+       carrying one dossier's over to another. -->
+  {#key id}
+    <Dossier
+      {dossier}
+      {activeTab}
+      onTabChange={selectTab}
+      {email}
+      {dossierFollowers}
+      {currentDossierFollowedByCurrentInstructeur}
+      {notification}
+      {readOnly}
+      onReadOnlyChange={setReadOnly}
+      {canEdit}
+    />
+  {/key}
 {:else}
   <div class="fr-p-2w fr-pb-10w">
     <Loader />
