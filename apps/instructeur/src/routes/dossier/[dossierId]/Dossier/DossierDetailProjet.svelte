@@ -46,6 +46,9 @@
 
 <div class="flex flex-col gap-4">
   <Accordion id="accordion-porteur-de-projet" title="Porteur de projet">
+    {#snippet badges()}
+      {#if modifications.porteurDates.size > 0}{@render nouveau()}{/if}
+    {/snippet}
     <PorteurDeProjet {dossier} />
   </Accordion>
 

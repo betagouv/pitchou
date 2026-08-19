@@ -57,4 +57,17 @@ describe("nouvellesModifications", () => {
     const result = nouvellesModifications([action({ id: "1" })], null);
     expect(result.fieldDates.size).toBe(1);
   });
+
+  test("the porteur de projet champs are grouped apart from the informations", () => {
+    const result = nouvellesModifications(
+      [
+        action({ id: "1", data: { field: "Mandataire" } }),
+        action({ id: "2", data: { field: "Entreprise" } }),
+        action({ id: "3", data: { field: "Description" } }),
+      ],
+      null,
+    );
+    expect([...result.porteurDates.keys()].sort()).toEqual(["Entreprise", "Mandataire"]);
+    expect([...result.fieldDates.keys()]).toEqual(["Description"]);
+  });
 });

@@ -27,6 +27,9 @@ const trackedColumns: Partial<Record<keyof Dossier, string>> = {
   risk_despite_erc_mesures: "Risque malgré les mesures d'évitement et de réduction",
   urgent_contact_phone: "Téléphone en cas de demande urgente",
   linked_to_ae_regime: "Rattachement au régime AE",
+  // Siret of the demandeur entreprise: a change means another entreprise carries
+  // the dossier. Its content and the identities are diffed in identite_dossier.ts.
+  demandeur_personne_morale: "Entreprise",
 };
 
 function normalize(value: unknown): string {
