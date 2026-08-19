@@ -161,7 +161,9 @@
 
           <button
             type="button"
-            class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-mail-line"
+            class="fr-btn fr-btn--secondary fr-btn--sm {unread
+              ? 'fr-icon-mail-open-line'
+              : 'fr-icon-mail-line'}"
             title={unread ? "Marquer le dossier comme lu" : "Marquer le dossier comme non lu"}
             onclick={() => onSetRead(unread)}
           >
