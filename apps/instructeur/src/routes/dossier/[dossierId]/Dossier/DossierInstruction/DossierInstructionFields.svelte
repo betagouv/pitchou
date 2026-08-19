@@ -1,11 +1,8 @@
 <script lang="ts">
-  import {
-    phases,
-    prochaineActionAttenduePar,
-    prochainesActionsAttenduesParEntite,
-  } from "$lib/dossier/displayDossier.ts";
+  import { phases } from "$lib/dossier/displayDossier.ts";
+  import { nextActionGroups, nextActionValue, parseNextActionValue } from "./nextAction.ts";
   import DateInput from "$lib/components/DateInput.svelte";
-  import type { DossierFull, DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     enjeu: boolean | null;
@@ -36,16 +33,14 @@
     dismiss,
   }: Props = $props();
 
-  const availableNextActions = $derived(
-    nextAction
-      ? (prochainesActionsAttenduesParEntite.get(nextAction as DossierNextActionExpectedFrom) ?? [])
-      : [],
-  );
-
-  function resetIncompatibleNextAction() {
-    if (nextActionExpected && !(availableNextActions as string[]).includes(nextActionExpected)) {
-      nextActionExpected = null;
-    }
+  // The entity in charge and its expected action are picked together, so a
+  // « Compléter le dossier » can never end up attributed to the préfecture.
+  function setNextAction(event: Event) {
+    const { entity, action } = parseNextActionValue(
+      (event.currentTarget as HTMLSelectElement).value,
+    );
+    nextAction = entity;
+    nextActionExpected = action;
   }
 
   function setDdep(event: Event) {
@@ -89,34 +84,33 @@
   </div>
 
   <div class={rowClass}>
-    <label class={labelClass} for="next_action_expected_from">
-      <span class="fr-icon-bank-line {iconClass}" aria-hidden="true"></span>
-      Entité en charge de la prochaine action
-    </label>
-    <select
-      bind:value={nextAction}
-      onchange={resetIncompatibleNextAction}
-      class="fr-select fr-m-0"
-      id="next_action_expected_from"
-    >
-      {#each prochaineActionAttenduePar as actor}<option value={actor}>{actor}</option>{/each}
-    </select>
-  </div>
-
-  <div class={rowClass}>
     <label class={labelClass} for="next_action_expected">
       <span class="fr-icon-todo-line {iconClass}" aria-hidden="true"></span>
       Prochaine action attendue
     </label>
-    <select
-      bind:value={nextActionExpected}
-      class="fr-select fr-m-0"
-      id="next_action_expected"
-      disabled={availableNextActions.length === 0}
-    >
-      <option value={null}>—</option>
-      {#each availableNextActions as value}<option {value}>{value}</option>{/each}
-    </select>
+    <div class="flex flex-col gap-1">
+      <select
+        value={nextActionValue(nextAction ?? null, nextActionExpected ?? null)}
+        onchange={setNextAction}
+        class="fr-select fr-m-0"
+        id="next_action_expected"
+      >
+        <option value="">—</option>
+        {#each nextActionGroups as group}
+          <optgroup label={group.entity}>
+            {#each group.options as option}<option value={option.value}>{option.label}</option
+              >{/each}
+          </optgroup>
+        {/each}
+      </select>
+      <!-- A closed select only shows the option label, so « Autre » alone would
+           not say who is waited on. -->
+      {#if nextAction}
+        <p class="fr-m-0 fr-text--xs text-[color:var(--text-mention-grey)]">
+          Entité en charge&nbsp;: {nextAction}
+        </p>
+      {/if}
+    </div>
   </div>
 
   <div class={rowClass}>

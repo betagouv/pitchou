@@ -45,7 +45,7 @@ test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({
   await expect(page.locator("#enjeu")).toBeVisible();
 });
 
-test("la prochaine action attendue dépend de l'entité en charge et est persistée", async ({
+test("la prochaine action attendue groupe les actions par entité et est persistée", async ({
   page,
   db,
   loginAs,
@@ -59,32 +59,36 @@ test("la prochaine action attendue dépend de l'entité en charge et est persist
   await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  const entite = page.locator("#next_action_expected_from");
   const action = page.locator("#next_action_expected");
 
-  // The available actions follow the entity in charge of the next action.
-  await entite.selectOption("Instructeur");
-  await expect(action).toBeEnabled();
-  await expect(action.locator("option")).toHaveText([
-    "—",
-    "Envoyer la saisine",
-    "Consulter le dossier",
+  // Each entity is a group, and every group ends with « Autre ».
+  await expect(action.locator("optgroup").first()).toHaveAttribute("label", "Instructeur");
+  await expect(action.locator('optgroup[label="Préfet·e"] option')).toHaveText([
+    "Signer l'arrêté",
+    "Autre",
   ]);
-  await action.selectOption("Envoyer la saisine");
+
+  // Picking an action sets the entity in charge along with it.
+  await action.selectOption({ label: "Envoyer la saisine" });
+  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+  await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
+  await expect(action).toHaveValue("Instructeur|Envoyer la saisine");
+  await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
+
+  // « Autre » keeps the entity without a precise action.
+  await action.selectOption("CNPN/CSRPN|");
   await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(action).toHaveValue("Envoyer la saisine");
-
-  // Switching to an entity without suggested actions clears and disables the select.
-  await entite.selectOption("CNPN/CSRPN");
-  await expect(action).toBeDisabled();
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
-
-  await page.reload();
-  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.locator("#next_action_expected")).toBeDisabled();
+  await expect(page.locator("#next_action_expected")).toHaveValue("CNPN/CSRPN|");
+  await expect(page.getByText("Entité en charge : CNPN/CSRPN")).toBeVisible();
+  await expect(
+    db("dossier").select("next_action_expected").where({ id: dossier.id }).first(),
+  ).resolves.toEqual({ next_action_expected: null });
 });
 
 test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a stakeholder file", async ({
