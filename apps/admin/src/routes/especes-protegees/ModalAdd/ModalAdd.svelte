@@ -6,7 +6,7 @@
   import Loader from "@pitchou/ui/Loader.svelte";
   import { loadEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
 
-  import Modal from "../Modal.svelte";
+  import Modal from "$lib/components/Modal.svelte";
   import SelectorEspece from "./SelectorEspece.svelte";
   import SelectorTaxref from "./SelectorTaxref.svelte";
 

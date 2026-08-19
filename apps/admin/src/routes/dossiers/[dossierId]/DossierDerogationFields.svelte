@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { motifDerogationOptions } from "@pitchou/common/dossierFormOptions.ts";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
@@ -9,6 +11,13 @@
   const hasLegacyMotif = $derived(
     !!model.motifDerogation && !motifDerogationOptions.includes(model.motifDerogation as never),
   );
+  const motifSelectOptions: SelectEntry<string>[] = $derived([
+    { value: "", label: "Non renseigné" },
+    ...(hasLegacyMotif
+      ? [{ value: model.motifDerogation, label: `${model.motifDerogation} (valeur historique)` }]
+      : []),
+    ...motifDerogationOptions.map((option) => ({ value: option, label: option })),
+  ]);
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Dérogation" {disabled}>
@@ -28,17 +37,11 @@
   <div class="fr-fieldset__element">
     <div class="fr-select-group w-full">
       <label class="fr-label" for="edit-motif-derogation">Motif de dérogation</label>
-      <select class="fr-select" id="edit-motif-derogation" bind:value={model.motifDerogation}>
-        <option value="">Non renseigné</option>
-        {#if hasLegacyMotif}
-          <option value={model.motifDerogation}>
-            {model.motifDerogation} (valeur historique)
-          </option>
-        {/if}
-        {#each motifDerogationOptions as option (option)}
-          <option value={option}>{option}</option>
-        {/each}
-      </select>
+      <Select
+        id="edit-motif-derogation"
+        options={motifSelectOptions}
+        bind:value={model.motifDerogation}
+      />
     </div>
   </div>
   {#if model.motifDerogation}

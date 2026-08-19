@@ -2,6 +2,7 @@
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
 
   import CommuneSelector from "../[dossierId]/CommuneSelector.svelte";
   import DepartmentMultiSelect from "../[dossierId]/DepartmentMultiSelect.svelte";
@@ -33,17 +34,16 @@
         Cela nous permet de déterminer le service instructeur en charge du dossier.
       </span>
     </label>
-    <select
-      class="fr-select"
+    <Select
       id="location-primary-department"
       required
+      placeholder="Sélectionnez un département"
+      options={departements.map((department) => ({
+        value: department.code,
+        label: `${department.code} – ${department.name}`,
+      }))}
       bind:value={model.primaryDepartment}
-    >
-      <option value="" disabled>Sélectionnez un département</option>
-      {#each departements as department (department.code)}
-        <option value={department.code}>{department.code} – {department.name}</option>
-      {/each}
-    </select>
+    />
   </div>
 
   <fieldset class="fr-fieldset fr-mb-0" aria-labelledby="location-scope-legend">

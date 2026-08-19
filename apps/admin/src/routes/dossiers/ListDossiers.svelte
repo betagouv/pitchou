@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
 
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
-  import { phases } from "@pitchou/common/phases.ts";
 
   import {
     loadDossiers,
@@ -11,8 +10,11 @@
     type DossiersQuery,
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
-  import TableDossiers from "./TableDossiers.svelte";
+  import type { DossierSortKey, DossierSortOrder } from "$lib/actions/adminDossierTypes.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import DossierCards from "./DossierCards.svelte";
   import CreateDossierModal from "./CreateDossierModal.svelte";
+  import DossiersListControls from "./DossiersListControls.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
   let dossiers = $state<AdminDossierSummary[]>([]);
@@ -21,6 +23,12 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let creatingDossier = $state(false);
+
+  // The "create" entry point lives in the shell header ("+").
+  $effect(() => {
+    pageHeader.setAction({ label: "Créer un dossier", onClick: () => (creatingDossier = true) });
+    return () => pageHeader.clearAction();
+  });
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -75,7 +83,16 @@
     searchTimer = setTimeout(reload, 300);
   }
 
-  function onFilterChange() {
+  function onFilterChange(updates: { phase?: string; source?: DossiersQuery["source"] }) {
+    if (updates.phase !== undefined) query.phase = updates.phase;
+    if (updates.source !== undefined) query.source = updates.source;
+    query.page = 1;
+    reload();
+  }
+
+  function onSortChange(sort: DossierSortKey, order: DossierSortOrder) {
+    query.sort = sort;
+    query.order = order;
     query.page = 1;
     reload();
   }
@@ -89,75 +106,14 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="flex flex-col fr-mt-2w gap-4">
-    <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-      <h1 class="fr-mb-0">Dossiers</h1>
-      <button
-        class="fr-btn fr-icon-add-line fr-btn--icon-left"
-        type="button"
-        onclick={() => (creatingDossier = true)}
-      >
-        Créer un dossier
-      </button>
-    </div>
-
-    <div class="flex flex-row items-end gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
-      <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-        <div class="fr-search-bar w-full" role="search">
-          <label class="fr-label" for="recherche-dossier">Rechercher un dossier</label>
-          <input
-            value={query.search}
-            oninput={(e) => onSearchInput(e.currentTarget.value)}
-            name="texte-de-recherche"
-            class="fr-input"
-            placeholder="Nom, demandeur ou numéro DN"
-            id="recherche-dossier"
-            type="search"
-          />
-          <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher</button>
-        </div>
-      </form>
-
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-phase">Phase</label>
-        <select
-          class="fr-select"
-          id="filtre-phase"
-          bind:value={query.phase}
-          onchange={onFilterChange}
-        >
-          <option value="">Toutes</option>
-          {#each [...phases] as phase (phase)}
-            <option value={phase}>{phase}</option>
-          {/each}
-        </select>
-      </div>
-
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-source">Source</label>
-        <select
-          class="fr-select"
-          id="filtre-source"
-          bind:value={query.source}
-          onchange={onFilterChange}
-        >
-          <option value="">Toutes</option>
-          <option value="pitchou">Créé dans Pitchou</option>
-          <option value="dn">Importé de Démarches Numériques</option>
-          <option value="unknown">Source inconnue</option>
-        </select>
-      </div>
-    </div>
-
-    <p class="fr-mb-0" aria-live="polite">
-      <span class="fr-text--lead">{total}</span><span class="fr-text--lg"
-        >&nbsp;dossier{total > 1 ? "s" : ""}</span
-      >
-      {#if loading}
-        <span class="fr-text--sm fr-text-mention--grey fr-ml-1w">— chargement…</span>
-      {/if}
-    </p>
-  </div>
+  <DossiersListControls
+    {query}
+    {total}
+    {loading}
+    onSearch={onSearchInput}
+    onFilter={onFilterChange}
+    onSort={onSortChange}
+  />
 
   {#if loadError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-my-2w" role="alert">
@@ -166,10 +122,12 @@
   {/if}
 
   {#if dossiers.length >= 1}
-    <TableDossiers rows={dossiers} />
+    <DossierCards rows={dossiers} />
 
     {#if pageSelectors}
-      <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      <div class="mt-2">
+        <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      </div>
     {/if}
   {:else if !loading}
     <p class="fr-mt-2w">Aucun dossier ne correspond à cette recherche.</p>

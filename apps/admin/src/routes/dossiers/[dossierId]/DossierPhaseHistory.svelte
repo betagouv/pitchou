@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { phases } from "@pitchou/common/phases.ts";
 
   import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
@@ -10,6 +12,11 @@
   };
 
   let { detail, onChanged, readOnly = false }: Props = $props();
+
+  const phaseOptions: SelectEntry<string>[] = [...phases].map((phase) => ({
+    value: phase,
+    label: phase,
+  }));
 
   // Initial selection only; the select then belongs to the user.
   // svelte-ignore state_referenced_locally
@@ -46,11 +53,7 @@
     <form class="flex flex-row items-end gap-4 flex-wrap fr-mb-3w" onsubmit={addPhaseEvent}>
       <div class="fr-select-group fr-mb-0">
         <label class="fr-label" for="nouvelle-phase">Passer le dossier en phase</label>
-        <select class="fr-select" id="nouvelle-phase" bind:value={newPhase}>
-          {#each [...phases] as phase (phase)}
-            <option value={phase}>{phase}</option>
-          {/each}
-        </select>
+        <Select id="nouvelle-phase" options={phaseOptions} bind:value={newPhase} />
       </div>
       <button
         class="fr-btn fr-btn--secondary"

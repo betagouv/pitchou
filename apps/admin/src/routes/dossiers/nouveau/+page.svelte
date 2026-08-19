@@ -83,12 +83,7 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers">
-    Retour aux dossiers
-  </a>
-  <div class="fr-mt-3w fr-mb-5w max-w-4xl">
-    <p class="fr-text--lead fr-mb-1w">Nouveau dossier</p>
-    <h1 class="fr-mb-2w">Créer une demande de dérogation</h1>
+  <div class="fr-mb-5w max-w-4xl">
     <p class="fr-text-mention--grey fr-mb-0">
       Le dossier est créé directement dans Pitchou, sans passer par Démarches Numériques.
     </p>

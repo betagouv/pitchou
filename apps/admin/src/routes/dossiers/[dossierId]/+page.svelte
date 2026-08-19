@@ -4,6 +4,7 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import {
     loadDossierDetail,
     deleteDossier,
@@ -29,6 +30,12 @@
   let confirmingDelete = $state(false);
   let deleting = $state(false);
   let deleteError = $state<string | null>(null);
+
+  // The shell header shows the dossier name instead of the generic "Dossier".
+  $effect(() => {
+    if (detail) pageHeader.setTitle(detail.dossier.name || `Dossier ${detail.dossier.id}`);
+    return () => pageHeader.clearTitle();
+  });
 
   async function reload() {
     try {

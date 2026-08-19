@@ -1,5 +1,7 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
@@ -12,6 +14,18 @@
   const hasLegacyAction = $derived(
     !!model.nextActionExpectedFrom && !actions.includes(model.nextActionExpectedFrom as never),
   );
+  const actionSelectOptions: SelectEntry<string>[] = $derived([
+    { value: "", label: "Non renseignée" },
+    ...(hasLegacyAction
+      ? [
+          {
+            value: model.nextActionExpectedFrom,
+            label: `${model.nextActionExpectedFrom} (valeur historique)`,
+          },
+        ]
+      : []),
+    ...actions.map((action) => ({ value: action, label: action })),
+  ]);
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Instruction Pitchou">
@@ -36,13 +50,11 @@
       </div>
       <div class="fr-select-group">
         <label class="fr-label" for="edit-next-action">Prochaine action attendue de</label>
-        <select class="fr-select" id="edit-next-action" bind:value={model.nextActionExpectedFrom}>
-          <option value="">Non renseignée</option>
-          {#if hasLegacyAction}<option value={model.nextActionExpectedFrom}
-              >{model.nextActionExpectedFrom} (valeur historique)</option
-            >{/if}
-          {#each actions as action (action)}<option value={action}>{action}</option>{/each}
-        </select>
+        <Select
+          id="edit-next-action"
+          options={actionSelectOptions}
+          bind:value={model.nextActionExpectedFrom}
+        />
       </div>
     </div>
   </div>

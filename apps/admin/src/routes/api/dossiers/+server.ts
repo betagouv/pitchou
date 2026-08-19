@@ -30,6 +30,19 @@ function parseSourceFilter(value: string | null): ListAdminDossiersOptions["sour
   return value;
 }
 
+function parseSort(value: string | null): ListAdminDossiersOptions["sort"] {
+  if (!value) return undefined;
+  if (value !== "depot_date" && value !== "name" && value !== "phase")
+    error(400, `Tri inconnu : '${value}'.`);
+  return value;
+}
+
+function parseOrder(value: string | null): ListAdminDossiersOptions["order"] {
+  if (!value) return undefined;
+  if (value !== "asc" && value !== "desc") error(400, `Ordre inconnu : '${value}'.`);
+  return value;
+}
+
 export const GET: RequestHandler = async ({ url }) => {
   const params = url.searchParams;
   const { dossiers, total } = await listDossiersForAdmin({
@@ -38,6 +51,8 @@ export const GET: RequestHandler = async ({ url }) => {
     search: params.get("search") ?? undefined,
     phase: parsePhaseFilter(params.get("phase")),
     source: parseSourceFilter(params.get("source")),
+    sort: parseSort(params.get("sort")),
+    order: parseOrder(params.get("order")),
   });
   return json({ dossiers, total });
 };

@@ -7,17 +7,29 @@ export type AdminDossierSummary = {
   source: DossierSource;
   depot_date: string;
   phase: string;
+  main_activite: string | null;
   demandeur_last_name: string | null;
   demandeur_first_names: string | null;
   demandeur_entreprise: string | null;
   groupe_name: string | null;
 };
 
+export type DossierSortKey = "depot_date" | "name" | "phase";
+export type DossierSortOrder = "asc" | "desc";
+
+export const DOSSIER_SORT_OPTIONS: { key: DossierSortKey; label: string }[] = [
+  { key: "depot_date", label: "Date de dépôt" },
+  { key: "name", label: "Nom" },
+  { key: "phase", label: "Phase" },
+];
+
 export type DossiersQuery = {
   search: string;
   /** "" for every phase */
   phase: string;
   source: "" | "pitchou" | "dn" | "unknown";
+  sort: DossierSortKey;
+  order: DossierSortOrder;
   page: number;
   pageSize: number;
 };

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+
   import {
     CLASSIFICATIONS,
     STATUTS,
@@ -30,70 +32,73 @@
   <legend class="text-[1.25rem] fr-text--bold fr-mb-2w fr-p-0">Filtrer les modifications</legend>
   <div class="flex flex-col gap-3 max-w-[48rem]">
     <div
-      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
     >
       <label class="fr-label" for="select-classification">Classification</label>
-      <select
-        value={selectedClassification}
-        onchange={(e) => onChange({ classification: e.currentTarget.value })}
-        aria-label="Classification choisie"
-        class="fr-select"
+      <Select
         id="select-classification"
-      >
-        <option value="">Toutes les classifications</option>
-        {#each CLASSIFICATIONS as classification}
-          <option value={classification}>{classification}</option>
-        {/each}
-      </select>
+        class="flex-auto"
+        ariaLabel="Classification choisie"
+        options={[
+          { value: "", label: "Toutes les classifications" },
+          ...CLASSIFICATIONS.map((classification) => ({
+            value: classification,
+            label: classification,
+          })),
+        ]}
+        value={selectedClassification}
+        onChange={(classification) => onChange({ classification })}
+      />
     </div>
     <div
-      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
     >
       <label class="fr-label" for="select-statut">Statut de protection</label>
-      <select
-        value={selectedStatut}
-        onchange={(e) => onChange({ statut: e.currentTarget.value })}
-        aria-label="Statut de protection choisi"
-        class="fr-select"
+      <Select
         id="select-statut"
-      >
-        <option value="">Tous les statuts</option>
-        {#each STATUTS as statut}
-          <option value={statut}>{statut}</option>
-        {/each}
-      </select>
+        class="flex-auto"
+        ariaLabel="Statut de protection choisi"
+        options={[
+          { value: "", label: "Tous les statuts" },
+          ...STATUTS.map((statut) => ({ value: statut, label: statut })),
+        ]}
+        value={selectedStatut}
+        onChange={(statut) => onChange({ statut })}
+      />
     </div>
     <div
-      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
     >
       <label class="fr-label" for="select-etat">État</label>
-      <select
-        value={selectedEtat}
-        onchange={(e) => onChange({ etat: e.currentTarget.value as EtatFilter })}
-        aria-label="État choisi"
-        class="fr-select"
+      <Select
         id="select-etat"
-      >
-        <option value="">Toutes les modifications</option>
-        <option value="actives">Non exclues</option>
-        <option value="exclues">Exclues</option>
-      </select>
+        class="flex-auto"
+        ariaLabel="État choisi"
+        options={[
+          { value: "", label: "Toutes les modifications" },
+          { value: "actives", label: "Non exclues" },
+          { value: "exclues", label: "Exclues" },
+        ]}
+        value={selectedEtat}
+        onChange={(etat) => onChange({ etat: etat as EtatFilter })}
+      />
     </div>
     <div
-      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+      class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
     >
       <label class="fr-label" for="select-liste">Liste (ministérielle / CNPN)</label>
-      <select
-        value={selectedListe}
-        onchange={(e) => onChange({ liste: e.currentTarget.value as ListeFilter })}
-        aria-label="Liste d'espèces choisie"
-        class="fr-select"
+      <Select
         id="select-liste"
-      >
-        <option value="">Toutes les espèces</option>
-        <option value="ministerielle">Espèce ministérielle</option>
-        <option value="cnpn">Espèce CNPN</option>
-      </select>
+        class="flex-auto"
+        ariaLabel="Liste d'espèces choisie"
+        options={[
+          { value: "", label: "Toutes les espèces" },
+          { value: "ministerielle", label: "Espèce ministérielle" },
+          { value: "cnpn", label: "Espèce CNPN" },
+        ]}
+        value={selectedListe}
+        onChange={(liste) => onChange({ liste: liste as ListeFilter })}
+      />
     </div>
   </div>
 </fieldset>

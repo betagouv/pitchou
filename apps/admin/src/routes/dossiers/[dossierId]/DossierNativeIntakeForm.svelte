@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import Select from "@pitchou/ui/Select.svelte";
+
   import {
     loadGroupesInstructeurs,
     updateDossier,
@@ -163,17 +165,18 @@
           Nouveau groupe instructeurs
           <span class="fr-hint-text">Le dossier ne sera visible que par ce groupe.</span>
         </label>
-        <select
-          class="fr-select"
+        <Select
           id="native-dossier-groupe"
           required
+          options={[
+            { value: "", label: "Sélectionner un groupe" },
+            ...groupes.map((groupe) => ({
+              value: groupe.id,
+              label: `${groupe.name} (DN ${groupe.demarche_number})`,
+            })),
+          ]}
           bind:value={model.groupeInstructeurs}
-        >
-          <option value="">Sélectionner un groupe</option>
-          {#each groupes as groupe (groupe.id)}
-            <option value={groupe.id}>{groupe.name} (DN {groupe.demarche_number})</option>
-          {/each}
-        </select>
+        />
         {#if groupesLoadError}<p class="fr-error-text">{groupesLoadError}</p>{/if}
       </div>
     {/if}
