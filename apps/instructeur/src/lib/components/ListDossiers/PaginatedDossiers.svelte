@@ -5,9 +5,11 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
+  import type { SortKey } from "./query.ts";
 
   type Props = {
     dossiers: DossierSummary[];
+    sortKey: SortKey;
     requestedPage: number;
     searchText: string;
     wholeListEmpty: boolean;
@@ -21,6 +23,7 @@
   };
   let {
     dossiers,
+    sortKey,
     requestedPage,
     searchText,
     wholeListEmpty,
@@ -58,6 +61,7 @@
 </h2>
 <DossiersResults
   dossiers={displayed}
+  {sortKey}
   {wholeListEmpty}
   {followedIds}
   {notificationViewed}

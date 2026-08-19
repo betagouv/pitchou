@@ -197,6 +197,7 @@
 
 <PaginatedDossiers
   dossiers={sortedDossiers}
+  sortKey={query.sort}
   requestedPage={query.page}
   searchText={query.text}
   wholeListEmpty={dossiers.length === 0}

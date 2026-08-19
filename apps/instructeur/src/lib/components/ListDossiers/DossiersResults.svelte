@@ -4,11 +4,13 @@
   import type { Snippet } from "svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import CardDossier from "./CardDossier.svelte";
-  import { groupDossiersByDepotMonth } from "./sections.ts";
+  import { dossierSortDate, groupDossiersByMonth, timelineDateLabel } from "./sections.ts";
+  import type { SortKey } from "./query.ts";
   import { ROW_GRID, TILE_GRID } from "./rowLayout.ts";
 
   type Props = {
     dossiers: DossierSummary[];
+    sortKey: SortKey;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
     notificationViewed: (id: Dossier["id"]) => boolean;
@@ -19,6 +21,7 @@
   };
   let {
     dossiers,
+    sortKey,
     wholeListEmpty,
     followedIds,
     notificationViewed,
@@ -28,7 +31,10 @@
     emptyListMessage,
   }: Props = $props();
 
-  const sections = $derived(groupDossiersByDepotMonth(dossiers));
+  const sections = $derived(groupDossiersByMonth(dossiers, sortKey, notificationUpdatedAt));
+  const timelineDate = $derived((dossier: DossierSummary) =>
+    dossierSortDate(dossier, sortKey, notificationUpdatedAt),
+  );
 
   const columnLabel = "fr-text--xs fr-mb-0 uppercase text-[color:var(--text-mention-grey)]";
 </script>
@@ -55,18 +61,19 @@
 
         <ul class="list-none fr-p-0 fr-m-0">
           {#each section.dossiers as dossier (dossier.id)}
+            {@const date = timelineDate(dossier)}
             <li class="{ROW_GRID} [&:not(:last-child)]:fr-mb-1w">
-              {#if dossier.depot_date}
+              {#if date}
                 <time
-                  datetime={formatDateAbsolute(dossier.depot_date, "yyyy-MM-dd")}
+                  datetime={formatDateAbsolute(date, "yyyy-MM-dd")}
                   class="flex flex-col items-center justify-center leading-none"
                 >
-                  <span class="fr-sr-only">Déposé le</span>
+                  <span class="fr-sr-only">{timelineDateLabel(sortKey)}</span>
                   <span class="text-[1.25rem] font-bold text-[color:var(--text-title-grey)]">
-                    {formatDateAbsolute(dossier.depot_date, "dd")}
+                    {formatDateAbsolute(date, "dd")}
                   </span>
                   <span class="fr-text--xs fr-mb-0 text-[color:var(--text-mention-grey)]">
-                    {formatDateAbsolute(dossier.depot_date, "MMM")}
+                    {formatDateAbsolute(date, "MMM")}
                   </span>
                 </time>
               {:else}
