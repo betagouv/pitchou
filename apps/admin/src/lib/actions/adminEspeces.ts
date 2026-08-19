@@ -3,15 +3,10 @@ import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 
-/**
- * Thrown when the session does not belong to an admin (403).
- */
-export class AccessDeniedError extends Error {
-  constructor(message = "Accès réservé aux administrateurs.") {
-    super(message);
-    this.name = "AccessDenied";
-  }
-}
+import { AccessDeniedError } from "./errors.ts";
+
+// Re-exported for the existing consumers that import it from here.
+export { AccessDeniedError };
 
 export type ModificationEspeceAdmin = {
   cd_ref: string;

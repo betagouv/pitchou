@@ -16,10 +16,12 @@
     "knex": "catalog:",
     "ky": "catalog:",
     "p-limit": "catalog:",
-    "pg": "catalog:"
+    "pg": "catalog:",
+    "sanitize-html": "catalog:"
   },
   "devDependencies": {
     "@types/d3-dsv": "catalog:",
+    "@types/sanitize-html": "catalog:",
     "@types/node": "catalog:",
     "vitest": "catalog:"
   }
