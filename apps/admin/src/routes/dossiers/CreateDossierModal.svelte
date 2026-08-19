@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
+  import Select from "@pitchou/ui/Select.svelte";
+
   import {
     createMinimalDossier,
     loadGroupesInstructeurs,
@@ -92,17 +94,13 @@
         </div>
         <div class="fr-select-group">
           <label class="fr-label" for="new-dossier-groupe">Groupe instructeurs *</label>
-          <select
-            class="fr-select"
+          <Select
             id="new-dossier-groupe"
             required
             disabled={loading || saving}
+            options={groupes.map((groupe) => ({ value: groupe.id, label: groupe.name }))}
             bind:value={groupeInstructeurs}
-          >
-            {#each groupes as groupe (groupe.id)}
-              <option value={groupe.id}>{groupe.name}</option>
-            {/each}
-          </select>
+          />
         </div>
         {#if error}
           <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{error}</p></div>

@@ -12,14 +12,16 @@ export type AdminDossierSummary = {
   source: DossierSource;
   depot_date: Date;
   phase: DossierPhase;
+  main_activite: string | null;
   demandeur_last_name: string | null;
   demandeur_first_names: string | null;
   demandeur_entreprise: string | null;
   groupe_name: string | null;
 };
+export type AdminDossierSortKey = "depot_date" | "name" | "phase";
+
 /** A summary plus the extra columns the yearly statistics export needs. */
 export type AdminDossierExportRow = AdminDossierSummary & {
-  main_activite: string | null;
   primary_department: string | null;
   departments: unknown | null;
   communes: unknown | null;
@@ -31,6 +33,8 @@ export type ListAdminDossiersOptions = {
   search?: string;
   phase?: DossierPhase;
   source?: "pitchou" | "dn" | "unknown";
+  sort?: AdminDossierSortKey;
+  order?: "asc" | "desc";
 };
 
 function latestPhase(db: Knex.Transaction | Knex) {
@@ -67,6 +71,7 @@ function summaryColumns(db: Knex.Transaction | Knex) {
     "dossier.demarche_numerique_number",
     "dossier.source",
     "dossier.depot_date",
+    "dossier.main_activite",
     db.raw(`COALESCE(latest_phase.phase, ?) as phase`, ["Accompagnement amont"]),
     "demandeur_pp.last_name as demandeur_last_name",
     "demandeur_pp.first_names as demandeur_first_names",
@@ -89,6 +94,23 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
   else if (options.source === "unknown") query.where("dossier.source", "unknown");
 }
 
+function orderResults(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): void {
+  const order = options.order === "asc" ? "asc" : "desc";
+  switch (options.sort) {
+    case "name":
+      query.orderBy("dossier.name", order);
+      break;
+    case "phase":
+      query.orderByRaw(`COALESCE(latest_phase.phase, ?) ${order}`, ["Accompagnement amont"]);
+      break;
+    case "depot_date":
+    default:
+      query.orderBy("dossier.depot_date", order);
+  }
+  // Stable tie-break, whatever the primary key.
+  query.orderBy("dossier.id", "desc");
+}
+
 export async function listDossiersForAdmin(
   options: ListAdminDossiersOptions,
   db: Knex.Transaction | Knex = directDatabaseConnection,
@@ -102,8 +124,7 @@ export async function listDossiersForAdmin(
   const dossiers = await withRelations(db("dossier"), db)
     .modify((q) => filter(q, options))
     .select(summaryColumns(db))
-    .orderBy("dossier.depot_date", "desc")
-    .orderBy("dossier.id", "desc")
+    .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
   return { dossiers, total: Number(count?.count ?? 0) };
@@ -123,7 +144,6 @@ export function listDossiersDeposesDuringYear(
     .where("dossier.depot_date", "<", new Date(year + 1, 0, 1))
     .select([
       ...summaryColumns(db),
-      "dossier.main_activite",
       "dossier.primary_department",
       "dossier.departments",
       "dossier.communes",

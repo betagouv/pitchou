@@ -26,6 +26,7 @@
   <h2>Informations</h2>
   <ul>
     <li><a href="/stats">Statistiques</a></li>
+    <li><a href="/nouveautes">Nouveautés</a></li>
     <li><a href="/accessibilite">Accessibilité : non conforme</a></li>
     <li><a href="/donnees-personnelles">Données personnelles</a></li>
     <li><a href="/mentions-legales">Mentions légales</a></li>

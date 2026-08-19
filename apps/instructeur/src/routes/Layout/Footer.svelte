@@ -45,6 +45,9 @@
           <a class="fr-footer__top-link" href="/stats">Statistiques</a>
         </li>
         <li>
+          <a class="fr-footer__top-link" href="/nouveautes">Nouveautés</a>
+        </li>
+        <li>
           <a
             class="fr-footer__top-link fr-icon-external-link-line fr-link--icon-right"
             href={BUDGET_URL}

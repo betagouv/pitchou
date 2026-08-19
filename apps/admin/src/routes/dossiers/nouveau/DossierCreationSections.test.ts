@@ -36,8 +36,9 @@ describe("dossier creation sections", () => {
     expect(body).toContain('id="request-context-1"');
     expect(body).toContain('id="request-context-2"');
     expect(body).toContain('id="request-context-3"');
-    expect(body).not.toContain('<select class="fr-select" id="request-context"');
-    expect(body).not.toContain('<select class="fr-select" id="restauration-demande"');
+    // Radios replaced single dropdown controls, so no element carries these ids.
+    expect(body).not.toContain('id="request-context"');
+    expect(body).not.toContain('id="restauration-demande"');
     expect(body).toContain('id="accompaniment-need"');
 
     expect(body.indexOf('id="request-context-1"')).toBeLessThan(

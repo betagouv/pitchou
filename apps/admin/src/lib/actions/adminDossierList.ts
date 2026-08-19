@@ -17,7 +17,15 @@ async function checkResponse(
 }
 
 export function defaultDossiersQuery(): DossiersQuery {
-  return { search: "", phase: "", source: "", page: 1, pageSize: 50 };
+  return {
+    search: "",
+    phase: "",
+    source: "",
+    sort: "depot_date",
+    order: "desc",
+    page: 1,
+    pageSize: 50,
+  };
 }
 
 export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> {
@@ -28,6 +36,8 @@ export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> 
   if (query.search.trim()) params.set("search", query.search.trim());
   if (query.phase) params.set("phase", query.phase);
   if (query.source) params.set("source", query.source);
+  params.set("sort", query.sort);
+  params.set("order", query.order);
   const response = await fetch(`/api/dossiers?${params.toString()}`);
   await checkResponse(response);
   const page = await response.json();

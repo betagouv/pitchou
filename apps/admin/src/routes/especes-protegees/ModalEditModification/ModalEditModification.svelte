@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+
   import type {
     ModificationEspeceAdmin,
     PatchModificationEspece,
@@ -6,7 +8,7 @@
   import { saveModificationEspece, deleteModificationEspece } from "$lib/actions/adminEspeces.ts";
 
   import { CLASSIFICATIONS, displayedNom } from "../adminModificationsList.ts";
-  import Modal from "../Modal.svelte";
+  import Modal from "$lib/components/Modal.svelte";
   import ModificationFields from "./ModificationFields.svelte";
 
   type Props = {
@@ -135,11 +137,14 @@
         </div>
         <div class="fr-input-group">
           <label class="fr-label" for="creation-classification">Classification</label>
-          <select id="creation-classification" class="fr-select" bind:value={draftClassification}>
-            {#each CLASSIFICATIONS as classification}
-              <option value={classification}>{classification}</option>
-            {/each}
-          </select>
+          <Select
+            id="creation-classification"
+            options={CLASSIFICATIONS.map((classification) => ({
+              value: classification,
+              label: classification,
+            }))}
+            bind:value={draftClassification}
+          />
         </div>
         <p class="text-[color:var(--text-mention-grey)] italic m-0">
           Le CD_REF et la classification sont requis à la création. Les autres champs seront

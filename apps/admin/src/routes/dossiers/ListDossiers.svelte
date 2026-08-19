@@ -11,9 +11,11 @@
     type DossiersQuery,
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
-  import TableDossiers from "./TableDossiers.svelte";
-  import DossiersListControls from "./DossiersListControls.svelte";
+  import type { DossierSortKey, DossierSortOrder } from "$lib/actions/adminDossierTypes.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import DossierCards from "./DossierCards.svelte";
   import CreateDossierModal from "./CreateDossierModal.svelte";
+  import DossiersListControls from "./DossiersListControls.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
   let dossiers = $state<AdminDossierSummary[]>([]);
@@ -26,6 +28,12 @@
   let downloadError = $state<string | null>(null);
 
   const currentYear = new Date().getFullYear();
+
+  // The "create" entry point lives in the shell header ("+").
+  $effect(() => {
+    pageHeader.setAction({ label: "Créer un dossier", onClick: () => (creatingDossier = true) });
+    return () => pageHeader.clearAction();
+  });
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -80,7 +88,16 @@
     searchTimer = setTimeout(reload, 300);
   }
 
-  function onFilterChange() {
+  function onFilterChange(updates: { phase?: string; source?: DossiersQuery["source"] }) {
+    if (updates.phase !== undefined) query.phase = updates.phase;
+    if (updates.source !== undefined) query.source = updates.source;
+    query.page = 1;
+    reload();
+  }
+
+  function onSortChange(sort: DossierSortKey, order: DossierSortOrder) {
+    query.sort = sort;
+    query.order = order;
     query.page = 1;
     reload();
   }
@@ -111,26 +128,16 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="flex flex-col fr-mt-2w gap-4">
-    <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-      <h1 class="fr-mb-0">Dossiers</h1>
-      <div class="flex flex-row items-center gap-4 flex-wrap">
-        <button
-          class="fr-btn fr-btn--secondary fr-icon-download-line fr-btn--icon-left"
-          type="button"
-          disabled={downloading}
-          onclick={downloadCurrentYear}
-        >
-          Télécharger les dossiers de l'année en cours
-        </button>
-        <button
-          class="fr-btn fr-icon-add-line fr-btn--icon-left"
-          type="button"
-          onclick={() => (creatingDossier = true)}
-        >
-          Créer un dossier
-        </button>
-      </div>
+  <div class="flex flex-col gap-2">
+    <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+        disabled={downloading}
+        onclick={downloadCurrentYear}
+      >
+        Télécharger les dossiers de l'année en cours
+      </button>
     </div>
 
     {#if downloadError}
@@ -139,16 +146,14 @@
       </div>
     {/if}
 
-    <DossiersListControls bind:query onSearch={onSearchInput} onFilter={onFilterChange} />
-
-    <p class="fr-mb-0" aria-live="polite">
-      <span class="fr-text--lead">{total}</span><span class="fr-text--lg"
-        >&nbsp;dossier{total > 1 ? "s" : ""}</span
-      >
-      {#if loading}
-        <span class="fr-text--sm fr-text-mention--grey fr-ml-1w">— chargement…</span>
-      {/if}
-    </p>
+    <DossiersListControls
+      {query}
+      {total}
+      {loading}
+      onSearch={onSearchInput}
+      onFilter={onFilterChange}
+      onSort={onSortChange}
+    />
   </div>
 
   {#if loadError}
@@ -158,10 +163,12 @@
   {/if}
 
   {#if dossiers.length >= 1}
-    <TableDossiers rows={dossiers} />
+    <DossierCards rows={dossiers} />
 
     {#if pageSelectors}
-      <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      <div class="mt-2">
+        <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      </div>
     {/if}
   {:else if !loading}
     <p class="fr-mt-2w">Aucun dossier ne correspond à cette recherche.</p>

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+
   import AddressAutocomplete from "./AddressAutocomplete.svelte";
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
@@ -46,10 +48,14 @@
       <div class="flex flex-col gap-6">
         <div class="fr-select-group w-full md:w-1/3">
           <label class="fr-label" for="physical-country">Pays</label>
-          <select class="fr-select" id="physical-country" bind:value={model.physicalCountry}>
-            <option value="France">France</option>
-            <option value="Autre pays">Autre pays</option>
-          </select>
+          <Select
+            id="physical-country"
+            options={[
+              { value: "France", label: "France" },
+              { value: "Autre pays", label: "Autre pays" },
+            ]}
+            bind:value={model.physicalCountry}
+          />
         </div>
 
         {#if model.physicalCountry === "Autre pays"}

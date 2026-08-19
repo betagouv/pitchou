@@ -21,7 +21,7 @@
   const activeFilterCount = $derived((query.niveau ? 1 : 0) + (query.groupe ? 1 : 0));
 </script>
 
-<div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
+<div class="flex flex-row items-start gap-2 max-[768px]:flex-col max-[768px]:items-stretch">
   <form class="flex-1" onsubmit={(event) => event.preventDefault()}>
     <div class="fr-search-bar w-full" role="search">
       <label class="fr-label" for="recherche-utilisateur">Rechercher une utilisateurice</label>

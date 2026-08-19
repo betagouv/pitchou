@@ -39,8 +39,8 @@
   );
 </script>
 
-<div class="flex flex-col fr-mt-2w gap-4">
-  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
+<div class="flex flex-col gap-2">
+  <div class="flex flex-row items-start gap-2 max-[768px]:flex-col max-[768px]:items-stretch">
     <form class="flex-1" onsubmit={(event) => event.preventDefault()}>
       <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-modification">Rechercher une modification</label>
