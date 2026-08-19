@@ -85,7 +85,9 @@
 </svelte:head>
 
 <div class="fr-grid-row fr-mt-2w">
-  <div class="fr-col">
+  <!-- min-w-0 lets the column shrink below its content width (long title, wide
+       tab bar) instead of forcing the page to scroll horizontally. -->
+  <div class="fr-col min-w-0">
     <HeaderDossier
       {dossier}
       {currentDossierFollowedByCurrentInstructeur}

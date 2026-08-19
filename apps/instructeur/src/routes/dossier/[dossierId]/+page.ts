@@ -24,5 +24,5 @@ export const load: PageLoad = async ({ params, parent }) => {
     redirect(307, "/");
   }
 
-  return { dossierId: id };
+  return { dossierId: id, fullWidth: true };
 };

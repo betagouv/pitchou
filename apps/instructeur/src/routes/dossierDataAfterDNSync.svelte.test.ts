@@ -144,7 +144,7 @@ test("after a DN synchronization, the page of an already visited dossier also di
   // same call as the load of the dossier/[dossierId] route
   await getDossierFull(DOSSIER_ID);
   render(PageDossier, {
-    data: { dossierId: DOSSIER_ID },
+    data: { dossierId: DOSSIER_ID, fullWidth: true },
     params: { dossierId: String(DOSSIER_ID) },
   });
 
