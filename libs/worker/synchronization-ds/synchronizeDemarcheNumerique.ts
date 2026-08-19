@@ -27,6 +27,8 @@ import {
   synchronizeDownloadedDossierFiles,
 } from "./synchronizeDossierFiles.ts";
 import { synchronizeDossierRelations } from "./synchronizeDossierRelations.ts";
+import { updateNotification } from "./synchronization-notification.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 type SynchronizationOptions = {
   apiToken: string;
@@ -100,7 +102,7 @@ export async function synchronizeDemarcheNumerique({
   const deletedDossiers = deletedDossiersP.then((deleted) =>
     deleteDossierByDSNumber(deleted.map(({ number }) => number)),
   );
-  await Promise.all([dossierPersistence, deletedDossiers]);
+  const [dossiersChangedByColumns] = await Promise.all([dossierPersistence, deletedDossiers]);
 
   const { dossierIdByDNNumber, synchronizations } = await synchronizeDossierRelations(
     dossiersDS,
@@ -108,12 +110,30 @@ export async function synchronizeDemarcheNumerique({
     demarcheNumber,
     transaction,
   );
-  const fileSynchronizations = synchronizeDownloadedDossierFiles(
+  const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
     fileDownloads,
     dossiersDS,
     dossierIdByDNNumber,
     pitchouKeyToChampDS,
     transaction,
   );
-  await Promise.all([groupesInstructeursP, ...synchronizations, ...fileSynchronizations]);
+  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes] = await Promise.all([
+    especesImpacteesP,
+    piecesJointesP,
+    groupesInstructeursP,
+    ...synchronizations,
+  ]);
+
+  // Only the dossiers this synchronization found actually modified are marked
+  // unread; what changed in each of them is in its historique.
+  await updateNotification(
+    dossiersDS,
+    dossierIdByDNNumber,
+    new Set<DossierId>([
+      ...(dossiersChangedByColumns ?? []),
+      ...(dossiersChangedByEspeces ?? []),
+      ...(dossiersChangedByPiecesJointes ?? []),
+    ]),
+    transaction,
+  );
 }

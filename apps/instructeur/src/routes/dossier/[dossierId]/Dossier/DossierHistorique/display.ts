@@ -32,10 +32,15 @@ const displayByType: Record<
   string,
   (data: Data) => Omit<HistoriqueEntry, "id" | "tone" | "date" | "timeKnown">
 > = {
-  champ_modifie: (d) => ({
-    icon: "fr-icon-pencil-line",
-    label: `Champ ${str(d, "field") ?? "du formulaire"} renseigné`,
-  }),
+  champ_modifie: (d) => {
+    const field = str(d, "field") ?? "du formulaire";
+    // A champ that had no value was filled in; one that had a value was changed.
+    return {
+      icon: "fr-icon-pencil-line",
+      label: `Champ ${field} ${str(d, "from") ? "modifié" : "renseigné"}${str(d, "to") ? " :" : ""}`,
+      value: str(d, "to") ?? undefined,
+    };
+  },
   especes_renseignees: () => ({
     icon: "fr-icon-leaf-line",
     label: "Espèces impactées renseignées",

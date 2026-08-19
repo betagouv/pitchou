@@ -12,7 +12,6 @@ import type {
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierDS88444, Message } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { Knex } from "knex";
-import { updateNotification } from "./synchronization-notification.ts";
 
 type DossierForSync =
   DossierEntreprisesPersonneInitializersForInsert | DossierEntreprisesPersonneInitializersForUpdate;
@@ -44,10 +43,9 @@ export async function synchronizeDossierRelations(
     messagesByDossierId.set(dossierIdByDNId.get(id)!, messages);
   }
 
-  const synchronizations: unknown[] = [
-    syncIdentitesDossier(identitesByDossierId, transaction),
-    updateNotification(dossiersDS, dossierIdByDNNumber, transaction),
-  ];
+  // The notification is updated at the very end of the synchronization, once
+  // every change — columns, identities, espèces and pièces jointes — is known.
+  const synchronizations: unknown[] = [syncIdentitesDossier(identitesByDossierId, transaction)];
   if (messagesByDossierId.size >= 1) {
     synchronizations.push(dumpDossierMessages(messagesByDossierId, transaction));
   }

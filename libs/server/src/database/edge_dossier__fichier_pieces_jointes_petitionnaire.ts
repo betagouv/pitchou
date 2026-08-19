@@ -20,7 +20,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
   fieldsWithPiecesJointes: FormField[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<any> {
+): Promise<Set<DossierId>> {
   let fichierDescriptions: Map<DossierDS88444["number"], DSFile[]>[] = [];
 
   for (const field of fieldsWithPiecesJointes) {
@@ -86,6 +86,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     .flat();
 
   let newFichiersSynchronized: Promise<any> = Promise.resolve();
+  const dossiersWithNewPiecesJointes = new Set<DossierId>();
 
   if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
     // The insert ignores conflicts, so the historique must only log the edges
@@ -135,8 +136,10 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
         })),
         databaseConnection,
       );
+      for (const { dossier } of newEdges) dossiersWithNewPiecesJointes.add(dossier);
     }
   }
 
-  return Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
+  await Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
+  return dossiersWithNewPiecesJointes;
 }

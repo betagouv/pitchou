@@ -5,12 +5,20 @@ import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type EdgePersonneFollowsDossier from "@pitchou/types/database/public/EdgePersonneFollowsDossier.ts";
 
+/**
+ * Marks a dossier unread for the instructeurs following it. Only the dossiers
+ * whose pétitionnaire data the synchronization actually found changed are
+ * notified: Démarche Numérique moves its own modification date for anything,
+ * including the annotations Pitchou itself wrote back, which is not news for
+ * anybody. What did change is recorded in the historique of the dossier.
+ */
 export async function updateNotification(
   dossiersDN: DossierDS88444[],
   dossierIdByDN_number: Map<DossierDS88444["number"], DossierId>,
+  changedDossiers: Set<DossierId>,
   synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<any | void> {
-  if (dossiersDN.length === 0) {
+  if (dossiersDN.length === 0 || changedDossiers.size === 0) {
     return;
   }
 
@@ -35,6 +43,7 @@ export async function updateNotification(
         `Dans la mise à jour de la table Notification, le dossier de Démarche numérique numéro ${dossierDN.number} n'a pas trouvé de correspondance parmi les id des dossiers Pitchou.`,
       );
     }
+    if (!changedDossiers.has(dossierId)) continue;
     const personnesFollowingThisDossier = personnesFollowingDossierByDossier.get(dossierId);
 
     if (personnesFollowingThisDossier && personnesFollowingThisDossier.length >= 1) {

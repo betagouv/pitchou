@@ -83,8 +83,8 @@ export async function dumpDossiers(
   }
   // Diffed against the current rows before they are overwritten, so the
   // historique records what the pétitionnaire changed.
-  const syncActions = await actionsFromSyncUpdates(dossiersForUpdate, db);
-  await logActionsDossier(syncActions, db);
+  const { actions, changedDossiers } = await actionsFromSyncUpdates(dossiersForUpdate, db);
+  await logActionsDossier(actions, db);
 
   const updates = dossiersForUpdate.map(({ dossier }) =>
     db("dossier")
@@ -116,6 +116,8 @@ export async function dumpDossiers(
     }
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
+      // A dossier discovered by this synchronization is new to everyone following it.
+      changedDossiers.add(id);
       const source = dossiersForInsert[index];
       // An imported free comment also becomes the dossier's first (authorless)
       // commentaire, so the thread and the dossier list show it.
@@ -142,7 +144,7 @@ export async function dumpDossiers(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
     db,
   );
-  return Promise.all([
+  await Promise.all([
     events.length
       ? db("evenement_phase_dossier")
           .insert(events)
@@ -161,4 +163,8 @@ export async function dumpDossiers(
     Promise.resolve([]),
     ...updates,
   ]);
+
+  // The dossiers whose pétitionnaire data actually changed: only their followers
+  // have something new to read.
+  return changedDossiers;
 }
