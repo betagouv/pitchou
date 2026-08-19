@@ -13,7 +13,7 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
 
   await loginAs(codeAcces);
 
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.getByLabel("Date de début").fill("10/03/2025");
@@ -28,6 +28,23 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
   await expect(page.getByLabel("Date de fin")).toHaveValue("30/04/2025");
 });
 
+test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({
+  page,
+  db,
+  loginAs,
+}) => {
+  const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
+    email: "instr@ancre-legacy.fr",
+    dossierNom: "Dossier lien ancre e2e",
+  });
+
+  await loginAs(codeAcces);
+  // Tabs moved to the `tab` query param; legacy hash links keep working.
+  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
+  await expect(page.locator("#enjeu")).toBeVisible();
+});
+
 test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a stakeholder file", async ({
   page,
   db,
@@ -39,7 +56,7 @@ test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a 
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await expect(page.locator("#enjeu")).toHaveValue("non");
@@ -56,7 +73,7 @@ test("Changing the 'Dossier à enjeu' select changes the stake value of the case
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await expect(page.locator("#enjeu")).toHaveValue("non");

@@ -20,19 +20,10 @@
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
-  function changeTab(newTab: DossierTab) {
-    activeTab = newTab;
-    // Update the URL without reloading the page
-    window.history.replaceState(null, "", `#${newTab}`);
-  }
-
-  function handleTabClick(tab: DossierTab) {
-    changeTab(tab);
-  }
-
   type Props = {
     dossier: DossierFull;
-    initialActiveTab: DossierTab;
+    activeTab: DossierTab;
+    onTabChange: (tab: DossierTab) => void;
     email: string;
     dossierFollowers: NonNullable<Personne["email"]>[];
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
@@ -41,7 +32,8 @@
 
   let {
     dossier,
-    initialActiveTab,
+    activeTab,
+    onTabChange,
     email,
     dossierFollowers,
     currentDossierFollowedByCurrentInstructeur,
@@ -81,8 +73,6 @@
     }
   });
 
-  let activeTab = $derived(initialActiveTab);
-
   let especesImpactees: Promise<DescriptionMenacesEspeces> | undefined = $derived(
     loadEspecesImpactees(dossier),
   );
@@ -106,7 +96,7 @@
     ></HeaderDossier>
 
     <div class="fr-tabs">
-      <DossierTabList {activeTab} onSelect={handleTabClick} />
+      <DossierTabList {activeTab} onSelect={onTabChange} />
       <div
         id="tabpanel-detail-du-projet-panel"
         aria-labelledby="tabpanel-detail-du-projet"
@@ -167,7 +157,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierPiecesJointes {dossier} openTab={changeTab}></DossierPiecesJointes>
+        <DossierPiecesJointes {dossier} openTab={onTabChange}></DossierPiecesJointes>
       </div>
       <div
         id="tabpanel-generation-document-panel"

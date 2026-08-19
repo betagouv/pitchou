@@ -21,7 +21,7 @@ test("l'échéance saisie sur le dossier est persistée, puis peut être vidée"
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.getByLabel(PAGE_ECHEANCE_LABEL).fill("15/09/2026");
@@ -72,7 +72,7 @@ test("l'échéance se modifie depuis le menu d'une tuile et reste cohérente ave
   await page.waitForLoadState("networkidle");
 
   // The dossier page shows the date set from the tile.
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("15/09/2026");
 });
 

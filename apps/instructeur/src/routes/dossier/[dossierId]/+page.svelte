@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { afterNavigate, replaceState } from "$app/navigation";
   import { store } from "$lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
-  import { parseDossierTab } from "./Dossier/dossierTabs.ts";
+  import { parseDossierTab, type DossierTab } from "./Dossier/dossierTabs.ts";
   import Loader from "@pitchou/ui/Loader.svelte";
 
   import type { PageProps } from "./$types";
@@ -27,16 +28,39 @@
     email ? !!followRelations?.get(email)?.has(id) : false,
   );
 
-  const initialActiveTab = $derived.by(() => {
-    const hash = typeof location !== "undefined" ? location.hash : "";
-    return parseDossierTab(hash) ?? "detail-du-projet";
+  // The active tab lives in the `tab` query param; legacy links used a hash
+  // (#instruction), still honoured as a fallback.
+  function tabFromLocation(): DossierTab {
+    const url = new URL(location.href);
+    return (
+      parseDossierTab(url.searchParams.get("tab") ?? "") ??
+      parseDossierTab(url.hash) ??
+      "detail-du-projet"
+    );
+  }
+
+  let activeTab = $state(tabFromLocation());
+
+  // Re-read the URL when navigating between dossiers or through history.
+  afterNavigate(() => {
+    activeTab = tabFromLocation();
   });
+
+  function selectTab(tab: DossierTab) {
+    activeTab = tab;
+    const url = new URL(location.href);
+    url.searchParams.set("tab", tab);
+    url.hash = "";
+    // Shallow routing: reflect the tab in the URL without re-running the loads.
+    replaceState(url, {});
+  }
 </script>
 
 {#if dossier && email}
   <Dossier
     {dossier}
-    {initialActiveTab}
+    {activeTab}
+    onTabChange={selectTab}
     {email}
     {dossierFollowers}
     {currentDossierFollowedByCurrentInstructeur}

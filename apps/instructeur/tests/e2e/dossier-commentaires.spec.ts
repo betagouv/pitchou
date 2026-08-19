@@ -19,7 +19,7 @@ test("les commentaires du dossier s'ajoutent, se modifient et persistent", async
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}#instruction`);
+  await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   // The migrated comment is shown as written by "initial" before 09/2026.
