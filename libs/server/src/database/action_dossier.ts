@@ -116,6 +116,29 @@ export async function logDossierActions(
   );
 }
 
+/**
+ * Writes the historique of a change already committed. The historique is a record
+ * of what happened, not part of the change itself: reporting the whole request as
+ * failed because it could not be written would make the browser retry a write that
+ * did go through — and none of these endpoints is idempotent.
+ */
+export async function logDossierActionsAfterCommit(
+  /** Awaited here, so building the actions is covered too — it may read the database. */
+  actions: ActionDossierInitializer[] | Promise<ActionDossierInitializer[]>,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  metricOverride?: EvenementMetrique | null,
+): Promise<void> {
+  let resolved: ActionDossierInitializer[] = [];
+  try {
+    resolved = await actions;
+    await logDossierActions(resolved, databaseConnection, metricOverride);
+  } catch (error) {
+    // Logged with the actions: they are the only trace left of what the historique
+    // is missing.
+    console.error(`Échec de l'écriture de l'historique du dossier`, resolved, error);
+  }
+}
+
 export async function getDossierActions(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,

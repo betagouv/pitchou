@@ -9,7 +9,7 @@ import {
   getDossierIdFromControle,
 } from "@pitchou/server/database/controle.ts";
 import { getDossierIdFromPrescription } from "@pitchou/server/database/prescription.ts";
-import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
@@ -120,19 +120,21 @@ export const POST: RequestHandler = async ({ url, request }) => {
     );
   }
 
+  const modification = !!controleData.id;
+  let controleId;
   try {
-    const modification = !!controleData.id;
-    const controleId = modification
+    controleId = modification
       ? await updateControle(controleData)
       : await addControles(controleData);
-    if (dossierId) {
-      const author = await getPersonneByDossierCap(cap);
-      await logDossierActions(
-        await controleActions(controleData, dossierId, author?.id ?? null, modification),
-      );
-    }
-    return json(controleId);
   } catch (err) {
     error(500, `Erreur lors de l'ajout/modification de contrôle. ${err}`);
   }
+
+  if (dossierId) {
+    const author = await getPersonneByDossierCap(cap).catch(() => null);
+    await logDossierActionsAfterCommit(
+      controleActions(controleData, dossierId, author?.id ?? null, modification),
+    );
+  }
+  return json(controleId);
 };
