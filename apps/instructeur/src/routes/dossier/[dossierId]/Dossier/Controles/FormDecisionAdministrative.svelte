@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "../../DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
 
   import {
     typesDecisionAdministrative,

@@ -1,6 +1,6 @@
 <script lang="ts">
   import TagPhase from "$lib/components/TagPhase.svelte";
-  import DateInput from "../../DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
   import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { attachmentDetails } from "./fieldValues.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
