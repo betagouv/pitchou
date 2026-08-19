@@ -49,7 +49,7 @@
     {#if dossierFollowedByCurrentInstructeur}
       <button
         type="button"
-        class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm"
+        class="fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm lg:self-center"
         onclick={() => currentInstructeurLeavesDossier(dossier.id)}
       >
         Ne plus suivre
@@ -57,14 +57,16 @@
     {:else}
       <button
         type="button"
-        class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm"
+        class="fr-btn fr-icon-star-line fr-btn--tertiary-no-outline fr-btn--sm lg:self-center"
         onclick={() => currentInstructeurFollowsDossier(dossier.id)}
       >
         Suivre
       </button>
     {/if}
 
-    <ActiviteIcon mainActivite={dossier.main_activite} />
+    <span class="shrink-0 lg:self-center">
+      <ActiviteIcon mainActivite={dossier.main_activite} />
+    </span>
 
     <div class="min-w-0">
       <h4 class="fr-mb-0 text-[1rem] leading-[1.4]">

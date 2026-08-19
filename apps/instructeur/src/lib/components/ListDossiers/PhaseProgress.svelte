@@ -21,9 +21,6 @@
     aria-valuemin={0}
     aria-valuemax={100}
   >
-    <span
-      class="block h-full rounded-full bg-[var(--background-action-high-success)]"
-      style:width={`${percentage}%`}
-    ></span>
+    <span class="block h-full rounded-full bg-[#61CE8C]" style:width={`${percentage}%`}></span>
   </span>
 </div>

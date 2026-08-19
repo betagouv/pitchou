@@ -34,7 +34,7 @@
 {#if dossiers.length >= 1}
   <div class="fr-mb-2w fr-py-2w">
     {#each sections as section (section.key)}
-      <section class="[&:not(:first-child)]:fr-mt-4w">
+      <section class="[&:not(:first-child)]:mt-16">
         <h3 class="fr-h6 fr-mb-1w">{section.title}</h3>
 
         <!-- Column names, repeated for each section. They label the tiles visually; screen

@@ -1,130 +1,69 @@
 /**
- * Visual identity of a dossier's « activité principale »: a DSFR icon plus a DSFR colour
- * family, so a dossier is recognisable at a glance in the list.
+ * Visual identity of a dossier's « activité principale »: an illustrative icon (a coloured
+ * circle with a pictogram, from the Figma « Icones illustratives » page), so a dossier is
+ * recognisable at a glance in the list.
+ *
+ * The SVGs live in `static/icons/activites/`; keys mirror the « Activité principale »
+ * options of the démarche (see `Demarche88444.ts`), typos included.
  */
-export type ActiviteIcon = {
-  /** DSFR icon class, e.g. `fr-icon-windy-line` */
-  icon: string;
-  /** DSFR colour family, e.g. `blue-ecume`, used to build the `--*-<family>` tokens */
-  family: string;
-};
 
-const FALLBACK: ActiviteIcon = { icon: "fr-icon-folder-2-line", family: "grey" };
+const FALLBACK_SLUG = "autre";
 
-const iconByActivite = new Map<string, ActiviteIcon>([
-  [
-    "Aménagements fonciers (AFAF, remembrement)",
-    { icon: "fr-icon-road-map-line", family: "brown-cafe-creme" },
-  ],
-  ["Carrières", { icon: "fr-icon-hammer-line", family: "brown-caramel" }],
-  ["Conservation des espèces", { icon: "fr-icon-leaf-line", family: "green-bourgeon" }],
-  ["Demande à caractère scientifique", { icon: "fr-icon-microscope-line", family: "blue-cumulus" }],
-  ["Desaîrage", { icon: "fr-icon-windy-line", family: "blue-ecume" }],
-  [
-    "Dommages aux biens et activités",
-    { icon: "fr-icon-alert-line", family: "orange-terre-battue" },
-  ],
-  [
-    "Événementiel avec ou sans aménagement temporaire",
-    { icon: "fr-icon-megaphone-line", family: "purple-glycine" },
-  ],
-  ["Exploitation forestière", { icon: "fr-icon-plant-line", family: "green-emeraude" }],
-  [
-    "Industries de production de biens et marchandises",
-    { icon: "fr-icon-building-4-line", family: "brown-opera" },
-  ],
-  ["Infrastructures - Autres", { icon: "fr-icon-road-map-line", family: "beige-gris-galet" }],
-  ["Infrastructures aéroportuaires", { icon: "fr-icon-send-plane-line", family: "blue-ecume" }],
-  [
-    "Infrastructures des ouvrages de défense contre la mer",
-    { icon: "fr-icon-flood-line", family: "blue-cumulus" },
-  ],
-  [
-    "Infrastructures de transport ferroviaire",
-    { icon: "fr-icon-train-line", family: "blue-ecume" },
-  ],
-  [
-    "Infrastructures de transport maritime et fluvial",
-    { icon: "fr-icon-ship-2-line", family: "blue-cumulus" },
-  ],
-  [
-    "Infrastructures de transport routières",
-    { icon: "fr-icon-car-line", family: "beige-gris-galet" },
-  ],
-  ["Installations agricoles", { icon: "fr-icon-seedling-line", family: "green-tilleul-verveine" }],
-  [
-    "Installations de gestion des déchets",
-    { icon: "fr-icon-recycle-line", family: "green-menthe" },
-  ],
-  [
-    "Installations de loisir et de tourisme",
-    { icon: "fr-icon-hotel-line", family: "pink-macaron" },
-  ],
-  ["Pédagogique enseignement", { icon: "fr-icon-school-line", family: "purple-glycine" }],
-  ["Péril animalier", { icon: "fr-icon-alert-line", family: "red-marianne" }],
-  [
-    "Plate-formes logistiques, centres commerciaux",
-    { icon: "fr-icon-shopping-cart-2-line", family: "brown-opera" },
-  ],
-  [
-    "Préservation de la sécurité et santé publique",
-    { icon: "fr-icon-first-aid-kit-line", family: "red-marianne" },
-  ],
-  [
-    "Production énergie autre-projets liés au nucléaire",
-    { icon: "fr-icon-flashlight-line", family: "yellow-moutarde" },
-  ],
-  [
-    "Production énergie renouvelable - Éolien",
-    { icon: "fr-icon-windy-line", family: "blue-ecume" },
-  ],
-  [
-    "Production énergie renouvelable - Éolien -  Suivi mortalité",
-    { icon: "fr-icon-windy-line", family: "blue-cumulus" },
-  ],
-  [
-    "Production énergie renouvelable - Photovoltaïque",
-    { icon: "fr-icon-sun-line", family: "yellow-tournesol" },
-  ],
-  [
-    "Production énergie renouvelable - Hydroélectricité",
-    { icon: "fr-icon-drop-line", family: "blue-cumulus" },
-  ],
-  [
-    "Production énergie renouvelable - Méthaniseur, biomasse",
-    { icon: "fr-icon-leaf-line", family: "green-tilleul-verveine" },
-  ],
-  [
-    "Production énergie renouvelable - Autres",
-    { icon: "fr-icon-lightbulb-line", family: "yellow-moutarde" },
-  ],
+const slugByActivite = new Map<string, string>([
+  ["Aménagements fonciers (AFAF, remembrement)", "amenagements-fonciers"],
+  ["Carrières", "carrieres"],
+  ["Conservation des espèces", "conservation-especes"],
+  ["Demande à caractère scientifique", "demande-scientifique"],
+  ["Desaîrage", "desairage"],
+  ["Dommages aux biens et activités", "dommages-biens-activites"],
+  ["Événementiel avec ou sans aménagement temporaire", "evenementiel"],
+  ["Exploitation forestière", "exploitation-forestiere"],
+  ["Industries de production de biens et marchandises", "industries-production"],
+  ["Infrastructures - Autres", "infrastructures-autres"],
+  ["Infrastructures aéroportuaires", "infrastructures-aeroportuaires"],
+  ["Infrastructures des ouvrages de défense contre la mer", "defense-contre-la-mer"],
+  ["Infrastructures de transport ferroviaire", "transport-ferroviaire"],
+  ["Infrastructures de transport maritime et fluvial", "transport-maritime-fluvial"],
+  ["Infrastructures de transport routières", "transport-routier"],
+  ["Installations agricoles", "installations-agricoles"],
+  ["Installations de gestion des déchets", "gestion-dechets"],
+  ["Installations de loisir et de tourisme", "loisir-tourisme"],
+  ["Pédagogique enseignement", "pedagogique-enseignement"],
+  ["Péril animalier", "peril-animalier"],
+  ["Plate-formes logistiques, centres commerciaux", "plateformes-logistiques"],
+  ["Préservation de la sécurité et santé publique", "securite-sante-publique"],
+  ["Production énergie autre-projets liés au nucléaire", "energie-nucleaire"],
+  ["Production énergie renouvelable - Éolien", "energie-eolien"],
+  ["Production énergie renouvelable - Éolien -  Suivi mortalité", "energie-eolien-suivi-mortalite"],
+  ["Production énergie renouvelable - Photovoltaïque", "energie-photovoltaique"],
+  ["Production énergie renouvelable - Hydroélectricité", "energie-hydroelectricite"],
+  ["Production énergie renouvelable - Méthaniseur, biomasse", "energie-methaniseur-biomasse"],
+  ["Production énergie renouvelable - Autres", "energie-autres"],
   [
     "Projets de bâtiments pour les services publics-installations sportives",
-    { icon: "fr-icon-government-line", family: "blue-france" },
+    "batiments-services-publics",
   ],
-  ["Projets liés à la gestion de l’eau", { icon: "fr-icon-drop-line", family: "blue-ecume" }],
-  ["Restauration écologique", { icon: "fr-icon-seedling-line", family: "green-bourgeon" }],
+  ["Projets liés à la gestion de l’eau", "gestion-eau"],
+  ["Restauration écologique", "restauration-ecologique"],
   [
     "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
-    { icon: "fr-icon-hammer-line", family: "brown-caramel" },
+    "restauration-batiments",
   ],
-  [
-    "Transport (autres canalisations)",
-    { icon: "fr-icon-road-map-line", family: "beige-gris-galet" },
-  ],
-  ["Transport eau aqueduc", { icon: "fr-icon-drop-line", family: "blue-cumulus" }],
-  ["Transport énergie électrique", { icon: "fr-icon-flashlight-line", family: "yellow-moutarde" }],
-  ["Transport gaz", { icon: "fr-icon-gas-station-line", family: "orange-terre-battue" }],
-  ["Transport hydrocarbures", { icon: "fr-icon-gas-station-line", family: "brown-caramel" }],
+  ["Transport (autres canalisations)", "transport-autres-canalisations"],
+  ["Transport eau aqueduc", "transport-eau-aqueduc"],
+  ["Transport énergie électrique", "transport-electricite"],
+  ["Transport gaz", "transport-gaz"],
+  ["Transport hydrocarbures", "transport-hydrocarbures"],
   [
     "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
-    { icon: "fr-icon-home-4-line", family: "brown-cafe-creme" },
+    "urbanisation-logement",
   ],
-  ["UTN (Unité Touristique Nouvelle)", { icon: "fr-icon-hotel-line", family: "pink-tuile" }],
-  ["ZAC", { icon: "fr-icon-building-4-line", family: "beige-gris-galet" }],
-  ["Autre", FALLBACK],
+  ["UTN (Unité Touristique Nouvelle)", "unite-touristique-nouvelle"],
+  ["ZAC", "zac"],
+  ["Autre", FALLBACK_SLUG],
 ]);
 
-export function activiteIcon(mainActivite: string | null | undefined): ActiviteIcon {
-  return (mainActivite && iconByActivite.get(mainActivite)) || FALLBACK;
+export function activiteIconUrl(mainActivite: string | null | undefined): string {
+  const slug = (mainActivite && slugByActivite.get(mainActivite)) || FALLBACK_SLUG;
+  return `/icons/activites/${slug}.svg`;
 }
