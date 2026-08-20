@@ -2,7 +2,7 @@ import type { DossierPhase, DossierNextActionExpectedFrom } from "@pitchou/types
 
 export const phases: Set<DossierPhase> = new Set([
   "Accompagnement amont",
-  "Étude recevabilité DDEP",
+  "Étude recevabilité",
   "Instruction",
   "Contrôle",
   "Classé sans suite",
@@ -15,7 +15,7 @@ export const phases: Set<DossierPhase> = new Set([
  */
 const orderedPhases: DossierPhase[] = [
   "Accompagnement amont",
-  "Étude recevabilité DDEP",
+  "Étude recevabilité",
   "Instruction",
   "Contrôle",
   "Obligations terminées",

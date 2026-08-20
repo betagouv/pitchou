@@ -40,7 +40,7 @@ export const sortDossiersByColumnAlphabetically = (
 
 const phaseToImportance: { [k in DossierPhase]: number } = {
   "Accompagnement amont": 6,
-  "Étude recevabilité DDEP": 5,
+  "Étude recevabilité": 5,
   Instruction: 4,
   Contrôle: 3,
   "Classé sans suite": 2,

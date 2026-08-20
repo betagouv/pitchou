@@ -11,7 +11,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000001",
-    phase: "Étude recevabilité DDEP",
+    phase: "Étude recevabilité",
     timestamp: new Date("2023-01-16T09:00:00+00:00"),
     demarche_numerique_agent_email: "claire.morin@dreal-bretagne.gouv.fr",
     demarche_numerique_motivation: null,
@@ -33,7 +33,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   // D2 – photovoltaïque Occitanie → Instruction
   {
     dossier: "99000002",
-    phase: "Étude recevabilité DDEP",
+    phase: "Étude recevabilité",
     timestamp: new Date("2024-03-18T10:15:00+00:00"),
     demarche_numerique_agent_email: "jp.moreau@dreal-oc.gouv.fr",
     demarche_numerique_motivation: null,
@@ -86,7 +86,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   },
   {
     dossier: "99000006",
-    phase: "Étude recevabilité DDEP",
+    phase: "Étude recevabilité",
     timestamp: new Date("2023-09-11T10:00:00+00:00"),
     demarche_numerique_agent_email: "elodie.bernard@dreal-normandie.gouv.fr",
     demarche_numerique_motivation: null,
@@ -101,7 +101,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   // D7 – carrière BFC → Classé sans suite
   {
     dossier: "99000007",
-    phase: "Étude recevabilité DDEP",
+    phase: "Étude recevabilité",
     timestamp: new Date("2023-11-28T11:10:00+00:00"),
     demarche_numerique_agent_email: "aurelie.simon@dreal-bfc.gouv.fr",
     demarche_numerique_motivation: null,
@@ -132,7 +132,7 @@ export const SEED_EVENEMENTS_PHASE_DOSSIER: SeedEvenementPhaseDossier[] = [
   // D9 – hydraulique Guyane → Instruction
   {
     dossier: "99000009",
-    phase: "Étude recevabilité DDEP",
+    phase: "Étude recevabilité",
     timestamp: new Date("2024-07-30T15:00:00+00:00"),
     demarche_numerique_agent_email: "audrey.mercier@dgtm-guyane.gouv.fr",
     demarche_numerique_motivation: null,
