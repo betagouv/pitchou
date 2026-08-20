@@ -1,3 +1,28 @@
+<script lang="ts" module>
+  import type { ActiviteReferentielLite as ReferentielForCache } from "./listModel.ts";
+
+  // The referentiel only feeds the filter's groups (colors, icons) and instructeurs cannot edit
+  // it, so one fetch per full page load is enough — remounts reuse it.
+  let referentielPromise: Promise<ReferentielForCache | null> | null = null;
+
+  function loadActiviteReferentiel(): Promise<ReferentielForCache | null> {
+    referentielPromise ??= (async () => {
+      const response = await fetch("/api/activites");
+      if (!response.ok) return null;
+      const referentiel = await response.json();
+      if (Array.isArray(referentiel?.groupes) && Array.isArray(referentiel?.activites)) {
+        return referentiel;
+      }
+      return null;
+    })().catch(() => {
+      // Network failure: let a later mount retry instead of caching the failure.
+      referentielPromise = null;
+      return null;
+    });
+    return referentielPromise;
+  }
+</script>
+
 <script lang="ts">
   import { onMount } from "svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
@@ -32,16 +57,7 @@
   // filter works with a flat list until it loads (or when it fails).
   let activiteReferentiel = $state<ActiviteReferentielLite | null>(null);
   onMount(async () => {
-    try {
-      const response = await fetch("/api/activites");
-      if (!response.ok) return;
-      const referentiel = await response.json();
-      if (Array.isArray(referentiel?.groupes) && Array.isArray(referentiel?.activites)) {
-        activiteReferentiel = referentiel;
-      }
-    } catch {
-      // Network failure: keep the flat fallback.
-    }
+    activiteReferentiel = await loadActiviteReferentiel();
   });
 
   const activiteOptions = $derived(activiteFilterEntries(dossiers, activiteReferentiel));

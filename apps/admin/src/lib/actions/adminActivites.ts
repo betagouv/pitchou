@@ -40,8 +40,7 @@ async function checkResponse(response: Response, action: string): Promise<void> 
   );
 }
 
-/** Loads the whole activity referentiel (activities + grouped labels). */
-export async function loadActiviteReferentiel(): Promise<ActiviteReferentielAdmin> {
+async function fetchActiviteReferentiel(): Promise<ActiviteReferentielAdmin> {
   const response = await fetch(`/api/activites`);
   await checkResponse(response, "du chargement du référentiel des activités");
 
@@ -56,6 +55,30 @@ export async function loadActiviteReferentiel(): Promise<ActiviteReferentielAdmi
   return referentiel;
 }
 
+let referentielPromise: Promise<ActiviteReferentielAdmin> | null = null;
+
+function invalidateActiviteReferentiel(): void {
+  referentielPromise = null;
+}
+
+/**
+ * Loads the whole activity referentiel (activities + grouped labels). Cached across pages — the
+ * referentiel only changes through the mutations below, which invalidate the cache.
+ */
+export function loadActiviteReferentiel(): Promise<ActiviteReferentielAdmin> {
+  referentielPromise ??= fetchActiviteReferentiel().catch((error) => {
+    invalidateActiviteReferentiel();
+    throw error;
+  });
+  return referentielPromise;
+}
+
+/** Reloads the referentiel from the server, e.g. to pick up labels a DN sync just registered. */
+export function reloadActiviteReferentiel(): Promise<ActiviteReferentielAdmin> {
+  invalidateActiviteReferentiel();
+  return loadActiviteReferentiel();
+}
+
 /** Creates an activity from its display name and group; the server derives the code. */
 export async function createActivite(label: string, groupeCode: string): Promise<void> {
   const response = await fetch(`/api/activites`, {
@@ -64,6 +87,7 @@ export async function createActivite(label: string, groupeCode: string): Promise
     body: JSON.stringify({ label, groupeCode }),
   });
   await checkResponse(response, "de la création de l'activité");
+  invalidateActiviteReferentiel();
 }
 
 export async function renameActivite(code: string, label: string): Promise<void> {
@@ -73,6 +97,7 @@ export async function renameActivite(code: string, label: string): Promise<void>
     body: JSON.stringify({ label }),
   });
   await checkResponse(response, "du renommage de l'activité");
+  invalidateActiviteReferentiel();
 }
 
 export async function renameActiviteGroupe(code: string, label: string): Promise<void> {
@@ -82,6 +107,7 @@ export async function renameActiviteGroupe(code: string, label: string): Promise
     body: JSON.stringify({ label }),
   });
   await checkResponse(response, "du renommage du groupe d'activités");
+  invalidateActiviteReferentiel();
 }
 
 /** Moves an activity under another thematic group. */
@@ -92,6 +118,7 @@ export async function moveActiviteToGroupe(code: string, groupeCode: string): Pr
     body: JSON.stringify({ groupeCode }),
   });
   await checkResponse(response, "du changement de groupe de l'activité");
+  invalidateActiviteReferentiel();
 }
 
 /**
@@ -105,4 +132,5 @@ export async function reassignActiviteLabel(label: string, activiteCode: string)
     body: JSON.stringify({ label, activiteCode }),
   });
   await checkResponse(response, "du rattachement du libellé");
+  invalidateActiviteReferentiel();
 }

@@ -5,6 +5,7 @@
   import {
     createActivite,
     loadActiviteReferentiel,
+    reloadActiviteReferentiel,
     moveActiviteToGroupe,
     reassignActiviteLabel,
     renameActivite,
@@ -51,7 +52,8 @@
     etat = "chargement";
     loadError = null;
     try {
-      referentiel = await loadActiviteReferentiel();
+      // Always fresh: this page is where labels registered by a DN sync get reviewed.
+      referentiel = await reloadActiviteReferentiel();
       etat = "autorise";
     } catch (e) {
       if (!(e instanceof AccessDeniedError)) loadError = e instanceof Error ? e.message : String(e);
