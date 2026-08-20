@@ -1,5 +1,9 @@
 import { error } from "@sveltejs/kit";
 import {
+  activiteCodeForLabel,
+  EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+} from "@pitchou/common/activiteCodes.ts";
+import {
   requiresCompleteDossierAttachment,
   requiresNoDerogationArgumentAttachment,
   requiresSpeciesFile,
@@ -9,6 +13,10 @@ import type { AdminDossierCreation } from "@pitchou/server/database/dossier_admi
 import { readJsonObject } from "$lib/server/requestValidation";
 import { speciesFileError } from "$lib/speciesFile.ts";
 import { parseDossierCreation } from "$lib/server/dossierValidation";
+import {
+  loadActiviteContext,
+  type ActiviteContext,
+} from "$lib/server/dossierValidation/activiteContext.ts";
 
 const uploadNames = [
   "purposeAttachments",
@@ -28,10 +36,18 @@ function assertTotalSize(files: File[], message: string) {
   if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) error(400, message);
 }
 
-function validateAttachments(creation: AdminDossierCreation, uploads: Uploads) {
+function validateAttachments(
+  creation: AdminDossierCreation,
+  uploads: Uploads,
+  activiteContext: ActiviteContext,
+) {
   const columns = creation.columns;
-  const completeRequired = requiresCompleteDossierAttachment(
+  const activiteCode = activiteCodeForLabel(
     columns?.main_activite as string | null,
+    activiteContext.codeByLabel,
+  );
+  const completeRequired = requiresCompleteDossierAttachment(
+    activiteCode,
     columns?.request_context as string | null,
     columns?.motif_derogation as string | null,
   );
@@ -72,8 +88,7 @@ function validateAttachments(creation: AdminDossierCreation, uploads: Uploads) {
     uploads.mortalityMeasureAttachments.length
   )
     error(400, "Les pièces décrivant les mesures ne s'appliquent pas à cette demande.");
-  const wind =
-    columns?.main_activite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  const wind = activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
   if (!wind && uploads.windFarmPlanAttachments.length)
     error(400, "Le plan des installations ne s'applique pas à cette demande.");
   if (!wind && uploads.eolienProtocolAttachments.length)
@@ -126,15 +141,19 @@ export async function parseDossierCreationUpload(request: Request) {
       "La taille totale des CV ne doit pas dépasser 65 Mo.",
     );
   } else raw = await readJsonObject(request);
-  const creation = parseDossierCreation(raw);
-  validateAttachments(creation, uploads);
+  const activiteContext = await loadActiviteContext();
+  const creation = parseDossierCreation(raw, activiteContext);
+  validateAttachments(creation, uploads, activiteContext);
   const attachments = uploadNames.flatMap((name) => uploads[name]);
   assertTotalSize(
     [...attachments, ...(speciesFile ? [speciesFile] : [])],
     "La taille totale des fichiers ne doit pas dépasser 65 Mo.",
   );
   const speciesRequired = requiresSpeciesFile(
-    creation.columns?.main_activite as string | null,
+    activiteCodeForLabel(
+      creation.columns?.main_activite as string | null,
+      activiteContext.codeByLabel,
+    ),
     creation.columns?.request_context as string | null,
   );
   if (speciesRequired !== !!speciesFile)

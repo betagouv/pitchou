@@ -11,11 +11,12 @@ import {
   showsCompleteDossierFiles,
   showsNoDerogationArgumentFiles,
 } from "../dossierCreationModel.ts";
+import { setModelActivite } from "./activiteFixture.ts";
 
 describe("scientific dossier creation conditions", () => {
   it("maps wind monitoring, carcass analysis and scientific methods", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Production énergie renouvelable - Éolien -  Suivi mortalité";
+    setModelActivite(model, "Production énergie renouvelable - Éolien -  Suivi mortalité");
     model.scientifiqueSuiviProtocolDescription = "Protocole de suivi";
     model.eolienMonitoredTurbinesCount = 5;
     model.eolienFieldInventoryPeriod = "Mars à octobre";
@@ -35,7 +36,7 @@ describe("scientific dossier creation conditions", () => {
       eolien_carcass_preservation_method: "Conservation réfrigérée",
       eolien_carcass_examination_address: "11 rue Réaumur, Paris",
     });
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     expect(buildCreationPayload(model).columns).toMatchObject({
       scientifique_suivi_protocol_description: null,
       eolien_monitored_turbines_count: null,
@@ -44,7 +45,7 @@ describe("scientific dossier creation conditions", () => {
       eolien_weekly_monitoring_visits_count: null,
       eolien_mortality_actions: null,
     });
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.motifDerogation = motifDerogationOptions[4];
     model.scientifiqueDemandeType = [...scientifiqueDemandeTypeOptions.slice(0, 3)];
     model.scientifiqueCaptureModes = ["Manuelle", "Autre moyen de capture (préciser)"];
@@ -63,7 +64,7 @@ describe("scientific dossier creation conditions", () => {
 
   it("maps intervenants, compensation and final attachment conditions", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.motifDerogation = motifDerogationOptions[4];
     model.scientifiqueIntervenants = [
       { nom_complet: "Camille Martin", qualification: "Écologue", cvFiles: [] },
@@ -73,8 +74,10 @@ describe("scientific dossier creation conditions", () => {
       scientifique_intervenants: [{ nom_complet: "Camille Martin", qualification: "Écologue" }],
       scientifique_other_intervenants_details: "Participation de bénévoles",
     });
-    model.mainActivite =
-      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art";
+    setModelActivite(
+      model,
+      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+    );
     model.activiteDetail = "Destruction de nids d'Hirondelles";
     model.compensatedNidsCount = 4;
     expect(buildCreationPayload(model).columns).toMatchObject({
@@ -82,7 +85,7 @@ describe("scientific dossier creation conditions", () => {
       scientifique_other_intervenants_details: null,
       dossier_oiseau_simple_compensated_nids_count: 4,
     });
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     model.requestContext = dossierRequestContextOptions[1];
     expect(showsNoDerogationArgumentFiles(model)).toBe(true);
     expect(showsCompleteDossierFiles(model)).toBe(false);

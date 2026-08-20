@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
@@ -21,6 +23,9 @@
   let {
     model,
     groupes,
+    activites,
+    activiteEntries,
+    activiteCodeByLabel,
     showAdminSection = true,
     showFirstSectionTopBorder = true,
     originalLegalSiret,
@@ -31,6 +36,11 @@
   }: {
     model: DossierCreationModel;
     groupes: AdminGroupeInstructeurs[];
+    activites: ActiviteAdmin[];
+    /** Grouped, illustrated options over the same activities; plain labels when absent. */
+    activiteEntries?: SelectEntry<string>[];
+    /** Every known raw label mapped to its activity code — the resolution the server applies. */
+    activiteCodeByLabel: ReadonlyMap<string, string>;
     showAdminSection?: boolean;
     showFirstSectionTopBorder?: boolean;
     originalLegalSiret?: string | null;
@@ -42,7 +52,7 @@
 </script>
 
 <DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
-<DossierCreationProjectSection {model} />
+<DossierCreationProjectSection {model} {activites} {activiteEntries} {activiteCodeByLabel} />
 <DossierCreationDemandeurSection
   {model}
   {originalLegalSiret}

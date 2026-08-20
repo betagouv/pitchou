@@ -7,6 +7,7 @@ import {
   countActiveFilters,
   buildClearFiltersUpdates,
   clearFilters,
+  activiteFilterEntries,
   listAvailableActivites,
   listAvailableDepartements,
   listAvailableInstructeurs,
@@ -37,14 +38,72 @@ describe("buildClearFiltersUpdates", () => {
 });
 
 describe("list available options", () => {
-  test("listAvailableActivites dedupes, drops null and sorts alphabetically", () => {
+  test("listAvailableActivites dedupes by code, drops null and sorts alphabetically", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), main_activite: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(2), main_activite: "Carrières" }),
-      makeDossier({ id: dossierId(3), main_activite: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(4), main_activite: null }),
+      makeDossier({
+        id: dossierId(1),
+        activite_code: "conservation-especes",
+        activite_label: "Conservation des espèces",
+      }),
+      makeDossier({ id: dossierId(2), activite_code: "carrieres", activite_label: "Carrières" }),
+      // A renamed raw label resolving to the same activity counts as one option.
+      makeDossier({
+        id: dossierId(3),
+        activite_code: "conservation-especes",
+        activite_label: "Conservation des espèces",
+      }),
+      makeDossier({ id: dossierId(4), activite_code: null, activite_label: null }),
     ];
-    expect(listAvailableActivites(dossiers)).toEqual(["Carrières", "Conservation des espèces"]);
+    expect(listAvailableActivites(dossiers)).toEqual([
+      { code: "carrieres", label: "Carrières" },
+      { code: "conservation-especes", label: "Conservation des espèces" },
+    ]);
+  });
+
+  test("listAvailableActivites pins « Autre » last", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), activite_code: "autre", activite_label: "Autre" }),
+      makeDossier({ id: dossierId(2), activite_code: "zac", activite_label: "ZAC" }),
+    ];
+    expect(listAvailableActivites(dossiers).map(({ code }) => code)).toEqual(["zac", "autre"]);
+  });
+
+  test("activiteFilterEntries groups the available activities, flat without referentiel", () => {
+    const dossiers = [
+      makeDossier({ id: dossierId(1), activite_code: "carrieres", activite_label: "Carrières" }),
+      makeDossier({ id: dossierId(2), activite_code: "zac", activite_label: "ZAC" }),
+      makeDossier({ id: dossierId(3), activite_code: "obsolete", activite_label: "Obsolète" }),
+    ];
+    const referentiel = {
+      groupes: [
+        { code: "activite-economique", label: "Activité économique", color: "#f6e7e1" },
+        { code: "ecologie", label: "Écologie", color: "#d4f2c2" },
+      ],
+      activites: [
+        { code: "carrieres", label: "Carrières", groupe_code: "activite-economique" },
+        { code: "zac", label: "ZAC", groupe_code: "activite-economique" },
+        { code: "gestion-eau", label: "Gestion de l'eau", groupe_code: "ecologie" },
+      ],
+    };
+
+    expect(activiteFilterEntries(dossiers, null)).toEqual([
+      { value: "carrieres", label: "Carrières" },
+      { value: "obsolete", label: "Obsolète" },
+      { value: "zac", label: "ZAC" },
+    ]);
+
+    const entries = activiteFilterEntries(dossiers, referentiel);
+    // One group: « Écologie » has no dossier; the unknown code stays as a loose option.
+    expect(entries).toHaveLength(2);
+    expect(entries[0]).toMatchObject({
+      label: "Activité économique",
+      color: "#f6e7e1",
+      options: [
+        { value: "carrieres", label: "Carrières", color: "#f6e7e1" },
+        { value: "zac", label: "ZAC", color: "#f6e7e1" },
+      ],
+    });
+    expect(entries[1]).toEqual({ value: "obsolete", label: "Obsolète" });
   });
 
   test("listAvailableDepartements keeps the official list and appends unknown codes", () => {

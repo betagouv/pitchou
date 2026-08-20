@@ -39,6 +39,8 @@ export const dossierFullColumns = [
   "eolien_carcass_preservation_method",
   "eolien_carcass_examination_address",
   "main_activite",
+  "activite.code as activite_code",
+  "activite.label as activite_label",
   "source",
   "departments",
   "communes",
@@ -108,32 +110,43 @@ export const dossierFullColumns = [
 ] as (keyof DossierFull)[];
 
 export function joinDossierIdentities<T extends { leftJoin: Function }>(query: T): T {
-  return query
-    .leftJoin("identite_dossier as identite_demandeur", function (this: any) {
-      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-        "identite_demandeur.type",
-        "demandeur",
-      );
-    })
-    .leftJoin("identite_dossier as identite_mandataire", function (this: any) {
-      this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
-        "identite_mandataire.type",
-        "mandataire",
-      );
-    })
-    .leftJoin("identite_dossier as identite_representant", function (this: any) {
-      this.on("identite_representant.dossier", "dossier.id").andOnVal(
-        "identite_representant.type",
-        "representant",
-      );
-    })
-    .leftJoin("personne as demandeur_personne_physique", {
-      "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("entreprise as demandeur_personne_morale", {
-      "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
-    })
-    .leftJoin("file as file_especes_impactees", {
-      "file_especes_impactees.id": "dossier.especes_impactees",
-    });
+  return (
+    query
+      .leftJoin("identite_dossier as identite_demandeur", function (this: any) {
+        this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
+          "identite_demandeur.type",
+          "demandeur",
+        );
+      })
+      .leftJoin("identite_dossier as identite_mandataire", function (this: any) {
+        this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
+          "identite_mandataire.type",
+          "mandataire",
+        );
+      })
+      .leftJoin("identite_dossier as identite_representant", function (this: any) {
+        this.on("identite_representant.dossier", "dossier.id").andOnVal(
+          "identite_representant.type",
+          "representant",
+        );
+      })
+      .leftJoin("personne as demandeur_personne_physique", {
+        "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
+      })
+      .leftJoin("entreprise as demandeur_personne_morale", {
+        "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
+      })
+      .leftJoin("file as file_especes_impactees", {
+        "file_especes_impactees.id": "dossier.especes_impactees",
+      })
+      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+      // through the fallback in `withResolvedActivite`.
+      .leftJoin("activite_label", function (this: any) {
+        this.on("activite_label.label", "dossier.main_activite").andOnVal(
+          "activite_label.needs_review",
+          false,
+        );
+      })
+      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+  );
 }

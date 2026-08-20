@@ -4,13 +4,20 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
+  import { onMount } from "svelte";
+
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import {
+    loadActiviteReferentiel,
+    type ActiviteReferentielAdmin,
+  } from "$lib/actions/adminActivites.ts";
   import {
     loadDossierDetail,
     deleteDossier,
     AccessDeniedError,
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
+  import { activiteFormContext } from "$lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
@@ -23,6 +30,13 @@
   const editFormId = "dossier-admin-edit-form";
 
   let detail = $derived<AdminDossierDetail | null>(data.detail);
+  // The edit forms resolve the activity through the referentiel, so they render once it loads.
+  let activiteReferentiel = $state<ActiviteReferentielAdmin | null>(null);
+  // The forms stay usable (with an empty activity select) when only the referentiel fails.
+  let activiteReferentielError = $state<string | null>(null);
+  const { activites, activiteEntries, codeByLabel } = $derived(
+    activiteFormContext(activiteReferentiel),
+  );
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let saving = $state(false);
@@ -30,6 +44,15 @@
   let confirmingDelete = $state(false);
   let deleting = $state(false);
   let deleteError = $state<string | null>(null);
+
+  onMount(async () => {
+    try {
+      activiteReferentiel = await loadActiviteReferentiel();
+    } catch (e) {
+      if (e instanceof AccessDeniedError) accessDenied = true;
+      else activiteReferentielError = e instanceof Error ? e.message : String(e);
+    }
+  });
 
   // The shell header shows the dossier name instead of the generic "Dossier".
   $effect(() => {
@@ -104,9 +127,23 @@
     </div>
   {/if}
 
-  {#if detail.source !== "pitchou"}
+  {#if activiteReferentielError}
+    <div class="fr-alert fr-alert--warning fr-my-2w" role="alert">
+      <p>
+        Le référentiel des activités n'a pas pu être chargé : {activiteReferentielError}
+        Le champ « Activité principale » peut être incomplet.
+      </p>
+    </div>
+  {/if}
+
+  {#if !activiteReferentiel && !activiteReferentielError}
+    <Loader />
+  {:else if detail.source !== "pitchou"}
     <DossierAdminForm
       {detail}
+      {activites}
+      {activiteEntries}
+      activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}
       onSaved={(updated) => (detail = updated)}
@@ -115,6 +152,9 @@
   {:else}
     <DossierNativeIntakeForm
       {detail}
+      {activites}
+      {activiteEntries}
+      activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}
       onSaved={(updated) => (detail = updated)}

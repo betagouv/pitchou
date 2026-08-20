@@ -3,10 +3,16 @@ export type SelectOption<Value = string> = {
   label: string;
   /** Secondary text shown under the label, in the list only. */
   hint?: string;
+  /** Swatch color shown before the label; the background of `icon` when both are set. */
+  color?: string;
+  /** URL of a small illustrative image shown before the label. */
+  icon?: string;
 };
 
 export type SelectGroup<Value = string> = {
   label: string;
+  /** Swatch color shown before the group label. */
+  color?: string;
   options: SelectOption<Value>[];
 };
 
@@ -33,6 +39,7 @@ export type IndexedOption<Value = string> = {
 export type RenderedGroup<Value = string> = {
   /** `null` for options sitting outside any group. */
   label: string | null;
+  color?: string;
   options: IndexedOption<Value>[];
 };
 
@@ -45,6 +52,7 @@ export function toRenderedGroups<Value>(entries: SelectEntry<Value>[]): Rendered
     if (isGroup(entry)) {
       groups.push({
         label: entry.label,
+        color: entry.color,
         options: entry.options.map((option) => ({ option, index: index++ })),
       });
       continue;

@@ -1,5 +1,13 @@
 import {
-  dossierMainActivitesWithoutRequestContext,
+  ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT,
+  DEMANDE_SCIENTIFIQUE_ACTIVITE_CODE,
+  DESAIRAGE_ACTIVITE_CODE,
+  EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+  PEDAGOGIQUE_ENSEIGNEMENT_ACTIVITE_CODE,
+  RESTAURATION_BATIMENTS_ACTIVITE_CODE,
+  TRANSPORT_ACTIVITE_CODES,
+} from "@pitchou/common/activiteCodes.ts";
+import {
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
   motifDerogationOptions,
@@ -9,30 +17,26 @@ import {
   requiresScientificDemandeType,
   requiresScientificPurposes,
   requiresSpeciesFile,
-  restaurationMainActivite,
   scientifiqueDemandeTypeOptions,
-  transportMainActivites,
 } from "@pitchou/common/dossierFormOptions.ts";
 
-import type { DossierCreationModel, MainActivite } from "./state.ts";
+import type { DossierCreationModel } from "./state.ts";
 
-const ACTIVITES_WITHOUT_REQUEST_CONTEXT = new Set<MainActivite>([
-  ...dossierMainActivitesWithoutRequestContext,
-]);
+const CODES_WITHOUT_REQUEST_CONTEXT = new Set<string>(ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT);
 
 export const ACCOMPANIMENT_CONTEXT = dossierRequestContextOptions[0];
 
-export function showsRequestContext(mainActivite: MainActivite): boolean {
-  return !!mainActivite && !ACTIVITES_WITHOUT_REQUEST_CONTEXT.has(mainActivite);
+export function showsRequestContext(activiteCode: string): boolean {
+  return !!activiteCode && !CODES_WITHOUT_REQUEST_CONTEXT.has(activiteCode);
 }
 
 export function showsSpeciesSection(model: DossierCreationModel): boolean {
-  return requiresSpeciesFile(model.mainActivite, model.requestContext);
+  return requiresSpeciesFile(model.activiteCode, model.requestContext);
 }
 
 export function showsDestroyedNidsCount(model: DossierCreationModel): boolean {
   return (
-    model.mainActivite === restaurationMainActivite &&
+    model.activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE &&
     model.activiteDetail === "Destruction de nids d'Hirondelles"
   );
 }
@@ -47,21 +51,21 @@ export function showsScientificPurposes(model: DossierCreationModel): boolean {
 export function showsPreviousAssessment(model: DossierCreationModel): boolean {
   return (
     requiresScientificDemandeType(model.motifDerogation) ||
-    model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité"
+    model.activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE
   );
 }
 
 export function showsWindFarmDetails(model: DossierCreationModel): boolean {
-  return model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  return model.activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
 }
 
 export function showsOperationDates(model: DossierCreationModel): boolean {
-  return requiresOperationDates(model.mainActivite, model.requestContext);
+  return requiresOperationDates(model.activiteCode, model.requestContext);
 }
 
 export function showsDerogationDuration(model: DossierCreationModel): boolean {
   return (
-    showsRequestContext(model.mainActivite) &&
+    showsRequestContext(model.activiteCode) &&
     model.requestContext === dossierRequestContextOptions[2]
   );
 }
@@ -90,18 +94,18 @@ export function showsScientificCaptureDetails(model: DossierCreationModel): bool
   );
 }
 
-export function activiteDetailKind(
-  mainActivite: MainActivite,
-): "restauration" | "transport" | null {
-  if (mainActivite === restaurationMainActivite) return "restauration";
-  if (transportMainActivites.includes(mainActivite as (typeof transportMainActivites)[number])) {
+export function activiteDetailKind(activiteCode: string): "restauration" | "transport" | null {
+  if (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE) return "restauration";
+  if (
+    TRANSPORT_ACTIVITE_CODES.includes(activiteCode as (typeof TRANSPORT_ACTIVITE_CODES)[number])
+  ) {
     return "transport";
   }
   return null;
 }
 
 export function showsCompensatedNidsCount(model: DossierCreationModel): boolean {
-  const detailKind = activiteDetailKind(model.mainActivite);
+  const detailKind = activiteDetailKind(model.activiteCode);
   return (
     (detailKind === "restauration" &&
       model.activiteDetail === "Destruction de nids d'Hirondelles") ||
@@ -111,7 +115,7 @@ export function showsCompensatedNidsCount(model: DossierCreationModel): boolean 
 
 export function showsCompleteDossierFiles(model: DossierCreationModel): boolean {
   return requiresCompleteDossierAttachment(
-    model.mainActivite,
+    model.activiteCode,
     model.requestContext,
     model.motifDerogation,
   );
@@ -156,13 +160,13 @@ export function clearSelectedDossierFiles(model: DossierCreationModel): void {
 }
 
 export function suggestedMotifDerogation(model: DossierCreationModel): string {
-  if (model.mainActivite === "Desaîrage") return motifDerogationOptions[6];
+  if (model.activiteCode === DESAIRAGE_ACTIVITE_CODE) return motifDerogationOptions[6];
   if (
     [
-      "Demande à caractère scientifique",
-      "Pédagogique enseignement",
-      "Production énergie renouvelable - Éolien -  Suivi mortalité",
-    ].includes(model.mainActivite)
+      DEMANDE_SCIENTIFIQUE_ACTIVITE_CODE,
+      PEDAGOGIQUE_ENSEIGNEMENT_ACTIVITE_CODE,
+      EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+    ].includes(model.activiteCode)
   ) {
     return motifDerogationOptions[4];
   }
@@ -171,14 +175,7 @@ export function suggestedMotifDerogation(model: DossierCreationModel): string {
 
 export function motifDerogationGuidance(model: DossierCreationModel): string {
   const suggestion = suggestedMotifDerogation(model);
-  if (
-    [
-      "Demande à caractère scientifique",
-      "Desaîrage",
-      "Pédagogique enseignement",
-      "Production énergie renouvelable - Éolien -  Suivi mortalité",
-    ].includes(model.mainActivite)
-  ) {
+  if (CODES_WITHOUT_REQUEST_CONTEXT.has(model.activiteCode)) {
     return `Vous avez renseigné comme objectif principal "${model.mainActivite}" en début de formulaire. Le motif de la dérogation à renseigner ci-dessous semble être : "${suggestion}"`;
   }
   return `Compte tenu de l'objectif principal de votre projet, rempli, au point 1., le motif de la dérogation à renseigner ci-dessous semble être : "${suggestion}"`;

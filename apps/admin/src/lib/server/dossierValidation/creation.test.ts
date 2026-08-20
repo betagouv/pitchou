@@ -7,8 +7,11 @@ import {
   scientifiqueDemandeTypeOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
 
-import { parseDossierCreation } from "../dossierValidation.ts";
-import { validCreation } from "./creationFixture.ts";
+import { parseDossierCreation as parseWithContext } from "../dossierValidation.ts";
+import { activiteContextFixture, validCreation } from "./creationFixture.ts";
+
+const parseDossierCreation = (body: Record<string, unknown>) =>
+  parseWithContext(body, activiteContextFixture);
 
 describe("parseDossierCreation", () => {
   it("accepts a complete creation payload", () => {

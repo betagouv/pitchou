@@ -2,6 +2,7 @@
   import clsx from "clsx";
 
   import type { SelectOption } from "./options.ts";
+  import SelectOptionMarker from "./SelectOptionMarker.svelte";
 
   type Props = {
     /** Identifies the trigger, so a `<label for>` can point at it. */
@@ -88,8 +89,13 @@
   onclick={onToggle}
   onkeydown={onKeydown}
 >
-  <span class={clsx("truncate", !selected && "text-[color:var(--text-mention-grey)]")}>
-    {selected?.label ?? placeholder}
+  <span class="flex min-w-0 items-center gap-2">
+    {#if selected}
+      <SelectOptionMarker color={selected.color} icon={selected.icon} />
+    {/if}
+    <span class={clsx("truncate", !selected && "text-[color:var(--text-mention-grey)]")}>
+      {selected?.label ?? placeholder}
+    </span>
   </span>
   <span
     class={clsx(

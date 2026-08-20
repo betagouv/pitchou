@@ -10,25 +10,42 @@ import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
 import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
+import {
+  ACTIVITE_CODE_BY_LABEL_FIXTURE,
+  ACTIVITES_FIXTURE,
+  setModelActivite,
+} from "./dossierCreationModel/activiteFixture.ts";
 
 describe("dossier creation sections", () => {
-  it("uses a searchable main activity combobox", () => {
+  it("uses the shared select for the main activity", () => {
     const { body } = render(DossierCreationProjectSection, {
-      props: { model: createDossierCreationModel() },
+      props: {
+        model: createDossierCreationModel(),
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
     });
 
     expect(body).toContain('id="main-activite"');
     expect(body).toContain('aria-haspopup="listbox"');
-    expect(body).toContain("Sélectionnez ou commencez à saisir");
+    expect(body).toContain("Sélectionner une activité");
   });
 
   it("shows the restoration question and accompaniment details conditionally", () => {
     const model = createDossierCreationModel();
-    model.mainActivite =
-      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art";
+    setModelActivite(
+      model,
+      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+    );
     model.requestContext = "Vous souhaitez bénéficier d'un accompagnement amont";
 
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
+    const { body } = render(DossierCreationProjectSection, {
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
+    });
 
     expect(body).toContain('id="restauration-demande-1"');
     expect(body).toContain('id="restauration-demande-2"');
@@ -48,18 +65,30 @@ describe("dossier creation sections", () => {
 
   it("hides the request context for scientific projects", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
 
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
+    const { body } = render(DossierCreationProjectSection, {
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
+    });
 
     expect(body).not.toContain('id="request-context-1"');
   });
 
   it("uses radios for the transport-specific question", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Infrastructures de transport ferroviaire";
+    setModelActivite(model, "Infrastructures de transport ferroviaire");
 
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
+    const { body } = render(DossierCreationProjectSection, {
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
+    });
 
     expect(body).toContain('id="transport-demande-1"');
     expect(body).toContain('id="transport-demande-2"');

@@ -7,6 +7,7 @@ export const NAV: NavItem[] = [
   { href: "/dossiers", label: "Dossiers", icon: "fr-icon-folder-2-line" },
   { href: "/aarri", label: "Utilisateurs", icon: "fr-icon-team-line" },
   { href: "/especes-protegees", label: "Espèces protégées", icon: "fr-icon-leaf-line" },
+  { href: "/activites", label: "Activités", icon: "fr-icon-briefcase-line" },
   { href: "/evenements", label: "Évènements", icon: "fr-icon-calendar-event-line" },
   { href: "/changelog", label: "Changelog", icon: "fr-icon-newspaper-line" },
   { href: "/tech", label: "Tech", icon: "fr-icon-terminal-line" },
@@ -33,6 +34,7 @@ export function pageInfoFor(pathname: string): PageInfo {
   if (pathname.startsWith("/dossiers/")) return { title: "Dossier", backHref: "/dossiers" };
   if (pathname === "/aarri") return { title: "Utilisateurices et niveau AARRI" };
   if (pathname === "/especes-protegees") return { title: "Espèces protégées modifiées" };
+  if (pathname === "/activites") return { title: "Activités et regroupement des libellés" };
   if (pathname === "/evenements") return { title: "Évènements suivis" };
   if (pathname === "/changelog") return { title: "Changelog" };
   if (pathname === "/tech") return { title: "Tech" };

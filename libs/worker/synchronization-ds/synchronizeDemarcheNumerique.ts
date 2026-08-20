@@ -1,4 +1,8 @@
 import {
+  getActiviteReferentiel,
+  registerActiviteLabels,
+} from "@pitchou/server/database/activite.ts";
+import {
   dumpDossiers,
   deleteDossierByDSNumber,
   getDossierIdsFromDS_Ids,
@@ -69,6 +73,16 @@ export async function synchronizeDemarcheNumerique({
       `Les fonctions nécessaires pour asssocier les questions du formulaire de la démarche aux données Pitchou n'ont pas été trouvées pour la Démarche numéro ${demarcheNumber}.`,
     );
   }
+  // Business rules in the column mapping compare activity codes; labels first seen in this
+  // batch are not in the map yet and resolve to "autre" until an admin groups them.
+  const { labels: activiteLabelRows } = await getActiviteReferentiel(transaction);
+  const activiteCodeByLabel = new Map(
+    activiteLabelRows.map(({ label, activite_code }) => [label, activite_code]),
+  );
+  const makeDossierColumns = (
+    dossierDS: DossierDS88444,
+    keyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+  ) => makeCommonDossierColumnsForSync88444(dossierDS, keyToChampDS, activiteCodeByLabel);
   const { dossiersToInitializeForSync, dossiersToUpdateForSync } =
     await makeDossiersForSynchronization(
       dossiersDS,
@@ -78,9 +92,15 @@ export async function synchronizeDemarcheNumerique({
       pitchouKeyToChampDS,
       pitchouKeyToAnnotationDS,
       getPersonnesEntreprisesData88444 as unknown as GetPersonnesEntreprisesData,
-      makeCommonDossierColumnsForSync88444 as unknown as MakeCommonDossierColumnsForSync,
+      makeDossierColumns as unknown as MakeCommonDossierColumnsForSync,
     );
   const dossiersForSync = [...dossiersToInitializeForSync, ...dossiersToUpdateForSync];
+  const activiteLabels = new Set(
+    dossiersForSync
+      .map(({ dossier }) => dossier.main_activite)
+      .filter((label): label is string => !!label),
+  );
+  await registerActiviteLabels([...activiteLabels], transaction);
   const { dossiersToInitialize, dossiersToUpdate } = await prepareDossiersForPersistence(
     dossiersToInitializeForSync,
     dossiersToUpdateForSync,

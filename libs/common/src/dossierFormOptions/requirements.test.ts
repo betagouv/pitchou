@@ -21,14 +21,12 @@ describe("requiresEspecesPriseDetentionLimiteeType", () => {
 
 describe("requiresOperationDates", () => {
   it("applies to direct requests and complete request-context paths", () => {
-    expect(requiresOperationDates("Demande à caractère scientifique", null)).toBe(true);
-    expect(
-      requiresOperationDates("Production énergie renouvelable - Éolien -  Suivi mortalité", null),
-    ).toBe(true);
-    expect(requiresOperationDates("Carrières", dossierRequestContextOptions[2])).toBe(true);
+    expect(requiresOperationDates("demande-scientifique", null)).toBe(true);
+    expect(requiresOperationDates("energie-eolien-suivi-mortalite", null)).toBe(true);
+    expect(requiresOperationDates("carrieres", dossierRequestContextOptions[2])).toBe(true);
   });
 
   it("does not apply to upstream support", () => {
-    expect(requiresOperationDates("Carrières", dossierRequestContextOptions[0])).toBe(false);
+    expect(requiresOperationDates("carrieres", dossierRequestContextOptions[0])).toBe(false);
   });
 });

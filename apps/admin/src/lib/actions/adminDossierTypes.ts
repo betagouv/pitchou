@@ -8,6 +8,8 @@ export type AdminDossierSummary = {
   depot_date: string;
   phase: string;
   main_activite: string | null;
+  activite_code: string | null;
+  activite_label: string | null;
   demandeur_last_name: string | null;
   demandeur_first_names: string | null;
   demandeur_entreprise: string | null;

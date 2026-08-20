@@ -14,7 +14,10 @@ function makeRow(overrides: Partial<AdminDossierExportRow> = {}): AdminDossierEx
     demandeur_first_names: null,
     demandeur_entreprise: "ACME",
     groupe_name: "DREAL Bretagne",
+    // A raw label pending review: `withResolvedActivite` keeps it as the displayed label.
     main_activite: "Production d'énergie renouvelable",
+    activite_code: "autre",
+    activite_label: "Production d'énergie renouvelable",
     primary_department: "35",
     departments: ["35", "22"],
     communes: [{ name: "Rennes", code: "35238", postalCode: "35000" }],
@@ -37,6 +40,17 @@ describe("dossiersExportToCSV", () => {
     );
   });
 
+  it("prefers the Pitchou activity name over the raw DN label", () => {
+    const csv = dossiersExportToCSV([
+      makeRow({
+        main_activite: "Production énergie renouvelable - Éolien",
+        activite_code: "energie-eolien",
+        activite_label: "Éolien",
+      }),
+    ]);
+    expect(csv.split("\n")[1]).toContain(",Éolien,");
+  });
+
   it("falls back to the personne physique name when there is no entreprise", () => {
     const csv = dossiersExportToCSV([
       makeRow({
@@ -57,6 +71,8 @@ describe("dossiersExportToCSV", () => {
         demandeur_entreprise: null,
         groupe_name: null,
         main_activite: null,
+        activite_code: null,
+        activite_label: null,
         primary_department: null,
         departments: null,
         communes: null,

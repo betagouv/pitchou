@@ -1,3 +1,7 @@
+import {
+  activiteCodeForLabel,
+  EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+} from "@pitchou/common/activiteCodes.ts";
 import { requiresScientificDemandeType } from "@pitchou/common/dossierFormOptions.ts";
 import { communeDepartmentCode } from "$lib/dossierLocation.ts";
 import type { DossierAdminColumnModel, TriState } from "./columnModel.ts";
@@ -7,7 +11,11 @@ const nullableDate = (value: string) => value || null;
 const nullableBoolean = (value: TriState) =>
   value === "oui" ? true : value === "non" ? false : null;
 
-export function buildDossierUpdateColumns(model: DossierAdminColumnModel, managedByDn: boolean) {
+export function buildDossierUpdateColumns(
+  model: DossierAdminColumnModel,
+  managedByDn: boolean,
+  activiteCodeByLabel: ReadonlyMap<string, string>,
+) {
   const nativeColumns: Record<string, unknown> = {
     free_comment: model.freeComment,
     next_action_expected_from: nullableText(model.nextActionExpectedFrom),
@@ -27,7 +35,8 @@ export function buildDossierUpdateColumns(model: DossierAdminColumnModel, manage
         : [];
   const showsIntervenants =
     requiresScientificDemandeType(model.motifDerogation) ||
-    model.mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+    activiteCodeForLabel(model.mainActivite, activiteCodeByLabel) ===
+      EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
   return {
     name: nullableText(model.name),
     description: nullableText(model.description),

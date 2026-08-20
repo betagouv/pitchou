@@ -1,16 +1,19 @@
 <script lang="ts">
-  import { activiteIconUrl } from "$lib/activiteIcon.ts";
+  import { activiteIconUrl } from "@pitchou/ui/activites/activiteIcon.ts";
 
   type Props = {
-    mainActivite: string | null | undefined;
+    /** Referentiel code of the dossier's activity (`dossier.activite_code`). */
+    activiteCode: string | null | undefined;
+    /** Display name of that activity, used as the accessible label and tooltip. */
+    activiteLabel: string | null | undefined;
     /** Tailwind size classes of the icon square. */
     size?: string;
   };
 
-  let { mainActivite, size = "size-12" }: Props = $props();
+  let { activiteCode, activiteLabel, size = "size-12" }: Props = $props();
 
-  const src = $derived(activiteIconUrl(mainActivite));
-  const label = $derived(mainActivite || "Activité principale non renseignée");
+  const src = $derived(activiteIconUrl(activiteCode));
+  const label = $derived(activiteLabel || "Activité principale non renseignée");
 </script>
 
 <span class="block {size} shrink-0" title={label}>

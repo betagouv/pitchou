@@ -1,20 +1,32 @@
 import { error } from "@sveltejs/kit";
 import {
+  activiteCodeForLabel,
+  EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+  RESTAURATION_BATIMENTS_ACTIVITE_CODE,
+  TRANSPORT_ACTIVITE_CODES,
+} from "@pitchou/common/activiteCodes.ts";
+import {
   dossierRequestContextOptions,
   eolienMortalityActionOptions,
   requiresOperationDates,
   requiresScientificDemandeType,
   requiresScientificPurposes,
-  restaurationMainActivite,
   scientifiqueDemandeTypeOptions,
-  transportMainActivites,
 } from "@pitchou/common/dossierFormOptions.ts";
 import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
+import type { ActiviteContext } from "./activiteContext.ts";
 
 const hasValue = (value: unknown) => value !== null && value !== undefined;
 
-export function validateCreationScientific(columns: DossierMutator, raw: Record<string, unknown>) {
-  const mainActivite = columns.main_activite as string;
+export function validateCreationScientific(
+  columns: DossierMutator,
+  raw: Record<string, unknown>,
+  activiteContext: ActiviteContext,
+) {
+  const activiteCode = activiteCodeForLabel(
+    columns.main_activite as string,
+    activiteContext.codeByLabel,
+  );
   const requestContext = columns.request_context as string | null;
   const research = requiresScientificDemandeType(columns.motif_derogation);
   const scientificTypes = Array.isArray(raw.scientifique_demande_type)
@@ -25,7 +37,7 @@ export function validateCreationScientific(columns: DossierMutator, raw: Record<
     error(400, `Property 'scientifique_demande_purposes' must be an array.`);
   if (!hasPurposes && columns.scientifique_demande_purposes !== null)
     error(400, `Property 'scientifique_demande_purposes' does not apply.`);
-  const wind = mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  const wind = activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
   const requiresPrevious = research || wind;
   if (requiresPrevious && typeof raw.scientifique_previous_assessment !== "boolean")
     error(400, `Property 'scientifique_previous_assessment' is required.`);
@@ -51,7 +63,7 @@ export function validateCreationScientific(columns: DossierMutator, raw: Record<
     error(400, `Wind farm numeric properties must be positive.`);
   if (!wind && windFarmValues.some(hasValue))
     error(400, `Wind farm properties do not apply to this application.`);
-  const operationDates = requiresOperationDates(mainActivite, requestContext);
+  const operationDates = requiresOperationDates(activiteCode, requestContext);
   if (
     operationDates &&
     (!(columns.intervention_start_date instanceof Date) ||
@@ -149,8 +161,8 @@ export function validateCreationScientific(columns: DossierMutator, raw: Record<
   )
     error(400, `Scientific intervenant properties do not apply to this application.`);
   const compensation =
-    (mainActivite === restaurationMainActivite && columns.type === "Hirondelle") ||
-    (transportMainActivites.includes(mainActivite as never) && columns.type === "Cigogne");
+    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle") ||
+    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && columns.type === "Cigogne");
   if (
     compensation &&
     (typeof columns.dossier_oiseau_simple_compensated_nids_count !== "number" ||

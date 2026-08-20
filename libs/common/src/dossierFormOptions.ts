@@ -1,47 +1,11 @@
-export const dossierMainActiviteOptions = [
-  "Aménagements fonciers (AFAF, remembrement)",
-  "Carrières",
-  "Conservation des espèces",
-  "Demande à caractère scientifique",
-  "Desaîrage",
-  "Dommages aux biens et activités",
-  "Événementiel avec ou sans aménagement temporaire",
-  "Exploitation forestière",
-  "Industries de production de biens et marchandises",
-  "Infrastructures - Autres",
-  "Infrastructures aéroportuaires",
-  "Infrastructures des ouvrages de défense contre la mer",
-  "Infrastructures de transport ferroviaire",
-  "Infrastructures de transport maritime et fluvial",
-  "Infrastructures de transport routières",
-  "Installations agricoles",
-  "Installations de gestion des déchets",
-  "Installations de loisir et de tourisme",
-  "Pédagogique enseignement",
-  "Péril animalier",
-  "Plate-formes logistiques, centres commerciaux",
-  "Préservation de la sécurité et santé publique",
-  "Production énergie autre-projets liés au nucléaire",
-  "Production énergie renouvelable - Éolien",
-  "Production énergie renouvelable - Éolien -  Suivi mortalité",
-  "Production énergie renouvelable - Photovoltaïque",
-  "Production énergie renouvelable - Hydroélectricité",
-  "Production énergie renouvelable - Méthaniseur, biomasse",
-  "Production énergie renouvelable - Autres",
-  "Projets de bâtiments pour les services publics-installations sportives",
-  "Projets liés à la gestion de l’eau",
-  "Restauration écologique",
-  "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
-  "Transport (autres canalisations)",
-  "Transport eau aqueduc",
-  "Transport énergie électrique",
-  "Transport gaz",
-  "Transport hydrocarbures",
-  "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
-  "UTN (Unité Touristique Nouvelle)",
-  "ZAC",
-  "Autre",
-] as const;
+import {
+  ACTIVITE_CODES_REQUIRING_SPECIES_FILE,
+  ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT,
+} from "./activiteCodes.ts";
+
+// The « Activité principale » options are not hardcoded here: they live in the `activite`
+// referentiel table (managed on the /activites admin page) and reach the forms through the
+// admin /api/activites endpoint. Behaviour keyed on specific activities uses activiteCodes.ts.
 
 export const dossierRequestContextOptions = [
   "Vous souhaitez bénéficier d'un accompagnement amont",
@@ -53,52 +17,38 @@ export const restaurationDemandeOptions = ["Destruction de nids d'Hirondelles", 
 
 export const transportDemandeOptions = ["Destruction de nids de Cigognes", "Autre"] as const;
 
-export const dossierMainActivitesWithoutRequestContext = [
-  "Demande à caractère scientifique",
-  "Desaîrage",
-  "Pédagogique enseignement",
-  "Production énergie renouvelable - Éolien -  Suivi mortalité",
-] as const;
-
-export const dossierMainActivitesRequiringSpeciesFile = [
-  "Demande à caractère scientifique",
-  "Desaîrage",
-  "Pédagogique enseignement",
-  "Production énergie renouvelable - Éolien -  Suivi mortalité",
-] as const;
-
 export function requiresSpeciesFile(
-  mainActivite: string | null | undefined,
+  activiteCode: string | null | undefined,
   requestContext: string | null | undefined,
 ): boolean {
   return (
     requestContext === dossierRequestContextOptions[2] ||
-    dossierMainActivitesRequiringSpeciesFile.includes(
-      mainActivite as (typeof dossierMainActivitesRequiringSpeciesFile)[number],
+    ACTIVITE_CODES_REQUIRING_SPECIES_FILE.includes(
+      activiteCode as (typeof ACTIVITE_CODES_REQUIRING_SPECIES_FILE)[number],
     )
   );
 }
 
 export function requiresOperationDates(
-  mainActivite: string | null | undefined,
+  activiteCode: string | null | undefined,
   requestContext: string | null | undefined,
 ): boolean {
   return (
     requestContext === dossierRequestContextOptions[1] ||
     requestContext === dossierRequestContextOptions[2] ||
-    dossierMainActivitesWithoutRequestContext.includes(
-      mainActivite as (typeof dossierMainActivitesWithoutRequestContext)[number],
+    ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT.includes(
+      activiteCode as (typeof ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT)[number],
     )
   );
 }
 
 export function requiresCompleteDossierAttachment(
-  mainActivite: string | null | undefined,
+  activiteCode: string | null | undefined,
   requestContext: string | null | undefined,
   motifDerogation: string | null | undefined,
 ): boolean {
   return (
-    requiresSpeciesFile(mainActivite, requestContext) &&
+    requiresSpeciesFile(activiteCode, requestContext) &&
     !requiresScientificDemandeType(motifDerogation)
   );
 }
@@ -108,14 +58,6 @@ export function requiresNoDerogationArgumentAttachment(
 ): boolean {
   return requestContext === dossierRequestContextOptions[1];
 }
-
-export const restaurationMainActivite =
-  "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art";
-
-export const transportMainActivites = [
-  "Infrastructures de transport ferroviaire",
-  "Transport énergie électrique",
-] as const;
 
 export const dossierLocationScopeOptions = [
   "communes",

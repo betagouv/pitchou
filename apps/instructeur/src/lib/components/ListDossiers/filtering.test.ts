@@ -115,14 +115,16 @@ describe("filterDossiers", () => {
     expect(result.map((d) => d.id)).toEqual([1]);
   });
 
-  test("keeps only the chosen activité, dropping dossiers with none", () => {
+  test("keeps only the chosen activité (by code), dropping dossiers with none", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), main_activite: "Carrières" }),
-      makeDossier({ id: dossierId(2), main_activite: "Conservation des espèces" }),
-      makeDossier({ id: dossierId(3), main_activite: null }),
+      makeDossier({ id: dossierId(1), activite_code: "carrieres" }),
+      // A raw label renamed in DN resolves to the same code and stays grouped.
+      makeDossier({ id: dossierId(2), activite_code: "carrieres" }),
+      makeDossier({ id: dossierId(3), activite_code: "conservation-especes" }),
+      makeDossier({ id: dossierId(4), activite_code: null }),
     ];
-    const result = filterDossiers(dossiers, makeQuery({ activite: ["Carrières"] }), makeContext());
-    expect(result.map((d) => d.id)).toEqual([1]);
+    const result = filterDossiers(dossiers, makeQuery({ activite: ["carrieres"] }), makeContext());
+    expect(result.map((d) => d.id)).toEqual([1, 2]);
   });
 
   test("« actionInstructeur » keeps dossiers awaiting the instructeur", () => {

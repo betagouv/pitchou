@@ -9,7 +9,11 @@
     type SelectEntry,
     type SelectOption,
   } from "./Select/options.ts";
-  import { computePlacement, type Placement } from "./Select/placement.ts";
+  import {
+    computePlacement,
+    type Placement,
+    type PlacementPreferences,
+  } from "./Select/placement.ts";
   import SelectListbox from "./Select/SelectListbox.svelte";
   import SelectTrigger from "./Select/SelectTrigger.svelte";
 
@@ -27,6 +31,8 @@
     ariaLabel?: string;
     /** Extra classes for the wrapper, e.g. a width. */
     class?: string;
+    /** Asks for a taller and/or wider list, e.g. for long grouped option lists. */
+    listPlacement?: PlacementPreferences;
     onChange?: (value: Value) => void;
   };
 
@@ -39,6 +45,7 @@
     required = false,
     ariaLabel,
     class: className,
+    listPlacement,
     onChange,
   }: Props = $props();
 
@@ -55,7 +62,8 @@
 
   function updatePlacement() {
     const rect = trigger?.getBoundingClientRect();
-    if (rect) placement = computePlacement(rect, window.innerHeight);
+    if (rect)
+      placement = computePlacement(rect, window.innerHeight, window.innerWidth, listPlacement);
   }
 
   // A page or panel scrolling under an open list moves the trigger, so the

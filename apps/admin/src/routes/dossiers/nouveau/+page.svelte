@@ -4,12 +4,19 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
+  import { loadActiviteReferentiel, type ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     createDossier,
     loadGroupesInstructeurs,
     AccessDeniedError,
     type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
+  import {
+    activiteCodeByLabel,
+    activiteLabelSelectEntries,
+    sortedActivites,
+  } from "$lib/activiteReferentiel.ts";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import DossierIntakeFields from "./DossierIntakeFields.svelte";
   import {
@@ -25,6 +32,9 @@
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
   let groupes = $state<AdminGroupeInstructeurs[]>([]);
+  let activites = $state<ActiviteAdmin[]>([]);
+  let activiteEntries = $state<SelectEntry<string>[]>([]);
+  let codeByLabel = $state<ReadonlyMap<string, string>>(new Map());
   let loadError = $state<string | null>(null);
   let model = $state(createDossierCreationModel());
   let saving = $state(false);
@@ -32,7 +42,14 @@
 
   onMount(async () => {
     try {
-      groupes = await loadGroupesInstructeurs();
+      const [loadedGroupes, referentiel] = await Promise.all([
+        loadGroupesInstructeurs(),
+        loadActiviteReferentiel(),
+      ]);
+      groupes = loadedGroupes;
+      activites = sortedActivites(referentiel);
+      activiteEntries = activiteLabelSelectEntries(referentiel);
+      codeByLabel = activiteCodeByLabel(referentiel);
       model.groupeInstructeurs = groupes[0]?.id ?? "";
       etat = "autorise";
     } catch (error) {
@@ -90,7 +107,13 @@
   </div>
 
   <form class="w-full flex flex-col gap-10" onsubmit={submit}>
-    <DossierIntakeFields {model} {groupes} />
+    <DossierIntakeFields
+      {model}
+      {groupes}
+      {activites}
+      {activiteEntries}
+      activiteCodeByLabel={codeByLabel}
+    />
 
     {#if saveError}
       <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>

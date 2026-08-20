@@ -4,6 +4,10 @@ import { describe, expect, it } from "vitest";
 import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
 import DossierAdminForm from "./DossierAdminForm.svelte";
+import {
+  ACTIVITE_CODE_BY_LABEL_FIXTURE,
+  ACTIVITES_FIXTURE,
+} from "../nouveau/dossierCreationModel/activiteFixture.ts";
 
 function detail(
   ecologicalInventoryCompleted: boolean | null,
@@ -49,6 +53,8 @@ function formBody(
   return render(DossierAdminForm, {
     props: {
       detail: detail(ecologicalInventoryCompleted, especesPresentInInfluenceArea, locationScope),
+      activites: ACTIVITES_FIXTURE,
+      activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
       onSaved: () => undefined,
       onFilesChanged: async () => undefined,
     },
