@@ -4,11 +4,9 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
   import EntryCard from "./EntryCard.svelte";
-  import DeleteEntryModal from "./DeleteEntryModal.svelte";
   import {
     loadChangelogAdmin,
     createChangelogEntry,
-    deleteChangelogEntry,
     type ChangelogEntryAdmin,
   } from "$lib/actions/adminChangelog.ts";
   import { AccessDeniedError } from "$lib/actions/errors.ts";
@@ -75,31 +73,6 @@
     pageHeader.setAction({ label: "Nouvelle entrée", onClick: () => void createDraft() });
     return () => pageHeader.clearAction();
   });
-
-  let entryToDelete = $state<ChangelogEntryAdmin | null>(null);
-  let deleting = $state(false);
-  let deleteError = $state<string | null>(null);
-
-  function closeDeleteModal() {
-    if (deleting) return;
-    entryToDelete = null;
-    deleteError = null;
-  }
-
-  async function confirmDelete() {
-    if (!entryToDelete || deleting) return;
-    deleting = true;
-    deleteError = null;
-    try {
-      await deleteChangelogEntry(entryToDelete.id);
-      entries = await loadChangelogAdmin();
-      entryToDelete = null;
-    } catch (e) {
-      deleteError = e instanceof Error ? e.message : String(e);
-    } finally {
-      deleting = false;
-    }
-  }
 </script>
 
 <svelte:head>
@@ -127,7 +100,9 @@
   {/if}
 
   {#if entries.length === 0}
-    <div class="mt-2 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500">
+    <div
+      class="mt-2 rounded-lg border border-dashed border-[color:var(--border-default-grey)] p-8 text-center text-[color:var(--text-mention-grey)]"
+    >
       <p class="fr-mb-1v font-medium">Aucune entrée pour le moment</p>
       <p class="fr-mb-0 text-sm">
         Créez la première entrée avec le bouton «&nbsp;+&nbsp;» en haut de page.
@@ -136,24 +111,8 @@
   {:else}
     <ul class="mt-2 flex list-none flex-col gap-2 p-0">
       {#each entries as entry (entry.id)}
-        <EntryCard
-          {entry}
-          onDelete={(candidate) => {
-            entryToDelete = candidate;
-            deleteError = null;
-          }}
-        />
+        <EntryCard {entry} />
       {/each}
     </ul>
-  {/if}
-
-  {#if entryToDelete}
-    <DeleteEntryModal
-      entry={entryToDelete}
-      {deleting}
-      error={deleteError}
-      onCancel={closeDeleteModal}
-      onConfirm={confirmDelete}
-    />
   {/if}
 {/if}

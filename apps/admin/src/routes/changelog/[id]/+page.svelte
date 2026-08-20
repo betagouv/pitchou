@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { beforeNavigate } from "$app/navigation";
+  import { beforeNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
@@ -8,12 +8,14 @@
   import EntryFields from "./EntryFields.svelte";
   import SaveStatus from "./SaveStatus.svelte";
   import PublishBlockedModal from "./PublishBlockedModal.svelte";
+  import DeleteEntryModal from "../DeleteEntryModal.svelte";
   import { Autosave } from "./autosave.svelte.ts";
   import { EntryModel, sameSnapshot } from "./entryModel.svelte.ts";
   import { formatDate } from "../format.ts";
   import {
     loadChangelogAdmin,
     saveChangelogEntry,
+    deleteChangelogEntry,
     uploadChangelogMedia,
     cleanupChangelogMedia,
     type ChangelogEntryPayload,
@@ -95,6 +97,45 @@
     return () => pageHeader.clearTitle();
   });
 
+  let deleteModalOpen = $state(false);
+  let deleting = $state(false);
+  let deleteError = $state<string | null>(null);
+
+  // Deleting the entry is the header's action ("trash" at the top right).
+  $effect(() => {
+    if (etat !== "autorise") return;
+    pageHeader.setAction({
+      label:
+        model.version !== null ? `Supprimer la version ${model.version}` : "Supprimer le brouillon",
+      icon: "fr-icon-delete-line fr-icon--sm",
+      onClick: () => (deleteModalOpen = true),
+    });
+    return () => pageHeader.clearAction();
+  });
+
+  function closeDeleteModal() {
+    if (deleting) return;
+    deleteModalOpen = false;
+    deleteError = null;
+  }
+
+  async function confirmDelete() {
+    if (deleting) return;
+    deleting = true;
+    deleteError = null;
+    try {
+      await deleteChangelogEntry(entryId!);
+      // The entry is gone: mark the draft as saved so the leave-page flush has
+      // nothing to send to the deleted entry.
+      autosave.lastSaved = model.snapshot();
+      await goto("/changelog");
+    } catch (e) {
+      deleteError = e instanceof Error ? e.message : String(e);
+    } finally {
+      deleting = false;
+    }
+  }
+
   // Autosave: any edit (re)schedules a debounced save.
   $effect(() => {
     const snapshot = model.snapshot();
@@ -172,6 +213,16 @@
       titreOk={model.titre.trim() !== ""}
       versionOk={model.versionComplete}
       onClose={() => (publishBlockedOpen = false)}
+    />
+  {/if}
+
+  {#if deleteModalOpen}
+    <DeleteEntryModal
+      entry={model.snapshot()}
+      {deleting}
+      error={deleteError}
+      onCancel={closeDeleteModal}
+      onConfirm={confirmDelete}
     />
   {/if}
 {/if}

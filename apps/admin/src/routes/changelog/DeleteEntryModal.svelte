@@ -3,6 +3,12 @@
   import type { ChangelogEntryAdmin } from "$lib/actions/adminChangelog.ts";
   import { formatDate, versionOf } from "./format.ts";
 
+  // Structural subset so callers can pass either a stored entry or a live draft snapshot.
+  type EntryLike = Pick<
+    ChangelogEntryAdmin,
+    "version_major" | "version_minor" | "version_patch" | "date" | "titre" | "published"
+  >;
+
   let {
     entry,
     deleting,
@@ -10,7 +16,7 @@
     onCancel,
     onConfirm,
   }: {
-    entry: ChangelogEntryAdmin;
+    entry: EntryLike;
     deleting: boolean;
     error: string | null;
     onCancel: () => void;
@@ -54,11 +60,13 @@
       {/if}
     </p>
     {#if entry.published}
-      <p class="fr-mb-0 text-sm text-gray-600">
+      <p class="fr-mb-0 text-sm text-[color:var(--text-default-grey)]">
         Elle disparaîtra immédiatement de la page publique « Nouveautés ».
       </p>
     {:else}
-      <p class="fr-mb-0 text-sm text-gray-600">Cette action est définitive.</p>
+      <p class="fr-mb-0 text-sm text-[color:var(--text-default-grey)]">
+        Cette action est définitive.
+      </p>
     {/if}
     {#if error}
       <p class="fr-error-text fr-mt-2w fr-mb-0">
