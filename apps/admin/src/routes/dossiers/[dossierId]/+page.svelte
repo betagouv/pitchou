@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { goto } from "$app/navigation";
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
@@ -13,7 +12,6 @@
   } from "$lib/actions/adminActivites.ts";
   import {
     loadDossierDetail,
-    deleteDossier,
     AccessDeniedError,
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
@@ -22,6 +20,7 @@
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
+  import DossierDeleteSection from "./DossierDeleteSection.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -40,10 +39,6 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let saving = $state(false);
-
-  let confirmingDelete = $state(false);
-  let deleting = $state(false);
-  let deleteError = $state<string | null>(null);
 
   onMount(async () => {
     try {
@@ -69,19 +64,6 @@
       } else {
         loadError = e instanceof Error ? e.message : String(e);
       }
-    }
-  }
-
-  async function confirmDelete() {
-    deleting = true;
-    deleteError = null;
-    try {
-      await deleteDossier(dossierId);
-      await goto("/dossiers");
-    } catch (e) {
-      deleteError = e instanceof Error ? e.message : String(e);
-    } finally {
-      deleting = false;
     }
   }
 </script>
@@ -169,41 +151,6 @@
   />
 
   {#if detail.source === "pitchou"}
-    <section class="fr-mt-6w fr-pt-3w border-t border-[color:var(--border-default-grey)]">
-      <h2 class="fr-h4">Supprimer le dossier</h2>
-      {#if !confirmingDelete}
-        <button
-          type="button"
-          class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
-          onclick={() => (confirmingDelete = true)}
-        >
-          Supprimer ce dossier
-        </button>
-      {:else}
-        <div class="fr-alert fr-alert--warning fr-mb-2w">
-          <p>
-            La suppression est définitive : le dossier, ses évènements, avis, décisions et fichiers
-            seront supprimés.
-          </p>
-        </div>
-        {#if deleteError}
-          <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
-            <p>{deleteError}</p>
-          </div>
-        {/if}
-        <div class="flex flex-row gap-4">
-          <button type="button" class="fr-btn" disabled={deleting} onclick={confirmDelete}>
-            {deleting ? "Suppression…" : "Confirmer la suppression"}
-          </button>
-          <button
-            type="button"
-            class="fr-btn fr-btn--secondary"
-            onclick={() => (confirmingDelete = false)}
-          >
-            Annuler
-          </button>
-        </div>
-      {/if}
-    </section>
+    <DossierDeleteSection {dossierId} />
   {/if}
 {/if}

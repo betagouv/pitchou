@@ -1,20 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { beforeNavigate } from "$app/navigation";
+  import { beforeNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import RichTextEditor from "$lib/components/RichTextEditor.svelte";
-  import EntryFields from "./EntryFields.svelte";
-  import SaveStatus from "./SaveStatus.svelte";
-  import PublishBlockedModal from "./PublishBlockedModal.svelte";
+  import EntryEditor from "./EntryEditor.svelte";
+  import DeleteEntryModal from "../DeleteEntryModal.svelte";
   import { Autosave } from "./autosave.svelte.ts";
   import { EntryModel, sameSnapshot } from "./entryModel.svelte.ts";
   import { formatDate } from "../format.ts";
   import {
     loadChangelogAdmin,
     saveChangelogEntry,
-    uploadChangelogMedia,
+    deleteChangelogEntry,
     cleanupChangelogMedia,
     type ChangelogEntryPayload,
   } from "$lib/actions/adminChangelog.ts";
@@ -31,22 +29,6 @@
   let loadError = $state<string | null>(null);
 
   const model = new EntryModel();
-
-  // Clicking the switch while requirements are missing explains them instead
-  // of silently refusing (a disabled button would only show a blocked cursor).
-  let publishBlockedOpen = $state(false);
-
-  function togglePublished() {
-    if (model.published) {
-      model.published = false;
-      return;
-    }
-    if (!model.canPublish) {
-      publishBlockedOpen = true;
-      return;
-    }
-    model.published = true;
-  }
 
   const autosave = new Autosave<ChangelogEntryPayload>({
     snapshot: () => model.snapshot(),
@@ -95,6 +77,45 @@
     return () => pageHeader.clearTitle();
   });
 
+  let deleteModalOpen = $state(false);
+  let deleting = $state(false);
+  let deleteError = $state<string | null>(null);
+
+  // Deleting the entry is the header's action ("trash" at the top right).
+  $effect(() => {
+    if (etat !== "autorise") return;
+    pageHeader.setAction({
+      label:
+        model.version !== null ? `Supprimer la version ${model.version}` : "Supprimer le brouillon",
+      icon: "fr-icon-delete-line fr-icon--sm",
+      onClick: () => (deleteModalOpen = true),
+    });
+    return () => pageHeader.clearAction();
+  });
+
+  function closeDeleteModal() {
+    if (deleting) return;
+    deleteModalOpen = false;
+    deleteError = null;
+  }
+
+  async function confirmDelete() {
+    if (deleting) return;
+    deleting = true;
+    deleteError = null;
+    try {
+      await deleteChangelogEntry(entryId!);
+      // The entry is gone: mark the draft as saved so the leave-page flush has
+      // nothing to send to the deleted entry.
+      autosave.lastSaved = model.snapshot();
+      await goto("/changelog");
+    } catch (e) {
+      deleteError = e instanceof Error ? e.message : String(e);
+    } finally {
+      deleting = false;
+    }
+  }
+
   // Autosave: any edit (re)schedules a debounced save.
   $effect(() => {
     const snapshot = model.snapshot();
@@ -142,36 +163,15 @@
     </p>
   </div>
 {:else}
-  {#snippet saveStatus()}
-    <SaveStatus state={autosave.state} error={autosave.error} />
-  {/snippet}
+  <EntryEditor {model} {autosave} entryId={entryId!} />
 
-  <div class="flex min-h-0 flex-1 flex-col">
-    <EntryFields
-      bind:titre={model.titre}
-      bind:versionMajor={model.versionMajor}
-      bind:versionMinor={model.versionMinor}
-      bind:versionPatch={model.versionPatch}
-      bind:date={model.date}
-      published={model.published}
-      onToggleStatus={togglePublished}
-    />
-
-    <div class="fr-input-group flex min-h-0 flex-1 flex-col fr-mb-0">
-      <span class="fr-label fr-mb-1w shrink-0">Contenu</span>
-      <RichTextEditor
-        bind:html={model.contenu}
-        toolbarEnd={saveStatus}
-        uploadMedia={(file) => uploadChangelogMedia(entryId!, file)}
-      />
-    </div>
-  </div>
-
-  {#if publishBlockedOpen}
-    <PublishBlockedModal
-      titreOk={model.titre.trim() !== ""}
-      versionOk={model.versionComplete}
-      onClose={() => (publishBlockedOpen = false)}
+  {#if deleteModalOpen}
+    <DeleteEntryModal
+      entry={model.snapshot()}
+      {deleting}
+      error={deleteError}
+      onCancel={closeDeleteModal}
+      onConfirm={confirmDelete}
     />
   {/if}
 {/if}

@@ -16,7 +16,7 @@
 
 <button
   type="button"
-  class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm transition-shadow hover:border-gray-400 hover:shadow-md"
+  class="flex items-center gap-3 rounded-lg border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 text-left shadow-sm transition-shadow hover:border-[color:var(--border-default-grey-hover)] hover:shadow-md"
   aria-haspopup="dialog"
   aria-label="Modifier l'activité « {item.activite.label} »"
   onclick={() => onSelect(item)}
@@ -29,7 +29,7 @@
   </span>
   <span class="min-w-0 grow">
     <span class="block font-bold leading-tight">{item.activite.label}</span>
-    <span class="block text-xs text-gray-500">
+    <span class="block text-xs text-[color:var(--text-mention-grey)]">
       {item.labels.length}
       {item.labels.length > 1 ? "libellés DN" : "libellé DN"}
     </span>
@@ -37,5 +37,8 @@
   {#if needsReview}
     <span class="fr-badge fr-badge--sm fr-badge--warning shrink-0">À vérifier</span>
   {/if}
-  <span class="fr-icon-arrow-right-s-line shrink-0 text-gray-400" aria-hidden="true"></span>
+  <span
+    class="fr-icon-arrow-right-s-line shrink-0 text-[color:var(--text-mention-grey)]"
+    aria-hidden="true"
+  ></span>
 </button>

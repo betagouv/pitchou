@@ -24,7 +24,7 @@
 <div class="fr-mt-2w">
   <h3 class="my-0 text-sm font-semibold">Journal d'exécution</h3>
   {#if truncated}
-    <p class="my-0 text-xs text-gray-500">
+    <p class="my-0 text-xs text-[color:var(--text-mention-grey)]">
       Le début du journal a été tronqué (limite de mémoire atteinte).
     </p>
   {/if}

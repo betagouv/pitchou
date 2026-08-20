@@ -100,13 +100,17 @@ export async function renameActivite(code: string, label: string): Promise<void>
   invalidateActiviteReferentiel();
 }
 
-export async function renameActiviteGroupe(code: string, label: string): Promise<void> {
+export async function updateActiviteGroupe(
+  code: string,
+  label: string,
+  color: string,
+): Promise<void> {
   const response = await fetch(`/api/activites/groupes/${encodeURIComponent(code)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ label }),
+    body: JSON.stringify({ label, color }),
   });
-  await checkResponse(response, "du renommage du groupe d'activités");
+  await checkResponse(response, "de la modification du groupe d'activités");
   invalidateActiviteReferentiel();
 }
 
