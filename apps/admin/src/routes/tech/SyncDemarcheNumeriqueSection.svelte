@@ -101,12 +101,14 @@
   });
 </script>
 
-<section class="rounded-lg border border-solid border-gray-200 bg-white p-4 shadow-sm">
+<section
+  class="rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 shadow-sm"
+>
   <h2 class="my-0 text-base font-semibold">Synchronisation Démarches Numériques</h2>
-  <p class="fr-mb-2w mt-1 text-sm text-gray-500">
+  <p class="fr-mb-2w mt-1 text-sm text-[color:var(--text-mention-grey)]">
     Lance la même synchronisation que le cron (toutes les 10 minutes) : les dossiers modifiés sur
-    Démarches Simplifiées depuis la date choisie sont resynchronisés. Une date lointaine (par
-    exemple depuis le lancement) peut prendre beaucoup de temps.
+    Démarches Numériques depuis la date choisie sont resynchronisés. Une date lointaine (par exemple
+    depuis le lancement) peut prendre beaucoup de temps.
   </p>
 
   <div class="fr-mb-2w">
@@ -159,7 +161,7 @@
   </button>
 
   {#if triggerError}
-    <p class="fr-mt-2w my-0 text-sm text-red-700">{triggerError}</p>
+    <p class="fr-mt-2w my-0 text-sm text-[color:var(--text-default-error)]">{triggerError}</p>
   {/if}
 
   {#if syncStatus}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
   import SyncDemarcheNumeriqueSection from "./SyncDemarcheNumeriqueSection.svelte";
 
   function triggerSentryTestError() {
@@ -12,19 +13,26 @@
   <title>Administration - tech — Pitchou</title>
 </svelte:head>
 
-<p class="text-gray-600">
-  Outils réservés à l'équipe technique. La synchronisation met à jour les dossiers depuis Démarches
-  Simplifiées ; les autres actions n'ont aucun effet sur les données.
-</p>
+<!-- Single column with the same gap as the view padding (p-2 on <main>), like the activities page. -->
+<div class="flex flex-col gap-2">
+  <CollapsibleNotice title="Outils réservés à l'équipe technique">
+    <p class="!m-0 text-sm">
+      La synchronisation met à jour les dossiers depuis Démarches Numériques ; les autres actions
+      n'ont aucun effet sur les données.
+    </p>
+  </CollapsibleNotice>
 
-<SyncDemarcheNumeriqueSection />
+  <SyncDemarcheNumeriqueSection />
 
-<section class="fr-mt-3w rounded-lg border border-solid border-gray-200 bg-white p-4 shadow-sm">
-  <h2 class="my-0 text-base font-semibold">Sentry</h2>
-  <p class="fr-mb-2w mt-1 text-sm text-gray-500">
-    Déclenche une erreur dans le navigateur pour vérifier son signalement dans Sentry.
-  </p>
-  <button class="fr-btn fr-btn--secondary" type="button" onclick={triggerSentryTestError}>
-    Tester Sentry
-  </button>
-</section>
+  <section
+    class="rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 shadow-sm"
+  >
+    <h2 class="my-0 text-base font-semibold">Sentry</h2>
+    <p class="fr-mb-2w mt-1 text-sm text-[color:var(--text-mention-grey)]">
+      Déclenche une erreur dans le navigateur pour vérifier son signalement dans Sentry.
+    </p>
+    <button class="fr-btn fr-btn--secondary" type="button" onclick={triggerSentryTestError}>
+      Tester Sentry
+    </button>
+  </section>
+</div>

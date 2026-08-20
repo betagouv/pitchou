@@ -21,7 +21,7 @@
   );
 </script>
 
-<div class="fr-mt-2w text-sm text-gray-600">
+<div class="fr-mt-2w text-sm text-[color:var(--text-default-grey)]">
   {#if running && lastRun}
     <p class="my-0">
       Synchronisation lancée le {dateTimeFormat.format(new Date(lastRun.startedAt))}
@@ -29,7 +29,7 @@
     </p>
   {/if}
   {#if lastRunFailed && lastRun}
-    <p class="my-0 text-red-700">
+    <p class="my-0 text-[color:var(--text-default-error)]">
       Le dernier lancement depuis cette page a échoué (code {lastRun.exitCode}).
     </p>
   {/if}
