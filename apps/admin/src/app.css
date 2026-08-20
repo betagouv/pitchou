@@ -23,6 +23,12 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css";
 
+/*
+ * `dark:` follows the DSFR theme (set on <html> by the scheme engine), not
+ * `prefers-color-scheme`: the user can force either theme from the UI.
+ */
+@custom-variant dark (&:where([data-fr-theme="dark"], [data-fr-theme="dark"] *));
+
 /* Scan the shared UI library for utility classes used in its components. */
 @source "../../../libs/ui/src";
 

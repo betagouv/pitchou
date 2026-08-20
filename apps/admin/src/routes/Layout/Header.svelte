@@ -5,10 +5,12 @@
   import { pageInfoFor } from "./nav.ts";
 
   type Props = {
-    onMenuClick: () => void;
+    sidebarCollapsed: boolean;
+    onMobileMenuClick: () => void;
+    onSidebarToggle: () => void;
   };
 
-  let { onMenuClick }: Props = $props();
+  let { sidebarCollapsed, onMobileMenuClick, onSidebarToggle }: Props = $props();
 
   const info = $derived(pageInfoFor(page.url.pathname));
   // A page may register a data-dependent title (e.g. the dossier name).
@@ -26,13 +28,28 @@
 </div>
 
 <!-- Topbar of the admin shell: it owns the page h1 (title comes from nav.ts). -->
-<header class="sticky top-0 z-30 border-b border-solid border-gray-200 bg-white">
-  <div class="flex h-14 items-center gap-2 px-4">
+<header class="sticky top-0 z-30 bg-[var(--background-default-grey)]">
+  <!-- The border is inside the h-14 box, like the sidebar rows, so both bars align. -->
+  <div
+    class="flex h-14 items-center gap-2 border-b border-solid border-[color:var(--border-default-grey)] px-4"
+  >
     <button
       type="button"
-      class="rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 lg:hidden"
+      class="rounded-md p-1.5 text-[color:var(--text-mention-grey)] transition-colors hover:bg-[var(--background-default-grey-hover)] hover:text-[color:var(--text-title-grey)] lg:hidden"
       aria-label="Ouvrir le menu"
-      onclick={onMenuClick}
+      aria-controls="admin-mobile-sidebar"
+      onclick={onMobileMenuClick}
+    >
+      <span class="fr-icon-menu-fill" aria-hidden="true"></span>
+    </button>
+
+    <button
+      type="button"
+      class="hidden rounded-md p-1.5 text-[color:var(--text-mention-grey)] transition-colors hover:bg-[var(--background-default-grey-hover)] hover:text-[color:var(--text-title-grey)] lg:inline-flex"
+      aria-label={sidebarCollapsed ? "Déployer le menu" : "Réduire le menu"}
+      aria-controls="admin-sidebar"
+      aria-expanded={!sidebarCollapsed}
+      onclick={onSidebarToggle}
     >
       <span class="fr-icon-menu-fill" aria-hidden="true"></span>
     </button>
@@ -40,7 +57,7 @@
     {#if info.backHref}
       <a
         href={info.backHref}
-        class="fr-raw-link rounded-md p-1.5 text-gray-500 no-underline transition-colors hover:bg-gray-100 hover:text-gray-900"
+        class="fr-raw-link rounded-md p-1.5 text-[color:var(--text-mention-grey)] no-underline transition-colors hover:bg-[var(--background-default-grey-hover)] hover:text-[color:var(--text-title-grey)]"
         title="Retour"
       >
         <span class="fr-icon-arrow-left-s-line" aria-hidden="true"></span>
@@ -53,11 +70,11 @@
     {#if pageHeader.action}
       <button
         type="button"
-        class="ml-auto rounded-md p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+        class="ml-auto rounded-md p-1.5 text-[color:var(--text-mention-grey)] transition-colors hover:bg-[var(--background-default-grey-hover)] hover:text-[color:var(--text-title-grey)]"
         title={pageHeader.action.label}
         onclick={pageHeader.action.onClick}
       >
-        <span class="fr-icon-add-line" aria-hidden="true"></span>
+        <span class={pageHeader.action.icon ?? "fr-icon-add-line"} aria-hidden="true"></span>
         <span class="sr-only">{pageHeader.action.label}</span>
       </button>
     {/if}

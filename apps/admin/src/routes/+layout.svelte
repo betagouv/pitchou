@@ -15,6 +15,7 @@
   let { children, data }: { children: import("svelte").Snippet; data: LayoutData } = $props();
 
   let sidebarOpen = $state(false);
+  let sidebarCollapsed = $state(false);
 
   // Close the mobile sidebar when a link inside it navigates.
   afterNavigate(() => {
@@ -35,13 +36,18 @@
   <div class="flex h-screen overflow-hidden">
     <Sidebar
       open={sidebarOpen}
+      collapsed={sidebarCollapsed}
       onClose={() => (sidebarOpen = false)}
       email={data.user?.email}
       onLogout={logout}
     />
 
     <div class="flex min-w-0 flex-1 flex-col overflow-y-auto">
-      <AdminHeader onMenuClick={() => (sidebarOpen = true)} />
+      <AdminHeader
+        {sidebarCollapsed}
+        onMobileMenuClick={() => (sidebarOpen = true)}
+        onSidebarToggle={() => (sidebarCollapsed = !sidebarCollapsed)}
+      />
 
       <!-- Full-width content with slim padding, like the rest of the shell. -->
       <main tabindex="-1" id="main" class="flex flex-1 flex-col p-2">
