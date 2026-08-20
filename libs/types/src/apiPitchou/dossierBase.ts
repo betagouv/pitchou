@@ -43,7 +43,7 @@ export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary &
 
 export type DossierPhase =
   | "Accompagnement amont"
-  | "Étude recevabilité DDEP"
+  | "Étude recevabilité"
   | "Instruction"
   | "Contrôle"
   | "Classé sans suite"
