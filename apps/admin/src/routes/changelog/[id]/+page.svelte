@@ -4,10 +4,7 @@
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import RichTextEditor from "$lib/components/RichTextEditor.svelte";
-  import EntryFields from "./EntryFields.svelte";
-  import SaveStatus from "./SaveStatus.svelte";
-  import PublishBlockedModal from "./PublishBlockedModal.svelte";
+  import EntryEditor from "./EntryEditor.svelte";
   import DeleteEntryModal from "../DeleteEntryModal.svelte";
   import { Autosave } from "./autosave.svelte.ts";
   import { EntryModel, sameSnapshot } from "./entryModel.svelte.ts";
@@ -16,7 +13,6 @@
     loadChangelogAdmin,
     saveChangelogEntry,
     deleteChangelogEntry,
-    uploadChangelogMedia,
     cleanupChangelogMedia,
     type ChangelogEntryPayload,
   } from "$lib/actions/adminChangelog.ts";
@@ -33,22 +29,6 @@
   let loadError = $state<string | null>(null);
 
   const model = new EntryModel();
-
-  // Clicking the switch while requirements are missing explains them instead
-  // of silently refusing (a disabled button would only show a blocked cursor).
-  let publishBlockedOpen = $state(false);
-
-  function togglePublished() {
-    if (model.published) {
-      model.published = false;
-      return;
-    }
-    if (!model.canPublish) {
-      publishBlockedOpen = true;
-      return;
-    }
-    model.published = true;
-  }
 
   const autosave = new Autosave<ChangelogEntryPayload>({
     snapshot: () => model.snapshot(),
@@ -183,38 +163,7 @@
     </p>
   </div>
 {:else}
-  {#snippet saveStatus()}
-    <SaveStatus state={autosave.state} error={autosave.error} />
-  {/snippet}
-
-  <div class="flex min-h-0 flex-1 flex-col">
-    <EntryFields
-      bind:titre={model.titre}
-      bind:versionMajor={model.versionMajor}
-      bind:versionMinor={model.versionMinor}
-      bind:versionPatch={model.versionPatch}
-      bind:date={model.date}
-      published={model.published}
-      onToggleStatus={togglePublished}
-    />
-
-    <div class="fr-input-group flex min-h-0 flex-1 flex-col fr-mb-0">
-      <span class="fr-label fr-mb-1w shrink-0">Contenu</span>
-      <RichTextEditor
-        bind:html={model.contenu}
-        toolbarEnd={saveStatus}
-        uploadMedia={(file) => uploadChangelogMedia(entryId!, file)}
-      />
-    </div>
-  </div>
-
-  {#if publishBlockedOpen}
-    <PublishBlockedModal
-      titreOk={model.titre.trim() !== ""}
-      versionOk={model.versionComplete}
-      onClose={() => (publishBlockedOpen = false)}
-    />
-  {/if}
+  <EntryEditor {model} {autosave} entryId={entryId!} />
 
   {#if deleteModalOpen}
     <DeleteEntryModal
