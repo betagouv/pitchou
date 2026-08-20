@@ -9,9 +9,10 @@
     moveActiviteToGroupe,
     reassignActiviteLabel,
     renameActivite,
-    renameActiviteGroupe,
+    updateActiviteGroupe,
     type ActiviteReferentielAdmin,
   } from "$lib/actions/adminActivites.ts";
+  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import {
     activiteSelectEntries,
@@ -94,8 +95,8 @@
     apply(() => reassignActiviteLabel(label, activiteCode));
   const onMoveActivite = (code: string, groupeCode: string) =>
     apply(() => moveActiviteToGroupe(code, groupeCode));
-  const onRenameGroupe = (code: string, label: string) =>
-    apply(() => renameActiviteGroupe(code, label));
+  const onUpdateGroupe = (code: string, label: string, color: string) =>
+    apply(() => updateActiviteGroupe(code, label, color));
 
   $effect(() => {
     if (etat !== "autorise") return;
@@ -121,40 +122,43 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="fr-mb-3w rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-    <p class="!mb-1 font-medium">Comment ça marche ?</p>
-    <ul class="!m-0 list-disc !pl-5">
-      <li>
-        Chaque dossier porte un libellé « Activité principale » saisi dans Démarches Numériques.
-      </li>
-      <li>
-        Ces libellés sont rattachés à une <strong>activité Pitchou</strong> : quand un libellé est renommé
-        côté Démarches Numériques, rattachez le nouveau libellé à l'activité existante pour que les dossiers
-        restent regroupés.
-      </li>
-      <li>
-        Les activités sont classées dans des <strong>groupes thématiques</strong> colorés. Cliquez sur
-        une activité pour la renommer, gérer ses libellés ou changer son groupe.
-      </li>
-    </ul>
-  </div>
+  <!-- Single column with the same gap as the view padding (p-2 on <main>). -->
+  <div class="flex flex-col gap-2">
+    <CollapsibleNotice title="Comment ça marche ?">
+      <ul class="!m-0 list-disc !pl-5 text-sm">
+        <li>
+          Chaque dossier porte un libellé « Activité principale » saisi dans Démarches Numériques.
+        </li>
+        <li>
+          Ces libellés sont rattachés à une <strong>activité Pitchou</strong> : quand un libellé est renommé
+          côté Démarches Numériques, rattachez le nouveau libellé à l'activité existante pour que les
+          dossiers restent regroupés.
+        </li>
+        <li>
+          Les activités sont classées dans des <strong>groupes thématiques</strong> colorés. Cliquez sur
+          une activité pour la renommer, gérer ses libellés ou changer son groupe.
+        </li>
+      </ul>
+    </CollapsibleNotice>
 
-  {#if actionError}
-    <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
-      <p>{actionError}</p>
-    </div>
-  {/if}
+    {#if actionError}
+      <div
+        class="fr-alert fr-alert--error fr-alert--sm rounded-xl border border-solid border-[color:var(--border-plain-error)] !bg-no-repeat ![background-image:linear-gradient(0deg,var(--border-plain-error),var(--border-plain-error))] ![background-position:0_0] ![background-size:2.5rem_100%]"
+        role="alert"
+      >
+        <p>{actionError}</p>
+      </div>
+    {/if}
 
-  {#if toReview.length > 0}
-    <ReviewAlert labels={toReview} onReview={(activiteCode) => (selectedCode = activiteCode)} />
-  {/if}
+    {#if toReview.length > 0}
+      <ReviewAlert labels={toReview} onReview={(activiteCode) => (selectedCode = activiteCode)} />
+    {/if}
 
-  <div class="flex flex-col gap-6">
     {#each sections as section (section.groupe.code)}
       <GroupeSection
         {section}
         onSelect={({ activite }) => (selectedCode = activite.code)}
-        {onRenameGroupe}
+        {onUpdateGroupe}
       />
     {/each}
   </div>

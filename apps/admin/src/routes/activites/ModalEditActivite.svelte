@@ -62,7 +62,7 @@
       </span>
       <div>
         <p class="!m-0 font-bold">{item.activite.label}</p>
-        <p class="!m-0 text-xs text-gray-500">{item.activite.code}</p>
+        <p class="!m-0 text-xs text-[color:var(--text-mention-grey)]">{item.activite.code}</p>
       </div>
     </div>
 
@@ -116,13 +116,15 @@
         </span>
       </p>
       {#if item.labels.length === 0}
-        <p class="!m-0 text-sm italic text-gray-500">Aucun libellé rattaché pour l'instant.</p>
+        <p class="!m-0 text-sm italic text-[color:var(--text-mention-grey)]">
+          Aucun libellé rattaché pour l'instant.
+        </p>
       {:else}
         <ul class="!m-0 flex list-none flex-col gap-2 !p-0">
           {#each item.labels as { label, needs_review }, index (label)}
             <!-- Fixed select and action columns: rows stay aligned whatever the label length. -->
             <li
-              class="grid items-center gap-x-3 gap-y-2 rounded border border-gray-200 bg-gray-50 p-3 text-sm {hasFlaggedLabels
+              class="grid items-center gap-x-3 gap-y-2 rounded border border-[color:var(--border-default-grey)] bg-[var(--background-alt-grey)] p-3 text-sm {hasFlaggedLabels
                 ? 'sm:grid-cols-[minmax(0,1fr)_16rem_2.5rem]'
                 : 'sm:grid-cols-[minmax(0,1fr)_16rem]'}"
             >

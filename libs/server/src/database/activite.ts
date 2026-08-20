@@ -99,13 +99,13 @@ export async function createActivite(
   await registerCanonicalLabel(code, label, databaseConnection);
 }
 
-/** Returns false when no group has this code. */
-export async function renameActiviteGroupe(
+/** Updates a group's label and color. Returns false when no group has this code. */
+export async function updateActiviteGroupe(
   code: string,
-  label: string,
+  changes: { label: string; color: string },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<boolean> {
-  const updated = await databaseConnection("activite_groupe").where({ code }).update({ label });
+  const updated = await databaseConnection("activite_groupe").where({ code }).update(changes);
   return updated > 0;
 }
 

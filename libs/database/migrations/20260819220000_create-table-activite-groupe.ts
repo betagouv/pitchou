@@ -11,15 +11,15 @@ type ActiviteGroupeRow = { code: string; label: string; color: string };
 
 /** Groups and their color, following the product design. Groups are displayed alphabetically. */
 export const ACTIVITE_GROUPES: ActiviteGroupeRow[] = [
-  { code: "projets-urbains", label: "Projets urbains", color: "#fbe5e7" },
-  { code: "energie", label: "Énergie", color: "#fceeb5" },
-  { code: "transport-energie-eau", label: "Transport énergie - eau", color: "#fde8d8" },
-  { code: "activite-economique", label: "Activité économique", color: "#f6e7e1" },
-  { code: "infrastructures", label: "Infrastructures", color: "#dfe6fb" },
-  { code: "science-education", label: "Science et éducation", color: "#d5eef7" },
-  { code: "ecologie", label: "Écologie", color: "#d4f2c2" },
-  { code: "faune", label: "Faune", color: "#f3e5ce" },
-  { code: "autres-activites", label: "Autres activités", color: "#c8f4d4" },
+  { code: "projets-urbains", label: "Projets urbains", color: "#fde9e7" },
+  { code: "energie", label: "Énergie", color: "#fdedac" },
+  { code: "transport-energie-eau", label: "Transport énergie - eau", color: "#feebd0" },
+  { code: "activite-economique", label: "Activité économique", color: "#f7ebe5" },
+  { code: "infrastructures", label: "Infrastructures", color: "#e5eeff" },
+  { code: "science-education", label: "Science et éducation", color: "#c6f6fc" },
+  { code: "ecologie", label: "Écologie", color: "#c9fdac" },
+  { code: "faune", label: "Faune", color: "#f7ecdb" },
+  { code: "autres-activites", label: "Autres activités", color: "#c3fad5" },
 ];
 
 /** Group every activity in the migration `20260819130000` seed belongs to. */
