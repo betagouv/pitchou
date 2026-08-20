@@ -25,6 +25,7 @@
     groupes,
     activites,
     activiteEntries,
+    activiteCodeByLabel,
     showAdminSection = true,
     showFirstSectionTopBorder = true,
     originalLegalSiret,
@@ -38,6 +39,8 @@
     activites: ActiviteAdmin[];
     /** Grouped, illustrated options over the same activities; plain labels when absent. */
     activiteEntries?: SelectEntry<string>[];
+    /** Every known raw label mapped to its activity code — the resolution the server applies. */
+    activiteCodeByLabel: ReadonlyMap<string, string>;
     showAdminSection?: boolean;
     showFirstSectionTopBorder?: boolean;
     originalLegalSiret?: string | null;
@@ -49,7 +52,7 @@
 </script>
 
 <DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
-<DossierCreationProjectSection {model} {activites} {activiteEntries} />
+<DossierCreationProjectSection {model} {activites} {activiteEntries} {activiteCodeByLabel} />
 <DossierCreationDemandeurSection
   {model}
   {originalLegalSiret}

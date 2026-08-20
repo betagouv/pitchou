@@ -175,6 +175,7 @@
       {model}
       {activites}
       {activiteEntries}
+      {activiteCodeByLabel}
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}

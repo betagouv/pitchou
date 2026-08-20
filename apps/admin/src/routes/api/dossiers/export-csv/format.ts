@@ -72,8 +72,9 @@ export function dossiersExportToCSV(rows: AdminDossierExportRow[]): string {
       row.phase,
       formatDemandeur(row),
       row.groupe_name ?? "",
-      // The Pitchou activity name; raw labels that predate the referentiel come out unchanged.
-      row.activite_label ?? row.main_activite ?? "",
+      // The Pitchou activity name; raw labels still pending review come out unchanged
+      // (see `withResolvedActivite`).
+      row.activite_label ?? "",
       row.primary_department ?? "",
       formatStringList(row.departments),
       formatCommunes(row.communes),

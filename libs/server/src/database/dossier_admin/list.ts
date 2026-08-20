@@ -54,20 +54,28 @@ function latestPhase(db: Knex.Transaction | Knex) {
     .as("latest_phase");
 }
 function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
-  return query
-    .leftJoin(latestPhase(db), { "latest_phase.dossier": "dossier.id" })
-    .leftJoin("personne as demandeur_pp", {
-      "demandeur_pp.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("entreprise", { "entreprise.siret": "dossier.demandeur_personne_morale" })
-    .leftJoin("edge_groupe_instructeurs__dossier as edge_groupe", {
-      "edge_groupe.dossier": "dossier.id",
-    })
-    .leftJoin("groupe_instructeurs", {
-      "groupe_instructeurs.id": "edge_groupe.groupe_instructeurs",
-    })
-    .leftJoin("activite_label", { "activite_label.label": "dossier.main_activite" })
-    .leftJoin("activite", { "activite.code": "activite_label.activite_code" });
+  return (
+    query
+      .leftJoin(latestPhase(db), { "latest_phase.dossier": "dossier.id" })
+      .leftJoin("personne as demandeur_pp", {
+        "demandeur_pp.id": "dossier.demandeur_personne_physique",
+      })
+      .leftJoin("entreprise", { "entreprise.siret": "dossier.demandeur_personne_morale" })
+      .leftJoin("edge_groupe_instructeurs__dossier as edge_groupe", {
+        "edge_groupe.dossier": "dossier.id",
+      })
+      .leftJoin("groupe_instructeurs", {
+        "groupe_instructeurs.id": "edge_groupe.groupe_instructeurs",
+      })
+      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+      // through the fallback in `withResolvedActivite`.
+      .leftJoin("activite_label", (join) =>
+        join
+          .on("activite_label.label", "dossier.main_activite")
+          .andOnVal("activite_label.needs_review", false),
+      )
+      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+  );
 }
 function summaryColumns(db: Knex.Transaction | Knex) {
   return [

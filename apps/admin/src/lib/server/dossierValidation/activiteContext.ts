@@ -6,8 +6,13 @@ import { getActiviteReferentiel } from "@pitchou/server/database/activite.ts";
  * values and the code-keyed business rules follow the referentiel instead of a hardcoded list.
  */
 export type ActiviteContext = {
-  /** Every raw label the referentiel resolves: activity display names and historical DN labels. */
+  /**
+   * Every raw label the referentiel resolves: activity display names and historical DN labels.
+   * Keeps edits from losing the label a dossier already carries.
+   */
   acceptedLabels: ReadonlySet<string>;
+  /** The current activity display names — the only values the creation form offers. */
+  canonicalLabels: ReadonlySet<string>;
   codeByLabel: ReadonlyMap<string, string>;
 };
 
@@ -18,6 +23,7 @@ export async function loadActiviteContext(): Promise<ActiviteContext> {
       ...labels.map(({ label }) => label),
       ...activites.map(({ label }) => label),
     ]),
+    canonicalLabels: new Set(activites.map(({ label }) => label)),
     codeByLabel: new Map(labels.map(({ label, activite_code }) => [label, activite_code])),
   };
 }

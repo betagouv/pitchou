@@ -1,6 +1,7 @@
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
 import { error, json } from "@sveltejs/kit";
 import {
+  findActiviteLabelConflict,
   getActiviteReferentiel,
   renameActivite,
   setActiviteGroupe,
@@ -17,9 +18,10 @@ export const PUT: RequestHandler = async ({ request, params }) => {
   const groupeCode = typeof body.groupeCode === "string" ? body.groupeCode : "";
   if (!label && !groupeCode) error(400, "Un nouveau nom ou un nouveau groupe est requis");
 
+  const referentiel = await getActiviteReferentiel();
+
   if (groupeCode) {
-    const { groupes } = await getActiviteReferentiel();
-    if (!groupes.some((groupe) => groupe.code === groupeCode)) {
+    if (!referentiel.groupes.some((groupe) => groupe.code === groupeCode)) {
       error(400, "Le groupe d'activités demandé n'existe pas");
     }
     const moved = await setActiviteGroupe(params.code, groupeCode);
@@ -27,6 +29,9 @@ export const PUT: RequestHandler = async ({ request, params }) => {
   }
 
   if (label) {
+    if (findActiviteLabelConflict(referentiel, params.code, label)) {
+      error(409, "Ce nom est déjà utilisé par une autre activité ou l'un de ses libellés");
+    }
     const renamed = await renameActivite(params.code, label);
     if (!renamed) error(404, `Aucune activité avec le code '${params.code}'`);
   }

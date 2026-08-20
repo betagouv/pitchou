@@ -67,7 +67,13 @@ export async function getDossiersSummariesByCap(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .leftJoin("activite_label", { "activite_label.label": "dossier.main_activite" })
+    // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+    // through the fallback in `withResolvedActivite`.
+    .leftJoin("activite_label", (join) =>
+      join
+        .on("activite_label.label", "dossier.main_activite")
+        .andOnVal("activite_label.needs_review", false),
+    )
     .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
     .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
     .then((dossiers: DossierSummary[]) => dossiers.map(withResolvedActivite));

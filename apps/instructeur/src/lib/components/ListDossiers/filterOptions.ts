@@ -23,7 +23,11 @@ export type ActiviteOption = { code: ActiviteCode; label: string };
 export function listAvailableActivites(dossiers: DossierSummary[]): ActiviteOption[] {
   const labelByCode = new Map<ActiviteCode, string>();
   for (const dossier of dossiers) {
-    if (dossier.activite_code) {
+    if (dossier.activite_code === AUTRE_ACTIVITE_CODE) {
+      // The catch-all also carries dossiers whose raw label is pending review and displayed
+      // unchanged; the filter option keeps the activity name.
+      labelByCode.set(dossier.activite_code, "Autre");
+    } else if (dossier.activite_code) {
       labelByCode.set(dossier.activite_code, dossier.activite_label ?? dossier.activite_code);
     }
   }

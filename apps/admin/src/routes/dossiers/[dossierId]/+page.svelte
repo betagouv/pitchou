@@ -32,6 +32,8 @@
   let detail = $derived<AdminDossierDetail | null>(data.detail);
   // The edit forms resolve the activity through the referentiel, so they render once it loads.
   let activiteReferentiel = $state<ActiviteReferentielAdmin | null>(null);
+  // The forms stay usable (with an empty activity select) when only the referentiel fails.
+  let activiteReferentielError = $state<string | null>(null);
   const { activites, activiteEntries, codeByLabel } = $derived(
     activiteFormContext(activiteReferentiel),
   );
@@ -48,7 +50,7 @@
       activiteReferentiel = await loadActiviteReferentiel();
     } catch (e) {
       if (e instanceof AccessDeniedError) accessDenied = true;
-      else loadError = e instanceof Error ? e.message : String(e);
+      else activiteReferentielError = e instanceof Error ? e.message : String(e);
     }
   });
 
@@ -125,7 +127,16 @@
     </div>
   {/if}
 
-  {#if !activiteReferentiel}
+  {#if activiteReferentielError}
+    <div class="fr-alert fr-alert--warning fr-my-2w" role="alert">
+      <p>
+        Le référentiel des activités n'a pas pu être chargé : {activiteReferentielError}
+        Le champ « Activité principale » peut être incomplet.
+      </p>
+    </div>
+  {/if}
+
+  {#if !activiteReferentiel && !activiteReferentielError}
     <Loader />
   {:else if detail.source !== "pitchou"}
     <DossierAdminForm

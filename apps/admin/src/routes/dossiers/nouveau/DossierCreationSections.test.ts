@@ -10,12 +10,20 @@ import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
 import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
-import { ACTIVITES_FIXTURE, setModelActivite } from "./dossierCreationModel/activiteFixture.ts";
+import {
+  ACTIVITE_CODE_BY_LABEL_FIXTURE,
+  ACTIVITES_FIXTURE,
+  setModelActivite,
+} from "./dossierCreationModel/activiteFixture.ts";
 
 describe("dossier creation sections", () => {
   it("uses the shared select for the main activity", () => {
     const { body } = render(DossierCreationProjectSection, {
-      props: { model: createDossierCreationModel(), activites: ACTIVITES_FIXTURE },
+      props: {
+        model: createDossierCreationModel(),
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
     });
 
     expect(body).toContain('id="main-activite"');
@@ -32,7 +40,11 @@ describe("dossier creation sections", () => {
     model.requestContext = "Vous souhaitez bénéficier d'un accompagnement amont";
 
     const { body } = render(DossierCreationProjectSection, {
-      props: { model, activites: ACTIVITES_FIXTURE },
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
     });
 
     expect(body).toContain('id="restauration-demande-1"');
@@ -56,7 +68,11 @@ describe("dossier creation sections", () => {
     setModelActivite(model, "Demande à caractère scientifique");
 
     const { body } = render(DossierCreationProjectSection, {
-      props: { model, activites: ACTIVITES_FIXTURE },
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
     });
 
     expect(body).not.toContain('id="request-context-1"');
@@ -67,7 +83,11 @@ describe("dossier creation sections", () => {
     setModelActivite(model, "Infrastructures de transport ferroviaire");
 
     const { body } = render(DossierCreationProjectSection, {
-      props: { model, activites: ACTIVITES_FIXTURE },
+      props: {
+        model,
+        activites: ACTIVITES_FIXTURE,
+        activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
+      },
     });
 
     expect(body).toContain('id="transport-demande-1"');

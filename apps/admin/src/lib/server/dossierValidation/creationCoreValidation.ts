@@ -31,6 +31,9 @@ export function validateCreationCore(
     error(400, `Property 'urgent_contact_phone' must be a valid phone number.`);
   const mainActivite = columns.main_activite;
   if (typeof mainActivite !== "string") error(400, `Property 'main_activite' is required.`);
+  // Historical labels stay valid on edits, but a new dossier only carries a current activity name.
+  if (!activiteContext.canonicalLabels.has(mainActivite))
+    error(400, `Property 'main_activite' is invalid.`);
   const activiteCode = activiteCodeForLabel(mainActivite, activiteContext.codeByLabel);
   const displaysContext = !CODES_WITHOUT_CONTEXT.has(activiteCode ?? "");
   const requestContext = columns.request_context;

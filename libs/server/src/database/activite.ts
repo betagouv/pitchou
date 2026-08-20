@@ -39,16 +39,17 @@ export type ResolvedActiviteColumns = {
 };
 
 /**
- * Completes the resolved activity of a dossier row read with the activite joins: a raw label
- * missing from the referentiel falls back to « Autre » — the same place the sync parks unknown
- * labels — instead of leaving the dossier without an activity.
+ * Completes the resolved activity of a dossier row read with the activite joins (which only match
+ * reviewed labels): a raw label the referentiel has not classified yet — unknown or still parked
+ * pending review — resolves to the « autre » code for filters and business rules, but keeps its
+ * raw label for display so no information is lost before an administrator groups it.
  */
 export function withResolvedActivite<
   Row extends { main_activite: string | null } & ResolvedActiviteColumns,
 >(row: Row): Row {
   if (row.main_activite && !row.activite_code) {
     row.activite_code = AUTRE_ACTIVITE_CODE;
-    row.activite_label = "Autre";
+    row.activite_label = row.main_activite;
   }
   return row;
 }
@@ -134,17 +135,43 @@ export async function renameActivite(
 /**
  * Keeps the display name of an activity resolvable as a label: dossiers created in Pitchou store
  * the name the form offered, so every current or past display name must have a row here. Former
- * names keep their row (dossiers may carry them); an existing mapping is never overridden.
+ * names keep their row (dossiers may carry them). A label still parked pending review is adopted
+ * by the activity; a reviewed mapping is never overridden — the endpoints reject those name
+ * conflicts upfront (see `findActiviteLabelConflict`).
  */
 async function registerCanonicalLabel(
   code: string,
   label: string,
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
+  const adopted = await databaseConnection("activite_label")
+    .where({ label, needs_review: true })
+    .update({ activite_code: code, needs_review: false });
+  if (adopted > 0) return;
+
   await databaseConnection("activite_label")
     .insert({ label, activite_code: code, needs_review: false })
     .onConflict("label")
     .ignore();
+}
+
+/**
+ * Reports whether naming (or renaming) the activity `code` as `label` would collide with the
+ * referentiel: the display name of another activity, or a reviewed label grouped under another
+ * activity. Parked labels (`needs_review`) do not conflict — creating or renaming an activity
+ * with their name adopts them (see `registerCanonicalLabel`).
+ */
+export function findActiviteLabelConflict(
+  referentiel: ActiviteReferentiel,
+  code: string,
+  label: string,
+): boolean {
+  return (
+    referentiel.activites.some((activite) => activite.label === label && activite.code !== code) ||
+    referentiel.labels.some(
+      (row) => row.label === label && !row.needs_review && row.activite_code !== code,
+    )
+  );
 }
 
 /**

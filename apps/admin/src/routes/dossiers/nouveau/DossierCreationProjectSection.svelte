@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
+  import { activiteCodeForLabel, AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
   import {
     dossierRequestContextOptions,
     restaurationDemandeOptions,
@@ -23,20 +23,29 @@
     activites: ActiviteAdmin[];
     /** Grouped, illustrated options over the same activities; plain labels when absent. */
     activiteEntries?: SelectEntry<string>[];
+    /** Every known raw label mapped to its activity code — the resolution the server applies. */
+    activiteCodeByLabel: ReadonlyMap<string, string>;
   };
-  let { model, activites, activiteEntries }: Props = $props();
+  let { model, activites, activiteEntries, activiteCodeByLabel }: Props = $props();
 
   const detailKind = $derived(activiteDetailKind(model.activiteCode));
   const displayRequestContext = $derived(showsRequestContext(model.activiteCode));
 
-  const mainActiviteOptions = $derived(
-    activiteEntries ?? activites.map(({ label }) => ({ value: label, label })),
+  // A raw label that is not the display name of an activity (typically an option renamed since
+  // the dossier was saved) stays selectable so editing the dossier does not lose it.
+  const hasLegacyActivity = $derived(
+    !!model.mainActivite && !activites.some(({ label }) => label === model.mainActivite),
   );
+  const mainActiviteOptions = $derived([
+    ...(hasLegacyActivity
+      ? [{ value: model.mainActivite, label: `${model.mainActivite} (valeur historique)` }]
+      : []),
+    ...(activiteEntries ?? activites.map(({ label }) => ({ value: label, label }))),
+  ]);
 
   function changeMainActivite(value: string) {
     model.mainActivite = value;
-    model.activiteCode =
-      activites.find(({ label }) => label === value)?.code ?? AUTRE_ACTIVITE_CODE;
+    model.activiteCode = activiteCodeForLabel(value, activiteCodeByLabel) ?? AUTRE_ACTIVITE_CODE;
     model.activiteDetail = "";
     if (!showsRequestContext(model.activiteCode)) {
       model.requestContext = "";

@@ -12,6 +12,7 @@ import { parseColumns as parseColumnsWithContext } from "./columnValidation.ts";
 // A minimal activity referentiel: one canonical label plus a historical (renamed) one.
 const activiteContext = {
   acceptedLabels: new Set(["Carrières", "Carrières (ancien libellé)"]),
+  canonicalLabels: new Set(["Carrières"]),
   codeByLabel: new Map([
     ["Carrières", "carrieres"],
     ["Carrières (ancien libellé)", "carrieres"],

@@ -11,7 +11,11 @@
     AccessDeniedError,
     type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
-  import { activiteLabelSelectEntries, sortedActivites } from "$lib/activiteReferentiel.ts";
+  import {
+    activiteCodeByLabel,
+    activiteLabelSelectEntries,
+    sortedActivites,
+  } from "$lib/activiteReferentiel.ts";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import DossierIntakeFields from "./DossierIntakeFields.svelte";
@@ -30,6 +34,7 @@
   let groupes = $state<AdminGroupeInstructeurs[]>([]);
   let activites = $state<ActiviteAdmin[]>([]);
   let activiteEntries = $state<SelectEntry<string>[]>([]);
+  let codeByLabel = $state<ReadonlyMap<string, string>>(new Map());
   let loadError = $state<string | null>(null);
   let model = $state(createDossierCreationModel());
   let saving = $state(false);
@@ -44,6 +49,7 @@
       groupes = loadedGroupes;
       activites = sortedActivites(referentiel);
       activiteEntries = activiteLabelSelectEntries(referentiel);
+      codeByLabel = activiteCodeByLabel(referentiel);
       model.groupeInstructeurs = groupes[0]?.id ?? "";
       etat = "autorise";
     } catch (error) {
@@ -101,7 +107,13 @@
   </div>
 
   <form class="w-full flex flex-col gap-10" onsubmit={submit}>
-    <DossierIntakeFields {model} {groupes} {activites} {activiteEntries} />
+    <DossierIntakeFields
+      {model}
+      {groupes}
+      {activites}
+      {activiteEntries}
+      activiteCodeByLabel={codeByLabel}
+    />
 
     {#if saveError}
       <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>

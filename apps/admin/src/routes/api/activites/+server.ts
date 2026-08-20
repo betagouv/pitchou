@@ -1,6 +1,10 @@
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
 import { error, json } from "@sveltejs/kit";
-import { createActivite, getActiviteReferentiel } from "@pitchou/server/database/activite.ts";
+import {
+  createActivite,
+  findActiviteLabelConflict,
+  getActiviteReferentiel,
+} from "@pitchou/server/database/activite.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import { activiteCodeFromLabel } from "./codeFromLabel.ts";
 import type { RequestHandler } from "./$types.ts";
@@ -20,12 +24,15 @@ export const POST: RequestHandler = async ({ request }) => {
   if (!code) error(400, "Le nom de l'activité doit contenir au moins une lettre ou un chiffre");
 
   const groupeCode = typeof body.groupeCode === "string" ? body.groupeCode : "";
-  const { activites, groupes } = await getActiviteReferentiel();
-  if (!groupes.some((groupe) => groupe.code === groupeCode)) {
+  const referentiel = await getActiviteReferentiel();
+  if (!referentiel.groupes.some((groupe) => groupe.code === groupeCode)) {
     error(400, "Le groupe d'activités demandé n'existe pas");
   }
-  if (activites.some((activite) => activite.code === code || activite.label === label)) {
+  if (referentiel.activites.some((activite) => activite.code === code)) {
     error(409, "Une activité avec ce nom ou un nom trop proche existe déjà");
+  }
+  if (findActiviteLabelConflict(referentiel, code, label)) {
+    error(409, "Ce nom est déjà utilisé par une autre activité ou l'un de ses libellés");
   }
 
   await createActivite(code, label, groupeCode);
