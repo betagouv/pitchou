@@ -16,22 +16,41 @@ export type Placement = {
   bottom?: number;
 };
 
+export type PlacementPreferences = {
+  /** Room the list asks for before it starts scrolling, instead of the default. */
+  preferredHeight?: number;
+  /** Widens the list beyond the trigger, as far as the viewport allows. */
+  minWidth?: number;
+};
+
 /**
  * Where the list goes, given the trigger's position on screen. It is placed
  * against the viewport rather than the trigger, so neither a scrolling panel
  * nor a modal can clip it. It opens downwards when there is room, upwards
  * otherwise, and shrinks to whatever space is left.
  */
-export function computePlacement(rect: DOMRect, viewportHeight: number): Placement {
+export function computePlacement(
+  rect: DOMRect,
+  viewportHeight: number,
+  viewportWidth: number,
+  { preferredHeight = PREFERRED_HEIGHT, minWidth = 0 }: PlacementPreferences = {},
+): Placement {
   const below = viewportHeight - rect.bottom - GAP - VIEWPORT_MARGIN;
   const above = rect.top - GAP - VIEWPORT_MARGIN;
-  const dropUp = below < Math.min(PREFERRED_HEIGHT, above) && above > MIN_HEIGHT;
+  const dropUp = below < Math.min(preferredHeight, above) && above > MIN_HEIGHT;
   const available = dropUp ? above : below;
 
+  const width = Math.min(Math.max(rect.width, minWidth), viewportWidth - 2 * VIEWPORT_MARGIN);
+  // A widened list is nudged left so it never overflows the viewport.
+  const left = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(rect.left, viewportWidth - VIEWPORT_MARGIN - width),
+  );
+
   return {
-    left: rect.left,
-    width: rect.width,
-    maxHeight: Math.max(MIN_HEIGHT, Math.min(PREFERRED_HEIGHT, available)),
+    left,
+    width,
+    maxHeight: Math.max(MIN_HEIGHT, Math.min(preferredHeight, available)),
     top: dropUp ? undefined : rect.bottom + GAP,
     bottom: dropUp ? viewportHeight - rect.top + GAP : undefined,
   };

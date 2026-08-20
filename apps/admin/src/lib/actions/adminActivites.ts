@@ -7,6 +7,14 @@ export { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 export type ActiviteAdmin = {
   code: string;
   label: string;
+  groupe_code: string;
+};
+
+/** A thematic group of activities, with its display color. */
+export type ActiviteGroupeAdmin = {
+  code: string;
+  label: string;
+  color: string;
 };
 
 /** A raw « Activité principale » label and the activity it is grouped under. */
@@ -18,6 +26,7 @@ export type ActiviteLabelAdmin = {
 };
 
 export type ActiviteReferentielAdmin = {
+  groupes: ActiviteGroupeAdmin[];
   activites: ActiviteAdmin[];
   labels: ActiviteLabelAdmin[];
 };
@@ -37,18 +46,22 @@ export async function loadActiviteReferentiel(): Promise<ActiviteReferentielAdmi
   await checkResponse(response, "du chargement du référentiel des activités");
 
   const referentiel = await response.json();
-  if (!Array.isArray(referentiel?.activites) || !Array.isArray(referentiel?.labels)) {
+  if (
+    !Array.isArray(referentiel?.groupes) ||
+    !Array.isArray(referentiel?.activites) ||
+    !Array.isArray(referentiel?.labels)
+  ) {
     throw new Error("Réponse invalide reçue du serveur pour /api/activites.");
   }
   return referentiel;
 }
 
-/** Creates an activity from its display name; the server derives the code. */
-export async function createActivite(label: string): Promise<void> {
+/** Creates an activity from its display name and group; the server derives the code. */
+export async function createActivite(label: string, groupeCode: string): Promise<void> {
   const response = await fetch(`/api/activites`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ label }),
+    body: JSON.stringify({ label, groupeCode }),
   });
   await checkResponse(response, "de la création de l'activité");
 }
@@ -60,6 +73,25 @@ export async function renameActivite(code: string, label: string): Promise<void>
     body: JSON.stringify({ label }),
   });
   await checkResponse(response, "du renommage de l'activité");
+}
+
+export async function renameActiviteGroupe(code: string, label: string): Promise<void> {
+  const response = await fetch(`/api/activites/groupes/${encodeURIComponent(code)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ label }),
+  });
+  await checkResponse(response, "du renommage du groupe d'activités");
+}
+
+/** Moves an activity under another thematic group. */
+export async function moveActiviteToGroupe(code: string, groupeCode: string): Promise<void> {
+  const response = await fetch(`/api/activites/${encodeURIComponent(code)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ groupeCode }),
+  });
+  await checkResponse(response, "du changement de groupe de l'activité");
 }
 
 /**

@@ -9,6 +9,7 @@ const TABLES_REFERENTIELLES = new Set([
   "impact_type",
   "impact_methode",
   "impact_moyen_de_poursuite",
+  "activite_groupe",
   "activite",
   "activite_label",
 ]);

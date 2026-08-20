@@ -17,7 +17,7 @@
     AccessDeniedError,
     type AdminDossierDetail,
   } from "$lib/actions/adminDossiers.ts";
-  import { activiteCodeByLabel, sortedActivites } from "$lib/activiteReferentiel.ts";
+  import { activiteFormContext } from "$lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
@@ -32,9 +32,8 @@
   let detail = $derived<AdminDossierDetail | null>(data.detail);
   // The edit forms resolve the activity through the referentiel, so they render once it loads.
   let activiteReferentiel = $state<ActiviteReferentielAdmin | null>(null);
-  const activites = $derived(activiteReferentiel ? sortedActivites(activiteReferentiel) : []);
-  const codeByLabel = $derived(
-    activiteReferentiel ? activiteCodeByLabel(activiteReferentiel) : new Map<string, string>(),
+  const { activites, activiteEntries, codeByLabel } = $derived(
+    activiteFormContext(activiteReferentiel),
   );
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
@@ -132,6 +131,7 @@
     <DossierAdminForm
       {detail}
       {activites}
+      {activiteEntries}
       activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}
@@ -142,6 +142,7 @@
     <DossierNativeIntakeForm
       {detail}
       {activites}
+      {activiteEntries}
       activiteCodeByLabel={codeByLabel}
       formId={editFormId}
       onSavingChange={(value) => (saving = value)}

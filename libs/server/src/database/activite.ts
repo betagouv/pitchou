@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type { default as Activite } from "@pitchou/types/database/public/Activite.ts";
+import type { default as ActiviteGroupe } from "@pitchou/types/database/public/ActiviteGroupe.ts";
 import type { default as ActiviteLabel } from "@pitchou/types/database/public/ActiviteLabel.ts";
 import { directDatabaseConnection } from "./connection.ts";
 
@@ -8,13 +9,18 @@ import { directDatabaseConnection } from "./connection.ts";
  * hand (endpoints, tests) satisfy them too. Same rationale as in
  * `referentielTypeImpactMethodeMoyenDePoursuite.ts`.
  */
-export type ActiviteRow = Omit<Activite, "code"> & { code: string };
+export type ActiviteRow = Omit<Activite, "code" | "groupe_code"> & {
+  code: string;
+  groupe_code: string;
+};
+export type ActiviteGroupeRow = Omit<ActiviteGroupe, "code"> & { code: string };
 export type ActiviteLabelRow = Omit<ActiviteLabel, "label" | "activite_code"> & {
   label: string;
   activite_code: string;
 };
 
 export type ActiviteReferentiel = {
+  groupes: ActiviteGroupeRow[];
   activites: ActiviteRow[];
   labels: ActiviteLabelRow[];
 };
@@ -50,12 +56,13 @@ export function withResolvedActivite<
 export async function getActiviteReferentiel(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ActiviteReferentiel> {
-  const [activites, labels] = await Promise.all([
+  const [groupes, activites, labels] = await Promise.all([
+    databaseConnection("activite_groupe").select("*").orderBy("label"),
     databaseConnection("activite").select("*").orderBy("label"),
     databaseConnection("activite_label").select("*").orderBy("label"),
   ]);
 
-  return { activites, labels };
+  return { groupes, activites, labels };
 }
 
 /**
@@ -84,10 +91,33 @@ export async function registerActiviteLabels(
 export async function createActivite(
   code: string,
   label: string,
+  groupeCode: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  await databaseConnection("activite").insert({ code, label });
+  await databaseConnection("activite").insert({ code, label, groupe_code: groupeCode });
   await registerCanonicalLabel(code, label, databaseConnection);
+}
+
+/** Returns false when no group has this code. */
+export async function renameActiviteGroupe(
+  code: string,
+  label: string,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<boolean> {
+  const updated = await databaseConnection("activite_groupe").where({ code }).update({ label });
+  return updated > 0;
+}
+
+/** Moves an activity to another group. Returns false when no activity has this code. */
+export async function setActiviteGroupe(
+  code: string,
+  groupeCode: string,
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<boolean> {
+  const updated = await databaseConnection("activite")
+    .where({ code })
+    .update({ groupe_code: groupeCode });
+  return updated > 0;
 }
 
 /** Returns false when no activity has this code. */

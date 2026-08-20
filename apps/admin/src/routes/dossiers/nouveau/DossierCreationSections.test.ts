@@ -13,14 +13,14 @@ import { createDossierCreationModel } from "./dossierCreationModel.ts";
 import { ACTIVITES_FIXTURE, setModelActivite } from "./dossierCreationModel/activiteFixture.ts";
 
 describe("dossier creation sections", () => {
-  it("uses a searchable main activity combobox", () => {
+  it("uses the shared select for the main activity", () => {
     const { body } = render(DossierCreationProjectSection, {
       props: { model: createDossierCreationModel(), activites: ACTIVITES_FIXTURE },
     });
 
     expect(body).toContain('id="main-activite"');
     expect(body).toContain('aria-haspopup="listbox"');
-    expect(body).toContain("Sélectionnez ou commencez à saisir");
+    expect(body).toContain("Sélectionner une activité");
   });
 
   it("shows the restoration question and accompaniment details conditionally", () => {

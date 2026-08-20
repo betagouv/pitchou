@@ -6,6 +6,9 @@
     transportDemandeOptions,
   } from "@pitchou/common/dossierFormOptions.ts";
 
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
+
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     ACCOMPANIMENT_CONTEXT,
@@ -13,19 +16,22 @@
     showsRequestContext,
     type DossierCreationModel,
   } from "./dossierCreationModel.ts";
-  import SearchableSelect from "./SearchableSelect.svelte";
 
   type Props = {
     model: DossierCreationModel;
     /** The activity referentiel, already sorted for display (see $lib/activiteReferentiel.ts). */
     activites: ActiviteAdmin[];
+    /** Grouped, illustrated options over the same activities; plain labels when absent. */
+    activiteEntries?: SelectEntry<string>[];
   };
-  let { model, activites }: Props = $props();
+  let { model, activites, activiteEntries }: Props = $props();
 
   const detailKind = $derived(activiteDetailKind(model.activiteCode));
   const displayRequestContext = $derived(showsRequestContext(model.activiteCode));
 
-  const mainActiviteOptions = $derived(activites.map(({ label }) => ({ value: label, label })));
+  const mainActiviteOptions = $derived(
+    activiteEntries ?? activites.map(({ label }) => ({ value: label, label })),
+  );
 
   function changeMainActivite(value: string) {
     model.mainActivite = value;
@@ -73,13 +79,13 @@
         Quel est l'objectif principal du projet ? <span aria-hidden="true">*</span>
         <span class="fr-sr-only">Champ obligatoire</span>
       </label>
-      <SearchableSelect
+      <Select
         id="main-activite"
-        labelledBy="main-activite-label"
         options={mainActiviteOptions}
         value={model.mainActivite}
-        placeholder="Sélectionnez ou commencez à saisir"
-        required={true}
+        placeholder="Sélectionner une activité"
+        required
+        listPlacement={{ preferredHeight: 480, minWidth: 480 }}
         onChange={changeMainActivite}
       />
     </div>

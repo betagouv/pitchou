@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
 
   import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
@@ -26,6 +27,7 @@
   let {
     detail,
     activites,
+    activiteEntries,
     activiteCodeByLabel,
     onSaved,
     onFilesChanged,
@@ -34,6 +36,7 @@
   }: {
     detail: AdminDossierDetail;
     activites: ActiviteAdmin[];
+    activiteEntries?: SelectEntry<string>[];
     activiteCodeByLabel: ReadonlyMap<string, string>;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
@@ -171,6 +174,7 @@
     <DossierIntakeFields
       {model}
       {activites}
+      {activiteEntries}
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}

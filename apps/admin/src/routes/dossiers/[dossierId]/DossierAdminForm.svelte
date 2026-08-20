@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     updateDossier,
@@ -21,6 +22,7 @@
   type Props = {
     detail: AdminDossierDetail;
     activites: ActiviteAdmin[];
+    activiteEntries?: SelectEntry<string>[];
     activiteCodeByLabel: ReadonlyMap<string, string>;
     onSaved: (detail: AdminDossierDetail) => void;
     onFilesChanged: () => Promise<void>;
@@ -31,6 +33,7 @@
   let {
     detail,
     activites,
+    activiteEntries,
     activiteCodeByLabel,
     onSaved,
     onFilesChanged,
@@ -84,7 +87,7 @@
     <p class="fr-hint-text fr-mb-0">Les données importées sont affichées en lecture seule.</p>
   {/if}
 
-  <DossierIntroductionFields {model} {activites} disabled={readOnly} />
+  <DossierIntroductionFields {model} {activites} {activiteEntries} disabled={readOnly} />
 
   {#if completeEcologicalInventory}
     {#if !readOnly}<DossierRelationsFields {model} />{/if}

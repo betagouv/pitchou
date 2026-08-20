@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "$lib/state/store.svelte.ts";
-  import type { DossiersQuery } from "./listModel.ts";
+  import type { ActiviteReferentielLite, DossiersQuery } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     PROCHAINE_ACTION_OPTIONS,
-    listAvailableActivites,
+    activiteFilterEntries,
     listAvailableDepartements,
     listAvailableInstructeurs,
   } from "./listModel.ts";
@@ -27,9 +28,23 @@
     showFilterInstructeurice,
   }: Props = $props();
 
-  const activiteOptions = $derived(
-    listAvailableActivites(dossiers).map(({ code, label }) => ({ value: code, label })),
-  );
+  // The referentiel brings the thematic groups (colors, icons) of the activity filter; the
+  // filter works with a flat list until it loads (or when it fails).
+  let activiteReferentiel = $state<ActiviteReferentielLite | null>(null);
+  onMount(async () => {
+    try {
+      const response = await fetch("/api/activites");
+      if (!response.ok) return;
+      const referentiel = await response.json();
+      if (Array.isArray(referentiel?.groupes) && Array.isArray(referentiel?.activites)) {
+        activiteReferentiel = referentiel;
+      }
+    } catch {
+      // Network failure: keep the flat fallback.
+    }
+  });
+
+  const activiteOptions = $derived(activiteFilterEntries(dossiers, activiteReferentiel));
   const departementOptions = $derived(
     listAvailableDepartements(dossiers).map(({ code, name }) => ({
       value: code,

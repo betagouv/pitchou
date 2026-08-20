@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activiteIconUrl } from "$lib/activiteIcon.ts";
+  import { activiteIconUrl } from "@pitchou/ui/activites/activiteIcon.ts";
 
   type Props = {
     /** Referentiel code of the dossier's activity (`dossier.activite_code`). */

@@ -17,7 +17,7 @@ export const ACTIVITE_CODE_BY_LABEL_FIXTURE: ReadonlyMap<string, string> = new M
 ]);
 
 export const ACTIVITES_FIXTURE: ActiviteAdmin[] = [...ACTIVITE_CODE_BY_LABEL_FIXTURE].map(
-  ([label, code]) => ({ code, label }),
+  ([label, code]) => ({ code, label, groupe_code: "autres-activites" }),
 );
 
 /** Sets the activity as the form select would: display label plus resolved code. */

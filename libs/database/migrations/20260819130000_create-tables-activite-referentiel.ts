@@ -17,7 +17,7 @@ import type { Knex } from "knex";
 
 type ActiviteRow = { code: string; label: string };
 
-/** Codes reuse the icon slugs of `apps/admin/static/icons/activites`; labels are the current DN options. */
+/** Codes reuse the icon slugs of `libs/ui/src/activites/icons`; labels are the current DN options. */
 export const ACTIVITES: ActiviteRow[] = [
   { code: "amenagements-fonciers", label: "Aménagements fonciers (AFAF, remembrement)" },
   { code: "carrieres", label: "Carrières" },

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
 
@@ -23,6 +24,7 @@
     model,
     groupes,
     activites,
+    activiteEntries,
     showAdminSection = true,
     showFirstSectionTopBorder = true,
     originalLegalSiret,
@@ -34,6 +36,8 @@
     model: DossierCreationModel;
     groupes: AdminGroupeInstructeurs[];
     activites: ActiviteAdmin[];
+    /** Grouped, illustrated options over the same activities; plain labels when absent. */
+    activiteEntries?: SelectEntry<string>[];
     showAdminSection?: boolean;
     showFirstSectionTopBorder?: boolean;
     originalLegalSiret?: string | null;
@@ -45,7 +49,7 @@
 </script>
 
 <DossierCreationInformationSection {model} showTopBorder={showFirstSectionTopBorder} />
-<DossierCreationProjectSection {model} {activites} />
+<DossierCreationProjectSection {model} {activites} {activiteEntries} />
 <DossierCreationDemandeurSection
   {model}
   {originalLegalSiret}

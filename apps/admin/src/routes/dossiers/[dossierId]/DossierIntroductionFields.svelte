@@ -7,8 +7,14 @@
   import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
   import TriStateRadio from "./TriStateRadio.svelte";
 
-  type Props = { model: DossierAdminFormModel; activites: ActiviteAdmin[]; disabled: boolean };
-  let { model, activites, disabled }: Props = $props();
+  type Props = {
+    model: DossierAdminFormModel;
+    activites: ActiviteAdmin[];
+    /** Grouped, illustrated options over the same activities; plain labels when absent. */
+    activiteEntries?: SelectEntry<string>[];
+    disabled: boolean;
+  };
+  let { model, activites, activiteEntries, disabled }: Props = $props();
 
   // A raw label that is not the display name of an activity (typically an option renamed in DN
   // and grouped since) stays selectable so saving the dossier does not lose it.
@@ -20,7 +26,7 @@
     ...(hasLegacyActivity
       ? [{ value: model.mainActivite, label: `${model.mainActivite} (valeur historique)` }]
       : []),
-    ...activites.map(({ label }) => ({ value: label, label })),
+    ...(activiteEntries ?? activites.map(({ label }) => ({ value: label, label }))),
   ]);
 </script>
 
@@ -58,6 +64,7 @@
       <Select
         id="edit-main-activite"
         options={activiteSelectOptions}
+        listPlacement={{ preferredHeight: 480, minWidth: 480 }}
         bind:value={model.mainActivite}
       />
     </div>
