@@ -1,6 +1,8 @@
 import pLimit from "p-limit";
 import type { Knex } from "knex";
 
+import { anomaliesTitle } from "@pitchou/common/impact_espece/anomalies.ts";
+
 import { directDatabaseConnection } from "../database.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 import { dumpImpactEspeceFromFichier } from "./impact_espece/dumpImpactEspeceFromFichier.ts";
@@ -30,12 +32,7 @@ async function dumpImpactEspece(
         );
 
         if (anomalies.length >= 1) {
-          console.warn(
-            `Dossier ${dossierNumber} — fichier espèces impactées : ${anomalies.length} anomalie(s)`,
-            anomalies.map(({ classification, ligne, message }) =>
-              [classification, ligne && `ligne ${ligne}`, message].filter(Boolean).join(", "),
-            ),
-          );
+          console.warn(`Dossier ${dossierNumber} — ${anomaliesTitle(anomalies)}`);
         }
       }),
     ),

@@ -2,6 +2,7 @@
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
   import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
+  import { anomaliesTitle } from "@pitchou/common/impact_espece/anomalies.ts";
   import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import Loader from "@pitchou/ui/Loader.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
@@ -120,11 +121,7 @@
             getNumberEspecesMinisterielleCNPN(impactEspece)}
           {#if anomalies.length >= 1}
             <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
-              <h3 class="fr-alert__title">
-                {anomalies.length}
-                {anomalies.length > 1 ? "lignes du fichier n’ont" : "ligne du fichier n’a"} pas pu être
-                lue{anomalies.length > 1 ? "s" : ""}
-              </h3>
+              <h3 class="fr-alert__title">{anomaliesTitle(anomalies)}</h3>
               <ul>
                 {#each anomalies as anomalie}
                   <li>

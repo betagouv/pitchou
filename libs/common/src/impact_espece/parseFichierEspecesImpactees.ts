@@ -12,7 +12,7 @@ export type ResultatImportFichierEspeces = {
   anomalies: AnomalieFichierEspeces[];
 };
 
-const EMPTY_VALUE: DescriptionMenacesEspeces = {
+export const EMPTY_IMPACT_ESPECE: DescriptionMenacesEspeces = {
   oiseau: [],
   "faune non-oiseau": [],
   flore: [],
@@ -36,12 +36,12 @@ export async function parseFichierEspecesImpactees(
       anomalies.push(anomalie),
     );
 
-    return { impactEspece: { ...EMPTY_VALUE, ...description }, anomalies };
+    return { impactEspece: { ...EMPTY_IMPACT_ESPECE, ...description }, anomalies };
   } catch (error) {
     // The file itself is unusable — not a spreadsheet, or without any espèce sheet. There is no
     // line to point at, so the whole file becomes a single anomaly.
     return {
-      impactEspece: EMPTY_VALUE,
+      impactEspece: EMPTY_IMPACT_ESPECE,
       anomalies: [
         ...anomalies,
         { message: error instanceof Error ? error.message : "le fichier n’a pas pu être lu" },
