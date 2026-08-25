@@ -113,6 +113,8 @@ export type EvenementMetrique =
     }
   // Generate a document
   | { type: "générerUnDocument" }
+  // Hand a generated document over to the mail client
+  | { type: "envoyerUnDocumentParMail"; details: { dossierId: number } }
 
   // Consultation events
   // Use the search and filter feature in the dossier list

@@ -35,6 +35,7 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
     case "consulterUnDossier":
     case "téléchargerListeÉspècesImpactées":
     case "téléchargerCartographieProjet":
+    case "envoyerUnDocumentParMail":
       return isDossierDetails(event.details);
     case "assignDossierFollowers":
       return isAssignDossierFollowersDetails(event.details);

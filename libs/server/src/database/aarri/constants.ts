@@ -26,4 +26,5 @@ export const EVENEMENTS_MODIFICATIONS: EvenementMetrique["type"][] = [
   "modifierAvisExpert",
   "supprimerAvisExpert",
   "générerUnDocument",
+  "envoyerUnDocumentParMail",
 ];
