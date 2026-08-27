@@ -1,15 +1,10 @@
 import { departementName } from "@pitchou/common/departements.ts";
 import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
-import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
+import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
 
-import type {
-  ActiviteMenancante,
-  DescriptionMenacesEspeces,
-  QuantifiedImpact,
-} from "@pitchou/types/especes.d.ts";
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { EspecesByActivite } from "$lib/especes/createEspecesGroupedByImpact.ts";
+import type { DossierFull, FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
 import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./tagFormatting.ts";
 
 /**
@@ -19,11 +14,7 @@ import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./ta
  */
 export function getDocumentGenerationTags(
   dossier: DossierFull,
-  especesImpactees: DescriptionMenacesEspeces | undefined,
-  identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
-    string,
-    ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
-  >,
+  impacts: FrontEndImpactEspece[],
 ): BalisesGenerationDocument {
   const {
     name: dossierName,
@@ -68,13 +59,10 @@ export function getDocumentGenerationTags(
     : undefined;
   const mainDepartmentCode: string | undefined = primaryDepartment ?? departmentCodes?.[0];
 
-  // Transform the impacted especes if they exist
-  const groupedEspecesByImpact: EspecesByActivite[] | undefined = especesImpactees
-    ? createEspecesGroupedByImpact(
-        especesImpactees,
-        identifiantPitchouVersActiviteEtImpactsQuantifies,
-      )
-    : undefined;
+  // Transform the impacted especes if they exist. Left undefined rather than empty when there is
+  // nothing to say: that is what a template testing the tag expects.
+  const groupedEspecesByTypeImpact: EspecesByTypeImpact[] | undefined =
+    impacts.length >= 1 ? groupImpactsByTypeImpact(impacts) : undefined;
 
   const hirondelleTags: BalisesGenerationDocument["hirondelles"] =
     type === "Hirondelle"
@@ -141,25 +129,25 @@ export function getDocumentGenerationTags(
     régime_autorisation_environnementale_renseigné: linkedToAeRegime !== null,
     régime_autorisation_environnementale:
       linkedToAeRegime === null ? "Non renseigné" : linkedToAeRegime,
-    liste_espèces_par_impact: groupedEspecesByImpact?.map(
-      ({ espèces: especes, activité: activite, impactsQuantifiés: impactsQuantifies }) => ({
+    liste_espèces_par_impact: groupedEspecesByTypeImpact?.map(
+      ({ especes, typeImpact, criteriaAllowed }) => ({
         liste_espèces: especes.map(
           ({
             nomVernaculaire,
             nomScientifique,
-            détails,
-            espèceCNPN: especeCNPN,
-            espèceMinistérielle: especeMinisterielle,
+            impactsValues,
+            especeCNPN,
+            especeMinisterielle,
           }) => ({
             nomVernaculaire,
             nomScientifique,
-            liste_impacts_quantifiés: détails,
+            liste_impacts_quantifiés: impactsValues,
             estCNPN: especeCNPN,
             estMinistérielle: especeMinisterielle,
           }),
         ),
-        impact: activite,
-        liste_noms_impacts_quantifiés: impactsQuantifies,
+        impact: typeImpact,
+        liste_noms_impacts_quantifiés: criteriaAllowed,
       }),
     ),
     scientifique: {
