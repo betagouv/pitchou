@@ -6,6 +6,7 @@ import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type {
   DossierFull,
   FrontEndFichier,
+  FrontEndImpactEspece,
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
@@ -41,6 +42,7 @@ export function formatDossierFull(
   attachments: OtherAttachmentWithFileDescription[],
   prescriptions: Prescription[],
   controles: Controle[],
+  impacts: FrontEndImpactEspece[],
 ): DossierFull {
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
@@ -85,17 +87,19 @@ export function formatDossierFull(
     url: `/piece-jointe-petitionnaire/fichier/${id}`,
     ...piece,
   }));
-  if (
-    dossier.especes_impactees_id &&
-    dossier.especes_impactees_media_type &&
-    dossier.especes_impactees_name
-  ) {
-    dossier.especesImpactees = {
-      url: `/especes-impactees/${dossier.especes_impactees_id}`,
-      media_type: dossier.especes_impactees_media_type,
-      name: dossier.especes_impactees_name,
-    };
-  }
+  dossier.especesImpactees = {
+    sourceFile:
+      dossier.especes_impactees_id &&
+      dossier.especes_impactees_media_type &&
+      dossier.especes_impactees_name
+        ? {
+            url: `/especes-impactees/${dossier.especes_impactees_id}`,
+            media_type: dossier.especes_impactees_media_type,
+            name: dossier.especes_impactees_name,
+          }
+        : undefined,
+    impacts,
+  };
   delete dossier.especes_impactees_id;
   delete dossier.especes_impactees_media_type;
   delete dossier.especes_impactees_name;

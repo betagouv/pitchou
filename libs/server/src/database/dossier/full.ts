@@ -6,6 +6,7 @@ import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
+import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
 import { getPrescriptions } from "../prescription.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
@@ -58,6 +59,7 @@ export async function getDossierFull(
   const piecesP = getPiecesJointes(dossierId, transaction);
   const decisionsP = getDecisionsDossier(dossierId, transaction);
   const attachmentsP = getOtherAttachmentsForDossier(dossierId, transaction);
+  const impactsP = getImpactOnEspeces(dossierId, transaction);
   const prescriptionsP = decisionsP.then((decisions) =>
     getPrescriptions(
       decisions.map(({ id }) => id),
@@ -79,10 +81,11 @@ export async function getDossierFull(
     attachmentsP,
     prescriptionsP,
     controlesP,
+    impactsP,
   ]);
   if (!databaseConnection.isTransaction) all.then(transaction.commit).catch(transaction.rollback);
   return all.then(
-    ([dossier, events, avis, pieces, decisions, attachments, prescriptions, controles]) =>
+    ([dossier, events, avis, pieces, decisions, attachments, prescriptions, controles, impacts]) =>
       withResolvedActivite(
         formatDossierFull(
           dossier,
@@ -93,6 +96,7 @@ export async function getDossierFull(
           attachments,
           prescriptions,
           controles,
+          impacts,
         ),
       ),
   );
