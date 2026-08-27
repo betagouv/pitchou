@@ -1,50 +1,29 @@
 <script lang="ts">
-  import type {
-    ActiviteMenancante,
-    DescriptionMenacesEspeces,
-    QuantifiedImpact,
-  } from "@pitchou/types/especes.d.ts";
-
-  import { createEspecesGroupedByImpact } from "$lib/especes/createEspecesGroupedByImpact.ts";
+  import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
 
   type Props = {
-    espècesImpactées: DescriptionMenacesEspeces;
-    identifiantPitchouVersActivitéEtImpactsQuantifiés: Map<
-      string,
-      ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
-    >;
+    especesParTypeImpact: EspecesByTypeImpact[];
   };
 
-  let {
-    espècesImpactées: especesImpactees,
-    identifiantPitchouVersActivitéEtImpactsQuantifiés:
-      identifiantPitchouVersActiviteEtImpactsQuantifies,
-  }: Props = $props();
-
-  let especesImpacteesParActivite = $derived(
-    createEspecesGroupedByImpact(
-      especesImpactees,
-      identifiantPitchouVersActiviteEtImpactsQuantifies,
-    ),
-  );
+  let { especesParTypeImpact }: Props = $props();
 </script>
 
-{#each especesImpacteesParActivite as { activité: activite, espèces: especes, impactsQuantifiés: impactsQuantifies }}
+{#each especesParTypeImpact as { typeImpact, especes, criteriaAllowed }}
   <section class="fr-mt-4w fr-mb-4w">
-    <h3 class="fr-mb-2w">{activite}</h3>
+    <h3 class="fr-mb-2w">{typeImpact}</h3>
     <table class="fr-table">
       <thead>
         <tr>
           <th>Espèce</th>
-          {#if impactsQuantifies && impactsQuantifies.length >= 1}
-            {#each impactsQuantifies as nomColonne}
+          {#if criteriaAllowed && criteriaAllowed.length >= 1}
+            {#each criteriaAllowed as nomColonne}
               <th>{nomColonne}</th>
             {/each}
           {/if}
         </tr>
       </thead>
       <tbody>
-        {#each especes as { nomVernaculaire, nomScientifique, espèceCNPN: especeCNPN, espèceMinistérielle: especeMinisterielle, détails }}
+        {#each especes as { nomVernaculaire, nomScientifique, especeCNPN, especeMinisterielle, impactsValues }}
           <tr>
             <td>
               {#if especeCNPN}
@@ -56,8 +35,8 @@
               {nomVernaculaire}
               (<i>{nomScientifique}</i>)
             </td>
-            {#each détails as detail}
-              <td>{detail}</td>
+            {#each impactsValues as impactValue}
+              <td>{impactValue}</td>
             {/each}
           </tr>
         {/each}
