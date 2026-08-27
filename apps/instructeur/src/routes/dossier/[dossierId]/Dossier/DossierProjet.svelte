@@ -1,58 +1,55 @@
 <script lang="ts">
   import DownloadButton from "$lib/components/DownloadButton.svelte";
   import CartographieProjet from "$lib/components/CartographieProjet.svelte";
-  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
+  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
   import { anomaliesTitle } from "@pitchou/common/impact_espece/anomalies.ts";
-  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import Loader from "@pitchou/ui/Loader.svelte";
+  import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
-  import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
+  import type { DossierFull, FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+  import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import ProjetInformation from "./DossierProjet/ProjetInformation.svelte";
   import ProjetScientifique from "./DossierProjet/ProjetScientifique.svelte";
   import ProjetSidebar from "./DossierProjet/ProjetSidebar.svelte";
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
+    anomalies: Promise<AnomalieFichierEspeces[]> | undefined;
   };
 
-  let { dossier, especesImpactees }: Props = $props();
+  let { dossier, anomalies }: Props = $props();
 
   /**
    * Computes the number of espèces CNPN
    * and the number of espèces ministérielles
    * in the list of espèces impacted by this project
    */
-  function getNumberEspecesMinisterielleCNPN(_especesImpactees: DescriptionMenacesEspeces): {
+  function getNumberEspecesMinisterielleCNPN(impacts: FrontEndImpactEspece[]): {
     numberEspecesCNPN: number;
     numberEspecesMinisterielles: number;
   } {
-    const allEspecesImpactees = [
-      ...(_especesImpactees["faune non-oiseau"] ?? []),
-      ...(_especesImpactees["flore"] ?? []),
-      ...(_especesImpactees["oiseau"] ?? []),
-    ];
-
-    const numbers = allEspecesImpactees.reduce(
-      (acc, { espèce: espece }) => {
-        if (espece.espèceCNPN) {
+    return impacts.reduce(
+      (acc, { espece }) => {
+        if (espece.especeCNPN) {
           acc["numberEspecesCNPN"] += 1;
         }
-        if (espece.espèceMinistérielle) {
+        if (espece.especeMinisterielle) {
           acc["numberEspecesMinisterielles"] += 1;
         }
         return acc;
       },
       { numberEspecesCNPN: 0, numberEspecesMinisterielles: 0 },
     );
-    return numbers;
   }
 
+  const impacts = $derived(dossier.especesImpactees.impacts);
+  const sourceFile = $derived(dossier.especesImpactees.sourceFile);
+  const { numberEspecesCNPN, numberEspecesMinisterielles } = $derived(
+    getNumberEspecesMinisterielleCNPN(impacts),
+  );
+
   async function makeFileContentBlob() {
-    const especes = dossier.especesImpactees;
+    const especes = dossier.especesImpactees.sourceFile;
     if (!especes) {
       throw new Error("Aucun fichier espèces impactées à télécharger");
     }
@@ -67,7 +64,7 @@
   }
 
   function makeFilename() {
-    return dossier.especesImpactees?.name || "fichier";
+    return dossier.especesImpactees.sourceFile?.name || "fichier";
   }
 
   const cartographieProjet = $derived(dossier.projet_map);
@@ -90,7 +87,6 @@
     return `cartographie-${dossier.id}.geojson`;
   }
 
-  const referentielsPromise = loadActivitesMethodesMoyensDePoursuite();
 </script>
 
 <section
@@ -100,7 +96,7 @@
     <ProjetInformation {dossier} />
     <div class="inline-flex items-center justify-between w-full">
       <h2 class="fr-m-0 whitespace-nowrap">Espèces impactées</h2>
-      {#if dossier.especesImpactees}
+      {#if sourceFile}
         <!-- In Svelte, a child component does not have access to the style classes defined in the parent component in which it is called. So we use an inline style. -->
         {@const styleDownloadButton = "width: 15rem;"}
         <DownloadButton
@@ -112,42 +108,36 @@
         />
       {/if}
     </div>
-    {#if dossier.especesImpactees}
-      {#if especesImpactees}
-        {#await Promise.all([especesImpactees, referentielsPromise])}
-          <Loader></Loader>
-        {:then [{ impactEspece, anomalies }, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
-          {@const { numberEspecesCNPN, numberEspecesMinisterielles } =
-            getNumberEspecesMinisterielleCNPN(impactEspece)}
-          {#if anomalies.length >= 1}
-            <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
-              <h3 class="fr-alert__title">{anomaliesTitle(anomalies)}</h3>
-              <ul>
-                {#each anomalies as anomalie}
-                  <li>
-                    {#if anomalie.classification && anomalie.ligne}
-                      Feuille « {anomalie.classification} », ligne {anomalie.ligne} :
-                    {/if}
-                    {anomalie.message}
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/if}
-          <p class="fr-badge fr-badge--blue-ecume">
-            {numberEspecesCNPN}
-            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
-          </p>
-          <p class="fr-badge fr-badge--blue-ecume">
-            {numberEspecesMinisterielles}
-            {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
-          </p>
-          <EspecesProtegeesGroupedByImpact
-            espècesImpactées={impactEspece}
-            identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
-          />
-        {/await}
+    <!-- The espèces come from the database, so they display right away. The anomalies of the
+    fichier original are read from the file itself, which takes a request: they show up after. -->
+    {#await anomalies then anomaliesFichier}
+      {#if anomaliesFichier && anomaliesFichier.length >= 1}
+        <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
+          <h3 class="fr-alert__title">{anomaliesTitle(anomaliesFichier)}</h3>
+          <ul>
+            {#each anomaliesFichier as anomalie}
+              <li>
+                {#if anomalie.classification && anomalie.ligne}
+                  Feuille « {anomalie.classification} », ligne {anomalie.ligne} :
+                {/if}
+                {anomalie.message}
+              </li>
+            {/each}
+          </ul>
+        </div>
       {/if}
+    {/await}
+    {#if impacts.length >= 1}
+      <p class="fr-badge fr-badge--blue-ecume">
+        {numberEspecesCNPN}
+        {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN
+      </p>
+      <p class="fr-badge fr-badge--blue-ecume">
+        {numberEspecesMinisterielles}
+        {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
+      </p>
+      <EspecesProtegeesGroupedByTypeImpact especesParTypeImpact={groupImpactsByTypeImpact(impacts)}
+      />
     {:else}
       <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
     {/if}
