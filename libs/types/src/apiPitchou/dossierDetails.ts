@@ -10,6 +10,7 @@ import type {
   DossierPersonnesImpliqueesFull,
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
+import type { QuantifiedImpact } from "../especesImpact.d.ts";
 
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
@@ -49,6 +50,33 @@ export type FrontEndOtherAttachment = {
   fichier_description?: FrontEndFichier;
 };
 
+export type FrontEndImpactOnEspece = {
+  espece: {
+    CD_REF: string;
+    nomVernaculaire: string;
+    nomScientifique: string;
+    especeCNPN: boolean;
+    especeMinisterielle: boolean;
+  };
+  /** null when the fichier espèce left the type d'impact empty. */
+  typeImpact: {
+    identifiantPitchou: string;
+    libelle: string;
+    criteriaAllowed: QuantifiedImpact[];
+  } | null;
+  methode: string | null;
+  moyenDePoursuite: string | null;
+  nombreIndividus: string | null;
+  nids: number | null;
+  oeufs: number | null;
+  surfaceHabitatDetruit: number | null;
+};
+
+export type FrontEndImpactOnEspecesWithSourceFile = {
+  sourceFile: (Pick<File, "media_type" | "name"> & { url: string }) | undefined;
+  impacts: FrontEndImpactOnEspece[];
+};
+
 export type DossierFull = Omit<
   Dossier,
   "communes" | "departments" | "regions" | "main_activite" | "projet_map" | "source"
@@ -56,7 +84,7 @@ export type DossierFull = Omit<
   DossierCommonData &
   DossierPersonnesImpliqueesFull & {
     projet_map: GeoJSONFeatureCollection | null;
-    especesImpactees: (Pick<File, "media_type" | "name"> & { url: string }) | undefined;
+    especesImpactees: FrontEndImpactOnEspecesWithSourceFile;
     evenementsPhase: EvenementPhaseDossier[];
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExpert: FrontEndAvisExpert[];

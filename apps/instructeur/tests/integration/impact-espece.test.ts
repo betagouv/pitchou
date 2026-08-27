@@ -159,6 +159,24 @@ test("une ligne illisible est signalée, les autres sont importées", async () =
   expect(rows[0].cd_ref).toBe("2437");
 });
 
+test("une valeur numérique saisie en texte est importée comme un nombre", async () => {
+  await seedFouDeBassan();
+  // Every cell of this file is text, the way a hand-edited .ods often is: the surface must still
+  // land in the column as a number rather than be dropped.
+  const { dossier, fichier } = await dossierAvecFichier(
+    await odsEspecesImpactees(
+      ["CD_REF", "surface habitat détruit", "identifiant pitchou activité"],
+      [["2437", "4000", "P-4-2"]],
+    ),
+  );
+
+  const anomalies = await dumpImpactEspeceFromFichier(dossier.id, fichier.id, db);
+
+  expect(anomalies).toEqual([]);
+  const rows = await db("impact_espece").where({ dossier: dossier.id });
+  expect(rows[0].surface_habitat_detruit).toBe(4000);
+});
+
 test("un fichier qui n'est pas un tableur est signalé sans faire échouer l'import", async () => {
   await seedFouDeBassan();
   const { dossier, fichier } = await dossierAvecFichier(

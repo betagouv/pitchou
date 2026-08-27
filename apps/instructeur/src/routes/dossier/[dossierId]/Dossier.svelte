@@ -14,10 +14,10 @@
   import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
   import DossierTabList from "./Dossier/DossierTabList.svelte";
   import type { DossierTab } from "./Dossier/dossierTabs.ts";
-  import { loadEspecesImpactees } from "./Dossier/loadEspecesImpactees.ts";
+  import { anomaliesFichierEspeces } from "./Dossier/anomaliesFichierEspeces.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
+  import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
@@ -73,8 +73,8 @@
 
   let activeTab = $derived(initialActiveTab);
 
-  let especesImpactees: Promise<ResultatImportFichierEspeces> | undefined = $derived(
-    loadEspecesImpactees(dossier),
+  let anomalies: Promise<AnomalieFichierEspeces[]> | undefined = $derived(
+    anomaliesFichierEspeces(dossier),
   );
 </script>
 
@@ -113,7 +113,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierProjet {dossier} {especesImpactees}></DossierProjet>
+        <DossierProjet {dossier} {anomalies}></DossierProjet>
       </div>
       <div
         id="tabpanel-porteur-de-projet-panel"
@@ -173,7 +173,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierGenerationDocuments {dossier} {especesImpactees}></DossierGenerationDocuments>
+        <DossierGenerationDocuments {dossier}></DossierGenerationDocuments>
       </div>
     </div>
   </div>

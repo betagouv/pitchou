@@ -10,7 +10,7 @@ test("génère les balises sans espèces impactées", () => {
     name: "Dossier sans espèces",
   } as unknown as DossierFull;
 
-  const tags = getDocumentGenerationTags(dossier, undefined, new Map());
+  const tags = getDocumentGenerationTags(dossier, []);
 
   expect(tags.nom).toBe("Dossier sans espèces");
   expect(tags.localisation).toBe("(inconnue)");
@@ -25,7 +25,7 @@ test("utilise le département principal explicite dans les balises", () => {
     departments: ["69"],
   } as unknown as DossierFull;
 
-  const tags = getDocumentGenerationTags(dossier, undefined, new Map());
+  const tags = getDocumentGenerationTags(dossier, []);
 
   expect(tags.département_principal).toBe("75");
   expect(tags.nom_département_principal).toBe("Paris");

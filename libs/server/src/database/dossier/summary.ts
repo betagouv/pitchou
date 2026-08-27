@@ -45,8 +45,11 @@ export async function getDossiersSummariesByCap(
     : await databaseConnection.transaction({ readOnly: true });
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(columns)
+    // A dossier can hold impacts without a file, and a file that could not be imported holds none.
     .select(
-      transaction.raw('dossier."especes_impactees" is not null as "especesImpacteesRenseignees"'),
+      transaction.raw(
+        'exists (select 1 from impact_espece where impact_espece."dossier" = dossier.id) as "especesImpacteesRenseignees"',
+      ),
     )
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "dossier.id",

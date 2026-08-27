@@ -1,3 +1,5 @@
+import { TYPE_IMPACT_NOT_PROVIDED, VALUE_NOT_PROVIDED } from "./especesByTypeImpact.ts";
+
 import type {
   ActiviteMenancante,
   DescriptionMenacesEspeces,
@@ -6,8 +8,7 @@ import type {
   FloreAtteinte,
   OiseauAtteint,
 } from "@pitchou/types/especes.d.ts";
-
-const VALUE_NOT_PROVIDED = `(non renseigné)`;
+import type { EspecesByTypeImpact, SimplifiedEspeceImpactee } from "./especesByTypeImpact.ts";
 
 function individus(especeImpactee: OiseauAtteint | FauneNonOiseauAtteinte | FloreAtteinte): string {
   return especeImpactee.nombreIndividus || VALUE_NOT_PROVIDED;
@@ -34,29 +35,14 @@ const getterImpactQuantifie: Map<QuantifiedImpact, (esp: any) => string> = new M
   ["Surface habitat détruit (m²)", surface],
 ]);
 
-export type SimplifiedEspeceImpactee = {
-  nomVernaculaire: string;
-  nomScientifique: string;
-  CD_REF: string;
-  espèceMinistérielle: boolean;
-  espèceCNPN: boolean;
-  détails: string[];
-};
-
-export type EspecesByActivite = {
-  activité: string;
-  impactsQuantifiés: QuantifiedImpact[];
-  espèces: SimplifiedEspeceImpactee[];
-};
-
-export function createEspecesGroupedByImpact(
+export function createEspecesGroupedByTypeImpact(
   especesImpactees: DescriptionMenacesEspeces,
   identifiantPitchouVersActiviteEtImpactsQuantifies: Map<
     string,
     ActiviteMenancante & { impactsQuantifiés: QuantifiedImpact[] }
   >,
-): EspecesByActivite[] {
-  const _especesImpacteesByIdentifiantActivite: Map<
+): EspecesByTypeImpact[] {
+  const _especesByIdentifiantTypeImpact: Map<
     ActiviteMenancante["Identifiant Pitchou"] | undefined,
     SimplifiedEspeceImpactee[]
   > = new Map();
@@ -66,7 +52,7 @@ export function createEspecesGroupedByImpact(
       ? especeImpactee.activité["Identifiant Pitchou"]
       : undefined;
 
-    const esps = _especesImpacteesByIdentifiantActivite.get(identifiantPitchou) || [];
+    const esps = _especesByIdentifiantTypeImpact.get(identifiantPitchou) || [];
     const impactsQuantifies =
       identifiantPitchouVersActiviteEtImpactsQuantifies.get(identifiantPitchou ?? "")
         ?.impactsQuantifiés || [];
@@ -75,9 +61,9 @@ export function createEspecesGroupedByImpact(
       CD_REF: especeImpactee.espèce.CD_REF,
       nomScientifique: [...especeImpactee.espèce.nomsScientifiques][0],
       nomVernaculaire: [...especeImpactee.espèce.nomsVernaculaires][0],
-      espèceCNPN: especeImpactee.espèce.espèceCNPN === "O" ? true : false,
-      espèceMinistérielle: especeImpactee.espèce.espèceMinistérielle === "O" ? true : false,
-      détails: [...impactsQuantifies].map((secondaryData) => {
+      especeCNPN: especeImpactee.espèce.espèceCNPN === "O" ? true : false,
+      especeMinisterielle: especeImpactee.espèce.espèceMinistérielle === "O" ? true : false,
+      impactsValues: [...impactsQuantifies].map((secondaryData) => {
         const funcDetail = getterImpactQuantifie.get(secondaryData);
 
         if (!funcDetail) {
@@ -89,7 +75,7 @@ export function createEspecesGroupedByImpact(
         return funcDetail(especeImpactee);
       }),
     });
-    _especesImpacteesByIdentifiantActivite.set(identifiantPitchou, esps);
+    _especesByIdentifiantTypeImpact.set(identifiantPitchou, esps);
   }
 
   for (const classif of ["oiseau", "faune non-oiseau", "flore"] as const) {
@@ -100,9 +86,9 @@ export function createEspecesGroupedByImpact(
     }
   }
 
-  for (const [activite, esps] of _especesImpacteesByIdentifiantActivite) {
-    _especesImpacteesByIdentifiantActivite.set(
-      activite,
+  for (const [identifiantTypeImpact, esps] of _especesByIdentifiantTypeImpact) {
+    _especesByIdentifiantTypeImpact.set(
+      identifiantTypeImpact,
       esps.toSorted(({ nomScientifique: nom1 }, { nomScientifique: nom2 }) => {
         if (nom1 < nom2) {
           return -1;
@@ -115,14 +101,14 @@ export function createEspecesGroupedByImpact(
     );
   }
 
-  return [..._especesImpacteesByIdentifiantActivite].map(([identifiant, especes]) => ({
-    activité:
+  return [..._especesByIdentifiantTypeImpact].map(([identifiant, especes]) => ({
+    typeImpact:
       identifiantPitchouVersActiviteEtImpactsQuantifies.get(identifiant ?? "")?.[
         "Libellé Pitchou"
-      ] ?? `Type d'impact non-renseignée`,
-    impactsQuantifiés:
+      ] ?? TYPE_IMPACT_NOT_PROVIDED,
+    criteriaAllowed:
       identifiantPitchouVersActiviteEtImpactsQuantifies.get(identifiant ? identifiant : "")
         ?.impactsQuantifiés || [],
-    espèces: especes,
+    especes,
   }));
 }

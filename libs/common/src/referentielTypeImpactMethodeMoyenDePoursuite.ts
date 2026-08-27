@@ -35,7 +35,7 @@ export type ReferentielRows = {
   moyensDePoursuite: MoyenDePoursuiteRow[];
 };
 
-const CRITERES_QUANTIFIES: [keyof TypeImpactRow, QuantifiedImpact][] = [
+export const CRITERES_QUANTIFIES: [keyof TypeImpactRow, QuantifiedImpact][] = [
   ["critere_nombre_individus", "Nombre d'individus"],
   ["critere_nids", "Nids"],
   ["critere_oeufs", "Œufs"],

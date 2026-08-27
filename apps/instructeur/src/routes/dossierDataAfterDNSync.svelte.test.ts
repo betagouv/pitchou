@@ -72,6 +72,7 @@ function fakeDossierFull(nom: string): DossierFull {
     decisionsAdministratives: [],
     piecesJointesPetitionnaires: [],
     otherAttachments: [],
+    especesImpactees: { sourceFile: undefined, impacts: [] },
   } as unknown as DossierFull;
 }
 
