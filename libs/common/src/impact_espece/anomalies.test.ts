@@ -16,7 +16,7 @@ test("counts the lines when every anomaly points at one", () => {
 
 test("says the whole file is unreadable when no anomaly points at a line", () => {
   expect(anomaliesTitle([{ message: "ce n’est pas un tableur" }])).toBe(
-    "Le fichier espèces impactées n’a pas pu être lu",
+    "Le fichier des impacts sur les espèces n’a pas pu être lu",
   );
 });
 
@@ -43,10 +43,7 @@ test("speaks of valeurs when no ligne was dropped", () => {
 });
 
 test("points at the missing lignes only when there are some", () => {
-  expect(anomaliesHint([{ ligne: 3, message: "a" }])).toBe(
-    "non reprises ci-dessous, à corriger dans le fichier puis à redéposer.",
-  );
-  expect(anomaliesHint([{ ligne: 4, ligneIgnoree: false, message: "a" }])).toBe(
-    "à corriger dans le fichier puis à redéposer.",
-  );
+  expect(anomaliesHint([{ ligne: 3, message: "a" }])).toBe("non reprises ci-dessous.");
+  // Nothing is missing from the table, so there is nothing to point at.
+  expect(anomaliesHint([{ ligne: 4, ligneIgnoree: false, message: "a" }])).toBe("");
 });

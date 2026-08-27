@@ -93,6 +93,15 @@
       <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
     {/if}
     {#if impacts.length >= 1}
+      <div
+        class="flex flex-row flex-wrap items-baseline justify-between gap-x-6 fr-mt-4w fr-mb-2w fr-pb-1v border-b-2 border-[color:var(--text-title-grey)]"
+      >
+        <h3 class="fr-m-0">Impacts enregistrés</h3>
+        <p class="fr-m-0 fr-text--sm text-[color:var(--text-mention-grey)]">
+          {impacts.length}
+          {impacts.length > 1 ? "lignes valides, groupées" : "ligne valide, groupée"} par type d’impact
+        </p>
+      </div>
       <p class="fr-badge fr-badge--blue-ecume">
         {numberEspecesCNPN}
         {numberEspecesCNPN > 1 ? "espèces" : "espèce"} CNPN

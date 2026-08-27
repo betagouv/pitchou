@@ -10,7 +10,7 @@
 
 {#each especesParTypeImpact as { typeImpact, especes, criteriaAllowed }}
   <section class="fr-mt-4w fr-mb-4w">
-    <h3 class="fr-mb-2w">{typeImpact}</h3>
+    <h4 class="fr-h6 fr-mb-1w">{typeImpact}</h4>
     <table class="fr-table">
       <thead>
         <tr>

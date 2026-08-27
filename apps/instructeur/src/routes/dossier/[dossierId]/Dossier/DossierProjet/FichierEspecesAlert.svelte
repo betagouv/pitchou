@@ -39,10 +39,11 @@
   {@render fichierOriginal()}
 {:then anomaliesFichier}
   {#if anomaliesFichier && anomaliesFichier.length >= 1}
+    {@const hint = anomaliesHint(anomaliesFichier)}
     <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
       <div class="flex flex-row flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <p class="fr-m-0 flex-1 min-w-[22rem]">
-          <strong>{anomaliesTitle(anomaliesFichier)}</strong> - {anomaliesHint(anomaliesFichier)}
+          <strong>{anomaliesTitle(anomaliesFichier)}</strong>{hint ? ` - ${hint}` : ""}
         </p>
         <div class="flex flex-row items-baseline gap-6">
           <button
