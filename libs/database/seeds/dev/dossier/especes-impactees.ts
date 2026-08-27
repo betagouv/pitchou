@@ -6,8 +6,11 @@ import {
   descriptionMenacesEspecesToOdsArrayBuffer,
 } from "@pitchou/common/especesUtils.ts";
 import { storeNewFichier } from "@pitchou/server/database/fichier.ts";
+import { dumpImpactEspeceFromFichier } from "@pitchou/server/database/impact_espece/dumpImpactEspeceFromFichier.ts";
 import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "@pitchou/server/referentielTypeImpactMethodeMoyenDePoursuite.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type EspeceProtegeeRow from "@pitchou/types/database/public/EspeceProtegee.ts";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { DescriptionMenacesEspeces, EspeceProtegee } from "@pitchou/types/especes.d.ts";
 
 import { SEED_ESPECES_IMPACTEES } from "../../fixtures/dossiers.ts";
@@ -99,6 +102,8 @@ export async function seedEspecesImpactees(
       await transaction("dossier")
         .where({ id: dossierId })
         .update({ especes_impactees: fichierId });
+
+      await dumpImpactEspeceFromFichier(dossierId as DossierId, fichierId as FileId, transaction);
     }
   }
 
@@ -143,4 +148,6 @@ async function seedFichierEspecesIncorrect(
   );
 
   await transaction("dossier").where({ id: dossierId }).update({ especes_impactees: fichierId });
+
+  await dumpImpactEspeceFromFichier(dossierId as DossierId, fichierId as FileId, transaction);
 }
