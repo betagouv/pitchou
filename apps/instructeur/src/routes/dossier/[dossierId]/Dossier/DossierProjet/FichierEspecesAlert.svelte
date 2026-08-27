@@ -67,6 +67,16 @@
             </li>
           {/each}
         </ul>
+        <p class="fr-mt-1w fr-mb-0">
+          <a
+            href="/referentiel-type-impact"
+            target="_blank"
+            rel="noopener"
+            title="Référentiel des types d'impact et de leurs critères - nouvelle fenêtre"
+            class="fr-link fr-icon-question-line fr-link--icon-left fr-text--sm"
+            >Quels types d'impact, méthodes et moyens de poursuite sont reconnus&nbsp;?</a
+          >
+        </p>
       {/if}
     </div>
   {:else}
