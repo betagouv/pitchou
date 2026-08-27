@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { anomaliesTitle } from "./anomalies.ts";
+import { anomaliesHint, anomaliesTitle } from "./anomalies.ts";
 
 test("counts the lines when every anomaly points at one", () => {
   expect(anomaliesTitle([{ ligne: 3, message: "a" }])).toBe(
@@ -23,5 +23,30 @@ test("says the whole file is unreadable when no anomaly points at a line", () =>
 test("says the file is partly unreadable when line and file anomalies are mixed", () => {
   expect(anomaliesTitle([{ ligne: 3, message: "a" }, { message: "lecture interrompue" }])).toBe(
     "Le fichier espèces impactées n’a pas pu être lu entièrement",
+  );
+});
+
+test("does not count a ligne whose value alone was ignored: it is displayed with the others", () => {
+  expect(
+    anomaliesTitle([
+      { ligne: 2, message: "espèce inconnue" },
+      { ligne: 3, message: "espèce inconnue" },
+      { ligne: 4, ligneIgnoree: false, message: "critère non applicable" },
+    ]),
+  ).toBe("2 lignes du fichier n’ont pas pu être lues");
+});
+
+test("speaks of valeurs when no ligne was dropped", () => {
+  expect(
+    anomaliesTitle([{ ligne: 4, ligneIgnoree: false, message: "critère non applicable" }]),
+  ).toBe("1 valeur du fichier n’a pas pu être lue");
+});
+
+test("points at the missing lignes only when there are some", () => {
+  expect(anomaliesHint([{ ligne: 3, message: "a" }])).toBe(
+    "non reprises ci-dessous, à corriger dans le fichier puis à redéposer.",
+  );
+  expect(anomaliesHint([{ ligne: 4, ligneIgnoree: false, message: "a" }])).toBe(
+    "à corriger dans le fichier puis à redéposer.",
   );
 });

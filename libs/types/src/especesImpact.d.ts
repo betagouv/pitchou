@@ -110,6 +110,11 @@ export interface AnomalieFichierEspeces {
   classification?: ClassificationEtreVivant;
   /** Row number as the spreadsheet shows it, header included, so the message can point at it. */
   ligne?: number;
+  /**
+   * `false` when the ligne was imported and only one of its values ignored — it is displayed with
+   * the others. Absent means the whole ligne was dropped, which is what most anomalies do.
+   */
+  ligneIgnoree?: boolean;
   /** French, shown as is to the instructrice. */
   message: string;
 }
