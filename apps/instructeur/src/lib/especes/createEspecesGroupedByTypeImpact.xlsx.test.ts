@@ -3,7 +3,7 @@ import { createOdsFile } from "@odfjs/odfjs";
 import * as XLSX from "xlsx";
 
 import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
-import { createEspecesGroupedByImpact } from "./createEspecesGroupedByImpact.ts";
+import { createEspecesGroupedByTypeImpact } from "./createEspecesGroupedByTypeImpact.ts";
 
 import type {
   EspeceProtegee,
@@ -97,7 +97,7 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
       methodes,
       moyensDePoursuite,
     );
-    return createEspecesGroupedByImpact(
+    return createEspecesGroupedByTypeImpact(
       description,
       identifiantPitchouVersActiviteEtImpactsQuantifies,
     );
@@ -107,16 +107,16 @@ describe("créerEspècesGroupéesParImpact with an impacted-espece file uploaded
     const groupes = await grouperDepuis(buildXlsx());
 
     expect(groupes).toHaveLength(1);
-    expect(groupes[0].activité).toBe("Capture pour captivité");
-    expect(groupes[0].impactsQuantifiés).toEqual(["Nombre d'individus"]);
-    expect(groupes[0].espèces).toHaveLength(1);
-    expect(groupes[0].espèces[0]).toMatchObject({
+    expect(groupes[0].typeImpact).toBe("Capture pour captivité");
+    expect(groupes[0].criteriaAllowed).toEqual(["Nombre d'individus"]);
+    expect(groupes[0].especes).toHaveLength(1);
+    expect(groupes[0].especes[0]).toMatchObject({
       // Numeric CD_REF from the .xlsx is normalised back to a string.
       CD_REF: "2437",
       nomVernaculaire: "Fou de Bassan",
       nomScientifique: "Morus bassanus",
-      espèceCNPN: true,
-      espèceMinistérielle: false,
+      especeCNPN: true,
+      especeMinisterielle: false,
     });
   });
 

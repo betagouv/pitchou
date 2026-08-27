@@ -50,7 +50,7 @@ export type FrontEndOtherAttachment = {
   fichier_description?: FrontEndFichier;
 };
 
-export type FrontEndImpactEspece = {
+export type FrontEndImpactOnEspece = {
   espece: {
     CD_REF: string;
     nomVernaculaire: string;
@@ -72,9 +72,9 @@ export type FrontEndImpactEspece = {
   surfaceHabitatDetruit: number | null;
 };
 
-export type FrontEndImpactEspeceWithSourceFile = {
+export type FrontEndImpactOnEspecesWithSourceFile = {
   sourceFile: (Pick<File, "media_type" | "name"> & { url: string }) | undefined;
-  impacts: FrontEndImpactEspece[];
+  impacts: FrontEndImpactOnEspece[];
 };
 
 export type DossierFull = Omit<
@@ -84,7 +84,7 @@ export type DossierFull = Omit<
   DossierCommonData &
   DossierPersonnesImpliqueesFull & {
     projet_map: GeoJSONFeatureCollection | null;
-    especesImpactees: FrontEndImpactEspeceWithSourceFile;
+    especesImpactees: FrontEndImpactOnEspecesWithSourceFile;
     evenementsPhase: EvenementPhaseDossier[];
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExpert: FrontEndAvisExpert[];

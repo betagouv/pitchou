@@ -5,10 +5,10 @@ import {
   type SimplifiedEspeceImpactee,
 } from "./especesByTypeImpact.ts";
 
-import type { FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+import type { FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
 import type { QuantifiedImpact } from "@pitchou/types/especes.d.ts";
 
-const criteriaValue: Map<QuantifiedImpact, (impact: FrontEndImpactEspece) => string> = new Map([
+const criteriaValue: Map<QuantifiedImpact, (impact: FrontEndImpactOnEspece) => string> = new Map([
   ["Nombre d'individus", ({ nombreIndividus }) => nombreIndividus || VALUE_NOT_PROVIDED],
   ["Nids", ({ nids }) => (nids ? `${nids}` : VALUE_NOT_PROVIDED)],
   ["Œufs", ({ oeufs }) => (oeufs ? `${oeufs}` : VALUE_NOT_PROVIDED)],
@@ -19,7 +19,7 @@ const criteriaValue: Map<QuantifiedImpact, (impact: FrontEndImpactEspece) => str
   ],
 ]);
 
-function toSimplifiedEspece(impact: FrontEndImpactEspece): SimplifiedEspeceImpactee {
+function toSimplifiedEspece(impact: FrontEndImpactOnEspece): SimplifiedEspeceImpactee {
   return {
     CD_REF: impact.espece.CD_REF,
     nomScientifique: impact.espece.nomScientifique,
@@ -45,7 +45,7 @@ function toSimplifiedEspece(impact: FrontEndImpactEspece): SimplifiedEspeceImpac
  * The impacts already carry their libellés and the criteria their type d'impact allows — the
  * database resolved them — so this only groups and formats.
  */
-export function groupImpactsByTypeImpact(impacts: FrontEndImpactEspece[]): EspecesByTypeImpact[] {
+export function groupImpactsByTypeImpact(impacts: FrontEndImpactOnEspece[]): EspecesByTypeImpact[] {
   // Grouped on the identifiant rather than on the libellé, which two types d'impact could share.
   const groupes: Map<string | undefined, EspecesByTypeImpact> = new Map();
 

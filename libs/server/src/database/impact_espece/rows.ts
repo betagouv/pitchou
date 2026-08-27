@@ -10,10 +10,16 @@ import type {
 
 const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
 
-function toIntegerOrNull(valeur: number | undefined): number | null {
-  return valeur === undefined || valeur === null || !Number.isFinite(valeur)
-    ? null
-    : Math.round(valeur);
+/**
+ * A hand-edited spreadsheet holds a number as often as it holds the text of one, and the parser
+ * passes the cell through as it found it — so `"4000"` has to reach the column as 4000 rather than
+ * be dropped as unreadable.
+ */
+function toIntegerOrNull(valeur: number | string | undefined): number | null {
+  if (valeur === undefined || valeur === null || valeur === "") return null;
+
+  const nombre = Number(valeur);
+  return Number.isFinite(nombre) ? Math.round(nombre) : null;
 }
 
 export function fromFileToDatabaseImpactEspeceRow(

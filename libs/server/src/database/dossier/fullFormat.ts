@@ -6,7 +6,7 @@ import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type {
   DossierFull,
   FrontEndFichier,
-  FrontEndImpactEspece,
+  FrontEndImpactOnEspece,
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
@@ -42,7 +42,7 @@ export function formatDossierFull(
   attachments: OtherAttachmentWithFileDescription[],
   prescriptions: Prescription[],
   controles: Controle[],
-  impacts: FrontEndImpactEspece[],
+  impacts: FrontEndImpactOnEspece[],
 ): DossierFull {
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";

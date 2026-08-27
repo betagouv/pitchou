@@ -5,29 +5,35 @@ vi.mock(import("$lib/dossier/dossier.ts"), () => ({
 }));
 
 import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
-import { loadEspecesImpactees } from "./loadEspecesImpactees.ts";
+import { anomaliesFichierEspeces } from "./anomaliesFichierEspeces.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 function dossierWithFichier(name: string): DossierFull {
   return {
-    especesImpactees: { name, media_type: null, url: "https://example.org/fichier" },
+    especesImpactees: {
+      sourceFile: { name, media_type: null, url: "https://example.org/fichier" },
+      impacts: [],
+    },
   } as unknown as DossierFull;
 }
 
 test("reports an anomaly instead of rejecting when the file is neither .ods nor .xlsx", async () => {
-  const result = await loadEspecesImpactees(dossierWithFichier("especes-impactees.pdf"));
+  const anomalies = await anomaliesFichierEspeces(dossierWithFichier("especes-impactees.pdf"));
 
-  expect(result?.anomalies).toEqual([
+  expect(anomalies).toEqual([
     {
       message:
         "le fichier « especes-impactees.pdf » n’est ni un .ods ni un .xlsx : il n’a pas pu être lu",
     },
   ]);
-  expect(result?.impactEspece).toEqual({ oiseau: [], "faune non-oiseau": [], flore: [] });
   expect(especesImpacteesFromFichierOdsArrayBuffer).not.toHaveBeenCalled();
 });
 
 test("returns nothing when the dossier has no espèces impactées file", () => {
-  expect(loadEspecesImpactees({} as DossierFull)).toBe(undefined);
+  const dossier = {
+    especesImpactees: { sourceFile: undefined, impacts: [] },
+  } as unknown as DossierFull;
+
+  expect(anomaliesFichierEspeces(dossier)).toBe(undefined);
 });

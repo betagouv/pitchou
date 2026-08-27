@@ -5,7 +5,7 @@ import { CRITERES_QUANTIFIES } from "@pitchou/common/referentielTypeImpactMethod
 import { directDatabaseConnection } from "../../database.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+import type { FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
 import type { QuantifiedImpact } from "@pitchou/types/especesImpact.d.ts";
 
 type CriteriaColumns = { [K in (typeof CRITERES_QUANTIFIES)[number][0]]: boolean | null };
@@ -32,7 +32,7 @@ function criteriaAllowedOf(row: JoinedRow): QuantifiedImpact[] {
   );
 }
 
-function toImpactEspece(row: JoinedRow): FrontEndImpactEspece {
+function toImpactEspece(row: JoinedRow): FrontEndImpactOnEspece {
   return {
     espece: {
       CD_REF: row.cd_ref,
@@ -61,7 +61,7 @@ function toImpactEspece(row: JoinedRow): FrontEndImpactEspece {
 export function getImpactOnEspeces(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<FrontEndImpactEspece[]> {
+): Promise<FrontEndImpactOnEspece[]> {
   return (
     databaseConnection("impact_espece")
       .select([

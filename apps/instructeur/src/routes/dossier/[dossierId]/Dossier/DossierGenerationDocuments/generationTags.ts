@@ -3,7 +3,7 @@ import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayD
 import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
 
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
-import type { DossierFull, FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
 import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
 import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./tagFormatting.ts";
 
@@ -14,7 +14,7 @@ import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./ta
  */
 export function getDocumentGenerationTags(
   dossier: DossierFull,
-  impacts: FrontEndImpactEspece[],
+  impacts: FrontEndImpactOnEspece[],
 ): BalisesGenerationDocument {
   const {
     name: dossierName,

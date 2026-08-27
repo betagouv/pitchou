@@ -6,7 +6,7 @@
   import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
 
-  import type { DossierFull, FrontEndImpactEspece } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
   import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import ProjetInformation from "./DossierProjet/ProjetInformation.svelte";
   import ProjetScientifique from "./DossierProjet/ProjetScientifique.svelte";
@@ -24,7 +24,7 @@
    * and the number of espèces ministérielles
    * in the list of espèces impacted by this project
    */
-  function getNumberEspecesMinisterielleCNPN(impacts: FrontEndImpactEspece[]): {
+  function getNumberEspecesMinisterielleCNPN(impacts: FrontEndImpactOnEspece[]): {
     numberEspecesCNPN: number;
     numberEspecesMinisterielles: number;
   } {
@@ -86,7 +86,6 @@
   function makeCartographieFilename() {
     return `cartographie-${dossier.id}.geojson`;
   }
-
 </script>
 
 <section
@@ -136,7 +135,8 @@
         {numberEspecesMinisterielles}
         {numberEspecesCNPN > 1 ? "espèces" : "espèce"} Ministère
       </p>
-      <EspecesProtegeesGroupedByTypeImpact especesParTypeImpact={groupImpactsByTypeImpact(impacts)}
+      <EspecesProtegeesGroupedByTypeImpact
+        especesParTypeImpact={groupImpactsByTypeImpact(impacts)}
       />
     {:else}
       <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
