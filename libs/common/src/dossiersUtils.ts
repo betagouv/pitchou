@@ -11,7 +11,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     activite_code,
     activite_label,
     enjeu,
-    free_comment,
+    latestCommentaire,
     linked_to_ae_regime,
     onagre_demande_identifier,
     depot_date,
@@ -32,6 +32,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
 
     // Next action
     next_action_expected_from,
+    next_action_expected,
+    next_due_date,
 
     // Avis d'expert (for the presence of the files)
     avisExpert,
@@ -60,7 +62,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     activite_code,
     activite_label,
     enjeu,
-    free_comment,
+    latestCommentaire,
     linked_to_ae_regime,
     onagre_demande_identifier,
     decisionsAdministratives: decisionsAdministratives?.map((decision) => ({
@@ -94,6 +96,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     phase: currentPhase,
     phase_start_date: currentPhaseStartDate,
     next_action_expected_from,
+    next_action_expected,
+    next_due_date,
   };
 
   Object.freeze(dossierSummary);

@@ -4,6 +4,7 @@ import { withResolvedActivite } from "../activite.ts";
 import { getAvisExpertFilesByCap } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { getLatestEvenementsPhaseDossiers } from "./access.ts";
+import { latestCommentaireSubquery } from "../commentaire.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -25,6 +26,8 @@ const columns = [
   "location_scope",
   "primary_department",
   "next_action_expected_from",
+  "next_action_expected",
+  "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
   "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
@@ -32,7 +35,6 @@ const columns = [
   "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
   "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
-  "free_comment",
   "onagre_demande_identifier",
 ] as (keyof DossierSummary)[];
 
@@ -51,6 +53,7 @@ export async function getDossiersSummariesByCap(
         'exists (select 1 from impact_espece where impact_espece."dossier" = dossier.id) as "especesImpacteesRenseignees"',
       ),
     )
+    .select(transaction.raw(latestCommentaireSubquery))
     .join("edge_groupe_instructeurs__dossier", {
       "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
     })

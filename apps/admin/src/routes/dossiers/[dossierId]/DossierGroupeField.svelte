@@ -11,6 +11,10 @@
     groupesLoadError: string | null;
   };
   let { model, groupes, groupesLoadError }: Props = $props();
+
+  const groupeOptions = $derived(
+    groupes.map((groupe) => ({ value: groupe.id, label: groupe.name })),
+  );
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Groupe instructeurs">
@@ -25,9 +29,10 @@
       </label>
       <Select
         id="edit-groupe"
-        required
+        class="fr-mt-1w w-full"
         placeholder="Sélectionner un groupe"
-        options={groupes.map((groupe) => ({ value: groupe.id, label: groupe.name }))}
+        required
+        options={groupeOptions}
         bind:value={model.groupeInstructeurs}
       />
     </div>

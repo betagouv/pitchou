@@ -1,4 +1,5 @@
 import type { AdminDossierExportRow } from "@pitchou/server/database/dossier_admin_list.ts";
+import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 
 const HEADER = [
   "Identifiant Pitchou",
@@ -16,9 +17,12 @@ const HEADER = [
   "Régions",
 ];
 
-const SOURCE_LABELS = {
+const SOURCE_LABELS: Record<DossierSource, string> = {
   pitchou: "Créé dans Pitchou",
   demarche_numerique: "Importé de Démarches Numériques",
+  gunenv: "Importé de GunEnv",
+  onagre: "Importé d'Onagre",
+  import_fichier: "Importé depuis un fichier du service",
   unknown: "Source inconnue",
 };
 

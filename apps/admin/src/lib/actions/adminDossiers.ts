@@ -1,4 +1,5 @@
 import { AccessDeniedError } from "./adminEspeces.ts";
+import { checkResponse } from "./adminResponse.ts";
 import type {
   AdminDossierCreationPayload,
   AdminDossierMinimalCreationPayload,
@@ -10,21 +11,7 @@ import type {
 export { AccessDeniedError };
 export type * from "./adminDossierTypes.ts";
 export { defaultDossiersQuery, loadDossiers, downloadDossiersCSV } from "./adminDossierList.ts";
-
-async function checkResponse(response: Response, action: string): Promise<void> {
-  if (response.ok) return;
-  if (response.status === 403) {
-    throw new AccessDeniedError();
-  }
-  // Surface the server's own message (validation, DN conflict…) when available.
-  let message = "";
-  try {
-    message = (await response.json())?.message ?? "";
-  } catch {
-    // no JSON body
-  }
-  throw new Error(message || `Erreur ${response.status} lors de ${action}.`);
-}
+export { simulateDossierSync, type SimulatedAction } from "./adminDossierSync.ts";
 
 export async function loadDossierDetail(dossierId: number): Promise<AdminDossierDetail> {
   const response = await fetch(`/api/dossiers/${dossierId}`);

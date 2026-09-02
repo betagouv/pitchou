@@ -18,10 +18,11 @@
     min?: string;
     max?: string;
     align?: "left" | "right";
+    disabled?: boolean;
     onChange: (value: string | null) => void;
   };
 
-  let { id, label, value, min, max, align = "left", onChange }: Props = $props();
+  let { id, label, value, min, max, align = "left", disabled = false, onChange }: Props = $props();
 
   let open = $state(false);
   let openAbove = $state(false);
@@ -104,13 +105,16 @@
 
 <div class="relative flex-[1_1_auto] min-w-0" bind:this={root}>
   <div
-    class="fr-select relative min-h-[2.5rem] fr-icon-calendar-line fr-btn--icon-left before:relative before:z-[2] before:pointer-events-none focus-within:[outline:2px_solid_var(--border-active-blue-france)] focus-within:[outline-offset:2px]"
+    class="fr-select relative min-h-[2.5rem] fr-icon-calendar-line fr-btn--icon-left before:relative before:z-[2] before:pointer-events-none focus-within:[outline:2px_solid_var(--border-active-blue-france)] focus-within:[outline-offset:2px] {disabled
+      ? // Matches how DSFR greys out a disabled `.fr-select`.
+        'shadow-[inset_0_-2px_0_0_var(--border-disabled-grey)]'
+      : ''}"
     class:fr-select--error={inputInvalid}
   >
     <input
       {id}
       type="text"
-      class="absolute z-[1] inset-0 w-full h-full fr-pr-6w fr-pl-5w border-0 outline-0 bg-transparent text-inherit [font:inherit]"
+      class="absolute z-[1] inset-0 w-full h-full fr-pr-6w fr-pl-5w border-0 outline-0 bg-transparent text-inherit [font:inherit] disabled:cursor-not-allowed disabled:text-[color:var(--text-disabled-grey)]"
       aria-label={label}
       aria-haspopup="dialog"
       aria-controls="{id}-panel"
@@ -121,8 +125,9 @@
       maxlength="10"
       placeholder="jj/mm/aaaa"
       value={inputValue}
+      {disabled}
       onblur={resetInvalidInput}
-      onclick={() => !open && openPanel()}
+      onclick={() => !open && !disabled && openPanel()}
       oninput={typeDate}
       onkeydown={confirmDate}
     />

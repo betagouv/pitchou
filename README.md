@@ -197,7 +197,7 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [_one-off container_}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --app especes-protegees run --size 2XL 'node outils/sync-demarche-numerique.js --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
+scalingo --region osc-secnum-fr1 --app pitchou run --size 2XL 'corepack pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
 
 ### Lister les liens de connexion en local

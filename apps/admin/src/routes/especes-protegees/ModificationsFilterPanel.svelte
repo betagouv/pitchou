@@ -23,6 +23,31 @@
 
   let { selectedClassification, selectedStatut, selectedEtat, selectedListe, onChange }: Props =
     $props();
+
+  const classificationOptions = [
+    { value: "", label: "Toutes les classifications" },
+    ...CLASSIFICATIONS.map((classification) => ({
+      value: classification,
+      label: classification,
+    })),
+  ];
+
+  const statutOptions = [
+    { value: "", label: "Tous les statuts" },
+    ...STATUTS.map((statut) => ({ value: statut, label: statut })),
+  ];
+
+  const etatOptions: { value: EtatFilter; label: string }[] = [
+    { value: "", label: "Toutes les modifications" },
+    { value: "actives", label: "Non exclues" },
+    { value: "exclues", label: "Exclues" },
+  ];
+
+  const listeOptions: { value: ListeFilter; label: string }[] = [
+    { value: "", label: "Toutes les espèces" },
+    { value: "ministerielle", label: "Espèce ministérielle" },
+    { value: "cnpn", label: "Espèce CNPN" },
+  ];
 </script>
 
 <fieldset
@@ -39,13 +64,7 @@
         id="select-classification"
         class="flex-auto"
         ariaLabel="Classification choisie"
-        options={[
-          { value: "", label: "Toutes les classifications" },
-          ...CLASSIFICATIONS.map((classification) => ({
-            value: classification,
-            label: classification,
-          })),
-        ]}
+        options={classificationOptions}
         value={selectedClassification}
         onChange={(classification) => onChange({ classification })}
       />
@@ -58,10 +77,7 @@
         id="select-statut"
         class="flex-auto"
         ariaLabel="Statut de protection choisi"
-        options={[
-          { value: "", label: "Tous les statuts" },
-          ...STATUTS.map((statut) => ({ value: statut, label: statut })),
-        ]}
+        options={statutOptions}
         value={selectedStatut}
         onChange={(statut) => onChange({ statut })}
       />
@@ -74,13 +90,9 @@
         id="select-etat"
         class="flex-auto"
         ariaLabel="État choisi"
-        options={[
-          { value: "", label: "Toutes les modifications" },
-          { value: "actives", label: "Non exclues" },
-          { value: "exclues", label: "Exclues" },
-        ]}
+        options={etatOptions}
         value={selectedEtat}
-        onChange={(etat) => onChange({ etat: etat as EtatFilter })}
+        onChange={(etat) => onChange({ etat })}
       />
     </div>
     <div
@@ -91,13 +103,9 @@
         id="select-liste"
         class="flex-auto"
         ariaLabel="Liste d'espèces choisie"
-        options={[
-          { value: "", label: "Toutes les espèces" },
-          { value: "ministerielle", label: "Espèce ministérielle" },
-          { value: "cnpn", label: "Espèce CNPN" },
-        ]}
+        options={listeOptions}
         value={selectedListe}
-        onChange={(liste) => onChange({ liste: liste as ListeFilter })}
+        onChange={(liste) => onChange({ liste })}
       />
     </div>
   </div>

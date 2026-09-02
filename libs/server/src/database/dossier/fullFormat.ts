@@ -11,6 +11,16 @@ import type {
 } from "@pitchou/types/API_Pitchou.ts";
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
 import type { AvisWithFiles, DecisionWithFile } from "./fullQueries.ts";
+import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+
+/**
+ * The download routes authorize on the cap, so every file URL handed to the
+ * browser carries the cap the dossier was fetched with — the same way the
+ * capability URLs do.
+ */
+function fichierUrl(route: string, id: File["id"], cap: CapDossier["cap"]): string {
+  return `${route}/${id}?cap=${encodeURIComponent(cap)}`;
+}
 
 function describeFichier(
   id: File["id"] | null | undefined,
@@ -18,9 +28,15 @@ function describeFichier(
   media_type: File["media_type"],
   size: number | null,
   route: string,
+  cap: CapDossier["cap"],
 ): FrontEndFichier | undefined {
   return id
-    ? { url: `${route}/${id}`, name: name as string, media_type: media_type as string, size }
+    ? {
+        url: fichierUrl(route, id, cap),
+        name: name as string,
+        media_type: media_type as string,
+        size,
+      }
     : undefined;
 }
 
@@ -43,6 +59,7 @@ export function formatDossierFull(
   prescriptions: Prescription[],
   controles: Controle[],
   impacts: FrontEndImpactOnEspece[],
+  cap: CapDossier["cap"],
 ): DossierFull {
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
@@ -66,6 +83,7 @@ export function formatDossierFull(
         avis_fichier_media_type,
         avis_file_size,
         "/avis-expert/fichier",
+        cap,
       );
       const saisineFile = describeFichier(
         saisine_fichier,
@@ -73,6 +91,7 @@ export function formatDossierFull(
         saisine_fichier_media_type,
         saisine_file_size,
         "/avis-expert/fichier",
+        cap,
       );
       return {
         ...avis,
@@ -84,7 +103,7 @@ export function formatDossierFull(
     },
   );
   dossier.piecesJointesPetitionnaires = pieces.map(({ id, ...piece }) => ({
-    url: `/piece-jointe-petitionnaire/fichier/${id}`,
+    url: fichierUrl("/piece-jointe-petitionnaire/fichier", id, cap),
     ...piece,
   }));
   dossier.especesImpactees = {
@@ -93,7 +112,7 @@ export function formatDossierFull(
       dossier.especes_impactees_media_type &&
       dossier.especes_impactees_name
         ? {
-            url: `/especes-impactees/${dossier.especes_impactees_id}`,
+            url: fichierUrl("/especes-impactees", dossier.especes_impactees_id, cap),
             media_type: dossier.especes_impactees_media_type,
             name: dossier.especes_impactees_name,
           }
@@ -137,6 +156,7 @@ export function formatDossierFull(
           file_media_type,
           file_size,
           "/decision-administrative/fichier",
+          cap,
         );
         return {
           id,
@@ -160,6 +180,7 @@ export function formatDossierFull(
         file_media_type,
         file_size,
         "/attachment-autre/fichier",
+        cap,
       );
       return { ...attachment, fichier, fichier_url: file?.url, fichier_description: file };
     },

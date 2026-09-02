@@ -6,6 +6,7 @@
   } from "@pitchou/types/demarche-numerique/schema.ts";
   import { createGETPrefillingLinkDemarche } from "@pitchou/common/preremplissageDemarcheNumerique.ts";
   import CopyButton from "./CopyButton.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
 
   function labelToId(label: string): string {
     return label.replace(/[^a-zA-Z0-9]+/g, "-");
@@ -27,6 +28,18 @@
       return newPartialDossier[field] !== "";
     }),
   );
+
+  /** A field either lists its own options, or is a plain yes/no question. */
+  function fieldOptions(field: Dossier88444ChampDescriptor) {
+    const options: { value: string | boolean; label: string }[] = field["options"]
+      ? field["options"].map((option) => ({ value: option, label: option }))
+      : [
+          { value: true, label: "Oui" },
+          { value: false, label: "Non" },
+        ];
+
+    return [{ value: "", label: "—" }, ...options];
+  }
 
   let onSelectChanged = () => {
     prefillingLink = createGETPrefillingLinkDemarche(newPartialDossier, schemaDS88444);
@@ -110,21 +123,13 @@
                   {field["label"]}
                 </label>
 
-                <select
-                  bind:value={newPartialDossier[field["label"]]}
+                <Select
                   id={labelToId(field["label"])}
-                  class="fr-select"
-                >
-                  <option value="" selected></option>
-                  {#if field["options"]}
-                    {#each field["options"] as option}
-                      <option value={option}>{option}</option>
-                    {/each}
-                  {:else}
-                    <option value={true}>Oui</option>
-                    <option value={false}>Non</option>
-                  {/if}
-                </select>
+                  class="fr-mt-1w"
+                  options={fieldOptions(field)}
+                  bind:value={newPartialDossier[field["label"]]}
+                  onChange={onSelectChanged}
+                />
               </div>
             </div>
           {/each}

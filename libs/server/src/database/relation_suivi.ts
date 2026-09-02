@@ -44,7 +44,7 @@ export async function updateDossierFollowersFromCap(
   dossierId: Dossier["id"],
   personneEmails: NonNullable<Personne["email"]>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<boolean> {
+): Promise<{ added: string[]; removed: string[] } | false> {
   const members = await getAccessibleDossierGroupeMembers(cap, dossierId, databaseConnection, true);
   if (!members) return false;
 
@@ -57,10 +57,25 @@ export async function updateDossierFollowersFromCap(
   const selectedPersonneIdSet = new Set(selectedPersonneIds);
   const removedPersonneIds = memberIds.filter((id) => !selectedPersonneIdSet.has(id));
 
+  // Actual state change, so the caller can log what happened in the historique.
+  const currentFollowerIds = new Set<Personne["id"]>(
+    await databaseConnection("edge_personne_follows_dossier")
+      .select("personne")
+      .where({ dossier: dossierId })
+      .whereIn("personne", memberIds)
+      .then((rows) => rows.map(({ personne }) => personne)),
+  );
+  const added = [...requestedEmails].filter(
+    (email) => !currentFollowerIds.has(memberByEmail.get(email)!.id),
+  );
+  const removed = members
+    .filter(({ id }) => currentFollowerIds.has(id) && !selectedPersonneIdSet.has(id))
+    .map(({ email }) => email);
+
   await unfollowDossierForPersonnes(removedPersonneIds, dossierId, databaseConnection);
   await followDossierForPersonnes(selectedPersonneIds, dossierId, databaseConnection);
 
-  return true;
+  return { added, removed };
 }
 
 export function findRelationPersonneFromCap(
@@ -87,6 +102,18 @@ export function findRelationPersonneFromCap(
       "personne.email": personneEmail,
       "edge_groupe_instructeurs__dossier.dossier": dossierId,
     });
+}
+
+export async function personneFollowsDossier(
+  personneId: Personne["id"],
+  dossierId: Dossier["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<boolean> {
+  const relation = await databaseConnection("edge_personne_follows_dossier")
+    .select("personne")
+    .where({ personne: personneId, dossier: dossierId })
+    .first();
+  return relation !== undefined;
 }
 
 export async function instructeurFollowsDossier(

@@ -5,14 +5,17 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
+  import type { SortKey } from "./query.ts";
 
   type Props = {
     dossiers: DossierSummary[];
+    sortKey: SortKey;
     requestedPage: number;
     searchText: string;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
     notificationViewed: (id: Dossier["id"]) => boolean;
+    notificationUpdatedAt: (id: Dossier["id"]) => Date | string | null;
     follow: (id: Dossier["id"]) => Promise<void>;
     leave: (id: Dossier["id"]) => Promise<void>;
     navigatePage: (page: number) => void;
@@ -20,11 +23,13 @@
   };
   let {
     dossiers,
+    sortKey,
     requestedPage,
     searchText,
     wholeListEmpty,
     followedIds,
     notificationViewed,
+    notificationUpdatedAt,
     follow,
     leave,
     navigatePage,
@@ -56,9 +61,11 @@
 </h2>
 <DossiersResults
   dossiers={displayed}
+  {sortKey}
   {wholeListEmpty}
   {followedIds}
   {notificationViewed}
+  {notificationUpdatedAt}
   {follow}
   {leave}
   {emptyListMessage}

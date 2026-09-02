@@ -38,11 +38,28 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.updateDossierFollowers) {
     ret.updateDossierFollowers = `/dossier/:dossierId/followers?cap=${capBundle.updateDossierFollowers}`;
   }
+  // Both endpoints refuse a dossier the cap does not instruct, so the same cap
+  // is handed out to everyone: only the instructing service can share.
+  if (capBundle.listDossierPartageCandidates) {
+    ret.listDossierPartageCandidates = `/dossier/:dossierId/partages?cap=${capBundle.listDossierPartageCandidates}`;
+  }
+  if (capBundle.updateDossierPartages) {
+    ret.updateDossierPartages = `/dossier/:dossierId/partages?cap=${capBundle.updateDossierPartages}`;
+  }
   if (capBundle.listerEvenementsPhaseDossier) {
     ret.listerEvenementsPhaseDossier = `/dossiers/evenements-phases?cap=${capBundle.listerEvenementsPhaseDossier}`;
   }
-  if (capBundle.listerMessages) {
-    ret.listerMessages = `/dossier/:dossierId/messages?cap=${capBundle.listerMessages}`;
+  if (capBundle.listerActionsDossier) {
+    ret.listerActionsDossier = `/dossier/:dossierId/historique?cap=${capBundle.listerActionsDossier}`;
+  }
+  if (capBundle.listerCommentaires) {
+    ret.listerCommentaires = `/dossier/:dossierId/commentaires?cap=${capBundle.listerCommentaires}`;
+  }
+  if (capBundle.ajouterCommentaire) {
+    ret.ajouterCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.ajouterCommentaire}`;
+  }
+  if (capBundle.modifierCommentaire) {
+    ret.modifierCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.modifierCommentaire}`;
   }
   if (capBundle.modifierDossier) {
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`;

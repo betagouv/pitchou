@@ -37,42 +37,37 @@ describe("compareDossiers", () => {
       makeDossier({ id: dossierId(3) }),
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: true, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-10") }],
+      [dossierId(1), { viewed: true, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-10"), viewed_at: null }],
       // 3 has no notification → unknown date
     ]);
     expect(sortIds(dossiers, "lastModified", "desc", notificationByDossier)).toEqual([2, 1, 3]);
     expect(sortIds(dossiers, "lastModified", "asc", notificationByDossier)).toEqual([1, 2, 3]);
   });
 
-  test("« nouveaute » puts unseen notifications first, most recent first", () => {
+  test("sorts by next échéance, placing dossiers without one last in both directions", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), depot_date: new Date("2024-01-01") }),
-      makeDossier({ id: dossierId(2), depot_date: new Date("2024-01-02") }),
-      makeDossier({ id: dossierId(3), depot_date: new Date("2024-01-03") }),
+      makeDossier({ id: dossierId(1), next_due_date: new Date("2026-09-01") }),
+      makeDossier({ id: dossierId(2), next_due_date: new Date("2026-08-10") }),
+      // 3 has no échéance
+      makeDossier({ id: dossierId(3) }),
     ];
-    const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: false, updated_at: new Date("2024-05-03") }],
-      [dossierId(3), { viewed: true, updated_at: new Date("2024-05-02") }],
-    ]);
-    // Unseen (2 then 1, by update date) come before the seen dossier 3.
-    expect(sortIds(dossiers, "nouveaute", "desc", notificationByDossier)).toEqual([2, 1, 3]);
+    expect(sortIds(dossiers, "nextDueDate", "desc")).toEqual([1, 2, 3]);
+    expect(sortIds(dossiers, "nextDueDate", "asc")).toEqual([2, 1, 3]);
   });
 
-  test("pins dossiers with an unseen nouveauté on top of any sort", () => {
+  test("an unseen nouveauté no longer changes the order", () => {
     const dossiers = [
       makeDossier({ id: dossierId(1), depot_date: new Date("2024-01-01") }),
       makeDossier({ id: dossierId(2), depot_date: new Date("2024-01-02") }),
       makeDossier({ id: dossierId(3), depot_date: new Date("2024-01-03") }),
     ];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      // Only the oldest dossier has an unseen nouveauté.
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
-      [dossierId(3), { viewed: true, updated_at: new Date("2024-05-03") }],
+      // Only the oldest dossier has an unseen nouveauté; it stays where its date puts it.
+      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01"), viewed_at: null }],
+      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02"), viewed_at: null }],
+      [dossierId(3), { viewed: true, updated_at: new Date("2024-05-03"), viewed_at: null }],
     ]);
-    // Dossier 1 floats to the top; the seen dossiers keep the deposit-date order.
-    expect(sortIds(dossiers, "depositDate", "desc", notificationByDossier)).toEqual([1, 3, 2]);
+    expect(sortIds(dossiers, "depositDate", "desc", notificationByDossier)).toEqual([3, 2, 1]);
   });
 });

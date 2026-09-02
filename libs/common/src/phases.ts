@@ -1,4 +1,8 @@
-import type { DossierPhase, DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
+import type {
+  DossierPhase,
+  DossierNextActionExpected,
+  DossierNextActionExpectedFrom,
+} from "@pitchou/types/API_Pitchou.ts";
 
 export const phases: Set<DossierPhase> = new Set([
   "Accompagnement amont",
@@ -36,6 +40,24 @@ export const prochaineActionAttenduePar: Set<DossierNextActionExpectedFrom> = ne
   "Pétitionnaire",
   "Consultation du public",
   "Autre administration",
+  "Préfet·e",
   "Autre",
   "Personne",
 ]);
+
+/**
+ * The next expected actions available for each entity in charge of the next action.
+ * Entities absent from this map have no suggested action.
+ */
+export const prochainesActionsAttenduesParEntite: ReadonlyMap<
+  DossierNextActionExpectedFrom,
+  DossierNextActionExpected[]
+> = new Map([
+  ["Pétitionnaire", ["Compléter le dossier"]],
+  ["Instructeur", ["Envoyer la saisine", "Consulter le dossier"]],
+  ["Préfet·e", ["Signer l'arrêté"]],
+]);
+
+export const prochainesActionsAttendues: Set<DossierNextActionExpected> = new Set(
+  [...prochainesActionsAttenduesParEntite.values()].flat(),
+);

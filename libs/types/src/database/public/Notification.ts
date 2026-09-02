@@ -20,6 +20,9 @@ export default interface Notification {
   personne: PersonneId;
 
   dossier: DossierId;
+
+  /** Last time the instructeur read the dossier; pétitionnaire actions newer than this drive the « Nouvelles modifications » badges */
+  viewed_at: Date | null;
 }
 
 /** Represents the initializer for the table public.notification */
@@ -42,6 +45,9 @@ export interface NotificationInitializer {
   personne: PersonneId;
 
   dossier: DossierId;
+
+  /** Last time the instructeur read the dossier; pétitionnaire actions newer than this drive the « Nouvelles modifications » badges */
+  viewed_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.notification */
@@ -57,4 +63,7 @@ export interface NotificationMutator {
   personne?: PersonneId;
 
   dossier?: DossierId;
+
+  /** Last time the instructeur read the dossier; pétitionnaire actions newer than this drive the « Nouvelles modifications » badges */
+  viewed_at?: Date | null;
 }

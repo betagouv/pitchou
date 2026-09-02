@@ -2,6 +2,7 @@ import type { Knex } from "knex";
 
 import findCandidateFichiersToDownload from "@pitchou/common/findCandidateFichiersToDownload.ts";
 import { directDatabaseConnection } from "../database.ts";
+import { logActionsDossier } from "./action_dossier.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
@@ -19,7 +20,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
   fieldsWithPiecesJointes: FormField[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<any> {
+): Promise<Set<DossierId>> {
   let fichierDescriptions: Map<DossierDS88444["number"], DSFile[]>[] = [];
 
   for (const field of fieldsWithPiecesJointes) {
@@ -85,15 +86,60 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     .flat();
 
   let newFichiersSynchronized: Promise<any> = Promise.resolve();
+  const dossiersWithNewPiecesJointes = new Set<DossierId>();
 
   if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
+    // The insert ignores conflicts, so the historique must only log the edges
+    // that do not exist yet — every sync run re-submits the same candidates.
+    const existingEdges: { dossier: DossierId; fichier: FileId }[] = await databaseConnection(
+      "edge_dossier__fichier_pieces_jointes_petitionnaire",
+    )
+      .select(["dossier", "fichier"])
+      .whereIn(
+        ["dossier", "fichier"],
+        edgesFichierDossierPiecesJointePetitionnaires.map(({ dossier, fichier }) => [
+          dossier,
+          fichier,
+        ]),
+      );
+    const existingKeys = new Set(
+      existingEdges.map(({ dossier, fichier }) => `${dossier}:${fichier}`),
+    );
+    const newEdges = edgesFichierDossierPiecesJointePetitionnaires.filter(
+      ({ dossier, fichier }) => !existingKeys.has(`${dossier}:${fichier}`),
+    );
+
     newFichiersSynchronized = databaseConnection(
       "edge_dossier__fichier_pieces_jointes_petitionnaire",
     )
       .insert(edgesFichierDossierPiecesJointePetitionnaires)
       .onConflict(["dossier", "fichier"])
       .ignore();
+
+    if (newEdges.length >= 1) {
+      const fileNames = new Map<FileId, string | null>(
+        (
+          await databaseConnection("file")
+            .select(["id", "name"])
+            .whereIn(
+              "id",
+              newEdges.map(({ fichier }) => fichier),
+            )
+        ).map(({ id, name }: { id: FileId; name: string | null }) => [id, name]),
+      );
+      await logActionsDossier(
+        newEdges.map(({ dossier, fichier }) => ({
+          dossier,
+          type: "piece_jointe_importee",
+          data: { name: fileNames.get(fichier) ?? null },
+          author_petitionnaire: true,
+        })),
+        databaseConnection,
+      );
+      for (const { dossier } of newEdges) dossiersWithNewPiecesJointes.add(dossier);
+    }
   }
 
-  return Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
+  await Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
+  return dossiersWithNewPiecesJointes;
 }
