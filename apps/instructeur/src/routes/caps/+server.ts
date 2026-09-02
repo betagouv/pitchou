@@ -47,6 +47,9 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.modifierDossier) {
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`;
   }
+  if (capBundle.envoyerEmailCnpn) {
+    ret.envoyerEmailCnpn = `/dossier/:dossierId/cnpn-email?cap=${capBundle.envoyerEmailCnpn}`;
+  }
   if (capBundle.remplirAnnotations) {
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`;
   }

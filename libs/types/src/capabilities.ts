@@ -14,6 +14,7 @@ import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
+import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
@@ -41,6 +42,10 @@ export interface PitchouInstructeurCapabilities {
   listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
+  envoyerEmailCnpn: (
+    dossierId: Dossier["id"],
+    email: SendCnpnEmailRequest,
+  ) => Promise<DossierCnpnEmailSentEvent>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (
     decisionAdministrative: DecisionAdministrativeForTransfer,
