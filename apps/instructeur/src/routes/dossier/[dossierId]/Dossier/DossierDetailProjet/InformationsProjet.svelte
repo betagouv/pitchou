@@ -41,7 +41,7 @@
 </p>
 <p>
   <strong>Activité&nbsp;:</strong>
-  {dossier.main_activite ?? "Non renseignée"}{@render modifie("Activité principale")}
+  {dossier.activite_label ?? "Non renseignée"}{@render modifie("Activité principale")}
 </p>
 {#if dossier.urgent_contact_phone}<p>
     <strong>Téléphone en cas de demande urgente&nbsp;:</strong>

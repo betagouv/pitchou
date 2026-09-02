@@ -8,19 +8,18 @@ import {
 
 describe("dossier creation model", () => {
   it("applies the DN rules for displaying the request context", () => {
-    expect(showsRequestContext("Carrières")).toBe(true);
-    expect(showsRequestContext("Demande à caractère scientifique")).toBe(false);
-    expect(showsRequestContext("Desaîrage")).toBe(false);
-    expect(showsRequestContext("Pédagogique enseignement")).toBe(false);
-    expect(showsRequestContext("Production énergie renouvelable - Éolien -  Suivi mortalité")).toBe(
-      false,
-    );
+    expect(showsRequestContext("carrieres")).toBe(true);
+    expect(showsRequestContext("demande-scientifique")).toBe(false);
+    expect(showsRequestContext("desairage")).toBe(false);
+    expect(showsRequestContext("pedagogique-enseignement")).toBe(false);
+    expect(showsRequestContext("energie-eolien-suivi-mortalite")).toBe(false);
   });
   it("builds a physical demandeur and maps the no-derogation context", () => {
     const model = createDossierCreationModel();
     Object.assign(model, {
       name: "Projet test",
       mainActivite: "Carrières",
+      activiteCode: "carrieres",
       requestContext: dossierRequestContextOptions[1],
       urgentContactPhone: "06 12 34 56 78",
       demandeurType: "personne_physique",
@@ -55,6 +54,7 @@ describe("dossier creation model", () => {
       name: "Travaux sur bâtiment",
       mainActivite:
         "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+      activiteCode: "restauration-batiments",
       activiteDetail: "Destruction de nids d'Hirondelles",
       requestContext: dossierRequestContextOptions[2],
       urgentContactPhone: "0612345678",

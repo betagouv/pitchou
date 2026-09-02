@@ -60,7 +60,7 @@ export function filterDossiers(
   }
   if (query.activite.length) {
     result = result.filter(
-      (dossier) => dossier.main_activite !== null && query.activite.includes(dossier.main_activite),
+      (dossier) => dossier.activite_code !== null && query.activite.includes(dossier.activite_code),
     );
   }
   if (query.actionInstructeur) {

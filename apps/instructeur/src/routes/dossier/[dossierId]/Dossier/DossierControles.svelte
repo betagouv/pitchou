@@ -47,7 +47,7 @@
       "fr-icon-add-line",
       decisionsAdministratives.length >= 1 ||
       phase === "Accompagnement amont" ||
-      phase === "Étude recevabilité DDEP"
+      phase === "Étude recevabilité"
         ? "fr-btn--secondary"
         : undefined,
     ]),

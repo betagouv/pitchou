@@ -1,3 +1,4 @@
+import { EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 import {
   requiresScientificDemandeType,
   scientifiqueDemandeTypeOptions,
@@ -12,7 +13,7 @@ import { makeDossierEolienColumns88444 } from "./eolienColumns.ts";
 export function makeDossierScientificColumns88444(
   champById: Dossier88444ChampById,
   keyToChamp: Dossier88444KeyMap,
-  mainActivite: string | undefined,
+  activiteCode: string | null,
   motifDerogation: string | undefined,
 ) {
   const values = (label: Parameters<Dossier88444KeyMap["get"]>[0]) =>
@@ -23,8 +24,7 @@ export function makeDossierScientificColumns88444(
     champById.get(keyToChamp.get(label))?.checked;
   const demandeTypes = values("Recherche scientifique - Votre demande concerne :");
   const requiresScientific = requiresScientificDemandeType(motifDerogation);
-  const windMortality =
-    mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  const windMortality = activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
   const showsOperationDetails = requiresScientific || windMortality;
   const showsCaptureDetails =
     requiresScientific &&
@@ -69,7 +69,7 @@ export function makeDossierScientificColumns88444(
         "En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ?",
       ) ?? null,
     scientifique_mortality_measures_details: stringValue("Précisez ces mesures :") || null,
-    ...makeDossierEolienColumns88444(champById, keyToChamp, mainActivite, showsOperationDetails),
+    ...makeDossierEolienColumns88444(champById, keyToChamp, activiteCode, showsOperationDetails),
     scientifique_capture_mode: showsCaptureDetails ? JSON.stringify([...captureModes]) : null,
     scientifique_light_source_conditions: showsCaptureDetails
       ? (lightSourceConditions ?? null)

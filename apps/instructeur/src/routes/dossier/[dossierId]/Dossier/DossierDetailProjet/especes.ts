@@ -1,4 +1,4 @@
-import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
+import type { FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
 
 type EspecesCounts = {
   total: number;
@@ -6,20 +6,14 @@ type EspecesCounts = {
   ministerielles: number;
 };
 
-export function especesCounts(description: DescriptionMenacesEspeces): EspecesCounts {
-  const allEspecesImpactees = [
-    ...(description["faune non-oiseau"] ?? []),
-    ...(description["flore"] ?? []),
-    ...(description["oiseau"] ?? []),
-  ];
-
-  return allEspecesImpactees.reduce(
-    (acc, { espèce: espece }) => {
-      if (espece.espèceCNPN) acc.cnpn += 1;
-      if (espece.espèceMinistérielle) acc.ministerielles += 1;
+export function especesCounts(impacts: FrontEndImpactOnEspece[]): EspecesCounts {
+  return impacts.reduce(
+    (acc, { espece }) => {
+      if (espece.especeCNPN) acc.cnpn += 1;
+      if (espece.especeMinisterielle) acc.ministerielles += 1;
       return acc;
     },
-    { total: allEspecesImpactees.length, cnpn: 0, ministerielles: 0 },
+    { total: impacts.length, cnpn: 0, ministerielles: 0 },
   );
 }
 

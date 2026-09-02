@@ -16,10 +16,11 @@
     type SortOrder,
   } from "./utilisateursList.ts";
   import { downloadEvenementsCSV } from "$lib/actions/admin.ts";
+  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
   import UtilisateursListControls from "./UtilisateursListControls.svelte";
-  import UtilisateursTable from "./UtilisateursTable.svelte";
+  import UtilisateurCards from "./UtilisateurCards.svelte";
   import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
-  import LevelsAARRIModal from "./LevelsAARRIModal.svelte";
+  import LevelsAARRIDetails from "./LevelsAARRIDetails.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -28,8 +29,6 @@
   let { utilisateurs }: Props = $props();
 
   const UTILISATEURS_PER_PAGE = 20;
-
-  const levelsModalId = "modale-niveaux-aarri";
 
   // The URL query string is the single source of truth for search, filter, sort and page.
   const query = $derived(parseUtilisateursQuery(page.url.searchParams));
@@ -131,17 +130,12 @@
   }
 </script>
 
-<div class="flex flex-col fr-mt-2w gap-4">
-  <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-    <h1 class="fr-mb-0">Utilisateurices et niveau AARRI</h1>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-information-line fr-btn--icon-left"
-      aria-controls={levelsModalId}
-      data-fr-opened="false"
-    >
-      Comment les niveaux sont calculés&nbsp;?
-    </button>
+<div class="flex flex-col gap-2">
+  <CollapsibleNotice title="Comment les niveaux AARRI sont calculés ?">
+    <LevelsAARRIDetails />
+  </CollapsibleNotice>
+
+  <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
     <button
       type="button"
       class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
@@ -174,7 +168,7 @@
     onSort={onSortChange}
   />
 
-  <div class="flex flex-row justify-between items-baseline gap-4">
+  <div class="flex flex-row justify-between items-baseline gap-2">
     <p class="fr-mb-0" data-testid="compteur-utilisateurs" aria-live="polite">
       <span class="fr-text--lead">{filteredUtilisateurs.length}</span><span class="fr-text--lg"
         >/{utilisateurs.length} utilisateurices</span
@@ -190,10 +184,10 @@
   </div>
 </div>
 
-<UtilisateursTable utilisateurs={displayedUtilisateurs} />
+<UtilisateurCards utilisateurs={displayedUtilisateurs} />
 
 {#if pageSelectors}
-  <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
+  <div class="mt-2">
+    <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
+  </div>
 {/if}
-
-<LevelsAARRIModal id={levelsModalId} />

@@ -54,8 +54,11 @@ async function chooseTemplates(container: HTMLElement, templates: File[]) {
 
 test("génère un document téléchargeable pour chaque modèle sélectionné", async () => {
   const { container } = render(DossierGenerationDocuments, {
-    dossier: { id: "dossier-1", name: "Dossier CNPN" } as unknown as DossierFull,
-    especesImpactees: undefined,
+    dossier: {
+      id: "dossier-1",
+      name: "Dossier CNPN",
+      especesImpactees: { sourceFile: undefined, impacts: [] },
+    } as unknown as DossierFull,
   });
   const templates = [
     new File(["mail"], "mail-saisine-cnpn.odt", {
@@ -89,8 +92,11 @@ test("génère un document téléchargeable pour chaque modèle sélectionné", 
 
 test("affiche les modèles sélectionnés et permet d'en retirer un", async () => {
   const { container } = render(DossierGenerationDocuments, {
-    dossier: { id: "dossier-1", name: "Dossier CNPN" } as unknown as DossierFull,
-    especesImpactees: undefined,
+    dossier: {
+      id: "dossier-1",
+      name: "Dossier CNPN",
+      especesImpactees: { sourceFile: undefined, impacts: [] },
+    } as unknown as DossierFull,
   });
   const templates = [
     new File(["mail"], "mail-saisine-cnpn.odt", {

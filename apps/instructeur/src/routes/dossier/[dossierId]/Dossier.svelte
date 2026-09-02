@@ -14,11 +14,11 @@
   import DossierTabList from "./Dossier/DossierTabList.svelte";
   import ReadOnlyBanner from "./Dossier/ReadOnlyBanner.svelte";
   import type { DossierTab } from "./Dossier/dossierTabs.ts";
-  import { loadEspecesImpactees } from "./Dossier/loadEspecesImpactees.ts";
   import { provideReadOnly } from "./Dossier/readOnly.ts";
+  import { anomaliesFichierEspeces } from "./Dossier/anomaliesFichierEspeces.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
+  import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
@@ -90,8 +90,8 @@
     }
   });
 
-  let especesImpactees: Promise<ResultatImportFichierEspeces> | undefined = $derived(
-    loadEspecesImpactees(dossier),
+  let anomalies: Promise<AnomalieFichierEspeces[]> | undefined = $derived(
+    anomaliesFichierEspeces(dossier),
   );
 </script>
 
@@ -129,7 +129,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierDetailProjet {dossier} {especesImpactees} {notification}></DossierDetailProjet>
+        <DossierDetailProjet {dossier} {anomalies} {notification}></DossierDetailProjet>
       </div>
       <div
         id="tabpanel-instruction-panel"
@@ -196,7 +196,7 @@
           role="tabpanel"
           tabindex="0"
         >
-          <DossierGenerationDocuments {dossier} {especesImpactees}></DossierGenerationDocuments>
+          <DossierGenerationDocuments {dossier}></DossierGenerationDocuments>
         </div>
       {/if}
     </div>

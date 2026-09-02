@@ -8,7 +8,12 @@ import type { PitchouState } from "$lib/state/store.svelte.ts";
 /** Sentinel value for the « sans instructeur·ice » option of the instructeur filter */
 export const WITHOUT_INSTRUCTEUR = "sans-instructeur";
 
-export type ActivitePrincipale = NonNullable<DossierSummary["main_activite"]>;
+/**
+ * Code of a Pitchou activity (`activite` referentiel), as carried by
+ * `DossierSummary.activite_code`. The « activité » filter works on codes so that dossiers whose
+ * raw DN label was renamed over time stay grouped under one activity.
+ */
+export type ActiviteCode = NonNullable<DossierSummary["activite_code"]>;
 
 /** Dossier date the « dates » filter applies to */
 export type DateField = "deposit" | "phaseStart" | "lastModified" | "nextDue";
@@ -69,7 +74,7 @@ export type DossiersContext = {
 export type DossiersQuery = {
   text: string;
   phase: DossierPhase[];
-  activite: ActivitePrincipale[];
+  activite: ActiviteCode[];
   prochaineAction: DossierNextActionExpectedFrom[];
   departement: string[];
   instructeur: string[];
@@ -154,7 +159,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
   return {
     text: params.get("q") ?? "",
     phase: params.getAll("phase") as DossierPhase[],
-    activite: params.getAll("activite") as ActivitePrincipale[],
+    activite: params.getAll("activite"),
     prochaineAction: params.getAll("action") as DossierNextActionExpectedFrom[],
     departement: params.getAll("departement"),
     instructeur: params.getAll("instructeur"),

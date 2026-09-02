@@ -1,22 +1,24 @@
 <script lang="ts">
-  import DownloadButton from "$lib/components/DownloadButton.svelte";
-  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
-  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
-  import Loader from "@pitchou/ui/Loader.svelte";
+  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
+  import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
+  import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
+  import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
+    anomalies: Promise<AnomalieFichierEspeces[]> | undefined;
   };
 
-  let { dossier, especesImpactees }: Props = $props();
+  let { dossier, anomalies }: Props = $props();
+
+  const impacts = $derived(dossier.especesImpactees.impacts);
+  const sourceFile = $derived(dossier.especesImpactees.sourceFile);
 
   async function makeFileContentBlob() {
-    const especes = dossier.especesImpactees;
+    const especes = dossier.especesImpactees.sourceFile;
     if (!especes) {
       throw new Error("Aucun fichier espèces impactées à télécharger");
     }
@@ -31,54 +33,15 @@
   }
 
   function makeFilename() {
-    return dossier.especesImpactees?.name || "fichier";
+    return dossier.especesImpactees.sourceFile?.name || "fichier";
   }
-
-  const referentielsPromise = loadActivitesMethodesMoyensDePoursuite();
 </script>
 
-{#if dossier.especesImpactees && especesImpactees}
-  <div class="fr-mb-2w flex justify-end">
-    <!-- In Svelte, a child component does not have access to the style classes defined in the parent component in which it is called. So we use an inline style. -->
-    <DownloadButton
-      {makeFileContentBlob}
-      {makeFilename}
-      style="width: 15rem;"
-      classname="fr-btn fr-btn--secondary"
-      label="Télécharger le fichier original"
-    />
-  </div>
-  {#await Promise.all([especesImpactees, referentielsPromise])}
-    <Loader></Loader>
-  {:then [{ impactEspece, anomalies }, { identifiantPitchouVersActivitéEtImpactsQuantifiés: identifiantPitchouVersActiviteEtImpactsQuantifies }]}
-    {#if anomalies.length >= 1}
-      <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
-        <h3 class="fr-alert__title">
-          {anomalies.length}
-          {anomalies.length > 1 ? "lignes du fichier n’ont" : "ligne du fichier n’a"} pas pu être lue{anomalies.length >
-          1
-            ? "s"
-            : ""}
-        </h3>
-        <ul>
-          {#each anomalies as anomalie}
-            <li>
-              {#if anomalie.classification && anomalie.ligne}
-                Feuille « {anomalie.classification} », ligne {anomalie.ligne} :
-              {/if}
-              {anomalie.message}
-            </li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
-    <EspecesProtegeesGroupedByImpact
-      espècesImpactées={impactEspece}
-      identifiantPitchouVersActivitéEtImpactsQuantifiés={identifiantPitchouVersActiviteEtImpactsQuantifies}
-    />
-  {:catch}
-    <p>Le fichier des espèces impactées n'a pas pu être lu.</p>
-  {/await}
+{#if sourceFile}
+  <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
+{/if}
+{#if impacts.length >= 1}
+  <EspecesProtegeesGroupedByTypeImpact especesParTypeImpact={groupImpactsByTypeImpact(impacts)} />
 {:else}
   <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
 {/if}

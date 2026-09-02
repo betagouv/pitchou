@@ -9,7 +9,7 @@
 
   const classByPhase = new Map<DossierPhase, string>([
     ["Accompagnement amont", "fr-badge--yellow-tournesol"],
-    ["Étude recevabilité DDEP", "fr-badge--yellow-moutarde"],
+    ["Étude recevabilité", "fr-badge--yellow-moutarde"],
     ["Instruction", "fr-badge--blue-cumulus"],
     ["Contrôle", "fr-badge--orange-terre-battue"],
     ["Classé sans suite", ""],

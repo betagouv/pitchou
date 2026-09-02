@@ -16,6 +16,8 @@ export function fakeDossierFull(overrides: Partial<DossierFull> = {}): DossierFu
     departments: ["01"],
     regions: null,
     main_activite: "Travaux",
+    activite_code: "autre",
+    activite_label: "Autre",
     source: "demarche_numerique",
     demarche_numerique_number: "456",
     demandeur_personne_morale_siret: null,
@@ -45,6 +47,7 @@ export function fakeDossierFull(overrides: Partial<DossierFull> = {}): DossierFu
     decisionsAdministratives: [],
     piecesJointesPetitionnaires: [],
     otherAttachments: [],
+    especesImpactees: { sourceFile: undefined, impacts: [] },
     ...overrides,
   } as unknown as DossierFull;
 }
@@ -57,6 +60,8 @@ export function fakeDossierSummary(overrides: Partial<DossierSummary> = {}): Dos
     source: "demarche_numerique",
     demarche_numerique_number: "456",
     main_activite: "Travaux",
+    activite_code: "autre",
+    activite_label: "Autre",
     linked_to_ae_regime: false,
     onagre_demande_identifier: null,
     communes: null,

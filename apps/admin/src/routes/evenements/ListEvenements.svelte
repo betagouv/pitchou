@@ -86,12 +86,8 @@
   onMount(reload);
 </script>
 
-<div class="flex flex-col fr-mt-2w gap-4">
-  <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-    <h1 class="fr-mb-0">Évènements suivis</h1>
-  </div>
-
-  <div class="flex flex-row items-start gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
+<div class="flex flex-col gap-2">
+  <div class="flex flex-row items-start gap-2 max-[768px]:flex-col max-[768px]:items-stretch">
     <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
       <div class="fr-search-bar w-full" role="search">
         <label class="fr-label" for="recherche-evenement">Rechercher un évènement</label>
@@ -160,7 +156,9 @@
   <TableEvenements rows={evenements} />
 
   {#if pageSelectors}
-    <Pagination {pageSelectors} currentPage={currentPageSelector} />
+    <div class="mt-2">
+      <Pagination {pageSelectors} currentPage={currentPageSelector} />
+    </div>
   {/if}
 {:else if !loading}
   <p>Aucun évènement ne correspond à cette recherche.</p>

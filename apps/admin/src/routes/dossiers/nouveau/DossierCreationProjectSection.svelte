@@ -1,34 +1,53 @@
 <script lang="ts">
+  import { activiteCodeForLabel, AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
   import {
-    dossierMainActiviteOptions,
     dossierRequestContextOptions,
     restaurationDemandeOptions,
     transportDemandeOptions,
   } from "@pitchou/common/dossierFormOptions.ts";
 
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
+
+  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
     ACCOMPANIMENT_CONTEXT,
     activiteDetailKind,
     showsRequestContext,
     type DossierCreationModel,
-    type MainActivite,
   } from "./dossierCreationModel.ts";
-  import SearchableSelect from "./SearchableSelect.svelte";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  type Props = {
+    model: DossierCreationModel;
+    /** The activity referentiel, already sorted for display (see $lib/activiteReferentiel.ts). */
+    activites: ActiviteAdmin[];
+    /** Grouped, illustrated options over the same activities; plain labels when absent. */
+    activiteEntries?: SelectEntry<string>[];
+    /** Every known raw label mapped to its activity code — the resolution the server applies. */
+    activiteCodeByLabel: ReadonlyMap<string, string>;
+  };
+  let { model, activites, activiteEntries, activiteCodeByLabel }: Props = $props();
 
-  const detailKind = $derived(activiteDetailKind(model.mainActivite));
-  const displayRequestContext = $derived(showsRequestContext(model.mainActivite));
+  const detailKind = $derived(activiteDetailKind(model.activiteCode));
+  const displayRequestContext = $derived(showsRequestContext(model.activiteCode));
 
-  const mainActiviteOptions = dossierMainActiviteOptions.map((option) => ({
-    value: option,
-    label: option,
-  }));
+  // A raw label that is not the display name of an activity (typically an option renamed since
+  // the dossier was saved) stays selectable so editing the dossier does not lose it.
+  const hasLegacyActivity = $derived(
+    !!model.mainActivite && !activites.some(({ label }) => label === model.mainActivite),
+  );
+  const mainActiviteOptions = $derived([
+    ...(hasLegacyActivity
+      ? [{ value: model.mainActivite, label: `${model.mainActivite} (valeur historique)` }]
+      : []),
+    ...(activiteEntries ?? activites.map(({ label }) => ({ value: label, label }))),
+  ]);
 
   function changeMainActivite(value: string) {
-    model.mainActivite = value as MainActivite;
+    model.mainActivite = value;
+    model.activiteCode = activiteCodeForLabel(value, activiteCodeByLabel) ?? AUTRE_ACTIVITE_CODE;
     model.activiteDetail = "";
-    if (!showsRequestContext(model.mainActivite)) {
+    if (!showsRequestContext(model.activiteCode)) {
       model.requestContext = "";
       model.accompanimentNeed = "";
     }
@@ -69,13 +88,13 @@
         Quel est l'objectif principal du projet ? <span aria-hidden="true">*</span>
         <span class="fr-sr-only">Champ obligatoire</span>
       </label>
-      <SearchableSelect
+      <Select
         id="main-activite"
-        labelledBy="main-activite-label"
         options={mainActiviteOptions}
         value={model.mainActivite}
-        placeholder="Sélectionnez ou commencez à saisir"
-        required={true}
+        placeholder="Sélectionner une activité"
+        required
+        listPlacement={{ preferredHeight: 480, minWidth: 480 }}
         onChange={changeMainActivite}
       />
     </div>

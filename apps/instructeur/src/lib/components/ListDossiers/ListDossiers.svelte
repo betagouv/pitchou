@@ -6,6 +6,7 @@
   import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
+    activiteLabelByCode as mapActiviteLabelByCode,
     buildActiveFilterChips,
     buildDossiersSearchParams,
     buildSearchEvent,
@@ -83,8 +84,10 @@
   );
 
   const activeFilterCount = $derived(countActiveFilters(query));
-  const filterChips = $derived(buildActiveFilterChips(query));
+  const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
+  const filterChips = $derived(buildActiveFilterChips(query, activiteLabelByCode));
   const instructeurCount = $derived(listAvailableInstructeurs(followRelations).length);
+  const analyticsContext = $derived({ instructeurCount, email, activiteLabelByCode });
 
   const dossierIdsFollowedByCurrentInstructeur = $derived(
     followRelations?.get(email) ?? new Set<Dossier["id"]>(),
@@ -97,7 +100,7 @@
   function applySearch(next: DossiersQuery) {
     navigate(next);
     const count = filterDossiers(dossiers, next, ctx).length;
-    sendDossierSearchEvent(buildSearchEvent(next, count, { instructeurCount, email }));
+    sendDossierSearchEvent(buildSearchEvent(next, count, analyticsContext));
     statusMessage = `${count} dossiers affichés sur ${dossiers.length}`;
     setTimeout(() => (statusMessage = ""), 400);
   }

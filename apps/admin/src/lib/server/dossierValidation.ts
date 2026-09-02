@@ -11,7 +11,12 @@ import {
 } from "@pitchou/server/database/dossier_admin.ts";
 import type { AdminDossierRelations } from "@pitchou/server/database/dossier_admin_relations.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+import {
+  activiteCodeForLabel,
+  EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
+} from "@pitchou/common/activiteCodes.ts";
 import type { DossierId, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
+import type { ActiviteContext } from "./dossierValidation/activiteContext.ts";
 import { parseColumns } from "./dossierValidation/columnValidation";
 import { isValidPhone, validateCreationCore } from "./dossierValidation/creationCoreValidation.ts";
 import { validateCreationScientific } from "./dossierValidation/creationScientificValidation.ts";
@@ -63,14 +68,17 @@ function parseCreationRelations(raw: unknown): AdminDossierRelations {
       error(400, `Identity phone numbers must be valid.`);
   return relations;
 }
-function parseCreationColumns(raw: unknown): DossierMutator {
+function parseCreationColumns(raw: unknown, activiteContext: ActiviteContext): DossierMutator {
   if (raw === undefined) error(400, `Property 'columns' is required.`);
-  const columns = parseColumns(raw);
-  validateCreationCore(columns, raw as Record<string, unknown>);
-  validateCreationScientific(columns, raw as Record<string, unknown>);
+  const columns = parseColumns(raw, activiteContext);
+  validateCreationCore(columns, raw as Record<string, unknown>, activiteContext);
+  validateCreationScientific(columns, raw as Record<string, unknown>, activiteContext);
   return columns;
 }
-export function parseDossierCreation(body: Record<string, unknown>): AdminDossierCreation {
+export function parseDossierCreation(
+  body: Record<string, unknown>,
+  activiteContext: ActiviteContext,
+): AdminDossierCreation {
   rejectUnknownProperties(body, new Set(["name", "depot_date", "phase", "relations", "columns"]));
   if (typeof body.name !== "string" || !body.name.trim())
     error(400, `Property 'name' is required.`);
@@ -79,13 +87,16 @@ export function parseDossierCreation(body: Record<string, unknown>): AdminDossie
     depot_date: parseDate("depot_date", body.depot_date),
     phase: parsePhase(body.phase),
     relations: parseCreationRelations(body.relations),
-    columns: parseCreationColumns(body.columns),
+    columns: parseCreationColumns(body.columns, activiteContext),
   };
 }
-export function parseDossierUpdate(body: Record<string, unknown>): AdminDossierUpdate {
+export function parseDossierUpdate(
+  body: Record<string, unknown>,
+  activiteContext: ActiviteContext,
+): AdminDossierUpdate {
   rejectUnknownProperties(body, new Set(["columns", "evenementsPhase", "relations"]));
   const update: AdminDossierUpdate = {};
-  if (body.columns !== undefined) update.columns = parseColumns(body.columns);
+  if (body.columns !== undefined) update.columns = parseColumns(body.columns, activiteContext);
   const windColumns = [
     "eolien_commissioning_year",
     "eolien_turbines_count",
@@ -104,7 +115,8 @@ export function parseDossierUpdate(body: Record<string, unknown>): AdminDossierU
   if (
     update.columns &&
     windColumns.some((column) => update.columns![column as keyof DossierMutator] != null) &&
-    update.columns.main_activite !== "Production énergie renouvelable - Éolien -  Suivi mortalité"
+    activiteCodeForLabel(update.columns.main_activite, activiteContext.codeByLabel) !==
+      EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE
   )
     error(400, `Wind farm properties require the wind mortality main activity.`);
   if (

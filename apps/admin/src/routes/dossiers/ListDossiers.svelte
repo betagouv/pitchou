@@ -2,18 +2,20 @@
   import { onMount } from "svelte";
 
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
-  import Select from "@pitchou/ui/Select.svelte";
-  import { phases } from "@pitchou/common/phases.ts";
 
   import {
     loadDossiers,
+    downloadDossiersCSV,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
     type AdminDossierSummary,
   } from "$lib/actions/adminDossiers.ts";
-  import TableDossiers from "./TableDossiers.svelte";
+  import type { DossierSortKey, DossierSortOrder } from "$lib/actions/adminDossierTypes.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import DossierCards from "./DossierCards.svelte";
   import CreateDossierModal from "./CreateDossierModal.svelte";
+  import DossiersListControls from "./DossiersListControls.svelte";
 
   let query = $state<DossiersQuery>(defaultDossiersQuery());
   let dossiers = $state<AdminDossierSummary[]>([]);
@@ -22,6 +24,16 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let creatingDossier = $state(false);
+  let downloading = $state(false);
+  let downloadError = $state<string | null>(null);
+
+  const currentYear = new Date().getFullYear();
+
+  // The "create" entry point lives in the shell header ("+").
+  $effect(() => {
+    pageHeader.setAction({ label: "Créer un dossier", onClick: () => (creatingDossier = true) });
+    return () => pageHeader.clearAction();
+  });
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -76,21 +88,35 @@
     searchTimer = setTimeout(reload, 300);
   }
 
-  const phaseOptions = [
-    { value: "", label: "Toutes" },
-    ...[...phases].map((phase) => ({ value: phase, label: phase })),
-  ];
-
-  const sourceOptions = [
-    { value: "", label: "Toutes" },
-    { value: "pitchou", label: "Créé dans Pitchou" },
-    { value: "dn", label: "Importé de Démarches Numériques" },
-    { value: "unknown", label: "Source inconnue" },
-  ];
-
-  function onFilterChange() {
+  function onFilterChange(updates: { phase?: string; source?: DossiersQuery["source"] }) {
+    if (updates.phase !== undefined) query.phase = updates.phase;
+    if (updates.source !== undefined) query.source = updates.source;
     query.page = 1;
     reload();
+  }
+
+  function onSortChange(sort: DossierSortKey, order: DossierSortOrder) {
+    query.sort = sort;
+    query.order = order;
+    query.page = 1;
+    reload();
+  }
+
+  async function downloadCurrentYear() {
+    downloading = true;
+    downloadError = null;
+    try {
+      await downloadDossiersCSV(currentYear);
+    } catch (e) {
+      downloadError =
+        e instanceof AccessDeniedError
+          ? "Accès réservé aux administrateurs."
+          : e instanceof Error
+            ? e.message
+            : String(e);
+    } finally {
+      downloading = false;
+    }
   }
 
   onMount(reload);
@@ -102,66 +128,32 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="flex flex-col fr-mt-2w gap-4">
-    <div class="flex flex-row justify-between items-center gap-4 flex-wrap">
-      <h1 class="fr-mb-0">Dossiers</h1>
+  <div class="flex flex-col gap-2">
+    <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
       <button
-        class="fr-btn fr-icon-add-line fr-btn--icon-left"
         type="button"
-        onclick={() => (creatingDossier = true)}
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
+        disabled={downloading}
+        onclick={downloadCurrentYear}
       >
-        Créer un dossier
+        Télécharger les dossiers de l'année en cours
       </button>
     </div>
 
-    <div class="flex flex-row items-end gap-4 max-[768px]:flex-col max-[768px]:items-stretch">
-      <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-        <div class="fr-search-bar w-full" role="search">
-          <label class="fr-label" for="recherche-dossier">Rechercher un dossier</label>
-          <input
-            value={query.search}
-            oninput={(e) => onSearchInput(e.currentTarget.value)}
-            name="texte-de-recherche"
-            class="fr-input"
-            placeholder="Nom, demandeur ou numéro DN"
-            id="recherche-dossier"
-            type="search"
-          />
-          <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher</button>
-        </div>
-      </form>
-
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-phase">Phase</label>
-        <Select
-          id="filtre-phase"
-          class="fr-mt-1w"
-          options={phaseOptions}
-          bind:value={query.phase}
-          onChange={onFilterChange}
-        />
+    {#if downloadError}
+      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
+        <p>{downloadError}</p>
       </div>
+    {/if}
 
-      <div class="fr-select-group fr-mb-0">
-        <label class="fr-label" for="filtre-source">Source</label>
-        <Select
-          id="filtre-source"
-          class="fr-mt-1w"
-          options={sourceOptions}
-          bind:value={query.source}
-          onChange={onFilterChange}
-        />
-      </div>
-    </div>
-
-    <p class="fr-mb-0" aria-live="polite">
-      <span class="fr-text--lead">{total}</span><span class="fr-text--lg"
-        >&nbsp;dossier{total > 1 ? "s" : ""}</span
-      >
-      {#if loading}
-        <span class="fr-text--sm fr-text-mention--grey fr-ml-1w">— chargement…</span>
-      {/if}
-    </p>
+    <DossiersListControls
+      {query}
+      {total}
+      {loading}
+      onSearch={onSearchInput}
+      onFilter={onFilterChange}
+      onSort={onSortChange}
+    />
   </div>
 
   {#if loadError}
@@ -171,10 +163,12 @@
   {/if}
 
   {#if dossiers.length >= 1}
-    <TableDossiers rows={dossiers} />
+    <DossierCards rows={dossiers} />
 
     {#if pageSelectors}
-      <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      <div class="mt-2">
+        <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      </div>
     {/if}
   {:else if !loading}
     <p class="fr-mt-2w">Aucun dossier ne correspond à cette recherche.</p>

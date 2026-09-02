@@ -11,26 +11,27 @@ import {
   showsSpeciesSection,
   suggestedMotifDerogation,
 } from "../dossierCreationModel.ts";
+import { setModelActivite } from "./activiteFixture.ts";
 
 describe("dossier creation conditional fields", () => {
   it("shows the species file section for every DN derogation path", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     model.requestContext = dossierRequestContextOptions[0];
     expect(showsSpeciesSection(model)).toBe(false);
     model.requestContext = dossierRequestContextOptions[2];
     expect(showsSpeciesSection(model)).toBe(true);
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.requestContext = "";
     expect(showsSpeciesSection(model)).toBe(true);
   });
   it("suggests the DN derogation reason from the main activity", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     expect(suggestedMotifDerogation(model)).toBe(motifDerogationOptions[0]);
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     expect(suggestedMotifDerogation(model)).toBe(motifDerogationOptions[4]);
-    model.mainActivite = "Desaîrage";
+    setModelActivite(model, "Desaîrage");
     expect(suggestedMotifDerogation(model)).toBe(motifDerogationOptions[6]);
     expect(motifDerogationGuidance(model)).toContain(
       'Vous avez renseigné comme objectif principal "Desaîrage"',
@@ -38,7 +39,7 @@ describe("dossier creation conditional fields", () => {
   });
   it("maps and clears section 7 fields", () => {
     const model = createDossierCreationModel();
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.noOtherSatisfactorySolutionJustification = "Aucune alternative";
     model.motifDerogation = motifDerogationOptions[4];
     model.motifDerogationJustification = "Programme scientifique";
@@ -50,7 +51,7 @@ describe("dossier creation conditional fields", () => {
       scientifique_demande_type: ["Prélèvement de matériel biologique"],
     });
     model.scientifiqueSuiviProtocolDescription = "Protocole masqué";
-    model.mainActivite = "";
+    setModelActivite(model, "");
     expect(buildCreationPayload(model).columns).toMatchObject({
       no_other_satisfactory_solution_justification: null,
       motif_derogation: null,
@@ -75,7 +76,7 @@ describe("dossier creation conditional fields", () => {
       especes_prise_detention_limitee_type: "Espèces autres que oiseaux",
       scientifique_previous_assessment: null,
     });
-    model.mainActivite = "Production énergie renouvelable - Éolien -  Suivi mortalité";
+    setModelActivite(model, "Production énergie renouvelable - Éolien -  Suivi mortalité");
     model.eolienCommissioningYear = 2020;
     model.eolienTurbinesCount = 8;
     model.eolienTipHeight = 180.5;
@@ -84,7 +85,7 @@ describe("dossier creation conditional fields", () => {
       eolien_turbines_count: 8,
       eolien_tip_height: 180.5,
     });
-    model.mainActivite = "Carrières";
+    setModelActivite(model, "Carrières");
     expect(buildCreationPayload(model).columns).toMatchObject({
       eolien_commissioning_year: null,
       eolien_turbines_count: null,
@@ -95,6 +96,7 @@ describe("dossier creation conditional fields", () => {
     const model = createDossierCreationModel();
     Object.assign(model, {
       mainActivite: "Carrières",
+      activiteCode: "carrieres",
       requestContext: dossierRequestContextOptions[2],
       interventionStartDate: "2026-09-01",
       interventionEndDate: "2026-09-30",
@@ -114,7 +116,7 @@ describe("dossier creation conditional fields", () => {
       commissioning_date: null,
       intervention_duration: null,
     });
-    model.mainActivite = "Demande à caractère scientifique";
+    setModelActivite(model, "Demande à caractère scientifique");
     model.requestContext = "";
     expect(showsOperationDates(model)).toBe(true);
     expect(buildCreationPayload(model).columns).toMatchObject({

@@ -1,9 +1,10 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { phases } from "@pitchou/common/phases.ts";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
   import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
-  import Select from "@pitchou/ui/Select.svelte";
 
   type Props = {
     detail: AdminDossierDetail;
@@ -13,13 +14,16 @@
 
   let { detail, onChanged, readOnly = false }: Props = $props();
 
+  const phaseOptions: SelectEntry<string>[] = [...phases].map((phase) => ({
+    value: phase,
+    label: phase,
+  }));
+
   // Initial selection only; the select then belongs to the user.
   // svelte-ignore state_referenced_locally
   let newPhase = $state(detail.phase);
   let saving = $state(false);
   let saveError = $state<string | null>(null);
-
-  const phaseOptions = [...phases].map((phase) => ({ value: phase, label: phase }));
 
   function formatDate(value: string): string {
     const date = new Date(value);

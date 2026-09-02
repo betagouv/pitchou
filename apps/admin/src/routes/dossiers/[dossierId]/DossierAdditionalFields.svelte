@@ -10,7 +10,6 @@
 
   const typeOptions = ["Hirondelle", "Cigogne"];
   const hasLegacyType = $derived(!!model.type && !typeOptions.includes(model.type));
-
   // A value predating the current list stays selectable, so opening a dossier
   // never silently drops it.
   const typeSelectOptions = $derived([

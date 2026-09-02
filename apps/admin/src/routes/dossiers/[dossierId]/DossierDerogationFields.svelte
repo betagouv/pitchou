@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { motifDerogationOptions } from "@pitchou/common/dossierFormOptions.ts";
   import Select from "@pitchou/ui/Select.svelte";
+  import { motifDerogationOptions } from "@pitchou/common/dossierFormOptions.ts";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
 
@@ -10,7 +10,6 @@
   const hasLegacyMotif = $derived(
     !!model.motifDerogation && !motifDerogationOptions.includes(model.motifDerogation as never),
   );
-
   // A value predating the current list stays selectable, so opening a dossier
   // never silently drops it.
   const motifOptions = $derived([

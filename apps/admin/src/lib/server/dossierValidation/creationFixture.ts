@@ -2,6 +2,36 @@ import {
   dossierRequestContextOptions,
   motifDerogationOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
+import type { ActiviteContext } from "./activiteContext.ts";
+
+const canonicalLabelsFixture = [
+  "Carrières",
+  "Demande à caractère scientifique",
+  "Desaîrage",
+  "Infrastructures de transport ferroviaire",
+  "Production énergie renouvelable - Éolien -  Suivi mortalité",
+  "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+];
+
+/** The activities the validation tests use, mirroring the referentiel seed. */
+export const activiteContextFixture: ActiviteContext = {
+  acceptedLabels: new Set(canonicalLabelsFixture),
+  canonicalLabels: new Set(canonicalLabelsFixture),
+  codeByLabel: new Map([
+    ["Carrières", "carrieres"],
+    ["Demande à caractère scientifique", "demande-scientifique"],
+    ["Desaîrage", "desairage"],
+    ["Infrastructures de transport ferroviaire", "transport-ferroviaire"],
+    [
+      "Production énergie renouvelable - Éolien -  Suivi mortalité",
+      "energie-eolien-suivi-mortalite",
+    ],
+    [
+      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+      "restauration-batiments",
+    ],
+  ]),
+};
 
 export const relations = {
   groupe_instructeurs: "groupe-1",

@@ -12,16 +12,16 @@
 
   import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
+  import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
+    anomalies: Promise<AnomalieFichierEspeces[]> | undefined;
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
   };
 
-  let { dossier, especesImpactees, notification }: Props = $props();
+  let { dossier, anomalies, notification }: Props = $props();
 
   const readOnly = readOnlyMode();
 
@@ -72,17 +72,11 @@
   <Accordion id="accordion-especes-impactees" title="Espèces impactées">
     {#snippet badges()}
       {#if modifications.especes}{@render nouveau()}{/if}
-      {#if especesImpactees}
-        {#await especesImpactees then { impactEspece }}
-          <span class="fr-badge">{especesCountsLabel(especesCounts(impactEspece))}</span>
-        {:catch}
-          <!-- Unreadable file: no count in the band, the panel explains. -->
-        {/await}
-      {:else}
-        <span class="fr-badge">0</span>
-      {/if}
+      <span class="fr-badge"
+        >{especesCountsLabel(especesCounts(dossier.especesImpactees.impacts))}</span
+      >
     {/snippet}
-    <EspecesImpactees {dossier} {especesImpactees} />
+    <EspecesImpactees {dossier} {anomalies} />
   </Accordion>
 
   <Accordion id="accordion-pieces-jointes-formulaire" title="Pièces jointes">

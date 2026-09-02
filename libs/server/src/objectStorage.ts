@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -46,6 +47,25 @@ export async function putObject(
 
 export async function deleteObject(key: string): Promise<void> {
   await getObjectStorageClient().send(new DeleteObjectCommand({ Bucket: getBucket(), Key: key }));
+}
+
+export async function listObjectKeys(prefix: string): Promise<string[]> {
+  const keys: string[] = [];
+  let continuationToken: string | undefined;
+  do {
+    const result = await getObjectStorageClient().send(
+      new ListObjectsV2Command({
+        Bucket: getBucket(),
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+      }),
+    );
+    for (const object of result.Contents ?? []) {
+      if (object.Key) keys.push(object.Key);
+    }
+    continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+  } while (continuationToken);
+  return keys;
 }
 
 export async function getObject(key: string): Promise<{

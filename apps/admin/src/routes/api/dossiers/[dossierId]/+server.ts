@@ -22,6 +22,7 @@ import {
   parseDossierUpdate,
   throwHttpErrorForAdminDossier,
 } from "$lib/server/dossierValidation";
+import { loadActiviteContext } from "$lib/server/dossierValidation/activiteContext.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
@@ -73,7 +74,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     rawUpdate = await readJsonObject(request);
   }
 
-  const update = parseDossierUpdate(rawUpdate);
+  const update = parseDossierUpdate(rawUpdate, await loadActiviteContext());
 
   if (!multipart) {
     try {

@@ -3,7 +3,6 @@
   import { getOdtTextContent } from "@odfjs/odfjs";
   import { fillTemplates, generationTimestamp } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
-  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { store } from "$lib/state/store.svelte.ts";
   import DocumentTemplateSelection from "./DossierGenerationDocuments/DocumentTemplateSelection.svelte";
   import GeneratedDocuments from "./DossierGenerationDocuments/GeneratedDocuments.svelte";
@@ -13,7 +12,6 @@
   } from "./DossierGenerationDocuments/templates.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
   let templateFiles: File[] = $state([]);
   let fileInput: HTMLInputElement | undefined = $state();
@@ -24,10 +22,9 @@
 
   type Props = {
     dossier: DossierFull;
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
   };
 
-  let { dossier, especesImpactees }: Props = $props();
+  let { dossier }: Props = $props();
 
   type GeneratedDocument = {
     name: string;
@@ -85,29 +82,10 @@
     }
 
     documentGenerationError = undefined;
-    let especesImpacts = undefined;
 
-    const {
-      identifiantPitchouVersActivitéEtImpactsQuantifiés:
-        identifiantPitchouVersActiviteEtImpactsQuantifies,
-    } = await loadActivitesMethodesMoyensDePoursuite();
-
-    try {
-      // let any errors surface here to be handled below
-      // Only the espèces here: the anomalies are the Projet tab's business, and a generated
-      // document reports what could be read, exactly as the tab displays it.
-      especesImpacts = (await especesImpactees)?.impactEspece;
-    } catch (e) {
-      // @ts-ignore
-      documentGenerationError = e;
-      return;
-    }
-
-    const tags = getDocumentGenerationTags(
-      dossier,
-      especesImpacts,
-      identifiantPitchouVersActiviteEtImpactsQuantifies,
-    );
+    // The espèces come with the dossier, already resolved: a generated document reports exactly
+    // what the Projet tab displays.
+    const tags = getDocumentGenerationTags(dossier, dossier.especesImpactees.impacts);
 
     console.log("balises", tags);
 

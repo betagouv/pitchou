@@ -6,6 +6,7 @@ import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type {
   DossierFull,
   FrontEndFichier,
+  FrontEndImpactOnEspece,
   FrontEndPrescription,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
@@ -57,6 +58,7 @@ export function formatDossierFull(
   attachments: OtherAttachmentWithFileDescription[],
   prescriptions: Prescription[],
   controles: Controle[],
+  impacts: FrontEndImpactOnEspece[],
   cap: CapDossier["cap"],
 ): DossierFull {
   dossier.demandeur_address =
@@ -104,17 +106,19 @@ export function formatDossierFull(
     url: fichierUrl("/piece-jointe-petitionnaire/fichier", id, cap),
     ...piece,
   }));
-  if (
-    dossier.especes_impactees_id &&
-    dossier.especes_impactees_media_type &&
-    dossier.especes_impactees_name
-  ) {
-    dossier.especesImpactees = {
-      url: fichierUrl("/especes-impactees", dossier.especes_impactees_id, cap),
-      media_type: dossier.especes_impactees_media_type,
-      name: dossier.especes_impactees_name,
-    };
-  }
+  dossier.especesImpactees = {
+    sourceFile:
+      dossier.especes_impactees_id &&
+      dossier.especes_impactees_media_type &&
+      dossier.especes_impactees_name
+        ? {
+            url: fichierUrl("/especes-impactees", dossier.especes_impactees_id, cap),
+            media_type: dossier.especes_impactees_media_type,
+            name: dossier.especes_impactees_name,
+          }
+        : undefined,
+    impacts,
+  };
   delete dossier.especes_impactees_id;
   delete dossier.especes_impactees_media_type;
   delete dossier.especes_impactees_name;

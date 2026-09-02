@@ -2,6 +2,7 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
   import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import { classificationFromTaxref, type TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
@@ -124,16 +125,14 @@
       : { seed: seedFromEspece(espece), creation: false };
     ajoutOuvert = false;
   }
+
+  // The "add" entry point lives in the shell header ("+").
+  $effect(() => {
+    pageHeader.setAction({ label: "Ajouter une espèce", onClick: () => (ajoutOuvert = true) });
+    return () => pageHeader.clearAction();
+  });
 </script>
 
-<div class="flex flex-row justify-between items-center gap-4 flex-wrap fr-mt-2w">
-  <h1 class="fr-mb-0">Administration - espèces protégées modifiées</h1>
-  <button
-    type="button"
-    class="fr-btn fr-icon-add-line fr-btn--icon-left"
-    onclick={() => (ajoutOuvert = true)}>Ajouter</button
-  >
-</div>
 <ModificationsListControls
   {query}
   {modifications}

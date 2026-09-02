@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { withResolvedActivite } from "../activite.ts";
 import { getAvisExpertFilesByCap } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { getLatestEvenementsPhaseDossiers } from "./access.ts";
@@ -16,6 +17,8 @@ const columns = [
   "dossier.name as name",
   "linked_to_ae_regime",
   "main_activite",
+  "activite.code as activite_code",
+  "activite.label as activite_label",
   "source",
   "departments",
   "communes",
@@ -44,8 +47,11 @@ export async function getDossiersSummariesByCap(
     : await databaseConnection.transaction({ readOnly: true });
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(columns)
+    // A dossier can hold impacts without a file, and a file that could not be imported holds none.
     .select(
-      transaction.raw('dossier."especes_impactees" is not null as "especesImpacteesRenseignees"'),
+      transaction.raw(
+        'exists (select 1 from impact_espece where impact_espece."dossier" = dossier.id) as "especesImpacteesRenseignees"',
+      ),
     )
     .select(transaction.raw(latestCommentaireSubquery))
     .join("edge_groupe_instructeurs__dossier", {
@@ -67,7 +73,16 @@ export async function getDossiersSummariesByCap(
     .leftJoin("entreprise as demandeur_personne_morale", {
       "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap });
+    // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+    // through the fallback in `withResolvedActivite`.
+    .leftJoin("activite_label", (join) =>
+      join
+        .on("activite_label.label", "dossier.main_activite")
+        .andOnVal("activite_label.needs_review", false),
+    )
+    .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
+    .then((dossiers: DossierSummary[]) => dossiers.map(withResolvedActivite));
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
   const decisionsP = getDecisionsAdministratives(cap, transaction);
   const avisP = getAvisExpertFilesByCap(cap, transaction);

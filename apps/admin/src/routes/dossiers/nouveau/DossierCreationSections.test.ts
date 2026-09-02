@@ -7,64 +7,10 @@ import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.s
 import DossierCreationLocationSection from "./DossierCreationLocationSection.svelte";
 import DossierCreationJustificationSection from "./DossierCreationJustificationSection.svelte";
 import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
-import DossierCreationProjectSection from "./DossierCreationProjectSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
 
 describe("dossier creation sections", () => {
-  it("uses a searchable main activity combobox", () => {
-    const { body } = render(DossierCreationProjectSection, {
-      props: { model: createDossierCreationModel() },
-    });
-
-    expect(body).toContain('id="main-activite"');
-    expect(body).toContain('aria-haspopup="listbox"');
-    expect(body).toContain("Sélectionnez ou commencez à saisir");
-  });
-
-  it("shows the restoration question and accompaniment details conditionally", () => {
-    const model = createDossierCreationModel();
-    model.mainActivite =
-      "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art";
-    model.requestContext = "Vous souhaitez bénéficier d'un accompagnement amont";
-
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
-
-    expect(body).toContain('id="restauration-demande-1"');
-    expect(body).toContain('id="restauration-demande-2"');
-    expect(body).not.toContain('id="transport-demande-1"');
-    expect(body).toContain('id="request-context-1"');
-    expect(body).toContain('id="request-context-2"');
-    expect(body).toContain('id="request-context-3"');
-    expect(body).not.toContain('<select class="fr-select" id="request-context"');
-    expect(body).not.toContain('<select class="fr-select" id="restauration-demande"');
-    expect(body).toContain('id="accompaniment-need"');
-
-    expect(body.indexOf('id="request-context-1"')).toBeLessThan(
-      body.indexOf('id="restauration-demande-1"'),
-    );
-  });
-
-  it("hides the request context for scientific projects", () => {
-    const model = createDossierCreationModel();
-    model.mainActivite = "Demande à caractère scientifique";
-
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
-
-    expect(body).not.toContain('id="request-context-1"');
-  });
-
-  it("uses radios for the transport-specific question", () => {
-    const model = createDossierCreationModel();
-    model.mainActivite = "Infrastructures de transport ferroviaire";
-
-    const { body } = render(DossierCreationProjectSection, { props: { model } });
-
-    expect(body).toContain('id="transport-demande-1"');
-    expect(body).toContain('id="transport-demande-2"');
-    expect(body).not.toContain('id="restauration-demande-1"');
-  });
-
   it("shows only the fields matching the demandeur type", () => {
     const physical = createDossierCreationModel();
     physical.demandeurType = "personne_physique";

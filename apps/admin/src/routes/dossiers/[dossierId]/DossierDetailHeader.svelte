@@ -4,14 +4,12 @@
     $props();
 </script>
 
+<!-- Sticks right below the admin shell topbar (h-14). -->
 <header
-  class="sticky top-0 z-40 bg-[var(--background-default-grey)] fr-py-2w border-b border-[color:var(--border-default-grey)]"
+  class="sticky top-14 z-20 bg-[var(--background-default-grey)] fr-py-2w border-b border-[color:var(--border-default-grey)]"
 >
-  <a class="fr-link fr-icon-arrow-left-line fr-link--icon-left" href="/dossiers"
-    >Retour aux dossiers</a
-  >
-  <div class="flex flex-row items-center gap-4 flex-wrap fr-mt-2w">
-    <h1 class="fr-mb-0">{detail.dossier.name || `Dossier ${detail.dossier.id}`}</h1>
+  <!-- The dossier name lives in the shell header title; this bar keeps badges and actions. -->
+  <div class="flex flex-row items-center gap-4 flex-wrap">
     {#if detail.source === "demarche_numerique"}
       <span class="fr-badge fr-badge--info fr-badge--no-icon"
         >{detail.dossier.demarche_numerique_number

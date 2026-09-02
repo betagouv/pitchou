@@ -91,7 +91,7 @@
   </div>
 
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-    <ActiviteIcon mainActivite={dossier.main_activite} size="size-24 lg:size-28" />
+    <ActiviteIcon mainActivite={dossier.activite_label} size="size-24 lg:size-28" />
 
     <div class="flex min-w-0 grow flex-col gap-2">
       {#if dossier.enjeu || unread || dossier.next_due_date}

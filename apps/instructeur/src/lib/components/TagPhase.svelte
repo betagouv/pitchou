@@ -36,7 +36,7 @@
       "bg-[var(--artwork-minor-yellow-tournesol)] text-[color:var(--text-inverted-yellow-tournesol)] bg-none hover:bg-none after:text-[color:var(--artwork-minor-yellow-tournesol)]",
     ],
     [
-      "Étude recevabilité DDEP",
+      "Étude recevabilité",
       "bg-[var(--background-action-high-orange-terre-battue)] text-[color:var(--text-inverted-orange-terre-battue)] bg-none hover:bg-none after:text-[color:var(--background-action-high-orange-terre-battue)]",
     ],
     [
@@ -65,7 +65,7 @@
       "aria-[pressed=true]:bg-[var(--artwork-minor-yellow-tournesol)] aria-[pressed=true]:text-[color:var(--text-inverted-yellow-tournesol)] aria-[pressed=true]:bg-none aria-[pressed=true]:hover:bg-none aria-[pressed=true]:after:text-[color:var(--artwork-minor-yellow-tournesol)] aria-[pressed=false]:text-[color:var(--artwork-minor-yellow-tournesol)] aria-[pressed=false]:[border:1px_solid_var(--artwork-minor-yellow-tournesol)]",
     ],
     [
-      "Étude recevabilité DDEP",
+      "Étude recevabilité",
       "aria-[pressed=true]:bg-[var(--background-action-high-orange-terre-battue)] aria-[pressed=true]:text-[color:var(--text-inverted-orange-terre-battue)] aria-[pressed=true]:bg-none aria-[pressed=true]:hover:bg-none aria-[pressed=true]:after:text-[color:var(--background-action-high-orange-terre-battue)] aria-[pressed=false]:text-[color:var(--background-action-high-orange-terre-battue)] aria-[pressed=false]:[border:1px_solid_var(--background-action-high-orange-terre-battue)]",
     ],
     [

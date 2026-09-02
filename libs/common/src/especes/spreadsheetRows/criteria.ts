@@ -36,6 +36,7 @@ export function validateCriteria(
     report({
       classification,
       ligne,
+      ligneIgnoree: false,
       message: `le critère « ${LABEL_CRITERIA[champ]} » ne s’applique pas au type d’impact « ${activite["Libellé Pitchou"]} » : la valeur a été ignorée`,
     });
     impact[champ] = undefined;

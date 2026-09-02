@@ -7,6 +7,7 @@ import {
   hasLegalSiretChanged,
   mergeDossierRelationsForEdit,
 } from "../dossierCreationModel.ts";
+import { ACTIVITE_CODE_BY_LABEL_FIXTURE } from "./activiteFixture.ts";
 
 function detail(dossier: AdminDossierDetail["dossier"]): AdminDossierDetail {
   return {
@@ -58,7 +59,7 @@ describe("dossier creation detail", () => {
         role: "Écologue",
       },
     ];
-    const model = createDossierCreationModelFromDetail(source);
+    const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
     expect(model).toMatchObject({
       name: "Suivi éolien",
       depotDate: "2026-08-03",
@@ -94,7 +95,7 @@ describe("dossier creation detail", () => {
       department: "75",
       region: "Île-de-France",
     };
-    const model = createDossierCreationModelFromDetail(source);
+    const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
     model.legalSiret = "98765432109876";
     const relations = buildCreationPayload(model).relations;
     expect(hasLegalSiretChanged(source, model.legalSiret)).toBe(true);

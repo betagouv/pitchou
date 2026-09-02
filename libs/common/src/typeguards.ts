@@ -49,6 +49,8 @@ function isDossierSummary(x: any): x is DossierSummary {
     (typeof x.demarche_numerique_number === "string" || x.demarche_numerique_number === null) &&
     isDossierSource(x.source) &&
     (typeof x.main_activite === "string" || x.main_activite === null) &&
+    (typeof x.activite_code === "string" || x.activite_code === null) &&
+    (typeof x.activite_label === "string" || x.activite_label === null) &&
     (typeof x.linked_to_ae_regime === "boolean" || x.linked_to_ae_regime === null) &&
     (typeof x.onagre_demande_identifier === "string" || x.onagre_demande_identifier === null);
 

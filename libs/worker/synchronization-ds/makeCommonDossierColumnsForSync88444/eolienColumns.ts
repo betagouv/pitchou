@@ -1,3 +1,4 @@
+import { EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 import { eolienMortalityActionOptions } from "@pitchou/common/dossierFormOptions.ts";
 import type { Dossier88444ChampById, Dossier88444KeyMap } from "./fieldMaps.ts";
 
@@ -14,13 +15,12 @@ const positiveInteger = (value: unknown) => {
 export function makeDossierEolienColumns88444(
   champById: Dossier88444ChampById,
   keyToChamp: Dossier88444KeyMap,
-  mainActivite: string | undefined,
+  activiteCode: string | null,
   showsOperationDetails: boolean,
 ) {
   const getString = (label: Parameters<Dossier88444KeyMap["get"]>[0]) =>
     champById.get(keyToChamp.get(label))?.stringValue;
-  const windMortality =
-    mainActivite === "Production énergie renouvelable - Éolien -  Suivi mortalité";
+  const windMortality = activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
   const actions = champById.get(
     keyToChamp.get("Suivi de mortalité - Votre demande concerne :"),
   )?.values;

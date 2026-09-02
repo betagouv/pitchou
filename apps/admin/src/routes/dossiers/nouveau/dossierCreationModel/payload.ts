@@ -42,10 +42,10 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     role,
   };
   const identites = isPhysical ? [identity] : [{ ...identity, type: "representant" as const }];
-  const requestContext = showsRequestContext(model.mainActivite)
+  const requestContext = showsRequestContext(model.activiteCode)
     ? nullable(model.requestContext)
     : null;
-  const detailKind = activiteDetailKind(model.mainActivite);
+  const detailKind = activiteDetailKind(model.activiteCode);
   const type =
     detailKind === "restauration" && model.activiteDetail === "Destruction de nids d'Hirondelles"
       ? "Hirondelle"

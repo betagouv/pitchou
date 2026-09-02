@@ -3,6 +3,7 @@
 
   import type { RenderedGroup, SelectOption } from "./options.ts";
   import type { Placement } from "./placement.ts";
+  import SelectOptionMarker from "./SelectOptionMarker.svelte";
 
   type Props = {
     /** The trigger's id: options and the listbox derive theirs from it. */
@@ -38,8 +39,15 @@
     <div role="group" aria-label={group.label ?? undefined}>
       {#if group.label}
         <p
-          class="fr-px-1w fr-pt-1w fr-pb-1v fr-m-0 fr-text--bold text-[0.75rem] tracking-[0.03em] text-[color:var(--text-mention-grey)] uppercase"
+          class="fr-px-1w fr-pt-1w fr-pb-1v fr-m-0 fr-text--bold flex items-center gap-2 text-[0.75rem] tracking-[0.03em] text-[color:var(--text-mention-grey)] uppercase"
         >
+          {#if group.color}
+            <span
+              class="h-3 w-3 flex-none rounded-full"
+              style:background-color={group.color}
+              aria-hidden="true"
+            ></span>
+          {/if}
           {group.label}
         </p>
       {/if}
@@ -66,6 +74,7 @@
             class={clsx("fr-icon-check-line fr-icon--sm flex-none", !isSelected && "invisible")}
             aria-hidden="true"
           ></span>
+          <SelectOptionMarker color={option.color} icon={option.icon} />
           <span class="min-w-0 grow">
             {option.label}
             {#if option.hint}

@@ -8,6 +8,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     source,
     name,
     main_activite,
+    activite_code,
+    activite_label,
     enjeu,
     latestCommentaire,
     linked_to_ae_regime,
@@ -36,7 +38,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // Avis d'expert (for the presence of the files)
     avisExpert,
 
-    // especes impactees file, for presence
+    // impacts on especes, for presence
     especesImpactees,
 
     // Events used to extract the phase
@@ -57,6 +59,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     source,
     name,
     main_activite,
+    activite_code,
+    activite_label,
     enjeu,
     latestCommentaire,
     linked_to_ae_regime,
@@ -70,7 +74,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
       hasSaisineFile: ae.saisine_fichier_url !== undefined,
       hasAvisFile: ae.avis_fichier_url !== undefined,
     })),
-    especesImpacteesRenseignees: especesImpactees !== undefined,
+    especesImpacteesRenseignees: especesImpactees.impacts.length >= 1,
 
     // Statistics
     depot_date,

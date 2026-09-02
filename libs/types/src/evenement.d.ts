@@ -13,7 +13,8 @@ export type DossierSearchEventDetails = {
     text?: string;
     phases?: DossierPhase[];
     nextActionExpectedFrom?: Array<DossierNextActionExpectedFrom | "(vide)">;
-    activitesPrincipales?: NonNullable<Dossier["main_activite"]>[];
+    /** Display names of the selected Pitchou activities (raw DN labels in historical events). */
+    activitesPrincipales?: string[];
     departements?: string[];
     nouveaute?: boolean;
   };

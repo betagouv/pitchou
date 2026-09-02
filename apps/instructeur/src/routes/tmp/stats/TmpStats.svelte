@@ -11,6 +11,7 @@
   import TagPhase from "$lib/components/TagPhase.svelte";
 
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+  import { DEMANDE_SCIENTIFIQUE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 
   type Props = {
     dossiers?: DossierSummary[];
@@ -70,7 +71,7 @@
   );
 
   function trouverDossiersNonScientifiques(dossiers: DossierSummary[]) {
-    return dossiers.filter((d) => d.main_activite !== "Demande à caractère scientifique");
+    return dossiers.filter((d) => d.activite_code !== DEMANDE_SCIENTIFIQUE_ACTIVITE_CODE);
   }
 
   let dossiersNonScientifiquesEnAccompagnementDeMoinsDe3Ans = $derived(

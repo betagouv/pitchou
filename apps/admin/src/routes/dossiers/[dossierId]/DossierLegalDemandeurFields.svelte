@@ -1,7 +1,7 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
-  import Select from "@pitchou/ui/Select.svelte";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
 
@@ -16,7 +16,6 @@
     !!model.personneMorale.region &&
       !dossierRegionOptions.includes(model.personneMorale.region as never),
   );
-
   // A value predating the current list stays selectable, so opening a dossier
   // never silently drops it.
   const departmentOptions = $derived([
@@ -34,7 +33,6 @@
       label: `${department.code} - ${department.name}`,
     })),
   ]);
-
   const regionOptions = $derived([
     { value: "", label: "Non renseignée" },
     ...(hasLegacyRegion

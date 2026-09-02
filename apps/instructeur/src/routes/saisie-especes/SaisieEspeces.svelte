@@ -1,5 +1,6 @@
 <script lang="ts">
-  import EspecesProtegeesGroupedByImpact from "$lib/components/EspecesProtegeesGroupedByImpact.svelte";
+  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
+  import { createEspecesGroupedByTypeImpact } from "$lib/especes/createEspecesGroupedByTypeImpact.ts";
   import ModalPrefillFromText from "./SaisieEspeces/ModalPrefillFromText.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
@@ -135,9 +136,11 @@
           le mode lecture pour modifier les espèces.
         </p>
       </div>
-      {#await referentiels}<Loader />{:then data}<EspecesProtegeesGroupedByImpact
-          espècesImpactées={grouped}
-          identifiantPitchouVersActivitéEtImpactsQuantifiés={data.identifiantPitchouVersActivitéEtImpactsQuantifiés}
+      {#await referentiels}<Loader />{:then data}<EspecesProtegeesGroupedByTypeImpact
+          especesParTypeImpact={createEspecesGroupedByTypeImpact(
+            grouped,
+            data.identifiantPitchouVersActivitéEtImpactsQuantifiés,
+          )}
         />{/await}
     {/if}
   {:else}

@@ -5,7 +5,12 @@ import { WITHOUT_INSTRUCTEUR, type DossiersQuery } from "./query.ts";
 export function buildSearchEvent(
   query: DossiersQuery,
   resultCount: number,
-  context: { instructeurCount: number; email: string },
+  context: {
+    instructeurCount: number;
+    email: string;
+    /** Resolves the selected activity codes to display names, historical events being labels. */
+    activiteLabelByCode?: ReadonlyMap<string, string>;
+  },
 ): DossierSearchEventDetails {
   const filters: DossierSearchEventDetails["filters"] = {
     nouveaute: query.nouveaute !== "",
@@ -18,7 +23,9 @@ export function buildSearchEvent(
     filters.phases = query.phase;
   }
   if (query.activite.length) {
-    filters.activitesPrincipales = query.activite;
+    filters.activitesPrincipales = query.activite.map(
+      (code) => context.activiteLabelByCode?.get(code) ?? code,
+    );
   }
   if (query.prochaineAction.length) {
     filters.nextActionExpectedFrom = query.prochaineAction;

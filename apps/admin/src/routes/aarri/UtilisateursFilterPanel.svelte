@@ -2,6 +2,7 @@
   import Select from "@pitchou/ui/Select.svelte";
 
   import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
+
   import { NIVEAUX, NIVEAU_LABELS } from "./utilisateursList.ts";
 
   type Props = {
