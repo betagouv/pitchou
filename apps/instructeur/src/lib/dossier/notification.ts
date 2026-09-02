@@ -15,13 +15,14 @@ export function updateNotificationForDossier(
 
   return updateNotificationForDossier(notification)
     .then(() => {
+      // Also create the store entry when missing, so marking a dossier unread
+      // is reflected even when it had no notification yet.
       const currentNotification = store.notificationByDossier.get(notification.dossier);
-      if (currentNotification) {
-        store.notificationByDossier.set(notification.dossier, {
-          ...currentNotification,
-          ...notification,
-        });
-      }
+      store.notificationByDossier.set(notification.dossier, {
+        viewed: notification.viewed ?? currentNotification?.viewed ?? true,
+        updated_at: notification.updated_at ?? currentNotification?.updated_at ?? null,
+        viewed_at: notification.viewed ? new Date() : (currentNotification?.viewed_at ?? null),
+      });
     })
     .catch((e) =>
       console.warn(`Échec lors de la mise à jour de la notification :`, e, notification),

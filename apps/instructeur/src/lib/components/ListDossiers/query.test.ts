@@ -22,7 +22,7 @@ describe("parseDossiersQuery", () => {
       nouveaute: "",
       actionInstructeur: false,
       dateField: "deposit",
-      sort: "nouveaute",
+      sort: "depositDate",
       order: "desc",
       page: 1,
     });
@@ -79,7 +79,7 @@ describe("parseDossiersQuery", () => {
 
     expect(query.nouveaute).toBe("");
     expect(query.dateField).toBe("deposit");
-    expect(query.sort).toBe("nouveaute");
+    expect(query.sort).toBe("depositDate");
     expect(query.order).toBe("desc");
     expect(query.page).toBe(1);
   });

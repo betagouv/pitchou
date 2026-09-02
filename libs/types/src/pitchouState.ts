@@ -9,7 +9,6 @@ import type {
   MoyenDePoursuiteMenacant,
   QuantifiedImpact,
 } from "./especes.d.ts";
-import type Message from "./database/public/Message.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
 import type Notification from "./database/public/Notification.ts";
@@ -31,9 +30,17 @@ export type PitchouState = {
   capabilities: Partial<PitchouInstructeurCapabilities>;
   dossierSummaries: Map<DossierSummary["id"], DossierSummary>;
   fullDossiers: Map<DossierFull["id"], DossierFull>;
-  messagesByDossierId: Map<DossierFull["id"], Message[]>;
+  /**
+   * Dossiers fetched in read-only mode. The server strips what is not shared, so
+   * these are deliberately kept apart from `fullDossiers` — mixing the two would
+   * leak the full dossier into read-only mode, or the stripped one out of it.
+   */
+  readOnlyDossiers: Map<DossierFull["id"], DossierFull>;
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
-  notificationByDossier: Map<Dossier["id"], Pick<Notification, "viewed" | "updated_at">>;
+  notificationByDossier: Map<
+    Dossier["id"],
+    Pick<Notification, "viewed" | "updated_at" | "viewed_at">
+  >;
   identité?: IdentiteInstructeurPitchou;
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;

@@ -4,6 +4,7 @@ import type {
   FrontEndFichier,
 } from "@pitchou/types/API_Pitchou.ts";
 import type File from "@pitchou/types/database/public/File.ts";
+import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 
 export type PieceJointeSimple = {
   label: string;
@@ -37,12 +38,15 @@ export function piecesJointesProjet(dossier: DossierFull): PieceJointeSimple[] {
   );
 }
 
-export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
+export function piecesJointesAvis(dossier: DossierFull, readOnly = false): PieceJointeSimple[] {
   return dossier.avisExpert.flatMap((avisExpert) => {
     const pieces: PieceJointeSimple[] = [];
     const expert = labelAvisExpert(avisExpert);
 
-    if (avisExpert.saisine_fichier_url) {
+    // Read-only sharing exposes official avis only, never saisines or internal consultations.
+    if (readOnly && !isOfficialAvisExpert(avisExpert.expert)) return pieces;
+
+    if (avisExpert.saisine_fichier_url && !readOnly) {
       pieces.push({
         label: `Saisine - ${expert}`,
         description: avisExpert.saisine_fichier_description,

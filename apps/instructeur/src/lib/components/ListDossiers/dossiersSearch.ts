@@ -53,7 +53,7 @@ function instructeurEmailsForDossier(
 export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
   const parts: (string | null | undefined)[] = [
     dossier.name,
-    dossier.free_comment,
+    dossier.latestCommentaire,
     dossier.main_activite,
     dossier.activite_label,
     dossier.demarche_numerique_number,

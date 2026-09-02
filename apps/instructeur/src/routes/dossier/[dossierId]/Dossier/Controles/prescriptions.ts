@@ -1,4 +1,3 @@
-import { sendEvenement, sendEvenementModifierPrescription } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
@@ -12,8 +11,6 @@ export function addPrescription(
     throw new Error(`Pas les droits suffisants pour ajouter une prescription`);
   }
 
-  sendEvenement({ type: "ajouterPrescription" });
-
   return addOrUpdatePrescription(prescription);
 }
 
@@ -22,9 +19,6 @@ export function addPrescriptionsAndControles(prescription: Omit<FrontEndPrescrip
   if (!addPrescriptionsAndControles) {
     throw new Error(`Pas les droits suffisants pour ajouter des prescriptions et contrôles`);
   }
-
-  sendEvenement({ type: "ajouterPrescription" });
-  sendEvenement({ type: "ajouterContrôle" });
 
   return addPrescriptionsAndControles(prescription);
 }
@@ -37,8 +31,6 @@ export function updatePrescription(
     throw new Error(`Pas les droits suffisants pour modifier une prescription`);
   }
 
-  sendEvenementModifierPrescription();
-
   return addOrUpdatePrescription(prescription);
 }
 
@@ -47,8 +39,6 @@ export function deletePrescription(id: Prescription["id"]): Promise<any> {
   if (!deletePrescription) {
     throw new Error(`Pas les droits suffisants pour supprimer une prescription`);
   }
-
-  sendEvenement({ type: "supprimerPrescription" });
 
   return deletePrescription(id);
 }

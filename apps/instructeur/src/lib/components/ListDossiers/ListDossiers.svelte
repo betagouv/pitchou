@@ -121,13 +121,9 @@
     applySearch({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
   }
 
-  function onSort(key: SortKey, order: SortOrder) {
+  const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
-  }
-
-  function goToPage(number: number) {
-    navigate({ ...copyDossiersQuery(query), page: number });
-  }
+  const goToPage = (number: number) => navigate({ ...copyDossiersQuery(query), page: number });
 
   function openFilters() {
     draft = copyDossiersQuery(query);
@@ -200,11 +196,13 @@
 
 <PaginatedDossiers
   dossiers={sortedDossiers}
+  sortKey={query.sort}
   requestedPage={query.page}
   searchText={query.text}
   wholeListEmpty={dossiers.length === 0}
   followedIds={dossierIdsFollowedByCurrentInstructeur}
   notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
+  notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
   follow={(id) => instructeurFollowsDossier(email, id)}
   leave={(id) => instructeurLeavesDossier(email, id)}
   navigatePage={goToPage}

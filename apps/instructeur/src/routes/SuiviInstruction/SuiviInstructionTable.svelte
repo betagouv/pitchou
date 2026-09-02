@@ -46,7 +46,7 @@
               class="fr-btn whitespace-pre fr-btn--sm fr-btn--icon-left fr-icon-eye-line fr-mb-1w"
               href={`/dossier/${dossier.id}`}>Voir le dossier</a
             >
-            {#if dossier.free_comment?.trim()}<ModalButton id={`dsfr-modale-${dossier.id}`}
+            {#if dossier.latestCommentaire?.trim()}<ModalButton id={`dsfr-modale-${dossier.id}`}
                 >{#snippet openButton()}<button
                     class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-chat-3-line"
                     data-fr-opened="false"
@@ -55,7 +55,7 @@
                     Commentaire dossier {dossier.name}
                   </h1>
                   <div class="[white-space:preserve]">
-                    {dossier.free_comment}
+                    {dossier.latestCommentaire}
                   </div>{/snippet}</ModalButton
               >{/if}
             <button

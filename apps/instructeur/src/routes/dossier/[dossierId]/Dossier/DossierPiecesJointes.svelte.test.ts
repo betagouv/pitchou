@@ -91,8 +91,8 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   await expect.element(page.getByRole("heading", { name: "Autres" })).toBeVisible();
   await expect.element(page.getByRole("link", { name: "Télécharger" })).not.toBeInTheDocument();
 
-  await page.getByRole("button", { name: "Voir dans l'onglet Projet" }).click();
-  expect(openTab).toHaveBeenCalledWith("projet");
+  await page.getByRole("button", { name: "Voir dans l'onglet Détail du projet" }).click();
+  expect(openTab).toHaveBeenCalledWith("detail-du-projet");
 
   await page.getByRole("button", { name: "Voir dans l'onglet Avis" }).click();
   expect(openTab).toHaveBeenCalledWith("avis");

@@ -16,22 +16,22 @@ export const WITHOUT_INSTRUCTEUR = "sans-instructeur";
 export type ActiviteCode = NonNullable<DossierSummary["activite_code"]>;
 
 /** Dossier date the « dates » filter applies to */
-export type DateField = "deposit" | "phaseStart" | "lastModified";
+export type DateField = "deposit" | "phaseStart" | "lastModified" | "nextDue";
 
-export type SortKey = "nouveaute" | "depositDate" | "lastModified";
+export type SortKey = "depositDate" | "lastModified" | "nextDueDate";
 export type SortOrder = "asc" | "desc";
 
 /** « nouveaute » state: with / without / no filter */
 export type Nouveaute = "" | "oui" | "non";
 
 export const SORT_OPTIONS: { key: SortKey; label: string; orderable: boolean }[] = [
-  { key: "nouveaute", label: "Nouveauté", orderable: false },
   { key: "depositDate", label: "Date de dépôt", orderable: true },
   { key: "lastModified", label: "Dernière modification", orderable: true },
+  { key: "nextDueDate", label: "Date de prochaine échéance", orderable: true },
 ];
 
 const SORT_KEYS: readonly string[] = SORT_OPTIONS.map((option) => option.key);
-const DATE_FIELDS: readonly DateField[] = ["deposit", "phaseStart", "lastModified"];
+const DATE_FIELDS: readonly DateField[] = ["deposit", "phaseStart", "lastModified", "nextDue"];
 
 /** « Entité en charge de la prochaine action » options, in display order, with their labels */
 export const PROCHAINE_ACTION_OPTIONS: {
@@ -54,6 +54,7 @@ export const DATE_FIELD_LABEL: Record<DateField, string> = {
   deposit: "de dépôt",
   phaseStart: "de début de phase",
   lastModified: "de dernière modification",
+  nextDue: "de prochaine échéance",
 };
 
 /**
@@ -174,7 +175,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
       : "deposit",
     dateStart: params.get("from") ?? "",
     dateEnd: params.get("to") ?? "",
-    sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : "nouveaute",
+    sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : DEFAULT_SORT,
     order: params.get("order") === "asc" ? "asc" : "desc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
   };

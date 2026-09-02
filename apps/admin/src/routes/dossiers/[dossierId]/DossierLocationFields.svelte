@@ -1,7 +1,6 @@
 <script lang="ts">
   import MultiSelectFilter, { type FilterOption } from "@pitchou/ui/MultiSelectFilter.svelte";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
@@ -30,7 +29,7 @@
     ),
   );
 
-  const primaryDepartmentOptions: SelectEntry<string>[] = [
+  const primaryDepartmentOptions = [
     { value: "", label: "Non renseigné" },
     ...departements.map((department) => ({
       value: department.code,
@@ -54,6 +53,7 @@
     </label>
     <Select
       id="edit-primary-department"
+      class="fr-mt-1w"
       {disabled}
       options={primaryDepartmentOptions}
       bind:value={model.primaryDepartment}

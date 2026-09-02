@@ -6,6 +6,8 @@ import {
   addOrUpdateAvisExpertWithFichiers,
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -88,8 +90,10 @@ export const POST: RequestHandler = async ({ url, request }) => {
   };
   const avisExpert = id ? { ...baseAvisExpert, id: id as AvisExpertId } : baseAvisExpert;
 
-  const dossierIdForAuth = id ? await getDossierIdFromAvisExpert(id as AvisExpertId) : dossierId;
-  await requireDossierAccessByCap(dossierIdForAuth, cap);
+  const authorizedDossierId = await requireDossierAccessByCap(
+    id ? await getDossierIdFromAvisExpert(id as AvisExpertId) : dossierId,
+    cap,
+  );
 
   const blobFichierSaisine = form.get("blobFichierSaisine");
   const blobFichierAvis = form.get("blobFichierAvis");
@@ -109,6 +113,42 @@ export const POST: RequestHandler = async ({ url, request }) => {
   } else {
     await addOrUpdateAvisExpert(avisExpert);
   }
+
+  const author = await getPersonneByDossierCap(cap);
+  const authorPersonne = author?.id ?? null;
+  await logDossierActions([
+    ...(fichierSaisine
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "saisine_importee",
+            data: { expert: expert ?? null },
+            author_personne: authorPersonne,
+          },
+        ]
+      : []),
+    ...(fichierAvis
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "avis_importe",
+            data: { avis: avis ?? null },
+            author_personne: authorPersonne,
+          },
+        ]
+      : []),
+    // An avis edited without touching its files still changes the dossier.
+    ...(id && !fichierSaisine && !fichierAvis
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "avis_modifie",
+            data: { expert: expert ?? null, avis: avis ?? null },
+            author_personne: authorPersonne,
+          },
+        ]
+      : []),
+  ]);
 
   return new Response(null, { status: 204 });
 };

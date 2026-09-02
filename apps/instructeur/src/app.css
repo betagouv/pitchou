@@ -35,6 +35,13 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Light grey page background from the Figma design, so the white cards stand out. */
+  background-color: #f6f6f6;
+}
+
+/* In dark mode, keep the DSFR's own background instead of the light grey. */
+:root[data-fr-theme="dark"] body {
+  background-color: var(--background-default-grey);
 }
 
 main {

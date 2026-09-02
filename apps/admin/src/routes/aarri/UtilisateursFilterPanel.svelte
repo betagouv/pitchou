@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
   import Select from "@pitchou/ui/Select.svelte";
+
+  import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
 
   import { NIVEAUX, NIVEAU_LABELS } from "./utilisateursList.ts";
 
@@ -12,6 +13,16 @@
   };
 
   let { selectedNiveau, selectedGroupe, groupes, onChange }: Props = $props();
+
+  const niveauOptions = [
+    { value: "" as NiveauAARRI | "", label: "Tous les niveaux" },
+    ...NIVEAUX.map((niveau) => ({ value: niveau, label: NIVEAU_LABELS[niveau] })),
+  ];
+
+  const groupeOptions = $derived([
+    { value: "", label: "Tous les groupes" },
+    ...groupes.map((groupe) => ({ value: groupe, label: groupe })),
+  ]);
 </script>
 
 <fieldset
@@ -28,12 +39,9 @@
         id="select-niveau"
         class="flex-auto"
         ariaLabel="Niveau AARRI choisi"
-        options={[
-          { value: "", label: "Tous les niveaux" },
-          ...NIVEAUX.map((niveau) => ({ value: niveau, label: NIVEAU_LABELS[niveau] })),
-        ]}
+        options={niveauOptions}
         value={selectedNiveau}
-        onChange={(niveau) => onChange({ niveau: niveau as NiveauAARRI | "" })}
+        onChange={(niveau) => onChange({ niveau })}
       />
     </div>
     <div
@@ -44,10 +52,7 @@
         id="select-groupe"
         class="flex-auto"
         ariaLabel="Groupe instructeur choisi"
-        options={[
-          { value: "", label: "Tous les groupes" },
-          ...groupes.map((groupe) => ({ value: groupe, label: groupe })),
-        ]}
+        options={groupeOptions}
         value={selectedGroupe}
         onChange={(groupe) => onChange({ groupe })}
       />

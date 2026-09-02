@@ -4,7 +4,7 @@
   import UiHeader from "@pitchou/ui/Header.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
 
-  import Navbar from "./Navbar.svelte";
+  import CompactHeader from "./CompactHeader.svelte";
 
   type Props = {
     nav?: boolean;
@@ -20,13 +20,18 @@
   }
 </script>
 
-<UiHeader
-  serviceTitle="Pitchou"
-  serviceTagline="Demandes de Dérogation Espèces Protégées"
-  tools={email ? tools : undefined}
-  menuLinks={email ? menuLinks : undefined}
-  nav={nav ? navLinks : undefined}
-/>
+{#if nav && email}
+  <!-- Internal pages: the compact banner replaces the official DSFR header. -->
+  <CompactHeader {email} onLogout={logoutAndRedirect} />
+{:else}
+  <UiHeader
+    serviceTitle="Pitchou"
+    serviceTagline="Demandes de Dérogation Espèces Protégées"
+    tools={email ? tools : undefined}
+    menuLinks={email ? menuLinks : undefined}
+    nav={undefined}
+  />
+{/if}
 
 {#snippet tools()}
   {#if email}
@@ -38,8 +43,4 @@
   {#if email}
     <AccountMenu {email} onLogout={logoutAndRedirect} align="start" />
   {/if}
-{/snippet}
-
-{#snippet navLinks()}
-  <Navbar />
 {/snippet}

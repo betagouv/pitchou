@@ -7,6 +7,7 @@ export function formatDossierFull(ret: DossierFull): DossierFull {
     "depot_date",
     "public_consultation_start_date",
     "public_consultation_end_date",
+    "next_due_date",
   ] as const) {
     if (ret[key]) ret[key] = new Date(ret[key]);
   }

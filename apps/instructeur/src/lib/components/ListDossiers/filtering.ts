@@ -1,5 +1,6 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
+import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
   WITHOUT_INSTRUCTEUR,
@@ -8,9 +9,6 @@ import {
   type DossiersContext,
   type DossiersQuery,
 } from "./query.ts";
-
-/** Experts whose avis is treated as a « CNPN/CSRPN » avis (the « Autre expert » avis is ignored) */
-const AVIS_CNPN_CSRPN_EXPERTS = new Set(["CSRPN", "CNPN", "Ministre"]);
 
 /** True when the dossier is followed by at least one person */
 function dossierIsFollowed(
@@ -35,6 +33,9 @@ export function dossierDate(
       return dossier.phase_start_date ?? undefined;
     case "lastModified":
       return notificationByDossier.get(dossier.id)?.updated_at ?? undefined;
+    case "nextDue":
+      // A dossier with no échéance never matches an échéance date range.
+      return dossier.next_due_date ? new Date(dossier.next_due_date) : undefined;
     case "deposit":
     default:
       return dossier.depot_date ?? undefined;
@@ -117,8 +118,7 @@ export function filterDossiers(
     result = result.filter(
       (dossier) =>
         !(dossier.avisExperts ?? []).some(
-          (avis) =>
-            avis.expert !== null && AVIS_CNPN_CSRPN_EXPERTS.has(avis.expert) && avis.hasAvisFile,
+          (avis) => isOfficialAvisExpert(avis.expert) && avis.hasAvisFile,
         ),
     );
   }
