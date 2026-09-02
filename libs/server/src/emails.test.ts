@@ -40,7 +40,7 @@ test("envoie un email HTML avec copies, adresse de réponse et pièces jointes",
       "api-key": "test-api-key",
     },
     json: {
-      sender: { name: "Pitchou", email: "pitchou@beta.gouv.fr" },
+      sender: { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" },
       to: [{ email: "cnpn@example.com" }],
       cc: [{ email: "instructeur@example.com" }, { email: "cheffe@example.com" }],
       replyTo: { email: "instructeur@example.com" },

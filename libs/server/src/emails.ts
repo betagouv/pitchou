@@ -4,7 +4,7 @@ import ky from "ky";
 const LOGIN_EMAIL_TEMPLATE_ID = 1;
 
 const BREVO_EMAIL_SEND_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
-const PITCHOU_SENDER = { name: "Pitchou", email: "pitchou@beta.gouv.fr" };
+const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" };
 
 export type BrevoSendResponse = { messageId: string };
 
