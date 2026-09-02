@@ -25,7 +25,7 @@ catalog:
   "@tailwindcss/vite": "^4.3.3"
   "@testing-library/jest-dom": "^7.0.0"
   "@testing-library/svelte": "^5.2.6"
-  "@tiptap/core": "^3.30.2"
+  "@tiptap/core": "^3.30.4"
   "@tiptap/extension-image": "^3.30.2"
   "@tiptap/extension-text-align": "^3.30.2"
   "@tiptap/pm": "^3.30.2"
