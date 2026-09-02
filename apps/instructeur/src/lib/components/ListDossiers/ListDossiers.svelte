@@ -121,13 +121,9 @@
     applySearch({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
   }
 
-  function onSort(key: SortKey, order: SortOrder) {
+  const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
-  }
-
-  function goToPage(number: number) {
-    navigate({ ...copyDossiersQuery(query), page: number });
-  }
+  const goToPage = (number: number) => navigate({ ...copyDossiersQuery(query), page: number });
 
   function openFilters() {
     draft = copyDossiersQuery(query);
