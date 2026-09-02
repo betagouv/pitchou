@@ -16,7 +16,7 @@
     "@tiptap/extension-text-align": "catalog:",
     "@tiptap/pm": "catalog:",
     "@tiptap/starter-kit": "catalog:",
-    "@xmldom/xmldom": "0.9.10",
+    "@xmldom/xmldom": "0.9.12",
     "jose": "catalog:",
     "knex": "catalog:",
     "maplibre-gl": "catalog:",
