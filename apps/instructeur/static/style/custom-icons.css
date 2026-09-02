@@ -9,9 +9,3 @@
   -webkit-mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
   mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
 }
-
-.fr-icon-mail-send-line::before,
-.fr-icon-mail-send-line::after {
-  -webkit-mask-image: url("../icons/mail-send-line.svg");
-  mask-image: url("../icons/mail-send-line.svg");
-}

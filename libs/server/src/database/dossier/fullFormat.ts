@@ -4,6 +4,7 @@ import type EvenementPhaseDossier from "@pitchou/types/database/public/Evenement
 import type File from "@pitchou/types/database/public/File.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type {
+  DossierCnpnEmailSentEvent,
   DossierFull,
   FrontEndFichier,
   FrontEndImpactOnEspece,
@@ -20,7 +21,7 @@ function describeFichier(
   route: string,
 ): FrontEndFichier | undefined {
   return id
-    ? { url: `${route}/${id}`, name: name as string, media_type: media_type as string, size }
+    ? { id, url: `${route}/${id}`, name: name as string, media_type: media_type as string, size }
     : undefined;
 }
 
@@ -43,11 +44,13 @@ export function formatDossierFull(
   prescriptions: Prescription[],
   controles: Controle[],
   impacts: FrontEndImpactOnEspece[],
+  cnpnEmailSentEvents: DossierCnpnEmailSentEvent[],
 ): DossierFull {
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
   delete dossier.demandeur_personne_morale_address;
   dossier.evenementsPhase = events;
+  dossier.cnpnEmailSentEvents = cnpnEmailSentEvents;
   dossier.avisExpert = avisRows.map(
     ({
       avis_fichier,
@@ -84,6 +87,7 @@ export function formatDossierFull(
     },
   );
   dossier.piecesJointesPetitionnaires = pieces.map(({ id, ...piece }) => ({
+    id,
     url: `/piece-jointe-petitionnaire/fichier/${id}`,
     ...piece,
   }));

@@ -2,6 +2,15 @@ import { json, text } from "d3-fetch";
 
 const commonRequestInit = { headers: { Accept: "application/json" } };
 
+export class RequestError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 export function wrapGETUrl(url: string | undefined): any {
   return url ? () => json(url, commonRequestInit) : undefined;
 }

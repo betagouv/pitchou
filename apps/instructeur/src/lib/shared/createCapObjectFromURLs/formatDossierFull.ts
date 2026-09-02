@@ -13,6 +13,15 @@ export function formatDossierFull(ret: DossierFull): DossierFull {
 
   if (ret.especesImpactees) Object.freeze(ret.especesImpactees);
   if (ret.evenementsPhase) Object.freeze(ret.evenementsPhase);
+  if (ret.cnpnEmailSentEvents) {
+    ret.cnpnEmailSentEvents = ret.cnpnEmailSentEvents.map((event) => ({
+      ...event,
+      sent_at: new Date(event.sent_at),
+      delivered_at: event.delivered_at ? new Date(event.delivered_at) : null,
+      opened_at: event.opened_at ? new Date(event.opened_at) : null,
+    }));
+    Object.freeze(ret.cnpnEmailSentEvents);
+  }
 
   if (ret.decisionsAdministratives) {
     ret.decisionsAdministratives = ret.decisionsAdministratives.map((decision) => {

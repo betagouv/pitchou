@@ -3,6 +3,7 @@ import type {
   FrontEndAvisExpert,
   FrontEndFichier,
 } from "@pitchou/types/API_Pitchou.ts";
+import type File from "@pitchou/types/database/public/File.ts";
 
 export type PieceJointeSimple = {
   label: string;
@@ -10,6 +11,8 @@ export type PieceJointeSimple = {
   date?: Date | string | null;
   labelDate: string;
   url: string;
+  fileId?: File["id"];
+  selectedForCnpnByDefault?: boolean;
 };
 
 export type PieceJointeGroup = {
@@ -23,12 +26,13 @@ function labelAvisExpert(avisExpert: FrontEndAvisExpert) {
 
 export function piecesJointesProjet(dossier: DossierFull): PieceJointeSimple[] {
   return dossier.piecesJointesPetitionnaires.map(
-    ({ url, demarche_numerique_created_at, name, media_type, size }) => ({
+    ({ id, url, demarche_numerique_created_at, name, media_type, size }) => ({
       label: name || "(fichier sans nom)",
-      description: { name, media_type, size, url },
+      description: { id, name, media_type, size, url },
       date: demarche_numerique_created_at,
       labelDate: "Date de dépôt",
       url,
+      fileId: id,
     }),
   );
 }
@@ -45,6 +49,8 @@ export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
         date: avisExpert.saisine_date,
         labelDate: "Date de saisine",
         url: avisExpert.saisine_fichier_url,
+        fileId: avisExpert.saisine_fichier_description?.id,
+        selectedForCnpnByDefault: avisExpert.expert?.trim().toUpperCase() === "CNPN",
       });
     }
 
@@ -55,6 +61,7 @@ export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
         date: avisExpert.avis_date,
         labelDate: "Date de l'avis",
         url: avisExpert.avis_fichier_url,
+        fileId: avisExpert.avis_fichier_description?.id,
       });
     }
 
@@ -75,6 +82,7 @@ export function piecesJointesDecisions(dossier: DossierFull): PieceJointeSimple[
         date: decision.signature_date,
         labelDate: "Date de signature",
         url: decision.fichier_url,
+        fileId: decision.fichier_description?.id,
       },
     ];
   });
@@ -87,6 +95,7 @@ export function piecesJointesAutres(dossier: DossierFull): PieceJointeSimple[] {
     date: attachment.attachment_date,
     labelDate: "Date de la pièce jointe",
     url: attachment.fichier_url ?? "",
+    fileId: attachment.fichier,
   }));
 }
 

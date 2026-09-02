@@ -5,14 +5,29 @@
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
+  import Pictogramme from "$lib/components/DSFR/Pictogramme.svelte";
+  import CnpnEmailModal from "./CnpnEmailModal.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
   type Props = {
     dossier: DossierFull;
+    email: string;
+    followers: string[];
+    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
   };
 
-  let { dossier }: Props = $props();
+  let { dossier, email, followers, especesImpactees }: Props = $props();
+  let cnpnEmailModalOpen = $state(false);
+
+  function openCnpnEmailModal() {
+    cnpnEmailModalOpen = true;
+  }
+
+  function preloadCnpnEmailEditor() {
+    void import("$lib/components/EmailRichTextEditor.svelte");
+  }
 
   const idModalAddPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
@@ -71,43 +86,41 @@
       <p class="fr-text--bold fr-mb-2w">Voici le protocole&nbsp;:</p>
       <ol class="flex flex-col gap-4 fr-m-0">
         <li>
-          Vérifier que le dossier est prêt
+          <strong>Vérifier que le dossier est prêt</strong>
           <span class="fr-hint-text block">
             (liste des espèces et de leurs impacts, dates de début des travaux, cartographie de
             l'emprise, etc.)
           </span>
         </li>
         <li>
-          Préparer le mail&nbsp;:
-          <ul class="fr-mt-1w fr-mb-0">
-            <li>
-              Produire
-              <a
-                class="fr-link"
-                href="https://betagouv.github.io/pitchou/instruction/document-types/bibliotheque/Mail%20Saisine%20CNPN.odt"
-                target="_blank"
-                rel="noopener external">le mail s'adressant au secrétariat du CNPN</a
-              >
-              grâce à la génération de document
-            </li>
-            <li>
-              Produire la saisine du CNPN (votre propre document ou via la génération de document)
-            </li>
+          <strong>Ajouter votre saisine dans Pitchou</strong>
+          <ul class="fr-mt-1w fr-mb-0 flex flex-col gap-2">
+            <li>La rédiger ou utiliser la génération de document</li>
+            <li>La stocker dans cet onglet</li>
           </ul>
         </li>
         <li>
-          Envoyer le mail au secrétariat du CNPN (avec toutes les PJ et la demande d'accusé de
-          réception)
-          <p class="fr-mt-1v fr-mx-0 fr-mb-0">
-            <a
-              class="fr-link [overflow-wrap:anywhere]"
-              href="mailto:derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr"
-              >derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr</a
-            >
-          </p>
+          <strong>Envoyer le mail</strong>
+          <ul class="fr-mt-1w fr-mb-2w flex flex-col gap-2">
+            <li>Cliquer sur l'adresse mail du secrétariat CNPN pour initier la création du mail</li>
+            <li>Sélectionner les PJ, dont la saisine, qui seront intégrées au mail</li>
+            <li>Vérifier, compléter si besoin et envoyer</li>
+          </ul>
+          <button
+            type="button"
+            class="fr-link flex w-full items-center gap-3 fr-p-1w text-left [overflow-wrap:anywhere] hover:bg-[var(--background-contrast-grey)]"
+            aria-haspopup="dialog"
+            onclick={openCnpnEmailModal}
+            onpointerenter={preloadCnpnEmailEditor}
+            onfocus={preloadCnpnEmailEditor}
+          >
+            <Pictogramme name="mail-send" size={48} />
+            <span> derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr </span>
+          </button>
         </li>
-        <li>Stocker la saisine CNPN dans cet onglet</li>
-        <li>Quand vous le recevrez, stocker l'avis CNPN dans cet onglet</li>
+        <li>
+          <strong>Quand vous le recevrez par mail, stocker l'avis CNPN dans cet onglet</strong>
+        </li>
       </ol>
       <p class="fr-mt-3w fr-mb-0">
         <strong>Pour plus de détails&nbsp;: </strong>
@@ -123,3 +136,13 @@
 </div>
 
 <ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
+
+{#if cnpnEmailModalOpen}
+  <CnpnEmailModal
+    {dossier}
+    {email}
+    {followers}
+    {especesImpactees}
+    onClose={() => (cnpnEmailModalOpen = false)}
+  />
+{/if}

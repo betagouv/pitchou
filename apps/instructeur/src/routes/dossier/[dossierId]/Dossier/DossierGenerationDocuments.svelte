@@ -174,5 +174,5 @@
     >
   </form>
 
-  <GeneratedDocuments documents={generatedDocuments} {dossier} />
+  <GeneratedDocuments documents={generatedDocuments} />
 </div>
