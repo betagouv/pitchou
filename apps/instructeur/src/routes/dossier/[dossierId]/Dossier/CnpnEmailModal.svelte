@@ -8,7 +8,6 @@
   import CnpnEmailLoadingSkeleton from "./CnpnEmailLoadingSkeleton.svelte";
   import CnpnEmailModalFooter from "./CnpnEmailModalFooter.svelte";
   import CnpnEmailModalHeader from "./CnpnEmailModalHeader.svelte";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type File from "@pitchou/types/database/public/File.ts";
   import { onMount, untrack } from "svelte";
@@ -18,10 +17,9 @@
     dossier: DossierFull;
     email: string;
     followers: string[];
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
     onClose: () => void;
   };
-  let { dossier, email, followers, especesImpactees, onClose }: Props = $props();
+  let { dossier, email, followers, onClose }: Props = $props();
   let dialogElement: HTMLDialogElement | undefined = $state();
   let loading = $state(true);
   let sending = $state(false);
@@ -61,7 +59,7 @@
   }
   async function initializeDraft() {
     try {
-      const draft = await createCnpnEmailDraft(dossier, email, especesImpactees);
+      const draft = await createCnpnEmailDraft(dossier, email);
       subject = draft.subject;
       const defaultAttachments = groups
         .flatMap((group) => group.pieces)

@@ -1,11 +1,5 @@
 import { expect, test, vi } from "vitest";
 
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
-  loadActivitesMethodesMoyensDePoursuite: vi.fn().mockResolvedValue({
-    identifiantPitchouVersActivitéEtImpactsQuantifiés: new Map(),
-  }),
-}));
-
 vi.mock("./DossierGenerationDocuments/generationTags.ts", () => ({
   getDocumentGenerationTags: vi.fn(() => ({
     nom: "Parc éolien <Test>",
@@ -39,7 +33,10 @@ import { createCnpnEmailDraft, updateCnpnAttachmentList } from "./cnpnEmailDraft
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 test("reprend l'objet et le contenu du modèle de saisine CNPN", async () => {
-  const draft = await createCnpnEmailDraft({} as DossierFull, "instructeur@example.com", undefined);
+  const draft = await createCnpnEmailDraft(
+    { especesImpactees: { impacts: [] } } as unknown as DossierFull,
+    "instructeur@example.com",
+  );
 
   expect(draft.subject).toBe(
     "Saisine du CNPN - Énergie éolienne - Parc éolien <Test> - Nantes, 44, 49",
@@ -52,7 +49,10 @@ test("reprend l'objet et le contenu du modèle de saisine CNPN", async () => {
 });
 
 test("synchronise la liste des pièces jointes avec la sélection", async () => {
-  const draft = await createCnpnEmailDraft({} as DossierFull, "instructeur@example.com", undefined);
+  const draft = await createCnpnEmailDraft(
+    { especesImpactees: { impacts: [] } } as unknown as DossierFull,
+    "instructeur@example.com",
+  );
 
   expect(updateCnpnAttachmentList(draft.htmlBody, ["saisine <CNPN>.pdf", "annexe.pdf"])).toContain(
     "<li>saisine &lt;CNPN&gt;.pdf</li><li>annexe.pdf</li>",

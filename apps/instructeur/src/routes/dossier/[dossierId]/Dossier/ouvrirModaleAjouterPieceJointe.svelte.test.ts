@@ -74,7 +74,6 @@ test("trace l'ouverture de la modale depuis l'onglet avis", async () => {
     dossier: dossier(),
     email: "instructeur@example.com",
     followers: [],
-    especesImpactees: undefined,
   });
 
   await page.getByRole("button", { name: "Ajouter un avis ou une saisine" }).click();

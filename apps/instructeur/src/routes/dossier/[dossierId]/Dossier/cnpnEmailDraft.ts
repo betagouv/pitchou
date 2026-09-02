@@ -1,6 +1,4 @@
-import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
-import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 function escapeHtml(value: unknown): string {
@@ -35,23 +33,8 @@ function value(value: unknown): string {
 export async function createCnpnEmailDraft(
   dossier: DossierFull,
   senderEmail: string,
-  especesImpactees: Promise<ResultatImportFichierEspeces> | undefined,
 ): Promise<{ subject: string; htmlBody: string }> {
-  const {
-    identifiantPitchouVersActivitéEtImpactsQuantifiés:
-      identifiantPitchouVersActiviteEtImpactsQuantifies,
-  } = await loadActivitesMethodesMoyensDePoursuite();
-  let impacts;
-  try {
-    impacts = (await especesImpactees)?.impactEspece;
-  } catch {
-    impacts = undefined;
-  }
-  const tags = getDocumentGenerationTags(
-    dossier,
-    impacts,
-    identifiantPitchouVersActiviteEtImpactsQuantifies,
-  );
+  const tags = getDocumentGenerationTags(dossier, dossier.especesImpactees.impacts);
   const subject = `Saisine du CNPN - ${value(tags.activité_principale)} - ${value(tags.nom)} - ${value(tags.localisation)}, ${value(tags.liste_départements)}`;
   const speciesSections = (tags.liste_espèces_par_impact ?? [])
     .map((group) => {

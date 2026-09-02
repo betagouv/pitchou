@@ -9,16 +9,14 @@
   import CnpnEmailModal from "./CnpnEmailModal.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
-  import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
   type Props = {
     dossier: DossierFull;
     email: string;
     followers: string[];
-    especesImpactees: Promise<ResultatImportFichierEspeces> | undefined;
   };
 
-  let { dossier, email, followers, especesImpactees }: Props = $props();
+  let { dossier, email, followers }: Props = $props();
   let cnpnEmailModalOpen = $state(false);
 
   function openCnpnEmailModal() {
@@ -138,11 +136,5 @@
 <ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
 
 {#if cnpnEmailModalOpen}
-  <CnpnEmailModal
-    {dossier}
-    {email}
-    {followers}
-    {especesImpactees}
-    onClose={() => (cnpnEmailModalOpen = false)}
-  />
+  <CnpnEmailModal {dossier} {email} {followers} onClose={() => (cnpnEmailModalOpen = false)} />
 {/if}

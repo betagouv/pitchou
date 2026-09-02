@@ -84,7 +84,6 @@ test("ouvre la modale avant la fin de la préparation du mail", async () => {
     dossier,
     email: "sender@example.com",
     followers: [],
-    especesImpactees: undefined,
     onClose: vi.fn(),
   });
 
@@ -106,7 +105,6 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
     dossier,
     email: "sender@example.com",
     followers: ["follower@example.com"],
-    especesImpactees: undefined,
     onClose: vi.fn(),
   });
 
@@ -149,7 +147,6 @@ test("propose les options d'alignement du corps du mail", async () => {
     dossier,
     email: "sender@example.com",
     followers: [],
-    especesImpactees: undefined,
     onClose: vi.fn(),
   });
 
@@ -167,7 +164,6 @@ test("permet de corriger le mail après une erreur de validation", async () => {
     dossier,
     email: "sender@example.com",
     followers: [],
-    especesImpactees: undefined,
     onClose: vi.fn(),
   });
 
@@ -186,7 +182,6 @@ test("bloque un nouvel envoi lorsque le résultat Brevo est incertain", async ()
     dossier,
     email: "sender@example.com",
     followers: [],
-    especesImpactees: undefined,
     onClose: vi.fn(),
   });
 
