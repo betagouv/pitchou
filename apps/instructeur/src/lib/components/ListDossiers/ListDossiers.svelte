@@ -1,21 +1,24 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import type { PitchouState } from "$lib/state/store.svelte.ts";
+  import { store, type PitchouState } from "$lib/state/store.svelte.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
   import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
     activiteLabelByCode as mapActiviteLabelByCode,
+    especeLabelByCD_REF as mapEspeceLabelByCD_REF,
     buildActiveFilterChips,
     buildDossiersSearchParams,
     buildSearchEvent,
-    compareDossiers,
     copyDossiersQuery,
     countActiveFilters,
     filterDossiers,
     listAvailableInstructeurs,
     readDossiersQuery,
+    sortDossiers,
+    toggleBooleanFilter,
+    toggleWithoutInstructeur,
   } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
@@ -75,19 +78,27 @@
   let filterParamsAtOpening = "";
 
   let statusMessage = $state("");
-  const ctx = $derived({ notificationByDossier, followRelations });
+  const ctx = $derived({
+    notificationByDossier,
+    followRelations,
+    especeByCD_REF: store.espèceByCD_REF,
+  });
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
-  const sortedDossiers = $derived(
-    [...filteredDossiers].sort((a, b) =>
-      compareDossiers(a, b, query.sort, query.order, notificationByDossier),
-    ),
-  );
+  const sortedDossiers = $derived(sortDossiers(filteredDossiers, query, notificationByDossier));
 
   const activeFilterCount = $derived(countActiveFilters(query));
   const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
-  const filterChips = $derived(buildActiveFilterChips(query, activiteLabelByCode));
+  const especeLabelByCD_REF = $derived(mapEspeceLabelByCD_REF(store.espèceByCD_REF));
+  const filterChips = $derived(
+    buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF),
+  );
   const instructeurCount = $derived(listAvailableInstructeurs(followRelations).length);
-  const analyticsContext = $derived({ instructeurCount, email, activiteLabelByCode });
+  const analyticsContext = $derived({
+    instructeurCount,
+    email,
+    activiteLabelByCode,
+    especeLabelByCD_REF,
+  });
 
   const dossierIdsFollowedByCurrentInstructeur = $derived(
     followRelations?.get(email) ?? new Set<Dossier["id"]>(),
@@ -105,29 +116,17 @@
     setTimeout(() => (statusMessage = ""), 400);
   }
 
-  function onSearch(text: string) {
-    applySearch({ ...copyDossiersQuery(query), text, page: 1 });
-  }
+  const onSearch = (text: string) => applySearch({ ...copyDossiersQuery(query), text, page: 1 });
 
-  function onToggleWithoutInstructeur() {
-    const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
-      ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
-      : [...query.instructeur, WITHOUT_INSTRUCTEUR];
-    applySearch({ ...copyDossiersQuery(query), instructeur, page: 1 });
-  }
+  const onToggleWithoutInstructeur = () => applySearch(toggleWithoutInstructeur(query));
 
-  /** Toggles one of the boolean quick filters and reapplies the search */
-  function toggleFilter(key: "enjeu" | "actionInstructeur") {
-    applySearch({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
-  }
+  const toggleFilter = (key: "enjeu" | "actionInstructeur") =>
+    applySearch(toggleBooleanFilter(query, key));
 
-  function onSort(key: SortKey, order: SortOrder) {
+  const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
-  }
 
-  function goToPage(number: number) {
-    navigate({ ...copyDossiersQuery(query), page: number });
-  }
+  const goToPage = (number: number) => navigate({ ...copyDossiersQuery(query), page: number });
 
   function openFilters() {
     draft = copyDossiersQuery(query);

@@ -95,6 +95,7 @@ export async function especesImpacteesFromFichierOdsArrayBuffer(
 export function loadDossiers() {
   loadRelationSuivi();
   loadRecentSearches();
+  loadEspecesProtegeesList().catch(() => {});
 
   if (store.capabilities?.listerDossiers) {
     return store.capabilities?.listerDossiers().then((dossiers) => {

@@ -44,6 +44,7 @@
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
+    onOpenEspecesDrawer: () => void;
   };
 
   let {
@@ -51,6 +52,7 @@
     dossiers,
     followRelations,
     showFilterInstructeurice,
+    onOpenEspecesDrawer,
   }: Props = $props();
 
   // The referentiel brings the thematic groups (colors, icons) of the activity filter; the
@@ -185,4 +187,4 @@
   {/each}
 </fieldset>
 
-<DossiersAdditionalFilters bind:draft />
+<DossiersAdditionalFilters bind:draft {onOpenEspecesDrawer} />

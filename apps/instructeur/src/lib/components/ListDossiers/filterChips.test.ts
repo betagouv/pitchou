@@ -115,3 +115,30 @@ describe("buildActiveFilterChips", () => {
     expect(chip.next.page).toBe(1);
   });
 });
+
+describe("buildActiveFilterChips — espèces", () => {
+  const labels = new Map([["2938", "Aigle royal (Aquila chrysaetos)"]]);
+
+  test("labels an espèce tag with its nom vernaculaire et scientifique", () => {
+    const chips = buildActiveFilterChips(makeQuery({ espece: ["2938"] }), new Map(), labels);
+    expect(chips.map((chip) => chip.label)).toEqual(["Aigle royal (Aquila chrysaetos)"]);
+  });
+
+  test("falls back to the CD_REF while the référentiel is missing", () => {
+    const chips = buildActiveFilterChips(makeQuery({ espece: ["2938"] }));
+    expect(chips.map((chip) => chip.label)).toEqual(["2938"]);
+  });
+
+  test("removing an espèce tag keeps the other selected espèces", () => {
+    const chips = buildActiveFilterChips(
+      makeQuery({ espece: ["2938", "3571"] }),
+      new Map(),
+      labels,
+    );
+    expect(chips.find((chip) => chip.key === "espece:2938")?.next.espece).toEqual(["3571"]);
+  });
+
+  test("counts one filter per selected espèce", () => {
+    expect(countActiveFilters(makeQuery({ espece: ["2938", "3571"] }))).toBe(2);
+  });
+});

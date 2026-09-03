@@ -79,4 +79,12 @@ describe("buildSearchEvent", () => {
     expect(event.filters.withoutInstructeur).toBe(true);
     expect(event.filters.followedBy?.selectedCount).toBe(1);
   });
+
+  test("reports the selected espèces by their display name", () => {
+    const event = buildSearchEvent(makeQuery({ espece: ["2938", "3571"] }), 4, {
+      ...context,
+      especeLabelByCD_REF: new Map([["2938", "Aigle royal (Aquila chrysaetos)"]]),
+    });
+    expect(event.filters.especes).toEqual(["Aigle royal (Aquila chrysaetos)", "3571"]);
+  });
 });
