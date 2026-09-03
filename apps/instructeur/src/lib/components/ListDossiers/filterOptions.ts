@@ -4,6 +4,7 @@ import {
   departementNameByCode,
 } from "@pitchou/common/departements.ts";
 import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
+import { especeLabel } from "@pitchou/common/especesUtils.ts";
 import {
   activiteSelectEntries,
   type ActiviteForSelect,
@@ -86,6 +87,13 @@ export function listAvailableDepartements(dossiers: DossierSummary[]): Departeme
   return [...allDepartements, ...unknownCodes].sort((a, b) =>
     a.code.localeCompare(b.code, "fr", { numeric: true }),
   );
+}
+
+export function especeLabelByCD_REF(
+  especeByCD_REF: DossiersContext["especeByCD_REF"],
+): Map<string, string> {
+  if (!especeByCD_REF) return new Map();
+  return new Map([...especeByCD_REF].map(([cdRef, espece]) => [cdRef, especeLabel(espece)]));
 }
 
 export function listAvailableInstructeurs(

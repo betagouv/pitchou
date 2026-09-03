@@ -60,7 +60,7 @@ export function createEspecesGroupedByTypeImpact(
     esps.push({
       CD_REF: especeImpactee.espèce.CD_REF,
       nomScientifique: [...especeImpactee.espèce.nomsScientifiques][0],
-      nomVernaculaire: [...especeImpactee.espèce.nomsVernaculaires][0],
+      nomVernaculaire: [...especeImpactee.espèce.nomsVernaculaires][0] ?? "",
       especeCNPN: especeImpactee.espèce.espèceCNPN === "O" ? true : false,
       especeMinisterielle: especeImpactee.espèce.espèceMinistérielle === "O" ? true : false,
       impactsValues: [...impactsQuantifies].map((secondaryData) => {

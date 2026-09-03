@@ -15,6 +15,8 @@ export type DossierSearchEventDetails = {
     nextActionExpectedFrom?: Array<DossierNextActionExpectedFrom | "(vide)">;
     /** Display names of the selected Pitchou activities (raw DN labels in historical events). */
     activitesPrincipales?: string[];
+    /** Display names of the selected especes protegees (raw CD_REF if the referentiel is missing). */
+    especes?: string[];
     departements?: string[];
     nouveaute?: boolean;
   };

@@ -4,6 +4,7 @@
   import type { DossiersQuery } from "./listModel.ts";
   import { clearFilters } from "./listModel.ts";
   import DossiersFilterSections from "./DossiersFilterSections.svelte";
+  import DossiersEspecesPanel from "./DossiersEspecesPanel.svelte";
 
   type Props = {
     open: boolean;
@@ -31,6 +32,11 @@
   const resultsLabel = $derived(`Voir ${numberResults} résultat${numberResults > 1 ? "s" : ""}`);
 
   let dialogElement: HTMLDialogElement | undefined = $state();
+
+  let panel = $state<"filtres" | "especes">("filtres");
+  $effect(() => {
+    if (!open) panel = "filtres";
+  });
 
   // Sync the native <dialog> with the controlled `open` prop.
   $effect(() => {
@@ -63,7 +69,18 @@
     <header
       class="flex items-center justify-between fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"
     >
-      <h2 id="filtres-modal-titre" class="fr-m-0">Tous les filtres</h2>
+      <div class="flex items-center gap-1">
+        {#if panel === "especes"}
+          <button
+            type="button"
+            class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line"
+            onclick={() => (panel = "filtres")}>Revenir à tous les filtres</button
+          >
+        {/if}
+        <h2 id="filtres-modal-titre" class="fr-m-0">
+          {panel === "especes" ? "Espèces impactées" : "Tous les filtres"}
+        </h2>
+      </div>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-icon-close-line"
@@ -73,16 +90,28 @@
     </header>
 
     <div class="flex-[1_1_auto] overflow-y-auto fr-py-2w fr-px-3w">
-      <DossiersFilterSections bind:draft {dossiers} {followRelations} {showFilterInstructeurice} />
+      {#if panel === "especes"}
+        <DossiersEspecesPanel bind:draft />
+      {:else}
+        <DossiersFilterSections
+          bind:draft
+          {dossiers}
+          {followRelations}
+          {showFilterInstructeurice}
+          onOpenEspecesDrawer={() => (panel = "especes")}
+        />
+      {/if}
     </div>
 
-    <footer
-      class="flex justify-between gap-4 fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
-    >
-      <button type="button" class="fr-btn fr-btn--secondary" onclick={clearAll}>
-        Tout effacer
-      </button>
-      <button type="button" class="fr-btn" onclick={onApply}>{resultsLabel}</button>
-    </footer>
+    {#if panel === "filtres"}
+      <footer
+        class="flex justify-between gap-4 fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
+      >
+        <button type="button" class="fr-btn fr-btn--secondary" onclick={clearAll}>
+          Tout effacer
+        </button>
+        <button type="button" class="fr-btn" onclick={onApply}>{resultsLabel}</button>
+      </footer>
+    {/if}
   </div>
 </dialog>

@@ -33,11 +33,12 @@ function dateChipLabel(query: DossiersQuery): string {
 /**
  * One removable tag per active filter (text search included). Clicking a tag applies its
  * `next` query, i.e. the same filters minus the removed value. Order follows the modal's.
- * `activiteLabelByCode` resolves activity codes to their display names (see filterOptions.ts).
+ * `activiteLabelByCode` and `especeLabelByCD_REF` resolve codes to display names (filterOptions.ts).
  */
 export function buildActiveFilterChips(
   query: DossiersQuery,
   activiteLabelByCode: ReadonlyMap<string, string> = new Map(),
+  especeLabelByCD_REF: ReadonlyMap<string, string> = new Map(),
 ): FilterChip[] {
   const chips: FilterChip[] = [];
   // `next` is only ever read (serialized), so sharing the untouched arrays with `query` is safe.
@@ -132,6 +133,13 @@ export function buildActiveFilterChips(
       next: withUpdates({ avisExpertManquant: false }),
     });
   }
+  for (const cdRef of query.espece) {
+    chips.push({
+      key: `espece:${cdRef}`,
+      label: especeLabelByCD_REF.get(cdRef) ?? cdRef,
+      next: withUpdates({ espece: query.espece.filter((value) => value !== cdRef) }),
+    });
+  }
   if (query.especesImpacteesAbsente) {
     chips.push({
       key: "especesAbsente",
@@ -158,6 +166,7 @@ export function countActiveFilters(query: DossiersQuery): number {
   return (
     query.phase.length +
     query.activite.length +
+    query.espece.length +
     query.prochaineAction.length +
     query.departement.length +
     query.instructeur.length +
