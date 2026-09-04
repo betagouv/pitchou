@@ -7,6 +7,7 @@ const HEADER = [
   "Source",
   "Date de dépôt",
   "Phase",
+  "Date de la phase",
   "Demandeur",
   "Groupe instructeurs",
   "Activité principale",
@@ -28,7 +29,8 @@ function csvEscape(value: string | number): string {
 }
 
 /** ISO day, so spreadsheets sort the column chronologically whatever their locale. */
-function formatDate(value: Date | string): string {
+function formatDate(value: Date | string | null): string {
+  if (value === null) return "";
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? String(value) : date.toISOString().slice(0, 10);
 }
@@ -69,7 +71,8 @@ export function dossiersExportToCSV(rows: AdminDossierExportRow[]): string {
       row.demarche_numerique_number ?? "",
       SOURCE_LABELS[row.source] ?? SOURCE_LABELS.unknown,
       formatDate(row.depot_date),
-      row.phase,
+      row.phase ?? "",
+      formatDate(row.phase_date),
       formatDemandeur(row),
       row.groupe_name ?? "",
       // The Pitchou activity name; raw labels still pending review come out unchanged

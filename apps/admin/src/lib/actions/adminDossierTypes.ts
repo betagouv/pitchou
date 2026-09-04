@@ -6,7 +6,7 @@ export type AdminDossierSummary = {
   demarche_numerique_number: string | null;
   source: DossierSource;
   depot_date: string;
-  phase: string;
+  phase: string | null;
   main_activite: string | null;
   activite_code: string | null;
   activite_label: string | null;
@@ -139,7 +139,7 @@ export type AdminDossierDetail = {
 export type AdminDossierCreationPayload = {
   name: string;
   depot_date: string;
-  phase: string;
+  phase: string | null;
   relations: AdminDossierRelationsPayload;
   columns?: Record<string, unknown>;
 };

@@ -12,7 +12,7 @@ export type AdminDossierSummary = {
   demarche_numerique_number: string | null;
   source: DossierSource;
   depot_date: Date;
-  phase: DossierPhase;
+  phase: DossierPhase | null;
   main_activite: string | null;
   activite_code: string | null;
   activite_label: string | null;
@@ -25,6 +25,7 @@ export type AdminDossierSortKey = "depot_date" | "name" | "phase";
 
 /** A summary plus the extra columns the statistics export needs. */
 export type AdminDossierExportRow = AdminDossierSummary & {
+  phase_date: Date | null;
   primary_department: string | null;
   departments: unknown | null;
   communes: unknown | null;
@@ -43,7 +44,7 @@ export type ListAdminDossiersOptions = {
 function latestPhase(db: Knex.Transaction | Knex) {
   return db("evenement_phase_dossier")
     .distinctOn("dossier")
-    .select(["dossier", "phase"])
+    .select(["dossier", "phase", "timestamp"])
     .where(function () {
       this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
     })
@@ -77,7 +78,7 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
       .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
   );
 }
-function summaryColumns(db: Knex.Transaction | Knex) {
+function summaryColumns() {
   return [
     "dossier.id",
     "dossier.name",
@@ -87,7 +88,7 @@ function summaryColumns(db: Knex.Transaction | Knex) {
     "dossier.main_activite",
     "activite.code as activite_code",
     "activite.label as activite_label",
-    db.raw(`COALESCE(latest_phase.phase, ?) as phase`, ["Accompagnement amont"]),
+    "latest_phase.phase as phase",
     "demandeur_pp.last_name as demandeur_last_name",
     "demandeur_pp.first_names as demandeur_first_names",
     "entreprise.legal_name as demandeur_entreprise",
@@ -102,8 +103,7 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
         .orWhereILike("demandeur_pp.last_name", `%${options.search}%`)
         .orWhere("dossier.demarche_numerique_number", options.search);
     });
-  if (options.phase)
-    query.whereRaw(`COALESCE(latest_phase.phase, ?) = ?`, ["Accompagnement amont", options.phase]);
+  if (options.phase) query.where("latest_phase.phase", options.phase);
   if (options.source === "pitchou") query.where("dossier.source", "pitchou");
   else if (options.source === "dn") query.where("dossier.source", "demarche_numerique");
   else if (options.source === "unknown") query.where("dossier.source", "unknown");
@@ -116,7 +116,7 @@ function orderResults(query: Knex.QueryBuilder, options: ListAdminDossiersOption
       query.orderBy("dossier.name", order);
       break;
     case "phase":
-      query.orderByRaw(`COALESCE(latest_phase.phase, ?) ${order}`, ["Accompagnement amont"]);
+      query.orderBy("latest_phase.phase", order);
       break;
     case "depot_date":
     default:
@@ -138,7 +138,7 @@ export async function listDossiersForAdmin(
     .first();
   const dossiers: AdminDossierSummary[] = await withRelations(db("dossier"), db)
     .modify((q) => filter(q, options))
-    .select(summaryColumns(db))
+    .select(summaryColumns())
     .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
@@ -153,7 +153,8 @@ export function listDossiersForExport(
 ): Promise<AdminDossierExportRow[]> {
   return withRelations(db("dossier"), db)
     .select([
-      ...summaryColumns(db),
+      ...summaryColumns(),
+      "latest_phase.timestamp as phase_date",
       "dossier.primary_department",
       "dossier.departments",
       "dossier.communes",

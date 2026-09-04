@@ -10,6 +10,7 @@ function makeRow(overrides: Partial<AdminDossierExportRow> = {}): AdminDossierEx
     source: "demarche_numerique",
     depot_date: new Date("2026-03-04T10:00:00.000Z"),
     phase: "Instruction",
+    phase_date: new Date("2026-05-20T14:30:00.000Z"),
     demandeur_last_name: null,
     demandeur_first_names: null,
     demandeur_entreprise: "ACME",
@@ -31,12 +32,12 @@ describe("dossiersExportToCSV", () => {
     const [header, line] = dossiersExportToCSV([makeRow()]).split("\n");
     expect(header).toBe(
       "Identifiant Pitchou,Nom du dossier,Numéro Démarches Numériques,Source,Date de dépôt,Phase," +
-        "Demandeur,Groupe instructeurs,Activité principale,Département principal,Départements," +
-        "Communes,Régions",
+        "Date de la phase,Demandeur,Groupe instructeurs,Activité principale,Département principal," +
+        "Départements,Communes,Régions",
     );
     expect(line).toBe(
-      "42,Parc éolien,123456,Importé de Démarches Numériques,2026-03-04,Instruction,ACME," +
-        "DREAL Bretagne,Production d'énergie renouvelable,35,35 ; 22,Rennes (35238),Bretagne",
+      "42,Parc éolien,123456,Importé de Démarches Numériques,2026-03-04,Instruction,2026-05-20," +
+        "ACME,DREAL Bretagne,Production d'énergie renouvelable,35,35 ; 22,Rennes (35238),Bretagne",
     );
   });
 
@@ -68,6 +69,7 @@ describe("dossiersExportToCSV", () => {
         name: null,
         demarche_numerique_number: null,
         source: "pitchou",
+        phase_date: null,
         demandeur_entreprise: null,
         groupe_name: null,
         main_activite: null,
@@ -79,7 +81,15 @@ describe("dossiersExportToCSV", () => {
         regions: null,
       }),
     ]);
-    expect(csv.split("\n")[1]).toBe("42,,,Créé dans Pitchou,2026-03-04,Instruction,,,,,,,");
+    expect(csv.split("\n")[1]).toBe("42,,,Créé dans Pitchou,2026-03-04,Instruction,,,,,,,,");
+  });
+
+  it("leaves both phase columns empty when no phase was ever recorded", () => {
+    const csv = dossiersExportToCSV([makeRow({ phase: null, phase_date: null })]);
+    expect(csv.split("\n")[1]).toBe(
+      "42,Parc éolien,123456,Importé de Démarches Numériques,2026-03-04,,,ACME,DREAL Bretagne," +
+        "Production d'énergie renouvelable,35,35 ; 22,Rennes (35238),Bretagne",
+    );
   });
 
   it("quotes fields that contain a comma or a quote", () => {
