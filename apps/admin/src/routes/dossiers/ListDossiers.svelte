@@ -5,7 +5,7 @@
 
   import {
     loadDossiers,
-    downloadDossiersCSV,
+    downloadDossiersWorkbook,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
@@ -104,7 +104,7 @@
     downloading = true;
     downloadError = null;
     try {
-      await downloadDossiersCSV();
+      await downloadDossiersWorkbook();
     } catch (e) {
       downloadError =
         e instanceof AccessDeniedError

@@ -9,7 +9,11 @@ import type {
 
 export { AccessDeniedError };
 export type * from "./adminDossierTypes.ts";
-export { defaultDossiersQuery, loadDossiers, downloadDossiersCSV } from "./adminDossierList.ts";
+export {
+  defaultDossiersQuery,
+  loadDossiers,
+  downloadDossiersWorkbook,
+} from "./adminDossierList.ts";
 
 async function checkResponse(response: Response, action: string): Promise<void> {
   if (response.ok) return;

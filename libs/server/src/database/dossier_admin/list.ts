@@ -165,6 +165,35 @@ export function listDossiersForExport(
     .then((rows: AdminDossierExportRow[]) => rows.map(withResolvedActivite));
 }
 
+export type AdminAvisExpertExportRow = {
+  dossier: DossierId;
+  expert: string | null;
+  saisine_date: Date | null;
+  saisine_fichier: string | null;
+  avis: string | null;
+  avis_date: Date | null;
+  avis_fichier: string | null;
+};
+
+export function listAvisExpertForExport(
+  db: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<AdminAvisExpertExportRow[]> {
+  return db("avis_expert")
+    .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })
+    .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
+    .select([
+      "avis_expert.dossier",
+      "avis_expert.expert",
+      "avis_expert.saisine_date",
+      "file_saisine.name as saisine_fichier",
+      "avis_expert.avis",
+      "avis_expert.avis_date",
+      "file_avis.name as avis_fichier",
+    ])
+    .orderBy("avis_expert.dossier", "desc")
+    .orderBy("avis_expert.saisine_date", "desc");
+}
+
 export function listGroupesInstructeursForAdmin(
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Pick<GroupeInstructeurs, "id" | "name" | "demarche_number">[]> {
