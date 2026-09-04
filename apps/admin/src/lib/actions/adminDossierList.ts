@@ -47,14 +47,14 @@ export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> 
   return page as DossiersPage;
 }
 
-export async function downloadDossiersCSV(year: number): Promise<void> {
-  const response = await fetch(`/api/dossiers/export-csv?year=${year}`);
+export async function downloadDossiersCSV(): Promise<void> {
+  const response = await fetch("/api/dossiers/export-csv");
   await checkResponse(response, "du téléchargement des dossiers");
 
   const url = URL.createObjectURL(await response.blob());
   const a = document.createElement("a");
   a.href = url;
-  a.download = `dossiers_${year}.csv`;
+  a.download = "dossiers.csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

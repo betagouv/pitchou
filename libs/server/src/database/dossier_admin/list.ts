@@ -23,7 +23,7 @@ export type AdminDossierSummary = {
 };
 export type AdminDossierSortKey = "depot_date" | "name" | "phase";
 
-/** A summary plus the extra columns the yearly statistics export needs. */
+/** A summary plus the extra columns the statistics export needs. */
 export type AdminDossierExportRow = AdminDossierSummary & {
   primary_department: string | null;
   departments: unknown | null;
@@ -145,18 +145,13 @@ export async function listDossiersForAdmin(
   return { dossiers: dossiers.map(withResolvedActivite), total: Number(count?.count ?? 0) };
 }
 /**
- *
- * @param year
  * @param db
- * @returns list of dossiers from the current year, which means dossier with a "depot_date" equal to this year
+ * @returns every dossier, with the extra columns the statistics export needs
  */
-export function listDossiersDeposesDuringYear(
-  year: number,
+export function listDossiersForExport(
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<AdminDossierExportRow[]> {
   return withRelations(db("dossier"), db)
-    .where("dossier.depot_date", ">=", new Date(year, 0, 1))
-    .where("dossier.depot_date", "<", new Date(year + 1, 0, 1))
     .select([
       ...summaryColumns(db),
       "dossier.primary_department",

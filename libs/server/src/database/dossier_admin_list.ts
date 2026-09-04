@@ -1,6 +1,6 @@
 export {
   listDossiersForAdmin,
-  listDossiersDeposesDuringYear,
+  listDossiersForExport,
   listGroupesInstructeursForAdmin,
 } from "./dossier_admin/list.ts";
 export type {
