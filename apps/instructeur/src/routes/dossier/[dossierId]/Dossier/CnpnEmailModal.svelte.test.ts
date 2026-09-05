@@ -23,6 +23,7 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 const saisineId = "11111111-1111-4111-8111-111111111111" as FileId;
 const csrpnSaisineId = "22222222-2222-4222-8222-222222222222" as FileId;
+const latestSaisineId = "33333333-3333-4333-8333-333333333333" as FileId;
 const dossier = {
   id: 42,
   name: "Projet test",
@@ -111,6 +112,9 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   await expect
     .element(page.getByRole("group", { name: "Destinataire" }))
     .toHaveTextContent("derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr");
+  await expect
+    .element(page.getByText("Un accusé de lecture du mail vous sera communiqué."))
+    .toBeVisible();
   await expect.element(page.getByText("Environnement de test")).toBeVisible();
   await expect
     .element(page.getByLabelText("Destinataire de test"))
@@ -140,6 +144,38 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   );
   expect(refreshDossierFull).toHaveBeenCalledWith(42);
   await expect.element(page.getByRole("status")).toHaveTextContent("Mail envoyé");
+});
+
+test("présélectionne seulement la saisine CNPN la plus récente", async () => {
+  const dossierWithTwoCnpnSaisines = {
+    ...dossier,
+    avisExpert: [
+      ...dossier.avisExpert,
+      {
+        expert: "CNPN",
+        saisine_date: "2026-08-15",
+        saisine_fichier_url: `/avis-expert/fichier/${latestSaisineId}`,
+        saisine_fichier_description: {
+          id: latestSaisineId,
+          name: "saisine-recente.pdf",
+          media_type: "application/pdf",
+          size: 2048,
+          url: `/avis-expert/fichier/${latestSaisineId}`,
+        },
+      },
+    ],
+  } as unknown as DossierFull;
+  render(CnpnEmailModal, {
+    dossier: dossierWithTwoCnpnSaisines,
+    email: "sender@example.com",
+    followers: [],
+    onClose: vi.fn(),
+  });
+
+  await page.getByRole("button", { name: /Pièces jointes/ }).click();
+
+  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeChecked();
+  await expect.element(page.getByLabelText(/saisine-recente\.pdf/)).toBeChecked();
 });
 
 test("propose les options d'alignement du corps du mail", async () => {

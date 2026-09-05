@@ -38,6 +38,24 @@ export function piecesJointesProjet(dossier: DossierFull): PieceJointeSimple[] {
 }
 
 export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
+  const latestCnpnSaisine = dossier.avisExpert
+    .filter(
+      (avisExpert) =>
+        avisExpert.expert?.trim().toUpperCase() === "CNPN" &&
+        avisExpert.saisine_fichier_description?.id,
+    )
+    .reduce<FrontEndAvisExpert | undefined>((latest, current) => {
+      if (!latest) return current;
+      const latestDate = new Date(
+        latest.saisine_fichier_description?.created_at ?? latest.saisine_date ?? 0,
+      ).getTime();
+      const currentDate = new Date(
+        current.saisine_fichier_description?.created_at ?? current.saisine_date ?? 0,
+      ).getTime();
+      return currentDate >= latestDate ? current : latest;
+    }, undefined);
+  const defaultCnpnSaisineFileId = latestCnpnSaisine?.saisine_fichier_description?.id;
+
   return dossier.avisExpert.flatMap((avisExpert) => {
     const pieces: PieceJointeSimple[] = [];
     const expert = labelAvisExpert(avisExpert);
@@ -50,7 +68,8 @@ export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
         labelDate: "Date de saisine",
         url: avisExpert.saisine_fichier_url,
         fileId: avisExpert.saisine_fichier_description?.id,
-        selectedForCnpnByDefault: avisExpert.expert?.trim().toUpperCase() === "CNPN",
+        selectedForCnpnByDefault:
+          avisExpert.saisine_fichier_description?.id === defaultCnpnSaisineFileId,
       });
     }
 
