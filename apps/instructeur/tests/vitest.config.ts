@@ -24,6 +24,7 @@ export default defineConfig({
         test: {
           name: "component",
           include: ["src/**/*.svelte.test.ts"],
+          setupFiles: ["./tests/setup/component.ts"],
           browser: {
             enabled: true,
             provider: playwright(),

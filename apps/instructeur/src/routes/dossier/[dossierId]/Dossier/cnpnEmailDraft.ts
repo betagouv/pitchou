@@ -11,7 +11,7 @@ function escapeHtml(value: unknown): string {
 }
 
 const ATTACHMENT_LIST_PATTERN =
-  /(<p><strong>Liste des éléments transmis en PJ\s*:\s*<\/strong><\/p>\s*)<ul>[\s\S]*?<\/ul>/;
+  /(<(p|h[23])\b[^>]*>(?:(?!<\/\2>)[\s\S])*<\/\2>\s*)(<ul\b[^>]*>)[\s\S]*?<\/ul>/g;
 
 export function updateCnpnAttachmentList(html: string, names: string[]): string {
   const items =
@@ -20,7 +20,10 @@ export function updateCnpnAttachmentList(html: string, names: string[]): string 
       : "<li>Aucune pièce jointe sélectionnée</li>";
   return html.replace(
     ATTACHMENT_LIST_PATTERN,
-    (_, heading: string) => `${heading}<ul>${items}</ul>`,
+    (match, heading: string, _tag: string, list: string) =>
+      /^Liste des éléments transmis en PJ\s*:\s*$/.test(heading.replace(/<[^>]*>/g, "").trim())
+        ? `${heading}${list}${items}</ul>`
+        : match,
   );
 }
 
@@ -35,6 +38,7 @@ export async function createCnpnEmailDraft(
   senderEmail: string,
 ): Promise<{ subject: string; htmlBody: string }> {
   const tags = getDocumentGenerationTags(dossier, dossier.especesImpactees.impacts);
+  const aeRegime = tags.régime_autorisation_environnementale;
   const subject = `Saisine du CNPN - ${value(tags.activité_principale)} - ${value(tags.nom)} - ${value(tags.localisation)}, ${value(tags.liste_départements)}`;
   const speciesSections = (tags.liste_espèces_par_impact ?? [])
     .map((group) => {
@@ -68,7 +72,7 @@ export async function createCnpnEmailDraft(
       <li><strong>Nom du projet :</strong> ${escapeHtml(tags.nom)}</li>
       <li><strong>Porteur de projet :</strong> ${escapeHtml(tags.demandeur.nom)}</li>
       <li><strong>Identifiant du dossier sur Pitchou :</strong> ${escapeHtml(tags.numéro_dossier)}</li>
-      <li><strong>Autorisation environnementale :</strong> ${escapeHtml(tags.régime_autorisation_environnementale)}</li>
+      <li><strong>Autorisation environnementale :</strong> ${escapeHtml(typeof aeRegime === "boolean" ? (aeRegime ? "Oui" : "Non") : aeRegime)}</li>
       <li><strong>Activité principale du dossier :</strong> ${escapeHtml(tags.activité_principale)}</li>
       <li><strong>Localisation :</strong> ${escapeHtml(tags.localisation)}<br><strong>Numéros des départements :</strong> ${escapeHtml(value(tags.liste_départements))}</li>
       <li><strong>Motif de la dérogation :</strong> ${escapeHtml(tags.motif_dérogation)}</li>

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import ky from "ky";
 
 // keep in sync with https://app.brevo.com/templates/listing
@@ -7,6 +8,48 @@ const BREVO_EMAIL_SEND_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" };
 
 export type BrevoSendResponse = { messageId: string };
+
+export type EmailMessage = {
+  to: string[];
+  cc?: string[];
+  replyTo?: string;
+  subject: string;
+  htmlContent: string;
+  attachments?: { name: string; content: Buffer }[];
+  tags?: string[];
+  headers?: Record<string, string>;
+};
+
+// Brevo documents 20 MB for the whole message, including encoded attachments.
+// Use decimal MB, not MiB, and leave room for provider-added MIME headers.
+export const MAX_EMAIL_BYTES = 20_000_000;
+
+export function base64MimeBytes(bytes: number): number {
+  const encodedBytes = 4 * Math.ceil(bytes / 3);
+  return encodedBytes + 2 * Math.ceil(encodedBytes / 76);
+}
+
+export function estimateEmailBytes({
+  attachments = [],
+  htmlContent,
+  ...headers
+}: Omit<EmailMessage, "attachments"> & {
+  attachments?: { name: string; size: number }[];
+}): number {
+  // Budget worst-case quoted-printable UTF-8 expansion for text and headers,
+  // plus 64 KiB for provider headers and 4 KiB per MIME attachment part.
+  const textBytes = 3 * Buffer.byteLength(htmlContent);
+  return (
+    64 * 1024 +
+    textBytes +
+    3 * Math.ceil(textBytes / 73) +
+    4 * Buffer.byteLength(JSON.stringify({ sender: PITCHOU_SENDER, ...headers })) +
+    attachments.reduce(
+      (sum, { name, size }) => sum + 4 * 1024 + 8 * Buffer.byteLength(name) + base64MimeBytes(size),
+      0,
+    )
+  );
+}
 
 function sendBrevoEmail(payload: Record<string, unknown>): Promise<BrevoSendResponse> {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
@@ -53,14 +96,9 @@ export function sendEmail({
   subject,
   htmlContent,
   attachments = [],
-}: {
-  to: string[];
-  cc?: string[];
-  replyTo?: string;
-  subject: string;
-  htmlContent: string;
-  attachments?: { name: string; content: Buffer }[];
-}): Promise<BrevoSendResponse> {
+  tags = [],
+  headers = {},
+}: EmailMessage): Promise<BrevoSendResponse> {
   return sendBrevoEmail({
     sender: PITCHOU_SENDER,
     to: to.map((email) => ({ email })),
@@ -68,6 +106,8 @@ export function sendEmail({
     ...(replyTo ? { replyTo: { email: replyTo } } : {}),
     subject,
     htmlContent,
+    ...(tags.length > 0 ? { tags } : {}),
+    ...(Object.keys(headers).length > 0 ? { headers } : {}),
     ...(attachments.length > 0
       ? {
           attachment: attachments.map(({ name, content }) => ({
@@ -77,4 +117,65 @@ export function sendEmail({
         }
       : {}),
   });
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+const CNPN_READ_RECEIPT_NAMESPACE = Buffer.from("2f621668c6f64aef92e71d5df4894d1d", "hex");
+
+function cnpnReadReceiptIdempotencyKey(eventId: string): string {
+  const bytes = createHash("sha1")
+    .update(CNPN_READ_RECEIPT_NAMESPACE)
+    .update(eventId)
+    .digest()
+    .subarray(0, 16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x50;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytes.toString("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+async function isBrevoDuplicateIdempotencyError(error: unknown): Promise<boolean> {
+  if (!error || typeof error !== "object" || !("response" in error)) return false;
+  const { response } = error as { response?: unknown };
+  if (!(response instanceof Response) || response.status !== 400) return false;
+  let payload: unknown = "data" in error ? error.data : undefined;
+  if (!payload) {
+    try {
+      payload = await response.clone().json();
+    } catch {
+      return false;
+    }
+  }
+  return (
+    !!payload &&
+    typeof payload === "object" &&
+    "code" in payload &&
+    payload.code === "duplicate_parameter"
+  );
+}
+
+export async function sendCnpnEmailReadReceipt(
+  to: string,
+  context: { eventId: string; dossierId: number; originalSubject: string },
+): Promise<BrevoSendResponse> {
+  try {
+    return await sendEmail({
+      to: [to],
+      subject: `Accusé de lecture de votre saisine CNPN - dossier ${context.dossierId}`,
+      htmlContent: `<p>Le secrétariat du CNPN a ouvert le mail de saisine que vous avez envoyé via Pitchou pour le dossier ${context.dossierId}.</p><p><strong>Objet du mail :</strong> ${escapeHtml(context.originalSubject)}</p>`,
+      tags: ["cnpn-read-receipt"],
+      headers: { idempotencyKey: cnpnReadReceiptIdempotencyKey(context.eventId) },
+    });
+  } catch (error) {
+    if (await isBrevoDuplicateIdempotencyError(error)) return { messageId: context.eventId };
+    throw error;
+  }
 }

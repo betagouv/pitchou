@@ -166,7 +166,7 @@ test("les URL de fichiers du dossier portent la cap", async () => {
     dossier.decisionsAdministratives[0].fichier_url,
     dossier.otherAttachments[0].fichier_url,
     dossier.piecesJointesPetitionnaires[0].url,
-    dossier.especesImpactees.url,
+    dossier.especesImpactees.sourceFile.url,
   ];
   for (const url of urls) {
     expect(url).toContain(`cap=${cap}`);

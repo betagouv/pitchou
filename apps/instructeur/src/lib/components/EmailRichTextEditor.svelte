@@ -15,7 +15,11 @@
       element,
       extensions: [
         StarterKit.configure({ heading: { levels: [2, 3] }, link: { openOnClick: false } }),
-        TableKit,
+        TableKit.configure({
+          table: {
+            HTMLAttributes: { border: "1", cellpadding: "6", cellspacing: "0", width: "100%" },
+          },
+        }),
         TextAlign.configure({ types: ["heading", "paragraph"] }),
       ],
       content: html,
@@ -42,11 +46,20 @@
     void version;
     return editor?.isActive({ textAlign: alignment }) ?? false;
   }
-
+  function can(action: "undo" | "redo") {
+    void version;
+    return editor?.can()[action]() ?? false;
+  }
   const buttonClass =
     "fr-btn fr-btn--sm fr-btn--tertiary-no-outline min-w-8 justify-center px-2 disabled:opacity-50";
   const activeButtonClass =
     "bg-[var(--background-active-blue-france)] text-[color:var(--text-inverted-blue-france)]";
+  const alignments = [
+    { value: "left", label: "Aligner à gauche" },
+    { value: "center", label: "Centrer" },
+    { value: "right", label: "Aligner à droite" },
+    { value: "justify", label: "Justifier" },
+  ] as const;
 </script>
 
 <div class="rounded-lg focus-within:[outline:2px_solid_#0a76f6] focus-within:[outline-offset:2px]">
@@ -125,42 +138,17 @@
       onclick={() => editor?.chain().focus().toggleBlockquote().run()}
     ></button>
     <span class="mx-1 h-6 w-px bg-[var(--border-default-grey)]" aria-hidden="true"></span>
-    <button
-      type="button"
-      class="{buttonClass} {alignmentActive('left') ? activeButtonClass : ''}"
-      title="Aligner à gauche"
-      aria-label="Aligner à gauche"
-      aria-pressed={alignmentActive("left")}
-      onclick={() => editor?.chain().focus().setTextAlign("left").run()}
-      ><EmailToolbarIcon name="align-left" /></button
-    >
-    <button
-      type="button"
-      class="{buttonClass} {alignmentActive('center') ? activeButtonClass : ''}"
-      title="Centrer"
-      aria-label="Centrer"
-      aria-pressed={alignmentActive("center")}
-      onclick={() => editor?.chain().focus().setTextAlign("center").run()}
-      ><EmailToolbarIcon name="align-center" /></button
-    >
-    <button
-      type="button"
-      class="{buttonClass} {alignmentActive('right') ? activeButtonClass : ''}"
-      title="Aligner à droite"
-      aria-label="Aligner à droite"
-      aria-pressed={alignmentActive("right")}
-      onclick={() => editor?.chain().focus().setTextAlign("right").run()}
-      ><EmailToolbarIcon name="align-right" /></button
-    >
-    <button
-      type="button"
-      class="{buttonClass} {alignmentActive('justify') ? activeButtonClass : ''}"
-      title="Justifier"
-      aria-label="Justifier"
-      aria-pressed={alignmentActive("justify")}
-      onclick={() => editor?.chain().focus().setTextAlign("justify").run()}
-      ><EmailToolbarIcon name="align-justify" /></button
-    >
+    {#each alignments as { value, label }}
+      <button
+        type="button"
+        class="{buttonClass} {alignmentActive(value) ? activeButtonClass : ''}"
+        title={label}
+        aria-label={label}
+        aria-pressed={alignmentActive(value)}
+        onclick={() => editor?.chain().focus().setTextAlign(value).run()}
+        ><EmailToolbarIcon name={`align-${value}`} /></button
+      >
+    {/each}
     <span class="mx-1 h-6 w-px bg-[var(--border-default-grey)]" aria-hidden="true"></span>
     <button
       type="button"
@@ -176,7 +164,7 @@
         class="{buttonClass} fr-icon-arrow-go-back-line"
         title="Annuler"
         aria-label="Annuler"
-        disabled={!editor?.can().undo()}
+        disabled={!can("undo")}
         onclick={() => editor?.chain().focus().undo().run()}
       ></button>
       <button
@@ -184,7 +172,7 @@
         class="{buttonClass} fr-icon-arrow-go-forward-line"
         title="Rétablir"
         aria-label="Rétablir"
-        disabled={!editor?.can().redo()}
+        disabled={!can("redo")}
         onclick={() => editor?.chain().focus().redo().run()}
       ></button>
     </span>

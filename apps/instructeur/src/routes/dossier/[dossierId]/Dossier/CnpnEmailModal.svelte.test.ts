@@ -1,74 +1,15 @@
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
-import { cleanup, render, waitFor } from "@testing-library/svelte";
-
-vi.mock(import("./cnpnEmailDraft.ts"), () => ({
-  createCnpnEmailDraft: vi.fn().mockResolvedValue({
-    subject: "Saisine du CNPN - Projet test",
-    htmlBody: "<p>Bonjour</p>",
-  }),
-  updateCnpnAttachmentList: (html: string) => html,
-}));
-vi.mock(import("./sendCnpnEmail.ts"), () => ({ sendCnpnEmail: vi.fn() }));
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({ refreshDossierFull: vi.fn() }));
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
-
-import { createCnpnEmailDraft } from "./cnpnEmailDraft.ts";
-import { sendCnpnEmail } from "./sendCnpnEmail.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { render, waitFor } from "@testing-library/svelte";
 import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
-import CnpnEmailModal from "./CnpnEmailModal.svelte";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { FileId } from "@pitchou/types/database/public/File.ts";
-
-const saisineId = "11111111-1111-4111-8111-111111111111" as FileId;
-const csrpnSaisineId = "22222222-2222-4222-8222-222222222222" as FileId;
-const dossier = {
-  id: 42,
-  name: "Projet test",
-  piecesJointesPetitionnaires: [],
-  avisExpert: [
-    {
-      expert: "CNPN",
-      saisine_date: "2026-08-01",
-      saisine_fichier_url: `/avis-expert/fichier/${saisineId}`,
-      saisine_fichier_description: {
-        id: saisineId,
-        name: "saisine.pdf",
-        media_type: "application/pdf",
-        size: 1024,
-        url: `/avis-expert/fichier/${saisineId}`,
-      },
-    },
-    {
-      expert: "CSRPN",
-      saisine_date: "2026-08-01",
-      saisine_fichier_url: `/avis-expert/fichier/${csrpnSaisineId}`,
-      saisine_fichier_description: {
-        id: csrpnSaisineId,
-        name: "saisine-csrpn.pdf",
-        media_type: "application/pdf",
-        size: 2048,
-        url: `/avis-expert/fichier/${csrpnSaisineId}`,
-      },
-    },
-  ],
-  decisionsAdministratives: [],
-  otherAttachments: [],
-} as unknown as DossierFull;
-
-beforeEach(() => {
-  vi.mocked(createCnpnEmailDraft).mockReset().mockResolvedValue({
-    subject: "Saisine du CNPN - Projet test",
-    htmlBody: "<p>Bonjour</p>",
-  });
-  vi.mocked(sendCnpnEmail)
-    .mockReset()
-    .mockResolvedValue({} as never);
-  vi.mocked(refreshDossierFull).mockReset().mockResolvedValue(dossier);
-});
-
-afterEach(cleanup);
+import {
+  CnpnEmailModal,
+  createCnpnEmailDraft,
+  sendCnpnEmail,
+  refreshDossierFull,
+} from "./CnpnEmailModal/setup.ts";
+import { dossier, latestSaisineId, saisineId } from "./CnpnEmailModal/fixtures.ts";
 
 test("ouvre la modale avant la fin de la préparation du mail", async () => {
   const rootOverflow = document.documentElement.style.overflow;
@@ -111,6 +52,9 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   await expect
     .element(page.getByRole("group", { name: "Destinataire" }))
     .toHaveTextContent("derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr");
+  await expect
+    .element(page.getByText("Un accusé de lecture du mail vous sera communiqué."))
+    .toBeVisible();
   await expect.element(page.getByText("Environnement de test")).toBeVisible();
   await expect
     .element(page.getByLabelText("Destinataire de test"))
@@ -128,6 +72,9 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   await page.getByRole("option", { name: "Ajouter l'adresse cheffe@example.com" }).click();
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
 
+  expect(sendCnpnEmail).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(3000);
+
   await waitFor(() =>
     expect(sendCnpnEmail).toHaveBeenCalledWith(42, {
       requestId: expect.any(String),
@@ -140,6 +87,38 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   );
   expect(refreshDossierFull).toHaveBeenCalledWith(42);
   await expect.element(page.getByRole("status")).toHaveTextContent("Mail envoyé");
+});
+
+test("présélectionne seulement la saisine CNPN la plus récente", async () => {
+  const dossierWithTwoCnpnSaisines = {
+    ...dossier,
+    avisExpert: [
+      ...dossier.avisExpert,
+      {
+        expert: "CNPN",
+        saisine_date: "2026-08-15",
+        saisine_fichier_url: `/avis-expert/fichier/${latestSaisineId}`,
+        saisine_fichier_description: {
+          id: latestSaisineId,
+          name: "saisine-recente.pdf",
+          media_type: "application/pdf",
+          size: 2048,
+          url: `/avis-expert/fichier/${latestSaisineId}`,
+        },
+      },
+    ],
+  } as unknown as DossierFull;
+  render(CnpnEmailModal, {
+    dossier: dossierWithTwoCnpnSaisines,
+    email: "sender@example.com",
+    followers: [],
+    onClose: vi.fn(),
+  });
+
+  await page.getByRole("button", { name: /Pièces jointes/ }).click();
+
+  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeChecked();
+  await expect.element(page.getByLabelText(/saisine-recente\.pdf/)).toBeChecked();
 });
 
 test("propose les options d'alignement du corps du mail", async () => {
@@ -158,7 +137,10 @@ test("propose les options d'alignement du corps du mail", async () => {
 
 test("permet de corriger le mail après une erreur de validation", async () => {
   vi.mocked(sendCnpnEmail).mockRejectedValueOnce(
-    new RequestError(413, "Les pièces jointes dépassent la limite de 15 Mo."),
+    new RequestError(
+      413,
+      "Le mail et les pièces jointes dépassent la limite de 20 Mo après encodage.",
+    ),
   );
   render(CnpnEmailModal, {
     dossier,
@@ -168,10 +150,21 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   });
 
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
+  await vi.advanceTimersByTimeAsync(3000);
 
   await expect.element(page.getByRole("alert")).toHaveTextContent("dépassent la limite");
   await expect.element(page.getByLabelText("Objet")).not.toBeDisabled();
   await expect.element(page.getByRole("button", { name: "Envoyer", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: /Pièces jointes/ }).click();
+  await page.getByLabelText(/saisine\.pdf/).click();
+  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeChecked();
+  await page.getByRole("button", { name: "Envoyer", exact: true }).click();
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(sendCnpnEmail).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(sendCnpnEmail).mock.calls[1][1]).toEqual({
+    ...vi.mocked(sendCnpnEmail).mock.calls[0][1],
+    attachmentIds: [],
+  });
 });
 
 test("bloque un nouvel envoi lorsque le résultat Brevo est incertain", async () => {
@@ -186,6 +179,7 @@ test("bloque un nouvel envoi lorsque le résultat Brevo est incertain", async ()
   });
 
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
+  await vi.advanceTimersByTimeAsync(3000);
 
   await expect.element(page.getByRole("alert")).toHaveTextContent("incertain");
   await expect.element(page.getByLabelText("Objet")).toBeDisabled();

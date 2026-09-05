@@ -10,6 +10,13 @@ function fakeDossier(): DossierFull {
     name: "Dossier test",
     free_comment: "Note interne de l'instructeur",
     latestCommentaire: "Dernier commentaire du service",
+    cnpnEmailSentEvents: [
+      {
+        subject: "Saisine confidentielle",
+        cc_emails: ["internal@example.com"],
+        attachment_ids: ["internal-file"],
+      },
+    ],
     evenementsPhase: [{ dossier: 123, phase: "Instruction", timestamp: new Date("2026-02-01") }],
     piecesJointesPetitionnaires: [{ url: "/piece-jointe-petitionnaire/fichier/1", name: "ddep" }],
     avisExpert: [
@@ -60,6 +67,7 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
   // Commentaires, including the legacy column they were migrated from.
   expect(shared.free_comment).toBe("");
   expect(shared.latestCommentaire).toBeNull();
+  expect(shared.cnpnEmailSentEvents).toEqual([]);
 
   // Only the official avis, and never the saisine that produced it.
   expect(shared.avisExpert.map(({ expert }) => expert)).toEqual(["CNPN"]);
@@ -79,6 +87,9 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
   for (const secret of [
     "Note interne de l'instructeur",
     "Dernier commentaire du service",
+    "Saisine confidentielle",
+    "internal@example.com",
+    "internal-file",
     "Prescription interne",
     "Autre expert",
     "/avis-expert/fichier/11",
@@ -113,4 +124,5 @@ test("la projection ne modifie pas le dossier d'origine", () => {
   expect(dossier.avisExpert[0]!.saisine_fichier_url).toBe("/avis-expert/fichier/11");
   expect(dossier.decisionsAdministratives![0]!.prescriptions).toHaveLength(1);
   expect(dossier.otherAttachments).toHaveLength(1);
+  expect(dossier.cnpnEmailSentEvents).toHaveLength(1);
 });

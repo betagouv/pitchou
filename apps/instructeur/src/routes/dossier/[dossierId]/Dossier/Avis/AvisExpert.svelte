@@ -1,17 +1,23 @@
 <script lang="ts">
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import FormAvisExpert from "./FormAvisExpert.svelte";
+  import AvisExpertDateRow from "./AvisExpertDateRow.svelte";
   import { readOnlyMode } from "../readOnly.ts";
 
-  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type {
+    DossierCnpnEmailSentEvent,
+    DossierFull,
+    FrontEndAvisExpert,
+  } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
+    cnpnEmailEvent?: DossierCnpnEmailSentEvent;
     deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => Promise<unknown>;
   };
 
-  let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
+  let { dossierId, avisExpert, cnpnEmailEvent, deleteAvisExpert }: Props = $props();
 
   const readOnly = readOnlyMode();
 
@@ -20,6 +26,7 @@
   let deleteInProgress = $state(false);
 
   const deleteConfirmationTitleId = $derived(`confirmation-suppression-avis-${avisExpert.id}`);
+  const isCnpn = $derived(avisExpert.expert?.trim().toUpperCase() === "CNPN");
 
   function closeForm() {
     isEditing = false;
@@ -40,7 +47,7 @@
 <div
   class="flex flex-col fr-p-3w border border-[color:var(--border-default-grey)] rounded-[4px] bg-[var(--background-default-grey)]"
 >
-  <div class="flex flex-row justify-between items-start fr-mb-2w">
+  <div class="flex flex-row justify-between items-start gap-3 fr-mb-2w">
     <h3 class="fr-h5 fr-m-0">
       {avisExpert.expert ?? "Expert"}
       -
@@ -60,46 +67,56 @@
   </div>
   <!-- Switching to read-only mode while the form is open closes it. -->
   {#if !isEditing || readOnly.current}
-    <ul class="list-none ps-0 flex flex-col gap-3 fr-m-0">
-      <!-- Saisines are never shared: only the avis itself is. -->
+    <ul
+      class="list-none fr-m-0 fr-p-0 border-t border-solid border-[color:var(--border-default-grey)]"
+    >
+      <!-- Saisines and their email tracking stay internal to the service. -->
       {#if !readOnly.current}
-        <li class="flex justify-between items-center gap-2 py-2">
-          <span
-            ><strong>Date de la saisine&nbsp;:</strong>
-            {formatDateAbsolute(avisExpert.saisine_date)}
-          </span>
-          {#if avisExpert.saisine_fichier_url}
-            <a
-              class="fr-btn fr-btn--secondary fr-btn--sm"
-              href={avisExpert.saisine_fichier_url}
-              data-sveltekit-reload
-            >
-              Télécharger le fichier saisine
-            </a>
-          {:else}
-            Aucun fichier de saisine n'est lié à ce dossier
-          {/if}
-        </li>
+        <AvisExpertDateRow
+          icon="fr-icon-file-text-line"
+          label="Date d’ajout du courrier de saisine"
+          value={formatDateAbsolute(
+            avisExpert.saisine_fichier_description?.created_at ?? avisExpert.saisine_date,
+          )}
+          file={{
+            url: avisExpert.saisine_fichier_url,
+            downloadLabel: "Télécharger le fichier saisine",
+            emptyLabel: "Aucun fichier lié à ce dossier",
+          }}
+        />
+
+        {#if isCnpn}
+          <AvisExpertDateRow
+            icon="fr-icon-send-plane-line"
+            label="Date d’envoi du mail via Pitchou"
+            value={cnpnEmailEvent
+              ? formatDateAbsolute(cnpnEmailEvent.sent_at)
+              : "Pas encore envoyé"}
+          />
+          <AvisExpertDateRow
+            icon="fr-icon-eye-line"
+            label="Date de lecture de la saisine"
+            value={cnpnEmailEvent?.opened_at
+              ? formatDateAbsolute(cnpnEmailEvent.opened_at)
+              : "Pas encore lue"}
+          />
+        {/if}
       {/if}
+
       {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
-        <li class="flex justify-between items-center gap-2 py-2">
-          <span
-            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.avis_date)}
-          </span>
-          {#if avisExpert.avis_fichier_url}
-            <a
-              class="fr-btn fr-btn--secondary fr-btn--sm"
-              href={avisExpert.avis_fichier_url}
-              data-sveltekit-reload
-            >
-              Télécharger le fichier de l'avis
-            </a>
-          {:else if avisExpert.avis === "Avis favorable tacite"}
-            Avis favorable tacite
-          {:else}
-            Aucun fichier de l'avis n'est lié à ce dossier
-          {/if}
-        </li>
+        <AvisExpertDateRow
+          icon="fr-icon-checkbox-circle-line"
+          label="Date de l’avis"
+          value={formatDateAbsolute(avisExpert.avis_date)}
+          file={{
+            url: avisExpert.avis_fichier_url,
+            downloadLabel: "Télécharger le fichier de l'avis",
+            emptyLabel:
+              avisExpert.avis === "Avis favorable tacite"
+                ? "Avis favorable tacite"
+                : "Aucun fichier lié à ce dossier",
+          }}
+        />
       {/if}
     </ul>
   {:else}

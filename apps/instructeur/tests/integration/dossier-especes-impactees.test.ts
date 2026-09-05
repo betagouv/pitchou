@@ -33,7 +33,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose le fi
   expect(sourceFile).toBeDefined();
   expect(sourceFile!.name).toBe("especes-impactées.ods");
   expect(sourceFile!.media_type).toBe(ODS_MEDIA_TYPE);
-  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}`);
+  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}?cap=${cap}`);
 });
 
 test("les impacts sont servis avec leurs libellés résolus", async () => {

@@ -46,6 +46,7 @@ export function dossierFullForReadOnly(dossier: DossierFull): DossierFull {
     // with the dossier, so it has to be dropped too.
     free_comment: "",
     latestCommentaire: null,
+    cnpnEmailSentEvents: [],
 
     // Only the avis of the CSRPN, the CNPN and the ministre are shared, and only
     // the avis itself: a saisine says who the service consulted and when, which

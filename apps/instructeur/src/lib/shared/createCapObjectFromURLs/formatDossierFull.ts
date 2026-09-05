@@ -24,6 +24,19 @@ export function formatDossierFull(ret: DossierFull): DossierFull {
     Object.freeze(ret.cnpnEmailSentEvents);
   }
 
+  for (const avisExpert of ret.avisExpert) {
+    if (avisExpert.saisine_fichier_description?.created_at) {
+      avisExpert.saisine_fichier_description.created_at = new Date(
+        avisExpert.saisine_fichier_description.created_at,
+      );
+    }
+    if (avisExpert.avis_fichier_description?.created_at) {
+      avisExpert.avis_fichier_description.created_at = new Date(
+        avisExpert.avis_fichier_description.created_at,
+      );
+    }
+  }
+
   if (ret.decisionsAdministratives) {
     ret.decisionsAdministratives = ret.decisionsAdministratives.map((decision) => {
       if (decision.signature_date) decision.signature_date = new Date(decision.signature_date);

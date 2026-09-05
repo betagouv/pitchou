@@ -8,7 +8,13 @@ import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type File from "@pitchou/types/database/public/File.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 
-type AuthorizedFile = Pick<File, "id" | "name" | "media_type" | "size">;
+export { getAuthorizedDossierFiles } from "./dossier_cnpn_email/files.ts";
+export {
+  recordDossierCnpnEmailBrevoEvent,
+  markDossierCnpnEmailReadReceiptSent,
+  releaseDossierCnpnEmailReadReceipt,
+} from "./dossier_cnpn_email/brevo.ts";
+
 const sentEventColumns = [
   "id",
   "dossier",
@@ -19,8 +25,33 @@ const sentEventColumns = [
   "recipient_email",
   "cc_emails",
   "subject",
+  "attachment_ids",
   "attachment_names",
 ] as const;
+
+export type DossierCnpnEmailStats = {
+  sentCount: number;
+  deliveredCount: number;
+  openedCount: number;
+};
+
+export async function getDossierCnpnEmailStats(
+  db: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<DossierCnpnEmailStats> {
+  const counts = await db("dossier_cnpn_email_sent_event")
+    .where({ status: "sent" })
+    .select(
+      db.raw("count(*) as sent_count"),
+      db.raw("count(delivered_at) as delivered_count"),
+      db.raw("count(opened_at) as opened_count"),
+    )
+    .first();
+  return {
+    sentCount: Number(counts.sent_count),
+    deliveredCount: Number(counts.delivered_count),
+    openedCount: Number(counts.opened_count),
+  };
+}
 
 export function getDossierCnpnEmailSentEvents(
   dossierId: Dossier["id"],
@@ -41,41 +72,6 @@ export function getDossierCnpnEmailSentEventById(
     .select(sentEventColumns)
     .where({ id, dossier: dossierId, status: "sent" })
     .first();
-}
-
-export async function getAuthorizedDossierFiles(
-  dossierId: Dossier["id"],
-  fileIds: File["id"][],
-  db: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<AuthorizedFile[]> {
-  if (fileIds.length === 0) return [];
-
-  const [project, avisSaisine, avis, decisions, others] = await Promise.all([
-    db("edge_dossier__fichier_pieces_jointes_petitionnaire")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-    db("avis_expert")
-      .where({ dossier: dossierId })
-      .whereIn("saisine_fichier", fileIds)
-      .pluck("saisine_fichier"),
-    db("avis_expert")
-      .where({ dossier: dossierId })
-      .whereIn("avis_fichier", fileIds)
-      .pluck("avis_fichier"),
-    db("decision_administrative")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-    db("other_attachment")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-  ]);
-  const authorizedIds = new Set([...project, ...avisSaisine, ...avis, ...decisions, ...others]);
-  if (fileIds.some((id) => !authorizedIds.has(id))) return [];
-
-  return db("file").select(["id", "name", "media_type", "size"]).whereIn("id", fileIds);
 }
 
 export async function createDossierCnpnEmailSendAttempt(
@@ -159,8 +155,13 @@ export async function markDossierCnpnEmailSendAttemptSent(
       provider_message_id: providerMessageId,
     })
     .returning(sentEventColumns);
-  if (!event) throw new Error(`Tentative d'envoi CNPN introuvable : ${id}`);
-  return event;
+  if (event) return event;
+  const existing = await db("dossier_cnpn_email_sent_event")
+    .select(sentEventColumns)
+    .where({ id, status: "sent" })
+    .first();
+  if (existing) return existing;
+  throw new Error(`Tentative d'envoi CNPN introuvable : ${id}`);
 }
 
 export async function markDossierCnpnEmailSendAttemptFailed(
@@ -170,25 +171,4 @@ export async function markDossierCnpnEmailSendAttemptFailed(
   await db("dossier_cnpn_email_sent_event")
     .where({ id, status: "pending" })
     .update({ status: "failed" });
-}
-
-export async function recordDossierCnpnEmailBrevoEvent(
-  event: {
-    type: "delivered" | "opened";
-    providerMessageId: string;
-    recipientEmail: string;
-    occurredAt: Date;
-  },
-  db: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<boolean> {
-  const column = event.type === "delivered" ? "delivered_at" : "opened_at";
-  const updated = await db("dossier_cnpn_email_sent_event")
-    .where({
-      status: "sent",
-      provider_message_id: event.providerMessageId,
-      recipient_email: event.recipientEmail.toLowerCase(),
-    })
-    .andWhere((builder) => builder.whereNull(column).orWhere(column, ">", event.occurredAt))
-    .update({ [column]: event.occurredAt });
-  return updated === 1;
 }
