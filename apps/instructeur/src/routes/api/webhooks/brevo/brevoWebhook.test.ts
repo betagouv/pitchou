@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 vi.mock(import("@pitchou/server/cnpnEmailBrevo.ts"), () => ({
   processDossierCnpnEmailBrevoEvent: vi.fn(),
@@ -8,17 +8,26 @@ import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrev
 import { POST } from "./+server.ts";
 
 beforeEach(() => {
-  process.env.BREVO_WEBHOOK_SECRET = "webhook-secret";
+  vi.stubEnv("BREVO_WEBHOOK_SECRET", "webhook-secret");
   vi.mocked(processDossierCnpnEmailBrevoEvent).mockReset().mockResolvedValue("processed");
 });
 
-function eventRequest(payload: Record<string, unknown>, secret = "webhook-secret") {
+afterEach(() => vi.unstubAllEnvs());
+
+function eventRequest(
+  payload: Record<string, unknown> | string,
+  authorization: string | null = "Bearer webhook-secret",
+  url = "http://pitchou.test/api/webhooks/brevo",
+) {
   return POST({
-    url: new URL(`http://pitchou.test/api/webhooks/brevo?secret=${secret}`),
-    request: new Request("http://pitchou.test/api/webhooks/brevo", {
+    url: new URL(url),
+    request: new Request(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        ...(authorization === null ? {} : { Authorization: authorization }),
+      },
+      body: typeof payload === "string" ? payload : JSON.stringify(payload),
     }),
   } as never);
 }
@@ -92,9 +101,51 @@ test("demande à Brevo de rejouer pendant l'envoi de l'accusé de lecture", asyn
   ).rejects.toMatchObject({ status: 429 });
 });
 
-test("refuse un secret incorrect", async () => {
-  await expect(eventRequest({ event: "delivered" }, "wrong-secret")).rejects.toMatchObject({
+test.each([
+  null,
+  "",
+  "Bearer",
+  "Bearer wrong-secret",
+  "Bearer WEBHOOK-SECRET",
+  "webhook-secret",
+  "Basic webhook-secret",
+  "Token webhook-secret",
+  "Bearer webhook-secret extra",
+  "Bearer webhook-secret, Bearer webhook-secret",
+  "Bearer\twebhook-secret",
+])("refuse l'authentification %s avant de lire le corps", async (authorization) => {
+  await expect(eventRequest("not-json", authorization)).rejects.toMatchObject({
     status: 401,
   });
   expect(processDossierCnpnEmailBrevoEvent).not.toHaveBeenCalled();
 });
+
+test.each([null, "Bearer wrong-secret"])(
+  "un secret dans l'URL ne remplace pas l'authentification %s",
+  async (authorization) => {
+    await expect(
+      eventRequest(
+        "not-json",
+        authorization,
+        "http://pitchou.test/api/webhooks/brevo?secret=webhook-secret",
+      ),
+    ).rejects.toMatchObject({ status: 401 });
+    expect(processDossierCnpnEmailBrevoEvent).not.toHaveBeenCalled();
+  },
+);
+
+test.each(["bearer webhook-secret", "BEARER webhook-secret", "Bearer   webhook-secret"])(
+  "accepte le schéma HTTP valide %s",
+  async (authorization) => {
+    expect((await eventRequest({ event: "request" }, authorization)).status).toBe(204);
+  },
+);
+
+test.each([undefined, "", "   "])(
+  "refuse une configuration absente ou vide : %s",
+  async (secret) => {
+    vi.stubEnv("BREVO_WEBHOOK_SECRET", secret);
+    await expect(eventRequest("not-json")).rejects.toMatchObject({ status: 503 });
+    expect(processDossierCnpnEmailBrevoEvent).not.toHaveBeenCalled();
+  },
+);
