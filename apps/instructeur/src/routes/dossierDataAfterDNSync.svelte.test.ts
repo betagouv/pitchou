@@ -1,6 +1,8 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
   goto: vi.fn(),

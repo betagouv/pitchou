@@ -3,6 +3,8 @@ import { page } from "vitest/browser";
 import { cleanup, render, waitFor } from "@testing-library/svelte";
 import { format } from "date-fns";
 import { tick } from "svelte";
+
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
 import {
   chooseFichiers,
   DOSSIER_ID,
