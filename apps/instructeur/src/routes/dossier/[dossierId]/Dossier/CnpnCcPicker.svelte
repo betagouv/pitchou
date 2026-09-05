@@ -76,19 +76,19 @@
 
   function onKeyDown(event: KeyboardEvent) {
     if (event.key === "Escape") {
+      if (open) event.preventDefault();
       open = false;
       activeIndex = null;
       return;
     }
-    if (event.key === "Enter" && options.length > 0) {
+    if (event.key === "Enter") {
+      event.preventDefault();
       const option =
         activeIndex === null
           ? (options.find(({ kind }) => kind === "email") ??
             (options.length === 1 ? options[0] : null))
           : options[activeIndex];
-      if (!option) return;
-      event.preventDefault();
-      select(option);
+      if (option) select(option);
       return;
     }
     if (!["ArrowDown", "ArrowUp"].includes(event.key) || options.length === 0) return;
