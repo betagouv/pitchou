@@ -6,6 +6,17 @@ const LOGIN_EMAIL_TEMPLATE_ID = 30;
 
 const BREVO_EMAIL_SEND_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" };
+export const EMAIL_ENVIRONMENT_TAG_PREFIX = "pitchou-env-";
+
+export function getEmailEnvironmentTag(): string {
+  const environment =
+    process.env.PUBLIC_PITCHOU_ENV === "staging"
+      ? "staging"
+      : process.env.NODE_ENV === "production"
+        ? "production"
+        : "development";
+  return `${EMAIL_ENVIRONMENT_TAG_PREFIX}${environment}`;
+}
 
 export type BrevoSendResponse = { messageId: string };
 
@@ -51,7 +62,10 @@ export function estimateEmailBytes({
   );
 }
 
-function sendBrevoEmail(payload: Record<string, unknown>): Promise<BrevoSendResponse> {
+function sendBrevoEmail({
+  tags = [],
+  ...payload
+}: Record<string, unknown> & { tags?: string[] }): Promise<BrevoSendResponse> {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
   if (!BREVO_API_KEY) {
     throw new Error("Missing BREVO_API_KEY environment variable");
@@ -63,7 +77,13 @@ function sendBrevoEmail(payload: Record<string, unknown>): Promise<BrevoSendResp
         Accept: "application/json",
         "api-key": BREVO_API_KEY,
       },
-      json: payload,
+      json: {
+        ...payload,
+        tags: [
+          ...tags.filter((tag) => !tag.startsWith(EMAIL_ENVIRONMENT_TAG_PREFIX)),
+          getEmailEnvironmentTag(),
+        ],
+      },
     })
     .json<BrevoSendResponse>();
 }

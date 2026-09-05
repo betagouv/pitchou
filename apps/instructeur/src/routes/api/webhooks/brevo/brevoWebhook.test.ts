@@ -9,6 +9,7 @@ import { POST } from "./+server.ts";
 
 beforeEach(() => {
   vi.stubEnv("BREVO_WEBHOOK_SECRET", "webhook-secret");
+  vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
   vi.mocked(processDossierCnpnEmailBrevoEvent).mockReset().mockResolvedValue("processed");
 });
 
@@ -66,7 +67,7 @@ test("demande à Brevo de rejouer une saisine arrivée avant l'enregistrement du
       email: "cnpn@example.com",
       "message-id": "pending-provider-id",
       ts_event: 1_789_000_000,
-      tags: ["cnpn-saisine"],
+      tags: ["cnpn-saisine", "pitchou-env-staging"],
       "X-Mailin-custom": "11111111-1111-7111-8111-111111111111",
     }),
   ).rejects.toMatchObject({ status: 429 });

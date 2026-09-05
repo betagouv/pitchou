@@ -20,12 +20,14 @@ import {
 const initialApiKey = process.env.BREVO_API_KEY;
 
 beforeEach(() => {
+  vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
   process.env.BREVO_API_KEY = "test-api-key";
   responseJson.mockResolvedValue({ messageId: "test-message" });
   post.mockReturnValue({ json: responseJson });
 });
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   vi.clearAllMocks();
   if (initialApiKey === undefined) delete process.env.BREVO_API_KEY;
   else process.env.BREVO_API_KEY = initialApiKey;
@@ -80,6 +82,7 @@ test("sends the magic link with Brevo template 30", async () => {
         templateId: 30,
         to: [{ email: "instructeur@example.com" }],
         params: { lien_connexion: loginLink },
+        tags: ["pitchou-env-staging"],
       },
     }),
   );
@@ -109,7 +112,7 @@ test("envoie un email HTML avec copies, adresse de réponse et pièces jointes",
       replyTo: { email: "instructeur@example.com" },
       subject: "Saisine du CNPN",
       htmlContent: "<p>Bonjour</p>",
-      tags: ["cnpn-saisine"],
+      tags: ["cnpn-saisine", "pitchou-env-staging"],
       attachment: [{ name: "saisine.pdf", content: Buffer.from("contenu").toString("base64") }],
     },
   });
@@ -146,7 +149,7 @@ test("envoie l'accusé de lecture au gestionnaire", async () => {
         subject: "Accusé de lecture de votre saisine CNPN - dossier 42",
         htmlContent:
           "<p>Le secrétariat du CNPN a ouvert le mail de saisine que vous avez envoyé via Pitchou pour le dossier 42.</p><p><strong>Objet du mail :</strong> Saisine &lt;CNPN&gt;</p>",
-        tags: ["cnpn-read-receipt"],
+        tags: ["cnpn-read-receipt", "pitchou-env-staging"],
         headers: { idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/) },
       },
     }),

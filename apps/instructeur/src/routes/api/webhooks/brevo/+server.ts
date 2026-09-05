@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { error, type RequestHandler } from "@sveltejs/kit";
 import { readJsonObject } from "$lib/server/requestValidation.ts";
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
+import { EMAIL_ENVIRONMENT_TAG_PREFIX, getEmailEnvironmentTag } from "@pitchou/server/emails.ts";
 
 const eventTypes: Readonly<Record<string, "delivered" | "opened">> = {
   delivered: "delivered",
@@ -33,6 +34,18 @@ export const POST: RequestHandler = async ({ request }) => {
   const type = typeof payload.event === "string" ? eventTypes[payload.event] : undefined;
   if (!type) return new Response(null, { status: 204 });
 
+  if (
+    payload.tags !== undefined &&
+    (!Array.isArray(payload.tags) || payload.tags.some((tag) => typeof tag !== "string"))
+  ) {
+    error(400, "Tags d'événement Brevo invalides.");
+  }
+  const tags: string[] = payload.tags ?? [];
+  const environmentTag = getEmailEnvironmentTag();
+  if (tags.some((tag) => tag.startsWith(EMAIL_ENVIRONMENT_TAG_PREFIX) && tag !== environmentTag)) {
+    return new Response(null, { status: 204 });
+  }
+
   const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
   const messageId = typeof payload["message-id"] === "string" ? payload["message-id"].trim() : "";
   const customId =
@@ -45,7 +58,6 @@ export const POST: RequestHandler = async ({ request }) => {
   const occurredAt = new Date(timestamp * 1000);
   if (Number.isNaN(occurredAt.getTime())) error(400, "Date d'événement Brevo invalide.");
 
-  const tags = Array.isArray(payload.tags) ? payload.tags : [];
   let result: "processed" | "retry" | "unmatched";
   try {
     result = await processDossierCnpnEmailBrevoEvent({
@@ -58,7 +70,11 @@ export const POST: RequestHandler = async ({ request }) => {
   } catch {
     error(429, "Le traitement de l'événement doit être rejoué.");
   }
-  if (result === "retry" || (result === "unmatched" && tags.includes("cnpn-saisine"))) {
+  // Untagged historical events are processed when matched, but never retried just for being unknown.
+  if (
+    result === "retry" ||
+    (result === "unmatched" && tags.includes("cnpn-saisine") && tags.includes(environmentTag))
+  ) {
     error(429, "L'envoi correspondant n'est pas encore disponible.");
   }
   return new Response(null, { status: 204 });

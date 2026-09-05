@@ -119,6 +119,14 @@ Conserver les événements transactionnels suivis : `delivered`, `opened` et
 `uniqueOpened`. Cette dernière valeur de configuration correspond à `unique_opened`
 dans les notifications reçues.
 
+Les mails portent un tag `pitchou-env-staging` lorsque `PUBLIC_PITCHOU_ENV=staging`,
+`pitchou-env-production` sinon lorsque `NODE_ENV=production`, ou `pitchou-env-development`
+en local. Chaque webhook ignore les événements d'un autre environnement avec HTTP 204,
+sans accès à la base ni envoi d'accusé de lecture. Sans tag d'environnement, seuls les
+événements correspondant à un envoi enregistré localement sont traités ; les événements
+inconnus reçoivent HTTP 204 plutôt qu'une demande de nouvelle tentative.
+Brevo transmet toujours les notifications aux deux URL si elles utilisent le même compte.
+
 Pour le test fonctionnel, utiliser un compte instructeur autre que le compte de
 démonstration, dont les envois CNPN sont bloqués sur staging. Envoyer vers une adresse
 de test, vérifier les destinataires en copie, puis contrôler les statuts de livraison
