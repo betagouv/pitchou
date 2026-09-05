@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import ky from "ky";
 
 // keep in sync with https://app.brevo.com/templates/listing
-const LOGIN_EMAIL_TEMPLATE_ID = 1;
+const LOGIN_EMAIL_TEMPLATE_ID = 30;
 
 const BREVO_EMAIL_SEND_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" };
