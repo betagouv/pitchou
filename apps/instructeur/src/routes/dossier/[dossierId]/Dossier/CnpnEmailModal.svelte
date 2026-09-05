@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+  import { createSubmission } from "./CnpnEmailModal/submission.svelte.ts";
+  import CnpnEmailSuccess from "./CnpnEmailModal/CnpnEmailSuccess.svelte";
   import { createCnpnEmailDraft, updateCnpnAttachmentList } from "./cnpnEmailDraft.ts";
   import { piecesJointesGroups } from "./piecesJointes.ts";
-  import { sendCnpnEmail } from "./sendCnpnEmail.ts";
   import CnpnEmailForm from "./CnpnEmailForm.svelte";
   import CnpnEmailLoadingSkeleton from "./CnpnEmailLoadingSkeleton.svelte";
   import CnpnEmailModalFooter from "./CnpnEmailModalFooter.svelte";
@@ -22,11 +21,9 @@
   let { dossier, email, followers, onClose }: Props = $props();
   let dialogElement: HTMLDialogElement | undefined = $state();
   let loading = $state(true);
-  let sending = $state(false);
-  let submitted = $state(false);
-  let retryAllowed = $state(false);
-  let sent = $state(false);
-  let errorMessage = $state("");
+  const { state: submission, send } = createSubmission(() => dossier.id);
+  let countdown = $state(0);
+  let countdownTimer: ReturnType<typeof setInterval> | undefined;
   let recipient = $state(untrack(() => email));
   let subject = $state("");
   let htmlBody = $state("");
@@ -34,7 +31,6 @@
   let selectedIds: File["id"][] = $state([]);
   let EmailRichTextEditorComponent:
     typeof import("$lib/components/EmailRichTextEditor.svelte").default | undefined = $state();
-  const requestId = crypto.randomUUID();
   const isTestEnvironment = dev || env.PUBLIC_PITCHOU_ENV === "staging";
   const groups = $derived(piecesJointesGroups(dossier));
   $effect(() => {
@@ -49,6 +45,7 @@
     void initializeDraft();
     void loadEditor();
     return () => {
+      cancelCountdown();
       document.documentElement.style.overflow = rootOverflow;
       document.body.style.overflow = bodyOverflow;
     };
@@ -70,13 +67,22 @@
         defaultAttachments.map((piece) => piece.description?.name ?? piece.label),
       );
     } catch {
-      errorMessage = "Le contenu proposé n'a pas pu être généré à partir du dossier.";
+      submission.errorMessage = "Le contenu proposé n'a pas pu être généré à partir du dossier.";
     } finally {
       loading = false;
     }
   }
   function close() {
-    if (!sending) dialogElement?.close();
+    if (!submission.sending) {
+      cancelCountdown();
+      dialogElement?.close();
+    }
+  }
+
+  function cancelCountdown() {
+    clearInterval(countdownTimer);
+    countdownTimer = undefined;
+    countdown = 0;
   }
 
   function selectAttachments(ids: File["id"][]) {
@@ -90,42 +96,33 @@
     );
   }
 
-  async function submit(event: SubmitEvent) {
+  function submit(event: SubmitEvent) {
     event.preventDefault();
-    submitted = true;
-    retryAllowed = false;
-    sending = true;
-    errorMessage = "";
-    try {
-      await sendCnpnEmail(dossier.id, {
-        requestId,
-        recipient: isTestEnvironment ? recipient : undefined,
-        subject,
-        htmlBody,
-        cc: ccEmails,
-        attachmentIds: selectedIds,
-      });
-      sent = true;
-      try {
-        await refreshDossierFull(dossier.id);
-      } catch {
-        // Sending succeeded. A later dossier refresh will load the history entry.
+    if (
+      countdown ||
+      submission.sending ||
+      submission.sent ||
+      loading ||
+      !EmailRichTextEditorComponent ||
+      (submission.submitted && !submission.retryAllowed) ||
+      !subject.trim() ||
+      !htmlBody.trim()
+    )
+      return;
+    countdown = 3;
+    countdownTimer = setInterval(() => {
+      countdown -= 1;
+      if (countdown === 0) {
+        cancelCountdown();
+        void send({
+          recipient: isTestEnvironment ? recipient : undefined,
+          subject,
+          htmlBody,
+          cc: ccEmails,
+          attachmentIds: selectedIds,
+        });
       }
-    } catch (error) {
-      if (error instanceof RequestError) {
-        if (error.status === 502) retryAllowed = true;
-        else if (![425, 504].includes(error.status)) submitted = false;
-      } else {
-        // A lost browser response is safe to retry with the same frozen request ID.
-        retryAllowed = true;
-      }
-      errorMessage =
-        error instanceof Error && error.message
-          ? error.message
-          : "Le mail n'a pas pu être envoyé. Réessayez dans quelques instants.";
-    } finally {
-      sending = false;
-    }
+    }, 1000);
   }
 </script>
 
@@ -136,9 +133,16 @@
   class="w-[min(70rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
   style="margin: auto;"
   aria-labelledby="cnpn-email-title"
-  onclose={onClose}
+  onclose={() => {
+    cancelCountdown();
+    onClose();
+  }}
   oncancel={(event) => {
-    if (sending) event.preventDefault();
+    if (submission.sending) event.preventDefault();
+    if (countdown) {
+      event.preventDefault();
+      cancelCountdown();
+    }
   }}
   onclick={(event) => {
     if (event.target === dialogElement) close();
@@ -148,18 +152,15 @@
     class="flex max-h-[calc(100vh-2rem)] flex-col bg-[var(--background-default-grey)]"
     onsubmit={submit}
   >
-    <CnpnEmailModalHeader dossierName={dossier.name ?? dossier.id} {sending} onClose={close} />
+    <CnpnEmailModalHeader
+      dossierName={dossier.name ?? dossier.id}
+      sending={submission.sending}
+      onClose={close}
+    />
 
     <div class="min-h-0 flex-1 overflow-y-auto fr-p-3w">
-      {#if sent}
-        <div class="fr-alert fr-alert--success" role="status">
-          <h3 class="fr-alert__title">
-            {isTestEnvironment
-              ? `Mail envoyé à ${recipient}`
-              : "Mail envoyé au secrétariat du CNPN"}
-          </h3>
-          <p>L'envoi a été ajouté à l'historique du dossier.</p>
-        </div>
+      {#if submission.sent}
+        <CnpnEmailSuccess {isTestEnvironment} {recipient} />
       {:else if loading}
         <CnpnEmailLoadingSkeleton />
       {:else}
@@ -167,7 +168,7 @@
           dossierId={dossier.id}
           {isTestEnvironment}
           {groups}
-          {submitted}
+          submitted={submission.submitted || countdown > 0}
           {EmailRichTextEditorComponent}
           {selectedIds}
           bind:subject
@@ -177,18 +178,20 @@
           onSelectedIdsChange={selectAttachments}
         />
 
-        {#if errorMessage}
-          <p class="fr-error-text fr-mt-2w" role="alert">{errorMessage}</p>
+        {#if submission.errorMessage}
+          <p class="fr-error-text fr-mt-2w" role="alert">{submission.errorMessage}</p>
         {/if}
       {/if}
     </div>
 
     <CnpnEmailModalFooter
-      {sent}
+      sent={submission.sent}
       {loading}
-      {sending}
-      {submitted}
-      {retryAllowed}
+      sending={submission.sending}
+      {countdown}
+      onCancelCountdown={cancelCountdown}
+      submitted={submission.submitted}
+      retryAllowed={submission.retryAllowed}
       editorReady={Boolean(EmailRichTextEditorComponent)}
       {subject}
       {htmlBody}
