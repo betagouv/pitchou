@@ -153,6 +153,9 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   await vi.advanceTimersByTimeAsync(3000);
 
   await expect.element(page.getByRole("alert")).toHaveTextContent("dépassent la limite");
+  const alert = page.getByRole("alert").element();
+  expect(alert.closest("footer")).not.toBeNull();
+  expect(alert.nextElementSibling?.textContent).toContain("Annuler");
   await expect.element(page.getByLabelText("Objet")).not.toBeDisabled();
   await expect.element(page.getByRole("button", { name: "Envoyer", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: /Pièces jointes/ }).click();
@@ -161,6 +164,7 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
   await vi.advanceTimersByTimeAsync(3000);
   expect(sendCnpnEmail).toHaveBeenCalledTimes(2);
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
   expect(vi.mocked(sendCnpnEmail).mock.calls[1][1]).toEqual({
     ...vi.mocked(sendCnpnEmail).mock.calls[0][1],
     attachmentIds: [],

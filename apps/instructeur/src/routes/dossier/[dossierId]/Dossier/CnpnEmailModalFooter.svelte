@@ -10,6 +10,7 @@
     editorReady,
     subject,
     htmlBody,
+    errorMessage,
     onClose,
   }: {
     sent: boolean;
@@ -22,6 +23,7 @@
     editorReady: boolean;
     subject: string;
     htmlBody: string;
+    errorMessage: string;
     onClose: () => void;
   } = $props();
 </script>
@@ -29,6 +31,9 @@
 <footer
   class="flex shrink-0 flex-wrap justify-end gap-3 border-t border-[color:var(--border-default-grey)] fr-p-3w"
 >
+  {#if errorMessage && !sent && !loading}
+    <p class="fr-error-text fr-m-0 w-full" role="alert">{errorMessage}</p>
+  {/if}
   <button type="button" class="fr-btn fr-btn--secondary" disabled={sending} onclick={onClose}>
     {sent ? "Fermer" : "Annuler"}
   </button>

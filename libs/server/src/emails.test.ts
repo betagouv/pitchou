@@ -14,6 +14,7 @@ import {
   MAX_EMAIL_BYTES,
   sendCnpnEmailReadReceipt,
   sendEmail,
+  sendLoginEmail,
 } from "./emails.ts";
 
 const initialApiKey = process.env.BREVO_API_KEY;
@@ -66,6 +67,22 @@ test("budgets UTF-8 body, recipient headers, filenames and each MIME part", () =
       ],
     }) - baseline,
   ).toBe(2 * (4 * 1024 + 8 * Buffer.byteLength(name)) + 84 + 78);
+});
+
+test("sends the magic link with Brevo template 30", async () => {
+  const loginLink = "https://pitchou.test/?secret=test-secret";
+  await sendLoginEmail("instructeur@example.com", loginLink);
+
+  expect(post).toHaveBeenCalledWith(
+    "https://api.brevo.com/v3/smtp/email",
+    expect.objectContaining({
+      json: {
+        templateId: 30,
+        to: [{ email: "instructeur@example.com" }],
+        params: { lien_connexion: loginLink },
+      },
+    }),
+  );
 });
 
 test("envoie un email HTML avec copies, adresse de réponse et pièces jointes", async () => {

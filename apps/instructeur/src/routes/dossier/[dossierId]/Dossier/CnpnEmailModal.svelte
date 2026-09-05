@@ -177,10 +177,6 @@
           bind:htmlBody
           onSelectedIdsChange={selectAttachments}
         />
-
-        {#if submission.errorMessage}
-          <p class="fr-error-text fr-mt-2w" role="alert">{submission.errorMessage}</p>
-        {/if}
       {/if}
     </div>
 
@@ -189,6 +185,7 @@
       {loading}
       sending={submission.sending}
       {countdown}
+      errorMessage={submission.errorMessage}
       onCancelCountdown={cancelCountdown}
       submitted={submission.submitted}
       retryAllowed={submission.retryAllowed}
