@@ -96,6 +96,35 @@ L'application est déployée sur Scalingo
 
 Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
 
+### Authentification du webhook Brevo
+
+Le webhook de suivi des mails CNPN accepte uniquement l'en-tête
+`Authorization: Bearer <secret>`. Le secret doit correspondre à la variable serveur
+`BREVO_WEBHOOK_SECRET`.
+
+[Brevo documente la configuration Bearer](https://developers.brevo.com/docs/secured-webhooks).
+Les champs correspondants lors de la création ou de la mise à jour du webhook sont :
+
+```json
+{
+  "url": "https://<hote-instructeur>/api/webhooks/brevo",
+  "auth": {
+    "type": "bearer",
+    "token": "<valeur-de-BREVO_WEBHOOK_SECRET>"
+  }
+}
+```
+
+Conserver les événements transactionnels suivis : `delivered`, `opened` et
+`uniqueOpened`. Cette dernière valeur de configuration correspond à `unique_opened`
+dans les notifications reçues.
+
+Pour le test fonctionnel, utiliser un compte instructeur autre que le compte de
+démonstration, dont les envois CNPN sont bloqués sur staging. Envoyer vers une adresse
+de test, vérifier les destinataires en copie, puis contrôler les statuts de livraison
+et d'ouverture et l'accusé de lecture. Vérifier aussi que les outils de logs et de
+suivi d'erreurs masquent l'en-tête `Authorization`.
+
 ### Base de données
 
 On utilise une base de données Postgres 15.7 en prod

@@ -2,21 +2,27 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import FormAvisExpert from "./FormAvisExpert.svelte";
 
-  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
+  import type {
+    DossierCnpnEmailSentEvent,
+    DossierFull,
+    FrontEndAvisExpert,
+  } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
+    cnpnEmailEvent?: DossierCnpnEmailSentEvent;
     deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => Promise<unknown>;
   };
 
-  let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
+  let { dossierId, avisExpert, cnpnEmailEvent, deleteAvisExpert }: Props = $props();
 
   let isEditing: boolean = $state(false);
   let showDeleteConfirmation = $state(false);
   let deleteInProgress = $state(false);
 
   const deleteConfirmationTitleId = $derived(`confirmation-suppression-avis-${avisExpert.id}`);
+  const isCnpn = $derived(avisExpert.expert?.trim().toUpperCase() === "CNPN");
 
   function closeForm() {
     isEditing = false;
@@ -37,7 +43,7 @@
 <div
   class="flex flex-col fr-p-3w border border-[color:var(--border-default-grey)] rounded-[4px] bg-[var(--background-default-grey)]"
 >
-  <div class="flex flex-row justify-between items-start fr-mb-2w">
+  <div class="flex flex-row justify-between items-start gap-3 fr-mb-2w">
     <h3 class="fr-h5 fr-m-0">
       {avisExpert.expert ?? "Expert"}
       -
@@ -56,40 +62,100 @@
     {/if}
   </div>
   {#if !isEditing}
-    <ul class="list-none ps-0 flex flex-col gap-3 fr-m-0">
-      <li class="flex justify-between items-center gap-2 py-2">
+    <ul
+      class="list-none fr-m-0 fr-p-0 border-t border-solid border-[color:var(--border-default-grey)]"
+    >
+      <li
+        class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
+      >
         <span
-          ><strong>Date de la saisine&nbsp;:</strong> {formatDateAbsolute(avisExpert.saisine_date)}
-        </span>
+          class="fr-icon-file-text-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
+          aria-hidden="true"
+        ></span>
+        <div class="min-w-0 flex-1">
+          <span class="fr-hint-text block">Date d’ajout du courrier de saisine</span>
+          <strong class="block">
+            {formatDateAbsolute(
+              avisExpert.saisine_fichier_description?.created_at ?? avisExpert.saisine_date,
+            )}
+          </strong>
+          {#if !avisExpert.saisine_fichier_url}
+            <span class="fr-hint-text">Aucun fichier lié à ce dossier</span>
+          {/if}
+        </div>
         {#if avisExpert.saisine_fichier_url}
           <a
-            class="fr-btn fr-btn--secondary fr-btn--sm"
+            class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-download-line flex-none"
             href={avisExpert.saisine_fichier_url}
             data-sveltekit-reload
+            aria-label="Télécharger le fichier saisine"
           >
-            Télécharger le fichier saisine
+            Télécharger
           </a>
-        {:else}
-          Aucun fichier de saisine n'est lié à ce dossier
         {/if}
       </li>
-      {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
-        <li class="flex justify-between items-center gap-2 py-2">
+
+      {#if isCnpn}
+        <li
+          class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
+        >
           <span
-            ><strong>Date de l'avis&nbsp;:</strong> {formatDateAbsolute(avisExpert.avis_date)}
-          </span>
+            class="fr-icon-send-plane-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
+            aria-hidden="true"
+          ></span>
+          <div class="min-w-0 flex-1">
+            <span class="fr-hint-text block">Date d’envoi du mail via Pitchou</span>
+            <strong class="block">
+              {cnpnEmailEvent ? formatDateAbsolute(cnpnEmailEvent.sent_at) : "Pas encore envoyé"}
+            </strong>
+          </div>
+        </li>
+        <li
+          class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
+        >
+          <span
+            class="fr-icon-eye-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
+            aria-hidden="true"
+          ></span>
+          <div class="min-w-0 flex-1">
+            <span class="fr-hint-text block">Date de lecture de la saisine</span>
+            <strong class="block">
+              {cnpnEmailEvent?.opened_at
+                ? formatDateAbsolute(cnpnEmailEvent.opened_at)
+                : "Pas encore lue"}
+            </strong>
+          </div>
+        </li>
+      {/if}
+
+      {#if avisExpert.avis_fichier_url || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
+        <li
+          class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
+        >
+          <span
+            class="fr-icon-checkbox-circle-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
+            aria-hidden="true"
+          ></span>
+          <div class="min-w-0 flex-1">
+            <span class="fr-hint-text block">Date de l’avis</span>
+            <strong class="block">{formatDateAbsolute(avisExpert.avis_date)}</strong>
+            {#if !avisExpert.avis_fichier_url}
+              <span class="fr-hint-text">
+                {avisExpert.avis === "Avis favorable tacite"
+                  ? "Avis favorable tacite"
+                  : "Aucun fichier lié à ce dossier"}
+              </span>
+            {/if}
+          </div>
           {#if avisExpert.avis_fichier_url}
             <a
-              class="fr-btn fr-btn--secondary fr-btn--sm"
+              class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-download-line flex-none"
               href={avisExpert.avis_fichier_url}
               data-sveltekit-reload
+              aria-label="Télécharger le fichier de l'avis"
             >
-              Télécharger le fichier de l'avis
+              Télécharger
             </a>
-          {:else if avisExpert.avis === "Avis favorable tacite"}
-            Avis favorable tacite
-          {:else}
-            Aucun fichier de l'avis n'est lié à ce dossier
           {/if}
         </li>
       {/if}

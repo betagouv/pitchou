@@ -1,4 +1,5 @@
 export type * from "./apiPitchou/aarri.ts";
+export type * from "./apiPitchou/cnpnEmail.ts";
 export type * from "./apiPitchou/dossierBase.ts";
 export type * from "./apiPitchou/dossierDetails.ts";
 export type * from "./apiPitchou/stats.ts";
