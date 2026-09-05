@@ -27,6 +27,14 @@
     void import("$lib/components/EmailRichTextEditor.svelte");
   }
 
+  function cnpnEmailEventFor(avisExpert: FrontEndAvisExpert) {
+    const saisineFileId = avisExpert.saisine_fichier_description?.id;
+    if (avisExpert.expert?.trim().toUpperCase() !== "CNPN" || !saisineFileId) return undefined;
+    return dossier.cnpnEmailSentEvents?.find((event) =>
+      event.attachment_ids.includes(saisineFileId),
+    );
+  }
+
   const idModalAddPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
   let sortedAvisExpert = $derived(
@@ -49,7 +57,12 @@
     {#if sortedAvisExpert.length >= 1}
       <div class="flex flex-col gap-6">
         {#each sortedAvisExpert as avisExpert}
-          <AvisExpert dossierId={dossier.id} {avisExpert} {deleteAvisExpert} />
+          <AvisExpert
+            dossierId={dossier.id}
+            {avisExpert}
+            cnpnEmailEvent={cnpnEmailEventFor(avisExpert)}
+            {deleteAvisExpert}
+          />
         {/each}
       </div>
     {:else}
@@ -106,7 +119,7 @@
           </ul>
           <button
             type="button"
-            class="fr-link flex w-full items-center gap-3 fr-p-1w text-left [overflow-wrap:anywhere] hover:bg-[var(--background-contrast-grey)]"
+            class="fr-link flex w-full items-center gap-3 rounded border border-solid border-[color:var(--border-action-high-blue-france)] fr-p-1w text-left [overflow-wrap:anywhere] hover:bg-[var(--background-contrast-grey)]"
             aria-haspopup="dialog"
             onclick={openCnpnEmailModal}
             onpointerenter={preloadCnpnEmailEditor}
@@ -120,15 +133,6 @@
           <strong>Quand vous le recevrez par mail, stocker l'avis CNPN dans cet onglet</strong>
         </li>
       </ol>
-      <p class="fr-mt-3w fr-mb-0">
-        <strong>Pour plus de détails&nbsp;: </strong>
-        <a
-          class="fr-link"
-          href="https://betagouv.github.io/pitchou/instruction/saisine-cnpn.html"
-          target="_blank"
-          rel="noopener external">Consulter la documentation dédiée</a
-        >
-      </p>
     </div>
   </aside>
 </div>

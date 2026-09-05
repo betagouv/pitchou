@@ -8,9 +8,11 @@ export type AvisWithFiles = AvisExpert & {
   avis_file_name: File["name"];
   avis_fichier_media_type: File["media_type"];
   avis_file_size: number | null;
+  avis_file_created_at: File["created_at"] | null;
   saisine_file_name: File["name"];
   saisine_fichier_media_type: File["media_type"];
   saisine_file_size: number | null;
+  saisine_file_created_at: File["created_at"] | null;
 };
 export type DecisionWithFile = DecisionAdministrative & {
   file_name: File["name"];
@@ -28,9 +30,11 @@ export async function getAvisExpertDossier(
       "file_avis.name as avis_file_name",
       "file_avis.media_type as avis_fichier_media_type",
       db.raw("file_avis.size::integer as avis_file_size"),
+      "file_avis.created_at as avis_file_created_at",
       "file_saisine.name as saisine_file_name",
       "file_saisine.media_type as saisine_fichier_media_type",
       db.raw("file_saisine.size::integer as saisine_file_size"),
+      "file_saisine.created_at as saisine_file_created_at",
     ])
     .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
     .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })

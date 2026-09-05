@@ -19,6 +19,7 @@ export type FrontEndFichier = Pick<File, "media_type" | "name"> & {
   id?: File["id"];
   url: string;
   size?: number | null;
+  created_at?: File["created_at"] | string;
 };
 
 export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
