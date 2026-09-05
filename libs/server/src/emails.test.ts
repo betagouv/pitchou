@@ -7,7 +7,14 @@ const { post, responseJson } = vi.hoisted(() => ({
 
 vi.mock("ky", () => ({ default: { post } }));
 
-import { isDefinitiveEmailSendFailure, sendCnpnEmailReadReceipt, sendEmail } from "./emails.ts";
+import {
+  base64MimeBytes,
+  estimateEmailBytes,
+  isDefinitiveEmailSendFailure,
+  MAX_EMAIL_BYTES,
+  sendCnpnEmailReadReceipt,
+  sendEmail,
+} from "./emails.ts";
 
 const initialApiKey = process.env.BREVO_API_KEY;
 
@@ -21,6 +28,44 @@ afterEach(() => {
   vi.clearAllMocks();
   if (initialApiKey === undefined) delete process.env.BREVO_API_KEY;
   else process.env.BREVO_API_KEY = initialApiKey;
+});
+
+test.each([
+  [0, 0],
+  [1, 6],
+  [2, 6],
+  [3, 6],
+  [57, 78],
+  [58, 84],
+])("budgets base64 padding and MIME line breaks for %i bytes", (bytes, expected) => {
+  expect(base64MimeBytes(bytes)).toBe(expected);
+});
+
+test("the former 15 MiB attachment limit exceeds Brevo's 20 MB before headers or body", () => {
+  expect(MAX_EMAIL_BYTES).toBe(20_000_000);
+  expect(base64MimeBytes(15 * 1024 * 1024)).toBeGreaterThan(MAX_EMAIL_BYTES);
+});
+
+test("budgets UTF-8 body, recipient headers, filenames and each MIME part", () => {
+  const message = { to: ["cnpn@example.com"], subject: "Saisine", htmlContent: "" };
+  const baseline = estimateEmailBytes(message);
+  expect(baseline).toBeGreaterThanOrEqual(64 * 1024);
+  const htmlContent = "<p>Écologie</p>".repeat(100);
+  const bodyBytes = 3 * Buffer.byteLength(htmlContent);
+  expect(estimateEmailBytes({ ...message, htmlContent }) - baseline).toBe(
+    bodyBytes + 3 * Math.ceil(bodyBytes / 73),
+  );
+  expect(estimateEmailBytes({ ...message, cc: ["copie@example.com"] })).toBeGreaterThan(baseline);
+  const name = "pièce.pdf";
+  expect(
+    estimateEmailBytes({
+      ...message,
+      attachments: [
+        { name, size: 58 },
+        { name, size: 57 },
+      ],
+    }) - baseline,
+  ).toBe(2 * (4 * 1024 + 8 * Buffer.byteLength(name)) + 84 + 78);
 });
 
 test("envoie un email HTML avec copies, adresse de réponse et pièces jointes", async () => {

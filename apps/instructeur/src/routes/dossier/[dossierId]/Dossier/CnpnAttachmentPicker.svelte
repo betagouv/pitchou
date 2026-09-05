@@ -60,7 +60,10 @@
 
   {#if expanded}
     <div id={contentId} class="fr-p-2w">
-      <p class="fr-hint-text fr-mb-2w">20 fichiers maximum, pour un total de 15 Mo.</p>
+      <p class="fr-hint-text fr-mb-2w">
+        20 fichiers maximum. Le mail complet doit rester sous 20 Mo après encodage des pièces
+        jointes.
+      </p>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {#each groups as group}
           {@const pieces = group.pieces.filter((piece) => piece.fileId)}

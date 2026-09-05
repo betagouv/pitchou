@@ -9,6 +9,48 @@ const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" 
 
 export type BrevoSendResponse = { messageId: string };
 
+export type EmailMessage = {
+  to: string[];
+  cc?: string[];
+  replyTo?: string;
+  subject: string;
+  htmlContent: string;
+  attachments?: { name: string; content: Buffer }[];
+  tags?: string[];
+  headers?: Record<string, string>;
+};
+
+// Brevo documents 20 MB for the whole message, including encoded attachments.
+// Use decimal MB, not MiB, and leave room for provider-added MIME headers.
+export const MAX_EMAIL_BYTES = 20_000_000;
+
+export function base64MimeBytes(bytes: number): number {
+  const encodedBytes = 4 * Math.ceil(bytes / 3);
+  return encodedBytes + 2 * Math.ceil(encodedBytes / 76);
+}
+
+export function estimateEmailBytes({
+  attachments = [],
+  htmlContent,
+  ...headers
+}: Omit<EmailMessage, "attachments"> & {
+  attachments?: { name: string; size: number }[];
+}): number {
+  // Budget worst-case quoted-printable UTF-8 expansion for text and headers,
+  // plus 64 KiB for provider headers and 4 KiB per MIME attachment part.
+  const textBytes = 3 * Buffer.byteLength(htmlContent);
+  return (
+    64 * 1024 +
+    textBytes +
+    3 * Math.ceil(textBytes / 73) +
+    4 * Buffer.byteLength(JSON.stringify({ sender: PITCHOU_SENDER, ...headers })) +
+    attachments.reduce(
+      (sum, { name, size }) => sum + 4 * 1024 + 8 * Buffer.byteLength(name) + base64MimeBytes(size),
+      0,
+    )
+  );
+}
+
 function sendBrevoEmail(payload: Record<string, unknown>): Promise<BrevoSendResponse> {
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
   if (!BREVO_API_KEY) {
@@ -56,16 +98,7 @@ export function sendEmail({
   attachments = [],
   tags = [],
   headers = {},
-}: {
-  to: string[];
-  cc?: string[];
-  replyTo?: string;
-  subject: string;
-  htmlContent: string;
-  attachments?: { name: string; content: Buffer }[];
-  tags?: string[];
-  headers?: Record<string, string>;
-}): Promise<BrevoSendResponse> {
+}: EmailMessage): Promise<BrevoSendResponse> {
   return sendBrevoEmail({
     sender: PITCHOU_SENDER,
     to: to.map((email) => ({ email })),

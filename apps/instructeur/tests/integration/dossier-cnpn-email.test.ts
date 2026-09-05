@@ -1,251 +1,164 @@
-import { expect, test } from "vitest";
+import "./dossier-cnpn-email/setup.ts";
+import { randomUUID } from "node:crypto";
+import { expect, test, vi } from "vitest";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
 import {
-  createDossierCnpnEmailSendAttempt,
-  getAuthorizedDossierFiles,
-  getDossierCnpnEmailStats,
-  getDossierCnpnEmailSentEvents,
-  getPendingDossierCnpnEmailSendAttempt,
-  markDossierCnpnEmailSendAttemptFailed,
-  markDossierCnpnEmailSendAttemptSent,
-  recordDossierCnpnEmailBrevoEvent,
-  restartDossierCnpnEmailFailedAttempt,
-} from "@pitchou/server/database/dossier_cnpn_email.ts";
-import { getDossierFull } from "@pitchou/server/database/dossier.ts";
-import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+  attachCapToGroupe,
+  createCapDossier,
+  createInstructeurWithDossier,
+  createPersonne,
+  type InstructeurWithDossier,
+} from "../factories/index.ts";
+import type { SendCnpnEmailRequest } from "@pitchou/types/API_Pitchou.ts";
+import { sendEmail } from "@pitchou/server/emails.ts";
 
-test("charge seulement les pièces jointes du dossier", async () => {
-  const instructeur = await createInstructeurWithDossier(db);
-  const dossierId = instructeur.dossier.id as DossierId;
-  const s3 = await getTestS3();
-  const authorized = await createFichierS3(db, s3, { name: "saisine.pdf" });
-  const unauthorized = await createFichierS3(db, s3, { name: "autre-dossier.pdf" });
-  await db("edge_dossier__fichier_pieces_jointes_petitionnaire").insert({
-    dossier: instructeur.dossier.id,
-    fichier: authorized.id,
-  });
-
-  await expect(getAuthorizedDossierFiles(dossierId, [authorized.id], db)).resolves.toMatchObject([
-    { id: authorized.id, name: "saisine.pdf" },
-  ]);
-  await expect(
-    getAuthorizedDossierFiles(dossierId, [authorized.id, unauthorized.id], db),
-  ).resolves.toEqual([]);
-});
-
-test("persiste l'envoi et le charge dans le dossier complet", async () => {
-  const instructeur = await createInstructeurWithDossier(db, { email: "sender@example.com" });
-  const dossierId = instructeur.dossier.id as DossierId;
-  const requestId = "11111111-1111-4111-8111-111111111111";
-  await createDossierCnpnEmailSendAttempt(
-    {
-      id: requestId,
-      dossier: dossierId,
-      sentBy: instructeur.id as PersonneId,
-      sentByEmail: "sender@example.com",
-      recipientEmail: "cnpn@example.com",
-      ccEmails: ["follower@example.com"],
-      subject: "Saisine du CNPN - Projet test",
-      htmlBody: "<p>Bonjour</p>",
-      payloadHash: "payload-hash",
-      attachmentIds: [],
-      attachmentNames: ["saisine.pdf"],
-    },
-    db,
+async function postEmail(
+  instructeur: Pick<InstructeurWithDossier, "cap" | "dossier">,
+  overrides: Partial<SendCnpnEmailRequest> = {},
+) {
+  const { POST } = await import("../../src/routes/dossier/[dossierId]/cnpn-email/+server.ts");
+  const url = new URL(
+    `http://localhost/dossier/${instructeur.dossier.id}/cnpn-email?cap=${instructeur.cap}`,
   );
-  const event = await markDossierCnpnEmailSendAttemptSent(requestId, "provider-message-id", db);
-  const deliveredAt = new Date("2026-09-02T15:15:00Z");
-  const openedAt = new Date("2026-09-02T15:16:00Z");
-  await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "delivered",
-        providerMessageId: "provider-message-id",
-        recipientEmail: "cnpn@example.com",
-        occurredAt: deliveredAt,
-      },
-      db,
-    ),
-  ).resolves.toEqual({
-    matched: true,
+  const request = new Request(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      requestId: randomUUID(),
+      subject: "Saisine CNPN",
+      htmlBody: "<p>Bonjour</p>",
+      cc: [],
+      attachmentIds: [],
+      ...overrides,
+    }),
   });
-  await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "opened",
-        providerMessageId: "provider-message-id",
-        recipientEmail: "follower@example.com",
-        occurredAt: openedAt,
-      },
-      db,
-    ),
-  ).resolves.toEqual({ matched: true });
-  await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "opened",
-        providerMessageId: "provider-message-id",
-        recipientEmail: "cnpn@example.com",
-        occurredAt: openedAt,
-      },
-      db,
-    ),
-  ).resolves.toEqual({
-    matched: true,
-    readReceipt: {
-      eventId: requestId,
-      claimedAt: expect.any(Date),
-      sentByEmail: "sender@example.com",
-      dossierId,
-      subject: "Saisine du CNPN - Projet test",
-    },
-  });
-  await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "opened",
-        providerMessageId: "provider-message-id",
-        recipientEmail: "cnpn@example.com",
-        occurredAt: new Date(openedAt.getTime() + 1000),
-      },
-      db,
-    ),
-  ).resolves.toEqual({ matched: true, retryReadReceipt: true });
+  return POST({
+    params: { dossierId: String(instructeur.dossier.id) },
+    url,
+    request,
+  } as Parameters<typeof POST>[0]);
+}
 
-  expect(event).toMatchObject({ sent_by_email: "sender@example.com" });
-  await expect(
-    db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
-  ).resolves.toMatchObject({
+test.each([
+  { seedEmail: undefined, email: "dev@localhost.local", cc: [] },
+  { seedEmail: undefined, email: "DEV@localhost.local", cc: ["arbitrary@example.com"] },
+  { seedEmail: " Demo@Example.com ", email: "demo@example.com", cc: ["arbitrary@example.com"] },
+])(
+  "blocks the public staging identity before an attempt, $email / $cc",
+  async ({ seedEmail, email, cc }) => {
+    vi.stubEnv("SEED_EMAIL", seedEmail);
+    const instructeur = await createInstructeurWithDossier(db, { email });
+
+    await expect(
+      postEmail(instructeur, { recipient: "external@example.com", cc }),
+    ).rejects.toMatchObject({
+      status: 403,
+      body: { message: expect.stringContaining("démonstration") },
+    });
+    expect(sendEmail).not.toHaveBeenCalled();
+    await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
+  },
+);
+
+test("allows a real staging tester on the same dossier as the public account", async () => {
+  const demo = await createInstructeurWithDossier(db, { email: "dev@localhost.local" });
+  const tester = await createPersonne(db, { email: "tester@example.com" });
+  const { cap } = await createCapDossier(db, tester.codeAcces);
+  await attachCapToGroupe(db, cap, demo.groupeId);
+
+  const response = await postEmail({ cap, dossier: demo.dossier }, { cc: ["copy@example.com"] });
+
+  expect(response.status).toBe(201);
+  expect(sendEmail).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({
+      to: [tester.email],
+      replyTo: tester.email,
+      cc: ["copy@example.com"],
+    }),
+  );
+  await expect(db("dossier_cnpn_email_sent_event").first()).resolves.toMatchObject({
+    sent_by: tester.id,
+    sent_by_email: tester.email,
     status: "sent",
-    sent_by_email: "sender@example.com",
-    html_body: "<p>Bonjour</p>",
-    payload_hash: "payload-hash",
-    attachment_ids: [],
-  });
-  await expect(
-    createDossierCnpnEmailSendAttempt(
-      {
-        id: requestId,
-        dossier: dossierId,
-        sentBy: instructeur.id as PersonneId,
-        sentByEmail: "sender@example.com",
-        recipientEmail: "cnpn@example.com",
-        ccEmails: [],
-        subject: "Nouvelle tentative",
-        htmlBody: "<p>Ne doit pas être envoyée</p>",
-        payloadHash: "different-payload-hash",
-        attachmentIds: [],
-        attachmentNames: [],
-      },
-      db,
-    ),
-  ).resolves.toBe(false);
-
-  const failedRequestId = "22222222-2222-4222-8222-222222222222";
-  await createDossierCnpnEmailSendAttempt(
-    {
-      id: failedRequestId,
-      dossier: dossierId,
-      sentBy: instructeur.id as PersonneId,
-      sentByEmail: "sender@example.com",
-      recipientEmail: "cnpn@example.com",
-      ccEmails: [],
-      subject: "Nouvelle tentative",
-      htmlBody: "<p>Bonjour</p>",
-      payloadHash: "retry-payload-hash",
-      attachmentIds: [],
-      attachmentNames: [],
-    },
-    db,
-  );
-  await markDossierCnpnEmailSendAttemptFailed(failedRequestId, db);
-  await expect(restartDossierCnpnEmailFailedAttempt(failedRequestId, db)).resolves.toBe(true);
-  await expect(restartDossierCnpnEmailFailedAttempt(failedRequestId, db)).resolves.toBe(false);
-  await expect(getPendingDossierCnpnEmailSendAttempt(dossierId, db)).resolves.toEqual({
-    id: failedRequestId,
-  });
-  await expect(getDossierCnpnEmailSentEvents(dossierId, db)).resolves.toMatchObject([
-    {
-      id: event.id,
-      subject: "Saisine du CNPN - Projet test",
-      delivered_at: deliveredAt,
-      opened_at: openedAt,
-    },
-  ]);
-  await expect(getDossierCnpnEmailStats(db)).resolves.toEqual({
-    sentCount: 1,
-    deliveredCount: 1,
-    openedCount: 1,
-  });
-  await expect(
-    getDossierFull(dossierId, instructeur.cap as CapDossierCap, db),
-  ).resolves.toMatchObject({
-    cnpnEmailSentEvents: [{ id: event.id, delivered_at: deliveredAt, opened_at: openedAt }],
   });
 });
 
-test("réconcilie un webhook reçu avant la fin de l'envoi et ignore les copies", async () => {
-  const instructeur = await createInstructeurWithDossier(db, { email: "sender@example.com" });
-  const dossierId = instructeur.dossier.id as DossierId;
-  const requestId = "33333333-3333-4333-8333-333333333333";
-  await createDossierCnpnEmailSendAttempt(
-    {
-      id: requestId,
-      dossier: dossierId,
-      sentBy: instructeur.id as PersonneId,
-      sentByEmail: "sender@example.com",
-      recipientEmail: "cnpn@example.com",
-      ccEmails: ["follower@example.com"],
-      subject: "Saisine précoce",
-      htmlBody: "<p>Bonjour</p>",
-      payloadHash: "early-payload-hash",
-      attachmentIds: [],
-      attachmentNames: [],
-    },
-    db,
+test("rejects a capability without dossier access before sending", async () => {
+  const instructeur = await createInstructeurWithDossier(db);
+  const outsider = await createInstructeurWithDossier(db, { nomGroupe: "Other group" });
+
+  await expect(
+    postEmail({ cap: outsider.cap, dossier: instructeur.dossier }),
+  ).rejects.toMatchObject({
+    status: 403,
+  });
+  expect(sendEmail).not.toHaveBeenCalled();
+  await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
+});
+
+test.each(["accurate", "underreported"])(
+  "rejects 15 MiB of actual attachments with %s DB sizes before an attempt",
+  async (metadata) => {
+    const instructeur = await createInstructeurWithDossier(db);
+    const attachment = await createFichierS3(db, await getTestS3(), {
+      bytes: Buffer.alloc(15 * 1024 * 1024),
+    });
+    if (metadata === "underreported")
+      await db("file").where({ id: attachment.id }).update({ size: "1" });
+    await db("edge_dossier__fichier_pieces_jointes_petitionnaire").insert({
+      dossier: instructeur.dossier.id,
+      fichier: attachment.id,
+    });
+
+    await expect(postEmail(instructeur, { attachmentIds: [attachment.id] })).rejects.toMatchObject({
+      status: 413,
+    });
+    expect(sendEmail).not.toHaveBeenCalled();
+    await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
+  },
+);
+
+test("includes the body and cumulative MIME size, then allows editing after a 413", async () => {
+  const instructeur = await createInstructeurWithDossier(db);
+  const s3 = await getTestS3();
+  const attachments = await Promise.all(
+    [1, 2].map((index) =>
+      createFichierS3(db, s3, {
+        name: `piece-${index}.pdf`,
+        bytes: Buffer.alloc(7_200_000),
+      }),
+    ),
   );
-  const createdAt = await db("dossier_cnpn_email_sent_event")
-    .where({ id: requestId })
-    .first("created_at");
+  const attachmentIds = attachments.map(({ id }) => id);
+  // The actual 14.4 MB fits with a short body, but not with the long body below.
+  // Deliberately overstate DB metadata to prove it is not the source of truth.
+  await db("file").whereIn("id", attachmentIds).update({ size: "20000000" });
+  await db("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
+    attachmentIds.map((fichier) => ({
+      dossier: instructeur.dossier.id,
+      fichier,
+    })),
+  );
+  const requestId = randomUUID();
 
   await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "delivered",
-        providerMessageId: "early-provider-id",
-        requestId,
-        recipientEmail: "follower@example.com",
-        occurredAt: new Date("2026-09-04T08:00:00Z"),
-      },
-      db,
-    ),
-  ).resolves.toEqual({ matched: true });
-  await expect(
-    markDossierCnpnEmailSendAttemptSent(requestId, "early-provider-id", db),
-  ).resolves.toMatchObject({ id: requestId });
-  await expect(
-    db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
-  ).resolves.toMatchObject({ status: "sent", sent_at: createdAt.created_at, delivered_at: null });
+    postEmail(instructeur, {
+      requestId,
+      attachmentIds,
+      htmlBody: `<p>${"x".repeat(199_000)}</p>`,
+    }),
+  ).rejects.toMatchObject({ status: 413 });
+  expect(sendEmail).not.toHaveBeenCalled();
+  await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
 
-  const openedAt = new Date("2026-09-04T08:01:00Z");
-  await expect(
-    recordDossierCnpnEmailBrevoEvent(
-      {
-        type: "opened",
-        providerMessageId: "recipient-provider-id",
-        requestId,
-        recipientEmail: "cnpn@example.com",
-        occurredAt: openedAt,
-      },
-      db,
-    ),
-  ).resolves.toMatchObject({ matched: true, readReceipt: { eventId: requestId } });
+  expect((await postEmail(instructeur, { requestId, attachmentIds })).status).toBe(201);
+  expect(sendEmail).toHaveBeenCalledTimes(1);
+  expect(
+    vi.mocked(sendEmail).mock.calls[0]![0].attachments?.map(({ content }) => content.length),
+  ).toEqual([7_200_000, 7_200_000]);
   await expect(
     db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
-  ).resolves.toMatchObject({ provider_message_id: "early-provider-id", opened_at: openedAt });
+  ).resolves.toMatchObject({ status: "sent" });
 });
