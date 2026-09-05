@@ -177,6 +177,11 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
       subject: draft.subject,
       htmlContent: draft.htmlBody,
       attachments,
+      tags: ["cnpn-saisine"],
+      headers: {
+        idempotencyKey: draft.requestId,
+        "X-Mailin-custom": draft.requestId,
+      },
     }));
   } catch (sendError) {
     if (isDefinitiveEmailSendFailure(sendError)) {

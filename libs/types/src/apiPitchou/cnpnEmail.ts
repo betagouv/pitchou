@@ -20,5 +20,6 @@ export type DossierCnpnEmailSentEvent = {
   recipient_email: string;
   cc_emails: string[];
   subject: string;
+  attachment_ids: File["id"][];
   attachment_names: string[];
 };

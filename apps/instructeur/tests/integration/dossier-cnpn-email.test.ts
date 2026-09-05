@@ -6,6 +6,7 @@ import { createInstructeurWithDossier } from "../factories/index.ts";
 import {
   createDossierCnpnEmailSendAttempt,
   getAuthorizedDossierFiles,
+  getDossierCnpnEmailStats,
   getDossierCnpnEmailSentEvents,
   getPendingDossierCnpnEmailSendAttempt,
   markDossierCnpnEmailSendAttemptFailed,
@@ -70,7 +71,9 @@ test("persiste l'envoi et le charge dans le dossier complet", async () => {
       },
       db,
     ),
-  ).resolves.toBe(true);
+  ).resolves.toEqual({
+    matched: true,
+  });
   await expect(
     recordDossierCnpnEmailBrevoEvent(
       {
@@ -81,16 +84,38 @@ test("persiste l'envoi et le charge dans le dossier complet", async () => {
       },
       db,
     ),
-  ).resolves.toBe(false);
-  await recordDossierCnpnEmailBrevoEvent(
-    {
-      type: "opened",
-      providerMessageId: "provider-message-id",
-      recipientEmail: "cnpn@example.com",
-      occurredAt: openedAt,
+  ).resolves.toEqual({ matched: true });
+  await expect(
+    recordDossierCnpnEmailBrevoEvent(
+      {
+        type: "opened",
+        providerMessageId: "provider-message-id",
+        recipientEmail: "cnpn@example.com",
+        occurredAt: openedAt,
+      },
+      db,
+    ),
+  ).resolves.toEqual({
+    matched: true,
+    readReceipt: {
+      eventId: requestId,
+      claimedAt: expect.any(Date),
+      sentByEmail: "sender@example.com",
+      dossierId,
+      subject: "Saisine du CNPN - Projet test",
     },
-    db,
-  );
+  });
+  await expect(
+    recordDossierCnpnEmailBrevoEvent(
+      {
+        type: "opened",
+        providerMessageId: "provider-message-id",
+        recipientEmail: "cnpn@example.com",
+        occurredAt: new Date(openedAt.getTime() + 1000),
+      },
+      db,
+    ),
+  ).resolves.toEqual({ matched: true, retryReadReceipt: true });
 
   expect(event).toMatchObject({ sent_by_email: "sender@example.com" });
   await expect(
@@ -152,9 +177,75 @@ test("persiste l'envoi et le charge dans le dossier complet", async () => {
       opened_at: openedAt,
     },
   ]);
+  await expect(getDossierCnpnEmailStats(db)).resolves.toEqual({
+    sentCount: 1,
+    deliveredCount: 1,
+    openedCount: 1,
+  });
   await expect(
     getDossierFull(dossierId, instructeur.cap as CapDossierCap, db),
   ).resolves.toMatchObject({
     cnpnEmailSentEvents: [{ id: event.id, delivered_at: deliveredAt, opened_at: openedAt }],
   });
+});
+
+test("réconcilie un webhook reçu avant la fin de l'envoi et ignore les copies", async () => {
+  const instructeur = await createInstructeurWithDossier(db, { email: "sender@example.com" });
+  const dossierId = instructeur.dossier.id as DossierId;
+  const requestId = "33333333-3333-4333-8333-333333333333";
+  await createDossierCnpnEmailSendAttempt(
+    {
+      id: requestId,
+      dossier: dossierId,
+      sentBy: instructeur.id as PersonneId,
+      sentByEmail: "sender@example.com",
+      recipientEmail: "cnpn@example.com",
+      ccEmails: ["follower@example.com"],
+      subject: "Saisine précoce",
+      htmlBody: "<p>Bonjour</p>",
+      payloadHash: "early-payload-hash",
+      attachmentIds: [],
+      attachmentNames: [],
+    },
+    db,
+  );
+  const createdAt = await db("dossier_cnpn_email_sent_event")
+    .where({ id: requestId })
+    .first("created_at");
+
+  await expect(
+    recordDossierCnpnEmailBrevoEvent(
+      {
+        type: "delivered",
+        providerMessageId: "early-provider-id",
+        requestId,
+        recipientEmail: "follower@example.com",
+        occurredAt: new Date("2026-09-04T08:00:00Z"),
+      },
+      db,
+    ),
+  ).resolves.toEqual({ matched: true });
+  await expect(
+    markDossierCnpnEmailSendAttemptSent(requestId, "early-provider-id", db),
+  ).resolves.toMatchObject({ id: requestId });
+  await expect(
+    db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
+  ).resolves.toMatchObject({ status: "sent", sent_at: createdAt.created_at, delivered_at: null });
+
+  const openedAt = new Date("2026-09-04T08:01:00Z");
+  await expect(
+    recordDossierCnpnEmailBrevoEvent(
+      {
+        type: "opened",
+        providerMessageId: "recipient-provider-id",
+        requestId,
+        recipientEmail: "cnpn@example.com",
+        occurredAt: openedAt,
+      },
+      db,
+    ),
+  ).resolves.toMatchObject({ matched: true, readReceipt: { eventId: requestId } });
+  await expect(
+    db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
+  ).resolves.toMatchObject({ provider_message_id: "early-provider-id", opened_at: openedAt });
 });
