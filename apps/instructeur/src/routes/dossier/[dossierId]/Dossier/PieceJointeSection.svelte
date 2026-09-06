@@ -1,15 +1,8 @@
 <script lang="ts">
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import type { FrontEndFichier } from "@pitchou/types/API_Pitchou.ts";
+  import type { PieceJointeSimple } from "./piecesJointes.ts";
 
-  export type PieceJointeSimple = {
-    label: string;
-    description?: FrontEndFichier;
-    date?: Date | string | null;
-    labelDate: string;
-    url: string;
-  };
   type Props = {
     title: string;
     emptyMessage: string;

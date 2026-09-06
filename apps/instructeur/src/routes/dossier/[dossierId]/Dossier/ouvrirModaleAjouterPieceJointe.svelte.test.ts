@@ -3,6 +3,8 @@ import { page } from "vitest/browser";
 import { cleanup, render, waitFor } from "@testing-library/svelte";
 import { format } from "date-fns";
 import { tick } from "svelte";
+
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
 import {
   chooseFichiers,
   DOSSIER_ID,
@@ -70,7 +72,11 @@ test("trace l'ouverture de la modale depuis l'onglet pièces jointes", async () 
 });
 
 test("trace l'ouverture de la modale depuis l'onglet avis", async () => {
-  render(DossierAvis, { dossier: dossier() });
+  render(DossierAvis, {
+    dossier: dossier(),
+    email: "instructeur@example.com",
+    followers: [],
+  });
 
   await page.getByRole("button", { name: "Ajouter un avis ou une saisine" }).click();
 

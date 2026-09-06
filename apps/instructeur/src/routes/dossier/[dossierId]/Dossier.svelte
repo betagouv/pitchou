@@ -143,7 +143,7 @@
         role="tabpanel"
         tabindex="0"
       >
-        <DossierAvis {dossier}></DossierAvis>
+        <DossierAvis {dossier} {email} followers={dossierFollowers}></DossierAvis>
       </div>
       <div
         id="tabpanel-controles-panel"

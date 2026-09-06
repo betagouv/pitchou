@@ -5,6 +5,7 @@ import type Dossier from "../database/public/Dossier.ts";
 import type EvenementPhaseDossier from "../database/public/EvenementPhaseDossier.ts";
 import type File from "../database/public/File.ts";
 import type Prescription from "../database/public/Prescription.ts";
+import type { DossierCnpnEmailSentEvent } from "./cnpnEmail.ts";
 import type {
   DossierCommonData,
   DossierPersonnesImpliqueesFull,
@@ -15,8 +16,10 @@ import type { QuantifiedImpact } from "../especesImpact.d.ts";
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
 export type FrontEndFichier = Pick<File, "media_type" | "name"> & {
+  id?: File["id"];
   url: string;
   size?: number | null;
+  created_at?: File["created_at"] | string;
 };
 
 export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichier"> & {
@@ -92,10 +95,12 @@ export type DossierFull = Omit<
       File,
       "demarche_numerique_created_at" | "media_type" | "name"
     > & {
+      id?: File["id"];
       url: string;
       size: number;
     })[];
     otherAttachments: FrontEndOtherAttachment[];
+    cnpnEmailSentEvents?: DossierCnpnEmailSentEvent[];
   };
 
 export type TypeDecisionAdministrative =

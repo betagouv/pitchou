@@ -4,6 +4,7 @@ import type EvenementPhaseDossier from "@pitchou/types/database/public/Evenement
 import type File from "@pitchou/types/database/public/File.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type {
+  DossierCnpnEmailSentEvent,
   DossierFull,
   FrontEndFichier,
   FrontEndImpactOnEspece,
@@ -18,9 +19,17 @@ function describeFichier(
   media_type: File["media_type"],
   size: number | null,
   route: string,
+  created_at?: File["created_at"] | null,
 ): FrontEndFichier | undefined {
   return id
-    ? { url: `${route}/${id}`, name: name as string, media_type: media_type as string, size }
+    ? {
+        id,
+        url: `${route}/${id}`,
+        name: name as string,
+        media_type: media_type as string,
+        size,
+        ...(created_at ? { created_at } : {}),
+      }
     : undefined;
 }
 
@@ -43,21 +52,25 @@ export function formatDossierFull(
   prescriptions: Prescription[],
   controles: Controle[],
   impacts: FrontEndImpactOnEspece[],
+  cnpnEmailSentEvents: DossierCnpnEmailSentEvent[],
 ): DossierFull {
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
   delete dossier.demandeur_personne_morale_address;
   dossier.evenementsPhase = events;
+  dossier.cnpnEmailSentEvents = cnpnEmailSentEvents;
   dossier.avisExpert = avisRows.map(
     ({
       avis_fichier,
       avis_file_name,
       avis_fichier_media_type,
       avis_file_size,
+      avis_file_created_at,
       saisine_fichier,
       saisine_file_name,
       saisine_fichier_media_type,
       saisine_file_size,
+      saisine_file_created_at,
       ...avis
     }) => {
       const avisFile = describeFichier(
@@ -66,6 +79,7 @@ export function formatDossierFull(
         avis_fichier_media_type,
         avis_file_size,
         "/avis-expert/fichier",
+        avis_file_created_at,
       );
       const saisineFile = describeFichier(
         saisine_fichier,
@@ -73,6 +87,7 @@ export function formatDossierFull(
         saisine_fichier_media_type,
         saisine_file_size,
         "/avis-expert/fichier",
+        saisine_file_created_at,
       );
       return {
         ...avis,
@@ -84,6 +99,7 @@ export function formatDossierFull(
     },
   );
   dossier.piecesJointesPetitionnaires = pieces.map(({ id, ...piece }) => ({
+    id,
     url: `/piece-jointe-petitionnaire/fichier/${id}`,
     ...piece,
   }));

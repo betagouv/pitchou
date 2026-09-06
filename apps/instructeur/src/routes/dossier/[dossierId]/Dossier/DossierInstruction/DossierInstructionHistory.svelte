@@ -27,17 +27,66 @@
     follow,
     leave,
   }: Props = $props();
+
+  const timeline = $derived(
+    [
+      ...history.map((event) => ({ type: "phase" as const, date: event.timestamp, event })),
+      ...(dossier.cnpnEmailSentEvents ?? []).map((event) => ({
+        type: "cnpn-email" as const,
+        date: event.sent_at,
+        event,
+      })),
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+  );
 </script>
 
 <section class="fr-mb-4w flex-[3]">
   <h2>Historique</h2>
   <ol class="list-none fr-mt-0 fr-pl-0">
-    {#each history as event}<li>
-        <TagPhase phase={event.phase} /> -
-        <span title={formatDateAbsolute(event.timestamp)}
-          >{formatDateRelative(event.timestamp)}</span
-        >
-      </li>{/each}
+    {#each timeline as item}
+      {#if item.type === "phase"}
+        <li>
+          <TagPhase phase={item.event.phase} /> -
+          <span title={formatDateAbsolute(item.event.timestamp)}
+            >{formatDateRelative(item.event.timestamp)}</span
+          >
+        </li>
+      {:else}
+        <li class="fr-mb-1w">
+          <span class="fr-icon-mail-line fr-icon--sm" aria-hidden="true"></span>
+          <strong>Mail de saisine du CNPN envoyé</strong> -
+          <span title={formatDateAbsolute(new Date(item.event.sent_at))}
+            >{formatDateRelative(new Date(item.event.sent_at))}</span
+          >
+          <span class="fr-hint-text block fr-ml-3w">
+            {item.event.subject}
+            {#if item.event.attachment_names.length > 0}
+              · {item.event.attachment_names.length} pièce{item.event.attachment_names.length > 1
+                ? "s"
+                : ""} jointe{item.event.attachment_names.length > 1 ? "s" : ""}
+            {/if}
+          </span>
+          {#if item.event.delivered_at}
+            <span class="fr-text--sm fr-mb-0 block fr-ml-3w">
+              <span class="fr-icon-checkbox-circle-line fr-icon--sm" aria-hidden="true"></span>
+              Distribué au destinataire
+              <span title={formatDateAbsolute(new Date(item.event.delivered_at))}>
+                {formatDateRelative(new Date(item.event.delivered_at))}
+              </span>
+            </span>
+          {/if}
+          {#if item.event.opened_at}
+            <span class="fr-text--sm fr-mb-0 block fr-ml-3w">
+              <span class="fr-icon-eye-line fr-icon--sm" aria-hidden="true"></span>
+              Ouverture détectée
+              <span title={formatDateAbsolute(new Date(item.event.opened_at))}>
+                {formatDateRelative(new Date(item.event.opened_at))}
+              </span>
+            </span>
+          {/if}
+        </li>
+      {/if}
+    {/each}
     <li>
       <TagPhase phase="Accompagnement amont" /> - <strong>Dépôt dossier</strong> -
       <span title={formatDateAbsolute(dossier.depot_date)}
