@@ -66,6 +66,12 @@
               )}
               {entry.author ?? ""}
             </p>
+            {#each entry.statuses ?? [] as status}
+              <p class="fr-mb-0 fr-text--xs text-[color:var(--text-mention-grey)]">
+                <span class="{status.icon} fr-icon--sm" aria-hidden="true"></span>
+                {status.label} le {formatDateAbsolute(status.date, "dd/MM/yyyy 'à' HH:mm")}
+              </p>
+            {/each}
           </div>
         </li>
       {/each}

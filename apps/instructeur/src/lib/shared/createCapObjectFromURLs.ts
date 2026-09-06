@@ -12,6 +12,7 @@ import { createDossierPartageCapabilities } from "./dossierPartageCapabilities.t
 import { createDossierCommentaireCapabilities } from "./dossierCommentaireCapabilities.ts";
 import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
 import {
+  RequestError,
   wrapDeleteById,
   wrapGETUrl,
   wrapPOSTMultipart,
@@ -95,6 +96,38 @@ function wrapGetDossierFull(
   };
 }
 
+function wrapEnvoyerEmailCnpn(
+  url: string | undefined,
+): PitchouInstructeurCapabilities["envoyerEmailCnpn"] | undefined {
+  if (!url) return undefined;
+  if (!url.includes(dossierIdURLParam)) {
+    throw new Error(`La capability envoyerEmailCnpn ne contient pas '${dossierIdURLParam}'`);
+  }
+
+  return async (dossierId, email) => {
+    const response = await fetch(url.replace(dossierIdURLParam, String(dossierId)), {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify(email),
+    });
+    const body = (await response.json().catch(() => undefined)) as
+      | Awaited<ReturnType<PitchouInstructeurCapabilities["envoyerEmailCnpn"]>>
+      | { message?: unknown }
+      | undefined;
+    if (!response.ok) {
+      const message =
+        body && "message" in body && typeof body.message === "string"
+          ? body.message
+          : `L'envoi a échoué (${response.status}).`;
+      throw new RequestError(response.status, message);
+    }
+    if (!body || "message" in body) {
+      throw new Error("Le serveur n'a pas renvoyé l'évènement d'envoi.");
+    }
+    return body as Awaited<ReturnType<PitchouInstructeurCapabilities["envoyerEmailCnpn"]>>;
+  };
+}
+
 function wrapUpdateFollowRelation(
   url: string | undefined,
 ): PitchouInstructeurCapabilities["updateFollowRelation"] | undefined {
@@ -128,6 +161,7 @@ export default function (
     ...createDossierCommentaireCapabilities(capURLs),
     listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
+    envoyerEmailCnpn: wrapEnvoyerEmailCnpn(capURLs.envoyerEmailCnpn),
     remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),
     modifierDecisionAdministrativeDansDossier: wrapTextPOST(
       capURLs.modifierDecisionAdministrativeDansDossier,

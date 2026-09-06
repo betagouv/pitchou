@@ -1,13 +1,22 @@
-import type { AdminDossierExportRow } from "@pitchou/server/database/dossier_admin_list.ts";
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
+import {
+  createWorkbook,
+  type WorkbookCell,
+  type WorkbookSheet,
+} from "@pitchou/common/createWorkbook.ts";
+import type {
+  AdminAvisExpertExportRow,
+  AdminDossierExportRow,
+} from "@pitchou/server/database/dossier_admin_list.ts";
 
-const HEADER = [
+const DOSSIERS_HEADER = [
   "Identifiant Pitchou",
   "Nom du dossier",
   "Numéro Démarches Numériques",
   "Source",
   "Date de dépôt",
   "Phase",
+  "Date de la phase",
   "Demandeur",
   "Groupe instructeurs",
   "Activité principale",
@@ -15,6 +24,16 @@ const HEADER = [
   "Départements",
   "Communes",
   "Régions",
+];
+
+const AVIS_EXPERT_HEADER = [
+  "Identifiant Pitchou",
+  "Expert",
+  "Date de saisine",
+  "Fichier de saisine",
+  "Avis",
+  "Date de l'avis",
+  "Fichier de l'avis",
 ];
 
 const SOURCE_LABELS: Record<DossierSource, string> = {
@@ -26,13 +45,9 @@ const SOURCE_LABELS: Record<DossierSource, string> = {
   unknown: "Source inconnue",
 };
 
-function csvEscape(value: string | number): string {
-  const text = String(value);
-  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
 /** ISO day, so spreadsheets sort the column chronologically whatever their locale. */
-function formatDate(value: Date | string): string {
+function formatDate(value: Date | string | null): string {
+  if (value === null) return "";
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? String(value) : date.toISOString().slice(0, 10);
 }
@@ -65,15 +80,17 @@ function formatCommunes(value: unknown): string {
     .join(" ; ");
 }
 
-export function dossiersExportToCSV(rows: AdminDossierExportRow[]): string {
-  const lines = rows.map((row) =>
-    [
+export function dossiersSheetRows(rows: AdminDossierExportRow[]): WorkbookCell[][] {
+  return [
+    DOSSIERS_HEADER,
+    ...rows.map((row) => [
       row.id,
       row.name ?? "",
       row.demarche_numerique_number ?? "",
       SOURCE_LABELS[row.source] ?? SOURCE_LABELS.unknown,
       formatDate(row.depot_date),
-      row.phase,
+      row.phase ?? "",
+      formatDate(row.phase_date),
       formatDemandeur(row),
       row.groupe_name ?? "",
       // The Pitchou activity name; raw labels still pending review come out unchanged
@@ -83,9 +100,39 @@ export function dossiersExportToCSV(rows: AdminDossierExportRow[]): string {
       formatStringList(row.departments),
       formatCommunes(row.communes),
       formatStringList(row.regions),
-    ]
-      .map(csvEscape)
-      .join(","),
-  );
-  return [HEADER.join(","), ...lines].join("\n");
+    ]),
+  ];
+}
+
+/** The dossier id is the first column, so a reader can relate a row back to the Dossiers sheet. */
+export function avisExpertSheetRows(rows: AdminAvisExpertExportRow[]): WorkbookCell[][] {
+  return [
+    AVIS_EXPERT_HEADER,
+    ...rows.map((row) => [
+      row.dossier,
+      row.expert ?? "",
+      formatDate(row.saisine_date),
+      row.saisine_fichier ?? "",
+      row.avis ?? "",
+      formatDate(row.avis_date),
+      row.avis_fichier ?? "",
+    ]),
+  ];
+}
+
+export function dossiersExportSheets(
+  dossiers: AdminDossierExportRow[],
+  avisExpert: AdminAvisExpertExportRow[],
+): WorkbookSheet[] {
+  return [
+    { name: "Dossiers", rows: dossiersSheetRows(dossiers) },
+    { name: "Avis experts", rows: avisExpertSheetRows(avisExpert) },
+  ];
+}
+
+export function dossiersExportToWorkbook(
+  dossiers: AdminDossierExportRow[],
+  avisExpert: AdminAvisExpertExportRow[],
+): ArrayBuffer {
+  return createWorkbook(dossiersExportSheets(dossiers, avisExpert));
 }

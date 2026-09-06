@@ -5,7 +5,7 @@
 
   import {
     loadDossiers,
-    downloadDossiersCSV,
+    downloadDossiersWorkbook,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
@@ -26,8 +26,6 @@
   let creatingDossier = $state(false);
   let downloading = $state(false);
   let downloadError = $state<string | null>(null);
-
-  const currentYear = new Date().getFullYear();
 
   // The "create" entry point lives in the shell header ("+").
   $effect(() => {
@@ -102,11 +100,11 @@
     reload();
   }
 
-  async function downloadCurrentYear() {
+  async function downloadAllDossiers() {
     downloading = true;
     downloadError = null;
     try {
-      await downloadDossiersCSV(currentYear);
+      await downloadDossiersWorkbook();
     } catch (e) {
       downloadError =
         e instanceof AccessDeniedError
@@ -134,9 +132,9 @@
         type="button"
         class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
         disabled={downloading}
-        onclick={downloadCurrentYear}
+        onclick={downloadAllDossiers}
       >
-        Télécharger les dossiers de l'année en cours
+        Télécharger tous les dossiers
       </button>
     </div>
 

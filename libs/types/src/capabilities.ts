@@ -14,6 +14,7 @@ import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
+import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
 
 /** A service the dossier may be shared with in read-only mode. */
 export type DossierPartageCandidate = {
@@ -92,6 +93,10 @@ export interface PitchouInstructeurCapabilities {
     commentaire: Pick<DossierCommentaire, "id" | "content">,
   ) => Promise<void>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
+  envoyerEmailCnpn: (
+    dossierId: Dossier["id"],
+    email: SendCnpnEmailRequest,
+  ) => Promise<DossierCnpnEmailSentEvent>;
   remplirAnnotations: (annotations: any) => Promise<void>;
   modifierDecisionAdministrativeDansDossier: (
     decisionAdministrative: DecisionAdministrativeForTransfer,

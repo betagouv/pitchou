@@ -96,6 +96,43 @@ L'application est déployée sur Scalingo
 
 Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
 
+### Authentification du webhook Brevo
+
+Le webhook de suivi des mails CNPN accepte uniquement l'en-tête
+`Authorization: Bearer <secret>`. Le secret doit correspondre à la variable serveur
+`BREVO_WEBHOOK_SECRET`.
+
+[Brevo documente la configuration Bearer](https://developers.brevo.com/docs/secured-webhooks).
+Les champs correspondants lors de la création ou de la mise à jour du webhook sont :
+
+```json
+{
+  "url": "https://<hote-instructeur>/api/webhooks/brevo",
+  "auth": {
+    "type": "bearer",
+    "token": "<valeur-de-BREVO_WEBHOOK_SECRET>"
+  }
+}
+```
+
+Conserver les événements transactionnels suivis : `delivered`, `opened` et
+`uniqueOpened`. Cette dernière valeur de configuration correspond à `unique_opened`
+dans les notifications reçues.
+
+Les mails portent un tag `pitchou-env-staging` lorsque `PUBLIC_PITCHOU_ENV=staging`,
+`pitchou-env-production` sinon lorsque `NODE_ENV=production`, ou `pitchou-env-development`
+en local. Chaque webhook ignore les événements d'un autre environnement avec HTTP 204,
+sans accès à la base ni envoi d'accusé de lecture. Sans tag d'environnement, seuls les
+événements correspondant à un envoi enregistré localement sont traités ; les événements
+inconnus reçoivent HTTP 204 plutôt qu'une demande de nouvelle tentative.
+Brevo transmet toujours les notifications aux deux URL si elles utilisent le même compte.
+
+Pour le test fonctionnel, utiliser un compte instructeur autre que le compte de
+démonstration, dont les envois CNPN sont bloqués sur staging. Envoyer vers une adresse
+de test, vérifier les destinataires en copie, puis contrôler les statuts de livraison
+et d'ouverture et l'accusé de lecture. Vérifier aussi que les outils de logs et de
+suivi d'erreurs masquent l'en-tête `Authorization`.
+
 ### Base de données
 
 On utilise une base de données Postgres 15.7 en prod

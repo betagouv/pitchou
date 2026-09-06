@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
   goto: vi.fn(),
@@ -50,6 +52,7 @@ function fakeDossier(): DossierFull {
     public_consultation_end_date: null,
     depot_date: new Date("2026-01-15"),
     evenementsPhase: [],
+    especesImpactees: { sourceFile: undefined, impacts: [] },
     avisExpert: [
       {
         id: "avis-cnpn",
@@ -176,7 +179,9 @@ test("le mode lecture seule masque les éléments internes au service", () => {
   // Only the official avis is shown, and never its saisine.
   expect(screen.getByRole("heading", { name: /CNPN/ })).toBeTruthy();
   expect(screen.queryByRole("heading", { name: /Autre expert/ })).toBeNull();
-  expect(screen.queryByText(/Date de la saisine/)).toBeNull();
+  expect(screen.queryByText(/Date d’ajout du courrier de saisine/)).toBeNull();
+  expect(screen.queryByText(/Date d’envoi du mail via Pitchou/)).toBeNull();
+  expect(screen.queryByText(/Date de lecture de la saisine/)).toBeNull();
   expect(screen.queryByRole("link", { name: /Télécharger le fichier saisine/ })).toBeNull();
 
   // The décision administrative is shared, its prescriptions are not.
@@ -203,7 +208,7 @@ test("le mode édition conserve les actions d'écriture", () => {
   expect(screen.getByRole("tab", { name: "Historique" })).toBeTruthy();
   expect(screen.getByRole("heading", { name: /Autre expert/ })).toBeTruthy();
   // One per avis: the official one and the « Autre expert » one.
-  expect(screen.getAllByText(/Date de la saisine/)).toHaveLength(2);
+  expect(screen.getAllByText(/Date d’ajout du courrier de saisine/)).toHaveLength(2);
   expect(screen.getByRole("heading", { name: "Autres" })).toBeTruthy();
 
   expect(screen.queryByText("Dossier en lecture seule")).toBeNull();

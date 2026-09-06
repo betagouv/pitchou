@@ -75,6 +75,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     ajouterCommentaire: listDossiers,
     modifierCommentaire: listDossiers,
     modifierDossier: listDossiers,
+    envoyerEmailCnpn: listDossiers,
     identité: identite
       ? { email: identite.email, estAdmin: isAdminEmail(identite.email), groupesInstructeurs }
       : undefined,
