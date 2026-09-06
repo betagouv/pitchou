@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
-import { activiteIconUrl } from "./activiteIcon.ts";
-import alluvialQuarryIcon from "./icons/carrieres-alluvionnaires.svg?url";
+import { activiteIconUrl } from "@pitchou/ui/activites/activiteIcon.ts";
+import alluvialQuarryIcon from "@pitchou/ui/activites/icons/carrieres-alluvionnaires.svg?url";
 
 test("alluvial quarries have a dedicated icon", () => {
   expect(activiteIconUrl("carrieres-alluvionnaires")).toBe(alluvialQuarryIcon);
