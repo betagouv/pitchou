@@ -48,16 +48,19 @@ test("le tiroir ouvre le sous-panneau espèces et revient aux filtres", async ()
 
   await trigger.click();
 
-  // The espece view replaces the filters, footer included, as the maquette shows
+  // The espece view has its own footer: it confirms the selection, it does not run the search
   await expect.element(page.getByRole("heading", { name: /Espèces impactées/ })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: "Valider les résultats" })).toBeVisible();
   await expect
     .element(page.getByRole("button", { name: "Voir 12 résultats" }))
     .not.toBeInTheDocument();
+  await expect.element(page.getByRole("button", { name: "Tout effacer" })).not.toBeInTheDocument();
 
   await page.getByRole("button", { name: "Revenir à tous les filtres" }).click();
 
   await expect.element(page.getByRole("heading", { name: "Tous les filtres" })).toBeVisible();
   await expect.element(page.getByRole("button", { name: "Voir 12 résultats" })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: "Tout effacer" })).toBeVisible();
 });
 
 test("l'espèce cochée dans le sous-panneau se résume sur le déclencheur", async () => {
@@ -73,4 +76,32 @@ test("l'espèce cochée dans le sous-panneau se résume sur le déclencheur", as
   await expect
     .element(page.getByRole("button", { name: "Aigle royal (Aquila chrysaetos)" }))
     .toBeVisible();
+});
+
+test("« Valider les résultats » ramène aux filtres sans lancer la recherche", async () => {
+  let applied = 0;
+  const draft: DossiersQuery = $state(defaultDossiersQuery());
+  render(DossiersFilterModal, {
+    open: true,
+    draft,
+    dossiers: [],
+    showFilterInstructeurice: false,
+    numberResults: 12,
+    onApply: () => (applied += 1),
+    onClose: () => {},
+  });
+
+  await page
+    .getByRole("button", { name: "Recherchez une ou plusieurs espèces protégées…" })
+    .click();
+  await page.getByRole("checkbox", { name: /Aigle royal/ }).click();
+  await page.getByRole("button", { name: "Valider les résultats" }).click();
+
+  // Same effect as the header chevron: back to the filters, the selection kept, nothing applied
+  await expect.element(page.getByRole("heading", { name: "Tous les filtres" })).toBeVisible();
+  expect(draft.espece).toEqual(["2938"]);
+  expect(applied).toBe(0);
+
+  await page.getByRole("button", { name: "Voir 12 résultats" }).click();
+  await expect.poll(() => applied).toBe(1);
 });

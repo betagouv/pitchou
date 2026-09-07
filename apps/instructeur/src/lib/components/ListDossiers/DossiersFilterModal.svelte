@@ -103,15 +103,19 @@
       {/if}
     </div>
 
-    {#if panel === "filtres"}
-      <footer
-        class="flex justify-between gap-4 fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
-      >
+    <footer
+      class="flex justify-between gap-4 fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
+    >
+      {#if panel === "especes"}
+        <button type="button" class="fr-btn ml-auto" onclick={() => (panel = "filtres")}>
+          Valider les résultats
+        </button>
+      {:else}
         <button type="button" class="fr-btn fr-btn--secondary" onclick={clearAll}>
           Tout effacer
         </button>
         <button type="button" class="fr-btn" onclick={onApply}>{resultsLabel}</button>
-      </footer>
-    {/if}
+      {/if}
+    </footer>
   </div>
 </dialog>
