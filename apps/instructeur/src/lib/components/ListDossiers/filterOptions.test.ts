@@ -2,7 +2,9 @@ import { expect, test, describe } from "vitest";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { departements as officialDepartements } from "@pitchou/common/departements.ts";
+import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import {
+  especeLabelByCD_REF,
   parseDossiersQuery,
   countActiveFilters,
   buildClearFiltersUpdates,
@@ -147,5 +149,27 @@ describe("clearFilters", () => {
     expect(cleared.sort).toBe("lastModified");
     expect(cleared.order).toBe("asc");
     expect(cleared.page).toBe(1);
+  });
+});
+
+describe("especeLabelByCD_REF", () => {
+  const espece: EspeceProtegee = {
+    CD_REF: "2938",
+    nomsVernaculaires: new Set(["Aigle royal", "Aigle doré"]),
+    nomsScientifiques: new Set(["Aquila chrysaetos"]),
+    classification: "oiseau",
+    CD_TYPE_STATUTS: new Set(["PN"]),
+    espèceMinistérielle: undefined,
+    espèceCNPN: undefined,
+  };
+
+  test("labels each espèce with its first vernacular and scientific names", () => {
+    expect(especeLabelByCD_REF(new Map([["2938", espece]]))).toEqual(
+      new Map([["2938", "Aigle royal (Aquila chrysaetos)"]]),
+    );
+  });
+
+  test("is empty while the référentiel has not loaded", () => {
+    expect(especeLabelByCD_REF(undefined)).toEqual(new Map());
   });
 });

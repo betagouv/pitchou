@@ -44,11 +44,37 @@ function instructeurEmailsForDossier(
   return emails;
 }
 
+let especesTextByDossier = new WeakMap<DossierSummary, string>();
+let cachedEspeceByCD_REF: DossiersContext["especeByCD_REF"];
+
+export function especesSearchableText(
+  dossier: DossierSummary,
+  especeByCD_REF: DossiersContext["especeByCD_REF"],
+): string {
+  if (!especeByCD_REF) return "";
+  if (especeByCD_REF !== cachedEspeceByCD_REF) {
+    cachedEspeceByCD_REF = especeByCD_REF;
+    especesTextByDossier = new WeakMap();
+  }
+  const cached = especesTextByDossier.get(dossier);
+  if (cached !== undefined) return cached;
+
+  const names: string[] = [];
+  for (const cdRef of dossier.especesImpacteesCD_REF ?? []) {
+    const espece = especeByCD_REF.get(cdRef);
+    if (!espece) continue;
+    names.push(...espece.nomsVernaculaires, ...espece.nomsScientifiques);
+  }
+  const text = normalize(names.join(" "));
+  especesTextByDossier.set(dossier, text);
+  return text;
+}
+
 /**
  * Every searchable field of a dossier concatenated and normalised. Covers the nom,
  * commentaire libre, activité principale, départements (code + name), communes (name +
  * postal code), régions, décision numéros, demandeur / déposant, the DS number, the
- * ONAGRE identifier and the instructeurs following the dossier.
+ * ONAGRE identifier, the instructeurs following the dossier and the impacted especes.
  */
 export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
   const parts: (string | null | undefined)[] = [
@@ -80,7 +106,8 @@ export function searchableText(dossier: DossierSummary, ctx: DossiersContext): s
   }
   parts.push(...instructeurEmailsForDossier(dossier.id, ctx.followRelations));
 
-  return normalize(parts.filter(Boolean).join(" "));
+  const especes = especesSearchableText(dossier, ctx.especeByCD_REF);
+  return `${normalize(parts.filter(Boolean).join(" "))} ${especes}`;
 }
 
 /**

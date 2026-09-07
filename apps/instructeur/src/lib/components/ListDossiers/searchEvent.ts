@@ -10,6 +10,8 @@ export function buildSearchEvent(
     email: string;
     /** Resolves the selected activity codes to display names, historical events being labels. */
     activiteLabelByCode?: ReadonlyMap<string, string>;
+    /** Resolves the selected CD_REF to espece display names. */
+    especeLabelByCD_REF?: ReadonlyMap<string, string>;
   },
 ): DossierSearchEventDetails {
   const filters: DossierSearchEventDetails["filters"] = {
@@ -26,6 +28,9 @@ export function buildSearchEvent(
     filters.activitesPrincipales = query.activite.map(
       (code) => context.activiteLabelByCode?.get(code) ?? code,
     );
+  }
+  if (query.espece.length) {
+    filters.especes = query.espece.map((cdRef) => context.especeLabelByCD_REF?.get(cdRef) ?? cdRef);
   }
   if (query.prochaineAction.length) {
     filters.nextActionExpectedFrom = query.prochaineAction;

@@ -63,6 +63,7 @@ export const DATE_FIELD_LABEL: Record<DateField, string> = {
 export type DossiersContext = {
   notificationByDossier: PitchouState["notificationByDossier"];
   followRelations?: PitchouState["followRelations"];
+  especeByCD_REF?: PitchouState["espèceByCD_REF"];
 };
 
 /**
@@ -74,6 +75,8 @@ export type DossiersQuery = {
   text: string;
   phase: DossierPhase[];
   activite: ActiviteCode[];
+  /** CD_REF of the especes protegees a dossier must impact at least one of */
+  espece: string[];
   prochaineAction: DossierNextActionExpectedFrom[];
   departement: string[];
   instructeur: string[];
@@ -124,6 +127,7 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
   if (query.text.trim()) params.set("q", query.text.trim());
   for (const phase of query.phase) params.append("phase", phase);
   for (const activite of query.activite) params.append("activite", activite);
+  for (const cdRef of query.espece) params.append("espece", cdRef);
   for (const action of query.prochaineAction) params.append("action", action);
   for (const departement of query.departement) params.append("departement", departement);
   for (const instructeur of query.instructeur) params.append("instructeur", instructeur);
@@ -159,6 +163,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
     text: params.get("q") ?? "",
     phase: params.getAll("phase") as DossierPhase[],
     activite: params.getAll("activite"),
+    espece: params.getAll("espece"),
     prochaineAction: params.getAll("action") as DossierNextActionExpectedFrom[],
     departement: params.getAll("departement"),
     instructeur: params.getAll("instructeur"),
@@ -185,12 +190,27 @@ export function defaultDossiersQuery(): DossiersQuery {
   return parseDossiersQuery(new URLSearchParams());
 }
 
+export function toggleWithoutInstructeur(query: DossiersQuery): DossiersQuery {
+  const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
+    ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
+    : [...query.instructeur, WITHOUT_INSTRUCTEUR];
+  return { ...copyDossiersQuery(query), instructeur, page: 1 };
+}
+
+export function toggleBooleanFilter(
+  query: DossiersQuery,
+  key: "enjeu" | "actionInstructeur",
+): DossiersQuery {
+  return { ...copyDossiersQuery(query), [key]: !query[key], page: 1 };
+}
+
 /** Copies a query, cloning its arrays so a draft never mutates the original */
 export function copyDossiersQuery(query: DossiersQuery): DossiersQuery {
   return {
     ...query,
     phase: [...query.phase],
     activite: [...query.activite],
+    espece: [...query.espece],
     prochaineAction: [...query.prochaineAction],
     departement: [...query.departement],
     instructeur: [...query.instructeur],

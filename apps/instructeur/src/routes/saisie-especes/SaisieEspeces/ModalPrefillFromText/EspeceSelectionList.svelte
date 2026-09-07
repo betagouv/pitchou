@@ -1,5 +1,5 @@
 <script lang="ts">
-  import NomEspece from "../../NomEspece.svelte";
+  import NomEspece from "@pitchou/ui/especes/NomEspece.svelte";
   import type { DescriptionImpact, EspeceProtegee } from "@pitchou/types/especes.d.ts";
   type Props = {
     especes: Set<EspeceProtegee>;

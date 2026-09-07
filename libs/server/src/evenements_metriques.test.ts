@@ -100,6 +100,33 @@ describe("evenementMetriqueGuard", () => {
     ).toBe(false);
   });
 
+  test("accepte une recherche filtrée par espèces protégées", () => {
+    expect(
+      evenementMetriqueGuard({
+        type: "rechercherDesDossiers",
+        details: {
+          resultCount: 12,
+          filters: { especes: ["Aigle royal (Aquila chrysaetos)", "2938"] },
+        },
+      }),
+    ).toBe(true);
+  });
+
+  test("rejette une recherche dont les espèces ne sont pas des chaînes", () => {
+    expect(
+      evenementMetriqueGuard({
+        type: "rechercherDesDossiers",
+        details: { resultCount: 12, filters: { especes: [2938] } },
+      }),
+    ).toBe(false);
+    expect(
+      evenementMetriqueGuard({
+        type: "rechercherDesDossiers",
+        details: { resultCount: 12, filters: { especes: "2938" } },
+      }),
+    ).toBe(false);
+  });
+
   test("rejects a dossier follower assignment without personne email lists", () => {
     expect(
       evenementMetriqueGuard({

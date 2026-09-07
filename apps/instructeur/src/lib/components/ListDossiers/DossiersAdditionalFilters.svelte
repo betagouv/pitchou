@@ -1,9 +1,19 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
+  import { especeLabel } from "@pitchou/common/especesUtils.ts";
+  import { store } from "$lib/state/store.svelte.ts";
   import type { DossiersQuery } from "./listModel.ts";
-  type Props = { draft: DossiersQuery };
-  let { draft = $bindable() }: Props = $props();
+  type Props = { draft: DossiersQuery; onOpenEspecesDrawer: () => void };
+  let { draft = $bindable(), onOpenEspecesDrawer }: Props = $props();
   const newModifications = $derived(draft.nouveaute === "oui");
+
+  const especesSummary = $derived.by(() => {
+    const [first, ...others] = draft.espece;
+    if (!first) return "Recherchez une ou plusieurs espèces protégées…";
+    if (others.length) return `${draft.espece.length} espèces sélectionnées`;
+    const espece = store.espèceByCD_REF?.get(first);
+    return espece ? especeLabel(espece) : first;
+  });
 </script>
 
 <fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
@@ -71,7 +81,16 @@
   <h3 class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w">
     <span class="fr-icon-leaf-line fr-icon--sm" aria-hidden="true"></span> Espèce impactée
   </h3>
-  <div class="fr-checkbox-group fr-checkbox-group--sm">
+  <button
+    type="button"
+    class="fr-select w-full text-left truncate cursor-pointer [&.placeholder]:text-[color:var(--text-mention-grey)]"
+    class:placeholder={draft.espece.length === 0}
+    id="filtre-espece"
+    onclick={onOpenEspecesDrawer}
+  >
+    {especesSummary}
+  </button>
+  <div class="fr-checkbox-group fr-checkbox-group--sm fr-mt-1w">
     <input
       type="checkbox"
       id="especes-absente"

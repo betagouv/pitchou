@@ -45,10 +45,11 @@ export async function getDossiersSummariesByCap(
     : await databaseConnection.transaction({ readOnly: true });
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(columns)
-    // A dossier can hold impacts without a file, and a file that could not be imported holds none.
+    // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
+    // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
     .select(
       transaction.raw(
-        'exists (select 1 from impact_espece where impact_espece."dossier" = dossier.id) as "especesImpacteesRenseignees"',
+        `coalesce((select array_agg(distinct impact_espece.cd_ref) from impact_espece where impact_espece."dossier" = dossier.id), '{}'::text[]) as "especesImpacteesCD_REF"`,
       ),
     )
     .join("edge_groupe_instructeurs__dossier", {
@@ -79,7 +80,12 @@ export async function getDossiersSummariesByCap(
     )
     .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
     .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
-    .then((dossiers: DossierSummary[]) => dossiers.map(withResolvedActivite));
+    .then((dossiers: DossierSummary[]) =>
+      dossiers.map((dossier) => {
+        dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
+        return withResolvedActivite(dossier);
+      }),
+    );
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
   const decisionsP = getDecisionsAdministratives(cap, transaction);
   const avisP = getAvisExpertFilesByCap(cap, transaction);

@@ -27,5 +27,9 @@
 </script>
 
 <span {title}>
-  {firstNomVernaculaire} (<i>{firstNomScientifique}</i>)
+  {#if firstNomVernaculaire}
+    {firstNomVernaculaire} (<i>{firstNomScientifique}</i>)
+  {:else}
+    <i>{firstNomScientifique}</i>
+  {/if}
 </span>

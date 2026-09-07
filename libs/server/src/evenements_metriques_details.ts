@@ -58,6 +58,13 @@ export function isSearchDossierDetails(details: any): details is DossierSearchEv
     !filters.activitesPrincipales.every((value: any) => typeof value === "string")
   )
     return false;
+
+  if (
+    filters.especes !== undefined &&
+    (!Array.isArray(filters.especes) ||
+      !filters.especes.every((value: any) => typeof value === "string"))
+  )
+    return false;
   if (
     filters.phases &&
     Array.isArray(filters.phases) &&

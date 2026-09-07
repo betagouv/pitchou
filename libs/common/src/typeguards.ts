@@ -81,6 +81,8 @@ function isDossierSummary(x: any): x is DossierSummary {
 
   if (!peopleValid) return false;
 
+  if (!isOptionalStringArray(x.especesImpacteesCD_REF)) return false;
+
   // DossierPhaseEtProchaineAction
   const phaseValid = typeof x.phase === "string";
   const actionValid =

@@ -106,5 +106,6 @@ export type DossierSummary = Pick<
   DossierPersonnesImpliqueesSummary & {
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
+    especesImpacteesCD_REF: string[];
     especesImpacteesRenseignees: boolean;
   };

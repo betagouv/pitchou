@@ -72,6 +72,9 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
       hasSaisineFile: ae.saisine_fichier_url !== undefined,
       hasAvisFile: ae.avis_fichier_url !== undefined,
     })),
+    especesImpacteesCD_REF: [
+      ...new Set(especesImpactees.impacts.map(({ espece }) => espece.CD_REF)),
+    ],
     especesImpacteesRenseignees: especesImpactees.impacts.length >= 1,
 
     // Statistics
