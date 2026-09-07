@@ -26,7 +26,8 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 
 - **Ce que ça représente :** Utiliser les filtres ou la recherche dans la liste des dossiers
 - **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi"
-- **Action :** Utiliser un filtre pour chercher un dossier (par exemple, en utilisant le champ texte, en filtrant par instructeur.ices, par activité principale...)
+- **Action :** Utiliser un filtre pour chercher un dossier (par exemple, en utilisant le champ texte, en filtrant par instructeur.ices, par activité principale, par espèce protégée impactée...)
+- **Note :** Le champ texte cherche aussi dans les noms des espèces impactées, vernaculaires comme scientifiques
 
 #### `afficherLesDossiersSuivis`
 
@@ -43,6 +44,17 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 - **Ce que ça représente :** Télécharger le fichier des espèces impactées d'un dossier
 - **Page :** Page d'un dossier, onglet **"Projet"**
 
+#### `téléchargerCartographieProjet`
+
+- **Ce que ça représente :** Télécharger la cartographie du projet d'un dossier
+- **Page :** Page d'un dossier, onglet **"Projet"**
+
+#### `clickNavbarLink`
+
+- **Ce que ça représente :** Cliquer sur un lien de la barre de navigation principale
+- **Page :** N'importe quelle page
+- **Note :** Enregistre quel lien a été suivi ("Mes dossiers", "Tous les dossiers", "Tableau de suivi", "Saisie espèces", "Préremplissage dérogation", "Aide Pitchou")
+
 ---
 
 ### Modification
@@ -51,6 +63,11 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 
 - **Ce que ça représente :** Mettre un dossier en suivi (par moi)
 - **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi"
+
+#### `assignDossierFollowers`
+
+- **Ce que ça représente :** Modifier la liste des instructeur.ices qui suivent un dossier (en ajouter, en retirer)
+- **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi", page d'un dossier
 
 #### `modifierCommentaireInstruction`
 
@@ -126,6 +143,18 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 
 - **Ce que ça représente :** Supprimer un avis expert
 - **Page :** Page d'un dossier, onglet **"Avis"**
+
+#### `ouvrirModaleAjouterPieceJointe`
+
+- **Ce que ça représente :** Ouvrir la modale d'ajout d'une pièce jointe
+- **Page :** Page d'un dossier, depuis l'entête ou les onglets **"Pièces jointes"**, **"Avis"**, **"Contrôles"** et **"Instruction"**
+- **Note :** Enregistre d'où la modale a été ouverte, pour la comparer aux ajouts effectivement menés à bout
+
+#### `ajouterPieceJointe`
+
+- **Ce que ça représente :** Ajouter une ou plusieurs pièces jointes depuis la modale
+- **Page :** Page d'un dossier, depuis l'entête ou les onglets **"Pièces jointes"**, **"Avis"**, **"Contrôles"** et **"Instruction"**
+- **Note :** Enregistre d'où la modale a été ouverte, le type de pièce jointe ("Décision administrative", "Avis expert", "Saisine expert", "Autre") et le nombre de fichiers
 
 #### `générerUnDocument`
 
