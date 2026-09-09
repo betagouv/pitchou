@@ -11,7 +11,7 @@ import type {
 } from "./especes.d.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
-import type Notification from "./database/public/Notification.ts";
+import type { DossierNotification } from "./notification.ts";
 import type DemarcheNumerique88444SynchronizationResult from "./database/public/DemarcheNumerique88444SynchronizationResult.ts";
 
 export type ActivitesMethodesMoyensDePoursuiteBundle = {
@@ -37,10 +37,7 @@ export type PitchouState = {
    */
   readOnlyDossiers: Map<DossierFull["id"], DossierFull>;
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
-  notificationByDossier: Map<
-    Dossier["id"],
-    Pick<Notification, "viewed" | "updated_at" | "viewed_at">
-  >;
+  notificationByDossier: Map<Dossier["id"], Omit<DossierNotification, "dossier">>;
   identité?: IdentiteInstructeurPitchou;
   /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
   maxUploadSizeBytes?: number;

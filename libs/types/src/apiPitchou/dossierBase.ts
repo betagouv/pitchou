@@ -15,6 +15,8 @@ type DossierPersonnesImpliqueesSummary = {
 export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
   demandeur_address: string;
   deposant_email: string | null;
+  deposant_phone: string | null;
+  deposant_role: string | null;
   demandeur_personne_physique_email: string | null;
   demandeur_personne_physique_address: string | null;
   demandeur_personne_physique_phone: string | null;
@@ -39,6 +41,8 @@ export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary &
   mandataire_last_name: string | null;
   mandataire_first_names: string | null;
   mandataire_email: string | null;
+  mandataire_phone: string | null;
+  mandataire_role: string | null;
 };
 
 export type DossierPhase =
@@ -54,13 +58,8 @@ export type DossierNextActionExpectedFrom =
   | "CNPN/CSRPN"
   | "Pétitionnaire"
   | "Consultation du public"
-  | "Autre administration"
-  | "Préfet·e"
-  | "Autre"
-  | "Personne";
-
-export type DossierNextActionExpected =
-  "Compléter le dossier" | "Envoyer la saisine" | "Consulter le dossier" | "Signer l'arrêté";
+  | "Préfet-e"
+  | "Tierce personne/administration";
 
 type DossierLocalisation = {
   communes: { name: string; code: string; postalCode: string }[] | null | undefined;

@@ -93,7 +93,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     onagre_demande_identifier: "",
     public_consultation_start_date: null,
     linked_to_ae_regime: true,
-    next_action_expected_from: "Préfet·e",
+    next_action_expected_from: "Préfet-e",
     next_action_expected: "Signer l'arrêté",
     main_activite: "Production énergie renouvelable - Photovoltaïque",
     description:

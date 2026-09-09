@@ -12,6 +12,7 @@ import type {
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
 import type { QuantifiedImpact } from "../especesImpact.d.ts";
+import type { DossierNotification } from "../notification.ts";
 
 /**
  * What a cap may do with a dossier: instruct it, or only consult the part of it
@@ -99,6 +100,8 @@ export type DossierFull = Omit<
      * ones another service shared, so this cannot be answered globally.
      */
     access: DossierAccess;
+    /** Personal review state read in the same database snapshot as these values. Never shared. */
+    notificationSnapshot?: DossierNotification;
     /** Content of the dossier's most recent commentaire. */
     latestCommentaire: string | null;
     projet_map: GeoJSONFeatureCollection | null;

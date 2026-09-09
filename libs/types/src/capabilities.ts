@@ -7,8 +7,7 @@ import type {
 import type Dossier from "./database/public/Dossier.ts";
 import type GroupeInstructeurs from "./database/public/GroupeInstructeurs.ts";
 import type Personne from "./database/public/Personne.ts";
-import type Notification from "./database/public/Notification.ts";
-import type { NotificationMutator } from "./database/public/Notification.ts";
+import type { DossierNotification, NotificationUpdate } from "./notification.ts";
 import type Prescription from "./database/public/Prescription.ts";
 import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
@@ -92,6 +91,10 @@ export interface PitchouInstructeurCapabilities {
     dossierId: Dossier["id"],
     commentaire: Pick<DossierCommentaire, "id" | "content">,
   ) => Promise<void>;
+  supprimerCommentaire: (
+    dossierId: Dossier["id"],
+    commentaireId: DossierCommentaire["id"],
+  ) => Promise<void>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   envoyerEmailCnpn: (
     dossierId: Dossier["id"],
@@ -117,8 +120,8 @@ export interface PitchouInstructeurCapabilities {
   creerEvenementMetrique: (evenement: EvenementMetrique) => Promise<void>;
   /** The instructeur's last 3 distinct search-bar texts, most recent first */
   listRecentSearches: () => Promise<string[]>;
-  listerNotifications: () => Promise<Notification[]>;
-  updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
+  listerNotifications: () => Promise<DossierNotification[]>;
+  updateNotificationForDossier: (notification: NotificationUpdate) => Promise<DossierNotification>;
 }
 
 export interface IdentiteInstructeurPitchou {
