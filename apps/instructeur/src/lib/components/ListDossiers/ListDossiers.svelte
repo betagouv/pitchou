@@ -121,7 +121,6 @@
 
   const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
-  const goToPage = (number: number) => navigate({ ...copyDossiersQuery(query), page: number });
 
   function openFilters() {
     draft = copyDossiersQuery(query);
@@ -199,6 +198,8 @@
   dossiers={sortedDossiers}
   sortKey={query.sort}
   requestedPage={query.page}
+  pageSize={query.pageSize}
+  onPageSizeChange={(pageSize) => navigate({ ...copyDossiersQuery(query), pageSize, page: 1 })}
   searchText={query.text}
   wholeListEmpty={dossiers.length === 0}
   followedIds={dossierIdsFollowedByCurrentInstructeur}
@@ -206,6 +207,6 @@
   notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
   follow={(id) => instructeurFollowsDossier(email, id)}
   leave={(id) => instructeurLeavesDossier(email, id)}
-  navigatePage={goToPage}
+  navigatePage={(page) => navigate({ ...copyDossiersQuery(query), page })}
   {emptyListMessage}
 />

@@ -1,16 +1,19 @@
 <script lang="ts">
   import { tick } from "svelte";
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import DossiersResults from "./DossiersResults.svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
-  import type { SortKey } from "./query.ts";
+  import { PAGE_SIZES, type SortKey } from "./query.ts";
 
   type Props = {
     dossiers: DossierSummary[];
     sortKey: SortKey;
     requestedPage: number;
+    pageSize: number;
+    onPageSizeChange: (pageSize: number) => void;
     searchText: string;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
@@ -25,6 +28,8 @@
     dossiers,
     sortKey,
     requestedPage,
+    pageSize,
+    onPageSizeChange,
     searchText,
     wholeListEmpty,
     followedIds,
@@ -35,13 +40,12 @@
     navigatePage,
     emptyListMessage,
   }: Props = $props();
-  const perPage = 10;
-  const pageCount = $derived(Math.max(1, Math.ceil(dossiers.length / perPage)));
+  const pageCount = $derived(Math.max(1, Math.ceil(dossiers.length / pageSize)));
   const currentPage = $derived(Math.min(Math.max(1, requestedPage), pageCount));
-  const displayed = $derived(dossiers.slice(perPage * (currentPage - 1), perPage * currentPage));
+  const displayed = $derived(dossiers.slice(pageSize * (currentPage - 1), pageSize * currentPage));
   let title: HTMLHeadingElement | undefined = $state();
   const selectors = $derived.by<undefined | [undefined, ...(() => void)[]]>(() => {
-    if (dossiers.length <= perPage) return undefined;
+    if (dossiers.length <= pageSize) return undefined;
     return [
       undefined,
       ...Array.from({ length: pageCount }, (_, i) => () => {
@@ -52,13 +56,26 @@
   });
 </script>
 
-<h2
-  bind:this={title}
-  tabindex="-1"
-  class="text-[1rem] fr-text--regular fr-mb-0 ml-auto focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
->
-  {searchText.trim() ? `Résultats de recherche pour «${searchText}» : ` : ""}Page {currentPage} sur {pageCount}
-</h2>
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h2
+    bind:this={title}
+    tabindex="-1"
+    class="text-[1rem] fr-text--regular fr-mb-0 focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
+  >
+    {searchText.trim() ? `Résultats de recherche pour «${searchText}» : ` : ""}Page {currentPage} sur
+    {pageCount}
+  </h2>
+  <div class="flex items-center gap-2">
+    <label class="fr-m-0" for="dossiers-page-size">Dossiers par page</label>
+    <Select
+      id="dossiers-page-size"
+      class="w-20"
+      options={PAGE_SIZES.map((size) => ({ value: String(size), label: String(size) }))}
+      value={String(pageSize)}
+      onChange={(value) => onPageSizeChange(Number(value))}
+    />
+  </div>
+</div>
 <DossiersResults
   dossiers={displayed}
   {sortKey}

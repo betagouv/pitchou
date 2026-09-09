@@ -182,6 +182,7 @@ export function clearFilters(query: DossiersQuery): DossiersQuery {
     text: query.text,
     sort: query.sort,
     order: query.order,
+    pageSize: query.pageSize,
   };
 }
 

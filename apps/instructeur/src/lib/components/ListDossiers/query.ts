@@ -21,6 +21,9 @@ export type DateField = "deposit" | "phaseStart" | "lastModified" | "nextDue";
 export type SortKey = "depositDate" | "lastModified" | "nextDueDate";
 export type SortOrder = "asc" | "desc";
 
+export const PAGE_SIZES = [10, 25, 50, 100];
+export const DEFAULT_PAGE_SIZE = 10;
+
 /** « nouveaute » state: with / without / no filter */
 export type Nouveaute = "" | "oui" | "non";
 
@@ -99,6 +102,7 @@ export type DossiersQuery = {
   sort: SortKey;
   order: SortOrder;
   page: number;
+  pageSize: number;
 };
 
 /** Sort applied by the list when the URL carries no explicit sort */
@@ -149,6 +153,7 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
     params.set("order", query.order);
   }
   if (query.page > 1) params.set("page", String(query.page));
+  if (query.pageSize !== DEFAULT_PAGE_SIZE) params.set("pageSize", String(query.pageSize));
 
   return params;
 }
@@ -159,6 +164,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
   const dateField = params.get("dateField") ?? "";
   const sort = params.get("sort") ?? "";
   const page = Number(params.get("page"));
+  const pageSize = Number(params.get("pageSize"));
 
   return {
     text: params.get("q") ?? "",
@@ -183,6 +189,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
     sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : DEFAULT_SORT,
     order: params.get("order") === "asc" ? "asc" : "desc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
+    pageSize: PAGE_SIZES.includes(pageSize) ? pageSize : DEFAULT_PAGE_SIZE,
   };
 }
 

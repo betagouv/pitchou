@@ -26,6 +26,7 @@ describe("parseDossiersQuery", () => {
       sort: "depositDate",
       order: "desc",
       page: 1,
+      pageSize: 10,
     });
   });
 
@@ -43,6 +44,7 @@ describe("parseDossiersQuery", () => {
       sort: "lastModified",
       order: "asc",
       page: "3",
+      pageSize: "25",
     });
     // Multi-valued filters appear once per selected value
     params.append("phase", "Instruction");
@@ -68,6 +70,7 @@ describe("parseDossiersQuery", () => {
       sort: "lastModified",
       order: "asc",
       page: 3,
+      pageSize: 25,
     });
   });
 
@@ -86,6 +89,19 @@ describe("parseDossiersQuery", () => {
     expect(query.sort).toBe("depositDate");
     expect(query.order).toBe("desc");
     expect(query.page).toBe(1);
+  });
+
+  test.each(["", "0", "-10", "12", "25.5", "1000", "all", "NaN"])(
+    "falls back to 10 dossiers for invalid page size %s",
+    (pageSize) => {
+      expect(parseDossiersQuery(new URLSearchParams({ pageSize })).pageSize).toBe(10);
+    },
+  );
+
+  test.each([10, 25, 50, 100])("round-trips page size %i", (pageSize) => {
+    const params = buildDossiersSearchParams(makeQuery({ pageSize, page: 2 }));
+    expect(params.get("pageSize")).toBe(pageSize === 10 ? null : String(pageSize));
+    expect(readDossiersQuery(params)).toMatchObject({ pageSize, page: 2 });
   });
 });
 
@@ -129,6 +145,7 @@ describe("buildDossiersSearchParams", () => {
       sort: "lastModified",
       order: "asc",
       page: 3,
+      pageSize: 50,
     });
     const params = buildDossiersSearchParams(query);
     expect(readDossiersQuery(params)).toEqual(query);
