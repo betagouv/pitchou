@@ -62,7 +62,9 @@ export async function dumpDossiers(
   dossiersForInsert: DossierForInsert[],
   dossiersForUpdate: DossierForUpdate[],
   db: Knex.Transaction | Knex = directDatabaseConnection,
-) {
+): Promise<Set<DossierId>> {
+  if (!db.isTransaction)
+    return db.transaction((trx) => dumpDossiers(dossiersForInsert, dossiersForUpdate, trx));
   const varcharKeys: (keyof Pick<Dossier, "name" | "ddep_required">)[] = ["name", "ddep_required"];
   for (const { dossier } of [...dossiersForInsert, ...dossiersForUpdate]) {
     for (const key of varcharKeys) {
@@ -116,8 +118,6 @@ export async function dumpDossiers(
     }
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
-      // A dossier discovered by this synchronization is new to everyone following it.
-      changedDossiers.add(id);
       const source = dossiersForInsert[index];
       // An imported free comment also becomes the dossier's first (authorless)
       // commentaire, so the thread and the dossier list show it.

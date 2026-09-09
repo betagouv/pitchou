@@ -154,5 +154,6 @@ export async function getDossierActions(
       "personne.email as author_email",
     ])
     .where({ "action_dossier.dossier": dossierId })
+    .whereRaw("COALESCE(action_dossier.data->>'baseline', 'false') <> 'true'")
     .orderBy("action_dossier.created_at", "desc");
 }

@@ -3,6 +3,8 @@
   import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
+  import ProjectField from "./ProjectField.svelte";
+  import type { FieldChange as Change } from "@pitchou/types/notification.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
@@ -10,9 +12,10 @@
   type Props = {
     dossier: DossierFull;
     anomalies: Promise<AnomalieFichierEspeces[]> | undefined;
+    change?: Change;
   };
 
-  let { dossier, anomalies }: Props = $props();
+  let { dossier, anomalies, change }: Props = $props();
 
   const impacts = $derived(dossier.especesImpactees.impacts);
   const sourceFile = $derived(dossier.especesImpactees.sourceFile);
@@ -37,11 +40,17 @@
   }
 </script>
 
-{#if sourceFile}
-  <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
-{/if}
-{#if impacts.length >= 1}
-  <EspecesProtegeesGroupedByTypeImpact especesParTypeImpact={groupImpactsByTypeImpact(impacts)} />
-{:else}
-  <p>Aucune données sur les espèces impactées n'a été fournie par le pétitionnaire</p>
-{/if}
+<ProjectField dossierId={dossier.id} label="" value={null} {change}>
+  {#if sourceFile}
+    <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
+  {/if}
+  {#if impacts.length >= 1}
+    <div class="overflow-x-auto">
+      <EspecesProtegeesGroupedByTypeImpact
+        especesParTypeImpact={groupImpactsByTypeImpact(impacts)}
+      />
+    </div>
+  {:else}
+    <p>Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.</p>
+  {/if}
+</ProjectField>

@@ -122,14 +122,14 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberOneCard).toBeVisible();
-  await expect(memberOneCard.locator("p.fr-badge--new")).toBeVisible();
+  await expect(memberOneCard.getByText("Nouveau suivi", { exact: true })).toBeVisible();
 
   await page.goto(`/?secret=${memberTwo.codeAcces}`);
   const memberTwoCard = page
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberTwoCard).toBeVisible();
-  await expect(memberTwoCard.locator("p.fr-badge--new")).toBeVisible();
+  await expect(memberTwoCard.getByText("Nouveau suivi", { exact: true })).toBeVisible();
 
   await page.goto(`/?secret=${formerMember.codeAcces}`);
   await expect(
@@ -157,20 +157,22 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
   await dialog.getByRole("button", { name: "Attribuer le dossier" }).click();
   await expect(dialog).toBeHidden();
 
-  // The dossier being open counts as read, once the 5s reading delay elapsed.
+  // This fixture has no applicant changes: only the arrival/follow are dismissed.
   await expect
     .poll(
       async () =>
         db("notification")
-          .select("viewed")
+          .select("viewed", "arrival_viewed", "follow_revision")
           .where({ personne: assigner.id, dossier: assigner.dossier.id })
           .first(),
       { timeout: 10_000 },
     )
-    .toEqual({ viewed: true });
+    .toEqual({ viewed: true, arrival_viewed: true, follow_revision: null });
 
   await page.getByRole("link", { name: "Mes dossiers", exact: true }).click();
   const card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await expect(card).toBeVisible();
-  await expect(card.locator("p.fr-badge--new")).toHaveCount(0);
+  await expect(
+    card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié|Modification détectée)/),
+  ).toHaveCount(0);
 });

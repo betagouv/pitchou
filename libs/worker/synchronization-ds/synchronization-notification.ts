@@ -17,11 +17,10 @@ export async function updateNotification(
   changedDossiers: Set<DossierId>,
   synchronizationTransactionDS: Knex.Transaction | Knex,
 ): Promise<void> {
-  if (dossiersDN.length === 0 || changedDossiers.size === 0) {
+  if (changedDossiers.size === 0) {
     return;
   }
 
-  const modifiedAtByDossier = new Map<DossierId, Date>();
   for (const dossierDN of dossiersDN) {
     const dossierId = dossierIdByDN_number.get(dossierDN.number);
     if (!dossierId) {
@@ -29,9 +28,10 @@ export async function updateNotification(
         `Dans la mise à jour de la table Notification, le dossier de Démarche numérique numéro ${dossierDN.number} n'a pas trouvé de correspondance parmi les id des dossiers Pitchou.`,
       );
     }
-    if (!changedDossiers.has(dossierId)) continue;
-    modifiedAtByDossier.set(dossierId, dossierDN.dateDerniereModification);
   }
 
-  await markDossiersUnreadForFollowers(modifiedAtByDossier, synchronizationTransactionDS);
+  await markDossiersUnreadForFollowers(
+    new Map([...changedDossiers].map((id) => [id, new Date()])),
+    synchronizationTransactionDS,
+  );
 }

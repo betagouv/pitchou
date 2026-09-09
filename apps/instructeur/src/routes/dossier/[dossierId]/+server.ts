@@ -1,20 +1,12 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import {
-  requireCap,
-  requireDossierAccessByCap,
-  requireDossierAccessLevelByCap,
-} from "$lib/server/auth";
+import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject } from "$lib/server/requestValidation";
 import { createTransaction } from "@pitchou/server/database.ts";
-import {
-  dossierFullForReadOnly,
-  getDossierFull,
-  getDossierInstructionState,
-  updateDossier,
-} from "@pitchou/server/database/dossier.ts";
+import { getDossierInstructionState, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getDossierReviewSnapshot } from "@pitchou/server/database/notification/snapshot.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
 import { parseDossierId, parseDossierUpdate } from "./updatePayload.ts";
 
@@ -32,21 +24,16 @@ export const GET: RequestHandler = async ({ params, url }) => {
   const cap = requireCap(url);
   const dossierId = parseDossierId(params.dossierId!);
 
-  const { access } = await requireDossierAccessLevelByCap(dossierId, cap);
-
-  const dossier = await getDossierFull(dossierId, cap);
+  const dossier = await getDossierReviewSnapshot(
+    dossierId,
+    cap,
+    url.searchParams.get("lecture") === "1",
+  );
   if (!dossier) {
     error(403, `Aucun dossier trouvé avec id '${dossierId}'`);
   }
 
-  // The cap decides: a dossier merely shared with the groupe is always narrowed,
-  // whatever the request asks for. `lecture` only lets an instructeur who may
-  // write preview what the other service sees — it can never widen the response.
-  const readOnly = access === "lecture" || url.searchParams.get("lecture") === "1";
-
-  // The browser cannot work this out on its own: the same cap is `complet` for
-  // the service's own dossiers and `lecture` for the ones shared with it.
-  return json({ ...(readOnly ? dossierFullForReadOnly(dossier) : dossier), access });
+  return json(dossier);
 };
 
 export const POST: RequestHandler = async ({ params, url, request }) => {

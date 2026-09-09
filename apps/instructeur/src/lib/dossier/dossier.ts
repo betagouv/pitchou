@@ -1,6 +1,8 @@
 import { SvelteMap } from "svelte/reactivity";
 
 import { store, setDossierFull } from "$lib/state/store.svelte.ts";
+import { enqueueNotificationRequest, formatNotification } from "./notification.ts";
+import { registerReviewSnapshot } from "./notification/snapshot.ts";
 
 import { parseFichierEspecesImpactees } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 import {
@@ -78,19 +80,16 @@ export function updateDossierNextDueDate(
     store.fullDossiers.set(id, { ...full, next_due_date: nextDueDate });
   }
 
-  return store.capabilities
-    .modifierDossier(id, { next_due_date: nextDueDate })
-    .catch((err) => {
-      // on error, put the échéance back the way it was before the optimistic update
-      if (summary) store.dossierSummaries.set(id, summary);
-      const current = store.fullDossiers.get(id);
-      if (full && current) {
-        recordLocalWrite(id);
-        store.fullDossiers.set(id, { ...current, next_due_date: full.next_due_date });
-      }
-      throw err;
-    })
-    .then(() => undefined);
+  return store.capabilities.modifierDossier(id, { next_due_date: nextDueDate }).catch((err) => {
+    // on error, put the échéance back the way it was before the optimistic update
+    if (summary) store.dossierSummaries.set(id, summary);
+    const current = store.fullDossiers.get(id);
+    if (full && current) {
+      recordLocalWrite(id);
+      store.fullDossiers.set(id, { ...current, next_due_date: full.next_due_date });
+    }
+    throw err;
+  });
 }
 
 /**
@@ -125,15 +124,31 @@ export async function getDossierFull(
 
 export async function refreshDossierFull(
   id: DossierFull["id"],
-  { readOnly = false }: { readOnly?: boolean } = {},
+  options: { readOnly?: boolean } = {},
 ): Promise<DossierFull> {
-  if (!store.capabilities.recupérerDossierComplet)
+  const writeVersion = localWriteVersions.get(id) ?? 0;
+  const dossier = await enqueueNotificationRequest(() =>
+    fetchDossierFullSnapshot(id, options, writeVersion),
+  );
+  if (!dossier) throw new Error("La session a changé pendant le chargement du dossier.");
+  return dossier;
+}
+
+/** Internal fetch: the caller must hold the notification session queue. */
+export async function fetchDossierFullSnapshot(
+  id: DossierFull["id"],
+  { readOnly = false }: { readOnly?: boolean } = {},
+  writeVersion = localWriteVersions.get(id) ?? 0,
+): Promise<DossierFull> {
+  const capabilities = store.capabilities;
+  if (!capabilities.recupérerDossierComplet)
     throw new TypeError(`Capability recupérerDossierComplet manquante`);
 
-  const versionBeforeFetch = localWriteVersions.get(id) ?? 0;
-  const dossierFull = await store.capabilities.recupérerDossierComplet(id, readOnly);
+  const dossierFull = await capabilities.recupérerDossierComplet(id, readOnly);
+  if (capabilities !== store.capabilities)
+    throw new Error("La session a changé pendant le chargement du dossier.");
 
-  if ((localWriteVersions.get(id) ?? 0) !== versionBeforeFetch) {
+  if ((localWriteVersions.get(id) ?? 0) !== writeVersion) {
     // A champ was saved while this payload travelled: it predates the save, and
     // caching it would undo what the instructeur just did. The next refresh
     // brings a payload that includes the save.
@@ -147,8 +162,15 @@ export async function refreshDossierFull(
     // Never through `setDossierFull`: a stripped dossier must not reach
     // `fullDossiers`, nor overwrite the summary the dossier list is built from.
     store.readOnlyDossiers.set(id, dossierFull);
+    if (dossierFull.access === "lecture") {
+      store.fullDossiers.delete(id);
+      store.notificationByDossier.delete(id);
+    }
   } else {
+    registerReviewSnapshot(dossierFull);
     setDossierFull(dossierFull);
+    if (dossierFull.notificationSnapshot)
+      store.notificationByDossier.set(id, formatNotification(dossierFull.notificationSnapshot));
   }
 
   return dossierFull;

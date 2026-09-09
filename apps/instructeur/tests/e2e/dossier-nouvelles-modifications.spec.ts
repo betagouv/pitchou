@@ -5,7 +5,7 @@ function petitionnaireAction(dossier: number, type: string, data: Record<string,
   return {
     dossier,
     type,
-    data: JSON.stringify(data),
+    data: JSON.stringify({ ...data, notification: true }),
     author_petitionnaire: true,
   };
 }
@@ -21,40 +21,47 @@ test("les modifications du pétitionnaire non lues affichent des badges dans le 
   });
   await db("action_dossier").insert([
     petitionnaireAction(dossier.id, "champ_modifie", { field: "Description" }),
-    petitionnaireAction(dossier.id, "especes_renseignees", {}),
-    petitionnaireAction(dossier.id, "piece_jointe_importee", { name: "plan.pdf" }),
+    petitionnaireAction(dossier.id, "especes_renseignees", { field: "especes" }),
+    petitionnaireAction(dossier.id, "piece_jointe_importee", {
+      field: "piece:removed",
+      label: "plan.pdf",
+      name: "plan.pdf",
+    }),
   ]);
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}?tab=detail-du-projet`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   const badges = page.getByText("Nouvelles modifications", { exact: true });
   await expect(badges).toHaveCount(3);
 
   await page.getByRole("button", { name: /Informations du projet/ }).click();
-  await expect(page.getByText(/^Modifié le \d{2}\/\d{2}\/\d{4}$/).first()).toBeVisible();
+  await expect(
+    page.getByText(/^Modification détectée le\s+\d{2}\/\d{2}\/\d{4}$/).first(),
+  ).toBeVisible();
 });
 
-test("les modifications déjà lues n'affichent pas de badge", async ({ page, db, loginAs }) => {
+test("les révisions explicitement validées n'affichent pas de badge", async ({
+  page,
+  db,
+  loginAs,
+}) => {
   const instructeur = await createInstructeurWithDossier(db, {
     email: "instr@modifs-lues.fr",
     dossierNom: "Dossier modifications lues e2e",
   });
   const { codeAcces, dossier } = instructeur;
-  await db("action_dossier").insert([
-    petitionnaireAction(dossier.id, "champ_modifie", { field: "Description" }),
-  ]);
-  // The instructeur read the dossier after the modification arrived.
-  await db("notification").insert({
-    dossier: dossier.id,
+  const [action] = await db("action_dossier")
+    .insert([petitionnaireAction(dossier.id, "champ_modifie", { field: "Description" })])
+    .returning("id");
+  await db("notification_review").insert({
+    action: action.id,
     personne: instructeur.id,
-    viewed: true,
-    viewed_at: new Date(Date.now() + 60_000),
   });
 
   await loginAs(codeAcces);
-  await page.goto(`/dossier/${dossier.id}`);
+  await page.goto(`/dossier/${dossier.id}?tab=detail-du-projet`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
   await expect(page.getByRole("button", { name: /Informations du projet/ })).toBeVisible();
 

@@ -60,6 +60,8 @@ test("a date champ the pétitionnaire really changed is reported", async () => {
       type: "champ_modifie",
       data: {
         field: "Date de début d'intervention ou des travaux",
+        column: "intervention_start_date",
+        notification: true,
         from: "2026-06-01",
         to: "2026-06-02",
       },
@@ -78,9 +80,69 @@ test("a text champ the pétitionnaire changed is reported under its label", asyn
     {
       dossier: 1,
       type: "champ_modifie",
-      data: { field: "Nom du projet", from: "Ancien nom", to: "Nouveau nom" },
+      data: {
+        field: "Nom du projet",
+        column: "name",
+        notification: true,
+        from: "Ancien nom",
+        to: "Nouveau nom",
+      },
       author_petitionnaire: true,
     },
   ]);
   expect(changedDossiers).toEqual(new Set([1]));
+});
+
+test.each([
+  [null, "Ajout ultérieur"],
+  ["Texte", null],
+])("later additions and cleared values are revisions: %s -> %s", async (before, after) => {
+  const { actions } = await actionsFromSyncUpdates(
+    [updateFor({ description: after })],
+    fakeDb([{ id: 1 as Dossier["id"], demarche_numerique_number: "456", description: before }]),
+  );
+  expect(actions).toHaveLength(1);
+  expect(actions[0].data).toMatchObject({
+    field: "Description",
+    notification: true,
+    from: before,
+    to: after,
+  });
+});
+
+test("first submission and omitted update values are not modifications", async () => {
+  expect(
+    (await actionsFromSyncUpdates([updateFor({ description: "Initial" })], fakeDb([]))).actions,
+  ).toEqual([]);
+  const { actions } = await actionsFromSyncUpdates(
+    [updateFor({ description: undefined })],
+    fakeDb([
+      { id: 1 as Dossier["id"], demarche_numerique_number: "456", description: "Unchanged" },
+    ]),
+  );
+  expect(actions).toEqual([]);
+});
+
+test("JSONB object key ordering does not reopen a reviewed map", async () => {
+  const { actions } = await actionsFromSyncUpdates(
+    [
+      updateFor({
+        projet_map: {
+          type: "FeatureCollection",
+          features: [{ properties: { a: 1, b: 2 }, geometry: null }],
+        },
+      }),
+    ],
+    fakeDb([
+      {
+        id: 1 as Dossier["id"],
+        demarche_numerique_number: "456",
+        projet_map: {
+          features: [{ geometry: null, properties: { b: 2, a: 1 } }],
+          type: "FeatureCollection",
+        },
+      },
+    ]),
+  );
+  expect(actions).toEqual([]);
 });

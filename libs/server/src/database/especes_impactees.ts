@@ -17,7 +17,7 @@ import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema
 const limiteImports = pLimit(4);
 
 async function dumpImpactEspece(
-  fichierEspecesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId>,
+  fichierEspecesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId | null>,
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
@@ -25,7 +25,7 @@ async function dumpImpactEspece(
     [...fichierEspecesImpacteesByDossierNumber].map(([dossierNumber, fichierId]) =>
       limiteImports(async () => {
         const dossierId = dossierIdByDNNumber.get(dossierNumber);
-        if (!dossierId) return;
+        if (!dossierId || !fichierId) return;
 
         const anomalies = await dumpImpactEspeceFromFichier(
           dossierId,
@@ -48,10 +48,18 @@ async function dumpImpactEspece(
  * see it.
  */
 export async function synchronizeFichiersEspecesImpacteesFromDS88444(
-  especesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId>,
+  especesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId | null>,
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Set<DossierId>> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      synchronizeFichiersEspecesImpacteesFromDS88444(
+        especesImpacteesByDossierNumber,
+        dossierIdByDNNumber,
+        trx,
+      ),
+    );
   // Find the files already in place (to delete them below)
   const previousFichierIdRows = await databaseConnection("dossier")
     .select(["especes_impactees"])
@@ -70,7 +78,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   const changedDossiers = new Set<DossierId>();
   for (const row of currentRows) {
     const fichierId = especesImpacteesByDossierNumber.get(Number(row.demarche_numerique_number));
-    if (fichierId && fichierId !== row.especes_impactees) changedDossiers.add(row.id);
+    if (fichierId !== undefined && fichierId !== row.especes_impactees) changedDossiers.add(row.id);
   }
 
   // Associate the new espèces impactées files with the right dossier
@@ -84,6 +92,14 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   // Delete the files that were attached to a dossier and are no longer relevant
   await Promise.all(updatePs);
 
+  const clearedIds = currentRows
+    .filter(
+      (row) => especesImpacteesByDossierNumber.get(Number(row.demarche_numerique_number)) === null,
+    )
+    .map(({ id }) => id);
+  if (clearedIds.length)
+    await databaseConnection("impact_espece").whereIn("dossier", clearedIds).delete();
+
   await dumpImpactEspece(especesImpacteesByDossierNumber, dossierIdByDNNumber, databaseConnection);
 
   const oldFichierIds = previousFichierIdRows.map(({ especes_impactees }) => especes_impactees);
@@ -93,7 +109,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
     [...changedDossiers].map((dossier) => ({
       dossier,
       type: "especes_renseignees",
-      data: {},
+      data: { field: "especes", label: "Espèces impactées", notification: true },
       author_petitionnaire: true,
     })),
     databaseConnection,

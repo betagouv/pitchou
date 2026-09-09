@@ -41,6 +41,9 @@ export async function setupMesDossiers(db: Knex) {
     await attachDossierToGroupe(db, dossier.id, groupeId);
     await attachPersonneSuitDossier(db, personneId, dossier.id);
   }
+  // Represent a dossier/follow predating notification rollout, not a fresh arrival.
+  await db("notification_arrival").where("dossier", noNotificationOld.id).delete();
+  await db("notification").where({ dossier: noNotificationOld.id, personne: personneId }).delete();
   await createNotification(db, {
     personneId,
     dossierId: viewedRecent.id,

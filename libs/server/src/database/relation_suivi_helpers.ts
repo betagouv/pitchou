@@ -69,10 +69,6 @@ export async function followDossierForPersonnes(
     .insert(personneIds.map((personne) => ({ personne, dossier: dossierId })))
     .onConflict(["personne", "dossier"])
     .ignore();
-  await databaseConnection("notification")
-    .insert(personneIds.map((personne) => ({ personne, dossier: dossierId, viewed: false })))
-    .onConflict(["personne", "dossier"])
-    .ignore();
 }
 
 export async function unfollowDossierForPersonnes(
@@ -83,10 +79,6 @@ export async function unfollowDossierForPersonnes(
   if (!personneIds.length) return;
   await databaseConnection("edge_personne_follows_dossier")
     .delete()
-    .where({ dossier: dossierId })
-    .whereIn("personne", personneIds);
-  await databaseConnection("notification")
-    .update({ viewed: true })
     .where({ dossier: dossierId })
     .whereIn("personne", personneIds);
 }

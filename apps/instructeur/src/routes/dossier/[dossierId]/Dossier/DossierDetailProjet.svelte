@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { untrack } from "svelte";
   import { store } from "$lib/state/store.svelte.ts";
+  import { setContext } from "svelte";
+  import { boundReviewChanges, dossierReviewContext } from "$lib/dossier/notification/snapshot.ts";
+  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import Accordion from "./DossierDetailProjet/Accordion.svelte";
   import PorteurDeProjet from "./DossierDetailProjet/PorteurDeProjet.svelte";
   import InformationsProjet from "./DossierDetailProjet/InformationsProjet.svelte";
@@ -10,7 +12,6 @@
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
   import { readOnlyMode } from "./readOnly.ts";
 
-  import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";
   import type Notification from "@pitchou/types/database/public/Notification.ts";
@@ -21,45 +22,58 @@
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
   };
 
-  let { dossier, anomalies, notification }: Props = $props();
+  let { dossier, anomalies }: Props = $props();
 
   const readOnly = readOnlyMode();
-
-  // Snapshot of the last read date at mount: staying on the page marks the
-  // dossier read after a few seconds, and the badges must not vanish mid-visit.
-  const lastReadAt = untrack(() =>
-    notification?.viewed_at ? new Date(notification.viewed_at) : null,
+  setContext(dossierReviewContext, () => dossier);
+  const pending = $derived(
+    readOnly.current ? undefined : store.notificationByDossier.get(dossier.id),
   );
-
-  let actions: DossierAction[] = $state([]);
-  $effect(() => {
-    // The badges say « new since you last read this », which means nothing to a
-    // read-only viewer — and the historique is not shared with them, so the
-    // request would be refused.
-    if (readOnly.current) {
-      actions = [];
-      return;
+  const boundChanges = $derived(readOnly.current ? [] : boundReviewChanges(dossier, pending));
+  const needsRefresh = $derived(
+    !readOnly.current &&
+      pending?.changes.some((change) =>
+        change.revisions.some((id) => !boundChanges.some((bound) => bound.revisions.includes(id))),
+      ),
+  );
+  let refreshing = $state(false);
+  async function refresh() {
+    refreshing = true;
+    try {
+      await refreshDossierFull(dossier.id);
+    } catch {
+      store.errors.add({ message: "Impossible d'actualiser le dossier. Réessayez." });
+    } finally {
+      refreshing = false;
     }
-    void store.capabilities
-      .listerActionsDossier?.(dossier.id)
-      .then((list) => (actions = list))
-      // The badges are a bonus: without the historique the tab still works.
-      .catch(() => (actions = []));
-  });
+  }
 
-  const modifications = $derived(nouvellesModifications(actions, lastReadAt));
+  const modifications = $derived(nouvellesModifications(boundChanges));
 </script>
 
 {#snippet nouveau()}
-  <span class="fr-badge fr-badge--sm fr-badge--new">Nouvelles modifications</span>
+  <span class="fr-badge fr-badge--sm fr-badge--no-icon" style="background: #ffe7a3; color: #5c4813"
+    >Nouvelles modifications</span
+  >
 {/snippet}
 
 <div class="flex flex-col gap-4">
+  {#if needsRefresh}
+    <div role="status">
+      Des modifications concernent une autre version du dossier.
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary fr-btn--sm"
+        disabled={refreshing}
+        onclick={refresh}>Actualiser les modifications</button
+      >
+    </div>
+  {/if}
   <Accordion id="accordion-porteur-de-projet" title="Porteur de projet">
     {#snippet badges()}
       {#if modifications.porteurDates.size > 0}{@render nouveau()}{/if}
     {/snippet}
-    <PorteurDeProjet {dossier} />
+    <PorteurDeProjet {dossier} modifiedFields={modifications.porteurDates} />
   </Accordion>
 
   <Accordion id="accordion-informations-projet" title="Informations du projet">
@@ -71,19 +85,19 @@
 
   <Accordion id="accordion-especes-impactees" title="Espèces impactées">
     {#snippet badges()}
-      {#if modifications.especes}{@render nouveau()}{/if}
       <span class="fr-badge"
         >{especesCountsLabel(especesCounts(dossier.especesImpactees.impacts))}</span
       >
+      {#if modifications.especes}{@render nouveau()}{/if}
     {/snippet}
-    <EspecesImpactees {dossier} {anomalies} />
+    <EspecesImpactees {dossier} {anomalies} change={modifications.especes} />
   </Accordion>
 
   <Accordion id="accordion-pieces-jointes-formulaire" title="Pièces jointes">
     {#snippet badges()}
-      {#if modifications.piecesJointes}{@render nouveau()}{/if}
       <span class="fr-badge">{dossier.piecesJointesPetitionnaires.length}</span>
+      {#if modifications.piecesJointes.length}{@render nouveau()}{/if}
     {/snippet}
-    <PiecesJointes {dossier} />
+    <PiecesJointes {dossier} changes={modifications.piecesJointes} />
   </Accordion>
 </div>

@@ -21,6 +21,17 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
   fieldsWithPiecesJointes: FormField[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Set<DossierId>> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
+        fichiersPiecesJointesPetitionnaireByDossierId,
+        dossiersDS,
+        dossierIdByDS_number,
+        pitchouKeyToChampDS,
+        fieldsWithPiecesJointes,
+        trx,
+      ),
+    );
   let fichierDescriptions: Map<DossierDS88444["number"], DSFile[]>[] = [];
 
   for (const field of fieldsWithPiecesJointes) {
@@ -38,24 +49,35 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)),
   );
 
-  const allDsFiles = fichierDescriptions
-    .flatMap((fichierDescription) => [...fichierDescription.values()])
-    .flat();
-
-  const checksumsDS = new Set(allDsFiles.map((dsfile) => dsfile.checksum));
+  const checksumsByDossier = new Map<DossierId, Set<string>>();
+  for (const descriptions of fichierDescriptions) {
+    for (const [number, files] of descriptions) {
+      const id = dossierIdByDS_number.get(number);
+      if (!id) continue;
+      const checksums = checksumsByDossier.get(id) ?? new Set<string>();
+      for (const file of files) checksums.add(file.checksum);
+      checksumsByDossier.set(id, checksums);
+    }
+  }
 
   //console.log('dossierIds', dossierIds)
   //console.log('checksumsDS', checksumsDS)
 
-  // Find the (dossier, fichier) pairs to unlink: files linked to a dossier of the batch via the pétitionnaire PJ join,
-  // but whose Démarche Numérique checksum is no longer in the list of candidates for these dossiers
-  const edgesToDelete = await databaseConnection(
+  // Compare each dossier with its own files, even when two dossiers share a checksum.
+  const existingFileEdges = await databaseConnection(
     "edge_dossier__fichier_pieces_jointes_petitionnaire as a",
   )
-    .select(["a.dossier as dossier", "a.fichier as fichier"])
+    .select([
+      "a.dossier as dossier",
+      "a.fichier as fichier",
+      "f.name",
+      "f.demarche_numerique_checksum as checksum",
+    ])
     .innerJoin("file as f", "f.id", "a.fichier")
-    .whereIn("a.dossier", [...dossierIds])
-    .andWhere("f.demarche_numerique_checksum", "not in", [...checksumsDS]);
+    .whereIn("a.dossier", [...dossierIds]);
+  const edgesToDelete = existingFileEdges.filter(
+    (edge) => !checksumsByDossier.get(edge.dossier)?.has(edge.checksum),
+  );
 
   let orphanFichiersCleanedUp: Promise<any> = Promise.resolve();
 
@@ -86,7 +108,25 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     .flat();
 
   let newFichiersSynchronized: Promise<any> = Promise.resolve();
-  const dossiersWithNewPiecesJointes = new Set<DossierId>();
+  const dossiersWithNewPiecesJointes = new Set<DossierId>(
+    edgesToDelete.map(({ dossier }) => dossier),
+  );
+  await logActionsDossier(
+    edgesToDelete.map(({ dossier, fichier, name }) => ({
+      dossier,
+      type: "champ_modifie",
+      author_petitionnaire: true,
+      data: {
+        field: name ?? "Pièce jointe",
+        notification_field: `piece:${fichier}`,
+        label: name ?? "Pièce jointe supprimée",
+        from: name,
+        to: null,
+        notification: true,
+      },
+    })),
+    databaseConnection,
+  );
 
   if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
     // The insert ignores conflicts, so the historique must only log the edges
@@ -131,7 +171,13 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
         newEdges.map(({ dossier, fichier }) => ({
           dossier,
           type: "piece_jointe_importee",
-          data: { name: fileNames.get(fichier) ?? null },
+          data: {
+            name: fileNames.get(fichier) ?? null,
+            field: fileNames.get(fichier) ?? "Pièce jointe",
+            notification_field: `piece:${fichier}`,
+            label: fileNames.get(fichier) ?? "Pièce jointe",
+            notification: true,
+          },
           author_petitionnaire: true,
         })),
         databaseConnection,

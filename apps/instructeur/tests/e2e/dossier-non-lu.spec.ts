@@ -2,7 +2,7 @@ import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { attachPersonneSuitDossier } from "../factories/notification.ts";
 
-test("un dossier se marque comme lu et non lu depuis la tuile et l'entête", async ({
+test("arrivée et suivi disparaissent après cinq secondes sans validation automatique des champs", async ({
   page,
   db,
   loginAs,
@@ -16,32 +16,33 @@ test("un dossier se marque comme lu et non lu depuis la tuile et l'entête", asy
     dossierNom: "Dossier non lu e2e",
   });
   await attachPersonneSuitDossier(db, personneId, dossier.id);
-  await db("notification").insert({ personne: personneId, dossier: dossier.id, viewed: false });
-
+  await db("action_dossier").insert({
+    dossier: dossier.id,
+    type: "champ_modifie",
+    author_petitionnaire: true,
+    data: JSON.stringify({ field: "Description", column: "description", notification: true }),
+  });
   await loginAs(codeAcces);
   await page.goto("/mes-dossiers");
   const card = page.getByTestId("card-dossier").filter({ hasText: dossier.name! });
-  const badge = card.locator("p.fr-badge--new");
-  await expect(badge).toBeVisible();
-
-  // The tile menu marks the dossier as read, the modification badge disappears.
-  await card.getByRole("button", { name: /Plus d’actions/ }).click();
-  await page.getByRole("menuitem", { name: "Marquer le dossier comme lu" }).click();
-  await expect(badge).toBeHidden();
-
-  // And back to unread.
-  await card.getByRole("button", { name: /Plus d’actions/ }).click();
-  await page.getByRole("menuitem", { name: "Marquer le dossier comme non lu" }).click();
-  await expect(badge).toBeVisible();
-
-  // The dossier header toggles the same state and it persists.
-  await page.goto(`/dossier/${dossier.id}`);
-  await page.getByRole("button", { name: "Marquer le dossier comme lu" }).click();
-  await expect(page.getByRole("button", { name: "Marquer le dossier comme non lu" })).toBeVisible();
-  await page.getByRole("button", { name: "Marquer le dossier comme non lu" }).click();
-  await expect(page.getByRole("button", { name: "Marquer le dossier comme lu" })).toBeVisible();
-  await page.waitForLoadState("networkidle");
-
+  await expect(card.getByText("Nouveau dossier", { exact: true })).toBeVisible();
+  await expect(card.getByText("Nouveau suivi", { exact: true })).toBeVisible();
+  await expect(card.getByText(/^(Modifié|Modification détectée)/)).toHaveCount(0);
+  await page.goto(`/dossier/${dossier.id}?tab=detail-du-projet`);
+  await expect(page.getByText("Nouveau dossier", { exact: true })).toBeVisible();
+  await expect(page.getByText("Nouveau suivi", { exact: true })).toBeVisible();
+  await expect(page.getByText("Nouveau dossier", { exact: true })).toHaveCount(0, {
+    timeout: 10000,
+  });
+  await expect(page.getByText("Nouveau suivi", { exact: true })).toHaveCount(0);
+  await expect(page.getByText(/^Modification détectée (aujourd'hui|il y a)/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Marquer le dossier comme/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /Informations du projet/ }).click();
+  await page.getByRole("button", { name: "Valider la modification : Description" }).click();
+  await expect(page.getByText(/^Modification détectée (aujourd'hui|il y a)/)).toHaveCount(0);
   await page.goto("/mes-dossiers");
-  await expect(badge).toBeVisible();
+  await expect(card).toBeVisible();
+  await expect(
+    card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié|Modification détectée)/),
+  ).toHaveCount(0);
 });

@@ -40,6 +40,7 @@ export function isFichierSharedInReadOnly({ relation, expert }: FichierAttachmen
 export function dossierFullForReadOnly(dossier: DossierFull): DossierFull {
   return {
     ...dossier,
+    notificationSnapshot: undefined,
 
     // Commentaires are the service talking to itself. `free_comment` is the
     // legacy column the commentaires were migrated from; it is still selected

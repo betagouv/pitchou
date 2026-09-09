@@ -2,11 +2,29 @@ import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
 import { createDossier } from "../factories/dossier.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
-import { attachPersonneSuitDossier, createNotification } from "../factories/notification.ts";
+import { attachDossierToGroupe, createInstructeurWithDossier } from "../factories/index.ts";
+import { attachPersonneSuitDossier } from "../factories/notification.ts";
 import { dumpDossiers } from "@pitchou/server/database/dossier.ts";
 import { markDossiersUnreadForFollowers } from "@pitchou/server/database/notification.ts";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
+import type { DossierNotification } from "@pitchou/types/notification.ts";
+
+async function notificationsFor(cap: string): Promise<DossierNotification[]> {
+  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`);
+  expect(response.status).toBe(200);
+  return response.json();
+}
+
+async function review(cap: string, body: object): Promise<DossierNotification> {
+  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  expect(response.status).toBe(200);
+  return response.json();
+}
 
 // The synchronization has to say exactly which champs the pétitionnaire changed:
 // the historique of the dossier is built from that, and so is the unread badge.
@@ -117,18 +135,15 @@ test("seuls les dossiers réellement modifiés repassent en non lu", async () =>
   });
   await attachPersonneSuitDossier(db, instructeur.id, modifie.id);
   await attachPersonneSuitDossier(db, instructeur.id, inchange.id);
-  await createNotification(db, {
-    personneId: instructeur.id,
-    dossierId: modifie.id,
-    vue: true,
-    date: new Date("2026-01-01"),
-  });
-  await createNotification(db, {
-    personneId: instructeur.id,
-    dossierId: inchange.id,
-    vue: true,
-    date: new Date("2026-01-01"),
-  });
+  await attachDossierToGroupe(db, modifie.id, instructeur.groupeId);
+  await attachDossierToGroupe(db, inchange.id, instructeur.groupeId);
+  for (const notification of await notificationsFor(instructeur.cap)) {
+    await review(instructeur.cap, {
+      dossier: notification.dossier,
+      arrival: true,
+      ...(notification.new_follow ? { followRevision: notification.new_follow.revision } : {}),
+    });
+  }
 
   const changed = await dumpDossiers(
     [],
@@ -145,4 +160,31 @@ test("seuls les dossiers réellement modifiés repassent en non lu", async () =>
   expect(byDossier.get(modifie.id)).toBe(false);
   // Nothing changed for the other one: its badge must stay as the instructeur left it.
   expect(byDossier.get(inchange.id)).toBe(true);
+  const changedNotification = (await notificationsFor(instructeur.cap)).find(
+    ({ dossier }) => dossier === modifie.id,
+  )!;
+  expect(changedNotification).toMatchObject({ viewed: false, new_arrival: null, new_follow: null });
+  expect(changedNotification.changes).toHaveLength(1);
+  expect(new Date(changedNotification.updated_at!)).toEqual(
+    (await actionsOf(modifie.id))[0].created_at,
+  );
+  const acknowledged = await review(instructeur.cap, {
+    dossier: modifie.id,
+    revisions: changedNotification.changes[0].revisions,
+  });
+  expect(acknowledged).toMatchObject({
+    viewed: true,
+    changes: [],
+    updated_at: changedNotification.updated_at,
+  });
+  expect(await actionsOf(modifie.id)).toHaveLength(1);
+  const replay = await dumpDossiers(
+    [],
+    [update("920006", { name: "Nom changé par le pétitionnaire" })],
+    db,
+  );
+  expect(replay.size).toBe(0);
+  expect(
+    (await notificationsFor(instructeur.cap)).find(({ dossier }) => dossier === modifie.id),
+  ).toMatchObject({ viewed: true, updated_at: changedNotification.updated_at });
 });

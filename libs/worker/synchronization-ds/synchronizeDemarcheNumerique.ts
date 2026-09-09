@@ -103,11 +103,12 @@ export async function synchronizeDemarcheNumerique({
       .filter((label): label is string => !!label),
   );
   await registerActiviteLabels([...activiteLabels], transaction);
-  const { dossiersToInitialize, dossiersToUpdate } = await prepareDossiersForPersistence(
-    dossiersToInitializeForSync,
-    dossiersToUpdateForSync,
-    transaction,
-  );
+  const { dossiersToInitialize, dossiersToUpdate, dossiersChangedByEntreprises } =
+    await prepareDossiersForPersistence(
+      dossiersToInitializeForSync,
+      dossiersToUpdateForSync,
+      transaction,
+    );
   const fileDownloads = startDossierFileDownloads(
     dossiersDS,
     demarcheNumber,
@@ -142,12 +143,25 @@ export async function synchronizeDemarcheNumerique({
       ...synchronizations,
     ]);
 
+  // Initial files and identities are the submission baseline, not applicant edits.
+  // Keep the records, but exclude them from review and the modification history.
+  const existingIds = new Set(existingDossiers.map(({ id }) => id));
+  const initialIds = [...dossierIdByDNNumber.values()].filter((id) => !existingIds.has(id));
+  if (initialIds.length) {
+    await transaction("action_dossier")
+      .whereIn("dossier", initialIds)
+      .where("author_petitionnaire", true)
+      .whereRaw("data->>'notification' = 'true'")
+      .update({ data: transaction.raw("(data - 'notification') || '{\"baseline\":true}'::jsonb") });
+  }
+
   // Only the dossiers this synchronization found actually modified are marked
   // unread; what changed in each of them is in its historique.
   await updateNotification(
     dossiersDS,
     dossierIdByDNNumber,
     new Set<DossierId>([
+      ...dossiersChangedByEntreprises,
       ...(dossiersChangedByColumns ?? []),
       ...(dossiersChangedByEspeces ?? []),
       ...(dossiersChangedByPiecesJointes ?? []),

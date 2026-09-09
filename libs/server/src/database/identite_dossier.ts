@@ -10,34 +10,12 @@ import type {
   IdentiteDossierInitializer,
 } from "@pitchou/types/database/public/IdentiteDossier.ts";
 import type { IdentiteDossierData } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
-
-/** Champ labels of the historique, per identity type. */
-const identiteTypeLabels: Record<string, string> = {
-  demandeur: "Demandeur",
-  mandataire: "Mandataire",
-  representant: "Représentant de l'entreprise",
-};
-
-function identiteSnapshot(
-  identites: (IdentiteDossierData | IdentiteDossier)[],
-  type: string,
-): string {
-  const identite = identites.find((identite) => identite.type === type);
-  if (!identite) return "";
-  const { last_name, first_names, email, phone, role } = identite;
-  return JSON.stringify([
-    last_name ?? null,
-    first_names ?? null,
-    email ?? null,
-    phone ?? null,
-    role ?? null,
-  ]);
-}
+import { identityPropertyLabels, identityTypeLabels } from "@pitchou/types/notification.ts";
 
 /**
  * Diffs the incoming identities against the stored ones, producing pétitionnaire
- * historique actions. Dossiers without stored identities are being created: their
- * historique starts at the dépôt, so nothing is logged for them.
+ * historique actions. The worker marks the first synchronized snapshot as a
+ * baseline; an identity added to an existing dossier is a genuine revision.
  */
 async function actionsFromIdentitesChanges(
   identitesByDossierId: Map<DossierId, IdentiteDossierData[]>,
@@ -50,14 +28,28 @@ async function actionsFromIdentitesChanges(
 
   const actions: ActionDossierInitializer[] = [];
   for (const [dossier, incoming] of identitesByDossierId) {
-    const current = currentByDossier.get(dossier);
-    if (!current?.length) continue;
-    for (const [type, field] of Object.entries(identiteTypeLabels)) {
-      if (identiteSnapshot(current, type) !== identiteSnapshot(incoming, type)) {
+    const current = currentByDossier.get(dossier) ?? [];
+    for (const [type, typeLabel] of Object.entries(identityTypeLabels)) {
+      const before = current.find((identity) => identity.type === type);
+      const after = incoming.find((identity) => identity.type === type);
+      for (const property of Object.keys(
+        identityPropertyLabels,
+      ) as (keyof typeof identityPropertyLabels)[]) {
+        const from = before?.[property] || null;
+        const to = after?.[property] || null;
+        if (from === to) continue;
+        const label = `${typeLabel} : ${identityPropertyLabels[property]}`;
         actions.push({
           dossier,
           type: "champ_modifie",
-          data: { field },
+          data: {
+            field: label,
+            label,
+            notification_field: `${type}.${property}`,
+            from,
+            to,
+            notification: true,
+          },
           author_petitionnaire: true,
         });
       }
@@ -78,6 +70,8 @@ export async function syncIdentitesDossier(
   identitesByDossierId: Map<DossierId, IdentiteDossierData[]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Set<DossierId>> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => syncIdentitesDossier(identitesByDossierId, trx));
   const dossierIds = [...identitesByDossierId.keys()];
 
   if (dossierIds.length === 0) {
