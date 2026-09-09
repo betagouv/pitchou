@@ -7,14 +7,15 @@ type EspecesCounts = {
 };
 
 export function especesCounts(impacts: FrontEndImpactOnEspece[]): EspecesCounts {
-  return impacts.reduce(
-    (acc, { espece }) => {
-      if (espece.especeCNPN) acc.cnpn += 1;
-      if (espece.especeMinisterielle) acc.ministerielles += 1;
-      return acc;
-    },
-    { total: impacts.length, cnpn: 0, ministerielles: 0 },
-  );
+  const total = new Set<string>();
+  const cnpn = new Set<string>();
+  const ministerielles = new Set<string>();
+  for (const { espece } of impacts) {
+    total.add(espece.CD_REF);
+    if (espece.especeCNPN) cnpn.add(espece.CD_REF);
+    if (espece.especeMinisterielle) ministerielles.add(espece.CD_REF);
+  }
+  return { total: total.size, cnpn: cnpn.size, ministerielles: ministerielles.size };
 }
 
 /** Accordion-band label, e.g. "3 dont 1 CNPN et 2 ministérielles". */
