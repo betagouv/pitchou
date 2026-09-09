@@ -91,11 +91,11 @@ test("after a DN synchronization, the page of an already visited dossier also di
   });
 
   // the cached version is displayed immediately, without waiting for the server
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(NOM_BEFORE_SYNC);
+  expect(screen.getByRole("heading", { level: 2, name: NOM_BEFORE_SYNC })).toBeTruthy();
 
   // the server response arrives: the up-to-date dossier must replace the cached one
   respondToRefresh?.(fakeDossierFull({ id: DOSSIER_ID, name: NOM_AFTER_SYNC }));
   await waitFor(() => {
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(NOM_AFTER_SYNC);
+    expect(screen.getByRole("heading", { level: 2, name: NOM_AFTER_SYNC })).toBeTruthy();
   });
 });

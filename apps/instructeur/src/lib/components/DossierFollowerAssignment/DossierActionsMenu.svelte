@@ -2,23 +2,22 @@
   import { tick } from "svelte";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
   import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
-  import PartageDossierModal from "$lib/components/PartageDossierModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
+    showDeadline?: boolean;
     /** Context-specific entries appended after the shared ones. */
     extraItems?: { label: string; onClick: () => void }[];
   };
 
-  let { dossierId, dossierName, extraItems = [] }: Props = $props();
+  let { dossierId, dossierName, showDeadline = true, extraItems = [] }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
   let modalOpen = $state(false);
   let dueDateModalOpen = $state(false);
-  let partageModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuItemElement: HTMLButtonElement | undefined = $state();
@@ -54,16 +53,6 @@
     void tick().then(() => triggerElement?.focus());
   }
 
-  function openPartageModal() {
-    menuOpen = false;
-    partageModalOpen = true;
-  }
-
-  function closePartageModal() {
-    partageModalOpen = false;
-    void tick().then(() => triggerElement?.focus());
-  }
-
   function onWindowClick(event: MouseEvent) {
     if (menuOpen && rootElement && !rootElement.contains(event.target as Node)) closeMenu();
   }
@@ -89,7 +78,7 @@
   <button
     bind:this={triggerElement}
     type="button"
-    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm min-w-8 justify-center px-2 text-[1.5rem] leading-none"
+    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm dossier-actions-trigger"
     aria-label={`Plus d’actions pour ${dossierName || `le dossier n°${dossierId}`}`}
     aria-haspopup="menu"
     aria-expanded={menuOpen}
@@ -102,7 +91,11 @@
       }
     }}
   >
-    <span aria-hidden="true">&#8942;</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
   </button>
 
   {#if menuOpen}
@@ -122,26 +115,18 @@
           Faire suivre le dossier
         </button>
       </li>
-      <li role="none">
-        <button
-          type="button"
-          role="menuitem"
-          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
-          onclick={openDueDateModal}
-        >
-          Modifier la date de la prochaine échéance
-        </button>
-      </li>
-      <li role="none">
-        <button
-          type="button"
-          role="menuitem"
-          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
-          onclick={openPartageModal}
-        >
-          Partager le dossier en lecture seule
-        </button>
-      </li>
+      {#if showDeadline}
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            onclick={openDueDateModal}
+          >
+            Modifier la date de la prochaine échéance
+          </button>
+        </li>
+      {/if}
       {#each extraItems as item}
         <li role="none">
           <button
@@ -165,10 +150,23 @@
   <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeAssignmentModal} />
 {/if}
 
-{#if dueDateModalOpen}
+{#if showDeadline && dueDateModalOpen}
   <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
 {/if}
 
-{#if partageModalOpen}
-  <PartageDossierModal {dossierId} {dossierName} onClose={closePartageModal} />
-{/if}
+<style>
+  .dossier-actions-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
+  }
+
+  .dossier-actions-trigger svg {
+    flex: none;
+  }
+</style>

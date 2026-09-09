@@ -25,16 +25,18 @@ test("l'échéance saisie sur le dossier est persistée, puis peut être vidée"
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   await page.getByLabel(PAGE_ECHEANCE_LABEL).fill("15/09/2026");
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
-  await page.waitForLoadState("networkidle");
+  await expect
+    .poll(() =>
+      db("dossier").select("id").where({ id: dossier.id, next_due_date: "2026-09-15" }).first(),
+    )
+    .toEqual({ id: dossier.id });
 
   await page.reload();
   await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("15/09/2026");
-  // The dossier header shows the échéance countdown tag.
-  await expect(page.locator("main header")).toContainText(/Échéance J-\d+|Échéance jour J|Retard/);
-
   await page.getByLabel(PAGE_ECHEANCE_LABEL).fill("");
-  await page.waitForLoadState("networkidle");
+  await expect
+    .poll(() => db("dossier").select("next_due_date").where({ id: dossier.id }).first())
+    .toEqual({ next_due_date: null });
   await page.reload();
   await expect(page.getByLabel(PAGE_ECHEANCE_LABEL)).toHaveValue("");
 });

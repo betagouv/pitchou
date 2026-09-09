@@ -23,77 +23,13 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 
 import Dossier from "../Dossier.svelte";
 import { store } from "$lib/state/store.svelte.ts";
+import { fakeReadOnlyDossier } from "./readOnly.testHelpers.ts";
 
 import type { PitchouState } from "$lib/state/store.svelte.ts";
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-
-const DOSSIER_ID = 123 as DossierId;
-
-function fakeDossier(): DossierFull {
-  return {
-    id: DOSSIER_ID,
-    name: "Dossier test",
-    communes: null,
-    departments: ["01"],
-    regions: null,
-    main_activite: "Travaux",
-    source: "demarche_numerique",
-    demarche_numerique_number: "456",
-    enjeu: false,
-    onagre_demande_identifier: null,
-    latestCommentaire: null,
-    ddep_required: null,
-    er_mesures_sufficient: null,
-    next_action_expected_from: null,
-    next_action_expected: null,
-    next_due_date: null,
-    public_consultation_start_date: null,
-    public_consultation_end_date: null,
-    depot_date: new Date("2026-01-15"),
-    evenementsPhase: [],
-    especesImpactees: { sourceFile: undefined, impacts: [] },
-    avisExpert: [
-      {
-        id: "avis-cnpn",
-        expert: "CNPN",
-        avis: "Avis favorable",
-        saisine_date: new Date("2026-02-01"),
-        saisine_fichier_url: "/fichier/saisine-cnpn",
-        avis_date: new Date("2026-03-01"),
-        avis_fichier_url: "/fichier/avis-cnpn",
-      },
-      {
-        id: "avis-autre",
-        expert: "Autre expert",
-        saisine_date: new Date("2026-02-02"),
-        saisine_fichier_url: "/fichier/saisine-autre",
-        avis_date: new Date("2026-03-02"),
-        avis_fichier_url: "/fichier/avis-autre",
-      },
-    ],
-    decisionsAdministratives: [
-      {
-        id: "decision-1",
-        type: "Arrêté dérogation",
-        number: "AP-001",
-        signature_date: new Date("2026-04-01"),
-        fichier_url: "/fichier/arrete",
-        prescriptions: [
-          { id: "prescription-1", article_number: "ART-7", description: "Prescription secrète" },
-        ],
-      },
-    ],
-    piecesJointesPetitionnaires: [],
-    otherAttachments: [
-      { type: "Autre", fichier_url: "/fichier/autre", attachment_date: new Date("2026-05-01") },
-    ],
-  } as unknown as DossierFull;
-}
 
 function renderDossier(readOnly: boolean, canEdit = true) {
   return render(Dossier, {
-    dossier: fakeDossier(),
+    dossier: fakeReadOnlyDossier(),
     activeTab: "instruction",
     onTabChange: vi.fn(),
     email: "instructeur@example.com",
@@ -102,14 +38,13 @@ function renderDossier(readOnly: boolean, canEdit = true) {
     readOnly,
     onReadOnlyChange: vi.fn(),
     canEdit,
+    onClose: vi.fn(),
   });
 }
 
 /** Every action writing to the dossier, across the header and the tabs. */
 const writeActions = [
   "Suivre ce dossier",
-  // The label depends on whether the dossier is currently unread.
-  /Marquer le dossier comme/,
   "Ajouter un avis ou une saisine",
   "Rajouter une décision administrative",
   "Ajouter une pièce jointe",
@@ -118,6 +53,7 @@ const writeActions = [
 beforeEach(() => {
   store.capabilities = {
     modifierDossier: vi.fn().mockResolvedValue(undefined),
+    ajouterCommentaire: vi.fn(),
   } as unknown as PitchouState["capabilities"];
 });
 
@@ -132,8 +68,9 @@ test("le mode lecture seule retire toutes les actions d'écriture", async () => 
   // The instruction tab saves on change: read-only mode must not write at all.
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
 
+  // Check all mounted panels, including inactive tabs.
   for (const action of writeActions) {
-    expect(screen.queryByRole("button", { name: action })).toBeNull();
+    expect(screen.queryByRole("button", { name: action, hidden: true })).toBeNull();
   }
 
   // The actions menu only holds write actions, so it disappears entirely.
@@ -177,27 +114,29 @@ test("le mode lecture seule masque les éléments internes au service", () => {
   expect(screen.queryByRole("heading", { name: "Commentaires" })).toBeNull();
 
   // Only the official avis is shown, and never its saisine.
-  expect(screen.getByRole("heading", { name: /CNPN/ })).toBeTruthy();
-  expect(screen.queryByRole("heading", { name: /Autre expert/ })).toBeNull();
+  expect(screen.getByRole("heading", { name: /CNPN/, hidden: true })).toBeTruthy();
+  expect(screen.queryByRole("heading", { name: /Autre expert/, hidden: true })).toBeNull();
   expect(screen.queryByText(/Date d’ajout du courrier de saisine/)).toBeNull();
   expect(screen.queryByText(/Date d’envoi du mail via Pitchou/)).toBeNull();
   expect(screen.queryByText(/Date de lecture de la saisine/)).toBeNull();
-  expect(screen.queryByRole("link", { name: /Télécharger le fichier saisine/ })).toBeNull();
+  expect(
+    screen.queryByRole("link", { name: /Télécharger le fichier saisine/, hidden: true }),
+  ).toBeNull();
 
   // The décision administrative is shared, its prescriptions are not.
-  expect(screen.getByRole("heading", { name: /AP-001/ })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: /AP-001/, hidden: true })).toBeTruthy();
   expect(screen.queryByText(/Prescription secrète/)).toBeNull();
   expect(screen.queryByText(/prescriptions/i)).toBeNull();
 
   // « Autres » attachments are added by the instructeur and stay internal.
-  expect(screen.queryByRole("heading", { name: "Autres" })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Autres", hidden: true })).toBeNull();
 });
 
 test("le mode édition conserve les actions d'écriture", () => {
   renderDossier(false);
 
   for (const action of writeActions) {
-    expect(screen.getByRole("button", { name: action })).toBeTruthy();
+    expect(screen.getByRole("button", { name: action, hidden: true })).toBeTruthy();
   }
 
   expect(screen.getByRole("button", { name: /Plus d’actions/ })).toBeTruthy();
@@ -206,10 +145,11 @@ test("le mode édition conserve les actions d'écriture", () => {
 
   // Everything read-only mode hides is available again.
   expect(screen.getByRole("tab", { name: "Historique" })).toBeTruthy();
-  expect(screen.getByRole("heading", { name: /Autre expert/ })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: /Autre expert/, hidden: true })).toBeTruthy();
   // One per avis: the official one and the « Autre expert » one.
   expect(screen.getAllByText(/Date d’ajout du courrier de saisine/)).toHaveLength(2);
-  expect(screen.getByRole("heading", { name: "Autres" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Autres", hidden: true })).toBeTruthy();
 
   expect(screen.queryByText("Dossier en lecture seule")).toBeNull();
+  expect(screen.queryByRole("button", { name: /Marquer le dossier comme/ })).toBeNull();
 });

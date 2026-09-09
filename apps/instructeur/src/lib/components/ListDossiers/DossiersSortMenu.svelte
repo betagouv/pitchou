@@ -25,12 +25,12 @@
     {
       key: "nextDueDate",
       order: "desc",
-      label: "Date de prochaine échéance : les plus récentes",
+      label: "Date d’échéance : les moins urgentes",
     },
     {
       key: "nextDueDate",
       order: "asc",
-      label: "Date de prochaine échéance : les plus anciennes",
+      label: "Date d’échéance : les plus urgentes",
     },
   ];
 

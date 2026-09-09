@@ -1,5 +1,7 @@
 <script lang="ts">
   import HeaderDossier from "./Dossier/HeaderDossier.svelte";
+  import { onDestroy } from "svelte";
+  import DossierNotificationReadTracker from "$lib/components/DossierNotificationReadTracker.svelte";
 
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
   import DossierDetailProjet from "./Dossier/DossierDetailProjet.svelte";
@@ -10,10 +12,9 @@
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import debounce from "just-debounce-it";
-  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
   import DossierTabList from "./Dossier/DossierTabList.svelte";
   import ReadOnlyBanner from "./Dossier/ReadOnlyBanner.svelte";
-  import type { DossierTab } from "./Dossier/dossierTabs.ts";
+  import { visibleDossierTabs, type DossierTab } from "./Dossier/dossierTabs.ts";
   import { provideReadOnly } from "./Dossier/readOnly.ts";
   import { anomaliesFichierEspeces } from "./Dossier/anomaliesFichierEspeces.ts";
 
@@ -38,6 +39,7 @@
      * looks the same for everyone, so only the way back out depends on it.
      */
     canEdit: boolean;
+    onClose: () => void;
   };
 
   let {
@@ -51,6 +53,7 @@
     readOnly,
     onReadOnlyChange,
     canEdit,
+    onClose,
   }: Props = $props();
 
   provideReadOnly(() => readOnly);
@@ -61,28 +64,16 @@
     true,
   );
 
-  // Marking a dossier unread from the header must survive staying on the page,
-  // so the automatic marking below is suspended after a manual action.
-  let manuallyMarkedUnread = $state(false);
+  let updated = $state(false);
+  let savedTimer: ReturnType<typeof setTimeout> | undefined;
 
-  $effect(() => {
-    // Consulting in read-only mode leaves the dossier untouched, so it must not
-    // consume the notification either.
-    if (notification?.viewed === false && !manuallyMarkedUnread && !readOnly) {
-      // When the dossier has a notification not seen by the current instructrice,
-      // it disappears — but only after the instructrice stayed a few seconds, so
-      // a quick glance keeps the dossier unread.
-      const timer = setTimeout(() => {
-        void updateNotificationForDossier({ dossier: dossier.id, viewed: true });
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  });
-
-  function setDossierRead(viewed: boolean) {
-    manuallyMarkedUnread = !viewed;
-    void updateNotificationForDossier({ dossier: dossier.id, viewed });
+  function onSaved() {
+    clearTimeout(savedTimer);
+    updated = true;
+    savedTimer = setTimeout(() => (updated = false), 3000);
   }
+
+  onDestroy(() => clearTimeout(savedTimer));
 
   $effect(() => {
     if (activeTab === "detail-du-projet") {
@@ -102,6 +93,7 @@
 </svelte:head>
 
 <div class="fr-grid-row fr-mt-2w">
+  <DossierNotificationReadTracker dossierId={dossier.id} {readOnly} />
   <!-- min-w-0 lets the column shrink below its content width (long title, wide
        tab bar) instead of forcing the page to scroll horizontally. -->
   <div class="fr-col min-w-0">
@@ -114,91 +106,89 @@
       {currentDossierFollowedByCurrentInstructeur}
       {email}
       {dossierFollowers}
-      {notification}
-      onSetRead={setDossierRead}
+      {updated}
+      {onClose}
       onEnterReadOnly={() => onReadOnlyChange(true)}
     ></HeaderDossier>
 
-    <div class="fr-tabs">
+    <div class="fr-tabs dossier-tabs">
       <DossierTabList {activeTab} onSelect={onTabChange} />
-      <div
-        id="tabpanel-detail-du-projet-panel"
-        aria-labelledby="tabpanel-detail-du-projet"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "detail-du-projet"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierDetailProjet {dossier} {anomalies} {notification}></DossierDetailProjet>
-      </div>
-      <div
-        id="tabpanel-instruction-panel"
-        aria-labelledby="tabpanel-instruction"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "instruction"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierInstruction {dossier} {email}></DossierInstruction>
-      </div>
-      <div
-        id="tabpanel-avis-panel"
-        aria-labelledby="tabpanel-avis"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "avis"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierAvis {dossier} {email} followers={dossierFollowers}></DossierAvis>
-      </div>
-      <div
-        id="tabpanel-controles-panel"
-        aria-labelledby="tabpanel-controles"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "controles"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierControles {dossier}></DossierControles>
-      </div>
-      <!-- The historique and the document generator are hidden in read-only
-           mode: their panels are not rendered at all, not merely unreachable. -->
-      {#if !readOnly}
+      {#each visibleDossierTabs(readOnly) as tab (tab.id)}
         <div
-          id="tabpanel-historique-panel"
-          aria-labelledby="tabpanel-historique"
+          id="tabpanel-{tab.id}-panel"
+          aria-labelledby="tabpanel-{tab.id}"
           class="fr-tabs__panel"
-          class:fr-tabs__panel--selected={activeTab === "historique"}
+          class:fr-tabs__panel--selected={activeTab === tab.id}
           role="tabpanel"
           tabindex="0"
         >
-          {#if activeTab === "historique"}
-            <DossierHistorique {dossier}></DossierHistorique>
+          {#if tab.id === "instruction"}
+            <DossierInstruction {dossier} {email} {onSaved} />
+          {:else if tab.id === "detail-du-projet"}
+            <DossierDetailProjet {dossier} {anomalies} {notification} />
+          {:else if tab.id === "avis"}
+            <DossierAvis {dossier} {email} followers={dossierFollowers} />
+          {:else if tab.id === "controles"}
+            <DossierControles {dossier} />
+          {:else if tab.id === "historique"}
+            {#if activeTab === "historique"}<DossierHistorique {dossier} />{/if}
+          {:else if tab.id === "pieces-jointes"}
+            <DossierPiecesJointes {dossier} openTab={onTabChange} />
+          {:else if tab.id === "generation-document"}
+            <DossierGenerationDocuments {dossier} />
           {/if}
         </div>
-      {/if}
-      <div
-        id="tabpanel-pieces-jointes-panel"
-        aria-labelledby="tabpanel-pieces-jointes"
-        class="fr-tabs__panel"
-        class:fr-tabs__panel--selected={activeTab === "pieces-jointes"}
-        role="tabpanel"
-        tabindex="0"
-      >
-        <DossierPiecesJointes {dossier} openTab={onTabChange}></DossierPiecesJointes>
-      </div>
-      {#if !readOnly}
-        <div
-          id="tabpanel-generation-document-panel"
-          aria-labelledby="tabpanel-generation-document"
-          class="fr-tabs__panel"
-          class:fr-tabs__panel--selected={activeTab === "generation-document"}
-          role="tabpanel"
-          tabindex="0"
-        >
-          <DossierGenerationDocuments {dossier}></DossierGenerationDocuments>
-        </div>
-      {/if}
+      {/each}
     </div>
   </div>
 </div>
+
+<style>
+  .fr-tabs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    transition: none;
+    overflow: visible;
+    box-shadow: none;
+    background-image: none;
+  }
+
+  .fr-tabs > :global(.fr-tabs__list) {
+    grid-area: 1 / 1;
+  }
+
+  /* Size the full-bleed decoration to the panel, not DSFR's whole tab group.
+     Clip only the decoration so dialogs can still cover the viewport. */
+  .fr-tabs::before {
+    grid-area: 2 / 1;
+    height: auto;
+    align-self: stretch;
+    margin: 0;
+    box-shadow: 0 0 0 100vmax var(--background-default-grey);
+    clip-path: inset(0 -100vmax);
+  }
+
+  .fr-tabs__panel {
+    grid-area: 2 / 1;
+    left: 0;
+    margin: 0;
+    transition: none;
+    transform: none;
+    padding: 32px 0;
+    background: var(--background-default-grey);
+    border: 0;
+    box-shadow: none;
+  }
+
+  /* Panels have no side padding, so the focus ring must sit outside their content. */
+  .fr-tabs__panel:focus,
+  .fr-tabs__panel:focus-visible {
+    outline-offset: 2px;
+  }
+
+  /* Hidden panels must not size the row; keep their forms mounted. */
+  .fr-tabs__panel:not(.fr-tabs__panel--selected) {
+    display: none;
+  }
+</style>

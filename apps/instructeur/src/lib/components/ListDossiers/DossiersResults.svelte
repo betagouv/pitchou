@@ -6,7 +6,7 @@
   import CardDossier from "./CardDossier.svelte";
   import { dossierSortDate, groupDossiersByMonth, timelineDateLabel } from "./sections.ts";
   import type { SortKey } from "./query.ts";
-  import { ROW_GRID, TILE_GRID } from "./rowLayout.ts";
+  import { PROJECT_GRID, ROW_GRID, TILE_GRID } from "./rowLayout.ts";
 
   type Props = {
     dossiers: DossierSummary[];
@@ -49,8 +49,12 @@
              readers get the equivalent labels inside each tile instead. -->
         <div class="{ROW_GRID} fr-mb-1v hidden lg:grid" aria-hidden="true">
           <span></span>
-          <div class="{TILE_GRID} fr-px-2w">
-            <span class="{columnLabel} lg:col-span-3">Nom du projet</span>
+          <div class="{TILE_GRID} border border-transparent fr-px-2w lg:items-start">
+            <div class={PROJECT_GRID}>
+              <span></span>
+              <span></span>
+              <span class={columnLabel}>Nom du projet</span>
+            </div>
             <span class={columnLabel}>Pétitionnaire, localisation</span>
             <span class={columnLabel}>Avancement du dossier</span>
             <span class={columnLabel}>Prochaine action</span>
@@ -85,7 +89,6 @@
                 currentInstructeurLeavesDossier={leave}
                 dossierFollowedByCurrentInstructeur={followedIds.has(dossier.id)}
                 notificationViewed={notificationViewed(dossier.id)}
-                notificationUpdatedAt={notificationUpdatedAt(dossier.id)}
               />
             </li>
           {/each}

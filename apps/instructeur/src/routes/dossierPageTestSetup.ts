@@ -9,9 +9,24 @@
 import { cleanup } from "@testing-library/svelte";
 import { vi } from "vitest";
 
-import { store } from "$lib/state/store.svelte.ts";
+import { store, type PitchouState } from "$lib/state/store.svelte.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { DossierAction } from "@pitchou/types/capabilities.ts";
+
+export function setupDossierPageState() {
+  const modifierDossier = vi.fn().mockResolvedValue(undefined);
+  const updateNotificationForDossier = vi.fn().mockResolvedValue(undefined);
+  const actionsByDossier = new Map<DossierId, DossierAction[]>();
+  store.followRelations = new Map();
+  store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
+  store.capabilities = {
+    modifierDossier,
+    updateNotificationForDossier,
+    listerActionsDossier: vi.fn((id: DossierId) => Promise.resolve(actionsByDossier.get(id) ?? [])),
+  } as unknown as PitchouState["capabilities"];
+  return { modifierDossier, updateNotificationForDossier, actionsByDossier };
+}
 
 /** The props the dossier/[dossierId] route passes to its page. */
 export function dossierPageProps(id: DossierId) {

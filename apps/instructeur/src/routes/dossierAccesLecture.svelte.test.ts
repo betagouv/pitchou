@@ -1,6 +1,8 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/svelte";
 
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
   goto: vi.fn(),
@@ -57,7 +59,7 @@ test("a dossier shared in read-only is displayed even when the URL does not ask 
   await getDossierFull(DOSSIER_ID, { readOnly: false });
   render(PageDossier, dossierPageProps(DOSSIER_ID));
 
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(DOSSIER_NAME);
+  expect(screen.getByRole("heading", { level: 2, name: DOSSIER_NAME })).toBeTruthy();
   // the payload is narrowed, so the page says so, whatever the URL asked for
   expect(screen.getByText("Dossier en lecture seule")).toBeTruthy();
 });
@@ -70,6 +72,22 @@ test("a dossier shared in read-only never reaches the full dossiers cache", asyn
   expect(store.fullDossiers.has(DOSSIER_ID)).toBe(false);
   expect(store.readOnlyDossiers.has(DOSSIER_ID)).toBe(true);
 });
+
+test.each([false, true])(
+  "read-only access never offers edit mode, lecture query=%s",
+  async (readOnly) => {
+    setUpSharedDossier();
+    store.capabilities.modifierDossier = vi.fn();
+    await getDossierFull(DOSSIER_ID, { readOnly });
+    render(PageDossier, {
+      ...dossierPageProps(DOSSIER_ID),
+      data: { ...dossierPageProps(DOSSIER_ID).data, readOnly },
+    });
+    expect(screen.queryByRole("button", { name: "Repasser en mode édition" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Suivre ce dossier" })).toBeNull();
+    expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
+  },
+);
 
 test("navigating back to a shared dossier serves the cache instead of waiting for the server", async () => {
   setUpSharedDossier();

@@ -8,8 +8,8 @@ export type DossierTab =
   | "generation-document";
 
 export const dossierTabs: { id: DossierTab; label: string; icon: string }[] = [
-  { id: "detail-du-projet", label: "Détail du projet", icon: "fr-icon-briefcase-line" },
   { id: "instruction", label: "Instruction", icon: "fr-icon-survey-line" },
+  { id: "detail-du-projet", label: "Détail du projet", icon: "fr-icon-briefcase-line" },
   { id: "avis", label: "Avis d’experts", icon: "fr-icon-quote-line" },
   { id: "controles", label: "Contrôle", icon: "fr-icon-eye-line" },
   { id: "historique", label: "Historique", icon: "fr-icon-time-line" },
@@ -26,7 +26,7 @@ const tabsHiddenWhenReadOnly: ReadonlySet<DossierTab> = new Set([
   "generation-document",
 ]);
 
-export const defaultDossierTab: DossierTab = "detail-du-projet";
+export const defaultDossierTab: DossierTab = "instruction";
 
 export function isDossierTabVisible(tab: DossierTab, readOnly: boolean): boolean {
   return !readOnly || !tabsHiddenWhenReadOnly.has(tab);

@@ -4,6 +4,7 @@ import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
 import {
   WITHOUT_INSTRUCTEUR,
+  copyDossiersQuery,
   defaultDossiersQuery,
   type DateField,
   type DossiersContext,
@@ -11,7 +12,7 @@ import {
 } from "./query.ts";
 
 /** True when the dossier is followed by at least one person */
-function dossierIsFollowed(
+export function dossierIsFollowed(
   dossierId: DossierSummary["id"],
   followRelations: DossiersContext["followRelations"],
 ): boolean {
@@ -175,4 +176,21 @@ export function clearFilters(query: DossiersQuery): DossiersQuery {
     sort: query.sort,
     order: query.order,
   };
+}
+
+export function toggleQuickFilter(
+  query: DossiersQuery,
+  key: "withoutInstructeur" | "enjeu" | "actionInstructeur" | "nouveaute",
+): DossiersQuery {
+  const next = { ...copyDossiersQuery(query), page: 1 };
+  if (key === "withoutInstructeur") {
+    next.instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
+      ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
+      : [...query.instructeur, WITHOUT_INSTRUCTEUR];
+  } else if (key === "nouveaute") {
+    next.nouveaute = query.nouveaute === "oui" ? "" : "oui";
+  } else {
+    next[key] = !query[key];
+  }
+  return next;
 }

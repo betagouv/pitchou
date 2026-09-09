@@ -48,6 +48,44 @@ main {
   flex: 1 0 auto;
 }
 
+/* Continue the white panel below short dossiers without recoloring their header. */
+main:has(.dossier-tabs) {
+  display: flex;
+  flex-direction: column;
+}
+
+main:has(.dossier-tabs)::after {
+  content: "";
+  flex: 1;
+  background: var(--background-default-grey);
+}
+
+/* Dossier panels meet the footer on white; list and public pages keep their gap. */
+main:has(.dossier-tabs) + .fr-footer {
+  margin-top: 0 !important;
+}
+
+/* DSFR gutters below 1296px; 1200px of usable content on wider screens. */
+.pitchou-container {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 62em) {
+  .pitchou-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1296px) {
+  .pitchou-container {
+    max-width: 1248px;
+    padding-inline: 24px;
+  }
+}
+
 /*
  * DSFR file inputs (`.fr-upload`): Tailwind's Preflight resets
  * `::file-selector-button` (border/padding/background/border-radius to zero),

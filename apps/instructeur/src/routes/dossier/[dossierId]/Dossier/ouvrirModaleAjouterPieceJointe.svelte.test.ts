@@ -57,7 +57,8 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
     email: "instructeur@example.com",
     currentDossierFollowedByCurrentInstructeur: false,
     dossierFollowers: [],
-    onSetRead: vi.fn(),
+    updated: false,
+    onClose: vi.fn(),
     onEnterReadOnly: vi.fn(),
   });
 

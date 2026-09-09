@@ -28,3 +28,33 @@
     </li>
   {/each}
 </ul>
+
+<style>
+  .fr-tabs__list {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    gap: 4px;
+  }
+
+  .fr-tabs__tab {
+    font-weight: 500;
+    border-radius: 4px 4px 0 0;
+    background-color: var(--background-contrast-grey);
+    background-image: none;
+    box-shadow: none;
+    color: var(--text-default-grey);
+  }
+
+  .fr-tabs__tab[aria-selected="false"] {
+    --hover: var(--background-contrast-grey-hover);
+    --active: var(--background-contrast-grey-active);
+    background-color: var(--background-contrast-grey);
+  }
+
+  .fr-tabs__tab[aria-selected="true"] {
+    background-color: var(--background-default-grey);
+    background-image: none;
+    box-shadow: none;
+    color: var(--text-active-blue-france);
+  }
+</style>

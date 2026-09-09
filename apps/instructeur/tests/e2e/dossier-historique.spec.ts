@@ -22,7 +22,9 @@ test("les actions sur le dossier alimentent l'onglet Historique", async ({ page,
 
   // Instructeur actions: field edits, a follow and a comment.
   await chooseInSelect(page.locator("#enjeu"), "Oui");
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+  await expect
+    .poll(() => db("dossier").select("enjeu").where({ id: dossier.id }).first())
+    .toEqual({ enjeu: true });
   await page.getByRole("button", { name: "Suivre ce dossier" }).click();
   await expect(page.getByRole("button", { name: "Vous suivez ce dossier" })).toBeVisible();
   await page.getByLabel("Laissez un commentaire").fill("Commentaire pour l'historique.");

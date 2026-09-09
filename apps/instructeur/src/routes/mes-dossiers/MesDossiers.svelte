@@ -50,5 +50,6 @@
   {notificationByDossier}
   showFilterEnjeu={false}
   showFilterActionInstructeur
+  showFilterUnread
   {emptyListMessage}
 />

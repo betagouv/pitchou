@@ -33,13 +33,5 @@
     </li>
     <!-- « Saisie espèces protégées » and « Pré-remplissage dérogation » are not in the
          menu anymore: the footer orientation blocks point to them instead. -->
-    <li class="fr-nav__item">
-      <a
-        class="fr-nav__link"
-        href="https://betagouv.github.io/pitchou/"
-        target="_blank"
-        onclick={() => trackNavbarLinkClick("aide-pitchou")}>Aide pitchou</a
-      >
-    </li>
   </ul>
 </nav>

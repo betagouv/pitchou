@@ -7,6 +7,7 @@ import {
   makeQuery,
   makeDossier,
   makeContext,
+  makeNotification,
   type Notification,
 } from "./testHelpers.ts";
 
@@ -45,14 +46,8 @@ describe("filterDossiers — date range", () => {
   test("filters on the last modification date when that field is chosen", () => {
     const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
     const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [
-        dossierId(1),
-        { viewed: true, updated_at: new Date("2024-06-15T12:00:00"), viewed_at: null },
-      ],
-      [
-        dossierId(2),
-        { viewed: true, updated_at: new Date("2024-09-15T12:00:00"), viewed_at: null },
-      ],
+      [dossierId(1), makeNotification({ updated_at: new Date("2024-06-15T12:00:00") })],
+      [dossierId(2), makeNotification({ updated_at: new Date("2024-09-15T12:00:00") })],
     ]);
     const result = filterDossiers(
       dossiers,

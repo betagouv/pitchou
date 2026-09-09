@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/svelte";
+import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { tick } from "svelte";
+
+vi.mock("$app/state", () => ({ page: { state: {} } }));
+vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -23,9 +26,12 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 import { store } from "$lib/state/store.svelte.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
-import { dossierPageProps as pageProps, resetDossierPageState } from "./dossierPageTestSetup.ts";
+import {
+  dossierPageProps as pageProps,
+  resetDossierPageState,
+  setupDossierPageState,
+} from "./dossierPageTestSetup.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierAction } from "@pitchou/types/capabilities.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -42,15 +48,7 @@ let updateNotificationForDossier: ReturnType<typeof vi.fn>;
 let actionsByDossier: Map<DossierId, DossierAction[]>;
 
 beforeEach(() => {
-  modifierDossier = vi.fn().mockResolvedValue(undefined);
-  updateNotificationForDossier = vi.fn().mockResolvedValue(undefined);
-  actionsByDossier = new Map();
-  store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
-  store.capabilities = {
-    modifierDossier,
-    updateNotificationForDossier,
-    listerActionsDossier: vi.fn((id: DossierId) => Promise.resolve(actionsByDossier.get(id) ?? [])),
-  } as unknown as PitchouState["capabilities"];
+  ({ modifierDossier, updateNotificationForDossier, actionsByDossier } = setupDossierPageState());
 });
 
 afterEach(resetDossierPageState);
@@ -66,11 +64,11 @@ test("the instruction champs of a dossier are not saved onto the next one", asyn
   );
 
   const { rerender } = render(PageDossier, pageProps(FIRST));
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Premier dossier");
+  expect(screen.getByRole("heading", { level: 2, name: "Premier dossier" })).toBeTruthy();
 
   await rerender(pageProps(SECOND));
   await waitFor(() => {
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Second dossier");
+    expect(screen.getByRole("heading", { level: 2, name: "Second dossier" })).toBeTruthy();
   });
   await tick();
 
@@ -79,20 +77,24 @@ test("the instruction champs of a dossier are not saved onto the next one", asyn
   expect(store.fullDossiers.get(SECOND)?.ddep_required).toBe(null);
 });
 
-test("the « nouvelles modifications » badges are computed against the read date of the dossier shown", async () => {
-  // The first dossier was read after its last modification, the second was never
-  // read at all — so only the second is entitled to a badge.
+test("the header notification belongs to the dossier currently shown", async () => {
   store.fullDossiers.set(FIRST, fakeDossierFull({ id: FIRST, name: "Premier dossier" }));
   store.fullDossiers.set(SECOND, fakeDossierFull({ id: SECOND, name: "Second dossier" }));
   store.notificationByDossier.set(FIRST, {
     viewed: true,
     updated_at: new Date("2026-08-01"),
     viewed_at: new Date("2026-08-10"),
+    new_arrival: null,
+    new_follow: null,
+    changes: [],
   });
   store.notificationByDossier.set(SECOND, {
     viewed: true,
     updated_at: new Date("2026-08-05"),
     viewed_at: null,
+    new_arrival: { detected_at: new Date("2026-08-05") },
+    new_follow: null,
+    changes: [],
   });
   actionsByDossier.set(SECOND, [
     {
@@ -105,17 +107,17 @@ test("the « nouvelles modifications » badges are computed against the read dat
 
   const { rerender } = render(PageDossier, pageProps(FIRST));
   await waitFor(() => {
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Premier dossier");
+    expect(screen.getByRole("heading", { level: 2, name: "Premier dossier" })).toBeTruthy();
   });
-  expect(screen.queryByText("Nouvelles modifications")).toBeNull();
+  expect(screen.queryByText("Nouveau dossier")).toBeNull();
 
   await rerender(pageProps(SECOND));
   await waitFor(() => {
-    expect(screen.getAllByText("Nouvelles modifications").length).toBeGreaterThan(0);
+    expect(screen.getByText("Nouveau dossier")).toBeTruthy();
   });
 });
 
-test("marking a dossier unread does not keep the next one unread", async () => {
+test("the header no longer exposes a manual read toggle or the old five-second timer", async () => {
   vi.useFakeTimers();
   store.fullDossiers.set(FIRST, fakeDossierFull({ id: FIRST, name: "Premier dossier" }));
   store.fullDossiers.set(SECOND, fakeDossierFull({ id: SECOND, name: "Second dossier" }));
@@ -123,25 +125,48 @@ test("marking a dossier unread does not keep the next one unread", async () => {
     viewed: true,
     updated_at: new Date("2026-08-01"),
     viewed_at: new Date("2026-08-10"),
+    new_arrival: null,
+    new_follow: null,
+    changes: [],
   });
   store.notificationByDossier.set(SECOND, {
     viewed: false,
     updated_at: new Date("2026-08-05"),
     viewed_at: null,
+    new_arrival: null,
+    new_follow: null,
+    changes: [],
   });
 
   const { rerender } = render(PageDossier, pageProps(FIRST));
   await tick();
 
-  screen.getByTitle("Marquer le dossier comme non lu").click();
-  await tick();
-  expect(updateNotificationForDossier).toHaveBeenCalledWith({ dossier: FIRST, viewed: false });
+  expect(screen.queryByRole("button", { name: /Marquer le dossier comme/ })).toBeNull();
 
   await rerender(pageProps(SECOND));
   await tick();
 
-  // Staying a few seconds on a dossier with an unread notification consumes it,
-  // whatever was done on the dossier visited before.
   await vi.advanceTimersByTimeAsync(5000);
-  expect(updateNotificationForDossier).toHaveBeenCalledWith({ dossier: SECOND, viewed: true });
+  expect(updateNotificationForDossier).not.toHaveBeenCalled();
+});
+
+test("successful instruction saves show the header tag for three seconds and restart its timer", async () => {
+  vi.useFakeTimers();
+  store.fullDossiers.set(FIRST, fakeDossierFull({ id: FIRST }));
+  render(PageDossier, pageProps(FIRST));
+  const field = screen.getByLabelText("N° de dossier Onagre");
+  expect(screen.queryByText("Dossier mis à jour")).toBeNull();
+  await fireEvent.input(field, { target: { value: "ONAGRE-1" } });
+  await vi.advanceTimersByTimeAsync(1000);
+  await tick();
+  expect(screen.getByText("Dossier mis à jour")).toBeTruthy();
+  await vi.advanceTimersByTimeAsync(1500);
+  await fireEvent.input(field, { target: { value: "ONAGRE-2" } });
+  await vi.advanceTimersByTimeAsync(1000);
+  await tick();
+  await vi.advanceTimersByTimeAsync(2999);
+  expect(screen.getByText("Dossier mis à jour")).toBeTruthy();
+  await vi.advanceTimersByTimeAsync(1);
+  await tick();
+  expect(screen.queryByText("Dossier mis à jour")).toBeNull();
 });

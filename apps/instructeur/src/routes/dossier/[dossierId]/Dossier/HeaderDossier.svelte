@@ -1,28 +1,29 @@
 <script lang="ts">
-  import { afterNavigate, goto } from "$app/navigation";
-
-  import { formatLastModified, formatLocalisation } from "$lib/dossier/displayDossier.ts";
+  import { onMount } from "svelte";
+  import { formatLocalisation } from "$lib/dossier/displayDossier.ts";
   import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
+  import { activiteIconUrl } from "$lib/dossier/activiteIcon.ts";
+  import DossierNotificationBadges from "$lib/components/DossierNotificationBadges.svelte";
   import TagEcheance from "$lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
   import { readOnlyMode } from "./readOnly.ts";
   import HeaderActions from "./HeaderDossier/HeaderActions.svelte";
-  import { followersLabel, titleSizeClass } from "./HeaderDossier/labels.ts";
+  import CompactDossierHeader from "./HeaderDossier/CompactDossierHeader.svelte";
+  import { followersLabel } from "./HeaderDossier/labels.ts";
+  import { activityBackground } from "./HeaderDossier/activityBackground.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type Personne from "@pitchou/types/database/public/Personne.ts";
-  import type Notification from "@pitchou/types/database/public/Notification.ts";
 
   type Props = {
     dossier: DossierFull;
     email: string;
     currentDossierFollowedByCurrentInstructeur: boolean | undefined;
     dossierFollowers: NonNullable<Personne["email"]>[];
-    notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
-    /** Marks the dossier read/unread for the current instructeur. */
-    onSetRead: (viewed: boolean) => void;
+    updated: boolean;
+    onClose: () => void;
     /** Switches the dossier to read-only mode. */
     onEnterReadOnly: () => void;
   };
@@ -32,8 +33,8 @@
     email,
     currentDossierFollowedByCurrentInstructeur,
     dossierFollowers,
-    notification,
-    onSetRead,
+    updated,
+    onClose,
     onEnterReadOnly,
   }: Props = $props();
 
@@ -43,11 +44,7 @@
 
   let followersModalOpen = $state(false);
 
-  const unread = $derived(notification?.viewed === false);
-
-  const nouveauteLabel = $derived(formatLastModified(notification?.updated_at));
-
-  const titleClass = $derived(titleSizeClass(dossier.name));
+  const background = $derived(activityBackground(activiteIconUrl(dossier.activite_label)));
 
   const followers = $derived(followersLabel(dossierFollowers));
 
@@ -61,61 +58,65 @@
     if (modalElement) window.dsfr(modalElement).modal.disclose();
   }
 
-  // Track whether we reached this dossier through in-app navigation (`from` is
-  // non-null). If so, the close button returns to the browser's previous page.
-  // Otherwise (direct access to the dossier), redirect to the relevant list.
-  let navigatedFromApp = $state(false);
+  let header: HTMLElement;
+  let headerOutOfView = $state(false);
 
-  afterNavigate(({ from }) => {
-    if (from) navigatedFromApp = true;
+  onMount(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      headerOutOfView = !entry.isIntersecting && entry.boundingClientRect.bottom <= 0;
+    });
+    observer.observe(header);
+    return () => observer.disconnect();
   });
-
-  function closeDossier() {
-    if (navigatedFromApp) {
-      history.back();
-    } else {
-      goto(currentDossierFollowedByCurrentInstructeur ? "/mes-dossiers" : "/tous-les-dossiers");
-    }
-  }
 </script>
 
-<header class="fr-mb-2w fr-mt-1w">
-  <div class="flex justify-end">
+{#if headerOutOfView}
+  <CompactDossierHeader {dossier} {updated} />
+{/if}
+
+<header bind:this={header} class="fr-mb-4w fr-mt-1w">
+  <div class="flex flex-wrap items-center justify-end gap-2">
     <button
       type="button"
       class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line fr-btn--icon-right"
-      onclick={closeDossier}
+      onclick={onClose}
     >
       Fermer le dossier
     </button>
   </div>
 
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-    <ActiviteIcon mainActivite={dossier.activite_label} size="size-24 lg:size-28" />
+    <div class="activity-illustration" style:background-color={background}>
+      <ActiviteIcon mainActivite={dossier.activite_label} size="size-24 lg:size-28" />
+    </div>
 
     <div class="flex min-w-0 grow flex-col gap-2">
-      {#if dossier.enjeu || unread || dossier.next_due_date}
-        <div class="flex flex-wrap items-center gap-2">
-          {#if dossier.enjeu}
-            <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine fr-mb-0">
-              Dossier à enjeu
-            </p>
+      <div class="flex flex-wrap items-center gap-2">
+        {#if dossier.enjeu}
+          <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-mb-0 enjeu-tag">Dossier à enjeu</p>
+        {/if}
+        {#if dossierFollowers.length === 0}
+          <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine fr-mb-0">
+            Sans instructeur-ice
+          </p>
+        {/if}
+        <DossierNotificationBadges dossierId={dossier.id} />
+        <TagEcheance dueDate={dossier.next_due_date} />
+        <div class="ms-auto" role="status" aria-live="polite">
+          {#if updated}
+            <p class="fr-badge fr-badge--success fr-badge--sm fr-mb-0">Dossier mis à jour</p>
           {/if}
-          {#if unread}
-            <p class="fr-badge fr-badge--sm fr-badge--new fr-mb-0">{nouveauteLabel}</p>
-          {/if}
-          <TagEcheance dueDate={dossier.next_due_date} />
         </div>
-      {/if}
+      </div>
 
-      <h1 class="fr-mb-0 {titleClass} leading-[1.3] text-[color:var(--text-title-grey)]">
+      <h2 class="fr-mb-0 dossier-title">
         {dossier.name}
-      </h1>
+      </h2>
 
       <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <p class="fr-mb-0 flex items-center gap-2">
+        <p class="fr-mb-0 flex items-center gap-2 main-location">
           <span
-            class="fr-icon-map-pin-2-fill fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
+            class="fr-icon-map-pin-2-line fr-icon--sm flex-none text-[color:var(--text-mention-grey)]"
             aria-hidden="true"
           ></span>
           {formatLocalisation(dossier)}
@@ -124,12 +125,10 @@
         <HeaderActions
           {dossier}
           {email}
-          {unread}
           followersLabel={followers}
           followedByCurrentInstructeur={currentDossierFollowedByCurrentInstructeur}
           onOpenFollowers={() => (followersModalOpen = true)}
           onAddPieceJointe={openPieceJointeModal}
-          {onSetRead}
           {onEnterReadOnly}
         />
       </div>
@@ -153,3 +152,37 @@
     source="enteteDossier"
   />
 {/if}
+
+<style>
+  .activity-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 112px;
+    min-height: 160px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .dossier-title {
+    overflow-wrap: anywhere;
+  }
+
+  .main-location {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .enjeu-tag {
+    color: var(--blue-france-main-525, #6a6af4);
+    background-color: var(--background-contrast-blue-france, #ececfe);
+  }
+
+  @media (max-width: 575px) {
+    .activity-illustration {
+      width: 96px;
+      min-height: 128px;
+    }
+  }
+</style>

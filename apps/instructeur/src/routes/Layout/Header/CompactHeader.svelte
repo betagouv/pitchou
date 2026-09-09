@@ -26,7 +26,7 @@
 <header
   class="border-b border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)]"
 >
-  <div class="flex flex-wrap items-center gap-x-6 px-4 lg:px-8">
+  <div class="pitchou-container flex flex-wrap items-center gap-x-6">
     <a
       href="/"
       title="Accueil - Pitchou"

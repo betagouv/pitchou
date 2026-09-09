@@ -16,6 +16,7 @@
     filterDossiers,
     listAvailableInstructeurs,
     readDossiersQuery,
+    toggleQuickFilter,
   } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
@@ -43,6 +44,7 @@
     showFilterEnjeu?: boolean;
     /** Show the « prochaine action à moi » quick filter for « mes dossiers » */
     showFilterActionInstructeur?: boolean;
+    showFilterUnread?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
     /** Empty state, overriding the default message. Receives whether the whole (unfiltered) list is empty. */
     emptyListMessage?: Snippet<[{ wholeListEmpty: boolean }]>;
@@ -58,6 +60,7 @@
     showFilterInstructeurice = false,
     showFilterEnjeu = true,
     showFilterActionInstructeur = false,
+    showFilterUnread = false,
     notificationByDossier,
     emptyListMessage,
   }: Props = $props();
@@ -109,18 +112,6 @@
     applySearch({ ...copyDossiersQuery(query), text, page: 1 });
   }
 
-  function onToggleWithoutInstructeur() {
-    const instructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR)
-      ? query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR)
-      : [...query.instructeur, WITHOUT_INSTRUCTEUR];
-    applySearch({ ...copyDossiersQuery(query), instructeur, page: 1 });
-  }
-
-  /** Toggles one of the boolean quick filters and reapplies the search */
-  function toggleFilter(key: "enjeu" | "actionInstructeur") {
-    applySearch({ ...copyDossiersQuery(query), [key]: !query[key], page: 1 });
-  }
-
   const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
   const goToPage = (number: number) => navigate({ ...copyDossiersQuery(query), page: number });
@@ -160,9 +151,11 @@
     {showFilterInstructeurice}
     {showFilterEnjeu}
     {showFilterActionInstructeur}
+    {showFilterUnread}
     withoutInstructeurActive={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
     enjeuActive={query.enjeu}
     actionInstructeurActive={query.actionInstructeur}
+    unreadActive={query.nouveaute === "oui"}
     {activeFilterCount}
     numberFiltered={filteredDossiers.length}
     {services}
@@ -170,9 +163,10 @@
     sortKey={query.sort}
     sortOrder={query.order}
     {onSearch}
-    {onToggleWithoutInstructeur}
-    onToggleEnjeu={() => toggleFilter("enjeu")}
-    onToggleActionInstructeur={() => toggleFilter("actionInstructeur")}
+    onToggleWithoutInstructeur={() => applySearch(toggleQuickFilter(query, "withoutInstructeur"))}
+    onToggleEnjeu={() => applySearch(toggleQuickFilter(query, "enjeu"))}
+    onToggleActionInstructeur={() => applySearch(toggleQuickFilter(query, "actionInstructeur"))}
+    onToggleUnread={() => applySearch(toggleQuickFilter(query, "nouveaute"))}
     onOpenFilters={openFilters}
     onRemoveFilter={applySearch}
     {onSort}

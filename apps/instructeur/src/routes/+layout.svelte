@@ -61,9 +61,7 @@
 <Header {nav} {email} />
 
 <main tabindex="-1" id="main">
-  <!-- Pages that opt in via `fullWidth` page data (the dossier lists) span the whole
-       viewport instead of the DSFR container, keeping only side paddings. -->
-  <div class={page.data.fullWidth ? "w-full px-4 lg:px-8" : "fr-container"}>
+  <div class={page.data.fullWidth ? "pitchou-container" : "fr-container"}>
     {#if store.errors.size >= 1}
       <section class="relative h-0 fr-grid-row fr-grid-row--center">
         <div class="fr-col w-full">

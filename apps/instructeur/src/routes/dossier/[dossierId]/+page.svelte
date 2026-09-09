@@ -1,5 +1,6 @@
 <script lang="ts">
   import { afterNavigate, goto, replaceState } from "$app/navigation";
+  import { page } from "$app/state";
   import { store } from "$lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
   import {
@@ -9,6 +10,7 @@
     type DossierTab,
   } from "./Dossier/dossierTabs.ts";
   import Loader from "@pitchou/ui/Loader.svelte";
+  import { dossierReturnPath } from "./Dossier/navigation.ts";
 
   import type { PageProps } from "./$types";
 
@@ -79,7 +81,27 @@
   // Re-read the URL when navigating between dossiers. Shallow routing keeps the
   // page mounted, and going back through one of its entries fires popstate
   // without an `afterNavigate`, so both are needed.
-  afterNavigate(readTabFromLocation);
+  let returnPath = $state<string | undefined>();
+
+  afterNavigate(({ from }) => {
+    readTabFromLocation();
+    const state = page.state as { dossierReturnPath?: string };
+    returnPath =
+      dossierReturnPath(from?.url?.href, location.origin) ??
+      dossierReturnPath(state.dossierReturnPath, location.origin) ??
+      (from?.url?.pathname.startsWith("/dossier/") ? returnPath : undefined);
+    if (returnPath) {
+      replaceState(new URL(location.href), { ...page.state, dossierReturnPath: returnPath });
+    }
+  });
+
+  function closeDossier() {
+    void goto(
+      returnPath ??
+        (currentDossierFollowedByCurrentInstructeur ? "/mes-dossiers" : "/tous-les-dossiers"),
+      { replaceState: true },
+    );
+  }
 
   // Shallow routing: switching tabs changes nothing the server sends, so it must
   // not re-run the load.
@@ -90,20 +112,25 @@
     if (tab === defaultDossierTab) url.searchParams.delete("tab");
     else url.searchParams.set("tab", tab);
     url.hash = "";
-    replaceState(url, {});
+    replaceState(url, { ...page.state, dossierReturnPath: returnPath });
   }
 
   function setReadOnly(value: boolean) {
+    if (!value && !canEdit) return;
     const url = new URL(location.href);
     if (value) url.searchParams.set("lecture", "1");
     else url.searchParams.delete("lecture");
-    // The current tab may not exist on the other side of the switch.
-    if (!isDossierTabVisible(requestedTab, value)) url.searchParams.delete("tab");
+    requestedTab = defaultDossierTab;
+    url.searchParams.delete("tab");
     url.hash = "";
     // A real navigation, unlike the tab: the mode decides which payload the
-    // server sends, so the load has to run again. It also gets its own history
-    // entry, so the browser's Back button leaves read-only mode.
-    void goto(url, { noScroll: true });
+    // server sends, so the load has to run again. Keep the original list entry
+    // rather than putting an editable copy of this dossier in browser history.
+    void goto(url, {
+      noScroll: true,
+      replaceState: true,
+      state: { ...page.state, dossierReturnPath: returnPath },
+    });
   }
 </script>
 
@@ -112,8 +139,8 @@
 {#if dossier && email}
   <!-- Going from one dossier to the next keeps this page mounted, and the tree
        below holds state seeded from the dossier it was showing: the instruction
-       champs waiting to be saved, the date the dossier was last read, whether it
-       was just marked unread. Keying on the id starts that state over rather than
+       champs waiting to be saved and the date the dossier was last read.
+       Keying on the id starts that state over rather than
        carrying one dossier's over to another. -->
   {#key id}
     <Dossier
@@ -127,6 +154,7 @@
       {readOnly}
       onReadOnlyChange={setReadOnly}
       {canEdit}
+      onClose={closeDossier}
     />
   {/key}
 {:else}
