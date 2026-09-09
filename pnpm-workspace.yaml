@@ -42,7 +42,7 @@ catalog:
   "@vitest/browser-playwright": "^4.1.7"
   "byte-size": "^9.0.1"
   "clsx": "^2.1.1"
-  "csv-parse": "^7.0.1"
+  "csv-parse": "^7.0.2"
   "csv-stringify": "^6.5.0"
   "d3-dsv": "^3.0.1"
   "d3-fetch": "^3.0.1"
