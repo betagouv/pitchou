@@ -28,7 +28,9 @@ export function nomsVernaculaires(NOM_VERN: TAXREF_ROW["NOM_VERN"]): string[] {
 }
 
 export function especeLabel(espece: EspeceProtegee): string {
-  return `${[...espece.nomsVernaculaires][0]} (${[...espece.nomsScientifiques][0]})`;
+  const nomVernaculaire = [...espece.nomsVernaculaires][0];
+  const nomScientifique = [...espece.nomsScientifiques][0] ?? "";
+  return nomVernaculaire ? `${nomVernaculaire} (${nomScientifique})` : nomScientifique;
 }
 
 export function especeProtegeeStringToEspeceProtegee({

@@ -110,6 +110,7 @@ export type DossierSummary = Pick<
   DossierPersonnesImpliqueesSummary & {
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
+    especesImpacteesCD_REF: string[];
     especesImpacteesRenseignees: boolean;
     /** Content of the dossier's most recent commentaire. */
     latestCommentaire: string | null;

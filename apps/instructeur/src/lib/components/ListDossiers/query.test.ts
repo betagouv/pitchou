@@ -16,6 +16,7 @@ describe("parseDossiersQuery", () => {
       text: "",
       phase: [],
       activite: [],
+      espece: [],
       prochaineAction: [],
       departement: [],
       instructeur: [],
@@ -48,6 +49,8 @@ describe("parseDossiersQuery", () => {
     params.append("phase", "Contrôle");
     params.append("departement", "64");
     params.append("departement", "33");
+    params.append("espece", "60630");
+    params.append("espece", "2938");
 
     expect(parseDossiersQuery(params)).toMatchObject({
       text: "photovoltaïque",
@@ -55,6 +58,7 @@ describe("parseDossiersQuery", () => {
       activite: ["carrieres"],
       prochaineAction: ["Instructeur"],
       departement: ["64", "33"],
+      espece: ["60630", "2938"],
       instructeur: ["jane@doe.fr"],
       nouveaute: "oui",
       actionInstructeur: true,
@@ -111,6 +115,7 @@ describe("buildDossiersSearchParams", () => {
       activite: ["carrieres"],
       prochaineAction: ["Pétitionnaire"],
       departement: ["64", "33"],
+      espece: ["60630", "2938"],
       instructeur: [WITHOUT_INSTRUCTEUR, "jane@doe.fr"],
       nouveaute: "oui",
       enjeu: true,

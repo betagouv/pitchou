@@ -64,6 +64,12 @@ export function filterDossiers(
       (dossier) => dossier.activite_code !== null && query.activite.includes(dossier.activite_code),
     );
   }
+  if (query.espece.length) {
+    const selected = new Set(query.espece);
+    result = result.filter((dossier) =>
+      (dossier.especesImpacteesCD_REF ?? []).some((cdRef) => selected.has(cdRef)),
+    );
+  }
   if (query.actionInstructeur) {
     result = result.filter((dossier) => dossier.next_action_expected_from === "Instructeur");
   }
@@ -145,6 +151,7 @@ export function filterDossiers(
 const FILTER_PARAM_KEYS = [
   "phase",
   "activite",
+  "espece",
   "action",
   "departement",
   "instructeur",

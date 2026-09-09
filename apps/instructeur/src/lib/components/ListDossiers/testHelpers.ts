@@ -16,6 +16,7 @@ export function makeDossier(overrides: Partial<DossierSummary> = {}): DossierSum
     name: "Dossier test",
     phase: "Instruction",
     depot_date: new Date("2024-01-01"),
+    especesImpacteesCD_REF: [],
     ...overrides,
   } as DossierSummary;
 }

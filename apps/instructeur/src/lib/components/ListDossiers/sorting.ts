@@ -1,5 +1,5 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import type { DossiersContext, SortKey, SortOrder } from "./query.ts";
+import type { DossiersContext, DossiersQuery, SortKey, SortOrder } from "./query.ts";
 
 function lastModifiedDate(
   dossierId: DossierSummary["id"],
@@ -49,4 +49,14 @@ export function compareDossiers(
     default:
       return compareDates(toDate(a.depot_date), toDate(b.depot_date), direction);
   }
+}
+
+export function sortDossiers(
+  dossiers: DossierSummary[],
+  query: Pick<DossiersQuery, "sort" | "order">,
+  notificationByDossier: DossiersContext["notificationByDossier"],
+): DossierSummary[] {
+  return [...dossiers].sort((a, b) =>
+    compareDossiers(a, b, query.sort, query.order, notificationByDossier),
+  );
 }

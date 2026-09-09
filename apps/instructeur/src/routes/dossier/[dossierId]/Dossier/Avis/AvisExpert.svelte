@@ -25,7 +25,6 @@
   let deleteInProgress = $state(false);
 
   const deleteConfirmationTitleId = $derived(`confirmation-suppression-avis-${avisExpert.id}`);
-  const isCnpn = $derived(avisExpert.expert?.trim().toUpperCase() === "CNPN");
 
   function closeForm() {
     isEditing = false;
@@ -101,7 +100,7 @@
           {/if}
         </li>
 
-        {#if isCnpn}
+        {#if cnpnEmailEvent}
           <li
             class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
           >
@@ -112,7 +111,7 @@
             <div class="min-w-0 flex-1">
               <span class="fr-hint-text block">Date d’envoi du mail via Pitchou</span>
               <strong class="block">
-                {cnpnEmailEvent ? formatDateAbsolute(cnpnEmailEvent.sent_at) : "Pas encore envoyé"}
+                {formatDateAbsolute(cnpnEmailEvent.sent_at)}
               </strong>
             </div>
           </li>

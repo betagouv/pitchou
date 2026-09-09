@@ -5,14 +5,6 @@ import type {
   FloreAtteinte,
 } from "@pitchou/types/especes.d.ts";
 
-export function especeLabel(espece: EspeceProtegee) {
-  return `${[...espece.nomsVernaculaires][0]} (${[...espece.nomsScientifiques][0]})`;
-}
-
-export function makeEspeceToLabel(especes: EspeceProtegee[]) {
-  return new Map(especes.map((e) => [e, especeLabel(e)]));
-}
-
 export function makeEspeceToKeywords(especes: EspeceProtegee[]) {
   return new Map(
     especes.map((e) => [e, [...e.nomsVernaculaires, ...e.nomsScientifiques].join(" ")]),
