@@ -100,7 +100,12 @@ export async function dumpDossiers(
   const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
   if (dossiersForInsert.length) {
     const inserted: { id: DossierId }[] = await db("dossier")
-      .insert(dossiersForInsert.map(({ dossier }) => dossier))
+      .insert(
+        dossiersForInsert.map(({ dossier }) => ({
+          ...dossier,
+          next_action_expected_from: dossier.next_action_expected_from ?? "Instructeur",
+        })),
+      )
       .returning(["id"]);
     const personnes = await synchronizePersonnes(dossiersForInsert, db);
     if (personnes.length) {
