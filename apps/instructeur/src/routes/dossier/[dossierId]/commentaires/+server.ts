@@ -4,6 +4,7 @@ import { requireCap, requireDossierAccessByCap } from "$lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import {
   addCommentaireFromCap,
+  deleteCommentaireFromCap,
   getDossierCommentaires,
   updateCommentaireFromCap,
 } from "@pitchou/server/database/commentaire.ts";
@@ -14,6 +15,17 @@ import type { CommentaireId } from "@pitchou/types/database/public/Commentaire.t
 
 const createProperties = new Set(["content"]);
 const updateProperties = new Set(["id", "content"]);
+const deleteProperties = new Set(["id"]);
+
+function parseCommentaireId(value: Record<string, unknown>): CommentaireId {
+  if (
+    typeof value.id !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.id)
+  ) {
+    error(400, "La propriété 'id' doit être un identifiant de commentaire UUID.");
+  }
+  return value.id as CommentaireId;
+}
 
 function parseContent(value: Record<string, unknown>): string {
   if (typeof value.content !== "string" || value.content.trim().length === 0) {
@@ -51,13 +63,10 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
   const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, updateProperties);
-  if (typeof body.id !== "string" || body.id.length === 0) {
-    error(400, "La propriété 'id' doit être un identifiant de commentaire.");
-  }
   const updated = await updateCommentaireFromCap(
     cap,
     dossierId,
-    body.id as CommentaireId,
+    parseCommentaireId(body),
     parseContent(body),
   );
   if (!updated) {
@@ -72,5 +81,17 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
       author_personne: author?.id ?? null,
     },
   ]);
+  return new Response(null, { status: 204 });
+};
+
+export const DELETE: RequestHandler = async ({ params, url, request }) => {
+  const cap = requireCap(url);
+  const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
+  const body = await readJsonObject(request);
+  rejectUnknownProperties(body, deleteProperties);
+  const deleted = await deleteCommentaireFromCap(cap, dossierId, parseCommentaireId(body));
+  if (!deleted) {
+    error(403, "Seule l'autrice ou l'auteur d'un commentaire peut le supprimer.");
+  }
   return new Response(null, { status: 204 });
 };

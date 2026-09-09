@@ -61,6 +61,9 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.modifierCommentaire) {
     ret.modifierCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.modifierCommentaire}`;
   }
+  if (capBundle.supprimerCommentaire) {
+    ret.supprimerCommentaire = `/dossier/:dossierId/commentaires?cap=${capBundle.supprimerCommentaire}`;
+  }
   if (capBundle.modifierDossier) {
     ret.modifierDossier = `/dossier/:dossierId?cap=${capBundle.modifierDossier}`;
   }

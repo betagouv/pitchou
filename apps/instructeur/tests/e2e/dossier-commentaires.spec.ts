@@ -37,7 +37,8 @@ test("les commentaires du dossier s'ajoutent, se modifient et persistent", async
   await expect(page.getByText("Premier retour sur ce dossier.")).toBeVisible();
 
   // The author can edit their comment; the edit persists.
-  await page.getByRole("button", { name: "Modifier le commentaire" }).click();
+  await page.getByRole("button", { name: "Actions du commentaire" }).click();
+  await page.getByRole("menuitem", { name: "Modifier" }).click();
   await page.getByLabel("Modifier le commentaire").fill("Retour corrigé sur ce dossier.");
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Retour corrigé sur ce dossier.")).toBeVisible();
@@ -45,4 +46,19 @@ test("les commentaires du dossier s'ajoutent, se modifient et persistent", async
 
   await page.reload();
   await expect(page.getByText("Retour corrigé sur ce dossier.")).toBeVisible();
+
+  await expect(page.getByRole("heading", { name: "Commentaires", level: 4 })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Actions du commentaire" })).toHaveCount(1);
+  await page.getByRole("button", { name: "Actions du commentaire" }).click();
+  await page.getByRole("menuitem", { name: "Supprimer" }).click();
+  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  await expect(page.getByText("Retour corrigé sur ce dossier.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Actions du commentaire" }).click();
+  await page.getByRole("menuitem", { name: "Supprimer" }).click();
+  await page.getByRole("button", { name: "Confirmer la suppression" }).click();
+  await expect(page.getByText("Retour corrigé sur ce dossier.")).toHaveCount(0);
+  await expect(page.getByText("Ancien commentaire libre du dossier.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("Retour corrigé sur ce dossier.")).toHaveCount(0);
 });

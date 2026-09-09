@@ -9,6 +9,9 @@ export function requireCap(url: URL): CapDossierCap {
   if (!cap) {
     error(400, "Paramètre 'cap' manquant dans l'URL");
   }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cap)) {
+    error(403, "Capability invalide");
+  }
   return cap as CapDossierCap;
 }
 

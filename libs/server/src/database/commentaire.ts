@@ -2,6 +2,7 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { getPersonneByDossierCap } from "./personne.ts";
+import { logDossierActions } from "./action_dossier.ts";
 
 import type Commentaire from "@pitchou/types/database/public/Commentaire.ts";
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
@@ -19,7 +20,7 @@ export type CommentaireView = Pick<Commentaire, "id" | "content" | "created_at" 
  */
 export const latestCommentaireSubquery = `(select content from commentaire
   where commentaire.dossier = dossier.id
-  order by created_at desc limit 1) as "latestCommentaire"`;
+  order by created_at desc, id desc limit 1) as "latestCommentaire"`;
 
 const viewColumns = [
   "commentaire.id",
@@ -37,7 +38,8 @@ export async function getDossierCommentaires(
     .leftJoin("personne", { "personne.id": "commentaire.personne" })
     .select(viewColumns)
     .where({ "commentaire.dossier": dossierId })
-    .orderBy("commentaire.created_at", "desc");
+    .orderBy("commentaire.created_at", "desc")
+    .orderBy("commentaire.id", "desc");
 }
 
 export async function addCommentaireFromCap(
@@ -46,7 +48,7 @@ export async function addCommentaireFromCap(
   content: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<CommentaireView> {
-  const personne = await getPersonneByDossierCap(cap);
+  const personne = await getPersonneByDossierCap(cap, databaseConnection);
 
   if (!personne) {
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
@@ -70,7 +72,7 @@ export async function updateCommentaireFromCap(
   content: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<boolean> {
-  const personne = await getPersonneByDossierCap(cap);
+  const personne = await getPersonneByDossierCap(cap, databaseConnection);
 
   if (!personne) {
     throw new Error(`Aucune personne n'a été trouvée pour la capability : ${cap}`);
@@ -81,4 +83,36 @@ export async function updateCommentaireFromCap(
     .where({ id: commentaireId, dossier: dossierId, personne: personne.id });
 
   return updatedCount > 0;
+}
+
+/** Deletes only the author's comment, atomically with its audit record. */
+export async function deleteCommentaireFromCap(
+  cap: CapDossier["cap"],
+  dossierId: Dossier["id"],
+  commentaireId: Commentaire["id"],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+): Promise<boolean> {
+  return databaseConnection.transaction(async (transaction) => {
+    const author = await getPersonneByDossierCap(cap, transaction);
+    if (!author) return false;
+
+    const [deleted] = await transaction("commentaire")
+      .where({ id: commentaireId, dossier: dossierId, personne: author.id })
+      .delete()
+      .returning("id");
+    if (!deleted) return false;
+
+    await logDossierActions(
+      [
+        {
+          dossier: dossierId,
+          type: "commentaire_supprime",
+          data: { commentaire_id: deleted.id },
+          author_personne: author.id,
+        },
+      ],
+      transaction,
+    );
+    return true;
+  });
 }

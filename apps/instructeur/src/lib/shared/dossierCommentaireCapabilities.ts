@@ -9,7 +9,11 @@ import type {
 const dossierIdURLParam = ":dossierId";
 
 type CommentaireCapabilityURLNames =
-  "listerCommentaires" | "ajouterCommentaire" | "modifierCommentaire" | "listerActionsDossier";
+  | "listerCommentaires"
+  | "ajouterCommentaire"
+  | "modifierCommentaire"
+  | "supprimerCommentaire"
+  | "listerActionsDossier";
 
 /** Recording a generated document reuses the historique URL, so it has no URL of its own. */
 type CommentaireCapabilityNames = CommentaireCapabilityURLNames | "enregistrerDocumentsGeneres";
@@ -20,6 +24,7 @@ export function createDossierCommentaireCapabilities(
   const listURL = capURLs.listerCommentaires;
   const addURL = capURLs.ajouterCommentaire;
   const updateURL = capURLs.modifierCommentaire;
+  const deleteURL = capURLs.supprimerCommentaire;
   const actionsURL = capURLs.listerActionsDossier;
 
   return {
@@ -77,6 +82,15 @@ export function createDossierCommentaireCapabilities(
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id, content }),
+            }).then(() => undefined)
+        : undefined,
+    supprimerCommentaire:
+      deleteURL && deleteURL.includes(dossierIdURLParam)
+        ? (dossierId, id) =>
+            text(deleteURL.replace(dossierIdURLParam, String(dossierId)), {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id }),
             }).then(() => undefined)
         : undefined,
   };

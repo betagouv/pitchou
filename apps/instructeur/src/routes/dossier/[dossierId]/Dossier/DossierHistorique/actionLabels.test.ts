@@ -2,6 +2,13 @@ import { describe, expect, test } from "vitest";
 
 import { actionDisplay } from "./actionLabels.ts";
 
+test("a deleted comment is identified without redisplaying its content", () => {
+  expect(actionDisplay("commentaire_supprime", { commentaire_id: "comment-id" })).toEqual({
+    icon: "fr-icon-delete-line",
+    label: "Commentaire supprimé",
+  });
+});
+
 describe("historique — dates de consultation du public", () => {
   test("only the changed end date is bold, the start stays as plain context", () => {
     const display = actionDisplay("dates_consultation_renseignees", {

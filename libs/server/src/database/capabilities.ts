@@ -74,6 +74,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     listerCommentaires: listDossiers,
     ajouterCommentaire: listDossiers,
     modifierCommentaire: listDossiers,
+    supprimerCommentaire: listDossiers,
     modifierDossier: listDossiers,
     envoyerEmailCnpn: listDossiers,
     identité: identite

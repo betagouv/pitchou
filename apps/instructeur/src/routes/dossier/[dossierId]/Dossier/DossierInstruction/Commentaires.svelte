@@ -1,7 +1,11 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import { setDossierFull, store } from "$lib/state/store.svelte.ts";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { authorInitials, authorName, avatarClass } from "./commentaires.ts";
+  import CommentaireActions from "./CommentaireActions.svelte";
+  import NouveauCommentaireForm from "./NouveauCommentaireForm.svelte";
+  import { readOnlyMode } from "../readOnly.ts";
   import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
@@ -10,12 +14,15 @@
     email: string;
   };
   let { dossier, email }: Props = $props();
+  const readOnly = readOnlyMode();
 
   let commentaires: DossierCommentaire[] = $state([]);
   let newContent = $state("");
   let editingId: string | null = $state(null);
   let editContent = $state("");
   let errorMessage = $state("");
+  let editInput: HTMLTextAreaElement | undefined = $state();
+  let newCommentInput: HTMLTextAreaElement | undefined = $state();
 
   $effect(() => {
     void store.capabilities
@@ -37,17 +44,19 @@
   // so the cached dossier is refreshed alongside the thread.
   function syncLatestCommentaire() {
     const latest = commentaires[0]?.content ?? null;
-    if (dossier.latestCommentaire !== latest) {
-      setDossierFull({ ...dossier, latestCommentaire: latest });
+    const cachedDossier = store.fullDossiers.get(dossier.id) ?? dossier;
+    if (cachedDossier.latestCommentaire !== latest) {
+      setDossierFull({ ...cachedDossier, latestCommentaire: latest });
     }
   }
 
   async function submit() {
+    if (readOnly.current || !store.capabilities.ajouterCommentaire) return;
     const content = newContent.trim();
     if (!content) return;
     errorMessage = "";
     try {
-      const commentaire = await store.capabilities.ajouterCommentaire?.(dossier.id, content);
+      const commentaire = await store.capabilities.ajouterCommentaire(dossier.id, content);
       if (commentaire) commentaires = [commentaire, ...commentaires];
       newContent = "";
       syncLatestCommentaire();
@@ -56,17 +65,25 @@
     }
   }
 
-  function startEdit(commentaire: DossierCommentaire) {
+  async function startEdit(commentaire: DossierCommentaire) {
     editingId = commentaire.id;
     editContent = commentaire.content;
+    await tick();
+    editInput?.focus();
   }
 
   async function saveEdit(commentaire: DossierCommentaire) {
+    if (
+      readOnly.current ||
+      !store.capabilities.modifierCommentaire ||
+      commentaire.author_email !== email
+    )
+      return;
     const content = editContent.trim();
     if (!content) return;
     errorMessage = "";
     try {
-      await store.capabilities.modifierCommentaire?.(dossier.id, { id: commentaire.id, content });
+      await store.capabilities.modifierCommentaire(dossier.id, { id: commentaire.id, content });
       commentaires = commentaires.map((existing) =>
         existing.id === commentaire.id
           ? { ...existing, content, updated_at: new Date() }
@@ -77,6 +94,20 @@
     } catch {
       errorMessage = "Le commentaire n'a pas pu être modifié.";
     }
+  }
+
+  async function deleteCommentaire(commentaire: DossierCommentaire) {
+    if (
+      readOnly.current ||
+      !store.capabilities.supprimerCommentaire ||
+      commentaire.author_email !== email
+    )
+      return;
+    await store.capabilities.supprimerCommentaire(dossier.id, commentaire.id);
+    commentaires = commentaires.filter(({ id }) => id !== commentaire.id);
+    syncLatestCommentaire();
+    await tick();
+    newCommentInput?.focus();
   }
 </script>
 
@@ -92,57 +123,51 @@
 {/snippet}
 
 <section class="fr-mt-4w fr-mb-4w max-w-[48rem]">
-  <h2 class="fr-mb-2w fr-text--lg">Commentaires</h2>
+  <h4 class="fr-mb-2w fr-text--lg">Commentaires</h4>
 
   {#if errorMessage}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p>{errorMessage}</p></div>
   {/if}
 
-  <form
-    class="flex items-start gap-3"
-    onsubmit={(event) => {
-      event.preventDefault();
-      void submit();
-    }}
-  >
-    {@render avatar(email)}
-    <div class="flex grow flex-col items-end gap-2">
-      <textarea
-        class="fr-input resize-y"
-        id="nouveau-commentaire"
-        aria-label="Laissez un commentaire"
-        placeholder="Laissez un commentaire…"
-        rows={2}
-        bind:value={newContent}></textarea>
-      {#if newContent.trim()}
-        <button type="submit" class="fr-btn fr-btn--sm">Commenter</button>
-      {/if}
-    </div>
-  </form>
+  {#if !readOnly.current && store.capabilities.ajouterCommentaire}
+    <NouveauCommentaireForm
+      bind:content={newContent}
+      bind:input={newCommentInput}
+      onSubmit={submit}
+    >
+      {@render avatar(email)}
+    </NouveauCommentaireForm>
+  {/if}
 
   <ul class="fr-mt-3w fr-p-0 flex list-none flex-col gap-4">
     {#each commentaires as commentaire (commentaire.id)}
       <li class="flex items-start gap-3">
         {@render avatar(commentaire.author_email)}
         <div class="min-w-0 grow">
-          <p class="fr-mb-1v flex flex-wrap items-baseline gap-x-2">
-            <strong>{authorName(commentaire.author_email)}</strong>
-            <span class="fr-text--xs text-[color:var(--text-mention-grey)]"
-              >{dateLabel(commentaire)}</span
-            >
-            {#if commentaire.author_email === email && editingId !== commentaire.id}
-              <button
-                type="button"
-                class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-pencil-line"
-                title="Modifier le commentaire"
-                onclick={() => startEdit(commentaire)}
+          <div class="fr-mb-1v flex items-start justify-between gap-2">
+            <p class="fr-mb-0 flex flex-wrap items-baseline gap-x-2">
+              <strong class="leading-8">{authorName(commentaire.author_email)}</strong>
+              <span class="fr-text--xs fr-mb-0 text-[color:var(--text-mention-grey)]"
+                >{dateLabel(commentaire)}</span
               >
-                Modifier le commentaire
-              </button>
+            </p>
+            {#if !readOnly.current && commentaire.author_email === email && editingId !== commentaire.id && (store.capabilities.modifierCommentaire || store.capabilities.supprimerCommentaire)}
+              <CommentaireActions
+                commentaireId={commentaire.id}
+                onEdit={store.capabilities.modifierCommentaire
+                  ? () => {
+                      void startEdit(commentaire);
+                    }
+                  : undefined}
+                onDelete={store.capabilities.supprimerCommentaire
+                  ? () => deleteCommentaire(commentaire)
+                  : undefined}
+              />
             {/if}
-          </p>
-          {#if editingId === commentaire.id}
+          </div>
+          {#if !readOnly.current && store.capabilities.modifierCommentaire && editingId === commentaire.id}
             <textarea
+              bind:this={editInput}
               class="fr-input resize-y"
               aria-label="Modifier le commentaire"
               rows={3}

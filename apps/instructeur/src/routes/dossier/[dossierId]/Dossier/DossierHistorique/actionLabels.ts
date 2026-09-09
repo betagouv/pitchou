@@ -121,6 +121,10 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     label: "Commentaire modifié :",
     value: str(d, "excerpt") ?? undefined,
   }),
+  commentaire_supprime: () => ({
+    icon: "fr-icon-delete-line",
+    label: "Commentaire supprimé",
+  }),
   saisine_importee: () => ({ icon: "fr-icon-attachment-line", label: "Saisine importée" }),
   avis_importe: (d) => ({
     icon: "fr-icon-quote-line",
