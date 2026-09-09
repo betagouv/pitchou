@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { phases } from "$lib/dossier/displayDossier.ts";
-  import { nextActionGroups, nextActionValue, parseNextActionValue } from "./nextAction.ts";
+  import { phases } from "@pitchou/common/phases.ts";
+  import megaphoneIcon from "@gouvfr/dsfr/dist/icons/business/megaphone-fill.svg?no-inline";
+  import { nextActionOptions } from "./nextAction.ts";
   import DateInput from "$lib/components/DateInput.svelte";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -13,7 +13,6 @@
     erSufficient?: boolean | null;
     phase: string;
     nextAction?: DossierFull["next_action_expected_from"];
-    nextActionExpected?: DossierFull["next_action_expected"];
     nextDueDate?: Date | null;
     onagre?: string | null;
     consultationStart?: Date | null;
@@ -28,7 +27,6 @@
     erSufficient = $bindable(),
     phase = $bindable(),
     nextAction = $bindable(),
-    nextActionExpected = $bindable(),
     nextDueDate = $bindable(),
     onagre = $bindable(),
     consultationStart = $bindable(),
@@ -38,19 +36,6 @@
   }: Props = $props();
 
   const phaseOptions = $derived([...phases].map((phase) => ({ value: phase, label: phase })));
-
-  const nextActionOptions: SelectEntry[] = [
-    { value: "", label: "—" },
-    ...nextActionGroups.map((group) => ({ label: group.entity, options: group.options })),
-  ];
-
-  // The entity in charge and its expected action are picked together, so a
-  // « Compléter le dossier » can never end up attributed to the préfecture.
-  function setNextAction(value: string) {
-    const { entity, action } = parseNextActionValue(value);
-    nextAction = entity;
-    nextActionExpected = action;
-  }
 
   const ddepOptions = [
     { value: "oui", label: "Oui" },
@@ -102,26 +87,17 @@
   </div>
 
   <div class={rowClass}>
-    <label class={labelClass} for="next_action_expected">
+    <label class={labelClass} for="next_action_expected_from">
       <span class="fr-icon-todo-line {iconClass}" aria-hidden="true"></span>
-      Prochaine action attendue
+      Entité en charge de la prochaine action
     </label>
-    <div class="flex flex-col gap-1">
-      <Select
-        id="next_action_expected"
-        options={nextActionOptions}
-        value={nextActionValue(nextAction ?? null, nextActionExpected ?? null)}
-        onChange={setNextAction}
-        {disabled}
-      />
-      <!-- A closed select only shows the option label, so « Autre » alone would
-           not say who is waited on. -->
-      {#if nextAction}
-        <p class="fr-m-0 fr-text--xs text-[color:var(--text-mention-grey)]">
-          Entité en charge&nbsp;: {nextAction}
-        </p>
-      {/if}
-    </div>
+    <Select
+      id="next_action_expected_from"
+      options={nextActionOptions}
+      value={nextAction ?? ""}
+      onChange={(value) => (nextAction = value || null)}
+      {disabled}
+    />
   </div>
 
   <div class={rowClass}>
@@ -134,7 +110,11 @@
 
   <div class={rowClass}>
     <p class={labelClass} id="consultation-du-public-label">
-      <span class="fr-icon-volume-up-line {iconClass}" aria-hidden="true"></span>
+      <span
+        class="fr-icon-megaphone-fill {iconClass}"
+        style:--megaphone-icon={`url('${megaphoneIcon}')`}
+        aria-hidden="true"
+      ></span>
       Consultation du public
     </p>
     <div class="flex flex-wrap items-center gap-2">
@@ -154,7 +134,7 @@
     </div>
   </div>
 
-  <h2 class="fr-mt-4w fr-mb-0 fr-text--lg">Informations liées au dossier</h2>
+  <h4 class="fr-mt-4w fr-mb-0">Informations liées au dossier</h4>
 
   <div class={rowClass}>
     <label class={labelClass} for="ddep-necessaire">
@@ -192,3 +172,11 @@
     />
   </div>
 </section>
+
+<style>
+  /* The bundled DSFR has this icon; the older global stylesheet does not. */
+  .fr-icon-megaphone-fill::before {
+    -webkit-mask-image: var(--megaphone-icon);
+    mask-image: var(--megaphone-icon);
+  }
+</style>

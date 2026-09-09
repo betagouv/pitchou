@@ -4,15 +4,16 @@
 
   type Props = {
     phase: DossierPhase;
+    unread?: boolean;
   };
 
-  let { phase }: Props = $props();
+  let { phase, unread = false }: Props = $props();
 
   const percentage = $derived(Math.round(phaseProgress(phase) * 100));
 </script>
 
 <div class="flex min-w-0 flex-col gap-2">
-  <span class="font-bold leading-tight">{phase}</span>
+  <span class="leading-tight {unread ? 'font-bold' : 'font-normal'}">{phase}</span>
   <span
     class="block h-2 w-full rounded-full bg-[var(--background-contrast-grey)]"
     role="progressbar"

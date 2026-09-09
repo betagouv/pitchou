@@ -1,6 +1,8 @@
 import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
+import { orderedPhases } from "@pitchou/common/phases.ts";
+import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
-type PhaseEvent = { phase: string; timestamp: Date | string };
+type PhaseEvent = { phase: DossierPhase; timestamp: Date | string };
 
 export type TimelineStep = {
   label: string;
@@ -9,15 +11,6 @@ export type TimelineStep = {
   detail: string[];
 };
 
-/** The phases a dossier progresses through, « Classé sans suite » ends it early. */
-const orderedPhases = [
-  "Accompagnement amont",
-  "Étude recevabilité DDEP",
-  "Instruction",
-  "Contrôle",
-  "Obligations terminées",
-];
-
 function formatDay(date: Date | string): string {
   return formatDateAbsolute(date, "dd/MM/yyyy");
 }
@@ -25,7 +18,7 @@ function formatDay(date: Date | string): string {
 /**
  * Builds the « Avancement du dossier » timeline: a Dépôt step followed by the five
  * phases. Phases before the current one show as done even when they were skipped
- * (e.g. dossiers created directly in « Étude recevabilité DDEP »). A dossier
+ * (e.g. dossiers created directly in « Étude recevabilité »). A dossier
  * « classé sans suite » shows every phase it went through as done, none current.
  */
 export function timelineSteps(
@@ -35,6 +28,10 @@ export function timelineSteps(
   const ascending = [...events].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
+  // No event records the initial default phase. Actual returns keep their event dates.
+  if (depotDate && ascending[0]?.phase !== "Accompagnement amont") {
+    ascending.unshift({ phase: "Accompagnement amont", timestamp: depotDate });
+  }
   const currentPhase = ascending.at(-1)?.phase ?? "Accompagnement amont";
   const currentIndex =
     currentPhase === "Classé sans suite"

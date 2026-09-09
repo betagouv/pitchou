@@ -41,9 +41,9 @@ export const PROCHAINE_ACTION_OPTIONS: {
   { value: "Instructeur", label: "Instructeur·ice" },
   { value: "CNPN/CSRPN", label: "CNPN/CSRPN" },
   { value: "Pétitionnaire", label: "Pétitionnaire" },
-  { value: "Consultation du public", label: "Public consulté" },
-  { value: "Autre administration", label: "Autre administration" },
-  { value: "Autre", label: "Autre entité" },
+  { value: "Consultation du public", label: "Consultation du public" },
+  { value: "Préfet-e", label: "Préfet-e" },
+  { value: "Tierce personne/administration", label: "Tierce personne/administration" },
 ];
 
 export const PROCHAINE_ACTION_LABEL = new Map(

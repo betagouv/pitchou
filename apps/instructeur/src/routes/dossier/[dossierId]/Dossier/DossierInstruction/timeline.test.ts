@@ -9,12 +9,13 @@ describe("timelineSteps", () => {
     expect(steps.map(({ label, state }) => [label, state])).toEqual([
       ["Dépôt", "done"],
       ["Accompagnement amont", "current"],
-      ["Étude recevabilité DDEP", "future"],
+      ["Étude recevabilité", "future"],
       ["Instruction", "future"],
       ["Contrôle", "future"],
       ["Obligations terminées", "future"],
     ]);
     expect(steps[0].detail).toEqual(["Le 01/09/2025"]);
+    expect(steps[1].detail).toEqual(["Depuis le 01/09/2025"]);
   });
 
   test("phases before the current one are done, even when skipped", () => {
@@ -31,6 +32,7 @@ describe("timelineSteps", () => {
       "future",
     ]);
     expect(steps[3].detail).toEqual(["Depuis le 17/06/2026"]);
+    expect(steps[1].detail).toEqual(["01/09/2025 → 17/06/2026"]);
   });
 
   test("a phase visited twice shows two periods", () => {
@@ -38,7 +40,7 @@ describe("timelineSteps", () => {
       [
         { phase: "Instruction", timestamp: new Date("2026-06-17") },
         { phase: "Accompagnement amont", timestamp: new Date("2026-04-01") },
-        { phase: "Étude recevabilité DDEP", timestamp: new Date("2025-12-15") },
+        { phase: "Étude recevabilité", timestamp: new Date("2025-12-15") },
         { phase: "Accompagnement amont", timestamp: new Date("2025-09-01") },
       ],
       DEPOT,
@@ -46,6 +48,41 @@ describe("timelineSteps", () => {
     expect(steps[1].detail).toEqual(["01/09/2025 → 15/12/2025", "01/04/2026 → 17/06/2026"]);
     expect(steps[1].state).toBe("done");
     expect(steps[3].state).toBe("current");
+  });
+
+  test("the canonical recevabilite phase is current", () => {
+    const steps = timelineSteps(
+      [{ phase: "Étude recevabilité", timestamp: new Date("2025-12-15") }],
+      DEPOT,
+    );
+    expect(steps[2]).toEqual({
+      label: "Étude recevabilité",
+      state: "current",
+      detail: ["Depuis le 15/12/2025"],
+    });
+    expect(steps[1].state).toBe("done");
+    expect(steps[3].state).toBe("future");
+  });
+
+  test("an implicit initial accompagnement and a later return have distinct dates", () => {
+    const events = [
+      { phase: "Accompagnement amont" as const, timestamp: new Date("2026-04-01") },
+      { phase: "Étude recevabilité" as const, timestamp: new Date("2025-12-15") },
+    ];
+    const steps = timelineSteps(events, DEPOT);
+    expect(steps[1].detail).toEqual(["01/09/2025 → 15/12/2025", "Depuis le 01/04/2026"]);
+    expect(steps[1].state).toBe("current");
+    expect(events).toHaveLength(2);
+  });
+
+  test("an explicit initial event keeps its actual date", () => {
+    expect(
+      timelineSteps([{ phase: "Accompagnement amont", timestamp: "2025-09-12" }], DEPOT)[1].detail,
+    ).toEqual(["Depuis le 12/09/2025"]);
+  });
+
+  test("an absent deposit date does not invent a phase date", () => {
+    expect(timelineSteps([], null)[1].detail).toEqual([]);
   });
 
   test("a dossier classé sans suite shows no current phase", () => {

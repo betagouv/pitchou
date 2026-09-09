@@ -11,8 +11,9 @@
   type Props = {
     dossier: DossierFull;
     email: string;
+    onSaved?: () => void;
   };
-  let { dossier, email }: Props = $props();
+  let { dossier, email, onSaved }: Props = $props();
 
   const readOnly = readOnlyMode();
 
@@ -37,7 +38,6 @@
   const ddepRequired = $derived(champ("ddep_required"));
   const erMesuresSufficient = $derived(champ("er_mesures_sufficient"));
   const nextActionExpectedFrom = $derived(champ("next_action_expected_from"));
-  const nextActionExpected = $derived(champ("next_action_expected"));
   const nextDueDate = $derived(champ("next_due_date"));
   const onagreDemandeIdentifier = $derived(champ("onagre_demande_identifier"));
   const publicConsultationStartDate = $derived(champ("public_consultation_start_date"));
@@ -45,7 +45,6 @@
   const ddepValue = $derived(ddepCompositeValue(ddepRequired, erMesuresSufficient));
 
   let errorMessage = $state("");
-  let showSuccessMessage = $state(false);
 
   const dateChamps: ReadonlySet<keyof DossierFull> = new Set([
     "next_due_date",
@@ -91,7 +90,7 @@
       return;
     }
     updateDossier(dossier, changed)
-      .then(() => (showSuccessMessage = true))
+      .then(() => onSaved?.())
       .catch((error) => {
         console.info(error);
         errorMessage = "Quelque chose s'est mal passé du côté serveur.";
@@ -99,10 +98,7 @@
       .finally(() => settleEdits(updates));
   }
 
-  // The champs of one gesture arrive as separate writes — picking « Non, mesures
-  // ER suffisantes » writes ddep_required and er_mesures_sufficient, the next
-  // action select writes the entity and the action — so a microtask gathers them
-  // into a single save, and a single historique entry.
+  // DDEP choices write two fields through separate bindings. Batch them into one save.
   let queuedUpdates: Partial<DossierFull> | undefined;
   function queueSave(updates: Partial<DossierFull>) {
     // The fields are disabled in read-only mode; the guard covers any stray write.
@@ -155,7 +151,6 @@
 
   const dismissAlert = () => {
     errorMessage = "";
-    showSuccessMessage = false;
   };
 </script>
 
@@ -163,12 +158,9 @@
     <h3 class="fr-alert__title">Erreur lors de la mise à jour :</h3>
     <p>{errorMessage}</p>
   </div>{/if}
-{#if showSuccessMessage}<div class="fr-alert fr-alert--success fr-mb-3w">
-    <p>Le dossier a bien été mis à jour.</p>
-  </div>{/if}
 
 <section class="fr-mb-4w">
-  <h2 class="fr-mb-3w fr-text--lg">Avancement du dossier</h2>
+  <h4 class="fr-mb-3w">Avancement du dossier</h4>
   <PhaseTimeline events={dossier.evenementsPhase} depotDate={dossier.depot_date} />
 </section>
 
@@ -186,10 +178,8 @@
   }
   bind:phase={() => phase, setPhase}
   bind:nextAction={
-    () => nextActionExpectedFrom, (value) => queueSave({ next_action_expected_from: value ?? null })
-  }
-  bind:nextActionExpected={
-    () => nextActionExpected, (value) => queueSave({ next_action_expected: value ?? null })
+    () => nextActionExpectedFrom,
+    (value) => queueSave({ next_action_expected_from: value ?? null, next_action_expected: null })
   }
   bind:nextDueDate={() => nextDueDate, (value) => queueSave({ next_due_date: value ?? null })}
   bind:onagre={() => onagreDemandeIdentifier, setOnagre}

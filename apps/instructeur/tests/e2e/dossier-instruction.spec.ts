@@ -19,8 +19,18 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
 
   await page.getByLabel("Date de début").fill("10/03/2025");
   await page.getByLabel("Date de fin").fill("30/04/2025");
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
-  await page.waitForLoadState("networkidle");
+  await expect
+    .poll(() =>
+      db("dossier")
+        .select("id")
+        .where({
+          id: dossier.id,
+          public_consultation_start_date: "2025-03-10",
+          public_consultation_end_date: "2025-04-30",
+        })
+        .first(),
+    )
+    .toEqual({ id: dossier.id });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
@@ -46,11 +56,7 @@ test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({
   await expect(page.locator("#enjeu")).toBeVisible();
 });
 
-test("la prochaine action attendue groupe les actions par entité et est persistée", async ({
-  page,
-  db,
-  loginAs,
-}) => {
+test("l'entité en charge est persistée sans tâche", async ({ page, db, loginAs }) => {
   const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
     email: "instr@prochaine-action.fr",
     dossierNom: "Dossier prochaine action e2e",
@@ -60,40 +66,47 @@ test("la prochaine action attendue groupe les actions par entité et est persist
   await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  const action = page.locator("#next_action_expected");
+  const action = page.getByLabel("Entité en charge de la prochaine action");
 
-  // Each entity is a group, and every group ends with « Autre ».
   await action.click();
   const options = page.getByRole("listbox");
-  await expect(options.getByRole("group").nth(1)).toHaveAttribute("aria-label", "Instructeur");
-  await expect(options.getByRole("group", { name: "Préfet·e" }).getByRole("option")).toHaveText([
-    "Signer l'arrêté",
-    "Autre",
+  await expect(options.getByRole("option")).toHaveText([
+    "Non renseignée",
+    "Instructeur-ice (Moi)",
+    "CNPN/CSRPN",
+    "Pétitionnaire",
+    "Consultation du public",
+    "Préfet-e",
+    "Tierce personne/administration",
   ]);
 
-  // Picking an action sets the entity in charge along with it.
-  await options.getByRole("option", { name: "Envoyer la saisine", exact: true }).click();
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
-  await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
+  await options.getByRole("option", { name: "Instructeur-ice (Moi)", exact: true }).click();
+  await expect
+    .poll(() =>
+      db("dossier")
+        .select("next_action_expected_from", "next_action_expected")
+        .where({ id: dossier.id })
+        .first(),
+    )
+    .toEqual({ next_action_expected_from: "Instructeur", next_action_expected: null });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(action).toHaveText("Envoyer la saisine");
-  await expect(page.getByText("Entité en charge : Instructeur")).toBeVisible();
+  await expect(action).toHaveText("Instructeur-ice (Moi)");
 
-  // « Autre » keeps the entity without a precise action.
-  await action.click();
-  await page
-    .getByRole("listbox")
-    .getByRole("group", { name: "CNPN/CSRPN" })
-    .getByRole("option", { name: "Autre", exact: true })
-    .click();
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+  await chooseInSelect(action, "CNPN/CSRPN");
+  await expect
+    .poll(() =>
+      db("dossier")
+        .select("next_action_expected_from", "next_action_expected")
+        .where({ id: dossier.id })
+        .first(),
+    )
+    .toEqual({ next_action_expected_from: "CNPN/CSRPN", next_action_expected: null });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.locator("#next_action_expected")).toHaveText("Autre");
-  await expect(page.getByText("Entité en charge : CNPN/CSRPN")).toBeVisible();
+  await expect(action).toHaveText("CNPN/CSRPN");
   await expect(
     db("dossier").select("next_action_expected").where({ id: dossier.id }).first(),
   ).resolves.toEqual({ next_action_expected: null });
@@ -132,7 +145,9 @@ test("Changing the 'Dossier à enjeu' select changes the stake value of the case
 
   await expect(page.locator("#enjeu")).toHaveText("Non");
   await chooseInSelect(page.locator("#enjeu"), "Oui");
-  await expect(page.getByText("Le dossier a bien été mis à jour.")).toBeVisible();
+  await expect
+    .poll(() => db("dossier").select("enjeu").where({ id: dossier.id }).first())
+    .toEqual({ enjeu: true });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();

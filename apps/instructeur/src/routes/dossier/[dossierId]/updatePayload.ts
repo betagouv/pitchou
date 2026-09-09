@@ -1,17 +1,9 @@
 import { error } from "@sveltejs/kit";
 
 import { rejectUnknownProperties } from "$lib/server/requestValidation";
-import {
-  phases,
-  prochaineActionAttenduePar,
-  prochainesActionsAttendues,
-} from "@pitchou/common/phases.ts";
+import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
-import type {
-  DossierNextActionExpected,
-  DossierNextActionExpectedFrom,
-  DossierPhase,
-} from "@pitchou/types/API_Pitchou.ts";
+import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -100,14 +92,12 @@ export function parseDossierUpdate(
     error(400, `La propriété 'next_action_expected_from' n'est pas valide.`);
   }
 
-  if (
-    value.next_action_expected !== undefined &&
-    value.next_action_expected !== null &&
-    (typeof value.next_action_expected !== "string" ||
-      !prochainesActionsAttendues.has(value.next_action_expected as DossierNextActionExpected))
-  ) {
+  if (value.next_action_expected !== undefined && value.next_action_expected !== null) {
     error(400, `La propriété 'next_action_expected' n'est pas valide.`);
   }
+
+  // Choosing the responsible entity clears the retired task, not unrelated updates.
+  if (value.next_action_expected_from !== undefined) value.next_action_expected = null;
 
   if (value.enjeu !== undefined && typeof value.enjeu !== "boolean") {
     error(400, `La propriété 'enjeu' doit être un booléen.`);

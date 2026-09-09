@@ -35,7 +35,7 @@ test("changer la prochaine action attendue laisse une entrée d'historique et un
 
   const response = await updateDossier(cap, dossier.id, {
     next_action_expected_from: "Instructeur",
-    next_action_expected: "Envoyer la saisine",
+    next_action_expected: null,
   });
   expect(response.status).toBe(200);
 

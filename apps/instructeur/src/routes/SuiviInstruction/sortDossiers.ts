@@ -59,10 +59,8 @@ const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedF
   "Consultation du public": 9,
   "CNPN/CSRPN": 8,
   Pétitionnaire: 7,
-  "Préfet·e": 6,
-  "Autre administration": 5,
-  Autre: 4,
-  Personne: 3,
+  "Préfet-e": 6,
+  "Tierce personne/administration": 5,
 };
 
 /**
