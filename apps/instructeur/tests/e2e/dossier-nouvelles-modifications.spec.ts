@@ -37,9 +37,10 @@ test("les modifications du pétitionnaire non lues affichent des badges dans le 
   await expect(badges).toHaveCount(3);
 
   await page.getByRole("button", { name: /Informations du projet/ }).click();
+  await expect(page.getByText(/^Modifié le\s+\d{2}\/\d{2}\/\d{4}$/).first()).toBeVisible();
   await expect(
-    page.getByText(/^Modification détectée le\s+\d{2}\/\d{2}\/\d{4}$/).first(),
-  ).toBeVisible();
+    page.getByRole("button", { name: "Valider la modification : Description" }),
+  ).toHaveText("Vu");
 });
 
 test("les révisions explicitement validées n'affichent pas de badge", async ({

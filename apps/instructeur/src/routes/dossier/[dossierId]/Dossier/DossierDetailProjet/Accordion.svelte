@@ -7,10 +7,11 @@
     title: string;
     /** Badges rendered in the accordion band, next to the title. */
     badges?: Snippet;
+    badgesRight?: Snippet;
     children: Snippet;
   };
 
-  let { id, title, badges, children }: Props = $props();
+  let { id, title, badges, badgesRight, children }: Props = $props();
 
   // Expansion is managed here rather than by dsfr.module.js: the DSFR script does
   // not wire collapses rendered dynamically by Svelte (same reason the dossier
@@ -33,12 +34,15 @@
         {title}
         {#if badges}{@render badges()}{/if}
       </span>
-      <span
-        class="fr-icon-arrow-down-s-line shrink-0 transition-transform duration-200 {expanded
-          ? 'rotate-180'
-          : ''}"
-        aria-hidden="true"
-      ></span>
+      <span class="flex items-center justify-end gap-4">
+        {#if badgesRight}{@render badgesRight()}{/if}
+        <span
+          class="fr-icon-arrow-down-s-line shrink-0 transition-transform duration-200 {expanded
+            ? 'rotate-180'
+            : ''}"
+          aria-hidden="true"
+        ></span>
+      </span>
     </button>
   </h3>
   {#if expanded}

@@ -8,7 +8,8 @@
   import InformationsProjet from "./DossierDetailProjet/InformationsProjet.svelte";
   import EspecesImpactees from "./DossierDetailProjet/EspecesImpactees.svelte";
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
-  import { especesCounts, especesCountsLabel } from "./DossierDetailProjet/especes.ts";
+  import { especesCounts } from "./DossierDetailProjet/especes.ts";
+  import EspecesStatusBadge from "./DossierDetailProjet/EspecesStatusBadge.svelte";
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
   import { readOnlyMode } from "./readOnly.ts";
 
@@ -49,6 +50,7 @@
   }
 
   const modifications = $derived(nouvellesModifications(boundChanges));
+  const counts = $derived(especesCounts(dossier.especesImpactees.impacts));
 </script>
 
 {#snippet nouveau()}
@@ -70,14 +72,14 @@
     </div>
   {/if}
   <Accordion id="accordion-porteur-de-projet" title="Porteur de projet">
-    {#snippet badges()}
+    {#snippet badgesRight()}
       {#if modifications.porteurDates.size > 0}{@render nouveau()}{/if}
     {/snippet}
     <PorteurDeProjet {dossier} modifiedFields={modifications.porteurDates} />
   </Accordion>
 
   <Accordion id="accordion-informations-projet" title="Informations du projet">
-    {#snippet badges()}
+    {#snippet badgesRight()}
       {#if modifications.fieldDates.size > 0}{@render nouveau()}{/if}
     {/snippet}
     <InformationsProjet {dossier} modifiedFields={modifications.fieldDates} />
@@ -85,17 +87,30 @@
 
   <Accordion id="accordion-especes-impactees" title="Espèces impactées">
     {#snippet badges()}
-      <span class="fr-badge"
-        >{especesCountsLabel(especesCounts(dossier.especesImpactees.impacts))}</span
-      >
-      {#if modifications.especes}{@render nouveau()}{/if}
+      <span class="fr-badge fr-badge--no-icon">{counts.total}</span>
+      {#if counts.cnpn}<EspecesStatusBadge label={`${counts.cnpn} CNPN`} />{/if}
+      {#if counts.ministerielles}
+        <EspecesStatusBadge
+          label={`${counts.ministerielles} ${counts.ministerielles > 1 ? "MINISTÉRIELLES" : "MINISTÉRIELLE"}`}
+        />
+      {/if}
     {/snippet}
-    <EspecesImpactees {dossier} {anomalies} change={modifications.especes} />
+    {#snippet badgesRight()}
+      {#if modifications.especes || modifications.especesGroups.size}{@render nouveau()}{/if}
+    {/snippet}
+    <EspecesImpactees
+      {dossier}
+      {anomalies}
+      change={modifications.especes}
+      groupChanges={modifications.especesGroups}
+    />
   </Accordion>
 
   <Accordion id="accordion-pieces-jointes-formulaire" title="Pièces jointes">
     {#snippet badges()}
       <span class="fr-badge">{dossier.piecesJointesPetitionnaires.length}</span>
+    {/snippet}
+    {#snippet badgesRight()}
       {#if modifications.piecesJointes.length}{@render nouveau()}{/if}
     {/snippet}
     <PiecesJointes {dossier} changes={modifications.piecesJointes} />

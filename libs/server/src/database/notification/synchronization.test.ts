@@ -12,7 +12,7 @@ vi.mock("../fichier.ts", () => ({
   deleteFichiersWithoutOtherReferences: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("../impact_espece/dumpImpactEspeceFromFichier.ts", () => ({
-  dumpImpactEspeceFromFichier: vi.fn().mockResolvedValue([]),
+  dumpImpactEspeceFromFichier: vi.fn().mockResolvedValue([{ message: "Unstructured test file" }]),
 }));
 
 const dossier = 1 as DossierId;
@@ -138,7 +138,7 @@ test("first and last names have independent stable revision keys", async () => {
   ]);
 });
 
-test("the first species file added later notifies, replay does not, and clearing reopens review", async () => {
+test("coarse species files added later notify, replay does not, and clearing reopens review", async () => {
   const ids = new Map([[101, dossier]]);
   expect(
     await synchronizeFichiersEspecesImpacteesFromDS88444(new Map([[101, file]]), ids, db),

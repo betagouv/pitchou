@@ -54,11 +54,12 @@ test("arrival suppresses the modified tag without hiding the new follow", async 
   const view = render(DossierNotificationBadges, { dossierId: dossier });
   expect(view.container.textContent).toContain("Nouveau dossier");
   expect(view.container.textContent).toContain("Nouveau suivi");
-  expect(view.container.textContent).not.toMatch(/Modifié|Modification détectée/);
+  expect(view.container.textContent).not.toContain("Modifié");
   store.notificationByDossier.set(dossier, { ...initial(), new_arrival: null });
   await tick();
   expect(view.container.textContent).toContain("Nouveau suivi");
-  expect(view.container.textContent).toContain("Modification détectée");
+  expect(view.container.textContent).toContain("Modifié");
+  expect(view.container.textContent).not.toMatch(/détecté/i);
   expect(view.container.querySelector(".fr-icon-flashlight-fill")).toBeNull();
 });
 
@@ -79,8 +80,11 @@ test("modification ages use calendar days, even beyond a month", async () => {
   const state = initial();
   store.notificationByDossier.set(dossier, { ...state, new_arrival: null, new_follow: null });
   const view = render(DossierNotificationBadges, { dossierId: dossier });
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain(
-    "Modification détectée il y a 35j",
+  expect(view.container.querySelector(".notification-badge")?.textContent).toBe(
+    "Modifié il y a 35j",
+  );
+  expect(view.container.querySelector(".notification-badge")?.getAttribute("title")).toBe(
+    "Modifié le 01/09/2026",
   );
   store.notificationByDossier.set(dossier, {
     ...state,
@@ -89,7 +93,12 @@ test("modification ages use calendar days, even beyond a month", async () => {
     changes: [{ ...state.changes[0], modified_at: new Date("2026-10-06T08:00:00Z") }],
   });
   await tick();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié aujourd'hui");
+  expect(view.container.querySelector(".notification-badge")?.textContent).toBe(
+    "Modifié aujourd'hui",
+  );
+  expect(view.container.querySelector(".notification-badge")?.getAttribute("title")).toBe(
+    "Modifié le 06/10/2026",
+  );
   store.notificationByDossier.set(dossier, {
     ...state,
     new_arrival: null,
@@ -97,9 +106,7 @@ test("modification ages use calendar days, even beyond a month", async () => {
     changes: [{ ...state.changes[0], detected_at: new Date(), modified_at: null }],
   });
   await tick();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain(
-    "Modification détectée aujourd'hui",
-  );
+  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié aujourd'hui");
 });
 
 test("five seconds acknowledge arrival and the exact follow, never fields", async () => {

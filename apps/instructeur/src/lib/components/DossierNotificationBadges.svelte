@@ -43,10 +43,11 @@
   >
 {/if}
 {#if !notification?.new_arrival && latestChange}
-  <span class="notification-badge">
-    {latestChange.modified_at ? "Modifié" : "Modification détectée"}
-    {ageInDays === 0 ? "aujourd'hui" : `il y a ${ageInDays}j`}
-  </span>
+  <span
+    class="notification-badge"
+    title={`Modifié le ${formatDateAbsolute(new Date(latestChange.modified_at ?? latestChange.detected_at), "dd/MM/yyyy")}`}
+    >{`Modifié ${ageInDays === 0 ? "aujourd'hui" : `il y a ${ageInDays}j`}`}</span
+  >
 {/if}
 
 <style>

@@ -1,4 +1,5 @@
 import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+import { parseSpeciesImpactChangeField } from "@pitchou/common/especes/impactGroup.ts";
 
 import type { HistoriqueEntry } from "./display.ts";
 
@@ -26,10 +27,14 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
       value: str(d, "to") ?? undefined,
     };
   },
-  especes_renseignees: () => ({
-    icon: "fr-icon-leaf-line",
-    label: "Espèces impactées renseignées",
-  }),
+  especes_renseignees: (d) =>
+    parseSpeciesImpactChangeField(str(d, "notification_field") ?? "") !== undefined
+      ? {
+          icon: "fr-icon-leaf-line",
+          label: "Espèces impactées modifiées :",
+          value: str(d, "label") ?? undefined,
+        }
+      : { icon: "fr-icon-leaf-line", label: "Espèces impactées renseignées" },
   piece_jointe_importee: (d) => ({
     icon: "fr-icon-attachment-line",
     label: "Pièce jointe importée :",

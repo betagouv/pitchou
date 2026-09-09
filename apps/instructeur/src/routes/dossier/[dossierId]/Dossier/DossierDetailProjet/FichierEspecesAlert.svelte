@@ -19,20 +19,13 @@
   <DownloadButton
     {makeFileContentBlob}
     {makeFilename}
-    classname="fr-link fr-icon-download-line fr-link--icon-left whitespace-nowrap"
+    classname="fr-link fr-icon-download-line fr-link--icon-left"
     label="Télécharger le fichier original"
   />
 {/snippet}
 
 {#snippet fichierOriginal()}
-  <div class="fr-alert fr-alert--info fr-mb-2w" role="status">
-    <div class="flex flex-row flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-      <p class="fr-m-0 flex-1 min-w-[22rem]">
-        Vous pouvez consulter le fichier original "Espèces impactées".
-      </p>
-      {@render telecharger()}
-    </div>
-  </div>
+  <p class="fr-m-0">{@render telecharger()}</p>
 {/snippet}
 
 {#await anomalies}
@@ -42,10 +35,10 @@
     {@const hint = anomaliesHint(anomaliesFichier)}
     <div class="fr-alert fr-alert--warning fr-mb-2w" role="status">
       <div class="flex flex-row flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <p class="fr-m-0 flex-1 min-w-[22rem]">
+        <p class="fr-m-0 flex-1 min-w-0">
           <strong>{anomaliesTitle(anomaliesFichier)}</strong>{hint ? ` - ${hint}` : ""}
         </p>
-        <div class="flex flex-row items-baseline gap-6">
+        <div class="flex flex-row flex-wrap items-baseline gap-6">
           <button
             class="fr-link whitespace-nowrap"
             aria-expanded={detailShown}

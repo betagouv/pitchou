@@ -86,9 +86,7 @@ test("only the changed identity/company properties are highlighted, including a 
   expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
   expect(view.container.querySelector("section.pending")).toBeNull();
   expect(view.container.querySelector(".pending .field-change")).toBeNull();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain(
-    "Modification détectée le 01/09/2026",
-  );
+  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 01/09/2026");
 });
 
 test("property acknowledgments submit only that revision and clear the porteur badge after the last one", async () => {

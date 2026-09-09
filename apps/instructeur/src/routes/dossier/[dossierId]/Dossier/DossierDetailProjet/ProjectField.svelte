@@ -47,7 +47,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 1rem;
-    align-items: start;
+    align-items: center;
   }
   .field-value {
     min-width: 0;
@@ -59,7 +59,7 @@
     white-space: pre-line;
   }
   .pending {
-    background: #fff6dc;
+    background: #ffedbf;
     border-radius: 0.25rem;
     padding: 1rem;
   }

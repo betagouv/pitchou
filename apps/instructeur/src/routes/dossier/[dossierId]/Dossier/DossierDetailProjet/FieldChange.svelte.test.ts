@@ -1,9 +1,12 @@
+import "@gouvfr/dsfr/dist/dsfr.css";
+import "@gouvfr/dsfr/dist/utility/utility.css";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { store } from "$lib/state/store.svelte.ts";
 import ProjectField from "./ReviewFieldFixture.svelte";
+import FieldChangeControl from "./FieldChange.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 import type { DossierNotification, FieldChange } from "@pitchou/types/notification.ts";
@@ -34,11 +37,14 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test("cleared values remain highlighted with an honest date and a circular review button", () => {
+test("cleared values remain highlighted with the fallback date and a visible Vu button", () => {
   const view = render(ProjectField, { dossierId, label: "Description", value: null, change });
   expect(view.container.textContent).toContain("Non renseigné");
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain(
-    "Modification détectée le 01/09/2026",
+  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 01/09/2026");
+  expect(view.container.textContent).not.toMatch(/détecté/i);
+  expect(view.container.querySelector("button")?.textContent?.trim()).toBe("Vu");
+  expect(view.container.querySelector(".fr-icon-check-line")?.getAttribute("aria-hidden")).toBe(
+    "true",
   );
   expect(view.container.querySelector(".field-value")?.classList.contains("pending")).toBe(true);
   expect(
@@ -49,33 +55,6 @@ test("cleared values remain highlighted with an honest date and a circular revie
   expect(view.container.querySelector("button")?.getAttribute("aria-label")).toBe(
     "Valider la modification : Description",
   );
-});
-
-test("desktop review control sits to the right, outside the highlight, with the recorded applicant date", async () => {
-  await page.viewport(1280, 720);
-  const view = render(ProjectField, {
-    dossierId,
-    label: "Description",
-    value: "Texte modifié",
-    change: { ...change, modified_at: new Date("2026-08-31T12:00:00Z") },
-  });
-  const highlight = view.container.querySelector<HTMLElement>(".pending")!;
-  const control = view.container.querySelector<HTMLElement>(".field-change")!;
-  const button = control.querySelector("button")!;
-  expect(control.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 31/08/2026");
-  expect(control.textContent).not.toContain("détectée");
-  expect(control.getBoundingClientRect().left).toBeGreaterThan(
-    highlight.getBoundingClientRect().right,
-  );
-  expect(highlight.contains(control)).toBe(false);
-  expect(getComputedStyle(highlight).padding).toBe("16px");
-  expect(getComputedStyle(highlight).borderRadius).toBe("4px");
-  expect(getComputedStyle(control).backgroundColor).toBe("rgb(255, 255, 255)");
-  expect(getComputedStyle(control).borderTopWidth).toBe("1px");
-  expect(getComputedStyle(control).fontSize).toBe("16px");
-  expect(getComputedStyle(button).color).toBe("rgb(102, 102, 102)");
-  expect(button.getBoundingClientRect().width).toBe(32);
-  expect(button.getBoundingClientRect().height).toBe(32);
 });
 
 test("review waits for server persistence before updating the global aggregate", async () => {
@@ -102,13 +81,25 @@ test("review waits for server persistence before updating the global aggregate",
     }),
   );
   expect(store.notificationByDossier.get(dossierId)?.viewed).toBe(false);
+  expect(view.container.querySelector("button")?.disabled).toBe(true);
+  expect(view.container.querySelector("button")?.getAttribute("aria-busy")).toBe("true");
+  view.container.querySelector("button")!.click();
+  expect(update).toHaveBeenCalledTimes(1);
   resolve({ ...state(), viewed: true, changes: [] });
   await vi.waitFor(() => expect(store.notificationByDossier.get(dossierId)?.viewed).toBe(true));
 });
 
 test("failed persistence keeps the pending field and lets the user retry", async () => {
+  const update = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockResolvedValue({
+      ...state(),
+      viewed: true,
+      changes: [],
+    });
   store.capabilities = {
-    updateNotificationForDossier: vi.fn().mockRejectedValue(new Error("offline")),
+    updateNotificationForDossier: update,
   };
   const view = render(ProjectField, { dossierId, label: "Description", value: "Texte", change });
   view.container.querySelector("button")!.click();
@@ -117,26 +108,54 @@ test("failed persistence keeps the pending field and lets the user retry", async
   );
   expect(store.notificationByDossier.get(dossierId)?.changes).toEqual([change]);
   expect(view.container.querySelector("button")?.disabled).toBe(false);
+  expect(view.container.querySelector(".pending")).not.toBeNull();
+  await page.getByRole("button", { name: "Valider la modification : Description" }).click();
+  await vi.waitFor(() => expect(store.notificationByDossier.get(dossierId)?.viewed).toBe(true));
+  expect(update).toHaveBeenCalledTimes(2);
+  expect(view.container.querySelector("[role=alert]")).toBeNull();
 });
 
-test("the field and its review control fit a narrow viewport", async () => {
-  await page.viewport(390, 844);
-  try {
-    const view = render(ProjectField, {
-      dossierId,
-      label: "Description",
-      value: "UnTexteSansEspaces".repeat(40),
-      change,
-    });
-    const button = view.container.querySelector("button")!;
-    const highlight = view.container.querySelector<HTMLElement>(".pending")!;
-    const control = view.container.querySelector<HTMLElement>(".field-change")!;
-    expect(control.getBoundingClientRect().top).toBeGreaterThanOrEqual(
-      highlight.getBoundingClientRect().bottom,
-    );
-    expect(button.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth);
-    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
-  } finally {
-    await page.viewport(1280, 720);
-  }
+test("review is disabled without an atomic displayed snapshot", () => {
+  const update = vi.fn();
+  store.capabilities = { updateNotificationForDossier: update };
+  const view = render(FieldChangeControl, { dossierId, change });
+  expect(view.container.querySelector("button")?.disabled).toBe(true);
+  view.container.querySelector("button")!.click();
+  expect(update).not.toHaveBeenCalled();
+});
+
+test("a revision no longer bound to the displayed snapshot cannot be acknowledged", async () => {
+  const update = vi.fn();
+  store.capabilities = { updateNotificationForDossier: update };
+  const view = render(ProjectField, { dossierId, label: "Description", value: "Texte", change });
+  store.notificationByDossier.set(dossierId, {
+    ...state(),
+    changes: [{ ...change, revisions: ["revision-2" as ActionDossierId] }],
+  });
+  view.container.querySelector("button")!.click();
+  await tick();
+  expect(update).not.toHaveBeenCalled();
+  expect(view.container.querySelector("[role=alert]")?.textContent).toContain("Échec");
+});
+
+test("the review button is keyboard accessible with a visible focus indicator", async () => {
+  store.capabilities = {
+    updateNotificationForDossier: vi
+      .fn()
+      .mockResolvedValue({ ...state(), viewed: true, changes: [] }),
+  };
+  const view = render(ProjectField, { dossierId, label: "Description", value: "Texte", change });
+  const button = view.container.querySelector("button")!;
+  await page.getByText("Texte", { exact: true }).click();
+  await userEvent.keyboard("{Tab}");
+  expect(document.activeElement).toBe(button);
+  expect(getComputedStyle(button).outlineStyle).toBe("solid");
+  expect(getComputedStyle(button).outlineWidth).toBe("2px");
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(store.capabilities.updateNotificationForDossier).toHaveBeenCalledExactlyOnceWith({
+      dossier: dossierId,
+      revisions: ["revision-1"],
+    }),
+  );
 });

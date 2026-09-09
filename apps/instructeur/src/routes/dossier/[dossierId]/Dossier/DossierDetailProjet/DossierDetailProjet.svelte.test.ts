@@ -63,7 +63,7 @@ test("acknowledgment removes the field, accordion and top badges; a new revision
     (button) => button.textContent?.includes("Informations du projet"),
   )!;
   expect(accordion.textContent).toContain("Nouvelles modifications");
-  expect(top.container.textContent).toContain("Modification détectée");
+  expect(top.container.textContent).toContain("Modifié");
   accordion.click();
   await tick();
   view.container
@@ -71,7 +71,7 @@ test("acknowledgment removes the field, accordion and top badges; a new revision
     .click();
   await vi.waitFor(() => expect(accordion.textContent).not.toContain("Nouvelles modifications"));
   expect(view.container.querySelector(".pending")).toBeNull();
-  expect(top.container.textContent).not.toContain("Modification détectée");
+  expect(top.container.textContent).not.toContain("Modifié");
   store.notificationByDossier.set(dossier.id, {
     ...notification(),
     changes: [{ ...change, revisions: ["revision-2" as ActionDossierId] }],
@@ -88,7 +88,7 @@ test("acknowledgment removes the field, accordion and top badges; a new revision
   await tick();
   expect(accordion.textContent).toContain("Nouvelles modifications");
   expect(view.container.querySelector(".pending")).not.toBeNull();
-  expect(top.container.textContent).toContain("Modification détectée");
+  expect(top.container.textContent).toContain("Modifié");
 });
 
 test("read-only detail neither accesses personal notifications nor shows review controls", async () => {
@@ -106,4 +106,26 @@ test("read-only detail neither accesses personal notifications nor shows review 
   expect(view.container.querySelector('[aria-label^="Valider la modification"]')).toBeNull();
   expect(store.capabilities.updateNotificationForDossier).not.toHaveBeenCalled();
   get.mockRestore();
+});
+
+test("all accordion modification badges sit on the right next to the chevron", () => {
+  const snapshot = {
+    ...notification(),
+    changes: ["Demandeur", "Description", "especes", "piece:test"].map((field) => ({
+      ...change,
+      field,
+      revisions: [`revision-${field}` as ActionDossierId],
+    })),
+  };
+  const fresh = { ...dossier, notificationSnapshot: snapshot };
+  store.notificationByDossier.set(dossier.id, snapshot);
+  registerReviewSnapshot(fresh);
+  const view = render(DossierDetailProjet, { dossier: fresh, anomalies: undefined });
+  const badges = view.getAllByText("Nouvelles modifications");
+  expect(badges).toHaveLength(4);
+  for (const badge of badges) {
+    const button = badge.closest("button")!;
+    expect(badge.parentElement).toBe(button.lastElementChild);
+    expect(badge.nextElementSibling).toHaveClass("fr-icon-arrow-down-s-line");
+  }
 });

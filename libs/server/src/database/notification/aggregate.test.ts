@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { aggregateNotification } from "./aggregate.ts";
+import { speciesImpactChangeField } from "@pitchou/common/especes/impactGroup.ts";
 import type ActionDossier from "@pitchou/types/database/public/ActionDossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -86,6 +87,41 @@ test("initial submissions and instructor actions never become field notification
   expect(
     aggregateNotification(dossier, row, undefined, [baseline, instructor, historic]).changes,
   ).toEqual([]);
+});
+
+test("species group revisions remain independent of each other and coarse legacy revisions", () => {
+  const groupAction = (id: string, impactType: string | null, label: string) => ({
+    ...action(id),
+    type: "especes_renseignees",
+    data: {
+      field: "especes",
+      notification_field: speciesImpactChangeField(impactType),
+      label,
+      notification: true,
+    },
+  });
+  const actions = [
+    groupAction("capture-1", "P-2-1", "Capture"),
+    groupAction("capture-2", "P-2-1", "Capture"),
+    groupAction("habitat-1", "P-4-2", "Habitat"),
+    groupAction("unspecified-1", null, "Type d'impact non renseigné"),
+    { ...action("legacy", { field: "especes", notification: true }), type: "especes_renseignees" },
+  ];
+  const grouped = aggregateNotification(dossier, row, undefined, actions).changes;
+  expect(grouped.map(({ field, revisions }) => ({ field, revisions }))).toEqual([
+    { field: speciesImpactChangeField("P-2-1"), revisions: ["capture-1", "capture-2"] },
+    { field: speciesImpactChangeField("P-4-2"), revisions: ["habitat-1"] },
+    { field: speciesImpactChangeField(null), revisions: ["unspecified-1"] },
+    { field: "especes", revisions: ["legacy"] },
+  ]);
+  const remaining = aggregateNotification(
+    dossier,
+    row,
+    undefined,
+    actions.filter(({ id }) => !id.startsWith("capture")),
+  ).changes;
+  expect(remaining).toHaveLength(3);
+  expect(remaining[0].label).toBe("Habitat");
 });
 
 test("the aggregate becomes read only when no yellow notification remains", () => {

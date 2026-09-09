@@ -172,7 +172,5 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
   await page.getByRole("link", { name: "Mes dossiers", exact: true }).click();
   const card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await expect(card).toBeVisible();
-  await expect(
-    card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié|Modification détectée)/),
-  ).toHaveCount(0);
+  await expect(card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié)/)).toHaveCount(0);
 });

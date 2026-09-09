@@ -32,12 +32,12 @@ test("les dossiers avec notification non vue portent un badge de modification", 
 
   const withBadge = await page
     .getByTestId("card-dossier")
-    .filter({ has: page.getByText(/^Modification détectée (aujourd'hui|il y a)/) })
+    .filter({ has: page.getByText(/^Modifié (aujourd'hui|il y a)/) })
     .all();
 
   expect(withBadge).toHaveLength(2);
   // The badge dates the change rather than merely flagging it.
-  await expect(page.getByText(/^Modification détectée (aujourd'hui|il y a)/).first()).toBeVisible();
+  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
 });
 
 test("le filtre Nouveauté ne montre que les dossiers à notification non vue", async ({
@@ -90,7 +90,7 @@ test("le badge de modification persiste après consultation et disparaît après
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
-  const badge = card.getByText(/^Modification détectée (aujourd'hui|il y a)/);
+  const badge = card.getByText(/^Modifié (aujourd'hui|il y a)/);
 
   await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
@@ -101,7 +101,7 @@ test("le badge de modification persiste après consultation et disparaît après
   ).toBeVisible();
   // Staying in edit mode consumes arrivals/follows only, not fields.
   await page.waitForTimeout(5500);
-  await expect(page.getByText(/^Modification détectée (aujourd'hui|il y a)/).first()).toBeVisible();
+  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
   await page.getByRole("tab", { name: "Détail du projet" }).click();
   await page.getByRole("button", { name: /Informations du projet/ }).click();
   await page.getByRole("button", { name: "Valider la modification : Description" }).click();

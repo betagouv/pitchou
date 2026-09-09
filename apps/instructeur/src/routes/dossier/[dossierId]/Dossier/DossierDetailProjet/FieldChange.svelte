@@ -44,18 +44,20 @@
 {#if !readOnly.current && change}
   <span class="field-change">
     <span class="change-date"
-      >{change.modified_at ? "Modifié le" : "Modification détectée le"}
+      >Modifié le
       {formatDateAbsolute(new Date(change.modified_at ?? change.detected_at), "dd/MM/yyyy")}</span
     >
     <button
       type="button"
       class="review-check"
       disabled={saving || !displayedDossier}
+      aria-busy={saving}
       onclick={acknowledge}
       aria-label={`Valider la modification : ${change.label}`}
       title="J'ai pris connaissance de cette modification"
     >
       <span class="fr-icon-check-line fr-icon--sm" aria-hidden="true"></span>
+      Vu
     </button>
     {#if failed}<span role="alert">Échec de la validation. Réessayez.</span>{/if}
   </span>
@@ -63,23 +65,37 @@
 
 <style>
   .field-change {
+    position: relative;
     white-space: normal;
-    display: flex;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem 1rem;
     align-items: center;
-    padding: 0.6875rem 0.75rem;
-    border: 1px solid #ddd;
+    justify-self: end;
+    margin-left: auto;
+    width: fit-content;
+    padding: 1rem;
     border-radius: 0.25rem;
+    filter: drop-shadow(0 2px 4px #00000026);
     background: #fff;
     font-size: 1rem;
     line-height: 1.5rem;
     color: #666;
-    max-width: 100%;
+    max-width: min(100%, 18.75rem);
     min-width: 0;
     box-sizing: border-box;
   }
+  .field-change::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0.5rem solid transparent;
+    border-left: 0;
+    border-right-color: #fff;
+  }
   .change-date {
-    flex: 1;
     min-width: 0;
     overflow-wrap: anywhere;
   }
@@ -87,18 +103,31 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
+    gap: 0.25rem;
+    padding: 0 0.5rem;
     height: 2rem;
     border: 0;
-    border-radius: 50%;
-    background: #ddd;
-    color: #666;
-    flex-shrink: 0;
+    border-radius: 0.25rem;
+    background: var(--background-action-high-blue-france, #000091);
+    color: #fff;
+    font: inherit;
   }
-  .review-check:hover {
-    background: #ccc;
+  .review-check:hover:not(:disabled) {
+    background: var(--background-action-high-blue-france-hover, #1212ff);
+  }
+  .review-check:focus-visible {
+    outline: 2px solid #0a76f6;
+    outline-offset: 2px;
   }
   .review-check:disabled {
     opacity: 0.5;
+  }
+  [role="alert"] {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 48rem) {
+    .field-change::before {
+      display: none;
+    }
   }
 </style>

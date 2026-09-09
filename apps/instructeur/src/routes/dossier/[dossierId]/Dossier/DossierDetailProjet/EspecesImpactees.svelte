@@ -1,9 +1,10 @@
 <script lang="ts">
-  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
-  import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
+  import EspecesImpactTable from "./EspecesImpactTable.svelte";
+  import { impactGroups } from "./impactGroups.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
-  import ProjectField from "./ProjectField.svelte";
+  import FieldChange from "./FieldChange.svelte";
+  import { readOnlyMode } from "../readOnly.ts";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -13,12 +14,15 @@
     dossier: DossierFull;
     anomalies: Promise<AnomalieFichierEspeces[]> | undefined;
     change?: Change;
+    groupChanges?: Map<string | null, Change>;
   };
 
-  let { dossier, anomalies, change }: Props = $props();
+  let { dossier, anomalies, change, groupChanges = new Map() }: Props = $props();
 
+  const readOnly = readOnlyMode();
   const impacts = $derived(dossier.especesImpactees.impacts);
   const sourceFile = $derived(dossier.especesImpactees.sourceFile);
+  const groups = $derived(impactGroups(impacts, readOnly.current ? new Map() : groupChanges));
 
   async function makeFileContentBlob() {
     const especes = dossier.especesImpactees.sourceFile;
@@ -40,17 +44,89 @@
   }
 </script>
 
-<ProjectField dossierId={dossier.id} label="" value={null} {change}>
-  {#if sourceFile}
-    <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
-  {/if}
-  {#if impacts.length >= 1}
-    <div class="overflow-x-auto">
-      <EspecesProtegeesGroupedByTypeImpact
-        especesParTypeImpact={groupImpactsByTypeImpact(impacts)}
-      />
+<div class="species-detail">
+  {#if sourceFile || (!readOnly.current && change)}
+    <div class="review-row">
+      <div class="file-info">
+        {#if sourceFile}
+          <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
+        {/if}
+        {#if !readOnly.current && change}
+          <p class="fr-m-0">
+            Le fichier des espèces a été modifié. Le groupe d'impact concerné n'est pas précisé.
+          </p>
+        {/if}
+      </div>
+      <div class="review-control"><FieldChange dossierId={dossier.id} {change} /></div>
     </div>
+  {/if}
+  {#each groups as group (group.id)}
+    <section class="impact-group" data-impact-id={group.id ?? "unspecified"}>
+      <h4>
+        <span class="fr-icon-leaf-line" aria-hidden="true"></span>
+        {group.label}
+      </h4>
+      <div class="review-row">
+        <EspecesImpactTable {group} pending={!!group.change} />
+        <div class="review-control">
+          <FieldChange dossierId={dossier.id} change={group.change} />
+        </div>
+      </div>
+    </section>
   {:else}
     <p>Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.</p>
-  {/if}
-</ProjectField>
+  {/each}
+</div>
+
+<style>
+  .species-detail {
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+  }
+  .impact-group + .impact-group {
+    margin-top: 2rem;
+  }
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 2rem;
+    color: var(--text-title-grey, #161616);
+  }
+  h4 span {
+    color: var(--text-mention-grey, #666);
+    flex-shrink: 0;
+  }
+  .review-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .file-info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .review-control {
+    width: 18.75rem;
+    min-width: 0;
+  }
+  @media (max-width: 48rem) {
+    .review-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+    .review-control {
+      width: 100%;
+    }
+    .review-control:empty {
+      display: none;
+    }
+  }
+</style>

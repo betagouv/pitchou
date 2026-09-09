@@ -2,6 +2,23 @@ import { describe, expect, test } from "vitest";
 
 import { actionDisplay } from "./actionLabels.ts";
 
+test("species group revisions identify the affected impact type in history", () => {
+  expect(
+    actionDisplay("especes_renseignees", {
+      notification_field: "especes:impact_type:P-2-1",
+      label: "Capture pour captivité",
+    }),
+  ).toEqual({
+    icon: "fr-icon-leaf-line",
+    label: "Espèces impactées modifiées :",
+    value: "Capture pour captivité",
+  });
+  expect(actionDisplay("especes_renseignees", {})).toEqual({
+    icon: "fr-icon-leaf-line",
+    label: "Espèces impactées renseignées",
+  });
+});
+
 test("a deleted comment is identified without redisplaying its content", () => {
   expect(actionDisplay("commentaire_supprime", { commentaire_id: "comment-id" })).toEqual({
     icon: "fr-icon-delete-line",
