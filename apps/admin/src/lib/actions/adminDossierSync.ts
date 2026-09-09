@@ -26,3 +26,16 @@ export async function simulateDossierSync(
   await checkResponse(response, "de la simulation de synchronisation");
   return await response.json();
 }
+
+export async function simulateDossierSpecies(
+  dossierId: number,
+  impactType: string | null,
+): Promise<{ changed: boolean; message: string; actions: SimulatedAction[] }> {
+  const response = await fetch(`/api/dossiers/${dossierId}/simuler-synchronisation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "especes", impactType }),
+  });
+  await checkResponse(response, "de la simulation de modification des espèces");
+  return response.json();
+}

@@ -7,6 +7,8 @@ import { markDossiersUnreadForFollowers } from "@pitchou/server/database/notific
 
 import { parseDossierId } from "$lib/server/dossierValidation";
 import { simulatableChamps, simulationAllowed } from "$lib/server/simulation.ts";
+import { simulateSpeciesChange } from "$lib/server/simulateSpecies.ts";
+import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 
 import type { RequestHandler } from "./$types";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
@@ -23,11 +25,23 @@ export const POST: RequestHandler = async ({ params, request }) => {
   if (!simulationAllowed()) error(404);
 
   const dossierId = parseDossierId(params.dossierId);
-  const body = await request.json();
+  const body = await readJsonObject(request);
+  if (body.type === "especes") {
+    rejectUnknownProperties(body, new Set(["type", "impactType"]));
+    if (
+      body.impactType !== null &&
+      (typeof body.impactType !== "string" || !body.impactType.trim())
+    ) {
+      error(400, "Groupe d'impact invalide.");
+    }
+    const result = await simulateSpeciesChange(dossierId, body.impactType);
+    return json({ ...result, actions: (await getDossierActions(dossierId)).slice(0, 10) });
+  }
+  rejectUnknownProperties(body, new Set(["champ", "valeur"]));
   const column = body?.champ;
   const value = body?.valeur;
 
-  if (!simulatableChamps.some((champ) => champ.column === column)) {
+  if (typeof column !== "string" || !simulatableChamps.some((champ) => champ.column === column)) {
     error(400, "Champ non simulable.");
   }
   if (typeof value !== "string") {

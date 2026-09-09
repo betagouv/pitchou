@@ -28,4 +28,32 @@ test("un dossier hors DN explique pourquoi la simulation ne s'applique pas", () 
   const html = renderPanel(false);
   expect(html).toContain("ne vient pas de Démarches Numériques");
   expect(html).not.toContain("Simuler la synchronisation");
+  expect(html).not.toContain("Simuler une modification d'espèces");
+});
+
+test("species groups can be selected independently of scalar fields", () => {
+  const html = render(DossierSyncSimulation, {
+    props: {
+      dossierId: 1,
+      champs,
+      simulable: true,
+      speciesGroups: [{ id: "P-4-2", label: "Destruction d'habitat" }],
+    },
+  }).body;
+  expect(html).toContain('aria-labelledby="dossier-simulation-title"');
+  expect(html).toContain('id="dossier-simulation-title"');
+  expect(html).toContain("border-[color:var(--border-default-grey)]");
+  expect(html).toContain("bg-[var(--background-alt-grey)]");
+  expect(html).not.toContain("fr-fieldset__element");
+  expect(html).toContain("Groupe d'impact à modifier");
+  expect(html).toContain("Destruction d'habitat (P-4-2)");
+  expect(html).toContain("Simuler une modification d'espèces");
+  expect(html).toContain("Le fichier original reste inchangé");
+});
+
+test("empty species dossiers explain why the simulation is unavailable", () => {
+  const html = renderPanel(true);
+  expect(html).toContain("Aucune espèce importée dans ce dossier");
+  expect(html).not.toContain("Groupe d'impact à modifier");
+  expect(html).not.toContain("Simuler une modification d'espèces");
 });

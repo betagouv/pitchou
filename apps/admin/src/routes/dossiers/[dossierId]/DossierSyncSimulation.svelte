@@ -3,14 +3,16 @@
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
   import { simulateDossierSync, type SimulatedAction } from "$lib/actions/adminDossiers.ts";
   import Select from "@pitchou/ui/Select.svelte";
+  import DossierSpeciesSimulation from "./DossierSpeciesSimulation.svelte";
 
   type Props = {
     dossierId: number;
     champs: { column: string; label: string }[];
     /** Dossiers created in Pitchou are never touched by the synchronization. */
     simulable: boolean;
+    speciesGroups?: { id: string | null; label: string }[];
   };
-  let { dossierId, champs, simulable }: Props = $props();
+  let { dossierId, champs, simulable, speciesGroups = [] }: Props = $props();
 
   // The list comes from the server and never changes while the page is open.
   let champ = $state(untrack(() => champs[0]?.column ?? ""));
@@ -21,6 +23,8 @@
 
   function describe(action: SimulatedAction): string {
     const data = (action.data ?? {}) as Record<string, unknown>;
+    if (action.type === "especes_renseignees")
+      return `Espèces impactées : ${data.label ?? "fichier modifié"}`;
     if (action.type !== "champ_modifie") return action.type;
     const from = typeof data.from === "string" && data.from ? data.from : "(vide)";
     return `Champ ${data.field} : « ${from} » → « ${data.to ?? "(vide)"} »`;
@@ -47,11 +51,14 @@
   }
 </script>
 
-<fieldset class="fr-fieldset w-full" aria-label="Simulation d'une synchronisation">
-  <legend class="fr-fieldset__legend fr-text--bold">
+<section
+  class="fr-mt-4w w-full min-w-0 rounded-lg border border-[color:var(--border-default-grey)] bg-[var(--background-alt-grey)] p-4 sm:p-6"
+  aria-labelledby="dossier-simulation-title"
+>
+  <h2 id="dossier-simulation-title" class="fr-h5 fr-mb-2w">
     Simuler une modification du pétitionnaire
-  </legend>
-  <div class="fr-fieldset__element">
+  </h2>
+  <div>
     <p class="fr-hint-text fr-mb-2w">
       Rejoue une synchronisation Démarches Numériques sur ce dossier : le champ est réellement
       modifié, l'historique est alimenté et le dossier repasse en non lu pour les personnes qui le
@@ -86,6 +93,11 @@
         {saving ? "Simulation en cours…" : "Simuler la synchronisation"}
       </button>
       {#if errorMessage}<p class="fr-error-text">{errorMessage}</p>{/if}
+      <DossierSpeciesSimulation
+        {dossierId}
+        groups={speciesGroups}
+        onSimulated={(result) => (actions = result)}
+      />
       {#if actions}
         <h3 class="fr-text--sm fr-mt-3w fr-mb-1w">Historique du dossier après simulation</h3>
         {#if actions.length === 0}
@@ -106,4 +118,4 @@
       {/if}
     {/if}
   </div>
-</fieldset>
+</section>

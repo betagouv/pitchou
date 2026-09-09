@@ -155,6 +155,7 @@
     <DossierSyncSimulation
       dossierId={detail.dossier.id}
       champs={data.simulation.champs}
+      speciesGroups={data.simulation.speciesGroups}
       simulable={detail.source === "demarche_numerique"}
     />
   {/if}
