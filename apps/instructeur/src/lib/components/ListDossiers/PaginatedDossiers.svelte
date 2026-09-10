@@ -69,7 +69,7 @@
     <label class="fr-m-0" for="dossiers-page-size">Dossiers par page</label>
     <Select
       id="dossiers-page-size"
-      class="w-20"
+      class="w-24 shrink-0"
       options={PAGE_SIZES.map((size) => ({ value: String(size), label: String(size) }))}
       value={String(pageSize)}
       onChange={(value) => onPageSizeChange(Number(value))}

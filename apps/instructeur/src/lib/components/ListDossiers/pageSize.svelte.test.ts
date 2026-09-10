@@ -73,17 +73,24 @@ test.each(["mes-dossiers", "tous-les-dossiers"])(
     await page.getByRole("option", { name: "100", exact: true }).click();
     await followNavigation();
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(60);
+    const selectedSize = screen
+      .getByRole("combobox", { name: "Dossiers par page" })
+      .querySelector<HTMLElement>(".truncate")!;
+    expect(selectedSize.textContent?.trim()).toBe("100");
+    expect(selectedSize.scrollWidth).toBeLessThanOrEqual(selectedSize.clientWidth);
     expect(screen.queryByRole("navigation", { name: "Pagination" })).toBeNull();
   },
 );
 
 test("page-size selector remains available for an empty list on mobile", async () => {
   await page.viewport(390, 844);
-  routeState.url = new URL("http://localhost/mes-dossiers?pageSize=50&page=99");
+  routeState.url = new URL("http://localhost/mes-dossiers?pageSize=100&page=99");
   render(ListDossiers, { title: "Dossiers", dossiers: [], notificationByDossier: new Map() });
   expect(screen.getByRole("heading", { name: "Page 1 sur 1" })).toBeTruthy();
   const selector = screen.getByRole("combobox", { name: "Dossiers par page" });
-  expect(selector.textContent).toContain("50");
+  expect(selector.textContent).toContain("100");
+  const selectedSize = selector.querySelector<HTMLElement>(".truncate")!;
+  expect(selectedSize.scrollWidth).toBeLessThanOrEqual(selectedSize.clientWidth);
   expect(selector.getBoundingClientRect().right).toBeLessThanOrEqual(390);
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(390);
 });

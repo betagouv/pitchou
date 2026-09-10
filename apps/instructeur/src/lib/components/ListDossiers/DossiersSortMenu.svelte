@@ -54,15 +54,16 @@
 
 <svelte:body onclick={onBodyClick} />
 
-<div class="relative" bind:this={sortRoot}>
+<div class="relative min-w-0 max-w-full shrink-0" bind:this={sortRoot}>
   <button
     type="button"
-    class="fr-btn fr-btn--sm fr-btn--tertiary"
+    class="fr-btn fr-btn--sm fr-btn--tertiary max-w-full"
     aria-haspopup="true"
     aria-expanded={sortMenuOpen}
+    title={`Tri : ${sortLabel}`}
     onclick={() => (sortMenuOpen = !sortMenuOpen)}
   >
-    Tri : {sortLabel}
+    <span class="truncate">Tri : {sortLabel}</span>
   </button>
   {#if sortMenuOpen}
     <ul
