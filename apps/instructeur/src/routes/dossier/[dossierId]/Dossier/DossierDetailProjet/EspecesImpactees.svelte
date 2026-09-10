@@ -1,5 +1,6 @@
 <script lang="ts">
   import EspecesImpactTable from "./EspecesImpactTable.svelte";
+  import "./review-layout.css";
   import { impactGroups } from "./impactGroups.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
@@ -46,7 +47,7 @@
 
 <div class="species-detail">
   {#if sourceFile || (!readOnly.current && change)}
-    <div class="review-row">
+    <div class="review-row dossier-review-row">
       <div class="file-info">
         {#if sourceFile}
           <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
@@ -62,11 +63,11 @@
   {/if}
   {#each groups as group (group.id)}
     <section class="impact-group" data-impact-id={group.id ?? "unspecified"}>
-      <h4>
+      <h4 class="dossier-review-left">
         <span class="fr-icon-leaf-line" aria-hidden="true"></span>
         {group.label}
       </h4>
-      <div class="review-row">
+      <div class="review-row dossier-review-row">
         <EspecesImpactTable {group} pending={!!group.change} />
         <div class="review-control">
           <FieldChange dossierId={dossier.id} change={group.change} />
@@ -74,7 +75,9 @@
       </div>
     </section>
   {:else}
-    <p>Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.</p>
+    <p class="dossier-review-left">
+      Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.
+    </p>
   {/each}
 </div>
 
@@ -103,25 +106,14 @@
     color: var(--text-mention-grey, #666);
     flex-shrink: 0;
   }
-  .review-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.5rem;
-    align-items: center;
-  }
   .file-info {
     min-width: 0;
     overflow-wrap: anywhere;
   }
   .review-control {
-    width: 18.75rem;
     min-width: 0;
   }
   @media (max-width: 48rem) {
-    .review-row {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.75rem;
-    }
     .review-control {
       width: 100%;
     }

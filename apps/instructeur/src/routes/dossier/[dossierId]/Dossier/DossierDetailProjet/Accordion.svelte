@@ -20,7 +20,7 @@
 </script>
 
 <section
-  class="overflow-hidden rounded-[0.5rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)]"
+  class="rounded-[0.5rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)]"
 >
   <h3 class="fr-m-0">
     <button

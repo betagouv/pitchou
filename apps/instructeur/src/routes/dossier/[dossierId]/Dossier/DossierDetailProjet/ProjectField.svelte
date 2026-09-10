@@ -1,5 +1,6 @@
 <script lang="ts">
   import FieldChange from "./FieldChange.svelte";
+  import "./review-layout.css";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
@@ -30,7 +31,7 @@
   }
 </script>
 
-<div class="project-field" class:reviewable={pending}>
+<div class="project-field dossier-review-row">
   <div class="field-value" class:pending>
     {#if label}<strong>{label}&nbsp;:</strong>{/if}
     {#if children}{@render children()}{:else}<span class="field-text">{display(value)}</span>{/if}
@@ -42,12 +43,6 @@
   .project-field {
     margin-bottom: 1rem;
     min-width: 0;
-  }
-  .reviewable {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1rem;
-    align-items: center;
   }
   .field-value {
     min-width: 0;
@@ -62,11 +57,5 @@
     background: #ffedbf;
     border-radius: 0.25rem;
     padding: 1rem;
-  }
-  @media (max-width: 48rem) {
-    .reviewable {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0.5rem;
-    }
   }
 </style>

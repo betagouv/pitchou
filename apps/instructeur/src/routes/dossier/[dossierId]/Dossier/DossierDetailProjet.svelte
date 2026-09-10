@@ -6,6 +6,8 @@
   import Accordion from "./DossierDetailProjet/Accordion.svelte";
   import PorteurDeProjet from "./DossierDetailProjet/PorteurDeProjet.svelte";
   import InformationsProjet from "./DossierDetailProjet/InformationsProjet.svelte";
+  import Cartographie from "./DossierDetailProjet/Cartographie.svelte";
+  import "./DossierDetailProjet/review-layout.css";
   import EspecesImpactees from "./DossierDetailProjet/EspecesImpactees.svelte";
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
   import { especesCounts } from "./DossierDetailProjet/especes.ts";
@@ -59,7 +61,7 @@
   >
 {/snippet}
 
-<div class="flex flex-col gap-4">
+<div class="dossier-detail-projet flex flex-col gap-4">
   {#if needsRefresh}
     <div role="status">
       Des modifications concernent une autre version du dossier.
@@ -83,6 +85,13 @@
       {#if modifications.fieldDates.size > 0}{@render nouveau()}{/if}
     {/snippet}
     <InformationsProjet {dossier} modifiedFields={modifications.fieldDates} />
+  </Accordion>
+
+  <Accordion id="accordion-cartographie-projet" title="Cartographie du projet">
+    {#snippet badgesRight()}
+      {#if modifications.cartographie}{@render nouveau()}{/if}
+    {/snippet}
+    <Cartographie {dossier} change={modifications.cartographie} />
   </Accordion>
 
   <Accordion id="accordion-especes-impactees" title="Espèces impactées">

@@ -30,27 +30,26 @@
   }
 </script>
 
-{#if change || cartographieProjet?.features.length}
-  <ProjectField dossierId={dossier.id} label="" value={null} {change}>
-    {#if cartographieProjet && cartographieProjet.features.length >= 1}
-      <div class="fr-mt-4w flex flex-wrap gap-3 w-full items-center justify-between">
-        <h4 class="fr-m-0 fr-text--md font-bold">Cartographie du projet</h4>
-        <!-- Inline style because a child component does not access the parent's classes -->
-        <DownloadButton
-          makeFileContentBlob={makeCartographieBlob}
-          makeFilename={makeCartographieFilename}
-          style="width: 15rem; max-width: 100%;"
-          classname="fr-btn fr-btn--secondary"
-          label="Télécharger la cartographie (.geojson)"
-        />
-      </div>
-      <p>
-        Cartographie du projet&nbsp;: {cartographieProjet.features.length}
-        {cartographieProjet.features.length > 1 ? "zones tracées" : "zone tracée"}
-      </p>
+<ProjectField dossierId={dossier.id} label="" value={null} {change}>
+  {#if cartographieProjet && cartographieProjet.features.length >= 1}
+    <div class="flex justify-end">
+      <!-- Inline style because a child component does not access the parent's classes -->
+      <DownloadButton
+        makeFileContentBlob={makeCartographieBlob}
+        makeFilename={makeCartographieFilename}
+        style="width: 15rem; max-width: 100%;"
+        classname="fr-btn fr-btn--secondary"
+        label="Télécharger la cartographie (.geojson)"
+      />
+    </div>
+    <p>
+      Cartographie du projet&nbsp;: {cartographieProjet.features.length}
+      {cartographieProjet.features.length > 1 ? "zones tracées" : "zone tracée"}
+    </p>
+    {#key cartographieProjet}
       <CartographieProjet featureCollection={cartographieProjet} />
-    {:else if change}
-      <p>Aucune cartographie renseignée.</p>
-    {/if}
-  </ProjectField>
-{/if}
+    {/key}
+  {:else}
+    <p>Aucune cartographie renseignée.</p>
+  {/if}
+</ProjectField>

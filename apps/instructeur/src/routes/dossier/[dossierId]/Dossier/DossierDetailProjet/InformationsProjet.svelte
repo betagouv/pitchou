@@ -1,7 +1,6 @@
 <script lang="ts">
   import { originDemarcheNumerique } from "@pitchou/common/constants.ts";
   import Scientifique from "./Scientifique.svelte";
-  import Cartographie from "./Cartographie.svelte";
   import ProjectField from "./ProjectField.svelte";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { FieldChange } from "@pitchou/types/notification.ts";
@@ -62,7 +61,10 @@
   };
 </script>
 
-<p><strong>Dossier n°&nbsp;:</strong> {dossier.demarche_numerique_number ?? dossier.id}</p>
+<p class="dossier-review-left">
+  <strong>Dossier n°&nbsp;:</strong>
+  {dossier.demarche_numerique_number ?? dossier.id}
+</p>
 {#each fields as [label, value]}
   <ProjectField dossierId={dossier.id} {label} {value} change={modifiedFields.get(label)} />
 {/each}
@@ -81,26 +83,27 @@
   />
 {/each}
 <Scientifique {dossier} {modifiedFields} />
-<Cartographie {dossier} change={modifiedFields.get("Cartographie du projet")} />
 
-<h4 class="fr-mt-4w fr-text--md font-bold">Dossier déposé</h4>
-{#if dossier.source === "demarche_numerique"}
-  {#if dossier.demarche_numerique_number && dossier.demarche_number}
-    <a
-      class="fr-btn fr-btn--secondary fr-mb-1w"
-      target="_blank"
-      href={`${originDemarcheNumerique}/procedures/${dossier.demarche_number}/dossiers/${dossier.demarche_numerique_number}`}
-      >Dossier sur Démarche Numérique</a
-    >
-  {:else}<p class="fr-text-mention--grey">
-      Ce dossier provient de Démarches Numériques, mais son lien n'est pas disponible.
-    </p>{/if}
-{:else if dossier.source === "pitchou"}
-  <p class="fr-text-mention--grey">
-    Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
-  </p>
-{:else if importPlatforms[dossier.source]}
-  <p class="fr-text-mention--grey">
-    Ce dossier a été importé depuis {importPlatforms[dossier.source]}.
-  </p>
-{:else}<p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>{/if}
+<div class="dossier-review-left">
+  <h4 class="fr-mt-4w fr-text--md font-bold">Dossier déposé</h4>
+  {#if dossier.source === "demarche_numerique"}
+    {#if dossier.demarche_numerique_number && dossier.demarche_number}
+      <a
+        class="fr-btn fr-btn--secondary fr-mb-1w"
+        target="_blank"
+        href={`${originDemarcheNumerique}/procedures/${dossier.demarche_number}/dossiers/${dossier.demarche_numerique_number}`}
+        >Dossier sur Démarche Numérique</a
+      >
+    {:else}<p class="fr-text-mention--grey">
+        Ce dossier provient de Démarches Numériques, mais son lien n'est pas disponible.
+      </p>{/if}
+  {:else if dossier.source === "pitchou"}
+    <p class="fr-text-mention--grey">
+      Ce dossier a été créé directement dans Pitchou, sans dépôt sur Démarches Numériques.
+    </p>
+  {:else if importPlatforms[dossier.source]}
+    <p class="fr-text-mention--grey">
+      Ce dossier a été importé depuis {importPlatforms[dossier.source]}.
+    </p>
+  {:else}<p class="fr-text-mention--grey">La source de ce dossier est inconnue.</p>{/if}
+</div>

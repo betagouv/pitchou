@@ -24,7 +24,7 @@
 </script>
 
 {#if dossier.scientifique_demande_type || fields.some(([label]) => modifiedFields.has(label))}
-  <h4 class="fr-mt-4w fr-text--md font-bold">Données scientifiques</h4>
+  <h4 class="dossier-review-left fr-mt-4w fr-text--md font-bold">Données scientifiques</h4>
   {#each fields as [label, value]}
     <ProjectField dossierId={dossier.id} {label} {value} change={modifiedFields.get(label)} />
   {/each}

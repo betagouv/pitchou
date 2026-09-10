@@ -61,7 +61,7 @@
 <div class="flex flex-col gap-6">
   {#if isCompany || hasChanges("entreprise")}
     <section aria-label="Entreprise">
-      <h4 class="fr-text--md fr-mb-1w font-bold">L'entreprise</h4>
+      <h4 class="dossier-review-left fr-text--md fr-mb-1w font-bold">L'entreprise</h4>
       {#each companyProperties as property}
         {@const value = companyValue(property)}
         {@const change = modifiedFields.get(`entreprise.${property}`)}
@@ -89,7 +89,7 @@
     {@const type = kind as IdentityType}
     {#if type === "demandeur" || (type === "representant" && isCompany) || hasChanges(type) || identityProperties.some( (property) => identityValue(type, property) )}
       <section aria-label={identityTypeLabels[type]}>
-        <h4 class="fr-text--md fr-mb-1w font-bold">
+        <h4 class="dossier-review-left fr-text--md fr-mb-1w font-bold">
           {type === "representant"
             ? "Le représentant"
             : type === "demandeur"
@@ -97,7 +97,7 @@
               : "Le mandataire"}
         </h4>
         {#if type === "demandeur" && !isCompany}<p
-            class="fr-badge fr-badge--info fr-badge--no-icon fr-mb-1w"
+            class="dossier-review-left fr-badge fr-badge--info fr-badge--no-icon fr-mb-1w"
           >
             Personne physique
           </p>{/if}
@@ -136,7 +136,7 @@
 
   {#if legacyChanges.length}
     <section aria-label="Modifications antérieures">
-      <h4 class="fr-text--md fr-mb-1w font-bold">Modifications antérieures</h4>
+      <h4 class="dossier-review-left fr-text--md fr-mb-1w font-bold">Modifications antérieures</h4>
       {#each legacyChanges as change (change.field)}
         <ProjectField
           dossierId={dossier.id}

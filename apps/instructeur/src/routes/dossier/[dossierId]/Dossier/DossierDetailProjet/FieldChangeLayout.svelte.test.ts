@@ -67,7 +67,7 @@ test("desktop review control sits to the right, outside the highlight, with the 
   expect(button.getBoundingClientRect().height).toBe(32);
   const bounds = control.getBoundingClientRect();
   const fieldBounds = highlight.getBoundingClientRect();
-  expect(bounds.width).toBeGreaterThan(250);
+  expect(bounds.width).toBe(248);
   expect(bounds.width).toBeLessThan(320);
   expect(bounds.right).toBe(
     view.container.querySelector(".project-field")!.getBoundingClientRect().right,
