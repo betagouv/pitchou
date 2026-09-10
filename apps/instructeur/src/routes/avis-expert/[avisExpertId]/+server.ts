@@ -4,7 +4,7 @@ import {
   deleteAvisExpert,
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
-import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 
@@ -16,14 +16,18 @@ export const DELETE: RequestHandler = async ({ url, params }) => {
   const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
 
   await deleteAvisExpert(avisExpertId);
-  const author = await getPersonneByDossierCap(cap);
-  await logDossierActions([
-    {
-      dossier: authorizedDossierId,
-      type: "avis_supprime",
-      data: {},
-      author_personne: author?.id ?? null,
-    },
-  ]);
+  await logDossierActionsAfterCommit(
+    (async () => {
+      const author = await getPersonneByDossierCap(cap);
+      return [
+        {
+          dossier: authorizedDossierId,
+          type: "avis_supprime",
+          data: {},
+          author_personne: author?.id ?? null,
+        },
+      ];
+    })(),
+  );
   return new Response(null, { status: 204 });
 };

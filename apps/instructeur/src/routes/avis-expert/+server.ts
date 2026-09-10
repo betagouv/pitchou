@@ -1,12 +1,16 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
   addOrUpdateAvisExpert,
   addOrUpdateAvisExpertWithFichiers,
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
-import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import {
+  logDossierActions,
+  logDossierActionsAfterCommit,
+} from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -110,45 +114,52 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   if (fichierAvis || fichierSaisine) {
     await addOrUpdateAvisExpertWithFichiers(avisExpert, fichierSaisine, fichierAvis);
+    await logDossierActionsAfterCommit(
+      (async () => {
+        const author = await getPersonneByDossierCap(cap);
+        return [
+          ...(fichierSaisine
+            ? [
+                {
+                  dossier: authorizedDossierId,
+                  type: "saisine_importee",
+                  data: { expert: expert ?? null },
+                  author_personne: author?.id ?? null,
+                },
+              ]
+            : []),
+          ...(fichierAvis
+            ? [
+                {
+                  dossier: authorizedDossierId,
+                  type: "avis_importe",
+                  data: { avis: avis ?? null },
+                  author_personne: author?.id ?? null,
+                },
+              ]
+            : []),
+        ];
+      })(),
+    );
   } else {
-    await addOrUpdateAvisExpert(avisExpert);
+    await directDatabaseConnection.transaction(async (transaction) => {
+      await addOrUpdateAvisExpert(avisExpert, transaction);
+      if (id) {
+        const author = await getPersonneByDossierCap(cap, transaction);
+        await logDossierActions(
+          [
+            {
+              dossier: authorizedDossierId,
+              type: "avis_modifie",
+              data: { expert: expert ?? null, avis: avis ?? null },
+              author_personne: author?.id ?? null,
+            },
+          ],
+          transaction,
+        );
+      }
+    });
   }
-
-  const author = await getPersonneByDossierCap(cap);
-  const authorPersonne = author?.id ?? null;
-  await logDossierActions([
-    ...(fichierSaisine
-      ? [
-          {
-            dossier: authorizedDossierId,
-            type: "saisine_importee",
-            data: { expert: expert ?? null },
-            author_personne: authorPersonne,
-          },
-        ]
-      : []),
-    ...(fichierAvis
-      ? [
-          {
-            dossier: authorizedDossierId,
-            type: "avis_importe",
-            data: { avis: avis ?? null },
-            author_personne: authorPersonne,
-          },
-        ]
-      : []),
-    // An avis edited without touching its files still changes the dossier.
-    ...(id && !fichierSaisine && !fichierAvis
-      ? [
-          {
-            dossier: authorizedDossierId,
-            type: "avis_modifie",
-            data: { expert: expert ?? null, avis: avis ?? null },
-            author_personne: authorPersonne,
-          },
-        ]
-      : []),
-  ]);
 
   return new Response(null, { status: 204 });
 };

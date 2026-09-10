@@ -1,5 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import {
@@ -45,16 +46,23 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, createProperties);
-  const commentaire = await addCommentaireFromCap(cap, dossierId, parseContent(body));
-  const author = await getPersonneByDossierCap(cap);
-  await logDossierActions([
-    {
-      dossier: dossierId,
-      type: "commentaire_ajoute",
-      data: { excerpt: commentaire.content.slice(0, 80) },
-      author_personne: author?.id ?? null,
-    },
-  ]);
+  const content = parseContent(body);
+  const commentaire = await directDatabaseConnection.transaction(async (transaction) => {
+    const commentaire = await addCommentaireFromCap(cap, dossierId, content, transaction);
+    const author = await getPersonneByDossierCap(cap, transaction);
+    await logDossierActions(
+      [
+        {
+          dossier: dossierId,
+          type: "commentaire_ajoute",
+          data: { excerpt: commentaire.content.slice(0, 80) },
+          author_personne: author?.id ?? null,
+        },
+      ],
+      transaction,
+    );
+    return commentaire;
+  });
   return json(commentaire, { status: 201 });
 };
 
@@ -63,24 +71,32 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
   const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, updateProperties);
-  const updated = await updateCommentaireFromCap(
-    cap,
-    dossierId,
-    parseCommentaireId(body),
-    parseContent(body),
-  );
-  if (!updated) {
-    error(403, "Seule l'autrice ou l'auteur d'un commentaire peut le modifier.");
-  }
-  const author = await getPersonneByDossierCap(cap);
-  await logDossierActions([
-    {
-      dossier: dossierId,
-      type: "commentaire_modifie",
-      data: { excerpt: parseContent(body).slice(0, 80) },
-      author_personne: author?.id ?? null,
-    },
-  ]);
+  const commentaireId = parseCommentaireId(body);
+  const content = parseContent(body);
+  await directDatabaseConnection.transaction(async (transaction) => {
+    const updated = await updateCommentaireFromCap(
+      cap,
+      dossierId,
+      commentaireId,
+      content,
+      transaction,
+    );
+    if (!updated) {
+      error(403, "Seule l'autrice ou l'auteur d'un commentaire peut le modifier.");
+    }
+    const author = await getPersonneByDossierCap(cap, transaction);
+    await logDossierActions(
+      [
+        {
+          dossier: dossierId,
+          type: "commentaire_modifie",
+          data: { excerpt: content.slice(0, 80) },
+          author_personne: author?.id ?? null,
+        },
+      ],
+      transaction,
+    );
+  });
   return new Response(null, { status: 204 });
 };
 

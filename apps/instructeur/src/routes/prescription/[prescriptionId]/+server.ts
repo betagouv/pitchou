@@ -1,4 +1,5 @@
 import type { RequestHandler } from "./$types";
+import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import {
   deletePrescription,
@@ -15,15 +16,20 @@ export const DELETE: RequestHandler = async ({ url, params }) => {
   const dossierId = await getDossierIdFromPrescription(prescriptionId);
   const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
 
-  await deletePrescription(prescriptionId);
-  const author = await getPersonneByDossierCap(cap);
-  await logDossierActions([
-    {
-      dossier: authorizedDossierId,
-      type: "prescription_supprimee",
-      data: {},
-      author_personne: author?.id ?? null,
-    },
-  ]);
+  await directDatabaseConnection.transaction(async (transaction) => {
+    await deletePrescription(prescriptionId, transaction);
+    const author = await getPersonneByDossierCap(cap, transaction);
+    await logDossierActions(
+      [
+        {
+          dossier: authorizedDossierId,
+          type: "prescription_supprimee",
+          data: {},
+          author_personne: author?.id ?? null,
+        },
+      ],
+      transaction,
+    );
+  });
   return new Response(null, { status: 204 });
 };
