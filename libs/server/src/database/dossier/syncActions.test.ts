@@ -8,6 +8,7 @@ import { expect, test } from "vitest";
 
 import { actionsFromSyncUpdates } from "./syncActions.ts";
 import { fakeDatabase } from "../fakeDatabase.ts";
+import { makeDossierLocationColumns88444 } from "../../../../worker/synchronization-ds/makeCommonDossierColumnsForSync88444/locationColumns.ts";
 
 import type { Knex } from "knex";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
@@ -121,6 +122,52 @@ test("first submission and omitted update values are not modifications", async (
     ]),
   );
   expect(actions).toEqual([]);
+});
+
+test("the worker's serialized map matches the stored PostgreSQL object", async () => {
+  const columns = makeDossierLocationColumns88444(
+    [
+      { geoAreas: [{ geometry: { type: "Point", coordinates: [2, 48] }, source: "selection" }] },
+    ] as Parameters<typeof makeDossierLocationColumns88444>[0],
+    new Map(),
+    new Map(),
+  );
+  const stored = {
+    id: 1 as Dossier["id"],
+    demarche_numerique_number: "456",
+    projet_map: JSON.parse(columns.projet_map!),
+  };
+  const result = await actionsFromSyncUpdates([updateFor(columns)], fakeDb([stored]));
+  expect(result.actions).toEqual([]);
+  expect(result.changedDossiers.size).toBe(0);
+  const changed = await actionsFromSyncUpdates(
+    [updateFor({ projet_map: columns.projet_map!.replace("[2,48]", "[3,48]") })],
+    fakeDb([stored]),
+  );
+  expect(changed.actions).toHaveLength(1);
+  expect(changed.actions[0].data).toMatchObject({ column: "projet_map", notification: true });
+});
+
+test.each(["communes", "departments", "regions"] as const)(
+  "serialized %s are compared as JSON",
+  async (column) => {
+    const value = column === "communes" ? [{ name: "Paris", code: "75056" }] : ["75"];
+    const result = await actionsFromSyncUpdates(
+      [updateFor({ [column]: JSON.stringify(value) })],
+      fakeDb([{ id: 1 as Dossier["id"], demarche_numerique_number: "456", [column]: value }]),
+    );
+    expect(result.actions).toEqual([]);
+  },
+);
+
+test("JSON-looking text remains literal text", async () => {
+  const result = await actionsFromSyncUpdates(
+    [updateFor({ description: '{"b":2,"a":1}' })],
+    fakeDb([
+      { id: 1 as Dossier["id"], demarche_numerique_number: "456", description: '{"a":1,"b":2}' },
+    ]),
+  );
+  expect(result.actions).toHaveLength(1);
 });
 
 test("JSONB object key ordering does not reopen a reviewed map", async () => {

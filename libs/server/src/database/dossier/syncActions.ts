@@ -49,7 +49,11 @@ function toLocalDay(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-function normalize(value: unknown): string {
+const jsonColumns = new Set<keyof Dossier>(["communes", "departments", "regions", "projet_map"]);
+
+function normalize(value: unknown, column?: keyof Dossier): string {
+  // The worker serializes JSON columns; PostgreSQL returns their parsed values.
+  if (typeof value === "string" && column && jsonColumns.has(column)) value = JSON.parse(value);
   if (value === null || value === undefined) return "";
   if (value instanceof Date) return toLocalDay(value);
   if (typeof value === "object") {
@@ -64,8 +68,8 @@ function normalize(value: unknown): string {
 }
 
 /** Long texts and maps are kept as an excerpt: the historique shows a change, not a diff. */
-function excerpt(value: unknown): string | null {
-  const text = normalize(value);
+function excerpt(value: unknown, column: keyof Dossier): string | null {
+  const text = normalize(value, column);
   if (!text) return null;
   return text.length > 120 ? `${text.slice(0, 120)}…` : text;
 }
@@ -122,7 +126,7 @@ export async function actionsFromSyncUpdates(
       const before = current[column];
       const after = update[column];
       if (after === undefined) continue;
-      if (normalize(after) === normalize(before)) continue;
+      if (normalize(after, column) === normalize(before, column)) continue;
       actions.push({
         dossier: current.id,
         type: "champ_modifie",
@@ -130,8 +134,8 @@ export async function actionsFromSyncUpdates(
           field: applicantFieldLabels[column] ?? column,
           column,
           notification: true,
-          from: excerpt(before),
-          to: excerpt(after),
+          from: excerpt(before, column),
+          to: excerpt(after, column),
         },
         author_petitionnaire: true,
       });
