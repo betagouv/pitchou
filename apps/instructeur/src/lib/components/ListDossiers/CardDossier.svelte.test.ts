@@ -119,6 +119,7 @@ test("unassigned can coexist with shared notification badges and never makes a r
   expect(screen.getByText("Nouveau dossier")).toBeTruthy();
   expect(screen.getByText("Nouveau suivi")).toBeTruthy();
   expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
+  expect(screen.getByText("Sans instructeur-ice")).toHaveClass("fr-badge--purple-glycine");
   store.followRelations!.set("colleague@example.org", new SvelteSet([dossier.id]));
   await tick();
   expect(screen.queryByText("Sans instructeur-ice")).toBeNull();
