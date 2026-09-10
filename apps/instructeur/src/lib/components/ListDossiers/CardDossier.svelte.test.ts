@@ -117,7 +117,7 @@ test("unassigned can coexist with shared notification badges and never makes a r
   );
   const { rerender } = render(CardDossier, cardProps());
   expect(screen.getByText("Nouveau dossier")).toBeTruthy();
-  expect(screen.getByText("Nouveau suivi")).toBeTruthy();
+  expect(screen.queryByText("Nouveau suivi")).toBeNull();
   expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
   expect(screen.getByText("Sans instructeur-ice")).toHaveClass("fr-badge--purple-glycine");
   store.followRelations!.set("colleague@example.org", new SvelteSet([dossier.id]));
@@ -144,6 +144,12 @@ test("card menu retains assignment and deadline editing, without sharing or manu
     "Faire suivre le dossier",
     "Modifier la date de la prochaine échéance",
   ]);
+  for (const [index, icon] of ["share-forward-fill", "calendar-event-line"].entries()) {
+    const glyph = screen.getAllByRole("menuitem")[index].querySelector(`.fr-icon-${icon}`)!;
+    expect(glyph).toHaveAttribute("aria-hidden", "true");
+    expect(getComputedStyle(glyph, "::before").maskImage).toMatch(/^url\(/);
+    expect(getComputedStyle(glyph, "::before").color).toBe("rgb(0, 0, 145)");
+  }
   await fireEvent.click(
     screen.getByRole("menuitem", { name: "Modifier la date de la prochaine échéance" }),
   );

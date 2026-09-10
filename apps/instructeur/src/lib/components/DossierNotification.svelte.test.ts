@@ -50,10 +50,11 @@ afterEach(() => {
   store.notificationByDossier.clear();
 });
 
-test("arrival suppresses the modified tag without hiding the new follow", async () => {
+test("arrival takes priority over follow and modification tags without consuming them", async () => {
   const view = render(DossierNotificationBadges, { dossierId: dossier });
   expect(view.container.textContent).toContain("Nouveau dossier");
-  expect(view.container.textContent).toContain("Nouveau suivi");
+  expect(view.container.textContent).not.toContain("Nouveau suivi");
+  expect(store.notificationByDossier.get(dossier)?.new_follow).not.toBeNull();
   expect(view.container.textContent).not.toContain("Modifié");
   store.notificationByDossier.set(dossier, { ...initial(), new_arrival: null });
   await tick();

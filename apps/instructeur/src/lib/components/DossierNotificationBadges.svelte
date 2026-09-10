@@ -35,7 +35,7 @@
     >Nouveau dossier</span
   >
 {/if}
-{#if notification?.new_follow}
+{#if !notification?.new_arrival && notification?.new_follow}
   <span
     class="notification-badge"
     title={`Suivi depuis le ${formatDateAbsolute(new Date(notification.new_follow.detected_at), "dd/MM/yyyy")}`}
@@ -52,6 +52,7 @@
 
 <style>
   .notification-badge {
+    text-transform: uppercase;
     display: inline-flex;
     align-items: center;
     width: fit-content;

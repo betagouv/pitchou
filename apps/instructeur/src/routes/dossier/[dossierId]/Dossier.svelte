@@ -1,6 +1,7 @@
 <script lang="ts">
   import HeaderDossier from "./Dossier/HeaderDossier.svelte";
   import { onDestroy } from "svelte";
+  import { store } from "$lib/state/store.svelte.ts";
   import DossierNotificationReadTracker from "$lib/components/DossierNotificationReadTracker.svelte";
 
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
@@ -112,7 +113,12 @@
     ></HeaderDossier>
 
     <div class="fr-tabs dossier-tabs">
-      <DossierTabList {activeTab} onSelect={onTabChange} />
+      <DossierTabList
+        {activeTab}
+        onSelect={onTabChange}
+        hasPendingChanges={!readOnly &&
+          !!store.notificationByDossier.get(dossier.id)?.changes.length}
+      />
       {#each visibleDossierTabs(readOnly) as tab (tab.id)}
         <div
           id="tabpanel-{tab.id}-panel"

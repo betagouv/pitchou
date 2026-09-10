@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import shareForwardIcon from "@gouvfr/dsfr/dist/icons/system/share-forward-fill.svg?no-inline";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
   import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -8,11 +9,18 @@
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
     showDeadline?: boolean;
+    outlined?: boolean;
     /** Context-specific entries appended after the shared ones. */
-    extraItems?: { label: string; onClick: () => void }[];
+    extraItems?: { label: string; icon?: string; onClick: () => void }[];
   };
 
-  let { dossierId, dossierName, showDeadline = true, extraItems = [] }: Props = $props();
+  let {
+    dossierId,
+    dossierName,
+    showDeadline = true,
+    outlined = false,
+    extraItems = [],
+  }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
@@ -20,12 +28,29 @@
   let dueDateModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
-  let menuItemElement: HTMLButtonElement | undefined = $state();
+  let menuElement: HTMLUListElement | undefined = $state();
+  const items = $derived([
+    {
+      label: "Faire suivre le dossier",
+      icon: "fr-icon-share-forward-fill",
+      onClick: () => (modalOpen = true),
+    },
+    ...(showDeadline
+      ? [
+          {
+            label: "Modifier la date de la prochaine échéance",
+            icon: "fr-icon-calendar-event-line",
+            onClick: () => (dueDateModalOpen = true),
+          },
+        ]
+      : []),
+    ...extraItems,
+  ]);
 
   async function openMenu() {
     menuOpen = true;
     await tick();
-    menuItemElement?.focus();
+    menuElement?.querySelector<HTMLButtonElement>("[role=menuitem]")?.focus();
   }
 
   function closeMenu(restoreFocus = false) {
@@ -33,19 +58,9 @@
     if (restoreFocus) void tick().then(() => triggerElement?.focus());
   }
 
-  function openAssignmentModal() {
-    menuOpen = false;
-    modalOpen = true;
-  }
-
   function closeAssignmentModal() {
     modalOpen = false;
     void tick().then(() => triggerElement?.focus());
-  }
-
-  function openDueDateModal() {
-    menuOpen = false;
-    dueDateModalOpen = true;
   }
 
   function closeDueDateModal() {
@@ -58,7 +73,7 @@
   }
 
   function onWindowKeydown(event: KeyboardEvent) {
-    if (!menuOpen) return;
+    if (!menuOpen || event.defaultPrevented) return;
 
     if (event.key === "Escape") {
       event.preventDefault();
@@ -67,18 +82,31 @@
       closeMenu();
     } else if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
       event.preventDefault();
-      menuItemElement?.focus();
+      const buttons = Array.from(
+        menuElement?.querySelectorAll<HTMLButtonElement>("[role=menuitem]") ?? [],
+      );
+      const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+      const next =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? buttons.length - 1
+            : (current + (event.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+      buttons[next]?.focus();
     }
   }
 </script>
 
 <svelte:window onclick={onWindowClick} onkeydown={onWindowKeydown} />
 
-<div class="relative" bind:this={rootElement}>
+<div class="relative flex" bind:this={rootElement}>
   <button
     bind:this={triggerElement}
     type="button"
-    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm dossier-actions-trigger"
+    class="fr-btn fr-btn--sm dossier-actions-trigger"
+    class:fr-btn--secondary={outlined}
+    class:fr-btn--tertiary-no-outline={!outlined}
+    class:outlined
     aria-label={`Plus d’actions pour ${dossierName || `le dossier n°${dossierId}`}`}
     aria-haspopup="menu"
     aria-expanded={menuOpen}
@@ -100,44 +128,29 @@
 
   {#if menuOpen}
     <ul
+      bind:this={menuElement}
       id={menuId}
       class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-[22rem] max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="menu"
     >
-      <li role="none">
-        <button
-          bind:this={menuItemElement}
-          type="button"
-          role="menuitem"
-          class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
-          onclick={openAssignmentModal}
-        >
-          Faire suivre le dossier
-        </button>
-      </li>
-      {#if showDeadline}
+      {#each items as item}
         <li role="none">
           <button
             type="button"
             role="menuitem"
-            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
-            onclick={openDueDateModal}
-          >
-            Modifier la date de la prochaine échéance
-          </button>
-        </li>
-      {/if}
-      {#each extraItems as item}
-        <li role="none">
-          <button
-            type="button"
-            role="menuitem"
-            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            class="flex w-full items-center gap-2 cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
             onclick={() => {
               closeMenu();
               item.onClick();
             }}
           >
+            {#if item.icon}
+              <span
+                class="{item.icon} shrink-0 text-[color:var(--text-action-high-blue-france)]"
+                style:--share-forward-icon={`url('${shareForwardIcon}')`}
+                aria-hidden="true"
+              ></span>
+            {/if}
             {item.label}
           </button>
         </li>
@@ -155,9 +168,12 @@
 {/if}
 
 <style>
+  .fr-icon-share-forward-fill::before {
+    -webkit-mask-image: var(--share-forward-icon);
+    mask-image: var(--share-forward-icon);
+  }
+
   .dossier-actions-trigger {
-    display: inline-flex;
-    align-items: center;
     justify-content: center;
     width: 24px;
     height: 24px;
@@ -168,5 +184,18 @@
 
   .dossier-actions-trigger svg {
     flex: none;
+  }
+
+  .dossier-actions-trigger.outlined {
+    --border-action-high-blue-france: var(--blue-france-main-525, #6a6af4);
+    --hover: transparent;
+    --active: transparent;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+  }
+
+  .dossier-actions-trigger.outlined:hover {
+    --border-action-high-blue-france: #000091;
   }
 </style>
