@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import knex from "knex";
 import { up } from "../../../../database/migrations/20260906120000_personal-notification-revisions.ts";
-import { up as backfillPhysicalContacts } from "../../../../database/migrations/20260906121000_backfill-physical-applicant-contacts.ts";
+import { up as backfillPhysicalContacts } from "../../../../database/migrations/20260906121000_backfill-demandeur-personne-physique-contacts.ts";
 
 test("migration SQL preserves existing personal reads and leaves new arrivals/follows unbackfilled", async () => {
   const queries: { sql: string; bindings: unknown[] }[] = [];
