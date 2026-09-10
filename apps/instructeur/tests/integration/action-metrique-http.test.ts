@@ -40,14 +40,10 @@ test("changer la prochaine action attendue laisse une entrée d'historique et un
   expect(response.status).toBe(200);
 
   const actions = await actionsOf(dossier.id);
-  expect(actions.map(({ type }) => type)).toEqual([
-    "prochaine_action_renseignee",
-    "prochaine_action_attendue_renseignee",
-  ]);
+  expect(actions.map(({ type }) => type)).toEqual(["prochaine_action_renseignee"]);
 
   const metriques = await metriquesOf(personneId);
   expect(metriques.map(({ evenement }) => evenement).sort()).toEqual([
-    "changerProchaineActionAttendue",
     "changerProchaineActionAttendueDe",
   ]);
   // The metric now carries the time of day, not only the day.

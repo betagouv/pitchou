@@ -14,6 +14,7 @@ type InstructionState = Pick<
   | "er_mesures_sufficient"
   | "public_consultation_start_date"
   | "public_consultation_end_date"
+  | "next_action_expected"
 >;
 type DdepState = Pick<InstructionState, "ddep_required" | "er_mesures_sufficient">;
 
@@ -53,7 +54,10 @@ export function actionsFromDossierUpdate(
   if (lastPhaseEvent) add("phase_renseignee", { value: lastPhaseEvent.phase });
   if ("next_action_expected_from" in update)
     add("prochaine_action_renseignee", { value: update.next_action_expected_from ?? null });
-  if ("next_action_expected" in update)
+  if (
+    "next_action_expected" in update &&
+    (update.next_action_expected ?? null) !== (before?.next_action_expected ?? null)
+  )
     add("prochaine_action_attendue_renseignee", { value: update.next_action_expected ?? null });
   if ("next_due_date" in update)
     add("echeance_renseignee", { value: isoDay(update.next_due_date) });
