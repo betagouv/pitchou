@@ -78,7 +78,9 @@ test("lists distinct groups belonging only to this dossier, including the null g
 
 test("changes only the first selected row and reopens personal review with a new revision", async () => {
   const { owner, id, cap, other, file, reference, rows, notification } = await setup();
-  const colleague = await createInstructeurWithCapToGroup(db, { nomGroupe: "Simulation colleague" });
+  const colleague = await createInstructeurWithCapToGroup(db, {
+    nomGroupe: "Simulation colleague",
+  });
   await attachCapToGroupe(db, colleague.cap, owner.groupeId);
   await db("edge_personne_follows_dossier").insert({ dossier: id, personne: owner.id });
   const arrival = (await notification()).new_arrival;

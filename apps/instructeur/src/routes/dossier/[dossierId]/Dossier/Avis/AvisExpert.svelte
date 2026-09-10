@@ -110,9 +110,7 @@
             ></span>
             <div class="min-w-0 flex-1">
               <span class="fr-hint-text block">Date d’envoi du mail via Pitchou</span>
-              <strong class="block">
-                {formatDateAbsolute(cnpnEmailEvent.sent_at)}
-              </strong>
+              <strong class="block">{formatDateAbsolute(cnpnEmailEvent.sent_at)}</strong>
             </div>
           </li>
           <li
