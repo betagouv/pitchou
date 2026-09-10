@@ -35,6 +35,14 @@ test("an accordion has no badge once its last revision is acknowledged", () => {
   expect(nouvellesModifications([]).fieldDates.size).toBe(0);
 });
 
+test("map changes belong only to the cartographie accordion", () => {
+  const map = change("Cartographie du projet");
+  const result = nouvellesModifications([map]);
+  expect(result.cartographie).toBe(map);
+  expect(result.fieldDates.size).toBe(0);
+  expect(nouvellesModifications([]).cartographie).toBeUndefined();
+});
+
 test("property-level identity and company revisions belong to the porteur accordion", () => {
   const fields = [
     "demandeur.email",

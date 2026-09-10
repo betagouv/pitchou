@@ -12,6 +12,7 @@ export function nouvellesModifications(changes: FieldChange[]) {
   );
   const piecesJointes = changes.filter(({ field }) => field.startsWith("piece:"));
   const especes = fields.get("especes");
+  const cartographie = fields.get("Cartographie du projet");
   const especesGroups = new Map<string | null, FieldChange>();
   for (const change of fields.values()) {
     const id = parseSpeciesImpactChangeField(change.field);
@@ -23,8 +24,9 @@ export function nouvellesModifications(changes: FieldChange[]) {
         !porteurDates.has(field) &&
         !field.startsWith("piece:") &&
         field !== "especes" &&
+        field !== "Cartographie du projet" &&
         parseSpeciesImpactChangeField(field) === undefined,
     ),
   );
-  return { fieldDates, porteurDates, especes, especesGroups, piecesJointes };
+  return { fieldDates, porteurDates, cartographie, especes, especesGroups, piecesJointes };
 }
