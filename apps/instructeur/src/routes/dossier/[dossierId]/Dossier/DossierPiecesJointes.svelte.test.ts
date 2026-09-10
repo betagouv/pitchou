@@ -100,6 +100,8 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
   await page.getByRole("button", { name: "Voir dans l'onglet Contrôles" }).click();
   expect(openTab).toHaveBeenCalledWith("controles");
 
-  await page.getByRole("button", { name: "Voir dans l'onglet Instruction" }).click();
-  expect(openTab).toHaveBeenCalledWith("instruction");
+  await expect
+    .element(page.getByRole("button", { name: "Voir dans l'onglet Instruction" }))
+    .not.toBeInTheDocument();
+  expect(openTab).toHaveBeenCalledTimes(3);
 });

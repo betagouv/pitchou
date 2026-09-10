@@ -88,9 +88,7 @@
     <PieceJointeSection
       title="Autres"
       emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
-      tabLabel="Instruction"
       pieces={piecesAutres}
-      openTab={() => openTab("instruction")}
     />
   {/if}
 </section>
