@@ -5,6 +5,7 @@ import type {
   EvenementAssignDossierFollowersDetails,
   EvenementClickNavbarLinkDetails,
   EvenementOpenModalAddPieceJointeDetails,
+  EvenementPartagerDossierDetails,
 } from "@pitchou/types/evenement.d.ts";
 
 export function isDossierDetails(details: any): details is { dossierId: number } {
@@ -33,6 +34,23 @@ export function isAssignDossierFollowersDetails(
     addedSet.size === added.length &&
     removedSet.size === removed.length &&
     [...addedSet].every((email) => !removedSet.has(email))
+  );
+}
+
+export function isPartagerDossierDetails(details: any): details is EvenementPartagerDossierDetails {
+  if (Object(details) !== details) return false;
+  const added = details.addedGroupes;
+  const removed = details.removedGroupes;
+  return Boolean(
+    Number.isInteger(details.dossierId) &&
+    Number.isInteger(details.groupeCount) &&
+    details.groupeCount >= 0 &&
+    Array.isArray(added) &&
+    Array.isArray(removed) &&
+    // A groupe cannot be both added to and removed from the same share.
+    added.every((groupe: unknown) => typeof groupe === "string" && groupe) &&
+    removed.every((groupe: unknown) => typeof groupe === "string" && groupe) &&
+    !added.some((groupe: string) => removed.includes(groupe)),
   );
 }
 

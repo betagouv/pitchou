@@ -5,6 +5,8 @@
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
+  import { readOnlyMode } from "./readOnly.ts";
+  import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
   import Pictogramme from "$lib/components/DSFR/Pictogramme.svelte";
   import CnpnEmailModal from "./CnpnEmailModal.svelte";
 
@@ -35,10 +37,20 @@
     );
   }
 
+  const readOnly = readOnlyMode();
+
   const idModalAddPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
+  // Read-only mode only exposes the official avis — the avis of the other
+  // experts consulted by the instructeur stay internal.
+  const visibleAvisExpert = $derived(
+    readOnly.current
+      ? dossier.avisExpert.filter(({ expert }) => isOfficialAvisExpert(expert))
+      : dossier.avisExpert,
+  );
+
   let sortedAvisExpert = $derived(
-    [...dossier.avisExpert].sort((a, b) => {
+    [...visibleAvisExpert].sort((a, b) => {
       const dateA = new Date(a.avis_date ?? a.saisine_date ?? 0);
       const dateB = new Date(b.avis_date ?? b.saisine_date ?? 0);
       return differenceInDays(dateB, dateA);
@@ -67,78 +79,91 @@
       </div>
     {:else}
       <p>
-        <span class="fr-mb-3w"
-          >Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier.</span
-        >
+        <span class="fr-mb-3w">
+          {readOnly.current
+            ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
+            : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
+        </span>
       </p>
     {/if}
-    <button
-      type="button"
-      class="fr-btn fr-mt-3w {sortedAvisExpert.length === 0
-        ? ''
-        : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line"
-      aria-controls={idModalAddPieceJointeAvis}
-      data-fr-opened="false"
-      onclick={() =>
-        sendEvenement({
-          type: "ouvrirModaleAjouterPieceJointe",
-          details: { dossierId: dossier.id, source: "ongletAvis" },
-        })}
-    >
-      Ajouter un avis ou une saisine
-    </button>
+    {#if !readOnly.current}
+      <button
+        type="button"
+        class="fr-btn fr-mt-3w {sortedAvisExpert.length === 0
+          ? ''
+          : 'fr-btn--secondary'} fr-btn--icon-left fr-icon-attachment-line"
+        aria-controls={idModalAddPieceJointeAvis}
+        data-fr-opened="false"
+        onclick={() =>
+          sendEvenement({
+            type: "ouvrirModaleAjouterPieceJointe",
+            details: { dossierId: dossier.id, source: "ongletAvis" },
+          })}
+      >
+        Ajouter un avis ou une saisine
+      </button>
+    {/if}
   </div>
 
-  <aside
-    class="fr-callout flex-[1_1_0] min-w-0 max-[62rem]:flex-[0_0_auto] max-[62rem]:self-stretch"
-  >
-    <h3 class="fr-callout__title">Vous devez saisir le CNPN ?</h3>
-    <div class="fr-callout__text">
-      <p class="fr-text--bold fr-mb-2w">Voici le protocole&nbsp;:</p>
-      <ol class="flex flex-col gap-4 fr-m-0">
-        <li>
-          <strong>Vérifier que le dossier est prêt</strong>
-          <span class="fr-hint-text block">
-            (liste des espèces et de leurs impacts, dates de début des travaux, cartographie de
-            l'emprise, etc.)
-          </span>
-        </li>
-        <li>
-          <strong>Ajouter votre saisine dans Pitchou</strong>
-          <ul class="fr-mt-1w fr-mb-0 flex flex-col gap-2">
-            <li>La rédiger ou utiliser la génération de document</li>
-            <li>La stocker dans cet onglet</li>
-          </ul>
-        </li>
-        <li>
-          <strong>Envoyer le mail</strong>
-          <ul class="fr-mt-1w fr-mb-2w flex flex-col gap-2">
-            <li>Cliquer sur l'adresse mail du secrétariat CNPN pour initier la création du mail</li>
-            <li>Sélectionner les PJ, dont la saisine, qui seront intégrées au mail</li>
-            <li>Vérifier, compléter si besoin et envoyer</li>
-          </ul>
-          <button
-            type="button"
-            class="fr-link flex w-full items-center gap-3 rounded border border-solid border-[color:var(--border-action-high-blue-france)] fr-p-1w text-left [overflow-wrap:anywhere] hover:bg-[var(--background-contrast-grey)]"
-            aria-haspopup="dialog"
-            onclick={openCnpnEmailModal}
-            onpointerenter={preloadCnpnEmailEditor}
-            onfocus={preloadCnpnEmailEditor}
-          >
-            <Pictogramme name="mail-send" size={48} />
-            <span> derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr </span>
-          </button>
-        </li>
-        <li>
-          <strong>Quand vous le recevrez par mail, stocker l'avis CNPN dans cet onglet</strong>
-        </li>
-      </ol>
-    </div>
-  </aside>
+  <!-- The saisine protocol is guidance for the instructeur, not dossier data. -->
+  {#if !readOnly.current}
+    <aside
+      class="fr-callout flex-[1_1_0] min-w-0 max-[62rem]:flex-[0_0_auto] max-[62rem]:self-stretch"
+    >
+      <h3 class="fr-callout__title">Vous devez saisir le CNPN ?</h3>
+      <div class="fr-callout__text">
+        <p class="fr-text--bold fr-mb-2w">Voici le protocole&nbsp;:</p>
+        <ol class="flex flex-col gap-4 fr-m-0">
+          <li>
+            <strong>Vérifier que le dossier est prêt</strong>
+            <span class="fr-hint-text block">
+              (liste des espèces et de leurs impacts, dates de début des travaux, cartographie de
+              l'emprise, etc.)
+            </span>
+          </li>
+          <li>
+            <strong>Ajouter votre saisine dans Pitchou</strong>
+            <ul class="fr-mt-1w fr-mb-0 flex flex-col gap-2">
+              <li>La rédiger ou utiliser la génération de document</li>
+              <li>La stocker dans cet onglet</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Envoyer le mail</strong>
+            <ul class="fr-mt-1w fr-mb-2w flex flex-col gap-2">
+              <li>
+                Cliquer sur l'adresse mail du secrétariat CNPN pour initier la création du mail
+              </li>
+              <li>Sélectionner les PJ, dont la saisine, qui seront intégrées au mail</li>
+              <li>Vérifier, compléter si besoin et envoyer</li>
+            </ul>
+            <button
+              type="button"
+              class="fr-link flex w-full items-center gap-3 rounded border border-solid border-[color:var(--border-action-high-blue-france)] fr-p-1w text-left [overflow-wrap:anywhere] hover:bg-[var(--background-contrast-grey)]"
+              aria-haspopup="dialog"
+              onclick={openCnpnEmailModal}
+              onpointerenter={preloadCnpnEmailEditor}
+              onfocus={preloadCnpnEmailEditor}
+            >
+              <Pictogramme name="mail-send" size={48} />
+              <span>
+                derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr
+              </span>
+            </button>
+          </li>
+          <li>
+            <strong>Quand vous le recevrez par mail, stocker l'avis CNPN dans cet onglet</strong>
+          </li>
+        </ol>
+      </div>
+    </aside>
+  {/if}
 </div>
 
-<ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
+{#if !readOnly.current}
+  <ModalAddPieceJointe id={idModalAddPieceJointeAvis} {dossier} source="ongletAvis" />
 
-{#if cnpnEmailModalOpen}
-  <CnpnEmailModal {dossier} {email} {followers} onClose={() => (cnpnEmailModalOpen = false)} />
+  {#if cnpnEmailModalOpen}
+    <CnpnEmailModal {dossier} {email} {followers} onClose={() => (cnpnEmailModalOpen = false)} />
+  {/if}
 {/if}

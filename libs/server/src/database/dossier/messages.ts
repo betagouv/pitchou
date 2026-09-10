@@ -22,12 +22,3 @@ export async function dumpDossierMessages(
   }
   return databaseConnection("message").insert(messages).onConflict("demarche_numerique_id").merge();
 }
-
-export async function getDossierMessages(
-  dossierId: Dossier["id"],
-  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Partial<Message>[] | null> {
-  return databaseConnection("message")
-    .select(["content", "date", "sender_email"])
-    .where({ dossier: dossierId });
-}

@@ -7,6 +7,7 @@
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { readOnlyMode } from "./readOnly.ts";
 
   import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 
@@ -15,6 +16,8 @@
   };
 
   let { dossier }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   const idModalAddDecisionAdministrative = "modale-ajouter-decision-administrative";
 
@@ -66,26 +69,30 @@
     {/each}
   {/if}
 
-  <button
-    type="button"
-    class={classes}
-    aria-controls={idModalAddDecisionAdministrative}
-    data-fr-opened="false"
-    onclick={() =>
-      sendEvenement({
-        type: "ouvrirModaleAjouterPieceJointe",
-        details: { dossierId: dossier.id, source: "ongletControles" },
-      })}
-  >
-    Rajouter une décision administrative
-  </button>
+  {#if !readOnly.current}
+    <button
+      type="button"
+      class={classes}
+      aria-controls={idModalAddDecisionAdministrative}
+      data-fr-opened="false"
+      onclick={() =>
+        sendEvenement({
+          type: "ouvrirModaleAjouterPieceJointe",
+          details: { dossierId: dossier.id, source: "ongletControles" },
+        })}
+    >
+      Rajouter une décision administrative
+    </button>
+  {/if}
 </div>
 
-<ModalAddPieceJointe
-  id={idModalAddDecisionAdministrative}
-  {dossier}
-  typesPiecesJointes={["Décision administrative"]}
-  typePieceJointeInitial="Décision administrative"
-  showTypeChoice={false}
-  source="ongletControles"
-/>
+{#if !readOnly.current}
+  <ModalAddPieceJointe
+    id={idModalAddDecisionAdministrative}
+    {dossier}
+    typesPiecesJointes={["Décision administrative"]}
+    typePieceJointeInitial="Décision administrative"
+    showTypeChoice={false}
+    source="ongletControles"
+  />
+{/if}

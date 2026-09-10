@@ -22,6 +22,16 @@
       order: "asc",
       label: "Date de dernière modification : les plus anciennes",
     },
+    {
+      key: "nextDueDate",
+      order: "desc",
+      label: "Date d’échéance : les moins urgentes",
+    },
+    {
+      key: "nextDueDate",
+      order: "asc",
+      label: "Date d’échéance : les plus urgentes",
+    },
   ];
 
   const sortLabel = $derived(

@@ -13,7 +13,7 @@ export const phases: Set<DossierPhase> = new Set([
  * The phases a dossier goes through, in order. « Classé sans suite » is left out: it ends
  * the dossier early, wherever it stood, so it has no place in the progression.
  */
-const orderedPhases: DossierPhase[] = [
+export const orderedPhases: readonly DossierPhase[] = [
   "Accompagnement amont",
   "Étude recevabilité",
   "Instruction",
@@ -35,7 +35,6 @@ export const prochaineActionAttenduePar: Set<DossierNextActionExpectedFrom> = ne
   "CNPN/CSRPN",
   "Pétitionnaire",
   "Consultation du public",
-  "Autre administration",
-  "Autre",
-  "Personne",
+  "Préfet-e",
+  "Tierce personne/administration",
 ]);

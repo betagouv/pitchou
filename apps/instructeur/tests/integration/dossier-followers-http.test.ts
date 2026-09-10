@@ -2,37 +2,18 @@ import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import {
   attachDossierToGroupe,
-  attachCapToGroupe,
-  createCapDossier,
   createDossier,
   createInstructeurWithDossier,
   createPersonne,
 } from "../factories/index.ts";
-import { attachPersonneSuitDossier, createNotification } from "../factories/notification.ts";
+import { attachPersonneSuitDossier } from "../factories/notification.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-
-async function createGroupeMember(
-  groupeId: string,
-  email: string,
-  identity: { first_names?: string; last_name?: string } = {},
-) {
-  const personne = await createPersonne(db, { email, ...identity });
-  const { cap } = await createCapDossier(db, personne.codeAcces);
-  await attachCapToGroupe(db, cap, groupeId);
-  return { ...personne, cap };
-}
-
-function listCandidates(cap: string, dossierId: number) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers?cap=${cap}`);
-}
-
-function updateFollowers(cap: string, dossierId: number, personneEmails: string[]) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers?cap=${cap}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ personneEmails }),
-  });
-}
+import {
+  createGroupeMember,
+  listCandidates,
+  updateFollowers,
+  notificationFor,
+} from "./dossier-followers-http.ts";
 
 test("GET lists every member of the dossier groupe and their follow state", async () => {
   const assigner = await createInstructeurWithDossier(db, { email: "assigner@test.fr" });
@@ -63,11 +44,6 @@ test("POST atomically adds and removes dossier followers and creates first-follo
   const removed = await createGroupeMember(assigner.groupeId, "removed@test.fr");
   const added = await createGroupeMember(assigner.groupeId, "added@test.fr");
   await attachPersonneSuitDossier(db, removed.id, assigner.dossier.id);
-  await createNotification(db, {
-    personneId: removed.id,
-    dossierId: assigner.dossier.id,
-    vue: false,
-  });
 
   const response = await updateFollowers(assigner.cap, assigner.dossier.id, [
     assigner.email,
@@ -86,12 +62,18 @@ test("POST atomically adds and removes dossier followers and creates first-follo
     .join("personne", "personne.id", "notification.personne")
     .where({ dossier: assigner.dossier.id })
     .orderBy("personne.email")
-    .select(["personne.email", "notification.viewed"]);
+    .select(["personne.email", "notification.viewed", "notification.follow_revision"]);
   expect(notifications).toEqual([
-    { email: "added@test.fr", viewed: false },
-    { email: "assigner@test.fr", viewed: false },
-    { email: "removed@test.fr", viewed: true },
+    { email: "added@test.fr", viewed: false, follow_revision: expect.any(String) },
+    { email: "assigner@test.fr", viewed: false, follow_revision: expect.any(String) },
+    { email: "removed@test.fr", viewed: false, follow_revision: null },
   ]);
+  // Unfollowing clears only the follow notification, not the unseen arrival.
+  expect(await notificationFor(removed.cap, assigner.dossier.id)).toMatchObject({
+    viewed: false,
+    new_follow: null,
+    new_arrival: { detected_at: expect.any(String) },
+  });
 });
 
 test("POST rejects a personne outside the dossier groupe without changing followers", async () => {
@@ -108,27 +90,43 @@ test("POST rejects a personne outside the dossier groupe without changing follow
   ).resolves.toMatchObject([{ personne: member.id, dossier: assigner.dossier.id }]);
 });
 
-test("following again does not recreate a viewed first-follow notification", async () => {
+test("refollow creates a new personal revision without changing the applicant modification date", async () => {
   const assigner = await createInstructeurWithDossier(db, { email: "assigner@test.fr" });
   const member = await createGroupeMember(assigner.groupeId, "member@test.fr");
 
   expect((await updateFollowers(assigner.cap, assigner.dossier.id, [member.email])).status).toBe(
     204,
   );
-  await db("notification")
-    .where({ personne: member.id, dossier: assigner.dossier.id })
-    .update({ viewed: true });
+  const first = await notificationFor(member.cap, assigner.dossier.id);
+  expect(first.updated_at).toBeNull();
+  expect(first.new_follow).not.toBeNull();
+  const read = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${member.cap}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      dossier: assigner.dossier.id,
+      arrival: true,
+      followRevision: first.new_follow!.revision,
+    }),
+  });
+  expect(read.status).toBe(200);
+  expect(await read.json()).toMatchObject({ viewed: true, new_follow: null, updated_at: null });
   expect((await updateFollowers(assigner.cap, assigner.dossier.id, [])).status).toBe(204);
   expect((await updateFollowers(assigner.cap, assigner.dossier.id, [member.email])).status).toBe(
     204,
   );
 
-  await expect(
-    db("notification")
-      .select("viewed")
-      .where({ personne: member.id, dossier: assigner.dossier.id })
-      .first(),
-  ).resolves.toEqual({ viewed: true });
+  const again = await notificationFor(member.cap, assigner.dossier.id);
+  expect(again).toMatchObject({ viewed: false, new_arrival: null, updated_at: null });
+  expect(again.new_follow!.revision).not.toBe(first.new_follow!.revision);
+  expect(new Date(again.new_follow!.detected_at).getTime()).toBeGreaterThanOrEqual(
+    new Date(first.new_follow!.detected_at).getTime(),
+  );
+  // Saving the same assignment is not another transition.
+  await updateFollowers(assigner.cap, assigner.dossier.id, [member.email]);
+  expect((await notificationFor(member.cap, assigner.dossier.id)).new_follow).toEqual(
+    again.new_follow,
+  );
 });
 
 test("the self-follow endpoint creates a notification on first follow", async () => {
@@ -150,10 +148,15 @@ test("the self-follow endpoint creates a notification on first follow", async ()
   expect(response.status).toBe(204);
   await expect(
     db("notification")
-      .select("viewed")
+      .select("viewed", "updated_at", "follow_at", "follow_revision")
       .where({ personne: instructeur.id, dossier: instructeur.dossier.id })
       .first(),
-  ).resolves.toEqual({ viewed: false });
+  ).resolves.toEqual({
+    viewed: false,
+    updated_at: null,
+    follow_at: expect.any(Date),
+    follow_revision: expect.any(String),
+  });
 });
 
 test("concurrent follower replacements are serialized", async () => {

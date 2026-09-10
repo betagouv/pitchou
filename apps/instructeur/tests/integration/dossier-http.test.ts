@@ -28,14 +28,14 @@ test("POST /dossier/:id met à jour le dossier et sa phase", async () => {
   const timestamp = "2026-07-19T12:00:00.000Z";
 
   const response = await updateDossier(cap, dossier.id, {
-    free_comment: "À instruire en priorité",
+    onagre_demande_identifier: "2026-01-00042",
     evenementsPhase: [phaseEvent(dossier.id, timestamp)],
   });
 
   expect(response.status).toBe(200);
   await expect(
-    db("dossier").select("free_comment").where({ id: dossier.id }).first(),
-  ).resolves.toEqual({ free_comment: "À instruire en priorité" });
+    db("dossier").select("onagre_demande_identifier").where({ id: dossier.id }).first(),
+  ).resolves.toEqual({ onagre_demande_identifier: "2026-01-00042" });
   await expect(db("evenement_phase_dossier").where({ dossier: dossier.id })).resolves.toHaveLength(
     1,
   );
@@ -62,14 +62,14 @@ test("POST /dossier/:id annule la mise à jour si l'évènement de phase échoue
   await db("evenement_phase_dossier").insert(event);
 
   const response = await updateDossier(cap, dossier.id, {
-    free_comment: "Ne doit pas être enregistré",
+    onagre_demande_identifier: "Ne doit pas être enregistré",
     evenementsPhase: [event],
   });
 
   expect(response.status).toBe(500);
   await expect(
-    db("dossier").select("free_comment").where({ id: dossier.id }).first(),
-  ).resolves.toEqual({ free_comment: "" });
+    db("dossier").select("onagre_demande_identifier").where({ id: dossier.id }).first(),
+  ).resolves.toEqual({ onagre_demande_identifier: "" });
 });
 
 test("POST /dossier/:id rejette un évènement destiné à un autre dossier", async () => {
@@ -86,4 +86,24 @@ test("POST /dossier/:id rejette un évènement destiné à un autre dossier", as
   await expect(
     db("evenement_phase_dossier").where({ dossier: unrelatedDossier.id }),
   ).resolves.toHaveLength(0);
+});
+
+test("POST /dossier/:id étiquette la ddep avec l'état résultant, pas seulement le delta", async () => {
+  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@ddep.fr" });
+
+  expect(
+    (await updateDossier(cap, dossier.id, { ddep_required: false, er_mesures_sufficient: true }))
+      .status,
+  ).toBe(200);
+  // The form only sends what changed: passing from one « Non » to the other
+  // leaves `ddep_required` out, since it is already false on both sides.
+  expect((await updateDossier(cap, dossier.id, { er_mesures_sufficient: false })).status).toBe(200);
+
+  const actions = await db("action_dossier")
+    .where({ dossier: dossier.id, type: "ddep_renseignee" })
+    .orderBy("created_at");
+  expect(actions.map(({ data }) => (data as { value: string }).value)).toEqual([
+    "Non, mesures Éviter, Réduire (ER) suffisantes",
+    "Non, sans objet",
+  ]);
 });

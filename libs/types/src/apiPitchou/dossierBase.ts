@@ -15,6 +15,8 @@ type DossierPersonnesImpliqueesSummary = {
 export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
   demandeur_address: string;
   deposant_email: string | null;
+  deposant_phone: string | null;
+  deposant_role: string | null;
   demandeur_personne_physique_email: string | null;
   demandeur_personne_physique_address: string | null;
   demandeur_personne_physique_phone: string | null;
@@ -39,6 +41,8 @@ export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary &
   mandataire_last_name: string | null;
   mandataire_first_names: string | null;
   mandataire_email: string | null;
+  mandataire_phone: string | null;
+  mandataire_role: string | null;
 };
 
 export type DossierPhase =
@@ -54,9 +58,8 @@ export type DossierNextActionExpectedFrom =
   | "CNPN/CSRPN"
   | "Pétitionnaire"
   | "Consultation du public"
-  | "Autre administration"
-  | "Autre"
-  | "Personne";
+  | "Préfet-e"
+  | "Tierce personne/administration";
 
 type DossierLocalisation = {
   communes: { name: string; code: string; postalCode: string }[] | null | undefined;
@@ -100,7 +103,8 @@ export type DossierSummary = Pick<
   | "enjeu"
   | "linked_to_ae_regime"
   | "next_action_expected_from"
-  | "free_comment"
+  | "next_action_expected"
+  | "next_due_date"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
   DossierPersonnesImpliqueesSummary & {
@@ -108,4 +112,6 @@ export type DossierSummary = Pick<
     avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
     especesImpacteesCD_REF: string[];
     especesImpacteesRenseignees: boolean;
+    /** Content of the dossier's most recent commentaire. */
+    latestCommentaire: string | null;
   };

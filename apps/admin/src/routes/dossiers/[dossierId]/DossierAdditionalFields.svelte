@@ -1,7 +1,6 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
   import TriStateSelect from "./TriStateSelect.svelte";
@@ -11,7 +10,9 @@
 
   const typeOptions = ["Hirondelle", "Cigogne"];
   const hasLegacyType = $derived(!!model.type && !typeOptions.includes(model.type));
-  const typeSelectOptions: SelectEntry<string>[] = $derived([
+  // A value predating the current list stays selectable, so opening a dossier
+  // never silently drops it.
+  const typeSelectOptions = $derived([
     { value: "", label: "Non renseigné" },
     ...(hasLegacyType ? [{ value: model.type, label: `${model.type} (valeur historique)` }] : []),
     ...typeOptions.map((option) => ({ value: option, label: option })),
@@ -24,7 +25,12 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
       <div class="fr-select-group w-full">
         <label class="fr-label" for="edit-type">Type de dossier</label>
-        <Select id="edit-type" options={typeSelectOptions} bind:value={model.type} />
+        <Select
+          id="edit-type"
+          class="fr-mt-1w"
+          options={typeSelectOptions}
+          bind:value={model.type}
+        />
       </div>
       <div class="fr-input-group min-w-[14rem]">
         <label class="fr-label" for="edit-depot-date">Date de dépôt</label>

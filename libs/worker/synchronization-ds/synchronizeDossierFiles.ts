@@ -6,6 +6,8 @@ import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { Knex } from "knex";
+import type { FileId } from "@pitchou/types/database/public/File.ts";
+import { isChampDSPieceJustificative } from "@pitchou/common/typeguards.ts";
 import {
   getFichiersEspecesImpactees88444,
   getPiecesJointesPetitionnaire88444,
@@ -58,9 +60,18 @@ export function synchronizeDownloadedDossierFiles(
   transaction: Knex.Transaction,
 ) {
   const especesImpactees = downloads.especesImpactees.then((downloadedFiles) => {
-    if (downloadedFiles && downloadedFiles.size >= 1) {
+    const files = new Map<number, FileId | null>(downloadedFiles);
+    const fieldId = pitchouKeyToChampDS.get(
+      "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
+    );
+    for (const dossier of dossiersDS) {
+      const field = dossier.champs.find(({ id }) => id === fieldId);
+      if (isChampDSPieceJustificative(field) && field.files.length === 0)
+        files.set(dossier.number, null);
+    }
+    if (files.size >= 1) {
       return synchronizeFichiersEspecesImpacteesFromDS88444(
-        downloadedFiles,
+        files,
         dossierIdByDNNumber,
         transaction,
       );

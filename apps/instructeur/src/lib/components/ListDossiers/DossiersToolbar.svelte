@@ -12,9 +12,11 @@
     showFilterInstructeurice: boolean;
     showFilterEnjeu: boolean;
     showFilterActionInstructeur: boolean;
+    showFilterUnread: boolean;
     withoutInstructeurActive: boolean;
     enjeuActive: boolean;
     actionInstructeurActive: boolean;
+    unreadActive: boolean;
     activeFilterCount: number;
     numberFiltered: number;
     /** Names of the instructeur's services (groupes instructeurs) */
@@ -27,6 +29,7 @@
     onToggleWithoutInstructeur: () => void;
     onToggleEnjeu: () => void;
     onToggleActionInstructeur: () => void;
+    onToggleUnread: () => void;
     onOpenFilters: () => void;
     onRemoveFilter: (next: DossiersQuery) => void;
     onSort: (key: SortKey, order: SortOrder) => void;
@@ -39,9 +42,11 @@
     showFilterInstructeurice,
     showFilterEnjeu,
     showFilterActionInstructeur,
+    showFilterUnread,
     withoutInstructeurActive,
     enjeuActive,
     actionInstructeurActive,
+    unreadActive,
     activeFilterCount,
     numberFiltered,
     services,
@@ -52,6 +57,7 @@
     onToggleWithoutInstructeur,
     onToggleEnjeu,
     onToggleActionInstructeur,
+    onToggleUnread,
     onOpenFilters,
     onRemoveFilter,
     onSort,
@@ -99,6 +105,18 @@
         onclick={onToggleActionInstructeur}
       >
         Dossiers où je dois agir
+      </button>
+    {/if}
+
+    {#if showFilterUnread}
+      <button
+        type="button"
+        class="fr-btn fr-btn--sm fr-btn--secondary [&.active]:shadow-[inset_0_0_0_2px_var(--border-active-blue-france,#000091)]"
+        aria-pressed={unreadActive}
+        class:active={unreadActive}
+        onclick={onToggleUnread}
+      >
+        Modifications non lues
       </button>
     {/if}
 

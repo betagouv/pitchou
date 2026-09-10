@@ -1,18 +1,23 @@
 <script lang="ts">
   import { tick } from "svelte";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
+  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
+    showDeadline?: boolean;
+    /** Context-specific entries appended after the shared ones. */
+    extraItems?: { label: string; onClick: () => void }[];
   };
 
-  let { dossierId, dossierName }: Props = $props();
+  let { dossierId, dossierName, showDeadline = true, extraItems = [] }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
   let modalOpen = $state(false);
+  let dueDateModalOpen = $state(false);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuItemElement: HTMLButtonElement | undefined = $state();
@@ -35,6 +40,16 @@
 
   function closeAssignmentModal() {
     modalOpen = false;
+    void tick().then(() => triggerElement?.focus());
+  }
+
+  function openDueDateModal() {
+    menuOpen = false;
+    dueDateModalOpen = true;
+  }
+
+  function closeDueDateModal() {
+    dueDateModalOpen = false;
     void tick().then(() => triggerElement?.focus());
   }
 
@@ -63,7 +78,7 @@
   <button
     bind:this={triggerElement}
     type="button"
-    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm min-w-8 justify-center px-2 text-[1.5rem] leading-none"
+    class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm dossier-actions-trigger"
     aria-label={`Plus d’actions pour ${dossierName || `le dossier n°${dossierId}`}`}
     aria-haspopup="menu"
     aria-expanded={menuOpen}
@@ -76,13 +91,17 @@
       }
     }}
   >
-    <span aria-hidden="true">&#8942;</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="12" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+    </svg>
   </button>
 
   {#if menuOpen}
     <ul
       id={menuId}
-      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 min-w-[14rem] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-[22rem] max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="menu"
     >
       <li role="none">
@@ -96,6 +115,33 @@
           Faire suivre le dossier
         </button>
       </li>
+      {#if showDeadline}
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            onclick={openDueDateModal}
+          >
+            Modifier la date de la prochaine échéance
+          </button>
+        </li>
+      {/if}
+      {#each extraItems as item}
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            onclick={() => {
+              closeMenu();
+              item.onClick();
+            }}
+          >
+            {item.label}
+          </button>
+        </li>
+      {/each}
     </ul>
   {/if}
 </div>
@@ -103,3 +149,24 @@
 {#if modalOpen}
   <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeAssignmentModal} />
 {/if}
+
+{#if showDeadline && dueDateModalOpen}
+  <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
+{/if}
+
+<style>
+  .dossier-actions-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
+  }
+
+  .dossier-actions-trigger svg {
+    flex: none;
+  }
+</style>

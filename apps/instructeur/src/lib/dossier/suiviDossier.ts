@@ -1,6 +1,5 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { store } from "$lib/state/store.svelte.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
 import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
 
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -48,7 +47,7 @@ export function instructeurFollowsDossier(
       throw error;
     }
 
-    sendEvenement({ type: "suivreUnDossier", details: { dossierId } });
+    // The metric event is recorded server-side, with the historique entry.
     try {
       await loadNotificationByDossierForCurrentInstructeur();
     } catch (error) {

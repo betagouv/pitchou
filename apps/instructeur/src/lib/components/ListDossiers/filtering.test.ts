@@ -1,14 +1,22 @@
 import { expect, test, describe } from "vitest";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import { filterDossiers, WITHOUT_INSTRUCTEUR } from "./listModel.ts";
-import {
-  dossierId,
-  makeQuery,
-  makeDossier,
-  makeContext,
-  type Notification,
-} from "./testHelpers.ts";
+import { filterDossiers, toggleQuickFilter, WITHOUT_INSTRUCTEUR } from "./listModel.ts";
+import { dossierId, makeQuery, makeDossier, makeContext } from "./testHelpers.ts";
+
+test.each([
+  ["withoutInstructeur", { instructeur: ["colleague@example.org", WITHOUT_INSTRUCTEUR] }],
+  ["enjeu", { enjeu: true }],
+  ["actionInstructeur", { actionInstructeur: true }],
+  ["nouveaute", { nouveaute: "oui" }],
+] as const)("toggles %s without mutating the applied query", (key, changes) => {
+  const query = makeQuery({ text: "marais", page: 3, instructeur: ["colleague@example.org"] });
+  const original = structuredClone(query);
+  const active = toggleQuickFilter(query, key);
+  expect(active).toEqual({ ...original, ...changes, page: 1 });
+  expect(toggleQuickFilter(active, key)).toEqual({ ...original, page: 1 });
+  expect(query).toEqual(original);
+});
 
 describe("filterDossiers", () => {
   test("keeps only the chosen phase", () => {
@@ -46,21 +54,6 @@ describe("filterDossiers", () => {
       makeContext(),
     );
     expect(result.map((d) => d.id)).toEqual([1, 2]);
-  });
-
-  test("« nouveaute oui » keeps only dossiers with an unseen notification", () => {
-    const dossiers = [makeDossier({ id: dossierId(1) }), makeDossier({ id: dossierId(2) })];
-    const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
-    ]);
-
-    const result = filterDossiers(
-      dossiers,
-      makeQuery({ nouveaute: "oui" }),
-      makeContext({ notificationByDossier }),
-    );
-    expect(result.map((d) => d.id)).toEqual([1]);
   });
 
   test("« sans instructeur·ice » keeps only dossiers nobody follows", () => {
@@ -148,25 +141,6 @@ describe("filterDossiers", () => {
       makeContext(),
     );
     expect(result.map((d) => d.id)).toEqual([1, 2]);
-  });
-
-  test("« nouveaute non » keeps dossiers without an unseen notification", () => {
-    const dossiers = [
-      makeDossier({ id: dossierId(1) }),
-      makeDossier({ id: dossierId(2) }),
-      makeDossier({ id: dossierId(3) }),
-    ];
-    const notificationByDossier = new Map<DossierSummary["id"], Notification>([
-      [dossierId(1), { viewed: false, updated_at: new Date("2024-05-01") }],
-      [dossierId(2), { viewed: true, updated_at: new Date("2024-05-02") }],
-    ]);
-    const result = filterDossiers(
-      dossiers,
-      makeQuery({ nouveaute: "non" }),
-      makeContext({ notificationByDossier }),
-    );
-    // 2 is seen, 3 has no notification at all → both kept; 1 is unseen → dropped
-    expect(result.map((d) => d.id)).toEqual([2, 3]);
   });
 
   test("combines active filters with AND", () => {

@@ -212,6 +212,12 @@ export default interface Dossier {
 
   /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
   source: DossierSource;
+
+  /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
+  next_due_date: Date | null;
+
+  /** Next expected action, e.g. 'Compléter le dossier'; the available values depend on next_action_expected_from */
+  next_action_expected: string | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -429,6 +435,12 @@ export interface DossierInitializer {
    * Default value: 'unknown'::text
    */
   source?: DossierSource;
+
+  /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
+  next_due_date?: Date | null;
+
+  /** Next expected action, e.g. 'Compléter le dossier'; the available values depend on next_action_expected_from */
+  next_action_expected?: string | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -633,4 +645,10 @@ export interface DossierMutator {
 
   /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
   source?: DossierSource;
+
+  /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
+  next_due_date?: Date | null;
+
+  /** Next expected action, e.g. 'Compléter le dossier'; the available values depend on next_action_expected_from */
+  next_action_expected?: string | null;
 }

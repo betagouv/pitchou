@@ -1,10 +1,7 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { gotoMesDossiers, setupMesDossiers as setup } from "./mesDossiersFixtures.ts";
 
-test("dossiers triés : notifications non vues (récentes d'abord) puis depot_date décroissante", async ({
-  page,
-  db,
-}) => {
+test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
@@ -13,6 +10,7 @@ test("dossiers triés : notifications non vues (récentes d'abord) puis depot_da
     "4 dossiers dans votre service : Groupe de test",
   );
 
+  // A dossier with an unseen nouveauté is no longer pinned on top: only the dépôt date counts.
   const cards = await page.getByTestId("card-dossier").all();
   const expectedOrder = [
     fixtures.unviewedRecent.name,
@@ -25,16 +23,21 @@ test("dossiers triés : notifications non vues (récentes d'abord) puis depot_da
   }
 });
 
-test("les dossiers avec notification non vue portent un badge Nouveauté", async ({ page, db }) => {
+test("les dossiers avec notification non vue portent un badge de modification", async ({
+  page,
+  db,
+}) => {
   await setup(db);
   await gotoMesDossiers(page);
 
   const withBadge = await page
     .getByTestId("card-dossier")
-    .filter({ has: page.locator("p.fr-badge", { hasText: /Nouveauté/i }) })
+    .filter({ has: page.getByText(/^Modifié (aujourd'hui|il y a)/) })
     .all();
 
   expect(withBadge).toHaveLength(2);
+  // The badge dates the change rather than merely flagging it.
+  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
 });
 
 test("le filtre Nouveauté ne montre que les dossiers à notification non vue", async ({
@@ -78,19 +81,33 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await expect(tags).toHaveCount(0);
 });
 
-test("le badge Nouveauté disparaît après consultation du dossier", async ({ page, db }) => {
+test("le badge de modification persiste après consultation et disparaît après validation explicite", async ({
+  page,
+  db,
+}) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
-  const badge = card.locator("p.fr-badge", { hasText: /Nouveauté/i });
+  const badge = card.getByText(/^Modifié (aujourd'hui|il y a)/);
 
   await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
 
   await title.click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(fixtures.unviewedRecent.name);
+  await expect(
+    page.getByRole("heading", { level: 2, name: fixtures.unviewedRecent.name }),
+  ).toBeVisible();
+  // Staying in edit mode consumes arrivals/follows only, not fields.
+  await page.waitForTimeout(5500);
+  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
+  await page.getByRole("tab", { name: "Détail du projet" }).click();
+  await page.getByRole("button", { name: /Informations du projet/ }).click();
+  await page.getByRole("button", { name: "Valider la modification : Description" }).click();
+  await expect(
+    page.getByRole("button", { name: "Valider la modification : Description" }),
+  ).toHaveCount(0);
 
   await page.goto("/mes-dossiers");
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();

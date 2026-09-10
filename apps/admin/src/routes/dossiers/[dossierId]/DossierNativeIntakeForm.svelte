@@ -157,14 +157,13 @@
         </label>
         <Select
           id="native-dossier-groupe"
+          class="fr-mt-1w"
+          placeholder="Sélectionner un groupe"
           required
-          options={[
-            { value: "", label: "Sélectionner un groupe" },
-            ...groupes.map((groupe) => ({
-              value: groupe.id,
-              label: `${groupe.name} (DN ${groupe.demarche_number})`,
-            })),
-          ]}
+          options={groupes.map((groupe) => ({
+            value: groupe.id,
+            label: `${groupe.name} (DN ${groupe.demarche_number})`,
+          }))}
           bind:value={model.groupeInstructeurs}
         />
         {#if groupesLoadError}<p class="fr-error-text">{groupesLoadError}</p>{/if}

@@ -8,6 +8,8 @@ import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
 } from "@pitchou/server/database/decision_administrative.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 const decisionProperties = new Set([
@@ -79,7 +81,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
       cap,
       transaction,
     );
-    if (!dossiersAccessibles.has(decisionData.dossier)) {
+    // Full access only: a dossier shared in read-only mode with the groupe is
+    // consulted, never instructed.
+    if (dossiersAccessibles.get(decisionData.dossier) !== "complet") {
       await transaction.rollback();
       error(
         400,
@@ -90,6 +94,19 @@ export const POST: RequestHandler = async ({ url, request }) => {
     const id = decisionData.id
       ? await updateDecisionAdministrative(decisionData, transaction)
       : await addDecisionAdministrativeWithFichier(decisionData, transaction);
+
+    const author = await getPersonneByDossierCap(cap);
+    await logDossierActions(
+      [
+        {
+          dossier: decisionData.dossier,
+          type: decisionData.id ? "decision_modifiee" : "decision_importee",
+          data: { decision_type: decisionData.type ?? null },
+          author_personne: author?.id ?? null,
+        },
+      ],
+      transaction,
+    );
 
     await transaction.commit();
     return json(id);

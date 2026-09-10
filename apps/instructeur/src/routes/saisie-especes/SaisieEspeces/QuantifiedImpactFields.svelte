@@ -1,8 +1,14 @@
 <script lang="ts">
   import { individusRanges } from "./especeFieldset.ts";
+  import Select from "@pitchou/ui/Select.svelte";
   import type { DescriptionImpact } from "@pitchou/types/especes.d.ts";
   type Props = { impact: DescriptionImpact; indexEspece?: number; indexImpact?: number };
   let { impact = $bindable(), indexEspece, indexImpact }: Props = $props();
+
+  const individusOptions = [
+    { value: undefined, label: "-" },
+    ...individusRanges.map((range) => ({ value: range, label: range })),
+  ];
 </script>
 
 {#if impact.activité}
@@ -12,14 +18,12 @@
         <label class="fr-label" for="input-espece-{indexEspece}-nombre-individus-{indexImpact}"
           >Nombre d’individus</label
         >
-        <select
-          bind:value={impact.nombreIndividus}
-          class="fr-select"
+        <Select
           id="input-espece-{indexEspece}-nombre-individus-{indexImpact}"
-        >
-          <option value={undefined}>-</option>
-          {#each individusRanges as range}<option value={range}>{range}</option>{/each}
-        </select>
+          class="fr-mt-1w"
+          options={individusOptions}
+          bind:value={impact.nombreIndividus}
+        />
       </div>
     {/if}
     {#if impact.activité["Nids"] === "Oui"}

@@ -16,17 +16,9 @@ export function buildDossierUpdateColumns(
   managedByDn: boolean,
   activiteCodeByLabel: ReadonlyMap<string, string>,
 ) {
-  const nativeColumns: Record<string, unknown> = {
-    free_comment: model.freeComment,
-    next_action_expected_from: nullableText(model.nextActionExpectedFrom),
-    onagre_demande_identifier: model.onagreDemandeIdentifier,
-    enjeu: model.enjeu,
-    ddep_required: nullableBoolean(model.ddepRequired),
-    er_mesures_sufficient: nullableBoolean(model.erMesuresSufficient),
-    public_consultation_start_date: nullableDate(model.publicConsultationStartDate),
-    public_consultation_end_date: nullableDate(model.publicConsultationEndDate),
-  };
-  if (managedByDn) return nativeColumns;
+  // A dossier managed by Démarche Numérique has no column the admin form may
+  // write: everything it displays comes from the synchronization.
+  if (managedByDn) return {};
   const departments =
     model.locationScope === "communes"
       ? [...new Set(model.communes.map(communeDepartmentCode).filter(Boolean))]
@@ -87,6 +79,5 @@ export function buildDossierUpdateColumns(
     scientifique_other_intervenants_details: showsIntervenants
       ? nullableText(model.scientifiqueOtherIntervenantsDetails)
       : null,
-    ...nativeColumns,
   };
 }

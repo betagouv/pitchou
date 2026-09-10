@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Select from "../Select.svelte";
+
   import type { TaxrefFiltres } from "./taxrefList.ts";
 
   type Props = {
@@ -21,38 +23,36 @@
   {:else}
     <div class="flex flex-col gap-3 max-w-[48rem]">
       <div
-        class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+        class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
       >
         <label class="fr-label" for="select-regne">Règne</label>
-        <select
-          value={selectedRegne}
-          onchange={(e) => onChange({ regne: e.currentTarget.value })}
-          aria-label="Règne choisi"
-          class="fr-select"
+        <Select
           id="select-regne"
-        >
-          <option value="">Tous les règnes</option>
-          {#each filtres.regnes as regne}
-            <option value={regne}>{regne}</option>
-          {/each}
-        </select>
+          class="flex-auto"
+          ariaLabel="Règne choisi"
+          options={[
+            { value: "", label: "Tous les règnes" },
+            ...filtres.regnes.map((regne) => ({ value: regne, label: regne })),
+          ]}
+          value={selectedRegne}
+          onChange={(regne) => onChange({ regne })}
+        />
       </div>
       <div
-        class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none [&_.fr-select]:flex-auto"
+        class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
       >
         <label class="fr-label" for="select-classe">Classe</label>
-        <select
-          value={selectedClasse}
-          onchange={(e) => onChange({ classe: e.currentTarget.value })}
-          aria-label="Classe choisie"
-          class="fr-select"
+        <Select
           id="select-classe"
-        >
-          <option value="">Toutes les classes</option>
-          {#each filtres.classes as classe}
-            <option value={classe}>{classe}</option>
-          {/each}
-        </select>
+          class="flex-auto"
+          ariaLabel="Classe choisie"
+          options={[
+            { value: "", label: "Toutes les classes" },
+            ...filtres.classes.map((classe) => ({ value: classe, label: classe })),
+          ]}
+          value={selectedClasse}
+          onChange={(classe) => onChange({ classe })}
+        />
       </div>
     </div>
   {/if}

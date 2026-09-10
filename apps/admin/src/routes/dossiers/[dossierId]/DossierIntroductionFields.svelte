@@ -21,6 +21,8 @@
   const hasLegacyActivity = $derived(
     !!model.mainActivite && !activites.some(({ label }) => label === model.mainActivite),
   );
+  // A value predating the current list stays selectable, so opening a dossier
+  // never silently drops it.
   const activiteSelectOptions: SelectEntry<string>[] = $derived([
     { value: "", label: "Non renseignée" },
     ...(hasLegacyActivity
@@ -63,6 +65,7 @@
       </label>
       <Select
         id="edit-main-activite"
+        class="fr-mt-1w"
         options={activiteSelectOptions}
         listPlacement={{ preferredHeight: 480, minWidth: 480 }}
         bind:value={model.mainActivite}

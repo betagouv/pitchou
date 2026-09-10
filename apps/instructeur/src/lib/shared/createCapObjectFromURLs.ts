@@ -6,9 +6,10 @@ import type {
   PitchouInstructeurCapabilities,
 } from "@pitchou/types/capabilities.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { default as Message } from "@pitchou/types/database/public/Message.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
+import { createDossierPartageCapabilities } from "./dossierPartageCapabilities.ts";
+import { createDossierCommentaireCapabilities } from "./dossierCommentaireCapabilities.ts";
 import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
 import {
   RequestError,
@@ -61,39 +62,31 @@ function wrapModifierDossier(
   return modifierDossier;
 }
 
-function wrapListerMessages(
-  url: string | undefined,
-): ((dossierId: Dossier["id"]) => Promise<Message[]>) | undefined {
-  if (!url) return undefined;
-
-  if (!url.includes(dossierIdURLParam)) {
-    throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`);
-  }
-
-  return function listerMessages(dossierId: Dossier["id"]): Promise<Message[]> {
-    // @ts-ignore
-    return json(url.replace(dossierIdURLParam, dossierId), commonRequestInit);
-  };
-}
-
 function wrapGetDossierFull(
   url: string | undefined,
 ): ((dossierId: Dossier["id"]) => Promise<DossierFull>) | undefined {
   if (!url) return undefined;
 
   if (!url.includes(dossierIdURLParam)) {
-    throw new Error(`La capability listerMessages ne contient pas '${dossierIdURLParam}'`);
+    throw new Error(`La capability recupérerDossierComplet ne contient pas '${dossierIdURLParam}'`);
   }
 
   /**
    * Fetches the dossier data and formats it.
    */
-  return async function getDossierFull(dossierId: Dossier["id"]): Promise<DossierFull> {
-    const ret: DossierFull | undefined = await json(
-      // @ts-ignore
-      url.replace(dossierIdURLParam, dossierId),
-      commonRequestInit,
+  return async function getDossierFull(
+    dossierId: Dossier["id"],
+    readOnly = false,
+  ): Promise<DossierFull> {
+    const dossierURL = new URL(
+      url.replace(dossierIdURLParam, String(dossierId)),
+      globalThis.location.href,
     );
+    // Asking for the read-only projection is the client's half of the contract:
+    // the server is the one that decides what it contains.
+    if (readOnly) dossierURL.searchParams.set("lecture", "1");
+
+    const ret: DossierFull | undefined = await json(dossierURL.toString(), commonRequestInit);
 
     if (!ret) {
       throw new TypeError(`Aucun dossier trouvé avec id '${dossierId}'`);
@@ -164,8 +157,9 @@ export default function (
     listFollowRelations: wrapGETUrl(capURLs.listFollowRelations),
     updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),
     ...createDossierFollowerCapabilities(capURLs),
+    ...createDossierPartageCapabilities(capURLs),
+    ...createDossierCommentaireCapabilities(capURLs),
     listerEvenementsPhaseDossier: wrapGETUrl(capURLs.listerEvenementsPhaseDossier),
-    listerMessages: wrapListerMessages(capURLs.listerMessages),
     modifierDossier: wrapModifierDossier(capURLs.modifierDossier),
     envoyerEmailCnpn: wrapEnvoyerEmailCnpn(capURLs.envoyerEmailCnpn),
     remplirAnnotations: wrapPOSTUrl(capURLs.remplirAnnotations),

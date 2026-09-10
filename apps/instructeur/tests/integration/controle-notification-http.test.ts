@@ -98,12 +98,16 @@ test("POST /dossiers/notifications accepte le schéma courant", async () => {
   });
   await db("notification").insert({ personne, dossier: dossier.id, viewed: false });
 
-  const response = await postNotification(cap, { dossier: dossier.id, viewed: true });
+  const response = await postNotification(cap, { dossier: dossier.id, arrival: true });
 
-  expect(response.status).toBe(204);
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({ viewed: true, new_arrival: null });
   await expect(
-    db("notification").select("viewed").where({ personne, dossier: dossier.id }).first(),
-  ).resolves.toEqual({ viewed: true });
+    db("notification")
+      .select("viewed", "arrival_viewed")
+      .where({ personne, dossier: dossier.id })
+      .first(),
+  ).resolves.toEqual({ viewed: true, arrival_viewed: true });
 });
 
 test("POST /dossiers/notifications rejette une propriété inconnue sans mise à jour", async () => {
@@ -116,12 +120,15 @@ test("POST /dossiers/notifications rejette une propriété inconnue sans mise à
   });
   await db("notification").insert({ personne, dossier: dossier.id, viewed: false });
 
-  const response = await postNotification(cap, { dossier: dossier.id, viewed: true, vue: true });
+  const response = await postNotification(cap, { dossier: dossier.id, arrival: true, vue: true });
 
   expect(response.status).toBe(400);
   await expect(
-    db("notification").select("viewed").where({ personne, dossier: dossier.id }).first(),
-  ).resolves.toEqual({ viewed: false });
+    db("notification")
+      .select("viewed", "arrival_viewed")
+      .where({ personne, dossier: dossier.id })
+      .first(),
+  ).resolves.toEqual({ viewed: false, arrival_viewed: false });
 });
 
 test("POST /dossiers/notifications rejette un type de propriété incorrect", async () => {
@@ -134,10 +141,13 @@ test("POST /dossiers/notifications rejette un type de propriété incorrect", as
   });
   await db("notification").insert({ personne, dossier: dossier.id, viewed: false });
 
-  const response = await postNotification(cap, { dossier: dossier.id, viewed: "true" });
+  const response = await postNotification(cap, { dossier: dossier.id, arrival: "true" });
 
   expect(response.status).toBe(400);
   await expect(
-    db("notification").select("viewed").where({ personne, dossier: dossier.id }).first(),
-  ).resolves.toEqual({ viewed: false });
+    db("notification")
+      .select("viewed", "arrival_viewed")
+      .where({ personne, dossier: dossier.id })
+      .first(),
+  ).resolves.toEqual({ viewed: false, arrival_viewed: false });
 });

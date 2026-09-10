@@ -1,6 +1,5 @@
 <script lang="ts">
   import Select from "@pitchou/ui/Select.svelte";
-  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import type { TriState } from "./dossierAdminFormModel.ts";
 
@@ -13,7 +12,7 @@
 
   let { id, label, value, onChange }: Props = $props();
 
-  const options: SelectEntry<TriState>[] = [
+  const options: { value: TriState; label: string }[] = [
     { value: "", label: "Non renseigné" },
     { value: "oui", label: "Oui" },
     { value: "non", label: "Non" },
@@ -22,5 +21,5 @@
 
 <div class="fr-select-group w-full">
   <label class="fr-label" for={id}>{label}</label>
-  <Select {id} {options} {value} {onChange} />
+  <Select {id} class="fr-mt-1w" {options} {value} {onChange} />
 </div>

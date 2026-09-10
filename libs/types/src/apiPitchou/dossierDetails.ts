@@ -12,6 +12,13 @@ import type {
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
 import type { QuantifiedImpact } from "../especesImpact.d.ts";
+import type { DossierNotification } from "../notification.ts";
+
+/**
+ * What a cap may do with a dossier: instruct it, or only consult the part of it
+ * that its service shared with another one.
+ */
+export type DossierAccess = "complet" | "lecture";
 
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
@@ -86,6 +93,17 @@ export type DossierFull = Omit<
 > &
   DossierCommonData &
   DossierPersonnesImpliqueesFull & {
+    /**
+     * What the cap that fetched this dossier may do with it. `lecture` means the
+     * payload is already narrowed and no write will be accepted, whatever the UI
+     * offers — one cap is `complet` for its own dossiers and `lecture` for the
+     * ones another service shared, so this cannot be answered globally.
+     */
+    access: DossierAccess;
+    /** Personal review state read in the same database snapshot as these values. Never shared. */
+    notificationSnapshot?: DossierNotification;
+    /** Content of the dossier's most recent commentaire. */
+    latestCommentaire: string | null;
     projet_map: GeoJSONFeatureCollection | null;
     especesImpactees: FrontEndImpactOnEspecesWithSourceFile;
     evenementsPhase: EvenementPhaseDossier[];
