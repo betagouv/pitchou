@@ -4,6 +4,7 @@ export function formatDossierFull(ret: DossierFull): DossierFull {
   for (const key of [
     "intervention_start_date",
     "intervention_end_date",
+    "commissioning_date",
     "depot_date",
     "public_consultation_start_date",
     "public_consultation_end_date",
