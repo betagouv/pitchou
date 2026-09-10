@@ -50,7 +50,7 @@ describe("filterDossiers", () => {
     ];
     const result = filterDossiers(
       dossiers,
-      makeQuery({ departement: ["33", "49"] }),
+      makeQuery({ departement: ["33", "49"], departementSelection: "custom" }),
       makeContext(),
     );
     expect(result.map((d) => d.id)).toEqual([1, 2]);

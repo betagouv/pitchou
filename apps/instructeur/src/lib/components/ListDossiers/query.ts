@@ -4,6 +4,12 @@ import type {
   DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PitchouState } from "$lib/state/store.svelte.ts";
+import {
+  readLocalisation,
+  writeLocalisation,
+  type Localisation,
+  type DepartementSelection,
+} from "./localisation.ts";
 
 /** Sentinel value for the « sans instructeur·ice » option of the instructeur filter */
 export const WITHOUT_INSTRUCTEUR = "sans-instructeur";
@@ -74,6 +80,7 @@ export type DossiersContext = {
  * Search / filters / sort / pagination, read from (and serialized to) the URL.
  * The categorical filters are multi-valued (OR within each filter): a dossier
  * matches when its value is among the selected ones; an empty array means « no filter ».
+ * Departments instead use departementSelection to distinguish all from none within a scope.
  */
 export type DossiersQuery = {
   text: string;
@@ -83,6 +90,8 @@ export type DossiersQuery = {
   espece: string[];
   prochaineAction: DossierNextActionExpectedFrom[];
   departement: string[];
+  localisation: Localisation;
+  departementSelection: DepartementSelection;
   instructeur: string[];
   nouveaute: Nouveaute;
   actionInstructeur: boolean;
@@ -134,7 +143,7 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
   for (const activite of query.activite) params.append("activite", activite);
   for (const cdRef of query.espece) params.append("espece", cdRef);
   for (const action of query.prochaineAction) params.append("action", action);
-  for (const departement of query.departement) params.append("departement", departement);
+  writeLocalisation(params, query);
   for (const instructeur of query.instructeur) params.append("instructeur", instructeur);
   if (query.nouveaute) params.set("nouveaute", query.nouveaute);
   if (query.actionInstructeur) params.set("actionInstructeur", "1");
@@ -172,7 +181,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
     activite: params.getAll("activite"),
     espece: params.getAll("espece"),
     prochaineAction: params.getAll("action") as DossierNextActionExpectedFrom[],
-    departement: params.getAll("departement"),
+    ...readLocalisation(params),
     instructeur: params.getAll("instructeur"),
     nouveaute: nouveaute === "oui" || nouveaute === "non" ? nouveaute : "",
     actionInstructeur: params.get("actionInstructeur") === "1",

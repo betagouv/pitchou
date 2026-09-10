@@ -131,6 +131,7 @@ describe("buildDossiersSearchParams", () => {
       activite: ["carrieres"],
       prochaineAction: ["Pétitionnaire"],
       departement: ["64", "33"],
+      departementSelection: "custom",
       espece: ["60630", "2938"],
       instructeur: [WITHOUT_INSTRUCTEUR, "jane@doe.fr"],
       nouveaute: "oui",

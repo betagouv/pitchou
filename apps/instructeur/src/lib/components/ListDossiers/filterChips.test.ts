@@ -19,6 +19,7 @@ describe("countActiveFilters", () => {
     const query = makeQuery({
       phase: ["Instruction"],
       departement: ["64"],
+      departementSelection: "custom",
       nouveaute: "oui",
       actionInstructeur: true,
     });

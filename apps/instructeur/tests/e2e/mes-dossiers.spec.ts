@@ -5,9 +5,9 @@ test("dossiers triés par défaut sur la date de dépôt décroissante", async (
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
 
-  // The counter names the instructeur's single service.
+  // Mes dossiers counts followed dossiers in the assigned geographic scope.
   await expect(page.getByTestId("compteur-dossier")).toContainText(
-    "4 dossiers dans votre service : Groupe de test",
+    "4 dossiers suivis dans vos territoires d'affectation",
   );
 
   // A dossier with an unseen nouveauté is no longer pinned on top: only the dépôt date counts.
@@ -54,7 +54,9 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   // Filters apply live: the URL and the background list update as soon as the box is ticked,
   // before « Rechercher » is pressed.
   await expect(page).toHaveURL(/nouveaute=oui/);
-  await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
+  await expect(page.getByTestId("compteur-dossier")).toContainText(
+    "2 dossiers suivis dans vos territoires d'affectation",
+  );
 
   // The footer button reflects the live result count.
   await expect(modal.getByRole("button", { name: "Voir 2 résultats" })).toBeVisible();
@@ -62,7 +64,9 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
 
   // Closing the panel keeps the applied filter.
   await expect(page).toHaveURL(/nouveaute=oui/);
-  await expect(page.getByTestId("compteur-dossier")).toContainText("2 dossiers dans votre service");
+  await expect(page.getByTestId("compteur-dossier")).toContainText(
+    "2 dossiers suivis dans vos territoires d'affectation",
+  );
 
   const cards = await page.getByTestId("card-dossier").all();
   const expectedOrder = [fixtures.unviewedRecent.name, fixtures.unviewedOld.name];
@@ -77,7 +81,9 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await nouveauteTag.click();
 
   await expect(page).not.toHaveURL(/nouveaute=oui/);
-  await expect(page.getByTestId("compteur-dossier")).toContainText("4 dossiers dans votre service");
+  await expect(page.getByTestId("compteur-dossier")).toContainText(
+    "4 dossiers suivis dans vos territoires d'affectation",
+  );
   await expect(tags).toHaveCount(0);
 });
 
