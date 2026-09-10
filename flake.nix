@@ -28,6 +28,8 @@
             cups
             dbus.lib
             expat
+            fontconfig
+            freetype
             gdk-pixbuf
             glib
             gtk3
@@ -37,13 +39,17 @@
             nspr
             nss
             pango
+            stdenv.cc.cc.lib
             libx11
             libxcb
             libxcomposite
+            libxcursor
             libxdamage
             libxext
             libxfixes
+            libxi
             libxrandr
+            libxrender
           ]
         );
       in
@@ -63,7 +69,7 @@
             mkdir -p "$PWD/.corepack"
             corepack enable --install-directory="$PWD/.corepack"
             corepack prepare pnpm@11.17.0 --activate
-            export PATH="$PWD/.corepack:$PATH"
+            export PATH="$PWD/.corepack:$PWD/node_modules/.bin:$PATH"
             ${pkgs.lib.optionalString isLinux ''
               export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath playwrightLibs}:''${LD_LIBRARY_PATH:-}"
             ''}
