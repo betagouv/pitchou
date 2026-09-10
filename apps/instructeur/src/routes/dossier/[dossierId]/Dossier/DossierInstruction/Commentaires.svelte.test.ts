@@ -6,6 +6,11 @@ import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
 import { setDossierFull, store } from "$lib/state/store.svelte.ts";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 import Commentaires from "./Commentaires.svelte";
+import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+
+vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 
 const readOnly = vi.hoisted(() => ({ current: false }));
 vi.mock(import("../readOnly.ts"), () => ({
@@ -51,6 +56,31 @@ afterEach(() => {
   store.capabilities = {};
   store.fullDossiers.clear();
   store.dossierSummaries.clear();
+});
+
+test("a full refresh started before a comment save cannot replace the new summary", async () => {
+  const response = Promise.withResolvers<DossierFull>();
+  const fetch = vi.fn(() => response.promise);
+  store.capabilities.recupérerDossierComplet = fetch;
+  store.capabilities.ajouterCommentaire = vi.fn(async (_id, content) => ({
+    ...list[0],
+    id: "added",
+    content,
+  }));
+  render(Commentaires, { dossier, email });
+  await screen.findByText("Newest comment");
+  const refresh = refreshDossierFull(dossier.id);
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+  const input = screen.getByRole("textbox");
+  await fireEvent.input(input, { target: { value: "Saved during refresh" } });
+  await fireEvent.submit(input.closest("form")!);
+  await vi.waitFor(() =>
+    expect(store.fullDossiers.get(dossier.id)?.latestCommentaire).toBe("Saved during refresh"),
+  );
+  response.resolve(dossier);
+  await refresh;
+  expect(store.fullDossiers.get(dossier.id)?.latestCommentaire).toBe("Saved during refresh");
+  expect(store.dossierSummaries.get(dossier.id)?.latestCommentaire).toBe("Saved during refresh");
 });
 
 async function openDelete() {

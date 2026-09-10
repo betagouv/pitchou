@@ -186,6 +186,7 @@ test("an independent initial list load publishes new IDs only after the correspo
   const notifications = refreshNotifications();
   await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
   expect(list).not.toHaveBeenCalled();
+  expect(store.notificationByDossier.has(id)).toBe(false);
   resolve(body("Ancien", ["r1"]));
   await Promise.all([detail, notifications]);
   expect(fetch).toHaveBeenCalledTimes(2);

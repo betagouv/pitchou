@@ -18,16 +18,14 @@
 
   const id = $derived(data.dossierId);
 
-  // The read-only dossier is the narrower one the server sends for sharing; it
-  // is cached apart from the full dossier, so what the load asked for picks the
-  // source. Asking for the full one is no guarantee of getting it though: a
-  // dossier merely shared with the instructeur's groupe comes back narrowed
-  // whatever the URL said, and lands in the read-only cache — fall back to it
-  // rather than wait forever for a full dossier the server will never send.
+  // Shared dossiers always use their narrowed payload. An owner's preview must
+  // wait for the full response before it can render in editable mode.
+  const readOnlyDossier = $derived(store.readOnlyDossiers.get(id));
   const dossier = $derived(
     data.readOnly
-      ? store.readOnlyDossiers.get(id)
-      : (store.fullDossiers.get(id) ?? store.readOnlyDossiers.get(id)),
+      ? readOnlyDossier
+      : (store.fullDossiers.get(id) ??
+          (readOnlyDossier?.access === "lecture" ? readOnlyDossier : undefined)),
   );
 
   // Either the instructeur asked to preview the dossier, or their service only

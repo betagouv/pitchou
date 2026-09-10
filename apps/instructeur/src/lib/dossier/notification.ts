@@ -1,5 +1,6 @@
 import { store } from "$lib/state/store.svelte.ts";
 import type { DossierNotification, NotificationUpdate } from "@pitchou/types/notification.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 export function formatNotification(notification: DossierNotification): DossierNotification {
   return {
@@ -20,21 +21,41 @@ export function formatNotification(notification: DossierNotification): DossierNo
   };
 }
 
-let pending: Promise<unknown> = Promise.resolve();
-let queueOwner: typeof store.capabilities | undefined;
+let session = {
+  capabilities: store.capabilities,
+  pending: new Map<DossierId, Promise<unknown>>(),
+  versions: new Map<DossierId, number>(),
+  listVersion: 0,
+};
 
-export function enqueueNotificationRequest<T>(run: () => Promise<T>): Promise<T | undefined> {
-  const capabilities = store.capabilities;
-  if (queueOwner !== capabilities) {
-    queueOwner = capabilities;
-    pending = Promise.resolve();
+function notificationSession() {
+  if (session.capabilities !== store.capabilities) {
+    session = {
+      capabilities: store.capabilities,
+      pending: new Map(),
+      versions: new Map(),
+      listVersion: 0,
+    };
   }
-  const request = pending
+  return session;
+}
+
+export function enqueueNotificationRequest<T>(
+  dossier: DossierId,
+  run: () => Promise<T>,
+): Promise<T | undefined> {
+  const session = notificationSession();
+  session.versions.set(dossier, (session.versions.get(dossier) ?? 0) + 1);
+  const request = (session.pending.get(dossier) ?? Promise.resolve())
     .catch(() => {})
     .then(() => {
-      if (capabilities === store.capabilities) return run();
+      if (session.capabilities === store.capabilities) return run();
     });
-  pending = request;
+  session.pending.set(dossier, request);
+  const clear = () => {
+    if (session.pending.get(dossier) === request) session.pending.delete(dossier);
+  };
+  void request.then(clear, clear);
   return request;
 }
 
@@ -49,8 +70,9 @@ async function publishNotification(notification: DossierNotification): Promise<v
     notification.changes.some(({ revisions }) => revisions.some((id) => !known.has(id)))
   ) {
     try {
-      // Already holding the session queue: do not enqueue a nested refresh.
+      // Already holding this dossier's queue: do not enqueue a nested refresh.
       const { fetchDossierFullSnapshot } = await import("./dossier.ts");
+      if (capabilities !== store.capabilities) return;
       const fresh = await fetchDossierFullSnapshot(notification.dossier);
       if (
         fresh.notificationSnapshot &&
@@ -74,23 +96,40 @@ async function publishNotification(notification: DossierNotification): Promise<v
 export async function refreshNotifications() {
   const capability = store.capabilities.listerNotifications;
   if (!capability) return;
-  return enqueueNotificationRequest(async () => {
-    const notifications = await capability();
-    if (capability !== store.capabilities.listerNotifications) return;
-    const accessible = new Set(notifications.map(({ dossier }) => dossier));
-    for (const id of store.notificationByDossier.keys())
-      if (!accessible.has(id)) store.notificationByDossier.delete(id);
-    for (const notification of notifications) {
-      if (capability !== store.capabilities.listerNotifications) return;
-      await publishNotification(notification);
-    }
-  });
+  const session = notificationSession();
+  const listVersion = ++session.listVersion;
+  const versions = new Map(session.versions);
+  // Read after requests already in flight, especially acknowledgments whose
+  // writes have not committed. This wait belongs to the list, not to navigation.
+  await Promise.allSettled([...session.pending.values()]);
+  if (session.capabilities !== store.capabilities || listVersion !== session.listVersion) return;
+  const notifications = await capability();
+  if (session.capabilities !== store.capabilities || listVersion !== session.listVersion) return;
+
+  // A list response must not undo a detail fetch or acknowledgment requested later.
+  const unchanged = (dossier: DossierId) => session.versions.get(dossier) === versions.get(dossier);
+  const accessible = new Set(notifications.map(({ dossier }) => dossier));
+  const removed = [...store.notificationByDossier.keys()].filter(
+    (dossier) => !accessible.has(dossier) && unchanged(dossier),
+  );
+  await Promise.all([
+    ...removed.map((dossier) =>
+      enqueueNotificationRequest(dossier, async () => {
+        store.notificationByDossier.delete(dossier);
+      }),
+    ),
+    ...notifications
+      .filter(({ dossier }) => unchanged(dossier))
+      .map((notification) =>
+        enqueueNotificationRequest(notification.dossier, () => publishNotification(notification)),
+      ),
+  ]);
 }
 
 export function updateNotificationForDossier(update: NotificationUpdate) {
   const capability = store.capabilities.updateNotificationForDossier;
   if (!capability) return Promise.reject(new Error("Validation non autorisée"));
-  return enqueueNotificationRequest(async () => {
+  return enqueueNotificationRequest(update.dossier, async () => {
     if (capability !== store.capabilities.updateNotificationForDossier) return;
     const notification = await capability(update);
     if (capability === store.capabilities.updateNotificationForDossier) {

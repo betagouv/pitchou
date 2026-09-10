@@ -1,9 +1,7 @@
 import { SvelteMap } from "svelte/reactivity";
-
 import { store, setDossierFull } from "$lib/state/store.svelte.ts";
 import { enqueueNotificationRequest, formatNotification } from "./notification.ts";
 import { registerReviewSnapshot } from "./notification/snapshot.ts";
-
 import { parseFichierEspecesImpactees } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 import {
   loadActivitesMethodesMoyensDePoursuite,
@@ -23,7 +21,7 @@ import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece
  */
 const localWriteVersions = new Map<DossierFull["id"], number>();
 
-function recordLocalWrite(id: DossierFull["id"]) {
+export function recordLocalWrite(id: DossierFull["id"]) {
   localWriteVersions.set(id, (localWriteVersions.get(id) ?? 0) + 1);
 }
 
@@ -93,21 +91,19 @@ export function updateDossierNextDueDate(
 }
 
 /**
- * A read-only dossier is a different, narrower resource than the full one — the
- * server strips what is not shared — so the two are cached separately. A full
- * dossier must never be served in read-only mode: the preview exists to show the
- * narrowed payload. The other way round is fine, and even the only option — for
- * a dossier merely shared with the groupe, the server narrows the payload
- * whatever the request asked, so the read-only cache holds all there is and
- * waiting on `fullDossiers` to fill up would wait forever.
+ * Preview and editable payloads are cached separately. Only dossiers whose
+ * access is actually "lecture" may use the read-only cache without preview mode;
+ * an owner's stripped preview must never become editable.
  */
 export async function getDossierFull(
   id: DossierFull["id"],
   { readOnly = false }: { readOnly?: boolean } = {},
 ): Promise<DossierFull> {
+  const readOnlyDossier = store.readOnlyDossiers.get(id);
   const dossierFullInStore = readOnly
-    ? store.readOnlyDossiers.get(id)
-    : (store.fullDossiers.get(id) ?? store.readOnlyDossiers.get(id));
+    ? readOnlyDossier
+    : (store.fullDossiers.get(id) ??
+      (readOnlyDossier?.access === "lecture" ? readOnlyDossier : undefined));
 
   if (dossierFullInStore) {
     // stale-while-revalidate: return the cached dossier for instant navigation,
@@ -127,14 +123,14 @@ export async function refreshDossierFull(
   options: { readOnly?: boolean } = {},
 ): Promise<DossierFull> {
   const writeVersion = localWriteVersions.get(id) ?? 0;
-  const dossier = await enqueueNotificationRequest(() =>
+  const dossier = await enqueueNotificationRequest(id, () =>
     fetchDossierFullSnapshot(id, options, writeVersion),
   );
   if (!dossier) throw new Error("La session a changé pendant le chargement du dossier.");
   return dossier;
 }
 
-/** Internal fetch: the caller must hold the notification session queue. */
+/** Internal fetch: the caller must hold this dossier's notification queue. */
 export async function fetchDossierFullSnapshot(
   id: DossierFull["id"],
   { readOnly = false }: { readOnly?: boolean } = {},

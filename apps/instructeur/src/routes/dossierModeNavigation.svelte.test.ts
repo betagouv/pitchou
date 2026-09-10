@@ -26,6 +26,8 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 }));
 
 import { store } from "$lib/state/store.svelte.ts";
+import { getDossierFull, updateDossier } from "$lib/dossier/dossier.ts";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
 import {
@@ -37,6 +39,28 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 const FIRST = 1 as DossierId;
 const initialUrl = location.href;
+
+test("leaving an owner's preview waits for full data before showing editable fields", async () => {
+  const preview = fakeDossierFull({ id: FIRST, latestCommentaire: null });
+  const full = fakeDossierFull({ id: FIRST, latestCommentaire: "Internal comment" });
+  const response = Promise.withResolvers<DossierFull>();
+  const fetch = vi.fn(() => response.promise);
+  store.readOnlyDossiers.set(FIRST, preview);
+  store.capabilities.recupérerDossierComplet = fetch;
+  const loading = getDossierFull(FIRST);
+  const { container } = render(PageDossier, pageProps(FIRST));
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+  expect(container.querySelector("#enjeu")).toBeNull();
+  expect(store.fullDossiers.has(FIRST)).toBe(false);
+  response.resolve(full);
+  const loaded = await loading;
+  await tick();
+  expect(loaded.latestCommentaire).toBe("Internal comment");
+  expect(container.querySelector("#enjeu")).not.toBeNull();
+  await updateDossier(loaded, { enjeu: true });
+  expect(store.fullDossiers.get(FIRST)?.latestCommentaire).toBe("Internal comment");
+  expect(store.readOnlyDossiers.get(FIRST)).toBe(preview);
+});
 
 beforeEach(() => {
   history.replaceState({}, "", initialUrl);
