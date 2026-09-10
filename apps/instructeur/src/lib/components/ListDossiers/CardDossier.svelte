@@ -38,7 +38,7 @@
 
 <!-- `relative` anchors the overlay that makes the whole tile open the dossier. -->
 <div
-  class="{TILE_GRID} dossier-card relative fr-px-2w fr-py-2w lg:items-center"
+  class="{TILE_GRID} dossier-card relative fr-px-2w fr-py-2w lg:px-2! xl:px-4! lg:items-center"
   class:unread
   data-testid="card-dossier"
 >
@@ -66,7 +66,7 @@
     </span>
 
     <div class="min-w-0">
-      <h4 class="fr-mb-0 text-[1rem] leading-[1.4]">
+      <h4 class="dossier-text fr-mb-0">
         <!-- The link stretches over the whole tile, so a click anywhere opens the
              dossier while the page keeps a single, properly named link. Controls
              that do something else sit above it. -->
@@ -81,17 +81,22 @@
         </a>
       </h4>
       {#if dossier.enjeu}
-        <p class="enjeu-badge fr-badge fr-badge--sm fr-badge--no-icon fr-mt-1v">Dossier à enjeu</p>
+        <p class="enjeu-badge fr-badge fr-badge--sm fr-badge--no-icon fr-mt-1w">Dossier à enjeu</p>
       {/if}
     </div>
   </div>
 
   <div class="min-w-0">
-    <p class="fr-mb-0 truncate {unread ? 'font-bold' : 'font-normal'}" title={porteurDeProjet}>
+    <p
+      class="dossier-text fr-mb-0 truncate {unread ? 'font-bold' : 'font-normal'}"
+      title={porteurDeProjet}
+    >
       <span class="fr-sr-only">Pétitionnaire&nbsp;:</span>
       {porteurDeProjet}
     </p>
-    <p class="fr-mb-0 flex min-w-0 items-center gap-1 text-[color:var(--text-mention-grey)]">
+    <p
+      class="dossier-text fr-mb-0 flex min-w-0 items-center gap-1 text-[color:var(--text-mention-grey)]"
+    >
       <span class="fr-icon-map-pin-2-line fr-icon--sm flex-none" aria-hidden="true"></span>
       <span class="fr-sr-only">Localisation&nbsp;:</span>
       <span class="truncate" title={localisation}>{localisation}</span>
@@ -102,14 +107,14 @@
 
   <div class="min-w-0">
     <span class="fr-sr-only">Prochaine action attendue de&nbsp;:</span>
-    <p class="fr-mb-0 leading-tight {unread ? 'font-bold' : 'font-normal'}">
+    <p class="dossier-text fr-mb-0 {unread ? 'font-bold' : 'font-normal'}">
       {dossier.next_action_expected_from === "Instructeur" && dossierFollowedByCurrentInstructeur
         ? "Moi"
         : dossier.next_action_expected_from || "(non renseignée)"}
     </p>
   </div>
 
-  <div class="flex min-w-0 flex-col items-start gap-1 break-words [&>*]:max-w-full">
+  <div class="flex min-w-0 flex-col items-start gap-2 [overflow-wrap:anywhere] [&>*]:max-w-full">
     <DossierNotificationBadges dossierId={dossier.id} />
     {#if !followed}
       <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">
@@ -150,6 +155,24 @@
 
   .follow-button {
     color: var(--blue-france-main-525, #6a6af4);
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .follow-button::before {
+    --icon-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .dossier-text,
+  .project-title {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+  }
+
+  .dossier-card:has(:global([aria-haspopup="menu"][aria-expanded="true"])) {
+    z-index: 20;
   }
 
   .project-title {

@@ -5,6 +5,8 @@ import { cleanup, render } from "@testing-library/svelte";
 import Dossier from "../Dossier.svelte";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 import type { DossierTab } from "./dossierTabs.ts";
+import { store } from "$lib/state/store.svelte.ts";
+import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 
 vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
 vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
@@ -13,7 +15,10 @@ vi.mock("$lib/especes/activitesMethodesMoyensDePoursuite.ts", () => ({
   loadEspecesProtegeesList: vi.fn(() => new Promise(() => {})),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  store.notificationByDossier.clear();
+});
 
 test("switching dossier tabs hides the previous panel immediately and preserves its form", async () => {
   const props = {
@@ -53,4 +58,55 @@ test("switching dossier tabs hides the previous panel immediately and preserves 
   }
   expect(instruction.querySelector("input")).toBe(form);
   expect(form.value).toBe("Unchanged draft");
+});
+
+test("the project tab dot follows pending field reviews, not arrivals or follows", async () => {
+  const dossier = fakeDossierFull();
+  const props = {
+    dossier,
+    activeTab: "instruction" as DossierTab,
+    onTabChange: vi.fn(),
+    email: "instructeur@example.com",
+    dossierFollowers: [],
+    currentDossierFollowedByCurrentInstructeur: false,
+    readOnly: false,
+    onReadOnlyChange: vi.fn(),
+    canEdit: true,
+    onClose: vi.fn(),
+  };
+  const notification = {
+    viewed: false,
+    updated_at: null,
+    viewed_at: null,
+    new_arrival: { detected_at: new Date() },
+    new_follow: { revision: "follow", detected_at: new Date() },
+    changes: [],
+  };
+  store.notificationByDossier.set(dossier.id, notification);
+  const view = render(Dossier, props);
+  expect(view.container.querySelector(".pending-dot")).toBeNull();
+  const pending = {
+    ...notification,
+    changes: [
+      {
+        field: "Description",
+        label: "Description",
+        detected_at: new Date(),
+        modified_at: null,
+        revisions: ["revision" as ActionDossierId],
+      },
+    ],
+  };
+  store.notificationByDossier.set(dossier.id, pending);
+  await view.rerender({ ...props, activeTab: "detail-du-projet" });
+  expect(view.container.querySelectorAll(".pending-dot")).toHaveLength(1);
+  expect(view.getByRole("tab", { name: "Détail du projet" })).toHaveAccessibleDescription(
+    "Modifications non lues",
+  );
+  store.notificationByDossier.set(dossier.id, notification);
+  await view.rerender(props);
+  expect(view.container.querySelector(".pending-dot")).toBeNull();
+  store.notificationByDossier.set(dossier.id, pending);
+  await view.rerender({ ...props, readOnly: true });
+  expect(view.container.querySelector(".pending-dot")).toBeNull();
 });

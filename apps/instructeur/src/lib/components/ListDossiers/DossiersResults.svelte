@@ -36,7 +36,8 @@
     dossierSortDate(dossier, sortKey, notificationUpdatedAt),
   );
 
-  const columnLabel = "fr-text--xs fr-mb-0 uppercase text-[color:var(--text-mention-grey)]";
+  const columnLabel =
+    "fr-text--xs fr-mb-0 whitespace-nowrap uppercase text-[color:var(--text-mention-grey)]";
 </script>
 
 {#if dossiers.length >= 1}
@@ -49,7 +50,9 @@
              readers get the equivalent labels inside each tile instead. -->
         <div class="{ROW_GRID} fr-mb-1v hidden lg:grid" aria-hidden="true">
           <span></span>
-          <div class="{TILE_GRID} border border-transparent fr-px-2w lg:items-start">
+          <div
+            class="{TILE_GRID} border border-transparent fr-px-2w lg:px-2! xl:px-4! lg:items-start"
+          >
             <div class={PROJECT_GRID}>
               <span></span>
               <span></span>
@@ -63,10 +66,10 @@
           </div>
         </div>
 
-        <ul class="list-none fr-p-0 fr-m-0">
+        <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
           {#each section.dossiers as dossier (dossier.id)}
             {@const date = timelineDate(dossier)}
-            <li class="{ROW_GRID} [&:not(:last-child)]:fr-mb-1w">
+            <li class="{ROW_GRID} fr-m-0 fr-p-0">
               {#if date}
                 <time
                   datetime={formatDateAbsolute(date, "yyyy-MM-dd")}

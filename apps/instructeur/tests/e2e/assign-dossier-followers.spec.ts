@@ -49,6 +49,12 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     "member-two-code",
   );
   await attachPersonneSuitDossier(db, formerMember.id, assigner.dossier.id);
+  // One assignee has already seen the arrival, the other has not.
+  await db("notification").insert({
+    personne: memberTwo.id,
+    dossier: assigner.dossier.id,
+    arrival_viewed: true,
+  });
 
   await page.goto(`/?secret=${assigner.codeAcces}`);
   await page.getByRole("link", { name: "Tous les dossiers", exact: true }).click();
@@ -122,7 +128,8 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberOneCard).toBeVisible();
-  await expect(memberOneCard.getByText("Nouveau suivi", { exact: true })).toBeVisible();
+  await expect(memberOneCard.getByText("Nouveau dossier", { exact: true })).toBeVisible();
+  await expect(memberOneCard.getByText("Nouveau suivi", { exact: true })).toHaveCount(0);
 
   await page.goto(`/?secret=${memberTwo.codeAcces}`);
   const memberTwoCard = page

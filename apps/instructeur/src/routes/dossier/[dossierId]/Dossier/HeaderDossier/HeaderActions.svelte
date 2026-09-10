@@ -32,7 +32,7 @@
   const readOnly = readOnlyMode();
 </script>
 
-<div class="flex flex-wrap items-center gap-3">
+<div class="flex flex-wrap items-center gap-4">
   <!-- Read-only mode hides every write action, so the followers are shown as
        plain text rather than as a way to open the modal. -->
   {#if readOnly.current}
@@ -68,9 +68,18 @@
       dossierId={dossier.id}
       dossierName={dossier.name}
       showDeadline={false}
+      outlined
       extraItems={[
-        { label: "Ajouter une pièce jointe", onClick: onAddPieceJointe },
-        { label: "Voir le dossier en lecture seule", onClick: onEnterReadOnly },
+        {
+          label: "Ajouter une pièce jointe",
+          icon: "fr-icon-attachment-line",
+          onClick: onAddPieceJointe,
+        },
+        {
+          label: "Voir le dossier en lecture seule",
+          icon: "fr-icon-eye-line",
+          onClick: onEnterReadOnly,
+        },
       ]}
     />
   {/if}
@@ -82,12 +91,17 @@
   }
 
   .editable-followers {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
   .follow-button {
     --border-action-high-blue-france: var(--blue-france-main-525, #6a6af4);
+    --hover: transparent;
+    --active: transparent;
     min-height: 40px;
     padding: 8px 16px;
     border-radius: 4px;
@@ -97,5 +111,9 @@
 
   .follow-button::before {
     color: var(--blue-france-main-525, #6a6af4);
+  }
+
+  .follow-button:hover {
+    --border-action-high-blue-france: #000091;
   }
 </style>
