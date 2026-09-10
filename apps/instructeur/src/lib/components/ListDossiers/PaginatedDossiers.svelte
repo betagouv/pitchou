@@ -10,6 +10,7 @@
 
   type Props = {
     dossiers: DossierSummary[];
+    readOnly?: boolean;
     sortKey: SortKey;
     requestedPage: number;
     pageSize: number;
@@ -26,6 +27,7 @@
   };
   let {
     dossiers,
+    readOnly = false,
     sortKey,
     requestedPage,
     pageSize,
@@ -77,6 +79,7 @@
   </div>
 </div>
 <DossiersResults
+  {readOnly}
   dossiers={displayed}
   {sortKey}
   {wholeListEmpty}

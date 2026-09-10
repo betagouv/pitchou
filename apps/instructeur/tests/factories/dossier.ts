@@ -51,19 +51,3 @@ export async function attachDossierToGroupe(
     groupe_instructeurs: groupeId,
   });
 }
-
-/**
- * Shares a dossier with a groupe in read-only mode. Unlike
- * `attachDossierToGroupe`, this does not hand over the instruction — and several
- * groupes can be given the same dossier this way.
- */
-export async function shareDossierWithGroupe(
-  db: Knex,
-  dossierId: number,
-  groupeId: string,
-): Promise<void> {
-  await db("edge_groupe_instructeurs__dossier_lecture").insert({
-    dossier: dossierId,
-    groupe_instructeurs: groupeId,
-  });
-}

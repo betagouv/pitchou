@@ -26,9 +26,9 @@ export function requireSecret(url: URL): string {
 /**
  * Resolves what a cap may do with a dossier, or refuses if it cannot reach it.
  *
- * Use this when the endpoint serves a read-only viewer too; anything that writes
- * — or that exposes the instruction itself, like the historique and the
- * commentaires — wants `requireDossierAccessByCap` instead.
+ * Use this when the endpoint serves a read-only viewer too. Writes and endpoints
+ * exposing internal instruction data, such as historique and commentaires,
+ * require `requireDossierAccessByCap` instead.
  */
 export async function requireDossierAccessLevelByCap(
   dossierId: Dossier["id"] | undefined,
@@ -45,9 +45,8 @@ export async function requireDossierAccessLevelByCap(
 }
 
 /**
- * Requires full access to the dossier — the default for every endpoint, so that
- * a dossier merely shared with a groupe stays untouchable unless the endpoint
- * deliberately opts into read access.
+ * Requires full access through the service instructing the dossier.
+ * Other services have read-only access and cannot use these endpoints.
  */
 export async function requireDossierAccessByCap(
   dossierId: Dossier["id"] | undefined,
@@ -55,7 +54,10 @@ export async function requireDossierAccessByCap(
 ): Promise<Dossier["id"]> {
   const { access } = await requireDossierAccessLevelByCap(dossierId, cap);
   if (access !== "complet") {
-    error(403, `Le dossier ${dossierId} est partagé en lecture seule avec votre service`);
+    error(
+      403,
+      `Votre service dispose uniquement d'un accès en lecture seule au dossier ${dossierId}`,
+    );
   }
   return dossierId as Dossier["id"];
 }

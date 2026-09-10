@@ -5,7 +5,6 @@ import type {
   FrontEndPrescription,
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
-import type GroupeInstructeurs from "./database/public/GroupeInstructeurs.ts";
 import type Personne from "./database/public/Personne.ts";
 import type { DossierNotification, NotificationUpdate } from "./notification.ts";
 import type Prescription from "./database/public/Prescription.ts";
@@ -14,13 +13,6 @@ import type DecisionAdministrative from "./database/public/DecisionAdministrativ
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
-
-/** A service the dossier may be shared with in read-only mode. */
-export type DossierPartageCandidate = {
-  id: GroupeInstructeurs["id"];
-  name: GroupeInstructeurs["name"];
-  sharesDossier: boolean;
-};
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
@@ -54,8 +46,8 @@ export type DossierCommentaire = {
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
   /**
-   * `readOnly` asks the server for the shareable projection of the dossier —
-   * what someone the dossier is shared with receives — instead of the whole one.
+   * `readOnly` requests the restricted projection available to other services,
+   * even when the caller has full access to the dossier.
    */
   recupérerDossierComplet: (
     dossierId: DossierFull["id"],
@@ -70,13 +62,6 @@ export interface PitchouInstructeurCapabilities {
     dossierId: Dossier["id"],
   ) => Promise<void>;
   listDossierFollowerCandidates: (dossierId: Dossier["id"]) => Promise<DossierFollowerCandidate[]>;
-  /** The other services of the démarche, and whether the dossier is shared with them. */
-  listDossierPartageCandidates: (dossierId: Dossier["id"]) => Promise<DossierPartageCandidate[]>;
-  /** Replaces the set of services the dossier is shared with in read-only mode. */
-  updateDossierPartages: (
-    dossierId: Dossier["id"],
-    groupeIds: GroupeInstructeurs["id"][],
-  ) => Promise<void>;
   updateDossierFollowers: (
     dossierId: Dossier["id"],
     personneEmails: NonNullable<Personne["email"]>[],

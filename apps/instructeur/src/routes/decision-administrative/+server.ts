@@ -7,6 +7,7 @@ import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
+  getDossierIdFromDecisionAdministrative,
 } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
@@ -81,14 +82,21 @@ export const POST: RequestHandler = async ({ url, request }) => {
       cap,
       transaction,
     );
-    // Full access only: a dossier shared in read-only mode with the groupe is
-    // consulted, never instructed.
+    // Only an owning group can instruct the dossier.
     if (dossiersAccessibles.get(decisionData.dossier) !== "complet") {
       await transaction.rollback();
       error(
         400,
         `La capability ${cap} ne permet pas d'avoir accès au dossier ${decisionData.dossier}`,
       );
+    }
+
+    if (
+      decisionData.id &&
+      (await getDossierIdFromDecisionAdministrative(decisionData.id, transaction)) !==
+        decisionData.dossier
+    ) {
+      error(403, "La décision administrative n'appartient pas au dossier");
     }
 
     const id = decisionData.id

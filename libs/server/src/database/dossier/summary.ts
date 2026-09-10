@@ -3,7 +3,8 @@ import { directDatabaseConnection } from "../../database.ts";
 import { withResolvedActivite } from "../activite.ts";
 import { getAvisExpertFilesByCap } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
-import { getLatestEvenementsPhaseDossiers } from "./access.ts";
+import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.ts";
+import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
@@ -47,6 +48,7 @@ export async function getDossiersSummariesByCap(
     : await databaseConnection.transaction({ readOnly: true });
   const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
     .select(columns)
+    .select("dossier_access.access")
     // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
     // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
     .select(
@@ -55,13 +57,11 @@ export async function getDossiersSummariesByCap(
       ),
     )
     .select(transaction.raw(latestCommentaireSubquery))
-    .join("edge_groupe_instructeurs__dossier", {
-      "edge_groupe_instructeurs__dossier.dossier": "dossier.id",
-    })
-    .join("edge_cap_dossier__groupe_instructeurs", {
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-    })
+    .join(
+      dossierAccessQuery(cap, transaction).as("dossier_access"),
+      "dossier_access.dossier",
+      "dossier.id",
+    )
     .leftJoin("identite_dossier as identite_demandeur", function () {
       this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
         "identite_demandeur.type",
@@ -82,7 +82,6 @@ export async function getDossiersSummariesByCap(
         .andOnVal("activite_label.needs_review", false),
     )
     .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap })
     .then((dossiers: DossierSummary[]) =>
       dossiers.map((dossier) => {
         dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
@@ -118,7 +117,15 @@ export async function getDossiersSummariesByCap(
         values.push({ expert, hasSaisineFile, hasAvisFile });
         avisByDossier.set(dossier, values);
       }
-      for (const dossier of dossiers) dossier.avisExperts = avisByDossier.get(dossier.id) ?? [];
+      for (const dossier of dossiers) {
+        dossier.avisExperts = avisByDossier.get(dossier.id) ?? [];
+        if (dossier.access === "lecture") {
+          delete dossier.latestCommentaire;
+          dossier.avisExperts = dossier.avisExperts
+            .filter(({ expert }) => isOfficialAvisExpert(expert))
+            .map(({ expert, hasAvisFile }) => ({ expert, hasAvisFile }));
+        }
+      }
       return dossiers;
     },
   );

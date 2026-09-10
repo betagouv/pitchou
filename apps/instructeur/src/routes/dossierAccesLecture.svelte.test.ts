@@ -30,18 +30,15 @@ import { dossierPageProps, resetDossierPageState } from "./dossierPageTestSetup.
 import type { PitchouState } from "$lib/state/store.svelte.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-// Scenario: the dossier was only shared in read-only with the instructeur's groupe,
-// so the server narrows the payload and answers `access: "lecture"` whatever the
-// request asked for. The URL, on the other hand, may perfectly well not carry
-// `?lecture=1` — a bookmark, a link someone re-typed, a query param dropped on the
-// way. The page must still display the dossier it received.
+// Dossiers outside the instructeur's groups always receive `access: "lecture"`,
+// even without `?lecture=1`. The page must display the restricted response.
 
 const DOSSIER_ID = 123 as DossierId;
-const DOSSIER_NAME = "Dossier partagé en lecture";
+const DOSSIER_NAME = "Dossier d'un autre service";
 
 afterEach(resetDossierPageState);
 
-function setUpSharedDossier() {
+function setUpReadOnlyDossier() {
   store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
   store.capabilities = {
     recupérerDossierComplet: vi
@@ -52,8 +49,8 @@ function setUpSharedDossier() {
   } as unknown as PitchouState["capabilities"];
 }
 
-test("a dossier shared in read-only is displayed even when the URL does not ask for read-only", async () => {
-  setUpSharedDossier();
+test("a foreign dossier is displayed even when the URL does not ask for read-only", async () => {
+  setUpReadOnlyDossier();
 
   // same call as the load of the dossier/[dossierId] route, without `?lecture=1`
   await getDossierFull(DOSSIER_ID, { readOnly: false });
@@ -64,8 +61,8 @@ test("a dossier shared in read-only is displayed even when the URL does not ask 
   expect(screen.getByText("Dossier en lecture seule")).toBeTruthy();
 });
 
-test("a dossier shared in read-only never reaches the full dossiers cache", async () => {
-  setUpSharedDossier();
+test("a foreign dossier never reaches the full dossiers cache", async () => {
+  setUpReadOnlyDossier();
 
   await getDossierFull(DOSSIER_ID, { readOnly: false });
 
@@ -76,7 +73,7 @@ test("a dossier shared in read-only never reaches the full dossiers cache", asyn
 test.each([false, true])(
   "read-only access never offers edit mode, lecture query=%s",
   async (readOnly) => {
-    setUpSharedDossier();
+    setUpReadOnlyDossier();
     store.capabilities.modifierDossier = vi.fn();
     await getDossierFull(DOSSIER_ID, { readOnly });
     render(PageDossier, {
@@ -89,8 +86,8 @@ test.each([false, true])(
   },
 );
 
-test("navigating back to a shared dossier serves the cache instead of waiting for the server", async () => {
-  setUpSharedDossier();
+test("navigating back to a foreign dossier serves the cache instead of waiting for the server", async () => {
+  setUpReadOnlyDossier();
   await getDossierFull(DOSSIER_ID, { readOnly: false });
 
   // The server slows to a crawl: the cached dossier must carry the navigation.

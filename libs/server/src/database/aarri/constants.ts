@@ -15,7 +15,6 @@ export const EVENEMENTS_MODIFICATIONS: EvenementMetrique["type"][] = [
   "changerProchaineActionAttendue",
   "changerProchaineActionAttendueDe",
   "changerDateProchaineEcheance",
-  "partagerDossier",
   "ajouterDécisionAdministrative",
   "modifierDécisionAdministrative",
   "supprimerDécisionAdministrative",

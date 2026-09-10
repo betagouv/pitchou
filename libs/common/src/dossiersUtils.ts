@@ -4,6 +4,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
   const {
     // Properties copied directly
     id,
+    access,
     demarche_numerique_number,
     source,
     name,
@@ -55,6 +56,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
   const dossierSummary: DossierSummary = {
     // Simple properties
     id,
+    access,
     demarche_numerique_number,
     source,
     name,

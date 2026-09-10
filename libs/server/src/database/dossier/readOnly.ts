@@ -28,19 +28,15 @@ export function isFichierSharedInReadOnly({ relation, expert }: FichierAttachmen
 /**
  * Narrows a dossier down to what a read-only viewer may see.
  *
- * Read-only mode is how a dossier gets shared outside the service, so everything
- * internal to the instruction is dropped here rather than merely hidden by the
- * UI: the browser never receives it. What is left is what the team agreed to
- * share — the projet, the instruction fields, the official avis and the
- * décisions administratives.
- *
- * The instructeur previewing their own dossier goes through the same projection,
- * so what they see is exactly what the person they share it with will get.
+ * Users outside the owning group receive this projection automatically.
+ * Internal comments, review state and restricted attachments never reach their
+ * browser. Owners previewing read-only mode receive the same projection.
  */
 export function dossierFullForReadOnly(dossier: DossierFull): DossierFull {
   return {
     ...dossier,
     notificationSnapshot: undefined,
+    cnpnEmailSentEvents: undefined,
 
     // Commentaires are the service talking to itself. `free_comment` is the
     // legacy column the commentaires were migrated from; it is still selected

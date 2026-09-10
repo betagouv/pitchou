@@ -10,6 +10,7 @@ function fakeDossier(): DossierFull {
     name: "Dossier test",
     free_comment: "Note interne de l'instructeur",
     latestCommentaire: "Dernier commentaire du service",
+    cnpnEmailSentEvents: [{ recipient_email: "internal-cnpn@example.test" }],
     evenementsPhase: [{ dossier: 123, phase: "Instruction", timestamp: new Date("2026-02-01") }],
     piecesJointesPetitionnaires: [{ url: "/piece-jointe-petitionnaire/fichier/1", name: "ddep" }],
     avisExpert: [
@@ -60,6 +61,7 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
   // Commentaires, including the legacy column they were migrated from.
   expect(shared.free_comment).toBe("");
   expect(shared.latestCommentaire).toBeNull();
+  expect(shared.cnpnEmailSentEvents).toBeUndefined();
 
   // Only the official avis, and never the saisine that produced it.
   expect(shared.avisExpert.map(({ expert }) => expert)).toEqual(["CNPN"]);
@@ -81,6 +83,7 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
     "Dernier commentaire du service",
     "Prescription interne",
     "Autre expert",
+    "internal-cnpn@example.test",
     "/avis-expert/fichier/11",
     "/avis-expert/fichier/20",
     "/attachment-autre/fichier/40",

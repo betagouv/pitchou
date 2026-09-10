@@ -10,6 +10,7 @@
 
   type Props = {
     dossiers: DossierSummary[];
+    readOnly?: boolean;
     sortKey: SortKey;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
@@ -21,6 +22,7 @@
   };
   let {
     dossiers,
+    readOnly = false,
     sortKey,
     wholeListEmpty,
     followedIds,
@@ -87,6 +89,7 @@
                 <span></span>
               {/if}
               <CardDossier
+                {readOnly}
                 {dossier}
                 currentInstructeurFollowsDossier={follow}
                 currentInstructeurLeavesDossier={leave}

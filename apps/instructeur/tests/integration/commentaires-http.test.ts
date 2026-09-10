@@ -10,7 +10,6 @@ import {
   attachCapToGroupe,
   createInstructeurWithCapToGroup,
   createInstructeurWithDossier,
-  shareDossierWithGroupe,
 } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { mutate } from "./commentaires-http.ts";
@@ -126,7 +125,6 @@ test("read-only access cannot mutate even a comment authored by the viewer", asy
   const viewer = await createInstructeurWithCapToGroup(db, {
     nomGroupe: "Read-only viewer service",
   });
-  await shareDossierWithGroupe(db, owner.dossier.id, viewer.groupeId);
   const [commentaire] = await db("commentaire")
     .insert({
       dossier: owner.dossier.id,
