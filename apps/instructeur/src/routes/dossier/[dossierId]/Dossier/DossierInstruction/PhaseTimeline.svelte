@@ -15,7 +15,7 @@
   const DONE_COLOR = "bg-[#61CE8C]";
 </script>
 
-<ol class="fr-m-0 fr-p-0 grid list-none grid-cols-2 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
+<ol class="fr-m-0 fr-p-0 grid list-none grid-cols-2 gap-y-6">
   {#each steps as step, index}
     <li class="relative flex min-w-0 flex-col gap-1">
       {#if index > 0}
@@ -101,32 +101,37 @@
   }
 
   @media (40rem <= width < 64rem) {
+    ol {
+      --edge-column: calc((100% - 24px) / 4 + 12px);
+      grid-template-columns: var(--edge-column) minmax(0, 1fr) var(--edge-column);
+    }
     li:nth-child(3n + 1) {
       --step-alignment: flex-start;
       --step-text-alignment: left;
       --connector-display: none;
     }
-    li:nth-child(3n + 2) {
-      --connector-left: calc(-100% + 12px);
-    }
     li:nth-child(3n) {
       --step-alignment: flex-end;
       --step-text-alignment: right;
+      --connector-left: calc(-100% + 12px);
       --connector-right: 12px;
     }
   }
 
   @media (width >= 64rem) {
+    /* End columns cover half an interval plus half a 24px marker. */
+    ol {
+      --edge-column: calc((100% - 24px) / 10 + 12px);
+      grid-template-columns: var(--edge-column) repeat(4, minmax(0, 1fr)) var(--edge-column);
+    }
     li:first-child {
       --step-alignment: flex-start;
       --step-text-alignment: left;
     }
-    li:nth-child(2) {
-      --connector-left: calc(-100% + 12px);
-    }
     li:last-child {
       --step-alignment: flex-end;
       --step-text-alignment: right;
+      --connector-left: calc(-100% + 12px);
       --connector-right: 12px;
     }
   }
