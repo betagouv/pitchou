@@ -112,7 +112,9 @@
   <div class="flex min-w-0 flex-col items-start gap-1 break-words [&>*]:max-w-full">
     <DossierNotificationBadges dossierId={dossier.id} />
     {#if !followed}
-      <p class="unassigned-badge fr-badge fr-badge--sm fr-badge--no-icon">Sans instructeur-ice</p>
+      <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">
+        Sans instructeur-ice
+      </p>
     {/if}
     <TagEcheance dueDate={dossier.next_due_date} />
   </div>
@@ -159,10 +161,5 @@
   .enjeu-badge {
     background: var(--background-contrast-blue-france, #ececfe);
     color: var(--blue-france-main-525, #6a6af4);
-  }
-
-  .unassigned-badge {
-    background: #f3edff;
-    color: #6e4bb5;
   }
 </style>
