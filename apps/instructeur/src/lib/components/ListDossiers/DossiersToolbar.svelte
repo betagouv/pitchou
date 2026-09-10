@@ -65,13 +65,10 @@
 </script>
 
 <div class="flex flex-col gap-4 fr-mt-2w">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="fr-m-0">{title}</h1>
+  <h1 class="fr-m-0">{title}</h1>
 
+  <div class="dossiers-toolbar-controls flex flex-wrap items-center gap-4">
     <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />
-  </div>
-
-  <div class="flex flex-wrap items-center gap-4">
     {#if showFilterInstructeurice}
       <button
         type="button"
@@ -156,3 +153,20 @@
     <span class="fr-text--lg">{serviceLabel(services)}</span>
   </p>
 </div>
+
+<style>
+  .dossiers-toolbar-controls :global(.fr-btn) {
+    height: 32px;
+    min-height: 32px;
+    border-radius: 4px;
+  }
+
+  .dossiers-toolbar-controls :global(.fr-search-bar .fr-btn) {
+    border-radius: 0 4px 0 0;
+  }
+
+  .dossiers-toolbar-controls :global(.fr-search-bar .fr-input) {
+    height: 32px;
+    min-height: 32px;
+  }
+</style>
