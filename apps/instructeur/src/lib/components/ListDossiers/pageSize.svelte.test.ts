@@ -17,6 +17,7 @@ vi.mock("$lib/shared/aarri.ts", () => ({
 
 import { goto } from "$app/navigation";
 import { page as route } from "$app/state";
+import { store } from "$lib/state/store.svelte.ts";
 import ListDossiers from "./ListDossiers.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
@@ -24,12 +25,15 @@ const routeState: { url: URL } = route;
 const dossiers = Array.from({ length: 60 }, (_, i) =>
   makeDossier({
     id: dossierId(i + 1),
+    access: "complet",
+    departments: ["44"],
     name: `Projet ${String(i + 1).padStart(2, "0")}`,
   }),
 );
 
 afterEach(async () => {
   cleanup();
+  store.dossierSummaries.clear();
   vi.clearAllMocks();
   await page.viewport(1280, 720);
 });
@@ -43,6 +47,7 @@ async function followNavigation() {
 test.each(["mes-dossiers", "tous-les-dossiers"])(
   "%s changes page size, resets the page and preserves search/sort",
   async (path) => {
+    for (const dossier of dossiers) store.dossierSummaries.set(dossier.id, dossier);
     routeState.url = new URL(
       `http://localhost/${path}?q=Projet&sort=nextDueDate&order=asc&pageSize=25&page=3`,
     );

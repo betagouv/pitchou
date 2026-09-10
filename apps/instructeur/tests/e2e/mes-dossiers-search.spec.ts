@@ -22,6 +22,7 @@ async function setupDossiers(
   for (const values of dossiers) {
     const dossier = await createDossier(db, {
       demarche_number: DEFAULT_NUMERO_DEMARCHE,
+      departments: JSON.stringify(["64"]),
       ...values,
     });
     await attachDossierToGroupe(db, dossier.id, instructeur.groupeId);

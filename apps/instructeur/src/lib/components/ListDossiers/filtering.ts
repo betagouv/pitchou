@@ -2,6 +2,7 @@ import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
+import { filterByLocalisation } from "./localisation.ts";
 import {
   WITHOUT_INSTRUCTEUR,
   copyDossiersQuery,
@@ -50,7 +51,7 @@ export function filterDossiers(
   ctx: DossiersContext,
 ): DossierSummary[] {
   const { notificationByDossier, followRelations } = ctx;
-  let result = dossiers;
+  let result = filterByLocalisation(dossiers, query);
 
   if (query.text.trim()) {
     const terms = searchTerms(query.text);
@@ -81,18 +82,17 @@ export function filterDossiers(
         selected.includes(dossier.next_action_expected_from),
     );
   }
-  if (query.departement.length) {
-    result = result.filter(
-      (dossier) => dossier.departments?.some((code) => query.departement.includes(code)) ?? false,
-    );
-  }
   if (query.instructeur.length) {
     // « sans instructeur » and named instructeurs combine with OR: keep dossiers that are
     // unfollowed and/or followed by any of the selected people.
     const includesWithoutInstructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR);
     const selectedEmails = query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR);
     result = result.filter((dossier) => {
-      if (includesWithoutInstructeur && !dossierIsFollowed(dossier.id, followRelations))
+      if (
+        includesWithoutInstructeur &&
+        dossier.access === "complet" &&
+        !dossierIsFollowed(dossier.id, followRelations)
+      )
         return true;
       return selectedEmails.some((email) => followRelations?.get(email)?.has(dossier.id) ?? false);
     });
@@ -154,6 +154,8 @@ const FILTER_PARAM_KEYS = [
   "espece",
   "action",
   "departement",
+  "departements",
+  "localisation",
   "instructeur",
   "nouveaute",
   "actionInstructeur",

@@ -18,21 +18,25 @@ export async function setupMesDossiers(db: Knex) {
   const dates = ["2024-01-01", "2024-02-01", "2024-03-01", "2024-04-01"].map((d) => new Date(d));
   const noNotificationOld = await createDossier(db, {
     name: "Dossier ancien sans notification",
+    departments: JSON.stringify(["64"]),
     demarche_number: DEFAULT_NUMERO_DEMARCHE,
     depot_date: dates[0],
   });
   const viewedRecent = await createDossier(db, {
     name: "Dossier récent déjà consulté",
+    departments: JSON.stringify(["64"]),
     demarche_number: DEFAULT_NUMERO_DEMARCHE,
     depot_date: dates[1],
   });
   const unviewedOld = await createDossier(db, {
     name: "Recherche scientifique sur les chats",
+    departments: JSON.stringify(["64"]),
     demarche_number: DEFAULT_NUMERO_DEMARCHE,
     depot_date: dates[2],
   });
   const unviewedRecent = await createDossier(db, {
     name: "Parc photovoltaïque à Anglet",
+    departments: JSON.stringify(["64"]),
     demarche_number: DEFAULT_NUMERO_DEMARCHE,
     depot_date: dates[3],
     enjeu: true,

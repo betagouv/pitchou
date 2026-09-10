@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./listModel.ts";
+  import type { DossiersQuery, FilterChip, SortKey, SortOrder, Localisation } from "./listModel.ts";
   import { serviceLabel } from "./listModel.ts";
   import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
@@ -19,8 +19,8 @@
     unreadActive: boolean;
     activeFilterCount: number;
     numberFiltered: number;
-    /** Names of the instructeur's services (groupes instructeurs) */
-    services: string[];
+    localisation?: Localisation;
+    followedOnly?: boolean;
     /** Active filters shown as removable tags */
     chips: FilterChip[];
     sortKey: SortKey;
@@ -49,7 +49,8 @@
     unreadActive,
     activeFilterCount,
     numberFiltered,
-    services,
+    localisation = "assigned",
+    followedOnly = false,
     chips,
     sortKey,
     sortOrder,
@@ -150,7 +151,7 @@
 
   <p class="fr-m-0" data-testid="compteur-dossier">
     <span class="fr-text--lead">{numberFiltered}</span>
-    <span class="fr-text--lg">{serviceLabel(services)}</span>
+    <span class="fr-text--lg">{serviceLabel(localisation, followedOnly)}</span>
   </p>
 </div>
 

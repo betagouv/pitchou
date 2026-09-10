@@ -12,6 +12,7 @@
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
+    showLocalisationScope?: boolean;
     /** Live count of dossiers matching the current draft, shown on the footer button */
     numberResults: number;
     onApply: () => void;
@@ -24,6 +25,7 @@
     dossiers,
     followRelations,
     showFilterInstructeurice,
+    showLocalisationScope = true,
     numberResults,
     onApply,
     onClose,
@@ -98,6 +100,7 @@
           {dossiers}
           {followRelations}
           {showFilterInstructeurice}
+          {showLocalisationScope}
           onOpenEspecesDrawer={() => (panel = "especes")}
         />
       {/if}

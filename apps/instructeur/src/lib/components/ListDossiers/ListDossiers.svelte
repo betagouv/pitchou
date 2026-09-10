@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import { store, type PitchouState } from "$lib/state/store.svelte.ts";
-  import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
   import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
@@ -18,6 +17,7 @@
     readDossiersQuery,
     toggleQuickFilter,
     sortDossiers,
+    serviceLabel,
   } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
@@ -39,6 +39,7 @@
     followRelations?: PitchouState["followRelations"];
     /** Names of the instructeur's services (groupes instructeurs) */
     services?: string[];
+    followedOnly?: boolean;
     recentSearches?: string[];
     /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
     showFilterInstructeurice?: boolean;
@@ -56,7 +57,7 @@
     email = "",
     dossiers,
     followRelations,
-    services = [],
+    followedOnly = false,
     recentSearches = [],
     showFilterInstructeurice = false,
     showFilterEnjeu = true,
@@ -68,7 +69,11 @@
 
   // The applied query lives entirely in the URL: search, filters, sort and page are all
   // reflected as query params, so the view is shareable and survives a reload.
-  const query = $derived(readDossiersQuery(page.url.searchParams));
+  const query = $derived.by(() => {
+    const query = readDossiersQuery(page.url.searchParams);
+    if (followedOnly) query.localisation = "assigned";
+    return query;
+  });
 
   // The draft edited inside the filters modal. It is mirrored to the URL live (see the
   // effect below), so the background list re-filters as each filter is toggled.
@@ -87,23 +92,14 @@
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
   const sortedDossiers = $derived(sortDossiers(filteredDossiers, query, notificationByDossier));
 
-  const activeFilterCount = $derived(countActiveFilters(query));
   const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
   const especeLabelByCD_REF = $derived(mapEspeceLabelByCD_REF(store.espèceByCD_REF));
-  const filterChips = $derived(
-    buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF),
-  );
-  const instructeurCount = $derived(listAvailableInstructeurs(followRelations).length);
   const analyticsContext = $derived({
-    instructeurCount,
+    instructeurCount: listAvailableInstructeurs(followRelations).length,
     email,
     activiteLabelByCode,
     especeLabelByCD_REF,
   });
-
-  const dossierIdsFollowedByCurrentInstructeur = $derived(
-    followRelations?.get(email) ?? new Set<Dossier["id"]>(),
-  );
 
   /** Reflects the given query into the URL, which is the single source of truth */
   const navigate = (next: DossiersQuery) => navigateDossiers(goto, page.url.pathname, next);
@@ -113,7 +109,7 @@
     navigate(next);
     const count = filterDossiers(dossiers, next, ctx).length;
     sendDossierSearchEvent(buildSearchEvent(next, count, analyticsContext));
-    statusMessage = `${count} dossiers affichés sur ${dossiers.length}`;
+    statusMessage = `${count} ${serviceLabel(next.localisation, followedOnly)}`;
     setTimeout(() => (statusMessage = ""), 400);
   }
 
@@ -162,10 +158,11 @@
     enjeuActive={query.enjeu}
     actionInstructeurActive={query.actionInstructeur}
     unreadActive={query.nouveaute === "oui"}
-    {activeFilterCount}
+    activeFilterCount={countActiveFilters(query)}
     numberFiltered={filteredDossiers.length}
-    {services}
-    chips={filterChips}
+    localisation={query.localisation}
+    {followedOnly}
+    chips={buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF)}
     sortKey={query.sort}
     sortOrder={query.order}
     {onSearch}
@@ -184,6 +181,7 @@
 </div>
 
 <DossiersFilterModal
+  showLocalisationScope={!followedOnly}
   open={modalOpen}
   bind:draft
   {dossiers}
@@ -195,6 +193,7 @@
 />
 
 <PaginatedDossiers
+  readOnly={query.localisation === "france"}
   dossiers={sortedDossiers}
   sortKey={query.sort}
   requestedPage={query.page}
@@ -202,7 +201,7 @@
   onPageSizeChange={(pageSize) => navigate({ ...copyDossiersQuery(query), pageSize, page: 1 })}
   searchText={query.text}
   wholeListEmpty={dossiers.length === 0}
-  followedIds={dossierIdsFollowedByCurrentInstructeur}
+  followedIds={followRelations?.get(email) ?? new Set()}
   notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
   notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
   follow={(id) => instructeurFollowsDossier(email, id)}

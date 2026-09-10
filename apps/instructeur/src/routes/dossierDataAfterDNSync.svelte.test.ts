@@ -54,9 +54,14 @@ test("after a DN synchronization, the tous-les-dossiers page displays the up-to-
   store.fullDossiers.set(DOSSIER_ID, fakeDossierFull({ id: DOSSIER_ID, name: NOM_BEFORE_SYNC }));
   store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
   store.capabilities = {
-    listerDossiers: vi
-      .fn()
-      .mockResolvedValue([fakeDossierSummary({ id: DOSSIER_ID, name: NOM_AFTER_SYNC })]),
+    listerDossiers: vi.fn().mockResolvedValue([
+      fakeDossierSummary({
+        id: DOSSIER_ID,
+        name: NOM_AFTER_SYNC,
+        access: "complet",
+        departments: ["75"],
+      }),
+    ]),
   } as unknown as PitchouState["capabilities"];
 
   render(PageTousLesDossiers);

@@ -25,7 +25,7 @@ function props(all: boolean) {
     unreadActive: false,
     activeFilterCount: 0,
     numberFiltered: 12,
-    services: [],
+    localisation: "assigned" as const,
     chips: [],
     sortKey: "lastModified" as const,
     sortOrder: "asc" as const,

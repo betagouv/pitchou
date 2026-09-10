@@ -42,6 +42,7 @@
      every dossier is followed by the instructeur, so their own next action matters more -->
 <ListDossiers
   title="Mes dossiers"
+  followedOnly
   {email}
   {dossiers}
   {followRelations}
