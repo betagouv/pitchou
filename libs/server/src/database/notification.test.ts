@@ -65,7 +65,6 @@ test("notification reads filter full service access and the current person's ack
   expect(result[0].viewed).toBe(false);
   const actions = queries.find(({ sql }) => sql.startsWith('select "a".*'))!;
   expect(actions.sql).toContain('"edge_groupe_instructeurs__dossier"');
-  expect(actions.sql).not.toContain("dossier_lecture");
   expect(actions.sql).toContain('"r"."action" = "a"."id"');
   expect(actions.sql).toContain('"r"."personne" = $');
   expect(actions.bindings).toContain(7);

@@ -85,7 +85,7 @@ test("un fichier n'est pas téléchargeable sans cap", async () => {
   }
 });
 
-test("un fichier n'est pas téléchargeable avec la cap d'un autre groupe", async () => {
+test("un autre groupe télécharge les fichiers publics mais pas les fichiers internes, sans partage", async () => {
   const { files } = await createDossierWithFiles("instr@fichier-proprietaire.fr");
   // Another instructeur, with a cap on a groupe that holds no dossier.
   const { cap: otherCap } = await createInstructeurWithCapToGroup(db, {
@@ -95,7 +95,18 @@ test("un fichier n'est pas téléchargeable avec la cap d'un autre groupe", asyn
 
   for (const [kind, route] of Object.entries(ROUTES)) {
     const response = await download(route, files[kind as keyof typeof files], `?cap=${otherCap}`);
-    expect(response.status, `${kind} avec une cap étrangère`).toBe(404);
+    const internal = ["saisine", "attachment", "avisAutre"].includes(kind);
+    expect(response.status, `${kind} avec une cap étrangère`).toBe(internal ? 404 : 200);
+  }
+});
+
+test("une cap inconnue ou malformée ne permet aucun téléchargement", async () => {
+  const { files } = await createDossierWithFiles("instr@fichier-cap-invalide.fr");
+  for (const cap of [randomUUID(), "invalid-cap"]) {
+    for (const [kind, route] of Object.entries(ROUTES)) {
+      const response = await download(route, files[kind as keyof typeof files], `?cap=${cap}`);
+      expect([403, 404]).toContain(response.status);
+    }
   }
 });
 

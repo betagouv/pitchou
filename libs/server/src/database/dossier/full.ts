@@ -45,9 +45,7 @@ export async function getDossierFull(
     if (!databaseConnection.isTransaction) await transaction.commit();
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
-  // `dossiersAccessibleViaCap` above is the authorization — including for a
-  // dossier merely shared with the groupe, which the ownership edge would miss —
-  // so the fetch itself selects the dossier by id.
+  // Access was checked above, so the fetch itself selects the dossier by id.
   const dossierP: Promise<LoadedDossier> = joinDossierIdentities(
     transaction("dossier")
       .select(dossierFullColumns)

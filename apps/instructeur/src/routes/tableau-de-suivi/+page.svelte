@@ -72,7 +72,9 @@
   }
 
   const email = $derived(store.identité?.email);
-  const dossiers = $derived([...store.dossierSummaries.values()]);
+  const dossiers = $derived(
+    [...store.dossierSummaries.values()].filter(({ access }) => access === "complet"),
+  );
   const followRelations = $derived(store.followRelations);
 
   // Pitchou activity names resolved from the referentiel, so raw labels renamed in DN over time

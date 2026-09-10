@@ -20,7 +20,6 @@ export {
   createDossier,
   createGroupeInstructeurs,
   attachDossierToGroupe,
-  shareDossierWithGroupe,
   DEFAULT_NUMERO_DEMARCHE,
 } from "./dossier.ts";
 export { createCapDossier, attachCapToGroupe, createCapEvenementMetrique } from "./cap.ts";

@@ -1,7 +1,7 @@
 import type Dossier from "../database/public/Dossier.ts";
 import type { DossierSource } from "../dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarche88444.ts";
-import type { FrontEndDecisionAdministrative } from "./dossierDetails.ts";
+import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
 
 type DossierPersonnesImpliqueesSummary = {
   deposant_last_name: string;
@@ -108,10 +108,11 @@ export type DossierSummary = Pick<
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
   DossierPersonnesImpliqueesSummary & {
+    access: DossierAccess;
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
-    avisExperts: { expert: string | null; hasSaisineFile: boolean; hasAvisFile: boolean }[];
+    avisExperts: { expert: string | null; hasSaisineFile?: boolean; hasAvisFile: boolean }[];
     especesImpacteesCD_REF: string[];
     especesImpacteesRenseignees: boolean;
-    /** Content of the dossier's most recent commentaire. */
-    latestCommentaire: string | null;
+    /** Content of the dossier's most recent commentaire, omitted for foreign readers. */
+    latestCommentaire?: string | null;
   };

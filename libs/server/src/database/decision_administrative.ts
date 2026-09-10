@@ -71,14 +71,7 @@ export function getDecisionsAdministratives(
   return databaseConnection("decision_administrative")
     .select("decision_administrative.*")
     .select(databaseConnection.raw('decision_administrative.fichier is not null as "hasFile"'))
-    .join("edge_groupe_instructeurs__dossier", {
-      "edge_groupe_instructeurs__dossier.dossier": "decision_administrative.dossier",
-    })
-    .join("edge_cap_dossier__groupe_instructeurs", {
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-    })
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap_dossier });
+    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap: cap_dossier }));
 }
 
 export async function updateDecisionAdministrative(
@@ -94,13 +87,19 @@ export async function updateDecisionAdministrative(
     );
   }
 
+  if (
+    !dossier ||
+    (await getDossierIdFromDecisionAdministrative(id, databaseConnection)) !== dossier
+  ) {
+    throw new TypeError("La décision administrative n'appartient pas au dossier");
+  }
+
   const decisionAdministrativeDB: Partial<DecisionAdministrative> = {
     id,
     number,
     type,
     signature_date,
     obligations_end_date,
-    dossier,
   };
 
   let decisionAdministrativeReadyP: Promise<any> = Promise.resolve();
@@ -120,14 +119,14 @@ export async function updateDecisionAdministrative(
 
     previousFichierIdP = databaseConnection("decision_administrative")
       .select(["fichier"])
-      .where({ id })
+      .where({ id, dossier })
       .then((decisions) => decisions[0].fichier);
   }
 
   await decisionAdministrativeReadyP;
   const updatedDecisionAdministrativeP = databaseConnection("decision_administrative")
     .update(decisionAdministrativeDB)
-    .where({ id: decisionAdministrativeDB.id });
+    .where({ id, dossier });
 
   return Promise.all([previousFichierIdP, updatedDecisionAdministrativeP]).then(
     ([previousFichierId]) => {

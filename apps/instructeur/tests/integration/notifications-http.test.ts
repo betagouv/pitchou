@@ -4,7 +4,6 @@ import {
   attachCapToGroupe,
   createInstructeurWithCapToGroup,
   createInstructeurWithDossier,
-  shareDossierWithGroupe,
 } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import type { DossierNotification } from "@pitchou/types/notification.ts";
@@ -101,16 +100,11 @@ test("legacy dossiers and baseline actions do not become new", async () => {
   expect((await list(cap))[0]).toMatchObject({ viewed: true, new_arrival: null, changes: [] });
 });
 
-test("read-only and unrelated users cannot access or change review state", async () => {
+test("users outside the owning group cannot access or change review state", async () => {
   const owner = await createInstructeurWithDossier(db, { nomGroupe: "Service propriétaire" });
   const reader = await createInstructeurWithCapToGroup(db, { nomGroupe: "Service lecteur" });
-  await shareDossierWithGroupe(db, owner.dossier.id, reader.groupeId);
   expect(await list(reader.cap)).toEqual([]);
   expect((await update(reader.cap, { dossier: owner.dossier.id, arrival: true })).status).toBe(403);
-  const outsider = await createInstructeurWithCapToGroup(db, { nomGroupe: "Service extérieur" });
-  expect((await update(outsider.cap, { dossier: owner.dossier.id, arrival: true })).status).toBe(
-    403,
-  );
 });
 
 test("the endpoint rejects manual read/unread and client-supplied personal identities", async () => {

@@ -50,16 +50,6 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     label: "Dossier cessé d'être suivi par",
     value: emailName(str(d, "follower")) ?? "?",
   }),
-  dossier_partage: (d) => ({
-    icon: "fr-icon-eye-line",
-    label: "Dossier partagé en lecture seule avec",
-    value: str(d, "groupe") ?? "?",
-  }),
-  dossier_partage_termine: (d) => ({
-    icon: "fr-icon-eye-off-line",
-    label: "Partage en lecture seule retiré à",
-    value: str(d, "groupe") ?? "?",
-  }),
   dates_consultation_renseignees: (d) => {
     const base = {
       icon: "fr-icon-calendar-line",

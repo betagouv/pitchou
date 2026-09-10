@@ -11,28 +11,27 @@ function meaningfulEvents(query: Knex.QueryBuilder): Knex.QueryBuilder {
   });
 }
 
-// A cap reaches a dossier either through the groupe instructing it, or through a
-// groupe it was shared with in read-only mode. A dossier can be both — a service
-// may be shown a dossier it later takes over — so the most permissive wins.
-const accessQuery = `
-  select dossier, bool_or(complet) as complet from (
-    select edge_groupe_instructeurs__dossier.dossier, true as complet
-      from edge_cap_dossier__groupe_instructeurs
-      join edge_groupe_instructeurs__dossier
-        on edge_groupe_instructeurs__dossier.groupe_instructeurs
-         = edge_cap_dossier__groupe_instructeurs.groupe_instructeurs
-     where edge_cap_dossier__groupe_instructeurs.cap_dossier = :cap
-       and edge_groupe_instructeurs__dossier.dossier = any(:ids)
-    union all
-    select edge_groupe_instructeurs__dossier_lecture.dossier, false
-      from edge_cap_dossier__groupe_instructeurs
-      join edge_groupe_instructeurs__dossier_lecture
-        on edge_groupe_instructeurs__dossier_lecture.groupe_instructeurs
-         = edge_cap_dossier__groupe_instructeurs.groupe_instructeurs
-     where edge_cap_dossier__groupe_instructeurs.cap_dossier = :cap
-       and edge_groupe_instructeurs__dossier_lecture.dossier = any(:ids)
-  ) as reachable
-  group by dossier`;
+// Existing caps can read every existing dossier. EXISTS keeps one row per dossier
+// even when the cap belongs to several owning groups.
+export function dossierAccessQuery(
+  cap: CapDossier["cap"],
+  databaseConnection: Knex.Transaction | Knex,
+) {
+  return databaseConnection("dossier")
+    .select("dossier.id as dossier")
+    .select(
+      databaseConnection.raw(
+        `case when exists (
+      select 1 from edge_cap_dossier__groupe_instructeurs
+      join edge_groupe_instructeurs__dossier using (groupe_instructeurs)
+      where edge_cap_dossier__groupe_instructeurs.cap_dossier = ?
+        and edge_groupe_instructeurs__dossier.dossier = dossier.id
+    ) then 'complet' else 'lecture' end as access`,
+        [cap],
+      ),
+    )
+    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap }));
+}
 
 /**
  * The dossiers among `dossierIds` this cap reaches, and with what access.
@@ -46,11 +45,11 @@ export async function dossiersAccessibleViaCap(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Map<Dossier["id"], DossierAccess>> {
   const ids = Array.isArray(dossierIds) ? dossierIds : [dossierIds];
-  const { rows } = await databaseConnection.raw(accessQuery, { cap, ids });
+  const rows = await dossierAccessQuery(cap, databaseConnection).whereIn("dossier.id", ids);
   return new Map(
-    rows.map(({ dossier, complet }: { dossier: Dossier["id"]; complet: boolean }) => [
+    rows.map(({ dossier, access }: { dossier: Dossier["id"]; access: DossierAccess }) => [
       dossier,
-      complet ? "complet" : "lecture",
+      access,
     ]),
   );
 }
@@ -74,7 +73,12 @@ export async function getLatestEvenementsPhaseDossiers(
   cap: CapDossier["cap"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return eventsByCap(cap, databaseConnection)
+  // Summary enrichment is global; eventsByCap remains service-only for history.
+  return meaningfulEvents(
+    databaseConnection("evenement_phase_dossier")
+      .select(["dossier", "phase", "timestamp"])
+      .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap })),
+  )
     .distinctOn("dossier")
     .orderBy([
       { column: "dossier", order: "asc" },

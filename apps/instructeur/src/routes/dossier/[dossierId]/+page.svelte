@@ -18,7 +18,7 @@
 
   const id = $derived(data.dossierId);
 
-  // Shared dossiers always use their narrowed payload. An owner's preview must
+  // Read-only access always uses the restricted payload. An owner's preview must
   // wait for the full response before it can render in editable mode.
   const readOnlyDossier = $derived(store.readOnlyDossiers.get(id));
   const dossier = $derived(
@@ -29,8 +29,8 @@
   );
 
   // Either the instructeur asked to preview the dossier, or their service only
-  // ever gets to read it — in which case the payload is already narrowed and
-  // there is no mode to leave.
+  // has read-only access. In that case the payload is already restricted and
+  // they cannot switch to editable mode.
   const readOnly = $derived(data.readOnly || dossier?.access === "lecture");
   const email = $derived(store.identité?.email);
   const followRelations = $derived(store.followRelations);
@@ -49,7 +49,7 @@
   );
 
   // Per dossier, not per user: one cap is `complet` for the service's own
-  // dossiers and `lecture` for those another service shared with it. Someone
+  // dossiers and `lecture` for all other dossiers. Someone
   // who cannot edit gets no way out of read-only mode.
   const canEdit = $derived(dossier?.access === "complet" && !!store.capabilities.modifierDossier);
 

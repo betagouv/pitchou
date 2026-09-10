@@ -5,7 +5,6 @@ import {
   isClickNavbarLinkDetails,
   isDossierDetails,
   isOpenModalAddPieceJointeDetails,
-  isPartagerDossierDetails,
   isSearchDossierDetails,
 } from "./evenements_metriques_details.ts";
 
@@ -41,8 +40,6 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
       return isDossierDetails(event.details);
     case "assignDossierFollowers":
       return isAssignDossierFollowersDetails(event.details);
-    case "partagerDossier":
-      return isPartagerDossierDetails(event.details);
     case "rechercherDesDossiers":
       return isSearchDossierDetails(event.details);
     case "clickNavbarLink":

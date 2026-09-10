@@ -21,7 +21,7 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 const daId = "da-1" as unknown as DecisionAdministrativeId;
-const dossierId = "dossier-1" as unknown as DossierId;
+const dossierId = 1 as DossierId;
 const newFichierId = "new-fichier" as unknown as FileId;
 const oldFichierId = "old-fichier" as unknown as FileId;
 const fId = "f-1" as unknown as FileId;
@@ -114,6 +114,16 @@ describe("addDecisionAdministrativeWithFichier", () => {
 });
 
 describe("updateDecisionAdministrative", () => {
+  const decisionWithFile = {
+    ...baseDecision,
+    id: daId,
+    fichier_base64: {
+      name: "v2.pdf",
+      media_type: "application/pdf",
+      contenuBase64: Buffer.from("NEW").toString("base64"),
+    },
+  };
+
   it("throws when id is missing", async () => {
     const db = fakeDatabase().build();
     await expect(
@@ -122,56 +132,65 @@ describe("updateDecisionAdministrative", () => {
   });
 
   it("does not upload nor clean up when fichier_base64 is absent", async () => {
-    const db = fakeDatabase().build();
+    const db = fakeDatabase()
+      .selectResolvesForTable("decision_administrative", [{ dossier: dossierId }])
+      .build();
+    const updateWhere = vi.fn().mockResolvedValue(1);
+    db.update.mockReturnValueOnce(Object.assign(Promise.resolve(1), { where: updateWhere }));
     await updateDecisionAdministrative({ ...baseDecision, id: daId }, db.knex);
 
     expect(storeFichier).not.toHaveBeenCalled();
     expect(deleteFichiers).not.toHaveBeenCalled();
     expect(db.update).toHaveBeenCalledTimes(1);
+    expect(db.update.mock.calls[0][0]).not.toHaveProperty("dossier");
+    expect(updateWhere).toHaveBeenCalledWith({ id: daId, dossier: dossierId });
   });
+
+  it.each([2, undefined])(
+    "rejects a mismatched or missing stored dossier before uploading: %s",
+    async (storedDossier) => {
+      storeFichier.mockResolvedValue({ id: newFichierId });
+      const db = fakeDatabase()
+        .selectResolvesForTable(
+          "decision_administrative",
+          storedDossier === undefined ? [] : [{ dossier: storedDossier, fichier: oldFichierId }],
+        )
+        .build();
+
+      await expect(updateDecisionAdministrative(decisionWithFile, db.knex)).rejects.toThrow(
+        "La décision administrative n'appartient pas au dossier",
+      );
+
+      expect(db.where).toHaveBeenCalledWith({ id: daId });
+      expect(storeFichier).not.toHaveBeenCalled();
+      expect(db.update).not.toHaveBeenCalled();
+      expect(deleteFichiers).not.toHaveBeenCalled();
+    },
+  );
 
   it("uploads the new fichier and deletes the previous one (best-effort cleanup)", async () => {
     storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
-      .selectResolvesForTable("decision_administrative", [{ fichier: oldFichierId }])
+      .selectResolvesForTable("decision_administrative", [
+        { dossier: dossierId, fichier: oldFichierId },
+      ])
       .build();
 
-    await updateDecisionAdministrative(
-      {
-        ...baseDecision,
-        id: daId,
-        fichier_base64: {
-          name: "v2.pdf",
-          media_type: "application/pdf",
-          contenuBase64: Buffer.from("NEW").toString("base64"),
-        },
-      },
-      db.knex,
-    );
+    await updateDecisionAdministrative(decisionWithFile, db.knex);
 
     expect(storeFichier).toHaveBeenCalledTimes(1);
     expect(db.update).toHaveBeenCalledWith(expect.objectContaining({ fichier: newFichierId }));
+    expect(db.where).toHaveBeenLastCalledWith({ id: daId, dossier: dossierId });
     expect(deleteFichiers).toHaveBeenCalledWith([oldFichierId], db.knex);
   });
 
   it("does not call deleteFichiers when there was no previous fichier on the décision", async () => {
     storeFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
-      .selectResolvesForTable("decision_administrative", [{ fichier: null }])
+      .selectResolvesForTable("decision_administrative", [{ dossier: dossierId, fichier: null }])
       .build();
 
-    await updateDecisionAdministrative(
-      {
-        ...baseDecision,
-        id: daId,
-        fichier_base64: {
-          name: "v2.pdf",
-          media_type: "application/pdf",
-          contenuBase64: Buffer.from("NEW").toString("base64"),
-        },
-      },
-      db.knex,
-    );
+    await updateDecisionAdministrative(decisionWithFile, db.knex);
 
     expect(deleteFichiers).not.toHaveBeenCalled();
   });

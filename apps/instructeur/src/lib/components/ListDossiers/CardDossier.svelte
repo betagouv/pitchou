@@ -18,6 +18,7 @@
     currentInstructeurLeavesDossier: (id: Dossier["id"]) => Promise<void>;
     notificationViewed: boolean;
     dossierFollowedByCurrentInstructeur: boolean;
+    readOnly?: boolean;
   };
 
   let {
@@ -26,11 +27,13 @@
     currentInstructeurFollowsDossier,
     currentInstructeurLeavesDossier,
     notificationViewed,
+    readOnly = false,
   }: Props = $props();
 
   const name = $derived(dossier.name || "(nom non renseigné)");
 
-  const unread = $derived(notificationViewed === false);
+  const canEdit = $derived(dossier.access === "complet" && !readOnly);
+  const unread = $derived(canEdit && notificationViewed === false);
   const followed = $derived(dossierIsFollowed(dossier.id, store.followRelations));
   const porteurDeProjet = $derived(applicantName(dossier));
   const localisation = $derived(formatLocalisation(dossier) || "(non renseignée)");
@@ -43,7 +46,9 @@
   data-testid="card-dossier"
 >
   <div class={PROJECT_GRID}>
-    {#if dossierFollowedByCurrentInstructeur}
+    {#if !canEdit}
+      <span class="fr-icon-lock-line fr-icon--sm w-8 text-center" aria-label="Lecture seule"></span>
+    {:else if dossierFollowedByCurrentInstructeur}
       <button
         type="button"
         class="follow-button fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm relative z-10"
@@ -71,7 +76,7 @@
              dossier while the page keeps a single, properly named link. Controls
              that do something else sit above it. -->
         <a
-          href={`/dossier/${dossier.id}`}
+          href={`/dossier/${dossier.id}${canEdit ? "" : "?lecture=1"}`}
           class="project-title fr-link block truncate text-[color:var(--text-title-grey)] after:absolute after:inset-0 after:content-[''] {unread
             ? 'font-bold'
             : 'font-normal'}"
@@ -115,8 +120,8 @@
   </div>
 
   <div class="flex min-w-0 flex-col items-start gap-2 [overflow-wrap:anywhere] [&>*]:max-w-full">
-    <DossierNotificationBadges dossierId={dossier.id} />
-    {#if !followed}
+    {#if canEdit}<DossierNotificationBadges dossierId={dossier.id} />{/if}
+    {#if canEdit && !followed}
       <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">
         Sans instructeur-ice
       </p>
@@ -125,7 +130,7 @@
   </div>
 
   <div class="relative z-10 flex flex-none flex-row items-start justify-end">
-    <DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />
+    {#if canEdit}<DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />{/if}
   </div>
 </div>
 

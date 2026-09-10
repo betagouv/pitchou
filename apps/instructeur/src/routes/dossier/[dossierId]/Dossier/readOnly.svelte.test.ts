@@ -89,7 +89,7 @@ test("seul un utilisateur pouvant éditer peut repasser en mode édition", () =>
   expect(screen.getByRole("button", { name: "Repasser en mode édition" })).toBeTruthy();
   unmount();
 
-  // Someone the dossier is only shared with sees the notice without a way out.
+  // Users outside the owning group cannot leave read-only mode.
   renderDossier(true, false);
   expect(screen.getByText("Dossier en lecture seule")).toBeTruthy();
   expect(screen.queryByRole("button", { name: "Repasser en mode édition" })).toBeNull();
@@ -101,7 +101,7 @@ test("le mode lecture seule masque les onglets internes au service", () => {
   expect(screen.queryByRole("tab", { name: "Historique" })).toBeNull();
   expect(screen.queryByRole("tab", { name: "Générateur de documents" })).toBeNull();
 
-  // The tabs that stay are the ones the dossier is shared through.
+  // Read-only viewers retain access to these tabs.
   for (const tab of ["Détail du projet", "Instruction", "Avis d’experts", "Contrôle"]) {
     expect(screen.getByRole("tab", { name: tab })).toBeTruthy();
   }

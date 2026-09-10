@@ -169,14 +169,7 @@ export function getAvisExpertFilesByCap(
     .select("avis_expert.expert as expert")
     .select(databaseConnection.raw('avis_expert.saisine_fichier is not null as "hasSaisineFile"'))
     .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "hasAvisFile"'))
-    .join("edge_groupe_instructeurs__dossier", {
-      "edge_groupe_instructeurs__dossier.dossier": "avis_expert.dossier",
-    })
-    .join("edge_cap_dossier__groupe_instructeurs", {
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-    })
-    .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": capDossier });
+    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap: capDossier }));
 }
 
 export function getFichiersAvisSaisineAvisExpert(

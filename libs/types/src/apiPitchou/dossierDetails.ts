@@ -15,8 +15,7 @@ import type { QuantifiedImpact } from "../especesImpact.d.ts";
 import type { DossierNotification } from "../notification.ts";
 
 /**
- * What a cap may do with a dossier: instruct it, or only consult the part of it
- * that its service shared with another one.
+ * Existing caps can consult every dossier; only owning groups can instruct it.
  */
 export type DossierAccess = "complet" | "lecture";
 
@@ -96,8 +95,7 @@ export type DossierFull = Omit<
     /**
      * What the cap that fetched this dossier may do with it. `lecture` means the
      * payload is already narrowed and no write will be accepted, whatever the UI
-     * offers — one cap is `complet` for its own dossiers and `lecture` for the
-     * ones another service shared, so this cannot be answered globally.
+     * offers. A cap is `complet` for its own dossiers and `lecture` for all others.
      */
     access: DossierAccess;
     /** Personal review state read in the same database snapshot as these values. Never shared. */
