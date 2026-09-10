@@ -133,8 +133,8 @@
     if (readOnly.current) return;
     // The options come from the `phases` list, so the value is a DossierPhase.
     const phase = value as DossierPhase;
-    phaseEdit = phase;
     if (phase === currentPhase) return;
+    phaseEdit = phase;
     save({
       evenementsPhase: [
         {

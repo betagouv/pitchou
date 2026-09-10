@@ -65,7 +65,6 @@
   const enjeuOptions = [
     { value: "oui", label: "Oui" },
     { value: "non", label: "Non" },
-    { value: "a_determiner", label: "À déterminer" },
   ];
 
   function setEnjeu(value: string) {

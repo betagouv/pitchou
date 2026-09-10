@@ -71,6 +71,63 @@ test("les titres de section sont de niveau 4", () => {
   ).toBeTruthy();
 });
 
+test.each([
+  { initial: false, label: "Oui", expected: true },
+  { initial: true, label: "Non", expected: false },
+])("enjeu only offers boolean choices and saves $label", async ({ initial, label, expected }) => {
+  const dossier = fakeDossier();
+  dossier.enjeu = initial;
+  render(DossierInstruction, { dossier, email: "instructeur@example.com" });
+
+  await page.getByLabelText("Dossier à enjeu").click();
+  expect(screen.getAllByRole("option").map((option) => option.textContent?.trim())).toEqual([
+    "Oui",
+    "Non",
+  ]);
+  await page.getByRole("option", { name: label, exact: true }).click();
+  await vi.waitFor(() =>
+    expect(store.capabilities.modifierDossier).toHaveBeenCalledExactlyOnceWith(DOSSIER_ID, {
+      enjeu: expected,
+    }),
+  );
+});
+
+test("reselecting the current phase does not mask a later dossier refresh", async () => {
+  const dossier = fakeDossier();
+  const onSaved = vi.fn();
+  const { rerender } = render(DossierInstruction, {
+    dossier,
+    email: "instructeur@example.com",
+    onSaved,
+  });
+
+  await page.getByLabelText("Phase en cours").click();
+  await page.getByRole("option", { name: "Accompagnement amont", exact: true }).click();
+  expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
+
+  await rerender({
+    dossier: fakeDossierFull({
+      id: DOSSIER_ID,
+      evenementsPhase: [
+        {
+          dossier: DOSSIER_ID,
+          timestamp: new Date("2026-09-01"),
+          phase: "Instruction",
+          caused_by_personne: null,
+          demarche_numerique_agent_email: null,
+          demarche_numerique_motivation: null,
+        },
+      ],
+    }),
+    email: "instructeur@example.com",
+    onSaved,
+  });
+
+  await expect.element(page.getByLabelText("Phase en cours")).toHaveTextContent("Instruction");
+  expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
+  expect(onSaved).not.toHaveBeenCalled();
+});
+
 test("public consultation uses a loadable filled megaphone mask", async () => {
   const { container } = render(DossierInstruction, {
     dossier: fakeDossier(),
