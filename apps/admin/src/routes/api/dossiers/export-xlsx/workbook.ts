@@ -23,6 +23,7 @@ const DOSSIERS_HEADER = [
   "Départements",
   "Communes",
   "Régions",
+  "Rattaché au régime AE",
 ];
 
 const AVIS_EXPERT_HEADER = [
@@ -51,6 +52,11 @@ function formatDate(value: Date | string | null): string {
 function formatDemandeur(row: AdminDossierExportRow): string {
   if (row.demandeur_entreprise) return row.demandeur_entreprise;
   return [row.demandeur_last_name, row.demandeur_first_names].filter(Boolean).join(" ");
+}
+
+function formatBoolean(value: boolean | null): string {
+  if (value === null) return "";
+  return value ? "Oui" : "Non";
 }
 
 /** Joins a jsonb string list (departments, regions) into one cell. */
@@ -96,6 +102,7 @@ export function dossiersSheetRows(rows: AdminDossierExportRow[]): WorkbookCell[]
       formatStringList(row.departments),
       formatCommunes(row.communes),
       formatStringList(row.regions),
+      formatBoolean(row.linked_to_ae_regime),
     ]),
   ];
 }
