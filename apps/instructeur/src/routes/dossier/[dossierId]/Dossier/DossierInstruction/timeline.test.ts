@@ -95,5 +95,68 @@ describe("timelineSteps", () => {
     );
     expect(steps.every(({ state }) => state !== "current")).toBe(true);
     expect(steps[3].state).toBe("done");
+    expect(steps[3].detail).toEqual(["01/01/2026 → 01/02/2026"]);
+    expect(steps[4].state).toBe("not_reached");
+    expect(steps[5].state).toBe("not_reached");
+  });
+
+  test("classification in accompagnement does not complete the subsequent phases", () => {
+    const steps = timelineSteps([{ phase: "Classé sans suite", timestamp: "2026-02-01" }], DEPOT);
+    expect(steps.map(({ state }) => state)).toEqual([
+      "done",
+      "done",
+      "not_reached",
+      "not_reached",
+      "not_reached",
+      "not_reached",
+    ]);
+  });
+
+  test("classification keeps phases reached before a return completed", () => {
+    const steps = timelineSteps(
+      [
+        { phase: "Classé sans suite", timestamp: "2026-03-01" },
+        { phase: "Instruction", timestamp: "2026-02-01" },
+        { phase: "Contrôle", timestamp: "2026-01-01" },
+      ],
+      DEPOT,
+    );
+    expect(steps[4].state).toBe("done");
+    expect(steps[5].state).toBe("not_reached");
+  });
+
+  test("reopening a classified dossier restores normal timeline states", () => {
+    const steps = timelineSteps(
+      [
+        { phase: "Instruction", timestamp: "2026-03-01" },
+        { phase: "Classé sans suite", timestamp: "2026-02-01" },
+      ],
+      DEPOT,
+    );
+    expect(steps.map(({ state }) => state)).toEqual([
+      "done",
+      "done",
+      "done",
+      "current",
+      "future",
+      "future",
+    ]);
+  });
+
+  test("classification without deposit or prior phase dates does not invent progress", () => {
+    const steps = timelineSteps([{ phase: "Classé sans suite", timestamp: "2026-02-01" }], null);
+    expect(steps.slice(1).every(({ state }) => state === "not_reached")).toBe(true);
+    expect(steps.every(({ detail }) => detail.length === 0)).toBe(true);
+  });
+
+  test("classification after obligations ended preserves their completion", () => {
+    const steps = timelineSteps(
+      [
+        { phase: "Classé sans suite", timestamp: "2026-03-01" },
+        { phase: "Obligations terminées", timestamp: "2026-02-01" },
+      ],
+      DEPOT,
+    );
+    expect(steps.every(({ state }) => state === "done")).toBe(true);
   });
 });

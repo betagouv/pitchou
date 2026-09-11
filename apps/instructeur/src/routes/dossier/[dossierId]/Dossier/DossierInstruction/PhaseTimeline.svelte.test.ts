@@ -4,10 +4,34 @@ import { afterEach, expect, test } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { page } from "vitest/browser";
 import PhaseTimeline from "./PhaseTimeline.svelte";
+import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(async () => {
   cleanup();
   await page.viewport(1280, 720);
+});
+
+test("classification is dated and unreached phases are not completed or upcoming", async () => {
+  const events = [
+    { phase: "Instruction", timestamp: new Date("2026-01-01") },
+    { phase: "Classé sans suite", timestamp: new Date("2026-02-01") },
+  ] as DossierFull["evenementsPhase"];
+  const { container, getByText, rerender } = render(PhaseTimeline, {
+    props: { events, depotDate: new Date("2025-09-01") },
+  });
+  expect(getByText("Classé sans suite le 01/02/2026")).toBeVisible();
+  const items = [...container.querySelectorAll("li")];
+  expect(items).toHaveLength(6);
+  expect(items[3]).toHaveTextContent("(terminée)");
+  for (const item of items.slice(4)) {
+    expect(item).toHaveTextContent("(non atteinte)");
+    expect(item.querySelector(".fr-icon-check-line")).toBeNull();
+    expect(item.querySelector(".connector")?.className).toContain("background-contrast-grey");
+  }
+  expect(container.textContent).not.toContain("En cours");
+  await rerender({ events: [events[0]], depotDate: new Date("2025-09-01") });
+  expect(container.textContent).not.toContain("Classé sans suite");
+  expect(getByText("En cours")).toBeVisible();
 });
 
 test.each([320, 768, 1024, 1440])(

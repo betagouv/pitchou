@@ -6,7 +6,7 @@ type PhaseEvent = { phase: DossierPhase; timestamp: Date | string };
 
 export type TimelineStep = {
   label: string;
-  state: "done" | "current" | "future";
+  state: "done" | "current" | "future" | "not_reached";
   /** Date lines shown under the step: deposit date, phase periods, "Depuis le …". */
   detail: string[];
 };
@@ -19,7 +19,8 @@ function formatDay(date: Date | string): string {
  * Builds the « Avancement du dossier » timeline: a Dépôt step followed by the five
  * phases. Phases before the current one show as done even when they were skipped
  * (e.g. dossiers created directly in « Étude recevabilité »). A dossier
- * « classé sans suite » shows every phase it went through as done, none current.
+ * « classé sans suite » completes phases only up to the furthest one reached,
+ * with none current and the remaining phases marked as not reached.
  */
 export function timelineSteps(
   events: readonly PhaseEvent[],
@@ -33,10 +34,9 @@ export function timelineSteps(
     ascending.unshift({ phase: "Accompagnement amont", timestamp: depotDate });
   }
   const currentPhase = ascending.at(-1)?.phase ?? "Accompagnement amont";
-  const currentIndex =
-    currentPhase === "Classé sans suite"
-      ? orderedPhases.length
-      : orderedPhases.indexOf(currentPhase);
+  const classified = currentPhase === "Classé sans suite";
+  const currentIndex = orderedPhases.indexOf(currentPhase);
+  const furthestIndex = Math.max(-1, ...ascending.map(({ phase }) => orderedPhases.indexOf(phase)));
 
   // Periods spent in each phase: from each event to the next one, the latest
   // being open-ended. A phase visited twice gets two lines.
@@ -55,7 +55,15 @@ export function timelineSteps(
   for (const [index, phase] of orderedPhases.entries()) {
     steps.push({
       label: phase,
-      state: index < currentIndex ? "done" : index === currentIndex ? "current" : "future",
+      state: classified
+        ? index <= furthestIndex
+          ? "done"
+          : "not_reached"
+        : index < currentIndex
+          ? "done"
+          : index === currentIndex
+            ? "current"
+            : "future",
       detail: periodsByPhase.get(phase) ?? [],
     });
   }

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { timelineSteps } from "./timeline.ts";
+  import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -10,10 +11,21 @@
   let { events, depotDate }: Props = $props();
 
   const steps = $derived(timelineSteps(events, depotDate));
+  const latestEvent = $derived(
+    [...events]
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .at(-1),
+  );
 
   // Same green as the list's progress bar.
   const DONE_COLOR = "bg-[#61CE8C]";
 </script>
+
+{#if latestEvent?.phase === "Classé sans suite"}
+  <p class="fr-badge fr-badge--no-icon fr-mb-3w">
+    Classé sans suite le {formatDateAbsolute(latestEvent.timestamp, "dd/MM/yyyy")}
+  </p>
+{/if}
 
 <ol class="fr-m-0 fr-p-0 grid list-none grid-cols-2 gap-y-6">
   {#each steps as step, index}
@@ -21,7 +33,8 @@
       {#if index > 0}
         <!-- Connector to the previous step, green up to the current phase. -->
         <span
-          class="connector absolute top-[0.625rem] z-0 h-[0.25rem] {step.state === 'future'
+          class="connector absolute top-[0.625rem] z-0 h-[0.25rem] {step.state === 'future' ||
+          step.state === 'not_reached'
             ? 'bg-[var(--background-contrast-grey)]'
             : DONE_COLOR}"
           aria-hidden="true"
@@ -66,7 +79,9 @@
           ? "(terminée)"
           : step.state === "current"
             ? "(en cours)"
-            : "(à venir)"}
+            : step.state === "not_reached"
+              ? "(non atteinte)"
+              : "(à venir)"}
       </span>
     </li>
   {/each}
