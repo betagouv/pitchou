@@ -10,7 +10,21 @@ function fakeDossier(): DossierFull {
     name: "Dossier test",
     free_comment: "Note interne de l'instructeur",
     latestCommentaire: "Dernier commentaire du service",
-    cnpnEmailSentEvents: [{ recipient_email: "internal-cnpn@example.test" }],
+    cnpnEmailSentEvents: [
+      {
+        id: "internal-email-event",
+        dossier: 123,
+        sent_by_email: "sender@example.test",
+        sent_at: "2026-03-01T12:00:00Z",
+        delivered_at: null,
+        opened_at: null,
+        recipient_email: "internal-cnpn@example.test",
+        cc_emails: ["internal-cc@example.test"],
+        subject: "Internal CNPN saisine subject",
+        attachment_ids: ["7c5bd5bb-a07c-4b97-9bcd-84366acb5eab"],
+        attachment_names: ["internal-saisine.pdf"],
+      },
+    ],
     evenementsPhase: [{ dossier: 123, phase: "Instruction", timestamp: new Date("2026-02-01") }],
     piecesJointesPetitionnaires: [{ url: "/piece-jointe-petitionnaire/fichier/1", name: "ddep" }],
     avisExpert: [
@@ -106,6 +120,24 @@ test("un dossier en lecture seule garde ce qui est partagé", () => {
   expect(shared.decisionsAdministratives![0]!.fichier_url).toBe(
     "/decision-administrative/fichier/30",
   );
+});
+
+test("la projection exclut tout l'historique des emails CNPN du JSON sans modifier la source", () => {
+  const dossier = fakeDossier();
+  const events = structuredClone(dossier.cnpnEmailSentEvents);
+  const wire = JSON.stringify(dossierFullForReadOnly(dossier));
+
+  expect(JSON.parse(wire)).not.toHaveProperty("cnpnEmailSentEvents");
+  for (const secret of [
+    "internal-cnpn@example.test",
+    "internal-cc@example.test",
+    "Internal CNPN saisine subject",
+    "7c5bd5bb-a07c-4b97-9bcd-84366acb5eab",
+    "internal-saisine.pdf",
+  ]) {
+    expect(wire).not.toContain(secret);
+  }
+  expect(dossier.cnpnEmailSentEvents).toEqual(events);
 });
 
 test("la projection ne modifie pas le dossier d'origine", () => {
