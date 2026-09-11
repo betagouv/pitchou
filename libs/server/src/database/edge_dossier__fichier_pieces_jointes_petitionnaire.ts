@@ -79,24 +79,13 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     (edge) => !checksumsByDossier.get(edge.dossier)?.has(edge.checksum),
   );
 
-  let orphanFichiersCleanedUp: Promise<any> = Promise.resolve();
-
   if (edgesToDelete.length >= 1) {
-    const candidateFichierIdsToDelete = [...new Set(edgesToDelete.map((edge) => edge.fichier))];
-
-    orphanFichiersCleanedUp = (async () => {
-      // 1. Unlink: delete the concerned pétitionnaire PJ edges (the file may still be used elsewhere)
-      await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
-        .delete()
-        .whereIn(
-          ["dossier", "fichier"],
-          edgesToDelete.map((edge) => [edge.dossier, edge.fichier]),
-        );
-
-      // 2. Delete the files now that the edges are gone, only
-      //    if they are no longer referenced elsewhere
-      await deleteFichiersWithoutOtherReferences(candidateFichierIdsToDelete, databaseConnection);
-    })();
+    await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
+      .delete()
+      .whereIn(
+        ["dossier", "fichier"],
+        edgesToDelete.map((edge) => [edge.dossier, edge.fichier]),
+      );
   }
 
   const edgesFichierDossierPiecesJointePetitionnaires = [
@@ -107,7 +96,6 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     )
     .flat();
 
-  let newFichiersSynchronized: Promise<any> = Promise.resolve();
   const dossiersWithNewPiecesJointes = new Set<DossierId>(
     edgesToDelete.map(({ dossier }) => dossier),
   );
@@ -149,9 +137,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
       ({ dossier, fichier }) => !existingKeys.has(`${dossier}:${fichier}`),
     );
 
-    newFichiersSynchronized = databaseConnection(
-      "edge_dossier__fichier_pieces_jointes_petitionnaire",
-    )
+    await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
       .insert(edgesFichierDossierPiecesJointePetitionnaires)
       .onConflict(["dossier", "fichier"])
       .ignore();
@@ -186,6 +172,11 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     }
   }
 
-  await Promise.all([orphanFichiersCleanedUp, newFichiersSynchronized]);
+  // A removed file may be linked to another dossier in this same batch.
+  // Finish all link mutations before deciding which files are orphaned.
+  await deleteFichiersWithoutOtherReferences(
+    [...new Set(edgesToDelete.map((edge) => edge.fichier))],
+    databaseConnection,
+  );
   return dossiersWithNewPiecesJointes;
 }

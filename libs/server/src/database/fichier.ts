@@ -115,11 +115,48 @@ const FILE_REFERENCES = [
   { table: "other_attachment", column: "fichier" },
 ];
 
+const transactionCommits = new WeakMap<Knex.Transaction, Promise<boolean>>();
+
+function transactionCommitted(transaction: Knex.Transaction): Promise<boolean> {
+  const existing = transactionCommits.get(transaction);
+  if (existing) return existing;
+
+  let lastQuery = "";
+  let queryFailed = false;
+  const onQuery = ({ sql }: { sql: string }) => {
+    lastQuery = sql;
+  };
+  const onError = () => {
+    queryFailed = true;
+  };
+  transaction.on("query", onQuery);
+  transaction.on("query-error", onError);
+  // Knex also resolves executionPromise on an explicit rollback without an error.
+  // A query failure can make PostgreSQL turn COMMIT into ROLLBACK; retain the object then.
+  const completed = transaction.executionPromise
+    .then(
+      () => !queryFailed && /^(COMMIT;|RELEASE SAVEPOINT \w+;)$/.test(lastQuery),
+      () => false,
+    )
+    .finally(() => {
+      transaction.removeListener("query", onQuery);
+      transaction.removeListener("query-error", onError);
+    });
+  const committed = transaction.parentTransaction
+    ? Promise.all([completed, transactionCommitted(transaction.parentTransaction)]).then(
+        (results) => results.every(Boolean),
+      )
+    : completed;
+  transactionCommits.set(transaction, committed);
+  return committed;
+}
+
 /**
  * Deletes only the file IDs that are no longer referenced by any other table.
  * Preserves files that are still in use (e.g. shared across multiple dossiers).
  *
- * Returns the IDs that were actually deleted.
+ * Returns the IDs whose metadata was deleted. With a transaction, S3 cleanup runs
+ * best-effort only after it and all its parents commit; the caller still owns commit/rollback.
  */
 export async function deleteFichiersWithoutOtherReferences(
   fileIds: FileId[],
@@ -139,9 +176,21 @@ export async function deleteFichiersWithoutOtherReferences(
 
   for (const fileId of toDelete) {
     await deleteFile(fileId, databaseConnection);
-    await deleteObject(fileKey(fileId)).catch((err) => {
-      console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err.message);
+  }
+
+  const deleteObjects = async () => {
+    for (const fileId of toDelete) {
+      await deleteObject(fileKey(fileId)).catch((err) => {
+        console.error(`Échec suppression objet S3 pour file_id ${fileId}`, err);
+      });
+    }
+  };
+  if (toDelete.length > 0 && databaseConnection.isTransaction) {
+    void transactionCommitted(databaseConnection as Knex.Transaction).then((committed) => {
+      if (committed) return deleteObjects();
     });
+  } else {
+    await deleteObjects();
   }
 
   return toDelete;
