@@ -11,6 +11,7 @@
   type Props = {
     dossiers: DossierSummary[];
     readOnly?: boolean;
+    onEditDueDate?: (dossier: DossierSummary) => void;
     sortKey: SortKey;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
@@ -23,6 +24,7 @@
   let {
     dossiers,
     readOnly = false,
+    onEditDueDate,
     sortKey,
     wholeListEmpty,
     followedIds,
@@ -91,6 +93,7 @@
               <CardDossier
                 {readOnly}
                 {dossier}
+                onEditDueDate={onEditDueDate ? () => onEditDueDate(dossier) : undefined}
                 currentInstructeurFollowsDossier={follow}
                 currentInstructeurLeavesDossier={leave}
                 dossierFollowedByCurrentInstructeur={followedIds.has(dossier.id)}

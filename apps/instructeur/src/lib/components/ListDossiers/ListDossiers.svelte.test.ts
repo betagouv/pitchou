@@ -21,7 +21,7 @@ import { store } from "$lib/state/store.svelte.ts";
 import DossiersSortMenu from "./DossiersSortMenu.svelte";
 import DossierActionsMenu from "../DossierFollowerAssignment/DossierActionsMenu.svelte";
 import MesDossiers from "../../../routes/mes-dossiers/MesDossiers.svelte";
-import { dossierId } from "./testHelpers.ts";
+import { dossierId, makeDossier } from "./testHelpers.ts";
 
 // The route mock accepts any URL, unlike SvelteKit's generated route-specific type.
 const routeState: { url: URL } = route;
@@ -34,6 +34,8 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   store.notificationByDossier.clear();
+  store.dossierSummaries.clear();
+  store.capabilities = {};
 });
 
 test("deadline sort labels select the corresponding direction without changing the default", async () => {
@@ -91,3 +93,56 @@ test("shared menu can hide deadlines while retaining read-only viewing extras an
   await page.getByRole("menuitem", { name: "Voir le dossier en lecture seule" }).click();
   expect(viewReadOnly).toHaveBeenCalledOnce();
 });
+
+test.each(["15/10/2026", ""])(
+  "deadline editor survives optimistic regrouping to '%s' and a failed save",
+  async (draft) => {
+    routeState.url = new URL("http://localhost/mes-dossiers?sort=nextDueDate&order=asc");
+    const dossier = makeDossier({ next_due_date: new Date("2026-09-15T00:00:00") });
+    store.dossierSummaries.set(dossier.id, dossier);
+    const response = Promise.withResolvers<void>();
+    store.capabilities.modifierDossier = vi.fn(() => response.promise);
+    render(MesDossiers, {
+      get dossiers() {
+        return [...store.dossierSummaries.values()];
+      },
+      notificationByDossier: store.notificationByDossier,
+    });
+    const trigger = screen.getByRole("button", { name: /Plus d’actions/ });
+    await fireEvent.click(trigger);
+    await fireEvent.click(screen.getByRole("menuitem", { name: /Modifier la date/ }));
+    const dialog = screen.getByRole("dialog", { name: /Modifier la date/ });
+    const input = screen.getByRole("textbox", { name: "Date de la prochaine échéance" });
+    await fireEvent.input(input, { target: { value: draft } });
+    await fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(store.capabilities.modifierDossier).toHaveBeenCalledOnce();
+    expect(trigger.isConnected).toBe(false);
+    expect(dialog).toBeVisible();
+    expect(screen.getByRole("dialog", { name: /Modifier la date/ })).toBe(dialog);
+    expect(screen.getByRole("button", { name: "Enregistrement…" })).toBeDisabled();
+    expect(input).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Annuler" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Fermer" })).toBeDisabled();
+    await fireEvent.click(screen.getByRole("button", { name: "Enregistrement…" }));
+    expect(store.capabilities.modifierDossier).toHaveBeenCalledOnce();
+    expect(await fireEvent(dialog, new Event("cancel", { cancelable: true }))).toBe(false);
+
+    response.reject(new Error("Save failed"));
+    await screen.findByText("La modification de la date d’échéance a échoué. Veuillez réessayer.");
+    expect(screen.getByRole("dialog", { name: /Modifier la date/ })).toBe(dialog);
+    expect(input).toHaveValue(draft);
+    expect(input).not.toBeDisabled();
+    expect(store.dossierSummaries.get(dossier.id)?.next_due_date).toEqual(dossier.next_due_date);
+
+    const retry = Promise.withResolvers<void>();
+    store.capabilities.modifierDossier = vi.fn(() => retry.promise);
+    await fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(dialog).toBeVisible();
+    retry.resolve();
+    await expect.poll(() => screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("button", { name: /Plus d’actions/ })).toHaveFocus();
+    expect(store.dossierSummaries.get(dossier.id)?.next_due_date).toEqual(
+      draft ? new Date("2026-10-15T00:00:00") : null,
+    );
+  },
+);

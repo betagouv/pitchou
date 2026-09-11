@@ -10,6 +10,7 @@
     dossierName: Dossier["name"];
     showDeadline?: boolean;
     outlined?: boolean;
+    onEditDueDate?: () => void;
     /** Context-specific entries appended after the shared ones. */
     extraItems?: { label: string; icon?: string; onClick: () => void }[];
   };
@@ -19,13 +20,13 @@
     dossierName,
     showDeadline = true,
     outlined = false,
+    onEditDueDate,
     extraItems = [],
   }: Props = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
-  let modalOpen = $state(false);
-  let dueDateModalOpen = $state(false);
+  let activeModal = $state<"assignment" | "dueDate" | null>(null);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuElement: HTMLUListElement | undefined = $state();
@@ -33,14 +34,17 @@
     {
       label: "Faire suivre le dossier",
       icon: "fr-icon-share-forward-fill",
-      onClick: () => (modalOpen = true),
+      onClick: () => (activeModal = "assignment"),
     },
     ...(showDeadline
       ? [
           {
             label: "Modifier la date de la prochaine échéance",
             icon: "fr-icon-calendar-event-line",
-            onClick: () => (dueDateModalOpen = true),
+            onClick: () => {
+              if (onEditDueDate) onEditDueDate();
+              else activeModal = "dueDate";
+            },
           },
         ]
       : []),
@@ -58,13 +62,8 @@
     if (restoreFocus) void tick().then(() => triggerElement?.focus());
   }
 
-  function closeAssignmentModal() {
-    modalOpen = false;
-    void tick().then(() => triggerElement?.focus());
-  }
-
-  function closeDueDateModal() {
-    dueDateModalOpen = false;
+  function closeModal() {
+    activeModal = null;
     void tick().then(() => triggerElement?.focus());
   }
 
@@ -159,12 +158,12 @@
   {/if}
 </div>
 
-{#if modalOpen}
-  <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeAssignmentModal} />
+{#if activeModal === "assignment"}
+  <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeModal} />
 {/if}
 
-{#if showDeadline && dueDateModalOpen}
-  <EditNextDueDateModal {dossierId} {dossierName} onClose={closeDueDateModal} />
+{#if showDeadline && activeModal === "dueDate"}
+  <EditNextDueDateModal {dossierId} {dossierName} onClose={closeModal} />
 {/if}
 
 <style>

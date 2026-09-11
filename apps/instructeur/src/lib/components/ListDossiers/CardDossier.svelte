@@ -19,6 +19,7 @@
     notificationViewed: boolean;
     dossierFollowedByCurrentInstructeur: boolean;
     readOnly?: boolean;
+    onEditDueDate?: () => void;
   };
 
   let {
@@ -28,6 +29,7 @@
     currentInstructeurLeavesDossier,
     notificationViewed,
     readOnly = false,
+    onEditDueDate,
   }: Props = $props();
 
   const name = $derived(dossier.name || "(nom non renseigné)");
@@ -130,7 +132,11 @@
   </div>
 
   <div class="relative z-10 flex flex-none flex-row items-start justify-end">
-    {#if canEdit}<DossierActionsMenu dossierId={dossier.id} dossierName={dossier.name} />{/if}
+    {#if canEdit}<DossierActionsMenu
+        dossierId={dossier.id}
+        dossierName={dossier.name}
+        {onEditDueDate}
+      />{/if}
   </div>
 </div>
 

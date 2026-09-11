@@ -26,6 +26,7 @@
   onMount(() => dialogElement?.showModal());
 
   async function submit() {
+    if (saving) return;
     saving = true;
     errorMessage = "";
     try {
@@ -70,6 +71,7 @@
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line"
         onclick={close}
+        disabled={saving}
       >
         Fermer
       </button>
@@ -85,6 +87,7 @@
           id="next-due-date-{dossierId}"
           label="Date de la prochaine échéance"
           bind:date={dueDate}
+          disabled={saving}
         />
       </div>
       {#if errorMessage}

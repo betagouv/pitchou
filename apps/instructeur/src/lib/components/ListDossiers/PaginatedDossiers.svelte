@@ -3,6 +3,7 @@
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import DossiersResults from "./DossiersResults.svelte";
+  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
@@ -46,6 +47,18 @@
   const currentPage = $derived(Math.min(Math.max(1, requestedPage), pageCount));
   const displayed = $derived(dossiers.slice(pageSize * (currentPage - 1), pageSize * currentPage));
   let title: HTMLHeadingElement | undefined = $state();
+  // A save can move the card to another month or page before the server responds.
+  let editingDueDate: Pick<DossierSummary, "id" | "name"> | undefined = $state();
+
+  async function closeDueDateEditor() {
+    const id = editingDueDate?.id;
+    editingDueDate = undefined;
+    await tick();
+    const trigger = document.querySelector<HTMLButtonElement>(
+      `button[aria-controls="dossier-actions-menu-${id}"]`,
+    );
+    (trigger ?? title)?.focus();
+  }
   const selectors = $derived.by<undefined | [undefined, ...(() => void)[]]>(() => {
     if (dossiers.length <= pageSize) return undefined;
     return [
@@ -79,6 +92,7 @@
   </div>
 </div>
 <DossiersResults
+  onEditDueDate={(dossier) => (editingDueDate = dossier)}
   {readOnly}
   dossiers={displayed}
   {sortKey}
@@ -91,3 +105,11 @@
   {emptyListMessage}
 />
 {#if selectors}<Pagination pageSelectors={selectors} currentPage={selectors[currentPage]} />{/if}
+
+{#if editingDueDate}
+  <EditNextDueDateModal
+    dossierId={editingDueDate.id}
+    dossierName={editingDueDate.name}
+    onClose={closeDueDateEditor}
+  />
+{/if}
