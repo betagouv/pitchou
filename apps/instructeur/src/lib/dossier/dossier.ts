@@ -145,11 +145,10 @@ export async function fetchDossierFullSnapshot(
     throw new Error("La session a changé pendant le chargement du dossier.");
 
   if ((localWriteVersions.get(id) ?? 0) !== writeVersion) {
-    // A champ was saved while this payload travelled: it predates the save, and
-    // caching it would undo what the instructeur just did. The next refresh
-    // brings a payload that includes the save.
+    // Preserve cached local edits. An empty preview cache has no edits to protect
+    // and must receive the restricted payload for the page to finish loading.
     const kept = (readOnly ? store.readOnlyDossiers : store.fullDossiers).get(id);
-    return kept ?? dossierFull;
+    if (kept) return kept;
   }
 
   // The server strips the dossier as soon as the cap only has read access, even

@@ -40,6 +40,33 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 const FIRST = 1 as DossierId;
 const initialUrl = location.href;
 
+test("the first read-only preview is cached when an autosave overlaps its fetch", async () => {
+  const full = fakeDossierFull({ id: FIRST, latestCommentaire: "Internal comment" });
+  const preview = fakeDossierFull({ id: FIRST, latestCommentaire: null });
+  const response = Promise.withResolvers<DossierFull>();
+  const fetch = vi.fn(() => response.promise);
+  store.fullDossiers.set(FIRST, full);
+  store.capabilities.recupérerDossierComplet = fetch;
+  const loading = getDossierFull(FIRST, { readOnly: true });
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledWith(FIRST, true));
+  await updateDossier(full, { onagre_demande_identifier: "2026-01" });
+  const summary = store.dossierSummaries.get(FIRST);
+  response.resolve(preview);
+  await loading;
+
+  const props = pageProps(FIRST);
+  render(PageDossier, { ...props, data: { ...props.data, readOnly: true } });
+  await tick();
+  expect(store.readOnlyDossiers.get(FIRST)).toBe(preview);
+  expect(screen.getByRole("button", { name: "Repasser en mode édition" })).toBeTruthy();
+  expect(screen.queryByText("Internal comment")).toBeNull();
+  expect(store.fullDossiers.get(FIRST)).toMatchObject({
+    onagre_demande_identifier: "2026-01",
+    latestCommentaire: "Internal comment",
+  });
+  expect(store.dossierSummaries.get(FIRST)).toBe(summary);
+});
+
 test("leaving an owner's preview waits for full data before showing editable fields", async () => {
   const preview = fakeDossierFull({ id: FIRST, latestCommentaire: null });
   const full = fakeDossierFull({ id: FIRST, latestCommentaire: "Internal comment" });
