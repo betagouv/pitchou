@@ -5,6 +5,7 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { authorInitials, authorName, avatarClass } from "./commentaires.ts";
   import CommentaireActions from "./CommentaireActions.svelte";
+  import CommentaireEditor from "./CommentaireEditor.svelte";
   import NouveauCommentaireForm from "./NouveauCommentaireForm.svelte";
   import { readOnlyMode } from "../readOnly.ts";
   import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
@@ -19,10 +20,11 @@
 
   let commentaires: DossierCommentaire[] = $state([]);
   let newContent = $state("");
+  let submitting = $state(false);
+  let savingEdit = $state(false);
   let editingId: string | null = $state(null);
   let editContent = $state("");
   let errorMessage = $state("");
-  let editInput: HTMLTextAreaElement | undefined = $state();
   let newCommentInput: HTMLTextAreaElement | undefined = $state();
 
   $effect(() => {
@@ -53,9 +55,10 @@
   }
 
   async function submit() {
-    if (readOnly.current || !store.capabilities.ajouterCommentaire) return;
+    if (submitting || readOnly.current || !store.capabilities.ajouterCommentaire) return;
     const content = newContent.trim();
     if (!content) return;
+    submitting = true;
     errorMessage = "";
     try {
       const commentaire = await store.capabilities.ajouterCommentaire(dossier.id, content);
@@ -64,18 +67,20 @@
       syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être enregistré.";
+    } finally {
+      submitting = false;
     }
   }
 
-  async function startEdit(commentaire: DossierCommentaire) {
+  function startEdit(commentaire: DossierCommentaire) {
+    if (savingEdit) return;
     editingId = commentaire.id;
     editContent = commentaire.content;
-    await tick();
-    editInput?.focus();
   }
 
   async function saveEdit(commentaire: DossierCommentaire) {
     if (
+      savingEdit ||
       readOnly.current ||
       !store.capabilities.modifierCommentaire ||
       commentaire.author_email !== email
@@ -83,6 +88,7 @@
       return;
     const content = editContent.trim();
     if (!content) return;
+    savingEdit = true;
     errorMessage = "";
     try {
       await store.capabilities.modifierCommentaire(dossier.id, { id: commentaire.id, content });
@@ -95,6 +101,8 @@
       syncLatestCommentaire();
     } catch {
       errorMessage = "Le commentaire n'a pas pu être modifié.";
+    } finally {
+      savingEdit = false;
     }
   }
 
@@ -135,6 +143,7 @@
     <NouveauCommentaireForm
       bind:content={newContent}
       bind:input={newCommentInput}
+      pending={submitting}
       onSubmit={submit}
     >
       {@render avatar(email)}
@@ -153,10 +162,10 @@
                 >{dateLabel(commentaire)}</span
               >
             </p>
-            {#if !readOnly.current && commentaire.author_email === email && editingId !== commentaire.id && (store.capabilities.modifierCommentaire || store.capabilities.supprimerCommentaire)}
+            {#if !readOnly.current && commentaire.author_email === email && editingId !== commentaire.id && ((store.capabilities.modifierCommentaire && !savingEdit) || store.capabilities.supprimerCommentaire)}
               <CommentaireActions
                 commentaireId={commentaire.id}
-                onEdit={store.capabilities.modifierCommentaire
+                onEdit={store.capabilities.modifierCommentaire && !savingEdit
                   ? () => {
                       void startEdit(commentaire);
                     }
@@ -168,24 +177,12 @@
             {/if}
           </div>
           {#if !readOnly.current && store.capabilities.modifierCommentaire && editingId === commentaire.id}
-            <textarea
-              bind:this={editInput}
-              class="fr-input resize-y"
-              aria-label="Modifier le commentaire"
-              rows={3}
-              bind:value={editContent}></textarea>
-            <div class="fr-mt-1w flex gap-2">
-              <button type="button" class="fr-btn fr-btn--sm" onclick={() => saveEdit(commentaire)}>
-                Enregistrer
-              </button>
-              <button
-                type="button"
-                class="fr-btn fr-btn--secondary fr-btn--sm"
-                onclick={() => (editingId = null)}
-              >
-                Annuler
-              </button>
-            </div>
+            <CommentaireEditor
+              bind:content={editContent}
+              pending={savingEdit}
+              onSave={() => saveEdit(commentaire)}
+              onCancel={() => (editingId = null)}
+            />
           {:else}
             <p class="fr-mb-0 whitespace-pre-line [word-break:break-word]">
               {commentaire.content}

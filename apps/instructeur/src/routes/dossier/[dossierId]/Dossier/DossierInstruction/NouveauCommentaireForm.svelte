@@ -4,11 +4,13 @@
   let {
     content = $bindable(""),
     input = $bindable(),
+    pending,
     onSubmit,
     children,
   }: {
     content: string;
     input: HTMLTextAreaElement | undefined;
+    pending: boolean;
     onSubmit: () => Promise<void>;
     children: Snippet;
   } = $props();
@@ -30,9 +32,10 @@
       aria-label="Laissez un commentaire"
       placeholder="Laissez un commentaire…"
       rows={2}
+      disabled={pending}
       bind:value={content}></textarea>
     {#if content.trim()}
-      <button type="submit" class="fr-btn fr-btn--sm">Commenter</button>
+      <button type="submit" class="fr-btn fr-btn--sm" disabled={pending}>Commenter</button>
     {/if}
   </div>
 </form>
