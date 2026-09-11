@@ -10,15 +10,12 @@
   import { readOnlyMode } from "../readOnly.ts";
   import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-
-  type Props = {
-    dossier: DossierFull;
-    email: string;
-  };
-  let { dossier, email }: Props = $props();
+  let { dossier, email }: { dossier: DossierFull; email: string } = $props();
   const readOnly = readOnlyMode();
-
   let commentaires: DossierCommentaire[] = $state([]);
+  // Preserve the initial thread before allowing writes; later lists are invalidated on save.
+  let loaded = $state(false);
+  let invalidateList: (() => void) | undefined;
   let newContent = $state("");
   let submitting = $state(false);
   let savingEdit = $state(false);
@@ -28,10 +25,21 @@
   let newCommentInput: HTMLTextAreaElement | undefined = $state();
 
   $effect(() => {
+    let active = true;
+    invalidateList = () => {
+      active = false;
+    };
     void store.capabilities
       .listerCommentaires?.(dossier.id)
-      .then((list) => (commentaires = list))
-      .catch(() => (errorMessage = "Les commentaires n'ont pas pu être chargés."));
+      .then((list) => {
+        if (!active) return;
+        commentaires = list;
+        loaded = true;
+      })
+      .catch(() => {
+        if (active) errorMessage = "Les commentaires n'ont pas pu être chargés.";
+      });
+    return invalidateList;
   });
 
   function dateLabel({ author_email, created_at, updated_at }: DossierCommentaire): string {
@@ -43,9 +51,9 @@
       : written;
   }
 
-  // The dossier list and the tableau de suivi display the most recent commentaire,
-  // so the cached dossier is refreshed alongside the thread.
+  // Keep the cached dossier's latest comment in sync with the thread.
   function syncLatestCommentaire() {
+    invalidateList?.();
     const latest = commentaires[0]?.content ?? null;
     const cachedDossier = store.fullDossiers.get(dossier.id) ?? dossier;
     if (cachedDossier.latestCommentaire !== latest) {
@@ -55,14 +63,15 @@
   }
 
   async function submit() {
-    if (submitting || readOnly.current || !store.capabilities.ajouterCommentaire) return;
+    if (!loaded || submitting || readOnly.current || !store.capabilities.ajouterCommentaire) return;
     const content = newContent.trim();
     if (!content) return;
     submitting = true;
     errorMessage = "";
     try {
       const commentaire = await store.capabilities.ajouterCommentaire(dossier.id, content);
-      if (commentaire) commentaires = [commentaire, ...commentaires];
+      if (commentaire)
+        commentaires = [commentaire, ...commentaires.filter(({ id }) => id !== commentaire.id)];
       newContent = "";
       syncLatestCommentaire();
     } catch {
@@ -131,25 +140,21 @@
     {authorInitials(authorEmail)}
   </span>
 {/snippet}
-
 <section class="fr-mt-4w fr-mb-4w max-w-[48rem]">
   <h4 class="fr-mb-2w fr-text--lg">Commentaires</h4>
-
   {#if errorMessage}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p>{errorMessage}</p></div>
   {/if}
-
   {#if !readOnly.current && store.capabilities.ajouterCommentaire}
     <NouveauCommentaireForm
       bind:content={newContent}
       bind:input={newCommentInput}
-      pending={submitting}
+      pending={!loaded || submitting}
       onSubmit={submit}
     >
       {@render avatar(email)}
     </NouveauCommentaireForm>
   {/if}
-
   <ul class="fr-mt-3w fr-p-0 flex list-none flex-col gap-4">
     {#each commentaires as commentaire (commentaire.id)}
       <li class="flex items-start gap-3">
@@ -166,9 +171,7 @@
               <CommentaireActions
                 commentaireId={commentaire.id}
                 onEdit={store.capabilities.modifierCommentaire && !savingEdit
-                  ? () => {
-                      void startEdit(commentaire);
-                    }
+                  ? () => startEdit(commentaire)
                   : undefined}
                 onDelete={store.capabilities.supprimerCommentaire
                   ? () => deleteCommentaire(commentaire)
