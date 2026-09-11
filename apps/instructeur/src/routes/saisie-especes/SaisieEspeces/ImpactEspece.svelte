@@ -1,5 +1,6 @@
 <script lang="ts">
   import QuantifiedImpactFields from "./QuantifiedImpactFields.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
 
   import type {
     ByClassification,
@@ -59,6 +60,30 @@
       : [],
   );
 
+  const activiteOptions = $derived([
+    { value: undefined, label: "-" },
+    ...activitesMenacantes.map((activite) => ({
+      value: activite["Identifiant Pitchou"],
+      label: activite["Libellé Pitchou"],
+    })),
+  ]);
+
+  const methodeOptions = $derived([
+    { value: undefined, label: "-" },
+    ...methodeMenacantes.map((methode) => ({
+      value: methode.Code,
+      label: methode["Libellé Pitchou"],
+    })),
+  ]);
+
+  const moyenDePoursuiteOptions = $derived([
+    { value: undefined, label: "-" },
+    ...transportMenacants.map((transport) => ({
+      value: transport.Code,
+      label: transport["Libellé Pitchou"],
+    })),
+  ]);
+
   export function focusDeleteButton() {
     deleteButton?.focus();
   }
@@ -67,7 +92,11 @@
     selectImpact?.focus();
   }
 
-  function resetDetailsImpact() {
+  function setActivite(identifiant: ActiviteMenancante["Identifiant Pitchou"] | undefined) {
+    if (identifiant === impact.activité?.["Identifiant Pitchou"]) return;
+    impact.activité = activitesMenacantes.find(
+      (activite) => activite["Identifiant Pitchou"] === identifiant,
+    );
     impact.méthode = undefined;
     impact.moyenDePoursuite = undefined;
     impact.nombreIndividus = undefined;
@@ -78,7 +107,7 @@
 
   let deleteButton: HTMLElement | undefined = $state();
 
-  let selectImpact: HTMLElement;
+  let selectImpact: { focus: () => void } | undefined = $state();
 </script>
 
 <fieldset class="fr-fieldset fr-input-group fr-fieldset__element fr-m-0 fr-p-0">
@@ -93,20 +122,13 @@
         Type d’impact
       </label>
       <div class="flex fr-mt-1w gap-2 min-[62em]:gap-6">
-        <select
+        <Select
           bind:this={selectImpact}
-          bind:value={impact.activité}
-          onchange={resetDetailsImpact}
-          class="fr-select"
           id="input-espece-{indexEspece}-impact-{indexImpact}"
-        >
-          <option value={undefined}>-</option>
-          {#each activitesMenacantes as act}
-            <option value={act}>
-              {act["Libellé Pitchou"]}
-            </option>
-          {/each}
-        </select>
+          class="grow"
+          options={activiteOptions}
+          bind:value={() => impact.activité?.["Identifiant Pitchou"], setActivite}
+        />
         {#if onSupprimerImpact}
           <button
             class="fr-btn fr-btn--secondary fr-icon-delete-line"
@@ -127,18 +149,15 @@
         <label class="fr-label" for="input-espece-{indexEspece}-methode-{indexImpact}">
           Méthode
         </label>
-        <select
-          bind:value={impact.méthode}
-          class="fr-select"
+        <Select
           id="input-espece-{indexEspece}-methode-{indexImpact}"
-        >
-          <option value={undefined}>-</option>
-          {#each methodeMenacantes as met}
-            <option value={met}>
-              {met["Libellé Pitchou"]}
-            </option>
-          {/each}
-        </select>
+          class="fr-mt-1w"
+          options={methodeOptions}
+          bind:value={
+            () => impact.méthode?.Code,
+            (code) => (impact.méthode = methodeMenacantes.find((methode) => methode.Code === code))
+          }
+        />
       </div>
     {/if}
 
@@ -147,18 +166,18 @@
         <label class="fr-label" for="input-espece-{indexEspece}-moyen-de-poursuite-{indexImpact}">
           Moyen de poursuite
         </label>
-        <select
-          bind:value={impact.moyenDePoursuite}
-          class="fr-select"
+        <Select
           id="input-espece-{indexEspece}-moyen-de-poursuite-{indexImpact}"
-        >
-          <option value={undefined}>-</option>
-          {#each transportMenacants as trans}
-            <option value={trans}>
-              {trans["Libellé Pitchou"]}
-            </option>
-          {/each}
-        </select>
+          class="fr-mt-1w"
+          options={moyenDePoursuiteOptions}
+          bind:value={
+            () => impact.moyenDePoursuite?.Code,
+            (code) =>
+              (impact.moyenDePoursuite = transportMenacants.find(
+                (transport) => transport.Code === code,
+              ))
+          }
+        />
       </div>
     {/if}
   </div>

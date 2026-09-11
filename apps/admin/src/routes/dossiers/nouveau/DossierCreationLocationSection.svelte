@@ -17,6 +17,10 @@
     { value: "france", label: "de toute la France" },
   ] as const;
   const regionOptions = dossierRegionOptions.map((region) => ({ value: region, label: region }));
+  const departmentOptions = departements.map((department) => ({
+    value: department.code,
+    label: `${department.code} – ${department.name}`,
+  }));
 </script>
 
 <section
@@ -36,12 +40,10 @@
     </label>
     <Select
       id="location-primary-department"
-      required
+      class="fr-mt-1w"
       placeholder="Sélectionnez un département"
-      options={departements.map((department) => ({
-        value: department.code,
-        label: `${department.code} – ${department.name}`,
-      }))}
+      required
+      options={departmentOptions}
       bind:value={model.primaryDepartment}
     />
   </div>

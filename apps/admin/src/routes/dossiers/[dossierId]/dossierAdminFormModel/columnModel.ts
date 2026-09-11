@@ -118,13 +118,5 @@ export function createDossierAdminColumnModel(dossier: AdminDossierDetail["dossi
     scientifiqueInterventionPerimeter: text(dossier.scientifique_intervention_perimeter),
     scientifiqueIntervenants: intervenants(dossier.scientifique_intervenants),
     scientifiqueOtherIntervenantsDetails: text(dossier.scientifique_other_intervenants_details),
-    freeComment: text(dossier.free_comment),
-    nextActionExpectedFrom: text(dossier.next_action_expected_from),
-    onagreDemandeIdentifier: text(dossier.onagre_demande_identifier),
-    enjeu: dossier.enjeu === true,
-    ddepRequired: triState(dossier.ddep_required),
-    erMesuresSufficient: triState(dossier.er_mesures_sufficient),
-    publicConsultationStartDate: date(dossier.public_consultation_start_date),
-    publicConsultationEndDate: date(dossier.public_consultation_end_date),
   };
 }

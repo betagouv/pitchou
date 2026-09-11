@@ -63,5 +63,7 @@ export async function fillTypeAutre(container: HTMLElement, type: string) {
 }
 
 export function setupDsfrModalMock() {
-  Object.assign(window, { dsfr: vi.fn(() => ({ modal: { conceal: vi.fn() } })) });
+  Object.assign(window, {
+    dsfr: vi.fn(() => ({ modal: { conceal: vi.fn(), disclose: vi.fn() } })),
+  });
 }

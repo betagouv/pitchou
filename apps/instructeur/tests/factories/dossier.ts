@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type { DossierInitializer } from "@pitchou/types/database/public/Dossier.ts";
+import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 export const DEFAULT_NUMERO_DEMARCHE = 88444;
 
@@ -31,7 +32,7 @@ export async function createDossier(
 export async function createGroupeInstructeurs(
   db: Knex,
   overrides: { name?: string; demarche_number?: number } = {},
-): Promise<{ id: string; name: string }> {
+): Promise<{ id: GroupeInstructeurs["id"]; name: string }> {
   const insert = {
     name: overrides.name ?? "Groupe de test",
     demarche_number: overrides.demarche_number ?? DEFAULT_NUMERO_DEMARCHE,

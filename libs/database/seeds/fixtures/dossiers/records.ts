@@ -88,11 +88,11 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     name: "Centrale photovoltaïque au sol La Gardiole – Montagnac (34)",
     ddep_required: true,
     free_comment:
-      "Dossier reçu le 18/03/2024. Demande de compléments transmise le 05/06/2024 concernant le protocole de suivi des reptiles. Réponse reçue le 22/09/2024. Instruction en cours.\n- 18/03/2024 : dépôt du dossier\n- 05/06/2024 : demande de compléments (suivi reptiles)\n- 22/09/2024 : réception des compléments",
+      "Dossier reçu le 18/03/2024. Demande de compléments transmise le 05/06/2024 concernant le protocole de suivi des reptiles. Réponse reçue le 22/09/2024. Projet d'arrêté transmis à la signature préfectorale.\n- 18/03/2024 : dépôt du dossier\n- 05/06/2024 : demande de compléments (suivi reptiles)\n- 22/09/2024 : réception des compléments",
     onagre_demande_identifier: "",
     public_consultation_start_date: null,
     linked_to_ae_regime: true,
-    next_action_expected_from: "Instructeur",
+    next_action_expected_from: "Préfet-e",
     main_activite: "Production énergie renouvelable - Photovoltaïque",
     description:
       "Projet de centrale photovoltaïque au sol d'une puissance installée de 12 MWc sur des parcelles de garrigue et friches agricoles sur la commune de Montagnac. La surface clôturée sera de 18 hectares. Des inventaires naturalistes ont mis en évidence la présence de la Couleuvre de Montpellier, du Lézard ocellé et de l'Outarde canepetière.",

@@ -1,8 +1,10 @@
 <script lang="ts">
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
+  import { DATE_FIELD_LABEL } from "./listModel.ts";
+  import type { DateField, DossiersQuery } from "./listModel.ts";
+  const dateFields = Object.entries(DATE_FIELD_LABEL) as [DateField, string][];
   import { especeLabel } from "@pitchou/common/especesUtils.ts";
   import { store } from "$lib/state/store.svelte.ts";
-  import type { DossiersQuery } from "./listModel.ts";
   type Props = { draft: DossiersQuery; onOpenEspecesDrawer: () => void };
   let { draft = $bindable(), onOpenEspecesDrawer }: Props = $props();
   const newModifications = $derived(draft.nouveaute === "oui");
@@ -21,14 +23,12 @@
     class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
     ><span class="fr-icon-calendar-line fr-icon--sm" aria-hidden="true"></span> Date</legend
   >
-  {#each [["deposit", "de dépôt"], ["phaseStart", "de début de phase"], ["lastModified", "de dernière modification"]] as option}
+  {#each dateFields as [field, label] (field)}
     <div class="fr-radio-group fr-radio-group--sm">
-      <input
-        type="radio"
-        id="date-{option[0]}"
-        value={option[0]}
-        bind:group={draft.dateField}
-      /><label class="fr-label" for="date-{option[0]}">{option[1]}</label>
+      <input type="radio" id="date-{field}" value={field} bind:group={draft.dateField} /><label
+        class="fr-label"
+        for="date-{field}">{label}</label
+      >
     </div>
   {/each}
   <div class="flex items-center gap-2 fr-mt-1w">

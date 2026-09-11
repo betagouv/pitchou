@@ -7,7 +7,10 @@ import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
+  getDossierIdFromDecisionAdministrative,
 } from "@pitchou/server/database/decision_administrative.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 const decisionProperties = new Set([
@@ -79,7 +82,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
       cap,
       transaction,
     );
-    if (!dossiersAccessibles.has(decisionData.dossier)) {
+    // Only an owning group can instruct the dossier.
+    if (dossiersAccessibles.get(decisionData.dossier) !== "complet") {
       await transaction.rollback();
       error(
         400,
@@ -87,9 +91,30 @@ export const POST: RequestHandler = async ({ url, request }) => {
       );
     }
 
+    if (
+      decisionData.id &&
+      (await getDossierIdFromDecisionAdministrative(decisionData.id, transaction)) !==
+        decisionData.dossier
+    ) {
+      error(403, "La décision administrative n'appartient pas au dossier");
+    }
+
     const id = decisionData.id
       ? await updateDecisionAdministrative(decisionData, transaction)
       : await addDecisionAdministrativeWithFichier(decisionData, transaction);
+
+    const author = await getPersonneByDossierCap(cap);
+    await logDossierActions(
+      [
+        {
+          dossier: decisionData.dossier,
+          type: decisionData.id ? "decision_modifiee" : "decision_importee",
+          data: { decision_type: decisionData.type ?? null },
+          author_personne: author?.id ?? null,
+        },
+      ],
+      transaction,
+    );
 
     await transaction.commit();
     return json(id);

@@ -19,16 +19,31 @@
     /** Flat options, or groups of options (rendered under colored headers). */
     options: SelectEntry<string>[];
     selected: string[];
-    onChange: (values: string[]) => void;
+    /** Opt in to distinct all/none states; other filters retain empty-array semantics. */
+    selectionMode?: "all" | "none" | "custom";
+    noneLabel?: string;
+    onChange: (values: string[], mode: "all" | "none" | "custom") => void;
   };
 
-  let { id, label, allLabel, options, selected, onChange }: Props = $props();
+  let {
+    id,
+    label,
+    allLabel,
+    options,
+    selected,
+    selectionMode,
+    noneLabel = "Aucune sélection",
+    onChange,
+  }: Props = $props();
 
   let open = $state(false);
   let root: HTMLElement | undefined = $state();
 
   const allOptions = $derived(flattenOptions(options));
   const groups = $derived(toRenderedGroups(options));
+  const checkedValues = $derived(
+    selectionMode === "all" ? allOptions.map((option) => option.value) : selected,
+  );
 
   // Close when clicking anywhere outside the dropdown (selecting options keeps it open).
   function onBodyClick(event: MouseEvent) {
@@ -36,10 +51,15 @@
   }
 
   function toggle(value: string) {
-    onChange(selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]);
+    const values = checkedValues.includes(value)
+      ? checkedValues.filter((v) => v !== value)
+      : [...checkedValues, value];
+    onChange(values, values.length ? "custom" : "none");
   }
 
   const summary = $derived.by(() => {
+    if (selectionMode === "all") return allLabel;
+    if (selectionMode === "none") return noneLabel;
     if (selected.length === 0) return allLabel;
     if (selected.length === 1)
       return allOptions.find((option) => option.value === selected[0])?.label ?? selected[0];
@@ -74,14 +94,18 @@
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-          onclick={() => onChange(allOptions.map((option) => option.value))}
+          onclick={() =>
+            onChange(
+              allOptions.map((option) => option.value),
+              "all",
+            )}
         >
           Tout
         </button>
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
-          onclick={() => onChange([])}
+          onclick={() => onChange([], "none")}
         >
           Aucun
         </button>
@@ -112,7 +136,7 @@
                   <input
                     type="checkbox"
                     id={checkboxId}
-                    checked={selected.includes(option.value)}
+                    checked={checkedValues.includes(option.value)}
                     onchange={() => toggle(option.value)}
                   />
                   <label class="fr-label" for={checkboxId}>

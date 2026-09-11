@@ -1,3 +1,4 @@
+import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 import {
   createWorkbook,
   type WorkbookCell,
@@ -36,9 +37,12 @@ const AVIS_EXPERT_HEADER = [
   "Fichier de l'avis",
 ];
 
-const SOURCE_LABELS = {
+const SOURCE_LABELS: Record<DossierSource, string> = {
   pitchou: "Créé dans Pitchou",
   demarche_numerique: "Importé de Démarches Numériques",
+  gunenv: "Importé de GunEnv",
+  onagre: "Importé d'Onagre",
+  import_fichier: "Importé depuis un fichier du service",
   unknown: "Source inconnue",
 };
 

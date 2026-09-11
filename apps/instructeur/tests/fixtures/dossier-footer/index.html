@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr" data-fr-scheme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/docs/style/dsfr/dsfr.css" />
+    <link rel="stylesheet" href="/docs/style/dsfr/utility/utility.css" />
+  </head>
+  <body>
+    <script type="module">
+      import { mount } from "svelte";
+      import Fixture from "./Fixture.svelte";
+      mount(Fixture, { target: document.body });
+      await import("/docs/style/dsfr/dsfr.module.js");
+    </script>
+  </body>
+</html>

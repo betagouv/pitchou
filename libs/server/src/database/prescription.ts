@@ -30,22 +30,22 @@ export function addPrescription(
     .then((prescriptions) => ({ prescriptionId: prescriptions[0].id }));
 }
 
-export function addPrescriptionsEtControles(prescriptions: Omit<FrontEndPrescription, "id">[]) {
-  return Promise.allSettled(
-    prescriptions.map((prescription) => {
-      const controles = prescription.controles;
-      delete prescription.controles;
-
-      return addPrescription(prescription).then(({ prescriptionId }) => {
+export function addPrescriptionsEtControles(
+  prescriptions: Omit<FrontEndPrescription, "id">[],
+  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+) {
+  return databaseConnection.transaction(async (transaction) =>
+    Promise.all(
+      prescriptions.map(async ({ controles, ...prescription }) => {
+        const { prescriptionId } = await addPrescription(prescription, transaction);
         if (controles && controles.length >= 1) {
-          for (const controle of controles) {
-            controle.prescription = prescriptionId;
-          }
-
-          return addControles(controles);
+          return addControles(
+            controles.map((controle) => ({ ...controle, prescription: prescriptionId })),
+            transaction,
+          );
         }
-      });
-    }),
+      }),
+    ),
   );
 }
 

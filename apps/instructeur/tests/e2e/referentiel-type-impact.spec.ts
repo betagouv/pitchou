@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures/playwright.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("la page Référentiel liste les types d'impact, méthodes et moyens de poursuite", async ({
   page,
@@ -21,14 +22,14 @@ test("filtrer sur une classification ne montre que ce qui est proposé pour elle
 }) => {
   await page.goto("/referentiel-type-impact");
 
-  await page.getByLabel("Classification d’espèce").selectOption("oiseau");
+  await chooseInSelect(page.locator("#filtre-classification"), "oiseau");
 
   await expect(page.locator("table").nth(0).locator("tbody tr")).toHaveCount(10);
   await expect(page.locator("table").nth(1).locator("tbody tr")).toHaveCount(3);
   await expect(page.locator("table").nth(2).locator("tbody tr")).toHaveCount(5);
 
   // La flore n'a ni méthode ni moyen de poursuite : les tableaux cèdent la place à un message.
-  await page.getByLabel("Classification d’espèce").selectOption("flore");
+  await chooseInSelect(page.locator("#filtre-classification"), "flore");
 
   await expect(page.locator("table").nth(0).locator("tbody tr")).toHaveCount(2);
   await expect(page.getByText("Aucune méthode ne s’applique")).toBeVisible();

@@ -32,18 +32,19 @@
     WITHOUT_INSTRUCTEUR,
     PROCHAINE_ACTION_OPTIONS,
     activiteFilterEntries,
-    listAvailableDepartements,
     listAvailableInstructeurs,
   } from "./listModel.ts";
   import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import DossiersAdditionalFilters from "./DossiersAdditionalFilters.svelte";
+  import DossiersLocalisationFilter from "./DossiersLocalisationFilter.svelte";
 
   type Props = {
     draft: DossiersQuery;
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
+    showLocalisationScope?: boolean;
     onOpenEspecesDrawer: () => void;
   };
 
@@ -52,6 +53,7 @@
     dossiers,
     followRelations,
     showFilterInstructeurice,
+    showLocalisationScope = true,
     onOpenEspecesDrawer,
   }: Props = $props();
 
@@ -63,12 +65,6 @@
   });
 
   const activiteOptions = $derived(activiteFilterEntries(dossiers, activiteReferentiel));
-  const departementOptions = $derived(
-    listAvailableDepartements(dossiers).map(({ code, name }) => ({
-      value: code,
-      label: `${code} — ${name}`,
-    })),
-  );
   const instructeurOptions = $derived(
     listAvailableInstructeurs(followRelations).map((email) => ({ value: email, label: email })),
   );
@@ -149,22 +145,7 @@
   />
 </div>
 
-<!-- Département -->
-<div class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">
-  <h3
-    class="flex items-center gap-2 text-[1rem] fr-text--bold fr-mb-1w [&_span[class*=fr-icon]]:text-[color:var(--text-action-high-blue-france,#000091)]"
-  >
-    <span class="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true"></span> Département
-  </h3>
-  <MultiSelectFilter
-    id="filtre-departement"
-    label="Département"
-    allLabel="Tous les départements"
-    options={departementOptions}
-    selected={draft.departement}
-    onChange={(values) => (draft.departement = values)}
-  />
-</div>
+<DossiersLocalisationFilter bind:draft showScope={showLocalisationScope} />
 
 <!-- Entité en charge de la prochaine action -->
 <fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">

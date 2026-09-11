@@ -1,20 +1,5 @@
 import type { DossiersPage, DossiersQuery } from "./adminDossierTypes.ts";
-import { AccessDeniedError } from "./adminEspeces.ts";
-
-async function checkResponse(
-  response: Response,
-  action = "du chargement des dossiers",
-): Promise<void> {
-  if (response.ok) return;
-  if (response.status === 403) throw new AccessDeniedError();
-  let message = "";
-  try {
-    message = (await response.json())?.message ?? "";
-  } catch {
-    // The fallback below covers non-JSON responses.
-  }
-  throw new Error(message || `Erreur ${response.status} lors ${action}.`);
-}
+import { checkResponse } from "./adminResponse.ts";
 
 export function defaultDossiersQuery(): DossiersQuery {
   return {
@@ -39,7 +24,7 @@ export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> 
   params.set("sort", query.sort);
   params.set("order", query.order);
   const response = await fetch(`/api/dossiers?${params.toString()}`);
-  await checkResponse(response);
+  await checkResponse(response, "du chargement des dossiers");
   const page = await response.json();
   if (!page || !Array.isArray(page.dossiers) || typeof page.total !== "number") {
     throw new Error("Réponse invalide reçue du serveur pour les dossiers.");

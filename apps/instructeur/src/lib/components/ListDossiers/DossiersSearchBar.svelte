@@ -31,11 +31,11 @@
 <svelte:body onclick={onBodyClick} />
 
 <div
-  class="relative min-w-[20rem] flex-[0_1_32rem] ml-auto max-[768px]:[min-width:unset] max-[768px]:basis-full max-[768px]:ml-0"
+  class="relative min-w-0 basis-full lg:min-w-[12rem] lg:flex-[1_1_12rem]"
   bind:this={searchRoot}
 >
   <form
-    class="fr-search-bar"
+    class="fr-search-bar fr-search-bar--sm"
     role="search"
     onsubmit={(e) => {
       e.preventDefault();

@@ -1,4 +1,3 @@
-import { sendEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type {
@@ -46,10 +45,6 @@ export function addOrUpdateAvisExpert(
   // we provide the id of the expert avis
   if (avisExpert.id) {
     form.append("id", avisExpert.id);
-    sendEvenement({ type: "modifierAvisExpert" });
-  } else {
-    // In the case of an addition
-    sendEvenement({ type: "ajouterAvisExpert" });
   }
 
   if (avisExpert.avis) {
@@ -88,6 +83,5 @@ export function deleteAvisExpert(avisExpert: Pick<AvisExpert, "id">) {
     throw new Error(`Pas les droits suffisants pour supprimer un avis d'expert`);
   }
 
-  sendEvenement({ type: "supprimerAvisExpert" });
   return deleteAvisExpert(avisExpert.id);
 }

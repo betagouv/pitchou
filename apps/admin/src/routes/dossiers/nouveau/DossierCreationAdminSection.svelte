@@ -8,6 +8,12 @@
 
   let { model, groupes }: { model: DossierCreationModel; groupes: AdminGroupeInstructeurs[] } =
     $props();
+
+  const phaseOptions = [...phases].map((phase) => ({ value: phase, label: phase }));
+
+  const groupeOptions = $derived(
+    groupes.map((groupe) => ({ value: groupe.id, label: groupe.name })),
+  );
 </script>
 
 <details class="fr-p-3w border border-[color:var(--border-default-grey)]">
@@ -23,11 +29,7 @@
     </div>
     <div class="fr-select-group">
       <label class="fr-label" for="dossier-phase">Phase initiale</label>
-      <Select
-        id="dossier-phase"
-        options={[...phases].map((phase) => ({ value: phase, label: phase }))}
-        bind:value={model.phase}
-      />
+      <Select id="dossier-phase" class="fr-mt-1w" options={phaseOptions} bind:value={model.phase} />
     </div>
     <div class="fr-select-group">
       <label class="fr-label" for="dossier-groupe">
@@ -36,8 +38,9 @@
       </label>
       <Select
         id="dossier-groupe"
+        class="fr-mt-1w"
         required
-        options={groupes.map((groupe) => ({ value: groupe.id, label: groupe.name }))}
+        options={groupeOptions}
         bind:value={model.groupeInstructeurs}
       />
     </div>

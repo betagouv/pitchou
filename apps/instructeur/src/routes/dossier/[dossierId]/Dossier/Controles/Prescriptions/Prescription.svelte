@@ -6,7 +6,6 @@
 
   import { formatDateRelative } from "$lib/dossier/displayDossier.ts";
   import { addControle as sendControle, updateControle, deleteControle } from "../controle.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
   import type Controle from "@pitchou/types/database/public/Controle.ts";
@@ -64,21 +63,9 @@
     if (newControle) {
       controles.add(newControle);
 
+      // The return to conformity is detected server-side, from the contrôles of
+      // the prescription as they are stored.
       const controleId = await sendControle(newControle);
-
-      if (
-        newControle.result === "Conforme" && // which is compliant
-        // while at least one previous contrôle was not compliant
-        prescription.controles &&
-        prescription.controles.length >= 2 &&
-        prescription.controles.some((c) => c.result !== "Conforme")
-      ) {
-        sendEvenement({
-          type: "retourÀLaConformité",
-          // @ts-ignore
-          details: { prescription: prescription.id },
-        });
-      }
 
       if (!controleId) {
         throw new Error(`contrôleId absent de la valeur de retour de 'sendControle'`);
@@ -87,8 +74,6 @@
       newControle.id = controleId;
 
       newControle = undefined;
-
-      sendEvenement({ type: "ajouterContrôle" });
     }
   }
 
@@ -115,8 +100,6 @@
     prescription.controles?.push(controleValide);
 
     await updateControle(controleValide);
-
-    sendEvenement({ type: "modifierContrôle" });
   }
 
   async function deleteEditedControle() {
@@ -134,8 +117,6 @@
     await deleteControle(id);
 
     refreshDossierFull();
-
-    sendEvenement({ type: "supprimerContrôle" });
   }
 </script>
 

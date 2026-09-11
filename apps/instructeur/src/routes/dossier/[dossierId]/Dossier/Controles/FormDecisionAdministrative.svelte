@@ -1,5 +1,6 @@
 <script lang="ts">
-  import DateInput from "../../DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
 
   import {
     typesDecisionAdministrative,
@@ -29,6 +30,11 @@
   // ownership_invalid_mutation warning).
   // svelte-ignore state_referenced_locally
   let decision = $state({ ...decisionAdministrative });
+
+  const typeDecisionOptions = [...typesDecisionAdministrative].map((type) => ({
+    value: type,
+    label: labelForDecisionAdministrativeType(type),
+  }));
 
   let fichiers: FileList | undefined = $state();
 
@@ -112,18 +118,13 @@
 
   <div class="fr-select-group">
     <label class="fr-label" for="select-type"> Type de décision </label>
-    <select
-      bind:value={decision.type}
-      class="fr-select"
-      aria-describedby="select-type-messages"
+    <Select
       id="select-type"
-      name="select-type"
-    >
-      <option value="" selected disabled>Sélectionnez une option</option>
-      {#each typesDecisionAdministrative as type}
-        <option value={type}>{labelForDecisionAdministrativeType(type)}</option>
-      {/each}
-    </select>
+      class="fr-mt-1w"
+      placeholder="Sélectionnez une option"
+      options={typeDecisionOptions}
+      bind:value={decision.type}
+    />
     <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
       {#if typeErrorMessage}
         <p class="fr-message fr-message--error">{typeErrorMessage}</p>

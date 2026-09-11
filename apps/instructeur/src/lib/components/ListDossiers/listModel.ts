@@ -3,6 +3,7 @@
  * here so consumers keep a single import point.
  */
 export * from "./query.ts";
+export * from "./localisation.ts";
 export * from "./filtering.ts";
 export * from "./filterOptions.ts";
 export * from "./sorting.ts";

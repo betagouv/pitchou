@@ -11,7 +11,7 @@ export type NotificationId = string & { __brand: "public.notification" };
 export default interface Notification {
   id: NotificationId;
 
-  /** Date on which the notification was last updated */
+  /** Latest detected applicant change, including acknowledged revisions */
   updated_at: Date | null;
 
   /** Indicates whether the personne has viewed the notification */
@@ -20,6 +20,18 @@ export default interface Notification {
   personne: PersonneId;
 
   dossier: DossierId;
+
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  viewed_at: Date | null;
+
+  arrival_viewed: boolean;
+
+  follow_revision: string | null;
+
+  follow_at: Date | null;
+
+  /** Whether this recipient existed before per-revision review was introduced. */
+  receive_legacy_changes: boolean;
 }
 
 /** Represents the initializer for the table public.notification */
@@ -27,10 +39,7 @@ export interface NotificationInitializer {
   /** Default value: gen_random_uuid() */
   id?: NotificationId;
 
-  /**
-   * Date on which the notification was last updated
-   * Default value: CURRENT_TIMESTAMP
-   */
+  /** Latest detected applicant change, including acknowledged revisions */
   updated_at?: Date | null;
 
   /**
@@ -42,13 +51,26 @@ export interface NotificationInitializer {
   personne: PersonneId;
 
   dossier: DossierId;
+
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  viewed_at?: Date | null;
+
+  /** Default value: false */
+  arrival_viewed?: boolean;
+
+  follow_revision?: string | null;
+
+  follow_at?: Date | null;
+
+  /** Default value: false */
+  receive_legacy_changes?: boolean;
 }
 
 /** Represents the mutator for the table public.notification */
 export interface NotificationMutator {
   id?: NotificationId;
 
-  /** Date on which the notification was last updated */
+  /** Latest detected applicant change, including acknowledged revisions */
   updated_at?: Date | null;
 
   /** Indicates whether the personne has viewed the notification */
@@ -57,4 +79,15 @@ export interface NotificationMutator {
   personne?: PersonneId;
 
   dossier?: DossierId;
+
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  viewed_at?: Date | null;
+
+  arrival_viewed?: boolean;
+
+  follow_revision?: string | null;
+
+  follow_at?: Date | null;
+
+  receive_legacy_changes?: boolean;
 }

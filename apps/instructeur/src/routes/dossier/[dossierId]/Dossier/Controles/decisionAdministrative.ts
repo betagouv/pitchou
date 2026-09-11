@@ -7,7 +7,6 @@ import {
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { addPrescriptionsAndControles } from "./prescriptions.ts";
 import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 import type {
@@ -153,8 +152,6 @@ export function deleteDecisionAdministrative(
     throw new Error(`Pas les droits suffisants pour supprimer une décision administrative`);
   }
 
-  sendEvenement({ type: "supprimerDécisionAdministrative" });
-
   return deleteDecisionAdministrative(decisionAdministrativeId);
 }
 
@@ -173,8 +170,6 @@ export async function saveNewDecisionAdministrative(
       `décisionAdministrativeEnCréation.dossier manquant dans saveNewDecisionAdministrative`,
     );
   }
-
-  sendEvenement({ type: "ajouterDécisionAdministrative" });
 
   await modifierDecisionAdministrativeDansDossier(newDecisionAdministrative);
 

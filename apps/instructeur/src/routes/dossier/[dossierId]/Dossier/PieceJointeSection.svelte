@@ -6,9 +6,9 @@
   type Props = {
     title: string;
     emptyMessage: string;
-    tabLabel: string;
+    tabLabel?: string;
     pieces: PieceJointeSimple[];
-    openTab: () => void;
+    openTab?: () => void;
   };
   let { title, emptyMessage, tabLabel, pieces, openTab }: Props = $props();
 
@@ -30,9 +30,11 @@
     class="flex items-start justify-between gap-4 fr-mb-3v max-[48rem]:flex-col max-[48rem]:gap-1 [&_h3]:m-0"
   >
     <h3>{title}</h3>
-    <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" onclick={openTab}>
-      Voir dans l'onglet {tabLabel}
-    </button>
+    {#if openTab && tabLabel}
+      <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" onclick={openTab}>
+        Voir dans l'onglet {tabLabel}
+      </button>
+    {/if}
   </div>
   {#if pieces.length === 0}
     <p>{emptyMessage}</p>

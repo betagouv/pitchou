@@ -6,9 +6,7 @@ import type {
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
-import type Message from "./database/public/Message.ts";
-import type Notification from "./database/public/Notification.ts";
-import type { NotificationMutator } from "./database/public/Notification.ts";
+import type { DossierNotification, NotificationUpdate } from "./notification.ts";
 import type Prescription from "./database/public/Prescription.ts";
 import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
@@ -23,9 +21,38 @@ export type DossierFollowerCandidate = {
   followsDossier: boolean;
 };
 
+/** An entry of a dossier's historique as exchanged with the API. */
+export type DossierAction = {
+  id: string;
+  type: string;
+  /** Type-specific details: field label, new value, follower email… */
+  data: Record<string, unknown>;
+  created_at: string | Date;
+  author_email: string | null;
+  author_petitionnaire: boolean;
+};
+
+/** A dossier comment as exchanged with the API. */
+export type DossierCommentaire = {
+  id: string;
+  content: string;
+  /** Dates travel as ISO strings on the wire. */
+  created_at: string | Date;
+  updated_at: string | Date | null;
+  /** Null for the comment migrated from the former free comment (« initial »). */
+  author_email: string | null;
+};
+
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
-  recupérerDossierComplet: (dossierId: DossierFull["id"]) => Promise<DossierFull>;
+  /**
+   * `readOnly` requests the restricted projection available to other services,
+   * even when the caller has full access to the dossier.
+   */
+  recupérerDossierComplet: (
+    dossierId: DossierFull["id"],
+    readOnly?: boolean,
+  ) => Promise<DossierFull>;
   listFollowRelations: () => Promise<
     { personneEmail: Personne["email"]; followedDossierIds: Dossier["id"][] }[]
   >;
@@ -39,8 +66,20 @@ export interface PitchouInstructeurCapabilities {
     dossierId: Dossier["id"],
     personneEmails: NonNullable<Personne["email"]>[],
   ) => Promise<void>;
-  listerMessages: (dossierId: DossierSummary["id"]) => Promise<Message[]>;
   listerEvenementsPhaseDossier: () => Promise<any[]>;
+  listerActionsDossier: (dossierId: Dossier["id"]) => Promise<DossierAction[]>;
+  /** Records in the historique the documents the browser just generated. */
+  enregistrerDocumentsGeneres: (dossierId: Dossier["id"], documents: string[]) => Promise<void>;
+  listerCommentaires: (dossierId: Dossier["id"]) => Promise<DossierCommentaire[]>;
+  ajouterCommentaire: (dossierId: Dossier["id"], content: string) => Promise<DossierCommentaire>;
+  modifierCommentaire: (
+    dossierId: Dossier["id"],
+    commentaire: Pick<DossierCommentaire, "id" | "content">,
+  ) => Promise<void>;
+  supprimerCommentaire: (
+    dossierId: Dossier["id"],
+    commentaireId: DossierCommentaire["id"],
+  ) => Promise<void>;
   modifierDossier: (dossierId: Dossier["id"], dossier: Partial<DossierFull>) => Promise<void>;
   envoyerEmailCnpn: (
     dossierId: Dossier["id"],
@@ -66,8 +105,8 @@ export interface PitchouInstructeurCapabilities {
   creerEvenementMetrique: (evenement: EvenementMetrique) => Promise<void>;
   /** The instructeur's last 3 distinct search-bar texts, most recent first */
   listRecentSearches: () => Promise<string[]>;
-  listerNotifications: () => Promise<Notification[]>;
-  updateNotificationForDossier: (notification: NotificationMutator) => Promise<void>;
+  listerNotifications: () => Promise<DossierNotification[]>;
+  updateNotificationForDossier: (notification: NotificationUpdate) => Promise<DossierNotification>;
 }
 
 export interface IdentiteInstructeurPitchou {

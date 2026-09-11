@@ -1,8 +1,13 @@
 import { expect, test } from "vitest";
+import { randomUUID } from "node:crypto";
 import { GetObjectCommand, HeadObjectCommand, S3ServiceException } from "@aws-sdk/client-s3";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
+import {
+  attachDossierToGroupe,
+  createDossier,
+  createInstructeurWithDossier,
+} from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 async function s3HasKey(key: string): Promise<boolean> {
@@ -136,4 +141,52 @@ test("POST /decision-administrative rejette un type de propriété incorrect", a
 
   expect(res.status).toBe(400);
   expect(await db("decision_administrative").where({ dossier: dossier.id })).toHaveLength(0);
+});
+
+test("decision updates reject foreign IDs and reassignment, even between owned dossiers", async () => {
+  const owner = await createInstructeurWithDossier(db, {
+    email: "owner@decision.fr",
+    nomGroupe: "Decision owner service",
+  });
+  const foreign = await createInstructeurWithDossier(db, {
+    email: "foreign@decision.fr",
+    nomGroupe: "Foreign decision service",
+  });
+  const secondOwned = await createDossier(db);
+  await attachDossierToGroupe(db, secondOwned.id, owner.groupeId);
+  const [foreignDecision, ownedDecision] = await db("decision_administrative")
+    .insert([
+      { dossier: foreign.dossier.id, number: "FOREIGN" },
+      { dossier: secondOwned.id, number: "OWNED" },
+    ])
+    .returning("*");
+  const filesBefore = await db("file").pluck("id");
+  for (const id of [foreignDecision.id, ownedDecision.id, randomUUID()]) {
+    const response = await fetch(
+      `${INTEGRATION_BASE_URL}/decision-administrative?cap=${owner.cap}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          dossier: owner.dossier.id,
+          number: "REASSIGNED",
+          fichier_base64: {
+            name: "replacement.pdf",
+            media_type: "application/pdf",
+            contenuBase64: Buffer.from("REPLACEMENT").toString("base64"),
+          },
+        }),
+      },
+    );
+    expect(response.status).toBe(403);
+  }
+  expect(await db("decision_administrative").where({ id: foreignDecision.id }).first()).toEqual(
+    foreignDecision,
+  );
+  expect(await db("decision_administrative").where({ id: ownedDecision.id }).first()).toEqual(
+    ownedDecision,
+  );
+  expect((await db("file").pluck("id")).sort()).toEqual(filesBefore.sort());
+  expect(await db("action_dossier").where({ dossier: owner.dossier.id })).toHaveLength(0);
 });

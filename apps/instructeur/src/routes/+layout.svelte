@@ -61,7 +61,7 @@
 <Header {nav} {email} />
 
 <main tabindex="-1" id="main">
-  <div class="fr-container">
+  <div class={page.data.fullWidth ? "pitchou-container" : "fr-container"}>
     {#if store.errors.size >= 1}
       <section class="relative h-0 fr-grid-row fr-grid-row--center">
         <div class="fr-col w-full">
@@ -84,5 +84,6 @@
 </main>
 
 <Footer
+  compact={nav}
   demarcheNumerique88444SynchronizationResults={store.demarcheNumerique88444SynchronizationResults}
 />

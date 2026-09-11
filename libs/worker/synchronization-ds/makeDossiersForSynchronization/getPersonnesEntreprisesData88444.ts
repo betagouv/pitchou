@@ -78,6 +78,12 @@ export function getPersonnesEntreprisesData88444(
       phone: phoneContact || undefined,
       role: role || undefined,
     };
+    // Keep the reviewed contact values on this dossier, not on a shared person.
+    Object.assign(identites[0], {
+      email: demandeurPersonnePhysique.email ?? null,
+      phone: demandeurPersonnePhysique.phone ?? null,
+      role: demandeurPersonnePhysique.role ?? null,
+    });
   }
 
   let demandeurPersonneMorale;

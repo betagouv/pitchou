@@ -5,6 +5,7 @@ import {
   DATE_FIELD_LABEL,
   type DossiersQuery,
 } from "./query.ts";
+import { LOCALISATION_LABEL } from "./localisation.ts";
 
 /** A removable filter shown as a tag: its label and the query with that value removed */
 export type FilterChip = {
@@ -74,12 +75,29 @@ export function buildActiveFilterChips(
       next: withUpdates({ activite: query.activite.filter((activite) => activite !== value) }),
     });
   }
-  for (const code of query.departement) {
+  if (query.localisation === "france") {
+    chips.push({
+      key: "localisation",
+      label: LOCALISATION_LABEL.france,
+      next: withUpdates({ localisation: "assigned", departementSelection: "all", departement: [] }),
+    });
+  }
+  if (query.departementSelection === "none") {
+    chips.push({
+      key: "departements:none",
+      label: "Aucun département",
+      next: withUpdates({ departementSelection: "all", departement: [] }),
+    });
+  }
+  for (const code of query.departementSelection === "custom" ? query.departement : []) {
     const name = departementNameByCode.get(code);
     chips.push({
       key: `departement:${code}`,
       label: name ? `${code} — ${name}` : code,
-      next: withUpdates({ departement: query.departement.filter((value) => value !== code) }),
+      next: withUpdates({
+        departement: query.departement.filter((value) => value !== code),
+        departementSelection: query.departement.length === 1 ? "all" : "custom",
+      }),
     });
   }
   for (const value of query.instructeur) {
@@ -168,7 +186,12 @@ export function countActiveFilters(query: DossiersQuery): number {
     query.activite.length +
     query.espece.length +
     query.prochaineAction.length +
-    query.departement.length +
+    (query.localisation === "france" ? 1 : 0) +
+    (query.departementSelection === "none"
+      ? 1
+      : query.departementSelection === "custom"
+        ? query.departement.length
+        : 0) +
     query.instructeur.length +
     (query.nouveaute ? 1 : 0) +
     (query.dateStart || query.dateEnd ? 1 : 0) +

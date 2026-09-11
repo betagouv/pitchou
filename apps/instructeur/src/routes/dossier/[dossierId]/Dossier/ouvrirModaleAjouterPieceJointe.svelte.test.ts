@@ -56,9 +56,15 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
     dossier: dossier(),
     email: "instructeur@example.com",
     currentDossierFollowedByCurrentInstructeur: false,
+    dossierFollowers: [],
+    updated: false,
+    onClose: vi.fn(),
+    onEnterReadOnly: vi.fn(),
   });
 
-  await page.getByRole("button", { name: "Ajouter une pièce jointe" }).click();
+  // The entry point now lives in the "…" actions menu.
+  await page.getByRole("button", { name: /Plus d’actions/ }).click();
+  await page.getByRole("menuitem", { name: "Ajouter une pièce jointe" }).click();
 
   expectTracking("enteteDossier");
 });
