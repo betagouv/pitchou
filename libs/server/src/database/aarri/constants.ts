@@ -12,7 +12,6 @@ export const EVENEMENTS_MODIFICATIONS: EvenementMetrique["type"][] = [
   "assignDossierFollowers",
   "modifierCommentaireInstruction",
   "changerPhase",
-  "changerProchaineActionAttendue",
   "changerProchaineActionAttendueDe",
   "changerDateProchaineEcheance",
   "ajouterDécisionAdministrative",

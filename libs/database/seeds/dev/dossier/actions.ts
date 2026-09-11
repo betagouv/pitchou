@@ -34,12 +34,6 @@ const SEED_ACTIONS: SeedAction[] = [
   },
   { dossier: "99000002", type: "especes_renseignees", data: {}, daysAgo: 1, petitionnaire: true },
   { dossier: "99000002", type: "phase_renseignee", data: { value: "Instruction" }, daysAgo: 40 },
-  {
-    dossier: "99000002",
-    type: "prochaine_action_attendue_renseignee",
-    data: { value: "Signer l'arrêté" },
-    daysAgo: 5,
-  },
 
   // D5 — dossier in accompagnement amont, waiting on the pétitionnaire.
   {

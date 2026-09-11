@@ -30,7 +30,6 @@ export function fakeDossierFull(overrides: Partial<DossierFull> = {}): DossierFu
     deposant_first_names: "Alice",
     deposant_email: null,
     next_action_expected_from: null,
-    next_action_expected: null,
     next_due_date: null,
     enjeu: false,
     linked_to_ae_regime: false,

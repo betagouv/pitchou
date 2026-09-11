@@ -23,23 +23,34 @@ function phaseEvent(dossier: number, timestamp: string) {
   };
 }
 
-test("POST /dossier/:id met à jour le dossier et sa phase", async () => {
-  const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
-  const timestamp = "2026-07-19T12:00:00.000Z";
+test.each(["2026-07-19T12:00:00.499Z", "2026-07-19T12:00:00.500Z"])(
+  "POST /dossier/:id preserves the phase identity after PostgreSQL rounds %s",
+  async (timestamp) => {
+    const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
 
-  const response = await updateDossier(cap, dossier.id, {
-    onagre_demande_identifier: "2026-01-00042",
-    evenementsPhase: [phaseEvent(dossier.id, timestamp)],
-  });
+    const response = await updateDossier(cap, dossier.id, {
+      onagre_demande_identifier: "2026-01-00042",
+      evenementsPhase: [phaseEvent(dossier.id, timestamp)],
+    });
 
-  expect(response.status).toBe(200);
-  await expect(
-    db("dossier").select("onagre_demande_identifier").where({ id: dossier.id }).first(),
-  ).resolves.toEqual({ onagre_demande_identifier: "2026-01-00042" });
-  await expect(db("evenement_phase_dossier").where({ dossier: dossier.id })).resolves.toHaveLength(
-    1,
-  );
-});
+    expect(response.status).toBe(200);
+    await expect(
+      db("dossier").select("onagre_demande_identifier").where({ id: dossier.id }).first(),
+    ).resolves.toEqual({ onagre_demande_identifier: "2026-01-00042" });
+    const events = await db("evenement_phase_dossier").where({ dossier: dossier.id });
+    expect(events).toHaveLength(1);
+    const actions = await db("action_dossier").where({
+      dossier: dossier.id,
+      type: "phase_renseignee",
+    });
+    expect(actions).toHaveLength(1);
+    expect(actions[0].data).toEqual({
+      dossier: events[0].dossier,
+      value: events[0].phase,
+      timestamp: events[0].timestamp.toISOString(),
+    });
+  },
+);
 
 test("POST /dossier/:id rejette une propriété inconnue sans écriture partielle", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });

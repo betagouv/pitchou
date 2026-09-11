@@ -29,7 +29,6 @@ export function getDossierInstructionState(
       | "er_mesures_sufficient"
       | "public_consultation_start_date"
       | "public_consultation_end_date"
-      | "next_action_expected"
     >
   | undefined
 > {
@@ -39,7 +38,6 @@ export function getDossierInstructionState(
       "er_mesures_sufficient",
       "public_consultation_start_date",
       "public_consultation_end_date",
-      "next_action_expected",
     ])
     .where({ id })
     .first();

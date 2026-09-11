@@ -11,6 +11,53 @@ afterEach(() => {
   store.capabilities = {};
 });
 
+test.each([false, true])(
+  "renders canonical phase history with exact action metadata: %s",
+  async (hasAction) => {
+    store.capabilities = {
+      listerActionsDossier: vi.fn().mockResolvedValue(
+        hasAction
+          ? [
+              {
+                id: "phase-action",
+                type: "phase_renseignee",
+                data: { dossier: 123, value: "Instruction", timestamp: "2025-02-01T00:00:00.000Z" },
+                created_at: "2026-09-02T10:00:00Z",
+                author_email: "claire.morin@example.com",
+                author_petitionnaire: false,
+              },
+            ]
+          : [],
+      ),
+    };
+    const dossier = {
+      id: 123,
+      source: "pitchou",
+      depot_date: new Date("2025-01-01"),
+      evenementsPhase: [
+        {
+          dossier: 123,
+          phase: "Instruction",
+          timestamp: new Date("2025-02-01"),
+          caused_by_personne: hasAction ? 42 : null,
+          demarche_numerique_agent_email: hasAction ? null : "agent@example.com",
+          demarche_numerique_motivation: null,
+        },
+      ],
+    } as DossierFull;
+    render(DossierHistorique, { dossier });
+
+    await expect.element(await screen.findByText("Instruction")).toBeVisible();
+    const entries = screen.getAllByRole("listitem");
+    expect(entries).toHaveLength(2);
+    expect(entries[0]).toHaveTextContent("Phase renseignée :");
+    expect(entries[0]).toHaveTextContent(
+      `Le 01/02/2025 par ${hasAction ? "claire.morin" : "agent"}`,
+    );
+    expect(entries[0]).not.toHaveTextContent("à 00:00");
+  },
+);
+
 test.each([false, true])("renders CNPN emails with tracking available: %s", async (tracked) => {
   store.capabilities = { listerActionsDossier: vi.fn().mockResolvedValue([]) };
   const event: DossierCnpnEmailSentEvent = {

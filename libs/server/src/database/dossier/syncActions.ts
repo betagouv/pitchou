@@ -29,7 +29,6 @@ const notPetitionnaireColumns: Set<string> = new Set([
   "er_mesures_sufficient",
   "onagre_demande_identifier",
   "next_action_expected_from",
-  "next_action_expected",
   "next_due_date",
   "enjeu",
   "public_consultation_start_date",

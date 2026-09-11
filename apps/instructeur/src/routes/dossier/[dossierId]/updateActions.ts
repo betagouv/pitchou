@@ -1,4 +1,5 @@
 import type { DossierUpdate } from "./updatePayload.ts";
+import { phaseEventTimestamp } from "./phaseEventTimestamp.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -14,7 +15,6 @@ type InstructionState = Pick<
   | "er_mesures_sufficient"
   | "public_consultation_start_date"
   | "public_consultation_end_date"
-  | "next_action_expected"
 >;
 type DdepState = Pick<InstructionState, "ddep_required" | "er_mesures_sufficient">;
 
@@ -50,15 +50,17 @@ export function actionsFromDossierUpdate(
   const add = (type: string, data: Record<string, unknown> = {}) =>
     actions.push({ dossier: dossierId, type, data, author_personne: authorPersonne });
 
-  const lastPhaseEvent = update.evenementsPhase?.at(-1);
-  if (lastPhaseEvent) add("phase_renseignee", { value: lastPhaseEvent.phase });
+  for (const event of update.evenementsPhase ?? []) {
+    // The unique key is (dossier, phase, timestamp), with PostgreSQL rounding
+    // timestamp to seconds. Record that identity, not the action's server time.
+    add("phase_renseignee", {
+      dossier: dossierId,
+      value: event.phase,
+      timestamp: phaseEventTimestamp(event.timestamp).toISOString(),
+    });
+  }
   if ("next_action_expected_from" in update)
     add("prochaine_action_renseignee", { value: update.next_action_expected_from ?? null });
-  if (
-    "next_action_expected" in update &&
-    (update.next_action_expected ?? null) !== (before?.next_action_expected ?? null)
-  )
-    add("prochaine_action_attendue_renseignee", { value: update.next_action_expected ?? null });
   if ("next_due_date" in update)
     add("echeance_renseignee", { value: isoDay(update.next_due_date) });
   if ("ddep_required" in update || "er_mesures_sufficient" in update)

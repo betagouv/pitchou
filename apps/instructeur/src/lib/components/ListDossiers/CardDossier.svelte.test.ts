@@ -23,7 +23,6 @@ const dossier = makeDossier({
   demandeur_personne_morale_legal_name: "Association des marais",
   demandeur_personne_morale_siret: "12345678900012",
   next_action_expected_from: "Instructeur",
-  next_action_expected: "Rédiger une décision",
   enjeu: true,
 });
 

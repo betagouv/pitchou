@@ -103,7 +103,6 @@ export type DossierSummary = Pick<
   | "enjeu"
   | "linked_to_ae_regime"
   | "next_action_expected_from"
-  | "next_action_expected"
   | "next_due_date"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &

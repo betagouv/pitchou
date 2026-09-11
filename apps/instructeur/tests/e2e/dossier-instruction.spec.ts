@@ -56,7 +56,7 @@ test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({
   await expect(page.locator("#enjeu")).toBeVisible();
 });
 
-test("l'entité en charge est persistée sans tâche", async ({ page, db, loginAs }) => {
+test("l'entité en charge est persistée et peut être retirée", async ({ page, db, loginAs }) => {
   const { codeAcces, dossier } = await createInstructeurWithDossier(db, {
     email: "instr@prochaine-action.fr",
     dossierNom: "Dossier prochaine action e2e",
@@ -82,13 +82,8 @@ test("l'entité en charge est persistée sans tâche", async ({ page, db, loginA
 
   await options.getByRole("option", { name: "Instructeur-ice (Moi)", exact: true }).click();
   await expect
-    .poll(() =>
-      db("dossier")
-        .select("next_action_expected_from", "next_action_expected")
-        .where({ id: dossier.id })
-        .first(),
-    )
-    .toEqual({ next_action_expected_from: "Instructeur", next_action_expected: null });
+    .poll(() => db("dossier").select("next_action_expected_from").where({ id: dossier.id }).first())
+    .toEqual({ next_action_expected_from: "Instructeur" });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
@@ -96,20 +91,18 @@ test("l'entité en charge est persistée sans tâche", async ({ page, db, loginA
 
   await chooseInSelect(action, "CNPN/CSRPN");
   await expect
-    .poll(() =>
-      db("dossier")
-        .select("next_action_expected_from", "next_action_expected")
-        .where({ id: dossier.id })
-        .first(),
-    )
-    .toEqual({ next_action_expected_from: "CNPN/CSRPN", next_action_expected: null });
+    .poll(() => db("dossier").select("next_action_expected_from").where({ id: dossier.id }).first())
+    .toEqual({ next_action_expected_from: "CNPN/CSRPN" });
 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
   await expect(action).toHaveText("CNPN/CSRPN");
-  await expect(
-    db("dossier").select("next_action_expected").where({ id: dossier.id }).first(),
-  ).resolves.toEqual({ next_action_expected: null });
+  await chooseInSelect(action, "Non renseignée");
+  await expect
+    .poll(() => db("dossier").select("next_action_expected_from").where({ id: dossier.id }).first())
+    .toEqual({ next_action_expected_from: null });
+  await page.reload();
+  await expect(action).toHaveText("Non renseignée");
 });
 
 test("The 'Dossier à enjeu' toggle is disabled by default if the file is not a stakeholder file", async ({

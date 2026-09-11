@@ -178,8 +178,7 @@
   }
   bind:phase={() => phase, setPhase}
   bind:nextAction={
-    () => nextActionExpectedFrom,
-    (value) => queueSave({ next_action_expected_from: value ?? null, next_action_expected: null })
+    () => nextActionExpectedFrom, (value) => queueSave({ next_action_expected_from: value ?? null })
   }
   bind:nextDueDate={() => nextDueDate, (value) => queueSave({ next_due_date: value ?? null })}
   bind:onagre={() => onagreDemandeIdentifier, setOnagre}

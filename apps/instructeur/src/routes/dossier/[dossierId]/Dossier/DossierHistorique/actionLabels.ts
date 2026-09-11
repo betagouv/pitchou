@@ -85,12 +85,6 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     label: "Entité en charge de la prochaine action renseignée :",
     value: str(d, "value") ?? undefined,
   }),
-  prochaine_action_attendue_renseignee: (d) => {
-    const value = str(d, "value");
-    return value
-      ? { icon: "fr-icon-todo-line", label: "Prochaine action attendue renseignée :", value }
-      : { icon: "fr-icon-todo-line", label: "Prochaine action attendue retirée" };
-  },
   ddep_renseignee: (d) => ({
     icon: "fr-icon-seedling-line",
     label: "Nécessité d'une DDEP renseignée :",

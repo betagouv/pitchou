@@ -6,11 +6,10 @@ import { parseDossierUpdate } from "./updatePayload.ts";
 const DOSSIER_ID = 123 as DossierId;
 
 test.each([...prochaineActionAttenduePar, null])(
-  "accepts entity %s and clears the retired task",
+  "accepts entity %s without adding unrelated fields",
   (entity) => {
     expect(parseDossierUpdate({ next_action_expected_from: entity }, DOSSIER_ID)).toEqual({
       next_action_expected_from: entity,
-      next_action_expected: null,
     });
   },
 );
@@ -22,22 +21,11 @@ test.each(["Autre administration", "Autre", "Personne", "Préfet·e", "Instructe
   },
 );
 
-test.each([
-  "Envoyer la saisine",
-  "Consulter le dossier",
-  "Compléter le dossier",
-  "Signer l'arrêté",
-])("rejects retired task %s", (task) => {
+test.each(["Envoyer la saisine", null])("rejects the removed task field with value %s", (task) => {
   expect(() => parseDossierUpdate({ next_action_expected: task }, DOSSIER_ID)).toThrow();
 });
 
-test("accepts an explicit task clear", () => {
-  expect(parseDossierUpdate({ next_action_expected: null }, DOSSIER_ID)).toEqual({
-    next_action_expected: null,
-  });
-});
-
-test("unrelated updates do not clear a stored task or other fields", () => {
+test("unrelated updates do not add fields", () => {
   expect(parseDossierUpdate({ enjeu: true }, DOSSIER_ID)).toEqual({ enjeu: true });
   expect(parseDossierUpdate({}, DOSSIER_ID)).toEqual({});
 });

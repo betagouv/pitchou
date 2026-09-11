@@ -5,6 +5,49 @@ import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import { dumpDossiers } from "@pitchou/server/database/dossier.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
 import type { DossierForInsert } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
+import {
+  up,
+  down,
+} from "../../../../libs/database/migrations/20260911120000_normalize-next-action-entities.ts";
+
+test("entity migration maps retired categories, preserves all other values and is idempotent", async () => {
+  const mappings = [
+    ["Autre administration", "Tierce personne/administration"],
+    ["Autre", "Tierce personne/administration"],
+    ["Personne", null],
+    ...[...prochaineActionAttenduePar, null, "Unknown imported entity"].map((value) => [
+      value,
+      value,
+    ]),
+  ];
+  const expected: { id: number; name: string; next_action_expected_from: string | null }[] = [];
+  for (const [index, [before, after]] of mappings.entries()) {
+    const { id } = await createDossier(db, {
+      name: `Entity migration ${index}`,
+      next_action_expected_from: before,
+    });
+    expected.push({
+      id,
+      name: `Entity migration ${index}`,
+      next_action_expected_from: after ?? null,
+    });
+  }
+  const readRows = () =>
+    db("dossier")
+      .select("id", "name", "next_action_expected_from")
+      .whereIn(
+        "id",
+        expected.map(({ id }) => id),
+      )
+      .orderBy("id");
+  await up(db);
+  expect(await readRows()).toEqual(expected);
+  await up(db);
+  expect(await readRows()).toEqual(expected);
+  await down();
+  expect(await readRows()).toEqual(expected);
+});
 
 test("new DN dossiers default to Instructeur without replacing imported assignments", async () => {
   const inserts: DossierForInsert[] = [undefined, null, "Pétitionnaire"].map((entity, index) => ({

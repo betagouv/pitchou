@@ -12,7 +12,6 @@ export type DossierUpdate = Partial<Dossier & { evenementsPhase: EvenementPhaseD
 
 const dossierUpdateProperties = new Set([
   "next_action_expected_from",
-  "next_action_expected",
   "next_due_date",
   "onagre_demande_identifier",
   "enjeu",
@@ -91,13 +90,6 @@ export function parseDossierUpdate(
   ) {
     error(400, `La propriété 'next_action_expected_from' n'est pas valide.`);
   }
-
-  if (value.next_action_expected !== undefined && value.next_action_expected !== null) {
-    error(400, `La propriété 'next_action_expected' n'est pas valide.`);
-  }
-
-  // Choosing the responsible entity clears the retired task, not unrelated updates.
-  if (value.next_action_expected_from !== undefined) value.next_action_expected = null;
 
   if (value.enjeu !== undefined && typeof value.enjeu !== "boolean") {
     error(400, `La propriété 'enjeu' doit être un booléen.`);

@@ -48,7 +48,6 @@ test("afficher l'onglet instruction n'enregistre rien", async () => {
 
 test("saisir un numéro Onagre enregistre le dossier", async () => {
   const dossier = fakeDossier();
-  dossier.next_action_expected = "Envoyer la saisine";
   render(DossierInstruction, { dossier, email: "instructeur@example.com" });
 
   await page.getByLabelText("N° de dossier Onagre").fill("ONAGRE-98765");
@@ -144,10 +143,9 @@ test("public consultation uses a loadable filled megaphone mask", async () => {
   expect(await response.text()).toContain("<path");
 });
 
-test("choisir une entité efface la tâche et signale seulement la sauvegarde réussie", async () => {
+test("choisir une entité enregistre ce seul champ et signale la sauvegarde réussie", async () => {
   const dossier = fakeDossier();
   dossier.next_action_expected_from = "Instructeur";
-  dossier.next_action_expected = "Envoyer la saisine";
   const onSaved = vi.fn();
   let resolveSave!: () => void;
   store.capabilities.modifierDossier = vi.fn(
@@ -160,12 +158,10 @@ test("choisir une entité efface la tâche et signale seulement la sauvegarde r�
 
   expect(onSaved).not.toHaveBeenCalled();
   await page.getByLabelText("Entité en charge de la prochaine action").click();
-  expect(screen.queryByRole("option", { name: "Envoyer la saisine" })).toBeNull();
   await page.getByRole("option", { name: "Tierce personne/administration", exact: true }).click();
   await vi.waitFor(() =>
     expect(store.capabilities.modifierDossier).toHaveBeenCalledExactlyOnceWith(DOSSIER_ID, {
       next_action_expected_from: "Tierce personne/administration",
-      next_action_expected: null,
     }),
   );
   expect(onSaved).not.toHaveBeenCalled();

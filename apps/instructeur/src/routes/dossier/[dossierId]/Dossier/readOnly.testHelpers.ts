@@ -18,7 +18,6 @@ export function fakeReadOnlyDossier(): DossierFull {
     ddep_required: null,
     er_mesures_sufficient: null,
     next_action_expected_from: null,
-    next_action_expected: null,
     next_due_date: null,
     public_consultation_start_date: null,
     public_consultation_end_date: null,

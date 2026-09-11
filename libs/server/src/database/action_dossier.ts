@@ -44,7 +44,6 @@ const metricByActionType: Record<string, (action: ActionDossierInitializer) => E
   {
     phase_renseignee: () => ({ type: "changerPhase" }),
     prochaine_action_renseignee: () => ({ type: "changerProchaineActionAttendueDe" }),
-    prochaine_action_attendue_renseignee: () => ({ type: "changerProchaineActionAttendue" }),
     echeance_renseignee: () => ({ type: "changerDateProchaineEcheance" }),
     commentaire_ajoute: () => ({ type: "modifierCommentaireInstruction" }),
     commentaire_modifie: () => ({ type: "modifierCommentaireInstruction" }),

@@ -1,5 +1,6 @@
 import { actionDisplay, emailName, str, type ActionData } from "./actionLabels.ts";
 import { milestoneEntries } from "./milestones.ts";
+import { phaseEventTimestamp } from "../../phaseEventTimestamp.ts";
 import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
 import type { DossierAction } from "@pitchou/types/capabilities.ts";
@@ -49,11 +50,32 @@ function entryFromAction(action: DossierAction): HistoriqueEntry {
   };
 }
 
-/** Stored actions, CNPN emails and derived milestones, most recent first. */
+/** Stored actions, phase history, CNPN emails and derived milestones, most recent first. */
 export function historiqueEntries(
   actions: DossierAction[],
   dossier: DossierFull,
 ): HistoriqueEntry[] {
+  const phaseEntries = (dossier.evenementsPhase ?? []).map<HistoriqueEntry>((event) => {
+    // Optimistic events still have milliseconds; PostgreSQL stores whole seconds.
+    const timestamp = phaseEventTimestamp(event.timestamp);
+    const action = actions.find(
+      ({ type, data }) =>
+        type === "phase_renseignee" &&
+        data?.dossier === event.dossier &&
+        data.value === event.phase &&
+        new Date(str(data, "timestamp") ?? "").getTime() === timestamp.getTime(),
+    );
+    const authorName = emailName(event.demarche_numerique_agent_email);
+    return {
+      ...actionDisplay("phase_renseignee", { value: event.phase }),
+      tone: authorName || event.caused_by_personne != null ? "instructeur" : "system",
+      author: authorName ? `par ${authorName}` : undefined,
+      ...(action ? entryFromAction(action) : {}),
+      id: `phase-${event.dossier}-${event.phase}-${timestamp.toISOString()}`,
+      date: new Date(event.timestamp),
+      timeKnown: isTimeOfDayKnown(event.timestamp),
+    };
+  });
   const cnpnEmailEntries = (dossier.cnpnEmailSentEvents ?? []).map<HistoriqueEntry>((event) => {
     const attachmentCount = event.attachment_names.length;
     const authorName = emailName(event.sent_by_email);
@@ -92,7 +114,10 @@ export function historiqueEntries(
     };
   });
 
-  return [...actions.map(entryFromAction), ...cnpnEmailEntries, ...milestoneEntries(dossier)].sort(
-    (a, b) => b.date.getTime() - a.date.getTime(),
-  );
+  return [
+    ...actions.filter(({ type }) => type !== "phase_renseignee").map(entryFromAction),
+    ...phaseEntries,
+    ...cnpnEmailEntries,
+    ...milestoneEntries(dossier),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime());
 }
