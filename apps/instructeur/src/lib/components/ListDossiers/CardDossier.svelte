@@ -144,7 +144,7 @@
   .dossier-card {
     border: 1px solid var(--border-default-grey, #ddd);
     border-radius: 4px;
-    background: #f6f6f6;
+    background: var(--background-alt-grey);
     transition:
       border-color 150ms,
       box-shadow 150ms;
@@ -157,7 +157,7 @@
 
   .dossier-card.unread {
     border-color: var(--border-plain-grey, #929292);
-    background: #fff;
+    background: var(--background-default-grey);
   }
 
   .dossier-card.unread:hover {
