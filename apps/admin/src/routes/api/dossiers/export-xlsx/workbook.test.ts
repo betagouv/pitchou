@@ -26,6 +26,7 @@ function makeRow(overrides: Partial<AdminDossierExportRow> = {}): AdminDossierEx
     departments: ["35", "22"],
     communes: [{ name: "Rennes", code: "35238", postalCode: "35000" }],
     regions: ["Bretagne"],
+    linked_to_ae_regime: true,
     ...overrides,
   } as AdminDossierExportRow;
 }
@@ -81,6 +82,7 @@ describe("dossiersSheetRows", () => {
         departments: null,
         communes: null,
         regions: null,
+        linked_to_ae_regime: null,
       }),
     ]);
     expect(row).toEqual([
@@ -98,7 +100,15 @@ describe("dossiersSheetRows", () => {
       "",
       "",
       "",
+      "",
     ]);
+  });
+
+  it("writes the AE regime as Oui or Non", () => {
+    const [, linked] = dossiersSheetRows([makeRow({ linked_to_ae_regime: true })]);
+    const [, notLinked] = dossiersSheetRows([makeRow({ linked_to_ae_regime: false })]);
+    expect(linked.at(-1)).toBe("Oui");
+    expect(notLinked.at(-1)).toBe("Non");
   });
 
   it("leaves both phase columns empty when no phase was ever recorded", () => {

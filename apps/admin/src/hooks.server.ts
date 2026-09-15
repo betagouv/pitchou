@@ -1,5 +1,5 @@
 import { sequence } from "@sveltejs/kit/hooks";
-import { redirect, type Handle } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit";
 import * as Sentry from "@sentry/sveltekit";
 
 import { isAdminEmail } from "@pitchou/server/admin.ts";
@@ -36,12 +36,19 @@ const authenticate: Handle = async ({ event, resolve }) => {
   if (!event.locals.user) {
     if (isApi) return new Response("Authentification requise", { status: 401 });
     const redirectTo = pathname + event.url.search;
-    redirect(302, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+    // SvelteKit can call this hook outside its redirect catch for malformed URLs.
+    return new Response(null, {
+      status: 302,
+      headers: { location: `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}` },
+    });
   }
 
   if (!isAdminEmail(event.locals.user.email)) {
     if (isApi) return new Response("Accès refusé", { status: 403 });
-    redirect(302, "/auth/acces-refuse");
+    return new Response(null, {
+      status: 302,
+      headers: { location: "/auth/acces-refuse" },
+    });
   }
 
   return resolve(event);

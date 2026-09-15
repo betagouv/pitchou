@@ -30,6 +30,7 @@ export type AdminDossierExportRow = AdminDossierSummary & {
   departments: unknown | null;
   communes: unknown | null;
   regions: unknown | null;
+  linked_to_ae_regime: boolean | null;
 };
 export type ListAdminDossiersOptions = {
   page: number;
@@ -159,6 +160,7 @@ export function listDossiersForExport(
       "dossier.departments",
       "dossier.communes",
       "dossier.regions",
+      "dossier.linked_to_ae_regime",
     ])
     .orderBy("dossier.depot_date", "desc")
     .orderBy("dossier.id", "desc")
