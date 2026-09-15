@@ -55,7 +55,7 @@ catalog:
   "ky": "^2.0.2"
   "lunr": "^2.3.9"
   "lunr-languages": "^1.14.0"
-  "maplibre-gl": "^6.0.0"
+  "maplibre-gl": "^6.4.1"
   "minimist": "^1.2.8"
   "p-limit": "^7.3.1"
   "pg": "^8.11.5"
