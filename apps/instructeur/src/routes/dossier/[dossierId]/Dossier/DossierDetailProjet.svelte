@@ -62,6 +62,7 @@
 {/snippet}
 
 <div class="dossier-detail-projet flex flex-col gap-4">
+  <h2 class="fr-h4 fr-mb-0">Détail du projet</h2>
   {#if needsRefresh}
     <div role="status">
       Des modifications concernent une autre version du dossier.

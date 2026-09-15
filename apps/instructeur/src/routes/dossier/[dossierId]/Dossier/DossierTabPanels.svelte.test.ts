@@ -2,6 +2,7 @@ import "@gouvfr/dsfr/dist/dsfr.css";
 import "../../../../app.css";
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
+import { page } from "vitest/browser";
 import Dossier from "../Dossier.svelte";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 import type { DossierTab } from "./dossierTabs.ts";
@@ -109,4 +110,37 @@ test("the project tab dot follows pending field reviews, not arrivals or follows
   store.notificationByDossier.set(dossier.id, pending);
   await view.rerender({ ...props, readOnly: true });
   expect(view.container.querySelector(".pending-dot")).toBeNull();
+});
+
+test("every tab opens with a title at the H4 size", async () => {
+  await page.viewport(1280, 720);
+  const props = {
+    dossier: fakeDossierFull(),
+    activeTab: "instruction" as DossierTab,
+    onTabChange: vi.fn(),
+    email: "instructeur@example.com",
+    dossierFollowers: [],
+    currentDossierFollowedByCurrentInstructeur: false,
+    readOnly: false,
+    onReadOnlyChange: vi.fn(),
+    canEdit: true,
+    onClose: vi.fn(),
+  };
+  const { container, rerender } = render(Dossier, props);
+  const titles: Record<string, string> = {
+    instruction: "Avancement du dossier",
+    "detail-du-projet": "Détail du projet",
+    avis: "Avis d'experts",
+    controles: "Décisions administratives",
+    historique: "Historique",
+    "generation-document": "Génération de documents",
+  };
+  for (const [tab, title] of Object.entries(titles)) {
+    // Historique only mounts once its tab is active.
+    await rerender({ ...props, activeTab: tab as DossierTab });
+    const panel = container.querySelector<HTMLElement>(`#tabpanel-${tab}-panel`)!;
+    const heading = panel.querySelector("h1, h2, h3, h4")!;
+    expect(heading.textContent?.trim(), tab).toBe(title);
+    expect(getComputedStyle(heading).fontSize, tab).toBe("24px");
+  }
 });

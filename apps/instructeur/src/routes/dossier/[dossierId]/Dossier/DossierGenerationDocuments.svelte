@@ -115,7 +115,7 @@
 </script>
 
 <div class="row">
-  <h2>Génération de documents</h2>
+  <h2 class="fr-h4">Génération de documents</h2>
 
   <p>
     Ici, vous pouvez compléter des <strong>modèles de documents</strong> (mails types, saisines,

@@ -129,7 +129,7 @@
     <ul
       bind:this={menuElement}
       id={menuId}
-      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-[22rem] max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      class="absolute right-0 top-[calc(100%+0.25rem)] z-20 w-max max-w-[calc(100vw-2rem)] list-none border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-m-0 fr-py-1v fr-px-0 shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="menu"
     >
       {#each items as item}
@@ -137,7 +137,7 @@
           <button
             type="button"
             role="menuitem"
-            class="flex w-full items-center gap-2 cursor-pointer border-0 bg-none text-left fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
+            class="flex w-full items-center gap-2 cursor-pointer whitespace-nowrap border-0 bg-none text-left text-[color:var(--text-action-high-blue-france)] fr-px-2w fr-py-1w hover:bg-[var(--background-contrast-grey)]"
             onclick={() => {
               closeMenu();
               item.onClick();

@@ -62,6 +62,14 @@ test("saisir un numéro Onagre enregistre le dossier", async () => {
   );
 });
 
+test("les champs entité et DDEP portent les pictos de la maquette", () => {
+  render(DossierInstruction, { dossier: fakeDossier(), email: "instructeur@example.com" });
+  const entite = screen.getByText("Entité en charge de la prochaine action");
+  expect(entite.querySelector(".fr-icon-user-star-fill")).toBeTruthy();
+  const ddep = screen.getByText("Nécessité d’une DDEP");
+  expect(ddep.querySelector(".fr-icon-especes-impactees")).toBeTruthy();
+});
+
 test("les titres de section sont de niveau 4", () => {
   render(DossierInstruction, { dossier: fakeDossier(), email: "instructeur@example.com" });
   expect(screen.getByRole("heading", { name: "Avancement du dossier", level: 4 })).toBeTruthy();

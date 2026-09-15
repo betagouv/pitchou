@@ -30,7 +30,7 @@
 </script>
 
 <section class="fr-mb-4w max-w-[56rem]">
-  <h2 class="fr-mb-3w fr-text--lg">Historique</h2>
+  <h2 class="fr-h4 fr-mb-3w">Historique</h2>
 
   {#if errorMessage}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p>{errorMessage}</p></div>

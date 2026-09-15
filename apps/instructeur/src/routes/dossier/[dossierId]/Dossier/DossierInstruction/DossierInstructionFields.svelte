@@ -87,7 +87,7 @@
 
   <div class={rowClass}>
     <label class={labelClass} for="next_action_expected_from">
-      <span class="fr-icon-todo-line {iconClass}" aria-hidden="true"></span>
+      <span class="fr-icon-user-star-fill {iconClass}" aria-hidden="true"></span>
       Entité en charge de la prochaine action
     </label>
     <Select
@@ -137,7 +137,7 @@
 
   <div class={rowClass}>
     <label class={labelClass} for="ddep-necessaire">
-      <span class="fr-icon-leaf-line {iconClass}" aria-hidden="true"></span>
+      <span class="fr-icon-especes-impactees {iconClass}" aria-hidden="true"></span>
       Nécessité d’une DDEP
     </label>
     <Select

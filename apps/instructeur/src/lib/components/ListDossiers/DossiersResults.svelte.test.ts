@@ -151,7 +151,13 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
     "Alertes",
   ];
   const columns = Array.from(cards[0].children).map((column) => column.getBoundingClientRect());
-  expect(columns[4].width).toBeGreaterThanOrEqual(136);
+  // The maquette values (164px alerts, 16px padding and inner gap) apply from 1280px; below,
+  // the row is packed to the pixel and keeps its compact layout.
+  const wide = width >= 1280;
+  expect(columns[4].width).toBe(wide ? 164 : 136);
+  expect(getComputedStyle(cards[0]).paddingLeft).toBe(wide ? "16px" : "8px");
+  expect(getComputedStyle(cards[0]).paddingRight).toBe(wide ? "16px" : "8px");
+  expect(getComputedStyle(cards[0].children[0]).columnGap).toBe(wide ? "16px" : "8px");
   for (const [index, text] of labels.entries()) {
     const label = within(headerGrid as HTMLElement).getByText(text);
     const box = label.getBoundingClientRect();

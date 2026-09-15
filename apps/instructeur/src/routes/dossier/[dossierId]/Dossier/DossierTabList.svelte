@@ -54,6 +54,8 @@
 
   .fr-tabs__tab {
     margin: 0;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.5rem;
     font-weight: 500;

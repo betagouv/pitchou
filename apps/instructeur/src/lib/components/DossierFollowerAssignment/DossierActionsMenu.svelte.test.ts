@@ -116,3 +116,23 @@ test.each(["Faire suivre le dossier", "Modifier la date de la prochaine échéan
     expect(screen.queryByRole("dialog")).toBeNull();
   },
 );
+
+test("the menu hugs its longest label and paints labels in blue France", async () => {
+  render(DossierActionsMenu, {
+    ...props,
+    extraItems: [{ label: "Modifier la date de prochaine échéance", onClick: vi.fn() }],
+  });
+  await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/ }));
+  const menu = screen.getByRole("menu");
+  const items = screen.getAllByRole("menuitem");
+  let widest = 0;
+  for (const item of items) {
+    expect(getComputedStyle(item).color).toBe("rgb(0, 0, 145)");
+    expect(getComputedStyle(item).whiteSpace).toBe("nowrap");
+    const range = document.createRange();
+    range.selectNodeContents(item);
+    expect(range.getClientRects().length).toBeLessThanOrEqual(2);
+    widest = Math.max(widest, item.scrollWidth);
+  }
+  expect(menu.getBoundingClientRect().width).toBeLessThan(widest + 4);
+});
