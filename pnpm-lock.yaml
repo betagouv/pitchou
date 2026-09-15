@@ -255,8 +255,8 @@ importers:
         specifier: 'catalog:'
         version: 3.30.2
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
       jose:
         specifier: 'catalog:'
         version: 6.2.4
@@ -2084,10 +2084,9 @@ packages:
   '@vitest/utils@4.1.10':
     resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
 
-  '@xmldom/xmldom@0.9.10':
-    resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
-    deprecated: this version has critical issues, please update to the latest version
 
   '@zip.js/zip.js@2.8.34':
     resolution: {integrity: sha512-+6a3lyqq69rpseLbvDPiVIWsZ/HdTGAAD6afFtug6ECPDGttb2dHnPC6cJgdPofYkzL9OvXizegq+DQVfL2rnA==}
@@ -4164,7 +4163,7 @@ snapshots:
 
   '@odfjs/odfjs@https://codeload.github.com/odfjs/odfjs/tar.gz/415a26e3f15d144bc4881f4c62100597c1112335':
     dependencies:
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       '@zip.js/zip.js': 2.8.34
       image-size: 2.0.2
       ses: 1.15.0
@@ -5096,7 +5095,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@xmldom/xmldom@0.9.10': {}
+  '@xmldom/xmldom@0.9.12': {}
 
   '@zip.js/zip.js@2.8.34': {}
 
