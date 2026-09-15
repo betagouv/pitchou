@@ -30,7 +30,7 @@
               ? filters.classifications.filter((value) => value !== option.value)
               : [...filters.classifications, option.value])}
         >
-          <span class="text-[1.25rem]" aria-hidden="true">{option.emoji}</span>
+          <img src={option.icon} alt="" class="size-6 select-none" draggable="false" />
           <span>{option.label}</span>
         </button>
       {/each}

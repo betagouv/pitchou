@@ -2,6 +2,7 @@
   import EspecesImpactTable from "./EspecesImpactTable.svelte";
   import "./review-layout.css";
   import { impactGroups } from "./impactGroups.ts";
+  import { typeImpactIconUrl } from "@pitchou/ui/especes/typeImpactIcon.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
   import FieldChange from "./FieldChange.svelte";
@@ -62,9 +63,15 @@
     </div>
   {/if}
   {#each groups as group (group.id)}
+    {@const icon = typeImpactIconUrl(group.id)}
     <section class="impact-group" data-impact-id={group.id ?? "unspecified"}>
       <h4 class="dossier-review-left">
-        <span class="fr-icon-leaf-line" aria-hidden="true"></span>
+        <!-- Impacts without a type in the referentiel keep the generic leaf. -->
+        {#if icon}
+          <img src={icon} alt="" class="impact-icon" draggable="false" />
+        {:else}
+          <span class="fr-icon-leaf-line" aria-hidden="true"></span>
+        {/if}
         {group.label}
       </h4>
       <div class="review-row dossier-review-row">
@@ -105,6 +112,12 @@
   h4 span {
     color: var(--text-mention-grey, #666);
     flex-shrink: 0;
+  }
+  .impact-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    user-select: none;
   }
   .file-info {
     min-width: 0;

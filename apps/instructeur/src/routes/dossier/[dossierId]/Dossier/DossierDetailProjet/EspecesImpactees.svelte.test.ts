@@ -134,3 +134,20 @@ test("file anomalies retain their details, reference link and original download"
   );
   expect(view.getByRole("button", { name: "Télécharger le fichier original" })).toBeTruthy();
 });
+
+test("group headings show the type d'impact icon; untyped groups keep the leaf", () => {
+  const view = render(EspecesImpactees, {
+    dossier: speciesDossier([impact(), habitat, impact({ typeImpact: null })]),
+    anomalies: undefined,
+  });
+  const headings = view.getAllByRole("heading", { level: 4 });
+  expect(headings).toHaveLength(3);
+  const [destruction, degradation, untyped] = headings;
+  expect(destruction.querySelector("img.impact-icon")).toBeTruthy();
+  expect(degradation.querySelector("img.impact-icon")).toBeTruthy();
+  expect(destruction.querySelector("img")?.getAttribute("src")).not.toBe(
+    degradation.querySelector("img")?.getAttribute("src"),
+  );
+  expect(untyped.querySelector("img")).toBeNull();
+  expect(untyped.querySelector(".fr-icon-leaf-line")).toBeTruthy();
+});
