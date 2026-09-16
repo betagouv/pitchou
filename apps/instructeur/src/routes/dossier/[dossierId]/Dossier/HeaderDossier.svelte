@@ -53,10 +53,14 @@
       type: "ouvrirModaleAjouterPieceJointe",
       details: { dossierId: dossier.id, source: "enteteDossier" },
     });
-    const modalElement = document.getElementById(idModalAddPieceJointe);
-    // @ts-ignore DSFR installs this browser global.
-    if (modalElement) window.dsfr(modalElement).modal.disclose();
+    pieceJointeTrigger?.click();
   }
+
+  // DSFR only lets a modal open while it has a trigger button (`aria-controls`) outside of
+  // it, and recomputes that whenever the modal's buttons change, so enabling the modal by
+  // hand does not hold. The actions menu items are unmounted with the menu, hence this
+  // permanent hidden trigger, which the menu item clicks.
+  let pieceJointeTrigger: HTMLButtonElement | undefined = $state();
 
   let header: HTMLElement;
   let headerOutOfView = $state(false);
@@ -145,6 +149,16 @@
 {/if}
 
 {#if !readOnly.current}
+  <button
+    bind:this={pieceJointeTrigger}
+    type="button"
+    hidden
+    tabindex="-1"
+    aria-controls={idModalAddPieceJointe}
+    data-fr-opened="false"
+  >
+    Ajouter une pièce jointe
+  </button>
   <ModalAddPieceJointe
     id={idModalAddPieceJointe}
     {dossier}

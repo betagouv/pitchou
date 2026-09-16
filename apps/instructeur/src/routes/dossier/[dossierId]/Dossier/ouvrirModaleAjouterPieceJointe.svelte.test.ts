@@ -62,11 +62,21 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
     onEnterReadOnly: vi.fn(),
   });
 
+  // DSFR only opens a modal that has a trigger button outside of it. The menu items are
+  // unmounted with the menu, so the header keeps a hidden permanent trigger that the
+  // menu item clicks.
+  const trigger = document.querySelector<HTMLButtonElement>(
+    '[aria-controls="modale-ajouter-piece-jointe-entete"][data-fr-opened]',
+  )!;
+  expect([trigger.closest("dialog"), trigger.hidden]).toEqual([null, true]);
+  const triggered = vi.spyOn(trigger, "click");
+
   // The entry point now lives in the "…" actions menu.
   await page.getByRole("button", { name: /Plus d’actions/ }).click();
   await page.getByRole("menuitem", { name: "Ajouter une pièce jointe" }).click();
 
   expectTracking("enteteDossier");
+  expect(triggered).toHaveBeenCalledOnce();
 });
 
 test("trace l'ouverture de la modale depuis l'onglet pièces jointes", async () => {
