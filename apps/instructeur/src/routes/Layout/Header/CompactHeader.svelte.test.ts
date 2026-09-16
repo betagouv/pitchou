@@ -50,13 +50,38 @@ test.each([320, 390, 1024, 1440])(
   },
 );
 
-test("brand colors remain legible in dark mode and account actions still work", async () => {
+test("dark mode swaps in the dark logo and account actions still work", async () => {
   document.documentElement.dataset.frTheme = "dark";
   const onLogout = vi.fn();
-  render(CompactHeader, { email: "instructeur@example.com", onLogout });
-  const image = screen.getByRole("img");
-  expect(getComputedStyle(image).backgroundColor).toBe("rgb(255, 255, 255)");
+  const { container } = render(CompactHeader, { email: "instructeur@example.com", onLogout });
+  // Only the dark variant is shown; the light one is display:none, so out of the
+  // accessibility tree.
+  const image = screen.getByRole("img", { name: "Pitchou" }) as HTMLImageElement;
+  const images = container.querySelectorAll("img");
+  expect(images).toHaveLength(2);
+  expect(image).toBe(images[1]);
+  expect(getComputedStyle(images[0]).display).toBe("none");
+  expect(getComputedStyle(image).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  await image.decode();
+  expect(image.naturalWidth).toBe(209);
+  expect(image.naturalHeight).toBe(40);
+  const bounds = image.getBoundingClientRect();
+  expect([bounds.width, bounds.height]).toEqual([209, 40]);
+  const source = await fetch(image.src);
+  expect(source.ok).toBe(true);
+  const svg = new DOMParser().parseFromString(await source.text(), "image/svg+xml");
+  expect(svg.querySelector("parsererror")).toBeNull();
+  expect(svg.documentElement.getAttribute("viewBox")).toBe("0 0 419 80");
+  // The light wordmark is #252E7E; the dark one uses the lighter #9198DE.
+  expect(svg.querySelectorAll('path[fill="#9198DE"]').length).toBeGreaterThan(0);
+  expect(svg.querySelector('path[fill="#252E7E"]')).toBeNull();
+
   await userEvent.click(screen.getByRole("button", { name: "Mon espace" }));
   await userEvent.click(screen.getByRole("button", { name: "Se déconnecter" }));
   expect(onLogout).toHaveBeenCalledOnce();
+
+  // Switching back to light restores the light logo without a re-render.
+  document.documentElement.dataset.frTheme = "light";
+  expect(getComputedStyle(images[0]).display).toBe("block");
+  expect(getComputedStyle(images[1]).display).toBe("none");
 });

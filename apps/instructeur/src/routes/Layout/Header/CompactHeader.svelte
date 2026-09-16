@@ -1,6 +1,7 @@
 <script lang="ts">
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
   import pitchouLogo from "@pitchou/ui/pitchou-logo.svg";
+  import pitchouLogoDark from "@pitchou/ui/pitchou-logo-dark.svg";
 
   import Navbar from "./Navbar.svelte";
 
@@ -29,12 +30,21 @@
 >
   <div class="pitchou-container flex flex-wrap items-center gap-x-6">
     <a href="/" title="Accueil - Pitchou" class="my-2 block max-w-full shrink-0 bg-none">
+      <!-- The DSFR theme is an attribute on <html>, not a media query, so both logos are
+           in the page and CSS picks the one matching the current theme. -->
       <img
         src={pitchouLogo}
         alt="Pitchou"
         width="209"
         height="40"
-        class="block h-auto max-w-full bg-white"
+        class="logo-light block h-auto max-w-full"
+      />
+      <img
+        src={pitchouLogoDark}
+        alt="Pitchou"
+        width="209"
+        height="40"
+        class="logo-dark block h-auto max-w-full"
       />
     </a>
 
@@ -45,3 +55,14 @@
     </div>
   </div>
 </header>
+
+<style>
+  .logo-dark,
+  :global(:root[data-fr-theme="dark"]) .logo-light {
+    display: none;
+  }
+
+  :global(:root[data-fr-theme="dark"]) .logo-dark {
+    display: block;
+  }
+</style>
