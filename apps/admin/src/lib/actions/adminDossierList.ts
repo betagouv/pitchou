@@ -1,10 +1,7 @@
 import type { DossiersPage, DossiersQuery } from "./adminDossierTypes.ts";
 import { AccessDeniedError } from "./adminEspeces.ts";
 
-async function checkResponse(
-  response: Response,
-  action = "du chargement des dossiers",
-): Promise<void> {
+async function checkResponse(response: Response): Promise<void> {
   if (response.ok) return;
   if (response.status === 403) throw new AccessDeniedError();
   let message = "";
@@ -13,7 +10,7 @@ async function checkResponse(
   } catch {
     // The fallback below covers non-JSON responses.
   }
-  throw new Error(message || `Erreur ${response.status} lors ${action}.`);
+  throw new Error(message || `Erreur ${response.status} lors du chargement des dossiers.`);
 }
 
 export function defaultDossiersQuery(): DossiersQuery {
@@ -45,18 +42,4 @@ export async function loadDossiers(query: DossiersQuery): Promise<DossiersPage> 
     throw new Error("Réponse invalide reçue du serveur pour les dossiers.");
   }
   return page as DossiersPage;
-}
-
-export async function downloadDossiersWorkbook(): Promise<void> {
-  const response = await fetch("/api/dossiers/export-xlsx");
-  await checkResponse(response, "du téléchargement des dossiers");
-
-  const url = URL.createObjectURL(await response.blob());
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "dossiers.xlsx";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
