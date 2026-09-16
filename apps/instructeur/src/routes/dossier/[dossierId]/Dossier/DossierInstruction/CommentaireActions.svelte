@@ -157,7 +157,7 @@
     role="alertdialog"
     aria-labelledby={titleId}
     aria-describedby={`${titleId}-description`}
-    class="m-auto max-w-[32rem] fr-py-3w fr-px-4w rounded-[0.5rem] border-0 bg-[var(--background-default-grey)] text-[color:var(--text-default-grey)] backdrop:bg-black/40"
+    class="m-auto max-w-[32rem] fr-py-3w fr-px-4w rounded-[0.5rem] border-0 pitchou-dialog text-[color:var(--text-default-grey)]"
     oncancel={(event) => {
       if (deleting) event.preventDefault();
     }}

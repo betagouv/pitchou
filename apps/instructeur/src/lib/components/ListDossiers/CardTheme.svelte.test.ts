@@ -30,9 +30,14 @@ test.each(["light", "dark"])(
         currentInstructeurLeavesDossier: vi.fn().mockResolvedValue(undefined),
       });
       const dark = theme === "dark";
+      // The page is one shade away from the surfaces in both themes: unread cards stand
+      // out on it, read cards blend into it.
+      const pageBackground = getComputedStyle(document.body).backgroundColor;
+      expect(pageBackground).toBe(dark ? "rgb(30, 30, 30)" : "rgb(246, 246, 246)");
       for (const unread of [true, false]) {
         await rerender({ notificationViewed: !unread });
-        expect(getComputedStyle(screen.getByTestId("card-dossier")).backgroundColor).toBe(
+        const cardBackground = getComputedStyle(screen.getByTestId("card-dossier")).backgroundColor;
+        expect(cardBackground).toBe(
           dark
             ? unread
               ? "rgb(22, 22, 22)"
@@ -41,6 +46,7 @@ test.each(["light", "dark"])(
               ? "rgb(255, 255, 255)"
               : "rgb(246, 246, 246)",
         );
+        expect(cardBackground === pageBackground).toBe(!unread);
         const title = screen.getByRole("link", { name: dossier.name! });
         expect(getComputedStyle(title).color).toBe(dark ? "rgb(255, 255, 255)" : "rgb(22, 22, 22)");
         for (const text of ["Association des marais", "Instructeur"]) {

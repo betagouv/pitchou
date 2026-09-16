@@ -49,7 +49,7 @@
      calendar panel, which pops beyond the dialog's bounds. -->
 <dialog
   bind:this={dialogElement}
-  class="w-[min(32rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-visible border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
+  class="w-[min(32rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-visible border-0 fr-p-0 pitchou-dialog"
   style="margin: auto;"
   aria-labelledby={titleId}
   onclose={onClose}
@@ -57,7 +57,7 @@
     if (saving) event.preventDefault();
   }}
 >
-  <div class="flex flex-col bg-[var(--background-default-grey)]">
+  <div class="flex flex-col">
     <header
       class="flex items-start justify-between gap-4 border-b border-[color:var(--border-default-grey)] fr-p-3w"
     >
