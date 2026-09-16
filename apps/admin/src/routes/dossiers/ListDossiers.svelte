@@ -5,7 +5,6 @@
 
   import {
     loadDossiers,
-    downloadDossiersWorkbook,
     defaultDossiersQuery,
     AccessDeniedError,
     type DossiersQuery,
@@ -24,8 +23,6 @@
   let loadError = $state<string | null>(null);
   let accessDenied = $state(false);
   let creatingDossier = $state(false);
-  let downloading = $state(false);
-  let downloadError = $state<string | null>(null);
 
   // The "create" entry point lives in the shell header ("+").
   $effect(() => {
@@ -100,23 +97,6 @@
     reload();
   }
 
-  async function downloadAllDossiers() {
-    downloading = true;
-    downloadError = null;
-    try {
-      await downloadDossiersWorkbook();
-    } catch (e) {
-      downloadError =
-        e instanceof AccessDeniedError
-          ? "Accès réservé aux administrateurs."
-          : e instanceof Error
-            ? e.message
-            : String(e);
-    } finally {
-      downloading = false;
-    }
-  }
-
   onMount(reload);
 </script>
 
@@ -126,33 +106,14 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="flex flex-col gap-2">
-    <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
-      <button
-        type="button"
-        class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-        disabled={downloading}
-        onclick={downloadAllDossiers}
-      >
-        Télécharger tous les dossiers
-      </button>
-    </div>
-
-    {#if downloadError}
-      <div class="fr-alert fr-alert--error fr-alert--sm" role="alert">
-        <p>{downloadError}</p>
-      </div>
-    {/if}
-
-    <DossiersListControls
-      {query}
-      {total}
-      {loading}
-      onSearch={onSearchInput}
-      onFilter={onFilterChange}
-      onSort={onSortChange}
-    />
-  </div>
+  <DossiersListControls
+    {query}
+    {total}
+    {loading}
+    onSearch={onSearchInput}
+    onFilter={onFilterChange}
+    onSort={onSortChange}
+  />
 
   {#if loadError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-my-2w" role="alert">

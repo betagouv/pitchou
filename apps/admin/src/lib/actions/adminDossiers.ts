@@ -10,11 +10,7 @@ import type {
 
 export { AccessDeniedError };
 export type * from "./adminDossierTypes.ts";
-export {
-  defaultDossiersQuery,
-  loadDossiers,
-  downloadDossiersWorkbook,
-} from "./adminDossierList.ts";
+export { defaultDossiersQuery, loadDossiers } from "./adminDossierList.ts";
 export { simulateDossierSync, type SimulatedAction } from "./adminDossierSync.ts";
 
 export async function loadDossierDetail(dossierId: number): Promise<AdminDossierDetail> {

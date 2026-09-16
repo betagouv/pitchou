@@ -22,16 +22,6 @@ export type AdminDossierSummary = {
   groupe_name: string | null;
 };
 export type AdminDossierSortKey = "depot_date" | "name" | "phase";
-
-/** A summary plus the extra columns the statistics export needs. */
-export type AdminDossierExportRow = AdminDossierSummary & {
-  phase_date: Date | null;
-  primary_department: string | null;
-  departments: unknown | null;
-  communes: unknown | null;
-  regions: unknown | null;
-  linked_to_ae_regime: boolean | null;
-};
 export type ListAdminDossiersOptions = {
   page: number;
   pageSize: number;
@@ -144,56 +134,6 @@ export async function listDossiersForAdmin(
     .limit(pageSize)
     .offset((page - 1) * pageSize);
   return { dossiers: dossiers.map(withResolvedActivite), total: Number(count?.count ?? 0) };
-}
-/**
- * @param db
- * @returns every dossier, with the extra columns the statistics export needs
- */
-export function listDossiersForExport(
-  db: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<AdminDossierExportRow[]> {
-  return withRelations(db("dossier"), db)
-    .select([
-      ...summaryColumns(),
-      "latest_phase.timestamp as phase_date",
-      "dossier.primary_department",
-      "dossier.departments",
-      "dossier.communes",
-      "dossier.regions",
-      "dossier.linked_to_ae_regime",
-    ])
-    .orderBy("dossier.depot_date", "desc")
-    .orderBy("dossier.id", "desc")
-    .then((rows: AdminDossierExportRow[]) => rows.map(withResolvedActivite));
-}
-
-export type AdminAvisExpertExportRow = {
-  dossier: DossierId;
-  expert: string | null;
-  saisine_date: Date | null;
-  saisine_fichier: string | null;
-  avis: string | null;
-  avis_date: Date | null;
-  avis_fichier: string | null;
-};
-
-export function listAvisExpertForExport(
-  db: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<AdminAvisExpertExportRow[]> {
-  return db("avis_expert")
-    .leftJoin("file as file_saisine", { "file_saisine.id": "avis_expert.saisine_fichier" })
-    .leftJoin("file as file_avis", { "file_avis.id": "avis_expert.avis_fichier" })
-    .select([
-      "avis_expert.dossier",
-      "avis_expert.expert",
-      "avis_expert.saisine_date",
-      "file_saisine.name as saisine_fichier",
-      "avis_expert.avis",
-      "avis_expert.avis_date",
-      "file_avis.name as avis_fichier",
-    ])
-    .orderBy("avis_expert.dossier", "desc")
-    .orderBy("avis_expert.saisine_date", "desc");
 }
 
 export function listGroupesInstructeursForAdmin(
