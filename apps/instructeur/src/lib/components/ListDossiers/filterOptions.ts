@@ -89,6 +89,22 @@ export function listAvailableDepartements(dossiers: DossierSummary[]): Departeme
   );
 }
 
+export function assignedDepartments(dossiers: Iterable<DossierSummary>): Set<string> {
+  const codes = new Set<string>();
+  for (const dossier of dossiers) {
+    if (dossier.access === "complet") {
+      for (const code of dossier.departments ?? []) codes.add(code);
+    }
+  }
+  return codes;
+}
+
+export function listAssignedDepartements(codes: ReadonlySet<string>): DepartementOption[] {
+  return [...codes]
+    .map((code) => ({ code, name: departementNameByCode.get(code) ?? code }))
+    .sort((a, b) => a.code.localeCompare(b.code, "fr", { numeric: true }));
+}
+
 export function especeLabelByCD_REF(
   especeByCD_REF: DossiersContext["especeByCD_REF"],
 ): Map<string, string> {

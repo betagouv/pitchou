@@ -8,6 +8,7 @@ import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
 
 import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
 import { sendEvenement } from "$lib/shared/aarri.ts";
+import { refreshNotifications } from "$lib/dossier/notification.ts";
 
 import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {
@@ -47,23 +48,7 @@ export function loadRecentSearches() {
 }
 
 export function loadNotificationByDossierForCurrentInstructeur() {
-  if (store.capabilities?.listerNotifications) {
-    return store.capabilities.listerNotifications().then((notificationsDB) => {
-      if (!notificationsDB || !Array.isArray(notificationsDB)) {
-        throw new TypeError("On attendait un tableau de notifications ici !");
-      }
-
-      const notificationByDossierForCurrentInstructeur: NonNullable<
-        typeof store.notificationByDossier
-      > = new SvelteMap();
-
-      for (const notification of notificationsDB) {
-        notificationByDossierForCurrentInstructeur.set(notification.dossier, notification);
-      }
-
-      store.notificationByDossier = notificationByDossierForCurrentInstructeur;
-    });
-  }
+  return refreshNotifications();
 }
 
 export function loadSchemaDS88444() {
@@ -108,7 +93,7 @@ export async function logout() {
 
   store.dossierSummaries = new SvelteMap();
   store.fullDossiers = new SvelteMap();
-  store.messagesByDossierId = new SvelteMap();
+  store.readOnlyDossiers = new SvelteMap();
   store.followRelations = new SvelteMap();
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;

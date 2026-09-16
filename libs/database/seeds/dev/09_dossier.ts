@@ -1,6 +1,8 @@
 import type { Knex } from "knex";
 
 import { SEED_DOSSIERS } from "../fixtures/dossiers.ts";
+import { seedActionsDossier } from "./dossier/actions.ts";
+import { seedCommentaires } from "./dossier/commentaires.ts";
 import { seedDossierActors } from "./dossier/actors.ts";
 import { seedDecisions } from "./dossier/decisions.ts";
 import { seedDevFollowers } from "./dossier/dev-followers.ts";
@@ -26,6 +28,8 @@ export async function seed(knex: Knex) {
     await seedPrescriptionsAndControles(transaction);
     await seedDevFollowers(transaction, actors.person, dossierIdMap);
     await seedEspecesImpactees(transaction, dossierIdMap);
+    await seedCommentaires(transaction, dossierIdMap);
+    await seedActionsDossier(transaction, dossierIdMap, actors.person?.id ?? null);
 
     console.log("");
     console.log(`  Seed dossiers OK — ${SEED_DOSSIERS.length} dossiers`);

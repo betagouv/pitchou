@@ -49,6 +49,12 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     "member-two-code",
   );
   await attachPersonneSuitDossier(db, formerMember.id, assigner.dossier.id);
+  // One assignee has already seen the arrival, the other has not.
+  await db("notification").insert({
+    personne: memberTwo.id,
+    dossier: assigner.dossier.id,
+    arrival_viewed: true,
+  });
 
   await page.goto(`/?secret=${assigner.codeAcces}`);
   await page.getByRole("link", { name: "Tous les dossiers", exact: true }).click();
@@ -122,14 +128,15 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberOneCard).toBeVisible();
-  await expect(memberOneCard.getByText("Nouveauté", { exact: true })).toBeVisible();
+  await expect(memberOneCard.getByText("Nouveau dossier", { exact: true })).toBeVisible();
+  await expect(memberOneCard.getByText("Nouveau suivi", { exact: true })).toHaveCount(0);
 
   await page.goto(`/?secret=${memberTwo.codeAcces}`);
   const memberTwoCard = page
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberTwoCard).toBeVisible();
-  await expect(memberTwoCard.getByText("Nouveauté", { exact: true })).toBeVisible();
+  await expect(memberTwoCard.getByText("Nouveau suivi", { exact: true })).toBeVisible();
 
   await page.goto(`/?secret=${formerMember.codeAcces}`);
   await expect(
@@ -137,7 +144,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   ).toHaveCount(0);
 });
 
-test("assigning oneself while viewing a dossier immediately marks it as viewed", async ({
+test("assigning oneself while viewing a dossier marks it as viewed after the reading delay", async ({
   page,
   db,
 }) => {
@@ -157,17 +164,20 @@ test("assigning oneself while viewing a dossier immediately marks it as viewed",
   await dialog.getByRole("button", { name: "Attribuer le dossier" }).click();
   await expect(dialog).toBeHidden();
 
+  // This fixture has no applicant changes: only the arrival/follow are dismissed.
   await expect
-    .poll(async () =>
-      db("notification")
-        .select("viewed")
-        .where({ personne: assigner.id, dossier: assigner.dossier.id })
-        .first(),
+    .poll(
+      async () =>
+        db("notification")
+          .select("viewed", "arrival_viewed", "follow_revision")
+          .where({ personne: assigner.id, dossier: assigner.dossier.id })
+          .first(),
+      { timeout: 10_000 },
     )
-    .toEqual({ viewed: true });
+    .toEqual({ viewed: true, arrival_viewed: true, follow_revision: null });
 
   await page.getByRole("link", { name: "Mes dossiers", exact: true }).click();
   const card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await expect(card).toBeVisible();
-  await expect(card.getByText("Nouveauté", { exact: true })).toHaveCount(0);
+  await expect(card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié)/)).toHaveCount(0);
 });

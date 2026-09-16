@@ -1,21 +1,22 @@
 import type { ClassificationEtreVivant, EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { Statut } from "@pitchou/ui/especes/especesList.ts";
-import { CLASSIFICATION_EMOJI } from "@pitchou/ui/especes/classificationEmoji.ts";
+import { classificationIconUrl } from "@pitchou/ui/especes/classificationIcon.ts";
 
 export type InstanceConsultative = "cnpn" | "ministerielle";
 
 export const CLASSIFICATION_OPTIONS: {
   value: ClassificationEtreVivant;
   label: string;
-  emoji: string;
+  /** URL of the classification pictogram */
+  icon: string;
 }[] = [
-  { value: "oiseau", label: "Oiseau", emoji: CLASSIFICATION_EMOJI.oiseau },
+  { value: "oiseau", label: "Oiseau", icon: classificationIconUrl("oiseau") },
   {
     value: "faune non-oiseau",
     label: "Faune non oiseau",
-    emoji: CLASSIFICATION_EMOJI["faune non-oiseau"],
+    icon: classificationIconUrl("faune non-oiseau"),
   },
-  { value: "flore", label: "Flore", emoji: CLASSIFICATION_EMOJI.flore },
+  { value: "flore", label: "Flore", icon: classificationIconUrl("flore") },
 ];
 
 export const STATUT_OPTIONS: { value: Statut; label: string }[] = [

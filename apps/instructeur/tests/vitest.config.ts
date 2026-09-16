@@ -1,12 +1,13 @@
 import { defineConfig } from "vitest/config";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { playwright } from "@vitest/browser-playwright";
+import tailwindcss from "@tailwindcss/vite";
 
 // Run from apps/instructeur (cwd); globs are relative to this directory.
 // Colocated unit tests live in the libs (../../libs) and in the app (src).
 // Component tests live in src/lib (the app's client code).
 export default defineConfig({
-  plugins: [sveltekit()],
+  plugins: [sveltekit(), tailwindcss()],
   test: {
     exclude: ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.direnv/**", "tests/e2e/**"],
     projects: [

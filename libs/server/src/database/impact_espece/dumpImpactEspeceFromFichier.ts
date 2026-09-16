@@ -6,7 +6,8 @@ import { parseFichierEspecesImpactees } from "@pitchou/common/impact_espece/pars
 import { directDatabaseConnection } from "../../database.ts";
 import { loadEspeceByCD_REF } from "../../especeProtegee.ts";
 import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "../../referentielTypeImpactMethodeMoyenDePoursuite.ts";
-import { loadFichierContent } from "../fichier.ts";
+import { getFile } from "../file.ts";
+import { fileKey, getObject } from "../../objectStorage.ts";
 import { fromFileToDatabaseImpactEspeceRow } from "./rows.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -39,43 +40,35 @@ export async function dumpImpactEspeceFromFichier(
   fileId: FileId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<AnomalieFichierEspeces[]> {
-  try {
-    if (await alreadyImported(dossierId, fileId, databaseConnection)) return [];
-
-    const fichier = await loadFichierContent(fileId, databaseConnection);
-    if (!fichier) {
-      return [{ message: "le fichier espèces impactées est introuvable" }];
-    }
-    if (!fichier.media_type || !MEDIA_TYPES_TABLEUR.has(fichier.media_type)) {
-      return [
-        {
-          message: `le fichier « ${fichier.name} » n’est ni un .ods ni un .xlsx : il n’a pas pu être lu`,
-        },
-      ];
-    }
-
-    const [especeByCD_REF, referentiel, contenu] = await Promise.all([
-      loadEspeceByCD_REF(databaseConnection),
-      getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
-      arrayBuffer(fichier.body),
-    ]);
-
-    const { impactEspece, anomalies } = await parseFichierEspecesImpactees(
-      contenu,
-      especeByCD_REF,
-      referentiel,
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      dumpImpactEspeceFromFichier(dossierId, fileId, trx),
     );
+  await databaseConnection("dossier").select("id").where({ id: dossierId }).forUpdate();
+  if (await alreadyImported(dossierId, fileId, databaseConnection)) return [];
 
-    // Replace rather than merge: the file describes the dossier's impacts in full, so anything
-    // left from a previous version of it would be a line the pétitionnaire has since removed.
-    await databaseConnection("impact_espece").where({ dossier: dossierId }).delete();
+  const fichier = await getFile(fileId, databaseConnection);
+  if (!fichier) {
+    return [{ message: "le fichier espèces impactées est introuvable" }];
+  }
+  if (!fichier.media_type || !MEDIA_TYPES_TABLEUR.has(fichier.media_type)) {
+    return [
+      {
+        message: `le fichier « ${fichier.name} » n’est ni un .ods ni un .xlsx : il n’a pas pu être lu`,
+      },
+    ];
+  }
 
-    const rows = fromFileToDatabaseImpactEspeceRow(impactEspece, dossierId, fileId);
-    if (rows.length >= 1) {
-      await databaseConnection("impact_espece").insert(rows);
-    }
+  // Database failures must abort the transaction, not become file anomalies.
+  const [especeByCD_REF, referentiel] = await Promise.all([
+    loadEspeceByCD_REF(databaseConnection),
+    getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
+  ]);
 
-    return anomalies;
+  let parsed: Awaited<ReturnType<typeof parseFichierEspecesImpactees>>;
+  try {
+    const contenu = await arrayBuffer((await getObject(fileKey(fileId))).body);
+    parsed = await parseFichierEspecesImpactees(contenu, especeByCD_REF, referentiel);
   } catch (error) {
     return [
       {
@@ -85,4 +78,10 @@ export async function dumpImpactEspeceFromFichier(
       },
     ];
   }
+
+  // Replace rather than merge: the file describes the dossier's impacts in full.
+  const rows = fromFileToDatabaseImpactEspeceRow(parsed.impactEspece, dossierId, fileId);
+  await databaseConnection("impact_espece").where({ dossier: dossierId }).delete();
+  if (rows.length) await databaseConnection("impact_espece").insert(rows);
+  return parsed.anomalies;
 }

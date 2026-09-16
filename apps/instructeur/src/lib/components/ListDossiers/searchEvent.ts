@@ -16,6 +16,8 @@ export function buildSearchEvent(
 ): DossierSearchEventDetails {
   const filters: DossierSearchEventDetails["filters"] = {
     nouveaute: query.nouveaute !== "",
+    localisation: query.localisation,
+    departementSelection: query.departementSelection,
   };
 
   if (query.text.trim()) {
@@ -37,7 +39,7 @@ export function buildSearchEvent(
   } else if (query.actionInstructeur) {
     filters.nextActionExpectedFrom = ["Instructeur"];
   }
-  if (query.departement.length) {
+  if (query.departementSelection === "custom") {
     filters.departements = query.departement;
   }
   if (query.instructeur.includes(WITHOUT_INSTRUCTEUR)) {

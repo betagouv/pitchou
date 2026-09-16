@@ -33,7 +33,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose le fi
   expect(sourceFile).toBeDefined();
   expect(sourceFile!.name).toBe("especes-impactées.ods");
   expect(sourceFile!.media_type).toBe(ODS_MEDIA_TYPE);
-  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}`);
+  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}?cap=${cap}`);
 });
 
 test("les impacts sont servis avec leurs libellés résolus", async () => {
@@ -47,6 +47,7 @@ test("les impacts sont servis avec leurs libellés résolus", async () => {
         noms_scientifiques: ["Morus bassanus"],
         noms_vernaculaires: ["Fou de Bassan"],
         cd_type_statuts: ["PN"],
+        codes_liste_rouge: ["LC", "VU"],
       },
     ],
     db,
@@ -82,6 +83,7 @@ test("les impacts sont servis avec leurs libellés résolus", async () => {
     nomScientifique: "Morus bassanus",
     especeCNPN: false,
     especeMinisterielle: false,
+    statutListeRouge: "VU",
   });
   expect(impacts[0].typeImpact).toMatchObject({ identifiantPitchou: "P-2-1" });
   expect(impacts[0].typeImpact!.libelle).not.toBe("");

@@ -71,11 +71,13 @@ class FakeDatabaseBuilder {
     const rowsForLastTable = () => rowsByTable.get(lastTable) ?? defaultRows;
 
     // Thenable that resolves to the SELECT rows for the current table, and
-    // supports `.first()`, `.andWhere()`, `.update()`, `.delete()`/`.del()` continuations.
+    // supports `.first()`, `.where()`, `.andWhere()`, `.update()`,
+    // `.delete()`/`.del()` continuations.
     const buildWhereResult = () => {
       const rows = rowsForLastTable();
       const thenable: any = Promise.resolve(rows);
       thenable.first = () => Promise.resolve(rows[0]);
+      thenable.where = where;
       thenable.andWhere = andWhere;
       thenable.update = update;
       thenable.delete = deleteQuery;
@@ -92,9 +94,10 @@ class FakeDatabaseBuilder {
     // Tracks every whereIn call regardless of the chain (select vs delete).
     const whereIn = vi.fn();
 
+    // Chains like `.where(...)` does, so `select().whereIn().where()` resolves too.
     const whereInForSelect = (column: string, values: unknown[]) => {
       whereIn(column, values);
-      return Promise.resolve(rowsForLastTable());
+      return buildWhereResult();
     };
 
     const whereInForDelete = (column: string, values: unknown[]) => {

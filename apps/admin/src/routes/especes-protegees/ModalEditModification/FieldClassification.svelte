@@ -20,6 +20,11 @@
   let inherit = $state(false);
   let draft = $state<string>(CLASSIFICATIONS[0]);
 
+  const classificationOptions = CLASSIFICATIONS.map((classification) => ({
+    value: classification as string,
+    label: classification,
+  }));
+
   function start() {
     inherit = hasReference && value === null;
     draft = value ?? referenceClassification ?? CLASSIFICATIONS[0];
@@ -56,10 +61,7 @@
       id="edit-classification"
       ariaLabel="Classification"
       disabled={inherit}
-      options={CLASSIFICATIONS.map((classification) => ({
-        value: classification,
-        label: classification,
-      }))}
+      options={classificationOptions}
       bind:value={draft}
     />
   {/snippet}

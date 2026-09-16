@@ -19,6 +19,7 @@ describe("countActiveFilters", () => {
     const query = makeQuery({
       phase: ["Instruction"],
       departement: ["64"],
+      departementSelection: "custom",
       nouveaute: "oui",
       actionInstructeur: true,
     });
@@ -66,7 +67,7 @@ describe("buildActiveFilterChips", () => {
     const [chip] = buildActiveFilterChips(
       makeQuery({ prochaineAction: ["Consultation du public"] }),
     );
-    expect(chip.label).toBe("Public consulté (en charge de la prochaine action)");
+    expect(chip.label).toBe("Consultation du public (en charge de la prochaine action)");
     expect(chip.next.prochaineAction).toEqual([]);
   });
 

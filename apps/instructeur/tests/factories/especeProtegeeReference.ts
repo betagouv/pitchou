@@ -10,6 +10,8 @@ export type EspeceProtegeeReferenceSample = {
   noms_scientifiques: string[];
   noms_vernaculaires: string[];
   cd_type_statuts: string[];
+  /** National red-list codes (one LRN row each), e.g. ["NA", "VU"]. */
+  codes_liste_rouge?: string[];
 };
 
 export async function seedEspeceProtegeeReference(
@@ -45,6 +47,9 @@ export async function seedEspeceProtegeeReference(
     });
     for (const cd_type_statut of e.cd_type_statuts) {
       bdcRows.push({ cd_nom: e.cd_ref, cd_ref: e.cd_ref, cd_type_statut, label_statut: "" });
+    }
+    for (const code_statut of e.codes_liste_rouge ?? []) {
+      bdcRows.push({ cd_nom: e.cd_ref, cd_ref: e.cd_ref, cd_type_statut: "LRN", code_statut });
     }
   }
 

@@ -2,6 +2,7 @@
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import AARRIEvolutionChart from "./IndicatorsAARRI/AARRIEvolutionChart.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
@@ -67,12 +68,12 @@
       {@const allDates = [...indicatorsByDate]
         .map((indicators) => indicators.date)
         .sort((a, b) => +new Date(a) - +new Date(b))}
-      {@const possibleStartDates = allDates.filter(
-        (date) => !endDate || +new Date(date) <= +new Date(endDate),
-      )}
-      {@const possibleEndDates = allDates.filter(
-        (date) => !startDate || +new Date(date) >= +new Date(startDate),
-      )}
+      {@const possibleStartDates = allDates
+        .filter((date) => !endDate || +new Date(date) <= +new Date(endDate))
+        .map((date) => ({ value: date, label: formatDateAbsolute(date) }))}
+      {@const possibleEndDates = allDates
+        .filter((date) => !startDate || +new Date(date) >= +new Date(startDate))
+        .map((date) => ({ value: date, label: formatDateAbsolute(date) }))}
       {@const startIndicator = indicatorsByDate.find((indicators) =>
         isSameDay(indicators.date, startDate),
       )}
@@ -120,29 +121,21 @@
         <div class="flex flex-wrap items-center gap-[0.5rem_1.5rem] fr-mb-3w">
           <div class="fr-select-group flex items-center gap-2 fr-mb-0">
             <label class="fr-label fr-mb-0 whitespace-nowrap" for="select-debut">De</label>
-            <select
-              bind:value={startDate}
-              class="fr-select fr-mt-0 w-auto min-w-[11rem]"
+            <Select
               id="select-debut"
-              name="select-debut"
-            >
-              {#each possibleStartDates as date}
-                <option value={date}>{formatDateAbsolute(date)}</option>
-              {/each}
-            </select>
+              class="w-auto min-w-[11rem]"
+              options={possibleStartDates}
+              bind:value={startDate}
+            />
           </div>
           <div class="fr-select-group flex items-center gap-2 fr-mb-0">
             <label class="fr-label fr-mb-0 whitespace-nowrap" for="select-fin">à</label>
-            <select
-              bind:value={endDate}
-              class="fr-select fr-mt-0 w-auto min-w-[11rem]"
+            <Select
               id="select-fin"
-              name="select-fin"
-            >
-              {#each possibleEndDates as date}
-                <option value={date}>{formatDateAbsolute(date)}</option>
-              {/each}
-            </select>
+              class="w-auto min-w-[11rem]"
+              options={possibleEndDates}
+              bind:value={endDate}
+            />
           </div>
         </div>
 

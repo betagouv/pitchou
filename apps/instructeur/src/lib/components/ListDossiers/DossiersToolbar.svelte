@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DossiersQuery, FilterChip, SortKey, SortOrder } from "./listModel.ts";
+  import type { DossiersQuery, FilterChip, SortKey, SortOrder, Localisation } from "./listModel.ts";
   import { serviceLabel } from "./listModel.ts";
   import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
@@ -12,13 +12,15 @@
     showFilterInstructeurice: boolean;
     showFilterEnjeu: boolean;
     showFilterActionInstructeur: boolean;
+    showFilterUnread: boolean;
     withoutInstructeurActive: boolean;
     enjeuActive: boolean;
     actionInstructeurActive: boolean;
+    unreadActive: boolean;
     activeFilterCount: number;
     numberFiltered: number;
-    /** Names of the instructeur's services (groupes instructeurs) */
-    services: string[];
+    localisation?: Localisation;
+    followedOnly?: boolean;
     /** Active filters shown as removable tags */
     chips: FilterChip[];
     sortKey: SortKey;
@@ -27,6 +29,7 @@
     onToggleWithoutInstructeur: () => void;
     onToggleEnjeu: () => void;
     onToggleActionInstructeur: () => void;
+    onToggleUnread: () => void;
     onOpenFilters: () => void;
     onRemoveFilter: (next: DossiersQuery) => void;
     onSort: (key: SortKey, order: SortOrder) => void;
@@ -39,12 +42,15 @@
     showFilterInstructeurice,
     showFilterEnjeu,
     showFilterActionInstructeur,
+    showFilterUnread,
     withoutInstructeurActive,
     enjeuActive,
     actionInstructeurActive,
+    unreadActive,
     activeFilterCount,
     numberFiltered,
-    services,
+    localisation = "assigned",
+    followedOnly = false,
     chips,
     sortKey,
     sortOrder,
@@ -52,6 +58,7 @@
     onToggleWithoutInstructeur,
     onToggleEnjeu,
     onToggleActionInstructeur,
+    onToggleUnread,
     onOpenFilters,
     onRemoveFilter,
     onSort,
@@ -59,13 +66,10 @@
 </script>
 
 <div class="flex flex-col gap-4 fr-mt-2w">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="fr-m-0">{title}</h1>
+  <h1 class="fr-m-0">{title}</h1>
 
+  <div class="dossiers-toolbar-controls flex flex-wrap items-center gap-4">
     <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />
-  </div>
-
-  <div class="flex flex-wrap items-center gap-4">
     {#if showFilterInstructeurice}
       <button
         type="button"
@@ -102,6 +106,18 @@
       </button>
     {/if}
 
+    {#if showFilterUnread}
+      <button
+        type="button"
+        class="fr-btn fr-btn--sm fr-btn--secondary [&.active]:shadow-[inset_0_0_0_2px_var(--border-active-blue-france,#000091)]"
+        aria-pressed={unreadActive}
+        class:active={unreadActive}
+        onclick={onToggleUnread}
+      >
+        Modifications non lues
+      </button>
+    {/if}
+
     <button
       type="button"
       class="fr-btn fr-btn--sm fr-icon-filter-line fr-btn--icon-left"
@@ -135,6 +151,23 @@
 
   <p class="fr-m-0" data-testid="compteur-dossier">
     <span class="fr-text--lead">{numberFiltered}</span>
-    <span class="fr-text--lg">{serviceLabel(services)}</span>
+    <span class="fr-text--lg">{serviceLabel(localisation, followedOnly)}</span>
   </p>
 </div>
+
+<style>
+  .dossiers-toolbar-controls :global(.fr-btn) {
+    height: 32px;
+    min-height: 32px;
+    border-radius: 4px;
+  }
+
+  .dossiers-toolbar-controls :global(.fr-search-bar .fr-btn) {
+    border-radius: 0 4px 0 0;
+  }
+
+  .dossiers-toolbar-controls :global(.fr-search-bar .fr-input) {
+    height: 32px;
+    min-height: 32px;
+  }
+</style>

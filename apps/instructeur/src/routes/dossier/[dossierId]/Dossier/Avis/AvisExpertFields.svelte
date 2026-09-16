@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "../../DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
   import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
   type Props = {

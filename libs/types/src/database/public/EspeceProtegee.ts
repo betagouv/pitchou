@@ -16,4 +16,6 @@ export default interface EspeceProtegee {
   espece_ministerielle: boolean;
 
   espece_cnpn: boolean;
+
+  statut_liste_rouge: string | null;
 }

@@ -68,7 +68,7 @@
         {#each groups as group}
           {@const pieces = group.pieces.filter((piece) => piece.fileId)}
           {#if pieces.length > 0}
-            <div class="rounded bg-[var(--background-alt-grey)] fr-p-2w">
+            <div class="rounded bg-[var(--background-contrast-grey)] fr-p-2w">
               <h4 class="fr-text--sm fr-text--bold fr-mb-1w">{group.title}</h4>
               <div class="flex flex-col gap-1">
                 {#each pieces as piece}

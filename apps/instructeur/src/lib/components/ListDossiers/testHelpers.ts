@@ -13,6 +13,8 @@ export function makeQuery(overrides: Partial<DossiersQuery> = {}): DossiersQuery
 export function makeDossier(overrides: Partial<DossierSummary> = {}): DossierSummary {
   return {
     id: dossierId(1),
+    access: "complet",
+    departments: ["75"],
     name: "Dossier test",
     phase: "Instruction",
     depot_date: new Date("2024-01-01"),
@@ -23,6 +25,18 @@ export function makeDossier(overrides: Partial<DossierSummary> = {}): DossierSum
 
 export type Notification =
   PitchouState["notificationByDossier"] extends Map<infer _K, infer V> ? V : never;
+
+export function makeNotification(overrides: Partial<Notification> = {}): Notification {
+  return {
+    viewed: true,
+    updated_at: null,
+    viewed_at: null,
+    new_arrival: null,
+    new_follow: null,
+    changes: [],
+    ...overrides,
+  };
+}
 
 export function makeContext(overrides: Partial<DossiersContext> = {}): DossiersContext {
   return {

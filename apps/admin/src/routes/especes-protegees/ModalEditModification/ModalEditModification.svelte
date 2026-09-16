@@ -35,6 +35,11 @@
   let draftCdRef = $state("");
   let draftClassification = $state<string>(CLASSIFICATIONS[0]);
 
+  const classificationOptions = CLASSIFICATIONS.map((classification) => ({
+    value: classification as string,
+    label: classification,
+  }));
+
   const titre = $derived(
     creation && !created
       ? "Ajouter une espèce hors référentiel"
@@ -139,10 +144,8 @@
           <label class="fr-label" for="creation-classification">Classification</label>
           <Select
             id="creation-classification"
-            options={CLASSIFICATIONS.map((classification) => ({
-              value: classification,
-              label: classification,
-            }))}
+            class="fr-mt-1w"
+            options={classificationOptions}
             bind:value={draftClassification}
           />
         </div>

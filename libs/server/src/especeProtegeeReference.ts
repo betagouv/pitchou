@@ -3,6 +3,10 @@ import type { Knex } from "knex";
 // Relative imports (not the `$` aliases) so this module also resolves under `tsx`,
 // which runs the import scripts and the seeds.
 import { directDatabaseConnection } from "./database.ts";
+import {
+  CD_TYPE_STATUT_LISTE_ROUGE_NATIONALE,
+  statutListeRougeLePlusMenace,
+} from "@pitchou/common/especes/listeRouge.ts";
 
 import type { EspeceProtegeeReferenceInitializer } from "@pitchou/types/database/public/EspeceProtegeeReference.ts";
 
@@ -34,8 +38,9 @@ export async function rebuildEspeceProtegeeReference(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   const statutsByCdRef = await loadStatutsByCdRef(databaseConnection);
+  const listeRougeByCdRef = await loadListeRougeByCdRef(databaseConnection);
   const taxrefRows = await loadProtectedTaxrefRows(databaseConnection);
-  const rows = aggregateEspeceProtegeeReference(taxrefRows, statutsByCdRef);
+  const rows = aggregateEspeceProtegeeReference(taxrefRows, statutsByCdRef, listeRougeByCdRef);
 
   await databaseConnection.transaction(async (trx) => {
     await trx("espece_protegee_reference").truncate();
@@ -58,6 +63,21 @@ async function loadStatutsByCdRef(
   return byCdRef;
 }
 
+/** The national red-list codes (VU, LC, CR*…) carried by each CD_REF, every list included. */
+async function loadListeRougeByCdRef(
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<Map<string, string[]>> {
+  const rows = await databaseConnection("espece_bdc_statut")
+    .select("cd_ref", "code_statut")
+    .where("cd_type_statut", CD_TYPE_STATUT_LISTE_ROUGE_NATIONALE);
+  const byCdRef = new Map<string, string[]>();
+  for (const { cd_ref, code_statut } of rows) {
+    const codes = byCdRef.get(cd_ref) ?? byCdRef.set(cd_ref, []).get(cd_ref)!;
+    codes.push(code_statut);
+  }
+  return byCdRef;
+}
+
 /** TAXREF rows for protected species only, in import order (stable synonym order). */
 function loadProtectedTaxrefRows(
   databaseConnection: Knex.Transaction | Knex,
@@ -76,19 +96,26 @@ function loadProtectedTaxrefRows(
 }
 
 /**
- * Pure aggregation: from TAXREF rows (ordered by import id) and the kept statuts per
- * CD_REF, produces the reference rows. Exported for unit testing.
+ * Pure aggregation: from TAXREF rows (ordered by import id), the kept statuts per CD_REF
+ * and the national red-list codes per CD_REF, produces the reference rows. Exported for
+ * unit testing.
  */
 export function aggregateEspeceProtegeeReference(
   taxrefRows: TaxrefNameRow[],
   statutsByCdRef: Map<string, Set<string>>,
+  listeRougeByCdRef: Map<string, string[]> = new Map(),
 ): EspeceProtegeeReferenceInitializer[] {
   const species = new Map<string, SpeciesAccumulator>();
   taxrefRows.forEach((row, order) => accumulateTaxrefRow(species, row, order));
 
   const rows: EspeceProtegeeReferenceInitializer[] = [];
   for (const [cd_ref, acc] of species) {
-    const row = buildReferenceRow(cd_ref, acc, statutsByCdRef.get(cd_ref));
+    const row = buildReferenceRow(
+      cd_ref,
+      acc,
+      statutsByCdRef.get(cd_ref),
+      listeRougeByCdRef.get(cd_ref) ?? [],
+    );
     if (row) rows.push(row);
   }
   return rows;
@@ -153,6 +180,7 @@ function buildReferenceRow(
   cd_ref: string,
   acc: SpeciesAccumulator,
   statuts: Set<string> | undefined,
+  codesListeRouge: string[],
 ): EspeceProtegeeReferenceInitializer | null {
   const classification = classificationFromTaxref(acc.regne, acc.classe);
   const noms_scientifiques = sortNames(acc.scientificNames);
@@ -166,6 +194,7 @@ function buildReferenceRow(
     noms_scientifiques,
     noms_vernaculaires,
     cd_type_statuts: KEPT_STATUTS.filter((statut) => statuts?.has(statut)),
+    statut_liste_rouge: statutListeRougeLePlusMenace(codesListeRouge),
   } as EspeceProtegeeReferenceInitializer;
 }
 

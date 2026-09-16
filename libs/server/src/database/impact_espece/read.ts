@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { CRITERES_QUANTIFIES } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
+import { isStatutListeRouge } from "@pitchou/common/especes/listeRouge.ts";
 
 import { directDatabaseConnection } from "../../database.ts";
 
@@ -16,6 +17,7 @@ type JoinedRow = CriteriaColumns & {
   noms_scientifiques: string[] | null;
   espece_cnpn: boolean | null;
   espece_ministerielle: boolean | null;
+  statut_liste_rouge: string | null;
   identifiant_pitchou: string | null;
   type_impact_libelle: string | null;
   methode_libelle: string | null;
@@ -41,6 +43,7 @@ function toImpactEspece(row: JoinedRow): FrontEndImpactOnEspece {
       nomScientifique: row.noms_scientifiques?.[0] ?? row.cd_ref,
       especeCNPN: row.espece_cnpn ?? false,
       especeMinisterielle: row.espece_ministerielle ?? false,
+      statutListeRouge: isStatutListeRouge(row.statut_liste_rouge) ? row.statut_liste_rouge : null,
     },
     typeImpact: row.identifiant_pitchou
       ? {
@@ -70,6 +73,7 @@ export function getImpactOnEspeces(
         "espece_protegee.noms_scientifiques as noms_scientifiques",
         "espece_protegee.espece_cnpn as espece_cnpn",
         "espece_protegee.espece_ministerielle as espece_ministerielle",
+        "espece_protegee.statut_liste_rouge as statut_liste_rouge",
         "impact_type.identifiant_pitchou as identifiant_pitchou",
         "impact_type.libelle_pitchou as type_impact_libelle",
         "impact_type.critere_nombre_individus as critere_nombre_individus",

@@ -16,6 +16,7 @@ export async function createDossierFromAdmin(
     const [{ id }] = await trx("dossier")
       .insert({
         ...creation.columns,
+        next_action_expected_from: creation.columns?.next_action_expected_from ?? "Instructeur",
         name: creation.name,
         depot_date: creation.depot_date,
         demarche_numerique_id: null,

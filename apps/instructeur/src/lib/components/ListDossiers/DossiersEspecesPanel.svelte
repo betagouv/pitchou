@@ -3,7 +3,7 @@
   import type { DossiersQuery } from "./listModel.ts";
   import { store } from "$lib/state/store.svelte.ts";
   import { compareEspeces, matchesText } from "@pitchou/ui/especes/especesList.ts";
-  import { CLASSIFICATION_EMOJI } from "@pitchou/ui/especes/classificationEmoji.ts";
+  import { classificationIconUrl } from "@pitchou/ui/especes/classificationIcon.ts";
   import NomEspece from "@pitchou/ui/especes/NomEspece.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
   import DossiersEspecesFilters from "./DossiersEspecesFilters.svelte";
@@ -135,9 +135,11 @@
                   onchange={() => toggle(espece.CD_REF)}
                 />
                 <label class="fr-label" for="espece-selectionnee-{espece.CD_REF}">
-                  <span class="fr-mr-1v" aria-hidden="true"
-                    >{CLASSIFICATION_EMOJI[espece.classification]}</span
-                  >
+                  <img
+                    src={classificationIconUrl(espece.classification)}
+                    alt=""
+                    class="inline-block size-5 align-text-bottom fr-mr-1v"
+                  />
                   <NomEspece espèce={espece} />
                 </label>
               </div>
@@ -168,9 +170,11 @@
             onchange={() => toggle(espece.CD_REF)}
           />
           <label class="fr-label" for="espece-{espece.CD_REF}">
-            <span class="fr-mr-1v" aria-hidden="true"
-              >{CLASSIFICATION_EMOJI[espece.classification]}</span
-            >
+            <img
+              src={classificationIconUrl(espece.classification)}
+              alt=""
+              class="inline-block size-5 align-text-bottom fr-mr-1v"
+            />
             <NomEspece espèce={espece} />
           </label>
         </div>

@@ -136,6 +136,7 @@
       case "open":
         return openList();
       case "close":
+        if (event.key === "Escape") event.stopPropagation();
         return closeList();
       case "move":
         return moveActive(command.index);

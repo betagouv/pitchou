@@ -18,7 +18,7 @@ export function getDocumentGenerationTags(
 ): BalisesGenerationDocument {
   const {
     name: dossierName,
-    free_comment: freeComment,
+    latestCommentaire: freeComment,
     public_consultation_start_date: publicConsultationStartDate,
     public_consultation_end_date: publicConsultationEndDate,
     description,

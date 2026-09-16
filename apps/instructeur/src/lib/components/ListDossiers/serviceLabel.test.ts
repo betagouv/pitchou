@@ -1,19 +1,12 @@
-import { expect, test, describe } from "vitest";
+import { expect, test } from "vitest";
+import { serviceLabel } from "./serviceLabel.ts";
 
-import { serviceLabel } from "./listModel.ts";
+test("the counter describes territory rather than service ownership", () => {
+  expect(serviceLabel("assigned")).toBe("dossiers dans vos territoires d'affectation");
+  expect(serviceLabel("france")).toBe("dossiers en France entière (lecture seule)");
+});
 
-describe("serviceLabel", () => {
-  test("keeps the singular wording, without a name, when no service is known", () => {
-    expect(serviceLabel([])).toBe("dossiers dans votre service");
-  });
-
-  test("appends the name after « votre service » for a single service", () => {
-    expect(serviceLabel(["DDTM 44"])).toBe("dossiers dans votre service : DDTM 44");
-  });
-
-  test("switches to « vos services » and joins the names for several services", () => {
-    expect(serviceLabel(["DDTM 44", "DREAL Bretagne"])).toBe(
-      "dossiers dans vos services : DDTM 44, DREAL Bretagne",
-    );
-  });
+test("My dossiers keeps the followed-only wording in either scope", () => {
+  expect(serviceLabel("assigned", true)).toBe("dossiers suivis dans vos territoires d'affectation");
+  expect(serviceLabel("france", true)).toBe("dossiers suivis en France entière (lecture seule)");
 });

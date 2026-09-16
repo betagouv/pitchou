@@ -12,6 +12,7 @@
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
+    showLocalisationScope?: boolean;
     /** Live count of dossiers matching the current draft, shown on the footer button */
     numberResults: number;
     onApply: () => void;
@@ -24,6 +25,7 @@
     dossiers,
     followRelations,
     showFilterInstructeurice,
+    showLocalisationScope = true,
     numberResults,
     onApply,
     onClose,
@@ -58,14 +60,14 @@
      truncated, and never wider than the viewport. -->
 <dialog
   bind:this={dialogElement}
-  class="my-0 mr-0 ml-auto h-screen max-h-screen w-[clamp(28rem,33vw,100vw)] max-w-[100vw] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
+  class="my-0 mr-0 ml-auto h-screen max-h-screen w-[clamp(28rem,33vw,100vw)] max-w-[100vw] border-0 fr-p-0 pitchou-dialog"
   aria-labelledby="filtres-modal-titre"
   onclose={onClose}
   onclick={(event) => {
     if (event.target === dialogElement) onClose();
   }}
 >
-  <div class="flex flex-col h-full bg-[var(--background-default-grey)]">
+  <div class="flex flex-col h-full">
     <header
       class="flex items-center justify-between fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"
     >
@@ -98,6 +100,7 @@
           {dossiers}
           {followRelations}
           {showFilterInstructeurice}
+          {showLocalisationScope}
           onOpenEspecesDrawer={() => (panel = "especes")}
         />
       {/if}

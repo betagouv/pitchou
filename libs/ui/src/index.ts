@@ -21,6 +21,13 @@ export type HeaderProps = {
 export type FooterProps = {
   /** Short description of the service, shown next to the brand. */
   description: string;
+  /**
+   * Whether to show the official brand block (Marianne, description, *.gouv.fr
+   * links). Internal, signed-in pages may drop it to look more like a work tool.
+   */
+  brand?: boolean;
+  /** Span the whole viewport width instead of the DSFR container. */
+  fluid?: boolean;
   /** App-specific "À propos" links at the top of the footer. */
   top?: Snippet;
   /** Extra items appended to the bottom links (e.g. a sync timestamp). */

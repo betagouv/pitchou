@@ -21,6 +21,8 @@ export default interface EspeceBdcStatut {
   full_citation: string;
 
   doc_url: string;
+
+  code_statut: string;
 }
 
 /** Represents the initializer for the table public.espece_bdc_statut */
@@ -45,6 +47,9 @@ export interface EspeceBdcStatutInitializer {
 
   /** Default value: ''::text */
   doc_url?: string;
+
+  /** Default value: ''::text */
+  code_statut?: string;
 }
 
 /** Represents the mutator for the table public.espece_bdc_statut */
@@ -64,4 +69,6 @@ export interface EspeceBdcStatutMutator {
   full_citation?: string;
 
   doc_url?: string;
+
+  code_statut?: string;
 }

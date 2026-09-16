@@ -8,4 +8,7 @@ export const load: PageLoad = async ({ parent }) => {
   if (!store.capabilities.listerDossiers) {
     redirect(307, "/connexion");
   }
+
+  // The dossier list spreads over the whole viewport so the tiles can show more.
+  return { fullWidth: true };
 };
