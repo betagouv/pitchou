@@ -3,9 +3,10 @@
 
 import type { PersonneId } from "./Personne";
 import type { EntrepriseSiret } from "./Entreprise";
-import type { FileId } from "./File";
 import type { default as TypeDossier } from "./TypeDossier";
 import type { DossierSource } from "../../dossierSource.ts";
+import type { FileId } from "./File";
+import type { FileEspecesImpacteesId } from "./FileEspecesImpactees";
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: "public.dossier" };
@@ -64,9 +65,6 @@ export default interface Dossier {
 
   /** Standardized category describing the sector or activity behind the protected espece derogation request. Possible values cover different fields (renewable energy production, transport infrastructure, quarries, urban development, water management, ecological restoration, etc.) and classify dossiers by the nature of the work. */
   main_activite: string | null;
-
-  /** Reference to the fichier containing the impacted especes */
-  especes_impactees: FileId | null;
 
   /** Summary description of the project */
   description: string | null;
@@ -212,6 +210,12 @@ export default interface Dossier {
 
   /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
   source: DossierSource;
+
+  /** Reference to the fichier containing the impacted especes */
+  especes_impactees: FileId | null;
+
+  /** Reference to the Espèces Impactées file provided by the Porteur de projet. */
+  file_especes_impactees: FileEspecesImpacteesId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -275,9 +279,6 @@ export interface DossierInitializer {
 
   /** Standardized category describing the sector or activity behind the protected espece derogation request. Possible values cover different fields (renewable energy production, transport infrastructure, quarries, urban development, water management, ecological restoration, etc.) and classify dossiers by the nature of the work. */
   main_activite?: string | null;
-
-  /** Reference to the fichier containing the impacted especes */
-  especes_impactees?: FileId | null;
 
   /** Summary description of the project */
   description?: string | null;
@@ -429,6 +430,12 @@ export interface DossierInitializer {
    * Default value: 'unknown'::text
    */
   source?: DossierSource;
+
+  /** Reference to the fichier containing the impacted especes */
+  especes_impactees?: FileId | null;
+
+  /** Reference to the Espèces Impactées file provided by the Porteur de projet. */
+  file_especes_impactees?: FileEspecesImpacteesId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -485,9 +492,6 @@ export interface DossierMutator {
 
   /** Standardized category describing the sector or activity behind the protected espece derogation request. Possible values cover different fields (renewable energy production, transport infrastructure, quarries, urban development, water management, ecological restoration, etc.) and classify dossiers by the nature of the work. */
   main_activite?: string | null;
-
-  /** Reference to the fichier containing the impacted especes */
-  especes_impactees?: FileId | null;
 
   /** Summary description of the project */
   description?: string | null;
@@ -633,4 +637,10 @@ export interface DossierMutator {
 
   /** Explicit dossier provenance. Unknown is the safe default for legacy imports. */
   source?: DossierSource;
+
+  /** Reference to the fichier containing the impacted especes */
+  especes_impactees?: FileId | null;
+
+  /** Reference to the Espèces Impactées file provided by the Porteur de projet. */
+  file_especes_impactees?: FileEspecesImpacteesId | null;
 }
