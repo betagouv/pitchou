@@ -4,6 +4,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 import { page, userEvent } from "vitest/browser";
 import CardDossier from "./CardDossier.svelte";
+import DossiersSortMenu from "./DossiersSortMenu.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
 vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
@@ -47,4 +48,41 @@ test("an open card menu covers subsequent card controls until closed", async () 
   expect(first).toHaveFocus();
   expect(screen.queryByRole("menu")).toBeNull();
   expect(second.contains(document.elementFromPoint(x, y))).toBe(true);
+});
+
+test("the open sort menu covers the card controls below it", async () => {
+  await page.viewport(1440, 900);
+  const target = document.createElement("div");
+  target.id = "stacking-test";
+  target.className = "pitchou-container flex flex-col gap-2";
+  document.body.append(target);
+  const toolbar = document.createElement("div");
+  toolbar.className = "flex justify-end";
+  target.append(toolbar);
+  render(DossiersSortMenu, {
+    target: toolbar,
+    props: { sortKey: "depositDate", sortOrder: "desc", onSort: vi.fn() },
+  });
+  render(CardDossier, {
+    target,
+    props: {
+      dossier: makeDossier({ id: dossierId(1), name: "Projet 1" }),
+      dossierFollowedByCurrentInstructeur: false,
+      notificationViewed: true,
+      currentInstructeurFollowsDossier: vi.fn(),
+      currentInstructeurLeavesDossier: vi.fn(),
+    },
+  });
+  await userEvent.click(screen.getByRole("button", { name: /^Tri :/ }));
+  const menu = screen.getByRole("menu");
+  const button = screen.getByRole("button", { name: "Plus d’actions pour Projet 1" });
+  const box = button.getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  const bounds = menu.getBoundingClientRect();
+  expect(x).toBeGreaterThan(bounds.left);
+  expect(x).toBeLessThan(bounds.right);
+  expect(y).toBeGreaterThan(bounds.top);
+  expect(y).toBeLessThan(bounds.bottom);
+  expect(menu.contains(document.elementFromPoint(x, y))).toBe(true);
 });

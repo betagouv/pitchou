@@ -82,3 +82,21 @@ test.each([390, 768])(
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(width);
   },
 );
+
+test("the sort menu is wide enough for each option to stay on one line", async () => {
+  await page.viewport(1440, 900);
+  const { container, getByRole } = render(DossiersToolbar, props(true));
+  container.className = "pitchou-container";
+  await document.fonts.ready;
+  await page.getByRole("button", { name: /^Tri :/ }).click();
+  const menu = getByRole("menu");
+  expect(menu.getBoundingClientRect().right).toBeLessThanOrEqual(1440);
+  const options = menu.querySelectorAll<HTMLElement>("[role=menuitemradio]");
+  expect(options.length).toBeGreaterThan(0);
+  for (const option of options) {
+    const range = document.createRange();
+    range.selectNodeContents(option);
+    expect(range.getClientRects().length).toBe(1);
+    expect(option.scrollWidth).toBeLessThanOrEqual(option.clientWidth);
+  }
+});
