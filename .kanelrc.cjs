@@ -50,6 +50,30 @@ function setDossierSourceType(output) {
   return output;
 }
 
+function setFileEspecesImpacteesAnomaliesType(output) {
+  const { declarations } = output["libs/types/src/database/public/FileEspecesImpactees"];
+
+  for (const { properties } of declarations) {
+    if (!properties) continue;
+    for (const prop of properties) {
+      if (prop.name === "anomalies") {
+        prop.typeImports = [
+          {
+            name: "AnomalieFichierEspeces",
+            path: "libs/types/src/especesImpact.d.ts",
+            isAbsolute: false,
+            isDefault: false,
+            importAsType: true,
+          },
+        ];
+        prop.typeName = "AnomalieFichierEspeces[]";
+      }
+    }
+  }
+
+  return output;
+}
+
 /**
  *
  * @param {string} outputKey
@@ -127,6 +151,7 @@ module.exports = {
   preRenderHooks: [
     setEvenementPhaseDossierPhaseType,
     setDossierSourceType,
+    setFileEspecesImpacteesAnomaliesType,
     dossierScientifiqueDemandeType,
     dossierScientifiqueCaptureMode,
     dossierEolienMortalityActions,
