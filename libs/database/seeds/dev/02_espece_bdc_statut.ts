@@ -161,6 +161,23 @@ const BDC_STATUT: EspeceBdcStatutInitializer[] = [
   { cd_nom: "88560", cd_ref: "88560", cd_type_statut: "PN", label_statut: "" },
 ];
 
+// National red list (LRN) of seed species: the worst category is what the interface flags.
+// Falco naumanni carries NA (2011 list) then VU (2016 list). Values from bdc_18_01.csv.
+const LISTE_ROUGE_NATIONALE: [cd_ref: string, code_statut: string, label_statut: string][] = [
+  ["2666", "NA", "Non applicable"],
+  ["2666", "VU", "Vulnérable"],
+  ["4221", "EN", "En danger"],
+  ["351", "LC", "Préoccupation mineure"],
+];
+
+function listeRougeRow([
+  cd_ref,
+  code_statut,
+  label_statut,
+]: (typeof LISTE_ROUGE_NATIONALE)[number]) {
+  return { cd_nom: cd_ref, cd_ref, cd_type_statut: "LRN", code_statut, label_statut };
+}
+
 function enrichDocument(row: EspeceBdcStatutInitializer): EspeceBdcStatutInitializer {
   if (row.cd_type_statut === "PN") return { ...row, ...PN_DOCUMENT };
   if (row.cd_type_statut === "PR") return { ...row, ...PR_DOCUMENT };
@@ -169,7 +186,8 @@ function enrichDocument(row: EspeceBdcStatutInitializer): EspeceBdcStatutInitial
 
 export async function seed(knex: Knex) {
   await knex("espece_bdc_statut").truncate();
-  await knex.batchInsert("espece_bdc_statut", BDC_STATUT.map(enrichDocument), 1000);
+  const rows = [...BDC_STATUT.map(enrichDocument), ...LISTE_ROUGE_NATIONALE.map(listeRougeRow)];
+  await knex.batchInsert("espece_bdc_statut", rows, 1000);
 
-  console.log(`  Seed espece_bdc_statut OK (${BDC_STATUT.length} lignes)`);
+  console.log(`  Seed espece_bdc_statut OK (${rows.length} lignes)`);
 }

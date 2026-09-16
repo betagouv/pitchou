@@ -93,6 +93,7 @@ function normalizeViewRow(row: EspeceProtegee): EspeceProtegee {
     cd_type_statuts: row.cd_type_statuts ?? [],
     espece_ministerielle: row.espece_ministerielle ?? false,
     espece_cnpn: row.espece_cnpn ?? false,
+    statut_liste_rouge: row.statut_liste_rouge ?? null,
   };
 }
 

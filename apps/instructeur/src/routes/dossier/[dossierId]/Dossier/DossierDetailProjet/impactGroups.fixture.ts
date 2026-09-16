@@ -11,6 +11,7 @@ export function impact(overrides: Partial<FrontEndImpactOnEspece> = {}): FrontEn
       nomScientifique: "Morus bassanus",
       especeCNPN: true,
       especeMinisterielle: false,
+      statutListeRouge: null,
     },
     typeImpact: {
       identifiantPitchou: "P-1",

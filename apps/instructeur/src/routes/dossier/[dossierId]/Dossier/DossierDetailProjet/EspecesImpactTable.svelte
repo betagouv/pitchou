@@ -2,6 +2,7 @@
   import EspecesStatusBadge from "./EspecesStatusBadge.svelte";
   import { impactColumns, type ImpactGroup } from "./impactGroups.ts";
   import { VALUE_NOT_PROVIDED } from "$lib/especes/especesByTypeImpact.ts";
+  import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
   let { group, pending = false }: { group: ImpactGroup; pending?: boolean } = $props();
   const columns = $derived(impactColumns(group.impacts));
@@ -28,6 +29,12 @@
               {#if impact.espece.especeCNPN}<EspecesStatusBadge label="CNPN" />{/if}
               {#if impact.espece.especeMinisterielle}
                 <EspecesStatusBadge label="MINISTÈRE" />
+              {/if}
+              {#if impact.espece.statutListeRouge}
+                <EspecesStatusBadge
+                  label={LIBELLES_STATUT_LISTE_ROUGE[impact.espece.statutListeRouge]}
+                  tone="menace"
+                />
               {/if}
             </span>
           </td>

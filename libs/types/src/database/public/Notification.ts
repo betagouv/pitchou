@@ -21,7 +21,7 @@ export default interface Notification {
 
   dossier: DossierId;
 
-  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration */
   viewed_at: Date | null;
 
   arrival_viewed: boolean;
@@ -30,7 +30,7 @@ export default interface Notification {
 
   follow_at: Date | null;
 
-  /** Whether this recipient existed before per-revision review was introduced. */
+  /** Whether this recipient existed before per-revision review was introduced */
   receive_legacy_changes: boolean;
 }
 
@@ -52,7 +52,7 @@ export interface NotificationInitializer {
 
   dossier: DossierId;
 
-  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration */
   viewed_at?: Date | null;
 
   /** Default value: false */
@@ -62,7 +62,10 @@ export interface NotificationInitializer {
 
   follow_at?: Date | null;
 
-  /** Default value: false */
+  /**
+   * Whether this recipient existed before per-revision review was introduced
+   * Default value: false
+   */
   receive_legacy_changes?: boolean;
 }
 
@@ -80,7 +83,7 @@ export interface NotificationMutator {
 
   dossier?: DossierId;
 
-  /** Last arrival/follow dismissal; historical read boundary used only by the migration. */
+  /** Last arrival/follow dismissal; historical read boundary used only by the migration */
   viewed_at?: Date | null;
 
   arrival_viewed?: boolean;
@@ -89,5 +92,6 @@ export interface NotificationMutator {
 
   follow_at?: Date | null;
 
+  /** Whether this recipient existed before per-revision review was introduced */
   receive_legacy_changes?: boolean;
 }

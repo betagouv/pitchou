@@ -46,6 +46,8 @@ export interface BDC_STATUT_ROW {
   CD_NOM: TAXREF_ROW["CD_NOM"];
   CD_REF: TAXREF_ROW["CD_REF"];
   CD_TYPE_STATUT: "POM" | "PD" | "PN" | "PR" | "Espèce manquante";
+  /** The category within the statut type, e.g. VU / EN / CR for a red list. */
+  CODE_STATUT: string;
   LABEL_STATUT: string;
   CD_DOC: string;
   FULL_CITATION: string;
@@ -73,6 +75,9 @@ export interface ESPECES_CNPN_ROW {
   "Nom scientifique": string;
 }
 
+/** Threatened categories of the national IUCN red list (the only ones the interface flags). */
+export type StatutListeRouge = "VU" | "EN" | "CR";
+
 export interface EspeceProtegee {
   CD_REF: TAXREF_ROW["CD_REF"];
   nomsVernaculaires: Set<TAXREF_ROW["NOM_VERN"]>;
@@ -82,6 +87,8 @@ export interface EspeceProtegee {
   statutsProtection?: StatutProtection[];
   espèceMinistérielle: undefined | "O";
   espèceCNPN: undefined | "O";
+  /** Most threatened national red-list category, absent when the species is not threatened. */
+  statutListeRouge?: StatutListeRouge;
 }
 
 export type EspeceProtegeeStrings = StringValues<EspeceProtegee>;

@@ -10,7 +10,7 @@
   import "./DossierDetailProjet/review-layout.css";
   import EspecesImpactees from "./DossierDetailProjet/EspecesImpactees.svelte";
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
-  import { especesCounts } from "./DossierDetailProjet/especes.ts";
+  import { especesCounts, listeRougeCountLabel } from "./DossierDetailProjet/especes.ts";
   import EspecesStatusBadge from "./DossierDetailProjet/EspecesStatusBadge.svelte";
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
   import { readOnlyMode } from "./readOnly.ts";
@@ -104,6 +104,9 @@
           label={`${counts.ministerielles} ${counts.ministerielles > 1 ? "MINISTÉRIELLES" : "MINISTÉRIELLE"}`}
         />
       {/if}
+      {#each counts.listeRouge as entry (entry.statut)}
+        <EspecesStatusBadge label={listeRougeCountLabel(entry)} tone="menace" />
+      {/each}
     {/snippet}
     {#snippet badgesRight()}
       {#if modifications.especes || modifications.especesGroups.size}{@render nouveau()}{/if}

@@ -11,6 +11,7 @@ import type {
   DossierPersonnesImpliqueesFull,
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
+import type { StatutListeRouge } from "../especes.d.ts";
 import type { QuantifiedImpact } from "../especesImpact.d.ts";
 import type { DossierNotification } from "../notification.ts";
 
@@ -66,6 +67,8 @@ export type FrontEndImpactOnEspece = {
     nomScientifique: string;
     especeCNPN: boolean;
     especeMinisterielle: boolean;
+    /** Most threatened national red-list category, null when not threatened or unknown. */
+    statutListeRouge: StatutListeRouge | null;
   };
   /** null when the fichier espèce left the type d'impact empty. */
   typeImpact: {

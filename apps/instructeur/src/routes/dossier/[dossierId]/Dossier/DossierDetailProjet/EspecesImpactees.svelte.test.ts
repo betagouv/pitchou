@@ -151,3 +151,24 @@ test("group headings show the type d'impact icon; untyped groups keep the leaf",
   expect(untyped.querySelector("img")).toBeNull();
   expect(untyped.querySelector(".fr-icon-leaf-line")).toBeTruthy();
 });
+
+test("threatened species carry their red-list category on the row and in the accordion band", async () => {
+  const vulnerable = impact({
+    espece: { ...impact().espece, CD_REF: "5", especeCNPN: false, statutListeRouge: "VU" },
+  });
+  const critique = impact({
+    espece: { ...impact().espece, CD_REF: "6", especeCNPN: false, statutListeRouge: "CR" },
+  });
+  const view = render(DossierDetailProjet, {
+    dossier: speciesDossier([impact(), vulnerable, critique]),
+    anomalies: undefined,
+  });
+  const accordion = view.getByRole("button", {
+    name: "Espèces impactées 3 1 CNPN 1 en danger critique 1 vulnérable",
+  });
+  accordion.click();
+  await tick();
+  const badges = [...view.container.querySelectorAll("tbody .species-status--menace")];
+  expect(badges.map((badge) => badge.textContent)).toEqual(["Vulnérable", "En danger critique"]);
+  expect(view.container.querySelectorAll("tbody .species-status")).toHaveLength(3);
+});
