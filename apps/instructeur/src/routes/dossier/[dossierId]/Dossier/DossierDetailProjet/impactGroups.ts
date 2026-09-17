@@ -44,17 +44,25 @@ type ImpactColumn = {
   key: Exclude<keyof FrontEndImpactOnEspece, "espece" | "typeImpact">;
   label: string;
   criterion?: string;
+  /** Numeric values: the column takes the shared fixed width, the species column the rest. */
+  narrow?: true;
 };
 
 const columns: ImpactColumn[] = [
-  { key: "nombreIndividus", label: "Nb d’individus", criterion: "Nombre d'individus" },
+  {
+    key: "nombreIndividus",
+    label: "Nb d’individus",
+    criterion: "Nombre d'individus",
+    narrow: true,
+  },
   {
     key: "surfaceHabitatDetruit",
     label: "Surface habitat détruit (m²)",
     criterion: "Surface habitat détruit (m²)",
+    narrow: true,
   },
-  { key: "nids", label: "Nids", criterion: "Nids" },
-  { key: "oeufs", label: "Œufs", criterion: "Œufs" },
+  { key: "nids", label: "Nids", criterion: "Nids", narrow: true },
+  { key: "oeufs", label: "Œufs", criterion: "Œufs", narrow: true },
   { key: "methode", label: "Méthode" },
   { key: "moyenDePoursuite", label: "Moyen de poursuite" },
 ];
