@@ -97,29 +97,6 @@
     reload();
   }
 
-  let downloading = $state(false);
-
-  async function handleDownload() {
-    downloading = true;
-    loadError = null;
-    try {
-      const response = await fetch("/api/dossiers/anomalies-fichiers-especes-csv");
-      if (!response.ok) throw new Error(`Erreur ${response.status} lors du téléchargement.`);
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(await response.blob());
-      const today = new Date().toISOString().slice(0, 10);
-      a.download = `${today}-dossiers-anomalies-fichier-especes.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
-    } catch (e) {
-      loadError = e instanceof Error ? e.message : String(e);
-    } finally {
-      downloading = false;
-    }
-  }
-
   onMount(reload);
 </script>
 
@@ -129,17 +106,6 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="flex flex-row justify-end fr-mb-2w">
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      disabled={downloading}
-      onclick={handleDownload}
-    >
-      Télécharger la liste des dossiers avec fichier impact avec anomalies
-    </button>
-  </div>
-
   <DossiersListControls
     {query}
     {total}
