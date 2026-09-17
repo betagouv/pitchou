@@ -14,7 +14,9 @@
     <thead>
       <tr>
         <th scope="col">Espèces</th>
-        {#each columns as column (column.key)}<th scope="col">{column.label}</th>{/each}
+        {#each columns as column (column.key)}
+          <th scope="col" class:narrow={column.narrow}>{column.label}</th>
+        {/each}
       </tr>
     </thead>
     <tbody>
@@ -33,13 +35,13 @@
               {#if impact.espece.statutListeRouge}
                 <EspecesStatusBadge
                   label={LIBELLES_STATUT_LISTE_ROUGE[impact.espece.statutListeRouge]}
-                  tone="menace"
+                  tone={impact.espece.statutListeRouge}
                 />
               {/if}
             </span>
           </td>
           {#each columns as column (column.key)}
-            <td>{impact[column.key] ?? VALUE_NOT_PROVIDED}</td>
+            <td class:narrow={column.narrow}>{impact[column.key] ?? VALUE_NOT_PROVIDED}</td>
           {/each}
         </tr>
       {:else}
@@ -77,8 +79,15 @@
     font-weight: 700;
   }
   th:first-child {
-    width: 55%;
     min-width: 15rem;
+  }
+  /* Numeric columns share one width, sized on the longest title ("Surface habitat
+     détruit (m²)"), so they line up from one table to the next; the species column
+     takes what is left. */
+  .narrow {
+    width: 18rem;
+    min-width: 18rem;
+    white-space: nowrap;
   }
   .species-name {
     display: flex;
