@@ -105,7 +105,7 @@
         />
       {/if}
       {#each counts.listeRouge as entry (entry.statut)}
-        <EspecesStatusBadge label={listeRougeCountLabel(entry)} tone="menace" />
+        <EspecesStatusBadge label={listeRougeCountLabel(entry)} tone={entry.statut} />
       {/each}
     {/snippet}
     {#snippet badgesRight()}

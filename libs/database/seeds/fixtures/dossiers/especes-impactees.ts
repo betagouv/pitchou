@@ -61,6 +61,13 @@ export const SEED_ESPECES_IMPACTEES: SeedEspecesImpactees[] = [
         identifiant_pitchou_activité: "P-4-2",
         surface_habitat_détruit: 3000,
       },
+      // Grèbe jougris, en danger critique on the national red list
+      {
+        classification: "oiseau",
+        cd_ref: "968",
+        identifiant_pitchou_activité: "P-4-2",
+        surface_habitat_détruit: 800,
+      },
       // Dégradation/destruction d'aires de repos/reproduction, faune non-oiseau (P-60)
       {
         classification: "faune non-oiseau",

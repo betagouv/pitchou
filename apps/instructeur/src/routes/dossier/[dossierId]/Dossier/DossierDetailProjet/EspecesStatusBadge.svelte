@@ -1,5 +1,7 @@
 <script lang="ts">
-  let { label, tone = "info" }: { label: string; tone?: "info" | "menace" } = $props();
+  import type { StatutListeRouge } from "@pitchou/types/especes.d.ts";
+
+  let { label, tone = "info" }: { label: string; tone?: "info" | StatutListeRouge } = $props();
 </script>
 
 <span class="fr-badge fr-badge--sm fr-badge--no-icon species-status species-status--{tone}"
@@ -14,9 +16,18 @@
     color: var(--text-default-info, #0063cb);
     background: var(--background-contrast-info, #e8edff);
   }
-  /* Rose/violet, the DSFR glycine badge, for threatened red-list categories. */
-  .species-status--menace {
-    color: var(--purple-glycine-sun-319-moon-630, #6e445a);
-    background: var(--purple-glycine-950-100, #fee7fc);
+  /* Red-list categories use the DSFR error, warning and yellow tournesol badge colours,
+     from the most threatened (CR) to the least (VU). */
+  .species-status--CR {
+    color: var(--text-default-error, #ce0500);
+    background: var(--background-contrast-error, #ffe9e9);
+  }
+  .species-status--EN {
+    color: var(--text-default-warning, #b34000);
+    background: var(--background-contrast-warning, #ffe9e6);
+  }
+  .species-status--VU {
+    color: var(--text-label-yellow-tournesol, #716043);
+    background: var(--background-contrast-yellow-tournesol, #feecc2);
   }
 </style>

@@ -1,3 +1,4 @@
+import { page } from "vitest/browser";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
@@ -168,7 +169,56 @@ test("threatened species carry their red-list category on the row and in the acc
   });
   accordion.click();
   await tick();
-  const badges = [...view.container.querySelectorAll("tbody .species-status--menace")];
-  expect(badges.map((badge) => badge.textContent)).toEqual(["Vulnérable", "En danger critique"]);
+  // DSFR error, warning and yellow tournesol colours, most threatened first.
+  const expected: [string, string, string, string][] = [
+    ["VU", "Vulnérable", "rgb(113, 96, 67)", "rgb(254, 236, 194)"],
+    ["CR", "En danger critique", "rgb(206, 5, 0)", "rgb(255, 233, 233)"],
+  ];
+  const badges = [...view.container.querySelectorAll<HTMLElement>("tbody .species-status")].filter(
+    (badge) => !badge.classList.contains("species-status--info"),
+  );
+  expect(
+    badges.map((badge) => [
+      [...badge.classList].find((name) => /^species-status--[A-Z]{2}$/.test(name))?.slice(-2),
+      badge.textContent,
+      getComputedStyle(badge).color,
+      getComputedStyle(badge).backgroundColor,
+    ]),
+  ).toEqual(expected);
   expect(view.container.querySelectorAll("tbody .species-status")).toHaveLength(3);
+});
+
+test("numeric columns share one width across tables and the species column takes the rest", async () => {
+  await page.viewport(1440, 900);
+  try {
+    const view = render(DossierDetailProjet, {
+      dossier: speciesDossier([
+        impact(),
+        habitat,
+        impact({ methode: "Filets", moyenDePoursuite: "Avion", nids: 0 }),
+      ]),
+      anomalies: undefined,
+    });
+    view.getByRole("button", { name: /^Espèces impactées/ }).click();
+    await tick();
+    const widths = new Set<number>();
+    for (const table of view.getAllByRole("table")) {
+      const headers = [...table.querySelectorAll<HTMLElement>("thead th")];
+      const narrow = headers.filter((th) => th.classList.contains("narrow"));
+      expect(narrow.map((th) => th.textContent)).not.toContain("Méthode");
+      for (const th of narrow) widths.add(Math.round(th.getBoundingClientRect().width));
+      if (narrow.length === headers.length - 1) {
+        const table_ = table.getBoundingClientRect().width;
+        // Borders account for the one pixel of play.
+        expect(headers[0].getBoundingClientRect().width).toBeCloseTo(
+          table_ - narrow.length * 288,
+          -1,
+        );
+      }
+    }
+    // "Nb d’individus" and "Surface habitat détruit (m²)" columns: one and the same width.
+    expect([...widths]).toEqual([288]);
+  } finally {
+    await page.viewport(1280, 720);
+  }
 });

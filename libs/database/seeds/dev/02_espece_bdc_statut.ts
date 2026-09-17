@@ -162,12 +162,15 @@ const BDC_STATUT: EspeceBdcStatutInitializer[] = [
 ];
 
 // National red list (LRN) of seed species: the worst category is what the interface flags.
-// Falco naumanni carries NA (2011 list) then VU (2016 list). Values from bdc_18_01.csv.
+// Falco naumanni carries NA (2011 list) then VU (2016 list), Podiceps grisegena NA as a
+// wintering bird then CR as a breeding one. Values from bdc_18_01.csv.
 const LISTE_ROUGE_NATIONALE: [cd_ref: string, code_statut: string, label_statut: string][] = [
   ["2666", "NA", "Non applicable"],
   ["2666", "VU", "Vulnérable"],
   ["4221", "EN", "En danger"],
   ["351", "LC", "Préoccupation mineure"],
+  ["968", "NA", "Non applicable"],
+  ["968", "CR", "En danger critique"],
 ];
 
 function listeRougeRow([
