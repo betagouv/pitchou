@@ -31,11 +31,11 @@
 <svelte:body onclick={onBodyClick} />
 
 <div
-  class="relative min-w-[20rem] flex-[0_1_32rem] ml-auto max-[768px]:[min-width:unset] max-[768px]:basis-full max-[768px]:ml-0"
+  class="relative min-w-0 basis-full lg:min-w-[12rem] lg:flex-[1_1_12rem]"
   bind:this={searchRoot}
 >
   <form
-    class="fr-search-bar"
+    class="fr-search-bar fr-search-bar--sm"
     role="search"
     onsubmit={(e) => {
       e.preventDefault();
@@ -61,7 +61,7 @@
 
   {#if suggestionsOpen && visibleSuggestions.length > 0}
     <ul
-      class="absolute z-10 top-[calc(100%+0.25rem)] left-0 right-0 fr-m-0 fr-py-1v fr-px-0 list-none bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+      class="absolute z-30 top-[calc(100%+0.25rem)] left-0 right-0 fr-m-0 fr-py-1v fr-px-0 list-none bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
       role="listbox"
       aria-label="Recherches récentes"
     >

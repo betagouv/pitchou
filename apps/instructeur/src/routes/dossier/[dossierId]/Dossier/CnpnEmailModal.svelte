@@ -130,7 +130,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <dialog
   bind:this={dialogElement}
-  class="w-[min(70rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
+  class="w-[min(70rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 pitchou-dialog"
   style="margin: auto;"
   aria-labelledby="cnpn-email-title"
   onclose={() => {
@@ -148,10 +148,7 @@
     if (event.target === dialogElement) close();
   }}
 >
-  <form
-    class="flex max-h-[calc(100vh-2rem)] flex-col bg-[var(--background-default-grey)]"
-    onsubmit={submit}
-  >
+  <form class="flex max-h-[calc(100vh-2rem)] flex-col" onsubmit={submit}>
     <CnpnEmailModalHeader
       dossierName={dossier.name ?? dossier.id}
       sending={submission.sending}

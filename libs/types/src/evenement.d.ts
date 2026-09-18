@@ -18,6 +18,8 @@ export type DossierSearchEventDetails = {
     /** Display names of the selected especes protegees (raw CD_REF if the referentiel is missing). */
     especes?: string[];
     departements?: string[];
+    localisation?: "assigned" | "france";
+    departementSelection?: "all" | "none" | "custom";
     nouveaute?: boolean;
   };
   resultCount: number;
@@ -79,6 +81,8 @@ export type EvenementMetrique =
   | { type: "changerPhase" }
   // Change the next expected action from
   | { type: "changerProchaineActionAttendueDe" }
+  // Set or clear the date of the dossier's next échéance
+  | { type: "changerDateProchaineEcheance" }
   // Add an administrative decision
   | { type: "ajouterDécisionAdministrative" }
   // Edit an administrative decision

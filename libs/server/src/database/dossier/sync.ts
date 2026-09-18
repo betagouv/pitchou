@@ -1,6 +1,8 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { directDatabaseConnection } from "../../database.ts";
+import { logActionsDossier } from "../action_dossier.ts";
+import { actionsFromSyncUpdates } from "./syncActions.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
@@ -60,7 +62,9 @@ export async function dumpDossiers(
   dossiersForInsert: DossierForInsert[],
   dossiersForUpdate: DossierForUpdate[],
   db: Knex.Transaction | Knex = directDatabaseConnection,
-) {
+): Promise<Set<DossierId>> {
+  if (!db.isTransaction)
+    return db.transaction((trx) => dumpDossiers(dossiersForInsert, dossiersForUpdate, trx));
   const varcharKeys: (keyof Pick<Dossier, "name" | "ddep_required">)[] = ["name", "ddep_required"];
   for (const { dossier } of [...dossiersForInsert, ...dossiersForUpdate]) {
     for (const key of varcharKeys) {
@@ -79,6 +83,11 @@ export async function dumpDossiers(
       }
     }
   }
+  // Diffed against the current rows before they are overwritten, so the
+  // historique records what the pétitionnaire changed.
+  const { actions, changedDossiers } = await actionsFromSyncUpdates(dossiersForUpdate, db);
+  await logActionsDossier(actions, db);
+
   const updates = dossiersForUpdate.map(({ dossier }) =>
     db("dossier")
       .where("demarche_numerique_number", dossier.demarche_numerique_number)
@@ -88,9 +97,15 @@ export async function dumpDossiers(
   );
   const follows: EdgePersonneFollowsDossier[] = [];
   let avis: PartialBy<AvisExpertInitializer, "dossier">[] = [];
+  const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
   if (dossiersForInsert.length) {
     const inserted: { id: DossierId }[] = await db("dossier")
-      .insert(dossiersForInsert.map(({ dossier }) => dossier))
+      .insert(
+        dossiersForInsert.map(({ dossier }) => ({
+          ...dossier,
+          next_action_expected_from: dossier.next_action_expected_from ?? "Instructeur",
+        })),
+      )
       .returning(["id"]);
     const personnes = await synchronizePersonnes(dossiersForInsert, db);
     if (personnes.length) {
@@ -109,6 +124,12 @@ export async function dumpDossiers(
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
       const source = dossiersForInsert[index];
+      // An imported free comment also becomes the dossier's first (authorless)
+      // commentaire, so the thread and the dossier list show it.
+      const freeComment = source.dossier.free_comment;
+      if (typeof freeComment === "string" && freeComment.trim()) {
+        commentaires.push({ dossier: id, personne: null, content: freeComment });
+      }
       source.evenement_phase_dossier?.forEach((event) => {
         event.dossier = id;
       });
@@ -128,7 +149,7 @@ export async function dumpDossiers(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
     db,
   );
-  return Promise.all([
+  await Promise.all([
     events.length
       ? db("evenement_phase_dossier")
           .insert(events)
@@ -136,6 +157,7 @@ export async function dumpDossiers(
           .merge()
       : Promise.resolve([]),
     avis.length ? db("avis_expert").insert(avis) : Promise.resolve([]),
+    commentaires.length ? db("commentaire").insert(commentaires) : Promise.resolve([]),
     decisions.length ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
     follows.length
       ? db("edge_personne_follows_dossier")
@@ -146,4 +168,8 @@ export async function dumpDossiers(
     Promise.resolve([]),
     ...updates,
   ]);
+
+  // The dossiers whose pétitionnaire data actually changed: only their followers
+  // have something new to read.
+  return changedDossiers;
 }

@@ -60,7 +60,7 @@ describe("searchableText", () => {
   test("gathers the searchable fields, département names included, normalised", () => {
     const dossier = makeDossier({
       name: "Parc",
-      free_comment: "Champ de coquelicots",
+      latestCommentaire: "Champ de coquelicots",
       main_activite: "Carrières",
       departments: ["24"],
     });
@@ -94,7 +94,7 @@ describe("dossierMatchesSearch", () => {
 describe("filterDossiers — recherche multi-champs (critères Trello)", () => {
   test("« coquelicot » trouve le dossier dont le commentaire mentionne les coquelicots", () => {
     const dossiers = [
-      makeDossier({ id: dossierId(1), free_comment: "Présence de coquelicots sur la zone" }),
+      makeDossier({ id: dossierId(1), latestCommentaire: "Présence de coquelicots sur la zone" }),
       makeDossier({ id: dossierId(2), name: "Parc éolien" }),
     ];
     expect(search("coquelicot", dossiers)).toEqual([1]);

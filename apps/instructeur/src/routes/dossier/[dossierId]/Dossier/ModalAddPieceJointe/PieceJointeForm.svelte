@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DateInput from "../../DateInput.svelte";
+  import DateInput from "$lib/components/DateInput.svelte";
   import ExpertServiceFields from "./ExpertServiceFields.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";

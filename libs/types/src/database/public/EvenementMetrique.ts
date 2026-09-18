@@ -12,7 +12,7 @@ export default interface EvenementMetrique {
 
   personne: PersonneId;
 
-  /** Evenement date */
+  /** Date and time of the evenement */
   date: Date;
 
   /** Evenement type */
@@ -30,8 +30,8 @@ export interface EvenementMetriqueInitializer {
   personne: PersonneId;
 
   /**
-   * Evenement date
-   * Default value: CURRENT_TIMESTAMP
+   * Date and time of the evenement
+   * Default value: now()
    */
   date?: Date;
 
@@ -48,7 +48,7 @@ export interface EvenementMetriqueMutator {
 
   personne?: PersonneId;
 
-  /** Evenement date */
+  /** Date and time of the evenement */
   date?: Date;
 
   /** Evenement type */

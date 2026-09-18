@@ -96,6 +96,7 @@
           <label class="fr-label" for="new-dossier-groupe">Groupe instructeurs *</label>
           <Select
             id="new-dossier-groupe"
+            class="fr-mt-1w"
             required
             disabled={loading || saving}
             options={groupes.map((groupe) => ({ value: groupe.id, label: groupe.name }))}

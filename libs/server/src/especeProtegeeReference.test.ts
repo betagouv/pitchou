@@ -106,3 +106,29 @@ test("drops species without a kept classification or without any name", () => {
   expect(noClassification).toEqual([]);
   expect(noName).toEqual([]);
 });
+
+test("the reference keeps the most threatened national red-list category, or null", () => {
+  const rows = [
+    taxref({ cd_ref: "20", cd_nom: "20", lb_nom: "Threatened" }),
+    taxref({ cd_ref: "21", cd_nom: "21", lb_nom: "Safe" }),
+    taxref({ cd_ref: "22", cd_nom: "22", lb_nom: "Unassessed" }),
+  ];
+  const statuts = new Map([
+    ["20", new Set(["PN"])],
+    ["21", new Set(["PN"])],
+    ["22", new Set(["PN"])],
+  ]);
+  const listeRouge = new Map([
+    ["20", ["NA", "VU", "EN"]],
+    ["21", ["LC", "NT"]],
+  ]);
+  const byCdRef = new Map(
+    aggregateEspeceProtegeeReference(rows, statuts, listeRouge).map((row) => [
+      String(row.cd_ref),
+      row,
+    ]),
+  );
+  expect(byCdRef.get("20")?.statut_liste_rouge).toBe("EN");
+  expect(byCdRef.get("21")?.statut_liste_rouge).toBeNull();
+  expect(byCdRef.get("22")?.statut_liste_rouge).toBeNull();
+});

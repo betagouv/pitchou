@@ -8,10 +8,12 @@
     piecesJointesDecisions,
     piecesJointesProjet,
   } from "./piecesJointes.ts";
+  import { readOnlyMode } from "./readOnly.ts";
+  import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
-  type LinkedTab = "instruction" | "projet" | "avis" | "controles";
+  type LinkedTab = "instruction" | "detail-du-projet" | "avis" | "controles";
 
   type Props = {
     dossier: DossierFull;
@@ -20,39 +22,56 @@
 
   let { dossier, openTab }: Props = $props();
 
+  const readOnly = readOnlyMode();
+
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
 
   const piecesProjet = $derived(piecesJointesProjet(dossier));
-  const piecesAvis = $derived(piecesJointesAvis(dossier));
+  const piecesAvis = $derived(
+    piecesJointesAvis(
+      readOnly.current
+        ? {
+            ...dossier,
+            avisExpert: dossier.avisExpert
+              .filter(({ expert }) => isOfficialAvisExpert(expert))
+              .map((avisExpert) => ({ ...avisExpert, saisine_fichier_url: undefined })),
+          }
+        : dossier,
+    ),
+  );
   const piecesArretes = $derived(piecesJointesDecisions(dossier));
   const piecesAutres = $derived(piecesJointesAutres(dossier));
 </script>
 
 <section class="flex flex-col gap-5">
-  <button
-    type="button"
-    class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line self-start"
-    aria-controls={idModalAddPieceJointe}
-    data-fr-opened="false"
-    onclick={() =>
-      sendEvenement({
-        type: "ouvrirModaleAjouterPieceJointe",
-        details: { dossierId: dossier.id, source: "ongletPiecesJointes" },
-      })}
-  >
-    Ajouter une pièce jointe
-  </button>
+  {#if !readOnly.current}
+    <button
+      type="button"
+      class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-attachment-line self-start"
+      aria-controls={idModalAddPieceJointe}
+      data-fr-opened="false"
+      onclick={() =>
+        sendEvenement({
+          type: "ouvrirModaleAjouterPieceJointe",
+          details: { dossierId: dossier.id, source: "ongletPiecesJointes" },
+        })}
+    >
+      Ajouter une pièce jointe
+    </button>
+  {/if}
 
   <PieceJointeSection
     title="Projet"
     emptyMessage="Aucune pièce jointe n'a été déposée par le pétitionnaire."
-    tabLabel="Projet"
+    tabLabel="Détail du projet"
     pieces={piecesProjet}
-    openTab={() => openTab("projet")}
+    openTab={() => openTab("detail-du-projet")}
   />
   <PieceJointeSection
     title="Avis d'experts"
-    emptyMessage="Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."
+    emptyMessage={readOnly.current
+      ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
+      : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
     tabLabel="Avis"
     pieces={piecesAvis}
     openTab={() => openTab("avis")}
@@ -64,18 +83,21 @@
     pieces={piecesArretes}
     openTab={() => openTab("controles")}
   />
-  <PieceJointeSection
-    title="Autres"
-    emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
-    tabLabel="Instruction"
-    pieces={piecesAutres}
-    openTab={() => openTab("instruction")}
-  />
+  <!-- The attachments added by the instructeur stay internal to the service. -->
+  {#if !readOnly.current}
+    <PieceJointeSection
+      title="Autres"
+      emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
+      pieces={piecesAutres}
+    />
+  {/if}
 </section>
 
-<ModalAddPieceJointe
-  id={idModalAddPieceJointe}
-  {dossier}
-  typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
-  source="ongletPiecesJointes"
-/>
+{#if !readOnly.current}
+  <ModalAddPieceJointe
+    id={idModalAddPieceJointe}
+    {dossier}
+    typesPiecesJointes={["Saisine expert", "Avis expert", "Décision administrative", "Autre"]}
+    source="ongletPiecesJointes"
+  />
+{/if}

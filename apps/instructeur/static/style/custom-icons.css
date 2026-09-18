@@ -9,3 +9,10 @@
   -webkit-mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
   mask-image: url("/docs/style/dsfr/icons/user/user-shared-2-line.svg");
 }
+
+/* Bird pictogram of the Figma « Icones fonctionnelles » page (Especes impactees). */
+.fr-icon-especes-impactees::before,
+.fr-icon-especes-impactees::after {
+  -webkit-mask-image: url("../icons/especes-impactees.svg");
+  mask-image: url("../icons/especes-impactees.svg");
+}

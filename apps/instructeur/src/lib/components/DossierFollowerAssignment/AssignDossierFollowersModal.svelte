@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import { SvelteMap, SvelteSet } from "svelte/reactivity";
   import { store } from "$lib/state/store.svelte.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
   import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
   import { queueDossierFollowUpdate } from "$lib/dossier/suiviDossier.ts";
   import DossierFollowerCombobox from "./DossierFollowerCombobox.svelte";
@@ -82,12 +81,6 @@
 
     saving = true;
     errorMessage = "";
-    const addedPersonneEmails = candidates
-      .filter(({ email, followsDossier }) => !followsDossier && selectedEmails.has(email))
-      .map(({ email }) => email);
-    const removedPersonneEmails = candidates
-      .filter(({ email, followsDossier }) => followsDossier && !selectedEmails.has(email))
-      .map(({ email }) => email);
     try {
       await queueDossierFollowUpdate(dossierId, () =>
         updateFollowers(dossierId, [...selectedEmails]),
@@ -106,15 +99,7 @@
       notificationPromise?.catch((error) =>
         console.warn("Failed to reload dossier notifications", error),
       );
-      sendEvenement({
-        type: "assignDossierFollowers",
-        details: {
-          dossierId,
-          followerCount: selectedEmails.size,
-          addedPersonneEmails,
-          removedPersonneEmails,
-        },
-      });
+      // The metric event is recorded server-side, with the historique entries.
       dialogElement?.close();
     } catch (error) {
       console.error("Failed to update dossier followers", error);
@@ -133,7 +118,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <dialog
   bind:this={dialogElement}
-  class="w-[min(48rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 shadow-[var(--overlap-shadow,0_2px_12px_rgba(0,0,0,0.2))] backdrop:bg-[rgba(22,22,22,0.64)]"
+  class="w-[min(48rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] border-0 fr-p-0 pitchou-dialog"
   style="margin: auto;"
   aria-labelledby={titleId}
   onclose={onClose}
@@ -144,9 +129,7 @@
     if (event.target === dialogElement) close();
   }}
 >
-  <div
-    class="flex h-[min(42rem,calc(100vh-2rem))] max-h-[calc(100vh-2rem)] flex-col bg-[var(--background-default-grey)]"
-  >
+  <div class="flex h-[min(42rem,calc(100vh-2rem))] max-h-[calc(100vh-2rem)] flex-col">
     <header
       class="flex items-start justify-between gap-4 border-b border-[color:var(--border-default-grey)] fr-p-3w"
     >

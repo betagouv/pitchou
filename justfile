@@ -22,6 +22,9 @@ all := 'corepack pnpm --filter "./apps/*" exec'
 # it is added only when present — mirroring docker's default auto-merge.
 compose-dev := if path_exists(justfile_directory() / "compose.dev.override.yml") == "true" { "-f compose.dev.yml -f compose.dev.override.yml" } else { "-f compose.dev.yml" }
 
+# Compose files for the test stack, with the same optional local override.
+compose-test := if path_exists(justfile_directory() / "compose.test.override.yml") == "true" { "-f compose.test.yml -f compose.test.override.yml" } else { "-f compose.test.yml" }
+
 # List available recipes
 default:
     @just --list
@@ -126,11 +129,11 @@ docker-restart:
 
 # Stop the test containers
 docker-test-down:
-    docker compose -f compose.test.yml down
+    docker compose {{ compose-test }} down
 
 # Start the test containers (Postgres + rustfs S3) for integration and e2e tests
 docker-test-up:
-    docker compose -f compose.test.yml up -d
+    docker compose {{ compose-test }} up -d
 
 # Run the support Docker containers (Postgres + pgadmin + rustfs S3)
 docker-up:

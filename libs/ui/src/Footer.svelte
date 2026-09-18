@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { FooterProps } from "./index.ts";
 
-  let { description, top, bottomExtra }: FooterProps = $props();
+  let { description, brand = true, fluid = false, top, bottomExtra }: FooterProps = $props();
+
+  // Same side paddings as the signed-in header band, so both edges line up.
+  const containerClass = $derived(fluid ? "w-full px-4 lg:px-8" : "fr-container");
 
   function toggleTheme() {
     const root = document.documentElement;
@@ -11,71 +14,77 @@
   }
 </script>
 
-<footer class="fr-footer fr-mt-2w" id="footer">
+<!-- The DSFR footer is transparent outside of its top section, which would let the grey
+     page background show through: make the links part white (theme-aware) explicitly. -->
+<footer class="fr-footer fr-mt-2w bg-[var(--background-default-grey)]" id="footer">
   {#if top}
-    <div class="fr-footer__top">
-      <div class="fr-container">
+    <!-- Without the brand block, nothing sits between the top section and the bottom
+         links: collapse the DSFR margins reserved for it so no white gap remains. -->
+    <div class="fr-footer__top {brand ? '' : 'mb-0'}">
+      <div class={containerClass}>
         <div class="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
           {@render top()}
         </div>
       </div>
     </div>
   {/if}
-  <div class="fr-container">
-    <div class="fr-footer__body">
-      <div class="fr-footer__brand fr-enlarge-link">
-        <p class="fr-logo">République <br />Française</p>
+  <div class={containerClass}>
+    {#if brand}
+      <div class="fr-footer__body">
+        <div class="fr-footer__brand fr-enlarge-link">
+          <p class="fr-logo">République <br />Française</p>
+        </div>
+        <div class="fr-footer__content">
+          <p class="fr-footer__content-desc">{description}</p>
+          <p class="fr-footer__content-desc">
+            <strong>Besoin d'aide pour utiliser pitchou ?</strong><br />
+            <a
+              class="fr-footer__content-link fr-text--regular underline"
+              href="mailto:support@pitchou.beta.gouv.fr">support@pitchou.beta.gouv.fr</a
+            >
+          </p>
+          <ul class="fr-footer__content-list">
+            <li class="fr-footer__content-item">
+              <a
+                class="fr-footer__content-link"
+                target="_blank"
+                rel="noopener external"
+                title="info.gouv.fr - nouvelle fenêtre"
+                href="https://info.gouv.fr">info.gouv.fr</a
+              >
+            </li>
+            <li class="fr-footer__content-item">
+              <a
+                class="fr-footer__content-link"
+                target="_blank"
+                rel="noopener external"
+                title="service-public.gouv.fr - nouvelle fenêtre"
+                href="https://service-public.gouv.fr">service-public.gouv.fr</a
+              >
+            </li>
+            <li class="fr-footer__content-item">
+              <a
+                class="fr-footer__content-link"
+                target="_blank"
+                rel="noopener external"
+                title="legifrance.gouv.fr - nouvelle fenêtre"
+                href="https://legifrance.gouv.fr">legifrance.gouv.fr</a
+              >
+            </li>
+            <li class="fr-footer__content-item">
+              <a
+                class="fr-footer__content-link"
+                target="_blank"
+                rel="noopener external"
+                title="data.gouv.fr - nouvelle fenêtre"
+                href="https://data.gouv.fr">data.gouv.fr</a
+              >
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="fr-footer__content">
-        <p class="fr-footer__content-desc">{description}</p>
-        <p class="fr-footer__content-desc">
-          <strong>Besoin d'aide pour utiliser pitchou ?</strong><br />
-          <a
-            class="fr-footer__content-link fr-text--regular underline"
-            href="mailto:support@pitchou.beta.gouv.fr">support@pitchou.beta.gouv.fr</a
-          >
-        </p>
-        <ul class="fr-footer__content-list">
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="info.gouv.fr - nouvelle fenêtre"
-              href="https://info.gouv.fr">info.gouv.fr</a
-            >
-          </li>
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="service-public.gouv.fr - nouvelle fenêtre"
-              href="https://service-public.gouv.fr">service-public.gouv.fr</a
-            >
-          </li>
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="legifrance.gouv.fr - nouvelle fenêtre"
-              href="https://legifrance.gouv.fr">legifrance.gouv.fr</a
-            >
-          </li>
-          <li class="fr-footer__content-item">
-            <a
-              class="fr-footer__content-link"
-              target="_blank"
-              rel="noopener external"
-              title="data.gouv.fr - nouvelle fenêtre"
-              href="https://data.gouv.fr">data.gouv.fr</a
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="fr-footer__bottom">
+    {/if}
+    <div class="fr-footer__bottom {brand ? '' : 'mt-0'}">
       <ul class="fr-footer__bottom-list">
         <li class="fr-footer__bottom-item">
           <a href="/plan-du-site" class="fr-footer__bottom-link"> Plan du site </a>

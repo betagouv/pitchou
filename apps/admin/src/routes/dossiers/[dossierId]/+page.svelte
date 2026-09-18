@@ -19,6 +19,7 @@
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
+  import DossierSyncSimulation from "./DossierSyncSimulation.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
   import DossierDeleteSection from "./DossierDeleteSection.svelte";
   import type { PageData } from "./$types";
@@ -149,6 +150,15 @@
     readOnly={detail.source === "unknown"}
     onChanged={(updated) => (detail = updated)}
   />
+
+  {#if data.simulation}
+    <DossierSyncSimulation
+      dossierId={detail.dossier.id}
+      champs={data.simulation.champs}
+      speciesGroups={data.simulation.speciesGroups}
+      simulable={detail.source === "demarche_numerique"}
+    />
+  {/if}
 
   {#if detail.source === "pitchou"}
     <DossierDeleteSection {dossierId} />

@@ -5,6 +5,11 @@
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
   let { model }: { model: DossierCreationModel } = $props();
+
+  const countryOptions = [
+    { value: "France", label: "France" },
+    { value: "Autre pays", label: "Autre pays" },
+  ];
 </script>
 
 <div class="flex flex-col gap-6 fr-mb-3w">
@@ -50,10 +55,8 @@
           <label class="fr-label" for="physical-country">Pays</label>
           <Select
             id="physical-country"
-            options={[
-              { value: "France", label: "France" },
-              { value: "Autre pays", label: "Autre pays" },
-            ]}
+            class="fr-mt-1w"
+            options={countryOptions}
             bind:value={model.physicalCountry}
           />
         </div>

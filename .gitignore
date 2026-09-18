@@ -45,3 +45,4 @@ docs/vendor/
 .corepack/
 .cache/
 compose.dev.override.yml
+compose.test.override.yml

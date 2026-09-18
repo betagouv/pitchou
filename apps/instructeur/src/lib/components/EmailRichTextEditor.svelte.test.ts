@@ -1,3 +1,6 @@
+import "@gouvfr/dsfr/dist/dsfr.min.css";
+import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import "../../app.css";
 import { afterEach, expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, render } from "@testing-library/svelte";
@@ -10,7 +13,10 @@ import {
 } from "../../routes/dossier/[dossierId]/Dossier/cnpnEmailDraft.ts";
 import EmailRichTextEditor from "./EmailRichTextEditor.svelte";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  document.documentElement.removeAttribute("data-fr-theme");
+});
 
 test("actualise Annuler et Rétablir après chaque transaction", async () => {
   const { container } = render(EmailRichTextEditor, { html: "<p>Bonjour</p>" });
@@ -93,4 +99,17 @@ test("conserve les tableaux et synchronise les PJ après justification et nettoy
   await rerender({ html: updateCnpnAttachmentList(sanitized, []) });
   expect(editor.getText()).toContain("Aucune pièce jointe sélectionnée");
   expect(editor.getText()).not.toContain("nouveau <CNPN>.pdf");
+});
+
+test("the mail sheet keeps dark text on white in dark mode, as the mail will be read", () => {
+  document.documentElement.dataset.frTheme = "dark";
+  const { container } = render(EmailRichTextEditor, {
+    html: "<p>Bonjour</p><table><tr><th>Pièce</th><td>Saisine</td></tr></table>",
+  });
+  const sheet = container.querySelector<HTMLElement>(".tiptap")!.parentElement!;
+  expect(getComputedStyle(sheet).backgroundColor).toBe("rgb(255, 255, 255)");
+  expect(getComputedStyle(container.querySelector(".tiptap p")!).color).toBe("rgb(22, 22, 22)");
+  const th = container.querySelector(".tiptap th")!;
+  expect(getComputedStyle(th).backgroundColor).toBe("rgb(246, 246, 246)");
+  expect(getComputedStyle(th).borderTopColor).toBe("rgb(221, 221, 221)");
 });

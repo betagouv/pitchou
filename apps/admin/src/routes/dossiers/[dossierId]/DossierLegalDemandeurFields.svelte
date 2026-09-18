@@ -1,6 +1,5 @@
 <script lang="ts">
   import Select from "@pitchou/ui/Select.svelte";
-  import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { departements } from "@pitchou/common/departements.ts";
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
@@ -17,7 +16,9 @@
     !!model.personneMorale.region &&
       !dossierRegionOptions.includes(model.personneMorale.region as never),
   );
-  const departmentSelectOptions: SelectEntry<string>[] = $derived([
+  // A value predating the current list stays selectable, so opening a dossier
+  // never silently drops it.
+  const departmentOptions = $derived([
     { value: "", label: "Non renseigné" },
     ...(hasLegacyDepartment
       ? [
@@ -32,7 +33,7 @@
       label: `${department.code} - ${department.name}`,
     })),
   ]);
-  const regionSelectOptions: SelectEntry<string>[] = $derived([
+  const regionOptions = $derived([
     { value: "", label: "Non renseignée" },
     ...(hasLegacyRegion
       ? [
@@ -99,7 +100,8 @@
     <label class="fr-label" for="edit-legal-department">Département</label>
     <Select
       id="edit-legal-department"
-      options={departmentSelectOptions}
+      class="fr-mt-1w w-full"
+      options={departmentOptions}
       bind:value={model.personneMorale.department}
     />
   </div>
@@ -107,7 +109,8 @@
     <label class="fr-label" for="edit-legal-region">Région</label>
     <Select
       id="edit-legal-region"
-      options={regionSelectOptions}
+      class="fr-mt-1w w-full"
+      options={regionOptions}
       bind:value={model.personneMorale.region}
     />
   </div>

@@ -19,14 +19,28 @@
   };
 
   let { id, groups, value, activeIndex, placement, ariaLabel, onSelect, onHover }: Props = $props();
+
+  // The list is positioned against the viewport, but an ancestor with a `filter` or a
+  // `transform` (a DSFR modal body has one) would become the reference of `position:
+  // fixed` instead. Showing the list as a popover renders it in the top layer, where the
+  // viewport is the reference again and nothing can clip or cover it. Browsers without
+  // the Popover API keep the plain fixed positioning.
+  let element = $state<HTMLDivElement>();
+  $effect(() => {
+    element?.showPopover?.();
+  });
 </script>
 
+<!-- The popover UA styles (inset, margin, border, padding, colors) are all reset below;
+     the inline styles then place the list. -->
 <div
+  bind:this={element}
   id="{id}-listbox"
   role="listbox"
   aria-label={ariaLabel}
   tabindex="-1"
-  class="fr-p-1v fixed z-[2000] min-w-[12rem] overflow-y-auto overscroll-contain rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] shadow-[0_4px_16px_rgba(0,0,18,0.16)]"
+  popover="manual"
+  class="fr-p-1v fixed inset-auto z-[2000] m-0 h-auto min-w-[12rem] overflow-y-auto overscroll-contain rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] text-[color:var(--text-default-grey)] shadow-[0_4px_16px_rgba(0,0,18,0.16)]"
   style:left="{placement.left}px"
   style:width="{placement.width}px"
   style:max-height="{placement.maxHeight}px"

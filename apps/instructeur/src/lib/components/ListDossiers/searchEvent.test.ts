@@ -10,9 +10,12 @@ describe("buildSearchEvent", () => {
     activiteLabelByCode: new Map([["carrieres", "Carrières"]]),
   };
 
-  test("an empty query only reports nouveaute: false and the result count", () => {
+  test("an empty query reports the default geographic scope and the result count", () => {
     const event = buildSearchEvent(makeQuery(), 12, context);
-    expect(event).toEqual({ filters: { nouveaute: false }, resultCount: 12 });
+    expect(event).toEqual({
+      filters: { nouveaute: false, localisation: "assigned", departementSelection: "all" },
+      resultCount: 12,
+    });
   });
 
   test("maps each active filter to the analytics payload", () => {
@@ -21,6 +24,7 @@ describe("buildSearchEvent", () => {
       phase: ["Instruction", "Contrôle"],
       activite: ["carrieres"],
       departement: ["64"],
+      departementSelection: "custom",
       nouveaute: "oui",
     });
     const event = buildSearchEvent(query, 5, context);

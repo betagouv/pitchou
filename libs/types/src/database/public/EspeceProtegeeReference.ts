@@ -15,6 +15,8 @@ export default interface EspeceProtegeeReference {
   noms_vernaculaires: string[];
 
   cd_type_statuts: string[];
+
+  statut_liste_rouge: string | null;
 }
 
 /** Represents the initializer for the table public.espece_protegee_reference */
@@ -31,6 +33,8 @@ export interface EspeceProtegeeReferenceInitializer {
 
   /** Default value: '{}'::text[] */
   cd_type_statuts?: string[];
+
+  statut_liste_rouge?: string | null;
 }
 
 /** Represents the mutator for the table public.espece_protegee_reference */
@@ -44,4 +48,6 @@ export interface EspeceProtegeeReferenceMutator {
   noms_vernaculaires?: string[];
 
   cd_type_statuts?: string[];
+
+  statut_liste_rouge?: string | null;
 }

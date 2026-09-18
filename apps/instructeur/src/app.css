@@ -35,10 +35,53 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Light grey page background from the Figma design (#f6f6f6), so the white cards and
+     the dossier panel stand out. The DSFR token gives the same contrast in dark mode
+     (#1e1e1e page, #161616 surfaces), whereas the DSFR default background would be the
+     same shade as the surfaces. */
+  background-color: var(--background-alt-grey, #f6f6f6);
 }
 
 main {
   flex: 1 0 auto;
+}
+
+/* Continue the white panel below short dossiers without recoloring their header. */
+main:has(.dossier-tabs) {
+  display: flex;
+  flex-direction: column;
+}
+
+main:has(.dossier-tabs)::after {
+  content: "";
+  flex: 1;
+  background: var(--background-default-grey);
+}
+
+/* Dossier panels meet the footer on white; list and public pages keep their gap. */
+main:has(.dossier-tabs) + .fr-footer {
+  margin-top: 0 !important;
+}
+
+/* DSFR gutters below 1296px; 1200px of usable content on wider screens. */
+.pitchou-container {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 62em) {
+  .pitchou-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1296px) {
+  .pitchou-container {
+    max-width: 1248px;
+    padding-inline: 24px;
+  }
 }
 
 /*
@@ -60,4 +103,33 @@ main {
   cursor: pointer;
   font: inherit;
   margin-right: 0.5rem;
+}
+
+/*
+ * Custom <dialog> modals, the ones not built on DSFR's modal component. The lifted surface
+ * is white in light mode and one shade lighter than the page in dark mode; with a black
+ * veil the page stays well below it in both themes. A grey veil over the DSFR default
+ * background left dark-mode modals almost indistinguishable from the page behind them.
+ */
+.pitchou-dialog {
+  background-color: var(--background-lifted-grey);
+  box-shadow: var(--lifted-shadow, 0 3px 9px rgba(0, 0, 18, 0.32));
+}
+
+.pitchou-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.64);
+}
+
+/* Dark greys are close to one another even with the veil, so the edge gets a line too. */
+:root[data-fr-theme="dark"] .pitchou-dialog {
+  border: 1px solid var(--border-default-grey);
+}
+
+/* DSFR's own modals get the same veil and dark-mode edge as the custom dialogs above. */
+:root .fr-modal {
+  background-color: rgba(0, 0, 0, 0.64);
+}
+
+:root[data-fr-theme="dark"] .fr-modal__body {
+  border: 1px solid var(--border-default-grey);
 }

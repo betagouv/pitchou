@@ -37,11 +37,21 @@ async function main() {
   };
 
   for await (const record of parser as AsyncIterable<BDC_STATUT_ROW>) {
-    const { CD_NOM, CD_REF, CD_TYPE_STATUT, LABEL_STATUT, CD_DOC, FULL_CITATION, DOC_URL } = record;
+    const {
+      CD_NOM,
+      CD_REF,
+      CD_TYPE_STATUT,
+      CODE_STATUT,
+      LABEL_STATUT,
+      CD_DOC,
+      FULL_CITATION,
+      DOC_URL,
+    } = record;
     batch.push({
       cd_nom: CD_NOM,
       cd_ref: CD_REF,
       cd_type_statut: CD_TYPE_STATUT,
+      code_statut: CODE_STATUT ?? "",
       label_statut: LABEL_STATUT ?? "",
       cd_doc: CD_DOC ?? "",
       full_citation: cleanHtmlText(FULL_CITATION ?? ""),

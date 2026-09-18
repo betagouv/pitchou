@@ -11,6 +11,7 @@
 
   import { CLASSIFICATIONS, criteresApplicables, parClassification } from "./typeImpacts.ts";
   import ReferentielDetailModal from "./ReferentielDetailModal.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import ReferentielValueTable from "./ReferentielValueTable.svelte";
   import { referentielValueDetail, typeImpactDetail, type ReferentielDetail } from "./details.ts";
 
@@ -25,6 +26,14 @@
   // "" means every classification. The saisie form only ever offers one at a time, so filtering
   // here answers the question an instructeurice actually has: what can I fill in for this espèce?
   let classification: ClassificationEtreVivant | "" = $state("");
+
+  const classificationOptions = [
+    { value: "" as ClassificationEtreVivant | "", label: "Toutes" },
+    ...CLASSIFICATIONS.map((classificationOption) => ({
+      value: classificationOption,
+      label: classificationOption,
+    })),
+  ];
 
   const typesImpact = $derived(
     parClassification(
@@ -85,12 +94,12 @@
 
   <div class="fr-select-group max-w-md fr-mb-0">
     <label class="fr-label" for="filtre-classification">Classification d’espèce</label>
-    <select class="fr-select" id="filtre-classification" bind:value={classification}>
-      <option value="">Toutes</option>
-      {#each CLASSIFICATIONS as classificationOption}
-        <option value={classificationOption}>{classificationOption}</option>
-      {/each}
-    </select>
+    <Select
+      id="filtre-classification"
+      class="fr-mt-1w"
+      options={classificationOptions}
+      bind:value={classification}
+    />
   </div>
 </div>
 

@@ -5,6 +5,7 @@ import type {
   TAXREF_ROW,
 } from "@pitchou/types/especes.d.ts";
 import type EspeceProtegeeRow from "@pitchou/types/database/public/EspeceProtegee.ts";
+import { isStatutListeRouge } from "./listeRouge.ts";
 
 const classifications: Set<"oiseau" | "faune non-oiseau" | "flore"> = new Set([
   "oiseau",
@@ -80,6 +81,9 @@ export function dbRowToEspeceProtegee(
     statutsProtection: row.statutsProtection ?? row.statuts_protection ?? [],
     espèceMinistérielle: row.espece_ministerielle ? "O" : undefined,
     espèceCNPN: row.espece_cnpn ? "O" : undefined,
+    statutListeRouge: isStatutListeRouge(row.statut_liste_rouge)
+      ? row.statut_liste_rouge
+      : undefined,
   };
 }
 

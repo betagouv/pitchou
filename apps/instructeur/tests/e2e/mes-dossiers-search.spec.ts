@@ -22,6 +22,7 @@ async function setupDossiers(
   for (const values of dossiers) {
     const dossier = await createDossier(db, {
       demarche_number: DEFAULT_NUMERO_DEMARCHE,
+      departments: JSON.stringify(["64"]),
       ...values,
     });
     await attachDossierToGroupe(db, dossier.id, instructeur.groupeId);
@@ -32,11 +33,16 @@ async function setupDossiers(
 }
 
 test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ page, db }) => {
-  await setupDossiers(db, [
+  const setup = await setupDossiers(db, [
     { name: "Parc photovoltaïque à Anglet", demarche_numerique_number: "29803745" },
-    { name: "Recherche scientifique", free_comment: "Présence de coquelicots sur la zone" },
+    { name: "Recherche scientifique" },
     { name: "Méthaniseur", demarche_numerique_number: "12345678" },
   ]);
+  // The search covers the dossier's most recent commentaire.
+  await db("commentaire").insert({
+    dossier: setup.dossiers[1].id,
+    content: "Présence de coquelicots sur la zone",
+  });
   await gotoMesDossiers(page);
   const cards = page.getByTestId("card-dossier");
   const searchInput = page.getByLabel("Rechercher un dossier");

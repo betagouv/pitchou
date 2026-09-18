@@ -2,6 +2,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { phases } from "@pitchou/common/phases.ts";
+  import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
   import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
@@ -26,7 +27,10 @@
 
   function formatDate(value: string): string {
     const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("fr-FR");
+    if (Number.isNaN(date.getTime())) return value;
+    return isTimeOfDayKnown(date)
+      ? date.toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })
+      : date.toLocaleDateString("fr-FR");
   }
 
   async function addPhaseEvent(event: SubmitEvent) {
@@ -53,7 +57,7 @@
     <form class="flex flex-row items-end gap-4 flex-wrap fr-mb-3w" onsubmit={addPhaseEvent}>
       <div class="fr-select-group fr-mb-0">
         <label class="fr-label" for="nouvelle-phase">Passer le dossier en phase</label>
-        <Select id="nouvelle-phase" options={phaseOptions} bind:value={newPhase} />
+        <Select id="nouvelle-phase" class="fr-mt-1w" options={phaseOptions} bind:value={newPhase} />
       </div>
       <button
         class="fr-btn fr-btn--secondary"

@@ -1,0 +1,30 @@
+.dossier-detail-projet {
+  --dossier-review-width: 15.5rem;
+  --dossier-review-gap: 1.5rem;
+  min-width: 0;
+}
+
+.dossier-review-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--dossier-review-width, 15.5rem);
+  gap: var(--dossier-review-gap, 1.5rem);
+  align-items: center;
+  min-width: 0;
+}
+
+.dossier-review-left {
+  max-width: calc(100% - var(--dossier-review-width, 15.5rem) - var(--dossier-review-gap, 1.5rem));
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 48rem) {
+  .dossier-review-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .dossier-review-left {
+    max-width: 100%;
+  }
+}
