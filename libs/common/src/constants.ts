@@ -31,6 +31,7 @@ export const authorizedEmailDomains = new Set([
   "oise.gouv.fr",
   "sarthe.gouv.fr",
   "vendee.gouv.fr",
+  "indre.gouv.fr",
 ]);
 
 export const mailtoMissingEspece =
