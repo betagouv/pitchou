@@ -1,12 +1,11 @@
 import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
 import { uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
+import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";
 
 export function readableDecisionError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
-  return /^413\b/.test(message)
-    ? "Le fichier est trop volumineux pour être envoyé."
-    : `L'enregistrement de la décision administrative a échoué : ${message}`;
+  return `L'enregistrement de la décision administrative a échoué : ${message}`;
 }
 
 export function preserveDecisionDates(decision: DecisionAdministrativeForTransfer) {
@@ -16,25 +15,24 @@ export function preserveDecisionDates(decision: DecisionAdministrativeForTransfe
   }
 }
 
-export async function readDecisionFile(
+/**
+ * Checks the chosen file, sends it to object storage and returns the reference
+ * the API expects on the décision.
+ */
+export async function uploadDecisionFile(
+  dossierId: DecisionAdministrativeForTransfer["dossier"],
   files: FileList,
-): Promise<DecisionAdministrativeForTransfer["fichier_base64"]> {
+): Promise<DecisionAdministrativeForTransfer["fichier_upload"]> {
   const file = files[0];
   if (!file.name.toLowerCase().endsWith(".pdf")) {
     throw new TypeError("Format de fichier non supporté. Formats acceptés : .pdf.");
   }
   const sizeError = uploadSizeError(files);
   if (sizeError) throw new RangeError(sizeError);
+  if (!dossierId) {
+    throw new TypeError("Dossier manquant pour envoyer le fichier de la décision.");
+  }
 
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(reader.result as string), false);
-    reader.addEventListener("error", reject);
-    reader.readAsDataURL(file);
-  });
-  return {
-    name: file.name,
-    media_type: file.type,
-    contenuBase64: dataUrl.slice(`data:${file.type};base64,`.length),
-  };
+  const [uploaded] = await uploadFichiers(dossierId, [file]);
+  return uploaded;
 }

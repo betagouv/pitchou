@@ -44,14 +44,36 @@ export function wrapTextPOST(url: string | undefined): any {
     });
 }
 
-export function wrapPOSTMultipart(url: string | undefined): any {
+/** The message of a SvelteKit `error()` body, or the raw text. */
+function errorMessageFromBody(body: string): string {
+  try {
+    const parsed = JSON.parse(body);
+    if (parsed && typeof parsed.message === "string") return parsed.message;
+  } catch {
+    // not JSON: fall through to the raw text
+  }
+  return body.trim();
+}
+
+/**
+ * JSON POST that surfaces the server's error message instead of d3-fetch's
+ * bare status text, and returns undefined on an empty (204) response.
+ */
+export function wrapJsonPOST(url: string | undefined): any {
   if (!url) return undefined;
-  return async (form: FormData) => {
-    const response = await fetch(url, { method: "POST", body: form });
+  return async (args: unknown) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(args),
+    });
+    const body = await response.text().catch(() => "");
     if (!response.ok) {
-      const body = (await response.text().catch(() => "")).trim();
-      throw new Error(body || `Une erreur est survenue (${response.status})`);
+      throw new RequestError(
+        response.status,
+        errorMessageFromBody(body) || `Une erreur est survenue (${response.status})`,
+      );
     }
-    return response.text();
+    return body ? JSON.parse(body) : undefined;
   };
 }

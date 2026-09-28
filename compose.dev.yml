@@ -61,6 +61,12 @@ services:
           || aws --endpoint-url http://s3:9000 s3 ls s3://pitchou-dev; do
           echo "en attente de rustfs..."; sleep 1;
         done
+        # Le navigateur envoie les fichiers directement au bucket (URL signées) : CORS obligatoire.
+        aws --endpoint-url http://s3:9000 s3api put-bucket-cors --bucket pitchou-dev \
+          --cors-configuration '{"CORSRules":[{"AllowedOrigins":["*"],"AllowedMethods":["PUT"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]}'
+        # Les objets pending/ jamais enregistrés par l'app expirent au bout d'un jour.
+        aws --endpoint-url http://s3:9000 s3api put-bucket-lifecycle-configuration --bucket pitchou-dev \
+          --lifecycle-configuration '{"Rules":[{"ID":"expire-pending-uploads","Status":"Enabled","Filter":{"Prefix":"pending/"},"Expiration":{"Days":1}}]}'
         echo "bucket pitchou-dev prêt"
     restart: "no"
 

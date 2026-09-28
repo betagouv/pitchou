@@ -8,13 +8,9 @@ import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
-import { readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
+import { putPendingUpload, readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
 
-const replacement = {
-  name: "replacement.pdf",
-  media_type: "application/pdf",
-  contenuBase64: Buffer.from("new").toString("base64"),
-};
+const replacement = () => putPendingUpload("new", "replacement.pdf");
 
 test("preserves the old decision object when the later audit insert fails", async () => {
   const dossier = (await createDossier(db)).id as DossierId;
@@ -26,7 +22,7 @@ test("preserves the old decision object when the later audit insert fails", asyn
   await expect(
     db.transaction(async (trx) => {
       await updateDecisionAdministrative(
-        { id: decision.id, dossier, fichier_base64: replacement },
+        { id: decision.id, dossier, fichier_upload: await replacement() },
         trx,
       );
       await logDossierActions(
@@ -52,7 +48,7 @@ test("commits a decision replacement and its audit before deleting the old objec
     .returning("id");
   await db.transaction(async (trx) => {
     await updateDecisionAdministrative(
-      { id: decision.id, dossier, fichier_base64: replacement },
+      { id: decision.id, dossier, fichier_upload: await replacement() },
       trx,
     );
     await logDossierActions([{ dossier, type: "decision_modifiee" }], trx);

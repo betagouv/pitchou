@@ -14,7 +14,7 @@ import {
   RequestError,
   wrapDeleteById,
   wrapGETUrl,
-  wrapPOSTMultipart,
+  wrapJsonPOST,
   wrapPOSTUrl,
   wrapTextPOST,
 } from "./createCapObjectFromURLs/requestWrappers.ts";
@@ -173,8 +173,9 @@ export default function (
     deletePrescription: wrapDeleteById(capURLs.deletePrescription, prescriptionIdURLParam),
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
-    addOrUpdateAvisExpert: wrapPOSTMultipart(capURLs.addOrUpdateAvisExpert),
-    addOtherAttachment: wrapPOSTMultipart(capURLs.addOtherAttachment),
+    addOrUpdateAvisExpert: wrapJsonPOST(capURLs.addOrUpdateAvisExpert),
+    addOtherAttachment: wrapJsonPOST(capURLs.addOtherAttachment),
+    createUploadUrls: wrapJsonPOST(capURLs.createUploadUrls),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
     // keepalive lets the request survive the page being closed, since search events
     // are flushed when the page becomes hidden (see aarri.ts)

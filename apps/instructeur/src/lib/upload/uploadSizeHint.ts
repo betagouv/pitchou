@@ -7,20 +7,24 @@ export function maxUploadSizeMo(): number | null {
   return Math.floor(bytes / (1024 * 1024));
 }
 
+/** "1 Go" for whole gigabytes, "200 Mo" otherwise. */
+export function formatUploadSize(mo: number): string {
+  return mo >= 1024 && mo % 1024 === 0 ? `${mo / 1024} Go` : `${mo} Mo`;
+}
+
 /**
- * French UI hint like "Taille maximale : 200 Mo." — empty when the limit is
+ * French UI hint like "Taille maximale : 1 Go." — empty when the limit is
  * unknown or unlimited. Reads the store, so stays reactive in a template.
  */
 export function uploadSizeHint(): string {
   const mo = maxUploadSizeMo();
-  return mo === null ? "" : `Taille maximale\u00A0: ${mo} Mo.`;
+  return mo === null ? "" : `Taille maximale : ${formatUploadSize(mo)}.`;
 }
 
 /**
  * French error message when a file in the list exceeds the upload size limit,
  * or null when everything fits (or the limit is unknown/unlimited). Lets the UI
- * reject an oversized file up front, instead of the raw 413 the platform proxy
- * returns once the request is too big to reach the app.
+ * reject an oversized file up front, before asking for a signed upload URL.
  */
 export function uploadSizeError(files: FileList | File[]): string | null {
   const maxBytes = store.maxUploadSizeBytes;

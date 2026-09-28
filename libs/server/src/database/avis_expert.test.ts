@@ -4,13 +4,17 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    storeNewFichier: vi.fn(),
     deleteFichiersWithoutOtherReferences: vi.fn(),
   };
 });
+vi.mock(import("./fichier_upload.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  registerUploadedFichier: vi.fn(),
+}));
 
 import { addOrUpdateAvisExpertWithFichiers, deleteAvisExpert } from "./avis_expert.ts";
-import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { registerUploadedFichier } from "./fichier_upload.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -21,11 +25,11 @@ const dossierId = 1 as DossierId;
 const fSaisine = "f-saisine" as FileId;
 const fAvis = "f-avis" as FileId;
 
-const storeFichier = vi.mocked(storeNewFichier);
+const registerFichier = vi.mocked(registerUploadedFichier);
 const deleteFichiers = vi.mocked(deleteFichiersWithoutOtherReferences);
 
 beforeEach(() => {
-  storeFichier.mockReset();
+  registerFichier.mockReset();
   deleteFichiers.mockReset();
 });
 
@@ -73,28 +77,20 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
   };
 
   it("inserts a new avis_expert with both fichier ids when both files are provided", async () => {
-    storeFichier.mockResolvedValueOnce({ id: fSaisine });
-    storeFichier.mockResolvedValueOnce({ id: fAvis });
+    registerFichier.mockResolvedValueOnce({ id: fSaisine });
+    registerFichier.mockResolvedValueOnce({ id: fAvis });
     const db = fakeDatabase()
       .insertResolves([{ id: aeId }])
       .build();
 
-    const fichierSaisine = {
-      name: "saisine.pdf",
-      content: Buffer.from("S"),
-      media_type: "application/pdf",
-    };
-    const fichierAvis = {
-      name: "avis.pdf",
-      content: Buffer.from("A"),
-      media_type: "application/pdf",
-    };
+    const fichierSaisine = { id: fSaisine, name: "saisine.pdf" };
+    const fichierAvis = { id: fAvis, name: "avis.pdf" };
 
     await addOrUpdateAvisExpertWithFichiers(baseAvis, fichierSaisine, fichierAvis, db.knex);
 
-    expect(storeFichier).toHaveBeenCalledTimes(2);
-    expect(storeFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
-    expect(storeFichier).toHaveBeenCalledWith(fichierAvis, db.knex);
+    expect(registerFichier).toHaveBeenCalledTimes(2);
+    expect(registerFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
+    expect(registerFichier).toHaveBeenCalledWith(fichierAvis, db.knex);
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         dossier: dossierId,
@@ -105,27 +101,23 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
   });
 
   it("uploads only the saisine when only the saisine fichier is provided", async () => {
-    storeFichier.mockResolvedValueOnce({ id: fSaisine });
+    registerFichier.mockResolvedValueOnce({ id: fSaisine });
     const db = fakeDatabase()
       .insertResolves([{ id: aeId }])
       .build();
 
-    const fichierSaisine = {
-      name: "s.pdf",
-      content: Buffer.from("S"),
-      media_type: "application/pdf",
-    };
+    const fichierSaisine = { id: fSaisine, name: "s.pdf" };
     await addOrUpdateAvisExpertWithFichiers(baseAvis, fichierSaisine, undefined, db.knex);
 
-    expect(storeFichier).toHaveBeenCalledTimes(1);
-    expect(storeFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
+    expect(registerFichier).toHaveBeenCalledTimes(1);
+    expect(registerFichier).toHaveBeenCalledWith(fichierSaisine, db.knex);
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({ saisine_fichier: fSaisine, avis_fichier: undefined }),
     );
   });
 
   it("routes to updateAvisExpert when avis.id is set, populating the fichier columns", async () => {
-    storeFichier.mockResolvedValueOnce({ id: fAvis });
+    registerFichier.mockResolvedValueOnce({ id: fAvis });
     // No previous saisine/avis on the existing row -> no cleanup expected.
     const db = fakeDatabase()
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: null, avis_fichier: null }])
@@ -134,7 +126,7 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
     await addOrUpdateAvisExpertWithFichiers(
       { ...baseAvis, id: aeId },
       undefined,
-      { name: "a.pdf", content: Buffer.from("A"), media_type: "application/pdf" },
+      { id: fAvis, name: "a.pdf" },
       db.knex,
     );
 
@@ -147,14 +139,14 @@ describe("addOrUpdateAvisExpertWithFichiers", () => {
     );
   });
 
-  it("propagates errors from storeNewFichier and never inserts the avis_expert", async () => {
-    storeFichier.mockRejectedValue(new Error("S3 down"));
+  it("propagates errors from registerUploadedFichier and never inserts the avis_expert", async () => {
+    registerFichier.mockRejectedValue(new Error("S3 down"));
     const db = fakeDatabase().build();
 
     await expect(
       addOrUpdateAvisExpertWithFichiers(
         baseAvis,
-        { name: "s.pdf", content: Buffer.from(""), media_type: "application/pdf" },
+        { id: fSaisine, name: "s.pdf" },
         undefined,
         db.knex,
       ),

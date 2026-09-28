@@ -1,11 +1,26 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 import { tick } from "svelte";
 
+vi.mock(import("$lib/upload/uploadToStorage.ts"), () => ({
+  uploadFichiers: vi.fn(),
+}));
+
 import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
+import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
 import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
+
+const UPLOAD_ID = "0f4b1e3c-7d2a-4c5e-9b1f-2a3c4d5e6f70";
+
+beforeEach(() => {
+  vi.mocked(uploadFichiers)
+    .mockReset()
+    .mockImplementation(async (_dossierId, files) =>
+      files.map((file) => ({ id: UPLOAD_ID as never, name: file.name })),
+    );
+});
 
 afterEach(cleanup);
 
@@ -87,8 +102,11 @@ test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
   await expect.element(page.getByText("Type de décision")).toBeVisible();
 });
 
-test("traduit un rejet 413 en message « fichier trop volumineux »", async () => {
-  const onValidate = vi.fn().mockRejectedValue(new Error("413 Payload Too Large"));
+test("affiche l'échec de l'envoi au stockage sous le champ fichier, sans appeler onValidate", async () => {
+  vi.mocked(uploadFichiers).mockRejectedValue(
+    new Error("L'envoi du fichier ok.pdf a échoué (403)."),
+  );
+  const onValidate = vi.fn();
   const { container } = render(FormDecisionAdministrative, {
     decisionAdministrative: decision({ type: TYPE_VALIDE }),
     onValidate,
@@ -97,10 +115,12 @@ test("traduit un rejet 413 en message « fichier trop volumineux »", async () =
   await chooseFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
   await clickSave();
 
-  await expect.element(page.getByText(/trop volumineux pour être envoyé/i)).toBeVisible();
+  await expect.element(page.getByText(/L'envoi du fichier ok.pdf a échoué/)).toBeVisible();
+  expect(onValidate).not.toHaveBeenCalled();
+  await expect.element(page.getByRole("button", { name: /^Sauvegarder$/ })).toBeEnabled();
 });
 
-test("appelle onValidate avec le fichier encodé en base64 quand tout est valide", async () => {
+test("envoie le fichier au stockage puis appelle onValidate avec sa référence", async () => {
   const onValidate = vi.fn().mockResolvedValue(undefined);
   const { container } = render(FormDecisionAdministrative, {
     decisionAdministrative: decision({ type: TYPE_VALIDE }),
@@ -112,12 +132,9 @@ test("appelle onValidate avec le fichier encodé en base64 quand tout est valide
 
   await vi.waitFor(() => expect(onValidate).toHaveBeenCalledTimes(1));
 
+  expect(uploadFichiers).toHaveBeenCalledWith("dossier-test", [expect.any(File)]);
   const transmittedDecision = onValidate.mock.calls[0][0] as DecisionAdministrativeForTransfer;
-  expect(transmittedDecision.fichier_base64).toMatchObject({
-    name: "arrete.pdf",
-    media_type: "application/pdf",
-  });
-  expect(transmittedDecision.fichier_base64?.contenuBase64.length).toBeGreaterThan(0);
+  expect(transmittedDecision.fichier_upload).toEqual({ id: UPLOAD_ID, name: "arrete.pdf" });
 });
 
 test("affiche un état de chargement pendant l'enregistrement", async () => {

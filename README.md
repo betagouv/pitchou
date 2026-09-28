@@ -96,6 +96,26 @@ L'application est déployée sur Scalingo
 
 Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
 
+### Stockage objet (S3)
+
+Les fichiers sont stockés dans un bucket S3 (Outscale OOS), variable `S3_BUCKET`. L'app instructeur
+ne relaie pas les téléversements : le navigateur demande une URL signée à l'app puis envoie le fichier
+directement au bucket, sous `pending/`. L'app le copie sous `files/` au moment de l'enregistrement.
+La taille maximale est `MAX_UPLOAD_SIZE` (1 Go par défaut).
+
+Le bucket doit donc autoriser les requêtes `PUT` depuis le site (CORS), et faire expirer les objets
+`pending/` jamais enregistrés (règle de cycle de vie). À faire une fois par bucket, avec les variables
+`AWS_*` de l'environnement visé :
+
+```sh
+aws s3api put-bucket-cors --bucket "$S3_BUCKET" --cors-configuration '{"CORSRules":[{"AllowedOrigins":["https://pitchou.beta.gouv.fr"],"AllowedMethods":["PUT"],"AllowedHeaders":["*"],"MaxAgeSeconds":3600}]}'
+aws s3api put-bucket-lifecycle-configuration --bucket "$S3_BUCKET" --lifecycle-configuration '{"Rules":[{"ID":"expire-pending-uploads","Status":"Enabled","Filter":{"Prefix":"pending/"},"Expiration":{"Days":1}}]}'
+```
+
+Ajouter l'origine de staging dans `AllowedOrigins` pour le bucket de staging. Si l'app joint le
+stockage par une adresse que le navigateur ne peut pas atteindre, renseigner `S3_PUBLIC_ENDPOINT_URL`
+avec l'adresse publique : c'est elle qui figure dans les URL signées.
+
 ### Authentification du webhook Brevo
 
 Le webhook de suivi des mails CNPN accepte uniquement l'en-tête

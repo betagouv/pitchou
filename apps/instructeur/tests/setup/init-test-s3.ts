@@ -3,6 +3,7 @@ import {
   CreateBucketCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
+  PutBucketCorsCommand,
   S3Client,
   S3ServiceException,
 } from "@aws-sdk/client-s3";
@@ -56,12 +57,25 @@ async function ensureBucket(client: S3Client, bucket: string): Promise<void> {
   try {
     await client.send(new CreateBucketCommand({ Bucket: bucket }));
   } catch (err) {
-    if (err instanceof S3ServiceException) {
-      const code = err.name;
-      if (code === "BucketAlreadyOwnedByYou" || code === "BucketAlreadyExists") return;
-    }
-    throw err;
+    const code = err instanceof S3ServiceException ? err.name : undefined;
+    if (code !== "BucketAlreadyOwnedByYou" && code !== "BucketAlreadyExists") throw err;
   }
+  // The e2e browser PUTs files straight into this bucket, so it needs CORS like prod.
+  await client.send(
+    new PutBucketCorsCommand({
+      Bucket: bucket,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedOrigins: ["*"],
+            AllowedMethods: ["PUT"],
+            AllowedHeaders: ["*"],
+            MaxAgeSeconds: 3600,
+          },
+        ],
+      },
+    }),
+  );
 }
 
 /**

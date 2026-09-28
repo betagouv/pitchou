@@ -1,41 +1,18 @@
 import { expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
-import { GetObjectCommand, HeadObjectCommand, S3ServiceException } from "@aws-sdk/client-s3";
 import { db } from "../setup/db.ts";
-import { getTestS3 } from "../setup/s3.ts";
 import {
   attachDossierToGroupe,
   createDossier,
   createInstructeurWithDossier,
 } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-
-async function s3HasKey(key: string): Promise<boolean> {
-  const { client, bucket } = await getTestS3();
-  try {
-    await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
-    return true;
-  } catch (e) {
-    if (e instanceof S3ServiceException && (e.name === "NotFound" || e.name === "NoSuchKey")) {
-      return false;
-    }
-    throw e;
-  }
-}
-
-async function readKey(key: string): Promise<Buffer> {
-  const { client, bucket } = await getTestS3();
-  const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
-  const chunks: Buffer[] = [];
-  for await (const c of res.Body as AsyncIterable<Buffer | Uint8Array>) {
-    chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c));
-  }
-  return Buffer.concat(chunks);
-}
+import { putPendingUpload, readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
 
 test("POST /decision-administrative crée la décision et stocke le PDF sur S3", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
-  const pdfBytes = Buffer.from("DECISION-PDF-V1");
+  const pdfBytes = "DECISION-PDF-V1";
+  const upload = await putPendingUpload(pdfBytes, "arrete.pdf");
 
   const res = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
     method: "POST",
@@ -46,11 +23,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
-      fichier_base64: {
-        name: "arrete.pdf",
-        media_type: "application/pdf",
-        contenuBase64: pdfBytes.toString("base64"),
-      },
+      fichier_upload: upload,
     }),
   });
   expect(res.status).toBe(200);
@@ -61,14 +34,14 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   expect(decision.number).toBe("AP-001");
   expect(decision.fichier).not.toBeNull();
 
-  const onS3 = await readKey(`files/${decision.fichier}`);
-  expect(onS3.equals(pdfBytes)).toBe(true);
+  expect(decision.fichier).toBe(upload.id);
+  expect(await readS3Body(`files/${decision.fichier}`)).toBe(pdfBytes);
 });
 
 test("POST /decision-administrative en modification remplace le PDF S3 (best-effort cleanup ancien objet)", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
-  const v1 = Buffer.from("DECISION-V1");
-  const v2 = Buffer.from("DECISION-V2-DIFFERENT");
+  const v1 = await putPendingUpload("DECISION-V1", "v1.pdf");
+  const v2 = await putPendingUpload("DECISION-V2-DIFFERENT", "v2.pdf");
 
   // initial creation
   const res1 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
@@ -80,11 +53,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
-      fichier_base64: {
-        name: "v1.pdf",
-        media_type: "application/pdf",
-        contenuBase64: v1.toString("base64"),
-      },
+      fichier_upload: v1,
     }),
   });
   expect(res1.status).toBe(200);
@@ -105,11 +74,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
       type: "Arrêté dérogation",
       signature_date: new Date("2026-04-15").toISOString(),
       obligations_end_date: new Date("2031-04-15").toISOString(),
-      fichier_base64: {
-        name: "v2.pdf",
-        media_type: "application/pdf",
-        contenuBase64: v2.toString("base64"),
-      },
+      fichier_upload: v2,
     }),
   });
   expect(res2.status).toBe(200);
@@ -121,7 +86,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   expect(decision2.fichier).not.toBe(decision1.fichier);
   const v2Key = `files/${decision2.fichier}`;
 
-  expect((await readKey(v2Key)).equals(v2)).toBe(true);
+  expect(await readS3Body(v2Key)).toBe("DECISION-V2-DIFFERENT");
   // old object should have been swept
   expect(await s3HasKey(v1Key)).toBe(false);
 });
@@ -161,6 +126,7 @@ test("decision updates reject foreign IDs and reassignment, even between owned d
     ])
     .returning("*");
   const filesBefore = await db("file").pluck("id");
+  const replacement = await putPendingUpload("REPLACEMENT", "replacement.pdf");
   for (const id of [foreignDecision.id, ownedDecision.id, randomUUID()]) {
     const response = await fetch(
       `${INTEGRATION_BASE_URL}/decision-administrative?cap=${owner.cap}`,
@@ -171,11 +137,7 @@ test("decision updates reject foreign IDs and reassignment, even between owned d
           id,
           dossier: owner.dossier.id,
           number: "REASSIGNED",
-          fichier_base64: {
-            name: "replacement.pdf",
-            media_type: "application/pdf",
-            contenuBase64: Buffer.from("REPLACEMENT").toString("base64"),
-          },
+          fichier_upload: replacement,
         }),
       },
     );

@@ -1,9 +1,9 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
-import { storeNewFichier } from "./fichier.ts";
+import { registerUploadedFichier } from "./fichier_upload.ts";
 
-import type { FrontEndOtherAttachment } from "@pitchou/types/API_Pitchou.ts";
+import type { FrontEndOtherAttachment, UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type File from "@pitchou/types/database/public/File.js";
 
@@ -11,11 +11,8 @@ export type OtherAttachmentForCreation = {
   dossier: Dossier["id"];
   type: string;
   attachment_date?: Date | null;
-  files: {
-    name: string;
-    media_type: string | null;
-    content: Buffer;
-  }[];
+  /** Files the browser already sent to object storage. */
+  files: UploadedFichier[];
 };
 
 export type OtherAttachmentWithFileDescription = Omit<
@@ -34,10 +31,7 @@ export async function addOtherAttachment(
   const ids = [];
 
   for (const file of attachment.files) {
-    const { id: fileId } = await storeNewFichier(
-      { name: file.name, content: file.content, media_type: file.media_type },
-      databaseConnection,
-    );
+    const { id: fileId } = await registerUploadedFichier(file, databaseConnection);
 
     const [{ id }] = await databaseConnection("other_attachment")
       .insert({

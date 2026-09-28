@@ -8,7 +8,9 @@ import type { default as Dossier } from "@pitchou/types/database/public/Dossier.
 import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 import { directDatabaseConnection } from "../database.ts";
-import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { registerUploadedFichier, UploadedFichierError } from "./fichier_upload.ts";
+import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 
 function isAvisExpertToUpdate(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
@@ -16,18 +18,23 @@ function isAvisExpertToUpdate(
   return avisExpert.id !== undefined;
 }
 
+/**
+ * Saves an avis with files the browser already sent to object storage.
+ * Registering happens before the insert/update so a missing upload never leaves
+ * an avis pointing at nothing.
+ */
 export async function addOrUpdateAvisExpertWithFichiers(
   avisExpert: AvisExpertInitializer | ({ id: string } & AvisExpertMutator),
-  fichierSaisine?: { name: string; content: Buffer; media_type: string },
-  fichierAvis?: { name: string; content: Buffer; media_type: string },
+  fichierSaisine?: UploadedFichier,
+  fichierAvis?: UploadedFichier,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {
     const fichierSaisineAddedP = fichierSaisine
-      ? storeNewFichier(fichierSaisine, databaseConnection)
+      ? registerUploadedFichier(fichierSaisine, databaseConnection)
       : Promise.resolve();
     const fichierAvisAddedP = fichierAvis
-      ? storeNewFichier(fichierAvis, databaseConnection)
+      ? registerUploadedFichier(fichierAvis, databaseConnection)
       : Promise.resolve();
 
     const [fichierSaisineAdded, fichierAvisAdded] = await Promise.all([
@@ -60,6 +67,8 @@ export async function addOrUpdateAvisExpertWithFichiers(
       );
     }
   } catch (e) {
+    // Keep the typed error so the HTTP route can answer 4xx instead of 500.
+    if (e instanceof UploadedFichierError) throw e;
     throw new Error(
       `Une erreur est survenue lors de l'ajout ou de la modification de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`,
     );

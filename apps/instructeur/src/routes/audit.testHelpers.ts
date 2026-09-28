@@ -95,13 +95,16 @@ export function event(body: unknown = {}) {
   } as never;
 }
 
-export function avisForm(withFile = false) {
-  const form = new FormData();
-  form.set("dossier", "42");
-  form.set("id", "avis");
-  form.set("expert", "CNPN");
-  if (withFile) form.set("blobFichierAvis", new File(["avis"], "avis.pdf"));
-  return form;
+/** A file reference as the browser sends it once the upload to storage is done. */
+export const uploadedFichier = { id: "0f4b1e3c-7d2a-4c5e-9b1f-2a3c4d5e6f70", name: "avis.pdf" };
+
+export function avisBody(withFile = false) {
+  return {
+    dossier: 42,
+    id: "avis",
+    expert: "CNPN",
+    ...(withFile ? { avis_fichier_upload: uploadedFichier } : {}),
+  };
 }
 
 export const comment = { id: "11111111-1111-4111-8111-111111111111", content: "Comment" };
