@@ -2,7 +2,7 @@ import { error, json } from "@sveltejs/kit";
 
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { parseUploadedFichiers, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 import { addOtherAttachment } from "@pitchou/server/database/other_attachment.ts";
 import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
@@ -31,14 +31,10 @@ export const POST: RequestHandler = async ({ url, request }) => {
   ) {
     error(400, `La propriété 'attachment_date' doit être une date valide ou null.`);
   }
-  if (!Array.isArray(body.files) || body.files.length === 0) {
+  const files = parseUploadedFichiers(body.files, "files");
+  if (files.length === 0) {
     error(400, `Aucun fichier fourni`);
   }
-  const files = body.files.map((file: unknown, index: number) => {
-    const upload = parseUploadedFichier(file, `files[${index}]`);
-    if (!upload) error(400, `La propriété 'files[${index}]' doit être un objet.`);
-    return upload;
-  });
 
   await requireDossierAccessByCap(dossier as Dossier["id"], cap);
 

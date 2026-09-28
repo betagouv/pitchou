@@ -2,6 +2,7 @@
   import type { Snippet } from "svelte";
 
   import { speciesFileError } from "$lib/speciesFile.ts";
+  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
 
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
@@ -12,7 +13,7 @@
 
   function selectFile(file: File | undefined) {
     if (!file) return;
-    error = speciesFileError(file);
+    error = speciesFileError(file) ?? uploadSizeError([file]);
     model.speciesFile = error ? null : file;
     if (input) input.value = "";
   }
@@ -54,7 +55,7 @@
       rel="noreferrer">https://pitchou.beta.gouv.fr/saisie-especes</a
     >
     <p class="fr-hint-text" id="species-file-hint">
-      Taille maximale par fichier : 65 Mo. Formats acceptés : tableur (.ods, .xlsx).
+      {uploadSizeHint()} Formats acceptés : tableur (.ods, .xlsx).
     </p>
 
     <div

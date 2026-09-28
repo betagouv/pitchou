@@ -1,3 +1,4 @@
+import { formatFileSize } from "@pitchou/common/fileSize.ts";
 import { store } from "$lib/state/store.svelte.ts";
 
 /** Upload size limit in Mo, or null when unknown or unlimited. */
@@ -7,18 +8,14 @@ export function maxUploadSizeMo(): number | null {
   return Math.floor(bytes / (1024 * 1024));
 }
 
-/** "1 Go" for whole gigabytes, "200 Mo" otherwise. */
-export function formatUploadSize(mo: number): string {
-  return mo >= 1024 && mo % 1024 === 0 ? `${mo / 1024} Go` : `${mo} Mo`;
-}
-
 /**
  * French UI hint like "Taille maximale : 1 Go." — empty when the limit is
  * unknown or unlimited. Reads the store, so stays reactive in a template.
  */
 export function uploadSizeHint(): string {
-  const mo = maxUploadSizeMo();
-  return mo === null ? "" : `Taille maximale : ${formatUploadSize(mo)}.`;
+  const bytes = store.maxUploadSizeBytes;
+  if (bytes === undefined || !Number.isFinite(bytes)) return "";
+  return `Taille maximale : ${formatFileSize(bytes)}.`;
 }
 
 /**

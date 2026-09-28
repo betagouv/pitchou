@@ -9,6 +9,7 @@ import DossierCreationJustificationSection from "./DossierCreationJustificationS
 import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
+import { uploadLimit } from "$lib/upload/uploadLimit.svelte.ts";
 
 describe("dossier creation sections", () => {
   it("shows only the fields matching the demandeur type", () => {
@@ -108,6 +109,7 @@ describe("dossier creation sections", () => {
   });
 
   it("renders the required section 6 species spreadsheet upload", () => {
+    uploadLimit.maxBytes = 1024 * 1024 * 1024;
     const { body } = render(DossierCreationSpeciesSection, {
       props: { model: createDossierCreationModel() },
     });
@@ -116,7 +118,7 @@ describe("dossier creation sections", () => {
     expect(body).toContain("Le remplissage de cette section est indispensable");
     expect(body).toContain("https://pitchou.beta.gouv.fr/saisie-especes");
     expect(body).toContain('id="species-file"');
-    expect(body).toContain("65 Mo");
+    expect(body).toContain("Taille maximale par fichier\u00A0: 1 Go.");
   });
 
   it("renders section 7 and its scientific choices conditionally", () => {

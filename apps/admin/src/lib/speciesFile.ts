@@ -1,10 +1,11 @@
-export const MAX_SPECIES_FILE_SIZE = 65 * 1024 * 1024;
-
 const ACCEPTED_EXTENSIONS = new Set(["ods", "xlsx"]);
 
-export function speciesFileError(file: Pick<File, "name" | "size">): string | null {
+/**
+ * Checks the name and, when known, the size of a species spreadsheet. The
+ * browser passes its File; the server only knows the name at that point.
+ */
+export function speciesFileError(file: { name: string; size?: number }): string | null {
   if (file.size === 0) return "Le fichier est vide.";
-  if (file.size > MAX_SPECIES_FILE_SIZE) return "Le fichier ne doit pas dépasser 65 Mo.";
   const extension = file.name.split(".").at(-1)?.toLowerCase();
   if (!extension || !ACCEPTED_EXTENSIONS.has(extension)) {
     return "Le fichier doit être un tableur au format ODS ou XLSX.";

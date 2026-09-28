@@ -41,6 +41,15 @@ aws-ls:
 aws-rm KEY:
     aws s3 rm "s3://$S3_BUCKET/{{KEY}}"
 
+# Allow browser PUTs from the given site origins (CORS) and expire never-registered pending/ uploads after a day
+# e.g. just aws-bucket-setup https://pitchou.beta.gouv.fr https://admin.pitchou.beta.gouv.fr
+aws-bucket-setup +ORIGINS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    origins=$(printf '"%s",' {{ORIGINS}}); origins="[${origins%,}]"
+    aws s3api put-bucket-cors --bucket "$S3_BUCKET" --cors-configuration "{\"CORSRules\":[{\"AllowedOrigins\":$origins,\"AllowedMethods\":[\"PUT\"],\"AllowedHeaders\":[\"*\"],\"MaxAgeSeconds\":3600}]}"
+    aws s3api put-bucket-lifecycle-configuration --bucket "$S3_BUCKET" --lifecycle-configuration '{"Rules":[{"ID":"expire-pending-uploads","Status":"Enabled","Filter":{"Prefix":"pending/"},"Expiration":{"Days":1}}]}'
+
 # Show total size and file count of the bucket
 aws-usage:
     @aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2 | awk '/Total Objects/ {print "Fichiers : " $3} /Total Size/ {cmd="numfmt --to=si --format=%.1f --suffix=B " $3; cmd | getline s; close(cmd); print "Taille   : " s}'

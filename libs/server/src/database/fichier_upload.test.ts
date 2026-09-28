@@ -6,6 +6,7 @@ vi.mock(import("../objectStorage.ts"), () => ({
   headObject: vi.fn(),
   copyObject: vi.fn(),
   deleteObject: vi.fn(),
+  getObject: vi.fn(),
 }));
 
 vi.mock(import("./file.ts"), () => ({
@@ -14,7 +15,11 @@ vi.mock(import("./file.ts"), () => ({
 
 import * as objectStorage from "../objectStorage.ts";
 import * as fileModule from "./file.ts";
-import { registerUploadedFichier, UploadedFichierError } from "./fichier_upload.ts";
+import {
+  loadPendingUploadContent,
+  registerUploadedFichier,
+  UploadedFichierError,
+} from "./fichier_upload.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
@@ -31,6 +36,7 @@ beforeEach(() => {
   copyObject.mockReset().mockResolvedValue();
   deleteObject.mockReset().mockResolvedValue();
   addFile.mockReset();
+  vi.mocked(objectStorage.getObject).mockReset();
   delete process.env.MAX_UPLOAD_SIZE;
 });
 
@@ -78,7 +84,7 @@ describe("registerUploadedFichier", () => {
         { id: "../files/x" as FileId, name: "x" },
         fakeDatabase().build().knex,
       ),
-    ).rejects.toMatchObject({ code: "not_found" });
+    ).rejects.toMatchObject({ status: 400 });
     expect(headObject).not.toHaveBeenCalled();
   });
 
@@ -99,7 +105,7 @@ describe("registerUploadedFichier", () => {
     await expect(
       registerUploadedFichier(upload, fakeDatabase().build().knex),
     ).rejects.toMatchObject({
-      code: "too_large",
+      status: 413,
     });
     expect(deleteObject).toHaveBeenCalledWith(`pending/${id}`);
     expect(copyObject).not.toHaveBeenCalled();
@@ -126,5 +132,27 @@ describe("registerUploadedFichier", () => {
       id,
     });
     expect(consoleError).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("loadPendingUploadContent", () => {
+  it("returns the bytes of the pending object", async () => {
+    headObject.mockResolvedValue({ contentLength: 6 });
+    vi.mocked(objectStorage.getObject).mockResolvedValue({
+      body: (async function* () {
+        yield Buffer.from("abc");
+        yield new Uint8Array([100, 101, 102]);
+      })() as never,
+    });
+
+    expect((await loadPendingUploadContent(upload)).toString()).toBe("abcdef");
+    expect(objectStorage.getObject).toHaveBeenCalledWith(`pending/${id}`);
+  });
+
+  it("fails before reading when the object was never sent", async () => {
+    headObject.mockResolvedValue(null);
+
+    await expect(loadPendingUploadContent(upload)).rejects.toBeInstanceOf(UploadedFichierError);
+    expect(objectStorage.getObject).not.toHaveBeenCalled();
   });
 });

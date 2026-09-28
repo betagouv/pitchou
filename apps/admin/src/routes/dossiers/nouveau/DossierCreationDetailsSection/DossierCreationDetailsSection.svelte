@@ -40,7 +40,7 @@
       <DossierCreationFileUpload
         id="complete-dossier-files"
         label="Dépot du dossier complet de demande de dérogation"
-        description={'Si votre dossier fait plus de 65 Mo, utilisez https://francetransfert.numerique.gouv.fr/upload pour générer un lien que vous indiquerez dans le champ "Description synthétique du projet".'}
+        description={'Si votre dossier dépasse la taille maximale par fichier, utilisez https://francetransfert.numerique.gouv.fr/upload pour générer un lien que vous indiquerez dans le champ "Description synthétique du projet".'}
         required
         bind:uploadedFiles={model.completeDossierFiles}
       />

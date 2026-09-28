@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
-import { getMaxUploadSizeBytes } from "@pitchou/server/uploadLimit.ts";
+import { getMaxUploadSizeBytes } from "@pitchou/server/upload.ts";
 import { getInstructeurCapBundleByPersonneCodeAcces } from "@pitchou/server/database.ts";
 import type {
   IdentiteInstructeurPitchou,

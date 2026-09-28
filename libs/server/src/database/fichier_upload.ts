@@ -2,71 +2,91 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 import { addFile } from "./file.ts";
-import { copyObject, deleteObject, fileKey, headObject, pendingKey } from "../objectStorage.ts";
-import { getMaxUploadSizeBytes } from "../uploadLimit.ts";
+import {
+  copyObject,
+  deleteObject,
+  fileKey,
+  getObject,
+  headObject,
+  pendingKey,
+} from "../objectStorage.ts";
+import { getMaxUploadSizeBytes, isUploadId, UploadedFichierError } from "../upload.ts";
 
 import type File from "@pitchou/types/database/public/File.ts";
-import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 
-/** Raised when the browser's upload cannot be registered; HTTP routes turn it into a 4xx. */
-export class UploadedFichierError extends Error {
-  constructor(
-    readonly code: "not_found" | "too_large",
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export { UploadedFichierError } from "../upload.ts";
 
 /** Content types storage assigns on its own when the browser sent none. */
 const DEFAULT_CONTENT_TYPES = new Set(["application/octet-stream", "binary/octet-stream"]);
+
+export type PendingUpload = { contentLength: number; contentType: string | null };
+
+/**
+ * Size and media type of an object the browser PUT under `pending/`, as
+ * storage reports them. Fails when the browser never sent it or it is above
+ * the size limit (the object is then discarded).
+ */
+export async function headPendingUpload(upload: UploadedFichier): Promise<PendingUpload> {
+  const { id, name } = upload;
+  if (!isUploadId(id)) {
+    throw new UploadedFichierError(400, `Identifiant de fichier invalide : ${id}`);
+  }
+  const head = await headObject(pendingKey(id));
+  if (!head) {
+    throw new UploadedFichierError(
+      400,
+      `Le fichier ${name} n'a pas été reçu par le stockage. Veuillez le renvoyer.`,
+    );
+  }
+  if (head.contentLength > getMaxUploadSizeBytes()) {
+    await deleteObject(pendingKey(id)).catch(() => {});
+    throw new UploadedFichierError(413, `Le fichier ${name} est trop volumineux.`);
+  }
+  return {
+    contentLength: head.contentLength,
+    contentType:
+      head.contentType && !DEFAULT_CONTENT_TYPES.has(head.contentType) ? head.contentType : null,
+  };
+}
+
+/** The bytes of a pending upload, for routes that must inspect a file before registering it. */
+export async function loadPendingUploadContent(upload: UploadedFichier): Promise<Buffer> {
+  await headPendingUpload(upload);
+  const { body } = await getObject(pendingKey(upload.id));
+  const chunks: Buffer[] = [];
+  for await (const chunk of body) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
 
 /**
  * Registers an object the browser PUT under `pending/` through a signed URL:
  * copies it under `files/`, inserts the `file` row, then drops the pending object.
  *
- * Size and media type come from storage, not from the client. Like
- * storeNewFichier, a failed insert deletes the copied object (best-effort)
- * before re-throwing.
+ * Size and media type come from storage, not from the client; `mediaType`
+ * overrides the latter when the route knows better. Like storeNewFichier, a
+ * failed insert deletes the copied object (best-effort) before re-throwing.
  */
 export async function registerUploadedFichier(
   upload: UploadedFichier,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  options: { mediaType?: string } = {},
 ): Promise<Partial<File>> {
   const { id, name } = upload;
-  if (!UUID_PATTERN.test(id)) {
-    throw new UploadedFichierError("not_found", `Identifiant de fichier invalide : ${id}`);
-  }
-  const pending = pendingKey(id);
-  const head = await headObject(pending);
-  if (!head) {
-    throw new UploadedFichierError(
-      "not_found",
-      `Le fichier ${name} n'a pas été reçu par le stockage. Veuillez le renvoyer.`,
-    );
-  }
-  if (head.contentLength > getMaxUploadSizeBytes()) {
-    await deleteObject(pending).catch(() => {});
-    throw new UploadedFichierError("too_large", `Le fichier ${name} est trop volumineux.`);
-  }
-
+  const pending = await headPendingUpload(upload);
   const key = fileKey(id);
-  await copyObject(pending, key);
+  await copyObject(pendingKey(id), key);
 
   let file: Partial<File>;
   try {
     file = await addFile(
       {
-        id: id as FileId,
+        id,
         name,
-        media_type:
-          head.contentType && !DEFAULT_CONTENT_TYPES.has(head.contentType)
-            ? head.contentType
-            : null,
-        size: String(head.contentLength),
+        media_type: options.mediaType ?? pending.contentType,
+        size: String(pending.contentLength),
       },
       databaseConnection,
     );
@@ -75,8 +95,8 @@ export async function registerUploadedFichier(
     throw err;
   }
 
-  await deleteObject(pending).catch((err) => {
-    console.error(`Échec suppression objet S3 en attente ${pending}`, err);
+  await deleteObject(pendingKey(id)).catch((err) => {
+    console.error(`Échec suppression objet S3 en attente ${pendingKey(id)}`, err);
   });
   return file;
 }

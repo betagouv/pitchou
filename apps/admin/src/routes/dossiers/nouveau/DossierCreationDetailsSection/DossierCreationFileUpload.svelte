@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+
   type Props = {
     id: string;
     label: string;
@@ -18,11 +20,8 @@
   let error = $state("");
 
   function setFiles(files: File[]) {
-    if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-      error = "La taille totale des fichiers ne doit pas dépasser 65 Mo.";
-      return;
-    }
-    error = "";
+    error = uploadSizeError(files) ?? "";
+    if (error) return;
     uploadedFiles = files;
   }
 </script>
@@ -30,8 +29,7 @@
 <div class="fr-upload-group fr-mb-5w">
   <label class="fr-label" for={id}
     >{label}{#if required}
-      *{/if}<span class="fr-hint-text"
-      >Taille totale maximale : 65 Mo. Plusieurs fichiers possibles</span
+      *{/if}<span class="fr-hint-text">{uploadSizeHint()} Plusieurs fichiers possibles</span
     >{#if description}<span class="fr-hint-text whitespace-pre-line">{description}</span
       >{/if}</label
   >

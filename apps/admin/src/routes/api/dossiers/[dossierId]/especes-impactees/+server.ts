@@ -1,43 +1,26 @@
 import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
-import { assertSpeciesSpreadsheet } from "@pitchou/common/especesUtils.ts";
 import {
   deleteEspecesImpacteesFromAdmin,
   setEspecesImpacteesFromAdmin,
 } from "@pitchou/server/database/dossier_admin_files.ts";
+import { UploadedFichierError } from "@pitchou/server/upload.ts";
 import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { speciesFileError, speciesFileMediaType } from "$lib/speciesFile.ts";
+import { validateSpeciesUpload } from "$lib/server/speciesUpload";
+import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+/** Sets the species spreadsheet from a file the browser sent to storage (`{ file: { id, name } }`). */
 export const POST: RequestHandler = async ({ params, request }) => {
   const dossierId = parseDossierId(params.dossierId!);
-
-  const form = await request.formData();
-  const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    error(400, "Champ 'file' manquant ou vide.");
-  }
-  const fileError = speciesFileError(file);
-  if (fileError) error(400, fileError);
-  const content = await file.arrayBuffer();
-  try {
-    await assertSpeciesSpreadsheet(content);
-  } catch (validationError) {
-    error(
-      400,
-      validationError instanceof Error ? validationError.message : "Le tableur n'est pas valide.",
-    );
-  }
+  const species = await validateSpeciesUpload(await readSingleUpload(request));
 
   try {
-    const stored = await setEspecesImpacteesFromAdmin(dossierId, {
-      name: file.name,
-      media_type: speciesFileMediaType(file.name),
-      content: Buffer.from(content),
-    });
+    const stored = await setEspecesImpacteesFromAdmin(dossierId, species);
     return json(stored, { status: 201 });
   } catch (err) {
+    if (err instanceof UploadedFichierError) throwUploadedFichierHttpError(err);
     throwHttpErrorForAdminDossier(err);
   }
 };

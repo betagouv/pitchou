@@ -2,6 +2,7 @@ import {
   requiresEspecesPriseDetentionLimiteeType,
   requiresScientificDemandeType,
 } from "@pitchou/common/dossierFormOptions.ts";
+import { uploadSizeError } from "$lib/upload/uploadLimit.svelte.ts";
 import type { DossierCreationModel } from "./dossierCreationModel.ts";
 import {
   selectedDossierAttachmentFiles,
@@ -37,13 +38,11 @@ export function validateDossierCreation(model: DossierCreationModel): string | n
   if (showsNoDerogationArgumentFiles(model) && model.noDerogationArgumentFiles.length === 0) {
     return "L'argumentaire concluant à l'absence de nécessité de dérogation est requis.";
   }
-  const files = [
+  const sizeError = uploadSizeError([
     ...(needsSpeciesFile && model.speciesFile ? [model.speciesFile] : []),
     ...selectedDossierAttachmentFiles(model),
-  ];
-  if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-    return "La taille totale des fichiers ne doit pas dépasser 65 Mo.";
-  }
+  ]);
+  if (sizeError) return sizeError;
   if (!model.description.trim() || !model.aeRegime) {
     return "La description du projet et son régime d'autorisation sont requis.";
   }

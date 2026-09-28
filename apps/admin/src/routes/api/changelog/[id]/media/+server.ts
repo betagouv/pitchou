@@ -2,10 +2,10 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { getChangelogEntry, isValidIdParam } from "@pitchou/server/database/changelog.ts";
 import {
-  CHANGELOG_MEDIA_TYPES,
   cleanupChangelogMediaOrphans,
-  storeChangelogMedia,
+  registerChangelogMediaUpload,
 } from "@pitchou/server/changelogMedia.ts";
+import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 
 async function existingEntryId(idParam: string | undefined) {
   if (!idParam || !isValidIdParam(idParam)) {
@@ -18,20 +18,16 @@ async function existingEntryId(idParam: string | undefined) {
   return { id: Number(idParam), entry };
 }
 
-/** Uploads one media file (multipart field `file`) and answers its serving URL. */
+/** Registers a media file the browser sent to storage (`{ file: { id, name } }`) and answers its serving URL. */
 export const POST: RequestHandler = async ({ request, params }) => {
   const { id } = await existingEntryId(params.id);
+  const upload = await readSingleUpload(request);
 
-  const file = (await request.formData()).get("file");
-  if (!(file instanceof File)) {
-    error(400, "Champ 'file' manquant");
+  try {
+    return json({ url: await registerChangelogMediaUpload(id, upload) }, { status: 201 });
+  } catch (err) {
+    throwUploadedFichierHttpError(err);
   }
-  if (!(file.type in CHANGELOG_MEDIA_TYPES)) {
-    error(400, `Type de fichier non pris en charge : ${file.type || "inconnu"}`);
-  }
-
-  const url = await storeChangelogMedia(id, Buffer.from(await file.arrayBuffer()), file.type);
-  return json({ url }, { status: 201 });
 };
 
 /**
