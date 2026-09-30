@@ -120,7 +120,11 @@
   {/each}
 
   <div class="fr-grid-row">
-    <button class="fr-btn fr-btn--secondary fr-m-auto" type="button" onclick={addEspece}>
+    <button
+      class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-add-line fr-m-auto"
+      type="button"
+      onclick={addEspece}
+    >
       Ajouter une espèce
     </button>
   </div>

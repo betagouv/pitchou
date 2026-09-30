@@ -3,49 +3,55 @@
   let { readingMode = $bindable() }: Props = $props();
 </script>
 
-<header class="flex flex-row justify-between items-center fr-mt-4w">
-  <h1>Espèces protégées impactées</h1>
-  <div class="fr-toggle">
-    <input
-      bind:checked={readingMode}
-      type="checkbox"
-      class="fr-toggle__input"
-      id="toggle-mode-lecture"
-    /><label class="fr-toggle__label w-full" for="toggle-mode-lecture">Mode lecture</label>
-  </div>
-  <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
-    {readingMode
-      ? "Mode lecture activé. Les espèces sont maintenant affichées regroupées par type d'impact."
-      : "Mode lecture désactivé. Vous pouvez modifier les espèces et leurs impacts."}
-  </div>
-  <div class="fr-translate fr-nav">
-    <div class="fr-nav__item">
-      <button
-        aria-controls="methodes-preremplissage"
-        aria-expanded="false"
-        title="Choisir une méthode de pré-remplissage"
-        type="button"
-        class="fr-btn fr-btn--tertiary">Pré-remplir</button
+<header
+  class="flex flex-col gap-3 fr-mt-4w fr-mb-2w lg:flex-row lg:items-start lg:justify-between lg:gap-6"
+>
+  <h1 class="fr-mb-0">Espèces protégées impactées</h1>
+  <div class="flex flex-wrap items-center gap-4 lg:shrink-0">
+    <div class="fr-toggle fr-mb-0">
+      <input
+        bind:checked={readingMode}
+        type="checkbox"
+        class="fr-toggle__input"
+        id="toggle-mode-lecture"
+      /><label class="fr-toggle__label whitespace-nowrap" for="toggle-mode-lecture"
+        >Mode lecture</label
       >
-      <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
-        <ul class="fr-menu__list">
-          <li>
-            <button
-              class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link"
-              type="button"
-              data-fr-opened="false"
-              aria-controls="modale-préremplir-depuis-import">Importer un document .ods</button
-            >
-          </li>
-          <li>
-            <button
-              class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link"
-              type="button"
-              data-fr-opened="false"
-              aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button
-            >
-          </li>
-        </ul>
+    </div>
+    <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
+      {readingMode
+        ? "Mode lecture activé. Les espèces sont maintenant affichées regroupées par type d'impact."
+        : "Mode lecture désactivé. Vous pouvez modifier les espèces et leurs impacts."}
+    </div>
+    <div class="fr-translate fr-nav">
+      <div class="fr-nav__item">
+        <button
+          aria-controls="methodes-preremplissage"
+          aria-expanded="false"
+          title="Choisir une méthode de pré-remplissage"
+          type="button"
+          class="fr-btn fr-btn--tertiary">Pré-remplir</button
+        >
+        <div class="fr-collapse fr-translate__menu fr-menu" id="methodes-preremplissage">
+          <ul class="fr-menu__list">
+            <li>
+              <button
+                class="fr-translate__language fr-btn fr-btn--secondary fr-nav__link"
+                type="button"
+                data-fr-opened="false"
+                aria-controls="modale-préremplir-depuis-import">Importer un document .ods</button
+              >
+            </li>
+            <li>
+              <button
+                class="fr-btn fr-btn--secondary fr-translate__language fr-nav__link"
+                type="button"
+                data-fr-opened="false"
+                aria-controls="modale-préremplir-depuis-texte">Pré-remplir depuis un texte</button
+              >
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

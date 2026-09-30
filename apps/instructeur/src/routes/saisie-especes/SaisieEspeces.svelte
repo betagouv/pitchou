@@ -109,7 +109,7 @@
 </script>
 
 <svelte:head><title>Espèces protégées impactées — Pitchou</title></svelte:head>
-<article>
+<article class="min-w-0">
   <SaisieEspecesHeader bind:readingMode />
   <ImportEspecesModal
     bind:modal={importModal}
@@ -158,7 +158,7 @@
       aria-controls="modale-validation-saisie"
       data-fr-opened="false"
       type="button"
-      class="fr-btn fr-btn--lg fr-ml-auto">Valider ma saisie</button
+      class="fr-btn fr-btn--lg w-full justify-center sm:w-auto">Valider ma saisie</button
     >
   </footer>
   <SaisieValidationModal {count} createBlob={createOdsBlob} />
