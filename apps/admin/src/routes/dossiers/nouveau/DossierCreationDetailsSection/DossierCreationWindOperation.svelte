@@ -2,15 +2,13 @@
   import { eolienMortalityActionOptions } from "@pitchou/common/dossierFormOptions.ts";
   import { showsCarcassAnalysis, type DossierCreationModel } from "../dossierCreationModel.ts";
   import DossierCreationCarcassAnalysis from "./DossierCreationCarcassAnalysis.svelte";
+  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
   let { model }: { model: DossierCreationModel } = $props();
   let input = $state<HTMLInputElement>();
   let error = $state("");
   function setFiles(files: File[]) {
-    if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-      error = "La taille totale des fichiers ne doit pas dépasser 65 Mo.";
-      return;
-    }
-    error = "";
+    error = uploadSizeError(files) ?? "";
+    if (error) return;
     model.eolienProtocolFiles = files;
   }
   function toggle(value: string, checked: boolean) {
@@ -58,7 +56,7 @@
 <div class="fr-upload-group fr-mb-4w">
   <label class="fr-label" for="eolien-protocol-files"
     >Pièces jointes décrivant précisément le protocole qui sera mis en place<span
-      class="fr-hint-text">Taille totale maximale : 65 Mo. Plusieurs fichiers possibles</span
+      class="fr-hint-text">{uploadSizeHint()} Plusieurs fichiers possibles</span
     ></label
   >
   <div

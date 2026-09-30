@@ -1,4 +1,5 @@
 import { AccessDeniedError } from "./errors.ts";
+import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
 
 /** A changelog row as received from `/api/changelog` (timestamps JSON-serialized). */
 export type ChangelogEntryAdmin = {
@@ -84,11 +85,17 @@ export async function deleteChangelogEntry(id: number): Promise<void> {
   await checkResponse(response, "de la suppression de l'entrée");
 }
 
-/** Uploads one media file (image or video) for entry `id`; returns its serving URL. */
+/**
+ * Sends one media file (image or video) to storage, registers it for entry
+ * `id` and returns its serving URL.
+ */
 export async function uploadChangelogMedia(id: number, file: File): Promise<string> {
-  const body = new FormData();
-  body.append("file", file);
-  const response = await fetch(`/api/changelog/${id}/media`, { method: "POST", body });
+  const [upload] = await uploadFichiers([file]);
+  const response = await fetch(`/api/changelog/${id}/media`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ file: upload }),
+  });
   await checkResponse(response, "de l'envoi du média");
 
   const { url } = await response.json();

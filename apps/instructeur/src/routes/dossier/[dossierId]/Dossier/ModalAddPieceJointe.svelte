@@ -120,7 +120,7 @@
   }
   async function addDecision(decision: DecisionAdministrativeForTransfer) {
     await saveNewDecisionAdministrative(decision);
-    if (decision.fichier_base64) track("Décision administrative", 1);
+    if (decision.fichier_upload) track("Décision administrative", 1);
     close();
   }
 </script>

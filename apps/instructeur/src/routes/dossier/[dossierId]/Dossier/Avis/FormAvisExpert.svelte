@@ -4,6 +4,7 @@
 
   import { addOrUpdateAvisExpert } from "../avisExpert.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
   import AvisExpertFields from "./AvisExpertFields.svelte";
 
   type Props = {
@@ -133,7 +134,7 @@
       </li>
       <li>
         <button type="submit" class="fr-btn" disabled={inProgress}>
-          {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
+          {inProgress ? uploadProgressLabel("Sauvegarde en cours…") : "Sauvegarder"}
         </button>
       </li>
     </ul>

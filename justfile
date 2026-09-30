@@ -41,6 +41,11 @@ aws-ls:
 aws-rm KEY:
     aws s3 rm "s3://$S3_BUCKET/{{KEY}}"
 
+# Configure $S3_BUCKET for browser uploads from the given site origins
+# e.g. just aws-bucket-setup http://localhost:5173 http://localhost:5174
+aws-bucket-setup +ORIGINS:
+    corepack pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts {{ORIGINS}}
+
 # Show total size and file count of the bucket
 aws-usage:
     @aws s3 ls "s3://$S3_BUCKET" --recursive --summarize | tail -n 2 | awk '/Total Objects/ {print "Fichiers : " $3} /Total Size/ {cmd="numfmt --to=si --format=%.1f --suffix=B " $3; cmd | getline s; close(cmd); print "Taille   : " s}'

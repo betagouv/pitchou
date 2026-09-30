@@ -2,7 +2,8 @@ import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { registerUploadedFichier } from "./fichier_upload.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -28,13 +29,9 @@ export async function addDecisionAdministrativeWithFichier(
     dossier,
   };
 
-  if (decision.fichier_base64) {
-    const { name, media_type, contenuBase64 } = decision.fichier_base64;
-    const content = Buffer.from(contenuBase64, "base64");
-
-    await storeNewFichier({ name, media_type, content }, databaseConnection).then((fichier) => {
-      decisionAdministrativeDB.fichier = fichier.id;
-    });
+  if (decision.fichier_upload) {
+    const fichier = await registerUploadedFichier(decision.fichier_upload, databaseConnection);
+    decisionAdministrativeDB.fichier = fichier.id;
   }
 
   return databaseConnection("decision_administrative")
@@ -106,12 +103,9 @@ export async function updateDecisionAdministrative(
 
   let previousFichierIdP: Promise<FileId | undefined> = Promise.resolve(undefined);
 
-  if (decisionAdministrative.fichier_base64) {
-    const { name, media_type, contenuBase64 } = decisionAdministrative.fichier_base64;
-    const content = Buffer.from(contenuBase64, "base64");
-
-    decisionAdministrativeReadyP = storeNewFichier(
-      { name, media_type, content },
+  if (decisionAdministrative.fichier_upload) {
+    decisionAdministrativeReadyP = registerUploadedFichier(
+      decisionAdministrative.fichier_upload,
       databaseConnection,
     ).then((fichier) => {
       decisionAdministrativeDB.fichier = fichier.id;

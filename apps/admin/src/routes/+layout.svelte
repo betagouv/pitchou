@@ -9,10 +9,16 @@
 
   import AdminHeader from "./Layout/Header.svelte";
   import Sidebar from "./Layout/Sidebar.svelte";
+  import { uploadLimit } from "$lib/upload/uploadLimit.svelte.ts";
 
   import type { LayoutData } from "./$types";
 
   let { children, data }: { children: import("svelte").Snippet; data: LayoutData } = $props();
+
+  // File pickers read the limit from here; the server owns the value.
+  $effect(() => {
+    uploadLimit.maxBytes = data.maxUploadSizeBytes;
+  });
 
   let sidebarOpen = $state(false);
   let sidebarCollapsed = $state(false);

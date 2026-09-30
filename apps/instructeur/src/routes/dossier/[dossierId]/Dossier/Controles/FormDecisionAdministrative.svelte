@@ -7,9 +7,10 @@
     labelForDecisionAdministrativeType,
   } from "@pitchou/common/decisionAdministrative.js";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
   import {
     preserveDecisionDates,
-    readDecisionFile,
+    uploadDecisionFile,
     readableDecisionError,
   } from "./decisionAdministrativeForm.ts";
 
@@ -62,16 +63,17 @@
 
     preserveDecisionDates(decision);
 
+    inProgress = true;
     if (fichiers && fichiers.length >= 1) {
       try {
-        decision.fichier_base64 = await readDecisionFile(fichiers);
+        decision.fichier_upload = await uploadDecisionFile(decision.dossier, fichiers);
       } catch (error) {
         fileErrorMessage = error instanceof Error ? error.message : String(error);
+        inProgress = false;
         return;
       }
     }
 
-    inProgress = true;
     try {
       await onValidate(decision);
     } catch (error) {
@@ -155,7 +157,7 @@
 
   <div class="flex flex-wrap gap-4 items-center">
     <button type="submit" class="fr-btn" disabled={inProgress}>
-      {inProgress ? "Sauvegarde en cours…" : "Sauvegarder"}
+      {inProgress ? uploadProgressLabel("Sauvegarde en cours…") : "Sauvegarder"}
     </button>
 
     {#if onCancel}

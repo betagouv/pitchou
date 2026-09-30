@@ -3,6 +3,7 @@
   import ExpertServiceFields from "./ExpertServiceFields.svelte";
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
   import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
   import type { TypePieceJointe } from "./submission.ts";
   type Props = {
@@ -164,7 +165,8 @@
     </div>{/if}
   {#if valid}<ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline fr-mt-2w">
       <li>
-        {#await saving}<button type="submit" class="fr-btn" disabled>Sauvegarde en cours...</button
+        {#await saving}<button type="submit" class="fr-btn" disabled
+            >{uploadProgressLabel("Sauvegarde en cours...")}</button
           >{:then}<button type="submit" class="fr-btn">Valider</button>{/await}
       </li>
     </ul>{/if}

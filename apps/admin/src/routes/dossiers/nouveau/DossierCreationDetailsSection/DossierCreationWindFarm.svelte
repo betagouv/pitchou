@@ -1,14 +1,12 @@
 <script lang="ts">
   import type { DossierCreationModel } from "../dossierCreationModel.ts";
+  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
   let { model }: { model: DossierCreationModel } = $props();
   let input = $state<HTMLInputElement>();
   let error = $state("");
   function setFiles(files: File[]) {
-    if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-      error = "La taille totale des fichiers ne doit pas dépasser 65 Mo.";
-      return;
-    }
-    error = "";
+    error = uploadSizeError(files) ?? "";
+    if (error) return;
     model.windFarmPlanFiles = files;
   }
   function setNumber(
@@ -51,7 +49,7 @@
   <div class="fr-upload-group">
     <label class="fr-label" for="wind-farm-plan-files"
       >Plan des installations<span class="fr-hint-text"
-        >Taille totale maximale : 65 Mo. Plusieurs fichiers possibles</span
+        >{uploadSizeHint()} Plusieurs fichiers possibles</span
       ></label
     >
     <div

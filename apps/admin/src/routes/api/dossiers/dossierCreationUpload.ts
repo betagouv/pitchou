@@ -8,17 +8,19 @@ import {
   requiresNoDerogationArgumentAttachment,
   requiresSpeciesFile,
 } from "@pitchou/common/dossierFormOptions.ts";
-import { assertSpeciesSpreadsheet } from "@pitchou/common/especesUtils.ts";
 import type { AdminDossierCreation } from "@pitchou/server/database/dossier_admin.ts";
-import { readJsonObject } from "$lib/server/requestValidation";
-import { speciesFileError } from "$lib/speciesFile.ts";
+import type { AdminFileUpload } from "@pitchou/server/database/dossier_admin_files.ts";
+import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
+import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import { parseDossierCreation } from "$lib/server/dossierValidation";
 import {
   loadActiviteContext,
   type ActiviteContext,
 } from "$lib/server/dossierValidation/activiteContext.ts";
+import { validateSpeciesUpload } from "$lib/server/speciesUpload";
+import { parseUploadedFichier, parseUploadedFichiers } from "$lib/server/uploadedFichier";
 
-const uploadNames = [
+export const uploadNames = [
   "purposeAttachments",
   "previousAssessmentAttachments",
   "mortalityMeasureAttachments",
@@ -30,10 +32,23 @@ const uploadNames = [
   "supplementalAttachments",
 ] as const;
 type UploadName = (typeof uploadNames)[number];
-type Uploads = Record<UploadName, File[]>;
+type Uploads = Record<UploadName, UploadedFichier[]>;
 
-function assertTotalSize(files: File[], message: string) {
-  if (files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) error(400, message);
+/** The `uploads` property of the body: references to files the browser sent to storage. */
+function parseUploads(value: unknown): { speciesFile?: UploadedFichier; uploads: Uploads } {
+  const uploads = Object.fromEntries(
+    uploadNames.map((name) => [name, [] as UploadedFichier[]]),
+  ) as Uploads;
+  if (value === undefined || value === null) return { uploads };
+  if (typeof value !== "object" || Array.isArray(value)) {
+    error(400, "La propriété 'uploads' doit être un objet.");
+  }
+  const record = value as Record<string, unknown>;
+  rejectUnknownProperties(record, new Set(["speciesFile", ...uploadNames]));
+  for (const name of uploadNames) {
+    uploads[name] = parseUploadedFichiers(record[name], `uploads.${name}`);
+  }
+  return { speciesFile: parseUploadedFichier(record.speciesFile, "uploads.speciesFile"), uploads };
 }
 
 function validateAttachments(
@@ -97,58 +112,22 @@ function validateAttachments(
     error(400, "Les CV des intervenants ne s'appliquent pas à cette demande.");
 }
 
-export async function parseDossierCreationUpload(request: Request) {
-  let raw: Record<string, unknown>;
-  let speciesFile: File | null = null;
-  const uploads: Uploads = {
-    purposeAttachments: [],
-    previousAssessmentAttachments: [],
-    mortalityMeasureAttachments: [],
-    windFarmPlanAttachments: [],
-    eolienProtocolAttachments: [],
-    intervenantCvAttachments: [],
-    completeDossierAttachments: [],
-    noDerogationArgumentAttachments: [],
-    supplementalAttachments: [],
-  };
-  if (request.headers.get("content-type")?.includes("multipart/form-data")) {
-    const form = await request.formData();
-    const payload = form.get("payload");
-    if (typeof payload !== "string") error(400, "Champ 'payload' manquant.");
-    try {
-      const parsed: unknown = JSON.parse(payload);
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
-      raw = parsed as Record<string, unknown>;
-    } catch {
-      error(400, "Champ 'payload' invalide.");
-    }
-    const uploaded = form.get("speciesFile");
-    if (uploaded instanceof File) speciesFile = uploaded;
-    for (const name of uploadNames)
-      uploads[name] = form
-        .getAll(name)
-        .filter((value): value is File => value instanceof File && value.size > 0);
-    assertTotalSize(
-      uploads.windFarmPlanAttachments,
-      "La taille totale des plans des installations ne doit pas dépasser 65 Mo.",
-    );
-    assertTotalSize(
-      uploads.eolienProtocolAttachments,
-      "La taille totale des pièces du protocole ne doit pas dépasser 65 Mo.",
-    );
-    assertTotalSize(
-      uploads.intervenantCvAttachments,
-      "La taille totale des CV ne doit pas dépasser 65 Mo.",
-    );
-  } else raw = await readJsonObject(request);
+/**
+ * Reads a dossier creation: the dossier fields plus, under `uploads`, the
+ * files the browser already sent to storage. The species spreadsheet is
+ * checked against storage before anything gets registered.
+ */
+export async function parseDossierCreationUpload(request: Request): Promise<{
+  creation: AdminDossierCreation;
+  species: AdminFileUpload | null;
+  attachments: UploadedFichier[];
+}> {
+  const { uploads: rawUploads, ...raw } = await readJsonObject(request);
+  const { speciesFile, uploads } = parseUploads(rawUploads);
   const activiteContext = await loadActiviteContext();
   const creation = parseDossierCreation(raw, activiteContext);
   validateAttachments(creation, uploads, activiteContext);
   const attachments = uploadNames.flatMap((name) => uploads[name]);
-  assertTotalSize(
-    [...attachments, ...(speciesFile ? [speciesFile] : [])],
-    "La taille totale des fichiers ne doit pas dépasser 65 Mo.",
-  );
   const speciesRequired = requiresSpeciesFile(
     activiteCodeForLabel(
       creation.columns?.main_activite as string | null,
@@ -163,22 +142,6 @@ export async function parseDossierCreationUpload(request: Request) {
         ? "Le fichier des espèces concernées est requis."
         : "Le fichier des espèces concernées ne s'applique pas à cette demande.",
     );
-  if (speciesFile) {
-    const fileError = speciesFileError(speciesFile);
-    if (fileError) error(400, fileError);
-  }
-  const arrayBuffer = speciesFile ? await speciesFile.arrayBuffer() : null;
-  if (arrayBuffer) {
-    try {
-      await assertSpeciesSpreadsheet(arrayBuffer);
-    } catch (caught) {
-      error(400, caught instanceof Error ? caught.message : "Le tableur n'est pas valide.");
-    }
-  }
-  return {
-    creation,
-    speciesFile,
-    speciesContent: arrayBuffer ? Buffer.from(arrayBuffer) : null,
-    attachments,
-  };
+  const species = speciesFile ? await validateSpeciesUpload(speciesFile) : null;
+  return { creation, species, attachments };
 }

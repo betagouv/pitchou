@@ -2,6 +2,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
 import {
@@ -20,7 +21,7 @@ const decisionProperties = new Set([
   "type",
   "signature_date",
   "obligations_end_date",
-  "fichier_base64",
+  "fichier_upload",
 ]);
 
 type ValidatedDecision = DecisionAdministrativeForTransfer & {
@@ -54,19 +55,7 @@ function parseDecision(value: Record<string, unknown>): ValidatedDecision {
     value[property] = new Date(rawDate);
   }
 
-  const fichier = value.fichier_base64;
-  if (fichier !== undefined) {
-    if (!fichier || typeof fichier !== "object" || Array.isArray(fichier)) {
-      error(400, `La propriété 'fichier_base64' doit être un objet.`);
-    }
-    const fichierData = fichier as Record<string, unknown>;
-    rejectUnknownProperties(fichierData, new Set(["contenuBase64", "name", "media_type"]));
-    for (const property of ["contenuBase64", "name", "media_type"] as const) {
-      if (typeof fichierData[property] !== "string") {
-        error(400, `La propriété 'fichier_base64.${property}' doit être une chaîne.`);
-      }
-    }
-  }
+  value.fichier_upload = parseUploadedFichier(value.fichier_upload, "fichier_upload");
 
   return value as ValidatedDecision;
 }
@@ -99,9 +88,14 @@ export const POST: RequestHandler = async ({ url, request }) => {
       error(403, "La décision administrative n'appartient pas au dossier");
     }
 
-    const id = decisionData.id
-      ? await updateDecisionAdministrative(decisionData, transaction)
-      : await addDecisionAdministrativeWithFichier(decisionData, transaction);
+    let id: string;
+    try {
+      id = decisionData.id
+        ? await updateDecisionAdministrative(decisionData, transaction)
+        : await addDecisionAdministrativeWithFichier(decisionData, transaction);
+    } catch (err) {
+      throwUploadedFichierHttpError(err);
+    }
 
     const author = await getPersonneByDossierCap(cap);
     await logDossierActions(

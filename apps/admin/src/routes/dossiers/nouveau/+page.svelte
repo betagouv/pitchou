@@ -28,6 +28,7 @@
     dossierCreationAttachments,
     validateDossierCreation,
   } from "./dossierCreationSubmission.ts";
+  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
@@ -121,7 +122,7 @@
 
     <div class="flex flex-row flex-wrap gap-4">
       <button class="fr-btn" type="submit" disabled={saving}>
-        {saving ? "Création…" : "Créer le dossier"}
+        {saving ? uploadProgressLabel("Création…") : "Créer le dossier"}
       </button>
       <a class="fr-btn fr-btn--secondary" href="/dossiers">Annuler</a>
     </div>

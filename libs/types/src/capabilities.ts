@@ -1,8 +1,12 @@
 import type {
+  AvisExpertForTransfer,
   DossierFull,
   DossierSummary,
   DecisionAdministrativeForTransfer,
   FrontEndPrescription,
+  OtherAttachmentForTransfer,
+  UploadUrl,
+  UploadUrlRequest,
 } from "./API_Pitchou.ts";
 import type Dossier from "./database/public/Dossier.ts";
 import type Personne from "./database/public/Personne.ts";
@@ -99,8 +103,10 @@ export interface PitchouInstructeurCapabilities {
   deletePrescription: (id: Prescription["id"]) => Promise<unknown>;
   addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
   deleteControle: (id: Controle["id"]) => Promise<unknown>;
-  addOrUpdateAvisExpert: (form: FormData) => Promise<string>;
-  addOtherAttachment: (form: FormData) => Promise<string>;
+  addOrUpdateAvisExpert: (avisExpert: AvisExpertForTransfer) => Promise<string>;
+  addOtherAttachment: (attachment: OtherAttachmentForTransfer) => Promise<string[]>;
+  /** Signed URLs the browser PUTs files to, so bytes never go through the app server. */
+  createUploadUrls: (request: UploadUrlRequest) => Promise<UploadUrl[]>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;
   creerEvenementMetrique: (evenement: EvenementMetrique) => Promise<void>;
   /** The instructeur's last 3 distinct search-bar texts, most recent first */

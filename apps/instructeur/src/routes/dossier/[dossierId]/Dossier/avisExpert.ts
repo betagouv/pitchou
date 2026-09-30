@@ -1,19 +1,14 @@
 import { store } from "$lib/state/store.svelte.ts";
+import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
 
-import type {
-  default as AvisExpert,
-  AvisExpertInitializer,
-} from "@pitchou/types/database/public/AvisExpert.ts";
-import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
-
-function serializeDate(date: Date | string): string {
-  return typeof date === "string" ? date : date.toJSON();
-}
+import type { default as AvisExpert } from "@pitchou/types/database/public/AvisExpert.ts";
+import type { AvisExpertForTransfer, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
 /**
- * Adds an expert avis.
+ * Adds or updates an expert avis. Files go to object storage first; the API
+ * then receives their references along with the avis fields.
  */
-export function addOrUpdateAvisExpert(
+export async function addOrUpdateAvisExpert(
   frontEndAvisExpert: Pick<FrontEndAvisExpert, "dossier"> & Partial<FrontEndAvisExpert>,
   fileFichierSaisine?: File | undefined,
   fileFichierAvis?: File | undefined,
@@ -23,55 +18,22 @@ export function addOrUpdateAvisExpert(
     throw new Error(`Pas les droits suffisants pour ajouter ou modifier un avis d'expert`);
   }
 
-  const form = new FormData();
+  const { dossier, id, avis, avis_date, expert, saisine_date } = frontEndAvisExpert;
+  const avisExpert: AvisExpertForTransfer = { dossier };
+  // Only send what is set, so an update leaves the other columns untouched.
+  if (id) avisExpert.id = id;
+  if (avis) avisExpert.avis = avis;
+  if (avis_date) avisExpert.avis_date = avis_date;
+  if (expert) avisExpert.expert = expert;
+  if (saisine_date) avisExpert.saisine_date = saisine_date;
 
-  const copyFrontEndAvisExpert = Object.assign({}, frontEndAvisExpert);
+  const files = [fileFichierSaisine, fileFichierAvis];
+  const toUpload = files.filter((file): file is File => file !== undefined);
+  const uploaded = toUpload.length > 0 ? await uploadFichiers(dossier, toUpload) : [];
+  if (fileFichierSaisine) avisExpert.saisine_fichier_upload = uploaded.shift();
+  if (fileFichierAvis) avisExpert.avis_fichier_upload = uploaded.shift();
 
-  delete copyFrontEndAvisExpert.avis_fichier_url;
-  delete copyFrontEndAvisExpert.saisine_fichier_url;
-  delete copyFrontEndAvisExpert.avis_fichier_description;
-  delete copyFrontEndAvisExpert.saisine_fichier_description;
-
-  const avisExpert: Pick<AvisExpert, "dossier"> & AvisExpertInitializer = {
-    ...copyFrontEndAvisExpert,
-  };
-
-  // In a FormData object, the value of the key can only be a string or a Blob,
-  // and dossier is of type number & {__brand: "public.dossier";}
-  // @ts-expect-error
-  form.append("dossier", avisExpert.dossier);
-
-  // In the case of a modification,
-  // we provide the id of the expert avis
-  if (avisExpert.id) {
-    form.append("id", avisExpert.id);
-  }
-
-  if (avisExpert.avis) {
-    form.append("avis", avisExpert.avis);
-  }
-
-  if (avisExpert.avis_date) {
-    form.append("avis_date", serializeDate(avisExpert.avis_date));
-  }
-
-  if (avisExpert.expert) {
-    form.append("expert", avisExpert.expert);
-  }
-
-  if (avisExpert.saisine_date) {
-    form.append("saisine_date", serializeDate(avisExpert.saisine_date));
-  }
-
-  if (fileFichierSaisine) {
-    form.append("blobFichierSaisine", fileFichierSaisine);
-  }
-
-  if (fileFichierAvis) {
-    form.append("blobFichierAvis", fileFichierAvis);
-  }
-
-  return addOrUpdateAvisExpert(form);
+  return addOrUpdateAvisExpert(avisExpert);
 }
 
 /**

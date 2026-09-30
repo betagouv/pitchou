@@ -6,6 +6,7 @@ import type EvenementPhaseDossier from "../database/public/EvenementPhaseDossier
 import type File from "../database/public/File.ts";
 import type Prescription from "../database/public/Prescription.ts";
 import type { DossierCnpnEmailSentEvent } from "./cnpnEmail.ts";
+import type { UploadedFichier } from "./upload.ts";
 import type {
   DossierCommonData,
   DossierPersonnesImpliqueesFull,
@@ -38,7 +39,7 @@ export type FrontEndDecisionAdministrative = Omit<DecisionAdministrative, "fichi
 
 export type DecisionAdministrativeForTransfer = Partial<
   Omit<DecisionAdministrative, "fichier"> & {
-    fichier_base64: { contenuBase64: string; name: string; media_type: string };
+    fichier_upload: UploadedFichier;
   }
 >;
 

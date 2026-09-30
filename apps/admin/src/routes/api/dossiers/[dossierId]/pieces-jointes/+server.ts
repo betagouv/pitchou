@@ -1,30 +1,22 @@
-import { error, json } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
 import { addPieceJointeFromAdmin } from "@pitchou/server/database/dossier_admin_files.ts";
+import { UploadedFichierError } from "@pitchou/server/upload.ts";
 import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
+import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+/** Attaches a file the browser already sent to object storage (`{ file: { id, name } }`). */
 export const POST: RequestHandler = async ({ params, request }) => {
   const dossierId = parseDossierId(params.dossierId!);
-
-  const form = await request.formData();
-  const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    error(400, "Champ 'file' manquant ou vide.");
-  }
-  if (file.size > 65 * 1024 * 1024) {
-    error(400, "La taille du fichier ne doit pas dépasser 65 Mo.");
-  }
+  const upload = await readSingleUpload(request);
 
   try {
-    const stored = await addPieceJointeFromAdmin(dossierId, {
-      name: file.name,
-      media_type: file.type || null,
-      content: Buffer.from(await file.arrayBuffer()),
-    });
+    const stored = await addPieceJointeFromAdmin(dossierId, upload);
     return json(stored, { status: 201 });
   } catch (err) {
+    if (err instanceof UploadedFichierError) throwUploadedFichierHttpError(err);
     throwHttpErrorForAdminDossier(err);
   }
 };

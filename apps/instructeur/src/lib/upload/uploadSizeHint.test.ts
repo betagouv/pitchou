@@ -31,6 +31,11 @@ test("uploadSizeHint affiche la taille maximale en Mo", () => {
   expect(uploadSizeHint()).toBe("Taille maximale\u00A0: 200 Mo.");
 });
 
+test("uploadSizeHint affiche les gigaoctets entiers en Go", () => {
+  store.maxUploadSizeBytes = 1024 * 1024 * 1024;
+  expect(uploadSizeHint()).toBe("Taille maximale\u00A0: 1 Go.");
+});
+
 test("uploadSizeHint est vide quand la limite est inconnue", () => {
   store.maxUploadSizeBytes = undefined;
   expect(uploadSizeHint()).toBe("");

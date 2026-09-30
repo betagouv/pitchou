@@ -9,10 +9,11 @@ import { mergeDossierRelationsForEdit } from "./relations.ts";
 import { buildCreationPayload } from "./payload.ts";
 import type { CompanyDetailsChoice, DossierCreationModel } from "./state.ts";
 import { selectedDossierAttachmentFiles } from "./visibility.ts";
+import { uploadSizeError } from "$lib/upload/uploadLimit.svelte.ts";
 
 /**
  * Assembles the columns, relations (only when they changed) and files of the edit form.
- * Throws when the total attachment size exceeds the upload limit.
+ * Throws when a file exceeds the upload size limit.
  */
 export function buildNativeEditPayload(
   model: DossierCreationModel,
@@ -26,10 +27,11 @@ export function buildNativeEditPayload(
 } {
   const intake = buildCreationPayload(model);
   const attachments = selectedDossierAttachmentFiles(model);
-  const allFiles = [...(model.speciesFile ? [model.speciesFile] : []), ...attachments];
-  if (allFiles.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-    throw new Error("La taille totale des fichiers ne doit pas dépasser 65 Mo.");
-  }
+  const sizeError = uploadSizeError([
+    ...(model.speciesFile ? [model.speciesFile] : []),
+    ...attachments,
+  ]);
+  if (sizeError) throw new Error(sizeError);
   const payload: AdminDossierUpdatePayload = {
     columns: {
       ...intake.columns,

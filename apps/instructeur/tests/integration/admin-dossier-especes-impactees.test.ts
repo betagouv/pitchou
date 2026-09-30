@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
+import { putPendingUpload } from "../helpers/fileStorage.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
@@ -30,24 +31,21 @@ test("the fichier especes impactees can be replaced and removed from a native do
     db,
   );
 
+  const odsType = "application/vnd.oasis.opendocument.spreadsheet";
   const first = await setEspecesImpacteesFromAdmin(
     id,
-    {
-      name: "first.ods",
-      media_type: "application/vnd.oasis.opendocument.spreadsheet",
-      content: Buffer.from("first"),
-    },
+    { ...(await putPendingUpload("first", "first.ods", odsType)), media_type: odsType },
     db,
   );
   const second = await setEspecesImpacteesFromAdmin(
     id,
-    {
-      name: "second.ods",
-      media_type: "application/vnd.oasis.opendocument.spreadsheet",
-      content: Buffer.from("second"),
-    },
+    { ...(await putPendingUpload("second", "second.ods", odsType)), media_type: odsType },
     db,
   );
+  expect(await db("file").where({ id: second.id }).first()).toMatchObject({
+    media_type: odsType,
+    size: "6",
+  });
 
   expect(await db("file").where({ id: first.id }).first()).toBeUndefined();
   expect(await deleteEspecesImpacteesFromAdmin(id, db)).toBe(true);

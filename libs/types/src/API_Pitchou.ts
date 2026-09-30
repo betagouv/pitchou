@@ -3,6 +3,7 @@ export type * from "./apiPitchou/cnpnEmail.ts";
 export type * from "./apiPitchou/dossierBase.ts";
 export type * from "./apiPitchou/dossierDetails.ts";
 export type * from "./apiPitchou/stats.ts";
+export type * from "./apiPitchou/upload.ts";
 
 import type { DossierDemarcheNumerique88444 } from "./demarche-numerique/Demarche88444.ts";
 

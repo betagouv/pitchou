@@ -4,6 +4,7 @@
     showsOperationDetails,
     type DossierCreationModel,
   } from "../dossierCreationModel.ts";
+  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
 
   let { model }: { model: DossierCreationModel } = $props();
   let cvError = $state("");
@@ -22,18 +23,8 @@
   }
 
   function setCvFiles(index: number, files: File[]) {
-    const otherFilesSize = model.scientifiqueIntervenants.reduce(
-      (total, intervenant, current) =>
-        current === index
-          ? total
-          : total + intervenant.cvFiles.reduce((sum, file) => sum + file.size, 0),
-      0,
-    );
-    if (otherFilesSize + files.reduce((total, file) => total + file.size, 0) > 65 * 1024 * 1024) {
-      cvError = "La taille totale des CV ne doit pas dépasser 65 Mo.";
-      return;
-    }
-    cvError = "";
+    cvError = uploadSizeError(files) ?? "";
+    if (cvError) return;
     model.scientifiqueIntervenants[index].cvFiles = files;
   }
 </script>
@@ -75,8 +66,7 @@
             </div>
             <div class="fr-upload-group">
               <label class="fr-label" for={`intervenant-cv-${index}`}
-                >CV<span class="fr-hint-text"
-                  >Taille totale maximale : 65 Mo. Plusieurs fichiers possibles</span
+                >CV<span class="fr-hint-text">{uploadSizeHint()} Plusieurs fichiers possibles</span
                 ></label
               >
               <div

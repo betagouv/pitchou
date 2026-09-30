@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
+import { putPendingUpload } from "../helpers/fileStorage.ts";
 import {
   createDossier as createDossierRow,
   createInstructeurWithCapToGroup,
@@ -71,7 +72,7 @@ test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dos
   );
   const stored = await addPieceJointeFromAdmin(
     id,
-    { name: "note.pdf", media_type: "application/pdf", content: Buffer.from("contenu pdf") },
+    await putPendingUpload("contenu pdf", "note.pdf"),
     db,
   );
   expect(
@@ -83,7 +84,7 @@ test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dos
   await expect(
     addPieceJointeFromAdmin(
       dnDossier.id as DossierId,
-      { name: "refuse.pdf", media_type: "application/pdf", content: Buffer.from("x") },
+      await putPendingUpload("x", "refuse.pdf"),
       db,
     ),
   ).rejects.toBeInstanceOf(DossierNotCreatedInPitchouError);

@@ -39,7 +39,7 @@ export type PitchouState = {
   followRelations?: Map<NonNullable<Personne["email"]>, Set<Dossier["id"]>>;
   notificationByDossier: Map<Dossier["id"], Omit<DossierNotification, "dossier">>;
   identité?: IdentiteInstructeurPitchou;
-  /** Upload size limit in bytes, mirrors the server's BODY_SIZE_LIMIT. */
+  /** Largest file the browser may send to object storage, in bytes (server's MAX_UPLOAD_SIZE). */
   maxUploadSizeBytes?: number;
   schemaDS88444?: SchemaDemarcheSimplifiee;
   espècesProtégéesParClassification?: ByClassification<EspeceProtegee[]>;

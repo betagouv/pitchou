@@ -8,6 +8,7 @@ test("affiche les statistiques des mails CNPN", () => {
       data: {
         user: { email: "admin@example.com", name: "Admin" },
         isAdmin: true,
+        maxUploadSizeBytes: 1024 * 1024 * 1024,
         stats: { sentCount: 12, deliveredCount: 10, openedCount: 7 },
       },
     },

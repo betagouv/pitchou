@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { avisForm, comment, event, mocks, prescriptions } from "./audit.testHelpers.ts";
+import {
+  avisBody,
+  comment,
+  event,
+  mocks,
+  prescriptions,
+  uploadedFichier,
+} from "./audit.testHelpers.ts";
 
 import { DELETE as deleteControle } from "./controle/[controleId]/+server.ts";
 import { DELETE as deletePrescription } from "./prescription/[prescriptionId]/+server.ts";
@@ -44,7 +51,7 @@ const databaseRoutes = [
   },
   {
     name: "avis update without files",
-    run: () => updateAvis(event(avisForm())),
+    run: () => updateAvis(event(avisBody())),
     mutation: mocks.updateAvis,
     args: [expect.objectContaining({ id: "avis", dossier: 42 })],
     status: 204,
@@ -104,18 +111,12 @@ it("does not audit a failed bulk insert", async () => {
 });
 
 const fileRoutes = [
-  { name: "avis upload", run: () => updateAvis(event(avisForm(true))), mutation: mocks.uploadAvis },
+  { name: "avis upload", run: () => updateAvis(event(avisBody(true))), mutation: mocks.uploadAvis },
   { name: "avis deletion", run: () => deleteAvis(event()), mutation: mocks.deleteAvis },
   { name: "decision deletion", run: () => deleteDecision(event()), mutation: mocks.deleteDecision },
   {
     name: "attachment upload",
-    run: () => {
-      const form = new FormData();
-      form.set("dossier", "42");
-      form.set("type", "Autre");
-      form.set("files", new File(["attachment"], "attachment.pdf"));
-      return attachment(event(form));
-    },
+    run: () => attachment(event({ dossier: 42, type: "Autre", files: [uploadedFichier] })),
     mutation: mocks.attachment,
   },
 ];

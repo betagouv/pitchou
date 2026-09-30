@@ -1,8 +1,9 @@
 import { store } from "$lib/state/store.svelte.ts";
+import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
-export function addOtherAttachment(
+export async function addOtherAttachment(
   dossierId: DossierFull["id"],
   type: string,
   attachmentDate: Date | undefined | null,
@@ -14,16 +15,12 @@ export function addOtherAttachment(
     throw new Error(`Pas les droits suffisants pour ajouter une pièce jointe`);
   }
 
-  const form = new FormData();
-  form.append("dossier", JSON.stringify(dossierId));
-  form.append("type", type);
-  if (attachmentDate) {
-    form.append("attachment_date", attachmentDate.toISOString());
-  }
+  const uploaded = await uploadFichiers(dossierId, Array.from(files));
 
-  for (const file of files) {
-    form.append("files", file);
-  }
-
-  return addOtherAttachmentCapability(form);
+  return addOtherAttachmentCapability({
+    dossier: dossierId,
+    type,
+    attachment_date: attachmentDate ?? undefined,
+    files: uploaded,
+  });
 }

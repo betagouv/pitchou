@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireSecret } from "$lib/server/auth";
-import { getMaxUploadSizeBytes } from "$lib/server/uploadLimit";
+import { getMaxUploadSizeBytes } from "@pitchou/server/upload.ts";
 import { getInstructeurCapBundleByPersonneCodeAcces } from "@pitchou/server/database.ts";
 import type {
   IdentiteInstructeurPitchou,
@@ -76,6 +76,7 @@ export const GET: RequestHandler = async ({ url }) => {
     ret.deleteControle = `/controle/:controleId?cap=${cap}`;
     ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
     ret.addOtherAttachment = `/attachment-autre?cap=${cap}`;
+    ret.createUploadUrls = `/fichier/upload-url?cap=${cap}`;
     ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
   }
   if (capBundle.creerEvenementMetrique) {

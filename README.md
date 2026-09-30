@@ -96,6 +96,30 @@ L'application est déployée sur Scalingo
 
 Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
 
+### Stockage objet (S3)
+
+Les fichiers sont stockés dans un bucket S3 (Outscale OOS), variable `S3_BUCKET`. Les deux apps
+fonctionnent pareil : le navigateur demande une URL signée à l'app, envoie le fichier directement au
+bucket sous `pending/`, puis l'app le copie sous `files/` (ou `changelog/`) quand la fiche qui le
+référence est enregistrée. La taille maximale par fichier est `MAX_UPLOAD_SIZE` (1 Go par défaut).
+
+Le bucket de chaque environnement se prépare en passant les origines des deux sites dans la même
+commande. En local :
+
+```sh
+just aws-bucket-setup http://localhost:5173 http://localhost:5174
+```
+
+Sur Scalingo, avec l'app instructeur (exemple pour staging) :
+
+```sh
+scalingo --region osc-secnum-fr1 --app pitchou-staging run 'corepack pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts https://staging.pitchou.incubateur.net https://staging.admin.pitchou.incubateur.net'
+```
+
+La commande agit sur le bucket `$S3_BUCKET` de l'environnement où elle tourne. Si l'app joint le
+stockage par une adresse que le navigateur ne peut pas atteindre, `S3_PUBLIC_ENDPOINT_URL` est
+l'adresse écrite dans les URL signées.
+
 ### Authentification du webhook Brevo
 
 Le webhook de suivi des mails CNPN accepte uniquement l'en-tête

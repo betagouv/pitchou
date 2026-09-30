@@ -1,7 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
 
-import { deleteObject, getObject, listObjectKeys, putObject } from "./objectStorage.ts";
+import { headPendingUpload } from "./database/fichier_upload.ts";
+import {
+  copyObject,
+  deleteObject,
+  getObject,
+  listObjectKeys,
+  pendingKey,
+} from "./objectStorage.ts";
+import { UploadedFichierError } from "./upload.ts";
+
+import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 
 // Changelog media lives under its own prefix, apart from the dossier `files/`.
 const STORAGE_PREFIX = "changelog/";
@@ -61,16 +71,25 @@ export function referencedMediaFileNames(entryId: number, contenu: string): Set<
   return fileNames;
 }
 
-/** Uploads one media object and returns its serving URL. */
-export async function storeChangelogMedia(
+/**
+ * Moves a media file the browser sent to storage under the entry's prefix and
+ * returns its serving URL. The type is what the browser declared on the PUT.
+ */
+export async function registerChangelogMediaUpload(
   entryId: number,
-  content: Buffer,
-  mediaType: string,
+  upload: UploadedFichier,
 ): Promise<string> {
-  const extension = CHANGELOG_MEDIA_TYPES[mediaType];
-  if (!extension) throw new Error(`Type de média non autorisé : ${mediaType}`);
+  const { contentType } = await headPendingUpload(upload);
+  const extension = contentType ? CHANGELOG_MEDIA_TYPES[contentType] : undefined;
+  if (!extension) {
+    throw new UploadedFichierError(
+      400,
+      `Type de fichier non pris en charge : ${contentType ?? "inconnu"}`,
+    );
+  }
   const fileName = `${randomUUID()}.${extension}`;
-  await putObject(mediaKey(entryId, fileName), content, mediaType);
+  await copyObject(pendingKey(upload.id), mediaKey(entryId, fileName));
+  await deleteObject(pendingKey(upload.id)).catch(() => {});
   return changelogMediaUrl(entryId, fileName);
 }
 

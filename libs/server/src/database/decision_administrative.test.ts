@@ -4,17 +4,21 @@ vi.mock(import("./fichier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    storeNewFichier: vi.fn(),
     deleteFichiersWithoutOtherReferences: vi.fn(),
   };
 });
+vi.mock(import("./fichier_upload.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  registerUploadedFichier: vi.fn(),
+}));
 
 import {
   addDecisionAdministrativeWithFichier,
   updateDecisionAdministrative,
   deleteDecisionAdministrative,
 } from "./decision_administrative.ts";
-import { storeNewFichier, deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
+import { registerUploadedFichier } from "./fichier_upload.ts";
 import { fakeDatabase } from "./fakeDatabase.js";
 import type { DecisionAdministrativeId } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -26,11 +30,11 @@ const newFichierId = "new-fichier" as unknown as FileId;
 const oldFichierId = "old-fichier" as unknown as FileId;
 const fId = "f-1" as unknown as FileId;
 
-const storeFichier = vi.mocked(storeNewFichier);
+const registerFichier = vi.mocked(registerUploadedFichier);
 const deleteFichiers = vi.mocked(deleteFichiersWithoutOtherReferences);
 
 beforeEach(() => {
-  storeFichier.mockReset();
+  registerFichier.mockReset();
   deleteFichiers.mockReset();
 });
 
@@ -71,12 +75,12 @@ const baseDecision = {
 };
 
 describe("addDecisionAdministrativeWithFichier", () => {
-  it("inserts the décision without S3 calls when fichier_base64 is missing", async () => {
+  it("inserts the décision without S3 calls when fichier_upload is missing", async () => {
     const db = fakeDatabase()
       .insertResolves([{ id: daId }])
       .build();
     await addDecisionAdministrativeWithFichier(baseDecision, db.knex);
-    expect(storeFichier).not.toHaveBeenCalled();
+    expect(registerFichier).not.toHaveBeenCalled();
     expect(db.insert).toHaveBeenCalledWith(
       expect.objectContaining({ dossier: dossierId, number: "1" }),
     );
@@ -84,8 +88,8 @@ describe("addDecisionAdministrativeWithFichier", () => {
     expect(db.insert.mock.calls[0][0]).not.toHaveProperty("fichier");
   });
 
-  it("uploads the base64 fichier and links its id on the décision row", async () => {
-    storeFichier.mockResolvedValue({ id: fId });
+  it("registers the uploaded fichier and links its id on the décision row", async () => {
+    registerFichier.mockResolvedValue({ id: fId });
     const db = fakeDatabase()
       .insertResolves([{ id: daId }])
       .build();
@@ -93,21 +97,13 @@ describe("addDecisionAdministrativeWithFichier", () => {
     await addDecisionAdministrativeWithFichier(
       {
         ...baseDecision,
-        fichier_base64: {
-          name: "arrete.pdf",
-          media_type: "application/pdf",
-          contenuBase64: Buffer.from("HELLO").toString("base64"),
-        },
+        fichier_upload: { id: fId, name: "arrete.pdf" },
       },
       db.knex,
     );
 
-    expect(storeFichier).toHaveBeenCalledTimes(1);
-    const [storeArg] = storeFichier.mock.calls[0];
-    expect(storeArg.name).toBe("arrete.pdf");
-    expect(storeArg.media_type).toBe("application/pdf");
-    expect(Buffer.isBuffer(storeArg.content)).toBe(true);
-    expect((storeArg.content as Buffer).toString("utf8")).toBe("HELLO");
+    expect(registerFichier).toHaveBeenCalledTimes(1);
+    expect(registerFichier).toHaveBeenCalledWith({ id: fId, name: "arrete.pdf" }, db.knex);
 
     expect(db.insert).toHaveBeenCalledWith(expect.objectContaining({ fichier: fId }));
   });
@@ -117,11 +113,7 @@ describe("updateDecisionAdministrative", () => {
   const decisionWithFile = {
     ...baseDecision,
     id: daId,
-    fichier_base64: {
-      name: "v2.pdf",
-      media_type: "application/pdf",
-      contenuBase64: Buffer.from("NEW").toString("base64"),
-    },
+    fichier_upload: { id: newFichierId, name: "v2.pdf" },
   };
 
   it("throws when id is missing", async () => {
@@ -131,7 +123,7 @@ describe("updateDecisionAdministrative", () => {
     ).rejects.toThrow(/id manquant/);
   });
 
-  it("does not upload nor clean up when fichier_base64 is absent", async () => {
+  it("does not upload nor clean up when fichier_upload is absent", async () => {
     const db = fakeDatabase()
       .selectResolvesForTable("decision_administrative", [{ dossier: dossierId }])
       .build();
@@ -139,7 +131,7 @@ describe("updateDecisionAdministrative", () => {
     db.update.mockReturnValueOnce(Object.assign(Promise.resolve(1), { where: updateWhere }));
     await updateDecisionAdministrative({ ...baseDecision, id: daId }, db.knex);
 
-    expect(storeFichier).not.toHaveBeenCalled();
+    expect(registerFichier).not.toHaveBeenCalled();
     expect(deleteFichiers).not.toHaveBeenCalled();
     expect(db.update).toHaveBeenCalledTimes(1);
     expect(db.update.mock.calls[0][0]).not.toHaveProperty("dossier");
@@ -149,7 +141,7 @@ describe("updateDecisionAdministrative", () => {
   it.each([2, undefined])(
     "rejects a mismatched or missing stored dossier before uploading: %s",
     async (storedDossier) => {
-      storeFichier.mockResolvedValue({ id: newFichierId });
+      registerFichier.mockResolvedValue({ id: newFichierId });
       const db = fakeDatabase()
         .selectResolvesForTable(
           "decision_administrative",
@@ -162,14 +154,14 @@ describe("updateDecisionAdministrative", () => {
       );
 
       expect(db.where).toHaveBeenCalledWith({ id: daId });
-      expect(storeFichier).not.toHaveBeenCalled();
+      expect(registerFichier).not.toHaveBeenCalled();
       expect(db.update).not.toHaveBeenCalled();
       expect(deleteFichiers).not.toHaveBeenCalled();
     },
   );
 
   it("uploads the new fichier and deletes the previous one (best-effort cleanup)", async () => {
-    storeFichier.mockResolvedValue({ id: newFichierId });
+    registerFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
       .selectResolvesForTable("decision_administrative", [
         { dossier: dossierId, fichier: oldFichierId },
@@ -178,14 +170,14 @@ describe("updateDecisionAdministrative", () => {
 
     await updateDecisionAdministrative(decisionWithFile, db.knex);
 
-    expect(storeFichier).toHaveBeenCalledTimes(1);
+    expect(registerFichier).toHaveBeenCalledTimes(1);
     expect(db.update).toHaveBeenCalledWith(expect.objectContaining({ fichier: newFichierId }));
     expect(db.where).toHaveBeenLastCalledWith({ id: daId, dossier: dossierId });
     expect(deleteFichiers).toHaveBeenCalledWith([oldFichierId], db.knex);
   });
 
   it("does not call deleteFichiers when there was no previous fichier on the décision", async () => {
-    storeFichier.mockResolvedValue({ id: newFichierId });
+    registerFichier.mockResolvedValue({ id: newFichierId });
     const db = fakeDatabase()
       .selectResolvesForTable("decision_administrative", [{ dossier: dossierId, fichier: null }])
       .build();
