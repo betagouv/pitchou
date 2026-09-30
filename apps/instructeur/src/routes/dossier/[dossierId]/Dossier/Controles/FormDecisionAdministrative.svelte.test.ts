@@ -1,3 +1,5 @@
+import "@gouvfr/dsfr/dist/dsfr.min.css";
+import "../../../../../app.css";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
@@ -31,6 +33,9 @@ function decision(
 ): DecisionAdministrativeForTransfer {
   return reactive({
     dossier: "dossier-test",
+    number: "AP-001",
+    signature_date: new Date("2026-04-15"),
+    obligations_end_date: new Date("2031-04-15"),
     ...overrides,
   } as unknown as DecisionAdministrativeForTransfer);
 }
@@ -67,7 +72,7 @@ test("refuse une décision sans type et n'appelle pas onValidate", async () => {
 
   await clickSave();
 
-  await expect.element(page.getByText(/sélectionner un type/i)).toBeVisible();
+  await expect.element(page.getByText(/Veuillez sélectionner une option/i)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
 });
 
@@ -142,6 +147,7 @@ test("affiche un état de chargement pendant l'enregistrement", async () => {
   const onValidate = vi.fn(() => new Promise<void>((r) => (resolve = r)));
   render(FormDecisionAdministrative, {
     decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    hasExistingFile: true,
     onValidate,
   });
 
@@ -153,4 +159,21 @@ test("affiche un état de chargement pendant l'enregistrement", async () => {
   resolve();
 
   await expect.element(page.getByRole("button", { name: /^Sauvegarder$/ })).toBeVisible();
+});
+
+test("bloque l'enregistrement sans fichier et autorise la conservation du fichier existant", async () => {
+  const onValidate = vi.fn();
+  const { container, rerender } = render(FormDecisionAdministrative, {
+    decisionAdministrative: decision({ type: TYPE_VALIDE }),
+    onValidate,
+  });
+  await clickSave();
+  expect(container.querySelector<HTMLInputElement>("input[type=file]")?.validity.valueMissing).toBe(
+    true,
+  );
+  expect(onValidate).not.toHaveBeenCalled();
+  await rerender({ hasExistingFile: true });
+  await clickSave();
+  await vi.waitFor(() => expect(onValidate).toHaveBeenCalledOnce());
+  expect(uploadFichiers).not.toHaveBeenCalled();
 });

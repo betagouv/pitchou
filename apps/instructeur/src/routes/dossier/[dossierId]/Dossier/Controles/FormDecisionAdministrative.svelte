@@ -1,7 +1,6 @@
 <script lang="ts">
   import DateInput from "$lib/components/DateInput.svelte";
   import Select from "@pitchou/ui/Select.svelte";
-
   import {
     typesDecisionAdministrative,
     labelForDecisionAdministrativeType,
@@ -18,13 +17,20 @@
 
   type Props = {
     decisionAdministrative: DecisionAdministrativeForTransfer;
+    hasExistingFile?: boolean;
     onValidate: (decision: DecisionAdministrativeForTransfer) => any;
     onCancel?: () => void;
     /** If provided, a button to delete the décision is displayed */
     onDelete?: () => void;
   };
 
-  let { decisionAdministrative, onValidate, onCancel, onDelete }: Props = $props();
+  let {
+    decisionAdministrative,
+    hasExistingFile = false,
+    onValidate,
+    onCancel,
+    onDelete,
+  }: Props = $props();
 
   // Local editable copy: the form edits this and hands it to onValidate, so it
   // never mutates the prop owned by the parent (avoids Svelte's
@@ -36,9 +42,7 @@
     value: type,
     label: labelForDecisionAdministrativeType(type),
   }));
-
   let fichiers: FileList | undefined = $state();
-
   // File-related error, shown under the upload field
   let fileErrorMessage: string | null = $state(null);
   // "type" field error, shown under the select
@@ -46,18 +50,24 @@
   // Save error (network, server), shown next to the buttons
   let errorMessage: string | null = $state(null);
   let inProgress = $state(false);
-
   async function formSubmit(e: Event) {
     //console.log('submit', fichiers)
     e.preventDefault();
-
     fileErrorMessage = null;
     typeErrorMessage = null;
     errorMessage = null;
 
-    // A décision must at least have a type; we reject an empty decision.
     if (!decision.type) {
       typeErrorMessage = "Veuillez sélectionner un type de décision.";
+      return;
+    }
+
+    if (!decision.number?.trim() || !decision.signature_date || !decision.obligations_end_date) {
+      errorMessage = "Veuillez renseigner le numéro et les deux dates de la décision.";
+      return;
+    }
+    if (!hasExistingFile && !decision.fichier_upload && !fichiers?.length) {
+      fileErrorMessage = "Veuillez joindre le fichier de la décision administrative.";
       return;
     }
 
@@ -84,10 +94,15 @@
   }
 </script>
 
+{#snippet requiredMark()}
+  <span class="font-bold" aria-hidden="true">*</span>
+{/snippet}
+
 <form class="fr-mt-2w" onsubmit={formSubmit}>
+  <p class="fr-text--sm">{@render requiredMark()} Champs obligatoires</p>
   <div class="fr-upload-group">
     <label class="fr-label" for="upload-fichier-décision"
-      >Fichier de la décision administrative
+      >Fichier de la décision administrative {@render requiredMark()}
       <span class="fr-hint-text">Indication : {uploadSizeHint()} Formats supportés&nbsp;: pdf</span>
     </label>
     <input
@@ -98,7 +113,11 @@
       type="file"
       id="upload-fichier-décision"
       name="upload"
+      required={!hasExistingFile && !decision.fichier_upload}
     />
+    {#if hasExistingFile}
+      <p class="fr-hint-text">Un fichier est déjà joint. Vous pouvez le remplacer.</p>
+    {/if}
     <div class="fr-messages-group" id="upload-fichier-décision-messages" aria-live="polite">
       {#if fileErrorMessage}
         <p class="fr-message fr-message--error">{fileErrorMessage}</p>
@@ -107,25 +126,27 @@
   </div>
 
   <div class="fr-input-group">
-    <label class="fr-label" for="input-numéro"> Numéro </label>
+    <label class="fr-label" for="input-numéro">Numéro {@render requiredMark()}</label>
     <input
       class="fr-input"
       bind:value={decision.number}
       aria-describedby="input-numéro-messages"
       id="input-numéro"
       type="text"
+      required
     />
     <div class="fr-messages-group" id="input-numéro-messages" aria-live="polite"></div>
   </div>
 
   <div class="fr-select-group">
-    <label class="fr-label" for="select-type"> Type de décision </label>
+    <label class="fr-label" for="select-type">Type de décision {@render requiredMark()}</label>
     <Select
       id="select-type"
       class="fr-mt-1w"
       placeholder="Sélectionnez une option"
       options={typeDecisionOptions}
       bind:value={decision.type}
+      required
     />
     <div class="fr-messages-group" id="select-type-messages" aria-live="polite">
       {#if typeErrorMessage}
@@ -136,15 +157,26 @@
 
   <div class="fr-input-group">
     <label class="fr-label" for="input-date-signature">
-      Date de signature de la décision administrative
+      Date de signature de la décision administrative {@render requiredMark()}
     </label>
-    <DateInput id="input-date-signature" bind:date={decision.signature_date}></DateInput>
+    <DateInput
+      id="input-date-signature"
+      label="Date de signature de la décision administrative"
+      bind:date={decision.signature_date}
+      required
+    />
   </div>
 
   <div class="fr-input-group">
-    <label class="fr-label" for="input-date-fin-obligations"> Date de fin des obligations </label>
-    <DateInput id="input-date-fin-obligations" bind:date={decision.obligations_end_date}
-    ></DateInput>
+    <label class="fr-label" for="input-date-fin-obligations"
+      >Date de fin des obligations {@render requiredMark()}</label
+    >
+    <DateInput
+      id="input-date-fin-obligations"
+      label="Date de fin des obligations"
+      bind:date={decision.obligations_end_date}
+      required
+    />
   </div>
 
   <div class="fr-messages-group" aria-live="polite" role="alert">
