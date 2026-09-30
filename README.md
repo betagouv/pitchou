@@ -103,11 +103,16 @@ fonctionnent pareil : le navigateur demande une URL signée à l'app, envoie le 
 bucket sous `pending/`, puis l'app le copie sous `files/` (ou `changelog/`) quand la fiche qui le
 référence est enregistrée. La taille maximale par fichier est `MAX_UPLOAD_SIZE` (1 Go par défaut).
 
-Le bucket doit donc accepter les `PUT` du navigateur (CORS) et faire expirer les objets `pending/`
-au bout d'un jour. `just aws-bucket-setup <origines des deux sites>` applique cette configuration au
-bucket `$S3_BUCKET` avec les variables `AWS_*` de l'environnement courant. Si l'app joint le stockage par une
-adresse que le navigateur ne peut pas atteindre, `S3_PUBLIC_ENDPOINT_URL` est l'adresse écrite dans
-les URL signées.
+Le bucket de chaque environnement se prépare avec `just aws-bucket-setup`, en passant les origines
+des deux sites dans la même commande. En local :
+
+```sh
+just aws-bucket-setup http://localhost:5173 http://localhost:5174
+```
+
+La commande agit sur `$S3_BUCKET` avec les variables `AWS_*` chargées dans le shell, donc vérifier
+l'environnement visé avant de la lancer. Si l'app joint le stockage par une adresse que le navigateur
+ne peut pas atteindre, `S3_PUBLIC_ENDPOINT_URL` est l'adresse écrite dans les URL signées.
 
 ### Authentification du webhook Brevo
 
