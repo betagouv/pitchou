@@ -4,6 +4,7 @@
   import { goto } from "$app/navigation";
 
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import type { StatutListeRouge } from "@pitchou/types/especes.d.ts";
 
   import {
     parseBdcStatutQuery,
@@ -60,7 +61,7 @@
   const pageCount = $derived(Math.max(1, Math.ceil(total / BDC_STATUT_PAGE_SIZE)));
   const currentPage = $derived(Math.min(query.page, pageCount));
 
-  const activeFilterCount = $derived(query.statut ? 1 : 0);
+  const activeFilterCount = $derived((query.statut ? 1 : 0) + (query.uicn ? 1 : 0));
 
   const pageText = $derived(
     query.searchText.trim()
@@ -113,7 +114,7 @@
     }
   }
 
-  function onFilterChange(updates: { statut?: string }) {
+  function onFilterChange(updates: { statut?: string; uicn?: StatutListeRouge | "" }) {
     updateQuery(updates);
   }
 
@@ -143,7 +144,12 @@
   />
 
   {#if filterPanelOpen}
-    <BdcStatutsFilterPanel {filtres} selectedStatut={query.statut} onChange={onFilterChange} />
+    <BdcStatutsFilterPanel
+      {filtres}
+      selectedStatut={query.statut}
+      selectedUicn={query.uicn}
+      onChange={onFilterChange}
+    />
   {/if}
 
   {#if sortPanelOpen}

@@ -1,4 +1,9 @@
-import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+import type {
+  EspeceProtegee,
+  ClassificationEtreVivant,
+  StatutListeRouge,
+} from "@pitchou/types/especes.d.ts";
+import { parseUicnFilter } from "@pitchou/common/especes/listeRouge.ts";
 import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
 export const CLASSIFICATIONS: ClassificationEtreVivant[] = ["oiseau", "faune non-oiseau", "flore"];
@@ -29,6 +34,7 @@ export type EspecesQuery = {
   classification: ClassificationEtreVivant | "";
   statut: Statut | "";
   liste: ListeFilter;
+  uicn: StatutListeRouge | "";
   sort: SortKey;
   order: SortOrder;
   page: number;
@@ -49,6 +55,7 @@ export function parseEspecesQuery(params: URLSearchParams): EspecesQuery {
       : "",
     statut: (STATUTS as readonly string[]).includes(statut) ? (statut as Statut) : "",
     liste: liste === "ministerielle" || liste === "cnpn" ? liste : "",
+    uicn: parseUicnFilter(params.get("uicn")),
     sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : "nomScientifique",
     order: params.get("ordre") === "desc" ? "desc" : "asc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
@@ -92,6 +99,9 @@ export function filterEspeces(especes: EspeceProtegee[], query: EspecesQuery): E
     result = result.filter((espece) => espece.espèceMinistérielle === "O");
   } else if (query.liste === "cnpn") {
     result = result.filter((espece) => espece.espèceCNPN === "O");
+  }
+  if (query.uicn) {
+    result = result.filter((espece) => espece.statutListeRouge === query.uicn);
   }
 
   const text = query.searchText.trim();

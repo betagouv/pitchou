@@ -11,7 +11,7 @@
   import EspecesImpactees from "./DossierDetailProjet/EspecesImpactees.svelte";
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
   import { especesCounts, listeRougeCountLabel } from "./DossierDetailProjet/especes.ts";
-  import EspecesStatusBadge from "./DossierDetailProjet/EspecesStatusBadge.svelte";
+  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
   import { readOnlyMode } from "./readOnly.ts";
 

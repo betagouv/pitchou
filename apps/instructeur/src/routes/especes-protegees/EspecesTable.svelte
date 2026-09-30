@@ -4,6 +4,8 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import { firstName } from "@pitchou/ui/especes/especesList.ts";
   import EspecesSynonymesModal from "./EspecesSynonymesModal.svelte";
+  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
+  import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
   type Props = {
     especes: EspeceProtegee[];
@@ -26,9 +28,9 @@
 
 {#if especes.length >= 1}
   <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
-    <table class="w-full min-w-[48rem]">
+    <table class="w-full min-w-[56rem]">
       <colgroup>
-        <col />
+        <col style="width: 45%" />
         <col />
         <col style="width: 150px" />
         <col style="width: 100px" />
@@ -59,21 +61,29 @@
             }}
           >
             <td>
-              {#if espece.espèceCNPN}
-                <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</p>
-              {/if}
-              {#if espece.espèceMinistérielle}
-                <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Ministère</p>
-              {/if}
-              <i>{firstName(espece.nomsScientifiques)}</i>
-              {#if espece.nomsScientifiques.size > 1}
-                <span
-                  class="fr-ml-1w fr-badge fr-badge--sm"
-                  title="{espece.nomsScientifiques.size - 1} autre(s) nom(s) scientifique(s)"
-                >
-                  +{espece.nomsScientifiques.size - 1}
-                </span>
-              {/if}
+              <div class="flex flex-wrap items-center gap-2">
+                {#if espece.espèceCNPN}
+                  <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">CNPN</p>
+                {/if}
+                {#if espece.espèceMinistérielle}
+                  <p class="fr-badge fr-badge--sm fr-badge--blue-ecume">Ministère</p>
+                {/if}
+                {#if espece.statutListeRouge}
+                  <EspecesStatusBadge
+                    label={LIBELLES_STATUT_LISTE_ROUGE[espece.statutListeRouge]}
+                    tone={espece.statutListeRouge}
+                  />
+                {/if}
+                <i>{firstName(espece.nomsScientifiques)}</i>
+                {#if espece.nomsScientifiques.size > 1}
+                  <span
+                    class="fr-ml-1w fr-badge fr-badge--sm"
+                    title="{espece.nomsScientifiques.size - 1} autre(s) nom(s) scientifique(s)"
+                  >
+                    +{espece.nomsScientifiques.size - 1}
+                  </span>
+                {/if}
+              </div>
             </td>
             <td>{firstName(espece.nomsVernaculaires)}</td>
             <td>{espece.classification}</td>

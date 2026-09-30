@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { BdcStatutRow } from "./bdcStatutsList.ts";
+  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
+  import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
   type Props = {
     rows: BdcStatutRow[];
@@ -10,9 +12,9 @@
 
 {#if rows.length >= 1}
   <div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
-    <table class="w-full min-w-[62rem]">
+    <table class="w-full min-w-[72rem]">
       <colgroup>
-        <col />
+        <col style="width: 24rem" />
         <col />
         <col style="width: 7rem" />
         <col />
@@ -34,7 +36,17 @@
       <tbody>
         {#each rows as row (row.id)}
           <tr>
-            <td><i>{row.nom_scientifique ?? ""}</i></td>
+            <td>
+              <span class="flex flex-wrap items-center gap-2">
+                {#if row.statutListeRouge}
+                  <EspecesStatusBadge
+                    label={LIBELLES_STATUT_LISTE_ROUGE[row.statutListeRouge]}
+                    tone={row.statutListeRouge}
+                  />
+                {/if}
+                <i>{row.nom_scientifique ?? ""}</i>
+              </span>
+            </td>
             <td>{row.nom_vernaculaire ?? ""}</td>
             <td>{row.cd_type_statut}</td>
             <td>{row.label_statut}</td>

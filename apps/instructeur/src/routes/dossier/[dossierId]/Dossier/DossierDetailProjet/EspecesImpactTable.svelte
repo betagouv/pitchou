@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EspecesStatusBadge from "./EspecesStatusBadge.svelte";
+  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
   import { impactColumns, type ImpactGroup } from "./impactGroups.ts";
   import { VALUE_NOT_PROVIDED } from "$lib/especes/especesByTypeImpact.ts";
   import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
