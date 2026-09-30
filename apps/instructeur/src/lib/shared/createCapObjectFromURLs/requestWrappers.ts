@@ -59,13 +59,14 @@ function errorMessageFromBody(body: string): string {
  * JSON POST that surfaces the server's error message instead of d3-fetch's
  * bare status text, and returns undefined on an empty (204) response.
  */
-export function wrapJsonPOST(url: string | undefined): any {
+export function wrapJsonPOST(url: string | undefined, extraInit: RequestInit = {}): any {
   if (!url) return undefined;
   return async (args: unknown) => {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(args),
+      ...extraInit,
     });
     const body = await response.text().catch(() => "");
     if (!response.ok) {

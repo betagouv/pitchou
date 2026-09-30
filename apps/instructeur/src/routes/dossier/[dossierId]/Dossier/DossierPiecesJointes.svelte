@@ -2,6 +2,8 @@
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import PieceJointeSection from "./PieceJointeSection.svelte";
+  import { deletePieceJointe } from "./deletePieceJointe.ts";
+  import type { PieceJointeSimple } from "./piecesJointes.ts";
   import {
     piecesJointesAutres,
     piecesJointesAvis,
@@ -25,6 +27,20 @@
   const readOnly = readOnlyMode();
 
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-pieces-jointes";
+  let deletedKeys = $state<string[]>([]);
+  function deletionKey(piece: PieceJointeSimple) {
+    return `${piece.deletion?.type}/${piece.deletion?.entityId}/${piece.fileId}`;
+  }
+  function visiblePieces(pieces: PieceJointeSimple[]) {
+    return pieces.filter((piece) => !deletedKeys.includes(deletionKey(piece)));
+  }
+  async function deleteSelectedPiece(piece: PieceJointeSimple) {
+    if (readOnly.current) {
+      throw new Error("Vous ne pouvez pas supprimer cette pièce jointe.");
+    }
+    await deletePieceJointe(dossier.id, piece);
+    deletedKeys = [...deletedKeys, deletionKey(piece)];
+  }
 
   const piecesProjet = $derived(piecesJointesProjet(dossier));
   const piecesAvis = $derived(
@@ -73,14 +89,16 @@
       ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
       : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
     tabLabel="Avis"
-    pieces={piecesAvis}
+    pieces={visiblePieces(piecesAvis)}
+    onDelete={readOnly.current ? undefined : deleteSelectedPiece}
     openTab={() => openTab("avis")}
   />
   <PieceJointeSection
     title="Décisions administratives"
     emptyMessage="Aucun fichier d'arrêté ou de décision administrative n'est associé à ce dossier."
     tabLabel="Contrôles"
-    pieces={piecesArretes}
+    pieces={visiblePieces(piecesArretes)}
+    onDelete={readOnly.current ? undefined : deleteSelectedPiece}
     openTab={() => openTab("controles")}
   />
   <!-- The attachments added by the instructeur stay internal to the service. -->
@@ -88,7 +106,8 @@
     <PieceJointeSection
       title="Autres"
       emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
-      pieces={piecesAutres}
+      pieces={visiblePieces(piecesAutres)}
+      onDelete={deleteSelectedPiece}
     />
   {/if}
 </section>

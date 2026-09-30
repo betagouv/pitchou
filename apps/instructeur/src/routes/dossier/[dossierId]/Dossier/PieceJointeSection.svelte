@@ -2,6 +2,7 @@
   import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import type { PieceJointeSimple } from "./piecesJointes.ts";
+  import PieceJointeDeleteButton from "./PieceJointeDeleteButton.svelte";
 
   type Props = {
     title: string;
@@ -9,8 +10,9 @@
     tabLabel?: string;
     pieces: PieceJointeSimple[];
     openTab?: () => void;
+    onDelete?: (piece: PieceJointeSimple) => Promise<void>;
   };
-  let { title, emptyMessage, tabLabel, pieces, openTab }: Props = $props();
+  let { title, emptyMessage, tabLabel, pieces, openTab, onDelete }: Props = $props();
 
   function name(piece: PieceJointeSimple) {
     return piece.description?.name || piece.label;
@@ -42,7 +44,7 @@
     <ul class="flex flex-col gap-2 list-none fr-p-0 fr-m-0">
       {#each pieces as piece}
         <li
-          class="flex items-start justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col"
+          class="flex items-center justify-between gap-3 fr-py-3v fr-px-2w border border-[color:var(--border-default-grey)] rounded-[0.5rem] bg-[var(--background-alt-grey,#f6f6f6)] max-[48rem]:flex-col max-[48rem]:items-start"
         >
           <div class="min-w-0">
             <a
@@ -55,6 +57,9 @@
               <span class="fr-link__detail">{details(piece)}</span>
             </a>
           </div>
+          {#if onDelete && piece.deletion && piece.fileId}
+            <PieceJointeDeleteButton {piece} {onDelete} />
+          {/if}
         </li>
       {/each}
     </ul>

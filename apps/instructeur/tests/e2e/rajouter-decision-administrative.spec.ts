@@ -21,6 +21,12 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
 
   await page.getByLabel("Numéro").fill("AP-E2E-001");
   await chooseInSelect(page.locator("#select-type"), "Arrêté de dérogation/AE");
+  await page
+    .getByLabel("Date de signature de la décision administrative", { exact: true })
+    .fill("15/04/2026");
+  await page.getByLabel("Date de fin des obligations", { exact: true }).fill("15/04/2031");
+  await page.getByRole("button", { name: "Sauvegarder" }).click();
+  expect(await db("decision_administrative").where({ dossier: dossier.id })).toHaveLength(0);
   await page.getByLabel("Fichier de la décision administrative").setInputFiles({
     name: "arrete.pdf",
     mimeType: "application/pdf",
@@ -44,4 +50,16 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   expect(decision.number).toBe("AP-E2E-001");
   expect(decision.type).toBe("Arrêté dérogation");
   expect(decision.fichier).not.toBeNull();
+
+  await page.getByRole("tab", { name: "Pièces jointes" }).click();
+  await page.getByRole("button", { name: "Supprimer arrete.pdf", exact: true }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Voulez-vous supprimer arrete.pdf ?" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Confirmer la suppression" }).click();
+  await expect(page.getByRole("link", { name: /arrete.pdf/ })).toHaveCount(0);
+  expect(await db("decision_administrative").where({ id: decision.id }).first()).toMatchObject({
+    number: "AP-E2E-001",
+    fichier: null,
+  });
 });

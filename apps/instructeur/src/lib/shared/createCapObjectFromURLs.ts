@@ -175,6 +175,7 @@ export default function (
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
     addOrUpdateAvisExpert: wrapJsonPOST(capURLs.addOrUpdateAvisExpert),
     addOtherAttachment: wrapJsonPOST(capURLs.addOtherAttachment),
+    deletePieceJointe: wrapJsonPOST(capURLs.deletePieceJointe, { method: "DELETE" }),
     createUploadUrls: wrapJsonPOST(capURLs.createUploadUrls),
     deleteAvisExpert: wrapDeleteById(capURLs.deleteAvisExpert, avisExpertIdURLParam),
     // keepalive lets the request survive the page being closed, since search events
