@@ -110,11 +110,10 @@ commande. En local :
 just aws-bucket-setup http://localhost:5173 http://localhost:5174
 ```
 
-Sur Scalingo, dans un conteneur de l'app instructeur (exemple pour staging) :
+Sur Scalingo, avec l'app instructeur (exemple pour staging) :
 
 ```sh
-scalingo --region osc-secnum-fr1 --app pitchou-staging run bash
-corepack pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts https://staging.pitchou.incubateur.net https://staging.admin.pitchou.incubateur.net
+scalingo --region osc-secnum-fr1 --app pitchou-staging run 'corepack pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts https://staging.pitchou.incubateur.net https://staging.admin.pitchou.incubateur.net'
 ```
 
 La commande agit sur le bucket `$S3_BUCKET` de l'environnement où elle tourne. Si l'app joint le
