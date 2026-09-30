@@ -4,6 +4,11 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "./database.ts";
 
 import type { default as EspeceBdcStatut } from "@pitchou/types/database/public/EspeceBdcStatut.ts";
+import type { StatutListeRouge } from "@pitchou/types/especes.d.ts";
+import {
+  CD_TYPE_STATUT_LISTE_ROUGE_NATIONALE,
+  statutListeRougeLePlusMenace,
+} from "@pitchou/common/especes/listeRouge.ts";
 
 export const BDC_STATUT_PAGE_SIZE = 20;
 
@@ -17,11 +22,16 @@ export type BdcStatutRow = Pick<
   | "cd_doc"
   | "full_citation"
   | "doc_url"
-> & { nom_scientifique: string | null; nom_vernaculaire: string | null };
+> & {
+  nom_scientifique: string | null;
+  nom_vernaculaire: string | null;
+  statutListeRouge: StatutListeRouge | null;
+};
 
 export type BdcStatutSearch = {
   text: string;
   statut: string;
+  uicn?: StatutListeRouge | "";
   sort: string;
   order: string;
   page: number;
@@ -69,6 +79,19 @@ export async function searchBdcStatut(
     )
     .limit(BDC_STATUT_PAGE_SIZE)
     .offset((search.page - 1) * BDC_STATUT_PAGE_SIZE);
+  const redListRows = await databaseConnection("espece_bdc_statut")
+    .select("cd_ref", "code_statut")
+    .where("cd_type_statut", CD_TYPE_STATUT_LISTE_ROUGE_NATIONALE)
+    .whereIn("cd_ref", [...new Set(rows.map((row) => row.cd_ref))]);
+  const codesByCdRef = new Map<string, string[]>();
+  for (const { cd_ref, code_statut } of redListRows) {
+    const codes = codesByCdRef.get(cd_ref) ?? [];
+    codes.push(code_statut);
+    codesByCdRef.set(cd_ref, codes);
+  }
+  for (const row of rows) {
+    row.statutListeRouge = statutListeRougeLePlusMenace(codesByCdRef.get(row.cd_ref) ?? []);
+  }
   return { rows, total, page: search.page, pageSize: BDC_STATUT_PAGE_SIZE };
 }
 
@@ -90,6 +113,21 @@ function filteredBdcStatut(
 ): Knex.QueryBuilder {
   const query = databaseConnection("espece_bdc_statut");
   if (search.statut) query.where("cd_type_statut", search.statut);
+  if (search.uicn) {
+    // Filter by the species' worst national status, exactly as its badge does.
+    query.whereIn(
+      "cd_ref",
+      databaseConnection("espece_bdc_statut")
+        .select("cd_ref")
+        .where("cd_type_statut", CD_TYPE_STATUT_LISTE_ROUGE_NATIONALE)
+        .groupBy("cd_ref")
+        .havingRaw(
+          `min(case regexp_replace(code_statut, '\\*$', '')
+        when 'CR' then 1 when 'EN' then 2 when 'VU' then 3 end) = ?`,
+          [{ CR: 1, EN: 2, VU: 3 }[search.uicn]],
+        ),
+    );
+  }
   applyTextSearch(databaseConnection, query, search.text);
   return query;
 }

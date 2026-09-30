@@ -3,7 +3,11 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
-  import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+  import type {
+    EspeceProtegee,
+    ClassificationEtreVivant,
+    StatutListeRouge,
+  } from "@pitchou/types/especes.d.ts";
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import {
@@ -40,7 +44,10 @@
 
   /** Number of active filters excluding the text search (shown on the « Filtrer » button) */
   const activeFilterCount = $derived(
-    (query.classification ? 1 : 0) + (query.statut ? 1 : 0) + (query.liste ? 1 : 0),
+    (query.classification ? 1 : 0) +
+      (query.statut ? 1 : 0) +
+      (query.liste ? 1 : 0) +
+      (query.uicn ? 1 : 0),
   );
 
   const filteredEspeces = $derived(filterEspeces(especes, query));
@@ -108,6 +115,7 @@
     classification?: ClassificationEtreVivant | "";
     statut?: Statut | "";
     liste?: ListeFilter;
+    uicn?: StatutListeRouge | "";
   }) {
     updateQuery(updates);
   }
@@ -137,6 +145,7 @@
       selectedClassification={query.classification}
       selectedStatut={query.statut}
       selectedListe={query.liste}
+      selectedUicn={query.uicn}
       onChange={onFilterChange}
     />
   {/if}

@@ -1,6 +1,7 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { searchBdcStatut } from "@pitchou/server/bdcStatut.ts";
+import { parseUicnFilter } from "@pitchou/common/especes/listeRouge.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   const page = Number(url.searchParams.get("page"));
@@ -8,6 +9,7 @@ export const GET: RequestHandler = async ({ url }) => {
     await searchBdcStatut({
       text: url.searchParams.get("q") ?? "",
       statut: url.searchParams.get("statut") ?? "",
+      uicn: parseUicnFilter(url.searchParams.get("uicn")),
       sort: url.searchParams.get("tri") ?? "",
       order: url.searchParams.get("ordre") ?? "",
       page: Number.isInteger(page) && page >= 1 ? page : 1,

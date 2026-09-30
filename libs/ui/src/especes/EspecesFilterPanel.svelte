@@ -1,21 +1,25 @@
 <script lang="ts">
   import Select from "../Select.svelte";
+  import UicnFilter from "./UicnFilter.svelte";
 
-  import type { ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
+  import type { ClassificationEtreVivant, StatutListeRouge } from "@pitchou/types/especes.d.ts";
   import { CLASSIFICATIONS, STATUTS, type Statut, type ListeFilter } from "./especesList.ts";
 
   type Props = {
     selectedClassification: ClassificationEtreVivant | "";
     selectedStatut: Statut | "";
     selectedListe: ListeFilter;
+    selectedUicn?: StatutListeRouge | "";
     onChange: (updates: {
       classification?: ClassificationEtreVivant | "";
       statut?: Statut | "";
       liste?: ListeFilter;
+      uicn?: StatutListeRouge | "";
     }) => void;
   };
 
-  let { selectedClassification, selectedStatut, selectedListe, onChange }: Props = $props();
+  let { selectedClassification, selectedStatut, selectedListe, selectedUicn, onChange }: Props =
+    $props();
 
   const classificationOptions = [
     { value: "" as ClassificationEtreVivant | "", label: "Toutes les classifications" },
@@ -43,6 +47,9 @@
 >
   <legend class="text-[1.25rem] fr-text--bold fr-mb-2w fr-p-0">Filtrer les espèces</legend>
   <div class="flex flex-col gap-3 max-w-[48rem]">
+    {#if selectedUicn !== undefined}
+      <UicnFilter value={selectedUicn} onChange={(uicn) => onChange({ uicn })} />
+    {/if}
     <div
       class="flex flex-row items-center gap-4 max-[768px]:flex-col max-[768px]:items-stretch max-[768px]:gap-1 [&_.fr-label]:flex-[0_0_18rem] [&_.fr-label]:mb-0 [&_.fr-label]:max-[768px]:flex-none"
     >

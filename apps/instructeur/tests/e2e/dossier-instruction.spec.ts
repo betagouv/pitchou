@@ -17,8 +17,10 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
   await page.goto(`/dossier/${dossier.id}?tab=instruction`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await page.getByLabel("Date de début").fill("10/03/2025");
-  await page.getByLabel("Date de fin").fill("30/04/2025");
+  const startDate = page.getByLabel("Date de début de la consultation du public", { exact: true });
+  const endDate = page.getByLabel("Date de fin de la consultation du public", { exact: true });
+  await startDate.fill("10/03/2025");
+  await endDate.fill("30/04/2025");
   await expect
     .poll(() =>
       db("dossier")
@@ -35,8 +37,8 @@ test("l'instructeurice saisit les dates de consultation du public et elles sont 
   await page.reload();
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
-  await expect(page.getByLabel("Date de début")).toHaveValue("10/03/2025");
-  await expect(page.getByLabel("Date de fin")).toHaveValue("30/04/2025");
+  await expect(startDate).toHaveValue("10/03/2025");
+  await expect(endDate).toHaveValue("30/04/2025");
 });
 
 test("les anciens liens avec ancre ouvrent toujours le bon onglet", async ({

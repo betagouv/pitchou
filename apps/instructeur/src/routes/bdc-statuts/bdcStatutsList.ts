@@ -3,6 +3,9 @@
 // BDC-Statuts has one row per species × status, far too many to load at once, so every
 // search, filter change and page turn is a request that returns only the matching slice.
 
+import type { StatutListeRouge } from "@pitchou/types/especes.d.ts";
+import { parseUicnFilter } from "@pitchou/common/especes/listeRouge.ts";
+
 export const BDC_STATUT_PAGE_SIZE = 20;
 
 export type BdcStatutRow = {
@@ -16,6 +19,7 @@ export type BdcStatutRow = {
   doc_url: string;
   nom_scientifique: string | null;
   nom_vernaculaire: string | null;
+  statutListeRouge: StatutListeRouge | null;
 };
 
 export type BdcStatutPage = {
@@ -44,6 +48,7 @@ const SORT_KEYS: readonly string[] = SORT_OPTIONS.map((option) => option.key);
 export type BdcStatutQuery = {
   searchText: string;
   statut: string;
+  uicn: StatutListeRouge | "";
   sort: SortKey;
   order: SortOrder;
   page: number;
@@ -56,6 +61,7 @@ export function parseBdcStatutQuery(params: URLSearchParams): BdcStatutQuery {
   return {
     searchText: params.get("q") ?? "",
     statut: params.get("statut") ?? "",
+    uicn: parseUicnFilter(params.get("uicn")),
     sort: SORT_KEYS.includes(sort) ? (sort as SortKey) : "cdref",
     order: params.get("ordre") === "desc" ? "desc" : "asc",
     page: Number.isInteger(page) && page >= 1 ? page : 1,
@@ -87,6 +93,7 @@ function apiQueryString(query: BdcStatutQuery): string {
   const params = new URLSearchParams();
   if (query.searchText) params.set("q", query.searchText);
   if (query.statut) params.set("statut", query.statut);
+  if (query.uicn) params.set("uicn", query.uicn);
   if (query.sort !== "cdref") params.set("tri", query.sort);
   if (query.order === "desc") params.set("ordre", query.order);
   if (query.page > 1) params.set("page", String(query.page));

@@ -1,3 +1,5 @@
+import "@gouvfr/dsfr/dist/dsfr.min.css";
+import "../../../../app.css";
 import { afterEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, render } from "@testing-library/svelte";
@@ -5,6 +7,12 @@ import { cleanup, render } from "@testing-library/svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import { store } from "$lib/state/store.svelte.ts";
+
+vi.mock("$lib/dossier/dossier.ts", () => ({
+  recordLocalWrite: vi.fn(),
+  refreshDossierFull: vi.fn().mockResolvedValue(undefined),
+}));
 
 afterEach(cleanup);
 
@@ -104,4 +112,52 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
     .element(page.getByRole("button", { name: "Voir dans l'onglet Instruction" }))
     .not.toBeInTheDocument();
   expect(openTab).toHaveBeenCalledTimes(3);
+});
+
+test("confirms attachment deletion, preserves it on cancellation or error, and protects project files", async () => {
+  const deletePieceJointe = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("Suppression refusée"))
+    .mockResolvedValue(undefined);
+  store.capabilities = { deletePieceJointe };
+  const dossier = {
+    id: 42,
+    piecesJointesPetitionnaires: [{ id: "project-file", url: "/project.pdf", name: "projet.pdf" }],
+    avisExpert: [],
+    decisionsAdministratives: [],
+    otherAttachments: [
+      {
+        id: "attachment",
+        fichier: "file",
+        type: "Note",
+        fichier_url: "/note.pdf",
+        fichier_description: { name: "note.pdf" },
+      },
+    ],
+  } as unknown as DossierFull;
+  render(DossierPiecesJointes, { dossier, openTab: vi.fn() });
+  await expect
+    .element(page.getByRole("button", { name: "Supprimer projet.pdf" }))
+    .not.toBeInTheDocument();
+  await page.getByRole("button", { name: "Supprimer note.pdf" }).click();
+  await expect
+    .element(page.getByRole("dialog", { name: "Voulez-vous supprimer note.pdf ?" }))
+    .toBeVisible();
+  expect(deletePieceJointe).not.toHaveBeenCalled();
+  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  await expect.element(page.getByRole("link", { name: /note.pdf/ })).toBeVisible();
+  await page.getByRole("button", { name: "Supprimer note.pdf" }).click();
+  await page.getByRole("button", { name: "Confirmer la suppression" }).click();
+  await expect.element(page.getByRole("alert")).toHaveTextContent("Suppression refusée");
+  await expect.element(page.getByRole("link", { name: /note.pdf/ })).toBeVisible();
+  await page.getByRole("button", { name: "Confirmer la suppression" }).click();
+  await expect.element(page.getByRole("link", { name: /note.pdf/ })).not.toBeInTheDocument();
+  expect(deletePieceJointe).toHaveBeenLastCalledWith({
+    dossier: 42,
+    type: "autre",
+    entityId: "attachment",
+    fileId: "file",
+  });
+  await expect.element(page.getByRole("link", { name: /projet.pdf/ })).toBeVisible();
+  store.capabilities = {};
 });

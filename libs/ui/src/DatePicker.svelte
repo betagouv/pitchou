@@ -19,10 +19,21 @@
     max?: string;
     align?: "left" | "right";
     disabled?: boolean;
+    required?: boolean;
     onChange: (value: string | null) => void;
   };
 
-  let { id, label, value, min, max, align = "left", disabled = false, onChange }: Props = $props();
+  let {
+    id,
+    label,
+    value,
+    min,
+    max,
+    align = "left",
+    disabled = false,
+    required = false,
+    onChange,
+  }: Props = $props();
 
   let open = $state(false);
   let openAbove = $state(false);
@@ -126,6 +137,7 @@
       placeholder="jj/mm/aaaa"
       value={inputValue}
       {disabled}
+      {required}
       onblur={resetInvalidInput}
       onclick={() => !open && !disabled && openPanel()}
       oninput={typeDate}

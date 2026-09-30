@@ -40,6 +40,11 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     label: "Pièce jointe importée :",
     value: str(d, "name") ?? undefined,
   }),
+  piece_jointe_supprimee: (d) => ({
+    icon: "fr-icon-delete-line",
+    label: "Pièce jointe supprimée :",
+    value: str(d, "name") ?? undefined,
+  }),
   dossier_suivi: (d) => ({
     icon: "fr-icon-star-fill",
     label: "Dossier suivi par",

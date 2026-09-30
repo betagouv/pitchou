@@ -88,6 +88,7 @@
 
     <FormDecisionAdministrative
       decisionAdministrative={editedDecision}
+      hasExistingFile={Boolean(fichier_url)}
       onValidate={saveModification}
       onCancel={() => (editedDecision = undefined)}
       onDelete={() => (showDeleteConfirmation = true)}

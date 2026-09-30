@@ -17,6 +17,10 @@ export function isStatutListeRouge(value: unknown): value is StatutListeRouge {
   return STATUTS_LISTE_ROUGE.includes(value as StatutListeRouge);
 }
 
+export function parseUicnFilter(value: unknown): StatutListeRouge | "" {
+  return isStatutListeRouge(value) ? value : "";
+}
+
 /**
  * The most threatened category among a species' national red-list codes, or null when
  * none of them is a threatened category (LC, NT, DD, NA…).

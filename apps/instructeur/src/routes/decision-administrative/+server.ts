@@ -9,6 +9,7 @@ import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
   getDossierIdFromDecisionAdministrative,
+  getDecisionAdministratives,
 } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
@@ -38,19 +39,14 @@ function parseDecision(value: Record<string, unknown>): ValidatedDecision {
     error(400, `La propriété 'id' doit être une chaîne non vide.`);
   }
   for (const property of ["number", "type"] as const) {
-    if (
-      value[property] !== undefined &&
-      value[property] !== null &&
-      typeof value[property] !== "string"
-    ) {
-      error(400, `La propriété '${property}' doit être une chaîne ou null.`);
+    if (typeof value[property] !== "string" || !value[property].trim()) {
+      error(400, `La propriété '${property}' est obligatoire et doit être une chaîne non vide.`);
     }
   }
   for (const property of ["signature_date", "obligations_end_date"] as const) {
     const rawDate = value[property];
-    if (rawDate === undefined || rawDate === null) continue;
     if (typeof rawDate !== "string" || Number.isNaN(Date.parse(rawDate))) {
-      error(400, `La propriété '${property}' doit être une date valide ou null.`);
+      error(400, `La propriété '${property}' est obligatoire et doit être une date valide.`);
     }
     value[property] = new Date(rawDate);
   }
@@ -89,6 +85,16 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
 
     let id: string;
+    if (!decisionData.fichier_upload) {
+      const existingDecision = decisionData.id
+        ? (await getDecisionAdministratives(decisionData.dossier, transaction)).find(
+            (decision) => decision.id === decisionData.id,
+          )
+        : undefined;
+      if (!existingDecision?.fichier) {
+        error(400, "Le fichier de la décision administrative est obligatoire.");
+      }
+    }
     try {
       id = decisionData.id
         ? await updateDecisionAdministrative(decisionData, transaction)

@@ -127,13 +127,18 @@ test("le service propriétaire garde le dossier entier", async () => {
 
 test("un autre service ne peut rien écrire sur le dossier", async () => {
   const { capLecture, dossierId } = await createDossierWithSecondService();
-
   const writes: [string, Record<string, unknown>][] = [
     [`/dossier/${dossierId}?cap=${capLecture}`, { enjeu: true }],
     [`/dossier/${dossierId}/commentaires?cap=${capLecture}`, { content: "Bonjour" }],
     [
       `/decision-administrative?cap=${capLecture}`,
-      { dossier: dossierId, type: "Arrêté dérogation" },
+      {
+        dossier: dossierId,
+        type: "Arrêté dérogation",
+        number: "AP-002",
+        signature_date: "2026-04-15",
+        obligations_end_date: "2031-04-15",
+      },
     ],
     [`/dossier/${dossierId}/historique?cap=${capLecture}`, { documents: ["doc"] }],
   ];
@@ -154,7 +159,6 @@ test("un autre service ne peut rien écrire sur le dossier", async () => {
       });
     }
   }
-
   // Nothing was written.
   await expect(db("commentaire").where({ dossier: dossierId })).resolves.toHaveLength(1);
   await expect(db("decision_administrative").where({ dossier: dossierId })).resolves.toHaveLength(

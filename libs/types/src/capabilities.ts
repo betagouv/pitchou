@@ -15,6 +15,7 @@ import type Prescription from "./database/public/Prescription.ts";
 import type Controle from "./database/public/Controle.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
+import type { FileId } from "./database/public/File.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
 
@@ -23,6 +24,13 @@ export type DossierFollowerCandidate = {
   firstNames: Personne["first_names"];
   lastName: Personne["last_name"];
   followsDossier: boolean;
+};
+
+export type PieceJointeDeletion = {
+  dossier: Dossier["id"];
+  type: "saisine" | "avis" | "decision" | "autre";
+  entityId: string;
+  fileId: FileId;
 };
 
 /** An entry of a dossier's historique as exchanged with the API. */
@@ -105,6 +113,7 @@ export interface PitchouInstructeurCapabilities {
   deleteControle: (id: Controle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (avisExpert: AvisExpertForTransfer) => Promise<string>;
   addOtherAttachment: (attachment: OtherAttachmentForTransfer) => Promise<string[]>;
+  deletePieceJointe: (piece: PieceJointeDeletion) => Promise<void>;
   /** Signed URLs the browser PUTs files to, so bytes never go through the app server. */
   createUploadUrls: (request: UploadUrlRequest) => Promise<UploadUrl[]>;
   deleteAvisExpert: (id: AvisExpert["id"]) => Promise<unknown>;

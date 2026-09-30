@@ -31,6 +31,7 @@
     classification: "",
     statut: "",
     liste: "",
+    uicn: "",
     sort: "nomScientifique",
     order: "asc",
     page: 1,

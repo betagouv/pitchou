@@ -42,6 +42,9 @@ test("le navigateur obtient une URL signée, y envoie le fichier, puis l'API l'e
     body: JSON.stringify({
       dossier: dossier.id,
       type: "Arrêté dérogation",
+      number: "AP-001",
+      signature_date: "2026-04-15",
+      obligations_end_date: "2031-04-15",
       fichier_upload: { id: upload.id, name: "arrete.pdf" },
     }),
   });

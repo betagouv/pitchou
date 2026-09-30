@@ -76,6 +76,7 @@ export const GET: RequestHandler = async ({ url }) => {
     ret.deleteControle = `/controle/:controleId?cap=${cap}`;
     ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
     ret.addOtherAttachment = `/attachment-autre?cap=${cap}`;
+    ret.deletePieceJointe = `/piece-jointe?cap=${cap}`;
     ret.createUploadUrls = `/fichier/upload-url?cap=${cap}`;
     ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
   }

@@ -4,6 +4,7 @@ import type {
   FrontEndFichier,
 } from "@pitchou/types/API_Pitchou.ts";
 import type File from "@pitchou/types/database/public/File.ts";
+import type { PieceJointeDeletion } from "@pitchou/types/capabilities.ts";
 
 export type PieceJointeSimple = {
   label: string;
@@ -13,6 +14,7 @@ export type PieceJointeSimple = {
   url: string;
   fileId?: File["id"];
   selectedForCnpnByDefault?: boolean;
+  deletion?: Omit<PieceJointeDeletion, "dossier" | "fileId">;
 };
 
 export type PieceJointeGroup = {
@@ -37,7 +39,7 @@ export function piecesJointesProjet(dossier: DossierFull): PieceJointeSimple[] {
   );
 }
 
-export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
+export function piecesJointesAvis(dossier: Pick<DossierFull, "avisExpert">): PieceJointeSimple[] {
   const latestCnpnSaisine = dossier.avisExpert
     .filter(
       (avisExpert) =>
@@ -68,6 +70,7 @@ export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
         labelDate: "Date de saisine",
         url: avisExpert.saisine_fichier_url,
         fileId: avisExpert.saisine_fichier_description?.id,
+        deletion: { type: "saisine", entityId: avisExpert.id },
         selectedForCnpnByDefault:
           avisExpert.saisine_fichier_description?.id === defaultCnpnSaisineFileId,
       });
@@ -81,6 +84,7 @@ export function piecesJointesAvis(dossier: DossierFull): PieceJointeSimple[] {
         labelDate: "Date de l'avis",
         url: avisExpert.avis_fichier_url,
         fileId: avisExpert.avis_fichier_description?.id,
+        deletion: { type: "avis", entityId: avisExpert.id },
       });
     }
 
@@ -102,6 +106,7 @@ export function piecesJointesDecisions(dossier: DossierFull): PieceJointeSimple[
         labelDate: "Date de signature",
         url: decision.fichier_url,
         fileId: decision.fichier_description?.id,
+        deletion: { type: "decision", entityId: decision.id },
       },
     ];
   });
@@ -115,6 +120,7 @@ export function piecesJointesAutres(dossier: DossierFull): PieceJointeSimple[] {
     labelDate: "Date de la pièce jointe",
     url: attachment.fichier_url ?? "",
     fileId: attachment.fichier,
+    deletion: { type: "autre", entityId: attachment.id },
   }));
 }
 
