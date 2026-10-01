@@ -53,7 +53,7 @@ test.each(["mes-dossiers", "tous-les-dossiers"])(
     );
     render(ListDossiers, { title: "Dossiers", dossiers, notificationByDossier: new Map() });
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(10);
-    expect(screen.getByRole("heading", { name: /Page 3 sur 3/ })).toBeTruthy();
+    expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
     await page.getByRole("combobox", { name: "Dossiers par page" }).click();
     expect(screen.getAllByRole("option").map((option) => option.textContent?.trim())).toEqual([
       "10",
@@ -69,11 +69,15 @@ test.each(["mes-dossiers", "tous-les-dossiers"])(
     expect(params.get("sort")).toBe("nextDueDate");
     expect(params.get("order")).toBe("asc");
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(50);
-    expect(screen.getByRole("heading", { name: /Page 1 sur 2/ })).toBeTruthy();
+    expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
     await page.getByRole("button", { name: "Page suivante" }).click();
-    expect((await followNavigation()).get("pageSize")).toBe("50");
+    const nextPageParams = await followNavigation();
+    expect(nextPageParams.get("pageSize")).toBe("50");
+    expect(nextPageParams.get("page")).toBe("2");
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(10);
-    expect(screen.getByRole("heading", { name: /Page 2 sur 2/ })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Résultats de recherche pour «Projet»" })).toBe(
+      document.activeElement,
+    );
     await page.getByRole("combobox", { name: "Dossiers par page" }).click();
     await page.getByRole("option", { name: "100", exact: true }).click();
     await followNavigation();
@@ -91,7 +95,7 @@ test("page-size selector remains available for an empty list on mobile", async (
   await page.viewport(390, 844);
   routeState.url = new URL("http://localhost/mes-dossiers?pageSize=100&page=99");
   render(ListDossiers, { title: "Dossiers", dossiers: [], notificationByDossier: new Map() });
-  expect(screen.getByRole("heading", { name: "Page 1 sur 1" })).toBeTruthy();
+  expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
   const selector = screen.getByRole("combobox", { name: "Dossiers par page" });
   expect(selector.textContent).toContain("100");
   const selectedSize = selector.querySelector<HTMLElement>(".truncate")!;

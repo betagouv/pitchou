@@ -46,7 +46,7 @@
   const pageCount = $derived(Math.max(1, Math.ceil(dossiers.length / pageSize)));
   const currentPage = $derived(Math.min(Math.max(1, requestedPage), pageCount));
   const displayed = $derived(dossiers.slice(pageSize * (currentPage - 1), pageSize * currentPage));
-  let title: HTMLHeadingElement | undefined = $state();
+  let results: HTMLDivElement | undefined = $state();
   // A save can move the card to another month or page before the server responds.
   let editingDueDate: Pick<DossierSummary, "id" | "name"> | undefined = $state();
 
@@ -57,7 +57,7 @@
     const trigger = document.querySelector<HTMLButtonElement>(
       `button[aria-controls="dossier-actions-menu-${id}"]`,
     );
-    (trigger ?? title)?.focus();
+    (trigger ?? results)?.focus();
   }
   const selectors = $derived.by<undefined | [undefined, ...(() => void)[]]>(() => {
     if (dossiers.length <= pageSize) return undefined;
@@ -65,21 +65,13 @@
       undefined,
       ...Array.from({ length: pageCount }, (_, i) => () => {
         navigatePage(i + 1);
-        tick().then(() => title?.focus());
+        tick().then(() => results?.focus());
       }),
     ];
   });
 </script>
 
-<div class="flex flex-wrap items-center justify-between gap-3">
-  <h2
-    bind:this={title}
-    tabindex="-1"
-    class="text-[1rem] fr-text--regular fr-mb-0 focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
-  >
-    {searchText.trim() ? `Résultats de recherche pour «${searchText}» : ` : ""}Page {currentPage} sur
-    {pageCount}
-  </h2>
+<div class="flex flex-wrap items-center justify-end gap-3">
   <div class="flex items-center gap-2">
     <label class="fr-m-0" for="dossiers-page-size">Dossiers par page</label>
     <Select
@@ -91,19 +83,29 @@
     />
   </div>
 </div>
-<DossiersResults
-  onEditDueDate={(dossier) => (editingDueDate = dossier)}
-  {readOnly}
-  dossiers={displayed}
-  {sortKey}
-  {wholeListEmpty}
-  {followedIds}
-  {notificationViewed}
-  {notificationUpdatedAt}
-  {follow}
-  {leave}
-  {emptyListMessage}
-/>
+<div
+  bind:this={results}
+  role="region"
+  aria-label={searchText.trim()
+    ? `Résultats de recherche pour «${searchText}»`
+    : "Liste des dossiers"}
+  tabindex="-1"
+  class="focus:[outline:2px_solid_var(--bf500)] focus:[outline-offset:2px]"
+>
+  <DossiersResults
+    onEditDueDate={(dossier) => (editingDueDate = dossier)}
+    {readOnly}
+    dossiers={displayed}
+    {sortKey}
+    {wholeListEmpty}
+    {followedIds}
+    {notificationViewed}
+    {notificationUpdatedAt}
+    {follow}
+    {leave}
+    {emptyListMessage}
+  />
+</div>
 {#if selectors}<Pagination pageSelectors={selectors} currentPage={selectors[currentPage]} />{/if}
 
 {#if editingDueDate}

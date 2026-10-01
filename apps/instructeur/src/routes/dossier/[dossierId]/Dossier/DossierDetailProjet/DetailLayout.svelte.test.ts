@@ -33,6 +33,9 @@ test.each([1440, 1024, 390])(
       fieldChange("piece:test"),
     ];
     const dossier = detailDossier(changes, {
+      source: "demarche_numerique",
+      demarche_number: 88444,
+      demarche_numerique_number: "123456",
       description: text,
       no_other_satisfactory_solution_justification: text,
       scientifique_demande_type: ["recherche"],
@@ -67,6 +70,11 @@ test.each([1440, 1024, 390])(
     for (const header of headers) header.click();
     await tick();
     await document.fonts.ready;
+    const dnLink = view.getByRole("link", { name: "Voir le dossier sur Démarche Numérique" });
+    expect(dnLink.getAttribute("href")).toMatch(/\/procedures\/88444\/dossiers\/123456$/);
+    expect(dnLink.getAttribute("target")).toBe("_blank");
+    expect(dnLink.classList.contains("fr-btn--secondary")).toBe(false);
+    expect(dnLink.getBoundingClientRect().right).toBeLessThanOrEqual(width);
     const rows = [...view.container.querySelectorAll<HTMLElement>(".dossier-review-row")];
     const first = rows[0].firstElementChild!.getBoundingClientRect();
     for (const row of rows) {

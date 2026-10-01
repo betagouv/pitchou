@@ -50,10 +50,10 @@ test.each([1440, 390, 320])("species tables and reviews fit a %ipx viewport", as
   await tick();
   await document.fonts.ready;
   const detail = view.container.querySelector<HTMLElement>(".species-detail")!;
-  const fileRow = detail.querySelector<HTMLElement>(":scope > .review-row")!;
+  const download = view.getByRole("button", { name: "Télécharger le fichier original" });
   const groups = [...detail.querySelectorAll<HTMLElement>(".impact-group")];
   expect(getComputedStyle(detail).paddingTop).toBe("8px");
-  expect(groups[0].getBoundingClientRect().top - fileRow.getBoundingClientRect().bottom).toBe(16);
+  expect(download.getBoundingClientRect().top - groups[1].getBoundingClientRect().bottom).toBe(16);
   expect(groups[1].getBoundingClientRect().top - groups[0].getBoundingClientRect().bottom).toBe(48);
   const scrolls = [...view.container.querySelectorAll<HTMLElement>(".table-scroll")];
   const control = view.container.querySelector<HTMLElement>(".field-change")!;
@@ -63,6 +63,7 @@ test.each([1440, 390, 320])("species tables and reviews fit a %ipx viewport", as
   for (const element of [
     ...scrolls,
     control,
+    download,
     accordion,
     ...accordion.querySelectorAll(".fr-badge"),
   ]) {

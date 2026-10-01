@@ -85,14 +85,14 @@
 <Scientifique {dossier} {modifiedFields} />
 
 <div class="dossier-review-left">
-  <h4 class="fr-mt-4w fr-text--md font-bold">Dossier déposé</h4>
   {#if dossier.source === "demarche_numerique"}
     {#if dossier.demarche_numerique_number && dossier.demarche_number}
       <a
-        class="fr-btn fr-btn--secondary fr-mb-1w"
+        class="fr-btn fr-icon-external-link-line fr-btn--icon-left fr-mt-1w fr-mb-1w rounded"
         target="_blank"
+        rel="noopener"
         href={`${originDemarcheNumerique}/procedures/${dossier.demarche_number}/dossiers/${dossier.demarche_numerique_number}`}
-        >Dossier sur Démarche Numérique</a
+        >Voir le dossier sur Démarche Numérique</a
       >
     {:else}<p class="fr-text-mention--grey">
         Ce dossier provient de Démarches Numériques, mais son lien n'est pas disponible.
