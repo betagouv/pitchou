@@ -12,9 +12,9 @@
 </script>
 
 {#if impact.activité}
-  <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
+  <div class="grid min-w-0 grid-cols-1 gap-4 fr-mt-2w sm:grid-cols-2 lg:grid-cols-4">
     {#if impact.activité["Nombre d'individus"] === "Oui"}
-      <div class="fr-col-md-3 fr-col-12 input-select">
+      <div class="min-w-0">
         <label class="fr-label" for="input-espece-{indexEspece}-nombre-individus-{indexImpact}"
           >Nombre d’individus</label
         >
@@ -27,7 +27,7 @@
       </div>
     {/if}
     {#if impact.activité["Nids"] === "Oui"}
-      <div class="fr-col-md-3 fr-col-12 input-button">
+      <div class="min-w-0">
         <label class="fr-label" for="input-espece-{indexEspece}-nids-{indexImpact}">Nids</label>
         <input
           type="number"
@@ -40,7 +40,7 @@
       </div>
     {/if}
     {#if impact.activité["Œufs"] === "Oui"}
-      <div class="fr-col-md-3 fr-col-12 input-button">
+      <div class="min-w-0">
         <label class="fr-label" for="input-espece-{indexEspece}-oeufs-{indexImpact}">Œufs</label>
         <input
           type="number"
@@ -53,7 +53,7 @@
       </div>
     {/if}
     {#if impact.activité["Surface habitat détruit (m²)"] === "Oui"}
-      <div class="fr-col-md-3 fr-col-12 input-button">
+      <div class="min-w-0">
         <label class="fr-label" for="input-espece-{indexEspece}-surface-{indexImpact}"
           >Surface habitat détruit (m²)</label
         >

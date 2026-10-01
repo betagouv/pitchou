@@ -108,15 +108,16 @@
 </script>
 
 <div
-  class="[text-align:inherit] fr-p-2w border border-[color:var(--border-default-grey)] border-b-[0.25rem] border-b-[color:var(--border-active-blue-france)] fr-mb-4w"
+  class="min-w-0 bg-[var(--background-default-grey)] p-4 md:p-6 border border-[color:var(--border-default-grey)] border-t-4 border-t-[color:var(--border-active-blue-france)] fr-mb-3w"
 >
-  <fieldset class="fr-fieldset">
-    <legend class="fr-sr-only"
-      >Espèce impactée #{index} {espece ? especeLabel(espece) : "Non selectionnée"}</legend
-    >
+  <fieldset class="min-w-0 m-0 block w-full p-0">
+    <legend class="fr-text--lg fr-text--bold fr-mb-2w">
+      Espèce #{index}
+      <span class="fr-sr-only">{espece ? especeLabel(espece) : "Non sélectionnée"}</span>
+    </legend>
 
-    <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-      <div class="fr-col-md-4 fr-col-12">
+    <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:gap-6">
+      <div class="min-w-0">
         <label class="fr-label" for="input-espece-{index}"> Espèce </label>
         <AutocompleteEspeces
           bind:this={autocomplete}
@@ -125,22 +126,20 @@
           espèces={especesProtegees}
           id={"input-espece-" + index}
         />
-      </div>
-
-      <div class="fr-col-md-4 fr-col flex items-center pt-9">
         <button
           aria-controls={idModaleEspeceNonTrouvee}
           data-fr-opened="false"
           type="button"
-          class="fr-btn fr-btn--sm fr-btn--tertiary"
+          class="fr-btn fr-btn--sm fr-btn--tertiary fr-mt-1w"
           onclick={onOuvertureModale}>Je ne trouve pas une espèce…</button
         >
       </div>
 
-      <div class="fr-col-md-4 fr-col flex gap-4 items-center justify-end pt-9">
+      <div class="flex items-start gap-2 md:pt-6">
         <button
           onclick={onDupliquerEspece}
           class="fr-btn fr-btn--secondary fr-icon-file-copy-2-line"
+          title="Ajouter une espèce avec les mêmes impacts"
           type="button"
         >
           <span class="fr-sr-only"
@@ -152,6 +151,7 @@
           bind:this={deleteButton}
           onclick={onSuprimerEspece}
           class="fr-btn fr-btn--secondary fr-icon-delete-line"
+          title="Supprimer l'espèce"
           type="button"
         >
           <span class="fr-sr-only">Supprimer l'espèce #{index}</span>
@@ -161,28 +161,30 @@
 
     {#if especeClassification}
       {#each descriptionImpacts as impact, indexImpact (impact)}
-        <hr class="fr-hr w-4/5 m-auto" />
-
-        <ImpactEspece
-          bind:this={referencesImpact[indexImpact]}
-          espèce={espece}
-          espèceClassification={especeClassification}
-          indexEspèce={index}
-          indexImpact={indexImpact + 1}
-          onSupprimerImpact={async () => {
-            await deleteImpact(indexImpact);
-          }}
-          {activitesParClassificationEtreVivant}
-          méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
-          {transportsParClassificationEtreVivant}
-          bind:impact={descriptionImpacts[indexImpact]}
-        />
+        <div class="min-w-0 border-t border-[color:var(--border-default-grey)] fr-mt-3w fr-pt-3w">
+          <ImpactEspece
+            bind:this={referencesImpact[indexImpact]}
+            espèce={espece}
+            espèceClassification={especeClassification}
+            indexEspèce={index}
+            indexImpact={indexImpact + 1}
+            onSupprimerImpact={async () => {
+              await deleteImpact(indexImpact);
+            }}
+            {activitesParClassificationEtreVivant}
+            méthodesParClassificationEtreVivant={methodesParClassificationEtreVivant}
+            {transportsParClassificationEtreVivant}
+            bind:impact={descriptionImpacts[indexImpact]}
+          />
+        </div>
       {/each}
 
-      <hr class="fr-hr w-4/5 m-auto" />
-
-      <div class="fr-fieldset__element fr-input-group fr-mb-0">
-        <button class="fr-btn fr-btn--secondary" type="button" onclick={addImpact}>
+      <div class="fr-mt-3w">
+        <button
+          class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-add-line"
+          type="button"
+          onclick={addImpact}
+        >
           Ajouter un autre impact
         </button>
       </div>

@@ -110,59 +110,71 @@
   let selectImpact: { focus: () => void } | undefined = $state();
 </script>
 
-<fieldset class="fr-fieldset fr-input-group fr-fieldset__element fr-m-0 fr-p-0">
+<fieldset class="block min-w-0 w-full fr-m-0 fr-p-0">
   {#if indexImpact && indexEspece}
-    <legend class="fr-sr-only">Impact #{indexImpact} sur l'espèce #{indexEspece}</legend>
+    <legend class="fr-text--bold fr-mb-2w"
+      >Impact #{indexImpact}<span class="fr-sr-only"> sur l'espèce #{indexEspece}</span></legend
+    >
   {:else}
     <legend class="fr-sr-only">Impact sur les espèces de type {especeClassification}</legend>
   {/if}
-  <div class="fr-fieldset__element fr-input-group fr-grid-row fr-grid-row--gutters">
-    <div class="fr-col-md-5 fr-col-12 input-select">
+  <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+    <div class="min-w-0">
       <label class="fr-label" for="input-espece-{indexEspece}-impact-{indexImpact}">
         Type d’impact
       </label>
-      <div class="flex fr-mt-1w gap-2 min-[62em]:gap-6">
-        <Select
-          bind:this={selectImpact}
-          id="input-espece-{indexEspece}-impact-{indexImpact}"
-          class="grow"
-          options={activiteOptions}
-          bind:value={() => impact.activité?.["Identifiant Pitchou"], setActivite}
-        />
-        {#if onSupprimerImpact}
-          <button
-            class="fr-btn fr-btn--secondary fr-icon-delete-line"
-            type="button"
-            bind:this={deleteButton}
-            onclick={onSupprimerImpact}
-          >
-            <span class="fr-sr-only"
-              >Supprimer l'impact #{indexImpact} sur l'espèce #{indexEspece}</span
-            >
-          </button>
-        {/if}
-      </div>
+      <Select
+        bind:this={selectImpact}
+        id="input-espece-{indexEspece}-impact-{indexImpact}"
+        class="min-w-0"
+        options={activiteOptions}
+        bind:value={() => impact.activité?.["Identifiant Pitchou"], setActivite}
+      />
     </div>
+    {#if onSupprimerImpact}
+      <button
+        class="fr-btn fr-btn--tertiary fr-icon-delete-line shrink-0"
+        type="button"
+        title="Supprimer l'impact"
+        bind:this={deleteButton}
+        onclick={onSupprimerImpact}
+      >
+        <span class="fr-sr-only">Supprimer l'impact #{indexImpact} sur l'espèce #{indexEspece}</span
+        >
+      </button>
+    {/if}
+  </div>
 
+  <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
     {#if impact.activité && impact.activité["Méthode"] === "Oui"}
-      <div class="fr-col-md-4 fr-col-12 input-select">
+      <div class="min-w-0 fr-mt-2w">
         <label class="fr-label" for="input-espece-{indexEspece}-methode-{indexImpact}">
           Méthode
         </label>
         <Select
           id="input-espece-{indexEspece}-methode-{indexImpact}"
           class="fr-mt-1w"
+          listPlacement={{ minWidth: 480 }}
           options={methodeOptions}
           bind:value={
             () => impact.méthode?.Code,
             (code) => (impact.méthode = methodeMenacantes.find((methode) => methode.Code === code))
           }
         />
+        {#if impact.méthode && impact.méthode["Libellé Pitchou"].length > 80}
+          <details class="fr-mt-1w fr-mb-0 fr-text--sm">
+            <summary
+              class="fr-link fr-link--sm fr-link--icon-right fr-icon-arrow-down-s-line cursor-pointer"
+              >Voir le détail de la méthode</summary
+            >
+            <p class="fr-mt-1w fr-mb-0 break-words">{impact.méthode["Libellé Pitchou"]}</p>
+          </details>
+        {/if}
       </div>
     {/if}
 
     {#if impact.activité && impact.activité["Moyen de poursuite"] === "Oui"}
-      <div class="fr-col-md-3 fr-col-12 input-select">
+      <div class="min-w-0 fr-mt-2w">
         <label class="fr-label" for="input-espece-{indexEspece}-moyen-de-poursuite-{indexImpact}">
           Moyen de poursuite
         </label>
