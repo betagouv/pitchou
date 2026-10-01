@@ -5,6 +5,7 @@
   import { typeImpactIconUrl } from "@pitchou/ui/especes/typeImpactIcon.ts";
   import { sendEvenement } from "$lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
+  import DownloadButton from "$lib/components/DownloadButton.svelte";
   import FieldChange from "./FieldChange.svelte";
   import { readOnlyMode } from "../readOnly.ts";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";
@@ -47,17 +48,15 @@
 </script>
 
 <div class="species-detail">
-  {#if sourceFile || (!readOnly.current && change)}
+  {#if sourceFile}
+    <FichierEspecesAlert {anomalies} />
+  {/if}
+  {#if !readOnly.current && change}
     <div class="review-row dossier-review-row">
       <div class="file-info">
-        {#if sourceFile}
-          <FichierEspecesAlert {anomalies} {makeFileContentBlob} {makeFilename} />
-        {/if}
-        {#if !readOnly.current && change}
-          <p class="fr-m-0">
-            Le fichier des espèces a été modifié. Le groupe d'impact concerné n'est pas précisé.
-          </p>
-        {/if}
+        <p class="fr-m-0">
+          Le fichier des espèces a été modifié. Le groupe d'impact concerné n'est pas précisé.
+        </p>
       </div>
       <div class="review-control"><FieldChange dossierId={dossier.id} {change} /></div>
     </div>
@@ -86,6 +85,16 @@
       Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.
     </p>
   {/each}
+  {#if sourceFile}
+    <div class="dossier-review-left">
+      <DownloadButton
+        {makeFileContentBlob}
+        {makeFilename}
+        classname="fr-btn fr-icon-download-line fr-btn--icon-left rounded"
+        label="Télécharger le fichier original"
+      />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -114,8 +123,8 @@
     flex-shrink: 0;
   }
   .impact-icon {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 48px;
+    height: 48px;
     flex-shrink: 0;
     user-select: none;
   }

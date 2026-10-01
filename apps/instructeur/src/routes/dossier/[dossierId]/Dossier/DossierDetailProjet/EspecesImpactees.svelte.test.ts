@@ -99,7 +99,7 @@ test("read-only hides all reviews, highlights and deleted groups", () => {
   expect(view.getAllByRole("table")).toHaveLength(2);
 });
 
-test("original species download stays available outside tables", async () => {
+test("original species download is a primary button after all tables", async () => {
   const dossier = speciesDossier();
   dossier.especesImpactees.sourceFile = {
     name: "especes.xlsx",
@@ -110,6 +110,10 @@ test("original species download stays available outside tables", async () => {
   await tick();
   const download = view.getByRole("button", { name: "Télécharger le fichier original" });
   expect(download.closest("table")).toBeNull();
+  expect(download.classList.contains("fr-btn")).toBe(true);
+  for (const table of view.getAllByRole("table")) {
+    expect(table.compareDocumentPosition(download) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  }
 });
 
 test("file anomalies retain their details, reference link and original download", async () => {
@@ -145,6 +149,11 @@ test("group headings show the type d'impact icon; untyped groups keep the leaf",
   const [destruction, degradation, untyped] = headings;
   expect(destruction.querySelector("img.impact-icon")).toBeTruthy();
   expect(degradation.querySelector("img.impact-icon")).toBeTruthy();
+  for (const heading of [destruction, degradation]) {
+    const icon = heading.querySelector("img")!;
+    expect(icon.getBoundingClientRect().width).toBe(48);
+    expect(icon.getBoundingClientRect().height).toBe(48);
+  }
   expect(destruction.querySelector("img")?.getAttribute("src")).not.toBe(
     degradation.querySelector("img")?.getAttribute("src"),
   );
