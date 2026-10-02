@@ -10,6 +10,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { createDossierFollowerCapabilities } from "./dossierFollowerCapabilities.ts";
 import { createDossierCommentaireCapabilities } from "./dossierCommentaireCapabilities.ts";
 import { formatDossierFull } from "./createCapObjectFromURLs/formatDossierFull.ts";
+import { wrapExportDossiers } from "./createCapObjectFromURLs/exportDossiers.ts";
 import {
   RequestError,
   wrapDeleteById,
@@ -152,6 +153,7 @@ export default function (
 ): Partial<PitchouInstructeurCapabilities> & { identité: IdentiteInstructeurPitchou } {
   return {
     listerDossiers: wrapGETUrl(capURLs.listerDossiers),
+    exporterDossiers: wrapExportDossiers(capURLs.exporterDossiers),
     recupérerDossierComplet: wrapGetDossierFull(capURLs.recupérerDossierComplet),
     listFollowRelations: wrapGETUrl(capURLs.listFollowRelations),
     updateFollowRelation: wrapUpdateFollowRelation(capURLs.updateFollowRelation),

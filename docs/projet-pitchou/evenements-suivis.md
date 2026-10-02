@@ -34,6 +34,17 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 - **Ce que ça représente :** Filtrer pour n'afficher que les dossiers que l'utilisateur.ice connecté.e suit.
 - **Page :** "Mes dossiers", "Tableau de suivi"
 
+#### `clickExportDossiers`
+
+- Déclencheur : clic sur le bouton "Exporter les dossiers".
+- Détail : `page`, avec la valeur `mes-dossiers` ou `tous-les-dossiers`.
+
+#### `downloadDossiersExport`
+
+- Déclencheur : le fichier est généré et Pitchou lance le téléchargement dans le navigateur.
+- Détails : `page`, `format` avec la valeur `ods` ou `csv`, `scope` avec la valeur `service`, `followed` ou `france`, et `dossierCount`, le nombre de dossiers sélectionnés pour l'export après application des filtres.
+- Un export qui échoue ne déclenche pas cet évènement. L'évènement ne confirme pas l'enregistrement du fichier sur l'ordinateur.
+
 #### `consulterUnDossier`
 
 - **Ce que ça représente :** Accéder à l'onglet Projet d'un dossier

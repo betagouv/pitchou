@@ -1,6 +1,14 @@
 import { DossierPhase, DossierNextActionExpectedFrom } from "./API_Pitchou";
 import Dossier from "./database/public/Dossier";
 import { default as Prescription } from "./database/public/Prescription";
+import type { DossiersExportFormat, DossiersExportScope } from "./dossierExport.ts";
+
+export type DossiersDownloadEventDetails = {
+  page: "mes-dossiers" | "tous-les-dossiers";
+  format: DossiersExportFormat;
+  scope: DossiersExportScope;
+  dossierCount: number;
+};
 
 export type DossierSearchEventDetails = {
   filters: {
@@ -123,6 +131,8 @@ export type EvenementMetrique =
   // Consultation events
   // Use the search and filter feature in the dossier list
   | { type: "rechercherDesDossiers"; details: DossierSearchEventDetails }
+  | { type: "clickExportDossiers"; details: { page: "mes-dossiers" | "tous-les-dossiers" } }
+  | { type: "downloadDossiersExport"; details: DossiersDownloadEventDetails }
   // Display the list of dossiers the user follows
   | { type: "afficherLesDossiersSuivis" }
   // Click a link in the main navbar
