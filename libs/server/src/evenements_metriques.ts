@@ -4,6 +4,7 @@ import {
   isAssignDossierFollowersDetails,
   isClickNavbarLinkDetails,
   isDossierDetails,
+  isDossiersDownloadDetails,
   isOpenModalAddPieceJointeDetails,
   isSearchDossierDetails,
 } from "./evenements_metriques_details.ts";
@@ -43,6 +44,13 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
       return isSearchDossierDetails(event.details);
     case "clickNavbarLink":
       return isClickNavbarLinkDetails(event.details);
+    case "clickExportDossiers":
+      return (
+        Object(event.details) === event.details &&
+        ["mes-dossiers", "tous-les-dossiers"].includes(event.details.page)
+      );
+    case "downloadDossiersExport":
+      return isDossiersDownloadDetails(event.details);
     case "ouvrirModaleAjouterPieceJointe":
       return isOpenModalAddPieceJointeDetails(event.details);
     case "ajouterPieceJointe":

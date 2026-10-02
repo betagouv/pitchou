@@ -58,10 +58,10 @@ test.each([390, 1024, 1440])(
   },
 );
 
-test("les onglets ont 8 px de padding horizontal", () => {
+test("tabs have 12px horizontal padding", () => {
   const { getAllByRole } = render(DossierTabList, { activeTab: "instruction", onSelect: () => {} });
   for (const tab of getAllByRole("tab")) {
-    expect(getComputedStyle(tab).paddingLeft).toBe("8px");
-    expect(getComputedStyle(tab).paddingRight).toBe("8px");
+    expect(getComputedStyle(tab).paddingLeft).toBe("12px");
+    expect(getComputedStyle(tab).paddingRight).toBe("12px");
   }
 });

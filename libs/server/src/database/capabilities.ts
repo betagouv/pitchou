@@ -62,6 +62,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
   return {
     remplirAnnotations: fillAnnotations?.cap,
     listerDossiers: listDossiers,
+    exporterDossiers: listDossiers,
     recupérerDossierComplet: listDossiers,
     listFollowRelations: listDossiers,
     updateFollowRelation: listDossiers,
