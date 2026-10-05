@@ -1,80 +1,48 @@
-import { randomBytes } from "node:crypto";
-
 import type { Knex } from "knex";
-
-import type { PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
-
-import {
-  SEED_DEMARCHE_NUMBER,
-  SEED_GROUPE_INSTRUCTEURS_NAMES,
-} from "../fixtures/demarche_numerique.ts";
+import { SEED_DEMARCHE_NUMBER } from "../fixtures/demarche_numerique.ts";
+import { SEED_GROUPES } from "../fixtures/groupes.ts";
 import { SEED_PERSONNES } from "../fixtures/users.ts";
 
 const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
 
-export async function seed(knex: Knex) {
-  await knex("groupe_instructeurs")
-    .insert(
-      SEED_GROUPE_INSTRUCTEURS_NAMES.map((name) => ({
-        name,
-        demarche_number: SEED_DEMARCHE_NUMBER,
-      })),
-    )
-    .onConflict(["name", "demarche_number"])
-    .ignore();
+export async function seed(db: Knex) {
+  await db.transaction(async (trx) => {
+    for (const { departments, ...group } of SEED_GROUPES) {
+      const [created] = await trx("groupe_instructeurs")
+        .insert({ ...group, demarche_number: SEED_DEMARCHE_NUMBER })
+        .onConflict(["name", "demarche_number"])
+        .ignore()
+        .returning("id");
+      // A rerun preserves coverage subsequently configured through the admin app.
+      if (created && departments.length)
+        await trx("groupe_departement").insert(
+          departments.map((department) => ({ groupe_instructeurs: created.id, department })),
+        );
+    }
+  });
 
-  for (const personne of SEED_PERSONNES) {
-    const email = personne.email === "dev@localhost.local" ? SEED_EMAIL : personne.email;
-
-    await knex.transaction(async (transaction) => {
-      let person = await transaction("personne").where({ email }).first();
-      if (!person) {
-        const accessCode = randomBytes(16).toString("hex");
-        const newPerson: PersonneInitializer = {
-          email,
-          last_name: personne.last_name,
-          first_names: personne.first_names,
-          access_code: accessCode,
-        };
-        const [inserted] = await transaction("personne")
-          .insert(newPerson)
-          .returning(["id", "access_code"]);
-        person = inserted;
-      } else if (!person.access_code) {
-        const accessCode = randomBytes(16).toString("hex");
-        await transaction("personne").where({ id: person.id }).update({ access_code: accessCode });
-        person.access_code = accessCode;
+  for (const fixture of SEED_PERSONNES) {
+    const email = fixture.email === "dev@localhost.local" ? SEED_EMAIL : fixture.email;
+    await db.transaction(async (trx) => {
+      let user = await trx("auth_user").where({ email }).first();
+      if (!user) {
+        [user] = await trx("auth_user")
+          .insert({ email, first_names: fixture.first_names, last_name: fixture.last_name })
+          .returning("*");
       }
-
-      let capability = await transaction("cap_dossier")
-        .where({ personne_cap: person.access_code })
-        .first();
-      if (!capability) {
-        const [inserted] = await transaction("cap_dossier")
-          .insert({ personne_cap: person.access_code })
-          .returning("cap");
-        capability = inserted;
-      }
-
-      await transaction("cap_evenement_metrique")
-        .insert({ personne_cap: person.access_code })
-        .onConflict("personne_cap")
+      const bundles = email === SEED_EMAIL ? ["instructeur", "administrateur"] : ["instructeur"];
+      await trx("auth_permission_bundle")
+        .insert(bundles.map((bundle) => ({ user_id: user.id, bundle })))
+        .onConflict(["user_id", "bundle"])
         .ignore();
-
-      const group = await transaction("groupe_instructeurs")
-        .where({ name: personne.groupe, demarche_number: SEED_DEMARCHE_NUMBER })
+      const group = await trx("groupe_instructeurs")
+        .where({ name: fixture.groupe, demarche_number: SEED_DEMARCHE_NUMBER })
         .first();
-      if (group) {
-        const groupLink = await transaction("edge_cap_dossier__groupe_instructeurs")
-          .where({ cap_dossier: capability.cap, groupe_instructeurs: group.id })
-          .first();
-        if (!groupLink) {
-          await transaction("edge_cap_dossier__groupe_instructeurs").insert({
-            cap_dossier: capability.cap,
-            groupe_instructeurs: group.id,
-          });
-        }
-      }
+      if (group)
+        await trx("user_groupe")
+          .insert({ user_id: user.id, groupe_instructeurs: group.id })
+          .onConflict(["user_id", "groupe_instructeurs"])
+          .ignore();
     });
   }
 }

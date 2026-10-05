@@ -34,9 +34,7 @@ export async function seed(knex: Knex) {
     console.log("");
     console.log(`  Seed dossiers OK — ${SEED_DOSSIERS.length} dossiers`);
     console.log(`  Email : ${SEED_EMAIL}`);
-    if (actors.person?.access_code) {
-      console.log(`  Login : ${ORIGIN}/?secret=${actors.person.access_code}`);
-    }
+    console.log(`  Connexion ProConnect : ${ORIGIN}/connexion`);
     console.log("");
   });
 }
