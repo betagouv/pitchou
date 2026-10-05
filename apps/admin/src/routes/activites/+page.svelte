@@ -1,4 +1,6 @@
 <script lang="ts">
+  import PageHelp from "$lib/components/PageHelp.svelte";
+  import { can } from "$lib/access.svelte.ts";
   import { onMount } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
   import { AccessDeniedError } from "$lib/actions/errors.ts";
@@ -12,7 +14,6 @@
     updateActiviteGroupe,
     type ActiviteReferentielAdmin,
   } from "$lib/actions/adminActivites.ts";
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import {
     activiteSelectEntries,
@@ -70,8 +71,10 @@
    */
   async function apply(mutation: () => Promise<void>) {
     actionError = null;
+    const confirmSaved = pageHeader.beginSave();
     try {
       await mutation();
+      confirmSaved();
     } catch (e) {
       if (e instanceof AccessDeniedError) {
         etat = "refuse";
@@ -99,7 +102,7 @@
     apply(() => updateActiviteGroupe(code, label, color));
 
   $effect(() => {
-    if (etat !== "autorise") return;
+    if (etat !== "autorise" || !can("admin:activites:manage")) return;
     pageHeader.setAction({ label: "Ajouter une activité", onClick: () => (modalOpen = true) });
     return () => pageHeader.clearAction();
   });
@@ -123,8 +126,8 @@
   </div>
 {:else}
   <!-- Single column with the same gap as the view padding (p-2 on <main>). -->
-  <div class="flex flex-col gap-2">
-    <CollapsibleNotice title="Comment ça marche ?">
+  <div class="admin-stack">
+    <PageHelp title="Activités et libellés">
       <ul class="!m-0 list-disc !pl-5 text-sm">
         <li>
           Chaque dossier porte un libellé « Activité principale » saisi dans Démarches Numériques.
@@ -139,7 +142,13 @@
           une activité pour la renommer, gérer ses libellés ou changer son groupe.
         </li>
       </ul>
-    </CollapsibleNotice>
+
+      <p class="fr-mt-2w">
+        Le bouton + ajoute une activité. Les libellés à vérifier correspondent aux rattachements à
+        contrôler après une synchronisation. Les modifications du référentiel s'appliquent au
+        regroupement des dossiers existants.
+      </p>
+    </PageHelp>
 
     {#if actionError}
       <div
@@ -163,7 +172,7 @@
     {/each}
   </div>
 
-  {#if selectedItem}
+  {#if selectedItem && can("admin:activites:manage")}
     <ModalEditActivite
       item={selectedItem}
       color={selectedColor}
@@ -176,7 +185,7 @@
     />
   {/if}
 
-  {#if modalOpen}
+  {#if modalOpen && can("admin:activites:manage")}
     <ModalAddActivite
       {groupeOptions}
       onClose={() => (modalOpen = false)}

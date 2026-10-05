@@ -1,10 +1,11 @@
 <script lang="ts">
+  import PageHelp from "$lib/components/PageHelp.svelte";
   import { tick } from "svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
 
   import type { NiveauAARRI, UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/ListPagination.svelte";
 
   import {
     parseUtilisateursQuery,
@@ -16,7 +17,7 @@
     type SortOrder,
   } from "./utilisateursList.ts";
   import { downloadEvenementsCSV } from "$lib/actions/admin.ts";
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import UtilisateursListControls from "./UtilisateursListControls.svelte";
   import UtilisateurCards from "./UtilisateurCards.svelte";
   import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
@@ -100,10 +101,6 @@
     tick().then(() => pageTitleElement?.focus());
   }
 
-  function onSearchInput(value: string) {
-    updateQuery({ q: value });
-  }
-
   function onFilterChange(updates: { niveau?: NiveauAARRI | ""; groupe?: string }) {
     updateQuery(updates);
   }
@@ -114,6 +111,26 @@
       ordre: order === "desc" ? null : "asc",
     });
   }
+
+  $effect(() => {
+    pageHeader.setDownloads([
+      {
+        label: "Liste des utilisateurs (CSV)",
+        onClick: () => {
+          downloadError = null;
+          downloadListeUtilisateurs();
+        },
+      },
+      {
+        label: "Évènements (CSV)",
+        onClick: () => {
+          downloadError = null;
+          void downloadEvenementsCSV().catch((error: Error) => (downloadError = error.message));
+        },
+      },
+    ]);
+    return () => pageHeader.clearDownloads();
+  });
 
   function downloadListeUtilisateurs() {
     const csv = utilisateursToCSV(utilisateurs);
@@ -131,26 +148,15 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  <CollapsibleNotice title="Comment les niveaux AARRI sont calculés ?">
+  <PageHelp title="Niveaux AARRI">
     <LevelsAARRIDetails />
-  </CollapsibleNotice>
-
-  <div class="flex flex-row justify-end items-center gap-2 flex-wrap">
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      onclick={downloadListeUtilisateurs}
-    >
-      Télécharger la liste des utilisateurices
-    </button>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
-      onclick={() => downloadEvenementsCSV().catch((e: Error) => (downloadError = e.message))}
-    >
-      Télécharger les évènements
-    </button>
-  </div>
+    <h3>Téléchargements</h3>
+    <p>
+      Le bouton de téléchargement dans l'en-tête propose deux exports CSV : la liste complète des
+      utilisateurs suivis et leurs niveaux, ou les évènements enregistrés. Les filtres de cette page
+      ne limitent pas les exports.
+    </p>
+  </PageHelp>
 
   {#if downloadError}
     <div class="fr-alert fr-alert--error fr-mb-2w" role="alert">
@@ -163,14 +169,14 @@
   <UtilisateursListControls
     {query}
     groupes={groupesInstructeurs}
-    onSearch={onSearchInput}
+    onSearch={(value) => updateQuery({ q: value })}
     onFilter={onFilterChange}
     onSort={onSortChange}
   />
 
   <div class="flex flex-row justify-between items-baseline gap-2">
-    <p class="fr-mb-0" data-testid="compteur-utilisateurs" aria-live="polite">
-      <span class="fr-text--lead">{filteredUtilisateurs.length}</span><span class="fr-text--lg"
+    <p class="list-status" data-testid="compteur-utilisateurs" aria-live="polite">
+      <span class="font-semibold">{filteredUtilisateurs.length}</span><span class="text-sm"
         >/{utilisateurs.length} utilisateurices</span
       >
     </p>

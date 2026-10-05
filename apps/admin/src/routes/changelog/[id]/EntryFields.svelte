@@ -29,8 +29,8 @@
   }
 </script>
 
-<div class="fr-mb-3w flex shrink-0 items-end gap-6">
-  <div class="fr-input-group fr-mb-0 flex-1">
+<div class="flex shrink-0 flex-wrap items-end gap-4">
+  <div class="fr-input-group fr-mb-0 min-w-0 basis-full xl:flex-1">
     <label class="fr-label" for="changelog-titre">Titre</label>
     <input class="fr-input" type="text" id="changelog-titre" bind:value={titre} />
   </div>
@@ -51,7 +51,7 @@
         value={versionMajor}
         oninput={(event) => onSegmentInput(event, (digits) => (versionMajor = digits))}
       />
-      <span class="font-semibold text-gray-500" aria-hidden="true">.</span>
+      <span class="font-semibold text-[var(--text-mention-grey)]" aria-hidden="true">.</span>
       <input
         class="fr-input w-16 text-center"
         type="text"
@@ -61,7 +61,7 @@
         value={versionMinor}
         oninput={(event) => onSegmentInput(event, (digits) => (versionMinor = digits))}
       />
-      <span class="font-semibold text-gray-500" aria-hidden="true">.</span>
+      <span class="font-semibold text-[var(--text-mention-grey)]" aria-hidden="true">.</span>
       <input
         class="fr-input w-16 text-center"
         type="text"
@@ -96,8 +96,8 @@
       aria-labelledby="changelog-statut-label"
       title="Publiée = visible sur la page « Nouveautés »"
       class="mt-2 flex h-10 cursor-pointer items-center gap-3 rounded-md border border-solid px-3 transition-colors {published
-        ? 'border-green-700/40 bg-green-50'
-        : 'border-gray-300 bg-gray-100'}"
+        ? 'border-[var(--border-plain-success)] bg-[var(--background-contrast-success)]'
+        : 'border-[var(--border-default-grey)] bg-[var(--background-contrast-grey)]'}"
       onclick={onToggleStatus}
     >
       <span
@@ -114,8 +114,8 @@
       </span>
       <span
         class="min-w-[4.5rem] text-left text-sm font-medium {published
-          ? 'text-green-800'
-          : 'text-gray-600'}"
+          ? 'text-[var(--text-default-success)]'
+          : 'text-[var(--text-mention-grey)]'}"
       >
         {published ? "Publiée" : "Brouillon"}
       </span>

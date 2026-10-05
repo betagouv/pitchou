@@ -35,7 +35,7 @@
 
   {#if enabled}
     <div class="w-full flex flex-col gap-4">
-      <h3 class="fr-h6 fr-mb-0">{title}</h3>
+      <h3 class="fr-mb-0">{title}</h3>
       <DossierIdentityFields {identity} {idPrefix} />
       {#if kind === "representant"}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">

@@ -3,22 +3,16 @@
   import Select from "@pitchou/ui/Select.svelte";
   import { phases } from "@pitchou/common/phases.ts";
 
-  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
-  let { model, groupes }: { model: DossierCreationModel; groupes: AdminGroupeInstructeurs[] } =
-    $props();
+  let { model }: { model: DossierCreationModel } = $props();
 
   const phaseOptions = [...phases].map((phase) => ({ value: phase, label: phase }));
-
-  const groupeOptions = $derived(
-    groupes.map((groupe) => ({ value: groupe.id, label: groupe.name })),
-  );
 </script>
 
 <details class="fr-p-3w border border-[color:var(--border-default-grey)]">
-  <summary class="fr-h4 fr-mb-0 cursor-pointer">Affectation dans Pitchou</summary>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 fr-mt-3w">
+  <summary class="fr-mb-0 cursor-pointer">Affectation dans Pitchou</summary>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fr-mt-2w">
     <div class="fr-input-group">
       <DatePicker
         id="dossier-depot-date"
@@ -31,18 +25,6 @@
       <label class="fr-label" for="dossier-phase">Phase initiale</label>
       <Select id="dossier-phase" class="fr-mt-1w" options={phaseOptions} bind:value={model.phase} />
     </div>
-    <div class="fr-select-group">
-      <label class="fr-label" for="dossier-groupe">
-        Groupe instructeurs
-        <span class="fr-hint-text">Le dossier ne sera visible que par ce groupe.</span>
-      </label>
-      <Select
-        id="dossier-groupe"
-        class="fr-mt-1w"
-        required
-        options={groupeOptions}
-        bind:value={model.groupeInstructeurs}
-      />
-    </div>
+    <p>Les groupes instructeurs sont déterminés par le département principal du dossier.</p>
   </div>
 </details>

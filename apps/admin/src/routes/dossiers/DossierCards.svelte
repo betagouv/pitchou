@@ -26,7 +26,7 @@
 <ul class="mx-0 mt-2 mb-0 flex list-none flex-col gap-2 p-0">
   {#each rows as dossier (dossier.id)}
     <li
-      class="group relative rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] shadow-sm transition hover:border-[color:var(--border-default-blue-france)] hover:shadow-md"
+      class="group relative rounded-xl border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-lifted-grey)] transition hover:border-[color:var(--border-default-blue-france)] hover:shadow-md"
     >
       <a href="/dossiers/{dossier.id}" class="fr-raw-link block p-4 pr-12 no-underline">
         <div class="flex items-center gap-4">

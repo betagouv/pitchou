@@ -1,6 +1,7 @@
 <script lang="ts">
+  import ListToolbar from "$lib/components/ListToolbar.svelte";
   import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/ListPagination.svelte";
 
   import {
     filterEspeces,
@@ -78,86 +79,48 @@
   }
 </script>
 
-<div class="flex flex-col gap-4 fr-p-3w">
-  <div class="flex flex-row items-start gap-3 max-[768px]:flex-col max-[768px]:items-stretch">
-    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar w-full" role="search">
-        <label class="fr-label" for="recherche-espece-existante">Rechercher une espèce</label>
-        <input
-          value={query.searchText}
-          oninput={(e) => onSearchInput(e.currentTarget.value)}
-          class="fr-input"
-          placeholder="Nom scientifique ou vernaculaire"
-          id="recherche-espece-existante"
-          type="search"
-        />
-        <button title="Rechercher une espèce" type="submit" class="fr-btn">Rechercher</button>
-      </div>
-    </form>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
-      aria-expanded={filterPanelOpen}
-      aria-controls="filter-panel-especes"
-      onclick={() => (filterPanelOpen = !filterPanelOpen)}
-    >
-      Filtrer
-      {#if activeFilterCount > 0}
-        <span
-          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
-          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
-        >
-      {/if}
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-list-ordered fr-btn--icon-left"
-      aria-expanded={sortPanelOpen}
-      aria-controls="sort-panel-especes"
-      onclick={() => (sortPanelOpen = !sortPanelOpen)}
-    >
-      Trier
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {sortPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-  </div>
-
-  {#if filterPanelOpen}
-    <EspecesFilterPanel
-      selectedClassification={query.classification}
-      selectedStatut={query.statut}
-      selectedListe={query.liste}
-      onChange={onFilterChange}
+<div class="admin-list-controls">
+  <div class="flex flex-col gap-4 fr-p-3w">
+    <ListToolbar
+      id="recherche-espece-ajout"
+      label="Rechercher une espèce"
+      placeholder="Nom scientifique, vernaculaire ou CD_REF"
+      value={query.searchText}
+      onSearch={onSearchInput}
+      bind:filterOpen={filterPanelOpen}
+      bind:sortOpen={sortPanelOpen}
+      filterCount={activeFilterCount}
+      filterId="filter-panel-especes"
+      sortId="sort-panel-especes"
     />
-  {/if}
 
-  {#if sortPanelOpen}
-    <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
-  {/if}
-
-  <p class="fr-m-0" aria-live="polite">
-    <span class="fr-text--lead">{filtered.length}</span><span class="fr-text--lg"
-      >/{especes.length} espèces</span
-    >
-  </p>
-
-  {#if displayed.length >= 1}
-    <EspeceSelectionTable especes={displayed} {existingCdRefs} {onSelect} />
-
-    {#if pageSelectors}
-      <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
+    {#if filterPanelOpen}
+      <EspecesFilterPanel
+        selectedClassification={query.classification}
+        selectedStatut={query.statut}
+        selectedListe={query.liste}
+        onChange={onFilterChange}
+      />
     {/if}
-  {:else}
-    <p>Aucune espèce ne correspond à cette recherche.</p>
-  {/if}
+
+    {#if sortPanelOpen}
+      <EspecesSortPanel selectedSort={query.sort} sortOrder={query.order} onChange={onSortChange} />
+    {/if}
+
+    <p class="list-status" aria-live="polite">
+      <span class="font-semibold">{filtered.length}</span><span class="text-sm"
+        >/{especes.length} espèces</span
+      >
+    </p>
+
+    {#if displayed.length >= 1}
+      <EspeceSelectionTable especes={displayed} {existingCdRefs} {onSelect} />
+
+      {#if pageSelectors}
+        <Pagination {pageSelectors} currentPage={pageSelectors[currentPage]} />
+      {/if}
+    {:else}
+      <p>Aucune espèce ne correspond à cette recherche.</p>
+    {/if}
+  </div>
 </div>

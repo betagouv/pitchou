@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import { goto } from "$app/navigation";
 
   import { deleteDossier } from "$lib/actions/adminDossiers.ts";
@@ -13,8 +14,10 @@
     deleting = true;
     error = null;
     try {
+      pageHeader.clearFeedback();
       await deleteDossier(dossierId);
       await goto("/dossiers");
+      pageHeader.showSaved("Dossier supprimé");
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
     } finally {
@@ -23,8 +26,8 @@
   }
 </script>
 
-<section class="fr-mt-6w fr-pt-3w border-t border-[color:var(--border-default-grey)]">
-  <h2 class="fr-h4">Supprimer le dossier</h2>
+<section class="admin-panel">
+  <h2>Supprimer le dossier</h2>
   {#if !confirming}
     <button
       type="button"

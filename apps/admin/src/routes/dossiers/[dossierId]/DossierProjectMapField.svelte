@@ -40,7 +40,7 @@
 </script>
 
 <div class="w-full" class:fr-upload-group--error={error !== null}>
-  <h3 class="fr-h6">Cartographie de l'emprise du projet</h3>
+  <h3>Cartographie de l'emprise du projet</h3>
   <p class="fr-hint-text">
     Besoin d'aide ?
     <a

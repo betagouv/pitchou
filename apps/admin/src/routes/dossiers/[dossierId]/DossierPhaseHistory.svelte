@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { phases } from "@pitchou/common/phases.ts";
@@ -37,11 +38,13 @@
     event.preventDefault();
     saving = true;
     saveError = null;
+    const confirmSaved = pageHeader.beginSave("Phase enregistrée");
     try {
       const updated = await updateDossier(detail.dossier.id, {
         evenementsPhase: [{ phase: newPhase, timestamp: new Date().toISOString() }],
       });
       onChanged(updated);
+      confirmSaved();
     } catch (e) {
       saveError = e instanceof Error ? e.message : String(e);
     } finally {
@@ -50,8 +53,8 @@
   }
 </script>
 
-<section class="fr-mt-6w fr-pt-3w border-t border-[color:var(--border-default-grey)]">
-  <h2 class="fr-h4">Phases</h2>
+<section class="admin-panel">
+  <h2>Phases</h2>
 
   {#if !readOnly}
     <form class="flex flex-row items-end gap-4 flex-wrap fr-mb-3w" onsubmit={addPhaseEvent}>
@@ -89,7 +92,7 @@
           {#each detail.evenementsPhase as evenement (evenement.timestamp + evenement.phase)}
             <tr>
               <td>{evenement.phase}</td>
-              <td>{formatDate(evenement.timestamp)}</td>
+              <td class="whitespace-nowrap">{formatDate(evenement.timestamp)}</td>
               <td>
                 {evenement.caused_by_email ?? evenement.demarche_numerique_agent_email ?? "—"}
               </td>

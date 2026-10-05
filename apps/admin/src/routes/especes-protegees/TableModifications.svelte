@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ListTable from "$lib/components/ListTable.svelte";
   import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
 
   import {
@@ -9,14 +10,15 @@
   } from "./adminModificationsList.ts";
 
   type Props = {
+    total: number;
     rows: ModificationEspeceAdmin[];
     onSelect: (modification: ModificationEspeceAdmin) => void;
   };
 
-  let { rows, onSelect }: Props = $props();
+  let { total, rows, onSelect }: Props = $props();
 </script>
 
-<div class="fr-table fr-table--bordered fr-table--layout-fixed overflow-x-auto">
+<ListTable title="Espèces protégées" count={total}>
   <table class="w-full min-w-[48rem]">
     <colgroup>
       <col />
@@ -76,4 +78,4 @@
       {/each}
     </tbody>
   </table>
-</div>
+</ListTable>

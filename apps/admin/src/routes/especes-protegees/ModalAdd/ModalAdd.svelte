@@ -75,7 +75,7 @@
     <div class="flex flex-col gap-3 fr-p-3w">
       <button
         type="button"
-        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-[0.25rem] bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
+        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-lg bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
         onclick={() => (step = "selecteur")}
       >
         <span class="fr-text--bold">Modifier une espèce protégée existante</span>
@@ -85,7 +85,7 @@
       </button>
       <button
         type="button"
-        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-[0.25rem] bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
+        class="flex flex-col gap-1 text-left fr-p-2w border border-[color:var(--border-default-grey)] rounded-lg bg-[var(--background-default-grey)] cursor-pointer hover:bg-[var(--background-alt-grey)]"
         onclick={() => (step = "taxref")}
       >
         <span class="fr-text--bold">Ajouter une nouvelle espèce protégée</span>

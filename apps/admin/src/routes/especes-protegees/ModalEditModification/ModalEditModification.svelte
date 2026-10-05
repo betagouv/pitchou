@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import Select from "@pitchou/ui/Select.svelte";
 
   import type {
@@ -54,10 +55,12 @@
   async function saveField(patch: Partial<PatchModificationEspece>): Promise<boolean> {
     error = null;
     saving = true;
+    const confirmSaved = pageHeader.beginSave();
     try {
       await saveModificationEspece(current.cd_ref, patch);
       current = { ...current, ...patch };
       await onSaved();
+      confirmSaved();
       return true;
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
@@ -79,6 +82,7 @@
       return;
     }
     saving = true;
+    const confirmSaved = pageHeader.beginSave();
     try {
       // Always set a classification on creation: a net-new row with a NULL classification
       // would surface in the public view and break the list reader.
@@ -86,6 +90,7 @@
       current = { ...current, cd_ref, classification: draftClassification };
       created = true;
       await onSaved();
+      confirmSaved();
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);
     } finally {
@@ -96,9 +101,11 @@
   async function doDelete() {
     error = null;
     saving = true;
+    const confirmSaved = pageHeader.beginSave();
     try {
       await deleteModificationEspece(current.cd_ref);
       await onSaved();
+      confirmSaved();
       onClose();
     } catch (e) {
       error = e instanceof Error ? e.message : String(e);

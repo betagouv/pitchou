@@ -12,7 +12,7 @@
   }
 </script>
 
-<div class="fr-input-group w-full fr-mb-4w">
+<div class="fr-input-group w-full fr-mb-2w">
   <label class="fr-label" for="project-description">Description synthétique du projet *</label>
   <textarea
     class="fr-input w-full"
@@ -21,7 +21,7 @@
     required
     bind:value={model.description}></textarea>
 </div>
-<fieldset class="fr-fieldset fr-mb-4w">
+<fieldset class="fr-fieldset fr-mb-2w">
   <legend class="fr-fieldset__legend font-normal"
     >Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code
     de l'environnement) ? *</legend
@@ -43,7 +43,7 @@
   {/each}
 </fieldset>
 {#if model.aeRegime === "oui"}
-  <fieldset class="fr-fieldset fr-mb-4w">
+  <fieldset class="fr-fieldset fr-mb-2w">
     <legend class="fr-fieldset__legend font-normal"
       >À quelle procédure le projet est-il soumis ? *</legend
     >
@@ -67,7 +67,7 @@
     {/each}
   </fieldset>
   {#if model.aeProcedures.includes("Autre")}
-    <div class="fr-input-group fr-mb-4w">
+    <div class="fr-input-group fr-mb-2w">
       <label class="fr-label" for="ae-other-procedure"
         >Préciser la procédure justifiant l'AE *</label
       >
@@ -81,7 +81,7 @@
   {/if}
 {/if}
 {#if showsDestroyedNidsCount(model)}
-  <div class="fr-input-group fr-mb-4w">
+  <div class="fr-input-group fr-mb-2w">
     <label class="fr-label" for="destroyed-nids-count"
       >Nombre de nids d'Hirondelles à détruire *</label
     >
@@ -97,7 +97,7 @@
   </div>
 {/if}
 {#if requiresEspecesPriseDetentionLimiteeType(model.motifDerogation)}
-  <fieldset class="fr-fieldset fr-mb-4w">
+  <fieldset class="fr-fieldset fr-mb-2w">
     <legend class="fr-fieldset__legend font-normal"
       >Prise ou détention limité ou spécifié - Précisez *</legend
     >

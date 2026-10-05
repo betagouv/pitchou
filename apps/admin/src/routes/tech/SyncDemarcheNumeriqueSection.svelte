@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import { onMount } from "svelte";
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
 
@@ -101,14 +102,10 @@
   });
 </script>
 
-<section
-  class="rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 shadow-sm"
->
+<section class="admin-panel">
   <h2 class="my-0 text-base font-semibold">Synchronisation Démarches Numériques</h2>
-  <p class="fr-mb-2w mt-1 text-sm text-[color:var(--text-mention-grey)]">
-    Lance la même synchronisation que le cron (toutes les 10 minutes) : les dossiers modifiés sur
-    Démarches Numériques depuis la date choisie sont resynchronisés. Une date lointaine (par exemple
-    depuis le lancement) peut prendre beaucoup de temps.
+  <p class="mb-4 text-sm text-[var(--text-mention-grey)]">
+    Mettre à jour les dossiers modifiés depuis la date choisie.
   </p>
 
   <div class="fr-mb-2w">
@@ -154,7 +151,7 @@
   <button
     class="fr-btn"
     type="button"
-    disabled={triggering || syncStatus?.running}
+    disabled={!can("admin:sync:run") || triggering || syncStatus?.running}
     onclick={triggerSync}
   >
     {syncStatus?.running ? "Synchronisation en cours…" : "Lancer la synchronisation"}

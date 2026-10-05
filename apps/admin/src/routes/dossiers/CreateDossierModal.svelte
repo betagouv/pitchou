@@ -1,34 +1,22 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
   import Select from "@pitchou/ui/Select.svelte";
 
-  import {
-    createMinimalDossier,
-    loadGroupesInstructeurs,
-    type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  import { createMinimalDossier } from "$lib/actions/adminDossiers.ts";
+  import { departements } from "@pitchou/common/departements.ts";
 
   let { onClose }: { onClose: () => void } = $props();
   let name = $state("");
-  let groupeInstructeurs = $state("");
-  let groupes = $state<AdminGroupeInstructeurs[]>([]);
-  let loading = $state(true);
+  let department = $state("");
   let saving = $state(false);
   let error = $state<string | null>(null);
   let nameInput = $state<HTMLInputElement>();
 
-  onMount(async () => {
+  onMount(() => {
     nameInput?.focus();
-    try {
-      groupes = await loadGroupesInstructeurs();
-      groupeInstructeurs = groupes[0]?.id ?? "";
-    } catch (loadError) {
-      error = loadError instanceof Error ? loadError.message : String(loadError);
-    } finally {
-      loading = false;
-    }
   });
 
   async function create(event: SubmitEvent) {
@@ -36,11 +24,13 @@
     saving = true;
     error = null;
     try {
+      pageHeader.clearFeedback();
       const { id } = await createMinimalDossier({
         name: name.trim(),
-        groupe_instructeurs: groupeInstructeurs,
+        primary_department: department,
       });
       await goto(`/dossiers/${id}`);
+      pageHeader.showSaved("Dossier créé");
     } catch (creationError) {
       error = creationError instanceof Error ? creationError.message : String(creationError);
       saving = false;
@@ -55,12 +45,12 @@
 <svelte:window onkeydown={(event) => event.key === "Escape" && close()} />
 
 <div
-  class="fixed inset-0 z-[1000] bg-[rgba(0,0,0,0.4)] flex items-start justify-center fr-py-4w fr-px-2w overflow-y-auto"
+  class="fixed inset-0 z-[1000] pitchou-dialog-overlay flex items-start justify-center fr-py-4w fr-px-2w overflow-y-auto"
   role="presentation"
   onclick={(event) => event.target === event.currentTarget && close()}
 >
   <div
-    class="bg-[var(--background-default-grey)] rounded-lg w-full max-w-2xl shadow-xl"
+    class="pitchou-dialog rounded-lg w-full max-w-2xl"
     role="dialog"
     aria-modal="true"
     aria-labelledby="create-dossier-title"
@@ -68,7 +58,7 @@
     <header
       class="flex items-center gap-4 fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"
     >
-      <h2 class="fr-h4 fr-mb-0 mr-auto" id="create-dossier-title">Créer un dossier</h2>
+      <h2 class="fr-mb-0 mr-auto text-xl" id="create-dossier-title">Créer un dossier</h2>
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-icon-close-line"
@@ -93,14 +83,17 @@
           />
         </div>
         <div class="fr-select-group">
-          <label class="fr-label" for="new-dossier-groupe">Groupe instructeurs *</label>
+          <label class="fr-label" for="new-dossier-groupe">Département principal *</label>
           <Select
             id="new-dossier-groupe"
             class="fr-mt-1w"
             required
-            disabled={loading || saving}
-            options={groupes.map((groupe) => ({ value: groupe.id, label: groupe.name }))}
-            bind:value={groupeInstructeurs}
+            disabled={saving}
+            options={departements.map(({ code, name }) => ({
+              value: code,
+              label: `${code} - ${name}`,
+            }))}
+            bind:value={department}
           />
         </div>
         {#if error}
@@ -110,7 +103,7 @@
       <footer
         class="flex items-center gap-3 flex-wrap fr-py-2w fr-px-3w border-t border-[color:var(--border-default-grey)]"
       >
-        <button class="fr-btn" type="submit" disabled={loading || saving || !groupeInstructeurs}>
+        <button class="fr-btn" type="submit" disabled={saving || !department}>
           {saving ? "Création…" : "Créer le dossier"}
         </button>
         <button class="fr-btn fr-btn--secondary" type="button" disabled={saving} onclick={close}>

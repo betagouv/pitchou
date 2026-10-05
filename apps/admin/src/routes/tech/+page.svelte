@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
+  import PageHelp from "$lib/components/PageHelp.svelte";
   import SyncDemarcheNumeriqueSection from "./SyncDemarcheNumeriqueSection.svelte";
 
   function triggerSentryTestError() {
@@ -14,19 +14,28 @@
 </svelte:head>
 
 <!-- Single column with the same gap as the view padding (p-2 on <main>), like the activities page. -->
-<div class="flex flex-col gap-2">
-  <CollapsibleNotice title="Outils réservés à l'équipe technique">
+<div class="admin-stack">
+  <PageHelp title="Outils techniques">
+    <h3>Synchronisation Démarches Numériques</h3>
     <p class="!m-0 text-sm">
       La synchronisation met à jour les dossiers depuis Démarches Numériques ; les autres actions
       n'ont aucun effet sur les données.
     </p>
-  </CollapsibleNotice>
+    <p>
+      La synchronisation automatique s’exécute toutes les dix minutes. Le lancement manuel reprend
+      les dossiers modifiés depuis la date choisie. Plus cette date est ancienne, plus le traitement
+      peut être long.
+    </p>
+    <h3>Test Sentry</h3>
+    <p>
+      Le bouton de test déclenche une erreur dans le navigateur pour vérifier sa remontée dans
+      Sentry.
+    </p>
+  </PageHelp>
 
   <SyncDemarcheNumeriqueSection />
 
-  <section
-    class="rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 shadow-sm"
-  >
+  <section class="admin-panel">
     <h2 class="my-0 text-base font-semibold">Sentry</h2>
     <p class="fr-mb-2w mt-1 text-sm text-[color:var(--text-mention-grey)]">
       Déclenche une erreur dans le navigateur pour vérifier son signalement dans Sentry.

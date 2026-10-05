@@ -1,6 +1,7 @@
 import { env as privateEnv } from "$env/dynamic/private";
 import { env as publicEnv } from "$env/dynamic/public";
 import type { PageServerLoad } from "./$types";
+import { getDashboardAttention } from "$lib/server/dashboard.ts";
 
 export type DashboardLink = {
   href: string;
@@ -9,7 +10,7 @@ export type DashboardLink = {
   icon: string;
 };
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
   const candidates: { href: string | undefined; title: string; detail: string; icon: string }[] = [
     {
       href: publicEnv.PUBLIC_SITE_URL_PITCHOU,
@@ -71,5 +72,5 @@ export const load: PageServerLoad = async () => {
     Boolean(link.href),
   );
 
-  return { links };
+  return { links, attention: await getDashboardAttention(locals.user!.permissions) };
 };

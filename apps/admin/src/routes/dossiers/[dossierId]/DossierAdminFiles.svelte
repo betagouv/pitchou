@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import {
     uploadPieceJointe,
     deletePieceJointe,
@@ -18,6 +20,9 @@
 
   let { detail, onChanged, kind, title, allowUpload = true, embedded = false }: Props = $props();
 
+  const canManage = $derived(
+    can(kind === "pieces-jointes" ? "admin:dossiers:files" : "admin:dossiers:species"),
+  );
   let busy = $state(false);
   let fileError = $state<string | null>(null);
   let pieceJointeInput = $state<HTMLInputElement | undefined>();
@@ -31,9 +36,11 @@
   async function run(action: () => Promise<void>) {
     busy = true;
     fileError = null;
+    const confirmSaved = pageHeader.beginSave("Fichiers mis à jour");
     try {
       await action();
       await onChanged();
+      confirmSaved();
     } catch (e) {
       fileError = e instanceof Error ? e.message : String(e);
     } finally {
@@ -61,7 +68,7 @@
 </script>
 
 <section class={embedded ? "" : "fr-pt-3w border-t border-[color:var(--border-default-grey)]"}>
-  {#if embedded}<h4 class="fr-h5">{title}</h4>{:else}<h2 class="fr-h4">{title}</h2>{/if}
+  {#if embedded}<h4>{title}</h4>{:else}<h2>{title}</h2>{/if}
 
   {#if fileError}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
@@ -91,7 +98,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line fr-btn--icon-left"
-                    disabled={busy}
+                    disabled={busy || !canManage}
                     onclick={() => run(() => deletePieceJointe(detail.dossier.id, pieceJointe.id))}
                   >
                     Supprimer
@@ -106,7 +113,7 @@
       <p>Aucune pièce jointe.</p>
     {/if}
 
-    {#if allowUpload}
+    {#if allowUpload && canManage}
       <div class="fr-upload-group fr-mb-3w">
         <label class="fr-label" for="upload-piece-jointe">
           Ajouter une pièce jointe
@@ -118,7 +125,7 @@
           class="fr-upload"
           id="upload-piece-jointe"
           type="file"
-          disabled={busy}
+          disabled={busy || !canManage}
           bind:this={pieceJointeInput}
           onchange={onPieceJointeSelected}
         />
@@ -131,7 +138,7 @@
         <button
           type="button"
           class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-delete-line fr-btn--icon-left"
-          disabled={busy}
+          disabled={busy || !canManage}
           onclick={() => run(() => deleteEspecesImpactees(detail.dossier.id))}
         >
           Supprimer
@@ -140,7 +147,7 @@
     {:else}
       <p>Aucun fichier d'espèces impactées.</p>
     {/if}
-    {#if allowUpload}
+    {#if allowUpload && canManage}
       <div class="fr-upload-group">
         <label class="fr-label" for="upload-especes-impactees">
           {detail.especesImpactees ? "Remplacer le fichier" : "Ajouter le fichier"}
@@ -152,7 +159,7 @@
           class="fr-upload"
           id="upload-especes-impactees"
           type="file"
-          disabled={busy}
+          disabled={busy || !canManage}
           bind:this={especesInput}
           onchange={onEspecesSelected}
         />

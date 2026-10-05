@@ -188,6 +188,5 @@ export function createDossierCreationModelFromDetail(
   model.compensatedNidsCount = detailNumber(dossier.dossier_oiseau_simple_compensated_nids_count);
   model.depotDate = detailDate(dossier.depot_date);
   model.phase = detail.phase;
-  model.groupeInstructeurs = detail.groupe?.id ?? "";
   return model;
 }
