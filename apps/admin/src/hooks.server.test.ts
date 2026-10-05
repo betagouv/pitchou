@@ -1,7 +1,7 @@
 import type { Handle, RequestEvent } from "@sveltejs/kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { isAdminEmail } from "@pitchou/server/admin.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import { readSession } from "@pitchou/server/session.ts";
 import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
 import { handle } from "./hooks.server.ts";
@@ -14,7 +14,6 @@ vi.mock("@sentry/sveltekit", () => ({
   sentryHandle: vi.fn(),
   handleErrorWithSentry: vi.fn(),
 }));
-vi.mock("@pitchou/server/admin.ts", () => ({ isAdminEmail: vi.fn() }));
 vi.mock("@pitchou/server/session.ts", () => ({ readSession: vi.fn() }));
 vi.mock("$lib/server/session.ts", () => ({
   readSessionToken: vi.fn(),
@@ -25,6 +24,7 @@ function request(path: string) {
   const event = {
     url: new URL(path, "http://localhost"),
     cookies: {},
+    request: new Request(new URL(path, "http://localhost")),
     locals: {},
   } as RequestEvent;
   const resolve = vi.fn().mockResolvedValue(new Response("OK"));
@@ -59,8 +59,15 @@ describe("authentication responses", () => {
         email: "user@example.com",
         name: "User",
         idToken: null,
+        id: 1 as UserId,
+        active: true,
+        first_names: "",
+        last_name: "",
+        first_login_at: null,
+        last_login_at: null,
+        groupes: [],
+        permissions: [],
       });
-      vi.mocked(isAdminEmail).mockReturnValue(false);
       const input = request(path);
       const response = await handle(input);
 
@@ -78,6 +85,14 @@ describe("authentication responses", () => {
         email: "user@example.com",
         name: "User",
         idToken: null,
+        id: 1 as UserId,
+        active: true,
+        first_names: "",
+        last_name: "",
+        first_login_at: null,
+        last_login_at: null,
+        groupes: [],
+        permissions: [],
       });
     }
     const input = request("/api/%");
@@ -94,8 +109,15 @@ describe("authentication responses", () => {
       email: "admin@example.com",
       name: "Admin",
       idToken: null,
+      id: 1 as UserId,
+      active: true,
+      first_names: "",
+      last_name: "",
+      first_login_at: null,
+      last_login_at: null,
+      groupes: [],
+      permissions: ["admin:access"],
     });
-    vi.mocked(isAdminEmail).mockReturnValue(true);
     const input = request("/dossiers");
     const response = await handle(input);
 

@@ -6,19 +6,11 @@ import { addDossierSearch } from "./dossier_search.ts";
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
 import type { default as Personne } from "@pitchou/types/database/public/Personne.ts";
 
-export async function addEvenementFromCap(cap: string, event: EvenementMetrique) {
-  const personne = await directDatabaseConnection("cap_evenement_metrique")
-    .select("id")
-    .from("personne")
-    .join("cap_evenement_metrique", {
-      "cap_evenement_metrique.personne_cap": "personne.access_code",
-    })
-    .where({ "cap_evenement_metrique.cap": cap })
+export async function addEvenementForUser(cap: number, event: EvenementMetrique) {
+  const personne = await directDatabaseConnection("auth_user")
+    .where({ id: cap, active: true })
     .first();
-
-  if (!personne) {
-    throw new Error("Pas de personne avec cette capability");
-  }
+  if (!personne) throw new Error("Utilisateur introuvable");
 
   await directDatabaseConnection("evenement_metrique").insert({
     evenement: event.type,
@@ -40,7 +32,7 @@ export async function deleteEvenementsByEmail(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<number> {
   return databaseConnection("evenement_metrique")
-    .join("personne", { "personne.id": "evenement_metrique.personne" })
+    .join("auth_user as personne", { "personne.id": "evenement_metrique.personne" })
     .where({ email: email })
     .delete();
 }
@@ -54,29 +46,17 @@ export async function getAllEvenementsWithEmail(): Promise<
     details: unknown | null;
   }[]
 > {
-  const groupesByPersonne = directDatabaseConnection("cap_dossier")
-    .join(
-      "edge_cap_dossier__groupe_instructeurs",
-      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
-      "cap_dossier.cap",
-    )
-    .join(
-      "groupe_instructeurs",
-      "groupe_instructeurs.id",
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
-    )
-    .select("cap_dossier.personne_cap")
-    .select(
-      directDatabaseConnection.raw(
-        "array_agg(DISTINCT groupe_instructeurs.name ORDER BY groupe_instructeurs.name) as groupes",
-      ),
-    )
-    .groupBy("cap_dossier.personne_cap")
+  const groupesByPersonne = directDatabaseConnection("user_groupe as m")
+    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
+    .where("g.active", true)
+    .select("m.user_id")
+    .select(directDatabaseConnection.raw("array_agg(distinct g.name order by g.name) as groupes"))
+    .groupBy("m.user_id")
     .as("groupes_par_personne");
 
   return directDatabaseConnection("evenement_metrique")
-    .join("personne", { "personne.id": "evenement_metrique.personne" })
-    .leftJoin(groupesByPersonne, "groupes_par_personne.personne_cap", "personne.access_code")
+    .join("auth_user as personne", { "personne.id": "evenement_metrique.personne" })
+    .leftJoin(groupesByPersonne, "groupes_par_personne.user_id", "personne.id")
     .select(
       "personne.email",
       "groupes_par_personne.groupes as groupesInstructeurs",
@@ -167,7 +147,7 @@ export async function listEvenementsMetriques(
   const order: EvenementMetriqueSortOrder = options.order === "asc" ? "asc" : "desc";
 
   const countRow = await databaseConnection("evenement_metrique")
-    .join("personne", { "personne.id": "evenement_metrique.personne" })
+    .join("auth_user as personne", { "personne.id": "evenement_metrique.personne" })
     .modify((query) => filterEvenementsMetriques(query, options))
     .count<{ count: string }>({ count: "*" })
     .first();
@@ -175,7 +155,7 @@ export async function listEvenementsMetriques(
   const total = Number(countRow?.count ?? 0);
 
   const evenements: EvenementMetriqueRow[] = await databaseConnection("evenement_metrique")
-    .join("personne", { "personne.id": "evenement_metrique.personne" })
+    .join("auth_user as personne", { "personne.id": "evenement_metrique.personne" })
     .modify((query) => filterEvenementsMetriques(query, options))
     .select(
       "evenement_metrique.id",

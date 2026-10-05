@@ -39,7 +39,7 @@ function appendLog(chunk: string) {
 
 const INCEPTION_DATE = new Date("2024-01-01T00:00:00+01:00");
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const GET: RequestHandler = async ({ url }) => {
   const results = await getDemarcheNumerique88444SynchronizationResults();
 

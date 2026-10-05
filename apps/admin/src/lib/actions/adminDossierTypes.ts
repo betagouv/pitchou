@@ -84,7 +84,6 @@ export type AdminDemandeurPersonneMorale = {
 };
 
 type AdminDossierRelationsPayloadBase = {
-  groupe_instructeurs: string;
   identites: AdminDossierIdentite[];
 };
 
@@ -129,7 +128,7 @@ export type AdminDossierDetail = {
     role: string | null;
   } | null;
   demandeur_personne_morale: AdminDemandeurPersonneMorale | null;
-  groupe: { id: string; name: string } | null;
+  groupes: { id: string; name: string }[];
   identites: AdminDossierIdentite[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
@@ -146,7 +145,7 @@ export type AdminDossierCreationPayload = {
 
 export type AdminDossierMinimalCreationPayload = {
   name: string;
-  groupe_instructeurs: string;
+  primary_department: string;
 };
 
 export type AdminDossierUpdatePayload = {

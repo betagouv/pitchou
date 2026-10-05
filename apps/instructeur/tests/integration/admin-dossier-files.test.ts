@@ -19,7 +19,6 @@ import {
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 const ADMIN_EMAIL = "admin-dossiers@pitchou.test";
 
@@ -28,17 +27,13 @@ test("suppression admin : refusée sur un dossier DN, effective sur un dossier n
   await expect(deleteDossierFromAdmin(dnDossier.id as DossierId, db)).rejects.toBeInstanceOf(
     DossierNotCreatedInPitchouError,
   );
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier à supprimer",
       depot_date: new Date("2026-07-03"),
       phase: "Accompagnement amont",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Petit",
-        "Lou",
-      ),
+      relations: physicalAdminDossierRelations("Petit", "Lou"),
     },
     ADMIN_EMAIL,
     db,
@@ -55,17 +50,13 @@ test("suppression admin : refusée sur un dossier DN, effective sur un dossier n
 
 test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dossier DN", async () => {
   await getTestS3();
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier avec pièces jointes",
       depot_date: new Date("2026-07-04"),
       phase: "Accompagnement amont",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Roux",
-        "Sam",
-      ),
+      relations: physicalAdminDossierRelations("Roux", "Sam"),
     },
     ADMIN_EMAIL,
     db,

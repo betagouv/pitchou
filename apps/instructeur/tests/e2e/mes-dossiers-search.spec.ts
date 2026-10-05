@@ -43,7 +43,7 @@ test("la recherche filtre la liste au fil de la frappe, sans valider", async ({ 
     dossier: setup.dossiers[1].id,
     content: "Présence de coquelicots sur la zone",
   });
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
   const cards = page.getByTestId("card-dossier");
   const searchInput = page.getByLabel("Rechercher un dossier");
   await expect(cards).toHaveCount(3);
@@ -78,7 +78,7 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   ] as const) {
     await createDossierSearch(db, { personneId: setup.id, text, date: new Date(date) });
   }
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
   await page.getByLabel("Rechercher un dossier").focus();
   const options = page.getByRole("listbox", { name: "Recherches récentes" }).getByRole("option");
   await expect(options).toHaveText(["photovoltaïque", "méthaniseur", "carrière"]);
@@ -91,7 +91,7 @@ test("le filtre Dossiers où je dois agir remplace à enjeux", async ({ page, db
     { name: "Parc photovoltaïque à Anglet", next_action_expected_from: "Instructeur" },
     { name: "Carrière de calcaire", next_action_expected_from: "Pétitionnaire" },
   ]);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
   await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
   const button = page.getByRole("button", { name: "Dossiers où je dois agir", exact: true });
   await button.click();

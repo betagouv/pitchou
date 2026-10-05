@@ -7,9 +7,7 @@ import {
   deleteDossierByDSNumber,
   getDossierIdsFromDS_Ids,
 } from "@pitchou/server/database/dossier.ts";
-import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts";
-import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts";
 import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/getRecentlyUpdatedDossiers.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -52,9 +50,6 @@ export async function synchronizeDemarcheNumerique({
   transaction,
 }: SynchronizationOptions): Promise<void> {
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
-  const groupesInstructeursP = getGroupesInstructeurs(apiToken, demarcheNumber).then((groupes) =>
-    synchronizeGroupesInstructeurs(groupes, demarcheNumber, transaction),
-  );
   const dossiersDS: DossierDS88444[] = await getRecentlyUpdatedDossiers(
     apiToken,
     demarcheNumber,
@@ -139,7 +134,6 @@ export async function synchronizeDemarcheNumerique({
       especesImpacteesP,
       piecesJointesP,
       identitesSynchronization,
-      groupesInstructeursP,
       ...synchronizations,
     ]);
 

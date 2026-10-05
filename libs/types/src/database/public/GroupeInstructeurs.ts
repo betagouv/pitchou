@@ -10,7 +10,11 @@ export default interface GroupeInstructeurs {
 
   name: string;
 
-  demarche_number: number;
+  demarche_number: number | null;
+
+  active: boolean;
+
+  coverage_needs_review: boolean;
 }
 
 /** Represents the initializer for the table public.groupe_instructeurs */
@@ -20,7 +24,13 @@ export interface GroupeInstructeursInitializer {
 
   name: string;
 
-  demarche_number: number;
+  demarche_number?: number | null;
+
+  /** Default value: true */
+  active?: boolean;
+
+  /** Default value: true */
+  coverage_needs_review?: boolean;
 }
 
 /** Represents the mutator for the table public.groupe_instructeurs */
@@ -29,5 +39,9 @@ export interface GroupeInstructeursMutator {
 
   name?: string;
 
-  demarche_number?: number;
+  demarche_number?: number | null;
+
+  active?: boolean;
+
+  coverage_needs_review?: boolean;
 }

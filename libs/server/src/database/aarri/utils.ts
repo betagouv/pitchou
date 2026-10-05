@@ -4,7 +4,7 @@ import type Evenement from "@pitchou/types/database/public/EvenementMetrique.ts"
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 
 export async function getEvenementsForPersonne(email: Personne["email"]): Promise<Evenement[]> {
-  const requeteSQL = await directDatabaseConnection("personne")
+  const requeteSQL = await directDatabaseConnection("auth_user")
     .select("id")
     .where("email", "=", email);
 

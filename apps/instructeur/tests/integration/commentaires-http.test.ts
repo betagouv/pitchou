@@ -1,9 +1,9 @@
+import { fetchAuthenticated, sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import {
   deleteCommentaireFromCap,
   updateCommentaireFromCap,
 } from "@pitchou/server/database/commentaire.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import { db } from "../setup/db.ts";
 import {
@@ -41,15 +41,17 @@ test("the author deletes a comment with an attributed audit and latest-comment f
     expect((await mutate(cap, dossier.id, { id: commentaire.id })).status).toBe(204);
     expect(await db("commentaire").where({ id: commentaire.id })).toEqual([]);
 
-    const list = await fetch(
-      `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires?cap=${cap}`,
+    const list = await fetchAuthenticated(
+      cap,
+      `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires`,
     ).then((r) => r.json());
     expect(list.map(({ content }: { content: string }) => content)).toEqual(latest ? [latest] : []);
-    const full = await fetch(`${INTEGRATION_BASE_URL}/dossier/${dossier.id}?cap=${cap}`).then((r) =>
-      r.json(),
-    );
+    const full = await fetchAuthenticated(
+      cap,
+      `${INTEGRATION_BASE_URL}/dossier/${dossier.id}`,
+    ).then((r) => r.json());
     expect(full.latestCommentaire).toBe(latest);
-    const summaries = await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=${cap}`).then((r) =>
+    const summaries = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers`).then((r) =>
       r.json(),
     );
     expect(summaries.find(({ id }: { id: number }) => id === dossier.id).latestCommentaire).toBe(
@@ -57,8 +59,9 @@ test("the author deletes a comment with an attributed audit and latest-comment f
     );
   }
 
-  const actions = await fetch(
-    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/historique?cap=${cap}`,
+  const actions = await fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/historique`,
   ).then((r) => r.json());
   expect(actions).toHaveLength(2);
   expect(actions).toEqual(
@@ -101,7 +104,7 @@ test("another instructeur cannot edit or delete, including directly through the 
   }
   expect(
     await updateCommentaireFromCap(
-      other.cap as CapDossierCap,
+      sessionUserId(other.cap),
       author.dossier.id as DossierId,
       commentaire.id,
       "Forged edit",
@@ -110,7 +113,7 @@ test("another instructeur cannot edit or delete, including directly through the 
   ).toBe(false);
   expect(
     await deleteCommentaireFromCap(
-      other.cap as CapDossierCap,
+      sessionUserId(other.cap),
       author.dossier.id as DossierId,
       commentaire.id,
       db,
@@ -160,7 +163,7 @@ test("an audit failure rolls back the deletion", async () => {
     );
     await expect(
       deleteCommentaireFromCap(
-        author.cap as CapDossierCap,
+        sessionUserId(author.cap),
         author.dossier.id as DossierId,
         commentaire.id,
         transaction,

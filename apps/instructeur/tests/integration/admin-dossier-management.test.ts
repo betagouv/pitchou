@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import {
@@ -17,28 +18,25 @@ import {
   getDossierDetailForAdmin,
   listDossiersForAdmin,
 } from "@pitchou/server/database/dossier_admin_list.ts";
-import { getDossierFull, getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 const ADMIN_EMAIL = "admin-dossiers@pitchou.test";
 
 test("un dossier créé depuis l'admin est visible par les instructeurs de son groupe", async () => {
   const instructeur = await createInstructeurWithCapToGroup(db);
+  await db("groupe_departement").insert({
+    groupe_instructeurs: instructeur.groupeId,
+    department: "69",
+  });
 
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier né dans Pitchou",
       depot_date: new Date("2026-07-01"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Martin",
-        "Camille",
-        "camille.martin@example.org",
-      ),
+      relations: physicalAdminDossierRelations("Martin", "Camille", "camille.martin@example.org"),
       columns: {
         urgent_contact_phone: "0612345678",
         request_context: "Vous souhaitez bénéficier d'un accompagnement amont",
@@ -59,7 +57,7 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   expect(detail.source).toBe("pitchou");
   expect(detail.dossier.source).toBe("pitchou");
   expect(detail.phase).toBe("Instruction");
-  expect(detail.groupe?.id).toBe(instructeur.groupeId);
+  expect(detail.groupes[0]?.id).toBe(instructeur.groupeId);
   expect(detail.demandeur_personne_physique?.last_name).toBe("Martin");
   expect(detail.dossier).toMatchObject({
     urgent_contact_phone: "0612345678",
@@ -71,14 +69,14 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   expect(detail.evenementsPhase[0].caused_by_email).toBe(ADMIN_EMAIL);
 
   // The instructeurs of the groupe see the dossier through their cap.
-  const summaries = await getDossiersSummariesByCap(instructeur.cap as CapDossierCap, db);
+  const summaries = await getDossiersSummariesForUser(sessionUserId(instructeur.cap), db);
   expect(summaries.map((summary) => summary.id)).toContain(id);
   expect(summaries.find((summary) => summary.id === id)).toMatchObject({
     source: "pitchou",
     location_scope: "france",
     primary_department: "69",
   });
-  expect(await getDossierFull(id, instructeur.cap as CapDossierCap, db)).toMatchObject({
+  expect(await getDossierFull(id, sessionUserId(instructeur.cap), db)).toMatchObject({
     location_scope: "france",
     primary_department: "69",
   });
@@ -91,14 +89,14 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
 });
 
 test("modification admin d'un dossier natif : champs DN-derivés et changement de phase", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
-  const groupeId = instructeur.groupeId as GroupeInstructeursId;
+  await createInstructeurWithCapToGroup(db);
+
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier à modifier",
       depot_date: new Date("2026-07-02"),
       phase: "Accompagnement amont",
-      relations: physicalAdminDossierRelations(groupeId, "Durand", "Alex"),
+      relations: physicalAdminDossierRelations("Durand", "Alex"),
     },
     ADMIN_EMAIL,
     db,

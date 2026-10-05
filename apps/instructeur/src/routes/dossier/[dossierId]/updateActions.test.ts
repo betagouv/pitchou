@@ -3,7 +3,7 @@ import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
 import { parseDossierUpdate } from "./updatePayload.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 
 const dossierId = 42 as DossierId;
 const authorId = 7 as PersonneId;

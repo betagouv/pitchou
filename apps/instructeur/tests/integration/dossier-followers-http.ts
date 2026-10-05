@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect } from "vitest";
 import type { DossierNotification } from "@pitchou/types/notification.ts";
 import { db } from "../setup/db.ts";
@@ -16,11 +17,11 @@ export async function createGroupeMember(
 }
 
 export function listCandidates(cap: string, dossierId: number) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers?cap=${cap}`);
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers`);
 }
 
 export function updateFollowers(cap: string, dossierId: number, personneEmails: string[]) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}/followers`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ personneEmails }),
@@ -31,7 +32,7 @@ export async function notificationFor(
   cap: string,
   dossierId: number,
 ): Promise<DossierNotification> {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`);
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`);
   expect(response.status).toBe(200);
   const notifications: DossierNotification[] = await response.json();
   return notifications.find(({ dossier }) => dossier === dossierId)!;

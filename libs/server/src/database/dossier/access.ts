@@ -1,51 +1,66 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { BUNDLES, type Permission, type UserId } from "@pitchou/types/permissions.ts";
 import type { DossierAccess } from "@pitchou/types/API_Pitchou.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 
-function meaningfulEvents(query: Knex.QueryBuilder): Knex.QueryBuilder {
-  return query.andWhere(function () {
-    this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
-  });
+export function permissionQuery(
+  userId: UserId,
+  permission: Permission,
+  db: Knex.Transaction | Knex,
+) {
+  const bundles = Object.entries(BUNDLES)
+    .filter(([, values]) => (values as Permission[]).includes(permission))
+    .map(([key]) => key);
+  return db("auth_user as u")
+    .select("u.id")
+    .where({ "u.id": userId, "u.active": true })
+    .where(function () {
+      this.whereExists(
+        db("auth_permission").select("user_id").where({ user_id: userId, permission }),
+      ).orWhereExists(
+        db("auth_permission_bundle")
+          .select("user_id")
+          .where({ user_id: userId })
+          .whereIn("bundle", bundles),
+      );
+    })
+    .whereNotExists(
+      db("auth_permission_exclusion").select("user_id").where({ user_id: userId, permission }),
+    );
 }
 
-// Existing caps can read every existing dossier. EXISTS keeps one row per dossier
-// even when the cap belongs to several owning groups.
-export function dossierAccessQuery(
-  cap: CapDossier["cap"],
-  databaseConnection: Knex.Transaction | Knex,
-) {
-  return databaseConnection("dossier")
+export function dossierAccessQuery(userId: UserId, db: Knex.Transaction | Knex) {
+  const membership = db("user_groupe as m")
+    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
+    .select("m.groupe_instructeurs")
+    .where({ "m.user_id": userId, "g.active": true });
+  const ownership = db("edge_groupe_instructeurs__dossier as e")
+    .select("e.dossier")
+    .where("e.dossier", db.ref("dossier.id"))
+    .whereIn("e.groupe_instructeurs", membership.clone());
+  return db("dossier")
     .select("dossier.id as dossier")
     .select(
-      databaseConnection.raw(
-        `case when exists (
-      select 1 from edge_cap_dossier__groupe_instructeurs
-      join edge_groupe_instructeurs__dossier using (groupe_instructeurs)
-      where edge_cap_dossier__groupe_instructeurs.cap_dossier = ?
-        and edge_groupe_instructeurs__dossier.dossier = dossier.id
-    ) then 'complet' else 'lecture' end as access`,
-        [cap],
-      ),
+      db.raw("case when exists (?) and exists (?) then 'complet' else 'lecture' end as access", [
+        ownership,
+        permissionQuery(userId, "dossier:instruct", db),
+      ]),
     )
-    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap }));
+    .whereExists(permissionQuery(userId, "dossier:read", db))
+    .whereExists(membership);
 }
 
-/**
- * The dossiers among `dossierIds` this cap reaches, and with what access.
- *
- * A `Map`, so callers that only ask whether the dossier is reachable keep using
- * `.has()`, while anything that may write must read the level with `.get()`.
- */
-export async function dossiersAccessibleViaCap(
+export async function dossiersAccessibleToUser(
   dossierIds: Dossier["id"] | Dossier["id"][],
-  cap: CapDossier["cap"],
-  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  userId: UserId,
+  db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Map<Dossier["id"], DossierAccess>> {
-  const ids = Array.isArray(dossierIds) ? dossierIds : [dossierIds];
-  const rows = await dossierAccessQuery(cap, databaseConnection).whereIn("dossier.id", ids);
+  const rows = await dossierAccessQuery(userId, db).whereIn(
+    "dossier.id",
+    Array.isArray(dossierIds) ? dossierIds : [dossierIds],
+  );
   return new Map(
     rows.map(({ dossier, access }: { dossier: Dossier["id"]; access: DossierAccess }) => [
       dossier,
@@ -54,31 +69,18 @@ export async function dossiersAccessibleViaCap(
   );
 }
 
-function eventsByCap(cap: CapDossier["cap"], databaseConnection: Knex.Transaction | Knex) {
-  return meaningfulEvents(
-    databaseConnection("evenement_phase_dossier")
-      .select(["evenement_phase_dossier.dossier as dossier", "phase", "timestamp"])
-      .join("edge_groupe_instructeurs__dossier", {
-        "edge_groupe_instructeurs__dossier.dossier": "evenement_phase_dossier.dossier",
-      })
-      .join("edge_cap_dossier__groupe_instructeurs", {
-        "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-          "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-      })
-      .where({ "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap }),
-  );
+function meaningfulEvents(query: Knex.QueryBuilder) {
+  return query.andWhere(function () {
+    this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
+  });
 }
 
 export async function getLatestEvenementsPhaseDossiers(
-  cap: CapDossier["cap"],
-  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  userId: UserId,
+  db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  // Summary enrichment is global; eventsByCap remains service-only for history.
-  return meaningfulEvents(
-    databaseConnection("evenement_phase_dossier")
-      .select(["dossier", "phase", "timestamp"])
-      .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap })),
-  )
+  return meaningfulEvents(db("evenement_phase_dossier").select("dossier", "phase", "timestamp"))
+    .whereIn("dossier", dossierAccessQuery(userId, db).clearSelect().select("dossier.id"))
     .distinctOn("dossier")
     .orderBy([
       { column: "dossier", order: "asc" },
@@ -87,17 +89,23 @@ export async function getLatestEvenementsPhaseDossiers(
 }
 
 export async function getEvenementsPhaseDossiers(
-  cap: CapDossier["cap"],
-  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  userId: UserId,
+  db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return eventsByCap(cap, databaseConnection);
+  return meaningfulEvents(db("evenement_phase_dossier").select("evenement_phase_dossier.*"))
+    .join(
+      dossierAccessQuery(userId, db).as("access"),
+      "access.dossier",
+      "evenement_phase_dossier.dossier",
+    )
+    .where("access.access", "complet");
 }
 
 export async function getEvenementsPhaseDossier(
   dossierId: Dossier["id"],
-  databaseConnection: Knex.Transaction | Knex,
+  db: Knex.Transaction | Knex,
 ): Promise<EvenementPhaseDossier[]> {
   return meaningfulEvents(
-    databaseConnection("evenement_phase_dossier").select("*").where({ dossier: dossierId }),
+    db("evenement_phase_dossier").select("*").where({ dossier: dossierId }),
   ).orderBy("timestamp", "desc");
 }

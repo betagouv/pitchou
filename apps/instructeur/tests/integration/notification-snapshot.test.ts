@@ -1,14 +1,14 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { getDossierReviewSnapshot } from "@pitchou/server/database/notification/snapshot.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 test("dossier values and review revisions become visible together at synchronization commit", async () => {
   const owner = await createInstructeurWithDossier(db, { nomGroupe: "Snapshot notifications" });
   const id = owner.dossier.id as DossierId;
-  const cap = owner.cap as CapDossierCap;
+  const cap = sessionUserId(owner.cap);
   await db("dossier").where("id", id).update({ description: "Ancien texte" });
   const sync = await db.transaction();
   try {

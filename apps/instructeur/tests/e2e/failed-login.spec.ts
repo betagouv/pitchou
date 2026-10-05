@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createPersonne } from "../factories/index.ts";
 
@@ -6,14 +7,14 @@ test("la page de connexion s'affiche quand on visite / sans secret", async ({ pa
 
   await expect(page.getByRole("banner")).toContainText("Pitchou");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Connexion");
-  await expect(page.getByLabel("Adresse email")).toBeVisible();
+  await expect(page.getByRole("link", { name: "S'identifier avec ProConnect" })).toBeVisible();
 });
 
-test("un secret inexistant affiche une erreur de connexion invalide", async ({ page }) => {
+test("un ancien secret ne connecte plus un utilisateur", async ({ page }) => {
   await page.goto("/?secret=inexistant");
 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Connexion");
-  await expect(page.getByText("Votre lien de connexion n'est plus valide")).toBeVisible();
+  await expect(page.getByRole("link", { name: "S'identifier avec ProConnect" })).toBeVisible();
 });
 
 test("un compte sans groupe d'instructeurs affiche l'erreur correspondante", async ({
@@ -25,10 +26,13 @@ test("un compte sans groupe d'instructeurs affiche l'erreur correspondante", asy
     access_code: "test.pas.de.groupe",
   });
 
-  await page.goto(`/?secret=${codeAcces}`);
+  await loginBrowser(page, db, codeAcces);
 
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Connexion");
+  await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Votre accès aux dossiers");
   await expect(
-    page.getByText(`Erreur : Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs`),
+    page.getByText(
+      "Votre compte est enregistré, mais vous ne pouvez pas encore consulter les dossiers.",
+    ),
   ).toBeVisible();
 });

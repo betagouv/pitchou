@@ -1,18 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import ProConnectButton from "@pitchou/ui/ProConnectButton.svelte";
   import { store } from "$lib/state/store.svelte.ts";
-  import LoginViaEmail from "../LoginViaEmail/LoginViaEmail.svelte";
-  import { envoiEmailConnexion } from "../LoginViaEmail/serveur.ts";
-  import { authorizedEmailDomains } from "@pitchou/common/constants.ts";
-
-  onMount(() => {
-    // Signed in but not a member of any instructeur group
-    if (store.identité && !store.capabilities.listerDossiers) {
-      store.errors.add({
-        message: `Il semblerait que vous ne fassiez partie d'aucun groupe instructeurs sur la procédure Démarche Numérique de Pitchou. Vous pouvez prendre contact avec vos collègues ou l'équipe Pitchou pour être ajouté.e à un groupe d'instructeurs`,
-      });
-    }
-  });
 </script>
 
-<LoginViaEmail {authorizedEmailDomains} {envoiEmailConnexion} />
+<h1>Connexion à Pitchou</h1>
+{#if store.identité && !store.capabilities.listerDossiers}
+  <p>
+    Votre compte est enregistré. Un administrateur doit vous attribuer des droits et vous ajouter à
+    un groupe pour accéder aux dossiers.
+  </p>
+{:else}
+  <p>Utilisez votre compte professionnel pour accéder à Pitchou.</p>
+  <ProConnectButton href="/auth/proconnect" />
+{/if}

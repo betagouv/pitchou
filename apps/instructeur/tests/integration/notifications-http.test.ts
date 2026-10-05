@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import {
@@ -10,14 +11,14 @@ import type { DossierNotification } from "@pitchou/types/notification.ts";
 import { backfillLegacyReviews } from "../../../../libs/database/migrations/20260906120000_personal-notification-revisions.ts";
 
 function update(cap: string, body: object) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 }
 async function list(cap: string): Promise<DossierNotification[]> {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`);
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`);
   expect(response.status).toBe(200);
   return response.json();
 }

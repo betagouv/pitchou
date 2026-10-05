@@ -34,7 +34,7 @@ export async function getDossiersForGeoMCE(
     "edge_personne_follows_dossier",
   )
     .select(["personne.email as email", "edge_personne_follows_dossier.dossier as dossier"])
-    .join("personne", { "personne.id": "edge_personne_follows_dossier.personne" })
+    .join("auth_user as personne", { "personne.id": "edge_personne_follows_dossier.personne" })
     .whereIn("edge_personne_follows_dossier.dossier", ids)
     .then((rows) => {
       const byDossier = new Map();

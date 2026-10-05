@@ -65,7 +65,7 @@ function parseUploads(value: unknown): {
   };
 }
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const GET: RequestHandler = async ({ params }) => {
   const dossierId = parseDossierId(params.dossierId!);
 
@@ -80,6 +80,12 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const dossierId = parseDossierId(params.dossierId!);
   const { uploads: rawUploads, ...rawUpdate } = await readJsonObject(request);
   const { speciesFile, attachments } = parseUploads(rawUploads);
+  if (attachments.length && !locals.user!.permissions.includes("admin:dossiers:files")) {
+    error(403, "Permission requise pour gérer les pièces jointes des dossiers.");
+  }
+  if (speciesFile && !locals.user!.permissions.includes("admin:dossiers:species")) {
+    error(403, "Permission requise pour gérer les espèces impactées des dossiers.");
+  }
   const update = parseDossierUpdate(rawUpdate, await loadActiviteContext());
 
   if (!speciesFile && attachments.length === 0) {

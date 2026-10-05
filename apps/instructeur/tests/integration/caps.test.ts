@@ -1,46 +1,28 @@
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
-import { createCapEvenementMetrique, createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
-test("GET /caps?secret=<codeAcces> renvoie les capabilities de l'instructeur", async () => {
-  const { codeAcces, email } = await createInstructeurWithCapToGroup(db, {
-    email: "jane@doe.fr",
-  });
-
-  const res = await fetch(`${INTEGRATION_BASE_URL}/caps?secret=${codeAcces}`);
-
-  expect(res.status).toBe(200);
-  const body = await res.json();
+test("the session exposes identity and ordinary API URLs without credentials", async () => {
+  const { cap, email } = await createInstructeurWithCapToGroup(db, { email: "jane@doe.fr" });
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/api/session`);
+  expect(response.status).toBe(200);
+  const body = await response.json();
   expect(body.identité).toEqual({
     email,
     estAdmin: false,
     groupesInstructeurs: ["Groupe de test"],
   });
-  expect(body).toHaveProperty("listerDossiers");
-  expect(body.listDossierFollowerCandidates).toContain("/dossier/:dossierId/followers?cap=");
-  expect(body.updateDossierFollowers).toContain("/dossier/:dossierId/followers?cap=");
+  expect(body.listerDossiers).toBe("/dossiers");
+  expect(body.listDossierFollowerCandidates).toBe("/dossier/:dossierId/followers");
+  expect(body.creerEvenementMetrique).toBe("/api/metriques/evenements");
+  expect(JSON.stringify(body)).not.toContain(cap);
 });
 
-test("GET /caps expose les caps métriques quand la personne en a une", async () => {
-  const { codeAcces } = await createInstructeurWithCapToGroup(db);
-  const { cap } = await createCapEvenementMetrique(db, codeAcces);
-
-  const res = await fetch(`${INTEGRATION_BASE_URL}/caps?secret=${codeAcces}`);
-
-  expect(res.status).toBe(200);
-  const body = await res.json();
-  expect(body.creerEvenementMetrique).toBe(`/api/metriques/evenements?cap=${cap}`);
-  // Reading recent searches shares the metric cap value
-  expect(body.listRecentSearches).toBe(`/api/metriques/dernieres-recherches?cap=${cap}`);
-});
-
-test("GET /caps sans paramètre secret renvoie 400", async () => {
-  const res = await fetch(`${INTEGRATION_BASE_URL}/caps`);
-  expect(res.status).toBe(400);
-});
-
-test("GET /caps avec un secret inconnu renvoie 403", async () => {
-  const res = await fetch(`${INTEGRATION_BASE_URL}/caps?secret=inconnu`);
-  expect(res.status).toBe(403);
+test("a legacy capability URL cannot authenticate a request", async () => {
+  const { cap, codeAcces } = await createInstructeurWithCapToGroup(db);
+  expect((await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=${cap}`)).status).toBe(401);
+  expect((await fetch(`${INTEGRATION_BASE_URL}/caps?secret=${codeAcces}`)).status).toBe(401);
+  expect((await fetch(`${INTEGRATION_BASE_URL}/api/session`)).status).toBe(401);
 });

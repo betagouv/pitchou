@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import type { Knex } from "knex";
 import {
@@ -9,8 +10,8 @@ import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/
 import { dumpImpactEspeceFromFichier } from "@pitchou/server/database/impact_espece/dumpImpactEspeceFromFichier.ts";
 import { getDossierReviewSnapshot } from "@pitchou/server/database/notification/snapshot.ts";
 import {
-  getNotificationsForPersonneFromCap,
-  updateNotificationDossierFromCap,
+  getNotificationsForUser,
+  updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
@@ -22,7 +23,6 @@ import {
 } from "../factories/index.ts";
 import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 const capture = speciesImpactChangeField("P-2-1");
@@ -48,7 +48,7 @@ async function speciesFile(rows: Cellule[][]) {
 async function setup() {
   const owner = await createInstructeurWithDossier(db);
   const id = owner.dossier.id as DossierId;
-  const cap = owner.cap as CapDossierCap;
+  const cap = sessionUserId(owner.cap);
   await db("dossier").where({ id }).update({ demarche_numerique_number: "101" });
   await seedEspeceProtegeeReference(
     [
@@ -69,7 +69,7 @@ async function setup() {
       connection,
     );
   const pending = async (personCap = cap) =>
-    (await getNotificationsForPersonneFromCap(personCap, db, id))[0].changes;
+    (await getNotificationsForUser(personCap, db, id))[0].changes;
   return { owner, id, cap, synchronize, pending };
 }
 
@@ -107,18 +107,18 @@ test("real replacements expose group revisions atomically and acknowledgments re
 
   const third = await speciesFile([["2437", "P-2-1", "101-1000", ""]]);
   await synchronize(third.id);
-  await updateNotificationDossierFromCap(cap, { dossier: id, revisions: oldCapture.revisions }, db);
+  await updateNotificationDossier(cap, { dossier: id, revisions: oldCapture.revisions }, db);
   const remaining = await pending();
   expect(remaining.map(({ field }) => field).sort()).toEqual([capture, habitat].sort());
   const newCapture = remaining.find(({ field }) => field === capture)!;
   expect(newCapture.revisions).toHaveLength(1);
   expect(newCapture.revisions[0]).not.toBe(oldCapture.revisions[0]);
-  await updateNotificationDossierFromCap(cap, { dossier: id, revisions: newCapture.revisions }, db);
+  await updateNotificationDossier(cap, { dossier: id, revisions: newCapture.revisions }, db);
   expect((await pending()).map(({ field }) => field)).toEqual([habitat]);
   expect(
-    (await pending(colleague.cap as CapDossierCap)).flatMap(({ revisions }) => revisions),
+    (await pending(sessionUserId(colleague.cap))).flatMap(({ revisions }) => revisions),
   ).toHaveLength(3);
-  await updateNotificationDossierFromCap(cap, { dossier: id, revisions: removed.revisions }, db);
+  await updateNotificationDossier(cap, { dossier: id, revisions: removed.revisions }, db);
   expect(await pending()).toEqual([]);
 
   const identical = await speciesFile([["2437", "P-2-1", "101-1000", ""]]);
@@ -132,7 +132,7 @@ test("later first additions, reordering, moving groups and clearing use canonica
   const first = await speciesFile(initial);
   expect(await synchronize(first.id)).toEqual(new Set([id]));
   expect((await pending()).map(({ field }) => field).sort()).toEqual([capture, habitat].sort());
-  await updateNotificationDossierFromCap(
+  await updateNotificationDossier(
     cap,
     { dossier: id, revisions: (await pending()).flatMap(({ revisions }) => revisions) },
     db,
@@ -150,7 +150,7 @@ test("later first additions, reordering, moving groups and clearing use canonica
       .map(({ surface_habitat_detruit }) => surface_habitat_detruit)
       .sort(),
   ).toEqual([0, 100]);
-  await updateNotificationDossierFromCap(
+  await updateNotificationDossier(
     cap,
     { dossier: id, revisions: (await pending()).flatMap(({ revisions }) => revisions) },
     db,
@@ -181,6 +181,6 @@ test("missing old rows and failed imports stay coarse, while same-file materiali
   expect(await db("impact_espece").where({ dossier: id })).toEqual([]);
   expect((await pending()).map(({ field }) => field)).toEqual(["especes"]);
   expect((await pending())[0].revisions).toHaveLength(2);
-  await updateNotificationDossierFromCap(cap, { dossier: id, revisions: oldCoarseRevisions }, db);
+  await updateNotificationDossier(cap, { dossier: id, revisions: oldCoarseRevisions }, db);
   expect((await pending())[0].revisions).toHaveLength(1);
 });

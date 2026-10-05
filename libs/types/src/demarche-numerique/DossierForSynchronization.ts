@@ -62,7 +62,8 @@ export type PersonneWithRequiredEmail = Partial<Omit<Personne, "email">> & {
 
 // The DossierForInsertGeneric type exists to build the type of the additional data of imported dossiers
 export type DossierForInsertGeneric<Dossier> = DossierForSynchronization<Dossier> & {
-  followers: PersonneWithRequiredEmail[] | undefined;
+  /** Legacy import data. Local users and follow assignments never come from DN. */
+  followers?: PersonneWithRequiredEmail[] | undefined;
 } & { avis_expert: PartialBy<AvisExpertInitializer, "dossier">[] };
 export type DossierForInsert = DossierForInsertGeneric<DossierInitializer>;
 

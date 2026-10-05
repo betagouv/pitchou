@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -9,7 +10,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 // of the historique entry is not up to the caller.
 
 function recordDocuments(cap: string, dossierId: number, body: unknown) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/historique?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}/historique`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

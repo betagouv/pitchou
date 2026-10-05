@@ -1,86 +1,27 @@
+import { sessionUserId } from "../helpers/auth.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
-import {
-  createFichierS3,
-  createInstructeurWithCapToGroup,
-  createInstructeurWithDossier,
-} from "../factories/index.ts";
-import { getTestS3 } from "../setup/s3.ts";
+
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-const COMMENTAIRE = "Commentaire interne au service instructeur";
-const PRESCRIPTION = "Prescription interne au service instructeur";
-
-async function createFile(name: string) {
-  const { id } = await createFichierS3(db, await getTestS3(), { name });
-  return id;
-}
-
-/** A dossier owned by one service and a reader from another service. */
-async function createDossierWithSecondService() {
-  const {
-    cap: capProprietaire,
-    dossier,
-    groupeId: groupeProprietaire,
-  } = await createInstructeurWithDossier(db, {
-    email: "instructeur@service-proprietaire.fr",
-    nomGroupe: "Service propriétaire",
-  });
-
-  await db("commentaire").insert({
-    dossier: dossier.id,
-    personne: null,
-    content: COMMENTAIRE,
-    created_at: new Date(),
-  });
-
-  const saisine = await createFile("saisine-cnpn.pdf");
-  const avis = await createFile("avis-cnpn.pdf");
-  await db("avis_expert").insert({
-    dossier: dossier.id,
-    expert: "CNPN",
-    avis: "Favorable",
-    saisine_fichier: saisine,
-    avis_fichier: avis,
-  });
-
-  const [decision] = await db("decision_administrative")
-    .insert({
-      dossier: dossier.id,
-      type: "Arrêté dérogation",
-      number: "AP-001",
-      fichier: await createFile("arrete.pdf"),
-    })
-    .returning(["id"]);
-  await db("prescription").insert({
-    decision_administrative: decision.id,
-    article_number: "2",
-    description: PRESCRIPTION,
-  });
-
-  // The second service: its own groupe, holding no dossier of its own.
-  const { cap: capLecture } = await createInstructeurWithCapToGroup(db, {
-    email: "instructeur@service-lecteur.fr",
-    nomGroupe: "Service lecteur",
-  });
-
-  return {
-    capProprietaire,
-    capLecture,
-    groupeProprietaire,
-    dossierId: dossier.id,
-    files: { saisine, avis },
-  };
-}
+import {
+  COMMENTAIRE,
+  PRESCRIPTION,
+  createDossierWithSecondService,
+} from "../helpers/cross-group-dossier.ts";
 
 test("un autre service reçoit la projection en lecture seule sans partage explicite", async () => {
   const { capLecture, dossierId } = await createDossierWithSecondService();
 
   // No `lecture=1`: the cap alone must narrow the payload.
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${capLecture}`);
+  const response = await fetchAuthenticated(
+    capLecture,
+    `${INTEGRATION_BASE_URL}/dossier/${dossierId}`,
+  );
   expect(response.status).toBe(200);
 
   const body = await response.text();
@@ -94,7 +35,7 @@ test("un autre service reçoit la projection en lecture seule sans partage expli
   expect(dossier.avisExpert[0]!.saisine_fichier_url).toBeUndefined();
 
   const summaries: DossierSummary[] = await (
-    await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=${capLecture}`)
+    await fetchAuthenticated(capLecture, `${INTEGRATION_BASE_URL}/dossiers`)
   ).json();
   const summary = summaries.find(({ id }) => id === dossierId)!;
   expect(summary.access).toBe("lecture");
@@ -106,8 +47,9 @@ test("un autre service reçoit la projection en lecture seule sans partage expli
 test("le service propriétaire garde le dossier entier", async () => {
   const { capProprietaire, dossierId } = await createDossierWithSecondService();
 
-  const response = await fetch(
-    `${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${capProprietaire}`,
+  const response = await fetchAuthenticated(
+    capProprietaire,
+    `${INTEGRATION_BASE_URL}/dossier/${dossierId}`,
   );
   const dossier: DossierFull = await response.json();
 
@@ -116,7 +58,7 @@ test("le service propriétaire garde le dossier entier", async () => {
   expect(dossier.decisionsAdministratives![0]!.prescriptions).toHaveLength(1);
 
   const summaries: DossierSummary[] = await (
-    await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=${capProprietaire}`)
+    await fetchAuthenticated(capProprietaire, `${INTEGRATION_BASE_URL}/dossiers`)
   ).json();
   expect(summaries.find(({ id }) => id === dossierId)).toMatchObject({
     access: "complet",
@@ -128,10 +70,10 @@ test("le service propriétaire garde le dossier entier", async () => {
 test("un autre service ne peut rien écrire sur le dossier", async () => {
   const { capLecture, dossierId } = await createDossierWithSecondService();
   const writes: [string, Record<string, unknown>][] = [
-    [`/dossier/${dossierId}?cap=${capLecture}`, { enjeu: true }],
-    [`/dossier/${dossierId}/commentaires?cap=${capLecture}`, { content: "Bonjour" }],
+    [`/dossier/${dossierId}`, { enjeu: true }],
+    [`/dossier/${dossierId}/commentaires`, { content: "Bonjour" }],
     [
-      `/decision-administrative?cap=${capLecture}`,
+      `/decision-administrative`,
       {
         dossier: dossierId,
         type: "Arrêté dérogation",
@@ -140,22 +82,22 @@ test("un autre service ne peut rien écrire sur le dossier", async () => {
         obligations_end_date: "2031-04-15",
       },
     ],
-    [`/dossier/${dossierId}/historique?cap=${capLecture}`, { documents: ["doc"] }],
+    [`/dossier/${dossierId}/historique`, { documents: ["doc"] }],
   ];
 
   for (const [path, body] of writes) {
-    const response = await fetch(`${INTEGRATION_BASE_URL}${path}`, {
+    const response = await fetchAuthenticated(capLecture, `${INTEGRATION_BASE_URL}${path}`, {
       method: "POST",
       body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
     });
     expect(response.status, `écriture sur ${path}`).toBeGreaterThanOrEqual(400);
     expect(response.status, `écriture sur ${path}`).toBeLessThan(500);
-    if (path.startsWith("/decision-administrative?")) {
+    if (path.startsWith("/decision-administrative")) {
       // This route uses 400 for ownership denial too; rule out a validation error.
       expect(response.status).toBe(400);
       expect(await response.json()).toEqual({
-        message: `La capability ${capLecture} ne permet pas d'avoir accès au dossier ${dossierId}`,
+        message: `Accès au dossier ${dossierId} refusé`,
       });
     }
   }
@@ -169,11 +111,8 @@ test("un autre service ne peut rien écrire sur le dossier", async () => {
 test("un autre service n'accède ni à l'historique ni aux commentaires", async () => {
   const { capLecture, dossierId } = await createDossierWithSecondService();
 
-  for (const path of [
-    `/dossier/${dossierId}/historique?cap=${capLecture}`,
-    `/dossier/${dossierId}/commentaires?cap=${capLecture}`,
-  ]) {
-    const response = await fetch(`${INTEGRATION_BASE_URL}${path}`);
+  for (const path of [`/dossier/${dossierId}/historique`, `/dossier/${dossierId}/commentaires`]) {
+    const response = await fetchAuthenticated(capLecture, `${INTEGRATION_BASE_URL}${path}`);
     expect(response.status, path).toBe(403);
   }
 });
@@ -182,8 +121,9 @@ test.each(["avis", "saisine"] as const)("lecture seule du fichier %s", async (ki
   const { capLecture, files } = await createDossierWithSecondService();
 
   // Readers can download the official avis, but not its internal saisine.
-  const response = await fetch(
-    `${INTEGRATION_BASE_URL}/avis-expert/fichier/${files[kind]}?cap=${capLecture}`,
+  const response = await fetchAuthenticated(
+    capLecture,
+    `${INTEGRATION_BASE_URL}/avis-expert/fichier/${files[kind]}`,
   );
   expect(response.status).toBe(kind === "avis" ? 200 : 404);
 });
@@ -192,12 +132,15 @@ test("l'appartenance à un groupe propriétaire donne priorité à l'accès comp
   const { capLecture, groupeProprietaire, dossierId } = await createDossierWithSecondService();
 
   // Joining the owning service upgrades the instructeur's access to full.
-  await db("edge_cap_dossier__groupe_instructeurs").insert({
-    cap_dossier: capLecture,
+  await db("user_groupe").insert({
+    user_id: sessionUserId(capLecture),
     groupe_instructeurs: groupeProprietaire,
   });
 
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${capLecture}`);
+  const response = await fetchAuthenticated(
+    capLecture,
+    `${INTEGRATION_BASE_URL}/dossier/${dossierId}`,
+  );
   const dossier: DossierFull = await response.json();
   expect(dossier.access).toBe("complet");
   expect(dossier.latestCommentaire).toBe(COMMENTAIRE);

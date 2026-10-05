@@ -1,14 +1,14 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth.ts";
+import { requireUserId } from "$lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
-  listDossierFollowerCandidatesFromCap,
-  updateDossierFollowersFromCap,
+  listDossierFollowerCandidates,
+  updateDossierFollowers,
 } from "@pitchou/server/database/relation_suivi.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 const updateProperties = new Set(["personneEmails"]);
@@ -35,9 +35,9 @@ function parsePersonneEmails(value: Record<string, unknown>): string[] {
   return value.personneEmails;
 }
 
-export const GET: RequestHandler = async ({ params, url }) => {
-  const candidates = await listDossierFollowerCandidatesFromCap(
-    requireCap(url),
+export const GET: RequestHandler = async ({ params, locals }) => {
+  const candidates = await listDossierFollowerCandidates(
+    requireUserId(locals),
     parseDossierId(params.dossierId!),
   );
   if (!candidates) {
@@ -46,24 +46,19 @@ export const GET: RequestHandler = async ({ params, url }) => {
   return json(candidates);
 };
 
-export const POST: RequestHandler = async ({ params, url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
   const dossierId = parseDossierId(params.dossierId!);
   const personneEmails = parsePersonneEmails(await readJsonObject(request));
   const transaction = await createTransaction();
 
   try {
-    const updated = await updateDossierFollowersFromCap(
-      cap,
-      dossierId,
-      personneEmails,
-      transaction,
-    );
+    const updated = await updateDossierFollowers(userId, dossierId, personneEmails, transaction);
     if (!updated) {
       await transaction.rollback();
       error(403, "Une personne sélectionnée n'appartient pas au groupe instructeur du dossier.");
     }
-    const actor = await getPersonneByDossierCap(cap);
+    const actor = await getUserById(userId);
     await logDossierActions(
       [
         ...updated.added.map((follower) => ({

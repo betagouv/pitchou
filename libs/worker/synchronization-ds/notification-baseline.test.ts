@@ -14,14 +14,8 @@ vi.mock("@pitchou/server/database/dossier.ts", () => ({
   dumpDossiers: async () => new Set([1]),
   deleteDossierByDSNumber: async () => {},
 }));
-vi.mock("@pitchou/server/database/groupe_instructeurs.ts", () => ({
-  synchronizeGroupesInstructeurs: async () => {},
-}));
 vi.mock("@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts", () => ({
   default: async () => [],
-}));
-vi.mock("@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts", () => ({
-  getGroupesInstructeurs: async () => [],
 }));
 vi.mock("@pitchou/server/demarche-numerique/getRecentlyUpdatedDossiers.ts", () => ({
   getRecentlyUpdatedDossiers: async () => [

@@ -1,3 +1,4 @@
+import { dossierAccessQuery } from "./dossier/access.ts";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
@@ -7,7 +8,7 @@ import { registerUploadedFichier } from "./fichier_upload.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { default as DecisionAdministrative } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type {
   DecisionAdministrativeForTransfer,
@@ -62,13 +63,16 @@ export function getDecisionAdministratives(
  * Fetches the décisions administratives for each dossier
  */
 export function getDecisionsAdministratives(
-  cap_dossier: CapDossier["cap"],
+  cap_dossier: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<FrontEndDecisionAdministrative[]> {
   return databaseConnection("decision_administrative")
     .select("decision_administrative.*")
     .select(databaseConnection.raw('decision_administrative.fichier is not null as "hasFile"'))
-    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap: cap_dossier }));
+    .whereIn(
+      "dossier",
+      dossierAccessQuery(cap_dossier, databaseConnection).clearSelect().select("dossier.id"),
+    );
 }
 
 export async function updateDecisionAdministrative(

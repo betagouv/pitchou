@@ -1,0 +1,10 @@
+import { redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = ({ locals }) => {
+  if (!locals.user) redirect(303, "/connexion");
+
+  if (locals.user.groupes.length && locals.user.permissions.includes("dossier:read")) {
+    redirect(303, "/mes-dossiers");
+  }
+};

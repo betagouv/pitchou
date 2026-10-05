@@ -32,7 +32,7 @@ export type AdminDossierDetail = {
     "last_name" | "first_names" | "email" | "address" | "phone" | "role"
   > | null;
   demandeur_personne_morale: AdminDemandeurPersonneMoraleRelations | null;
-  groupe: Pick<GroupeInstructeurs, "id" | "name"> | null;
+  groupes: Pick<GroupeInstructeurs, "id" | "name">[];
   identites: AdminDossierIdentite[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
@@ -51,7 +51,7 @@ export async function getDossierDetailForAdmin(
   const [
     personne,
     entreprise,
-    groupe,
+    groupes,
     identites,
     evenementsPhase,
     piecesJointes,
@@ -69,7 +69,7 @@ export async function getDossierDetailForAdmin(
         "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
       })
       .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
-      .first(),
+      .orderBy("groupe_instructeurs.name"),
     db("identite_dossier").select("*").where({ dossier: dossierId }),
     db("evenement_phase_dossier")
       .select([
@@ -78,7 +78,9 @@ export async function getDossierDetailForAdmin(
         "personne.email as caused_by_email",
         "evenement_phase_dossier.demarche_numerique_agent_email",
       ])
-      .leftJoin("personne", { "personne.id": "evenement_phase_dossier.caused_by_personne" })
+      .leftJoin("auth_user as personne", {
+        "personne.id": "evenement_phase_dossier.caused_by_personne",
+      })
       .where({ dossier: dossierId })
       .andWhere(function () {
         this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
@@ -111,7 +113,7 @@ export async function getDossierDetailForAdmin(
     phase: evenementsPhase[0]?.phase ?? "Accompagnement amont",
     demandeur_personne_physique: personne ?? null,
     demandeur_personne_morale: entreprise ?? null,
-    groupe: groupe ?? null,
+    groupes,
     identites,
     evenementsPhase,
     piecesJointes,

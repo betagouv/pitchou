@@ -1,8 +1,8 @@
+import { fetchAuthenticated, sessionUserId } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
-import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier/access.ts";
+import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import { db } from "../setup/db.ts";
 import {
@@ -16,7 +16,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { listCandidates, updateFollowers } from "./dossier-followers-http.ts";
 
 async function summaries(cap: string): Promise<DossierSummary[]> {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=${cap}`);
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers`);
   expect(response.status).toBe(200);
   return response.json();
 }
@@ -95,13 +95,17 @@ test("all existing dossiers are listed once, with owner precedence and restricte
     avisExperts: [{ expert: "Autre expert", hasSaisineFile: false, hasAvisFile: false }],
   });
   expect(listed.find(({ id }) => id === orphan.id)?.access).toBe("lecture");
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossier/${orphan.id}?cap=${reader.cap}`);
+  const response = await fetchAuthenticated(
+    reader.cap,
+    `${INTEGRATION_BASE_URL}/dossier/${orphan.id}`,
+  );
   expect(response.status).toBe(200);
   expect((await response.json()).access).toBe("lecture");
 
   // Global summary phases must not broaden the service history endpoint.
-  const history = await fetch(
-    `${INTEGRATION_BASE_URL}/dossiers/evenements-phases?cap=${reader.cap}`,
+  const history = await fetchAuthenticated(
+    reader.cap,
+    `${INTEGRATION_BASE_URL}/dossiers/evenements-phases`,
   );
   expect(history.status).toBe(200);
   const events: { dossier: number }[] = await history.json();
@@ -109,42 +113,20 @@ test("all existing dossiers are listed once, with owner precedence and restricte
   expect(events.every(({ dossier }) => dossier === reader.dossier.id)).toBe(true);
 });
 
-test("unknown caps and nonexistent dossier IDs never grant reads", async () => {
+test("removing the final membership revokes all dossier access", async () => {
   const owner = await createInstructeurWithDossier(db);
-  const unknownCap = randomUUID() as CapDossierCap;
-  const existingId = owner.dossier.id as DossierId;
-  const missingId = 2147483647 as DossierId;
-  await expect(dossiersAccessibleViaCap([existingId, missingId], unknownCap, db)).resolves.toEqual(
+  const id = owner.dossier.id as DossierId;
+  await expect(dossiersAccessibleToUser(id, sessionUserId(owner.cap), db)).resolves.toEqual(
+    new Map([[id, "complet"]]),
+  );
+  await db("user_groupe").where({ user_id: owner.id }).delete();
+  await expect(dossiersAccessibleToUser(id, sessionUserId(owner.cap), db)).resolves.toEqual(
     new Map(),
   );
-  await expect(
-    dossiersAccessibleViaCap([existingId, missingId], owner.cap as CapDossierCap, db),
-  ).resolves.toEqual(new Map([[existingId, "complet"]]));
-  await expect(dossiersAccessibleViaCap([], owner.cap as CapDossierCap, db)).resolves.toEqual(
-    new Map(),
+  expect((await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status).toBe(
+    403,
   );
-  expect(await summaries(unknownCap)).toEqual([]);
-  for (const [id, cap] of [
-    [existingId, unknownCap],
-    [missingId, owner.cap],
-    [existingId, "invalid-cap"],
-  ]) {
-    expect((await fetch(`${INTEGRATION_BASE_URL}/dossier/${id}?cap=${cap}`)).status).toBe(403);
-  }
-  expect((await fetch(`${INTEGRATION_BASE_URL}/dossiers?cap=invalid-cap`)).status).toBe(403);
-  expect((await fetch(`${INTEGRATION_BASE_URL}/dossiers`)).status).toBe(400);
-
-  // The database cap, not a group membership or an allowed email domain, defines a reader.
-  await db("edge_cap_dossier__groupe_instructeurs").where({ cap_dossier: owner.cap }).delete();
-  await expect(
-    dossiersAccessibleViaCap(existingId, owner.cap as CapDossierCap, db),
-  ).resolves.toEqual(new Map([[existingId, "lecture"]]));
-  expect((await summaries(owner.cap)).find(({ id }) => id === existingId)?.access).toBe("lecture");
-  await db("cap_dossier").where({ cap: owner.cap }).delete();
-  expect(await summaries(owner.cap)).toEqual([]);
-  expect(
-    (await fetch(`${INTEGRATION_BASE_URL}/dossier/${existingId}?cap=${owner.cap}`)).status,
-  ).toBe(403);
+  expect((await fetch(`${INTEGRATION_BASE_URL}/dossiers`)).status).toBe(401);
 });
 
 test("global readers receive no CNPN email history, notification state or follow management", async () => {
@@ -168,7 +150,10 @@ test("global readers receive no CNPN email history, notification state or follow
     payload_hash: "hash",
   });
   const read = async (cap: string): Promise<DossierFull> => {
-    const response = await fetch(`${INTEGRATION_BASE_URL}/dossier/${owner.dossier.id}?cap=${cap}`);
+    const response = await fetchAuthenticated(
+      cap,
+      `${INTEGRATION_BASE_URL}/dossier/${owner.dossier.id}`,
+    );
     expect(response.status).toBe(200);
     return response.json();
   };
@@ -177,8 +162,9 @@ test("global readers receive no CNPN email history, notification state or follow
   expect(foreign).not.toHaveProperty("cnpnEmailSentEvents");
   expect(foreign).not.toHaveProperty("notificationSnapshot");
   expect(JSON.stringify(foreign)).not.toContain("Internal CNPN subject");
-  const notifications = await fetch(
-    `${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${reader.cap}`,
+  const notifications = await fetchAuthenticated(
+    reader.cap,
+    `${INTEGRATION_BASE_URL}/dossiers/notifications`,
   );
   expect(notifications.status).toBe(200);
   expect(await notifications.json()).toEqual([]);

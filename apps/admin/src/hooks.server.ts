@@ -2,10 +2,10 @@ import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
 import * as Sentry from "@sentry/sveltekit";
 
-import { isAdminEmail } from "@pitchou/server/admin.ts";
 import { readSession } from "@pitchou/server/session.ts";
 
 import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
+import { canAccessAdminRoute } from "$lib/server/permissions.ts";
 
 export const handleError = Sentry.handleErrorWithSentry();
 
@@ -22,7 +22,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
 
   const token = readSessionToken(event.cookies);
   const session = token ? await readSession(token) : null;
-  event.locals.user = session ? { email: session.email, name: session.name } : null;
+  event.locals.user = session ? (({ idToken, ...user }) => user)(session) : null;
   // Re-set the cookie so its lifetime slides along with the session row.
   if (token && session) setSessionCookie(event.cookies, token);
 
@@ -43,7 +43,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
     });
   }
 
-  if (!isAdminEmail(event.locals.user.email)) {
+  if (!event.locals.user.permissions.includes("admin:access")) {
     if (isApi) return new Response("Accès refusé", { status: 403 });
     return new Response(null, {
       status: 302,
@@ -51,6 +51,13 @@ const authenticate: Handle = async ({ event, resolve }) => {
     });
   }
 
+  if (!canAccessAdminRoute(pathname, event.request.method, event.locals.user.permissions))
+    return new Response("Permission insuffisante", { status: 403 });
+  if (
+    !["GET", "HEAD", "OPTIONS"].includes(event.request.method) &&
+    event.request.headers.get("origin") !== event.url.origin
+  )
+    return new Response("Origine de la requête refusée", { status: 403 });
   return resolve(event);
 };
 

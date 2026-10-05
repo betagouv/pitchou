@@ -157,7 +157,6 @@ describe("dossier scientific and relation validation", () => {
   });
   it("accepts an unnamed representative for a legal applicant", () => {
     const legalRelations = {
-      groupe_instructeurs: "groupe-1",
       demandeur_type: "personne_morale",
       demandeur_personne_physique: null,
       demandeur_personne_morale: {

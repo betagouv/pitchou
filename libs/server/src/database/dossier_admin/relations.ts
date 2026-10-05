@@ -19,19 +19,6 @@ export async function updateDossierAdminRelations(
     .where({ id: dossierId })
     .first();
   if (!current) throw new TypeError(`Unknown dossier: ${dossierId}`);
-  if (
-    !(await trx("groupe_instructeurs")
-      .select("id")
-      .where({ id: relations.groupe_instructeurs })
-      .first())
-  ) {
-    throw new TypeError(`Unknown groupe_instructeurs: ${relations.groupe_instructeurs}`);
-  }
-  await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossierId }).delete();
-  await trx("edge_groupe_instructeurs__dossier").insert({
-    dossier: dossierId,
-    groupe_instructeurs: relations.groupe_instructeurs,
-  });
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
   await trx("identite_dossier").insert(
     relations.identites.map((identite) => ({

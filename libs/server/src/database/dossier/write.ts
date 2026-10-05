@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
-import type Personne from "@pitchou/types/database/public/Personne.ts";
+import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 
 export function deleteDossierByDSNumber(
   numbers: number[],
