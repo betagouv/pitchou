@@ -1,5 +1,8 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import pitchouLogo from "@pitchou/ui/pitchou-logo.svg";
+  import pitchouLogoDark from "@pitchou/ui/pitchou-logo-dark.svg";
+  import pitchouIcon from "@pitchou/ui/pitchou-icon.svg";
 
   import { NAV, isNavActive } from "./nav.ts";
   import UserCard from "./UserCard.svelte";
@@ -26,13 +29,28 @@
       title="Accueil - Pitchou"
     >
       {#if iconOnly}
-        <span
-          class="flex size-8 items-center justify-center rounded-md bg-[var(--background-action-low-blue-france)] text-sm font-bold text-[color:var(--text-action-high-blue-france)]"
-          aria-hidden="true">P</span
-        >
-        <span class="sr-only">Pitchou Admin</span>
+        <img
+          src={pitchouIcon}
+          alt="Pitchou Admin"
+          width="108"
+          height="80"
+          class="block h-auto w-9"
+        />
       {:else}
-        <span class="text-lg font-bold">Pitchou</span>
+        <img
+          src={pitchouLogo}
+          alt="Pitchou"
+          width="209"
+          height="40"
+          class="logo-light block h-auto w-[140px]"
+        />
+        <img
+          src={pitchouLogoDark}
+          alt="Pitchou"
+          width="209"
+          height="40"
+          class="logo-dark block h-auto w-[140px]"
+        />
         <span
           class="rounded bg-[var(--background-action-low-blue-france)] px-1.5 py-0.5 text-xs font-semibold tracking-wide text-[color:var(--text-action-high-blue-france)] uppercase"
         >
@@ -93,3 +111,14 @@
     {@render content(false)}
   </aside>
 {/if}
+
+<style>
+  .logo-dark,
+  :global(:root[data-fr-theme="dark"]) .logo-light {
+    display: none;
+  }
+
+  :global(:root[data-fr-theme="dark"]) .logo-dark {
+    display: block;
+  }
+</style>

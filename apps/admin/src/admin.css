@@ -1,0 +1,218 @@
+/* Shared presentation for the admin app. Public and instructeur styles stay separate. */
+.admin-ui .fr-btn {
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+.admin-ui .fr-btn--secondary,
+.admin-ui .fr-btn--tertiary {
+  box-shadow: none;
+  border: 1px solid var(--border-default-grey);
+}
+.admin-ui .fr-input,
+.admin-ui .fr-select,
+.admin-ui button[role="combobox"] {
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  box-shadow: none;
+  background-color: var(--background-default-grey);
+  font-size: 0.875rem;
+}
+.admin-ui .fr-input--error,
+.admin-ui .fr-select--error,
+.admin-ui [aria-invalid="true"] {
+  border-color: var(--border-plain-error);
+}
+.admin-ui .fr-input:disabled,
+.admin-ui .fr-select:disabled,
+.admin-ui button[role="combobox"]:disabled {
+  background-color: var(--background-alt-grey);
+  color: var(--text-mention-grey);
+}
+.admin-ui .fr-label,
+.admin-ui .fr-fieldset__legend {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+/* DSFR paints radio circles on the label, which must fit the 24px control. */
+.admin-ui .fr-radio-group:not(.fr-radio-rich) input[type="radio"] ~ label {
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+}
+.admin-ui .fr-hint-text {
+  font-size: 0.8125rem;
+}
+.admin-ui .fr-alert {
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+.admin-ui .fr-callout {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--background-alt-grey);
+  font-size: 0.875rem;
+}
+.admin-ui .fr-callout__title {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.admin-ui .fr-callout::before {
+  margin: 0 0 0.75rem;
+}
+.admin-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+.admin-panel,
+.dossier-form > section,
+.dossier-form > fieldset,
+.dossier-form > details {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.75rem;
+  background: var(--background-lifted-grey);
+}
+.admin-panel > h2,
+.dossier-form > section > h2,
+.dossier-form > details > summary {
+  margin: -1rem -1rem 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.dossier-form > details:not([open]) > summary {
+  margin-bottom: -1rem;
+  border-bottom: 0;
+}
+.dossier-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  width: 100%;
+}
+.dossier-form > fieldset {
+  display: block;
+  width: auto;
+}
+.admin-ui .dossier-form > fieldset > legend {
+  padding: 0 0.375rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.dossier-form > fieldset > .fr-fieldset__element {
+  padding: 0;
+}
+.dossier-form h3,
+.dossier-form h4 {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+.dossier-form :is(.fr-input-group, .fr-select-group, .fr-upload-group):not(:last-child) {
+  margin-bottom: 1rem;
+}
+/* Flex/grid gaps own the spacing. Cancel DSFR margins, including its spacing utilities. */
+.dossier-form
+  :is(.flex, .grid)
+  > :is(.fr-input-group, .fr-select-group, .fr-upload-group, .fr-fieldset) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.dossier-form :is(.fr-input-group, .fr-select-group, .fr-upload-group, .fr-fieldset):last-child {
+  margin-bottom: 0 !important;
+}
+.dossier-form .fr-select-group > .fr-label + .relative {
+  margin-top: 0.5rem;
+}
+.dossier-form .fr-fieldset__legend {
+  padding-bottom: 0.5rem;
+}
+.dossier-form .fr-fieldset__element:last-child {
+  margin-bottom: 0;
+}
+.dossier-form section section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+.dossier-form > section > :last-child,
+.admin-panel > :last-child {
+  margin-bottom: 0;
+}
+.admin-ui .fr-table {
+  position: relative;
+  width: 100%;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+}
+.admin-ui .fr-table table {
+  width: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+}
+.admin-ui .fr-table thead {
+  box-shadow: none;
+  background: var(--background-alt-grey);
+}
+.admin-ui .fr-table th {
+  color: var(--text-mention-grey);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.admin-ui .fr-table th,
+.admin-ui .fr-table td {
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--border-default-grey);
+}
+.admin-ui .fr-table tbody tr {
+  background: var(--background-lifted-grey);
+}
+.admin-ui .fr-table tbody tr:hover {
+  background: var(--background-alt-grey-hover);
+}
+.admin-ui .fr-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.admin-empty {
+  margin: 0;
+  padding: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-mention-grey);
+}
+.admin-auth {
+  width: 100%;
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.75rem;
+  background: var(--background-lifted-grey);
+}
+.admin-auth h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+.admin-auth p {
+  font-size: 0.9375rem;
+}
+@media (max-width: 575px) {
+  .admin-auth {
+    padding: 1.25rem;
+    margin: 1rem auto;
+  }
+  .dossier-form .fr-fieldset {
+    min-width: 0;
+  }
+}
