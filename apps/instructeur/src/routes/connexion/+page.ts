@@ -5,7 +5,7 @@ import type { PageLoad } from "./$types.js";
 export const load: PageLoad = async ({ parent }) => {
   await parent();
   // Already signed in: skip the sign-in page
-  if (store.capabilities.listerDossiers) {
-    redirect(307, "/mes-dossiers");
+  if (store.identité) {
+    redirect(307, store.capabilities.listerDossiers ? "/mes-dossiers" : "/auth/acces-refuse");
   }
 };

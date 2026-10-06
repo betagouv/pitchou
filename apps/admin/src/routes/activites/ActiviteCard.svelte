@@ -16,19 +16,19 @@
 
 <button
   type="button"
-  class="flex items-center gap-3 rounded-lg border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-4 text-left shadow-sm transition-shadow hover:border-[color:var(--border-default-grey-hover)] hover:shadow-md"
+  class="flex items-center gap-3 rounded-lg border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] p-3 text-left hover:bg-[var(--background-alt-grey-hover)]"
   aria-haspopup="dialog"
   aria-label="Modifier l'activité « {item.activite.label} »"
   onclick={() => onSelect(item)}
 >
   <span
-    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
     style="background-color: {color}"
   >
-    <img src={activiteIconUrl(item.activite.code)} alt="" class="h-7 w-7" />
+    <img src={activiteIconUrl(item.activite.code)} alt="" class="h-6 w-6" />
   </span>
   <span class="min-w-0 grow">
-    <span class="block font-bold leading-tight">{item.activite.label}</span>
+    <span class="block text-sm font-semibold leading-tight">{item.activite.label}</span>
     <span class="block text-xs text-[color:var(--text-mention-grey)]">
       {item.labels.length}
       {item.labels.length > 1 ? "libellés DN" : "libellé DN"}

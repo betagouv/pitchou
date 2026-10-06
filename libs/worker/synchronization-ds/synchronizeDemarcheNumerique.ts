@@ -7,9 +7,7 @@ import {
   deleteDossierByDSNumber,
   getDossierIdsFromDS_Ids,
 } from "@pitchou/server/database/dossier.ts";
-import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts";
-import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts";
 import { getRecentlyUpdatedDossiers } from "@pitchou/server/demarche-numerique/getRecentlyUpdatedDossiers.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -28,6 +26,7 @@ import { makeCommonDossierColumnsForSync88444 } from "./makeCommonDossierColumns
 import { prepareDossiersForPersistence } from "./prepareDossiersForPersistence.ts";
 import {
   startDossierFileDownloads,
+  prepareDossierFiles,
   synchronizeDownloadedDossierFiles,
 } from "./synchronizeDossierFiles.ts";
 import { synchronizeDossierRelations } from "./synchronizeDossierRelations.ts";
@@ -52,9 +51,6 @@ export async function synchronizeDemarcheNumerique({
   transaction,
 }: SynchronizationOptions): Promise<void> {
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
-  const groupesInstructeursP = getGroupesInstructeurs(apiToken, demarcheNumber).then((groupes) =>
-    synchronizeGroupesInstructeurs(groupes, demarcheNumber, transaction),
-  );
   const dossiersDS: DossierDS88444[] = await getRecentlyUpdatedDossiers(
     apiToken,
     demarcheNumber,
@@ -116,19 +112,23 @@ export async function synchronizeDemarcheNumerique({
     transaction,
   );
 
+  // Finish DN and object-storage reads before dossier ownership takes the access lock.
+  const files = await prepareDossierFiles(fileDownloads, transaction);
+  const deleted = await deletedDossiersP;
   const dossierPersistence =
     dossiersToInitialize.length >= 1 || dossiersToUpdate.length >= 1
       ? dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
       : undefined;
-  const deletedDossiers = deletedDossiersP.then((deleted) =>
-    deleteDossierByDSNumber(deleted.map(({ number }) => number)),
+  const deletedDossiers = deleteDossierByDSNumber(
+    deleted.map(({ number }) => number),
+    transaction,
   );
   const [dossiersChangedByColumns] = await Promise.all([dossierPersistence, deletedDossiers]);
 
   const { dossierIdByDNNumber, identitesSynchronization, synchronizations } =
     await synchronizeDossierRelations(dossiersDS, dossiersForSync, demarcheNumber, transaction);
   const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
-    fileDownloads,
+    files,
     dossiersDS,
     dossierIdByDNNumber,
     pitchouKeyToChampDS,
@@ -139,7 +139,6 @@ export async function synchronizeDemarcheNumerique({
       especesImpacteesP,
       piecesJointesP,
       identitesSynchronization,
-      groupesInstructeursP,
       ...synchronizations,
     ]);
 

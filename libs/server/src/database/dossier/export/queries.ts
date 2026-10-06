@@ -37,7 +37,6 @@ export function exportDossiersQuery(
     .select(
       trx.raw(`coalesce((select phase from evenement_phase_dossier
       where evenement_phase_dossier.dossier = dossier.id
-        and (caused_by_personne is not null or demarche_numerique_agent_email is not null)
       order by timestamp desc limit 1), 'Accompagnement amont') as phase`),
     )
     .whereIn("dossier.id", ids.clone())
@@ -47,7 +46,7 @@ export function exportDossiersQuery(
 export async function exportRelationsQueries(ids: Knex.QueryBuilder, trx: Knex.Transaction) {
   const followers = await trx("edge_personne_follows_dossier")
     .select<{ dossier: Dossier["id"]; email: string }[]>("dossier", "personne.email")
-    .join("personne", "personne.id", "edge_personne_follows_dossier.personne")
+    .join("auth_user as personne", "personne.id", "edge_personne_follows_dossier.personne")
     .whereIn("dossier", ids.clone())
     .whereNotNull("personne.email");
   const especes = await trx("impact_espece")

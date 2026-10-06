@@ -2,10 +2,10 @@ import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit";
 import * as Sentry from "@sentry/sveltekit";
 
-import { isAdminEmail } from "@pitchou/server/admin.ts";
 import { readSession } from "@pitchou/server/session.ts";
 
 import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
+import { canAccessAdminRoute } from "$lib/server/permissions.ts";
 
 export const handleError = Sentry.handleErrorWithSentry();
 
@@ -15,23 +15,27 @@ const ASSET_PREFIXES = ["/docs/", "/_app/", "/favicon"];
 
 const authenticate: Handle = async ({ event, resolve }) => {
   const { pathname } = event.url;
+  const routeId = event.route.id;
 
-  if (ASSET_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+  if (
+    routeId === "/docs/[...path]" ||
+    (!routeId && ASSET_PREFIXES.some((prefix) => pathname.startsWith(prefix)))
+  ) {
     return resolve(event);
   }
 
   const token = readSessionToken(event.cookies);
   const session = token ? await readSession(token) : null;
-  event.locals.user = session ? { email: session.email, name: session.name } : null;
+  event.locals.user = session ? (({ idToken, ...user }) => user)(session) : null;
   // Re-set the cookie so its lifetime slides along with the session row.
   if (token && session) setSessionCookie(event.cookies, token);
 
   // The login flow itself stays reachable without a session.
-  if (pathname.startsWith("/auth/")) {
+  if (routeId?.startsWith("/auth/")) {
     return resolve(event);
   }
 
-  const isApi = pathname.startsWith("/api/");
+  const isApi = (routeId ?? pathname).startsWith("/api/");
 
   if (!event.locals.user) {
     if (isApi) return new Response("Authentification requise", { status: 401 });
@@ -43,7 +47,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
     });
   }
 
-  if (!isAdminEmail(event.locals.user.email)) {
+  if (!event.locals.user.permissions.includes("admin:access")) {
     if (isApi) return new Response("Accès refusé", { status: 403 });
     return new Response(null, {
       status: 302,
@@ -51,6 +55,13 @@ const authenticate: Handle = async ({ event, resolve }) => {
     });
   }
 
+  if (!canAccessAdminRoute(routeId, event.request.method, event.locals.user.permissions))
+    return new Response("Permission insuffisante", { status: 403 });
+  if (
+    !["GET", "HEAD", "OPTIONS"].includes(event.request.method) &&
+    event.request.headers.get("origin") !== event.url.origin
+  )
+    return new Response("Origine de la requête refusée", { status: 403 });
   return resolve(event);
 };
 

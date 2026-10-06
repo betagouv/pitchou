@@ -1,16 +1,13 @@
 <script lang="ts">
+  import PageHelp from "$lib/components/PageHelp.svelte";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
   import { loadActiviteReferentiel, type ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import {
-    createDossier,
-    loadGroupesInstructeurs,
-    AccessDeniedError,
-    type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  import { createDossier, AccessDeniedError } from "$lib/actions/adminDossiers.ts";
   import {
     activiteCodeByLabel,
     activiteLabelSelectEntries,
@@ -32,7 +29,6 @@
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");
-  let groupes = $state<AdminGroupeInstructeurs[]>([]);
   let activites = $state<ActiviteAdmin[]>([]);
   let activiteEntries = $state<SelectEntry<string>[]>([]);
   let codeByLabel = $state<ReadonlyMap<string, string>>(new Map());
@@ -43,15 +39,10 @@
 
   onMount(async () => {
     try {
-      const [loadedGroupes, referentiel] = await Promise.all([
-        loadGroupesInstructeurs(),
-        loadActiviteReferentiel(),
-      ]);
-      groupes = loadedGroupes;
+      const referentiel = await loadActiviteReferentiel();
       activites = sortedActivites(referentiel);
       activiteEntries = activiteLabelSelectEntries(referentiel);
       codeByLabel = activiteCodeByLabel(referentiel);
-      model.groupeInstructeurs = groupes[0]?.id ?? "";
       etat = "autorise";
     } catch (error) {
       if (!(error instanceof AccessDeniedError)) {
@@ -70,12 +61,14 @@
     saving = true;
     saveError = null;
     try {
+      pageHeader.clearFeedback();
       const { id } = await createDossier(
         buildCreationPayload(model),
         needsSpeciesFile ? model.speciesFile : null,
         dossierCreationAttachments(model),
       );
       await goto(`/dossiers/${id}`);
+      pageHeader.showSaved("Dossier créé");
     } catch (error) {
       saveError = error instanceof Error ? error.message : String(error);
     } finally {
@@ -89,38 +82,36 @@
 </svelte:head>
 
 {#if loadError}
-  <div class="fr-alert fr-alert--error fr-mb-3w" role="alert">
+  <div class="fr-alert fr-alert--error fr-mb-2w" role="alert">
     <h3 class="fr-alert__title">Erreur lors du chargement</h3>
     <p>{loadError}</p>
   </div>
 {:else if etat === "chargement"}
   <Loader />
 {:else if etat === "refuse"}
-  <div class="fr-alert fr-alert--error fr-mb-3w" role="alert">
+  <div class="fr-alert fr-alert--error fr-mb-2w" role="alert">
     <h3 class="fr-alert__title">Accès réservé aux administrateurs</h3>
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else}
-  <div class="fr-mb-5w max-w-4xl">
-    <p class="fr-text-mention--grey fr-mb-0">
-      Le dossier est créé directement dans Pitchou, sans passer par Démarches Numériques.
-    </p>
-  </div>
+  <PageHelp title="Créer un dossier"
+    ><h3>Création dans Pitchou</h3>
+    <p>
+      Le dossier est créé directement dans Pitchou, sans passer par Démarches Numériques. Son
+      département principal détermine les groupes qui pourront l'instruire.
+    </p></PageHelp
+  >
 
-  <form class="w-full flex flex-col gap-10" onsubmit={submit}>
-    <DossierIntakeFields
-      {model}
-      {groupes}
-      {activites}
-      {activiteEntries}
-      activiteCodeByLabel={codeByLabel}
-    />
+  <form class="dossier-form" onsubmit={submit}>
+    <DossierIntakeFields {model} {activites} {activiteEntries} activiteCodeByLabel={codeByLabel} />
 
     {#if saveError}
       <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>
     {/if}
 
-    <div class="flex flex-row flex-wrap gap-4">
+    <div
+      class="sticky bottom-0 z-20 flex flex-row flex-wrap gap-3 rounded-lg border border-[var(--border-default-grey)] bg-[var(--background-lifted-grey)] p-3"
+    >
       <button class="fr-btn" type="submit" disabled={saving}>
         {saving ? uploadProgressLabel("Création…") : "Créer le dossier"}
       </button>

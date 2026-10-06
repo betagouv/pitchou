@@ -5,7 +5,9 @@ export type NavItem = { href: string; label: string; icon: string };
 export const NAV: NavItem[] = [
   { href: "/", label: "Accueil", icon: "fr-icon-home-4-line" },
   { href: "/dossiers", label: "Dossiers", icon: "fr-icon-folder-2-line" },
-  { href: "/aarri", label: "Utilisateurs", icon: "fr-icon-team-line" },
+  { href: "/utilisateurs", label: "Utilisateurs", icon: "fr-icon-user-line" },
+  { href: "/groupes-instructeurs", label: "Groupes instructeurs", icon: "fr-icon-team-line" },
+  { href: "/aarri", label: "Suivi AARRI", icon: "fr-icon-bar-chart-box-line" },
   { href: "/especes-protegees", label: "Espèces protégées", icon: "fr-icon-leaf-line" },
   { href: "/activites", label: "Activités", icon: "fr-icon-briefcase-line" },
   { href: "/evenements", label: "Évènements", icon: "fr-icon-calendar-event-line" },
@@ -33,6 +35,8 @@ export function pageInfoFor(pathname: string): PageInfo {
     return { title: "Créer une demande de dérogation", backHref: "/dossiers" };
   }
   if (pathname.startsWith("/dossiers/")) return { title: "Dossier", backHref: "/dossiers" };
+  if (pathname === "/utilisateurs") return { title: "Utilisateurs" };
+  if (pathname === "/groupes-instructeurs") return { title: "Groupes instructeurs" };
   if (pathname === "/aarri") return { title: "Utilisateurices et niveau AARRI" };
   if (pathname === "/especes-protegees") return { title: "Espèces protégées modifiées" };
   if (pathname === "/activites") return { title: "Activités et regroupement des libellés" };

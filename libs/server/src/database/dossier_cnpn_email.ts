@@ -6,7 +6,7 @@ import type {
 } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type File from "@pitchou/types/database/public/File.ts";
-import type Personne from "@pitchou/types/database/public/Personne.ts";
+import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 
 export { getAuthorizedDossierFiles } from "./dossier_cnpn_email/files.ts";
 export {

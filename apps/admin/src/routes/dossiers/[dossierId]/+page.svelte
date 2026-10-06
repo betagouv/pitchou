@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
@@ -56,6 +57,27 @@
     return () => pageHeader.clearTitle();
   });
 
+  $effect(() => {
+    if (
+      detail?.source !== "pitchou" ||
+      !can("admin:dossiers:update") ||
+      accessDenied ||
+      loadError ||
+      (!activiteReferentiel && !activiteReferentielError)
+    )
+      return;
+    pageHeader.setAction({
+      label: saving ? "Enregistrement…" : "Enregistrer",
+      icon: "fr-icon-save-line",
+      disabled: saving,
+      onClick: () => {
+        const form = document.getElementById(editFormId);
+        if (!saving && form instanceof HTMLFormElement) form.requestSubmit();
+      },
+    });
+    return () => pageHeader.clearAction();
+  });
+
   async function reload() {
     try {
       detail = await loadDossierDetail(dossierId);
@@ -95,72 +117,74 @@
   </a>
   <Loader />
 {:else}
-  <DossierDetailHeader {detail} formId={editFormId} {saving} />
+  <div class="admin-stack">
+    <DossierDetailHeader {detail} />
 
-  {#if detail.source === "demarche_numerique"}
-    <div class="fr-alert fr-alert--info fr-my-2w">
-      <p>
-        Ce dossier est synchronisé depuis Démarches Numériques et affiché en lecture seule. Les
-        champs propres à Pitchou restent modifiables depuis l'application instructeurs.
-      </p>
-    </div>
-  {:else if detail.source === "unknown"}
-    <div class="fr-alert fr-alert--warning fr-my-2w">
-      <p>La source de ce dossier est inconnue. Il est affiché en lecture seule.</p>
-    </div>
-  {/if}
+    {#if detail.source === "demarche_numerique"}
+      <div class="fr-alert fr-alert--info my-0">
+        <p>
+          Ce dossier est synchronisé depuis Démarches Numériques et affiché en lecture seule. Les
+          champs propres à Pitchou restent modifiables depuis l'application instructeurs.
+        </p>
+      </div>
+    {:else if detail.source === "unknown"}
+      <div class="fr-alert fr-alert--warning my-0">
+        <p>La source de ce dossier est inconnue. Il est affiché en lecture seule.</p>
+      </div>
+    {/if}
 
-  {#if activiteReferentielError}
-    <div class="fr-alert fr-alert--warning fr-my-2w" role="alert">
-      <p>
-        Le référentiel des activités n'a pas pu être chargé : {activiteReferentielError}
-        Le champ « Activité principale » peut être incomplet.
-      </p>
-    </div>
-  {/if}
+    {#if activiteReferentielError}
+      <div class="fr-alert fr-alert--warning my-0" role="alert">
+        <p>
+          Le référentiel des activités n'a pas pu être chargé : {activiteReferentielError}
+          Le champ « Activité principale » peut être incomplet.
+        </p>
+      </div>
+    {/if}
 
-  {#if !activiteReferentiel && !activiteReferentielError}
-    <Loader />
-  {:else if detail.source !== "pitchou"}
-    <DossierAdminForm
+    {#if !activiteReferentiel && !activiteReferentielError}
+      <Loader />
+    {:else if detail.source !== "pitchou" || !can("admin:dossiers:update")}
+      <DossierAdminForm
+        {detail}
+        {activites}
+        {activiteEntries}
+        activiteCodeByLabel={codeByLabel}
+        formId={editFormId}
+        onSavingChange={(value) => (saving = value)}
+        onSaved={(updated) => (detail = updated)}
+        onFilesChanged={reload}
+      />
+    {:else}
+      <DossierNativeIntakeForm
+        {detail}
+        {activites}
+        {activiteEntries}
+        activiteCodeByLabel={codeByLabel}
+        formId={editFormId}
+        onSavingChange={(value) => (saving = value)}
+        onSaved={(updated) => (detail = updated)}
+        onFilesChanged={reload}
+      />
+    {/if}
+
+    <DossierPhaseHistory
       {detail}
-      {activites}
-      {activiteEntries}
-      activiteCodeByLabel={codeByLabel}
-      formId={editFormId}
-      onSavingChange={(value) => (saving = value)}
-      onSaved={(updated) => (detail = updated)}
-      onFilesChanged={reload}
+      readOnly={detail.source === "unknown" || !can("admin:dossiers:update")}
+      onChanged={(updated) => (detail = updated)}
     />
-  {:else}
-    <DossierNativeIntakeForm
-      {detail}
-      {activites}
-      {activiteEntries}
-      activiteCodeByLabel={codeByLabel}
-      formId={editFormId}
-      onSavingChange={(value) => (saving = value)}
-      onSaved={(updated) => (detail = updated)}
-      onFilesChanged={reload}
-    />
-  {/if}
 
-  <DossierPhaseHistory
-    {detail}
-    readOnly={detail.source === "unknown"}
-    onChanged={(updated) => (detail = updated)}
-  />
+    {#if data.simulation && can("admin:sync:simulate")}
+      <DossierSyncSimulation
+        dossierId={detail.dossier.id}
+        champs={data.simulation.champs}
+        speciesGroups={data.simulation.speciesGroups}
+        simulable={detail.source === "demarche_numerique"}
+      />
+    {/if}
 
-  {#if data.simulation}
-    <DossierSyncSimulation
-      dossierId={detail.dossier.id}
-      champs={data.simulation.champs}
-      speciesGroups={data.simulation.speciesGroups}
-      simulable={detail.source === "demarche_numerique"}
-    />
-  {/if}
-
-  {#if detail.source === "pitchou"}
-    <DossierDeleteSection {dossierId} />
-  {/if}
+    {#if detail.source === "pitchou" && can("admin:dossiers:delete")}
+      <DossierDeleteSection {dossierId} />
+    {/if}
+  </div>
 {/if}

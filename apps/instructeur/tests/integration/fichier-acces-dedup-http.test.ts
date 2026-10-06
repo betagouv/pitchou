@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -6,8 +7,9 @@ import { getTestS3 } from "../setup/s3.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 function download(route: string, fileId: string, cap: string, lecture = false) {
-  return fetch(
-    `${INTEGRATION_BASE_URL}/${route}/fichier/${fileId}?cap=${cap}${lecture ? "&lecture=1" : ""}`,
+  return fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/${route}/fichier/${fileId}${lecture ? "?lecture=1" : ""}`,
   );
 }
 

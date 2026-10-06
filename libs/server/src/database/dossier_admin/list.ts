@@ -36,9 +36,6 @@ function latestPhase(db: Knex.Transaction | Knex) {
   return db("evenement_phase_dossier")
     .distinctOn("dossier")
     .select(["dossier", "phase", "timestamp"])
-    .where(function () {
-      this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
-    })
     .orderBy([
       { column: "dossier", order: "asc" },
       { column: "timestamp", order: "desc" },
@@ -53,12 +50,6 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
         "demandeur_pp.id": "dossier.demandeur_personne_physique",
       })
       .leftJoin("entreprise", { "entreprise.siret": "dossier.demandeur_personne_morale" })
-      .leftJoin("edge_groupe_instructeurs__dossier as edge_groupe", {
-        "edge_groupe.dossier": "dossier.id",
-      })
-      .leftJoin("groupe_instructeurs", {
-        "groupe_instructeurs.id": "edge_groupe.groupe_instructeurs",
-      })
       // Only reviewed labels resolve to an activity; labels pending review keep their raw display
       // through the fallback in `withResolvedActivite`.
       .leftJoin("activite_label", (join) =>
@@ -69,7 +60,7 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
       .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
   );
 }
-function summaryColumns() {
+function summaryColumns(db: Knex.Transaction | Knex) {
   return [
     "dossier.id",
     "dossier.name",
@@ -83,7 +74,9 @@ function summaryColumns() {
     "demandeur_pp.last_name as demandeur_last_name",
     "demandeur_pp.first_names as demandeur_first_names",
     "entreprise.legal_name as demandeur_entreprise",
-    "groupe_instructeurs.name as groupe_name",
+    db.raw(
+      "(select string_agg(g.name, ', ' order by g.name) from edge_groupe_instructeurs__dossier e join groupe_instructeurs g on g.id = e.groupe_instructeurs where e.dossier = dossier.id) as groupe_name",
+    ),
   ];
 }
 function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): void {
@@ -129,7 +122,7 @@ export async function listDossiersForAdmin(
     .first();
   const dossiers: AdminDossierSummary[] = await withRelations(db("dossier"), db)
     .modify((q) => filter(q, options))
-    .select(summaryColumns())
+    .select(summaryColumns(db))
     .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
@@ -140,4 +133,17 @@ export function listGroupesInstructeursForAdmin(
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Pick<GroupeInstructeurs, "id" | "name" | "demarche_number">[]> {
   return db("groupe_instructeurs").select(["id", "name", "demarche_number"]).orderBy("name", "asc");
+}
+
+export function listUnmatchedDossiersForAdmin(
+  db: Knex.Transaction | Knex = directDatabaseConnection,
+) {
+  return db("dossier as d")
+    .select("d.id", "d.name", "d.primary_department")
+    .whereNotExists(
+      db("edge_groupe_instructeurs__dossier as e")
+        .select("e.dossier")
+        .where("e.dossier", db.ref("d.id")),
+    )
+    .orderBy("d.id");
 }

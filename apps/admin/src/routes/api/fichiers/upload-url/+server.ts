@@ -4,7 +4,7 @@ import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestVali
 import { throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 import { createUploadUrls, parseUploadSizes } from "@pitchou/server/upload.ts";
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 /**
  * Hands the browser one signed URL per file so it can PUT the bytes straight
  * into object storage; the file gets attached by a later request.

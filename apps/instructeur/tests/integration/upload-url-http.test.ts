@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createDossier, createInstructeurWithDossier } from "../factories/index.ts";
@@ -7,7 +8,7 @@ import { readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function requestUploadUrls(cap: string, body: unknown) {
-  return fetch(`${INTEGRATION_BASE_URL}/fichier/upload-url?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/fichier/upload-url`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -36,7 +37,7 @@ test("le navigateur obtient une URL signée, y envoie le fichier, puis l'API l'e
   expect(put.status, await put.text()).toBe(200);
   expect(await s3HasKey(`pending/${upload.id}`)).toBe(true);
 
-  const save = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+  const save = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/decision-administrative`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

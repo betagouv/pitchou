@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { getTestS3 } from "../setup/s3.ts";
@@ -6,7 +7,6 @@ import { createInstructeurWithDossier } from "../factories/index.ts";
 import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import { getDossierFull } from "@pitchou/server/database/dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
 
 const ODS_MEDIA_TYPE = "application/vnd.oasis.opendocument.spreadsheet";
 
@@ -25,7 +25,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose le fi
 
   await db("dossier").update({ especes_impactees: fichier.id }).where({ id: dossier.id });
 
-  const result = await getDossierFull(dossier.id as DossierId, cap as CapDossier["cap"], db);
+  const result = await getDossierFull(dossier.id as DossierId, sessionUserId(cap), db);
 
   expect(result).toBeDefined();
   // The file is linked to the dossier in the database → the instructrice can still download it.
@@ -33,7 +33,7 @@ test("un dossier avec un fichier espèces impactées stocké sur S3 expose le fi
   expect(sourceFile).toBeDefined();
   expect(sourceFile!.name).toBe("especes-impactées.ods");
   expect(sourceFile!.media_type).toBe(ODS_MEDIA_TYPE);
-  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}?cap=${cap}`);
+  expect(sourceFile!.url).toBe(`/especes-impactees/${fichier.id}`);
 });
 
 test("les impacts sont servis avec leurs libellés résolus", async () => {
@@ -71,7 +71,7 @@ test("les impacts sont servis avec leurs libellés résolus", async () => {
     nombre_individus: "11-100",
   });
 
-  const result = await getDossierFull(dossier.id as DossierId, cap as CapDossier["cap"], db);
+  const result = await getDossierFull(dossier.id as DossierId, sessionUserId(cap), db);
 
   const { impacts } = result!.especesImpactees;
   expect(impacts).toHaveLength(1);
@@ -95,7 +95,7 @@ test("les impacts sont servis avec leurs libellés résolus", async () => {
 test("un dossier sans impact expose une liste vide", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db);
 
-  const result = await getDossierFull(dossier.id as DossierId, cap as CapDossier["cap"], db);
+  const result = await getDossierFull(dossier.id as DossierId, sessionUserId(cap), db);
 
   expect(result!.especesImpactees).toEqual({ sourceFile: undefined, impacts: [] });
 });

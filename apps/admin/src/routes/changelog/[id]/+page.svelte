@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import { onMount } from "svelte";
   import { beforeNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -7,7 +8,7 @@
   import EntryEditor from "./EntryEditor.svelte";
   import DeleteEntryModal from "../DeleteEntryModal.svelte";
   import { Autosave } from "./autosave.svelte.ts";
-  import { EntryModel, sameSnapshot } from "./entryModel.svelte.ts";
+  import { EntryModel, sameSnapshot } from "../entryModel.svelte.ts";
   import { formatDate } from "../format.ts";
   import {
     loadChangelogAdmin,
@@ -19,8 +20,6 @@
   import { AccessDeniedError } from "$lib/actions/errors.ts";
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
 
-  // The draft is created by the list page's "+" before we get here, so the
-  // entry always exists: this page only ever edits.
   const idParam = page.params.id!;
   const entryId = /^\d+$/.test(idParam) ? Number(idParam) : null;
 
@@ -33,7 +32,7 @@
   const autosave = new Autosave<ChangelogEntryPayload>({
     snapshot: () => model.snapshot(),
     equals: sameSnapshot,
-    canSave: (snapshot) => snapshot.date !== "",
+    canSave: (snapshot) => can("admin:changelog:update") && snapshot.date !== "",
     save: (snapshot) => saveChangelogEntry(entryId!, snapshot),
     delay: 800,
   });
@@ -63,7 +62,8 @@
   onMount(() => {
     void load();
     // Purge media orphaned by a previous session that closed without cleaning up.
-    if (entryId !== null) void cleanupChangelogMedia(entryId).catch(() => {});
+    if (entryId !== null && can("admin:changelog:update"))
+      void cleanupChangelogMedia(entryId).catch(() => {});
   });
 
   // The shell header shows what this entry is, following the edited version live.
@@ -84,6 +84,7 @@
   // Deleting the entry is the header's action ("trash" at the top right).
   $effect(() => {
     if (etat !== "autorise") return;
+    if (!can("admin:changelog:delete")) return;
     pageHeader.setAction({
       label:
         model.version !== null ? `Supprimer la version ${model.version}` : "Supprimer le brouillon",
@@ -104,11 +105,13 @@
     deleting = true;
     deleteError = null;
     try {
+      pageHeader.clearFeedback();
       await deleteChangelogEntry(entryId!);
       // The entry is gone: mark the draft as saved so the leave-page flush has
       // nothing to send to the deleted entry.
       autosave.lastSaved = model.snapshot();
       await goto("/changelog");
+      pageHeader.showSaved("Entrée supprimée");
     } catch (e) {
       deleteError = e instanceof Error ? e.message : String(e);
     } finally {
@@ -132,7 +135,7 @@
     await autosave.flush();
     // After a failed save the stored contenu lags behind the editor: skip the
     // purge rather than risk deleting media a later successful save references.
-    if (entryId !== null && autosave.state !== "error") {
+    if (entryId !== null && can("admin:changelog:update") && autosave.state !== "error") {
       void cleanupChangelogMedia(entryId).catch(() => {});
     }
   }
@@ -155,7 +158,9 @@
     <p>Cette page est réservée aux administrateurs Pitchou.</p>
   </div>
 {:else if etat === "introuvable"}
-  <div class="mt-2 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-500">
+  <div
+    class="mt-2 rounded-lg border border-dashed border-[var(--border-default-grey)] p-8 text-center text-[var(--text-mention-grey)]"
+  >
     <p class="fr-mb-1v font-medium">Entrée introuvable</p>
     <p class="fr-mb-0 text-sm">
       Cette entrée n'existe pas (ou plus). <a class="fr-link" href="/changelog">Retour à la liste</a
@@ -163,7 +168,7 @@
     </p>
   </div>
 {:else}
-  <EntryEditor {model} {autosave} entryId={entryId!} />
+  <EntryEditor {model} {autosave} entryId={entryId!} readOnly={!can("admin:changelog:update")} />
 
   {#if deleteModalOpen}
     <DeleteEntryModal

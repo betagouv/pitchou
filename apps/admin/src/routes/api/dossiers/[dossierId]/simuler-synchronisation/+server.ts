@@ -19,7 +19,7 @@ import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/Dossier
  * historique entries, the same unread badge. Useful to see what instructeurs will
  * be shown without waiting for a real modification.
  *
- * Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+ * Auth is enforced upstream by hooks.server.ts (session and permissions).
  */
 export const POST: RequestHandler = async ({ params, request }) => {
   if (!simulationAllowed()) error(404);

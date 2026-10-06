@@ -1,11 +1,11 @@
 import { error } from "@sveltejs/kit";
 
 import {
-  dossiersAccessibleViaCap,
+  dossiersAccessibleToUser,
   isFichierSharedInReadOnly,
 } from "@pitchou/server/database/dossier.ts";
 import { findFichierAttachments } from "@pitchou/server/database/fichier_access.ts";
-import { requireCap } from "./auth.ts";
+import { requireUserId } from "./auth.ts";
 
 import type { FichierRelation } from "@pitchou/server/database/fichier_access.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
@@ -20,10 +20,11 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
  */
 export async function requireFichierAccess(
   url: URL,
+  locals: App.Locals,
   fileId: FileId,
   servedRelations: readonly FichierRelation[],
 ): Promise<void> {
-  const cap = requireCap(url);
+  const userId = requireUserId(locals);
 
   const attachments = (await findFichierAttachments(fileId)).filter(({ relation }) =>
     servedRelations.includes(relation),
@@ -32,12 +33,12 @@ export async function requireFichierAccess(
     error(404, "Fichier non trouvé");
   }
 
-  const accessByDossier = await dossiersAccessibleViaCap(
+  const accessByDossier = await dossiersAccessibleToUser(
     attachments.map(({ dossier }) => dossier),
-    cap,
+    userId,
   );
 
-  // The cap decides, exactly as it does for the dossier payload: a dossier shared
+  // The userId decides, exactly as it does for the dossier payload: a dossier shared
   // in read-only mode only ever yields its shareable files. `lecture` on top of
   // that is the preview an instructeur who may write asks for.
   const allowed = attachments.some((attachment) => {

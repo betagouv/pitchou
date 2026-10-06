@@ -8,7 +8,7 @@ export async function calculateIndicatorAcquis(
       with premiere_connexion as (
         select personne, min(date) as date
         from evenement_metrique
-        join personne on personne.id = evenement_metrique.personne
+        join auth_user as personne on personne.id = evenement_metrique.personne
         where evenement = 'seConnecter'
         and personne.email NOT ILIKE '%@beta.gouv.fr'
         group by personne

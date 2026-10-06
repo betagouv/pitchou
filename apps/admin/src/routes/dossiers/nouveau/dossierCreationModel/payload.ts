@@ -58,7 +58,6 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     depot_date: model.depotDate,
     phase: model.phase,
     relations: {
-      groupe_instructeurs: model.groupeInstructeurs,
       demandeur_type: isPhysical ? "personne_physique" : "personne_morale",
       demandeur_personne_physique: isPhysical
         ? {

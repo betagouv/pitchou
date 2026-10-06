@@ -1,28 +1,23 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
-import { getPersonneByDossierCap } from "./personne.ts";
-import { dossiersAccessibleViaCap } from "./dossier/access.ts";
+import { getUserById } from "./personne.ts";
+import { dossiersAccessibleToUser, dossierAccessQuery } from "./dossier/access.ts";
 import { aggregateNotification } from "./notification/aggregate.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierNotification, NotificationUpdate } from "@pitchou/types/notification.ts";
 
-export async function getNotificationsForPersonneFromCap(
-  cap: CapDossier["cap"],
+export async function getNotificationsForUser(
+  userId: UserId,
   db: Knex.Transaction | Knex = directDatabaseConnection,
   dossierId?: DossierId,
 ): Promise<DossierNotification[]> {
-  const personne = await getPersonneByDossierCap(cap, db);
-  if (!personne) throw new Error("Capability inconnue");
-  const accessible = db("edge_groupe_instructeurs__dossier as gd")
-    .join(
-      "edge_cap_dossier__groupe_instructeurs as cg",
-      "cg.groupe_instructeurs",
-      "gd.groupe_instructeurs",
-    )
-    .where("cg.cap_dossier", cap)
-    .distinct("gd.dossier");
-  if (dossierId !== undefined) accessible.where("gd.dossier", dossierId);
+  const personne = await getUserById(userId, db);
+  if (!personne) throw new Error("Utilisateur inconnu");
+  const accessible = db(dossierAccessQuery(userId, db).as("access"))
+    .select("access.dossier")
+    .where("access.access", "complet");
+  if (dossierId !== undefined) accessible.where("access.dossier", dossierId);
   const applicantChanges = db("action_dossier as a")
     .whereIn("a.dossier", accessible.clone())
     .where("a.author_petitionnaire", true)
@@ -69,16 +64,17 @@ export async function getNotificationsForPersonneFromCap(
   );
 }
 
-export async function updateNotificationDossierFromCap(
-  cap: CapDossier["cap"],
+export async function updateNotificationDossier(
+  userId: UserId,
   update: NotificationUpdate,
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierNotification> {
   return db.transaction(async (trx) => {
-    const personne = await getPersonneByDossierCap(cap, trx);
+    const personne = await getUserById(userId, trx);
     if (
       !personne ||
-      (await dossiersAccessibleViaCap(update.dossier, cap, trx)).get(update.dossier) !== "complet"
+      (await dossiersAccessibleToUser(update.dossier, userId, trx)).get(update.dossier) !==
+        "complet"
     ) {
       throw new Error("Accès au dossier refusé");
     }
@@ -116,7 +112,7 @@ export async function updateNotificationDossierFromCap(
           .onConflict(["action", "personne"])
           .ignore();
     }
-    const [notification] = await getNotificationsForPersonneFromCap(cap, trx, update.dossier);
+    const [notification] = await getNotificationsForUser(userId, trx, update.dossier);
     if (!notification) throw new Error("Accès au dossier refusé");
     await trx("notification")
       .insert({

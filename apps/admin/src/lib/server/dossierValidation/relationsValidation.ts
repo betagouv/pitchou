@@ -9,12 +9,10 @@ import type {
   AdminIdentiteDossierType,
 } from "@pitchou/server/database/dossier_admin_relations.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 import { rejectUnknownProperties } from "../requestValidation";
 
 const RELATION_PROPERTIES = new Set([
-  "groupe_instructeurs",
   "demandeur_type",
   "demandeur_personne_physique",
   "demandeur_personne_morale",
@@ -132,8 +130,6 @@ function parseIdentites(raw: unknown): AdminDossierIdentite[] {
 
 export function parseDossierRelations(raw: unknown): AdminDossierRelations {
   const value = parseExactObject(raw, "relations", RELATION_PROPERTIES);
-  const groupe = parseString(value, "groupe_instructeurs");
-  if (!groupe) error(400, `Property 'groupe_instructeurs' cannot be empty.`);
   const demandeurType = parseString(value, "demandeur_type");
   const identites = parseIdentites(value.identites);
 
@@ -144,7 +140,6 @@ export function parseDossierRelations(raw: unknown): AdminDossierRelations {
     const demandeur = identites.find(({ type }) => type === "demandeur");
     if (!demandeur) error(400, `A demandeur identity is required.`);
     return {
-      groupe_instructeurs: groupe as GroupeInstructeursId,
       demandeur_type: demandeurType,
       demandeur_personne_physique: parsePersonnePhysique(value.demandeur_personne_physique),
       demandeur_personne_morale: null,
@@ -158,7 +153,6 @@ export function parseDossierRelations(raw: unknown): AdminDossierRelations {
     error(400, `Property 'demandeur_personne_physique' must be null for a legal demandeur.`);
   }
   return {
-    groupe_instructeurs: groupe as GroupeInstructeursId,
     demandeur_type: demandeurType,
     demandeur_personne_physique: null,
     demandeur_personne_morale: parsePersonneMorale(value.demandeur_personne_morale),

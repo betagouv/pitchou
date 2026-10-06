@@ -3,7 +3,7 @@ import { gotoMesDossiers, setupMesDossiers as setup } from "./mesDossiersFixture
 
 test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   // Mes dossiers counts followed dossiers in the assigned geographic scope.
   await expect(page.getByTestId("compteur-dossier")).toContainText(
@@ -28,7 +28,7 @@ test("les dossiers avec notification non vue portent un badge de modification", 
   db,
 }) => {
   await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   const withBadge = await page
     .getByTestId("card-dossier")
@@ -45,7 +45,7 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   await page.getByRole("button", { name: "Filtres" }).click();
   const modal = page.getByRole("dialog", { name: "Tous les filtres" });
@@ -92,7 +92,7 @@ test("le badge de modification persiste après consultation et disparaît après
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
@@ -127,7 +127,7 @@ test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu",
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });

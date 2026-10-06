@@ -6,7 +6,6 @@ import { getTestS3 } from "../setup/s3.ts";
 import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { createFichierS3 } from "../factories/fichier.ts";
-import { createPersonne } from "../factories/personne.ts";
 
 import { generateDeclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 
@@ -56,7 +55,9 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
     signature_date: new Date("2026-03-15T10:30:00Z"),
   });
 
-  const instructeur = await createPersonne(db, { email: "instructeur@example.org" });
+  const [instructeur] = await db("auth_user")
+    .insert({ email: "instructeur@example.org" })
+    .returning("*");
   await db("edge_personne_follows_dossier").insert({
     personne: instructeur.id,
     dossier: dossier.id,

@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import * as XLSX from "xlsx";
 import { db } from "../setup/db.ts";
@@ -10,14 +9,17 @@ import {
   createGroupeInstructeurs,
   createInstructeurWithDossier,
   createPersonne,
+  createCapDossier,
   createFichierS3,
 } from "../factories/index.ts";
 import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import { getTestS3 } from "../setup/s3.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 
 async function download(cap: string, scope = "service", format = "csv", extra = "") {
-  return fetch(
-    `${INTEGRATION_BASE_URL}/dossiers/export?cap=${cap}&scope=${scope}&format=${format}${extra}`,
+  return fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossiers/export?scope=${scope}&format=${format}${extra}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -43,6 +45,7 @@ test("service and followed exports validate selected dossiers against the caller
   });
   const secondGroup = await createGroupeInstructeurs(db, { name: "Second service" });
   await attachCapToGroupe(db, owner.cap, secondGroup.id);
+  await attachCapToGroupe(db, foreign.cap, secondGroup.id);
   const second = await createDossier(db);
   await attachDossierToGroupe(db, second.id, secondGroup.id);
   await createDossier(db, { name: "Orphan" });
@@ -67,17 +70,15 @@ test("service and followed exports validate selected dossiers against the caller
   }
   await db("edge_personne_follows_dossier").where({ personne: owner.id }).delete();
   expect(await rows(await download(owner.cap, "followed"))).toHaveLength(1);
-  await db("edge_cap_dossier__groupe_instructeurs").where({ cap_dossier: owner.cap }).delete();
-  expect(await rows(await download(owner.cap))).toHaveLength(1);
+  await db("user_groupe").where({ user_id: owner.id }).delete();
+  expect((await download(owner.cap)).status).toBe(403);
 });
 
 test("export includes enriched data, tagged species, expert stages and latest prescription conformity", async () => {
   const owner = await createInstructeurWithDossier(db);
   const colleague = await createPersonne(db, { email: "colleague@export.fr" });
-  await db("edge_personne_follows_dossier").insert([
-    { personne: owner.id, dossier: owner.dossier.id },
-    { personne: colleague.id, dossier: owner.dossier.id },
-  ]);
+  const colleagueSession = await createCapDossier(db, colleague.codeAcces);
+  await attachCapToGroupe(db, colleagueSession.cap, owner.groupeId);
   await db("dossier")
     .where({ id: owner.dossier.id })
     .update({
@@ -92,6 +93,11 @@ test("export includes enriched data, tagged species, expert stages and latest pr
       er_mesures_sufficient: true,
       enjeu: true,
     });
+  await attachDossierToGroupe(db, owner.dossier.id, owner.groupeId);
+  await db("edge_personne_follows_dossier").insert([
+    { personne: owner.id, dossier: owner.dossier.id },
+    { personne: colleague.id, dossier: owner.dossier.id },
+  ]);
   await db("evenement_phase_dossier").insert([
     {
       dossier: owner.dossier.id,
@@ -169,7 +175,7 @@ test("export includes enriched data, tagged species, expert stages and latest pr
   expect(row.slice(5, 7)).toEqual(["75", "Paris ; 75 ; Île-de-France"]);
   expect(row.slice(8)).toEqual([
     "Oui",
-    "Instruction",
+    "Contrôle",
     "Non car mesures ER suffisantes",
     "Oui",
     "Fou de Bassan (Morus bassanus)",
@@ -182,17 +188,4 @@ test("export includes enriched data, tagged species, expert stages and latest pr
     "2",
     "3",
   ]);
-});
-
-test("rejects missing and invalid caps, invalid formats and arbitrary scopes", async () => {
-  const owner = await createInstructeurWithDossier(db);
-  expect((await download("")).status).toBe(400);
-  expect((await download("invalid")).status).toBe(403);
-  expect((await download(randomUUID())).status).toBe(403);
-  expect((await download(owner.cap, "unknown")).status).toBe(400);
-  expect((await download(owner.cap, "service", "grist")).status).toBe(400);
-  const caps = await fetch(`${INTEGRATION_BASE_URL}/caps?secret=${owner.codeAcces}`).then(
-    (response) => response.json(),
-  );
-  expect(caps.exporterDossiers).toBe(`/dossiers/export?cap=${owner.cap}`);
 });

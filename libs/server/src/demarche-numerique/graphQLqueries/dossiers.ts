@@ -18,7 +18,7 @@ query getDemarche(
   $includeChamps: Boolean = true
   $includeAnotations: Boolean = true
   $includeTraitements: Boolean = true
-  $includeInstructeurs: Boolean = true
+  $includeInstructeurs: Boolean = false
   $includeAvis: Boolean = true
   $includeMessages: Boolean = true
   $includeCorrections: Boolean = false

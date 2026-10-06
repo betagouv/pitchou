@@ -12,13 +12,13 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w fr-mt-5w"
+  class="border-t border-[color:var(--border-default-grey)] fr-mt-2w"
   aria-labelledby="carcass-analysis-title"
 >
-  <h4 class="fr-h4" id="carcass-analysis-title">
+  <h4 id="carcass-analysis-title">
     8.3.1. Précisions sur le transport des cadavres pour analyse au bureau
   </h4>
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="carcass-collection-method"
       >Description du mode de collecte sur le terrain</label
     >
@@ -28,7 +28,7 @@
       rows="5"
       bind:value={model.eolienCarcassCollectionMethod}></textarea>
   </div>
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="carcass-preservation-method">Méthode de conservation</label>
     <textarea
       class="fr-input"

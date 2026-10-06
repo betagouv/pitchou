@@ -1,13 +1,13 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
+import { requireUserId } from "$lib/server/auth";
 import { getEvenementsPhaseDossiers } from "@pitchou/server/database/dossier.ts";
 
-export const GET: RequestHandler = async ({ url }) => {
-  const cap = requireCap(url);
-  const evenementsPhase = await getEvenementsPhaseDossiers(cap);
+export const GET: RequestHandler = async ({ locals }) => {
+  const userId = requireUserId(locals);
+  const evenementsPhase = await getEvenementsPhaseDossiers(userId);
   if (!evenementsPhase) {
-    error(403, `Le paramètre 'cap' est invalide`);
+    error(403, `Le paramètre 'userId' est invalide`);
   }
   return json(evenementsPhase);
 };

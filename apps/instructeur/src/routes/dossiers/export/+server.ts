@@ -1,14 +1,14 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth.ts";
+import { requireUserId } from "$lib/server/auth.ts";
 import { getDossiersForExport } from "@pitchou/server/database/dossier/export.ts";
 import { dossiersExportTable } from "@pitchou/common/dossiersExport.ts";
 import { tableToCsv, tableToOds } from "@pitchou/common/spreadsheet.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ url, request, locals }) => {
+  const userId = requireUserId(locals);
   const scope = url.searchParams.get("scope");
   const format = url.searchParams.get("format");
   if (scope !== "service" && scope !== "followed" && scope !== "france")
@@ -23,8 +23,8 @@ export const POST: RequestHandler = async ({ url, request }) => {
   ) {
     error(400, "Liste de dossiers invalide.");
   }
-  const dossiers = await getDossiersForExport(cap, scope, selectedIds as DossierId[]);
-  if (!dossiers) error(403, "Capability non valide.");
+  const dossiers = await getDossiersForExport(userId, scope, selectedIds as DossierId[]);
+  if (!dossiers) error(403, "Accès aux dossiers non autorisé.");
   const table = dossiersExportTable(dossiers);
   const body = format === "csv" ? tableToCsv(table) : tableToOds(table);
   const prefix =

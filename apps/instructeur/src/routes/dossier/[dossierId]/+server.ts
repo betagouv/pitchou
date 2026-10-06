@@ -1,11 +1,11 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject } from "$lib/server/requestValidation";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { getDossierInstructionState, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import { getDossierReviewSnapshot } from "@pitchou/server/database/notification/snapshot.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
 import { parseDossierId, parseDossierUpdate } from "./updatePayload.ts";
@@ -20,13 +20,13 @@ function isUniqueViolation(err: unknown): boolean {
   );
 }
 
-export const GET: RequestHandler = async ({ params, url }) => {
-  const cap = requireCap(url);
+export const GET: RequestHandler = async ({ params, url, locals }) => {
+  const userId = requireUserId(locals);
   const dossierId = parseDossierId(params.dossierId!);
 
   const dossier = await getDossierReviewSnapshot(
     dossierId,
-    cap,
+    userId,
     url.searchParams.get("lecture") === "1",
   );
   if (!dossier) {
@@ -36,13 +36,13 @@ export const GET: RequestHandler = async ({ params, url }) => {
   return json(dossier);
 };
 
-export const POST: RequestHandler = async ({ params, url, request }) => {
-  const cap = requireCap(url);
-  const dossierId = await requireDossierAccessByCap(parseDossierId(params.dossierId!), cap);
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = await requireDossierAccess(parseDossierId(params.dossierId!), userId);
 
-  const capPersonne = await getPersonneByDossierCap(cap);
+  const capPersonne = await getUserById(userId);
   if (!capPersonne) {
-    error(403, "Personne associée à la cap introuvable");
+    error(403, "Utilisateur introuvable");
   }
 
   const dossierUpdate = parseDossierUpdate(await readJsonObject(request), dossierId);

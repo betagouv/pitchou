@@ -1,11 +1,10 @@
 export { dumpDossierMessages } from "./dossier/messages.ts";
 export { dumpDossiers, getDossierIdsFromDS_Ids } from "./dossier/sync.ts";
-export { synchronizeDossierInGroupeInstructeur } from "./dossier/groupe.ts";
 export { getDossierFull, listAllDossiersFull } from "./dossier/full.ts";
 export { dossierFullForReadOnly, isFichierSharedInReadOnly } from "./dossier/readOnly.ts";
-export { getDossiersSummariesByCap } from "./dossier/summary.ts";
+export { getDossiersSummariesForUser } from "./dossier/summary.ts";
 export {
-  dossiersAccessibleViaCap,
+  dossiersAccessibleToUser,
   getEvenementsPhaseDossiers,
   getLatestEvenementsPhaseDossiers,
 } from "./dossier/access.ts";

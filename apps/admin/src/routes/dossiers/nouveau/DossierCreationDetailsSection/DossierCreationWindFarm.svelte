@@ -23,12 +23,12 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w fr-mt-5w"
+  class="border-t border-[color:var(--border-default-grey)] fr-mt-2w"
   aria-labelledby="wind-farm-title"
 >
-  <h3 class="fr-h3" id="wind-farm-title">8.1. Description du parc éolien concerné</h3>
+  <h3 id="wind-farm-title">8.1. Description du parc éolien concerné</h3>
   {#each [["eolien-commissioning-year", "Année de mise en service", "1", "1", "eolienCommissioningYear"], ["eolien-turbines-count", "Nombre d'éoliennes", "1", "1", "eolienTurbinesCount"], ["eolien-tip-height", "Hauteur totale bout de pale (m)", "0.001", "0.001", "eolienTipHeight"], ["eolien-rotor-diameter", "Diamètre du rotor (m)", "0.001", "0.001", "eolienRotorDiameter"], ["eolien-ground-clearance", "Garde au sol (m)", "0.001", "0.001", "eolienGroundClearance"]] as [id, label, min, step, field]}
-    <div class="fr-input-group max-w-xl fr-mb-4w">
+    <div class="fr-input-group max-w-xl fr-mb-2w">
       <label class="fr-label" for={id}
         >{label}{#if step === "0.001"}<span class="fr-hint-text"
             >Format attendu : De 1 à 3 décimales après le point. Exemple: 3.141</span

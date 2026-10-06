@@ -1,7 +1,8 @@
+import { dossiersAccessibleToUser } from "./dossier/access.ts";
 import type { Knex } from "knex";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type Personne from "@pitchou/types/database/public/Personne.ts";
+import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 
 export type GroupeMember = {
   id: Personne["id"];
@@ -11,52 +12,23 @@ export type GroupeMember = {
 };
 
 export async function getAccessibleDossierGroupeMembers(
-  cap: CapDossier["cap"],
+  userId: UserId,
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex,
   lockForUpdate = false,
 ): Promise<GroupeMember[] | undefined> {
-  const dossierGroupe = await databaseConnection("edge_groupe_instructeurs__dossier")
-    .select("edge_groupe_instructeurs__dossier.groupe_instructeurs")
-    .join("edge_cap_dossier__groupe_instructeurs", {
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-    })
-    .where({
-      "edge_groupe_instructeurs__dossier.dossier": dossierId,
-      "edge_cap_dossier__groupe_instructeurs.cap_dossier": cap,
-    })
-    .first();
-  if (!dossierGroupe) return undefined;
-  if (lockForUpdate) {
-    const memberships = await databaseConnection("edge_cap_dossier__groupe_instructeurs")
-      .select("cap_dossier")
-      .where({ groupe_instructeurs: dossierGroupe.groupe_instructeurs })
-      .orderBy("cap_dossier")
-      .forUpdate();
-    if (!memberships.some(({ cap_dossier }) => cap_dossier === cap)) return undefined;
-    const lockedGroupe = await databaseConnection("edge_groupe_instructeurs__dossier")
-      .select("groupe_instructeurs")
-      .where({ dossier: dossierId })
-      .forUpdate()
-      .first();
-    if (lockedGroupe?.groupe_instructeurs !== dossierGroupe.groupe_instructeurs) return undefined;
-  }
-  return databaseConnection("edge_cap_dossier__groupe_instructeurs")
-    .distinct([
-      "personne.id",
-      "personne.email",
-      "personne.first_names as firstNames",
-      "personne.last_name as lastName",
-    ])
-    .join("cap_dossier", { "cap_dossier.cap": "edge_cap_dossier__groupe_instructeurs.cap_dossier" })
-    .join("personne", { "personne.access_code": "cap_dossier.personne_cap" })
-    .where({
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs":
-        dossierGroupe.groupe_instructeurs,
-    })
-    .whereNotNull("personne.email")
-    .orderBy("personne.email");
+  if (lockForUpdate) await databaseConnection.raw("select pg_advisory_xact_lock(2105102026)");
+  const access = await dossiersAccessibleToUser(dossierId, userId, databaseConnection);
+  if (access.get(dossierId) !== "complet") return undefined;
+  return databaseConnection("user_groupe as m")
+    .join("auth_user as u", "u.id", "m.user_id")
+    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
+    .join("edge_groupe_instructeurs__dossier as e", "e.groupe_instructeurs", "g.id")
+    .where({ "e.dossier": dossierId, "u.active": true, "g.active": true })
+    .whereRaw("pitchou_can_instruct(u.id)")
+    .whereNotNull("u.email")
+    .distinct("u.id", "u.email", "u.first_names as firstNames", "u.last_name as lastName")
+    .orderBy("u.email");
 }
 
 export async function followDossierForPersonnes(

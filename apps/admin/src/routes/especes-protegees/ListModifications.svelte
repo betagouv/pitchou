@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
   import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/ListPagination.svelte";
 
   import { classificationFromTaxref, type TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
   import {
@@ -95,6 +96,7 @@
       ajoutError = `Classification indéterminée pour ${row.lb_nom} (règne « ${row.regne} »).`;
       return;
     }
+    const confirmSaved = pageHeader.beginSave("Espèce ajoutée");
     const noms_scientifiques = row.lb_nom ? [row.lb_nom] : [];
     const noms_vernaculaires = row.nom_vern
       .split(",")
@@ -116,6 +118,7 @@
       creation: false,
     };
     ajoutOuvert = false;
+    confirmSaved();
   }
 
   function onSelectExistante(espece: EspeceProtegee) {
@@ -128,6 +131,7 @@
 
   // The "add" entry point lives in the shell header ("+").
   $effect(() => {
+    if (!can("admin:especes:manage")) return;
     pageHeader.setAction({ label: "Ajouter une espèce", onClick: () => (ajoutOuvert = true) });
     return () => pageHeader.clearAction();
   });
@@ -135,8 +139,6 @@
 
 <ModificationsListControls
   {query}
-  {modifications}
-  filteredCount={filtered.length}
   onSearch={onSearchInput}
   onFilter={onFilterChange}
   onSort={onSortChange}
@@ -150,6 +152,7 @@
 
 {#if displayed.length >= 1}
   <TableModifications
+    total={filtered.length}
     rows={displayed}
     onSelect={(modification) => (modal = { seed: modification, creation: false })}
   />
@@ -170,7 +173,7 @@
   />
 {/if}
 
-{#if modal}
+{#if modal && can("admin:especes:manage")}
   <ModalEditModification
     seed={modal.seed}
     creation={modal.creation}

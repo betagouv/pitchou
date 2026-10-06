@@ -14,7 +14,7 @@
 </script>
 
 {#if showsScientificPurposes(model)}
-  <fieldset class="fr-fieldset fr-mb-4w">
+  <fieldset class="fr-fieldset fr-mb-2w">
     <legend class="fr-fieldset__legend font-normal"
       >Captures/Relâchers/Prélèvement - Finalité(s) de la demande</legend
     >
@@ -38,7 +38,7 @@
       </div>
     {/each}
   </fieldset>
-  <div class="fr-upload-group fr-mb-4w">
+  <div class="fr-upload-group fr-mb-2w">
     <label class="fr-label" for="purpose-files"
       >Joindre les pièces justifiant de la finalité de la demande</label
     >
@@ -52,7 +52,7 @@
   </div>
 {/if}
 {#if showsPreviousAssessment(model)}
-  <fieldset class="fr-fieldset fr-mb-4w">
+  <fieldset class="fr-fieldset fr-mb-2w">
     <legend class="fr-fieldset__legend font-normal"
       >Cette demande concerne un programme de suivi déjà existant *</legend
     >
@@ -73,7 +73,7 @@
     {/each}
   </fieldset>
   {#if model.scientifiquePreviousAssessment === "oui"}
-    <div class="fr-upload-group fr-mb-4w">
+    <div class="fr-upload-group fr-mb-2w">
       <label class="fr-label" for="previous-assessment-files"
         >Joindre le bilan des opérations antérieures *</label
       >
@@ -89,7 +89,7 @@
   {/if}
 {/if}
 {#if showsWindFarmDetails(model)}
-  <fieldset class="fr-fieldset fr-mb-4w">
+  <fieldset class="fr-fieldset fr-mb-2w">
     <legend class="fr-fieldset__legend font-normal"
       >En cas de mortalité lors de ces suivis, y a-t-il eu des mesures complémentaires prises ? *</legend
     >
@@ -110,7 +110,7 @@
     {/each}
   </fieldset>
   {#if model.scientifiqueMortalityMeasuresTaken === "oui"}
-    <div class="fr-input-group fr-mb-4w">
+    <div class="fr-input-group fr-mb-2w">
       <label class="fr-label" for="mortality-measures-details">Précisez ces mesures :</label>
       <textarea
         class="fr-input"

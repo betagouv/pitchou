@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 
@@ -24,7 +25,7 @@ test("recharger /dossier/[id] ne déclenche pas une 500", async ({ page, db }) =
   });
 
   // Log in via the URL (the working path), then reload to reproduce the bug.
-  await page.goto(`/?secret=${codeAcces}`);
+  await loginBrowser(page, db, codeAcces);
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
   await page.goto(`/dossier/${dossier.id}`);

@@ -9,23 +9,18 @@ import {
 } from "@pitchou/server/database/dossier_admin.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 
 const ADMIN_EMAIL = "admin-relations@pitchou.test";
 
 test("a native dossier can switch to a legal demandeur without changing shared company data", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier personne morale",
       depot_date: new Date("2026-07-12"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Initial",
-        "Person",
-      ),
+      relations: physicalAdminDossierRelations("Initial", "Person"),
     },
     ADMIN_EMAIL,
     db,
@@ -37,7 +32,6 @@ test("a native dossier can switch to a legal demandeur without changing shared c
     id,
     {
       relations: {
-        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
         demandeur_type: "personne_morale",
         demandeur_personne_physique: null,
         demandeur_personne_morale: {
@@ -81,17 +75,13 @@ test("a native dossier can switch to a legal demandeur without changing shared c
 });
 
 test("switching demandeur type deletes an unreferenced dossier-specific personne", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier personne cleanup",
       depot_date: new Date("2026-07-13"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Temporary",
-        "Person",
-      ),
+      relations: physicalAdminDossierRelations("Temporary", "Person"),
     },
     ADMIN_EMAIL,
     db,
@@ -107,7 +97,6 @@ test("switching demandeur type deletes an unreferenced dossier-specific personne
     id,
     {
       relations: {
-        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
         demandeur_type: "personne_morale",
         demandeur_personne_physique: null,
         demandeur_personne_morale: {

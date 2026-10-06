@@ -101,13 +101,13 @@ test.each([null, "Pétitionnaire"])(
 test.each([undefined, null, "CNPN/CSRPN"])(
   "admin creation defaults only empty entities, received %s",
   async (entity) => {
-    const instructeur = await createInstructeurWithCapToGroup(db);
+    await createInstructeurWithCapToGroup(db);
     const { id } = await createDossierFromAdmin(
       {
         name: "New native dossier",
         depot_date: new Date(),
         phase: "Accompagnement amont",
-        relations: physicalAdminDossierRelations(instructeur.groupeId, "Martin", "Camille"),
+        relations: physicalAdminDossierRelations("Martin", "Camille"),
         ...(entity === undefined ? {} : { columns: { next_action_expected_from: entity } }),
       },
       "admin@pitchou.test",

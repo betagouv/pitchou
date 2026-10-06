@@ -1,15 +1,15 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import type { PieceJointeDeletion } from "@pitchou/types/capabilities.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { deletePieceJointe } from "@pitchou/server/database/piece_jointe.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 
-export const DELETE: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const DELETE: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, new Set(["dossier", "type", "entityId", "fileId"]));
   if (typeof body.dossier !== "number" || !Number.isInteger(body.dossier)) {
@@ -30,12 +30,12 @@ export const DELETE: RequestHandler = async ({ url, request }) => {
     }
   }
   const piece = body as PieceJointeDeletion;
-  await requireDossierAccessByCap(piece.dossier, cap);
+  await requireDossierAccess(piece.dossier, userId);
   const transaction = await createTransaction();
   try {
     const name = await deletePieceJointe(piece, transaction);
     if (name === undefined) error(404, "Pièce jointe introuvable dans ce dossier.");
-    const author = await getPersonneByDossierCap(cap, transaction);
+    const author = await getUserById(userId, transaction);
     await logDossierActions(
       [
         {

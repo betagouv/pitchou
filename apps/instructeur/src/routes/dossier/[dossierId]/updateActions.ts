@@ -3,7 +3,7 @@ import { phaseEventTimestamp } from "./phaseEventTimestamp.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 
 function isoDay(date: Date | string | null | undefined): string | null {
   return date ? new Date(date).toISOString().slice(0, 10) : null;

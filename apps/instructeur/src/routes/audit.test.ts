@@ -39,14 +39,14 @@ const databaseRoutes = [
     name: "comment creation",
     run: () => addCommentaire(event({ content: comment.content })),
     mutation: mocks.addCommentaire,
-    args: ["cap", 42, "Comment"],
+    args: [7, 42, "Comment"],
     status: 201,
   },
   {
     name: "comment update",
     run: () => updateCommentaire(event(comment)),
     mutation: mocks.updateCommentaire,
-    args: ["cap", 42, comment.id, "Comment"],
+    args: [7, 42, comment.id, "Comment"],
     status: 204,
   },
   {
@@ -71,7 +71,7 @@ describe.each(databaseRoutes)("$name audit", ({ run, mutation, args, status }) =
     expect(response.status).toBe(status);
     if (status === 201) expect(await response.json()).toEqual(comment);
     expect(mutation).toHaveBeenCalledWith(...args, mocks.transaction);
-    expect(mocks.author).toHaveBeenCalledWith("cap", mocks.transaction);
+    expect(mocks.author).toHaveBeenCalledWith(7, mocks.transaction);
     expect(mocks.transaction.mock.calls).toEqual([["action_dossier"], ["evenement_metrique"]]);
     expect(mocks.database).not.toHaveBeenCalled();
     expect(mocks.commit).toHaveBeenCalledOnce();

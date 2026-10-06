@@ -20,10 +20,10 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
+  class="border-t border-[color:var(--border-default-grey)]"
   aria-labelledby="demandeur-title"
 >
-  <h2 class="fr-h2" id="demandeur-title">3. Porteur de projet</h2>
+  <h2 id="demandeur-title">3. Porteur de projet</h2>
 
   <fieldset class="fr-fieldset">
     <legend class="fr-fieldset__legend font-normal">
@@ -58,7 +58,7 @@
   {#if model.demandeurType === "personne_physique"}
     <PhysicalDemandeurFields {model} />
   {:else if model.demandeurType === "personne_morale"}
-    <div class="flex flex-col gap-6 fr-mb-3w">
+    <div class="flex flex-col gap-4 fr-mb-2w">
       <div class="fr-input-group w-full">
         <label class="fr-label" for="legal-siret">
           Numéro de SIRET
@@ -166,7 +166,7 @@
     </div>
   {/if}
 
-  <div class="flex flex-col gap-6 fr-mt-4w">
+  <div class="flex flex-col gap-4 fr-mt-2w">
     <div class="fr-input-group w-full">
       <label class="fr-label" for="contact-phone">
         Numéro de téléphone de contact

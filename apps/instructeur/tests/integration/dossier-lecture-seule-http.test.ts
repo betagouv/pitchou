@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 
@@ -83,8 +84,8 @@ async function createDossierWithEverything() {
 }
 
 function getDossier(cap: string, dossierId: number, readOnly: boolean) {
-  const suffix = readOnly ? "&lecture=1" : "";
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${cap}${suffix}`, {
+  const suffix = readOnly ? "?lecture=1" : "";
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}${suffix}`, {
     headers: { Accept: "application/json" },
   });
 }

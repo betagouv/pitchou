@@ -3,7 +3,7 @@
 
 import type { DossierId } from "./Dossier";
 import type { DossierPhase } from "../../API_Pitchou.ts";
-import type { PersonneId } from "./Personne";
+import type { AuthUserId } from "./AuthUser";
 
 /** Represents the table public.evenement_phase_dossier */
 export default interface EvenementPhaseDossier {
@@ -13,7 +13,7 @@ export default interface EvenementPhaseDossier {
 
   timestamp: Date;
 
-  caused_by_personne: PersonneId | null;
+  caused_by_personne: AuthUserId | null;
 
   demarche_numerique_agent_email: string | null;
 
@@ -28,7 +28,7 @@ export interface EvenementPhaseDossierInitializer {
 
   timestamp: Date;
 
-  caused_by_personne?: PersonneId | null;
+  caused_by_personne?: AuthUserId | null;
 
   demarche_numerique_agent_email?: string | null;
 
@@ -43,7 +43,7 @@ export interface EvenementPhaseDossierMutator {
 
   timestamp?: Date;
 
-  caused_by_personne?: PersonneId | null;
+  caused_by_personne?: AuthUserId | null;
 
   demarche_numerique_agent_email?: string | null;
 

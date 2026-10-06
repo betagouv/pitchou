@@ -115,3 +115,22 @@ test("replaying an imported file does not read storage or replace rows", async (
   expect(getObject).not.toHaveBeenCalled();
   expect(queries.some((sql) => sql.startsWith("delete"))).toBe(false);
 });
+
+test("prepared species files require no object-storage reads while persisting dossiers", async () => {
+  const { prepareImpactEspeceFile } = await import("./prepareImpactEspeceFile.ts");
+  const prepared = await prepareImpactEspeceFile(file.id, db);
+  expect(getObject).toHaveBeenCalledOnce();
+  vi.mocked(getObject).mockClear();
+  vi.mocked(getObject).mockRejectedValue(new Error("Storage must not be used during persistence"));
+  expect(await dumpImpactEspeceFromFichier(dossier, file.id, db, prepared)).toEqual([]);
+  expect(getObject).not.toHaveBeenCalled();
+  expect(queries.some((sql) => sql.startsWith('insert into "impact_espece"'))).toBe(true);
+});
+
+test("a skipped import removed concurrently aborts without accessing storage under the access lock", async () => {
+  await expect(dumpImpactEspeceFromFichier(dossier, file.id, db, null)).rejects.toThrow(
+    "Species import changed during synchronization",
+  );
+  expect(getObject).not.toHaveBeenCalled();
+  expect(queries.at(-1)).toMatch(/^ROLLBACK/);
+});

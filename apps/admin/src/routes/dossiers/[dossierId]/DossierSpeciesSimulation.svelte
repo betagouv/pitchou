@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import { untrack } from "svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import { simulateDossierSpecies, type SimulatedAction } from "$lib/actions/adminDossierSync.ts";
@@ -27,6 +28,7 @@
     if (saving || !selected) return;
     saving = true;
     message = "";
+    const confirmSaved = pageHeader.beginSave("Espèces mises à jour");
     errorMessage = "";
     try {
       const result = await simulateDossierSpecies(
@@ -35,6 +37,7 @@
       );
       message = result.message;
       onSimulated(result.actions);
+      confirmSaved();
     } catch (error) {
       errorMessage = error instanceof Error ? error.message : String(error);
     } finally {
@@ -60,9 +63,7 @@
       onclick={simulate}
       >{saving ? "Simulation en cours…" : "Simuler une modification d'espèces"}</button
     >
-    {#if message}
-      <p class="fr-success-text" role="status">{message}</p>
-    {/if}
+    {#if message}<p class="fr-hint-text">{message}</p>{/if}
     {#if errorMessage}<p class="fr-error-text" role="alert">{errorMessage}</p>{/if}
   {:else}
     <p class="fr-hint-text">

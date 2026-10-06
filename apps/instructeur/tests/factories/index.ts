@@ -106,5 +106,5 @@ export async function createFichierAvisAccessible(
     expert: overrides.expert ?? "CNPN",
     avis_fichier: fichier.id,
   });
-  return { fichier, cap, dossier, url: `/avis-expert/fichier/${fichier.id}?cap=${cap}` };
+  return { fichier, cap, dossier, url: `/avis-expert/fichier/${fichier.id}` };
 }

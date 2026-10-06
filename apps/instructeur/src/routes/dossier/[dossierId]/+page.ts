@@ -6,6 +6,7 @@ import {
   loadRelationSuivi,
 } from "$lib/shared/main.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import { requireDossierAccess } from "$lib/requireDossierAccess.ts";
 
 export const load: PageLoad = async ({ params, parent, url }) => {
   const dossierId = Number(params.dossierId);
@@ -15,6 +16,7 @@ export const load: PageLoad = async ({ params, parent, url }) => {
   const id = dossierId as DossierId;
 
   await parent();
+  requireDossierAccess();
 
   loadNotificationByDossierForCurrentInstructeur();
 

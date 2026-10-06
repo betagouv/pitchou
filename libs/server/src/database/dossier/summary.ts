@@ -1,12 +1,12 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { withResolvedActivite } from "../activite.ts";
-import { getAvisExpertFilesByCap } from "../avis_expert.ts";
+import { getAvisExpertFilesForUser } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { DossierSummary, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
@@ -38,8 +38,8 @@ const columns = [
   "onagre_demande_identifier",
 ] as (keyof DossierSummary)[];
 
-export async function getDossiersSummariesByCap(
-  cap: CapDossier["cap"],
+export async function getDossiersSummariesForUser(
+  userId: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierSummary[]> {
   const transaction: Knex.Transaction = databaseConnection.isTransaction
@@ -57,7 +57,7 @@ export async function getDossiersSummariesByCap(
     )
     .select(transaction.raw(latestCommentaireSubquery))
     .join(
-      dossierAccessQuery(cap, transaction).as("dossier_access"),
+      dossierAccessQuery(userId, transaction).as("dossier_access"),
       "dossier_access.dossier",
       "dossier.id",
     )
@@ -87,9 +87,9 @@ export async function getDossiersSummariesByCap(
         return withResolvedActivite(dossier);
       }),
     );
-  const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
-  const decisionsP = getDecisionsAdministratives(cap, transaction);
-  const avisP = getAvisExpertFilesByCap(cap, transaction);
+  const eventsP = getLatestEvenementsPhaseDossiers(userId, transaction);
+  const decisionsP = getDecisionsAdministratives(userId, transaction);
+  const avisP = getAvisExpertFilesForUser(userId, transaction);
   const result = Promise.all([dossiersP, eventsP, decisionsP, avisP]).then(
     ([dossiers, events, decisions, avis]) => {
       const eventByDossier = new Map<Dossier["id"], EvenementPhaseDossier>(

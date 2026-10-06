@@ -36,7 +36,7 @@
       {@render requirement("Un titre", titreOk)}
       {@render requirement("Une version complète (X.Y.Z)", versionOk)}
     </ul>
-    <p class="fr-mb-0 fr-mt-2w text-sm text-gray-600">
+    <p class="fr-mb-0 fr-mt-2w text-sm text-[var(--text-mention-grey)]">
       L'entrée reste enregistrée en brouillon en attendant.
     </p>
   </div>

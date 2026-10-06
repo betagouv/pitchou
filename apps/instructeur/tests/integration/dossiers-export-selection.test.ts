@@ -1,15 +1,26 @@
+import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import * as XLSX from "xlsx";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 
-async function exportSelection(cap: string, dossierIds: unknown, scope = "service") {
-  return fetch(`${INTEGRATION_BASE_URL}/dossiers/export?cap=${cap}&scope=${scope}&format=csv`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ dossierIds }),
-  });
+async function exportSelection(
+  cap: string,
+  dossierIds: unknown,
+  scope = "service",
+  format = "csv",
+) {
+  return fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossiers/export?scope=${scope}&format=${format}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dossierIds }),
+    },
+  );
 }
 
 async function readRows(response: Response): Promise<string[][]> {
@@ -65,3 +76,52 @@ test.each([null, "all", ["1"], [-1], [1.5], [2147483648]])(
     expect((await exportSelection(owner.cap, selection)).status).toBe(400);
   },
 );
+
+test("rejects missing and invalid sessions, invalid formats and arbitrary scopes", async () => {
+  const owner = await createInstructeurWithDossier(db);
+  for (const token of ["", "invalid", randomUUID()])
+    expect((await exportSelection(token, [])).status).toBe(401);
+  expect((await exportSelection(owner.cap, [], "unknown")).status).toBe(400);
+  expect((await exportSelection(owner.cap, [], "service", "grist")).status).toBe(400);
+  const caps = await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/api/session`).then(
+    (response) => response.json(),
+  );
+  expect(caps.exporterDossiers).toBe("/dossiers/export");
+  const legacy = await fetch(`${INTEGRATION_BASE_URL}/dossiers/export?cap=${owner.cap}`, {
+    method: "POST",
+  });
+  expect(legacy.status).toBe(401);
+});
+
+test("read-only sessions can export national data while access revocation and origins are enforced", async () => {
+  const reader = await createInstructeurWithDossier(db);
+  await db("auth_permission_exclusion").insert({
+    user_id: reader.id,
+    permission: "dossier:instruct",
+  });
+  const caps = await fetchAuthenticated(reader.cap, `${INTEGRATION_BASE_URL}/api/session`).then(
+    (response) => response.json(),
+  );
+  expect(caps.exporterDossiers).toBe("/dossiers/export");
+  expect(
+    await readRows(await exportSelection(reader.cap, [reader.dossier.id], "france")),
+  ).toHaveLength(2);
+  expect(await readRows(await exportSelection(reader.cap, [reader.dossier.id]))).toHaveLength(1);
+  expect(
+    await readRows(await exportSelection(reader.cap, [reader.dossier.id], "followed")),
+  ).toHaveLength(1);
+  const forbidden = await fetch(`${INTEGRATION_BASE_URL}/dossiers/export?scope=france&format=csv`, {
+    method: "POST",
+    headers: {
+      cookie: `pitchou_session=${reader.cap}`,
+      origin: "https://untrusted.test",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ dossierIds: [reader.dossier.id] }),
+  });
+  expect(forbidden.status).toBe(403);
+  await db("user_groupe").where({ user_id: reader.id }).delete();
+  expect((await exportSelection(reader.cap, [reader.dossier.id], "france")).status).toBe(403);
+  await db("auth_user").where({ id: reader.id }).update({ active: false });
+  expect((await exportSelection(reader.cap, [reader.dossier.id], "france")).status).toBe(401);
+});

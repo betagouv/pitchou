@@ -1,14 +1,14 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth.ts";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import { getDossierActions, logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-export const GET: RequestHandler = async ({ params, url }) => {
-  const cap = requireCap(url);
-  const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
+export const GET: RequestHandler = async ({ params, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
   return json(await getDossierActions(dossierId));
 };
 
@@ -18,9 +18,9 @@ export const GET: RequestHandler = async ({ params, url }) => {
  * on its own — hence the narrow endpoint: the caller only names the document, the
  * type of the action is not up to it.
  */
-export const POST: RequestHandler = async ({ params, url, request }) => {
-  const cap = requireCap(url);
-  const dossierId = await requireDossierAccessByCap(Number(params.dossierId!) as DossierId, cap);
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
 
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, new Set(["documents"]));
@@ -32,7 +32,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     error(400, "La propriété 'documents' doit être un tableau de noms de documents.");
   }
 
-  const author = await getPersonneByDossierCap(cap);
+  const author = await getUserById(userId);
   await logDossierActions(
     (body.documents as string[]).map((name) => ({
       dossier: dossierId,

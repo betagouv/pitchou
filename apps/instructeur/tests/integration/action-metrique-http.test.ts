@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -9,7 +10,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 // browser no longer reports these events, so a single act can never be counted twice.
 
 function updateDossier(cap: string, dossierId: number, body: Record<string, unknown>) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -58,8 +59,9 @@ test("un commentaire ajouté puis modifié est tracé des deux côtés", async (
     email: "instr@commentaire-metrique.fr",
   });
 
-  const created = await fetch(
-    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires?cap=${cap}`,
+  const created = await fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,8 +71,9 @@ test("un commentaire ajouté puis modifié est tracé des deux côtés", async (
   expect(created.status).toBe(201);
   const { id } = await created.json();
 
-  const edited = await fetch(
-    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires?cap=${cap}`,
+  const edited = await fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossier/${dossier.id}/commentaires`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

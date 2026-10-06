@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import type { Knex } from "knex";
 import { test, expect } from "../fixtures/playwright.ts";
 import {
@@ -56,7 +57,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     arrival_viewed: true,
   });
 
-  await page.goto(`/?secret=${assigner.codeAcces}`);
+  await loginBrowser(page, db, assigner.codeAcces);
   await page.getByRole("link", { name: "Tous les dossiers", exact: true }).click();
   let card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await card.getByRole("link", { name: assigner.dossier.name! }).click();
@@ -123,7 +124,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
       },
     });
 
-  await page.goto(`/?secret=${memberOne.codeAcces}`);
+  await loginBrowser(page, db, memberOne.codeAcces);
   const memberOneCard = page
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
@@ -131,14 +132,14 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   await expect(memberOneCard.getByText("Nouveau dossier", { exact: true })).toBeVisible();
   await expect(memberOneCard.getByText("Nouveau suivi", { exact: true })).toHaveCount(0);
 
-  await page.goto(`/?secret=${memberTwo.codeAcces}`);
+  await loginBrowser(page, db, memberTwo.codeAcces);
   const memberTwoCard = page
     .getByTestId("card-dossier")
     .filter({ hasText: assigner.dossier.name! });
   await expect(memberTwoCard).toBeVisible();
   await expect(memberTwoCard.getByText("Nouveau suivi", { exact: true })).toBeVisible();
 
-  await page.goto(`/?secret=${formerMember.codeAcces}`);
+  await loginBrowser(page, db, formerMember.codeAcces);
   await expect(
     page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! }),
   ).toHaveCount(0);
@@ -154,7 +155,7 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
     dossierNom: "Projet de renaturation",
   });
 
-  await page.goto(`/dossier/${assigner.dossier.id}?secret=${assigner.codeAcces}`);
+  await loginBrowser(page, db, assigner.codeAcces, `/dossier/${assigner.dossier.id}`);
   await page.getByRole("button", { name: /Plus d’actions/ }).click();
   await page.getByRole("menuitem", { name: "Faire suivre le dossier" }).click();
   const dialog = page.getByRole("dialog", { name: "Faire suivre le dossier" });

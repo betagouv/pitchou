@@ -1,3 +1,4 @@
+import { setBrowserSession } from "../helpers/browserAuth.ts";
 import { test as base } from "@playwright/test";
 import type { Knex } from "knex";
 import { E2E_DB_NAME, makeKnex } from "../setup/db.ts";
@@ -22,15 +23,8 @@ export const test = base.extend<Fixtures>({
     { scope: "test" },
   ],
 
-  loginAs: async ({ page }, use) => {
-    await use(async (codeAcces: string) => {
-      await page.addInitScript((secret) => {
-        // `remember` (lib used by the app) stores plain strings verbatim and
-        // tries JSON.parse on read. Either form works; we use the JSON form
-        // so it round-trips identically.
-        localStorage.setItem("secret-pitchou", JSON.stringify(secret));
-      }, codeAcces);
-    });
+  loginAs: async ({ page, db }, use) => {
+    await use((codeAcces) => setBrowserSession(page, db, codeAcces));
   },
 });
 

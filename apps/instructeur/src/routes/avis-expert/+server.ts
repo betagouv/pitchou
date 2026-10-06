@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 import {
@@ -13,7 +13,7 @@ import {
   logDossierActions,
   logDossierActionsAfterCommit,
 } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -49,8 +49,8 @@ function parseOptionalString(body: Record<string, unknown>, property: string): s
   return value;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, avisExpertProperties);
 
@@ -78,9 +78,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
   };
   const avisExpert = id ? { ...baseAvisExpert, id: id as AvisExpertId } : baseAvisExpert;
 
-  const authorizedDossierId = await requireDossierAccessByCap(
+  const authorizedDossierId = await requireDossierAccess(
     id ? await getDossierIdFromAvisExpert(id as AvisExpertId) : dossierId,
-    cap,
+    userId,
   );
 
   if (fichierAvis || fichierSaisine) {
@@ -91,7 +91,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
     await logDossierActionsAfterCommit(
       (async () => {
-        const author = await getPersonneByDossierCap(cap);
+        const author = await getUserById(userId);
         return [
           ...(fichierSaisine
             ? [
@@ -120,7 +120,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     await directDatabaseConnection.transaction(async (transaction) => {
       await addOrUpdateAvisExpert(avisExpert, transaction);
       if (id) {
-        const author = await getPersonneByDossierCap(cap, transaction);
+        const author = await getUserById(userId, transaction);
         await logDossierActions(
           [
             {

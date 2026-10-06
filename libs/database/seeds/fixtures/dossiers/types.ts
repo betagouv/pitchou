@@ -15,7 +15,8 @@ export type SeedDossier = Omit<
   | "representative"
   | "especes_impactees"
 > & {
-  groupe_instructeur: string;
+  /** Required explicitly, including null for the unmatched-dossier example. */
+  primary_department: string | null;
   /** SIRET de l'entreprise demandeuse (personne morale). L'entreprise doit figurer dans SEED_ENTREPRISES. */
   demandeur_personne_morale?: string;
   /** Email of the personne physique demandeur. The personne must be listed in SEED_PERSONNES. */

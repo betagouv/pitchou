@@ -23,7 +23,7 @@
 <svelte:window onkeydown={onKeydown} />
 
 <div
-  class="fixed inset-0 z-[1000] bg-[rgba(0,0,0,0.4)] flex items-start justify-center fr-py-4w fr-px-2w overflow-y-auto"
+  class="fixed inset-0 z-[1000] pitchou-dialog-overlay flex items-start justify-center fr-py-4w fr-px-2w overflow-y-auto"
   role="presentation"
   onclick={(e) => {
     if (e.target === e.currentTarget) onClose();
@@ -32,7 +32,7 @@
   <!-- Never taller than the viewport (minus the overlay padding): the content scrolls,
        the header and footer stay pinned. -->
   <div
-    class="bg-[var(--background-default-grey)] rounded-[0.5rem] w-full max-h-[calc(100vh-4rem)] flex flex-col shadow-[0_4px_24px_rgba(0,0,0,0.3)] [transition:max-width_0.15s_ease] {size ===
+    class="pitchou-dialog rounded-[0.5rem] w-full max-h-[calc(100dvh-4rem)] flex flex-col [transition:max-width_0.15s_ease] {size ===
     'large'
       ? 'max-w-[48rem]'
       : size === 'xlarge'
@@ -57,7 +57,7 @@
     </header>
 
     <!-- Padding-free on purpose: each consumer pads its own content (the selector brings its own). -->
-    <div class="flex-[1_1_auto] overflow-y-auto">
+    <div class="min-h-0 flex-[1_1_auto] overflow-y-auto overscroll-contain">
       {@render children()}
     </div>
 

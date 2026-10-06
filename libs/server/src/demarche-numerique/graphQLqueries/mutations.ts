@@ -27,9 +27,3 @@ export const annotationDateMutationQuery = `mutation ModifierAnnotationDate(
     annotationId: $annotationId, clientMutationId: $clientMutationId, value: $value
   }) { clientMutationId errors { message } }
 }`;
-
-export const GroupeInstructeursQuery = `query ($demarcheNumber: Int!) {
-  demarche(number: $demarcheNumber) {
-    groupeInstructeurs { label instructeurs { id email } }
-  }
-}`;

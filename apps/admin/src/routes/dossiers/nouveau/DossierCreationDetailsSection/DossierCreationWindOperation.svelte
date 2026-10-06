@@ -28,7 +28,7 @@
 </script>
 
 {#each [["eolien-monitored-turbines-count", "Nombre d'éoliennes à suivre", "eolienMonitoredTurbinesCount"], ["eolien-monitoring-visits-count", "Nombre de passages pendant le suivi", "eolienMonitoringVisitsCount"], ["eolien-weekly-monitoring-visits-count", "Nombre de passages par semaine de suivi", "eolienWeeklyMonitoringVisitsCount"]] as [id, label, field]}
-  <div class="fr-input-group max-w-xl fr-mb-4w">
+  <div class="fr-input-group max-w-xl fr-mb-2w">
     <label class="fr-label" for={id}
       >{label}<span class="fr-hint-text">Ce nombre doit être positif.</span></label
     >
@@ -44,7 +44,7 @@
     />
   </div>
 {/each}
-<div class="fr-input-group w-full fr-mb-4w">
+<div class="fr-input-group w-full fr-mb-2w">
   <label class="fr-label" for="eolien-field-inventory-period">Période des inventaires terrain</label
   >
   <input
@@ -53,7 +53,7 @@
     bind:value={model.eolienFieldInventoryPeriod}
   />
 </div>
-<div class="fr-upload-group fr-mb-4w">
+<div class="fr-upload-group fr-mb-2w">
   <label class="fr-label" for="eolien-protocol-files"
     >Pièces jointes décrivant précisément le protocole qui sera mis en place<span
       class="fr-hint-text">{uploadSizeHint()} Plusieurs fichiers possibles</span

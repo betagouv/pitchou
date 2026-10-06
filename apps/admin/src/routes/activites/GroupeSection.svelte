@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import type { ActiviteWithLabels, GroupeSection } from "./activitesModel.ts";
   import ActiviteCard from "./ActiviteCard.svelte";
 
@@ -46,13 +47,13 @@
 </script>
 
 <section
-  class="overflow-hidden rounded-xl border border-[color:var(--border-default-grey)]"
+  class="overflow-hidden rounded-xl border border-[color:var(--border-default-grey)] bg-[var(--background-lifted-grey)]"
   aria-label="Groupe {section.groupe.label}"
   style="--groupe-color: {section.groupe.color}"
 >
-  <!-- The group colors are fixed light pastels whatever the theme, so the header
-       keeps fixed dark text instead of the theme text variables. -->
-  <header class="flex flex-wrap items-center gap-x-3 gap-y-1 bg-[var(--groupe-color)] px-5 py-3">
+  <header
+    class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--border-default-grey)] px-4 py-3"
+  >
     {#if editing}
       <form
         class="flex grow flex-wrap items-center gap-2"
@@ -96,24 +97,27 @@
         </button>
       </form>
     {:else}
-      <h2 class="fr-h6 !m-0 !text-[#161616]">{section.groupe.label}</h2>
+      <span class="size-2.5 shrink-0 rounded-full bg-[var(--groupe-color)]" aria-hidden="true"
+      ></span>
+      <h2 class="m-0 text-base font-semibold">{section.groupe.label}</h2>
       <button
         type="button"
-        class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline fr-icon-pencil-line !text-[#000091]"
+        class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline fr-icon-pencil-line"
         title="Modifier le groupe"
         aria-label="Modifier le groupe « {section.groupe.label} »"
+        disabled={!can("admin:activites:manage")}
         onclick={startEditing}
       ></button>
-      <span class="ml-auto text-sm text-[#3a3a3a]">
+      <span
+        class="ml-auto rounded bg-[var(--background-contrast-grey)] px-2 py-0.5 text-xs text-[var(--text-mention-grey)]"
+      >
         {section.activites.length}
         {section.activites.length > 1 ? "activités" : "activité"}
       </span>
     {/if}
   </header>
 
-  <div
-    class="grid gap-4 bg-[color-mix(in_srgb,var(--groupe-color)_25%,var(--background-default-grey))] p-4 md:grid-cols-2"
-  >
+  <div class="grid gap-3 p-3 md:grid-cols-2">
     {#if section.activites.length === 0}
       <p class="!m-0 text-sm italic text-[color:var(--text-default-grey)]">
         Aucune activité dans ce groupe.

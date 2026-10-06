@@ -8,11 +8,11 @@
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Période de l'opération" {disabled}>
-  <legend class="fr-fieldset__legend fr-h4">
+  <legend class="fr-fieldset__legend">
     {complete ? "5.1. Période de l'opération" : "0.1. Période de l'opération"}
   </legend>
   <div class="fr-fieldset__element">
-    <div class="flex flex-col gap-6 w-full">
+    <div class="flex flex-col gap-4 w-full">
       <div class="fr-input-group min-w-[14rem] max-w-3xl">
         <label class="fr-label" for="edit-intervention-start">
           Date de début d'intervention

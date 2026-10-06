@@ -13,7 +13,7 @@ async function nombrePersonnesAyantAtteintSeuilDEvenmentsParSemaine(
         select personne, COUNT(evenement) as nombre_actions,
           date_trunc('week', e.date)::date as semaine
         from evenement_metrique as e
-        join personne on personne.id = e.personne
+        join auth_user as personne on personne.id = e.personne
         where evenement IN (:evenements)
         and personne.email NOT ILIKE '%@beta.gouv.fr'
         group by personne, semaine

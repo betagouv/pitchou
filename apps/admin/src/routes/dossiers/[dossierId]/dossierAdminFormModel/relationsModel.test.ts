@@ -23,7 +23,7 @@ describe("dossier admin relations model", () => {
         department: null,
         region: null,
       },
-      groupe: { id: "groupe-1", name: "Groupe test" },
+      groupes: [{ id: "groupe-1", name: "Groupe test" }],
       identites: [
         {
           type: "representant",

@@ -10,7 +10,7 @@ import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossi
 import { validateSpeciesUpload } from "$lib/server/speciesUpload";
 import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 /** Sets the species spreadsheet from a file the browser sent to storage (`{ file: { id, name } }`). */
 export const POST: RequestHandler = async ({ params, request }) => {
   const dossierId = parseDossierId(params.dossierId!);

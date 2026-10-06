@@ -91,7 +91,7 @@ export async function seed(knex: Knex) {
       const seedPerson = SEED_PERSONNES[AARRI_PROFILES_OFFSET + i];
       if (!seedPerson) continue;
 
-      const personne = await transaction("personne").where({ email: seedPerson.email }).first();
+      const personne = await transaction("auth_user").where({ email: seedPerson.email }).first();
       if (!personne) continue;
 
       // Idempotence: remove existing metric events before re-inserting
@@ -113,9 +113,7 @@ export async function seed(knex: Knex) {
     console.log("");
     console.log(`  Seed AARRI OK — ${AARRI_PROFILES.length} personnes`);
     console.log("  Niveaux : 2 base, 2 acquis, 2 activé, 1 retenu, 1 impact");
-    console.log(
-      "  Pour voir la page Utilisateurs (/aarri) de l'app Admin en dev, ajoutez votre email dev à PITCHOU_ADMIN_EMAILS",
-    );
+    console.log();
     console.log("");
   });
 }

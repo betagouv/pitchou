@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -15,7 +16,7 @@ async function createPrescription(dossierId: number): Promise<string> {
 }
 
 function postControle(cap: string, body: Record<string, unknown>) {
-  return fetch(`${INTEGRATION_BASE_URL}/controle?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/controle`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -23,7 +24,7 @@ function postControle(cap: string, body: Record<string, unknown>) {
 }
 
 function postNotification(cap: string, body: Record<string, unknown>) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

@@ -1,5 +1,4 @@
 export {
-  GroupeInstructeursQuery,
   annotationCheckboxMutationQuery,
   annotationDateMutationQuery,
   annotationTextMutationQuery,

@@ -16,7 +16,6 @@ import {
 } from "@pitchou/common/dossierFormOptions.ts";
 
 import type { DossierId, DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 const ADMIN_EMAIL = "admin-parity@pitchou.test";
 const communes = [{ name: "Lyon", code: "69123", postalCode: "69001" }];
@@ -86,17 +85,13 @@ const allDnColumns = {
 } as unknown as DossierMutator;
 
 test("all DN intake columns round-trip on a native dossier", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier initial",
       depot_date: new Date("2026-07-01"),
       phase: "Accompagnement amont",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Martin",
-        "Camille",
-      ),
+      relations: physicalAdminDossierRelations("Martin", "Camille"),
     },
     ADMIN_EMAIL,
     db,

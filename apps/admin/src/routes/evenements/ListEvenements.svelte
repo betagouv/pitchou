@@ -1,15 +1,19 @@
 <script lang="ts">
+  import ListToolbar from "$lib/components/ListToolbar.svelte";
   import { onMount } from "svelte";
 
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/ListPagination.svelte";
 
   import {
     loadEvenements,
     defaultEvenementsQuery,
     type EvenementsQuery,
     type EvenementMetriqueRow,
+    type EvenementSortKey,
+    type EvenementSortOrder,
   } from "$lib/actions/adminEvenements.ts";
   import EvenementsFilterPanel from "./EvenementsFilterPanel.svelte";
+  import EvenementsSortPanel from "./EvenementsSortPanel.svelte";
   import TableEvenements from "./TableEvenements.svelte";
 
   type Props = {
@@ -24,6 +28,7 @@
   let loading = $state(false);
   let loadError = $state<string | null>(null);
   let filterPanelOpen = $state(false);
+  let sortPanelOpen = $state(false);
 
   // Monotonic request id: only the latest in-flight response is allowed to win,
   // so a slow earlier request can never overwrite a newer one.
@@ -83,83 +88,63 @@
     reload();
   }
 
+  function onSortChange(sort: EvenementSortKey, order: EvenementSortOrder) {
+    query = { ...query, sort, order, page: 1 };
+    reload();
+  }
+
   onMount(reload);
 </script>
 
-<div class="flex flex-col gap-2">
-  <div class="flex flex-row items-start gap-2 max-[768px]:flex-col max-[768px]:items-stretch">
-    <form class="flex-1" onsubmit={(e) => e.preventDefault()}>
-      <div class="fr-search-bar w-full" role="search">
-        <label class="fr-label" for="recherche-evenement">Rechercher un évènement</label>
-        <input
-          value={query.search}
-          oninput={(e) => onSearchInput(e.currentTarget.value)}
-          name="texte-de-recherche"
-          class="fr-input"
-          placeholder="Adresse e-mail de l'utilisateur"
-          id="recherche-evenement"
-          type="search"
-        />
-        <button title="Rechercher un évènement" type="submit" class="fr-btn">Rechercher</button>
-      </div>
-    </form>
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
-      aria-expanded={filterPanelOpen}
-      aria-controls="filter-panel"
-      onclick={() => (filterPanelOpen = !filterPanelOpen)}
-    >
-      Filtrer
-      {#if activeFilterCount > 0}
-        <span
-          class="inline-flex items-center justify-center min-w-5 h-5 fr-ml-1v fr-py-0 fr-px-1v rounded-[0.625rem] bg-[var(--background-action-high-blue-france)] text-[color:var(--text-inverted-blue-france)] text-[0.75rem] leading-none"
-          aria-label="{activeFilterCount} filtre(s) actif(s)">{activeFilterCount}</span
-        >
-      {/if}
-      <span
-        class="fr-ml-1v before:[--icon-size:1rem] {filterPanelOpen
-          ? 'fr-icon-arrow-up-s-line'
-          : 'fr-icon-arrow-down-s-line'}"
-        aria-hidden="true"
-      ></span>
-    </button>
-  </div>
-
-  {#if filterPanelOpen}
-    <EvenementsFilterPanel
-      {types}
-      selectedTypes={query.evenements}
-      dateFrom={query.dateFrom}
-      dateTo={query.dateTo}
-      onChange={onFilterChange}
+<div class="admin-list-controls">
+  <div class="flex flex-col gap-2">
+    <ListToolbar
+      id="recherche-evenement"
+      label="Rechercher un évènement"
+      placeholder="Adresse e-mail de l'utilisateur"
+      value={query.search}
+      onSearch={onSearchInput}
+      bind:filterOpen={filterPanelOpen}
+      bind:sortOpen={sortPanelOpen}
+      filterCount={activeFilterCount}
     />
-  {/if}
 
-  <p class="fr-mb-0" aria-live="polite">
-    <span class="fr-text--lead">{total}</span><span class="fr-text--lg"
-      >&nbsp;évènement{total > 1 ? "s" : ""}</span
-    >
-    {#if loading}
-      <span class="fr-text--sm fr-text-mention--grey fr-ml-1w">— chargement…</span>
+    {#if filterPanelOpen}
+      <EvenementsFilterPanel
+        {types}
+        selectedTypes={query.evenements}
+        dateFrom={query.dateFrom}
+        dateTo={query.dateTo}
+        onChange={onFilterChange}
+      />
     {/if}
-  </p>
-</div>
 
-{#if loadError}
-  <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
-    <p>{loadError}</p>
+    {#if sortPanelOpen}
+      <EvenementsSortPanel
+        selectedSort={query.sort}
+        sortOrder={query.order}
+        onChange={onSortChange}
+      />
+    {/if}
+
+    {#if loading}<p class="list-status" role="status">Chargement des évènements…</p>{/if}
   </div>
-{/if}
 
-{#if evenements.length >= 1}
-  <TableEvenements rows={evenements} />
-
-  {#if pageSelectors}
-    <div class="mt-2">
-      <Pagination {pageSelectors} currentPage={currentPageSelector} />
+  {#if loadError}
+    <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
+      <p>{loadError}</p>
     </div>
   {/if}
-{:else if !loading}
-  <p>Aucun évènement ne correspond à cette recherche.</p>
-{/if}
+
+  {#if evenements.length >= 1}
+    <TableEvenements {total} rows={evenements} />
+
+    {#if pageSelectors}
+      <div class="mt-2">
+        <Pagination {pageSelectors} currentPage={currentPageSelector} />
+      </div>
+    {/if}
+  {:else if !loading}
+    <p>Aucun évènement ne correspond à cette recherche.</p>
+  {/if}
+</div>
