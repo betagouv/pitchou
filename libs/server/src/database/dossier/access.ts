@@ -69,17 +69,12 @@ export async function dossiersAccessibleToUser(
   );
 }
 
-function meaningfulEvents(query: Knex.QueryBuilder) {
-  return query.andWhere(function () {
-    this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
-  });
-}
-
 export async function getLatestEvenementsPhaseDossiers(
   userId: UserId,
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return meaningfulEvents(db("evenement_phase_dossier").select("dossier", "phase", "timestamp"))
+  return db("evenement_phase_dossier")
+    .select("dossier", "phase", "timestamp")
     .whereIn("dossier", dossierAccessQuery(userId, db).clearSelect().select("dossier.id"))
     .distinctOn("dossier")
     .orderBy([
@@ -92,7 +87,8 @@ export async function getEvenementsPhaseDossiers(
   userId: UserId,
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<EvenementPhaseDossier[]> {
-  return meaningfulEvents(db("evenement_phase_dossier").select("evenement_phase_dossier.*"))
+  return db("evenement_phase_dossier")
+    .select("evenement_phase_dossier.*")
     .join(
       dossierAccessQuery(userId, db).as("access"),
       "access.dossier",
@@ -105,7 +101,8 @@ export async function getEvenementsPhaseDossier(
   dossierId: Dossier["id"],
   db: Knex.Transaction | Knex,
 ): Promise<EvenementPhaseDossier[]> {
-  return meaningfulEvents(
-    db("evenement_phase_dossier").select("*").where({ dossier: dossierId }),
-  ).orderBy("timestamp", "desc");
+  return db("evenement_phase_dossier")
+    .select("*")
+    .where({ dossier: dossierId })
+    .orderBy("timestamp", "desc");
 }

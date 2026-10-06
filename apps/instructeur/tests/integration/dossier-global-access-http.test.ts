@@ -39,6 +39,7 @@ test("all existing dossiers are listed once, with owner precedence and restricte
     { dossier: reader.dossier.id, content: "Own internal comment" },
   ]);
   const phaseDate = "2026-07-01T12:00:00.000Z";
+  const controlDate = "2026-08-01T12:00:00.000Z";
   await db("evenement_phase_dossier").insert([
     {
       dossier: owner.dossier.id,
@@ -46,7 +47,7 @@ test("all existing dossiers are listed once, with owner precedence and restricte
       timestamp: phaseDate,
       caused_by_personne: owner.id,
     },
-    { dossier: owner.dossier.id, phase: "Contrôle", timestamp: "2026-08-01T12:00:00.000Z" },
+    { dossier: owner.dossier.id, phase: "Contrôle", timestamp: controlDate },
     {
       dossier: reader.dossier.id,
       phase: "Instruction",
@@ -72,10 +73,11 @@ test("all existing dossiers are listed once, with owner precedence and restricte
   expect(ids.sort()).toEqual((await db("dossier").pluck("id")).sort());
   expect(new Set(ids).size).toBe(ids.length);
   const foreign = listed.find(({ id }) => id === owner.dossier.id)!;
+  // Missing attribution does not invalidate a recorded phase transition.
   expect(foreign).toMatchObject({
     access: "lecture",
-    phase: "Instruction",
-    phase_start_date: phaseDate,
+    phase: "Contrôle",
+    phase_start_date: controlDate,
   });
   expect(foreign).not.toHaveProperty("latestCommentaire");
   expect(foreign.decisionsAdministratives).toMatchObject([{ number: "AP-GLOBAL", hasFile: false }]);

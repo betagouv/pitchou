@@ -36,9 +36,6 @@ function latestPhase(db: Knex.Transaction | Knex) {
   return db("evenement_phase_dossier")
     .distinctOn("dossier")
     .select(["dossier", "phase", "timestamp"])
-    .where(function () {
-      this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
-    })
     .orderBy([
       { column: "dossier", order: "asc" },
       { column: "timestamp", order: "desc" },

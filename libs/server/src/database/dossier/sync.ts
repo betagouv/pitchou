@@ -111,6 +111,13 @@ export async function dumpDossiers(
   const events = allDossiers.flatMap(
     ({ evenement_phase_dossier }) => evenement_phase_dossier ?? [],
   );
+  // Historical attribution does not grant access or create follower assignments.
+  const authorIds = events.flatMap(({ caused_by_personne }) =>
+    caused_by_personne == null ? [] : [caused_by_personne],
+  );
+  const existingAuthors = new Set(
+    authorIds.length ? await db("auth_user").whereIn("id", authorIds).pluck("id") : [],
+  );
   const decisions = await newDecisions(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
     db,
@@ -118,7 +125,14 @@ export async function dumpDossiers(
   await Promise.all([
     events.length
       ? db("evenement_phase_dossier")
-          .insert(events.map((event) => ({ ...event, caused_by_personne: null })))
+          .insert(
+            events.map((event) => ({
+              ...event,
+              caused_by_personne: existingAuthors.has(event.caused_by_personne)
+                ? event.caused_by_personne
+                : null,
+            })),
+          )
           .onConflict(["dossier", "phase", "timestamp"])
           .merge(["demarche_numerique_agent_email", "demarche_numerique_motivation"])
       : Promise.resolve([]),

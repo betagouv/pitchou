@@ -82,9 +82,6 @@ export async function getDossierDetailForAdmin(
         "personne.id": "evenement_phase_dossier.caused_by_personne",
       })
       .where({ dossier: dossierId })
-      .andWhere(function () {
-        this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
-      })
       .orderBy("timestamp", "desc"),
     db("edge_dossier__fichier_pieces_jointes_petitionnaire")
       .select([
