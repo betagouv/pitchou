@@ -30,12 +30,11 @@ test("les dossiers avec notification non vue portent un badge de modification", 
   await setup(db);
   await gotoMesDossiers(page, db);
 
-  const withBadge = await page
+  const withBadge = page
     .getByTestId("card-dossier")
-    .filter({ has: page.getByText(/^Modifié (aujourd'hui|il y a)/) })
-    .all();
+    .filter({ has: page.getByText(/^Modifié (aujourd'hui|il y a)/) });
 
-  expect(withBadge).toHaveLength(2);
+  await expect(withBadge).toHaveCount(2);
   // The badge dates the change rather than merely flagging it.
   await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
 });

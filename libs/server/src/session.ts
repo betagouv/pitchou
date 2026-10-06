@@ -13,6 +13,13 @@ import { directDatabaseConnection } from "./database.ts";
 
 export const SESSION_COOKIE_NAME = "pitchou_session";
 
+/** Staging and production can share a parent domain, but must never share a cookie. */
+export function sessionCookieName(): string {
+  return process.env.PUBLIC_PITCHOU_ENV === "staging"
+    ? "pitchou_staging_session"
+    : SESSION_COOKIE_NAME;
+}
+
 // Sliding 7-day window, independent of the identity provider's own SSO session.
 export const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
@@ -31,12 +38,11 @@ type SessionRow = {
 export type Session = SessionUser & { idToken: string | null };
 
 /**
- * Cookie domain shared across sibling subdomains. Unset (host-only) for localhost
- * and staging; set to the parent domain (e.g. `.pitchou.…`) once the apps live on
- * sibling subdomains, so a session created in one is seen by the others.
+ * Both apps must use the same parent domain to share sessions across subdomains.
+ * Leave unset only when both apps use the same hostname, such as localhost.
  */
 export function sessionCookieDomain(): string | undefined {
-  return process.env.SESSION_COOKIE_DOMAIN || undefined;
+  return process.env.SESSION_COOKIE_DOMAIN?.trim().replace(/^\./, "") || undefined;
 }
 
 function hashToken(token: string): string {

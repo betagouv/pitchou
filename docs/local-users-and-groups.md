@@ -34,7 +34,13 @@ Users read dossiers outside their groups with the existing read-only field and d
 
 ## Deployment configuration
 
-Register each application's `/auth/callback` and `/auth/login` logout return URL with the ProConnect client. Both apps need `PROCONNECT_DOMAIN`, `PROCONNECT_CLIENT_ID`, `PROCONNECT_CLIENT_SECRET` and `ADMIN_SESSION_SECRET`. Set `PUBLIC_SITE_URL_PITCHOU` and `PUBLIC_SITE_URL_ADMIN` to their respective public origins. Set `SESSION_COOKIE_DOMAIN` only when sessions should be shared across sibling subdomains.
+Register each application's `/auth/callback` and `/auth/login` logout return URL with the ProConnect client. Both apps need `PROCONNECT_DOMAIN`, `PROCONNECT_CLIENT_ID`, `PROCONNECT_CLIENT_SECRET` and `ADMIN_SESSION_SECRET`. Set `PUBLIC_SITE_URL_PITCHOU` and `PUBLIC_SITE_URL_ADMIN` to their respective public origins.
+
+Both staging apps must set `PUBLIC_PITCHOU_ENV=staging` and `SESSION_COOKIE_DOMAIN=pitchou.incubateur.net`. This shares sign-in and sign-out between `staging.pitchou.incubateur.net` and `staging.admin.pitchou.incubateur.net`. Leaving the domain unset on either app creates separate sessions. Leave it unset only for localhost, where both apps already share a hostname.
+
+Staging uses `pitchou_staging_session`; production uses `pitchou_session`. Staging ignores the old `pitchou_session` cookies, including any conflicting host-only and parent-domain cookies left by previous deployments. Users must sign in once after deploying this change to both apps. Do not delete the old parent-domain cookie from staging, since it may belong to a production session.
+
+Changing the instructor app's environment restarts it. On staging, `scripts/start.sh` then resets the database and S3 bucket and runs the seeds, just as it does after a deployment.
 
 For the default local URLs, register all four URLs on the integration client:
 

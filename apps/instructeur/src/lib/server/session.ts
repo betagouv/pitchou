@@ -3,7 +3,7 @@ import type { Cookies } from "@sveltejs/kit";
 import { dev } from "$app/environment";
 
 import {
-  SESSION_COOKIE_NAME,
+  sessionCookieName,
   SESSION_TTL_SECONDS,
   sessionCookieDomain,
 } from "@pitchou/server/session.ts";
@@ -19,7 +19,7 @@ export type OAuthTransaction = { state: string; nonce: string; redirectTo: strin
 // --- Session cookie (opaque token; the session itself lives in the shared DB) ---
 
 export function setSessionCookie(cookies: Cookies, token: string): void {
-  cookies.set(SESSION_COOKIE_NAME, token, {
+  cookies.set(sessionCookieName(), token, {
     httpOnly: true,
     sameSite: "lax",
     secure: !dev,
@@ -30,11 +30,11 @@ export function setSessionCookie(cookies: Cookies, token: string): void {
 }
 
 export function readSessionToken(cookies: Cookies): string | undefined {
-  return cookies.get(SESSION_COOKIE_NAME);
+  return cookies.get(sessionCookieName());
 }
 
 export function clearSessionCookie(cookies: Cookies): void {
-  cookies.delete(SESSION_COOKIE_NAME, { path: "/", domain: sessionCookieDomain() });
+  cookies.delete(sessionCookieName(), { path: "/", domain: sessionCookieDomain() });
 }
 
 // --- Login handshake (state / nonce carried across the redirect) ---
