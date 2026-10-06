@@ -3,7 +3,7 @@ import { getSessionUser } from "../users.ts";
 import { audit } from "./audit.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 export async function listGroups() {
-  const [groups, departments, members, counts, unmatched, users] = await Promise.all([
+  const [groups, departments, members, counts, users] = await Promise.all([
     db("groupe_instructeurs").orderBy("name"),
     db("groupe_departement"),
     db("user_groupe"),
@@ -11,14 +11,6 @@ export async function listGroups() {
       .select("groupe_instructeurs")
       .count("dossier as count")
       .groupBy("groupe_instructeurs"),
-    db("dossier as d")
-      .select("d.id", "d.name", "d.primary_department")
-      .whereNotExists(
-        db("edge_groupe_instructeurs__dossier as e")
-          .select("e.dossier")
-          .where("e.dossier", db.ref("d.id")),
-      )
-      .orderBy("d.id"),
     db("auth_user").select("id", "email", "active").orderBy("email"),
   ]);
   return {
@@ -30,7 +22,6 @@ export async function listGroups() {
       members: members.filter((m) => m.groupe_instructeurs === g.id).map((m) => m.user_id),
       dossierCount: Number(counts.find((c) => c.groupe_instructeurs === g.id)?.count ?? 0),
     })),
-    unmatched,
     users,
   };
 }

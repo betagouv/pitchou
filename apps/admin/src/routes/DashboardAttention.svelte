@@ -8,7 +8,7 @@
         count: attention.groups?.unmatchedDossiers ?? 0,
         title: "Dossiers sans groupe",
         detail: "Compléter le département principal ou la couverture des groupes.",
-        href: "/groupes-instructeurs#unmatched-dossiers",
+        href: "/dossiers#unmatched-dossiers",
         icon: "fr-icon-folder-2-line",
       },
       {

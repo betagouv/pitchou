@@ -49,7 +49,9 @@
     />
 
     <!-- Contain absolute elements such as hidden table captions inside this scroll area. -->
-    <div class="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
+    <div
+      class="relative flex min-h-0 min-w-0 flex-1 scroll-pt-16 flex-col overflow-y-auto overscroll-y-contain"
+    >
       <AdminHeader
         {sidebarCollapsed}
         onMobileMenuClick={() => (sidebarOpen = true)}

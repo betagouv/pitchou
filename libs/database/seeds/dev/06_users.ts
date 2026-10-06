@@ -3,9 +3,8 @@ import { SEED_DEMARCHE_NUMBER } from "../fixtures/demarche_numerique.ts";
 import { SEED_GROUPES } from "../fixtures/groupes.ts";
 import { SEED_PERSONNES } from "../fixtures/users.ts";
 
-const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
-
 export async function seed(db: Knex) {
+  const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
   await db.transaction(async (trx) => {
     for (const { departments, ...group } of SEED_GROUPES) {
       const [created] = await trx("groupe_instructeurs")
@@ -45,4 +44,35 @@ export async function seed(db: Knex) {
           .ignore();
     });
   }
+
+  if (process.env.PUBLIC_PITCHOU_ENV !== "staging") return;
+  const adminEmails = [
+    ...new Set(
+      (process.env.PITCHOU_ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
+  if (!adminEmails.length) return;
+  await db.transaction(async (trx) => {
+    const group = await trx("groupe_instructeurs")
+      .where({ name: "Administrateur", demarche_number: SEED_DEMARCHE_NUMBER })
+      .first();
+    await trx("auth_user")
+      .insert(adminEmails.map((email) => ({ email })))
+      .onConflict()
+      .ignore();
+    const users = await trx("auth_user")
+      .whereRaw("lower(email) = any(?::text[])", [adminEmails])
+      .select("id");
+    await trx("auth_permission_bundle")
+      .insert(users.map(({ id }) => ({ user_id: id, bundle: "administrateur" })))
+      .onConflict(["user_id", "bundle"])
+      .ignore();
+    await trx("user_groupe")
+      .insert(users.map(({ id }) => ({ user_id: id, groupe_instructeurs: group.id })))
+      .onConflict(["user_id", "groupe_instructeurs"])
+      .ignore();
+  });
 }

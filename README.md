@@ -267,6 +267,8 @@ Les deux applications utilisent ProConnect. Ouvrez `/auth/login` sur l'applicati
 
 Avant de lancer les seeds, renseignez `SEED_EMAIL` avec l'adresse de votre identité de test ProConnect. Les seeds accordent à ce compte les droits d'administration et les groupes de développement.
 
+Sur staging, configurez `PITCHOU_ADMIN_EMAILS` sur l'application instructeur avec les adresses ProConnect de l'équipe, séparées par des virgules. Après chaque remise à zéro, les seeds leur accordent les droits d'administration et les ajoutent au groupe « Administrateur ». `SEED_EMAIL` est facultatif pour cet accès ; il désigne le compte de démonstration utilisé pour les données d'exemple et vaut `dev@localhost.local` par défaut.
+
 Après restauration d'une sauvegarde, utilisez votre propre identité ProConnect. Un administrateur peut ajuster vos permissions et vos groupes dans `/utilisateurs`.
 
 Les anciens liens secrets ne permettent plus de se connecter. La [documentation des comptes locaux](docs/local-users-and-groups.md) décrit la configuration ProConnect et les URL de retour à enregistrer.

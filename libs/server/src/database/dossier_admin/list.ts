@@ -134,3 +134,16 @@ export function listGroupesInstructeursForAdmin(
 ): Promise<Pick<GroupeInstructeurs, "id" | "name" | "demarche_number">[]> {
   return db("groupe_instructeurs").select(["id", "name", "demarche_number"]).orderBy("name", "asc");
 }
+
+export function listUnmatchedDossiersForAdmin(
+  db: Knex.Transaction | Knex = directDatabaseConnection,
+) {
+  return db("dossier as d")
+    .select("d.id", "d.name", "d.primary_department")
+    .whereNotExists(
+      db("edge_groupe_instructeurs__dossier as e")
+        .select("e.dossier")
+        .where("e.dossier", db.ref("d.id")),
+    )
+    .orderBy("d.id");
+}

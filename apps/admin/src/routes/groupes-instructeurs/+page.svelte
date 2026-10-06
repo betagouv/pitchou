@@ -3,7 +3,6 @@
   import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import GroupsTable from "./GroupsTable.svelte";
   import GroupEditor from "./GroupEditor.svelte";
-  import UnmatchedDossiers from "./UnmatchedDossiers.svelte";
   import type { PageData, ActionData } from "./$types";
   let { data, form }: { data: PageData; form: ActionData } = $props();
   let selected = $state<string | null>(null);
@@ -57,9 +56,9 @@
     Vérifiez leurs départements, puis enregistrez.
   </p>
   <p>
-    Les alertes signalent les départements sans groupe actif et les dossiers sans affectation. Pour
-    affecter un dossier, renseignez son département principal et assurez-vous qu'un groupe actif le
-    couvre.
+    L'alerte signale les départements sans groupe actif. La page Dossiers signale les dossiers sans
+    affectation. Pour affecter un dossier, renseignez son département principal et assurez-vous
+    qu'un groupe actif le couvre.
   </p>
   <h3>Accès des membres</h3>
   <p>
@@ -72,12 +71,6 @@
     <h2>Départements sans groupe</h2>
     <p>{uncovered.join(", ")}</p>
   </div>{/if}
-{#if data.groups.some((g) => g.coverage_needs_review)}<p class="fr-alert fr-alert--info">
-    Vérifiez les départements des groupes à vérifier, y compris ceux sans dossier, puis enregistrez.
-  </p>{/if}
-{#if data.unmatched.length}
-  <UnmatchedDossiers dossiers={data.unmatched} />
-{/if}
 {#each sections as section}
   <GroupsTable
     title={section.title}

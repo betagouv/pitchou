@@ -17,7 +17,7 @@
 <section
   id={title === "À vérifier" ? "groups-to-review" : undefined}
   aria-label={title}
-  class="mt-4 overflow-hidden rounded-xl border border-[var(--border-default-grey)] bg-[var(--background-lifted-grey)]"
+  class="mt-4 overflow-hidden rounded-xl border border-[var(--border-default-grey)] bg-[var(--background-lifted-grey)] first:mt-0"
 >
   <header class="flex items-center gap-2.5 px-4 py-3">
     <span
