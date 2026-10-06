@@ -97,3 +97,44 @@ test("admin endpoints enforce permissions and reject cross-origin mutations", as
   expect(response.status).toBe(403);
   expect(await db("groupe_instructeurs").where({ name: "Forbidden" })).toHaveLength(0);
 });
+
+test("historical accounts without email can change permissions and status while their email stays immutable", async () => {
+  const administrator = await admin();
+  const [historical] = await db("auth_user").insert({ email: null, active: true }).returning("*");
+  const save = (overrides: object = {}) =>
+    fetchAuthenticated(administrator.token, `${ADMIN_BASE_URL}/api/users`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id: historical.id,
+        email: "",
+        active: true,
+        bundles: ["instructeur"],
+        grants: ["admin:access"],
+        exclusions: ["dossier:instruct"],
+        ...overrides,
+      }),
+    });
+  expect((await save()).status).toBe(200);
+  expect(
+    await db("auth_permission_bundle").where({ user_id: historical.id }).pluck("bundle"),
+  ).toEqual(["instructeur"]);
+  expect(await db("auth_permission").where({ user_id: historical.id }).pluck("permission")).toEqual(
+    ["admin:access"],
+  );
+  expect(
+    await db("auth_permission_exclusion").where({ user_id: historical.id }).pluck("permission"),
+  ).toEqual(["dossier:instruct"]);
+  expect((await save({ active: false })).status).toBe(200);
+  expect(await db("auth_user").where({ id: historical.id }).first()).toMatchObject({
+    active: false,
+    email: null,
+  });
+  expect((await save({ email: "replacement@test.fr" })).status).toBe(400);
+  expect((await save({ id: undefined })).status).toBe(400);
+  expect((await save({ id: undefined, email: "invalid" })).status).toBe(400);
+  expect(await db("auth_user").where({ id: historical.id }).first()).toMatchObject({
+    active: false,
+    email: null,
+  });
+});

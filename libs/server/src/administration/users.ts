@@ -38,7 +38,7 @@ export async function listUserGroupOptions() {
     .orderBy("name");
 }
 export async function saveUser(actor: UserId, input: UserUpdate) {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email))
+  if (!input.id && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email))
     throw new TypeError("Adresse e-mail invalide");
   if (
     input.bundles.some((value) => !Object.hasOwn(BUNDLES, value)) ||
@@ -71,7 +71,7 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
         .where({ user_id: before.id })
         .pluck("groupe_instructeurs");
     }
-    if (before && before.email !== input.email.trim().toLowerCase())
+    if (before && (before.email ?? "") !== input.email.trim().toLowerCase())
       throw new TypeError("L'adresse d'un compte existant provient de ProConnect");
     const [user] = before
       ? await trx("auth_user")

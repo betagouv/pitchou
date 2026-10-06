@@ -28,7 +28,7 @@
         id={formId + "-email"}
         name="email"
         type="email"
-        required
+        required={!current}
         bind:value={email}
         readonly={!!current}
         autocomplete="off"
