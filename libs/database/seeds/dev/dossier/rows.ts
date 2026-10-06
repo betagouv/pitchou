@@ -39,13 +39,12 @@ function serializeJsonColumns(data: Record<string, unknown>): Record<string, unk
 
 export async function seedDossierRows(
   transaction: Knex.Transaction,
-  actors: Pick<Actors, "devCap" | "personneIdByEmail" | "personneFixtureByEmail">,
+  actors: Pick<Actors, "personneIdByEmail" | "personneFixtureByEmail">,
 ) {
-  const { devCap, personneIdByEmail, personneFixtureByEmail } = actors;
+  const { personneIdByEmail, personneFixtureByEmail } = actors;
   const dossierIdMap: Record<string, number> = {};
   const agentVisibleDossiers = new Map<string, number[]>();
   for (const {
-    groupe_instructeur,
     demandeur_personne_physique_email,
     representative_email,
     deposant_email,
@@ -129,53 +128,21 @@ export async function seedDossierRows(
           .merge();
       }
 
-      const group = await transaction("groupe_instructeurs")
-        .where({ name: groupe_instructeur, demarche_number: SEED_DEMARCHE_NUMBER })
-        .first();
-
-      if (group) {
-        const existingLink = await transaction("edge_groupe_instructeurs__dossier")
-          .where({ dossier: dossier.id })
-          .first();
-
-        if (!existingLink) {
-          await transaction("edge_groupe_instructeurs__dossier").insert({
-            dossier: dossier.id,
-            groupe_instructeurs: group.id,
-          });
-        }
-
-        if (devCap) {
-          const existingCapLink = await transaction("edge_cap_dossier__groupe_instructeurs")
-            .where({ cap_dossier: devCap.cap, groupe_instructeurs: group.id })
-            .first();
-
-          if (!existingCapLink) {
-            await transaction("edge_cap_dossier__groupe_instructeurs").insert({
-              cap_dossier: devCap.cap,
-              groupe_instructeurs: group.id,
-            });
-          }
-        }
-
-        const agentsInGroup = await transaction("personne")
-          .join("cap_dossier", "cap_dossier.personne_cap", "personne.access_code")
-          .join(
-            "edge_cap_dossier__groupe_instructeurs",
-            "edge_cap_dossier__groupe_instructeurs.cap_dossier",
-            "cap_dossier.cap",
-          )
-          .where({ "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs": group.id })
-          .select("personne.id");
-
-        for (const { id: personneId } of agentsInGroup) {
-          const key = String(personneId);
-          const list = agentVisibleDossiers.get(key) ?? [];
-          list.push(dossier.id);
-          agentVisibleDossiers.set(key, list);
-        }
-      } else {
-        console.warn(`  ⚠ groupe_instructeurs "${groupe_instructeur}" introuvable — ${label}`);
+      // Ownership comes from the same department triggers used by real dossiers.
+      const agents = await transaction("user_groupe as membership")
+        .join(
+          "edge_groupe_instructeurs__dossier as ownership",
+          "ownership.groupe_instructeurs",
+          "membership.groupe_instructeurs",
+        )
+        .where("ownership.dossier", dossier.id)
+        .whereRaw("pitchou_can_instruct(membership.user_id)")
+        .distinct("membership.user_id as id");
+      for (const { id } of agents) {
+        const key = String(id);
+        const list = agentVisibleDossiers.get(key) ?? [];
+        list.push(dossier.id);
+        agentVisibleDossiers.set(key, list);
       }
     } catch (err) {
       console.error(`\n  ✗ Erreur insertion ${label}`);

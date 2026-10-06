@@ -22,7 +22,7 @@
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Dérogation" {disabled}>
-  <legend class="fr-fieldset__legend fr-h3">4. Justifications de la demande de dérogation</legend>
+  <legend class="fr-fieldset__legend">4. Justifications de la demande de dérogation</legend>
   <div class="fr-fieldset__element">
     <div class="fr-input-group w-full">
       <label class="fr-label" for="edit-no-other-solution">

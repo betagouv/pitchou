@@ -1,3 +1,4 @@
+import { dossierAccessQuery } from "./dossier/access.ts";
 import type {
   default as AvisExpert,
   AvisExpertInitializer,
@@ -5,7 +6,7 @@ import type {
 } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { Knex } from "knex";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { default as CapDossier } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
@@ -158,12 +159,12 @@ export async function deleteAvisExpert(
 }
 
 /**
- * For every avis expert of the dossiers accessible through `cap_dossier`,
+ * For every avis expert of the dossiers accessible to the user,
  * returns which dossier it belongs to, the consulted expert and whether its
  * saisine and avis files exist. Used to filter dossiers by their avis files.
  */
-export function getAvisExpertFilesByCap(
-  capDossier: CapDossier["cap"],
+export function getAvisExpertFilesForUser(
+  userId: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
   {
@@ -178,7 +179,10 @@ export function getAvisExpertFilesByCap(
     .select("avis_expert.expert as expert")
     .select(databaseConnection.raw('avis_expert.saisine_fichier is not null as "hasSaisineFile"'))
     .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "hasAvisFile"'))
-    .whereExists(databaseConnection("cap_dossier").select("cap").where({ cap: capDossier }));
+    .whereIn(
+      "dossier",
+      dossierAccessQuery(userId, databaseConnection).clearSelect().select("dossier.id"),
+    );
 }
 
 export function getFichiersAvisSaisineAvisExpert(

@@ -1,3 +1,4 @@
+import type { PreparedImpactFile } from "./impact_espece/prepareImpactEspeceFile.ts";
 import pLimit from "p-limit";
 import type { Knex } from "knex";
 
@@ -29,6 +30,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   especesImpacteesByDossierNumber: Map<DossierDS88444["number"], FileId | null>,
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  preparedFiles?: ReadonlyMap<FileId, PreparedImpactFile>,
 ): Promise<Set<DossierId>> {
   if (!databaseConnection.isTransaction)
     return databaseConnection.transaction((trx) =>
@@ -36,6 +38,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
         especesImpacteesByDossierNumber,
         dossierIdByDNNumber,
         trx,
+        preparedFiles,
       ),
     );
   // Lock in a stable order before reading either the pointer or its impact snapshot.
@@ -64,7 +67,12 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
           .where({ id: current.id })
           .update({ especes_impactees: fileId });
         const anomalies = fileId
-          ? await dumpImpactEspeceFromFichier(current.id, fileId, databaseConnection)
+          ? await dumpImpactEspeceFromFichier(
+              current.id,
+              fileId,
+              databaseConnection,
+              preparedFiles ? (preparedFiles.get(fileId) ?? null) : undefined,
+            )
           : [];
         if (anomalies.length) console.warn(`Dossier ${number} — ${anomaliesTitle(anomalies)}`);
 

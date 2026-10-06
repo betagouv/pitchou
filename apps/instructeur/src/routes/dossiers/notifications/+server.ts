@@ -1,10 +1,10 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import {
-  getNotificationsForPersonneFromCap,
-  updateNotificationDossierFromCap,
+  getNotificationsForUser,
+  updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
 import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 
@@ -44,16 +44,16 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   return value as NotificationUpdate;
 }
 
-export const GET: RequestHandler = async ({ url }) => {
-  const cap = requireCap(url);
-  return json(await getNotificationsForPersonneFromCap(cap));
+export const GET: RequestHandler = async ({ locals }) => {
+  const userId = requireUserId(locals);
+  return json(await getNotificationsForUser(userId));
 };
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const notification = parseNotificationUpdate(await readJsonObject(request));
   // The update upserts, so an unchecked dossier id would create a notification
-  // row for a dossier the cap cannot reach.
-  await requireDossierAccessByCap(notification.dossier, cap);
-  return json(await updateNotificationDossierFromCap(cap, notification));
+  // row for a dossier the userId cannot reach.
+  await requireDossierAccess(notification.dossier, userId);
+  return json(await updateNotificationDossier(userId, notification));
 };

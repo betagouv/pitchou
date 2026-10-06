@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
   import { onMount } from "svelte";
 
-  import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
+  import Pagination from "$lib/components/ListPagination.svelte";
 
   import {
     loadDossiers,
@@ -26,6 +27,7 @@
 
   // The "create" entry point lives in the shell header ("+").
   $effect(() => {
+    if (!can("admin:dossiers:create")) return;
     pageHeader.setAction({ label: "Créer un dossier", onClick: () => (creatingDossier = true) });
     return () => pageHeader.clearAction();
   });

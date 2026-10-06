@@ -1,6 +1,5 @@
 import { json } from "d3-fetch";
-import remember, { forget } from "remember";
-import { goto } from "$app/navigation";
+import { forget } from "remember";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
 import { store } from "$lib/state/store.svelte.ts";
@@ -72,21 +71,6 @@ export function loadSynchronizationResults() {
   );
 }
 
-export async function consumeSecretFromURL(url: URL) {
-  const secret = url.searchParams.get("secret");
-  if (!secret) return;
-
-  return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY, secret),
-    initCapabilities(secret).catch(async () => {
-      await logout();
-      store.errors.add({
-        message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
-      });
-    }),
-  ]);
-}
-
 export async function logout() {
   store.capabilities = {};
   store.identité = undefined;
@@ -98,7 +82,8 @@ export async function logout() {
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;
 
-  return forget(PITCHOU_SECRET_STORAGE_KEY);
+  await forget(PITCHOU_SECRET_STORAGE_KEY);
+  window.location.href = "/auth/logout";
 }
 
 export async function logoutAndRedirectToHome(erreur?: { message: string }) {
@@ -106,46 +91,64 @@ export async function logoutAndRedirectToHome(erreur?: { message: string }) {
     store.errors.add(erreur);
   }
 
-  return logout().then(() => goto("/"));
+  return logout();
+}
+
+let authorizationVersion: string | undefined;
+
+async function refreshAuthorization() {
+  if (document.visibilityState !== "visible") return;
+  try {
+    const response = await fetch("/api/session");
+    const current = response.ok ? await response.json() : null;
+    if (
+      (response.status === 401 && store.identité) ||
+      (current && current.authorizationVersion !== authorizationVersion)
+    )
+      window.location.reload();
+  } catch {
+    /* A disconnected browser will retry on the next focus. */
+  }
 }
 
 type CapsResponse = StringValues<PitchouInstructeurCapabilities> & {
   identité: IdentiteInstructeurPitchou;
+  authorizationVersion: string;
   maxUploadSizeBytes?: number;
 };
 
-function initCapabilities(secret: string) {
-  return json(`/caps?secret=${secret}`).then((response) => {
-    if (response && typeof response === "object") {
-      const capsURLs = response as CapsResponse;
-      store.capabilities = createCapObjectFromURLs(capsURLs);
+function initCapabilities() {
+  return fetch("/api/session")
+    .then(async (response) =>
+      response.status === 401
+        ? null
+        : response.ok
+          ? response.json()
+          : Promise.reject(new Error("Impossible de charger votre compte")),
+    )
+    .then((response) => {
+      if (response && typeof response === "object") {
+        const capsURLs = response as CapsResponse;
+        authorizationVersion = capsURLs.authorizationVersion;
+        store.capabilities = createCapObjectFromURLs(capsURLs);
 
-      if (capsURLs.identité) {
-        store.identité = capsURLs.identité;
+        if (capsURLs.identité) {
+          store.identité = capsURLs.identité;
+        }
+
+        if (typeof capsURLs.maxUploadSizeBytes === "number") {
+          store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
+        }
+
+        sendEvenement({ type: "seConnecter" });
       }
-
-      if (typeof capsURLs.maxUploadSizeBytes === "number") {
-        store.maxUploadSizeBytes = capsURLs.maxUploadSizeBytes;
-      }
-
-      sendEvenement({ type: "seConnecter" });
-    } else {
-      throw new TypeError(`capsURLs non-reconnu (${typeof response} - ${response})`);
-    }
-  });
+    });
 }
 
 export function init() {
+  window.addEventListener("focus", refreshAuthorization);
   return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY)
-      //@ts-ignore
-      .then((secret) => (secret ? initCapabilities(secret) : undefined))
-      .catch(() =>
-        logoutAndRedirectToHome({
-          message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
-        }),
-      ),
-
+    forget(PITCHOU_SECRET_STORAGE_KEY).then(() => initCapabilities()),
     loadSchemaDS88444(),
     loadSynchronizationResults(),
   ]);

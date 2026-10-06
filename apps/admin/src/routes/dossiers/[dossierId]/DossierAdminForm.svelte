@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { can } from "$lib/access.svelte.ts";
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
   import {
@@ -45,22 +47,22 @@
   // svelte-ignore state_referenced_locally
   const dossier = detail.dossier;
   // svelte-ignore state_referenced_locally
-  const readOnly = detail.source !== "pitchou";
+  const readOnly = $derived(detail.source !== "pitchou" || !can("admin:dossiers:update"));
   // svelte-ignore state_referenced_locally
   let model = $state(createDossierAdminFormModel(detail));
   let saveError = $state<string | null>(null);
-  let saved = $state(false);
   const completeEcologicalInventory = $derived(model.ecologicalInventoryCompleted === "oui");
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
+    if (!can("admin:dossiers:update")) return;
     if (!readOnly && !model.depotDate) {
       saveError = "La date de dépôt est requise.";
       return;
     }
     onSavingChange(true);
     saveError = null;
-    saved = false;
+    const confirmSaved = pageHeader.beginSave("Dossier enregistré");
     try {
       const payload: AdminDossierUpdatePayload = {
         columns: buildDossierUpdateColumns(model, readOnly, activiteCodeByLabel),
@@ -68,7 +70,7 @@
       if (!readOnly) payload.relations = buildDossierRelations(model);
       const updated = await updateDossier(dossier.id, payload);
       onSaved(updated);
-      saved = true;
+      confirmSaved();
     } catch (error) {
       saveError = error instanceof Error ? error.message : String(error);
     } finally {
@@ -77,12 +79,7 @@
   }
 </script>
 
-<form
-  id={formId}
-  class="w-full flex flex-col gap-6 fr-mt-3w"
-  style="overflow-anchor: none"
-  onsubmit={save}
->
+<form id={formId} class="dossier-form" style="overflow-anchor: none" onsubmit={save}>
   {#if readOnly}
     <p class="fr-hint-text fr-mb-0">Les données importées sont affichées en lecture seule.</p>
   {/if}
@@ -92,7 +89,7 @@
   {#if completeEcologicalInventory}
     {#if !readOnly}<DossierRelationsFields {model} />{/if}
     <DossierDescriptionFields {model} disabled={readOnly} />
-    {#if !readOnly}
+    {#if detail.source === "pitchou"}
       <DossierAdminFiles
         {detail}
         onChanged={onFilesChanged}
@@ -102,14 +99,14 @@
     {/if}
     <DossierDerogationFields {model} disabled={readOnly} />
     <section aria-labelledby="project-details-title">
-      <h2 class="fr-h3" id="project-details-title">5. Détails du projet</h2>
+      <h2 id="project-details-title">5. Détails du projet</h2>
       <DossierOperationPeriodFields {model} disabled={readOnly} complete={true} />
     </section>
   {:else}
     <DossierOperationPeriodFields {model} disabled={readOnly} complete={false} />
   {/if}
 
-  {#if !readOnly}
+  {#if detail.source === "pitchou"}
     <DossierAdminFiles
       {detail}
       onChanged={onFilesChanged}
@@ -120,10 +117,5 @@
 
   {#if saveError}
     <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>
-  {/if}
-  {#if saved}
-    <div class="fr-alert fr-alert--success fr-alert--sm" role="status">
-      <p>Dossier enregistré.</p>
-    </div>
   {/if}
 </form>

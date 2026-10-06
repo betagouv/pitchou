@@ -2,9 +2,9 @@ import { error, json } from "@sveltejs/kit";
 import { dev } from "$app/environment";
 import { createHash } from "node:crypto";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth.ts";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth.ts";
 import { readJsonObject } from "$lib/server/requestValidation.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import {
   createDossierCnpnEmailSendAttempt,
   getAuthorizedDossierFiles,
@@ -43,12 +43,12 @@ async function readableToBuffer(body: NodeJS.ReadableStream, budget: number): Pr
   return Buffer.concat(chunks);
 }
 
-export const POST: RequestHandler = async ({ params, url, request }) => {
-  const cap = requireCap(url);
-  const dossierId = await requireDossierAccessByCap(parseDossierId(params.dossierId!), cap);
-  const sender = await getPersonneByDossierCap(cap);
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = await requireDossierAccess(parseDossierId(params.dossierId!), userId);
+  const sender = await getUserById(userId);
   if (!sender?.email) error(403, "Aucune adresse email n'est associée à cette capability.");
-  // Resolve the cap owner, not a recipient or a dossier follower: /dev-login
+  // Resolve the userId owner, not a recipient or a dossier follower: /dev-login
   // publicly exposes this account's access code on staging.
   if (
     process.env.PUBLIC_PITCHOU_ENV === "staging" &&

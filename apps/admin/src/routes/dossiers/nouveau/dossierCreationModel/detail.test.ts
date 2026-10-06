@@ -17,7 +17,7 @@ function detail(dossier: AdminDossierDetail["dossier"]): AdminDossierDetail {
     phase: "Accompagnement amont",
     demandeur_personne_physique: null,
     demandeur_personne_morale: null,
-    groupe: { id: "groupe-1", name: "Groupe test" },
+    groupes: [{ id: "groupe-1", name: "Groupe test" }],
     identites: [],
     evenementsPhase: [],
     piecesJointes: [],
@@ -67,7 +67,6 @@ describe("dossier creation detail", () => {
       demandeurType: "personne_physique",
       physicalLastName: "Martin",
       contactEmail: "camille@example.org",
-      groupeInstructeurs: "groupe-1",
       eolienTurbinesCount: 8,
       scientifiquePreviousAssessment: "oui",
       scientifiqueIntervenants: [

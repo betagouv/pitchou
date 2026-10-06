@@ -26,7 +26,7 @@
 
 {#if value.features.length >= 1}
   <div class="fr-mt-3w">
-    <h4 class="fr-h6">Sélections utilisateur</h4>
+    <h4>Sélections utilisateur</h4>
     <ul class="flex flex-col gap-4">
       {#each value.features as feature, index (index)}
         <li>

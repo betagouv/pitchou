@@ -1,3 +1,7 @@
+import {
+  prepareImpactEspeceFile,
+  type PreparedImpactFile,
+} from "@pitchou/server/database/impact_espece/prepareImpactEspeceFile.ts";
 import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/edge_dossier__fichier_pieces_jointes_petitionnaire.ts";
 import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/database/especes_impactees.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
@@ -52,14 +56,52 @@ export function startDossierFileDownloads(
   };
 }
 
-export function synchronizeDownloadedDossierFiles(
+export async function prepareDossierFiles(
   downloads: ReturnType<typeof startDossierFileDownloads>,
+  transaction: Knex.Transaction,
+) {
+  const [especesImpactees, piecesJointesPetitionnaire] = await Promise.all([
+    downloads.especesImpactees,
+    downloads.piecesJointesPetitionnaire,
+  ]);
+  const preparedFiles = new Map<FileId, PreparedImpactFile>();
+  const candidates = [...(especesImpactees ?? [])];
+  const imported: { demarche_numerique_number: string; source_file: FileId }[] = candidates.length
+    ? await transaction("impact_espece as i")
+        .join("dossier as d", "d.id", "i.dossier")
+        .where("d.source", "demarche_numerique")
+        .whereIn(
+          "d.demarche_numerique_number",
+          candidates.map(([number]) => number),
+        )
+        .whereIn(
+          "i.source_file",
+          candidates.map(([, fileId]) => fileId),
+        )
+        .distinct("d.demarche_numerique_number", "i.source_file")
+    : [];
+  const importedPairs = new Set(
+    imported.map((row) => `${row.demarche_numerique_number}:${row.source_file}`),
+  );
+  const pendingFiles = new Set(
+    candidates
+      .filter(([number, fileId]) => !importedPairs.has(`${number}:${fileId}`))
+      .map(([, fileId]) => fileId),
+  );
+  for (const fileId of pendingFiles) {
+    preparedFiles.set(fileId, await prepareImpactEspeceFile(fileId, transaction));
+  }
+  return { especesImpactees, piecesJointesPetitionnaire, preparedFiles };
+}
+
+export function synchronizeDownloadedDossierFiles(
+  downloads: Awaited<ReturnType<typeof prepareDossierFiles>>,
   dossiersDS: DossierDS88444[],
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
   transaction: Knex.Transaction,
 ) {
-  const especesImpactees = downloads.especesImpactees.then((downloadedFiles) => {
+  const especesImpactees = Promise.resolve(downloads.especesImpactees).then((downloadedFiles) => {
     const files = new Map<number, FileId | null>(downloadedFiles);
     const fieldId = pitchouKeyToChampDS.get(
       "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
@@ -74,10 +116,11 @@ export function synchronizeDownloadedDossierFiles(
         files,
         dossierIdByDNNumber,
         transaction,
+        downloads.preparedFiles,
       );
     }
   });
-  const piecesJointesPetitionnaire = downloads.piecesJointesPetitionnaire.then(
+  const piecesJointesPetitionnaire = Promise.resolve(downloads.piecesJointesPetitionnaire).then(
     (downloadedFiles) => {
       const filesByDossierId = new Map(
         [...downloadedFiles].map(([number, files]) => {

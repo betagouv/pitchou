@@ -1,5 +1,4 @@
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 export type AdminIdentiteDossierType = "demandeur" | "mandataire" | "representant";
 export type AdminDossierIdentite = {
@@ -27,7 +26,6 @@ export type AdminDemandeurPersonneMoraleRelations = {
   region: string | null;
 };
 type BaseRelations = {
-  groupe_instructeurs: GroupeInstructeursId;
   identites: AdminDossierIdentite[];
 };
 export type AdminDossierRelations = BaseRelations &

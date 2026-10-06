@@ -11,13 +11,13 @@ import {
   updateDossierFromAdmin,
 } from "@pitchou/server/database/dossier_admin.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 const ADMIN_EMAIL = "admin-relations@pitchou.test";
 
 test("a native dossier can change groupe and physical demandeur without mutating an account", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const nextGroupe = await createGroupeInstructeurs(db, { name: "Nouveau groupe" });
+  await db("groupe_departement").insert({ groupe_instructeurs: nextGroupe.id, department: "69" });
   const existing = await createPersonne(db, {
     email: "shared@example.org",
     first_names: "Existing",
@@ -28,11 +28,7 @@ test("a native dossier can change groupe and physical demandeur without mutating
       name: "Dossier relations",
       depot_date: new Date("2026-07-11"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Initial",
-        "Person",
-      ),
+      relations: physicalAdminDossierRelations("Initial", "Person"),
     },
     ADMIN_EMAIL,
     db,
@@ -43,7 +39,6 @@ test("a native dossier can change groupe and physical demandeur without mutating
     .first();
   const initialPersonneCount = (await db("personne").select("id")).length;
   const relations = {
-    groupe_instructeurs: nextGroupe.id as GroupeInstructeursId,
     demandeur_type: "personne_physique" as const,
     demandeur_personne_physique: {
       last_name: "Martin",
@@ -73,10 +68,20 @@ test("a native dossier can change groupe and physical demandeur without mutating
       },
     ],
   };
-  await updateDossierFromAdmin(id, { relations }, ADMIN_EMAIL, db);
-  await updateDossierFromAdmin(id, { relations }, ADMIN_EMAIL, db);
+  await updateDossierFromAdmin(
+    id,
+    { relations, columns: { primary_department: "69" } },
+    ADMIN_EMAIL,
+    db,
+  );
+  await updateDossierFromAdmin(
+    id,
+    { relations, columns: { primary_department: "69" } },
+    ADMIN_EMAIL,
+    db,
+  );
   const detail = await getDossierDetailForAdmin(id, db);
-  expect(detail.groupe?.id).toBe(nextGroupe.id);
+  expect(detail.groupes[0]?.id).toBe(nextGroupe.id);
   expect(detail.demandeur_personne_physique).toMatchObject({
     last_name: "Martin",
     first_names: "Camille",
@@ -102,14 +107,14 @@ test("a native dossier can change groupe and physical demandeur without mutating
 });
 
 test("a physical demandeur referenced by another dossier is replaced without being mutated", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
-  const groupeId = instructeur.groupeId as GroupeInstructeursId;
+  await createInstructeurWithCapToGroup(db);
+
   const first = await createDossierFromAdmin(
     {
       name: "Dossier with shared demandeur",
       depot_date: new Date("2026-07-11"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(groupeId, "Shared", "Person"),
+      relations: physicalAdminDossierRelations("Shared", "Person"),
     },
     ADMIN_EMAIL,
     db,
@@ -119,7 +124,7 @@ test("a physical demandeur referenced by another dossier is replaced without bei
       name: "Other dossier with shared demandeur",
       depot_date: new Date("2026-07-11"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(groupeId, "Other", "Person"),
+      relations: physicalAdminDossierRelations("Other", "Person"),
     },
     ADMIN_EMAIL,
     db,
@@ -141,7 +146,7 @@ test("a physical demandeur referenced by another dossier is replaced without bei
   await db("personne").where({ id: secondRow.demandeur_personne_physique }).delete();
   await updateDossierFromAdmin(
     first.id,
-    { relations: physicalAdminDossierRelations(groupeId, "Updated", "Demandeur") },
+    { relations: physicalAdminDossierRelations("Updated", "Demandeur") },
     ADMIN_EMAIL,
     db,
   );

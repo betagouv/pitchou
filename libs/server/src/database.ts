@@ -9,7 +9,4 @@ export {
   getDemarcheNumerique88444SynchronizationResults,
   listAllEntreprises,
 } from "./database/helpers.ts";
-export {
-  getInstructeurCapBundleByPersonneCodeAcces,
-  getRelationSuivis,
-} from "./database/capabilities.ts";
+export { getRelationSuivis } from "./database/capabilities.ts";

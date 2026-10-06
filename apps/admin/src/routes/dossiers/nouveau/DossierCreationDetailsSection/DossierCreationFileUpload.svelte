@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getFileAccess } from "../../fileAccess.ts";
+  const fileAccess = getFileAccess();
   import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
 
   type Props = {
@@ -20,13 +22,14 @@
   let error = $state("");
 
   function setFiles(files: File[]) {
+    if (!fileAccess.attachments()) return;
     error = uploadSizeError(files) ?? "";
     if (error) return;
     uploadedFiles = files;
   }
 </script>
 
-<div class="fr-upload-group fr-mb-5w">
+<div class="fr-upload-group fr-mb-2w">
   <label class="fr-label" for={id}
     >{label}{#if required}
       *{/if}<span class="fr-hint-text">{uploadSizeHint()} Plusieurs fichiers possibles</span
@@ -53,6 +56,7 @@
       class="fr-sr-only"
       {id}
       type="file"
+      disabled={!fileAccess.attachments()}
       multiple
       {required}
       bind:this={input}

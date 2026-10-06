@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -16,7 +17,7 @@ async function setup(email: string) {
 }
 
 function post(path: string, cap: string, body: unknown) {
-  return fetch(`${INTEGRATION_BASE_URL}/${path}?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -46,9 +47,13 @@ test("le cycle de vie d'une prescription est tracé dans l'historique", async ()
   });
   expect(updated.status).toBe(200);
 
-  const deleted = await fetch(`${INTEGRATION_BASE_URL}/prescription/${prescriptionId}?cap=${cap}`, {
-    method: "DELETE",
-  });
+  const deleted = await fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/prescription/${prescriptionId}`,
+    {
+      method: "DELETE",
+    },
+  );
   expect(deleted.status).toBe(204);
 
   // The décision was inserted directly in the database, so it has no entry here.
@@ -108,8 +113,9 @@ test("un premier contrôle conforme n'est pas un retour à la conformité", asyn
 test("supprimer une décision administrative est tracé", async () => {
   const { cap, dossier, decision } = await setup("instr@historique-decision.fr");
 
-  const deleted = await fetch(
-    `${INTEGRATION_BASE_URL}/decision-administrative/${decision.id}?cap=${cap}`,
+  const deleted = await fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/decision-administrative/${decision.id}`,
     { method: "DELETE" },
   );
   expect(deleted.status).toBe(204);

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getFileAccess } from "../fileAccess.ts";
+  const fileAccess = getFileAccess();
   import type { Snippet } from "svelte";
 
   import { speciesFileError } from "$lib/speciesFile.ts";
@@ -12,6 +14,7 @@
   let dragging = $state(false);
 
   function selectFile(file: File | undefined) {
+    if (!fileAccess.species()) return;
     if (!file) return;
     error = speciesFileError(file) ?? uploadSizeError([file]);
     model.speciesFile = error ? null : file;
@@ -19,13 +22,10 @@
   }
 </script>
 
-<section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
-  aria-labelledby="species-title"
->
-  <h2 class="fr-h2" id="species-title">6. Espèces concernées par la dérogation</h2>
+<section class="border-t border-[color:var(--border-default-grey)]" aria-labelledby="species-title">
+  <h2 id="species-title">6. Espèces concernées par la dérogation</h2>
 
-  <div class="fr-callout fr-icon-information-line fr-mb-4w">
+  <div class="fr-callout fr-icon-information-line fr-mb-2w">
     <h3 class="fr-callout__title">
       Le remplissage de cette section est indispensable à l'instruction
     </h3>
@@ -90,6 +90,7 @@
         class="fr-sr-only"
         id="species-file"
         type="file"
+        disabled={!fileAccess.species()}
         accept=".ods,.xlsx,application/vnd.oasis.opendocument.spreadsheet,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         aria-label="Choisir le fichier des espèces concernées"
         aria-required="true"

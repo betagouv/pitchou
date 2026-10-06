@@ -27,7 +27,8 @@
   }
 </script>
 
-<section class="flex flex-col gap-3" aria-label="Répartition par niveau AARRI">
+<section class="admin-panel flex flex-col gap-3" aria-label="Répartition par niveau AARRI">
+  <h2>Répartition par niveau AARRI</h2>
   {#if total > 0}
     <div
       class="flex w-full h-6 overflow-hidden rounded-[0.25rem]"
@@ -45,7 +46,7 @@
       {/each}
     </div>
 
-    <ul class="flex flex-wrap gap-[0.5rem_1.5rem] fr-m-0 fr-p-0 list-none">
+    <ul class="text-sm flex flex-wrap gap-[0.5rem_1.5rem] fr-m-0 fr-p-0 list-none">
       {#each segments as segment (segment.niveau)}
         <li class="flex items-center gap-[0.375rem]">
           <span

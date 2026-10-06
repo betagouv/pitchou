@@ -2,19 +2,28 @@ import type { SeedDossier } from "./types.ts";
 import { cartographie, ligne, zoneCarree } from "./cartographie.ts";
 
 export const SEED_DOSSIERS: SeedDossier[] = [
+  {
+    demarche_numerique_number: "99000012",
+    name: "Dossier de démonstration sans département principal",
+    depot_date: new Date("2026-10-05T09:00:00Z"),
+    primary_department: null,
+    departments: [],
+    description:
+      "Exemple volontairement incomplet pour vérifier l'affichage des dossiers sans groupe. Aucun département principal n'a encore été renseigné.",
+  },
   // -------------------------------------------------------------------------
   // D1 — Parc éolien des Monts d'Arrée – DREAL BRETAGNE
   // Phase actuelle : Controle (décision signée, prescriptions en cours)
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000001",
-    groupe_instructeur: "DREAL BRETAGNE",
     demandeur_personne_physique_email: "yannick.tanguy@example.org",
     // demandeur identity + mandataire: the dossier was filed by an engineering firm
     // (mandataire) on behalf of the demandeur.
     deposant_email: "yannick.tanguy@example.org",
     mandataire_email: "claire.morvan@biotope-ouest.example",
     depot_date: new Date("2022-09-14T08:30:00+00:00"),
+    primary_department: "29",
     departments: ["29"],
     communes: [
       { name: "Brasparts", code: "29015", postalCode: "29190" },
@@ -75,11 +84,11 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000002",
-    groupe_instructeur: "DREAL Occitanie",
     demandeur_personne_physique_email: "soizic.rieux@example.org",
     // demandeur identity only (the demandeur deposited the dossier themself)
     deposant_email: "soizic.rieux@example.org",
     depot_date: new Date("2024-03-18T10:15:00+00:00"),
+    primary_department: "34",
     departments: ["34"],
     communes: [{ name: "Montagnac", code: "34163", postalCode: "34530" }],
     regions: ["Occitanie"],
@@ -135,9 +144,9 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   {
     demarche_numerique_number: "99000003",
     // no identite_dossier rows on purpose: dossier not yet re-synced (all cards empty)
-    groupe_instructeur: "DREAL Grand Est",
     demandeur_personne_physique_email: "herve.klein@example.org",
     depot_date: new Date("2024-06-03T07:55:00+00:00"),
+    primary_department: "57",
     departments: ["57"],
     communes: [{ name: "Thionville", code: "57672", postalCode: "57100" }],
     regions: ["Grand Est"],
@@ -194,12 +203,12 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000004",
-    groupe_instructeur: "DREAL Auvergne-Rhône-Alpes",
     demandeur_personne_morale: "42391560100027",
     representative_email: "thomas.delattre@chauve-souris-auvergne.example",
     // demandeur identity + representant (same person in both roles)
     deposant_email: "thomas.delattre@chauve-souris-auvergne.example",
     depot_date: new Date("2024-11-07T14:20:00+00:00"),
+    primary_department: "63",
     departments: ["63"],
     communes: [
       { name: "Issoire", code: "63178", postalCode: "63500" },
@@ -279,12 +288,12 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000005",
-    groupe_instructeur: "DREAL Pays de la loire",
     demandeur_personne_morale: "78616022400031",
     representative_email: "sandrine.bureau@lpo-paysdelaloire.example",
     // demandeur identity + representant (same person in both roles)
     deposant_email: "sandrine.bureau@lpo-paysdelaloire.example",
     depot_date: new Date("2025-02-10T09:05:00+00:00"),
+    primary_department: "44",
     departments: ["44", "49", "53", "72", "85"],
     communes: null,
     regions: ["Pays-de-la-Loire"],
@@ -353,10 +362,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000006",
-    groupe_instructeur: "DREAL Normandie",
     demandeur_personne_morale: "22760540400019",
     representative_email: "elodie.vasseur@seinemaritime.example",
     depot_date: new Date("2023-05-22T13:45:00+00:00"),
+    primary_department: "76",
     departments: ["76"],
     communes: [
       { name: "Yvetot", code: "76759", postalCode: "76190" },
@@ -424,7 +433,6 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000007",
-    groupe_instructeur: "DREAL BFC",
     demandeur_personne_morale: "39284715600014",
     representative_email: "bernard.chevallier@carrieres-nuiton.example",
     // All three identities: the demandeur identity is the representant, and the dossier
@@ -432,6 +440,7 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     deposant_email: "bernard.chevallier@carrieres-nuiton.example",
     mandataire_email: "sophie.leduc@gerea-etudes.example",
     depot_date: new Date("2023-11-28T11:10:00+00:00"),
+    primary_department: "21",
     departments: ["21"],
     communes: [{ name: "Nuits-Saint-Georges", code: "21458", postalCode: "21700" }],
     regions: ["Bourgogne-Franche-Comté"],
@@ -487,10 +496,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000008",
-    groupe_instructeur: "DRIAT IDF",
     demandeur_personne_morale: "21770379200013",
     representative_email: "jeanmarc.aubry@mairie-provins.example",
     depot_date: new Date("2023-09-11T08:40:00+00:00"),
+    primary_department: "77",
     departments: ["77"],
     communes: [{ name: "Provins", code: "77379", postalCode: "77160" }],
     regions: ["Île-de-France"],
@@ -545,10 +554,10 @@ export const SEED_DOSSIERS: SeedDossier[] = [
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000009",
-    groupe_instructeur: "DGTM Guyane",
     demandeur_personne_morale: "21973304600011",
     representative_email: "ml.adelaide@ville-kourou.example",
     depot_date: new Date("2024-07-30T15:00:00+00:00"),
+    primary_department: "973",
     departments: ["973"],
     communes: [{ name: "Kourou", code: "97304", postalCode: "97310" }],
     regions: ["Guyane"],
@@ -608,16 +617,16 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     enjeu: true,
   },
   // -------------------------------------------------------------------------
-  // D10 — Aménagement de lotissement – Dév Pitchou (réplique d'un dossier prod)
+  // D10 — Aménagement de lotissement – DREAL BRETAGNE (réplique d'un dossier prod)
   // Phase actuelle : Accompagnement amont
   // Demandeur personne morale, espèces impactées, avis CNPN, arrêté + contrôle.
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000010",
-    groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
     representative_email: "katell.legoff@echappee-belle.example",
     depot_date: new Date("2026-05-26T08:00:00+00:00"),
+    primary_department: "22",
     departments: ["22"],
     communes: [{ name: "Ploufragan", code: "22215", postalCode: "22440" }],
     regions: ["Bretagne"],
@@ -664,16 +673,16 @@ export const SEED_DOSSIERS: SeedDossier[] = [
     enjeu: true,
   },
   // -------------------------------------------------------------------------
-  // D11 — Agrandissement pistes cyclables Rennes-Dinan – Dév Pitchou
+  // D11 — Agrandissement pistes cyclables Rennes-Dinan – DREAL BRETAGNE
   // Phase actuelle : Accompagnement amont (après un aller-retour Instruction/Controle)
   // -------------------------------------------------------------------------
   {
     demarche_numerique_number: "99000011",
-    groupe_instructeur: "Dév Pitchou",
     demandeur_personne_morale: "88800620200020",
     representative_email: "katell.legoff@echappee-belle.example",
     depot_date: new Date("2026-05-05T08:00:00+00:00"),
-    departments: ["99", "35", "22"],
+    primary_department: "35",
+    departments: ["35", "22"],
     communes: null,
     regions: ["Bretagne"],
     // Tracé linéaire de la piste cyclable entre Rennes et Dinan (35 / 22).

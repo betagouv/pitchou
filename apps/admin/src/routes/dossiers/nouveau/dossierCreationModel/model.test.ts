@@ -29,7 +29,6 @@ describe("dossier creation model", () => {
       physicalAddress: "1 rue des Lilas, Lyon",
       contactPhone: "0102030405",
       contactEmail: "camille@example.org",
-      groupeInstructeurs: "groupe-1",
     } satisfies Partial<typeof model>);
     const payload = buildCreationPayload(model);
     expect(payload.columns).toMatchObject({
@@ -64,7 +63,6 @@ describe("dossier creation model", () => {
       representativeFirstNames: "Lou",
       representativeRole: "Directrice",
       contactEmail: "lou@example.org",
-      groupeInstructeurs: "groupe-1",
     } satisfies Partial<typeof model>);
     const payload = buildCreationPayload(model);
     expect(payload.columns).toMatchObject({ type: "Hirondelle" });
@@ -84,7 +82,6 @@ describe("dossier creation model", () => {
       physicalManualAddress: true,
       physicalStreet: "11 rue Réaumur",
       physicalCity: "Paris 75002",
-      groupeInstructeurs: "groupe-1",
     } satisfies Partial<typeof model>);
     expect(buildCreationPayload(model).relations.demandeur_personne_physique).toMatchObject({
       last_name: "",

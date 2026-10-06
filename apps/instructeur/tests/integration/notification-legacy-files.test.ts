@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import {
@@ -6,8 +7,7 @@ import {
   attachCapToGroupe,
 } from "../factories/index.ts";
 import { backfillLegacyReviews } from "../../../../libs/database/migrations/20260906120000_personal-notification-revisions.ts";
-import { getNotificationsForPersonneFromCap } from "@pitchou/server/database/notification.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import { getNotificationsForUser } from "@pitchou/server/database/notification.ts";
 
 test("migration preserves proven later file/species revisions with personal read cutoffs", async () => {
   const owner = await createInstructeurWithDossier(db, { nomGroupe: "Fichiers après lecture" });
@@ -61,7 +61,7 @@ test("migration preserves proven later file/species revisions with personal read
     ])
     .returning("id");
   await backfillLegacyReviews(db);
-  const [pending] = await getNotificationsForPersonneFromCap(owner.cap as CapDossierCap, db);
+  const [pending] = await getNotificationsForUser(sessionUserId(owner.cap), db);
   expect(pending.viewed).toBe(false);
   expect(pending.changes.flatMap(({ revisions }) => revisions).sort()).toEqual(
     [inserted[3].id, inserted[4].id].sort(),
@@ -70,18 +70,13 @@ test("migration preserves proven later file/species revisions with personal read
     field: `piece:historique:${inserted[3].id}`,
     label: "apres.pdf",
   });
-  expect(
-    (await getNotificationsForPersonneFromCap(lateReader.cap as CapDossierCap, db))[0],
-  ).toMatchObject({ viewed: true, changes: [] });
-  const [secondSpecies] = await getNotificationsForPersonneFromCap(
-    sequence.cap as CapDossierCap,
-    db,
-  );
+  expect((await getNotificationsForUser(sessionUserId(lateReader.cap), db))[0]).toMatchObject({
+    viewed: true,
+    changes: [],
+  });
+  const [secondSpecies] = await getNotificationsForUser(sessionUserId(sequence.cap), db);
   expect(secondSpecies.changes).toMatchObject([{ field: "especes", revisions: [inserted[6].id] }]);
-  const [firstFile] = await getNotificationsForPersonneFromCap(
-    firstAfterRead.cap as CapDossierCap,
-    db,
-  );
+  const [firstFile] = await getNotificationsForUser(sessionUserId(firstAfterRead.cap), db);
   expect(firstFile.changes[0].revisions).toEqual([inserted[9].id]);
   expect(
     await db("action_dossier").whereIn(

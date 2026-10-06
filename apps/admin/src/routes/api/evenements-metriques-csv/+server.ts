@@ -10,7 +10,7 @@ function csvEscape(value: unknown): string {
   return s;
 }
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const GET: RequestHandler = async () => {
   const rows = await getAllEvenementsWithEmail();
 

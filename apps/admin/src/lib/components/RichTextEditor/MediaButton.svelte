@@ -82,17 +82,17 @@
 {#if progress}
   <div
     use:portal
-    class="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(0,0,0,0.4)]"
+    class="fixed inset-0 z-[1000] flex items-center justify-center pitchou-dialog-overlay"
     role="alert"
     aria-live="assertive"
   >
-    <div class="flex flex-col items-center gap-3 rounded-lg bg-white p-8 shadow-xl">
+    <div class="flex flex-col items-center gap-3 rounded-lg pitchou-dialog p-8">
       <span
         class="fr-icon-refresh-line fr-icon--lg inline-block animate-spin text-[#0a76f6]"
         aria-hidden="true"
       ></span>
       <p class="fr-mb-0 font-medium">{uploadLabel(progress.file)}</p>
-      <p class="fr-mb-0 max-w-xs truncate text-sm text-gray-500">
+      <p class="fr-mb-0 max-w-xs truncate text-sm text-[var(--text-mention-grey)]">
         {progress.file.name}{progress.total > 1 ? ` · ${progress.index} sur ${progress.total}` : ""}
       </p>
     </div>

@@ -1,5 +1,5 @@
 import { error, redirect } from "@sveltejs/kit";
-import { isAdminEmail } from "@pitchou/server/admin.ts";
+import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { createSession } from "@pitchou/server/session.ts";
 
 import { exchangeCodeAndFetchUser } from "$lib/server/proconnect.ts";
@@ -27,10 +27,17 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
   // Create the session for any authenticated user, so it can be reused by the other
   // Pitchou apps; the admin app then applies its own authorization below.
-  const token = await createSession({ email: user.email, name: user.name, idToken: user.idToken });
+  const account = await connectUser(user);
+  if (!account.active) redirect(303, "/auth/acces-refuse");
+  const token = await createSession({
+    userId: account.id,
+    email: user.email,
+    name: user.name,
+    idToken: user.idToken,
+  });
   setSessionCookie(cookies, token);
 
-  if (!isAdminEmail(user.email)) {
+  if (!(await getSessionUser(account.id))?.permissions.includes("admin:access")) {
     redirect(303, "/auth/acces-refuse");
   }
 

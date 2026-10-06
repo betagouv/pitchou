@@ -6,7 +6,7 @@ import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossi
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const DELETE: RequestHandler = async ({ params }) => {
   const dossierId = parseDossierId(params.dossierId!);
   const fichierId = params.fichierId! as FileId;

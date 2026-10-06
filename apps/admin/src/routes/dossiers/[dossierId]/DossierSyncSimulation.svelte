@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pageHeader } from "$lib/pageHeader.svelte.ts";
   import { untrack } from "svelte";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
   import { simulateDossierSync, type SimulatedAction } from "$lib/actions/adminDossiers.ts";
@@ -40,9 +41,11 @@
   async function simulate() {
     saving = true;
     errorMessage = "";
+    const confirmSaved = pageHeader.beginSave("Dossier mis à jour");
     try {
       const result = await simulateDossierSync(dossierId, champ, valeur);
       actions = result.actions;
+      confirmSaved();
     } catch (err) {
       errorMessage = err instanceof Error ? err.message : String(err);
     } finally {
@@ -51,13 +54,8 @@
   }
 </script>
 
-<section
-  class="fr-mt-4w w-full min-w-0 rounded-lg border border-[color:var(--border-default-grey)] bg-[var(--background-alt-grey)] p-4 sm:p-6"
-  aria-labelledby="dossier-simulation-title"
->
-  <h2 id="dossier-simulation-title" class="fr-h5 fr-mb-2w">
-    Simuler une modification du pétitionnaire
-  </h2>
+<section class="admin-panel" aria-labelledby="dossier-simulation-title">
+  <h2 id="dossier-simulation-title" class="fr-mb-2w">Simuler une modification du pétitionnaire</h2>
   <div>
     <p class="fr-hint-text fr-mb-2w">
       Rejoue une synchronisation Démarches Numériques sur ce dossier : le champ est réellement

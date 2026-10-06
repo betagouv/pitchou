@@ -2,6 +2,9 @@ import { createHash, randomBytes } from "node:crypto";
 
 import type { Knex } from "knex";
 
+import { getSessionUser } from "./users.ts";
+import type { SessionUser, UserId } from "@pitchou/types/permissions.ts";
+
 import { directDatabaseConnection } from "./database.ts";
 
 // Opaque session token carried in a cookie; the DB only ever stores its sha256
@@ -9,6 +12,13 @@ import { directDatabaseConnection } from "./database.ts";
 // authentication (who the user is); each app layers its own authorization on top.
 
 export const SESSION_COOKIE_NAME = "pitchou_session";
+
+/** Staging and production can share a parent domain, but must never share a cookie. */
+export function sessionCookieName(): string {
+  return process.env.PUBLIC_PITCHOU_ENV === "staging"
+    ? "pitchou_staging_session"
+    : SESSION_COOKIE_NAME;
+}
 
 // Sliding 7-day window, independent of the identity provider's own SSO session.
 export const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
@@ -19,20 +29,20 @@ const RENEW_THROTTLE_SECONDS = 60 * 60;
 
 type SessionRow = {
   id: string;
+  user_id: UserId;
   email: string;
   name: string;
   id_token: string | null;
 };
 
-export type Session = { email: string; name: string; idToken: string | null };
+export type Session = SessionUser & { idToken: string | null };
 
 /**
- * Cookie domain shared across sibling subdomains. Unset (host-only) for localhost
- * and staging; set to the parent domain (e.g. `.pitchou.…`) once the apps live on
- * sibling subdomains, so a session created in one is seen by the others.
+ * Both apps must use the same parent domain to share sessions across subdomains.
+ * Leave unset only when both apps use the same hostname, such as localhost.
  */
 export function sessionCookieDomain(): string | undefined {
-  return process.env.SESSION_COOKIE_DOMAIN || undefined;
+  return process.env.SESSION_COOKIE_DOMAIN?.trim().replace(/^\./, "") || undefined;
 }
 
 function hashToken(token: string): string {
@@ -44,12 +54,18 @@ function expiryFromNow(): Date {
 }
 
 export async function createSession(
-  { email, name, idToken }: { email: string; name: string; idToken: string | null },
+  {
+    userId,
+    email,
+    name,
+    idToken,
+  }: { userId: UserId; email: string; name: string; idToken: string | null },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<string> {
   const token = randomBytes(32).toString("base64url");
   await databaseConnection("session").insert({
     id: hashToken(token),
+    user_id: userId,
     email,
     name,
     id_token: idToken,
@@ -64,7 +80,7 @@ export async function readSession(
 ): Promise<Session | null> {
   const id = hashToken(token);
   const row = await databaseConnection<SessionRow>("session")
-    .select("email", "name", "id_token")
+    .select("user_id", "email", "name", "id_token")
     .where({ id })
     .andWhere("date_expired", ">", databaseConnection.fn.now())
     .first();
@@ -80,7 +96,8 @@ export async function readSession(
     .andWhere("date_expired", "<", slideThreshold)
     .update({ date_expired: expiryFromNow() });
 
-  return { email: row.email, name: row.name, idToken: row.id_token };
+  const user = await getSessionUser(row.user_id, databaseConnection);
+  return user ? { ...user, idToken: row.id_token } : null;
 }
 
 /** Deletes the session and returns its stored id_token (for the logout id_token_hint). */

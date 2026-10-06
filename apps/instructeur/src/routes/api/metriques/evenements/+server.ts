@@ -1,11 +1,11 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
+import { requireUserId } from "$lib/server/auth";
 import { evenementMetriqueGuard } from "@pitchou/server/evenements_metriques.ts";
-import { addEvenementFromCap } from "@pitchou/server/database/evenements_metriques.ts";
+import { addEvenementForUser } from "@pitchou/server/database/evenements_metriques.ts";
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const event = await request.json();
 
   if (!evenementMetriqueGuard(event)) {
@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
   }
 
   try {
-    await addEvenementFromCap(cap, event);
+    await addEvenementForUser(userId, event);
   } catch (e) {
     // TODO: improve error handling here
     console.error(e);

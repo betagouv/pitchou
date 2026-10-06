@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
@@ -11,12 +11,12 @@ import {
 } from "@pitchou/server/database/controle.ts";
 import { getDossierIdFromPrescription } from "@pitchou/server/database/prescription.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { Knex } from "knex";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 
 const controleProperties = new Set([
   "id",
@@ -108,27 +108,24 @@ async function controleActions(
   return actions;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const controleData = parseControle(await readJsonObject(request));
 
   let dossierId: DossierId | undefined;
   if (controleData.id) {
-    dossierId = await requireDossierAccessByCap(
-      await getDossierIdFromControle(controleData.id),
-      cap,
-    );
+    dossierId = await requireDossierAccess(await getDossierIdFromControle(controleData.id), userId);
   }
   if (controleData.prescription) {
-    dossierId = await requireDossierAccessByCap(
+    dossierId = await requireDossierAccess(
       await getDossierIdFromPrescription(controleData.prescription),
-      cap,
+      userId,
     );
   }
 
-  const author = await getPersonneByDossierCap(cap);
+  const author = await getUserById(userId);
   if (!author) {
-    error(403, "Personne associée à la cap introuvable");
+    error(403, "Utilisateur introuvable");
   }
 
   const modification = !!controleData.id;

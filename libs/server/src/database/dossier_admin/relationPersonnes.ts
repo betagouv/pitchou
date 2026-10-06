@@ -3,14 +3,6 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PersonneId, PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
 
-const references = [
-  ["evenement_phase_dossier", "caused_by_personne"],
-  ["edge_personne_follows_dossier", "personne"],
-  ["notification", "personne"],
-  ["evenement_metrique", "personne"],
-  ["dossier_search", "personne"],
-] as const;
-
 async function hasReferences(id: PersonneId, trx: Knex.Transaction, excludedDossierId?: DossierId) {
   const dossiers = trx("dossier")
     .select("id")
@@ -19,9 +11,6 @@ async function hasReferences(id: PersonneId, trx: Knex.Transaction, excludedDoss
     });
   if (excludedDossierId !== undefined) dossiers.whereNot("id", excludedDossierId);
   if (await dossiers.first()) return true;
-  for (const [table, column] of references) {
-    if (await trx(table).select(column).where(column, id).first()) return true;
-  }
   return false;
 }
 

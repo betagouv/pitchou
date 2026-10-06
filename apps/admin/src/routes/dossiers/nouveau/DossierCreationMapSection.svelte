@@ -6,10 +6,10 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
+  class="border-t border-[color:var(--border-default-grey)]"
   aria-labelledby="project-map-title"
 >
-  <h2 class="fr-h2" id="project-map-title">5. Cartographie du projet</h2>
+  <h2 id="project-map-title">5. Cartographie du projet</h2>
   <DossierProjectMapField
     inputId="creation-project-map"
     value={model.projectMap}

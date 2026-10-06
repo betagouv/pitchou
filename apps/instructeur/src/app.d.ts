@@ -1,15 +1,9 @@
-// See https://svelte.dev/docs/kit/types#app
+import type { SessionUser } from "@pitchou/types/permissions.ts";
 declare global {
   namespace App {
-    // interface Error {}
     interface Locals {
-      cap?: string;
-      secret?: string;
+      user: SessionUser | null;
     }
-    // interface PageData {}
-    // interface PageState {}
-    // interface Platform {}
   }
 }
-
 export {};

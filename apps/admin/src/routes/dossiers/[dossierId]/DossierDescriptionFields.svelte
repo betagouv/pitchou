@@ -8,7 +8,7 @@
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Description du projet" {disabled}>
-  <legend class="fr-fieldset__legend fr-h3">2. Description du projet</legend>
+  <legend class="fr-fieldset__legend">2. Description du projet</legend>
   <div class="fr-fieldset__element">
     <div class="fr-input-group w-full">
       <label class="fr-label" for="edit-description">Description synthétique du projet</label>

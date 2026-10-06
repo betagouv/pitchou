@@ -3,7 +3,6 @@
 
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
   import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
@@ -22,7 +21,6 @@
 
   let {
     model,
-    groupes,
     activites,
     activiteEntries,
     activiteCodeByLabel,
@@ -35,7 +33,6 @@
     existingAttachments,
   }: {
     model: DossierCreationModel;
-    groupes: AdminGroupeInstructeurs[];
     activites: ActiviteAdmin[];
     /** Grouped, illustrated options over the same activities; plain labels when absent. */
     activiteEntries?: SelectEntry<string>[];
@@ -66,4 +63,4 @@
   <DossierCreationJustificationSection {model} />
 {/if}
 <DossierCreationDetailsSection {model} {existingAttachments} />
-{#if showAdminSection}<DossierCreationAdminSection {model} {groupes} />{/if}
+{#if showAdminSection}<DossierCreationAdminSection {model} />{/if}

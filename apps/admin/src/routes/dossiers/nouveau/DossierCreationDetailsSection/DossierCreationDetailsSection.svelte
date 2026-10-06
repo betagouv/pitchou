@@ -20,11 +20,8 @@
   }: { model: DossierCreationModel; existingAttachments?: Snippet } = $props();
 </script>
 
-<section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
-  aria-labelledby="details-title"
->
-  <h2 class="fr-h2" id="details-title">8. Détails du projet</h2>
+<section class="border-t border-[color:var(--border-default-grey)]" aria-labelledby="details-title">
+  <h2 id="details-title">8. Détails du projet</h2>
   <DossierCreationBasicDetails {model} />
   <DossierCreationScientificHistory {model} />
   {#if showsWindFarmDetails(model)}<DossierCreationWindFarm {model} />{/if}
@@ -32,10 +29,10 @@
   <DossierCreationOperationDetailsSection {model} />
   <DossierCreationIntervenantsSection {model} />
   <section
-    class="border-t border-[color:var(--border-default-grey)] fr-pt-4w fr-mt-5w"
+    class="border-t border-[color:var(--border-default-grey)] fr-mt-2w"
     aria-labelledby="attachments-title"
   >
-    <h3 class="fr-h3" id="attachments-title">8.5. Pièces jointes</h3>
+    <h3 id="attachments-title">8.5. Pièces jointes</h3>
     {#if showsCompleteDossierFiles(model)}
       <DossierCreationFileUpload
         id="complete-dossier-files"

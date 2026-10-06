@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "$lib/server/auth";
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@pitchou/server/database/prescription.ts";
 import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
 const prescriptionProperties = new Set([
@@ -80,8 +80,8 @@ function parsePrescription(value: Record<string, unknown>): Partial<Prescription
   return value as Partial<Prescription>;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const prescriptionData = parsePrescription(await readJsonObject(request));
 
   let dossierId;
@@ -92,11 +92,11 @@ export const POST: RequestHandler = async ({ url, request }) => {
       prescriptionData.decision_administrative,
     );
   }
-  const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
+  const authorizedDossierId = await requireDossierAccess(dossierId, userId);
 
-  const author = await getPersonneByDossierCap(cap);
+  const author = await getUserById(userId);
   if (!author) {
-    error(403, "Personne associée à la cap introuvable");
+    error(403, "Utilisateur introuvable");
   }
 
   const modification = !!prescriptionData.id;

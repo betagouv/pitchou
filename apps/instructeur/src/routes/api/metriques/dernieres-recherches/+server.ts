@@ -1,10 +1,10 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
-import { getRecentSearchesFromCap } from "@pitchou/server/database/dossier_search.ts";
+import { requireUserId } from "$lib/server/auth";
+import { getRecentSearchesForUser } from "@pitchou/server/database/dossier_search.ts";
 
-export const GET: RequestHandler = async ({ url }) => {
-  const cap = requireCap(url);
+export const GET: RequestHandler = async ({ locals }) => {
+  const userId = requireUserId(locals);
 
-  return json(await getRecentSearchesFromCap(cap));
+  return json(await getRecentSearchesForUser(userId));
 };

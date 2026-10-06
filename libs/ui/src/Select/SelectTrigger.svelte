@@ -76,7 +76,7 @@
   aria-invalid={invalid || undefined}
   aria-describedby={invalid ? `${id}-error` : undefined}
   class={clsx(
-    "fr-px-2w fr-py-1w flex w-full cursor-pointer items-center justify-between gap-2 rounded-t-[0.25rem] bg-[var(--background-contrast-grey)] text-left",
+    "fr-px-2w fr-py-1w box-border flex w-full cursor-pointer items-center justify-between gap-2 rounded-t-[0.25rem] bg-[var(--background-contrast-grey)] text-left",
     "enabled:hover:bg-[var(--background-contrast-grey-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0a76f6]",
     // Matches how DSFR greys out a disabled `.fr-select`, including when an
     // ancestor fieldset is the one doing the disabling.
