@@ -261,19 +261,15 @@ Pour le faire, on peut utiliser un [_one-off container_}(https://doc.scalingo.co
 scalingo --region osc-secnum-fr1 --app pitchou run --size 2XL 'corepack pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
 
-### Lister les liens de connexion en local
+### Se connecter en local
 
-Utile pour tester rapidement en local après un restore de backup en tant qu'une personne en particulier
+Les deux applications utilisent ProConnect. Ouvrez `/auth/login` sur l'application instructeur ou admin pour vous connecter.
 
-`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail`
+Avant de lancer les seeds, renseignez `SEED_EMAIL` avec l'adresse de votre identité de test ProConnect. Les seeds accordent à ce compte les droits d'administration et les groupes de développement.
 
-Pour les lien de connexion en production :
+Après restauration d'une sauvegarde, utilisez votre propre identité ProConnect. Un administrateur peut ajuster vos permissions et vos groupes dans `/utilisateurs`.
 
-`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --prod`
-
-Pour donner l'origine de manière libre :
-
-`node outils/afficher-liens-de-connexion.js --emails adresse1@e.mail,adresse2@e.mail --origin 'http://example.net'`
+Les anciens liens secrets ne permettent plus de se connecter. La [documentation des comptes locaux](docs/local-users-and-groups.md) décrit la configuration ProConnect et les URL de retour à enregistrer.
 
 ### GeoMCE
 
