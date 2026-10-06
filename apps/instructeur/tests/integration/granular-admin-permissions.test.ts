@@ -89,3 +89,46 @@ test("HTTP writes require the specific permission, including combined dossier up
   });
   expect((await write(`/api/dossiers/${dossier.id}`, "PUT", update)).status).toBe(403);
 });
+
+test("changelog creation requires publication rights only for published entries", async () => {
+  const [user] = await db("auth_user").insert({ email: "changelog@test.fr" }).returning("*");
+  await db("auth_permission").insert([
+    { user_id: user.id, permission: "admin:access" },
+    { user_id: user.id, permission: "admin:changelog:create" },
+  ]);
+  const token = await createSession(
+    { userId: user.id, email: user.email, name: "Editor", idToken: null },
+    db,
+  );
+  const payload = {
+    version_major: 1,
+    version_minor: 0,
+    version_patch: 0,
+    date: "2026-10-05",
+    titre: "Nouvelle version",
+    contenu: "<p>Une nouveauté</p>",
+    published: true,
+  };
+  const create = (published: boolean) =>
+    fetchAuthenticated(token, `${ADMIN_BASE_URL}/api/changelog`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...payload, published }),
+    });
+  expect((await create(true)).status).toBe(403);
+  expect(await db("changelog")).toHaveLength(0);
+  const draft = await create(false);
+  expect(draft.status).toBe(201);
+  expect((await db("changelog").first()).published).toBe(false);
+  await db("changelog").delete();
+  await db("auth_permission").insert({ user_id: user.id, permission: "admin:changelog:update" });
+  expect((await create(true)).status).toBe(201);
+  expect((await db("changelog").first()).published).toBe(true);
+  await db("changelog").delete();
+  await db("auth_permission_exclusion").insert({
+    user_id: user.id,
+    permission: "admin:changelog:update",
+  });
+  expect((await create(true)).status).toBe(403);
+  expect(await db("changelog")).toHaveLength(0);
+});

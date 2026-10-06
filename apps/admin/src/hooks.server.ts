@@ -15,8 +15,12 @@ const ASSET_PREFIXES = ["/docs/", "/_app/", "/favicon"];
 
 const authenticate: Handle = async ({ event, resolve }) => {
   const { pathname } = event.url;
+  const routeId = event.route.id;
 
-  if (ASSET_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+  if (
+    routeId === "/docs/[...path]" ||
+    (!routeId && ASSET_PREFIXES.some((prefix) => pathname.startsWith(prefix)))
+  ) {
     return resolve(event);
   }
 
@@ -27,11 +31,11 @@ const authenticate: Handle = async ({ event, resolve }) => {
   if (token && session) setSessionCookie(event.cookies, token);
 
   // The login flow itself stays reachable without a session.
-  if (pathname.startsWith("/auth/")) {
+  if (routeId?.startsWith("/auth/")) {
     return resolve(event);
   }
 
-  const isApi = pathname.startsWith("/api/");
+  const isApi = (routeId ?? pathname).startsWith("/api/");
 
   if (!event.locals.user) {
     if (isApi) return new Response("Authentification requise", { status: 401 });
@@ -51,7 +55,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
     });
   }
 
-  if (!canAccessAdminRoute(pathname, event.request.method, event.locals.user.permissions))
+  if (!canAccessAdminRoute(routeId, event.request.method, event.locals.user.permissions))
     return new Response("Permission insuffisante", { status: 403 });
   if (
     !["GET", "HEAD", "OPTIONS"].includes(event.request.method) &&

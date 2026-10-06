@@ -16,7 +16,7 @@
     versionPatch: string;
     date: string;
     published: boolean;
-    onToggleStatus: () => void;
+    onToggleStatus?: () => void;
   } = $props();
 
   function onSegmentInput(
@@ -87,38 +87,40 @@
   </div>
 
   <!-- Custom switch (admin-only page, so we allow ourselves to deviate from the DSFR). -->
-  <div class="shrink-0">
-    <span class="fr-label" id="changelog-statut-label">Statut</span>
-    <button
-      type="button"
-      role="switch"
-      aria-checked={published}
-      aria-labelledby="changelog-statut-label"
-      title="Publiée = visible sur la page « Nouveautés »"
-      class="mt-2 flex h-10 cursor-pointer items-center gap-3 rounded-md border border-solid px-3 transition-colors {published
-        ? 'border-[var(--border-plain-success)] bg-[var(--background-contrast-success)]'
-        : 'border-[var(--border-default-grey)] bg-[var(--background-contrast-grey)]'}"
-      onclick={onToggleStatus}
-    >
-      <span
-        class="relative inline-block h-5 w-9 rounded-full transition-colors {published
-          ? 'bg-green-700'
-          : 'bg-gray-400'}"
-        aria-hidden="true"
+  {#if onToggleStatus}
+    <div class="shrink-0">
+      <span class="fr-label" id="changelog-statut-label">Statut</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={published}
+        aria-labelledby="changelog-statut-label"
+        title="Publiée = visible sur la page « Nouveautés »"
+        class="mt-2 flex h-10 cursor-pointer items-center gap-3 rounded-md border border-solid px-3 transition-colors {published
+          ? 'border-[var(--border-plain-success)] bg-[var(--background-contrast-success)]'
+          : 'border-[var(--border-default-grey)] bg-[var(--background-contrast-grey)]'}"
+        onclick={onToggleStatus}
       >
         <span
-          class="absolute top-0.5 left-0.5 inline-block size-4 rounded-full bg-white shadow transition-transform {published
-            ? 'translate-x-4'
-            : ''}"
-        ></span>
-      </span>
-      <span
-        class="min-w-[4.5rem] text-left text-sm font-medium {published
-          ? 'text-[var(--text-default-success)]'
-          : 'text-[var(--text-mention-grey)]'}"
-      >
-        {published ? "Publiée" : "Brouillon"}
-      </span>
-    </button>
-  </div>
+          class="relative inline-block h-5 w-9 rounded-full transition-colors {published
+            ? 'bg-green-700'
+            : 'bg-gray-400'}"
+          aria-hidden="true"
+        >
+          <span
+            class="absolute top-0.5 left-0.5 inline-block size-4 rounded-full bg-white shadow transition-transform {published
+              ? 'translate-x-4'
+              : ''}"
+          ></span>
+        </span>
+        <span
+          class="min-w-[4.5rem] text-left text-sm font-medium {published
+            ? 'text-[var(--text-default-success)]'
+            : 'text-[var(--text-mention-grey)]'}"
+        >
+          {published ? "Publiée" : "Brouillon"}
+        </span>
+      </button>
+    </div>
+  {/if}
 </div>

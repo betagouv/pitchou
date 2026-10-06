@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
   // Record every successful login, including accounts awaiting administrator approval.
   const account = await connectUser(user);
-  if (!account.active) redirect(303, "/auth/acces-refuse");
+  if (!account.active) redirect(303, "/auth/acces-refuse?reason=disabled");
   const token = await createSession({
     userId: account.id,
     email: user.email,

@@ -24,6 +24,8 @@ test("all admin pages contain their content on desktop and mobile", async ({
   await page.goto(E2E_ADMIN_BASE_URL + "/changelog");
   await page.getByRole("button", { name: "Nouvelle entrée" }).click();
   await expect(page.getByLabel("Titre", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
+  await expect(page).toHaveURL(/\/changelog\/\d+$/);
   const entryPath = new URL(page.url()).pathname;
   const paths = [
     "/",
@@ -39,6 +41,7 @@ test("all admin pages contain their content on desktop and mobile", async ({
     "/evenements",
     "/mails",
     "/changelog",
+    "/changelog/nouveau",
     entryPath,
     "/tech",
   ];

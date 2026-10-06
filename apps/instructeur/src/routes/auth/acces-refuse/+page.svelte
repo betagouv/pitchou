@@ -1,3 +1,8 @@
+<script lang="ts">
+  import type { PageData } from "./$types";
+  let { data }: { data: PageData } = $props();
+</script>
+
 <svelte:head>
   <title>Accès aux dossiers — Pitchou</title>
 </svelte:head>
@@ -6,23 +11,30 @@
   <span class="access-icon fr-icon-lock-line" aria-hidden="true"></span>
   <h1 id="access-title">Votre accès aux dossiers</h1>
   <p class="access-intro">
-    Votre compte est enregistré, mais vous ne pouvez pas encore consulter les dossiers.
+    {#if data.disabled}
+      Votre compte Pitchou est désactivé. Vous ne pouvez pas accéder aux dossiers.
+    {:else if data.signedIn}
+      Votre compte est enregistré, mais vous ne pouvez pas encore consulter les dossiers.
+    {:else}
+      Vous n'êtes pas autorisé à consulter les dossiers.
+    {/if}
   </p>
   <div class="access-guidance">
     <h2>Comment obtenir l'accès ?</h2>
     <p>
-      Demandez à un administrateur Pitchou de vérifier vos droits et votre rattachement à un groupe
-      actif. Le support peut vous orienter si vous ne savez pas qui contacter.
+      Demandez à un administrateur Pitchou de vérifier l'état de votre compte, vos droits et votre
+      rattachement à un groupe actif. Le support peut vous orienter si vous ne savez pas qui
+      contacter.
     </p>
   </div>
   <div class="access-actions">
     <a class="fr-btn fr-icon-mail-line fr-btn--icon-left" href="mailto:support@pitchou.beta.gouv.fr"
       >Contacter le support</a
     >
-    <a
-      class="fr-btn fr-btn--secondary fr-icon-logout-box-r-line fr-btn--icon-left"
-      href="/auth/logout">Se déconnecter</a
-    >
+    {#if data.signedIn}<a
+        class="fr-btn fr-btn--secondary fr-icon-logout-box-r-line fr-btn--icon-left"
+        href="/auth/logout">Se déconnecter</a
+      >{:else}<a class="fr-btn fr-btn--secondary" href="/auth/login">Retour à la connexion</a>{/if}
   </div>
 </section>
 

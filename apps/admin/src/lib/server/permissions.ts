@@ -66,13 +66,16 @@ const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
 ];
 
 export function canAccessAdminRoute(
-  pathname: string,
+  routeId: string | null,
   method: string,
   permissions: readonly Permission[],
 ): boolean {
   if (!permissions.includes("admin:access")) return false;
-  const path = pathname.replace(/\/$/, "");
+  // SvelteKit resolves encoded URLs and data requests to the same route ID.
+  // Unmatched reads reach SvelteKit's 404; unmatched writes remain denied.
+  const path = routeId ?? "";
   if (path === "/dossiers/nouveau") return permissions.includes("admin:dossiers:create");
+  if (path === "/changelog/nouveau") return permissions.includes("admin:changelog:create");
   if (/^\/(?:api\/users|utilisateurs)(?:\/|$)/.test(path))
     return permissions.includes("users:manage");
   if (

@@ -15,8 +15,7 @@ export class EntryModel {
   contenu = $state("");
   published = $state(false);
 
-  // One field per version segment: each one saves on its own, so a half-typed
-  // version is persisted like anything else. Completeness only gates publishing.
+  // Drafts accept partial versions. Publishing requires all three segments.
   versionMajor = $state("");
   versionMinor = $state("");
   versionPatch = $state("");

@@ -20,9 +20,13 @@ vi.mock("$lib/server/session.ts", () => ({
   setSessionCookie: vi.fn(),
 }));
 
-function request(path: string) {
+function request(
+  path: string,
+  routeId: string | null = new URL(path, "http://localhost").pathname,
+) {
   const event = {
     url: new URL(path, "http://localhost"),
+    route: { id: routeId },
     cookies: {},
     request: new Request(new URL(path, "http://localhost")),
     locals: {},
@@ -36,6 +40,29 @@ beforeEach(() => {
 });
 
 describe("authentication responses", () => {
+  it.each([
+    "/docs/style/dsfr/dsfr.css",
+    "/docs/style/dsfr/utility/utility.css",
+    "/docs/style/dsfr/dsfr.module.js",
+  ])("serves %s without a session through the resolved docs route", async (path) => {
+    const input = request(path, "/docs/[...path]");
+    const response = await handle(input);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.has("location")).toBe(false);
+    expect(input.resolve).toHaveBeenCalledWith(input.event);
+    expect(readSessionToken).not.toHaveBeenCalled();
+    expect(readSession).not.toHaveBeenCalled();
+  });
+
+  it("does not exempt other resolved routes because of an asset-looking pathname", async () => {
+    const input = request("/docs/style/dsfr/dsfr.css", "/api/users");
+    const response = await handle(input);
+
+    expect(response.status).toBe(401);
+    expect(input.resolve).not.toHaveBeenCalled();
+  });
+
   it.each(["/", "/dossiers?search=test", "/%", "/%FF"])(
     "returns a login response without rejecting for %s",
     async (path) => {
@@ -103,7 +130,15 @@ describe("authentication responses", () => {
     expect(input.resolve).not.toHaveBeenCalled();
   });
 
-  it("allows administrators through", async () => {
+  it.each([
+    ["/dossiers", "/dossiers", 200],
+    ["/api/%75sers", "/api/users", 403],
+    ["/%61pi/users", "/api/users", 403],
+    ["/%75tilisateurs", "/utilisateurs", 403],
+    ["/%67roupes-instructeurs", "/groupes-instructeurs", 403],
+    ["/utilisateurs/__data.json", "/utilisateurs", 403],
+    ["/missing", null, 200],
+  ])("authorizes %s using its resolved route", async (path, routeId, status) => {
     vi.mocked(readSessionToken).mockReturnValue("session-token");
     vi.mocked(readSession).mockResolvedValue({
       email: "admin@example.com",
@@ -118,10 +153,11 @@ describe("authentication responses", () => {
       groupes: [],
       permissions: ["admin:access"],
     });
-    const input = request("/dossiers");
+    const input = request(path as string, routeId as string | null);
     const response = await handle(input);
 
-    expect(response.status).toBe(200);
-    expect(input.resolve).toHaveBeenCalledWith(input.event);
+    expect(response.status).toBe(status);
+    if (status === 200) expect(input.resolve).toHaveBeenCalledWith(input.event);
+    else expect(input.resolve).not.toHaveBeenCalled();
   });
 });

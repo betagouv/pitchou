@@ -17,6 +17,8 @@ test("admin autosave uses the header and keeps failed saves beside the editor", 
   await page.locator("header").getByRole("button", { name: "Nouvelle entrée" }).click();
   await expect(page.getByLabel("Titre", { exact: true })).toBeVisible();
   const status = page.locator("header").getByRole("status");
+  await page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
+  await expect(page).toHaveURL(/\/changelog\/\d+$/);
   await expect(status).toHaveText("Brouillon créé");
   await page.getByLabel("Titre", { exact: true }).fill("Nouvelle version");
   await expect(status).toHaveText("Enregistrement…");

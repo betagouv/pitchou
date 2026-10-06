@@ -70,7 +70,11 @@ test("a first login is recorded even when the account awaits access", async () =
 });
 test("disabled accounts cannot create sessions", async () => {
   mocks.connect.mockResolvedValue({ id: 7, active: false });
-  await expect(callback()).rejects.toMatchObject({ status: 303, location: "/auth/acces-refuse" });
+  await expect(callback()).rejects.toMatchObject({
+    status: 303,
+    location: "/auth/acces-refuse?reason=disabled",
+  });
+  expect(mocks.cookie).not.toHaveBeenCalled();
   expect(mocks.createSession).not.toHaveBeenCalled();
 });
 test("invalid state never exchanges the authorization code", async () => {

@@ -73,11 +73,32 @@ test("anonymous visitors sign in and authorized users reach their dossiers", asy
   await expect(page).toHaveURL(/\/connexion$/);
   await expect(page.getByRole("heading", { name: "Connexion à Pitchou" })).toBeVisible();
   await page.goto("/auth/acces-refuse");
-  await expect(page).toHaveURL(/\/connexion$/);
+  await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+  await expect(page.getByRole("heading", { name: "Votre accès aux dossiers" })).toBeVisible();
+  await page.getByRole("link", { name: "Retour à la connexion" }).click();
+  await expect(page).toHaveURL(/\/auth\/login$/);
   const user = await createInstructeurWithCapToGroup(db);
   await loginAs(user.codeAcces);
   await page.goto("/connexion");
   await expect(page).toHaveURL(/\/mes-dossiers$/);
   await page.goto("/auth/acces-refuse");
   await expect(page).toHaveURL(/\/mes-dossiers$/);
+});
+
+test("disabled accounts can read the denial reason without an authenticated session", async ({
+  page,
+  db,
+  loginAs,
+}) => {
+  const user = await createInstructeurWithCapToGroup(db);
+  await loginAs(user.codeAcces);
+  await db("auth_user").where({ id: user.id }).update({ active: false });
+  await page.goto("/auth/acces-refuse?reason=disabled");
+  await expect(page).toHaveURL(/\/auth\/acces-refuse\?reason=disabled$/);
+  await expect(
+    page.getByText("Votre compte Pitchou est désactivé. Vous ne pouvez pas accéder aux dossiers."),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contacter le support" })).toBeVisible();
+  const status = await page.evaluate(async () => (await fetch("/dossiers")).status);
+  expect(status).toBe(401);
 });

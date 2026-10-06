@@ -16,6 +16,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   if (!validation.ok) {
     error(400, validation.message);
   }
+  if (validation.value.published && !locals.user!.permissions.includes("admin:changelog:update")) {
+    error(403, "Vous n'avez pas le droit de publier une nouveauté.");
+  }
 
   // `updated_by` is always the logged-in admin email, never trusted from the client.
   try {
