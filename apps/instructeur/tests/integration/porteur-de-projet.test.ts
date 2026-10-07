@@ -1,9 +1,10 @@
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
-import { createDossier } from "../factories/dossier.ts";
+import { createDossier, createGroupeInstructeurs } from "../factories/dossier.ts";
 
 import { syncPorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
+import { synchronizeDossierRelations } from "../../../../libs/worker/synchronization-ds/synchronizeDossierRelations.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PorteurDeProjetData } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
@@ -178,4 +179,51 @@ test("syncPorteursDeProjet writes no historique action", async () => {
   await sync([[dossier.id, physique("Durand")]]);
 
   expect(await count("action_dossier")).toBe(0);
+});
+
+test("the Démarche Numérique synchronization of the relations stores the porteur", async () => {
+  const groupe = await createGroupeInstructeurs(db);
+  const numbers = [101, 102];
+  const dossiers = [];
+  for (const number of numbers) {
+    dossiers.push(
+      await createDossier(db, {
+        demarche_numerique_number: String(number),
+        demarche_numerique_id: `DN-${number}`,
+      }),
+    );
+  }
+  const dossiersDS = numbers.map((number) => ({
+    id: `DN-${number}`,
+    number,
+    groupeInstructeur: { label: groupe.name },
+    messages: [
+      {
+        id: `message-${number}`,
+        body: "Dossier déposé",
+        createdAt: new Date().toISOString(),
+        email: "contact@demarche.numerique.gouv.fr",
+      },
+    ],
+  }));
+  const dossiersForSync = numbers.map((number, index) => ({
+    dossier: {
+      demarche_numerique_number: String(number),
+      identites: [],
+      porteur_de_projet: index === 0 ? physique("Martin") : morale(SIRET),
+    },
+  }));
+
+  await db.transaction(async (trx) => {
+    const { identitesSynchronization, synchronizations } = await synchronizeDossierRelations(
+      dossiersDS as unknown as Parameters<typeof synchronizeDossierRelations>[0],
+      dossiersForSync as unknown as Parameters<typeof synchronizeDossierRelations>[1],
+      88444,
+      trx,
+    );
+    await Promise.all([identitesSynchronization, ...synchronizations]);
+  });
+
+  expect(await porteurOf(dossiers[0].id)).toMatchObject({ last_name: "Martin" });
+  expect(await porteurOf(dossiers[1].id)).toMatchObject({ personne_morale: SIRET });
 });
