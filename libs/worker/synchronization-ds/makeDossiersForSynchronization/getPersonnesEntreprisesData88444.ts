@@ -2,6 +2,7 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type {
   IdentiteDossierData,
   PersonnesEntreprisesDataInitializer,
+  PorteurDeProjetData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
@@ -9,6 +10,7 @@ import type {
   DossierDS88444,
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
+import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import { inseeHeadcountRangeLabel } from "../inseeHeadcountRange.ts";
 
 function formatPostalAddress(
@@ -65,6 +67,7 @@ export function getPersonnesEntreprisesData88444(
     });
   }
 
+  let porteurDeProjet: PorteurDeProjetData;
   let demandeurPersonnePhysique;
   if (personneMoraleOuPhysique === "une personne physique") {
     const email = emailContact || demandeur.email || deposant.email;
@@ -84,10 +87,23 @@ export function getPersonnesEntreprisesData88444(
       phone: demandeurPersonnePhysique.phone ?? null,
       role: demandeurPersonnePhysique.role ?? null,
     });
+    // dossier.demandeur is the porteur de projet, with or without a mandataire.
+    const porteurEmail = emailContact || demandeur.email;
+    porteurDeProjet = {
+      personne_physique: {
+        first_names: demandeur.prenom || null,
+        last_name: demandeur.nom || null,
+        email: porteurEmail ? normalizeEmail(porteurEmail) : null,
+        address: demandeurPersonnePhysique.address ?? null,
+        phone: phoneContact || null,
+        role: role || null,
+      },
+    };
   }
 
   let demandeurPersonneMorale;
-  const etablissement = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"))?.etablissement;
+  const siretChamp = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"));
+  const etablissement = siretChamp?.etablissement;
   if (etablissement) {
     const { siret, address, entreprise, libelleNaf, naf } = etablissement;
     const {
@@ -119,6 +135,11 @@ export function getPersonnesEntreprisesData88444(
   }
 
   if (personneMoraleOuPhysique === "une personne morale") {
+    // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
+    const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/g, "");
+    if (/^\d{14}$/.test(siret ?? "")) {
+      porteurDeProjet = { personne_morale: siret as EntrepriseSiret };
+    }
     const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
     const firstNames = champById.get(
       pitchouKeyToChampDS.get("Prénom du représentant"),
@@ -141,5 +162,6 @@ export function getPersonnesEntreprisesData88444(
     demandeur_personne_morale: demandeurPersonneMorale,
     demandeur_personne_physique: demandeurPersonnePhysique,
     identites,
+    porteur_de_projet: porteurDeProjet,
   };
 }
