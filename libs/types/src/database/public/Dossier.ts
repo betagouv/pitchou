@@ -6,6 +6,7 @@ import type { EntrepriseSiret } from "./Entreprise";
 import type { FileId } from "./File";
 import type { default as TypeDossier } from "./TypeDossier";
 import type { DossierSource } from "../../dossierSource.ts";
+import type { PorteurDeProjetId } from "./PorteurDeProjet";
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: "public.dossier" };
@@ -215,6 +216,9 @@ export default interface Dossier {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet: PorteurDeProjetId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -435,6 +439,9 @@ export interface DossierInitializer {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date?: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet?: PorteurDeProjetId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -642,4 +649,7 @@ export interface DossierMutator {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date?: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet?: PorteurDeProjetId | null;
 }
