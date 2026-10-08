@@ -55,11 +55,13 @@ interface UtilityFunctions {
  **/
 export type BalisesGenerationDocument = {
   nom: string | null;
-  demandeur: {
+  porteur_de_projet: {
     adresse: string;
     nom: string;
     toString: () => string;
   };
+  /** @deprecated Former name of porteur_de_projet, kept for the existing templates. */
+  demandeur: BalisesGenerationDocument["porteur_de_projet"];
   activité_principale: string | null;
   description: string | null;
   localisation: string;

@@ -103,7 +103,7 @@
         <FooterSupportBlocks />
       </div>
     {:else}
-      <!-- Public visitors are pétitionnaires: no need for the DREAL/DDT orientation block. -->
+      <!-- Public visitors are porteurs de projet: no need for the DREAL/DDT orientation block. -->
       <div class="fr-col-12 fr-col-md-6">
         <FooterSupportBlocks withOrientationBlock={false} />
       </div>

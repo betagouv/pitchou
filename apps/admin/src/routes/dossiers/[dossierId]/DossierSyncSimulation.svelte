@@ -56,7 +56,7 @@
   aria-labelledby="dossier-simulation-title"
 >
   <h2 id="dossier-simulation-title" class="fr-h5 fr-mb-2w">
-    Simuler une modification du pétitionnaire
+    Simuler une modification du porteur de projet
   </h2>
   <div>
     <p class="fr-hint-text fr-mb-2w">
@@ -109,7 +109,7 @@
                 {describe(action)}
                 <span class="fr-hint-text">
                   {formatDate(action.created_at)}
-                  {action.author_petitionnaire ? "· par le pétitionnaire" : ""}
+                  {action.author_petitionnaire ? "· par le porteur de projet" : ""}
                 </span>
               </li>
             {/each}

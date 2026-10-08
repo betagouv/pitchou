@@ -93,7 +93,10 @@
           {type === "representant"
             ? "Le représentant"
             : type === "demandeur"
-              ? "Le demandeur"
+              ? // For a personne morale, this is the Démarche Numérique demandeur.
+                isCompany
+                ? "Le demandeur"
+                : "Le porteur de projet"
               : "Le mandataire"}
         </h4>
         {#if type === "demandeur" && !isCompany}<p

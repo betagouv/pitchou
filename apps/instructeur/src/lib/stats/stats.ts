@@ -36,7 +36,7 @@ function isPublicStats(stats: any): stats is PublicStats {
     typeof stats.controlePhaseDossierCount === "number" &&
     typeof stats.controlePhaseDossierWithDecisionCount === "number" &&
     typeof stats.controlePhaseDossierWithoutDecisionCount === "number" &&
-    typeof stats.petitionnaireCountSinceSeptember2024 === "number" &&
+    typeof stats.porteurDeProjetCountSinceSeptember2024 === "number" &&
     typeof stats.controllablePrescriptionCount === "number" &&
     typeof stats.prescriptionWithControleCount === "number" &&
     Object(stats.conformiteStats) === stats.conformiteStats &&
@@ -65,7 +65,7 @@ function isPublicStats(stats: any): stats is PublicStats {
       controlePhaseDossierCount: 0,
       controlePhaseDossierWithDecisionCount: 0,
       controlePhaseDossierWithoutDecisionCount: 0,
-      petitionnaireCountSinceSeptember2024: 0,
+      porteurDeProjetCountSinceSeptember2024: 0,
       controllablePrescriptionCount: 0,
       prescriptionWithControleCount: 0,
       conformiteStats: {

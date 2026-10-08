@@ -6,7 +6,7 @@ vi.mock("./DossierGenerationDocuments/generationTags.ts", () => ({
     activité_principale: "Énergie éolienne",
     localisation: "Nantes",
     liste_départements: ["44", "49"],
-    demandeur: { nom: "Société Exemple" },
+    porteur_de_projet: { nom: "Société Exemple" },
     numéro_dossier: "12345",
     régime_autorisation_environnementale: true,
     motif_dérogation: "Intérêt public majeur",

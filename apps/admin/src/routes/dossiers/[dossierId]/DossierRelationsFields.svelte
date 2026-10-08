@@ -13,7 +13,7 @@
   <legend class="fr-fieldset__legend fr-h3">1. Porteur de projet</legend>
 
   <div class="fr-fieldset__element">
-    <h3 class="fr-h6 fr-mb-2w">Type de demandeur</h3>
+    <h3 class="fr-h6 fr-mb-2w">Type de porteur de projet</h3>
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="fr-radio-group">
         <input
@@ -39,7 +39,7 @@
 
   {#if model.demandeurType === "personne_physique"}
     <div class="fr-fieldset__element w-full flex flex-col gap-4">
-      <h3 class="fr-h6 fr-mb-0">Identité du demandeur ou déposant</h3>
+      <h3 class="fr-h6 fr-mb-0">Identité du porteur de projet</h3>
       <DossierIdentityFields identity={model.demandeurIdentity} idPrefix="edit-demandeur" />
     </div>
   {/if}

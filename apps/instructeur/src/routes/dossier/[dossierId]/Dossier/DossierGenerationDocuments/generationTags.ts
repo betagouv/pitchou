@@ -80,6 +80,27 @@ export function getDocumentGenerationTags(
         }
       : undefined;
 
+  const porteurDeProjet: BalisesGenerationDocument["porteur_de_projet"] = {
+    adresse: dossier.demandeur_address,
+    nom:
+      dossier.demandeur_personne_morale_legal_name ||
+      (dossier.demandeur_personne_morale_siret
+        ? `SIRET ${dossier.demandeur_personne_morale_siret}`
+        : null) ||
+      [
+        dossier.demandeur_personne_physique_first_names,
+        dossier.demandeur_personne_physique_last_name,
+      ]
+        .filter(Boolean)
+        .join(" ") ||
+      dossier.demandeur_personne_physique_email ||
+      dossier.deposant_email ||
+      "Non renseigné",
+    toString() {
+      return formatPorteurDeProjet(dossier);
+    },
+  };
+
   return {
     nom: dossierName,
     commentaire_instruction: freeComment?.trim() ?? "",
@@ -105,26 +126,9 @@ export function getDocumentGenerationTags(
     date_fin_intervention: interventionEndDate,
     date_mise_en_service: commissioningDate,
     durée_intervention: interventionDuration,
-    demandeur: {
-      adresse: dossier.demandeur_address,
-      nom:
-        dossier.demandeur_personne_morale_legal_name ||
-        (dossier.demandeur_personne_morale_siret
-          ? `SIRET ${dossier.demandeur_personne_morale_siret}`
-          : null) ||
-        [
-          dossier.demandeur_personne_physique_first_names,
-          dossier.demandeur_personne_physique_last_name,
-        ]
-          .filter(Boolean)
-          .join(" ") ||
-        dossier.demandeur_personne_physique_email ||
-        dossier.deposant_email ||
-        "Non renseigné",
-      toString() {
-        return formatPorteurDeProjet(dossier);
-      },
-    },
+    porteur_de_projet: porteurDeProjet,
+    // Former name of porteur_de_projet, kept for the existing templates.
+    demandeur: porteurDeProjet,
     localisation: formatLocalisation(dossier),
     régime_autorisation_environnementale_renseigné: linkedToAeRegime !== null,
     régime_autorisation_environnementale:

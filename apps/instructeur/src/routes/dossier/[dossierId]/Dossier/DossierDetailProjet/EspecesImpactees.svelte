@@ -83,7 +83,7 @@
     </section>
   {:else}
     <p class="dossier-review-left">
-      Aucune donnée sur les espèces impactées n'a été fournie par le pétitionnaire.
+      Aucune donnée sur les espèces impactées n'a été fournie par le porteur de projet.
     </p>
   {/each}
 </div>

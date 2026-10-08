@@ -62,7 +62,7 @@
   <div class="fr-input-group w-full">
     <label class="fr-label" for="physical-qualification">
       Qualification
-      <span class="fr-hint-text">Si le demandeur est une personne physique</span>
+      <span class="fr-hint-text">Si le porteur de projet est une personne physique</span>
     </label>
     <input
       class="fr-input w-full"

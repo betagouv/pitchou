@@ -145,7 +145,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
   const headerGrid = header.children[1];
   const labels = [
     "Nom du projet",
-    "Pétitionnaire, localisation",
+    "Porteur de projet, lieu",
     "Avancement du dossier",
     "Prochaine action",
     "Alertes",

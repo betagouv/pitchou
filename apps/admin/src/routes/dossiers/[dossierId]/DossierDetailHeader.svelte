@@ -32,7 +32,7 @@
     {/if}
   </div>
   <p class="fr-text-mention--grey fr-mt-1w fr-mb-0">
-    {#if detail.groupe}Groupe instructeurs : {detail.groupe.name} ·{/if} Demandeur :
+    {#if detail.groupe}Groupe instructeurs : {detail.groupe.name} ·{/if} Porteur de projet :
     {#if detail.demandeur_personne_morale}
       {detail.demandeur_personne_morale.legal_name ?? detail.demandeur_personne_morale.siret}
     {:else if detail.demandeur_personne_physique}
