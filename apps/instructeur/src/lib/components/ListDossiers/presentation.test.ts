@@ -2,43 +2,30 @@ import { expect, test } from "vitest";
 import { applicantName } from "./presentation.ts";
 import { dossierIsFollowed } from "./filtering.ts";
 import { dossierId, makeDossier } from "./testHelpers.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-test("applicant names omit SIRET, including when the legal name is absent", () => {
-  expect(
-    applicantName(
-      makeDossier({
-        demandeur_personne_morale_siret: "12345678900012",
-        demandeur_personne_morale_legal_name: "Association des marais",
-      }),
-    ),
-  ).toBe("Association des marais");
-  expect(
-    applicantName(
-      makeDossier({
-        demandeur_personne_morale_siret: "12345678900012",
-      }),
-    ),
-  ).toBe("(non renseigné)");
-  expect(
-    applicantName(
-      makeDossier({
-        demandeur_personne_morale_legal_name: "Association des marais",
-      }),
-    ),
-  ).toBe("Association des marais");
+const morale = (legal_name: string | null) =>
+  makeDossier({
+    porteur_de_projet: { type: "personne_morale", siret: "12345678900012", legal_name },
+  } as Partial<DossierSummary>);
+const physique = (last_name: string | null, first_names: string | null) =>
+  makeDossier({
+    porteur_de_projet: { type: "personne_physique", last_name, first_names },
+  } as Partial<DossierSummary>);
+
+test("applicant names show the porteur de projet without its SIRET", () => {
+  expect(applicantName(morale("Association des marais"))).toBe("Association des marais");
+  expect(applicantName(morale(null))).toBe("Non renseigné");
+  expect(applicantName(physique("Martin", "Jeanne"))).toBe("Martin Jeanne");
+  expect(applicantName(physique("Martin", null))).toBe("Martin");
+  expect(applicantName(physique(null, "Jeanne"))).toBe("Jeanne");
 });
 
-test("applicant names handle missing names and retain the deposant fallback", () => {
-  expect(applicantName(makeDossier())).toBe("(non renseigné)");
-  expect(applicantName(makeDossier({ demandeur_personne_physique_last_name: "Martin" }))).toBe(
-    "Martin",
-  );
-  expect(applicantName(makeDossier({ demandeur_personne_physique_first_names: "Jeanne" }))).toBe(
-    "Jeanne",
-  );
+test("applicant names do not fall back on the deposant without porteur", () => {
+  expect(applicantName(makeDossier())).toBe("Non renseigné");
   expect(
     applicantName(makeDossier({ deposant_last_name: "Martin", deposant_first_names: "Jeanne" })),
-  ).toBe("Martin Jeanne");
+  ).toBe("Non renseigné");
 });
 
 test("unassigned status checks every loaded follower, not only the current user", () => {

@@ -4,6 +4,7 @@ import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
 import CardDossier from "./CardDossier.svelte";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier } from "./testHelpers.ts";
 
 vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
@@ -11,7 +12,11 @@ afterEach(cleanup);
 
 const dossier = makeDossier({
   name: "Restauration des marais",
-  demandeur_personne_morale_legal_name: "Association des marais",
+  porteur_de_projet: {
+    type: "personne_morale",
+    siret: "12345678900012",
+    legal_name: "Association des marais",
+  } as DossierSummary["porteur_de_projet"],
   next_action_expected_from: "Instructeur",
 });
 

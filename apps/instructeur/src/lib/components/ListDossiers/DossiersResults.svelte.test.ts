@@ -9,6 +9,7 @@ import { store } from "$lib/state/store.svelte.ts";
 import DossiersResults from "./DossiersResults.svelte";
 import DossierNotificationBadges from "../DossierNotificationBadges.svelte";
 import { dossierId, makeDossier, makeNotification } from "./testHelpers.ts";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
 vi.mock("$lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
@@ -32,11 +33,14 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
   store.followRelations = new SvelteMap([
     ["instructeur@example.org", new SvelteSet([dossierId(2)])],
   ]);
+  const porteurName = "Association de protection des espaces naturels".repeat(4);
   const dossier = makeDossier({
     name: "Restauration des marais et protection des espaces naturels".repeat(4),
-    demandeur_personne_morale_legal_name: "Association de protection des espaces naturels".repeat(
-      4,
-    ),
+    porteur_de_projet: {
+      type: "personne_morale",
+      siret: "12345678900012",
+      legal_name: porteurName,
+    } as DossierSummary["porteur_de_projet"],
     location_scope: "france",
     phase: "Accompagnement amont",
     next_action_expected_from: "Tierce personne/administration",
@@ -94,7 +98,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
     const title = content.getByRole("link", { name: dossier.name! });
     for (const element of [
       title,
-      content.getByText(dossier.demandeur_personne_morale_legal_name!),
+      content.getByText(porteurName),
       content.getByText("France entière"),
       content.getByText(dossier.phase, { exact: true }),
       content.getByText(dossier.next_action_expected_from!, { exact: true }),

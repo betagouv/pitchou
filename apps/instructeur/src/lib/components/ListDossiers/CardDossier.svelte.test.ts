@@ -14,14 +14,18 @@ vi.mock("$lib/shared/aarri.ts", () => ({
 
 import { store } from "$lib/state/store.svelte.ts";
 import CardDossier from "./CardDossier.svelte";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier, makeNotification } from "./testHelpers.ts";
 
 const dossier = makeDossier({
   name: "Restauration des marais",
   source: "demarche_numerique",
   demarche_numerique_number: "987654",
-  demandeur_personne_morale_legal_name: "Association des marais",
-  demandeur_personne_morale_siret: "12345678900012",
+  porteur_de_projet: {
+    type: "personne_morale",
+    siret: "12345678900012",
+    legal_name: "Association des marais",
+  } as DossierSummary["porteur_de_projet"],
   next_action_expected_from: "Instructeur",
   enjeu: true,
 });

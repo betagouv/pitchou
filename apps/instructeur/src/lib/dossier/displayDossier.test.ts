@@ -32,13 +32,40 @@ describe("formatLocalisation", () => {
 });
 
 describe("formatPorteurDeProjet", () => {
-  it("uses the SIRET when a legal name is unavailable", () => {
-    const dossier = {
-      demandeur_personne_morale_siret: "12345678901234",
-      demandeur_personne_morale_legal_name: null,
-    } as unknown as DossierSummary;
+  const withPorteur = (porteur_de_projet: unknown) =>
+    ({ porteur_de_projet }) as unknown as DossierSummary;
 
-    expect(formatPorteurDeProjet(dossier)).toBe("SIRET 12345678901234");
+  it("shows the legal name and the SIRET of a personne morale", () => {
+    expect(
+      formatPorteurDeProjet(
+        withPorteur({ type: "personne_morale", siret: "12345678901234", legal_name: "EDF" }),
+      ),
+    ).toBe("EDF (12345678901234)");
+  });
+
+  it("uses the SIRET when a legal name is unavailable", () => {
+    expect(
+      formatPorteurDeProjet(
+        withPorteur({ type: "personne_morale", siret: "12345678901234", legal_name: null }),
+      ),
+    ).toBe("SIRET 12345678901234");
+  });
+
+  it("shows the name of a personne physique", () => {
+    expect(
+      formatPorteurDeProjet(
+        withPorteur({ type: "personne_physique", last_name: "Martin", first_names: "Camille" }),
+      ),
+    ).toBe("Martin Camille");
+  });
+
+  it("does not fall back on the deposant without porteur", () => {
+    const dossier = {
+      porteur_de_projet: null,
+      deposant_last_name: "Durand",
+      deposant_first_names: "Alice",
+    } as unknown as DossierSummary;
+    expect(formatPorteurDeProjet(dossier)).toBe("Non renseigné");
   });
 });
 

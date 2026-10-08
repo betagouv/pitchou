@@ -51,45 +51,23 @@ export function formatLocalisation({
   return "(inconnue)";
 }
 
-export function formatDeposant(dossier: DossierFull | DossierSummary): string {
-  const UNKNOWN = "(inconnu)";
-
-  let { deposant_last_name, deposant_first_names } = dossier;
-
-  if (!deposant_last_name && !deposant_first_names) {
-    if ("deposant_email" in dossier) {
-      return dossier.deposant_email ?? UNKNOWN;
-    }
-    return UNKNOWN;
+/** Name of the porteur de projet, without its SIRET; null when there is none. */
+export function porteurDeProjetName(porteur: DossierSummary["porteur_de_projet"]): string | null {
+  if (porteur?.type === "personne_morale") return porteur.legal_name || null;
+  if (porteur?.type === "personne_physique") {
+    return formatName(porteur.last_name, porteur.first_names) || null;
   }
-  if (!deposant_last_name) {
-    deposant_last_name = "";
-  }
-  if (!deposant_first_names) {
-    deposant_first_names = "";
-  }
-
-  return deposant_last_name
-    ? deposant_last_name + " " + deposant_first_names
-    : deposant_first_names;
+  return null;
 }
 
 export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {
-  if (dossier.demandeur_personne_morale_siret) {
-    return dossier.demandeur_personne_morale_legal_name
-      ? `${dossier.demandeur_personne_morale_legal_name} (${dossier.demandeur_personne_morale_siret})`
-      : `SIRET ${dossier.demandeur_personne_morale_siret}`;
-  } else {
-    if (dossier.demandeur_personne_physique_last_name) {
-      return (
-        dossier.demandeur_personne_physique_last_name +
-        " " +
-        dossier.demandeur_personne_physique_first_names
-      );
-    } else {
-      return formatDeposant(dossier);
-    }
+  const porteur = dossier.porteur_de_projet;
+  if (porteur?.type === "personne_morale") {
+    return porteur.legal_name
+      ? `${porteur.legal_name} (${porteur.siret})`
+      : `SIRET ${porteur.siret}`;
   }
+  return porteurDeProjetName(porteur) ?? "Non renseigné";
 }
 
 // "Nom Prénom" from a last/first name pair, ignoring missing parts.

@@ -80,21 +80,13 @@ export function getDocumentGenerationTags(
         }
       : undefined;
 
+  const porteur = dossier.porteur_de_projet;
   const porteurDeProjet: BalisesGenerationDocument["porteur_de_projet"] = {
-    adresse: dossier.demandeur_address,
+    adresse: porteur?.address ?? "",
     nom:
-      dossier.demandeur_personne_morale_legal_name ||
-      (dossier.demandeur_personne_morale_siret
-        ? `SIRET ${dossier.demandeur_personne_morale_siret}`
-        : null) ||
-      [
-        dossier.demandeur_personne_physique_first_names,
-        dossier.demandeur_personne_physique_last_name,
-      ]
-        .filter(Boolean)
-        .join(" ") ||
-      dossier.demandeur_personne_physique_email ||
-      dossier.deposant_email ||
+      (porteur?.type === "personne_morale" && (porteur.legal_name || `SIRET ${porteur.siret}`)) ||
+      (porteur?.type === "personne_physique" &&
+        [porteur.first_names, porteur.last_name].filter(Boolean).join(" ")) ||
       "Non renseigné",
     toString() {
       return formatPorteurDeProjet(dossier);

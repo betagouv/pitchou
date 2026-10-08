@@ -47,7 +47,7 @@
     class="rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-p-2w"
   >
     <h3 class="fr-text--sm fr-mb-2w">
-      porteurs de projet → Besoin de générer une liste d’espèces protégées et les impacts
+      Porteurs de projet → Besoin de générer une liste d’espèces protégées et les impacts
       associés&nbsp;?
     </h3>
     <a class="fr-btn fr-btn--secondary fr-btn--sm" href="/saisie-especes">
