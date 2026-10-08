@@ -1,19 +1,26 @@
 <script lang="ts">
   import PhysicalDemandeurFields from "./PhysicalDemandeurFields.svelte";
-  import { type CompanyDetailsChoice, type DossierCreationModel } from "./dossierCreationModel.ts";
+  import {
+    legalSiretError,
+    type CompanyDetailsChoice,
+    type DossierCreationModel,
+  } from "./dossierCreationModel.ts";
 
   let {
     model,
     originalLegalSiret,
     companyDetailsChoice = "",
     onCompanyDetailsChoice = () => {},
+    showPorteurErrors = false,
   }: {
     model: DossierCreationModel;
     originalLegalSiret?: string | null;
     companyDetailsChoice?: CompanyDetailsChoice;
     onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
+    showPorteurErrors?: boolean;
   } = $props();
 
+  const siretError = $derived(showPorteurErrors ? legalSiretError(model.legalSiret) : null);
   const legalSiretChanged = $derived(
     !!originalLegalSiret && originalLegalSiret !== model.legalSiret.replaceAll(" ", ""),
   );
@@ -56,10 +63,10 @@
   </fieldset>
 
   {#if model.demandeurType === "personne_physique"}
-    <PhysicalDemandeurFields {model} />
+    <PhysicalDemandeurFields {model} showErrors={showPorteurErrors} />
   {:else if model.demandeurType === "personne_morale"}
     <div class="flex flex-col gap-6 fr-mb-3w">
-      <div class="fr-input-group w-full">
+      <div class="fr-input-group w-full" class:fr-input-group--error={siretError}>
         <label class="fr-label" for="legal-siret">
           Numéro de SIRET
           <span class="fr-hint-text">
@@ -68,6 +75,7 @@
         </label>
         <input
           class="fr-input w-full lg:w-1/3"
+          class:fr-input--error={siretError}
           id="legal-siret"
           type="text"
           inputmode="numeric"
@@ -75,8 +83,13 @@
           minlength="14"
           maxlength="17"
           required
+          aria-invalid={siretError ? true : undefined}
+          aria-describedby={siretError ? "legal-siret-error" : undefined}
           bind:value={model.legalSiret}
         />
+        {#if siretError}
+          <p class="fr-error-text" id="legal-siret-error">{siretError}</p>
+        {/if}
       </div>
 
       {#if legalSiretChanged}

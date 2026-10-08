@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
 
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
@@ -19,6 +19,7 @@
     clearSelectedDossierFiles,
     createDossierCreationModelFromDetail,
     hasLegalSiretChanged,
+    legalSiretError,
     mergeDossierRelationsForEdit,
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
@@ -51,6 +52,7 @@
     mergeDossierRelationsForEdit(buildCreationPayload(model).relations, detail, ""),
   );
   let saveError = $state<string | null>(null);
+  let showPorteurErrors = $state(false);
   let saved = $state(false);
   let formVersion = $state(0);
   let groupes = $state<AdminGroupeInstructeurs[]>([]);
@@ -70,10 +72,30 @@
     }
   });
 
+  function invalidPorteurField(): string | null {
+    if (model.demandeurType === "personne_physique") {
+      if (!model.physicalLastName.trim()) return "physical-last-name";
+      if (!model.physicalFirstNames.trim()) return "physical-first-names";
+    }
+    if (model.demandeurType === "personne_morale" && legalSiretError(model.legalSiret)) {
+      return "legal-siret";
+    }
+    return null;
+  }
+
   async function save(event: SubmitEvent) {
     event.preventDefault();
     if (!model.groupeInstructeurs) {
       saveError = "Sélectionnez un groupe instructeurs avant d'enregistrer le dossier.";
+      return;
+    }
+    const invalidField = invalidPorteurField();
+    if (invalidField) {
+      // Shown under each invalid field, with the focus on the first one.
+      showPorteurErrors = true;
+      saveError = null;
+      await tick();
+      document.getElementById(invalidField)?.focus();
       return;
     }
     if (legalSiretChanged && !companyDetailsChoice) {
@@ -181,6 +203,7 @@
       originalLegalSiret={detail.demandeur_personne_morale?.siret}
       {companyDetailsChoice}
       onCompanyDetailsChoice={(choice) => (companyDetailsChoice = choice)}
+      {showPorteurErrors}
       {existingSpeciesFiles}
       {existingAttachments}
     />

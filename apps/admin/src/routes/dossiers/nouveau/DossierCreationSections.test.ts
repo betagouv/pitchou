@@ -25,8 +25,8 @@ describe("dossier creation sections", () => {
     expect(physicalBody).toContain('id="physical-qualification"');
     expect(physicalBody).toContain('id="physical-address-search"');
     expect(physicalBody).toContain('id="physical-manual-address"');
-    expect(physicalBody).not.toContain('id="physical-last-name"');
-    expect(physicalBody).not.toContain('id="physical-first-names"');
+    expect(physicalBody).toContain('id="physical-last-name"');
+    expect(physicalBody).toContain('id="physical-first-names"');
     expect(physicalBody).not.toContain('id="legal-siret"');
 
     physical.physicalManualAddress = true;
