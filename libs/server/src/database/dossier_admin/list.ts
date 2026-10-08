@@ -5,6 +5,7 @@ import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
+import { joinPorteurDeProjet } from "../dossier/porteur.ts";
 
 export type AdminDossierSummary = {
   id: DossierId;
@@ -47,7 +48,7 @@ function latestPhase(db: Knex.Transaction | Knex) {
 }
 function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
   return (
-    query
+    joinPorteurDeProjet(query)
       .leftJoin(latestPhase(db), { "latest_phase.dossier": "dossier.id" })
       .leftJoin("personne as demandeur_pp", {
         "demandeur_pp.id": "dossier.demandeur_personne_physique",
@@ -87,12 +88,16 @@ function summaryColumns() {
   ];
 }
 function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): void {
-  if (options.search)
+  const { search } = options;
+  if (search)
     query.where(function () {
-      this.whereILike("dossier.name", `%${options.search}%`)
-        .orWhereILike("entreprise.legal_name", `%${options.search}%`)
-        .orWhereILike("demandeur_pp.last_name", `%${options.search}%`)
-        .orWhere("dossier.demarche_numerique_number", options.search);
+      this.whereILike("dossier.name", `%${search}%`)
+        .orWhereILike("porteur_entreprise.legal_name", `%${search}%`)
+        .orWhereILike("porteur_pp.last_name", `%${search}%`)
+        .orWhereILike("porteur_pp.first_names", `%${search}%`)
+        .orWhere("porteur_entreprise.siret", search.replace(/\s/g, ""));
+      // The DN number is a bigint: comparing it to a word would fail the whole query.
+      if (/^\d+$/.test(search)) this.orWhere("dossier.demarche_numerique_number", search);
     });
   if (options.phase) query.where("latest_phase.phase", options.phase);
   if (options.source === "pitchou") query.where("dossier.source", "pitchou");

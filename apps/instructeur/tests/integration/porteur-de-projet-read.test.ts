@@ -6,6 +6,7 @@ import { createInstructeurWithDossier } from "../factories/index.ts";
 import { SIRET, morale, physique } from "../factories/porteurDeProjet.ts";
 
 import { getDossierFull, getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
+import { listDossiersForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 import { savePorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
@@ -58,4 +59,31 @@ test("the dossiers read by the instructeurs carry their porteur de projet object
     type: "personne_morale",
     address: "2 rue B",
   });
+});
+
+test("the admin search finds a dossier by its porteur de projet", async () => {
+  const physiqueId = (await createDossier(db, { name: "Dossier A" })).id as DossierId;
+  const moraleId = (
+    await createDossier(db, { name: "Dossier B", demarche_numerique_number: "99001" })
+  ).id as DossierId;
+  await db("entreprise").insert({ siret: SIRET, legal_name: "Pichet Immobilier" });
+  await savePorteursDeProjet(
+    new Map([
+      [physiqueId, physique("Martin")],
+      [moraleId, morale(SIRET)],
+    ]),
+    db,
+  );
+  const found = async (search: string) =>
+    (await listDossiersForAdmin({ page: 1, pageSize: 50, search }, db)).dossiers.map(
+      ({ id }) => id,
+    );
+
+  expect(await found("pichet")).toEqual([moraleId]);
+  expect(await found("123 456 789 00001")).toEqual([moraleId]);
+  expect(await found("martin")).toEqual([physiqueId]);
+  expect(await found("camille")).toEqual([physiqueId]);
+  // A word no longer breaks the query on the bigint DN number, which stays searchable.
+  expect(await found("Dossier A")).toEqual([physiqueId]);
+  expect(await found("99001")).toEqual([moraleId]);
 });

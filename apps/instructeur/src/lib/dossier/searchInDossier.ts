@@ -3,6 +3,7 @@ import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
+import { porteurDeProjetSearchTerms } from "$lib/dossier/displayDossier.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
@@ -18,9 +19,7 @@ const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<D
     communes,
     deposant_last_name,
     deposant_first_names,
-    demandeur_personne_physique_first_names,
-    demandeur_personne_physique_last_name,
-    demandeur_personne_morale_legal_name,
+    porteur_de_projet,
   } = dossier;
 
   return {
@@ -30,13 +29,7 @@ const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<D
     communes: communes?.map(({ name }) => removeAccents(name || "")).join(" ") || "",
     deposant_last_name: removeAccents(deposant_last_name || ""),
     deposant_first_names: removeAccents(deposant_first_names || ""),
-    demandeur_personne_physique_first_names: removeAccents(
-      demandeur_personne_physique_first_names || "",
-    ),
-    demandeur_personne_physique_last_name: removeAccents(
-      demandeur_personne_physique_last_name || "",
-    ),
-    demandeur_personne_morale_legal_name: removeAccents(demandeur_personne_morale_legal_name || ""),
+    porteur_de_projet: removeAccents(porteurDeProjetSearchTerms(porteur_de_projet).join(" ")),
   };
 };
 
@@ -57,9 +50,7 @@ const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
       this.field("name");
       this.field("deposant_last_name");
       this.field("deposant_first_names");
-      this.field("demandeur_personne_physique_first_names");
-      this.field("demandeur_personne_physique_last_name");
-      this.field("demandeur_personne_morale_legal_name");
+      this.field("porteur_de_projet");
 
       for (const dossier of dossiers) {
         this.add(createIndexableDossier(dossier));

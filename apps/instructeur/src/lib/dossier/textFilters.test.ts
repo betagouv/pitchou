@@ -78,3 +78,18 @@ describe("createTextFilter — recherche par localisation", () => {
     });
   });
 });
+
+describe("createTextFilter — recherche par porteur de projet", () => {
+  const withPorteur = (id: number, porteur_de_projet: unknown) =>
+    ({ id, name: "Dossier", communes: [], porteur_de_projet }) as unknown as DossierSummary;
+  const porteurs = [
+    withPorteur(1, { type: "personne_morale", siret: "43229623400029", legal_name: "Pichet" }),
+    withPorteur(2, { type: "personne_physique", last_name: "Durand", first_names: "Élise" }),
+    withPorteur(3, null),
+  ];
+
+  test("trouve un dossier par la raison sociale ou le nom du porteur", () => {
+    expect(search("Pichet", porteurs)).toEqual([1]);
+    expect(search("elise", porteurs)).toEqual([2]);
+  });
+});

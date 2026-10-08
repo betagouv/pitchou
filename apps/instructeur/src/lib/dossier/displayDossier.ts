@@ -60,6 +60,15 @@ export function porteurDeProjetName(porteur: DossierSummary["porteur_de_projet"]
   return null;
 }
 
+/** What the searches match a porteur de projet on: its name, and its SIRET for an entreprise. */
+export function porteurDeProjetSearchTerms(porteur: DossierSummary["porteur_de_projet"]): string[] {
+  if (porteur?.type === "personne_morale")
+    return [porteur.legal_name, porteur.siret].filter(Boolean) as string[];
+  if (porteur?.type === "personne_physique")
+    return [porteur.last_name, porteur.first_names].filter(Boolean) as string[];
+  return [];
+}
+
 export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {
   const porteur = dossier.porteur_de_projet;
   if (porteur?.type === "personne_morale") {
