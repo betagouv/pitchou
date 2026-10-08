@@ -6,7 +6,7 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import type { PersonnePhysiqueId } from "@pitchou/types/database/public/PersonnePhysique.ts";
 import type { PorteurDeProjetId } from "@pitchou/types/database/public/PorteurDeProjet.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
 
 /**
  * Finds the porteur de projet shared by every dossier of this SIRET, or creates it.
@@ -32,16 +32,16 @@ async function porteurDeProjetIdForSiret(
 }
 
 /**
- * Stores the porteur de projet of each dossier as extracted from Démarche Numérique.
+ * Stores the porteur de projet of each dossier (Démarche Numérique synchronization or admin).
  * A personne physique belongs to its dossier and is updated in place. A porteur left
  * without dossier is deleted by the delete_orphan_porteur_de_projet trigger.
  */
-export async function syncPorteursDeProjet(
+export async function savePorteursDeProjet(
   porteurByDossierId: Map<DossierId, PorteurDeProjetData>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   if (!databaseConnection.isTransaction)
-    return databaseConnection.transaction((trx) => syncPorteursDeProjet(porteurByDossierId, trx));
+    return databaseConnection.transaction((trx) => savePorteursDeProjet(porteurByDossierId, trx));
   if (porteurByDossierId.size === 0) return;
 
   const current: {

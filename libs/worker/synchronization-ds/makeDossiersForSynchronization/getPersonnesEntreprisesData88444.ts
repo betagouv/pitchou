@@ -2,8 +2,8 @@ import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type {
   IdentiteDossierData,
   PersonnesEntreprisesDataInitializer,
-  PorteurDeProjetData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   DemarchesSimplifeesAddress,

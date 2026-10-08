@@ -3,10 +3,10 @@ import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createDossier, createGroupeInstructeurs } from "../factories/dossier.ts";
 
-import { syncPorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
+import { savePorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
 import { synchronizeDossierRelations } from "../../../../libs/worker/synchronization-ds/synchronizeDossierRelations.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
 
 const SIRET = "12345678900001";
 
@@ -28,7 +28,7 @@ function morale(siret: string): PorteurDeProjetData {
 }
 
 async function sync(entries: [number, PorteurDeProjetData][]) {
-  await syncPorteursDeProjet(new Map(entries as [DossierId, PorteurDeProjetData][]), db);
+  await savePorteursDeProjet(new Map(entries as [DossierId, PorteurDeProjetData][]), db);
 }
 
 async function porteurOf(dossierId: number) {
@@ -103,7 +103,7 @@ test("a porteur is deleted when its last dossier changes of porteur", async () =
   expect(await count("personne_physique")).toBe(1);
 });
 
-test("syncPorteursDeProjet creates then updates a personne physique in place", async () => {
+test("savePorteursDeProjet creates then updates a personne physique in place", async () => {
   const dossier = await createDossier(db);
 
   await sync([[dossier.id, physique("Martin", "0612345678")]]);
@@ -121,7 +121,7 @@ test("syncPorteursDeProjet creates then updates a personne physique in place", a
   expect(await count("porteur_de_projet")).toBe(1);
 });
 
-test("syncPorteursDeProjet shares one porteur between the dossiers of a SIRET", async () => {
+test("savePorteursDeProjet shares one porteur between the dossiers of a SIRET", async () => {
   const a = await createDossier(db);
   const b = await createDossier(db);
 
@@ -136,7 +136,7 @@ test("syncPorteursDeProjet shares one porteur between the dossiers of a SIRET", 
   expect(await count("porteur_de_projet")).toBe(1);
 });
 
-test("syncPorteursDeProjet creates a SIRET-only entreprise without overwriting an existing one", async () => {
+test("savePorteursDeProjet creates a SIRET-only entreprise without overwriting an existing one", async () => {
   const other = "98765432100001";
   await db("entreprise").insert({ siret: SIRET, legal_name: "EDF" });
   const a = await createDossier(db);
@@ -153,7 +153,7 @@ test("syncPorteursDeProjet creates a SIRET-only entreprise without overwriting a
   ]);
 });
 
-test("syncPorteursDeProjet replaces or clears the porteur, the orphan one is deleted", async () => {
+test("savePorteursDeProjet replaces or clears the porteur, the orphan one is deleted", async () => {
   const a = await createDossier(db);
   const b = await createDossier(db);
   await sync([
@@ -172,7 +172,7 @@ test("syncPorteursDeProjet replaces or clears the porteur, the orphan one is del
   expect(await count("personne_physique")).toBe(1);
 });
 
-test("syncPorteursDeProjet writes no historique action", async () => {
+test("savePorteursDeProjet writes no historique action", async () => {
   const dossier = await createDossier(db);
 
   await sync([[dossier.id, physique("Martin")]]);

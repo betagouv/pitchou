@@ -1,25 +1,16 @@
 import type { DossierInitializer, DossierMutator } from "../database/public/Dossier.ts";
 import type Personne from "../database/public/Personne.ts";
 import type { PersonneInitializer } from "../database/public/Personne.ts";
-import type { EntrepriseInitializer, EntrepriseSiret } from "../database/public/Entreprise.ts";
+import type { EntrepriseInitializer } from "../database/public/Entreprise.ts";
 import type { EvenementPhaseDossierInitializer } from "../database/public/EvenementPhaseDossier.ts";
 import type { PartialBy } from "../tools";
 import type { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
 import type { DecisionAdministrativeInitializer } from "../database/public/DecisionAdministrative.ts";
 import type { IdentiteDossierInitializer } from "../database/public/IdentiteDossier.ts";
-import type { PersonnePhysiqueInitializer } from "../database/public/PersonnePhysique.ts";
+import type { PorteurDeProjetData } from "../porteurDeProjet.ts";
 
 /** Identity snapshot extracted from Démarche Numérique, before the dossier id is known. */
 export type IdentiteDossierData = Omit<IdentiteDossierInitializer, "id" | "dossier">;
-
-/**
- * Porteur de projet extracted from Démarche Numérique, before it is stored.
- * Undefined when Démarche Numérique does not give one.
- */
-export type PorteurDeProjetData =
-  | { personne_physique: Omit<PersonnePhysiqueInitializer, "id"> }
-  | { personne_morale: EntrepriseSiret }
-  | undefined;
 
 export type PersonnesEntreprisesDataInitializer = {
   deposant: PersonneInitializer;

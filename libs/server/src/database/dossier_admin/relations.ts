@@ -1,6 +1,8 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import { savePorteursDeProjet } from "../porteur_de_projet.ts";
 import {
   deleteUnreferencedDossierPersonnes,
   updateOrInsertDossierPersonne,
@@ -8,6 +10,34 @@ import {
 import type { AdminDossierRelations } from "./relationTypes.ts";
 
 export { deleteUnreferencedDossierPersonnes };
+
+// A personne physique without last or first name is not a porteur yet.
+function porteurDeProjetFromRelations(relations: AdminDossierRelations): PorteurDeProjetData {
+  if (relations.demandeur_type === "personne_morale") {
+    return { personne_morale: relations.demandeur_personne_morale.siret };
+  }
+  const { last_name, first_names, email, address, phone, role } =
+    relations.demandeur_personne_physique;
+  if (!last_name.trim() && !first_names.trim()) return undefined;
+  return {
+    personne_physique: {
+      last_name: last_name.trim() || null,
+      first_names: first_names.trim() || null,
+      email: email ? normalizeEmail(email) : null,
+      address,
+      phone,
+      role,
+    },
+  };
+}
+
+async function savePorteurDeProjet(
+  dossierId: DossierId,
+  relations: AdminDossierRelations,
+  trx: Knex.Transaction,
+): Promise<void> {
+  await savePorteursDeProjet(new Map([[dossierId, porteurDeProjetFromRelations(relations)]]), trx);
+}
 
 export async function updateDossierAdminRelations(
   dossierId: DossierId,
@@ -56,6 +86,7 @@ export async function updateDossierAdminRelations(
       [current.demandeur_personne_physique, current.deposant].filter((id) => id !== personneId),
       trx,
     );
+    await savePorteurDeProjet(dossierId, relations, trx);
     return;
   }
   const entreprise = relations.demandeur_personne_morale;
@@ -93,4 +124,6 @@ export async function updateDossierAdminRelations(
     [current.demandeur_personne_physique, current.deposant].filter((id) => id !== deposantId),
     trx,
   );
+  // After the entreprise insert above, so that its details are kept.
+  await savePorteurDeProjet(dossierId, relations, trx);
 }

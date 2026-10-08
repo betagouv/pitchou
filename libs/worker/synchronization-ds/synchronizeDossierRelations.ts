@@ -4,14 +4,14 @@ import {
   synchronizeDossierInGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { syncIdentitesDossier } from "@pitchou/server/database/identite_dossier.ts";
-import { syncPorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
+import { savePorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type {
   DossierEntreprisesPersonneInitializersForInsert,
   DossierEntreprisesPersonneInitializersForUpdate,
   IdentiteDossierData,
-  PorteurDeProjetData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDS88444, Message } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { Knex } from "knex";
 
@@ -54,7 +54,7 @@ export async function synchronizeDossierRelations(
   // The identities are kept apart from the other synchronizations because the
   // caller needs the dossiers they changed.
   const identitesSynchronization = syncIdentitesDossier(identitesByDossierId, transaction);
-  const synchronizations: unknown[] = [syncPorteursDeProjet(porteurByDossierId, transaction)];
+  const synchronizations: unknown[] = [savePorteursDeProjet(porteurByDossierId, transaction)];
   if (messagesByDossierId.size >= 1) {
     synchronizations.push(dumpDossierMessages(messagesByDossierId, transaction));
   }
