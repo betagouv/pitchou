@@ -5,7 +5,12 @@ import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
-import { joinPorteurDeProjet } from "../dossier/porteur.ts";
+import {
+  joinPorteurDeProjet,
+  porteurDeProjetColumns,
+  withPorteurDeProjet,
+} from "../dossier/porteur.ts";
+import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
 
 export type AdminDossierSummary = {
   id: DossierId;
@@ -17,9 +22,7 @@ export type AdminDossierSummary = {
   main_activite: string | null;
   activite_code: string | null;
   activite_label: string | null;
-  demandeur_last_name: string | null;
-  demandeur_first_names: string | null;
-  demandeur_entreprise: string | null;
+  porteur_de_projet: PorteurDeProjet | null;
   groupe_name: string | null;
 };
 export type AdminDossierSortKey = "depot_date" | "name" | "phase";
@@ -50,10 +53,6 @@ function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {
   return (
     joinPorteurDeProjet(query)
       .leftJoin(latestPhase(db), { "latest_phase.dossier": "dossier.id" })
-      .leftJoin("personne as demandeur_pp", {
-        "demandeur_pp.id": "dossier.demandeur_personne_physique",
-      })
-      .leftJoin("entreprise", { "entreprise.siret": "dossier.demandeur_personne_morale" })
       .leftJoin("edge_groupe_instructeurs__dossier as edge_groupe", {
         "edge_groupe.dossier": "dossier.id",
       })
@@ -81,9 +80,7 @@ function summaryColumns() {
     "activite.code as activite_code",
     "activite.label as activite_label",
     "latest_phase.phase as phase",
-    "demandeur_pp.last_name as demandeur_last_name",
-    "demandeur_pp.first_names as demandeur_first_names",
-    "entreprise.legal_name as demandeur_entreprise",
+    ...porteurDeProjetColumns,
     "groupe_instructeurs.name as groupe_name",
   ];
 }
@@ -138,7 +135,10 @@ export async function listDossiersForAdmin(
     .modify((q) => orderResults(q, options))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
-  return { dossiers: dossiers.map(withResolvedActivite), total: Number(count?.count ?? 0) };
+  return {
+    dossiers: dossiers.map((dossier) => withResolvedActivite(withPorteurDeProjet(dossier))),
+    total: Number(count?.count ?? 0),
+  };
 }
 
 export function listGroupesInstructeursForAdmin(

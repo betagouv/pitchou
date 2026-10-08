@@ -28,7 +28,8 @@ function detail(
     source: "pitchou",
     managedByDn: false,
     phase: "construction",
-    demandeur_personne_physique: {
+    porteur_de_projet: {
+      type: "personne_physique",
       last_name: "Martin",
       first_names: "Camille",
       email: null,
@@ -36,7 +37,6 @@ function detail(
       phone: null,
       role: null,
     },
-    demandeur_personne_morale: null,
     groupe: { id: "groupe-1", name: "Groupe test" },
     identites: [],
     evenementsPhase: [],

@@ -73,8 +73,10 @@ test("a native dossier can switch to a legal demandeur without changing shared c
   );
 
   const detail = await getDossierDetailForAdmin(id, db);
-  expect(detail.demandeur_personne_physique).toBeNull();
-  expect(detail.demandeur_personne_morale?.legal_name).toBe("Nom officiel");
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_morale",
+    legal_name: "Nom officiel",
+  });
   expect(detail.identites).toEqual(
     expect.arrayContaining([expect.objectContaining({ type: "representant", role: "Directrice" })]),
   );

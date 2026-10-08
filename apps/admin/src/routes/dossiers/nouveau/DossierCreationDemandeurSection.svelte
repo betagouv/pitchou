@@ -16,6 +16,7 @@
     onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
     showPorteurErrors?: boolean;
   } = $props();
+  const typeMissing = $derived(showPorteurErrors && !model.demandeurType);
 </script>
 
 <section
@@ -24,7 +25,11 @@
 >
   <h2 class="fr-h2" id="demandeur-title">3. Porteur de projet</h2>
 
-  <fieldset class="fr-fieldset">
+  <fieldset
+    class="fr-fieldset"
+    class:fr-fieldset--error={typeMissing}
+    aria-describedby={typeMissing ? "demandeur-type-error" : undefined}
+  >
     <legend class="fr-fieldset__legend font-normal">
       Le porteur de projet est... <span aria-hidden="true">*</span>
       <span class="fr-sr-only">Champ obligatoire</span>
@@ -52,6 +57,11 @@
         <label class="fr-label" for="demandeur-legal">une personne morale</label>
       </div>
     </div>
+    {#if typeMissing}
+      <p class="fr-error-text fr-fieldset__element" id="demandeur-type-error">
+        Indiquez si le porteur de projet est une personne physique ou morale.
+      </p>
+    {/if}
   </fieldset>
 
   {#if model.demandeurType === "personne_physique"}

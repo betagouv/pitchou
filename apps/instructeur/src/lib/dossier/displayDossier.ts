@@ -5,6 +5,8 @@ import type { DossierSummary, DossierFull } from "@pitchou/types/API_Pitchou.ts"
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 export { formatDateAbsolute, formatDateRelative } from "@pitchou/common/formatDate.ts";
+export { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
+import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
 
 /**
  * Badge of a dossier changed since the instructeur last read it: « Modifié hier »,
@@ -49,15 +51,6 @@ export function formatLocalisation({
   if (regions) return `Régions: ${regions.join(", ")}`;
   if (primaryDepartment) return primaryDepartment;
   return "(inconnue)";
-}
-
-/** Name of the porteur de projet, without its SIRET; null when there is none. */
-export function porteurDeProjetName(porteur: DossierSummary["porteur_de_projet"]): string | null {
-  if (porteur?.type === "personne_morale") return porteur.legal_name || null;
-  if (porteur?.type === "personne_physique") {
-    return formatName(porteur.last_name, porteur.first_names) || null;
-  }
-  return null;
 }
 
 /** What the searches match a porteur de projet on: its name, and its SIRET for an entreprise. */

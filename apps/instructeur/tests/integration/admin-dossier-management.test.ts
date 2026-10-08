@@ -60,7 +60,10 @@ test("un dossier créé depuis l'admin est visible par les instructeurs de son g
   expect(detail.dossier.source).toBe("pitchou");
   expect(detail.phase).toBe("Instruction");
   expect(detail.groupe?.id).toBe(instructeur.groupeId);
-  expect(detail.demandeur_personne_physique?.last_name).toBe("Martin");
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_physique",
+    last_name: "Martin",
+  });
   expect(detail.dossier).toMatchObject({
     urgent_contact_phone: "0612345678",
     request_context: "Vous souhaitez bénéficier d'un accompagnement amont",

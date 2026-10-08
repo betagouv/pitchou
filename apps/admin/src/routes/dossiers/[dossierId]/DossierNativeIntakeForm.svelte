@@ -14,6 +14,7 @@
     createDossierCreationModelFromDetail,
     hasLegalSiretChanged,
     legalSiretError,
+    porteurEntreprise,
     mergeDossierRelationsForEdit,
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
@@ -57,6 +58,7 @@
   );
 
   function invalidPorteurField(): string | null {
+    if (!model.demandeurType) return "demandeur-physical";
     if (model.demandeurType === "personne_physique") {
       if (!model.physicalLastName.trim()) return "physical-last-name";
       if (!model.physicalFirstNames.trim()) return "physical-first-names";
@@ -160,7 +162,7 @@
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}
-      originalLegalSiret={detail.demandeur_personne_morale?.siret}
+      originalLegalSiret={porteurEntreprise(detail)?.siret}
       {companyDetailsChoice}
       onCompanyDetailsChoice={(choice) => (companyDetailsChoice = choice)}
       {showPorteurErrors}
