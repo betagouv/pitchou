@@ -1,4 +1,5 @@
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import { joinPorteurDeProjet, porteurDeProjetColumns } from "./porteur.ts";
 
 export const dossierFullColumns = [
   "dossier.id as id",
@@ -112,11 +113,12 @@ export const dossierFullColumns = [
   "especes_present_in_influence_area",
   "risk_despite_erc_mesures",
   "commissioning_date",
+  ...porteurDeProjetColumns,
 ] as (keyof DossierFull)[];
 
 export function joinDossierIdentities<T extends { leftJoin: Function }>(query: T): T {
   return (
-    query
+    joinPorteurDeProjet(query)
       .leftJoin("identite_dossier as identite_demandeur", function (this: any) {
         this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
           "identite_demandeur.type",

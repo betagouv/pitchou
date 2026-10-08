@@ -24,6 +24,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     regions,
 
     // People involved
+    porteur_de_projet,
     deposant_last_name,
     deposant_first_names,
     demandeur_personne_physique_last_name,
@@ -89,6 +90,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     regions,
 
     // People involved
+    porteur_de_projet,
     deposant_last_name,
     deposant_first_names,
     demandeur_personne_physique_last_name,

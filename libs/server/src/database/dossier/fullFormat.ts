@@ -13,6 +13,7 @@ import type {
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
 import type { AvisWithFiles, DecisionWithFile } from "./fullQueries.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+import { withPorteurDeProjet } from "./porteur.ts";
 
 /**
  * The download routes authorize on the cap, so every file URL handed to the
@@ -66,6 +67,7 @@ export function formatDossierFull(
   cnpnEmailSentEvents: DossierCnpnEmailSentEvent[],
   cap: CapDossier["cap"],
 ): DossierFull {
+  withPorteurDeProjet(dossier);
   dossier.demandeur_address =
     dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
   delete dossier.demandeur_personne_morale_address;

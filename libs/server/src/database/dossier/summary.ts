@@ -6,6 +6,7 @@ import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
+import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -36,6 +37,7 @@ const columns = [
   "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
   "onagre_demande_identifier",
+  ...porteurDeProjetColumns,
 ] as (keyof DossierSummary)[];
 
 export async function getDossiersSummariesByCap(
@@ -45,7 +47,7 @@ export async function getDossiersSummariesByCap(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
+  const dossiersP: Promise<DossierSummary[]> = joinPorteurDeProjet(transaction("dossier"))
     .select(columns)
     .select("dossier_access.access")
     // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
@@ -84,7 +86,7 @@ export async function getDossiersSummariesByCap(
     .then((dossiers: DossierSummary[]) =>
       dossiers.map((dossier) => {
         dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
-        return withResolvedActivite(dossier);
+        return withResolvedActivite(withPorteurDeProjet(dossier));
       }),
     );
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);

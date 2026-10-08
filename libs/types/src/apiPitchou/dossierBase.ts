@@ -2,8 +2,10 @@ import type Dossier from "../database/public/Dossier.ts";
 import type { DossierSource } from "../dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarche88444.ts";
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
+import type { PorteurDeProjet } from "../porteurDeProjet.ts";
 
 type DossierPersonnesImpliqueesSummary = {
+  porteur_de_projet: PorteurDeProjet | null;
   deposant_last_name: string;
   deposant_first_names: string;
   demandeur_personne_physique_last_name: string;
