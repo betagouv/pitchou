@@ -6,7 +6,7 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import type { PersonnePhysiqueId } from "@pitchou/types/database/public/PersonnePhysique.ts";
 import type { PorteurDeProjetId } from "@pitchou/types/database/public/PorteurDeProjet.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 
 /**
  * Finds the porteur de projet shared by every dossier of this SIRET, or creates it.
@@ -37,7 +37,7 @@ async function porteurDeProjetIdForSiret(
  * without dossier is deleted by the delete_orphan_porteur_de_projet trigger.
  */
 export async function savePorteursDeProjet(
-  porteurByDossierId: Map<DossierId, PorteurDeProjetData>,
+  porteurByDossierId: Map<DossierId, PorteurDeProjetInitializer>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   if (!databaseConnection.isTransaction)
@@ -59,22 +59,23 @@ export async function savePorteursDeProjet(
     const before = currentByDossier.get(dossierId);
     let porteurId: PorteurDeProjetId | null = null;
 
-    if (porteur && "personne_physique" in porteur) {
+    if (porteur?.type === "personne_physique") {
+      const { type: _type, ...personnePhysique } = porteur;
       if (before?.personne_physique) {
         await databaseConnection("personne_physique")
           .where({ id: before.personne_physique })
-          .update(porteur.personne_physique);
+          .update(personnePhysique);
         porteurId = before.porteur_de_projet;
       } else {
         const [{ id: personnePhysiqueId }] = await databaseConnection("personne_physique")
-          .insert(porteur.personne_physique)
+          .insert(personnePhysique)
           .returning("id");
         [{ id: porteurId }] = await databaseConnection("porteur_de_projet")
           .insert({ personne_physique: personnePhysiqueId })
           .returning("id");
       }
-    } else if (porteur) {
-      porteurId = await porteurDeProjetIdForSiret(porteur.personne_morale, databaseConnection);
+    } else if (porteur?.type === "personne_morale") {
+      porteurId = await porteurDeProjetIdForSiret(porteur.siret, databaseConnection);
     }
 
     if (porteurId !== (before?.porteur_de_projet ?? null)) {

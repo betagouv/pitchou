@@ -3,7 +3,7 @@ import type {
   IdentiteDossierData,
   PersonnesEntreprisesDataInitializer,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   DemarchesSimplifeesAddress,
@@ -67,7 +67,7 @@ export function getPersonnesEntreprisesData88444(
     });
   }
 
-  let porteurDeProjet: PorteurDeProjetData;
+  let porteurDeProjet: PorteurDeProjetInitializer;
   let demandeurPersonnePhysique;
   if (personneMoraleOuPhysique === "une personne physique") {
     const email = emailContact || demandeur.email || deposant.email;
@@ -90,14 +90,13 @@ export function getPersonnesEntreprisesData88444(
     // dossier.demandeur is the porteur de projet, with or without a mandataire.
     const porteurEmail = emailContact || demandeur.email;
     porteurDeProjet = {
-      personne_physique: {
-        first_names: demandeur.prenom || null,
-        last_name: demandeur.nom || null,
-        email: porteurEmail ? normalizeEmail(porteurEmail) : null,
-        address: demandeurPersonnePhysique.address ?? null,
-        phone: phoneContact || null,
-        role: role || null,
-      },
+      type: "personne_physique",
+      first_names: demandeur.prenom || null,
+      last_name: demandeur.nom || null,
+      email: porteurEmail ? normalizeEmail(porteurEmail) : null,
+      address: demandeurPersonnePhysique.address ?? null,
+      phone: phoneContact || null,
+      role: role || null,
     };
   }
 
@@ -138,7 +137,7 @@ export function getPersonnesEntreprisesData88444(
     // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
     const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/g, "");
     if (/^\d{14}$/.test(siret ?? "")) {
-      porteurDeProjet = { personne_morale: siret as EntrepriseSiret };
+      porteurDeProjet = { type: "personne_morale", siret: siret as EntrepriseSiret };
     }
     const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
     const firstNames = champById.get(

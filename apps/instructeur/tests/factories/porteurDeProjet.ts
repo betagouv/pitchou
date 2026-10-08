@@ -1,24 +1,26 @@
 import type { Knex } from "knex";
 
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 
 export const SIRET = "12345678900001";
 
-export function physique(last_name: string, phone: string | null = null): PorteurDeProjetData {
+export function physique(
+  last_name: string,
+  phone: string | null = null,
+): PorteurDeProjetInitializer {
   return {
-    personne_physique: {
-      first_names: "Camille",
-      last_name,
-      email: "camille@test.fr",
-      address: null,
-      phone,
-      role: null,
-    },
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name,
+    email: "camille@test.fr",
+    address: null,
+    phone,
+    role: null,
   };
 }
 
-export function morale(siret: string): PorteurDeProjetData {
-  return { personne_morale: siret } as PorteurDeProjetData;
+export function morale(siret: string): PorteurDeProjetInitializer {
+  return { type: "personne_morale", siret } as PorteurDeProjetInitializer;
 }
 
 export async function porteurOf(db: Knex, dossierId: number) {

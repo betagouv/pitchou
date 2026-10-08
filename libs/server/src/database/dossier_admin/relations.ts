@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 import { savePorteursDeProjet } from "../porteur_de_projet.ts";
 import {
   deleteUnreferencedDossierPersonnes,
@@ -12,22 +12,23 @@ import type { AdminDossierRelations } from "./relationTypes.ts";
 export { deleteUnreferencedDossierPersonnes };
 
 // A personne physique without last or first name is not a porteur yet.
-function porteurDeProjetFromRelations(relations: AdminDossierRelations): PorteurDeProjetData {
+function porteurDeProjetFromRelations(
+  relations: AdminDossierRelations,
+): PorteurDeProjetInitializer {
   if (relations.demandeur_type === "personne_morale") {
-    return { personne_morale: relations.demandeur_personne_morale.siret };
+    return { type: "personne_morale", siret: relations.demandeur_personne_morale.siret };
   }
   const { last_name, first_names, email, address, phone, role } =
     relations.demandeur_personne_physique;
   if (!last_name.trim() && !first_names.trim()) return undefined;
   return {
-    personne_physique: {
-      last_name: last_name.trim() || null,
-      first_names: first_names.trim() || null,
-      email: email ? normalizeEmail(email) : null,
-      address,
-      phone,
-      role,
-    },
+    type: "personne_physique",
+    last_name: last_name.trim() || null,
+    first_names: first_names.trim() || null,
+    email: email ? normalizeEmail(email) : null,
+    address,
+    phone,
+    role,
   };
 }
 

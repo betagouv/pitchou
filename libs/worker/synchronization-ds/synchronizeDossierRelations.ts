@@ -11,7 +11,7 @@ import type {
   DossierEntreprisesPersonneInitializersForUpdate,
   IdentiteDossierData,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDS88444, Message } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { Knex } from "knex";
 
@@ -36,7 +36,7 @@ export async function synchronizeDossierRelations(
   }
 
   const identitesByDossierId = new Map<Dossier["id"], IdentiteDossierData[]>();
-  const porteurByDossierId = new Map<Dossier["id"], PorteurDeProjetData>();
+  const porteurByDossierId = new Map<Dossier["id"], PorteurDeProjetInitializer>();
   for (const { dossier } of dossiersForSync) {
     const dossierId = dossierIdByDNNumber.get(Number(dossier.demarche_numerique_number));
     if (dossierId) {

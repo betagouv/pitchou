@@ -71,27 +71,25 @@ test("porteur personne physique is built from the bénéficiaire and the form ch
       },
     ]),
   ).toEqual({
-    personne_physique: {
-      first_names: "Camille",
-      last_name: "Martin",
-      email: "contact@test.fr",
-      address: "1 rue du Parc\n40000 Mont-de-Marsan",
-      phone: "0612345678",
-      role: "Agriculteur",
-    },
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name: "Martin",
+    email: "contact@test.fr",
+    address: "1 rue du Parc\n40000 Mont-de-Marsan",
+    phone: "0612345678",
+    role: "Agriculteur",
   });
 });
 
 test("porteur personne physique falls back to the bénéficiaire email and keeps missing values null", () => {
   expect(porteurOf([{ id: "type", stringValue: "une personne physique" }])).toEqual({
-    personne_physique: {
-      first_names: "Camille",
-      last_name: "Martin",
-      email: "beneficiaire@test.fr",
-      address: null,
-      phone: null,
-      role: null,
-    },
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name: "Martin",
+    email: "beneficiaire@test.fr",
+    address: null,
+    phone: null,
+    role: null,
   });
 });
 
@@ -101,7 +99,9 @@ test("porteur personne physique is the bénéficiaire, not the mandataire", () =
     prenomMandataire: "Jean",
   });
   expect(porteur).toMatchObject({
-    personne_physique: { first_names: "Camille", last_name: "Martin" },
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name: "Martin",
   });
 });
 
@@ -111,7 +111,7 @@ test("porteur personne morale uses the SIRET of the etablissement", () => {
       { id: "type", stringValue: "une personne morale" },
       { id: "siret", stringValue: "12345678900001", etablissement: { siret: "12345678900001" } },
     ]),
-  ).toEqual({ personne_morale: "12345678900001" });
+  ).toEqual({ type: "personne_morale", siret: "12345678900001" });
 });
 
 test("porteur personne morale falls back to the entered SIRET without etablissement", () => {
@@ -120,7 +120,7 @@ test("porteur personne morale falls back to the entered SIRET without etablissem
       { id: "type", stringValue: "une personne morale" },
       { id: "siret", stringValue: "123 456 789 00001", etablissement: null },
     ]),
-  ).toEqual({ personne_morale: "12345678900001" });
+  ).toEqual({ type: "personne_morale", siret: "12345678900001" });
 });
 
 test("no porteur without type or without a valid SIRET", () => {

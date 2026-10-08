@@ -6,10 +6,10 @@ import { SIRET, count, morale, physique, porteurOf } from "../factories/porteurD
 
 import { savePorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PorteurDeProjetData } from "@pitchou/types/porteurDeProjet.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 
-async function sync(entries: [number, PorteurDeProjetData][]) {
-  await savePorteursDeProjet(new Map(entries as [DossierId, PorteurDeProjetData][]), db);
+async function sync(entries: [number, PorteurDeProjetInitializer][]) {
+  await savePorteursDeProjet(new Map(entries as [DossierId, PorteurDeProjetInitializer][]), db);
 }
 
 test("savePorteursDeProjet creates then updates a personne physique in place", async () => {
