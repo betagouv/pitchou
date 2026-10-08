@@ -5,7 +5,7 @@ import { searchableText } from "./listModel.ts";
 import { makeDossier, makeContext } from "./testHelpers.ts";
 
 describe("searchableText — porteur de projet", () => {
-  test("includes the name and SIRET of the porteur, not the former demandeur columns", () => {
+  test("includes the name and SIRET of the porteur", () => {
     const morale = searchableText(
       makeDossier({
         porteur_de_projet: {
@@ -13,13 +13,11 @@ describe("searchableText — porteur de projet", () => {
           siret: "43229623400029",
           legal_name: "Pichet Immobilier",
         },
-        demandeur_personne_morale_legal_name: "Ancienne société",
       } as Partial<DossierSummary>),
       makeContext(),
     );
     expect(morale).toContain("pichet immobilier");
     expect(morale).toContain("43229623400029");
-    expect(morale).not.toContain("ancienne");
 
     const physique = searchableText(
       makeDossier({

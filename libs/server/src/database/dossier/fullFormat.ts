@@ -49,7 +49,6 @@ export type LoadedDossier = DossierFull & {
   especes_impactees_id?: File["id"] | null;
   especes_impactees_media_type?: string;
   especes_impactees_name?: string;
-  demandeur_personne_morale_address?: string;
 };
 
 export function formatDossierFull(
@@ -68,9 +67,6 @@ export function formatDossierFull(
   cap: CapDossier["cap"],
 ): DossierFull {
   withPorteurDeProjet(dossier);
-  dossier.demandeur_address =
-    dossier.demandeur_personne_morale_address || dossier.demandeur_personne_physique_address || "";
-  delete dossier.demandeur_personne_morale_address;
   dossier.evenementsPhase = events;
   dossier.cnpnEmailSentEvents = cnpnEmailSentEvents;
   dossier.avisExpert = avisRows.map(

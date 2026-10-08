@@ -69,15 +69,7 @@ function isDossierSummary(x: any): x is DossierSummary {
   // DossierPersonnesImpliquées
   const peopleValid =
     (typeof x.deposant_last_name === "string" || x.deposant_last_name === null) &&
-    (typeof x.deposant_first_names === "string" || x.deposant_first_names === null) &&
-    (typeof x.demandeur_personne_physique_last_name === "string" ||
-      x.demandeur_personne_physique_last_name === null) &&
-    (typeof x.demandeur_personne_physique_first_names === "string" ||
-      x.demandeur_personne_physique_first_names === null) &&
-    (typeof x.demandeur_personne_morale_legal_name === "string" ||
-      x.demandeur_personne_morale_legal_name === null) &&
-    (typeof x.demandeur_personne_morale_siret === "string" ||
-      x.demandeur_personne_morale_siret === null);
+    (typeof x.deposant_first_names === "string" || x.deposant_first_names === null);
 
   if (!peopleValid) return false;
 

@@ -10,8 +10,11 @@ export async function seedDossierActors(transaction: Knex.Transaction, seedEmail
   for (const entreprise of SEED_ENTREPRISES) {
     await transaction("entreprise").insert(entreprise).onConflict("siret").merge();
   }
-  for (const personne of SEED_PERSONNES) {
-    await transaction("personne").insert(personne).onConflict("email").merge();
+  for (const { last_name, first_names, email } of SEED_PERSONNES) {
+    await transaction("personne")
+      .insert({ last_name, first_names, email })
+      .onConflict("email")
+      .merge();
   }
   const personneRows = await transaction("personne")
     .whereIn(

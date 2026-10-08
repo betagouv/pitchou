@@ -74,10 +74,11 @@ export async function updateDossierAdminRelations(
     );
   }
   if (relations.demandeur_type === "personne_physique") {
+    const { last_name, first_names, email } = relations.demandeur_personne_physique;
     const personneId = await updateOrInsertDossierPersonne(
       current.demandeur_personne_physique,
       dossierId,
-      relations.demandeur_personne_physique,
+      { last_name, first_names, email },
       trx,
     );
     await trx("dossier").where({ id: dossierId }).update({
@@ -112,8 +113,6 @@ export async function updateDossierAdminRelations(
           last_name: demandeur.last_name,
           first_names: demandeur.first_names,
           email: demandeur.email,
-          phone: demandeur.phone,
-          role: demandeur.role,
         },
         trx,
       )

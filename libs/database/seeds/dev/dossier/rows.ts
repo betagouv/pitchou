@@ -3,6 +3,7 @@ import type { Knex } from "knex";
 import { SEED_DEMARCHE_NUMBER } from "../../fixtures/demarche_numerique.ts";
 import { SEED_DOSSIERS } from "../../fixtures/dossiers.ts";
 import type { seedDossierActors } from "./actors.ts";
+import { seedPorteurDeProjet } from "./porteur.ts";
 
 type Actors = Awaited<ReturnType<typeof seedDossierActors>>;
 
@@ -81,6 +82,15 @@ export async function seedDossierRows(
       }
 
       dossierIdMap[dossierData.demarche_numerique_number!] = dossier.id;
+
+      await seedPorteurDeProjet(
+        transaction,
+        dossier.id,
+        demandeur_personne_physique_email
+          ? personneFixtureByEmail.get(demandeur_personne_physique_email)
+          : undefined,
+        dossierData.demandeur_personne_morale,
+      );
 
       // Identities shown in the "Porteur de projet" tab (per-dossier snapshots)
       const identites = [];

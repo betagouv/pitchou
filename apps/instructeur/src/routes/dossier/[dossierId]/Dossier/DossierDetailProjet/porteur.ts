@@ -1,16 +1,9 @@
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type Entreprise from "@pitchou/types/database/public/Entreprise.ts";
 import { companyPropertyLabels, identityPropertyLabels } from "@pitchou/types/notification.ts";
 import type {
   PorteurDeProjet,
   PorteurDeProjetPersonnePhysique,
 } from "@pitchou/types/porteurDeProjet.ts";
-
-export function hasDossierMandataire(dossier: DossierFull): boolean {
-  return Boolean(
-    dossier.mandataire_last_name || dossier.mandataire_first_names || dossier.mandataire_email,
-  );
-}
 
 export function entrepriseStatus({
   admin_status,

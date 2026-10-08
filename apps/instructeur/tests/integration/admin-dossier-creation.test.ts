@@ -91,11 +91,7 @@ test("a physical dossier can be created without a duplicated identity name", asy
   expect(detail.porteur_de_projet).toBeNull();
   expect(
     await db("personne").where({ id: detail.dossier.demandeur_personne_physique }).first(),
-  ).toMatchObject({
-    last_name: "",
-    first_names: "",
-    address: "11 rue Réaumur, Paris 75002, France",
-  });
+  ).toMatchObject({ last_name: "", first_names: "" });
   expect(detail.dossier).toMatchObject({
     primary_department: "01",
     location_scope: "regions",

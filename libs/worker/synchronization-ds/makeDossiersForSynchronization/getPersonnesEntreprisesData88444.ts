@@ -21,6 +21,11 @@ function formatPostalAddress(
   return [address.streetAddress, secondLine].filter(Boolean).join("\n") || undefined;
 }
 
+/**
+ * The people of a Démarche Numérique dossier. Only porteur_de_projet follows ADR-0002;
+ * deposant, demandeur_personne_* and identites keep the former model during the
+ * transition and will be restructured with the other people involved.
+ */
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
@@ -77,15 +82,12 @@ export function getPersonnesEntreprisesData88444(
       first_names: demandeur.prenom,
       last_name: demandeur.nom,
       email: email ? normalizeEmail(email) : undefined,
-      address: formatPostalAddress(addressChamp?.address),
-      phone: phoneContact || undefined,
-      role: role || undefined,
     };
     // Keep the reviewed contact values on this dossier, not on a shared person.
     Object.assign(identites[0], {
       email: demandeurPersonnePhysique.email ?? null,
-      phone: demandeurPersonnePhysique.phone ?? null,
-      role: demandeurPersonnePhysique.role ?? null,
+      phone: phoneContact || null,
+      role: role || null,
     });
     // dossier.demandeur is the porteur de projet, with or without a mandataire.
     const porteurEmail = emailContact || demandeur.email;
@@ -94,7 +96,7 @@ export function getPersonnesEntreprisesData88444(
       first_names: demandeur.prenom || null,
       last_name: demandeur.nom || null,
       email: porteurEmail ? normalizeEmail(porteurEmail) : null,
-      address: demandeurPersonnePhysique.address ?? null,
+      address: formatPostalAddress(addressChamp?.address) ?? null,
       phone: phoneContact || null,
       role: role || null,
     };

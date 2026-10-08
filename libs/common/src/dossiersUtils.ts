@@ -27,10 +27,6 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     porteur_de_projet,
     deposant_last_name,
     deposant_first_names,
-    demandeur_personne_physique_last_name,
-    demandeur_personne_physique_first_names,
-    demandeur_personne_morale_legal_name,
-    demandeur_personne_morale_siret,
 
     // Next action
     next_action_expected_from,
@@ -93,10 +89,6 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     porteur_de_projet,
     deposant_last_name,
     deposant_first_names,
-    demandeur_personne_physique_last_name,
-    demandeur_personne_physique_first_names,
-    demandeur_personne_morale_legal_name,
-    demandeur_personne_morale_siret,
 
     // Phase and next action
     phase: currentPhase,

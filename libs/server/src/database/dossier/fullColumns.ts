@@ -53,35 +53,11 @@ export const dossierFullColumns = [
   "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
-  "identite_demandeur.email as deposant_email",
-  "identite_demandeur.phone as deposant_phone",
-  "identite_demandeur.role as deposant_role",
   "identite_mandataire.last_name as mandataire_last_name",
   "identite_mandataire.first_names as mandataire_first_names",
   "identite_mandataire.email as mandataire_email",
   "identite_mandataire.phone as mandataire_phone",
   "identite_mandataire.role as mandataire_role",
-  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
-  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
-  "demandeur_personne_physique.email as demandeur_personne_physique_email",
-  "demandeur_personne_physique.address as demandeur_personne_physique_address",
-  "demandeur_personne_physique.phone as demandeur_personne_physique_phone",
-  "demandeur_personne_physique.role as demandeur_personne_physique_role",
-  "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
-  "demandeur_personne_morale.address as demandeur_personne_morale_address",
-  "demandeur_personne_morale.siren as demandeur_personne_morale_siren",
-  "demandeur_personne_morale.legal_form as demandeur_personne_morale_legal_form",
-  "demandeur_personne_morale.naf_code as demandeur_personne_morale_naf_code",
-  "demandeur_personne_morale.naf_label as demandeur_personne_morale_naf_label",
-  "demandeur_personne_morale.creation_date as demandeur_personne_morale_creation_date",
-  "demandeur_personne_morale.admin_status as demandeur_personne_morale_admin_status",
-  "demandeur_personne_morale.headcount as demandeur_personne_morale_headcount",
-  "demandeur_personne_morale.share_capital as demandeur_personne_morale_share_capital",
-  "demandeur_personne_morale.insee_code as demandeur_personne_morale_insee_code",
-  "demandeur_personne_morale.postal_code as demandeur_personne_morale_postal_code",
-  "demandeur_personne_morale.department as demandeur_personne_morale_department",
-  "demandeur_personne_morale.region as demandeur_personne_morale_region",
   "identite_representant.last_name as representative_last_name",
   "identite_representant.first_names as representative_first_names",
   "identite_representant.email as representative_email",
@@ -136,12 +112,6 @@ export function joinDossierIdentities<T extends { leftJoin: Function }>(query: T
           "identite_representant.type",
           "representant",
         );
-      })
-      .leftJoin("personne as demandeur_personne_physique", {
-        "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-      })
-      .leftJoin("entreprise as demandeur_personne_morale", {
-        "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
       })
       .leftJoin("file as file_especes_impactees", {
         "file_especes_impactees.id": "dossier.especes_impactees",

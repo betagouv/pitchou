@@ -31,10 +31,6 @@ const columns = [
   "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
-  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
-  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
-  "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
   "onagre_demande_identifier",
   ...porteurDeProjetColumns,
@@ -68,12 +64,6 @@ export async function getDossiersSummariesByCap(
         "identite_demandeur.type",
         "demandeur",
       );
-    })
-    .leftJoin("personne as demandeur_personne_physique", {
-      "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("entreprise as demandeur_personne_morale", {
-      "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
     })
     // Only reviewed labels resolve to an activity; labels pending review keep their raw display
     // through the fallback in `withResolvedActivite`.
