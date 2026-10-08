@@ -110,3 +110,36 @@ test("a physical dossier can be created without a duplicated identity name", asy
     },
   });
 });
+
+test("a dossier created with only the SIRET of its porteur has a personne morale porteur", async () => {
+  const instructeur = await createInstructeurWithCapToGroup(db);
+  const { id } = await createDossierFromAdmin(
+    {
+      name: "Dossier créé depuis la modale",
+      depot_date: new Date("2026-08-01"),
+      phase: "Accompagnement amont",
+      relations: {
+        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
+        demandeur_type: "personne_morale",
+        demandeur_personne_physique: null,
+        demandeur_personne_morale: {
+          siret: "43229623400029" as EntrepriseSiret,
+          legal_name: null,
+          address: null,
+          postal_code: null,
+          department: null,
+          region: null,
+        },
+        identites: [],
+      },
+    },
+    "admin@pitchou.test",
+    db,
+  );
+  const detail = await getDossierDetailForAdmin(id, db);
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_morale",
+    siret: "43229623400029",
+  });
+  expect(detail.identites).toEqual([]);
+});

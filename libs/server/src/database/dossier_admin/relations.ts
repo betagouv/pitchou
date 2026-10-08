@@ -64,13 +64,15 @@ export async function updateDossierAdminRelations(
     groupe_instructeurs: relations.groupe_instructeurs,
   });
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
-  await trx("identite_dossier").insert(
-    relations.identites.map((identite) => ({
-      ...identite,
-      dossier: dossierId,
-      email: identite.email ? normalizeEmail(identite.email) : null,
-    })),
-  );
+  if (relations.identites.length >= 1) {
+    await trx("identite_dossier").insert(
+      relations.identites.map((identite) => ({
+        ...identite,
+        dossier: dossierId,
+        email: identite.email ? normalizeEmail(identite.email) : null,
+      })),
+    );
+  }
   if (relations.demandeur_type === "personne_physique") {
     const personneId = await updateOrInsertDossierPersonne(
       current.demandeur_personne_physique,

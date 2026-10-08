@@ -138,6 +138,9 @@ export type AdminDossierCreationPayload = {
 export type AdminDossierMinimalCreationPayload = {
   name: string;
   groupe_instructeurs: string;
+  porteur_de_projet:
+    | { type: "personne_physique"; last_name: string; first_names: string }
+    | { type: "personne_morale"; siret: string };
 };
 
 export type AdminDossierUpdatePayload = {
