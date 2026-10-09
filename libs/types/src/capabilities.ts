@@ -18,6 +18,7 @@ import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { FileId } from "./database/public/File.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
+import type { DossiersExportFormat, DossiersExportScope } from "./dossierExport.ts";
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
@@ -57,6 +58,11 @@ export type DossierCommentaire = {
 
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
+  exporterDossiers: (
+    scope: DossiersExportScope,
+    format: DossiersExportFormat,
+    dossierIds: Dossier["id"][],
+  ) => Promise<Blob>;
   /**
    * `readOnly` requests the restricted projection available to other services,
    * even when the caller has full access to the dossier.

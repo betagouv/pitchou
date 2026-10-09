@@ -162,6 +162,7 @@
     numberFiltered={filteredDossiers.length}
     localisation={query.localisation}
     {followedOnly}
+    exportDossierIds={sortedDossiers.map(({ id }) => id)}
     chips={buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF)}
     sortKey={query.sort}
     sortOrder={query.order}

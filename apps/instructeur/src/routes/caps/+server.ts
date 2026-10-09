@@ -23,6 +23,9 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.listerDossiers) {
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`;
   }
+  if (capBundle.exporterDossiers) {
+    ret.exporterDossiers = `/dossiers/export?cap=${capBundle.exporterDossiers}`;
+  }
   if (capBundle.recupérerDossierComplet) {
     ret.recupérerDossierComplet = `/dossier/:dossierId?cap=${capBundle.recupérerDossierComplet}`;
   }
