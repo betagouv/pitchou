@@ -141,7 +141,9 @@
           </div>
           <div class="fr-modal__content">
             <h2 id={titleId} class="fr-modal__title">Ajouter une pièce jointe</h2>
-            <p class="fr-text--sm fr-mb-2w"><span class="font-bold">*</span> Champs obligatoires</p>
+            {#if type !== "Décision administrative"}<p class="fr-text--sm fr-mb-2w">
+                <span class="font-bold">*</span> Champs obligatoires
+              </p>{/if}
             {#if showTypeChoice && typesPiecesJointes.length > 1}<fieldset
                 class="fr-fieldset fr-mt-3w"
               >
