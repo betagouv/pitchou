@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LegalDemandeurFields from "./LegalDemandeurFields.svelte";
   import PhysicalDemandeurFields from "./PhysicalDemandeurFields.svelte";
   import { type CompanyDetailsChoice, type DossierCreationModel } from "./dossierCreationModel.ts";
 
@@ -7,16 +8,15 @@
     originalLegalSiret,
     companyDetailsChoice = "",
     onCompanyDetailsChoice = () => {},
+    showPorteurErrors = false,
   }: {
     model: DossierCreationModel;
     originalLegalSiret?: string | null;
     companyDetailsChoice?: CompanyDetailsChoice;
     onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
+    showPorteurErrors?: boolean;
   } = $props();
-
-  const legalSiretChanged = $derived(
-    !!originalLegalSiret && originalLegalSiret !== model.legalSiret.replaceAll(" ", ""),
-  );
+  const typeMissing = $derived(showPorteurErrors && !model.demandeurType);
 </script>
 
 <section
@@ -25,9 +25,13 @@
 >
   <h2 class="fr-h2" id="demandeur-title">3. Porteur de projet</h2>
 
-  <fieldset class="fr-fieldset">
+  <fieldset
+    class="fr-fieldset"
+    class:fr-fieldset--error={typeMissing}
+    aria-describedby={typeMissing ? "demandeur-type-error" : undefined}
+  >
     <legend class="fr-fieldset__legend font-normal">
-      Le demandeur est... <span aria-hidden="true">*</span>
+      Le porteur de projet est... <span aria-hidden="true">*</span>
       <span class="fr-sr-only">Champ obligatoire</span>
     </legend>
     <div class="fr-fieldset__element">
@@ -53,117 +57,23 @@
         <label class="fr-label" for="demandeur-legal">une personne morale</label>
       </div>
     </div>
+    {#if typeMissing}
+      <p class="fr-error-text fr-fieldset__element" id="demandeur-type-error">
+        Indiquez si le porteur de projet est une personne physique ou morale.
+      </p>
+    {/if}
   </fieldset>
 
   {#if model.demandeurType === "personne_physique"}
-    <PhysicalDemandeurFields {model} />
+    <PhysicalDemandeurFields {model} showErrors={showPorteurErrors} />
   {:else if model.demandeurType === "personne_morale"}
-    <div class="flex flex-col gap-6 fr-mb-3w">
-      <div class="fr-input-group w-full">
-        <label class="fr-label" for="legal-siret">
-          Numéro de SIRET
-          <span class="fr-hint-text">
-            Format attendu : 14 chiffres. Exemple : 500 001 234 56789
-          </span>
-        </label>
-        <input
-          class="fr-input w-full lg:w-1/3"
-          id="legal-siret"
-          type="text"
-          inputmode="numeric"
-          pattern={"[0-9 ]{14,17}"}
-          minlength="14"
-          maxlength="17"
-          required
-          bind:value={model.legalSiret}
-        />
-      </div>
-
-      {#if legalSiretChanged}
-        <fieldset class="fr-fieldset fr-alert fr-alert--warning">
-          <legend class="fr-fieldset__legend fr-alert__title">
-            Vous modifiez le numéro de SIRET
-          </legend>
-          <p>
-            Voulez-vous conserver les informations actuelles de l'entreprise ou les réinitialiser
-            pour le nouveau SIRET ?
-          </p>
-          <div class="fr-fieldset__element">
-            <div class="fr-radio-group">
-              <input
-                id="company-details-keep"
-                type="radio"
-                name="company-details-choice"
-                value="keep"
-                checked={companyDetailsChoice === "keep"}
-                onchange={() => onCompanyDetailsChoice("keep")}
-              />
-              <label class="fr-label" for="company-details-keep">
-                Conserver les informations actuelles
-              </label>
-            </div>
-          </div>
-          <div class="fr-fieldset__element">
-            <div class="fr-radio-group">
-              <input
-                id="company-details-reset"
-                type="radio"
-                name="company-details-choice"
-                value="reset"
-                checked={companyDetailsChoice === "reset"}
-                onchange={() => onCompanyDetailsChoice("reset")}
-              />
-              <label class="fr-label" for="company-details-reset">
-                Réinitialiser les informations de l'entreprise
-              </label>
-            </div>
-          </div>
-        </fieldset>
-      {/if}
-
-      <div class="fr-input-group w-full">
-        <label class="fr-label" for="representative-last-name">
-          Nom du représentant
-          <span class="fr-hint-text">
-            Personne en charge du projet au sein de la personne morale
-          </span>
-        </label>
-        <input
-          class="fr-input w-full"
-          id="representative-last-name"
-          type="text"
-          bind:value={model.representativeLastName}
-        />
-      </div>
-
-      <div class="fr-input-group w-full">
-        <label class="fr-label" for="representative-first-names">
-          Prénom du représentant
-          <span class="fr-hint-text">
-            Personne en charge du projet au sein de la personne morale
-          </span>
-        </label>
-        <input
-          class="fr-input w-full"
-          id="representative-first-names"
-          type="text"
-          bind:value={model.representativeFirstNames}
-        />
-      </div>
-
-      <div class="fr-input-group w-full">
-        <label class="fr-label" for="representative-role">
-          Qualité du représentant
-          <span class="fr-hint-text">Si le demandeur est une personne morale</span>
-        </label>
-        <input
-          class="fr-input w-full"
-          id="representative-role"
-          type="text"
-          bind:value={model.representativeRole}
-        />
-      </div>
-    </div>
+    <LegalDemandeurFields
+      {model}
+      {originalLegalSiret}
+      {companyDetailsChoice}
+      {onCompanyDetailsChoice}
+      showErrors={showPorteurErrors}
+    />
   {/if}
 
   <div class="flex flex-col gap-6 fr-mt-4w">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
   import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
   let { detail, formId, saving }: { detail: AdminDossierDetail; formId: string; saving: boolean } =
     $props();
@@ -32,16 +33,10 @@
     {/if}
   </div>
   <p class="fr-text-mention--grey fr-mt-1w fr-mb-0">
-    {#if detail.groupe}Groupe instructeurs : {detail.groupe.name} ·{/if} Demandeur :
-    {#if detail.demandeur_personne_morale}
-      {detail.demandeur_personne_morale.legal_name ?? detail.demandeur_personne_morale.siret}
-    {:else if detail.demandeur_personne_physique}
-      {[
-        detail.demandeur_personne_physique.last_name,
-        detail.demandeur_personne_physique.first_names,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    {:else}(inconnu){/if}
+    {#if detail.groupe}Groupe instructeurs : {detail.groupe.name} ·{/if} Porteur de projet :
+    {porteurDeProjetName(detail.porteur_de_projet) ??
+      (detail.porteur_de_projet?.type === "personne_morale"
+        ? `SIRET ${detail.porteur_de_projet.siret}`
+        : "Non renseigné")}
   </p>
 </header>

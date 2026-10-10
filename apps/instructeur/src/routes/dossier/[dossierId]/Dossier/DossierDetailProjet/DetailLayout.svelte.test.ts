@@ -40,7 +40,15 @@ test.each([1440, 1024, 390])(
       no_other_satisfactory_solution_justification: text,
       scientifique_demande_type: ["recherche"],
       scientifique_suivi_protocol_description: text,
-      deposant_email: `${"adresse".repeat(20)}@example.org`,
+      porteur_de_projet: {
+        type: "personne_physique",
+        first_names: "Camille",
+        last_name: "Martin",
+        email: `${"adresse".repeat(20)}@example.org`,
+        address: null,
+        phone: null,
+        role: null,
+      },
       piecesJointesPetitionnaires: [
         {
           id: "test",

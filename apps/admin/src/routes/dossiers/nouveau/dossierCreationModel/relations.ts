@@ -1,14 +1,21 @@
 import type {
+  AdminDemandeurPersonneMorale,
   AdminDossierDetail,
   AdminDossierRelationsPayload,
 } from "$lib/actions/adminDossiers.ts";
 import type { CompanyDetailsChoice } from "./state.ts";
 
+/** Entreprise of a personne morale porteur, with only the fields the admin relations carry. */
+export function porteurEntreprise(detail: AdminDossierDetail): AdminDemandeurPersonneMorale | null {
+  const porteur = detail.porteur_de_projet;
+  if (porteur?.type !== "personne_morale") return null;
+  const { siret, legal_name, address, postal_code, department, region } = porteur;
+  return { siret, legal_name, address, postal_code, department, region };
+}
+
 export function hasLegalSiretChanged(detail: AdminDossierDetail, legalSiret: string): boolean {
-  return (
-    !!detail.demandeur_personne_morale &&
-    detail.demandeur_personne_morale.siret !== legalSiret.replaceAll(" ", "")
-  );
+  const entreprise = porteurEntreprise(detail);
+  return !!entreprise && entreprise.siret !== legalSiret.replaceAll(" ", "");
 }
 
 export function mergeDossierRelationsForEdit(
@@ -23,13 +30,20 @@ export function mergeDossierRelationsForEdit(
         type === "mandataire" && !relations.identites.some((item) => item.type === type),
     ),
   ];
-  if (relations.demandeur_type !== "personne_morale" || !detail.demandeur_personne_morale)
+  const entreprise = porteurEntreprise(detail);
+  if (relations.demandeur_type !== "personne_morale" || !entreprise)
     return { ...relations, identites };
-  const changed =
-    detail.demandeur_personne_morale.siret !== relations.demandeur_personne_morale.siret;
+  const changed = entreprise.siret !== relations.demandeur_personne_morale.siret;
   const demandeur =
     !changed || companyDetailsChoice === "keep"
-      ? { ...detail.demandeur_personne_morale, siret: relations.demandeur_personne_morale.siret }
+      ? { ...entreprise, siret: relations.demandeur_personne_morale.siret }
       : relations.demandeur_personne_morale;
   return { ...relations, identites, demandeur_personne_morale: demandeur };
+}
+
+export function legalSiretError(legalSiret: string): string | null {
+  const siret = legalSiret.replaceAll(" ", "");
+  if (!siret) return "Renseignez le numéro de SIRET.";
+  if (!/^\d{14}$/.test(siret)) return "Le numéro de SIRET doit contenir 14 chiffres.";
+  return null;
 }

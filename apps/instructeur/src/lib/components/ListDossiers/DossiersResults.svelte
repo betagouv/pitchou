@@ -62,7 +62,7 @@
               <span></span>
               <span class={columnLabel}>Nom du projet</span>
             </div>
-            <span class={columnLabel}>Pétitionnaire, localisation</span>
+            <span class={columnLabel}>Porteur de projet, lieu</span>
             <span class={columnLabel}>Avancement du dossier</span>
             <span class={columnLabel}>Prochaine action</span>
             <span class={columnLabel}>Alertes</span>

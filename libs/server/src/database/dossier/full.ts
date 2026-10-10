@@ -6,6 +6,7 @@ import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
+import { withPorteurDeProjet } from "./porteur.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -29,7 +30,7 @@ export function listAllDossiersFull(
         dossier.url_fichier_especes_impactees = `/especes-impactees/${dossier.especes_impactees_id}`;
       }
     }
-    return dossiers.map(withResolvedActivite);
+    return dossiers.map((dossier) => withResolvedActivite(withPorteurDeProjet(dossier)));
   });
 }
 

@@ -19,6 +19,7 @@ function applicantValues(dossier: DossierFull): string {
             columns.has(key) ||
             /^(deposant_|demandeur_|mandataire_|representative_)/.test(key) ||
             [
+              "porteur_de_projet",
               "source",
               "activite_label",
               "especesImpactees",

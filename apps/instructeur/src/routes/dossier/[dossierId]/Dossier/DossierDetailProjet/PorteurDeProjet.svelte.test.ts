@@ -18,9 +18,17 @@ const dossier = {
   id: 123,
   source: "demarche_numerique",
   name: "Projet test",
-  deposant_first_names: "Camille",
-  deposant_last_name: "Martin",
-  deposant_email: null,
+  porteur_de_projet: {
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name: "Martin",
+    email: null,
+    address: null,
+    phone: null,
+    role: null,
+  },
+  deposant_first_names: "Déposant",
+  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
   mandataire_first_names: "Lou",
   mandataire_last_name: "Durand",
@@ -28,9 +36,6 @@ const dossier = {
   representative_first_names: "Alex",
   representative_last_name: "Robert",
   representative_role: "Écologue",
-  demandeur_personne_morale_siret: "12345678900001",
-  demandeur_personne_morale_legal_name: "Société test",
-  demandeur_address: "2 rue du Parc",
   especesImpactees: { impacts: [], sourceFile: undefined },
   piecesJointesPetitionnaires: [],
 } as unknown as DossierFull;
@@ -38,7 +43,6 @@ const fields = [
   ["demandeur.email", "Demandeur : Adresse électronique"],
   ["mandataire.last_name", "Mandataire : Nom"],
   ["representant.role", "Représentant de l'entreprise : Qualité"],
-  ["entreprise.address", "Entreprise : Adresse"],
 ] as const;
 const changes = (): FieldChange[] =>
   fields.map(([field, label], index) => ({
@@ -69,19 +73,18 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test("only the changed identity/company properties are highlighted, including a cleared email", () => {
+test("only the changed identity properties are highlighted, including a cleared email", () => {
   const view = render(PorteurDeProjet, {
     dossier,
     modifiedFields: new Map(changes().map((change) => [change.field, change])),
   });
   const highlights = [...view.container.querySelectorAll(".pending")];
-  expect(highlights).toHaveLength(4);
+  expect(highlights).toHaveLength(3);
   const text = highlights.map((element) => element.textContent).join(" ");
   expect(text).toContain("Non renseigné");
   expect(text).toContain("Durand");
   expect(text).toContain("Écologue");
-  expect(text).toContain("2 rue du Parc");
-  for (const unchanged of ["Camille", "Martin", "Lou", "Alex", "Robert", "Société test"])
+  for (const unchanged of ["Camille", "Martin", "Lou", "Alex", "Robert"])
     expect(text).not.toContain(unchanged);
   expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
   expect(view.container.querySelector("section.pending")).toBeNull();
@@ -148,28 +151,10 @@ test("coarse historical entries remain reviewable without claiming every identit
     dossier,
     modifiedFields: new Map([[legacy.field, legacy]]),
   });
-  expect(view.container.querySelector('[aria-label="Demandeur"] .pending')).toBeNull();
+  expect(view.container.querySelector('[aria-label="Porteur de projet"] .pending')).toBeNull();
   const history = view.container.querySelector('[aria-label="Modifications antérieures"]')!;
   expect(history.textContent).toContain("Le détail du champ modifié n'a pas été enregistré");
   expect(history.querySelector("button")?.getAttribute("aria-label")).toBe(
     "Valider la modification : Demandeur",
   );
-});
-
-test("native physical applicant contact values remain visible without a DN snapshot", () => {
-  const view = render(PorteurDeProjet, {
-    dossier: {
-      ...dossier,
-      source: "pitchou",
-      demandeur_personne_morale_siret: "",
-      demandeur_personne_physique_first_names: "Sam",
-      demandeur_personne_physique_last_name: "Petit",
-      demandeur_personne_physique_phone: "0102030405",
-      demandeur_personne_physique_role: "Biologiste",
-    },
-  });
-  const applicant = view.container.querySelector('[aria-label="Demandeur"]')!;
-  for (const value of ["Sam", "Petit", "0102030405", "Biologiste", "ancien-profil@test.fr"])
-    expect(applicant.textContent).toContain(value);
-  expect(applicant.querySelector(".pending")).toBeNull();
 });

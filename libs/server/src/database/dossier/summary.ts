@@ -6,6 +6,7 @@ import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
+import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -30,12 +31,9 @@ const columns = [
   "next_due_date",
   "identite_demandeur.last_name as deposant_last_name",
   "identite_demandeur.first_names as deposant_first_names",
-  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
-  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
-  "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
   "onagre_demande_identifier",
+  ...porteurDeProjetColumns,
 ] as (keyof DossierSummary)[];
 
 export async function getDossiersSummariesByCap(
@@ -45,7 +43,7 @@ export async function getDossiersSummariesByCap(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
+  const dossiersP: Promise<DossierSummary[]> = joinPorteurDeProjet(transaction("dossier"))
     .select(columns)
     .select("dossier_access.access")
     // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
@@ -67,12 +65,6 @@ export async function getDossiersSummariesByCap(
         "demandeur",
       );
     })
-    .leftJoin("personne as demandeur_personne_physique", {
-      "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("entreprise as demandeur_personne_morale", {
-      "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
-    })
     // Only reviewed labels resolve to an activity; labels pending review keep their raw display
     // through the fallback in `withResolvedActivite`.
     .leftJoin("activite_label", (join) =>
@@ -84,7 +76,7 @@ export async function getDossiersSummariesByCap(
     .then((dossiers: DossierSummary[]) =>
       dossiers.map((dossier) => {
         dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
-        return withResolvedActivite(dossier);
+        return withResolvedActivite(withPorteurDeProjet(dossier));
       }),
     );
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);

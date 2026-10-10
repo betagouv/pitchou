@@ -3,12 +3,14 @@ import type {
   IdentiteDossierData,
   PersonnesEntreprisesDataInitializer,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   DemarchesSimplifeesAddress,
   DossierDS88444,
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
+import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import { inseeHeadcountRangeLabel } from "../inseeHeadcountRange.ts";
 
 function formatPostalAddress(
@@ -19,6 +21,11 @@ function formatPostalAddress(
   return [address.streetAddress, secondLine].filter(Boolean).join("\n") || undefined;
 }
 
+/**
+ * The people of a Démarche Numérique dossier. Only porteur_de_projet follows ADR-0002;
+ * deposant, demandeur_personne_* and identites keep the former model during the
+ * transition and will be restructured with the other people involved.
+ */
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
@@ -65,6 +72,7 @@ export function getPersonnesEntreprisesData88444(
     });
   }
 
+  let porteurDeProjet: PorteurDeProjetInitializer;
   let demandeurPersonnePhysique;
   if (personneMoraleOuPhysique === "une personne physique") {
     const email = emailContact || demandeur.email || deposant.email;
@@ -74,20 +82,29 @@ export function getPersonnesEntreprisesData88444(
       first_names: demandeur.prenom,
       last_name: demandeur.nom,
       email: email ? normalizeEmail(email) : undefined,
-      address: formatPostalAddress(addressChamp?.address),
-      phone: phoneContact || undefined,
-      role: role || undefined,
     };
     // Keep the reviewed contact values on this dossier, not on a shared person.
     Object.assign(identites[0], {
       email: demandeurPersonnePhysique.email ?? null,
-      phone: demandeurPersonnePhysique.phone ?? null,
-      role: demandeurPersonnePhysique.role ?? null,
+      phone: phoneContact || null,
+      role: role || null,
     });
+    // dossier.demandeur is the porteur de projet, with or without a mandataire.
+    const porteurEmail = emailContact || demandeur.email;
+    porteurDeProjet = {
+      type: "personne_physique",
+      first_names: demandeur.prenom || null,
+      last_name: demandeur.nom || null,
+      email: porteurEmail ? normalizeEmail(porteurEmail) : null,
+      address: formatPostalAddress(addressChamp?.address) ?? null,
+      phone: phoneContact || null,
+      role: role || null,
+    };
   }
 
   let demandeurPersonneMorale;
-  const etablissement = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"))?.etablissement;
+  const siretChamp = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"));
+  const etablissement = siretChamp?.etablissement;
   if (etablissement) {
     const { siret, address, entreprise, libelleNaf, naf } = etablissement;
     const {
@@ -119,6 +136,11 @@ export function getPersonnesEntreprisesData88444(
   }
 
   if (personneMoraleOuPhysique === "une personne morale") {
+    // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
+    const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/g, "");
+    if (/^\d{14}$/.test(siret ?? "")) {
+      porteurDeProjet = { type: "personne_morale", siret: siret as EntrepriseSiret };
+    }
     const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
     const firstNames = champById.get(
       pitchouKeyToChampDS.get("Prénom du représentant"),
@@ -141,5 +163,6 @@ export function getPersonnesEntreprisesData88444(
     demandeur_personne_morale: demandeurPersonneMorale,
     demandeur_personne_physique: demandeurPersonnePhysique,
     identites,
+    porteur_de_projet: porteurDeProjet,
   };
 }

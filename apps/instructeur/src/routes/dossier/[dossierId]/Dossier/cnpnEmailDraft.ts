@@ -70,7 +70,7 @@ export async function createCnpnEmailDraft(
     <p>Je vous prie de bien vouloir trouver, ci-joint, la saisine du CNPN concernant une demande de dérogation espèces protégées.</p>
     <ul>
       <li><strong>Nom du projet :</strong> ${escapeHtml(tags.nom)}</li>
-      <li><strong>Porteur de projet :</strong> ${escapeHtml(tags.demandeur.nom)}</li>
+      <li><strong>Porteur de projet :</strong> ${escapeHtml(tags.porteur_de_projet.nom)}</li>
       <li><strong>Identifiant du dossier sur Pitchou :</strong> ${escapeHtml(tags.numéro_dossier)}</li>
       <li><strong>Autorisation environnementale :</strong> ${escapeHtml(typeof aeRegime === "boolean" ? (aeRegime ? "Oui" : "Non") : aeRegime)}</li>
       <li><strong>Activité principale du dossier :</strong> ${escapeHtml(tags.activité_principale)}</li>

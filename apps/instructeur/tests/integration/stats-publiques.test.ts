@@ -31,7 +31,7 @@ test("GET /api/stats-publiques exposes named counts and only counts petitionnair
     controlePhaseDossierCount: 0,
     controlePhaseDossierWithDecisionCount: 0,
     controlePhaseDossierWithoutDecisionCount: 0,
-    petitionnaireCountSinceSeptember2024: 1,
+    porteurDeProjetCountSinceSeptember2024: 1,
     controllablePrescriptionCount: 0,
     prescriptionWithControleCount: 0,
     conformiteStats: {

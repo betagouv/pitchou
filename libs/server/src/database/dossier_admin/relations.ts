@@ -1,6 +1,8 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
+import { savePorteursDeProjet } from "../porteur_de_projet.ts";
 import {
   deleteUnreferencedDossierPersonnes,
   updateOrInsertDossierPersonne,
@@ -8,6 +10,35 @@ import {
 import type { AdminDossierRelations } from "./relationTypes.ts";
 
 export { deleteUnreferencedDossierPersonnes };
+
+// A personne physique without last or first name is not a porteur yet.
+function porteurDeProjetFromRelations(
+  relations: AdminDossierRelations,
+): PorteurDeProjetInitializer {
+  if (relations.demandeur_type === "personne_morale") {
+    return { type: "personne_morale", siret: relations.demandeur_personne_morale.siret };
+  }
+  const { last_name, first_names, email, address, phone, role } =
+    relations.demandeur_personne_physique;
+  if (!last_name.trim() && !first_names.trim()) return undefined;
+  return {
+    type: "personne_physique",
+    last_name: last_name.trim() || null,
+    first_names: first_names.trim() || null,
+    email: email ? normalizeEmail(email) : null,
+    address,
+    phone,
+    role,
+  };
+}
+
+async function savePorteurDeProjet(
+  dossierId: DossierId,
+  relations: AdminDossierRelations,
+  trx: Knex.Transaction,
+): Promise<void> {
+  await savePorteursDeProjet(new Map([[dossierId, porteurDeProjetFromRelations(relations)]]), trx);
+}
 
 export async function updateDossierAdminRelations(
   dossierId: DossierId,
@@ -33,18 +64,21 @@ export async function updateDossierAdminRelations(
     groupe_instructeurs: relations.groupe_instructeurs,
   });
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
-  await trx("identite_dossier").insert(
-    relations.identites.map((identite) => ({
-      ...identite,
-      dossier: dossierId,
-      email: identite.email ? normalizeEmail(identite.email) : null,
-    })),
-  );
+  if (relations.identites.length >= 1) {
+    await trx("identite_dossier").insert(
+      relations.identites.map((identite) => ({
+        ...identite,
+        dossier: dossierId,
+        email: identite.email ? normalizeEmail(identite.email) : null,
+      })),
+    );
+  }
   if (relations.demandeur_type === "personne_physique") {
+    const { last_name, first_names, email } = relations.demandeur_personne_physique;
     const personneId = await updateOrInsertDossierPersonne(
       current.demandeur_personne_physique,
       dossierId,
-      relations.demandeur_personne_physique,
+      { last_name, first_names, email },
       trx,
     );
     await trx("dossier").where({ id: dossierId }).update({
@@ -56,6 +90,7 @@ export async function updateDossierAdminRelations(
       [current.demandeur_personne_physique, current.deposant].filter((id) => id !== personneId),
       trx,
     );
+    await savePorteurDeProjet(dossierId, relations, trx);
     return;
   }
   const entreprise = relations.demandeur_personne_morale;
@@ -78,8 +113,6 @@ export async function updateDossierAdminRelations(
           last_name: demandeur.last_name,
           first_names: demandeur.first_names,
           email: demandeur.email,
-          phone: demandeur.phone,
-          role: demandeur.role,
         },
         trx,
       )
@@ -93,4 +126,6 @@ export async function updateDossierAdminRelations(
     [current.demandeur_personne_physique, current.deposant].filter((id) => id !== deposantId),
     trx,
   );
+  // After the entreprise insert above, so that its details are kept.
+  await savePorteurDeProjet(dossierId, relations, trx);
 }

@@ -2,37 +2,15 @@ import type Dossier from "../database/public/Dossier.ts";
 import type { DossierSource } from "../dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarche88444.ts";
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
+import type { PorteurDeProjet } from "../porteurDeProjet.ts";
 
 type DossierPersonnesImpliqueesSummary = {
+  porteur_de_projet: PorteurDeProjet | null;
   deposant_last_name: string;
   deposant_first_names: string;
-  demandeur_personne_physique_last_name: string;
-  demandeur_personne_physique_first_names: string;
-  demandeur_personne_morale_legal_name: string;
-  demandeur_personne_morale_siret: string;
 };
 
 export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
-  demandeur_address: string;
-  deposant_email: string | null;
-  deposant_phone: string | null;
-  deposant_role: string | null;
-  demandeur_personne_physique_email: string | null;
-  demandeur_personne_physique_address: string | null;
-  demandeur_personne_physique_phone: string | null;
-  demandeur_personne_physique_role: string | null;
-  demandeur_personne_morale_siren: string | null;
-  demandeur_personne_morale_legal_form: string | null;
-  demandeur_personne_morale_naf_code: string | null;
-  demandeur_personne_morale_naf_label: string | null;
-  demandeur_personne_morale_creation_date: string | null;
-  demandeur_personne_morale_admin_status: string | null;
-  demandeur_personne_morale_headcount: string | null;
-  demandeur_personne_morale_share_capital: string | null;
-  demandeur_personne_morale_insee_code: string | null;
-  demandeur_personne_morale_postal_code: string | null;
-  demandeur_personne_morale_department: string | null;
-  demandeur_personne_morale_region: string | null;
   representative_last_name: string | null;
   representative_first_names: string | null;
   representative_email: string | null;

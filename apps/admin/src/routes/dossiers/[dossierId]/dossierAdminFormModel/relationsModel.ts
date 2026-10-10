@@ -45,8 +45,9 @@ function findIdentity(detail: AdminDossierDetail, type: AdminIdentiteDossierType
 }
 
 export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
-  const personnePhysique = detail.demandeur_personne_physique;
-  const personneMorale = detail.demandeur_personne_morale;
+  const porteur = detail.porteur_de_projet;
+  const personnePhysique = porteur?.type === "personne_physique" ? porteur : null;
+  const personneMorale = porteur?.type === "personne_morale" ? porteur : null;
   const demandeurIdentity =
     findIdentity(detail, "demandeur") ??
     (personnePhysique

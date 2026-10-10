@@ -1,16 +1,10 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { tick } from "svelte";
 
-  import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import {
-    loadGroupesInstructeurs,
-    updateDossier,
-    type AdminDossierDetail,
-    type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
 
   import DossierIntakeFields from "../nouveau/DossierIntakeFields.svelte";
   import {
@@ -19,10 +13,13 @@
     clearSelectedDossierFiles,
     createDossierCreationModelFromDetail,
     hasLegalSiretChanged,
+    legalSiretError,
+    porteurEntreprise,
     mergeDossierRelationsForEdit,
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
+  import DossierMissingGroupeField from "./DossierMissingGroupeField.svelte";
 
   let {
     detail,
@@ -51,29 +48,40 @@
     mergeDossierRelationsForEdit(buildCreationPayload(model).relations, detail, ""),
   );
   let saveError = $state<string | null>(null);
+  let showPorteurErrors = $state(false);
   let saved = $state(false);
   let formVersion = $state(0);
-  let groupes = $state<AdminGroupeInstructeurs[]>([]);
-  let groupesLoadError = $state<string | null>(null);
   let companyDetailsChoice = $state<CompanyDetailsChoice>("");
   const missingGroupe = $derived(detail.groupe === null);
   const legalSiretChanged = $derived(
     model.demandeurType === "personne_morale" && hasLegalSiretChanged(detail, model.legalSiret),
   );
 
-  onMount(async () => {
-    if (!missingGroupe) return;
-    try {
-      groupes = await loadGroupesInstructeurs();
-    } catch {
-      groupesLoadError = "Impossible de charger les groupes instructeurs.";
+  function invalidPorteurField(): string | null {
+    if (!model.demandeurType) return "demandeur-physical";
+    if (model.demandeurType === "personne_physique") {
+      if (!model.physicalLastName.trim()) return "physical-last-name";
+      if (!model.physicalFirstNames.trim()) return "physical-first-names";
     }
-  });
+    if (model.demandeurType === "personne_morale" && legalSiretError(model.legalSiret)) {
+      return "legal-siret";
+    }
+    return null;
+  }
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
     if (!model.groupeInstructeurs) {
       saveError = "Sélectionnez un groupe instructeurs avant d'enregistrer le dossier.";
+      return;
+    }
+    const invalidField = invalidPorteurField();
+    if (invalidField) {
+      // Shown under each invalid field, with the focus on the first one.
+      showPorteurErrors = true;
+      saveError = null;
+      await tick();
+      document.getElementById(invalidField)?.focus();
       return;
     }
     if (legalSiretChanged && !companyDetailsChoice) {
@@ -143,31 +151,7 @@
 
   {#key formVersion}
     {#if missingGroupe}
-      <div class="fr-alert fr-alert--warning" role="alert">
-        <h2 class="fr-alert__title">Groupe instructeurs à réattribuer</h2>
-        <p>
-          Le groupe précédemment associé à ce dossier n'existe plus. Sélectionnez un nouveau groupe
-          pour rendre le dossier de nouveau accessible aux instructeurs.
-        </p>
-      </div>
-      <div class="fr-select-group">
-        <label class="fr-label" for="native-dossier-groupe">
-          Nouveau groupe instructeurs
-          <span class="fr-hint-text">Le dossier ne sera visible que par ce groupe.</span>
-        </label>
-        <Select
-          id="native-dossier-groupe"
-          class="fr-mt-1w"
-          placeholder="Sélectionner un groupe"
-          required
-          options={groupes.map((groupe) => ({
-            value: groupe.id,
-            label: `${groupe.name} (DN ${groupe.demarche_number})`,
-          }))}
-          bind:value={model.groupeInstructeurs}
-        />
-        {#if groupesLoadError}<p class="fr-error-text">{groupesLoadError}</p>{/if}
-      </div>
+      <DossierMissingGroupeField bind:value={model.groupeInstructeurs} />
     {/if}
 
     <DossierIntakeFields
@@ -178,9 +162,10 @@
       groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}
-      originalLegalSiret={detail.demandeur_personne_morale?.siret}
+      originalLegalSiret={porteurEntreprise(detail)?.siret}
       {companyDetailsChoice}
       onCompanyDetailsChoice={(choice) => (companyDetailsChoice = choice)}
+      {showPorteurErrors}
       {existingSpeciesFiles}
       {existingAttachments}
     />

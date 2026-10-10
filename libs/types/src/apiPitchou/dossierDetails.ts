@@ -92,7 +92,13 @@ export type FrontEndImpactOnEspecesWithSourceFile = {
 
 export type DossierFull = Omit<
   Dossier,
-  "communes" | "departments" | "regions" | "main_activite" | "projet_map" | "source"
+  | "communes"
+  | "departments"
+  | "regions"
+  | "main_activite"
+  | "projet_map"
+  | "source"
+  | "porteur_de_projet"
 > &
   DossierCommonData &
   DossierPersonnesImpliqueesFull & {

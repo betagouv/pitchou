@@ -77,10 +77,13 @@ test("a native dossier can change groupe and physical demandeur without mutating
   await updateDossierFromAdmin(id, { relations }, ADMIN_EMAIL, db);
   const detail = await getDossierDetailForAdmin(id, db);
   expect(detail.groupe?.id).toBe(nextGroupe.id);
-  expect(detail.demandeur_personne_physique).toMatchObject({
+  // Unlike the former personne, bound by the unique email of the accounts, the porteur
+  // keeps the email entered for this dossier.
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_physique",
     last_name: "Martin",
     first_names: "Camille",
-    email: null,
+    email: "shared@example.org",
     role: "Ecologue",
   });
   expect(detail.identites).toEqual(

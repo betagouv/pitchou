@@ -98,7 +98,7 @@
       class="dossier-text fr-mb-0 truncate {unread ? 'font-bold' : 'font-normal'}"
       title={porteurDeProjet}
     >
-      <span class="fr-sr-only">Pétitionnaire&nbsp;:</span>
+      <span class="fr-sr-only">Porteur de projet&nbsp;:</span>
       {porteurDeProjet}
     </p>
     <p

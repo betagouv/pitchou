@@ -25,7 +25,7 @@
 
 {#if dossier.piecesJointesPetitionnaires.length === 0}
   <p class="dossier-review-left">
-    Aucune pièce jointe n'a été déposée par le pétitionnaire dans le formulaire.
+    Aucune pièce jointe n'a été déposée par le porteur de projet dans le formulaire.
   </p>
 {:else}
   <ul class="list-none fr-p-0">

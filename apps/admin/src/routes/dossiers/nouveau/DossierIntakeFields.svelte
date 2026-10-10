@@ -31,6 +31,7 @@
     originalLegalSiret,
     companyDetailsChoice = "",
     onCompanyDetailsChoice = () => {},
+    showPorteurErrors = false,
     existingSpeciesFiles,
     existingAttachments,
   }: {
@@ -46,6 +47,7 @@
     originalLegalSiret?: string | null;
     companyDetailsChoice?: CompanyDetailsChoice;
     onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
+    showPorteurErrors?: boolean;
     existingSpeciesFiles?: Snippet;
     existingAttachments?: Snippet;
   } = $props();
@@ -58,6 +60,7 @@
   {originalLegalSiret}
   {companyDetailsChoice}
   {onCompanyDetailsChoice}
+  {showPorteurErrors}
 />
 <DossierCreationLocationSection {model} />
 <DossierCreationMapSection {model} />

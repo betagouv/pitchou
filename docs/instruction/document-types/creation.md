@@ -27,7 +27,7 @@ Par exemple :
 
 - <code>{ nom }</code> pour mettre le nom du dossier
 - <code>{ localisation }</code> pour la localisation du dossier
-- <code>{ demandeur }</code> pour le nom du porteur de projet.
+- <code>{ porteur_de_projet }</code> pour le nom du porteur de projet.
 
 Les balises ont des types qui peuvent être :
 
@@ -102,17 +102,17 @@ Les balises ont des types qui peuvent être :
                             <td> Date de mise en service (début d'exploitation). Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{demandeur}</code></th>
+                            <th scope="row"> <code>{porteur_de_projet}</code></th>
                             <td> texte</td>
-                            <td> Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale</td>
+                            <td> Nom du porteur de projet, avec numéro de SIRET si c'est une personne morale. L'ancienne balise <code>{demandeur}</code> fonctionne toujours.</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{demandeur.adresse}</code></th>
+                            <th scope="row"> <code>{porteur_de_projet.adresse}</code></th>
                             <td> texte</td>
                             <td> Adresse du porteur de projet</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{demandeur.nom}</code></th>
+                            <th scope="row"> <code>{porteur_de_projet.nom}</code></th>
                             <td> texte</td>
                             <td> Nom du porteur de projet (raison sociale si c'est une personne morale)</td>
                         </tr>
@@ -503,7 +503,7 @@ Imaginons que la DREAL Île-de-France reçoive un dossier nommé "Éoliennes sur
 Le modèle de document ressemblerait à :
 
 ```
-Bonjour { demandeur },
+Bonjour { porteur_de_projet },
 
 Nous avons bien reçu votre dossier { nom } situé à { localisation }
 
@@ -670,15 +670,15 @@ Il concerne au total les départements suivants :
 ## Points de vigilance
 
 **ℹ️ Point d'attention :**
-Le mécanisme de génération est précis et sensible. Il n'est pas tolérant aux erreurs, même d'une seule lettre. Ainsi, s'il est attendu <code>{ demandeur }</code>, alors <code>{ pétitionnaire }</code> ne marchera pas. <code>{ demandeur }</code> (au pluriel) ne marche pas non plus.
+Le mécanisme de génération est précis et sensible. Il n'est pas tolérant aux erreurs, même d'une seule lettre. Ainsi, s'il est attendu <code>{ porteur_de_projet }</code>, alors <code>{ pétitionnaire }</code> ne marchera pas. <code>{ porteurs_de_projet }</code> (au pluriel) ne marche pas non plus.
 Le mécanisme ne fonctionnera pas non plus si une balise est insérée dans le modèle, mais que le champ n'est pas rempli dans le formulaire. C'est pourquoi il faut porter une attention particulière au **bon remplissage** du formulaire par les pétitionnaires.
 
 ```
-✅ { demandeur } # attendu
-✅ {demandeur} # sans espaces proches des accalades
+✅ { porteur_de_projet } # attendu
+✅ {porteur_de_projet} # sans espaces proches des accalades
 ❌ { pétitionnaire } # nom différent
-❌ { demandeurs } # pluriel inattendu
-❌ { deman deur } # espace au milieu du nom
+❌ { porteurs_de_projet } # pluriel inattendu
+❌ { porteur de projet } # espaces au milieu du nom
 ```
 
 **💡 Conseil :** Ne pas écrire les zones à remplir à la main, mais plutôt les copier-coller d'un autre modèle de document qui fonctionne

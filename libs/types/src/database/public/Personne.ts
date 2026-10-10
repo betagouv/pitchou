@@ -19,12 +19,6 @@ export default interface Personne {
 
   /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
   access_code: string | null;
-
-  address: string | null;
-
-  phone: string | null;
-
-  role: string | null;
 }
 
 /** Represents the initializer for the table public.personne */
@@ -43,12 +37,6 @@ export interface PersonneInitializer {
 
   /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
   access_code?: string | null;
-
-  address?: string | null;
-
-  phone?: string | null;
-
-  role?: string | null;
 }
 
 /** Represents the mutator for the table public.personne */
@@ -66,10 +54,4 @@ export interface PersonneMutator {
 
   /** Unique access code of the personne. Used to retrieve a set of capabilities, particularly from the edge_cap_dossier__groupe_instructeurs table */
   access_code?: string | null;
-
-  address?: string | null;
-
-  phone?: string | null;
-
-  role?: string | null;
 }

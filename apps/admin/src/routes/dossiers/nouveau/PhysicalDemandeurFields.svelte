@@ -4,7 +4,11 @@
   import AddressAutocomplete from "./AddressAutocomplete.svelte";
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
-  let { model }: { model: DossierCreationModel } = $props();
+  let { model, showErrors = false }: { model: DossierCreationModel; showErrors?: boolean } =
+    $props();
+
+  const lastNameMissing = $derived(showErrors && !model.physicalLastName.trim());
+  const firstNamesMissing = $derived(showErrors && !model.physicalFirstNames.trim());
 
   const countryOptions = [
     { value: "France", label: "France" },
@@ -13,10 +17,52 @@
 </script>
 
 <div class="flex flex-col gap-6 fr-mb-3w">
+  <div class="fr-input-group w-full" class:fr-input-group--error={lastNameMissing}>
+    <label class="fr-label" for="physical-last-name">
+      Nom <span aria-hidden="true">*</span>
+      <span class="fr-sr-only">Champ obligatoire</span>
+    </label>
+    <input
+      class="fr-input w-full"
+      class:fr-input--error={lastNameMissing}
+      id="physical-last-name"
+      type="text"
+      autocomplete="family-name"
+      required
+      aria-invalid={lastNameMissing || undefined}
+      aria-describedby={lastNameMissing ? "physical-last-name-error" : undefined}
+      bind:value={model.physicalLastName}
+    />
+    {#if lastNameMissing}
+      <p class="fr-error-text" id="physical-last-name-error">Renseignez le nom.</p>
+    {/if}
+  </div>
+
+  <div class="fr-input-group w-full" class:fr-input-group--error={firstNamesMissing}>
+    <label class="fr-label" for="physical-first-names">
+      Prénom <span aria-hidden="true">*</span>
+      <span class="fr-sr-only">Champ obligatoire</span>
+    </label>
+    <input
+      class="fr-input w-full"
+      class:fr-input--error={firstNamesMissing}
+      id="physical-first-names"
+      type="text"
+      autocomplete="given-name"
+      required
+      aria-invalid={firstNamesMissing || undefined}
+      aria-describedby={firstNamesMissing ? "physical-first-names-error" : undefined}
+      bind:value={model.physicalFirstNames}
+    />
+    {#if firstNamesMissing}
+      <p class="fr-error-text" id="physical-first-names-error">Renseignez le prénom.</p>
+    {/if}
+  </div>
+
   <div class="fr-input-group w-full">
     <label class="fr-label" for="physical-qualification">
       Qualification
-      <span class="fr-hint-text">Si le demandeur est une personne physique</span>
+      <span class="fr-hint-text">Si le porteur de projet est une personne physique</span>
     </label>
     <input
       class="fr-input w-full"

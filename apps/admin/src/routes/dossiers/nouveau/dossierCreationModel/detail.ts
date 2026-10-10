@@ -25,24 +25,25 @@ function hydrateDemandeur(model: DossierCreationModel, detail: AdminDossierDetai
   const demandeurIdentity = detail.identites.find(({ type }) => type === "demandeur");
   const representative =
     detail.identites.find(({ type }) => type === "representant") ?? demandeurIdentity;
-  if (detail.demandeur_personne_morale) {
+  const porteur = detail.porteur_de_projet;
+  if (porteur?.type === "personne_morale") {
     model.demandeurType = "personne_morale";
-    model.legalSiret = detail.demandeur_personne_morale.siret;
+    model.legalSiret = porteur.siret;
     model.representativeLastName = representative?.last_name ?? "";
     model.representativeFirstNames = representative?.first_names ?? "";
     model.representativeRole = representative?.role ?? "";
     model.contactPhone = representative?.phone ?? "";
     model.contactEmail = representative?.email ?? "";
-  } else {
-    const demandeur = detail.demandeur_personne_physique;
+  } else if (porteur?.type === "personne_physique") {
     model.demandeurType = "personne_physique";
-    model.physicalLastName = demandeur?.last_name ?? "";
-    model.physicalFirstNames = demandeur?.first_names ?? "";
-    model.physicalQualification = demandeur?.role ?? "";
-    model.physicalAddress = demandeur?.address ?? "";
-    model.contactPhone = demandeur?.phone ?? "";
-    model.contactEmail = demandeur?.email ?? demandeurIdentity?.email ?? "";
+    model.physicalLastName = porteur.last_name ?? "";
+    model.physicalFirstNames = porteur.first_names ?? "";
+    model.physicalQualification = porteur.role ?? "";
+    model.physicalAddress = porteur.address ?? "";
+    model.contactPhone = porteur.phone ?? "";
+    model.contactEmail = porteur.email ?? demandeurIdentity?.email ?? "";
   }
+  // Without porteur no type is preselected: the admin has to choose one to save.
 }
 
 function hydrateScientificDetails(

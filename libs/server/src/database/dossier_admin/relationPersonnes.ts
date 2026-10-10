@@ -25,21 +25,24 @@ async function hasReferences(id: PersonneId, trx: Knex.Transaction, excludedDoss
   return false;
 }
 
+/** Only the identity of a personne: its contact details now live in personne_physique. */
+type DossierPersonne = Pick<PersonneInitializer, "last_name" | "first_names" | "email">;
+
 async function insertPersonne(
-  personne: PersonneInitializer,
+  { last_name, first_names, ...personne }: DossierPersonne,
   trx: Knex.Transaction,
 ): Promise<PersonneId> {
   const email = personne.email ? normalizeEmail(personne.email) : null;
   if (email) {
     const [inserted] = await trx("personne")
-      .insert({ ...personne, email })
+      .insert({ last_name, first_names, email })
       .onConflict("email")
       .ignore()
       .returning("id");
     if (inserted) return inserted.id;
   }
   const [inserted] = await trx("personne")
-    .insert({ ...personne, email: null })
+    .insert({ last_name, first_names, email: null })
     .returning("id");
   return inserted.id;
 }
@@ -47,7 +50,7 @@ async function insertPersonne(
 export async function updateOrInsertDossierPersonne(
   currentId: PersonneId | null,
   dossierId: DossierId,
-  personne: PersonneInitializer,
+  personne: DossierPersonne,
   trx: Knex.Transaction,
 ): Promise<PersonneId> {
   const current =
@@ -72,9 +75,6 @@ export async function updateOrInsertDossierPersonne(
       last_name: personne.last_name ?? null,
       first_names: personne.first_names ?? null,
       email,
-      address: personne.address ?? null,
-      phone: personne.phone ?? null,
-      role: personne.role ?? null,
     });
   return currentId;
 }

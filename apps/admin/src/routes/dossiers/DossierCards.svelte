@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
   import type { AdminDossierSummary } from "$lib/actions/adminDossiers.ts";
   import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
   import PhaseProgress from "./PhaseProgress.svelte";
@@ -14,12 +15,8 @@
     return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("fr-FR");
   }
 
-  function formatDemandeur(dossier: AdminDossierSummary): string {
-    if (dossier.demandeur_entreprise) return dossier.demandeur_entreprise;
-    const name = [dossier.demandeur_last_name, dossier.demandeur_first_names]
-      .filter(Boolean)
-      .join(" ");
-    return name || "—";
+  function formatPorteurDeProjet(dossier: AdminDossierSummary): string {
+    return porteurDeProjetName(dossier.porteur_de_projet) ?? "Non renseigné";
   }
 </script>
 
@@ -53,7 +50,7 @@
               {/if}
             </div>
             <p class="fr-mb-0 mt-1 truncate text-sm text-[color:var(--text-default-grey)]">
-              {formatDemandeur(dossier)}
+              {formatPorteurDeProjet(dossier)}
             </p>
             <p class="fr-mb-0 mt-1 text-sm text-[color:var(--text-mention-grey)]">
               Déposé le {formatDate(dossier.depot_date)}

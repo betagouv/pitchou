@@ -78,7 +78,7 @@
 
   <PieceJointeSection
     title="Projet"
-    emptyMessage="Aucune pièce jointe n'a été déposée par le pétitionnaire."
+    emptyMessage="Aucune pièce jointe n'a été déposée par le porteur de projet."
     tabLabel="Détail du projet"
     pieces={piecesProjet}
     openTab={() => openTab("detail-du-projet")}

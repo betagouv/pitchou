@@ -39,7 +39,7 @@
           oninput={(event) => onSearch(event.currentTarget.value)}
           name="texte-de-recherche"
           class="fr-input"
-          placeholder="Nom, demandeur ou numéro DN"
+          placeholder="Nom, porteur de projet ou numéro DN"
           id="recherche-dossier"
           type="search"
         />

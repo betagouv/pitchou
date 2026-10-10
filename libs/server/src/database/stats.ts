@@ -96,7 +96,7 @@ export async function getPublicStats(): Promise<PublicStats> {
       controlePhaseDossierWithDecisionCount: controlePhaseDossiersWithDecision.length,
       controlePhaseDossierWithoutDecisionCount:
         controlePhaseDossiers.length - controlePhaseDossiersWithDecision.length,
-      petitionnaireCountSinceSeptember2024: petitionnairesSinceSeptember2024.length,
+      porteurDeProjetCountSinceSeptember2024: petitionnairesSinceSeptember2024.length,
       controllablePrescriptionCount,
       prescriptionWithControleCount,
       conformiteStats,

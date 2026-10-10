@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { goto } from "$app/navigation";
 
   import Select from "@pitchou/ui/Select.svelte";
@@ -9,6 +9,14 @@
     loadGroupesInstructeurs,
     type AdminGroupeInstructeurs,
   } from "$lib/actions/adminDossiers.ts";
+  import CreateDossierPorteurFields from "./CreateDossierPorteurFields.svelte";
+  import {
+    emptyPorteurForm,
+    porteurFieldIds,
+    porteurFormErrors,
+    porteurPayload,
+    type PorteurField,
+  } from "./createDossierPorteur.ts";
 
   let { onClose }: { onClose: () => void } = $props();
   let name = $state("");
@@ -18,6 +26,8 @@
   let saving = $state(false);
   let error = $state<string | null>(null);
   let nameInput = $state<HTMLInputElement>();
+  let porteur = $state(emptyPorteurForm());
+  let showPorteurErrors = $state(false);
 
   onMount(async () => {
     nameInput?.focus();
@@ -33,12 +43,21 @@
 
   async function create(event: SubmitEvent) {
     event.preventDefault();
+    const [invalidField] = Object.keys(porteurFormErrors(porteur)) as PorteurField[];
+    if (invalidField) {
+      // Shown under each invalid field, with the focus on the first one.
+      showPorteurErrors = true;
+      await tick();
+      document.getElementById(porteurFieldIds[invalidField])?.focus();
+      return;
+    }
     saving = true;
     error = null;
     try {
       const { id } = await createMinimalDossier({
         name: name.trim(),
         groupe_instructeurs: groupeInstructeurs,
+        porteur_de_projet: porteurPayload(porteur),
       });
       await goto(`/dossiers/${id}`);
     } catch (creationError) {
@@ -103,6 +122,11 @@
             bind:value={groupeInstructeurs}
           />
         </div>
+        <CreateDossierPorteurFields
+          bind:form={porteur}
+          showErrors={showPorteurErrors}
+          disabled={saving}
+        />
         {#if error}
           <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{error}</p></div>
         {/if}

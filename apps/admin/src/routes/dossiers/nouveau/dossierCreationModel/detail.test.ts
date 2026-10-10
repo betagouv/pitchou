@@ -15,8 +15,7 @@ function detail(dossier: AdminDossierDetail["dossier"]): AdminDossierDetail {
     source: "pitchou",
     managedByDn: false,
     phase: "Accompagnement amont",
-    demandeur_personne_physique: null,
-    demandeur_personne_morale: null,
+    porteur_de_projet: null,
     groupe: { id: "groupe-1", name: "Groupe test" },
     identites: [],
     evenementsPhase: [],
@@ -41,7 +40,8 @@ describe("dossier creation detail", () => {
       scientifique_previous_assessment: true,
       scientifique_intervenants: [{ nom_complet: "Camille Martin", qualification: "Écologue" }],
     });
-    source.demandeur_personne_physique = {
+    source.porteur_de_projet = {
+      type: "personne_physique",
       last_name: "Martin",
       first_names: "Camille",
       email: null,
@@ -79,6 +79,18 @@ describe("dossier creation detail", () => {
       eolien_turbines_count: 8,
     });
   });
+  it("preselects no porteur type when the dossier has no porteur de projet", () => {
+    const source = detail({
+      id: 43,
+      name: "Projet sans porteur",
+      demarche_numerique_number: null,
+      demarche_number: null,
+      depot_date: "2026-08-03",
+    });
+    const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
+    expect(model.demandeurType).toBe("");
+    expect(hasLegalSiretChanged(source, "98765432109876")).toBe(false);
+  });
   it("keeps or resets company details explicitly when the SIRET changes", () => {
     const source = detail({
       id: 42,
@@ -87,24 +99,30 @@ describe("dossier creation detail", () => {
       demarche_number: null,
       depot_date: "2026-08-03",
     });
-    source.demandeur_personne_morale = {
+    source.porteur_de_projet = {
+      type: "personne_morale",
       siret: "12345678901234",
+      siren: "123456789",
       legal_name: "Entreprise actuelle",
       address: "1 rue actuelle",
       postal_code: "75001",
       department: "75",
       region: "Île-de-France",
-    };
+    } as AdminDossierDetail["porteur_de_projet"];
     const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
     model.legalSiret = "98765432109876";
     const relations = buildCreationPayload(model).relations;
     expect(hasLegalSiretChanged(source, model.legalSiret)).toBe(true);
+    // Only the fields the admin relations accept, whatever the porteur carries.
     expect(
       mergeDossierRelationsForEdit(relations, source, "keep").demandeur_personne_morale,
-    ).toMatchObject({
+    ).toEqual({
       siret: "98765432109876",
       legal_name: "Entreprise actuelle",
       address: "1 rue actuelle",
+      postal_code: "75001",
+      department: "75",
+      region: "Île-de-France",
     });
     expect(
       mergeDossierRelationsForEdit(relations, source, "reset").demandeur_personne_morale,

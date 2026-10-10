@@ -45,7 +45,7 @@ test("a legal dossier creation only stores its representative identity", async (
   );
 
   const detail = await getDossierDetailForAdmin(id, db);
-  expect(detail.demandeur_personne_morale?.legal_name).toBeNull();
+  expect(detail.porteur_de_projet).toMatchObject({ type: "personne_morale", legal_name: null });
   expect(detail.identites).toEqual([
     expect.objectContaining({ type: "representant", last_name: "" }),
   ]);
@@ -87,11 +87,11 @@ test("a physical dossier can be created without a duplicated identity name", asy
   );
 
   const detail = await getDossierDetailForAdmin(id, db);
-  expect(detail.demandeur_personne_physique).toMatchObject({
-    last_name: "",
-    first_names: "",
-    address: "11 rue Réaumur, Paris 75002, France",
-  });
+  // Without name the personne physique is not a porteur yet; the former column keeps it.
+  expect(detail.porteur_de_projet).toBeNull();
+  expect(
+    await db("personne").where({ id: detail.dossier.demandeur_personne_physique }).first(),
+  ).toMatchObject({ last_name: "", first_names: "" });
   expect(detail.dossier).toMatchObject({
     primary_department: "01",
     location_scope: "regions",
@@ -105,4 +105,37 @@ test("a physical dossier can be created without a duplicated identity name", asy
       ],
     },
   });
+});
+
+test("a dossier created with only the SIRET of its porteur has a personne morale porteur", async () => {
+  const instructeur = await createInstructeurWithCapToGroup(db);
+  const { id } = await createDossierFromAdmin(
+    {
+      name: "Dossier créé depuis la modale",
+      depot_date: new Date("2026-08-01"),
+      phase: "Accompagnement amont",
+      relations: {
+        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
+        demandeur_type: "personne_morale",
+        demandeur_personne_physique: null,
+        demandeur_personne_morale: {
+          siret: "43229623400029" as EntrepriseSiret,
+          legal_name: null,
+          address: null,
+          postal_code: null,
+          department: null,
+          region: null,
+        },
+        identites: [],
+      },
+    },
+    "admin@pitchou.test",
+    db,
+  );
+  const detail = await getDossierDetailForAdmin(id, db);
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_morale",
+    siret: "43229623400029",
+  });
+  expect(detail.identites).toEqual([]);
 });

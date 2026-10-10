@@ -14,15 +14,15 @@ describe("dossier admin relations model", () => {
         demarche_number: null,
         depot_date: "2026-08-01",
       },
-      demandeur_personne_physique: null,
-      demandeur_personne_morale: {
+      porteur_de_projet: {
+        type: "personne_morale",
         siret: "12345678901234",
         legal_name: "Entreprise test",
         address: null,
         postal_code: null,
         department: null,
         region: null,
-      },
+      } as AdminDossierDetail["porteur_de_projet"],
       groupe: { id: "groupe-1", name: "Groupe test" },
       identites: [
         {
