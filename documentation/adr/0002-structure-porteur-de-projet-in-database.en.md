@@ -1,4 +1,4 @@
-# ADR-0002: Structure the people involved in a dossier in the database
+# ADR-0002: Structure the porteur de projet in the database
 
 _Version française : [0002-structure-porteur-de-projet-in-database.md](0002-structure-porteur-de-projet-in-database.md)_
 
