@@ -94,8 +94,8 @@ catalogs:
       specifier: ^2.1.1
       version: 2.1.1
     csv-parse:
-      specifier: ^7.0.1
-      version: 7.0.1
+      specifier: ^7.0.2
+      version: 7.0.3
     csv-stringify:
       specifier: ^6.5.0
       version: 6.8.1
@@ -598,7 +598,7 @@ importers:
         version: 9.0.1
       csv-parse:
         specifier: 'catalog:'
-        version: 7.0.1
+        version: 7.0.3
       date-fns:
         specifier: 'catalog:'
         version: 4.4.0
@@ -650,7 +650,7 @@ importers:
         version: link:../libs/types
       csv-parse:
         specifier: 'catalog:'
-        version: 7.0.1
+        version: 7.0.3
       csv-stringify:
         specifier: 'catalog:'
         version: 6.8.1
@@ -2252,8 +2252,8 @@ packages:
   css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
 
-  csv-parse@7.0.1:
-    resolution: {integrity: sha512-+2z7Ar0APQ7Uu6fX4cn+pitRmxjZ1WPBcGmZFKmA74FCyi7Et/XZx8cjNQ5CjbZ4HCOxXCOpRBYvYH08Qa003A==}
+  csv-parse@7.0.3:
+    resolution: {integrity: sha512-YFd3QM/yo17vH91L1IOZuvl09zM0zEEtdfTcOCKWcMdM++MNaQSyp09slXyFCLaPXvHstQFx/xC8myiFHSMUvw==}
 
   csv-stringify@6.8.1:
     resolution: {integrity: sha512-tZ6X6TKQyQgCo5OptXcyAbfN1pwmoxEqELPQ7KFazNErx7kiVsDK8o+VYRXhfMl4N9vvOOLXuioquR2MeP847A==}
@@ -5227,7 +5227,7 @@ snapshots:
 
   css.escape@1.5.1: {}
 
-  csv-parse@7.0.1: {}
+  csv-parse@7.0.3: {}
 
   csv-stringify@6.8.1: {}
 
