@@ -27,15 +27,15 @@ export type ExportDossier = Pick<
   | "departments"
   | "regions"
   | "location_scope"
-  | "demandeur_personne_physique_last_name"
-  | "demandeur_personne_physique_first_names"
-  | "demandeur_personne_morale_legal_name"
-  | "demandeur_personne_morale_siret"
   | "linked_to_ae_regime"
   | "ddep_required"
   | "er_mesures_sufficient"
   | "enjeu"
 > & {
+  demandeur_personne_physique_last_name: string | null;
+  demandeur_personne_physique_first_names: string | null;
+  demandeur_personne_morale_legal_name: string | null;
+  demandeur_personne_morale_siret: string | null;
   readOnly?: boolean;
   phase: DossierPhase;
   followers: string[];
