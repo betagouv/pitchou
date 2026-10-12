@@ -82,7 +82,7 @@ export const SEED_ESPECES_IMPACTEES: SeedEspecesImpactees[] = [
         identifiant_pitchou_activité: "P-30",
         nombre_individus: "11-100",
       },
-      // Peturbation, effarouchement, faune non-oiseau (P-40)
+      // Perturbation, effarouchement, faune non-oiseau (P-40)
       {
         classification: "faune non-oiseau",
         cd_ref: "77600",

@@ -55,7 +55,9 @@ export const REFERENTIEL_ATTENDU: ReferentielProjete = {
       "surfaceHabitatDetruit",
     ]),
     impact("P-5", "5", "oiseau", "Enlèvement d’oeufs (même vides)", ["oeufs"]),
-    impact("P-6", "6", "oiseau", "Peturbation intentionnelle, effarouchement", ["nombreIndividus"]),
+    impact("P-6", "6", "oiseau", "Perturbation intentionnelle, effarouchement", [
+      "nombreIndividus",
+    ]),
     impact(
       "P-7",
       "7",
@@ -85,7 +87,7 @@ export const REFERENTIEL_ATTENDU: ReferentielProjete = {
       methodeIndividus,
     ),
     impact("P-30", "30", "faune non-oiseau", "Capture/relâcher immédiat", methodeIndividus),
-    impact("P-40", "40", "faune non-oiseau", "Peturbation, effarouchement", ["nombreIndividus"]),
+    impact("P-40", "40", "faune non-oiseau", "Perturbation, effarouchement", ["nombreIndividus"]),
     impact("P-50", "50", "faune non-oiseau", "Destruction/enlèvement d’oeufs/pontes", [
       "nombreIndividus",
     ]),
