@@ -148,7 +148,7 @@ export const TYPES_IMPACT: TypeImpactRow[] = [
     identifiant_pitchou: "P-6",
     code_europeen: "6",
     classification: "oiseau",
-    libelle_pitchou: "Peturbation intentionnelle, effarouchement",
+    libelle_pitchou: "Perturbation intentionnelle, effarouchement",
     libelle_europeen:
       "Perturbation délibérée, en particulier pendant la période de reproduction et d'élevage, dans la mesure où la perturbation serait importante au regard des objectifs de la directive",
     activites_onagre: [
@@ -279,7 +279,7 @@ export const TYPES_IMPACT: TypeImpactRow[] = [
     identifiant_pitchou: "P-40",
     code_europeen: "40",
     classification: "faune non-oiseau",
-    libelle_pitchou: "Peturbation, effarouchement",
+    libelle_pitchou: "Perturbation, effarouchement",
     libelle_europeen:
       "Perturbation délibérée des spécimens, en particulier pendant la période de reproduction, d'élevage, d'hibernation et de migration dans les habitats vocabulaire des principales activités\n\nb) la perturbation intentionnelle de ces espèces notamment durant la période de reproduction, de dépendance, d'hibernation et de migration;",
     activites_onagre: [
