@@ -40,8 +40,8 @@ catalog:
   "@types/minimist": "^1.2.5"
   "@types/node": "^24.0.0"
   "@types/sanitize-html": "^2.16.0"
-  "@vitest/browser": "^4.1.7"
-  "@vitest/browser-playwright": "^4.1.7"
+  "@vitest/browser": "^4.1.11"
+  "@vitest/browser-playwright": "^4.1.11"
   "byte-size": "^9.0.1"
   "clsx": "^2.1.1"
   "csv-parse": "^7.0.2"
@@ -73,7 +73,7 @@ catalog:
   "tsx": "^4.22.3"
   "typescript": "^5.8.3"
   "vite": "^8.0.14"
-  "vitest": "^4.1.7"
+  "vitest": "^4.1.11"
   "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
 
 minimumReleaseAgeExclude:
