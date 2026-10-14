@@ -21,3 +21,20 @@ test("escapes dossier names and includes dossier and settings links without capa
   expect(message.htmlContent).not.toContain("cap=");
   expect(message.headers).toEqual({ idempotencyKey: "event-id" });
 });
+
+test("keeps an undetermined enjeu distinct from an explicit absence of enjeu", () => {
+  const context = {
+    id: "event-id",
+    kind: "novelty" as const,
+    email: "recipient@test.fr",
+    dossier: 42,
+    demarche_numerique_number: null,
+    name: null,
+  };
+  expect(
+    notificationEmailMessage({ ...context, enjeu: null }, "https://pitchou.test").subject,
+  ).toBe("Nouveauté: 42 - Enjeu à déterminer - Dossier sans titre");
+  expect(
+    notificationEmailMessage({ ...context, enjeu: false }, "https://pitchou.test").subject,
+  ).toContain("Sans enjeu");
+});
