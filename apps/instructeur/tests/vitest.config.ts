@@ -14,6 +14,17 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: "notification-integration",
+          environment: "node",
+          include: ["tests/notification-emails/**/*.test.ts"],
+          globalSetup: ["./tests/setup/email-global.ts"],
+          setupFiles: ["./tests/setup/email-each.ts"],
+          fileParallelism: false,
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: "unit",
           environment: "node",
           include: ["../../libs/**/*.test.ts", "src/**/*.test.ts"],

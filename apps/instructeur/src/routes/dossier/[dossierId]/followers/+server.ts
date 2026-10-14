@@ -1,3 +1,4 @@
+import { dispatchAssignmentEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "$lib/server/auth.ts";
@@ -63,7 +64,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
       await transaction.rollback();
       error(403, "Une personne sélectionnée n'appartient pas au groupe instructeur du dossier.");
     }
-    const actor = await getPersonneByDossierCap(cap);
+    const actor = await getPersonneByDossierCap(cap, transaction);
     await logDossierActions(
       [
         ...updated.added.map((follower) => ({
@@ -97,6 +98,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
       },
     );
     await transaction.commit();
+    await dispatchAssignmentEmailsAfterCommit(dossierId);
     return new Response(null, { status: 204 });
   } catch (err) {
     if (!transaction.isCompleted()) await transaction.rollback();

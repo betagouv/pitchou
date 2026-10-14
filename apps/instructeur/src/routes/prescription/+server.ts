@@ -1,3 +1,4 @@
+import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
@@ -105,6 +106,9 @@ export const POST: RequestHandler = async ({ url, request }) => {
   // safe for the browser to retry.
   const transaction = await createTransaction();
   try {
+    const current = modification
+      ? await transaction("prescription").where({ id: prescriptionData.id }).forUpdate().first()
+      : undefined;
     const prescriptionId = modification
       ? await updatePrescription(prescriptionData, transaction)
       : await addPrescription(prescriptionData, transaction);
@@ -113,7 +117,10 @@ export const POST: RequestHandler = async ({ url, request }) => {
         {
           dossier: authorizedDossierId,
           type: modification ? "prescription_modifiee" : "prescription_ajoutee",
-          data: { article_number: prescriptionData.article_number ?? null },
+          data: {
+            article_number: prescriptionData.article_number ?? null,
+            email_notification: hasChangedValues(current, prescriptionData),
+          },
           author_personne: author.id,
         },
       ],

@@ -2,7 +2,14 @@ import { beforeEach, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const insert = vi.fn().mockResolvedValue(undefined);
-  const transaction = vi.fn(() => ({ insert }));
+  const first = vi.fn().mockResolvedValue(undefined);
+  const query = {
+    insert,
+    first,
+    where: vi.fn().mockReturnThis(),
+    forUpdate: vi.fn().mockReturnThis(),
+  };
+  const transaction = vi.fn(() => query);
   const commit = vi.fn();
   const rollback = vi.fn();
   const database = Object.assign(

@@ -77,6 +77,8 @@ test("dark mode swaps in the dark logo and account actions still work", async ()
   expect(svg.querySelector('path[fill="#252E7E"]')).toBeNull();
 
   await userEvent.click(screen.getByRole("button", { name: "Mon espace" }));
+  expect(screen.getByRole("link", { name: "Paramètres" })).toHaveAttribute("href", "/parametres");
+  expect(screen.getByRole("link", { name: "Paramètres" })).toHaveClass("fr-icon-settings-5-line");
   await userEvent.click(screen.getByRole("button", { name: "Se déconnecter" }));
   expect(onLogout).toHaveBeenCalledOnce();
 

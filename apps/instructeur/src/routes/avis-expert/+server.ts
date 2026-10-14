@@ -1,3 +1,4 @@
+import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
@@ -118,15 +119,22 @@ export const POST: RequestHandler = async ({ url, request }) => {
     );
   } else {
     await directDatabaseConnection.transaction(async (transaction) => {
+      const current = id
+        ? await transaction("avis_expert").where({ id }).forUpdate().first()
+        : undefined;
       await addOrUpdateAvisExpert(avisExpert, transaction);
-      if (id) {
+      if (id || hasChangedValues(current, avisExpert)) {
         const author = await getPersonneByDossierCap(cap, transaction);
         await logDossierActions(
           [
             {
               dossier: authorizedDossierId,
-              type: "avis_modifie",
-              data: { expert: expert ?? null, avis: avis ?? null },
+              type: id ? "avis_modifie" : "avis_importe",
+              data: {
+                expert: expert ?? null,
+                avis: avis ?? null,
+                email_notification: hasChangedValues(current, avisExpert),
+              },
               author_personne: author?.id ?? null,
             },
           ],

@@ -65,14 +65,22 @@ const databaseRoutes = [
   },
 ];
 
-describe.each(databaseRoutes)("$name audit", ({ run, mutation, args, status }) => {
+describe.each(databaseRoutes)("$name audit", ({ name, run, mutation, args, status }) => {
   it("commits the mutation, author lookup, audit and metric on the same connection", async () => {
     const response = await run();
     expect(response.status).toBe(status);
     if (status === 201) expect(await response.json()).toEqual(comment);
     expect(mutation).toHaveBeenCalledWith(...args, mocks.transaction);
     expect(mocks.author).toHaveBeenCalledWith("cap", mocks.transaction);
-    expect(mocks.transaction.mock.calls).toEqual([["action_dossier"], ["evenement_metrique"]]);
+    expect(mocks.transaction.mock.calls).toEqual([
+      ...(name === "comment update"
+        ? [["commentaire"]]
+        : name === "avis update without files"
+          ? [["avis_expert"]]
+          : []),
+      ["action_dossier"],
+      ["evenement_metrique"],
+    ]);
     expect(mocks.database).not.toHaveBeenCalled();
     expect(mocks.commit).toHaveBeenCalledOnce();
     expect(mocks.rollback).not.toHaveBeenCalled();
