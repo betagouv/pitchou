@@ -20,6 +20,10 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const ret = Object.create(null) as CapURLs;
 
+  if (capBundle.getEmailNotificationPreferences) {
+    ret.getEmailNotificationPreferences = `/parametres/notifications?cap=${capBundle.getEmailNotificationPreferences}`;
+    ret.updateEmailNotificationPreferences = ret.getEmailNotificationPreferences;
+  }
   if (capBundle.listerDossiers) {
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`;
   }

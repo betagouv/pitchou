@@ -51,7 +51,11 @@
     <Navbar />
 
     <div class="ms-auto">
-      <AccountMenu {email} {onLogout} />
+      <AccountMenu
+        links={[{ href: "/parametres", label: "Paramètres", icon: "fr-icon-settings-5-line" }]}
+        {email}
+        {onLogout}
+      />
     </div>
   </div>
 </header>

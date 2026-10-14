@@ -185,6 +185,8 @@ export default function (
     creerEvenementMetrique: wrapPOSTUrl(capURLs.creerEvenementMetrique, { keepalive: true }),
     listRecentSearches: wrapGETUrl(capURLs.listRecentSearches),
     identité: capURLs.identité,
+    getEmailNotificationPreferences: wrapGETUrl(capURLs.getEmailNotificationPreferences),
+    updateEmailNotificationPreferences: wrapJsonPOST(capURLs.updateEmailNotificationPreferences),
     listerNotifications: wrapGETUrl(capURLs.listerNotifications),
     updateNotificationForDossier: wrapPOSTUrl(capURLs.updateNotificationForDossier),
   };
