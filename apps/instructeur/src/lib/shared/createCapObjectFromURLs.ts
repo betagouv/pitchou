@@ -171,7 +171,7 @@ export default function (
       decisionAdministrativeIdURLParam,
     ),
     addOrUpdatePrescription: wrapPOSTUrl(capURLs.addOrUpdatePrescription),
-    addPrescriptionsAndControles: wrapPOSTUrl(capURLs.addPrescriptionsAndControles),
+    addPrescriptionsAndControles: wrapJsonPOST(capURLs.addPrescriptionsAndControles),
     deletePrescription: wrapDeleteById(capURLs.deletePrescription, prescriptionIdURLParam),
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),
