@@ -4,14 +4,13 @@
   import PrescriptionsEditTable from "./Prescriptions/PrescriptionsEditTable.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import PrescriptionImport from "./Prescriptions/PrescriptionImport.svelte";
 
   import {
     deletePrescription as deletePrescriptionDatabase,
     addPrescription as addPrescriptionDatabase,
     updatePrescription,
   } from "./prescriptions.ts";
-  import { createPrescriptionControlesFromFichier } from "./decisionAdministrative.ts";
   import { refreshDossierFull } from "$lib/dossier/dossier.ts";
 
   import type {
@@ -122,22 +121,17 @@
     prescriptions = prescriptions.filter((p) => p !== prescription);
   }
 
-  async function onFileInput(e: Event & { currentTarget: HTMLElement & HTMLInputElement }) {
-    const file = e.currentTarget.files?.[0];
-    if (!file) return;
-
-    const importPrescriptionFileAB = await file.arrayBuffer();
-    const newPrescriptions = await createPrescriptionControlesFromFichier(
-      importPrescriptionFileAB,
-      decisionAdministrative,
-    );
-
-    prescriptions = newPrescriptions;
-    refreshDossierFull(dossierId);
-  }
+  let importedCount = $state(0);
 </script>
 
 <section>
+  {#if importedCount > 0}
+    <p class="fr-alert fr-alert--success fr-mb-2w" role="status">
+      {importedCount} prescription{importedCount > 1 ? "s" : ""} importée{importedCount > 1
+        ? "s"
+        : ""}.
+    </p>
+  {/if}
   {#if prescriptions.length === 0}
     <h5 class="fr-mb-2w">Prescriptions</h5>
     <section class="fr-mb-3w">
@@ -148,26 +142,14 @@
       </button>
     </section>
 
-    <section class="fr-mb-4w">
-      <h6>Import d'un fichier de prescriptions</h6>
-      <div class="fr-upload-group">
-        <label class="fr-label" for="file-upload">
-          Importer un fichier de prescriptions. Un <a
-            href="/data/modèles/modèle ajout prescriptions.ods">modèle est disponible</a
-          >. Il est important de garder les noms de colonnes (mais pas forcément l'ordre et elles
-          sont toutes optionnelles)
-          <span class="fr-hint-text">{uploadSizeHint()} Formats supportés : .ods</span>
-        </label>
-        <input
-          oninput={onFileInput}
-          class="fr-upload"
-          type="file"
-          accept=".ods"
-          id="file-upload"
-          name="file-upload"
-        />
-      </div>
-    </section>
+    <PrescriptionImport
+      {dossierId}
+      {decisionAdministrative}
+      onimport={(savedPrescriptions, count) => {
+        prescriptions = savedPrescriptions;
+        importedCount = count;
+      }}
+    />
   {:else}
     <h5 class="fr-mb-2w">{prescriptions.length} prescriptions</h5>
 
