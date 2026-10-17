@@ -12,6 +12,10 @@ Déployer le nouveau `cron.json` sur l'application instructeur. Le worker tourne
 
 Les imports DN initiaux, même marqués comme baseline en fin de synchronisation, sont exclus. Les modifications DN portent l'attribution pétitionnaire de l'historique existant. Les modifications faites dans Pitchou utilisent l'identifiant serveur de la personne ayant effectué l'action. La lecture des notifications dans Pitchou ne supprime pas les mails en attente.
 
+## Présentation des paramètres
+
+Ouvrir **Mon espace > Paramètres**, ou directement `/parametres`. La page affiche un panneau centré, avec deux réglages, **Attributions de dossiers** et **Nouveautés sur mes dossiers suivis**. Chaque réglage présente son explication, sa fréquence et les choix Activé et Désactivé. Sur ordinateur, les choix des deux lignes sont alignés à droite. Sur mobile, ils passent sous le texte sans défilement horizontal. Vérifier cette disposition à 320 px, 768 px et sur grand écran, en thèmes clair et sombre. Le bouton Enregistrer se trouve en bas du panneau, avec la confirmation ou l'erreur d'enregistrement.
+
 ## Recette des parcours
 
 Utiliser deux comptes instructeurs A et B du même groupe, dans deux sessions de navigateur. Prévoir deux dossiers accessibles à ce groupe, dont un dossier DN, ainsi qu'une décision administrative, une prescription et un contrôle pour tester l'onglet Contrôle. Remplacer `ID` par l'identifiant Pitchou du dossier. Pour vérifier la réception réelle, utiliser uniquement des destinataires de recette et un environnement Brevo contrôlé. Les tests automatisés ci-dessous simulent tous les envois.
