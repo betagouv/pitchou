@@ -46,3 +46,6 @@ docs/vendor/
 .cache/
 compose.dev.override.yml
 compose.test.override.yml
+
+# Local development configuration and worktrees
+/.fleet/
