@@ -81,4 +81,8 @@ function decodeHtmlEntities(value: string): string {
     .replaceAll("&gt;", ">");
 }
 
-main().finally(() => closeDatabaseConnection());
+try {
+  await main();
+} finally {
+  await closeDatabaseConnection();
+}

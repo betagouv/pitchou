@@ -32,6 +32,7 @@
     "unicorn/explicit-length-check": "error",
     "unicorn/escape-case": "error",
     "unicorn/prefer-type-error": "error",
+    "unicorn/prefer-top-level-await": "error",
     "unicorn/prefer-string-replace-all": "error",
     "unicorn/prefer-dom-node-dataset": "error",
     "promise/no-return-wrap": "error",

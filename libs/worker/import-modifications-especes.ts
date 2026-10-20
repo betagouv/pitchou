@@ -163,7 +163,11 @@ async function main() {
   }
 }
 
-main().finally(() => closeDatabaseConnection());
+try {
+  await main();
+} finally {
+  await closeDatabaseConnection();
+}
 
 async function loadProtectionNames() {
   // --- ministérielle / CNPN .ods (names) ---
@@ -188,14 +192,10 @@ async function loadProtectionNames() {
   const cnpn = normalize(
     sheetRawContentToObjects<ESPECES_CNPN_ROW>(sheetMap.get("Espèces CNPN")!.filter(isRowNotEmpty)),
   );
-  const ministeriellesNames = new Set([
-    ...ministerielles.map((m) => m["Nom scientifique"]),
-    ...ministerielles.map((m) => m["Nom vernaculaire"]),
-  ]);
-  const cnpnNames = new Set([
-    ...cnpn.map((c) => c["Nom scientifique"]),
-    ...cnpn.map((c) => c["Nom vernaculaire"]),
-  ]);
+  const ministeriellesNames = new Set(
+    ministerielles.flatMap((m) => [m["Nom scientifique"], m["Nom vernaculaire"]]),
+  );
+  const cnpnNames = new Set(cnpn.flatMap((c) => [c["Nom scientifique"], c["Nom vernaculaire"]]));
 
   return { ministeriellesNames, cnpnNames };
 }

@@ -7,6 +7,9 @@ import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 process.title = `Reconstruction référence espèces`;
 
-rebuildEspeceProtegeeReference()
-  .then(() => console.info("espece_protegee_reference rebuilt"))
-  .finally(() => closeDatabaseConnection());
+try {
+  await rebuildEspeceProtegeeReference();
+  console.info("espece_protegee_reference rebuilt");
+} finally {
+  await closeDatabaseConnection();
+}
