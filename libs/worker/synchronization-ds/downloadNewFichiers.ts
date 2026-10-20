@@ -117,66 +117,7 @@ export default async function downloadNewFichiers(
     ([number, fichiers]) => {
       return Promise.all(
         fichiers.map(async (fichier) => {
-          const { url } = fichier;
-          const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } =
-            fichier;
-
-          let buffer: Buffer;
-          try {
-            const { content } = await downloadFichierDS(url);
-            buffer = Buffer.from(content);
-          } catch (err) {
-            if (err instanceof HTTPError) {
-              console.error(
-                `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
-                url,
-                `dossier DS`,
-                number,
-              );
-            } else {
-              console.error(
-                `Erreur lors du téléchargement d'un fichier`,
-                url,
-                `dossier DS`,
-                number,
-                // @ts-ignore
-                err.message,
-                // @ts-ignore
-                err.cause ? `cause: ${err.cause?.message}` : "",
-              );
-            }
-            return undefined;
-          }
-
-          try {
-            const insertedFichier = await storeNewFichier(
-              {
-                name,
-                content: buffer,
-                media_type,
-                demarche_numerique_checksum,
-                demarche_numerique_created_at,
-              },
-              transaction,
-            );
-            console.log(
-              `Dossier DS`,
-              number,
-              `- Téléchargement et stockage fichier '${name}'`,
-              `(${byteSize(buffer.byteLength)})`,
-            );
-            return insertedFichier.id;
-          } catch (err) {
-            console.error(
-              `Échec stockage fichier pour`,
-              url,
-              `dossier DS`,
-              number,
-              // @ts-ignore
-              err.message,
-            );
-            return undefined;
-          }
+          return downloadAndStoreFichier(fichier, number, transaction);
         }),
       ).then((downloadedFichiers) => {
         const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
@@ -211,4 +152,70 @@ export default async function downloadNewFichiers(
   }
 
   return fichiersByDossier;
+}
+
+async function downloadAndStoreFichier(
+  fichier: FichierToDownload,
+  number: DossierDS88444["number"],
+  transaction?: Knex.Transaction | Knex,
+) {
+  const { url } = fichier;
+  const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } = fichier;
+
+  let buffer: Buffer;
+  try {
+    const { content } = await downloadFichierDS(url);
+    buffer = Buffer.from(content);
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      console.error(
+        `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
+        url,
+        `dossier DS`,
+        number,
+      );
+    } else {
+      console.error(
+        `Erreur lors du téléchargement d'un fichier`,
+        url,
+        `dossier DS`,
+        number,
+        // @ts-ignore
+        err.message,
+        // @ts-ignore
+        err.cause ? `cause: ${err.cause?.message}` : "",
+      );
+    }
+    return undefined;
+  }
+
+  try {
+    const insertedFichier = await storeNewFichier(
+      {
+        name,
+        content: buffer,
+        media_type,
+        demarche_numerique_checksum,
+        demarche_numerique_created_at,
+      },
+      transaction,
+    );
+    console.log(
+      `Dossier DS`,
+      number,
+      `- Téléchargement et stockage fichier '${name}'`,
+      `(${byteSize(buffer.byteLength)})`,
+    );
+    return insertedFichier.id;
+  } catch (err) {
+    console.error(
+      `Échec stockage fichier pour`,
+      url,
+      `dossier DS`,
+      number,
+      // @ts-ignore
+      err.message,
+    );
+    return undefined;
+  }
 }

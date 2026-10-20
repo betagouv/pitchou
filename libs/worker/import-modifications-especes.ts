@@ -82,36 +82,7 @@ function classification(rows: TaxrefRow[]): string {
 async function main() {
   const db = directDatabaseConnection;
 
-  // --- ministérielle / CNPN .ods (names) ---
-  const sheetMap = await readFile(MINISTERIELLES_CNPN_PATH).then(getODSTableRawContent);
-  // Non-breaking spaces (U+00A0) creep in from copy-paste; normalize for exact matching.
-  const normalizeName = (s: string) => s.replace(/ /gu, " ").trim();
-  const normalize = <T>(l: T[]): T[] =>
-    l.map(
-      (r) =>
-        Object.fromEntries(
-          Object.entries(r as Record<string, unknown>).map(([k, v]) => [
-            k,
-            typeof v === "string" ? normalizeName(v) : v,
-          ]),
-        ) as T,
-    );
-  const ministerielles = normalize(
-    sheetRawContentToObjects<ESPECES_MINISTERIELLES_ROW>(
-      sheetMap.get("Espèces Ministérielles")!.filter(isRowNotEmpty),
-    ),
-  );
-  const cnpn = normalize(
-    sheetRawContentToObjects<ESPECES_CNPN_ROW>(sheetMap.get("Espèces CNPN")!.filter(isRowNotEmpty)),
-  );
-  const ministeriellesNames = new Set([
-    ...ministerielles.map((m) => m["Nom scientifique"]),
-    ...ministerielles.map((m) => m["Nom vernaculaire"]),
-  ]);
-  const cnpnNames = new Set([
-    ...cnpn.map((c) => c["Nom scientifique"]),
-    ...cnpn.map((c) => c["Nom vernaculaire"]),
-  ]);
+  const { ministeriellesNames, cnpnNames } = await loadProtectionNames();
 
   // --- match against the reference (matview) ---
   const referenceRows: {
@@ -149,15 +120,7 @@ async function main() {
     missingMap.get("espèces_manquantes")!.filter(isRowNotEmpty),
   ).map((r) => r.CD_NOM.toString(10));
 
-  const taxrefRows: TaxrefRow[] = await db("espece_taxref")
-    .select("id", "cd_nom", "cd_ref", "lb_nom", "nom_vern", "regne", "classe")
-    .whereIn("cd_ref", missingCdRefs)
-    .orderBy("id");
-  const taxrefByCdRef = new Map<string, TaxrefRow[]>();
-  for (const r of taxrefRows) {
-    if (!taxrefByCdRef.has(r.cd_ref)) taxrefByCdRef.set(r.cd_ref, []);
-    taxrefByCdRef.get(r.cd_ref)!.push(r);
-  }
+  const taxrefByCdRef = await loadTaxrefByCdRef(missingCdRefs);
 
   let additionCount = 0;
   const notFound: string[] = [];
@@ -201,3 +164,53 @@ async function main() {
 }
 
 main().finally(() => closeDatabaseConnection());
+
+async function loadProtectionNames() {
+  // --- ministérielle / CNPN .ods (names) ---
+  const sheetMap = await readFile(MINISTERIELLES_CNPN_PATH).then(getODSTableRawContent);
+  // Non-breaking spaces (U+00A0) creep in from copy-paste; normalize for exact matching.
+  const normalizeName = (s: string) => s.replace(/ /gu, " ").trim();
+  const normalize = <T>(l: T[]): T[] =>
+    l.map(
+      (r) =>
+        Object.fromEntries(
+          Object.entries(r as Record<string, unknown>).map(([k, v]) => [
+            k,
+            typeof v === "string" ? normalizeName(v) : v,
+          ]),
+        ) as T,
+    );
+  const ministerielles = normalize(
+    sheetRawContentToObjects<ESPECES_MINISTERIELLES_ROW>(
+      sheetMap.get("Espèces Ministérielles")!.filter(isRowNotEmpty),
+    ),
+  );
+  const cnpn = normalize(
+    sheetRawContentToObjects<ESPECES_CNPN_ROW>(sheetMap.get("Espèces CNPN")!.filter(isRowNotEmpty)),
+  );
+  const ministeriellesNames = new Set([
+    ...ministerielles.map((m) => m["Nom scientifique"]),
+    ...ministerielles.map((m) => m["Nom vernaculaire"]),
+  ]);
+  const cnpnNames = new Set([
+    ...cnpn.map((c) => c["Nom scientifique"]),
+    ...cnpn.map((c) => c["Nom vernaculaire"]),
+  ]);
+
+  return { ministeriellesNames, cnpnNames };
+}
+
+async function loadTaxrefByCdRef(missingCdRefs: string[]) {
+  const db = directDatabaseConnection;
+  const taxrefRows: TaxrefRow[] = await db("espece_taxref")
+    .select("id", "cd_nom", "cd_ref", "lb_nom", "nom_vern", "regne", "classe")
+    .whereIn("cd_ref", missingCdRefs)
+    .orderBy("id");
+  const taxrefByCdRef = new Map<string, TaxrefRow[]>();
+  for (const r of taxrefRows) {
+    if (!taxrefByCdRef.has(r.cd_ref)) taxrefByCdRef.set(r.cd_ref, []);
+    taxrefByCdRef.get(r.cd_ref)!.push(r);
+  }
+
+  return taxrefByCdRef;
+}

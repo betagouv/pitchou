@@ -31,23 +31,12 @@ export function makeDossierScientificColumns88444(
     (demandeTypes ?? []).some((value: string) =>
       scientifiqueDemandeTypeOptions.slice(0, 3).includes(value as never),
     );
-  const captureModes = new Set<string>(
-    values(`En cas de nécessité de capture d'individus, précisez le mode de capture`) ?? [],
-  );
-  captureModes.delete("Autre moyen de capture (préciser)");
-  const otherCaptureMode = stringValue(`Préciser le(s) autre(s) moyen(s) de capture`)?.trim();
-  if (otherCaptureMode) captureModes.add(otherCaptureMode);
+  const captureModes = readCaptureModes(values, stringValue);
 
   const lightSourceConditions = checked(`Utilisez-vous des sources lumineuses ?`)
     ? stringValue(`Précisez les modalités de l'utilisation des sources lumineuses`)
     : undefined;
-  const intervenantsChamp: ChampScientifiqueIntervenants | undefined = champById.get(
-    keyToChamp.get(`Qualification des intervenants`),
-  );
-  const intervenants = intervenantsChamp?.rows.map(({ champs }: { champs: BaseChampDS[] }) => ({
-    nom_complet: champs.find(({ label }) => label === "Nom Prénom")?.stringValue,
-    qualification: champs.find(({ label }) => label === "Qualification")?.stringValue,
-  }));
+  const intervenants = readIntervenants(champById, keyToChamp);
   const markingConditions = stringValue(`Précisez les modalités de marquage pour chaque taxon`);
   const transportConditions = stringValue(
     `Précisez les modalités de transport et la destination concernant la collecte de matériel biologique`,
@@ -92,4 +81,29 @@ export function makeDossierScientificColumns88444(
         ) || null
       : null,
   };
+}
+
+function readIntervenants(champById: Dossier88444ChampById, keyToChamp: Dossier88444KeyMap) {
+  const intervenantsChamp: ChampScientifiqueIntervenants | undefined = champById.get(
+    keyToChamp.get(`Qualification des intervenants`),
+  );
+  const intervenants = intervenantsChamp?.rows.map(({ champs }: { champs: BaseChampDS[] }) => ({
+    nom_complet: champs.find(({ label }) => label === "Nom Prénom")?.stringValue,
+    qualification: champs.find(({ label }) => label === "Qualification")?.stringValue,
+  }));
+  return intervenants;
+}
+
+function readCaptureModes(
+  values: (label: Parameters<Dossier88444KeyMap["get"]>[0]) => string[] | undefined,
+  stringValue: (label: Parameters<Dossier88444KeyMap["get"]>[0]) => string | undefined,
+) {
+  const captureModes = new Set<string>(
+    values(`En cas de nécessité de capture d'individus, précisez le mode de capture`) ?? [],
+  );
+  captureModes.delete("Autre moyen de capture (préciser)");
+  const otherCaptureMode = stringValue(`Préciser le(s) autre(s) moyen(s) de capture`)?.trim();
+  if (otherCaptureMode) captureModes.add(otherCaptureMode);
+
+  return captureModes;
 }
