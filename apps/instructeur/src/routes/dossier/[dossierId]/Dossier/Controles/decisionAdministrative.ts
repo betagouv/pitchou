@@ -17,7 +17,7 @@ import {
 } from "./decisionAdministrative/errors.ts";
 
 import type {
-  FrontEndPrescription,
+  PrescriptionWithNewControles,
   FrontEndDecisionAdministrative,
   DecisionAdministrativeForTransfer,
 } from "@pitchou/types/API_Pitchou.ts";
@@ -64,7 +64,7 @@ export async function createPrescriptionControlesFromFichier(
   const decisionNumber = decisionAdministrative.number;
   const conversions: SurfaceConversion[] = [];
 
-  const candidatePrescriptions: Omit<FrontEndPrescription, "id">[] = cleanData
+  const candidatePrescriptions: PrescriptionWithNewControles[] = cleanData
     .filter((row) => {
       const prescriptionNumDec = String(row["Numéro décision administrative"] ?? "").trim();
       return (
@@ -78,7 +78,7 @@ export async function createPrescriptionControlesFromFichier(
         "Date échéance": dueDate,
       } = row;
 
-      const prescription: Omit<FrontEndPrescription, "id"> = {
+      const prescription: PrescriptionWithNewControles = {
         decision_administrative: decisionAdministrative.id,
         due_date: isValidDate(new Date(dueDate)) ? new Date(dueDate) : null,
         article_number: articleNumber == null ? null : String(articleNumber),
@@ -90,7 +90,6 @@ export async function createPrescriptionControlesFromFichier(
       const controles = parseControles(row);
 
       if (controles.length > 0) {
-        // @ts-ignore
         prescription.controles = controles;
       }
 

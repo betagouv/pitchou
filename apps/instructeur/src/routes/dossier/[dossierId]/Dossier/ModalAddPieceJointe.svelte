@@ -93,7 +93,6 @@
   function close() {
     reset();
     type = defaultType();
-    // @ts-ignore DSFR installs this browser global.
     if (modal) window.dsfr(modal).modal.conceal();
   }
   function submit() {

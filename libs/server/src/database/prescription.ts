@@ -8,7 +8,7 @@ import { getDossierIdFromDecisionAdministrative } from "./decision_administrativ
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
 import type { default as DecisionAdministrative } from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
-import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
+import type { PrescriptionWithNewControles } from "@pitchou/types/API_Pitchou.ts";
 
 export function getPrescriptions(
   decisionIds: DecisionAdministrative["id"][],
@@ -31,7 +31,7 @@ export function addPrescription(
 }
 
 export function addPrescriptionsEtControles(
-  prescriptions: Omit<FrontEndPrescription, "id">[],
+  prescriptions: PrescriptionWithNewControles[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   return databaseConnection.transaction(async (transaction) =>

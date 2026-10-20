@@ -70,7 +70,7 @@
   const prescriptionToPendingIdAndLatestData = new SvelteMap<
     Partial<PrescriptionType>,
     {
-      prescriptionIdP: Promise<PrescriptionType["id"] | undefined>;
+      prescriptionIdP: Promise<PrescriptionType["id"]>;
       updateAfterRecievingId: boolean;
     }
   >();
@@ -90,7 +90,7 @@
       if (pendingPrescriptionIdEntry) {
         pendingPrescriptionIdEntry.updateAfterRecievingId = true;
       } else {
-        const prescriptionIdP: Promise<PrescriptionType["id"] | undefined> =
+        const prescriptionIdP: Promise<PrescriptionType["id"]> =
           addPrescriptionDatabase(prescription);
 
         const newPendingPrescriptionIdEntry = {
@@ -100,8 +100,7 @@
 
         prescriptionToPendingIdAndLatestData.set(prescription, newPendingPrescriptionIdEntry);
 
-        // @ts-ignore
-        prescription.id = (await prescriptionIdP).prescriptionId;
+        prescription.id = await prescriptionIdP;
 
         // May have changed during the await
         const updateAfterRecievingId = newPendingPrescriptionIdEntry.updateAfterRecievingId;
