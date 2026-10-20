@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import { parseProjectMapFile } from "./fileImport.ts";
 
 describe("parseProjectMapFile", () => {
-  it("parses KML points, lines, and polygons", () => {
-    const map = parseProjectMapFile(
-      "project.kml",
-      `<kml><Document>
+  it.each(["", ' xmlns="http://www.opengis.net/kml/2.2"'])(
+    "parses KML points, lines, and polygons with namespace %s",
+    (namespace) => {
+      const map = parseProjectMapFile(
+        "project.kml",
+        `<kml${namespace}><Document>
         <Point><coordinates>2.35,48.85</coordinates></Point>
         <LineString><coordinates>2,48 3,49</coordinates></LineString>
         <Polygon>
@@ -14,28 +16,29 @@ describe("parseProjectMapFile", () => {
           <innerBoundaryIs><LinearRing><coordinates>2.2,48.2 2.4,48.2 2.4,48.4</coordinates></LinearRing></innerBoundaryIs>
         </Polygon>
       </Document></kml>`,
-    );
+      );
 
-    expect(map.features.map(({ geometry }) => geometry.type)).toEqual([
-      "Point",
-      "LineString",
-      "Polygon",
-    ]);
-    expect(map.features[2].geometry.coordinates).toEqual([
-      [
-        [2, 48],
-        [3, 48],
-        [3, 49],
-        [2, 48],
-      ],
-      [
-        [2.2, 48.2],
-        [2.4, 48.2],
-        [2.4, 48.4],
-        [2.2, 48.2],
-      ],
-    ]);
-  });
+      expect(map.features.map(({ geometry }) => geometry.type)).toEqual([
+        "Point",
+        "LineString",
+        "Polygon",
+      ]);
+      expect(map.features[2].geometry.coordinates).toEqual([
+        [
+          [2, 48],
+          [3, 48],
+          [3, 49],
+          [2, 48],
+        ],
+        [
+          [2.2, 48.2],
+          [2.4, 48.2],
+          [2.4, 48.4],
+          [2.2, 48.2],
+        ],
+      ]);
+    },
+  );
 
   it("parses GPX waypoints and tracks", () => {
     const map = parseProjectMapFile(
@@ -46,6 +49,26 @@ describe("parseProjectMapFile", () => {
     );
 
     expect(map.features.map(({ geometry }) => geometry.type)).toEqual(["Point", "LineString"]);
+  });
+
+  it.each([
+    [
+      "project.kml",
+      `<k:kml xmlns:k="http://www.opengis.net/kml/2.2">
+        <k:Placemark><k:Point><k:coordinates>2.35,48.85</k:coordinates></k:Point></k:Placemark>
+      </k:kml>`,
+    ],
+    [
+      "project.gpx",
+      `<g:gpx xmlns:g="http://www.topografix.com/GPX/1/1">
+        <g:wpt lat="48.85" lon="2.35"/>
+      </g:gpx>`,
+    ],
+  ])("parses prefixed XML elements in %s", (name, xml) => {
+    const map = parseProjectMapFile(name, xml);
+    expect(map.features.map(({ geometry }) => geometry)).toEqual([
+      { type: "Point", coordinates: [2.35, 48.85] },
+    ]);
   });
 
   it("rejects files without geometry", () => {

@@ -29,9 +29,7 @@ function coordinates(raw: string): Position[] {
 }
 
 function elements(root: Document | Element, localName: string): Element[] {
-  return Array.from(root.getElementsByTagName("*")).filter(
-    (element) => element.localName === localName,
-  );
+  return Array.from(root.getElementsByTagNameNS("*", localName));
 }
 
 function parseXml(text: string, expectedRoot: string): Document {

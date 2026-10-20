@@ -35,6 +35,7 @@
     "unicorn/prefer-top-level-await": "error",
     "unicorn/prefer-string-replace-all": "error",
     "unicorn/prefer-dom-node-dataset": "error",
+    "unicorn/prefer-query-selector": "error",
     "promise/no-return-wrap": "error",
     "promise/no-new-statics": "error",
     "promise/param-names": "error",
