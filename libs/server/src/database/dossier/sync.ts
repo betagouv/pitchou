@@ -65,8 +65,56 @@ export async function dumpDossiers(
 ): Promise<Set<DossierId>> {
   if (!db.isTransaction)
     return db.transaction((trx) => dumpDossiers(dossiersForInsert, dossiersForUpdate, trx));
+  truncateDossierStrings([...dossiersForInsert, ...dossiersForUpdate]);
+  // Diffed against the current rows before they are overwritten, so the
+  // historique records what the pétitionnaire changed.
+  const { actions, changedDossiers } = await actionsFromSyncUpdates(dossiersForUpdate, db);
+  await logActionsDossier(actions, db);
+
+  const updates = dossiersForUpdate.map(({ dossier }) =>
+    db("dossier")
+      .where("demarche_numerique_number", dossier.demarche_numerique_number)
+      .where("source", "demarche_numerique")
+      .update(dossier)
+      .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]),
+  );
+  const { follows, avis, commentaires } = await insertDossiers(dossiersForInsert, db);
+  const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
+  const events = allDossiers.flatMap(
+    ({ evenement_phase_dossier }) => evenement_phase_dossier ?? [],
+  );
+  const decisions = await newDecisions(
+    allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
+    db,
+  );
+  await Promise.all([
+    events.length
+      ? db("evenement_phase_dossier")
+          .insert(events)
+          .onConflict(["dossier", "phase", "timestamp"])
+          .merge()
+      : Promise.resolve([]),
+    avis.length ? db("avis_expert").insert(avis) : Promise.resolve([]),
+    commentaires.length ? db("commentaire").insert(commentaires) : Promise.resolve([]),
+    decisions.length ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
+    follows.length
+      ? db("edge_personne_follows_dossier")
+          .insert(follows)
+          .onConflict(["personne", "dossier"])
+          .ignore()
+      : Promise.resolve([]),
+    Promise.resolve([]),
+    ...updates,
+  ]);
+
+  // The dossiers whose pétitionnaire data actually changed: only their followers
+  // have something new to read.
+  return changedDossiers;
+}
+
+function truncateDossierStrings(dossiers: (DossierForInsert | DossierForUpdate)[]) {
   const varcharKeys: (keyof Pick<Dossier, "name" | "ddep_required">)[] = ["name", "ddep_required"];
-  for (const { dossier } of [...dossiersForInsert, ...dossiersForUpdate]) {
+  for (const { dossier } of dossiers) {
     for (const key of varcharKeys) {
       if (typeof dossier[key] === "string" && dossier[key].length >= 255) {
         console.warn(
@@ -83,18 +131,9 @@ export async function dumpDossiers(
       }
     }
   }
-  // Diffed against the current rows before they are overwritten, so the
-  // historique records what the pétitionnaire changed.
-  const { actions, changedDossiers } = await actionsFromSyncUpdates(dossiersForUpdate, db);
-  await logActionsDossier(actions, db);
+}
 
-  const updates = dossiersForUpdate.map(({ dossier }) =>
-    db("dossier")
-      .where("demarche_numerique_number", dossier.demarche_numerique_number)
-      .where("source", "demarche_numerique")
-      .update(dossier)
-      .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]),
-  );
+async function insertDossiers(dossiersForInsert: DossierForInsert[], db: Knex.Transaction | Knex) {
   const follows: EdgePersonneFollowsDossier[] = [];
   let avis: PartialBy<AvisExpertInitializer, "dossier">[] = [];
   const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
@@ -141,35 +180,5 @@ export async function dumpDossiers(
       });
     });
   }
-  const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
-  const events = allDossiers.flatMap(
-    ({ evenement_phase_dossier }) => evenement_phase_dossier ?? [],
-  );
-  const decisions = await newDecisions(
-    allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
-    db,
-  );
-  await Promise.all([
-    events.length
-      ? db("evenement_phase_dossier")
-          .insert(events)
-          .onConflict(["dossier", "phase", "timestamp"])
-          .merge()
-      : Promise.resolve([]),
-    avis.length ? db("avis_expert").insert(avis) : Promise.resolve([]),
-    commentaires.length ? db("commentaire").insert(commentaires) : Promise.resolve([]),
-    decisions.length ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
-    follows.length
-      ? db("edge_personne_follows_dossier")
-          .insert(follows)
-          .onConflict(["personne", "dossier"])
-          .ignore()
-      : Promise.resolve([]),
-    Promise.resolve([]),
-    ...updates,
-  ]);
-
-  // The dossiers whose pétitionnaire data actually changed: only their followers
-  // have something new to read.
-  return changedDossiers;
+  return { follows, avis, commentaires };
 }

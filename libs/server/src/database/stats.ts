@@ -1,3 +1,4 @@
+import type { Knex } from "knex";
 import { createTransaction } from "../database.ts";
 import { formatISO, startOfToday } from "date-fns";
 import { getBiodiversiteImpactStats, getConformiteStats } from "./stats_details.ts";
@@ -27,25 +28,10 @@ export async function getPublicStats(): Promise<PublicStats> {
       .where("depot_date", ">=", "2024-09-01")
       .groupBy("demandeur_personne_morale", "demandeur_personne_physique");
 
-    /** The prescriptions we're interested in are the controllable prescriptions, i.e. the prescriptions whose due date is in the past */
-    const controllablePrescriptionsP = transaction("prescription")
-      .select([
-        "id",
-        "avoided_surface",
-        "compensated_surface",
-        "avoided_nids",
-        "compensated_nids",
-        "avoided_individus",
-        "compensated_individus",
-      ])
-      .where("due_date", "<=", today)
-      .as("p");
-
-    const controlesP = transaction
-      .select(["controle.prescription", "controle.result", "controle.controle_date"])
-      .from("controle")
-      .join(controllablePrescriptionsP, "controle.prescription", "p.id")
-      .as("c");
+    const { controllablePrescriptionsP, controlesP } = getControllablePrescriptions(
+      transaction,
+      today,
+    );
 
     const prescriptionWithControleCountP = transaction
       .from(controlesP)
@@ -109,4 +95,28 @@ export async function getPublicStats(): Promise<PublicStats> {
     await transaction.rollback();
     throw e;
   }
+}
+
+function getControllablePrescriptions(transaction: Knex.Transaction, today: string) {
+  /** The prescriptions we're interested in are the controllable prescriptions, i.e. the prescriptions whose due date is in the past */
+  const controllablePrescriptionsP = transaction("prescription")
+    .select([
+      "id",
+      "avoided_surface",
+      "compensated_surface",
+      "avoided_nids",
+      "compensated_nids",
+      "avoided_individus",
+      "compensated_individus",
+    ])
+    .where("due_date", "<=", today)
+    .as("p");
+
+  const controlesP = transaction
+    .select(["controle.prescription", "controle.result", "controle.controle_date"])
+    .from("controle")
+    .join(controllablePrescriptionsP, "controle.prescription", "p.id")
+    .as("c");
+
+  return { controllablePrescriptionsP, controlesP };
 }

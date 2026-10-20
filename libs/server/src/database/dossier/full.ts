@@ -47,13 +47,7 @@ export async function getDossierFull(
     throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
   }
   // Access was checked above, so the fetch itself selects the dossier by id.
-  const dossierP: Promise<LoadedDossier> = joinDossierIdentities(
-    transaction("dossier")
-      .select(dossierFullColumns)
-      .select(transaction.raw(latestCommentaireSubquery)),
-  )
-    .where({ "dossier.id": dossierId })
-    .first();
+  const dossierP = loadDossier(dossierId, transaction);
   const eventsP = getEvenementsPhaseDossier(dossierId, transaction);
   const avisP = getAvisExpertDossier(dossierId, transaction);
   const piecesP = getPiecesJointes(dossierId, transaction);
@@ -115,4 +109,17 @@ export async function getDossierFull(
         ),
       ),
   );
+}
+
+function loadDossier(
+  dossierId: DossierFull["id"],
+  transaction: Knex.Transaction,
+): Promise<LoadedDossier> {
+  return joinDossierIdentities(
+    transaction("dossier")
+      .select(dossierFullColumns)
+      .select(transaction.raw(latestCommentaireSubquery)),
+  )
+    .where({ "dossier.id": dossierId })
+    .first();
 }

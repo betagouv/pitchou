@@ -43,42 +43,7 @@ export async function getDossiersSummariesByCap(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP: Promise<DossierSummary[]> = joinPorteurDeProjet(transaction("dossier"))
-    .select(columns)
-    .select("dossier_access.access")
-    // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
-    // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
-    .select(
-      transaction.raw(
-        `coalesce((select array_agg(distinct impact_espece.cd_ref) from impact_espece where impact_espece."dossier" = dossier.id), '{}'::text[]) as "especesImpacteesCD_REF"`,
-      ),
-    )
-    .select(transaction.raw(latestCommentaireSubquery))
-    .join(
-      dossierAccessQuery(cap, transaction).as("dossier_access"),
-      "dossier_access.dossier",
-      "dossier.id",
-    )
-    .leftJoin("identite_dossier as identite_demandeur", function () {
-      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-        "identite_demandeur.type",
-        "demandeur",
-      );
-    })
-    // Only reviewed labels resolve to an activity; labels pending review keep their raw display
-    // through the fallback in `withResolvedActivite`.
-    .leftJoin("activite_label", (join) =>
-      join
-        .on("activite_label.label", "dossier.main_activite")
-        .andOnVal("activite_label.needs_review", false),
-    )
-    .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
-    .then((dossiers: DossierSummary[]) =>
-      dossiers.map((dossier) => {
-        dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
-        return withResolvedActivite(withPorteurDeProjet(dossier));
-      }),
-    );
+  const dossiersP = loadDossierSummaries(cap, transaction);
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
   const decisionsP = getDecisionsAdministratives(cap, transaction);
   const avisP = getAvisExpertFilesByCap(cap, transaction);
@@ -126,4 +91,48 @@ export async function getDossiersSummariesByCap(
       .catch(transaction.rollback);
   }
   return result;
+}
+
+function loadDossierSummaries(
+  cap: CapDossier["cap"],
+  transaction: Knex.Transaction,
+): Promise<DossierSummary[]> {
+  return (
+    joinPorteurDeProjet(transaction("dossier"))
+      .select(columns)
+      .select("dossier_access.access")
+      // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
+      // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
+      .select(
+        transaction.raw(
+          `coalesce((select array_agg(distinct impact_espece.cd_ref) from impact_espece where impact_espece."dossier" = dossier.id), '{}'::text[]) as "especesImpacteesCD_REF"`,
+        ),
+      )
+      .select(transaction.raw(latestCommentaireSubquery))
+      .join(
+        dossierAccessQuery(cap, transaction).as("dossier_access"),
+        "dossier_access.dossier",
+        "dossier.id",
+      )
+      .leftJoin("identite_dossier as identite_demandeur", function () {
+        this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
+          "identite_demandeur.type",
+          "demandeur",
+        );
+      })
+      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+      // through the fallback in `withResolvedActivite`.
+      .leftJoin("activite_label", (join) =>
+        join
+          .on("activite_label.label", "dossier.main_activite")
+          .andOnVal("activite_label.needs_review", false),
+      )
+      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+      .then((dossiers: DossierSummary[]) =>
+        dossiers.map((dossier) => {
+          dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
+          return withResolvedActivite(withPorteurDeProjet(dossier));
+        }),
+      )
+  );
 }

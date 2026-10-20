@@ -57,62 +57,13 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
         const fileId = especesImpacteesByDossierNumber.get(number);
         if (fileId === undefined || dossierIdByDNNumber.get(number) !== current.id) return;
 
-        const before: ImpactEspece[] = await databaseConnection("impact_espece").where({
-          dossier: current.id,
-        });
-        await databaseConnection("dossier")
-          .where({ id: current.id })
-          .update({ especes_impactees: fileId });
-        const anomalies = fileId
-          ? await dumpImpactEspeceFromFichier(current.id, fileId, databaseConnection)
-          : [];
-        if (anomalies.length) console.warn(`Dossier ${number} — ${anomaliesTitle(anomalies)}`);
-
-        // An old file may still be shared elsewhere, so its cascade is not enough to clear rows.
-        const obsolete = databaseConnection("impact_espece").where({ dossier: current.id });
-        if (fileId) obsolete.whereNot({ source_file: fileId });
-        await obsolete.delete();
-
-        // Materializing an existing file is not an applicant edit, even if no rows existed yet.
-        if (fileId === current.especes_impactees) return;
-        const after: ImpactEspece[] = await databaseConnection("impact_espece").where({
-          dossier: current.id,
-        });
-        const hasPreviousSnapshot =
-          current.especes_impactees === null
-            ? before.length === 0
-            : before.length > 0 &&
-              before.every(({ source_file }) => source_file === current.especes_impactees);
-        const coarse = !hasPreviousSnapshot || anomalies.length > 0;
-        const groups = coarse ? [] : changedImpactTypes(before, after);
-        const labels: { identifiant_pitchou: string; libelle_pitchou: string }[] = groups.length
-          ? await databaseConnection("impact_type")
-              .select("identifiant_pitchou", "libelle_pitchou")
-              .whereIn(
-                "identifiant_pitchou",
-                groups.filter((group) => group !== null),
-              )
-          : [];
-        const labelByType = new Map(
-          labels.map((row) => [row.identifiant_pitchou, row.libelle_pitchou]),
+        await synchronizeDossierImpacts(
+          current,
+          fileId,
+          number,
+          changedDossiers,
+          databaseConnection,
         );
-        const data = coarse
-          ? [{ field: "especes", label: "Espèces impactées", notification: true }]
-          : groups.map((group) => ({
-              field: "especes",
-              notification_field: speciesImpactChangeField(group),
-              label:
-                group === null ? "Type d'impact non renseigné" : (labelByType.get(group) ?? group),
-              notification: true,
-            }));
-        const actions: ActionDossierInitializer[] = data.map((data) => ({
-          dossier: current.id,
-          type: "especes_renseignees",
-          data,
-          author_petitionnaire: true,
-        }));
-        await logActionsDossier(actions, databaseConnection);
-        if (actions.length) changedDossiers.add(current.id);
       }),
     ),
   );
@@ -123,4 +74,66 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   await deleteFichiersWithoutOtherReferences(oldFileIds, databaseConnection);
 
   return changedDossiers;
+}
+
+async function synchronizeDossierImpacts(
+  current: { id: DossierId; especes_impactees: FileId | null },
+  fileId: FileId | null,
+  number: number,
+  changedDossiers: Set<DossierId>,
+  databaseConnection: Knex.Transaction | Knex,
+) {
+  const before: ImpactEspece[] = await databaseConnection("impact_espece").where({
+    dossier: current.id,
+  });
+  await databaseConnection("dossier")
+    .where({ id: current.id })
+    .update({ especes_impactees: fileId });
+  const anomalies = fileId
+    ? await dumpImpactEspeceFromFichier(current.id, fileId, databaseConnection)
+    : [];
+  if (anomalies.length) console.warn(`Dossier ${number} — ${anomaliesTitle(anomalies)}`);
+
+  // An old file may still be shared elsewhere, so its cascade is not enough to clear rows.
+  const obsolete = databaseConnection("impact_espece").where({ dossier: current.id });
+  if (fileId) obsolete.whereNot({ source_file: fileId });
+  await obsolete.delete();
+
+  // Materializing an existing file is not an applicant edit, even if no rows existed yet.
+  if (fileId === current.especes_impactees) return;
+  const after: ImpactEspece[] = await databaseConnection("impact_espece").where({
+    dossier: current.id,
+  });
+  const hasPreviousSnapshot =
+    current.especes_impactees === null
+      ? before.length === 0
+      : before.length > 0 &&
+        before.every(({ source_file }) => source_file === current.especes_impactees);
+  const coarse = !hasPreviousSnapshot || anomalies.length > 0;
+  const groups = coarse ? [] : changedImpactTypes(before, after);
+  const labels: { identifiant_pitchou: string; libelle_pitchou: string }[] = groups.length
+    ? await databaseConnection("impact_type")
+        .select("identifiant_pitchou", "libelle_pitchou")
+        .whereIn(
+          "identifiant_pitchou",
+          groups.filter((group) => group !== null),
+        )
+    : [];
+  const labelByType = new Map(labels.map((row) => [row.identifiant_pitchou, row.libelle_pitchou]));
+  const data = coarse
+    ? [{ field: "especes", label: "Espèces impactées", notification: true }]
+    : groups.map((group) => ({
+        field: "especes",
+        notification_field: speciesImpactChangeField(group),
+        label: group === null ? "Type d'impact non renseigné" : (labelByType.get(group) ?? group),
+        notification: true,
+      }));
+  const actions: ActionDossierInitializer[] = data.map((data) => ({
+    dossier: current.id,
+    type: "especes_renseignees",
+    data,
+    author_petitionnaire: true,
+  }));
+  await logActionsDossier(actions, databaseConnection);
+  if (actions.length) changedDossiers.add(current.id);
 }

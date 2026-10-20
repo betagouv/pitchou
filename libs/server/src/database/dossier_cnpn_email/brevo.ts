@@ -47,35 +47,8 @@ export async function recordDossierCnpnEmailBrevoEvent(
   const updated = await query.update({ [column]: event.occurredAt }).returning("id");
 
   if (event.type === "opened") {
-    const claimedAt = new Date();
-    const claimExpiredBefore = new Date(claimedAt.getTime() - 5 * 60 * 1000);
-    const [receipt] = await db("dossier_cnpn_email_sent_event")
-      .where(match)
-      .whereNull("read_receipt_sent_at")
-      .andWhere((builder) =>
-        builder
-          .whereNull("read_receipt_claimed_at")
-          .orWhere("read_receipt_claimed_at", "<", claimExpiredBefore),
-      )
-      .update({ read_receipt_claimed_at: claimedAt })
-      .returning<{ id: string; dossier: Dossier["id"]; sent_by_email: string; subject: string }[]>([
-        "id",
-        "dossier",
-        "sent_by_email",
-        "subject",
-      ]);
-    if (receipt) {
-      return {
-        matched: true,
-        readReceipt: {
-          eventId: receipt.id,
-          claimedAt,
-          sentByEmail: receipt.sent_by_email,
-          dossierId: receipt.dossier,
-          subject: receipt.subject,
-        },
-      };
-    }
+    const receipt = await claimReadReceipt(match, db);
+    if (receipt) return receipt;
   }
 
   if (updated.length > 0 && event.type !== "opened") return { matched: true };
@@ -113,4 +86,39 @@ export async function releaseDossierCnpnEmailReadReceipt(
     .where({ id: eventId, read_receipt_claimed_at: claimedAt })
     .whereNull("read_receipt_sent_at")
     .update({ read_receipt_claimed_at: null });
+}
+
+async function claimReadReceipt(
+  match: { id: string; status: string },
+  db: Knex.Transaction | Knex,
+) {
+  const claimedAt = new Date();
+  const claimExpiredBefore = new Date(claimedAt.getTime() - 5 * 60 * 1000);
+  const [receipt] = await db("dossier_cnpn_email_sent_event")
+    .where(match)
+    .whereNull("read_receipt_sent_at")
+    .andWhere((builder) =>
+      builder
+        .whereNull("read_receipt_claimed_at")
+        .orWhere("read_receipt_claimed_at", "<", claimExpiredBefore),
+    )
+    .update({ read_receipt_claimed_at: claimedAt })
+    .returning<{ id: string; dossier: Dossier["id"]; sent_by_email: string; subject: string }[]>([
+      "id",
+      "dossier",
+      "sent_by_email",
+      "subject",
+    ]);
+  if (receipt) {
+    return {
+      matched: true,
+      readReceipt: {
+        eventId: receipt.id,
+        claimedAt,
+        sentByEmail: receipt.sent_by_email,
+        dossierId: receipt.dossier,
+        subject: receipt.subject,
+      },
+    };
+  }
 }
