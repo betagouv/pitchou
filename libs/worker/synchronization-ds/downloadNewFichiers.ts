@@ -116,9 +116,7 @@ export default async function downloadNewFichiers(
   const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersToDownload].map(
     ([number, fichiers]) => {
       return Promise.all(
-        fichiers.map(async (fichier) => {
-          return downloadAndStoreFichier(fichier, number, transaction);
-        }),
+        fichiers.map((fichier) => downloadAndStoreFichier(fichier, number, transaction)),
       ).then((downloadedFichiers) => {
         const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
 

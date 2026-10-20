@@ -19,7 +19,7 @@
       espèce?: EspeceProtegee;
       impacts: DescriptionImpact[];
     }>;
-    supprimerEspèceImpactée: (indexEspeceASupprimer: number) => Promise<void>;
+    supprimerEspèceImpactée: (indexEspeceASupprimer: number) => void;
     préremplirAvecCesEspècesImpacts: () => void;
     activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>

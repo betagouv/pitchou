@@ -57,11 +57,7 @@ async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-async function spawnKit(
-  dbName: string,
-  port: number,
-  s3: TestS3Credentials,
-): Promise<ChildProcess> {
+function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildProcess {
   const child = spawn("node", ["apps/instructeur/build/index.js"], {
     cwd: repoRoot,
     env: {
@@ -97,7 +93,7 @@ export default async function globalSetup() {
   await dropAndCreateDb(E2E_DB_NAME);
   await runMigrations(E2E_DB_NAME);
   const s3 = await initTestS3();
-  kitProcess = await spawnKit(E2E_DB_NAME, E2E_PORT, s3);
+  kitProcess = spawnKit(E2E_DB_NAME, E2E_PORT, s3);
   await waitForKitReady(E2E_BASE_URL);
 
   return async () => {

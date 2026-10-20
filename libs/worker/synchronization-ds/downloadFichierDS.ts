@@ -43,7 +43,7 @@ async function _downloadFichierDS(
 const MAX_SIMULTANEOUS_DOWNLOADS = 6;
 const concurrencyLimit = pLimit(MAX_SIMULTANEOUS_DOWNLOADS);
 
-export default async function downloadFichierDS(
+export default function downloadFichierDS(
   url: string,
 ): Promise<{ mediaType: string | null; content: ArrayBuffer }> {
   return concurrencyLimit(() => _downloadFichierDS(url));

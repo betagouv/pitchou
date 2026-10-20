@@ -149,7 +149,7 @@ test("trace l'ajout réussi d'une pièce jointe autre avec la source et le nombr
   );
 });
 
-test("affiche des libellés experts détaillés pour la saisine et l'avis", async () => {
+test("affiche des libellés experts détaillés pour la saisine et l'avis", () => {
   const { container } = render(ModalAddPieceJointe, {
     id: "modale-test-libelles",
     dossier: dossier(),

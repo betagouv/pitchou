@@ -77,7 +77,7 @@
     impacts: DescriptionImpact[];
   }> = $state([]);
 
-  async function removeEspeceImpactee(indexEspeceToRemove: number) {
+  function removeEspeceImpactee(indexEspeceToRemove: number) {
     especesImpacteesToPrefill.splice(indexEspeceToRemove, 1);
   }
 

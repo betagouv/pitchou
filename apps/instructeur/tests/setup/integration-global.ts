@@ -58,11 +58,7 @@ async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-async function spawnKit(
-  dbName: string,
-  port: number,
-  s3: TestS3Credentials,
-): Promise<ChildProcess> {
+function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildProcess {
   const child = spawn("node", ["apps/instructeur/build/index.js"], {
     cwd: repoRoot,
     env: {
@@ -99,7 +95,7 @@ export default async function setup() {
   await dropAndCreateDb(INTEGRATION_DB_NAME);
   await runMigrations(INTEGRATION_DB_NAME);
   const s3 = await initTestS3();
-  kitProcess = await spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT, s3);
+  kitProcess = spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT, s3);
   await waitForKitReady(INTEGRATION_BASE_URL);
 
   return async () => {

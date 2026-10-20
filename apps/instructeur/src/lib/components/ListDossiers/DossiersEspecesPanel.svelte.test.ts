@@ -52,7 +52,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-test("liste toutes les espèces du référentiel avec leur compteur", async () => {
+test("liste toutes les espèces du référentiel avec leur compteur", () => {
   const { container } = renderPanel();
 
   expect(container.textContent).toContain("3 espèces");
@@ -99,14 +99,14 @@ test("affiche un message quand aucune espèce ne correspond", async () => {
     .toContain("Aucune espèce protégée ne correspond à cette recherche.");
 });
 
-test("attend le référentiel avant de proposer des espèces", async () => {
+test("attend le référentiel avant de proposer des espèces", () => {
   store.espèceByCD_REF = undefined;
   const { container } = renderPanel();
 
   expect(container.textContent).toContain("Chargement des espèces protégées…");
 });
 
-test("affiche le nom scientifique seul quand l'espèce n'a pas de nom vernaculaire", async () => {
+test("affiche le nom scientifique seul quand l'espèce n'a pas de nom vernaculaire", () => {
   store.espèceByCD_REF = new Map([[sansNomVernaculaire.CD_REF, sansNomVernaculaire]]);
   const { container } = renderPanel();
 
