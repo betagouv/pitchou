@@ -1,5 +1,5 @@
-import { json } from "d3-fetch";
-import remember, { forget } from "remember";
+import { json } from "$lib/shared/http.ts";
+import { readStorage, writeStorage, removeStorage } from "$lib/shared/storage.ts";
 import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
@@ -76,7 +76,7 @@ export async function consumeSecretFromURL(url: URL) {
   if (!secret) return;
 
   return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+    writeStorage(PITCHOU_SECRET_STORAGE_KEY, secret),
     initCapabilities(secret).catch(async () => {
       await logout();
       store.errors.add({
@@ -97,7 +97,7 @@ export async function logout() {
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;
 
-  return forget(PITCHOU_SECRET_STORAGE_KEY);
+  return removeStorage(PITCHOU_SECRET_STORAGE_KEY);
 }
 
 export async function logoutAndRedirectToHome(erreur?: { message: string }) {
@@ -136,7 +136,7 @@ function initCapabilities(secret: string) {
 
 export function init() {
   return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY)
+    readStorage(PITCHOU_SECRET_STORAGE_KEY)
       .then((secret) =>
         typeof secret === "string" && secret ? initCapabilities(secret) : undefined,
       )

@@ -12,7 +12,6 @@
     "@aws-sdk/s3-request-presigner": "catalog:",
     "@pitchou/common": "workspace:*",
     "@pitchou/types": "workspace:*",
-    "d3-dsv": "catalog:",
     "date-fns": "catalog:",
     "knex": "catalog:",
     "ky": "catalog:",
@@ -21,7 +20,6 @@
     "sanitize-html": "catalog:"
   },
   "devDependencies": {
-    "@types/d3-dsv": "catalog:",
     "@types/sanitize-html": "catalog:",
     "@types/node": "catalog:",
     "vitest": "catalog:"

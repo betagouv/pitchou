@@ -1,6 +1,4 @@
 <script lang="ts" generics="Value">
-  import clsx from "clsx";
-
   import type { RenderedGroup, SelectOption } from "./options.ts";
   import type { Placement } from "./placement.ts";
   import SelectOptionMarker from "./SelectOptionMarker.svelte";
@@ -76,16 +74,16 @@
           role="option"
           tabindex="-1"
           aria-selected={isSelected}
-          class={clsx(
+          class={[
             "fr-px-1w fr-py-1v flex w-full cursor-pointer items-start gap-2 rounded-[0.25rem] text-left",
             activeIndex === index && "bg-[var(--background-alt-grey)]",
             isSelected && "fr-text--bold text-[color:var(--text-active-blue-france)]",
-          )}
+          ]}
           onclick={() => onSelect(option)}
           onmousemove={() => onHover(index)}
         >
           <span
-            class={clsx("fr-icon-check-line fr-icon--sm flex-none", !isSelected && "invisible")}
+            class={["fr-icon-check-line fr-icon--sm flex-none", !isSelected && "invisible"]}
             aria-hidden="true"
           ></span>
           <SelectOptionMarker color={option.color} icon={option.icon} />

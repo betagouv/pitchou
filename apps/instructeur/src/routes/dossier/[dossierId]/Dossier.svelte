@@ -12,7 +12,7 @@
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
   import { sendEvenement } from "$lib/shared/aarri.ts";
-  import debounce from "just-debounce-it";
+  import debounce from "$lib/shared/debounce.ts";
   import DossierTabList from "./Dossier/DossierTabList.svelte";
   import ReadOnlyBanner from "./Dossier/ReadOnlyBanner.svelte";
   import { visibleDossierTabs, type DossierTab } from "./Dossier/dossierTabs.ts";

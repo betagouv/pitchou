@@ -1,4 +1,4 @@
-import { json } from "d3-fetch";
+import { json } from "$lib/shared/http.ts";
 
 export type PublishedChangelogEntry = {
   /** Editor-chosen « X.Y.Z », also the public URL segment. */

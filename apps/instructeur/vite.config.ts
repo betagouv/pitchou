@@ -24,7 +24,7 @@ export default defineConfig({
     strictPort: true,
   },
   optimizeDeps: {
-    include: ["lunr", "lunr-languages/lunr.stemmer.support", "lunr-languages/lunr.fr", "remember"],
+    include: ["lunr", "lunr-languages/lunr.stemmer.support", "lunr-languages/lunr.fr"],
     // MapLibre v6's worker entry is lost when Vite pre-bundles the package.
     exclude: ["maplibre-gl"],
   },

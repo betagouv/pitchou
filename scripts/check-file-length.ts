@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import ts from "typescript";
 
 /**
@@ -45,8 +45,9 @@ const IGNORES = [
   "libs/database/seeds/fixtures/dossiers/records.ts",
 ];
 
-const args = parseArgs(process.argv.slice(2), {
-  default: { max: DEFAULT_MAX },
+const { values: args, positionals } = parseArgs({
+  options: { max: { type: "string", default: String(DEFAULT_MAX) } },
+  allowPositionals: true,
 });
 
 const max = Number(args.max);
@@ -55,7 +56,7 @@ if (!Number.isInteger(max) || max <= 0) {
   process.exit(1);
 }
 
-const roots = args._.length > 0 ? args._.map(String) : ["."];
+const roots = positionals.length > 0 ? positionals : ["."];
 
 const repoRoot = process.cwd();
 

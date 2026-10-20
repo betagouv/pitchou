@@ -9,14 +9,11 @@
     "@pitchou/server": "workspace:*",
     "@odfjs/odfjs": "catalog:",
     "csv-parse": "catalog:",
-    "csv-stringify": "catalog:",
     "json-schema-to-typescript": "catalog:",
     "ky": "catalog:",
-    "minimist": "catalog:",
     "pg": "catalog:"
   },
   "devDependencies": {
-    "@types/minimist": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:"
   }

@@ -1,8 +1,10 @@
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { getPersonnesByEmail } from "@pitchou/server/database/personne.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: { emails: { type: "string" }, prod: { type: "boolean" }, origin: { type: "string" } },
+});
 
 if (!args.emails) {
   console.error(`Il manque le paramètre --emails et des adresses emails séparées par des virgules`);

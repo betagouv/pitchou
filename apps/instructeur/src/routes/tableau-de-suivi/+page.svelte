@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import remember from "remember";
+  import { readStorage, writeStorage } from "$lib/shared/storage.ts";
 
   import { store } from "$lib/state/store.svelte.ts";
   import SuiviInstruction from "../SuiviInstruction/SuiviInstruction.svelte";
@@ -23,7 +23,7 @@
   let dossiersLoadingFinished = $state(false);
 
   onMount(async () => {
-    const stored = await remember(SORT_FILTER_LOCALSTORAGE_KEY);
+    const stored = await readStorage<SortFilterLocalStorage>(SORT_FILTER_LOCALSTORAGE_KEY);
     if (stored && typeof stored !== "string") {
       selectedSortFilters = stored;
     } else if (typeof stored === "string") {
@@ -66,7 +66,7 @@
         texte: filters.texte ?? undefined,
       },
     };
-    remember(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
+    writeStorage(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
     selectedSortFilters = newSortFilters;
   }
 

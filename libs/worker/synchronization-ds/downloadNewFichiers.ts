@@ -1,5 +1,5 @@
 import { extname } from "node:path";
-import byteSize from "byte-size";
+import { formatFileSize } from "@pitchou/common/fileSize.ts";
 import { HTTPError } from "ky";
 
 import {
@@ -196,7 +196,7 @@ async function downloadAndStoreFichier(
       `Dossier DS`,
       number,
       `- Téléchargement et stockage fichier '${name}'`,
-      `(${byteSize(buffer.byteLength)})`,
+      `(${formatFileSize(buffer.byteLength)})`,
     );
     return insertedFichier.id;
   } catch (err) {
