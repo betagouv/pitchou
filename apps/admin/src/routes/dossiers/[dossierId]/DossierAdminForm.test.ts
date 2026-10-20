@@ -55,8 +55,8 @@ function formBody(
       detail: detail(ecologicalInventoryCompleted, especesPresentInInfluenceArea, locationScope),
       activites: ACTIVITES_FIXTURE,
       activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
-      onSaved: () => undefined,
-      onFilesChanged: async () => undefined,
+      onSaved: () => {},
+      onFilesChanged: async () => {},
     },
   }).body;
 }

@@ -74,7 +74,7 @@
     preserveDecisionDates(decision);
 
     inProgress = true;
-    if (fichiers && fichiers.length >= 1) {
+    if (fichiers && fichiers.length > 0) {
       try {
         decision.fichier_upload = await uploadDecisionFile(decision.dossier, fichiers);
       } catch (error) {

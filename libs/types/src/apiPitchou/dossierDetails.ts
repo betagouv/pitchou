@@ -21,6 +21,10 @@ import type { DossierNotification } from "../notification.ts";
  */
 export type DossierAccess = "complet" | "lecture";
 
+export type PrescriptionWithNewControles = Omit<Prescription, "id"> & {
+  controles?: Omit<Controle, "id" | "prescription">[];
+};
+
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
 export type FrontEndFichier = Pick<File, "media_type" | "name"> & {

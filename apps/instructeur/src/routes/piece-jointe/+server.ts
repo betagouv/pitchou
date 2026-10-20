@@ -24,7 +24,7 @@ export const DELETE: RequestHandler = async ({ url, request }) => {
   for (const property of ["entityId", "fileId"] as const) {
     if (
       typeof body[property] !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body[property])
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(body[property])
     ) {
       error(400, `La propriété '${property}' doit être un UUID.`);
     }

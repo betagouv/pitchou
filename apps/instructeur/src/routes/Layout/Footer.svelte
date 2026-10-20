@@ -16,8 +16,7 @@
     demarcheNumerique88444SynchronizationResults?: PitchouState["demarcheNumerique88444SynchronizationResults"];
   };
 
-  let { compact = false, demarcheNumerique88444SynchronizationResults = undefined }: Props =
-    $props();
+  let { compact = false, demarcheNumerique88444SynchronizationResults }: Props = $props();
 
   // Narrower link columns when the support blocks share the row with them.
   const columnClass = $derived(

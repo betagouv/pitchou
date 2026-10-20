@@ -52,17 +52,16 @@ export function loadNotificationByDossierForCurrentInstructeur() {
 }
 
 export function loadSchemaDS88444() {
-  return json(SCHEMA_DS_88444).then((schema) => {
-    //@ts-ignore
+  return json<NonNullable<typeof store.schemaDS88444>>(SCHEMA_DS_88444).then((schema) => {
     store.schemaDS88444 = schema;
     return schema;
   });
 }
 
 export function loadSynchronizationResults() {
-  return json("/resultats-synchronisation").then(
-    // @ts-ignore
-    (synchronizationResults: DemarcheNumerique88444SynchronizationResult[]) => {
+  return json<DemarcheNumerique88444SynchronizationResult[]>("/resultats-synchronisation").then(
+    (synchronizationResults) => {
+      if (!synchronizationResults) throw new Error("Résultats de synchronisation absents");
       for (const r of synchronizationResults) {
         r.timestamp = new Date(r.timestamp);
       }
@@ -138,8 +137,9 @@ function initCapabilities(secret: string) {
 export function init() {
   return Promise.all([
     remember(PITCHOU_SECRET_STORAGE_KEY)
-      //@ts-ignore
-      .then((secret) => (secret ? initCapabilities(secret) : undefined))
+      .then((secret) =>
+        typeof secret === "string" && secret ? initCapabilities(secret) : undefined,
+      )
       .catch(() =>
         logoutAndRedirectToHome({
           message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,

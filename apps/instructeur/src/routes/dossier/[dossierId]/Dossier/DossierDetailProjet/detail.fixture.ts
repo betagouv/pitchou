@@ -44,7 +44,7 @@ export function detailDossier(changes: FieldChange[], overrides: Partial<Dossier
     ...overrides,
     notificationSnapshot: {
       dossier: speciesDossier().id,
-      viewed: !changes.length,
+      viewed: changes.length === 0,
       updated_at: new Date("2026-09-01T12:00:00Z"),
       viewed_at: null,
       changes,

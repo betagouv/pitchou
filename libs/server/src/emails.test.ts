@@ -150,7 +150,7 @@ test("envoie l'accusé de lecture au gestionnaire", async () => {
         htmlContent:
           "<p>Le secrétariat du CNPN a ouvert le mail de saisine que vous avez envoyé via Pitchou pour le dossier 42.</p><p><strong>Objet du mail :</strong> Saisine &lt;CNPN&gt;</p>",
         tags: ["cnpn-read-receipt", "pitchou-env-staging"],
-        headers: { idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/) },
+        headers: { idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/u) },
       },
     }),
   );

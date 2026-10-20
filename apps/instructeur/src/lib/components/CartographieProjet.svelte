@@ -102,7 +102,8 @@
             },
           ],
         },
-        center: [2.35, 46.8], // centre of metropolitan France, overridden by fitBounds
+        // centre of metropolitan France, overridden by fitBounds
+        center: [2.35, 46.8],
         zoom: 4,
       });
 

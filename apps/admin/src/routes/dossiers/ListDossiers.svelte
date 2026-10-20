@@ -39,7 +39,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
     return [undefined, ...selectors];
   });
@@ -51,7 +51,8 @@
     loadError = null;
     try {
       const page = await loadDossiers(query);
-      if (id !== requestId) return; // A newer request superseded this one.
+      // A newer request superseded this one.
+      if (id !== requestId) return;
       dossiers = page.dossiers;
       total = page.total;
     } catch (e) {

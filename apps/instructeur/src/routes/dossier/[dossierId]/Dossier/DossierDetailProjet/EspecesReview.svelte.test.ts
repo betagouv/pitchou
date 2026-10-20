@@ -42,7 +42,7 @@ async function openReview(changes: FieldChange[]) {
     })),
   };
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
-  const accordion = view.getByRole("button", { name: /Espèces impactées/ });
+  const accordion = view.getByRole("button", { name: /Espèces impactées/u });
   accordion.click();
   await tick();
   return { view, dossier, accordion, notification };

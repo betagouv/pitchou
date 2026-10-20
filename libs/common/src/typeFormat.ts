@@ -16,9 +16,8 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
   if (typeof d === "object") {
     if (isValidDate(d)) {
       return d;
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   if (!d) return undefined;
@@ -46,23 +45,24 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
 
   if (isValidDate(date)) {
     return date;
-  } else {
-    //console.warn(`Date non reconnue (${d})`)
-    return undefined;
   }
+  return undefined;
 }
 
 export function normalizeCommuneName(communeName: string): string {
-  return communeName
-    .replace(/-|'/g, " ")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents
-    .toLowerCase();
+  return (
+    communeName
+      .replaceAll(/-|'/gu, " ")
+      .normalize("NFD")
+      // remove accents
+      .replaceAll(/[\u0300-\u036F]/gu, "")
+      .toLowerCase()
+  );
 }
 
 // https://stackoverflow.com/a/73974452
 export const byteFormat = new Intl.NumberFormat(
-  typeof document !== "undefined" ? document.documentElement.lang || "fr" : "fr",
+  typeof document === "undefined" ? "fr" : document.documentElement.lang || "fr",
   {
     notation: "compact",
     style: "unit",

@@ -10,7 +10,7 @@ export function authorName(authorEmail: DossierCommentaire["author_email"]): str
 /** Initials shown in the avatar bubble, e.g. "vanessa.rispal@…" → "VR". */
 export function authorInitials(authorEmail: DossierCommentaire["author_email"]): string {
   const name = authorName(authorEmail);
-  const parts = name.split(/[._-]+/).filter(Boolean);
+  const parts = name.split(/[._-]+/u).filter(Boolean);
   const letters =
     parts.length >= 2
       ? [parts[0][0], parts[1][0]]
@@ -29,6 +29,6 @@ const AVATAR_PALETTE = [
 /** Stable pastel colour per author, derived from the email. */
 export function avatarClass(authorEmail: DossierCommentaire["author_email"]): string {
   const name = authorName(authorEmail);
-  const hash = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const hash = [...name].reduce((sum, char) => sum + char.codePointAt(0)!, 0);
   return AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
 }

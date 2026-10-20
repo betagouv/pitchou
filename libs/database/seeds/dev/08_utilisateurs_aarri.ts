@@ -105,7 +105,7 @@ export async function seed(knex: Knex) {
         })),
       );
 
-      if (rows.length >= 1) {
+      if (rows.length > 0) {
         await transaction("evenement_metrique").insert(rows);
       }
     }

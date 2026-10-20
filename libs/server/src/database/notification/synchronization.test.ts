@@ -82,8 +82,8 @@ test("the first identity added to an existing empty dossier is a revision, repla
       notification: true,
     },
   ]);
-  expect(queries[0].sql).toMatch(/^BEGIN/);
-  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/);
+  expect(queries[0].sql).toMatch(/^BEGIN/u);
+  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/u);
   identities = [{ ...identity, dossier } as IdentiteDossier];
   queries = [];
   expect(await syncIdentitesDossier(new Map([[dossier, [identity]]]), db)).toEqual(new Set());

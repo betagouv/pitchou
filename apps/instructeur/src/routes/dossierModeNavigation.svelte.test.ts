@@ -124,10 +124,10 @@ test("normal entry preserves an explicit tab while both mode switches reset Inst
     "true",
   );
 
-  screen.getByRole("button", { name: /Plus d’actions/ }).click();
+  screen.getByRole("button", { name: /Plus d’actions/u }).click();
   await tick();
-  expect(screen.queryByRole("menuitem", { name: /échéance/ })).toBeNull();
-  expect(screen.queryByRole("menuitem", { name: /Partager.*lecture seule/ })).toBeNull();
+  expect(screen.queryByRole("menuitem", { name: /échéance/u })).toBeNull();
+  expect(screen.queryByRole("menuitem", { name: /Partager.*lecture seule/u })).toBeNull();
   screen.getByRole("menuitem", { name: "Voir le dossier en lecture seule" }).click();
   await tick();
   const [readUrl, options] = vi.mocked(goto).mock.lastCall!;

@@ -12,7 +12,7 @@ beforeEach(setupDsfrModalMock);
 
 afterEach(() => {
   cleanup();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
 });
 
 test.each(["light", "dark"])(

@@ -11,8 +11,8 @@ type Fixtures = {
 export const test = base.extend<Fixtures>({
   // One knex connection per worker. Reused across tests in the same worker;
   // truncated at the start of every test for a clean slate.
-  // eslint-disable-next-line no-empty-pattern
   db: [
+    // oxlint-disable-next-line no-empty-pattern -- Playwright requires fixture dependencies to use object destructuring.
     async ({}, use) => {
       const db = makeKnex(E2E_DB_NAME);
       await truncateAll(db);

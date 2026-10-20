@@ -1,3 +1,4 @@
+import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import { dossiersAccessibleViaCap } from "./database/dossier.ts";
 
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -20,8 +21,7 @@ export async function checkDossierAccessByCap(
     reply.code(403).send(`Cap insuffisante ou entité introuvable`);
     return undefined;
   }
-  // @ts-ignore: cap arrives as a raw string from the query parameter
-  const accessibleDossiers = await dossiersAccessibleViaCap(dossierId, cap);
+  const accessibleDossiers = await dossiersAccessibleViaCap(dossierId, cap as CapDossierCap);
   if (accessibleDossiers.get(dossierId) !== "complet") {
     reply.code(403).send(`La capability ne permet pas d'accéder au dossier ${dossierId}`);
     return undefined;

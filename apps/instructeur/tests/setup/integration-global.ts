@@ -1,6 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { INTEGRATION_DB_NAME, databaseUrl, makeAdminKnex, makeKnex } from "./db.ts";
 import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
@@ -9,7 +8,7 @@ export const INTEGRATION_PORT = 32649;
 export const INTEGRATION_BASE_URL = `http://127.0.0.1:${INTEGRATION_PORT}`;
 export const TEST_ADMIN_EMAIL = "admin@pitchou.test";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..", "..");
 
 let kitProcess: ChildProcess | undefined;
 
@@ -58,11 +57,7 @@ async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-async function spawnKit(
-  dbName: string,
-  port: number,
-  s3: TestS3Credentials,
-): Promise<ChildProcess> {
+function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildProcess {
   const child = spawn("node", ["apps/instructeur/build/index.js"], {
     cwd: repoRoot,
     env: {
@@ -99,14 +94,17 @@ export default async function setup() {
   await dropAndCreateDb(INTEGRATION_DB_NAME);
   await runMigrations(INTEGRATION_DB_NAME);
   const s3 = await initTestS3();
-  kitProcess = await spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT, s3);
+  kitProcess = spawnKit(INTEGRATION_DB_NAME, INTEGRATION_PORT, s3);
   await waitForKitReady(INTEGRATION_BASE_URL);
 
   return async () => {
     if (kitProcess && kitProcess.exitCode === null) {
       kitProcess.kill("SIGTERM");
       await new Promise<void>((resolve) => {
-        if (!kitProcess) return resolve();
+        if (!kitProcess) {
+          resolve();
+          return;
+        }
         kitProcess.once("exit", () => resolve());
         setTimeout(() => {
           kitProcess?.kill("SIGKILL");

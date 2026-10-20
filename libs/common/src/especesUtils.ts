@@ -1,3 +1,4 @@
+// oxlint-disable-next-line typescript/triple-slash-reference -- Consumers need this ambient declaration; a type import cannot load a declaration script.
 /// <reference path="./odfjs.d.ts" />
 export {
   TAXREF_ROWClassification,

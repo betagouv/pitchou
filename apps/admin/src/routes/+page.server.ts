@@ -9,7 +9,7 @@ export type DashboardLink = {
   icon: string;
 };
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = () => {
   const candidates: { href: string | undefined; title: string; detail: string; icon: string }[] = [
     {
       href: publicEnv.PUBLIC_SITE_URL_PITCHOU,

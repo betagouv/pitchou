@@ -64,7 +64,7 @@ export async function followDossierForPersonnes(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
-  if (!personneIds.length) return;
+  if (personneIds.length === 0) return;
   await databaseConnection("edge_personne_follows_dossier")
     .insert(personneIds.map((personne) => ({ personne, dossier: dossierId })))
     .onConflict(["personne", "dossier"])
@@ -76,7 +76,7 @@ export async function unfollowDossierForPersonnes(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
-  if (!personneIds.length) return;
+  if (personneIds.length === 0) return;
   await databaseConnection("edge_personne_follows_dossier")
     .delete()
     .where({ dossier: dossierId })

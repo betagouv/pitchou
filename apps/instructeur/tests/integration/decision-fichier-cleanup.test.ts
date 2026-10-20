@@ -30,7 +30,7 @@ test("preserves the old decision object when the later audit insert fails", asyn
         trx,
       );
     }),
-  ).rejects.toThrow(/foreign key/);
+  ).rejects.toThrow(/foreign key/u);
 
   expect(await db("decision_administrative").where({ id: decision.id }).first()).toMatchObject({
     fichier: file.id,

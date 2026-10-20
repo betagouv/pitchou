@@ -23,7 +23,7 @@
     espèces: especes,
     onChange,
     id = "",
-    espèceSélectionnée: selectedEspece = $bindable(undefined),
+    espèceSélectionnée: selectedEspece = $bindable(),
   }: Props = $props();
 
   let text = $state(selectedEspece ? especeLabel(selectedEspece) : "");

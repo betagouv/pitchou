@@ -1,3 +1,4 @@
+import type { Knex } from "knex";
 import type {
   PorteurDeProjet,
   PorteurDeProjetPersonneMorale,
@@ -40,8 +41,8 @@ export const porteurDeProjetColumns = [
   ),
 ];
 
-export function joinPorteurDeProjet<T extends { leftJoin: Function }>(query: T): T {
-  return query
+export function joinPorteurDeProjet<T extends Knex.QueryBuilder>(query: T): T {
+  query
     .leftJoin("porteur_de_projet", "porteur_de_projet.id", "dossier.porteur_de_projet")
     .leftJoin(
       "personne_physique as porteur_pp",
@@ -53,6 +54,7 @@ export function joinPorteurDeProjet<T extends { leftJoin: Function }>(query: T):
       "porteur_entreprise.siret",
       "porteur_de_projet.personne_morale",
     );
+  return query;
 }
 
 function takeColumns(row: Record<string, unknown>, prefix: string, columns: readonly string[]) {

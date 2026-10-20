@@ -22,13 +22,11 @@ export function actMetTransArraysToMapBundle(
     "faune non-oiseau": new Map(),
     flore: new Map(),
   };
-  for (const classification in rawActivites) {
-    // @ts-ignore Iterating the known classification keys.
-    for (const activite of rawActivites[classification] as ActiviteMenancante[]) {
+  for (const classification of ["oiseau", "faune non-oiseau", "flore"] as const) {
+    for (const activite of rawActivites[classification]) {
       if (activite["Identifiant Pitchou"] === undefined || activite["Identifiant Pitchou"] === "")
         break;
       activite["Code rapportage européen"] = activite["Code rapportage européen"].toString();
-      // @ts-ignore Classification is a known map key.
       activites[classification].set(activite["Identifiant Pitchou"], activite);
     }
   }

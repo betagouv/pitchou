@@ -60,15 +60,10 @@ test.each([false, true])(
 );
 
 test("prevents duplicate exports and allows retry after failure", async () => {
-  let reject!: (error: Error) => void;
+  const { promise, reject } = Promise.withResolvers<Blob>();
   const exporterDossiers = vi
     .fn()
-    .mockImplementationOnce(
-      () =>
-        new Promise((_, fail) => {
-          reject = fail;
-        }),
-    )
+    .mockImplementationOnce(() => promise)
     .mockResolvedValue(new Blob(["export"]));
   const creerEvenementMetrique = vi.fn().mockResolvedValue(undefined);
   store.capabilities = { exporterDossiers, creerEvenementMetrique };

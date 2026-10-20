@@ -111,5 +111,5 @@ test("both follow states keep the outlined medium button and the untruncated loc
   expect(getComputedStyle(unfollow).boxShadow).toContain(
     getComputedStyle(unfollow, "::before").color,
   );
-  expect(screen.queryByRole("button", { name: /Marquer le dossier/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: /Marquer le dossier/u })).toBeNull();
 });

@@ -7,7 +7,7 @@ export function nouvellesModifications(changes: FieldChange[]) {
     [...fields].filter(
       ([field]) =>
         ["Entreprise", "Demandeur", "Mandataire", "Représentant de l'entreprise"].includes(field) ||
-        /^(demandeur|mandataire|representant|entreprise)\./.test(field),
+        /^(demandeur|mandataire|representant|entreprise)\./u.test(field),
     ),
   );
   const piecesJointes = changes.filter(({ field }) => field.startsWith("piece:"));

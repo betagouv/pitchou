@@ -66,11 +66,12 @@ export async function createInstructeurCapsAndCompleteInstructeurIds(
     dossierCapsP,
     metricCapsP,
   ]);
-  const edges = personnes.map(({ access_code, email }) => ({
-    personne_cap: access_code,
-    // @ts-ignore Personnes were selected from the requested email set.
-    annotation_write_cap: annotationById.get(emailToId.get(email)),
-  }));
+  const edges = personnes.map(({ access_code, email }) => {
+    const instructeurId = email ? emailToId.get(email) : undefined;
+    const annotationCap = instructeurId ? annotationById.get(instructeurId) : undefined;
+    if (!access_code || !annotationCap) throw new Error("Capability d'instructeur introuvable");
+    return { personne_cap: access_code, annotation_write_cap: annotationCap };
+  });
   return databaseConnection("edge_personne__cap_annotation_write")
     .insert(edges)
     .onConflict("personne_cap")

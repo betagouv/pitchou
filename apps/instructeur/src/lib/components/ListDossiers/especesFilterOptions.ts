@@ -50,13 +50,16 @@ function matchesInstance(espece: EspeceProtegee, instance: InstanceConsultative)
 }
 
 export function matchesEspeceFilters(espece: EspeceProtegee, filters: EspecesFilters): boolean {
-  if (filters.classifications.length && !filters.classifications.includes(espece.classification)) {
+  if (
+    filters.classifications.length > 0 &&
+    !filters.classifications.includes(espece.classification)
+  ) {
     return false;
   }
-  if (filters.statuts.length && !filters.statuts.some((s) => espece.CD_TYPE_STATUTS.has(s))) {
+  if (filters.statuts.length > 0 && !filters.statuts.some((s) => espece.CD_TYPE_STATUTS.has(s))) {
     return false;
   }
-  if (filters.instances.length && !filters.instances.some((i) => matchesInstance(espece, i))) {
+  if (filters.instances.length > 0 && !filters.instances.some((i) => matchesInstance(espece, i))) {
     return false;
   }
   return true;

@@ -83,8 +83,7 @@
     try {
       if (!odsFile) throw new Error("Aucun fichier espèces .ods n'a été téléchargé.");
       const description = await odsFile.arrayBuffer().then(importOds);
-      if (Object.keys(description).length) impacted = flattenImpactedEspeces(description);
-      // @ts-ignore DSFR installs this browser global.
+      if (Object.keys(description).length > 0) impacted = flattenImpactedEspeces(description);
       if (importModal) window.dsfr(importModal).modal.conceal();
     } catch (error) {
       importError =
@@ -98,9 +97,9 @@
     }
   }
   async function importFromText(
-    items: Array<{ espece: EspeceProtegee; impacts?: DescriptionImpact[] }>,
+    items: Array<{ espèce: EspeceProtegee; impacts?: DescriptionImpact[] }>,
   ) {
-    if (!items.length) return;
+    if (items.length === 0) return;
     impacted = items;
     await tick();
     references = references.filter(Boolean);

@@ -78,7 +78,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         await trx("dossier")
           .where({ id: created.id })
           .update({ especes_impactees: storedSpeciesId });
-      if (storedAttachmentIds.length)
+      if (storedAttachmentIds.length > 0)
         await trx("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
           storedAttachmentIds.map((fichier) => ({ dossier: created.id, fichier })),
         );
@@ -86,7 +86,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     });
     return json({ id }, { status: 201 });
   } catch (caught) {
-    if (storedSpeciesId || storedAttachmentIds.length) {
+    if (storedSpeciesId || storedAttachmentIds.length > 0) {
       await deleteFichiersWithoutOtherReferences([
         ...(storedSpeciesId ? [storedSpeciesId] : []),
         ...storedAttachmentIds,

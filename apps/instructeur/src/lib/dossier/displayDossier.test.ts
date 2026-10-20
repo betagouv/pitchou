@@ -87,7 +87,7 @@ describe("formatLastModified", () => {
   it("au-delà du mois, le nombre de jours ne dit plus rien", () => {
     const longAgo = new Date();
     longAgo.setDate(longAgo.getDate() - 70);
-    expect(formatLastModified(longAgo)).toMatch(/^Modifié il y a (environ )?2 mois$/);
+    expect(formatLastModified(longAgo)).toMatch(/^Modifié il y a (environ )?2 mois$/u);
   });
 
   it("sans date de modification connue, le badge reste générique", () => {

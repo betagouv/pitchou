@@ -67,7 +67,7 @@ test.each([
     },
   ]);
   const { dialog, onSubmit } = renderInDialog();
-  await expect.element(page.getByRole("option", { name: /Camille Dupont/ })).toBeVisible();
+  await expect.element(page.getByRole("option", { name: /Camille Dupont/u })).toBeVisible();
   await page.getByRole("combobox").fill(query);
   if (key) await userEvent.keyboard(key);
   await userEvent.keyboard("{Enter}");
@@ -79,7 +79,7 @@ test.each([
       .element(page.getByRole("button", { name: `Retirer ${selected} des personnes en copie` }))
       .toBeVisible();
   } else {
-    await expect.element(page.getByRole("button", { name: /^Retirer / })).not.toBeInTheDocument();
+    await expect.element(page.getByRole("button", { name: /^Retirer /u })).not.toBeInTheDocument();
   }
 
   await page.getByRole("button", { name: "Envoyer" }).click();
@@ -128,24 +128,24 @@ test("recherche un instructeur et permet de le retirer des copies", async () => 
     selectedEmails: [],
   });
 
-  await page.getByLabelText(/En copie/).fill("Camille");
+  await page.getByLabelText(/En copie/u).fill("Camille");
   const listbox = await page.getByRole("listbox").element();
-  const option = await page.getByRole("option", { name: /Camille Dupont/ }).element();
+  const option = await page.getByRole("option", { name: /Camille Dupont/u }).element();
   expect(listbox.getBoundingClientRect().height).toBeLessThanOrEqual(
     option.getBoundingClientRect().height + 4,
   );
   expect(option.getBoundingClientRect().height).toBeLessThanOrEqual(68);
   document.body.click();
   await expect
-    .element(page.getByRole("option", { name: /Camille Dupont/ }))
+    .element(page.getByRole("option", { name: /Camille Dupont/u }))
     .not.toBeInTheDocument();
 
-  await page.getByLabelText(/En copie/).fill("Camille");
-  await page.getByRole("option", { name: /Camille Dupont/ }).click();
+  await page.getByLabelText(/En copie/u).fill("Camille");
+  await page.getByRole("option", { name: /Camille Dupont/u }).click();
   await expect.element(page.getByText("camille.dupont@example.com")).toBeVisible();
 
-  await page.getByLabelText(/En copie/).click();
-  await page.getByRole("option", { name: /Alex Martin/ }).click();
+  await page.getByLabelText(/En copie/u).click();
+  await page.getByRole("option", { name: /Alex Martin/u }).click();
   await expect.element(page.getByText("alex.martin@example.com")).toBeVisible();
 
   await page

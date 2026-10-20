@@ -112,7 +112,9 @@
   // The active option follows the keyboard even when the list has to scroll.
   $effect(() => {
     if (open && activeIndex >= 0)
-      document.getElementById(`${id}-option-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
+      document
+        .querySelector(`#${CSS.escape(`${id}-option-${activeIndex}`)}`)
+        ?.scrollIntoView({ block: "nearest" });
   });
 
   const typeahead = createTypeahead();

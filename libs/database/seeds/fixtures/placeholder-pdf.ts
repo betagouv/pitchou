@@ -5,9 +5,9 @@
  */
 export function generatePlaceholderPdf(titre: string): Buffer {
   const texte = `Piece jointe de seed : ${titre}`
-    .replace(/[^\x20-\x7e]/g, " ")
-    .replace(/\\/g, "\\\\")
-    .replace(/[()]/g, "\\$&");
+    .replaceAll(/[^\u0020-\u007E]/gu, " ")
+    .replaceAll("\\", "\\\\")
+    .replaceAll(/[()]/gu, "\\$&");
 
   const flux = `BT /F1 16 Tf 60 780 Td (${texte}) Tj ET`;
   const objets = [

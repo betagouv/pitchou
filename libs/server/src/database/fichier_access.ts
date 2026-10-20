@@ -24,7 +24,7 @@ export type FichierAttachment = {
   expert: string | null;
 };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 // Global file deduplication can link the same file to several dossiers and
 // relations. Keep every edge so authorization can evaluate each one.

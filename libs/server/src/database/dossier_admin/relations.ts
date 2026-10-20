@@ -58,21 +58,7 @@ export async function updateDossierAdminRelations(
   ) {
     throw new TypeError(`Unknown groupe_instructeurs: ${relations.groupe_instructeurs}`);
   }
-  await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossierId }).delete();
-  await trx("edge_groupe_instructeurs__dossier").insert({
-    dossier: dossierId,
-    groupe_instructeurs: relations.groupe_instructeurs,
-  });
-  await trx("identite_dossier").where({ dossier: dossierId }).delete();
-  if (relations.identites.length >= 1) {
-    await trx("identite_dossier").insert(
-      relations.identites.map((identite) => ({
-        ...identite,
-        dossier: dossierId,
-        email: identite.email ? normalizeEmail(identite.email) : null,
-      })),
-    );
-  }
+  await replaceDossierRelations(dossierId, relations, trx);
   if (relations.demandeur_type === "personne_physique") {
     const { last_name, first_names, email } = relations.demandeur_personne_physique;
     const personneId = await updateOrInsertDossierPersonne(
@@ -128,4 +114,26 @@ export async function updateDossierAdminRelations(
   );
   // After the entreprise insert above, so that its details are kept.
   await savePorteurDeProjet(dossierId, relations, trx);
+}
+
+async function replaceDossierRelations(
+  dossierId: DossierId,
+  relations: AdminDossierRelations,
+  trx: Knex.Transaction,
+): Promise<void> {
+  await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossierId }).delete();
+  await trx("edge_groupe_instructeurs__dossier").insert({
+    dossier: dossierId,
+    groupe_instructeurs: relations.groupe_instructeurs,
+  });
+  await trx("identite_dossier").where({ dossier: dossierId }).delete();
+  if (relations.identites.length > 0) {
+    await trx("identite_dossier").insert(
+      relations.identites.map((identite) => ({
+        ...identite,
+        dossier: dossierId,
+        email: identite.email ? normalizeEmail(identite.email) : null,
+      })),
+    );
+  }
 }

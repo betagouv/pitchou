@@ -123,7 +123,7 @@ export function createGETPrefillingLinkDemarche(
   // retrieve the départements
   if (
     Array.isArray(partialDossier["Département(s) où se situe le projet"]) &&
-    partialDossier["Département(s) où se situe le projet"].length >= 1
+    partialDossier["Département(s) où se situe le projet"].length > 0
   ) {
     prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
       "d'un ou plusieurs départements";
@@ -134,24 +134,21 @@ export function createGETPrefillingLinkDemarche(
       .filter((commune) => Object(commune) === commune)
       .map((d) => makeDepartementParam(d, demarcheDossierLabelToId))
       .join("&");
-  } else {
-    // retrieve the communes
-    if (
-      Array.isArray(partialDossier["Commune(s) où se situe le projet"]) &&
-      partialDossier["Commune(s) où se situe le projet"].length >= 1
-    ) {
-      // An array of dictionaries with the possible values for each field of the repetition.
-      // champ_Q2hhbXAtNDA0MTQ0Mw: An array containing the postal code and the INSEE code of the commune
+  } else if (
+    Array.isArray(partialDossier["Commune(s) où se situe le projet"]) &&
+    partialDossier["Commune(s) où se situe le projet"].length > 0
+  ) {
+    // An array of dictionaries with the possible values for each field of the repetition.
+    // champ_Q2hhbXAtNDA0MTQ0Mw: An array containing the postal code and the INSEE code of the commune
 
-      prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
-        "d'une ou plusieurs communes";
+    prefillingObject[`champ_${demarcheDossierLabelToId.get("Le projet se situe au niveau…")}`] =
+      "d'une ou plusieurs communes";
 
-      communesURLParam = partialDossier["Commune(s) où se situe le projet"]
-        .filter((commune) => Object(commune) === commune)
-        //@ts-expect-error TS doesn't understand that we kept only the objects after the filter
-        .map((c) => makeCommuneParam(c, demarcheDossierLabelToId))
-        .join("&");
-    }
+    communesURLParam = partialDossier["Commune(s) où se situe le projet"]
+      .filter((commune) => Object(commune) === commune)
+      //@ts-expect-error TS doesn't understand that we kept only the objects after the filter
+      .map((c) => makeCommuneParam(c, demarcheDossierLabelToId))
+      .join("&");
   }
 
   return (

@@ -88,7 +88,7 @@ test("the sort menu is wide enough for each option to stay on one line", async (
   const { container, getByRole } = render(DossiersToolbar, props(true));
   container.className = "pitchou-container";
   await document.fonts.ready;
-  await page.getByRole("button", { name: /^Tri :/ }).click();
+  await page.getByRole("button", { name: /^Tri :/u }).click();
   const menu = getByRole("menu");
   expect(menu.getBoundingClientRect().right).toBeLessThanOrEqual(1440);
   const options = menu.querySelectorAll<HTMLElement>("[role=menuitemradio]");

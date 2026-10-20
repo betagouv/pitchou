@@ -143,49 +143,49 @@ export async function seedDossierRows(
         .where({ name: groupe_instructeur, demarche_number: SEED_DEMARCHE_NUMBER })
         .first();
 
-      if (group) {
-        const existingLink = await transaction("edge_groupe_instructeurs__dossier")
-          .where({ dossier: dossier.id })
+      if (!group) {
+        console.warn(`  Missing groupe_instructeurs "${groupe_instructeur}" for ${label}`);
+        continue;
+      }
+      const existingLink = await transaction("edge_groupe_instructeurs__dossier")
+        .where({ dossier: dossier.id })
+        .first();
+
+      if (!existingLink) {
+        await transaction("edge_groupe_instructeurs__dossier").insert({
+          dossier: dossier.id,
+          groupe_instructeurs: group.id,
+        });
+      }
+
+      if (devCap) {
+        const existingCapLink = await transaction("edge_cap_dossier__groupe_instructeurs")
+          .where({ cap_dossier: devCap.cap, groupe_instructeurs: group.id })
           .first();
 
-        if (!existingLink) {
-          await transaction("edge_groupe_instructeurs__dossier").insert({
-            dossier: dossier.id,
+        if (!existingCapLink) {
+          await transaction("edge_cap_dossier__groupe_instructeurs").insert({
+            cap_dossier: devCap.cap,
             groupe_instructeurs: group.id,
           });
         }
+      }
 
-        if (devCap) {
-          const existingCapLink = await transaction("edge_cap_dossier__groupe_instructeurs")
-            .where({ cap_dossier: devCap.cap, groupe_instructeurs: group.id })
-            .first();
+      const agentsInGroup = await transaction("personne")
+        .join("cap_dossier", "cap_dossier.personne_cap", "personne.access_code")
+        .join(
+          "edge_cap_dossier__groupe_instructeurs",
+          "edge_cap_dossier__groupe_instructeurs.cap_dossier",
+          "cap_dossier.cap",
+        )
+        .where({ "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs": group.id })
+        .select("personne.id");
 
-          if (!existingCapLink) {
-            await transaction("edge_cap_dossier__groupe_instructeurs").insert({
-              cap_dossier: devCap.cap,
-              groupe_instructeurs: group.id,
-            });
-          }
-        }
-
-        const agentsInGroup = await transaction("personne")
-          .join("cap_dossier", "cap_dossier.personne_cap", "personne.access_code")
-          .join(
-            "edge_cap_dossier__groupe_instructeurs",
-            "edge_cap_dossier__groupe_instructeurs.cap_dossier",
-            "cap_dossier.cap",
-          )
-          .where({ "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs": group.id })
-          .select("personne.id");
-
-        for (const { id: personneId } of agentsInGroup) {
-          const key = String(personneId);
-          const list = agentVisibleDossiers.get(key) ?? [];
-          list.push(dossier.id);
-          agentVisibleDossiers.set(key, list);
-        }
-      } else {
-        console.warn(`  ⚠ groupe_instructeurs "${groupe_instructeur}" introuvable — ${label}`);
+      for (const { id: personneId } of agentsInGroup) {
+        const key = String(personneId);
+        const list = agentVisibleDossiers.get(key) ?? [];
+        list.push(dossier.id);
+        agentVisibleDossiers.set(key, list);
       }
     } catch (err) {
       console.error(`\n  ✗ Erreur insertion ${label}`);

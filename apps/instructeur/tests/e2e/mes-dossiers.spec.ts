@@ -1,6 +1,9 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { gotoMesDossiers, setupMesDossiers as setup } from "./mesDossiersFixtures.ts";
 
+// Escape the apostrophe so Playwright can chain selectors after this Unicode regex.
+const modificationBadgePattern = /^Modifié (aujourd\u0027hui|il y a)/u;
+
 test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
   await gotoMesDossiers(page);
@@ -32,12 +35,12 @@ test("les dossiers avec notification non vue portent un badge de modification", 
 
   const withBadge = await page
     .getByTestId("card-dossier")
-    .filter({ has: page.getByText(/^Modifié (aujourd'hui|il y a)/) })
+    .filter({ has: page.getByText(modificationBadgePattern) })
     .all();
 
   expect(withBadge).toHaveLength(2);
   // The badge dates the change rather than merely flagging it.
-  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
+  await expect(page.getByText(modificationBadgePattern).first()).toBeVisible();
 });
 
 test("le filtre Nouveauté ne montre que les dossiers à notification non vue", async ({
@@ -53,7 +56,7 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
 
   // Filters apply live: the URL and the background list update as soon as the box is ticked,
   // before « Rechercher » is pressed.
-  await expect(page).toHaveURL(/nouveaute=oui/);
+  await expect(page).toHaveURL(/nouveaute=oui/u);
   await expect(page.getByTestId("compteur-dossier")).toContainText(
     "2 dossiers suivis dans vos territoires d'affectation",
   );
@@ -63,7 +66,7 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   await modal.getByRole("button", { name: "Voir 2 résultats" }).click();
 
   // Closing the panel keeps the applied filter.
-  await expect(page).toHaveURL(/nouveaute=oui/);
+  await expect(page).toHaveURL(/nouveaute=oui/u);
   await expect(page.getByTestId("compteur-dossier")).toContainText(
     "2 dossiers suivis dans vos territoires d'affectation",
   );
@@ -76,11 +79,11 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
 
   // The active filter shows as a removable tag; clicking it clears the filter.
   const tags = page.getByTestId("filtres-actifs");
-  const nouveauteTag = tags.getByRole("button", { name: /Nouvelles modifications/ });
+  const nouveauteTag = tags.getByRole("button", { name: /Nouvelles modifications/u });
   await expect(nouveauteTag).toBeVisible();
   await nouveauteTag.click();
 
-  await expect(page).not.toHaveURL(/nouveaute=oui/);
+  await expect(page).not.toHaveURL(/nouveaute=oui/u);
   await expect(page.getByTestId("compteur-dossier")).toContainText(
     "4 dossiers suivis dans vos territoires d'affectation",
   );
@@ -96,7 +99,7 @@ test("le badge de modification persiste après consultation et disparaît après
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
-  const badge = card.getByText(/^Modifié (aujourd'hui|il y a)/);
+  const badge = card.getByText(modificationBadgePattern);
 
   await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);
@@ -107,9 +110,9 @@ test("le badge de modification persiste après consultation et disparaît après
   ).toBeVisible();
   // Staying in edit mode consumes arrivals/follows only, not fields.
   await page.waitForTimeout(5500);
-  await expect(page.getByText(/^Modifié (aujourd'hui|il y a)/).first()).toBeVisible();
+  await expect(page.getByText(modificationBadgePattern).first()).toBeVisible();
   await page.getByRole("tab", { name: "Détail du projet" }).click();
-  await page.getByRole("button", { name: /Informations du projet/ }).click();
+  await page.getByRole("button", { name: /Informations du projet/u }).click();
   await page.getByRole("button", { name: "Valider la modification : Description" }).click();
   await expect(
     page.getByRole("button", { name: "Valider la modification : Description" }),
@@ -131,7 +134,7 @@ test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu",
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
-  const badge = card.locator("p.fr-badge", { hasText: /Dossier à enjeu/i });
+  const badge = card.locator("p.fr-badge", { hasText: /Dossier à enjeu/iu });
 
   await expect(card).toHaveCount(1);
   await expect(badge).toHaveCount(1);

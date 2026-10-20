@@ -81,7 +81,7 @@
       showPorteurErrors = true;
       saveError = null;
       await tick();
-      document.getElementById(invalidField)?.focus();
+      document.querySelector<HTMLElement>(`#${CSS.escape(invalidField)}`)?.focus();
       return;
     }
     if (legalSiretChanged && !companyDetailsChoice) {

@@ -1,7 +1,8 @@
 import ky from "ky";
 import pLimit from "p-limit";
 
-const TIMEOUT_DELAY = 20 * 1000; // ms
+// ms
+const TIMEOUT_DELAY = 20 * 1000;
 
 async function _downloadFichierDS(
   url: string,
@@ -20,8 +21,7 @@ async function _downloadFichierDS(
       content: response,
     };
   } catch (err) {
-    // @ts-ignore
-    if (err.name === "TimeoutError") {
+    if (err instanceof Error && err.name === "TimeoutError") {
       const message = `\nTimeout d'une requête HTTP vers DS après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
       const simpleError = new Error(message);
       console.error(message);
@@ -43,7 +43,7 @@ async function _downloadFichierDS(
 const MAX_SIMULTANEOUS_DOWNLOADS = 6;
 const concurrencyLimit = pLimit(MAX_SIMULTANEOUS_DOWNLOADS);
 
-export default async function downloadFichierDS(
+export default function downloadFichierDS(
   url: string,
 ): Promise<{ mediaType: string | null; content: ArrayBuffer }> {
   return concurrencyLimit(() => _downloadFichierDS(url));

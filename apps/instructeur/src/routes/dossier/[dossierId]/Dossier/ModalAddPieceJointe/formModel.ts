@@ -15,7 +15,7 @@ export function defaultPieceJointeType(
   showChoice: boolean,
   types: TypePieceJointe[],
 ) {
-  return initial ?? (!showChoice ? (types[0] ?? null) : null);
+  return initial ?? (showChoice ? null : (types[0] ?? null));
 }
 
 export function pieceJointeLabel(value: TypePieceJointe) {

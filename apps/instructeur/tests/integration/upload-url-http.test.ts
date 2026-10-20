@@ -4,7 +4,7 @@ import { createDossier, createInstructeurWithDossier } from "../factories/index.
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 function requestUploadUrls(cap: string, body: unknown) {
   return fetch(`${INTEGRATION_BASE_URL}/fichier/upload-url?cap=${cap}`, {

@@ -72,7 +72,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
     .trim()
     .split(" ")
     .map(normalizeEspeceText)
-    .filter((word) => word.length >= 1);
+    .filter((word) => word.length > 0);
 
   const haystack = [
     modification.cd_ref,

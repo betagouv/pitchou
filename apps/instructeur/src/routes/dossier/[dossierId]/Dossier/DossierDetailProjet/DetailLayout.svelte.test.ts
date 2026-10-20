@@ -68,18 +68,18 @@ test.each([1440, 1024, 390])(
     };
     const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
     const headers = [...view.container.querySelectorAll<HTMLButtonElement>("h3 button")];
-    expect(headers.map((button) => button.textContent?.replace(/\s+/g, " ").trim())).toEqual([
-      expect.stringMatching(/^Porteur de projet/),
-      expect.stringMatching(/^Informations du projet/),
-      expect.stringMatching(/^Cartographie du projet/),
-      expect.stringMatching(/^Espèces impactées/),
-      expect.stringMatching(/^Pièces jointes/),
+    expect(headers.map((button) => button.textContent?.replaceAll(/\s+/gu, " ").trim())).toEqual([
+      expect.stringMatching(/^Porteur de projet/u),
+      expect.stringMatching(/^Informations du projet/u),
+      expect.stringMatching(/^Cartographie du projet/u),
+      expect.stringMatching(/^Espèces impactées/u),
+      expect.stringMatching(/^Pièces jointes/u),
     ]);
     for (const header of headers) header.click();
     await tick();
     await document.fonts.ready;
     const dnLink = view.getByRole("link", { name: "Voir le dossier sur Démarche Numérique" });
-    expect(dnLink.getAttribute("href")).toMatch(/\/procedures\/88444\/dossiers\/123456$/);
+    expect(dnLink.getAttribute("href")).toMatch(/\/procedures\/88444\/dossiers\/123456$/u);
     expect(dnLink.getAttribute("target")).toBe("_blank");
     expect(dnLink.classList.contains("fr-btn--secondary")).toBe(false);
     expect(dnLink.getBoundingClientRect().right).toBeLessThanOrEqual(width);

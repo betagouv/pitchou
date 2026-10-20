@@ -30,21 +30,7 @@ export async function getDossiersForGeoMCE(
       const seen = new Set();
       return rows.filter(({ id }) => !seen.has(id) && Boolean(seen.add(id)));
     });
-  const instructeursP: Promise<Map<Dossier["id"], Personne["email"][]>> = databaseConnection(
-    "edge_personne_follows_dossier",
-  )
-    .select(["personne.email as email", "edge_personne_follows_dossier.dossier as dossier"])
-    .join("personne", { "personne.id": "edge_personne_follows_dossier.personne" })
-    .whereIn("edge_personne_follows_dossier.dossier", ids)
-    .then((rows) => {
-      const byDossier = new Map();
-      for (const { email, dossier } of rows) {
-        const instructeurs = byDossier.get(dossier) || [];
-        instructeurs.push(email);
-        byDossier.set(dossier, instructeurs);
-      }
-      return byDossier;
-    });
+  const instructeursP = getInstructeursByDossier(ids, databaseConnection);
   const [especes, maps, instructeurs, dossiers] = await Promise.all([
     loadEspeceByCD_REF(databaseConnection),
     getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
@@ -74,8 +60,7 @@ export async function getDossiersForGeoMCE(
             maps.moyensDePoursuite,
           );
         } catch (error) {
-          // @ts-ignore Error causes are not narrowed here.
-          if (error.cause !== "format incorrect") {
+          if (!(error instanceof Error) || error.cause !== "format incorrect") {
             console.error("Erreur lors de la génération du message GeoMCE. Dossier", ids);
             console.error("Dossier", dossier);
             console.error(error);
@@ -101,4 +86,23 @@ export async function getDossiersForGeoMCE(
       };
     }),
   );
+}
+
+function getInstructeursByDossier(
+  ids: Dossier["id"][],
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<Map<Dossier["id"], Personne["email"][]>> {
+  return databaseConnection("edge_personne_follows_dossier")
+    .select(["personne.email as email", "edge_personne_follows_dossier.dossier as dossier"])
+    .join("personne", { "personne.id": "edge_personne_follows_dossier.personne" })
+    .whereIn("edge_personne_follows_dossier.dossier", ids)
+    .then((rows) => {
+      const byDossier = new Map();
+      for (const { email, dossier } of rows) {
+        const instructeurs = byDossier.get(dossier) || [];
+        instructeurs.push(email);
+        byDossier.set(dossier, instructeurs);
+      }
+      return byDossier;
+    });
 }

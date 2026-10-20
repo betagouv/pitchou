@@ -45,7 +45,7 @@ test.each([1440, 390, 320])("species tables and reviews fit a %ipx viewport", as
   store.notificationByDossier.set(dossier.id, dossier.notificationSnapshot);
   registerReviewSnapshot(dossier);
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
-  const accordion = view.getByRole("button", { name: /Espèces impactées/ });
+  const accordion = view.getByRole("button", { name: /Espèces impactées/u });
   accordion.click();
   await tick();
   await document.fonts.ready;

@@ -4,6 +4,6 @@ export function communeDepartmentCode(commune: CommuneWithDepartment): string | 
   if (commune.departmentCode) return commune.departmentCode;
   const code = commune.code;
   if (!code) return undefined;
-  if (/^(97|98)\d{3}$/.test(code)) return code.slice(0, 3);
+  if (/^(97|98)\d{3}$/u.test(code)) return code.slice(0, 3);
   return code.slice(0, 2);
 }

@@ -26,21 +26,7 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     .select("email")
     .where({ access_code: accessCode })
     .first();
-  const groupesP = databaseConnection("cap_dossier")
-    .join(
-      "edge_cap_dossier__groupe_instructeurs",
-      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
-      "cap_dossier.cap",
-    )
-    .join(
-      "groupe_instructeurs",
-      "groupe_instructeurs.id",
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
-    )
-    .where("cap_dossier.personne_cap", accessCode)
-    .distinct("groupe_instructeurs.name")
-    .orderBy("groupe_instructeurs.name")
-    .then((rows) => rows.map((row) => row.name));
+  const groupesP = getGroupesForPersonne(accessCode, databaseConnection);
   const listDossiersP = databaseConnection("cap_dossier")
     .select("cap")
     .where({ personne_cap: accessCode })
@@ -116,4 +102,25 @@ export async function getRelationSuivis(
     personneEmail,
     followedDossierIds: [...followedDossierIds],
   }));
+}
+
+function getGroupesForPersonne(
+  accessCode: NonNullable<Personne["access_code"]>,
+  databaseConnection: Knex.Transaction | Knex,
+) {
+  return databaseConnection("cap_dossier")
+    .join(
+      "edge_cap_dossier__groupe_instructeurs",
+      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
+      "cap_dossier.cap",
+    )
+    .join(
+      "groupe_instructeurs",
+      "groupe_instructeurs.id",
+      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
+    )
+    .where("cap_dossier.personne_cap", accessCode)
+    .distinct("groupe_instructeurs.name")
+    .orderBy("groupe_instructeurs.name")
+    .then((rows) => rows.map((row) => row.name));
 }

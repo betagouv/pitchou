@@ -75,7 +75,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     especesImpacteesCD_REF: [
       ...new Set(especesImpactees.impacts.map(({ espece }) => espece.CD_REF)),
     ],
-    especesImpacteesRenseignees: especesImpactees.impacts.length >= 1,
+    especesImpacteesRenseignees: especesImpactees.impacts.length > 0,
 
     // Statistics
     depot_date,

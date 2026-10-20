@@ -98,7 +98,7 @@ export function validateChangelogPayload(
 
 /** Accepts only real calendar dates in the plain YYYY-MM-DD form. */
 export function isValidDate(date: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(date)) return false;
   const [year, month, day] = date.split("-").map(Number);
   const candidate = new Date(Date.UTC(year, month - 1, day));
   return (
@@ -113,5 +113,5 @@ export function isValidDate(date: string): boolean {
  * that is not a positive integer before it reaches the database.
  */
 export function isValidIdParam(id: string): boolean {
-  return /^\d+$/.test(id) && Number(id) > 0 && Number.isSafeInteger(Number(id));
+  return /^\d+$/u.test(id) && Number(id) > 0 && Number.isSafeInteger(Number(id));
 }

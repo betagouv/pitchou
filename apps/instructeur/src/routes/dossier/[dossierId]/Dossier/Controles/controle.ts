@@ -23,16 +23,19 @@ export function addControle(controle: Partial<Controle>): Promise<Controle["id"]
     throw new Error(`Pas les droits suffisants pour ajouter un contrôle`);
   }
   // The server returns an array of ids for the "add" case
-  // @ts-ignore
-  return addOrUpdateControle(controle).then((ids) => ids[0]);
+  return addOrUpdateControle(controle).then((ids) => {
+    if (!Array.isArray(ids) || !ids[0])
+      throw new Error("Identifiant de contrôle absent de la réponse");
+    return ids[0];
+  });
 }
 
-export function updateControle(controle: Partial<Controle>): Promise<Controle["id"] | undefined> {
+export function updateControle(controle: Partial<Controle>): Promise<void> {
   const addOrUpdateControle = store.capabilities.addOrUpdateControle;
   if (!addOrUpdateControle) {
     throw new Error(`Pas les droits suffisants pour modifier un contrôle`);
   }
-  return addOrUpdateControle(controle);
+  return addOrUpdateControle(controle).then(() => {});
 }
 
 export function deleteControle(id: Controle["id"]): Promise<unknown> {

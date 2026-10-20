@@ -4,7 +4,7 @@ import { getActiviteReferentiel, updateActiviteGroupe } from "@pitchou/server/da
 import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
 import type { RequestHandler } from "./$types.ts";
 
-const HEX_COLOR = /^#[0-9a-f]{6}$/;
+const HEX_COLOR = /^#[0-9a-f]{6}$/u;
 
 export const PUT: RequestHandler = async ({ request, params }) => {
   const body = await readJsonObject(request);

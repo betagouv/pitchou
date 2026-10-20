@@ -7,7 +7,8 @@ export async function up(knex: Knex) {
     table.uuid("prescription").notNullable().index();
     table.foreign("prescription").references("id").inTable("prescription").onDelete("CASCADE");
 
-    table.datetime("date_contrôle", { precision: 0 }); // précision à la seconde
+    // Second precision.
+    table.datetime("date_contrôle", { precision: 0 });
     table
       .string("résultat")
       .comment(

@@ -24,7 +24,7 @@ export function entrepriseCreationDate({
 /** « 432 296 234 00029 » / « 432 296 234 »; any other value is kept as is. */
 export function formatSiret(value: string | null): string | null {
   return (
-    value?.replace(/^(\d{3})(\d{3})(\d{3})(\d{5})?$/, (_, a, b, c, d) =>
+    value?.replace(/^(\d{3})(\d{3})(\d{3})(\d{5})?$/u, (_, a, b, c, d) =>
       [a, b, c, d].filter(Boolean).join(" "),
     ) ?? null
   );

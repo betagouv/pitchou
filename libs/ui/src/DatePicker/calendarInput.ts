@@ -36,7 +36,7 @@ export function parseInputDate(input: string, minDate?: Date, maxDate?: Date): D
 }
 
 export function formatInputDate(input: string): string {
-  const digits = input.replace(/\D/g, "").slice(0, 8);
+  const digits = input.replaceAll(/\D/gu, "").slice(0, 8);
   if (digits.length <= 2) return digits;
   if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;

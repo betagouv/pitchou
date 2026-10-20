@@ -40,7 +40,7 @@ function optionsFor(entryId: number | null): sanitizeHtml.IOptions {
       h2: ["style"],
       h3: ["style"],
     },
-    allowedStyles: { "*": { "text-align": [/^(left|center|right)$/] } },
+    allowedStyles: { "*": { "text-align": [/^(left|center|right)$/u] } },
     allowedSchemes: ["http", "https", "mailto"],
     allowProtocolRelative: false,
     // Links always open in a new tab without exposing the opener.

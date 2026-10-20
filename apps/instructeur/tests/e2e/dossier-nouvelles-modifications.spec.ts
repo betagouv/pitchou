@@ -36,8 +36,8 @@ test("les modifications du pétitionnaire non lues affichent des badges dans le 
   const badges = page.getByText("Nouvelles modifications", { exact: true });
   await expect(badges).toHaveCount(3);
 
-  await page.getByRole("button", { name: /Informations du projet/ }).click();
-  await expect(page.getByText(/^Modifié le\s+\d{2}\/\d{2}\/\d{4}$/).first()).toBeVisible();
+  await page.getByRole("button", { name: /Informations du projet/u }).click();
+  await expect(page.getByText(/^Modifié le\s+\d{2}\/\d{2}\/\d{4}$/u).first()).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Valider la modification : Description" }),
   ).toHaveText("Vu");
@@ -64,7 +64,7 @@ test("les révisions explicitement validées n'affichent pas de badge", async ({
   await loginAs(codeAcces);
   await page.goto(`/dossier/${dossier.id}?tab=detail-du-projet`);
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Informations du projet/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Informations du projet/u })).toBeVisible();
 
   await expect(page.getByText("Nouvelles modifications", { exact: true })).toHaveCount(0);
 });

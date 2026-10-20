@@ -17,7 +17,7 @@
     référencesEspèces: TileSaisieEspece[];
     espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
     onClickPréRemplirAvecDocumentTexte: (
-      especesImpactees: Array<{ espece: EspeceProtegee; impacts: DescriptionImpact[] }>,
+      especesImpactees: Array<{ espèce: EspeceProtegee; impacts: DescriptionImpact[] }>,
     ) => void;
     activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
@@ -77,7 +77,7 @@
     impacts: DescriptionImpact[];
   }> = $state([]);
 
-  async function removeEspeceImpactee(indexEspeceToRemove: number) {
+  function removeEspeceImpactee(indexEspeceToRemove: number) {
     especesImpacteesToPrefill.splice(indexEspeceToRemove, 1);
   }
 
@@ -90,11 +90,12 @@
   }
 
   function prefillWithTheseEspecesImpacts() {
-    //@ts-ignore
     let newEspecesImpactees: Array<{
-      espece: EspeceProtegee;
+      espèce: EspeceProtegee;
       impacts: DescriptionImpact[];
-    }> = especesImpacteesToPrefill.filter((especeImpactee) => especeImpactee?.espèce !== undefined);
+    }> = especesImpacteesToPrefill.flatMap(({ espèce, impacts }) =>
+      espèce ? [{ espèce, impacts }] : [],
+    );
 
     onClickPrefillWithTextDocument(newEspecesImpactees);
   }
@@ -129,21 +130,18 @@
     for (const especes of Object.values(especesProtegeesParClassification)) {
       for (const espece of especes) {
         const { nomsScientifiques, nomsVernaculaires } = espece;
-        if (nomsScientifiques.size >= 1) {
-          for (const name of nomsScientifiques) {
-            const normalized = normalizeEspeceName(name);
-            if (normalized && normalized.length >= 3) {
-              nameToEspeceClassif.set(normalized, espece);
-            }
+
+        for (const name of nomsScientifiques) {
+          const normalized = normalizeEspeceName(name);
+          if (normalized && normalized.length >= 3) {
+            nameToEspeceClassif.set(normalized, espece);
           }
         }
 
-        if (nomsVernaculaires.size >= 1) {
-          for (const name of nomsVernaculaires) {
-            const normalized = normalizeEspeceName(name);
-            if (normalized && normalized.length >= 3) {
-              nameToEspeceClassif.set(normalized, espece);
-            }
+        for (const name of nomsVernaculaires) {
+          const normalized = normalizeEspeceName(name);
+          if (normalized && normalized.length >= 3) {
+            nameToEspeceClassif.set(normalized, espece);
           }
         }
       }

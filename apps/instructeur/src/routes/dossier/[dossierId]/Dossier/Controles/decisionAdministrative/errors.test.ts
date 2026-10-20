@@ -15,7 +15,7 @@ test.each([
   "Internal exception",
 ])("hides technical details of unexpected errors", (cause) => {
   const message = importErrorMessage(cause);
-  expect(message).not.toMatch(/SQL|insert into|syntax|fetch|exception/);
+  expect(message).not.toMatch(/SQL|insert into|syntax|fetch|exception/u);
   expect(message).toContain("contactez l'équipe Pitchou");
 });
 

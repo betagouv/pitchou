@@ -21,7 +21,7 @@ test("le menu d'actions de l'entête ouvre la modale d'ajout de pièce jointe", 
   const dialog = page.locator("#modale-ajouter-piece-jointe-entete");
   await expect(dialog).toBeHidden();
 
-  await page.getByRole("button", { name: /Plus d’actions/ }).click();
+  await page.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Ajouter une pièce jointe" }).click();
 
   await expect(dialog).toBeVisible();
@@ -32,7 +32,7 @@ test("le menu d'actions de l'entête ouvre la modale d'ajout de pièce jointe", 
   await expect(dialog).toBeHidden();
 
   // Opening it a second time must work too: the menu items are recreated at each opening.
-  await page.getByRole("button", { name: /Plus d’actions/ }).click();
+  await page.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Ajouter une pièce jointe" }).click();
   await expect(dialog).toBeVisible();
 });

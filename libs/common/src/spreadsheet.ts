@@ -11,7 +11,7 @@ export function tableToCsv(table: SpreadsheetTable): string {
           .map((value) => {
             let text = String(value);
             // CSV quoting does not prevent spreadsheet applications from evaluating formulas.
-            if (typeof value === "string" && /^[\s]*[=+\-@]/.test(text)) text = `'${text}`;
+            if (typeof value === "string" && /^[\s]*[=+\-@]/u.test(text)) text = `'${text}`;
             return `"${text.replaceAll('"', '""')}"`;
           })
           .join(","),

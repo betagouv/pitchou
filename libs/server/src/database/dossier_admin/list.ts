@@ -92,9 +92,9 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
         .orWhereILike("porteur_entreprise.legal_name", `%${search}%`)
         .orWhereILike("porteur_pp.last_name", `%${search}%`)
         .orWhereILike("porteur_pp.first_names", `%${search}%`)
-        .orWhere("porteur_entreprise.siret", search.replace(/\s/g, ""));
+        .orWhere("porteur_entreprise.siret", search.replaceAll(/\s/gu, ""));
       // The DN number is a bigint: comparing it to a word would fail the whole query.
-      if (/^\d+$/.test(search)) this.orWhere("dossier.demarche_numerique_number", search);
+      if (/^\d+$/u.test(search)) this.orWhere("dossier.demarche_numerique_number", search);
     });
   if (options.phase) query.where("latest_phase.phase", options.phase);
   if (options.source === "pitchou") query.where("dossier.source", "pitchou");

@@ -96,7 +96,7 @@ const dossierEolienMortalityActions = makePreRenderHook(
 // (TS1284). Rewrite it into a type-only default export.
 function fixTypeOnlyDefaultExport(path, lines) {
   return lines.map((line) => {
-    const match = line.match(/^export default (\w+);$/);
+    const match = line.match(/^export default (\w+);$/u);
     const isTypeAlias = match && lines.some((l) => l.startsWith(`type ${match[1]} =`));
     return isTypeAlias ? `export type { ${match[1]} as default };` : line;
   });

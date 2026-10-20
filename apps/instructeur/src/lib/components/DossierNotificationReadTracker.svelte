@@ -7,7 +7,7 @@
   let { dossierId, readOnly }: { dossierId: DossierId; readOnly: boolean } = $props();
   const arrival = $derived(!readOnly && !!store.notificationByDossier.get(dossierId)?.new_arrival);
   const followRevision = $derived(
-    !readOnly ? store.notificationByDossier.get(dossierId)?.new_follow?.revision : undefined,
+    readOnly ? undefined : store.notificationByDossier.get(dossierId)?.new_follow?.revision,
   );
 
   function startTimer(update: NotificationUpdate) {

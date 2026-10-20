@@ -8,7 +8,8 @@ import { FauneNonOiseauAtteinte, FloreAtteinte, OiseauAtteint } from "./especes"
 
 export type FichierEspecesImpacteesOds_V1 = Map<"oiseau", OiseauAtteintOds_V1[]> &
   Map<"faune non-oiseau", FauneNonOiseauAtteinteOds_V1[]> &
-  Map<"faune_non-oiseau", FauneNonOiseauAtteinteOds_V1[]> & // Sometimes we receive sheets with the name faune_non-oiseau
+  // Sometimes we receive sheets with the name faune_non-oiseau
+  Map<"faune_non-oiseau", FauneNonOiseauAtteinteOds_V1[]> &
   Map<"flore", FloreAtteinteOds_V1[]> &
   Map<"metadata", MetadataOds_V1>;
 
@@ -17,7 +18,8 @@ interface EtreVivantAtteintOds_V1 {
   "nombre individus": string;
   "surface habitat détruit": number;
   "code activité": string;
-  "identifiant pitchou activité"?: string; // this property was added in version 1.1.0
+  // this property was added in version 1.1.0
+  "identifiant pitchou activité"?: string;
 }
 
 export interface OiseauAtteintOds_V1 extends EtreVivantAtteintOds_V1 {

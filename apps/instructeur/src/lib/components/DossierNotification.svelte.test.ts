@@ -60,7 +60,7 @@ test("arrival takes priority over follow and modification tags without consuming
   await tick();
   expect(view.container.textContent).toContain("Nouveau suivi");
   expect(view.container.textContent).toContain("Modifié");
-  expect(view.container.textContent).not.toMatch(/détecté/i);
+  expect(view.container.textContent).not.toMatch(/détecté/iu);
   expect(view.container.querySelector(".fr-icon-flashlight-fill")).toBeNull();
 });
 
@@ -107,7 +107,7 @@ test("modification ages use calendar days, even beyond a month", async () => {
     changes: [{ ...state.changes[0], detected_at: new Date(), modified_at: null }],
   });
   await tick();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié aujourd'hui");
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié aujourd'hui");
 });
 
 test("five seconds acknowledge arrival and the exact follow, never fields", async () => {

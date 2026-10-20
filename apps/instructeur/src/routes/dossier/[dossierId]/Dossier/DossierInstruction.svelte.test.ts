@@ -39,7 +39,9 @@ test("afficher l'onglet instruction n'enregistre rien", async () => {
 
   // Longer than the one-second debounce of the Onagre field, so a save queued
   // at mount would have landed by now.
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
 
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   // Successful saves are reported to the header, not as an in-form alert.
@@ -145,7 +147,7 @@ test("public consultation uses a loadable filled megaphone mask", async () => {
   expect(style.width).toBe("16px");
   expect(style.height).toBe("16px");
   expect(style.maskImage).toContain("megaphone-fill.svg");
-  const url = style.maskImage.match(/^url\("(.+)"\)$/)![1];
+  const url = style.maskImage.match(/^url\("(.+)"\)$/u)![1];
   const response = await fetch(url);
   expect(response.ok).toBe(true);
   expect(await response.text()).toContain("<path");

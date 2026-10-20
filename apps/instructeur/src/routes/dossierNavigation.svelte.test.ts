@@ -141,7 +141,7 @@ test("the header no longer exposes a manual read toggle or the old five-second t
   const { rerender } = render(PageDossier, pageProps(FIRST));
   await tick();
 
-  expect(screen.queryByRole("button", { name: /Marquer le dossier comme/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: /Marquer le dossier comme/u })).toBeNull();
 
   await rerender(pageProps(SECOND));
   await tick();

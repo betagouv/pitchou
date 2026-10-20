@@ -21,7 +21,7 @@
 
   let editedControle: Props["controle"] = $state(untrack(() => controle));
 
-  async function formSubmit(e: Event) {
+  function formSubmit(e: Event) {
     e.preventDefault();
 
     if (editedControle.post_controle_action_date) {
@@ -35,7 +35,7 @@
       });
     }
 
-    onValidate(editedControle);
+    return onValidate(editedControle);
   }
 </script>
 

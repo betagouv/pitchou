@@ -28,13 +28,13 @@ const displayByType: Record<string, (data: ActionData) => ActionDisplay> = {
     };
   },
   especes_renseignees: (d) =>
-    parseSpeciesImpactChangeField(str(d, "notification_field") ?? "") !== undefined
-      ? {
+    parseSpeciesImpactChangeField(str(d, "notification_field") ?? "") === undefined
+      ? { icon: "fr-icon-leaf-line", label: "Espèces impactées renseignées" }
+      : {
           icon: "fr-icon-leaf-line",
           label: "Espèces impactées modifiées :",
           value: str(d, "label") ?? undefined,
-        }
-      : { icon: "fr-icon-leaf-line", label: "Espèces impactées renseignées" },
+        },
   piece_jointe_importee: (d) => ({
     icon: "fr-icon-attachment-line",
     label: "Pièce jointe importée :",

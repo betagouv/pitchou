@@ -29,7 +29,8 @@
     if (value == null || value === "") return "Non renseigné";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
     if (value instanceof Date) return formatDateAbsolute(value, "dd/MM/yyyy");
-    if (Array.isArray(value)) return value.length ? value.map(display).join(", ") : "Non renseigné";
+    if (Array.isArray(value))
+      return value.length > 0 ? value.map(display).join(", ") : "Non renseigné";
     if (typeof value === "object")
       return Object.values(value)
         .filter((item) => item != null)

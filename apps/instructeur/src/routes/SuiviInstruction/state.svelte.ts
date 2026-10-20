@@ -172,9 +172,8 @@ export class SuiviInstructionState {
     this.track();
   }
   togglePhase(phase: DossierPhase) {
-    this.selectedPhases.has(phase)
-      ? this.selectedPhases.delete(phase)
-      : this.selectedPhases.add(phase);
+    if (this.selectedPhases.has(phase)) this.selectedPhases.delete(phase);
+    else this.selectedPhases.add(phase);
     this.apply();
     this.track();
   }

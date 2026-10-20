@@ -53,7 +53,7 @@ test.each(["mes-dossiers", "tous-les-dossiers"])(
     );
     render(ListDossiers, { title: "Dossiers", dossiers, notificationByDossier: new Map() });
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(10);
-    expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
+    expect(screen.queryByText(/Page \d+ sur \d+/u)).toBeNull();
     await page.getByRole("combobox", { name: "Dossiers par page" }).click();
     expect(screen.getAllByRole("option").map((option) => option.textContent?.trim())).toEqual([
       "10",
@@ -69,7 +69,7 @@ test.each(["mes-dossiers", "tous-les-dossiers"])(
     expect(params.get("sort")).toBe("nextDueDate");
     expect(params.get("order")).toBe("asc");
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(50);
-    expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
+    expect(screen.queryByText(/Page \d+ sur \d+/u)).toBeNull();
     await page.getByRole("button", { name: "Page suivante" }).click();
     const nextPageParams = await followNavigation();
     expect(nextPageParams.get("pageSize")).toBe("50");
@@ -95,7 +95,7 @@ test("page-size selector remains available for an empty list on mobile", async (
   await page.viewport(390, 844);
   routeState.url = new URL("http://localhost/mes-dossiers?pageSize=100&page=99");
   render(ListDossiers, { title: "Dossiers", dossiers: [], notificationByDossier: new Map() });
-  expect(screen.queryByText(/Page \d+ sur \d+/)).toBeNull();
+  expect(screen.queryByText(/Page \d+ sur \d+/u)).toBeNull();
   const selector = screen.getByRole("combobox", { name: "Dossiers par page" });
   expect(selector.textContent).toContain("100");
   const selectedSize = selector.querySelector<HTMLElement>(".truncate")!;

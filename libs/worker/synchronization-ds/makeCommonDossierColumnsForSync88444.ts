@@ -1,3 +1,7 @@
+import type {
+  Dossier88444ChampById,
+  Dossier88444KeyMap,
+} from "./makeCommonDossierColumnsForSync88444/fieldMaps.ts";
 import {
   activiteCodeForLabel,
   RESTAURATION_BATIMENTS_ACTIVITE_CODE,
@@ -47,37 +51,12 @@ export function makeCommonDossierColumnsForSync88444(
     `Synthèse des éléments justifiant le motif de la dérogation`,
   )?.trim();
 
-  const linkedToAeRegimeValue = stringValue(
-    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
+  const { linkedToAeRegime, aeProcedures } = readAeRegime(
+    champById,
+    pitchouKeyToChampDS,
+    stringValue,
   );
-  let linkedToAeRegime = null;
-  if (linkedToAeRegimeValue === "Oui" || linkedToAeRegimeValue === "true") {
-    linkedToAeRegime = true;
-  }
-  if (linkedToAeRegimeValue === "Non" || linkedToAeRegimeValue === "false") {
-    linkedToAeRegime = false;
-  }
-  const aeProcedures = champById.get(
-    pitchouKeyToChampDS.get("À quelle procédure le projet est-il soumis ?"),
-  )?.values;
-
-  const compensatedNidsValue = stringValue(
-    "Indiquer le nombre de nids artificiels posés en compensation",
-  );
-  const compensatedNidsCount = compensatedNidsValue ? Number(compensatedNidsValue) : null;
-  const destroyedNidsValue = stringValue("Nombre de nids d'Hirondelles détruits");
-  const destroyedNidsCount = destroyedNidsValue ? Number(destroyedNidsValue) : null;
-  const railOrElectricTransport = stringValue(
-    "Transport ferroviaire ou électrique - Votre demande concerne :",
-  );
-  const type = destroyedNidsValue
-    ? "Hirondelle"
-    : railOrElectricTransport === "Destruction de nids de Cigognes"
-      ? "Cigogne"
-      : null;
-  const requiresCompensatedNidsCount =
-    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && type === "Hirondelle") ||
-    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && type === "Cigogne");
+  const birdColumns = makeBirdColumns(stringValue, activiteCode);
 
   // JSON columns are serialized before insertion even though generated row types describe reads.
   // @ts-expect-error Serialized JSON values intentionally differ from Kanel's read-side types.
@@ -115,10 +94,59 @@ export function makeCommonDossierColumnsForSync88444(
       activiteCode,
       motifDerogation,
     ),
+    ...birdColumns,
+  };
+}
+
+function makeBirdColumns(
+  stringValue: (label: keyof DossierDemarcheNumerique88444) => string | undefined,
+  activiteCode: string | null,
+) {
+  const compensatedNidsValue = stringValue(
+    "Indiquer le nombre de nids artificiels posés en compensation",
+  );
+  const compensatedNidsCount = compensatedNidsValue ? Number(compensatedNidsValue) : null;
+  const destroyedNidsValue = stringValue("Nombre de nids d'Hirondelles détruits");
+  const destroyedNidsCount = destroyedNidsValue ? Number(destroyedNidsValue) : null;
+  const railOrElectricTransport = stringValue(
+    "Transport ferroviaire ou électrique - Votre demande concerne :",
+  );
+  const type = destroyedNidsValue
+    ? "Hirondelle"
+    : railOrElectricTransport === "Destruction de nids de Cigognes"
+      ? "Cigogne"
+      : null;
+  const requiresCompensatedNidsCount =
+    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && type === "Hirondelle") ||
+    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && type === "Cigogne");
+
+  return {
     dossier_oiseau_simple_compensated_nids_count: requiresCompensatedNidsCount
       ? compensatedNidsCount
       : null,
     dossier_oiseau_simple_destroyed_nids_count: destroyedNidsCount,
     type,
   };
+}
+
+function readAeRegime(
+  champById: Dossier88444ChampById,
+  pitchouKeyToChampDS: Dossier88444KeyMap,
+  stringValue: (label: keyof DossierDemarcheNumerique88444) => string | undefined,
+) {
+  const linkedToAeRegimeValue = stringValue(
+    "Le projet est-il soumis au régime de l'Autorisation Environnementale (article L. 181-1 du Code de l'environnement) ?",
+  );
+  let linkedToAeRegime = null;
+  if (linkedToAeRegimeValue === "Oui" || linkedToAeRegimeValue === "true") {
+    linkedToAeRegime = true;
+  }
+  if (linkedToAeRegimeValue === "Non" || linkedToAeRegimeValue === "false") {
+    linkedToAeRegime = false;
+  }
+  const aeProcedures = champById.get(
+    pitchouKeyToChampDS.get("À quelle procédure le projet est-il soumis ?"),
+  )?.values;
+
+  return { linkedToAeRegime, aeProcedures };
 }

@@ -48,7 +48,7 @@
       // Shown under each invalid field, with the focus on the first one.
       showPorteurErrors = true;
       await tick();
-      document.getElementById(porteurFieldIds[invalidField])?.focus();
+      document.querySelector<HTMLElement>(`#${CSS.escape(porteurFieldIds[invalidField])}`)?.focus();
       return;
     }
     saving = true;

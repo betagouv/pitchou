@@ -42,7 +42,7 @@ export function makeDossierLocationColumns88444(
 
   if (projetSitue === `d'une ou plusieurs communes` && champCommunes) {
     communes = champCommunes.rows.map((row) => row.champs[0].commune).filter(Boolean);
-    if (communes.length >= 1) {
+    if (communes.length > 0) {
       departments = [
         ...new Set(
           champCommunes.rows.map((row) => row.champs[0].departement?.code).filter(Boolean),
@@ -79,6 +79,7 @@ export function makeDossierLocationColumns88444(
     regions: JSON.stringify(regions),
     location_scope: locationScope,
     primary_department: primaryDepartment?.departement?.code,
-    projet_map: features.length ? JSON.stringify({ type: "FeatureCollection", features }) : null,
+    projet_map:
+      features.length > 0 ? JSON.stringify({ type: "FeatureCollection", features }) : null,
   };
 }

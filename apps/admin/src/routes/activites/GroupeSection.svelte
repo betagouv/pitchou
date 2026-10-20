@@ -10,7 +10,7 @@
 
   let { section, onSelect, onUpdateGroupe }: Props = $props();
 
-  const HEX_COLOR = /^#[0-9a-f]{6}$/;
+  const HEX_COLOR = /^#[0-9a-f]{6}$/u;
 
   let editing = $state(false);
   let draftLabel = $state("");

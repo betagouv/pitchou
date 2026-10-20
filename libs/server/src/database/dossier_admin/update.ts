@@ -26,7 +26,7 @@ export async function updateDossierFromAdminInTransaction(
     const fields = Object.keys(update.columns ?? {}).filter((key) =>
       DN_DERIVED_DOSSIER_COLUMNS.has(key as keyof Dossier),
     );
-    if (fields.length) throw new DossierManagedByDnError(dossierId, fields);
+    if (fields.length > 0) throw new DossierManagedByDnError(dossierId, fields);
   }
   const personne = await ensurePersonneIdByEmail(adminEmail, trx);
   const evenementsPhase = update.evenementsPhase?.map(({ phase, timestamp }) => ({

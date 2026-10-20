@@ -40,7 +40,7 @@ export async function processDossierCnpnEmailBrevoEvent(
     await releaseDossierCnpnEmailReadReceipt(
       recorded.readReceipt.eventId,
       recorded.readReceipt.claimedAt,
-    ).catch(() => undefined);
+    ).catch(() => {});
     throw error;
   }
   return "processed";

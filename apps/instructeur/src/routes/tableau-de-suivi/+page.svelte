@@ -43,11 +43,10 @@
         });
         await goto("/connexion");
         return;
-      } else {
-        store.errors.add({
-          message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
-        });
       }
+      store.errors.add({
+        message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
+      });
     }
     dossiersLoadingFinished = true;
   });

@@ -36,30 +36,26 @@ const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<D
 const indexCache: Map<DossierSummary[], lunr.Index> = new Map();
 
 const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
-  if (indexCache.has(dossiers))
-    // @ts-expect-error TS does not understand that .get returns a lunr.Index after a positive .has
-    return indexCache.get(dossiers);
-  else {
-    const index = lunr(function () {
-      // @ts-ignore TS does not understand that we added lunrfr
-      this.use(lunr.fr);
+  const cachedIndex = indexCache.get(dossiers);
+  if (cachedIndex !== undefined) return cachedIndex;
+  const index = lunr(function () {
+    this.use(lunr.fr);
 
-      this.ref("id");
-      this.field("demarche_numerique_number");
-      this.field("communes");
-      this.field("name");
-      this.field("deposant_last_name");
-      this.field("deposant_first_names");
-      this.field("porteur_de_projet");
+    this.ref("id");
+    this.field("demarche_numerique_number");
+    this.field("communes");
+    this.field("name");
+    this.field("deposant_last_name");
+    this.field("deposant_first_names");
+    this.field("porteur_de_projet");
 
-      for (const dossier of dossiers) {
-        this.add(createIndexableDossier(dossier));
-      }
-    });
+    for (const dossier of dossiers) {
+      this.add(createIndexableDossier(dossier));
+    }
+  });
 
-    indexCache.set(dossiers, index);
-    return index;
-  }
+  indexCache.set(dossiers, index);
+  return index;
 };
 
 export const findDossierIdsMatchingText = (

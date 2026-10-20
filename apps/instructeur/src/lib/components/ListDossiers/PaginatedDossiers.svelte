@@ -60,7 +60,7 @@
     (trigger ?? results)?.focus();
   }
   const selectors = $derived.by<undefined | [undefined, ...(() => void)[]]>(() => {
-    if (dossiers.length <= pageSize) return undefined;
+    if (dossiers.length <= pageSize) return;
     return [
       undefined,
       ...Array.from({ length: pageCount }, (_, i) => () => {

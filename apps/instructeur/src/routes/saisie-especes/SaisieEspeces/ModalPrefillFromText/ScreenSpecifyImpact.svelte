@@ -19,7 +19,7 @@
       espèce?: EspeceProtegee;
       impacts: DescriptionImpact[];
     }>;
-    supprimerEspèceImpactée: (indexEspeceASupprimer: number) => Promise<void>;
+    supprimerEspèceImpactée: (indexEspeceASupprimer: number) => void;
     préremplirAvecCesEspècesImpacts: () => void;
     activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
@@ -54,28 +54,27 @@
 
   let impactForEachFlore: DescriptionImpact = $state({});
 
-  //@ts-ignore
   let oiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
-        (e) => e && e.classification === "oiseau",
-      ),
+      especesImpacteesToPrefill
+        .map(({ espèce: espece }) => espece)
+        .filter((e): e is EspeceProtegee => e !== undefined && e.classification === "oiseau"),
     ),
   );
-  //@ts-ignore
   let fauneNonOiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
-        (e) => e && e.classification === "faune non-oiseau",
-      ),
+      especesImpacteesToPrefill
+        .map(({ espèce: espece }) => espece)
+        .filter(
+          (e): e is EspeceProtegee => e !== undefined && e.classification === "faune non-oiseau",
+        ),
     ),
   );
-  //@ts-ignore
   let floreToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map(({ espèce: espece }) => espece)].filter(
-        (e) => e && e.classification === "flore",
-      ),
+      especesImpacteesToPrefill
+        .map(({ espèce: espece }) => espece)
+        .filter((e): e is EspeceProtegee => e !== undefined && e.classification === "flore"),
     ),
   );
 

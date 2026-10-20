@@ -64,11 +64,11 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
   await page
     .getByRole("button", { name: "Retirer follower@example.com des personnes en copie" })
     .click();
-  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeInTheDocument();
-  await page.getByRole("button", { name: /Pièces jointes/ }).click();
-  await expect.element(page.getByLabelText(/saisine\.pdf/)).toBeChecked();
-  await expect.element(page.getByLabelText(/saisine-csrpn\.pdf/)).not.toBeChecked();
-  await page.getByLabelText(/En copie/).fill("cheffe@example.com");
+  await expect.element(page.getByLabelText(/saisine\.pdf/u)).not.toBeInTheDocument();
+  await page.getByRole("button", { name: /Pièces jointes/u }).click();
+  await expect.element(page.getByLabelText(/saisine\.pdf/u)).toBeChecked();
+  await expect.element(page.getByLabelText(/saisine-csrpn\.pdf/u)).not.toBeChecked();
+  await page.getByLabelText(/En copie/u).fill("cheffe@example.com");
   await page.getByRole("option", { name: "Ajouter l'adresse cheffe@example.com" }).click();
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
 
@@ -115,10 +115,10 @@ test("présélectionne seulement la saisine CNPN la plus récente", async () => 
     onClose: vi.fn(),
   });
 
-  await page.getByRole("button", { name: /Pièces jointes/ }).click();
+  await page.getByRole("button", { name: /Pièces jointes/u }).click();
 
-  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeChecked();
-  await expect.element(page.getByLabelText(/saisine-recente\.pdf/)).toBeChecked();
+  await expect.element(page.getByLabelText(/saisine\.pdf/u)).not.toBeChecked();
+  await expect.element(page.getByLabelText(/saisine-recente\.pdf/u)).toBeChecked();
 });
 
 test("propose les options d'alignement du corps du mail", async () => {
@@ -158,9 +158,9 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   expect(alert.nextElementSibling?.textContent).toContain("Annuler");
   await expect.element(page.getByLabelText("Objet")).not.toBeDisabled();
   await expect.element(page.getByRole("button", { name: "Envoyer", exact: true })).toBeEnabled();
-  await page.getByRole("button", { name: /Pièces jointes/ }).click();
-  await page.getByLabelText(/saisine\.pdf/).click();
-  await expect.element(page.getByLabelText(/saisine\.pdf/)).not.toBeChecked();
+  await page.getByRole("button", { name: /Pièces jointes/u }).click();
+  await page.getByLabelText(/saisine\.pdf/u).click();
+  await expect.element(page.getByLabelText(/saisine\.pdf/u)).not.toBeChecked();
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
   await vi.advanceTimersByTimeAsync(3000);
   expect(sendCnpnEmail).toHaveBeenCalledTimes(2);

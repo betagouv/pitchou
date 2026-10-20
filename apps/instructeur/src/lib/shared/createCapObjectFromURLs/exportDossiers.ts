@@ -15,7 +15,7 @@ export function wrapExportDossiers(
       body: JSON.stringify({ dossierIds }),
     });
     if (!response.ok) {
-      const body = await response.json().catch(() => undefined);
+      const body = await response.json().catch(() => {});
       throw new RequestError(response.status, body?.message ?? "L'export des dossiers a échoué.");
     }
     return response.blob();

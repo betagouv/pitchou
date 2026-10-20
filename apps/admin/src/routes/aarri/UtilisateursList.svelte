@@ -61,7 +61,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
     return [undefined, ...selectors];
   });
@@ -123,9 +123,9 @@
     const a = document.createElement("a");
     a.href = url;
     a.download = `instructrices_aarri_${today}.csv`;
-    document.body.appendChild(a);
+    document.body.append(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }
 </script>

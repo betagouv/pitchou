@@ -13,6 +13,6 @@ test("the stamp only uses characters every filesystem accepts", () => {
   const stamp = generationTimestamp(new Date(2026, 0, 2, 3, 4));
 
   // ':' is forbidden in Windows filenames, and browsers mangle it on download.
-  expect(stamp).toMatch(/^[A-Za-z0-9._-]+$/);
+  expect(stamp).toMatch(/^[A-Za-z0-9._-]+$/u);
   expect(stamp).toBe("2026-01-02-03h04");
 });

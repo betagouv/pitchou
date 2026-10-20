@@ -87,7 +87,7 @@ test("a champ another instructrice changed is not overwritten when the refresh b
   expect(modifierDossier).not.toHaveBeenCalled();
   expect(store.fullDossiers.get(DOSSIER_ID)?.enjeu).toBe(true);
   await waitFor(() => {
-    expect(screen.getByLabelText(/enjeu/i)).toBeTruthy();
+    expect(screen.getByLabelText(/enjeu/iu)).toBeTruthy();
   });
 });
 
@@ -138,14 +138,9 @@ test("a champ saved while a refresh is in flight is not undone when the stale pa
 
 test("a failed save rolls back its own champ only, not one saved meanwhile", async () => {
   setDossierFull(fakeDossierFull({ id: DOSSIER_ID, enjeu: false }));
-  let rejectFirst: (err: Error) => void = () => {};
+  const { promise, reject: rejectFirst } = Promise.withResolvers<void>();
   modifierDossier
-    .mockImplementationOnce(
-      () =>
-        new Promise((_, reject) => {
-          rejectFirst = reject;
-        }),
-    )
+    .mockImplementationOnce(() => promise)
     .mockImplementationOnce(() => Promise.resolve());
 
   const failing = updateDossier(store.fullDossiers.get(DOSSIER_ID)!, { enjeu: true });

@@ -20,9 +20,9 @@ export function generateMessagesGeoMCE(dossier: DossierForGeoMCE): GeoMceMessage
       avancement: "Autorisé",
       typologies: null,
       maitrise_ouvrage:
-        dossier.demandeur_personne_morale !== null
-          ? [{ siret: dossier.demandeur_personne_morale }]
-          : null,
+        dossier.demandeur_personne_morale === null
+          ? null
+          : [{ siret: dossier.demandeur_personne_morale }],
       emprises: null,
     },
     procedure: {

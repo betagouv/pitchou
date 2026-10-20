@@ -39,7 +39,7 @@ export function createDossierFollowerCapabilities(
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ personneEmails }),
-            }).then(() => undefined)
+            }).then(() => {})
         : undefined,
   };
 }

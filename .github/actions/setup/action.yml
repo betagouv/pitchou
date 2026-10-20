@@ -1,5 +1,5 @@
 name: Setup
-description: Setup pnpm, Node 22 and install project dependencies
+description: Setup pnpm, Node 24 and install project dependencies
 
 runs:
   using: composite
@@ -7,10 +7,10 @@ runs:
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
 
-    - name: Setup Node 22
+    - name: Setup Node 24
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 24
         registry-url: https://registry.npmjs.org/
         cache: pnpm
 

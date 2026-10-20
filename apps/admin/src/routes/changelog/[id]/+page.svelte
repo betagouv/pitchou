@@ -22,7 +22,7 @@
   // The draft is created by the list page's "+" before we get here, so the
   // entry always exists: this page only ever edits.
   const idParam = page.params.id!;
-  const entryId = /^\d+$/.test(idParam) ? Number(idParam) : null;
+  const entryId = /^\d+$/u.test(idParam) ? Number(idParam) : null;
 
   type Etat = "chargement" | "autorise" | "refuse" | "introuvable";
   let etat = $state<Etat>("chargement");
@@ -70,9 +70,9 @@
   $effect(() => {
     if (etat !== "autorise") return;
     pageHeader.setTitle(
-      model.version !== null
-        ? `Version ${model.version} — ${formatDate(model.date)}`
-        : `Brouillon du ${formatDate(model.date)}`,
+      model.version === null
+        ? `Brouillon du ${formatDate(model.date)}`
+        : `Version ${model.version} — ${formatDate(model.date)}`,
     );
     return () => pageHeader.clearTitle();
   });
@@ -86,7 +86,7 @@
     if (etat !== "autorise") return;
     pageHeader.setAction({
       label:
-        model.version !== null ? `Supprimer la version ${model.version}` : "Supprimer le brouillon",
+        model.version === null ? "Supprimer le brouillon" : `Supprimer la version ${model.version}`,
       icon: "fr-icon-delete-line fr-icon--sm",
       onClick: () => (deleteModalOpen = true),
     });

@@ -31,13 +31,8 @@ afterEach(() => {
 });
 
 test("an acknowledgment cannot discard a list refresh for other dossiers", async () => {
-  let resolve!: (states: DossierNotification[]) => void;
-  const list = vi.fn(
-    () =>
-      new Promise<DossierNotification[]>((done) => {
-        resolve = done;
-      }),
-  );
+  const { promise, resolve } = Promise.withResolvers<DossierNotification[]>();
+  const list = vi.fn(() => promise);
   const update = vi.fn().mockResolvedValue({ ...state(first), viewed: true, new_arrival: null });
   store.capabilities = { listerNotifications: list, updateNotificationForDossier: update };
   const refresh = refreshNotifications();
@@ -52,13 +47,8 @@ test("an acknowledgment cannot discard a list refresh for other dossiers", async
 });
 
 test("a new session is not blocked by an old request and ignores its late response", async () => {
-  let resolve!: (states: DossierNotification[]) => void;
-  const oldList = vi.fn(
-    () =>
-      new Promise<DossierNotification[]>((done) => {
-        resolve = done;
-      }),
-  );
+  const { promise, resolve } = Promise.withResolvers<DossierNotification[]>();
+  const oldList = vi.fn(() => promise);
   store.capabilities = { listerNotifications: oldList };
   const oldRefresh = refreshNotifications();
   await vi.waitFor(() => expect(oldList).toHaveBeenCalledOnce());

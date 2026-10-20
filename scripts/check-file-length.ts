@@ -29,6 +29,7 @@ const DEFAULT_MAX = 200;
 const IGNORES = [
   "node_modules",
   ".git",
+  ".fleet",
   ".svelte-kit",
   ".direnv",
   "build",
@@ -66,7 +67,7 @@ const pathIgnores = new Set(IGNORES.filter((entry) => entry.includes("/")).map(n
 /** Turn a path into a comparable form: relative to the repo root, with `/` separators and no trailing slash. */
 function normalise(path: string): string {
   const rel = relative(repoRoot, resolve(repoRoot, path));
-  return rel.split(sep).join("/").replace(/\/+$/, "");
+  return rel.split(sep).join("/").replace(/\/+$/u, "");
 }
 
 /** A path is ignored if any segment matches a name ignore, or it sits under a path ignore. */
@@ -89,7 +90,7 @@ async function collectFiles(dir: string, found: string[]): Promise<void> {
 
     if (entry.isDirectory()) {
       await collectFiles(fullPath, found);
-    } else if (entry.isFile() && /\.(svelte|ts)$/.test(entry.name)) {
+    } else if (entry.isFile() && /\.(svelte|ts)$/u.test(entry.name)) {
       found.push(fullPath);
     }
   }
@@ -119,7 +120,7 @@ function countLines(filePath: string): number {
   }
 
   if (filePath.endsWith(".svelte")) {
-    for (const match of content.matchAll(/<!--[\s\S]*?-->/g)) {
+    for (const match of content.matchAll(/<!--[\s\S]*?-->/gu)) {
       blankRange(withoutComments, match.index, match.index + match[0].length);
     }
   }
@@ -138,7 +139,7 @@ function blankRange(content: string[], start: number, end: number): void {
 }
 
 function dropTrailingNewline(content: string): string {
-  return content.replace(/\r?\n$/, "");
+  return content.replace(/\r?\n$/u, "");
 }
 
 const files: string[] = [];

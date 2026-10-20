@@ -13,7 +13,7 @@
     onLogout: () => void;
   };
 
-  let { open, collapsed, onClose, email = undefined, onLogout }: Props = $props();
+  let { open, collapsed, onClose, email, onLogout }: Props = $props();
 </script>
 
 {#snippet content(iconOnly: boolean)}

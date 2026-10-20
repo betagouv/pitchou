@@ -8,13 +8,13 @@ const dossier = 1 as DossierId;
 const arrival = new Date("2026-09-01T12:00:00Z");
 const detected = new Date("2026-09-03T12:00:00Z");
 const row = { arrival_viewed: false, follow_revision: null, follow_at: null, viewed_at: null };
-const action = (id = "revision-1", data = { field: "Description", notification: true }) =>
+const action = (id = "revision-1", { field = "Description", notification = true } = {}) =>
   ({
     id,
     dossier,
     type: "champ_modifie",
     author_petitionnaire: true,
-    data,
+    data: { field, notification },
     created_at: detected,
   }) as ActionDossier;
 

@@ -1,14 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Gestion des codes inline
   document.querySelectorAll("code:not(pre code)").forEach((code) => {
-    code.addEventListener("click", function (event) {
+    code.addEventListener("click", function () {
       copyToClipboard(code.textContent, code);
     });
   });
 
   // Gestion des blocs de code
   document.querySelectorAll("pre").forEach((pre) => {
-    pre.addEventListener("click", function (event) {
+    pre.addEventListener("click", function () {
       const codeElement = pre.querySelector("code");
       if (codeElement) {
         copyToClipboard(codeElement.textContent, pre);
@@ -26,7 +26,8 @@ function copyToClipboard(text, element) {
 
       // Feedback sonore subtil (optionnel)
       if (window.navigator.vibrate) {
-        window.navigator.vibrate(50); // Vibration courte sur mobile
+        // Short vibration on mobile.
+        window.navigator.vibrate(50);
       }
 
       // Retour à l'état normal après 2 secondes

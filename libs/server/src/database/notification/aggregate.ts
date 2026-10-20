@@ -57,7 +57,7 @@ export function aggregateNotification(
   return {
     dossier,
     viewed: !new_arrival && !new_follow && changes.length === 0,
-    updated_at: dates.length ? new Date(Math.max(...dates)) : null,
+    updated_at: dates.length > 0 ? new Date(Math.max(...dates)) : null,
     viewed_at: row?.viewed_at ?? null,
     new_arrival,
     new_follow,

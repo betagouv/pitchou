@@ -22,7 +22,6 @@ let incoming: ImpactEspece[];
 let anomalies: AnomalieFichierEspeces[];
 let failNotification: boolean;
 let queries: { sql: string; values: unknown[] }[];
-
 beforeEach(() => {
   pointer = oldFile;
   impacts = [impact(), impact("P-4-2")];
@@ -31,8 +30,7 @@ beforeEach(() => {
   queries = [];
   failNotification = false;
   vi.spyOn(console, "warn").mockImplementation(() => {});
-  vi.mocked(dumpImpactEspeceFromFichier).mockImplementation(async (_id, _file, trx) => {
-    expect(trx?.isTransaction).toBe(true);
+  vi.mocked(dumpImpactEspeceFromFichier).mockImplementation(async () => {
     impacts = incoming;
     return anomalies;
   });
@@ -65,11 +63,16 @@ beforeEach(() => {
   });
   db.client.releaseConnection = async () => {};
 });
-
 afterEach(async () => {
-  await db.destroy();
-  vi.restoreAllMocks();
-  vi.clearAllMocks();
+  try {
+    for (const [, , trx] of vi.mocked(dumpImpactEspeceFromFichier).mock.calls) {
+      expect(trx?.isTransaction).toBe(true);
+    }
+  } finally {
+    await db.destroy();
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
+  }
 });
 
 const synchronize = (file: FileId | null = newFile) =>
@@ -82,6 +85,7 @@ const synchronize = (file: FileId | null = newFile) =>
 test("quantity change creates one group action in the locked replacement transaction", async () => {
   incoming[0] = { ...incoming[0], nombre_individus: "1-10" };
   expect(await synchronize()).toEqual(new Set([dossier]));
+  expect(dumpImpactEspeceFromFichier).toHaveBeenCalledOnce();
   expect(changes(queries)).toEqual([
     {
       field: "especes",
@@ -90,10 +94,10 @@ test("quantity change creates one group action in the locked replacement transac
       notification: true,
     },
   ]);
-  expect(queries[0].sql).toMatch(/^BEGIN/);
+  expect(queries[0].sql).toMatch(/^BEGIN/u);
   expect(queries[1].sql).toContain('order by "id" asc for update');
   expect(queries[2].sql).toContain('from "impact_espece"');
-  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/);
+  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/u);
   expect(deleteFichiersWithoutOtherReferences).toHaveBeenCalledWith(
     [oldFile],
     expect.objectContaining({ isTransaction: true }),
@@ -191,6 +195,6 @@ test("notification write failure rejects and rolls back instead of committing im
   incoming[0] = { ...incoming[0], nombre_individus: "1-10" };
   failNotification = true;
   await expect(synchronize()).rejects.toThrow("notification insert failed");
-  expect(queries.at(-1)?.sql).toMatch(/^ROLLBACK/);
+  expect(queries.at(-1)?.sql).toMatch(/^ROLLBACK/u);
   expect(deleteFichiersWithoutOtherReferences).not.toHaveBeenCalled();
 });

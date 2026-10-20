@@ -1,3 +1,5 @@
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+const dossierId = 1 as DossierId;
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock(import("./database/dossier.ts"), () => ({
@@ -32,8 +34,7 @@ beforeEach(() => {
 describe("checkDossierAccessByCap", () => {
   it("replies 400 when cap is missing", async () => {
     const reply = makeReply();
-    // @ts-ignore dossierId is a branded number
-    const result = await checkDossierAccessByCap(1, undefined, reply);
+    const result = await checkDossierAccessByCap(dossierId, undefined, reply);
     expect(reply.statusCode).toBe(400);
     expect(result).toBeUndefined();
     expect(mockedDossiersAccessibleViaCap).not.toHaveBeenCalled();
@@ -50,28 +51,23 @@ describe("checkDossierAccessByCap", () => {
   it("replies 403 when the cap does not grant access to the dossier", async () => {
     mockedDossiersAccessibleViaCap.mockResolvedValue(new Map());
     const reply = makeReply();
-    // @ts-ignore
-    const result = await checkDossierAccessByCap(1, "some-cap", reply);
+    const result = await checkDossierAccessByCap(dossierId, "some-cap", reply);
     expect(reply.statusCode).toBe(403);
     expect(result).toBeUndefined();
   });
 
   it("replies 403 when the dossier is only shared in read-only mode", async () => {
-    // @ts-ignore — Map<DossierId, DossierAccess>
-    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[1, "lecture"]]));
+    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[dossierId, "lecture"]]));
     const reply = makeReply();
-    // @ts-ignore
-    const result = await checkDossierAccessByCap(1, "some-cap", reply);
+    const result = await checkDossierAccessByCap(dossierId, "some-cap", reply);
     expect(reply.statusCode).toBe(403);
     expect(result).toBeUndefined();
   });
 
   it("returns the dossierId when the cap grants full access", async () => {
-    // @ts-ignore — Map<DossierId, DossierAccess>
-    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[1, "complet"]]));
+    mockedDossiersAccessibleViaCap.mockResolvedValue(new Map([[dossierId, "complet"]]));
     const reply = makeReply();
-    // @ts-ignore
-    const result = await checkDossierAccessByCap(1, "some-cap", reply);
+    const result = await checkDossierAccessByCap(dossierId, "some-cap", reply);
     expect(result).toBe(1);
     expect(reply.statusCode).toBe(0);
   });

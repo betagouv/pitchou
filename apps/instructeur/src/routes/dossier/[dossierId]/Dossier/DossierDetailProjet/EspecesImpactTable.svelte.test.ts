@@ -27,7 +27,7 @@ test("numeric columns share one width across tables and the species column takes
       ]),
       anomalies: undefined,
     });
-    view.getByRole("button", { name: /^Espèces impactées/ }).click();
+    view.getByRole("button", { name: /^Espèces impactées/u }).click();
     await tick();
     const widths = new Set<number>();
     for (const table of view.getAllByRole("table")) {

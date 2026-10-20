@@ -90,31 +90,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
       throwUploadedFichierHttpError(err);
     }
     await logDossierActionsAfterCommit(
-      (async () => {
-        const author = await getPersonneByDossierCap(cap);
-        return [
-          ...(fichierSaisine
-            ? [
-                {
-                  dossier: authorizedDossierId,
-                  type: "saisine_importee",
-                  data: { expert: expert ?? null },
-                  author_personne: author?.id ?? null,
-                },
-              ]
-            : []),
-          ...(fichierAvis
-            ? [
-                {
-                  dossier: authorizedDossierId,
-                  type: "avis_importe",
-                  data: { avis: avis ?? null },
-                  author_personne: author?.id ?? null,
-                },
-              ]
-            : []),
-        ];
-      })(),
+      importedAvisActions(cap, authorizedDossierId, expert, avis, !!fichierSaisine, !!fichierAvis),
     );
   } else {
     await directDatabaseConnection.transaction(async (transaction) => {
@@ -138,3 +114,36 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   return new Response(null, { status: 204 });
 };
+
+async function importedAvisActions(
+  cap: Parameters<typeof getPersonneByDossierCap>[0],
+  authorizedDossierId: DossierId,
+  expert: string | undefined,
+  avis: string | undefined,
+  fichierSaisine: boolean,
+  fichierAvis: boolean,
+) {
+  const author = await getPersonneByDossierCap(cap);
+  return [
+    ...(fichierSaisine
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "saisine_importee",
+            data: { expert: expert ?? null },
+            author_personne: author?.id ?? null,
+          },
+        ]
+      : []),
+    ...(fichierAvis
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "avis_importe",
+            data: { avis: avis ?? null },
+            author_personne: author?.id ?? null,
+          },
+        ]
+      : []),
+  ];
+}

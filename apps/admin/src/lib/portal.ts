@@ -3,7 +3,7 @@
  * escapes any ancestor stacking context (e.g. a sticky toolbar with a z-index).
  */
 export function portal(node: HTMLElement) {
-  document.body.appendChild(node);
+  document.body.append(node);
   return {
     destroy() {
       node.remove();

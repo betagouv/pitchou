@@ -16,9 +16,9 @@ export async function downloadEvenementsCSV(): Promise<void> {
   const a = document.createElement("a");
   a.href = url;
   a.download = `evenements_metriques_${today}.csv`;
-  document.body.appendChild(a);
+  document.body.append(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -41,7 +41,7 @@ export async function loadUtilisateursAARRI(): Promise<UtilisateurAARRI[]> {
 
   const result = await response.json();
   if (!Array.isArray(result)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/utilisateurs-aarri.");
+    throw new TypeError("Réponse invalide reçue du serveur pour /api/utilisateurs-aarri.");
   }
   return result as UtilisateurAARRI[];
 }

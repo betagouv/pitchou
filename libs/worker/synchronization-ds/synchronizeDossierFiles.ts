@@ -69,7 +69,7 @@ export function synchronizeDownloadedDossierFiles(
       if (isChampDSPieceJustificative(field) && field.files.length === 0)
         files.set(dossier.number, null);
     }
-    if (files.size >= 1) {
+    if (files.size > 0) {
       return synchronizeFichiersEspecesImpacteesFromDS88444(
         files,
         dossierIdByDNNumber,
@@ -84,7 +84,7 @@ export function synchronizeDownloadedDossierFiles(
           const id = dossierIdByDNNumber.get(number);
           if (!id) {
             console.log("dossierIdByDNNumber", dossierIdByDNNumber);
-            throw `Id de dossier manquant pour dossier DS ${number}`;
+            throw new Error(`Id de dossier manquant pour dossier DS ${number}`);
           }
           return [id, files] as const;
         }),

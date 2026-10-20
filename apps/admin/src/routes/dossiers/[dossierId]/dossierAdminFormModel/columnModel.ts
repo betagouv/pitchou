@@ -41,9 +41,9 @@ const locationScope = (value: unknown, dossier: AdminDossierDetail["dossier"]): 
   if (["communes", "departements", "regions", "france"].includes(value as string)) {
     return value as LocationScope;
   }
-  if (Array.isArray(dossier.communes) && dossier.communes.length >= 1) return "communes";
-  if (Array.isArray(dossier.regions) && dossier.regions.length >= 1) return "regions";
-  if (Array.isArray(dossier.departments) && dossier.departments.length >= 1) return "departements";
+  if (Array.isArray(dossier.communes) && dossier.communes.length > 0) return "communes";
+  if (Array.isArray(dossier.regions) && dossier.regions.length > 0) return "regions";
+  if (Array.isArray(dossier.departments) && dossier.departments.length > 0) return "departements";
   return "";
 };
 

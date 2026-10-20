@@ -108,8 +108,7 @@
         )
         .catch((err) => console.warn(`Échec de l'enregistrement des documents générés`, err));
     } catch (err) {
-      // @ts-ignore
-      documentGenerationError = err;
+      documentGenerationError = err instanceof Error ? err : new Error(String(err), { cause: err });
     }
   }
 </script>

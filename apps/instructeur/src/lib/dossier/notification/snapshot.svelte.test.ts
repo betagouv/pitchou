@@ -15,23 +15,24 @@ vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 const id = 123 as DossierFull["id"];
 const notice = (ids: string[]): DossierNotification => ({
   dossier: id,
-  viewed: !ids.length,
+  viewed: ids.length === 0,
   updated_at: new Date(),
   viewed_at: null,
   new_arrival: null,
   new_follow: null,
-  changes: ids.length
-    ? [
-        {
-          field: "Description",
-          column: "description",
-          label: "Description",
-          revisions: ids as ActionDossierId[],
-          detected_at: new Date(),
-          modified_at: null,
-        },
-      ]
-    : [],
+  changes:
+    ids.length > 0
+      ? [
+          {
+            field: "Description",
+            column: "description",
+            label: "Description",
+            revisions: ids as ActionDossierId[],
+            detected_at: new Date(),
+            modified_at: null,
+          },
+        ]
+      : [],
 });
 const body = (description: string, ids: string[]): DossierFull =>
   ({
@@ -56,16 +57,11 @@ afterEach(() => {
 });
 
 test("a timer response cannot put a new revision's check beside the old cached description", async () => {
-  let resolve!: (dossier: DossierFull) => void;
+  const { promise, resolve } = Promise.withResolvers<DossierFull>();
   const fetch = vi
     .fn()
     .mockResolvedValueOnce(body("Ancienne description", ["r1"]))
-    .mockImplementationOnce(
-      () =>
-        new Promise<DossierFull>((done) => {
-          resolve = done;
-        }),
-    );
+    .mockImplementationOnce(() => promise);
   const update = vi.fn(async (request: NotificationUpdate) =>
     request.arrival
       ? notice(["r1", "r2"])
@@ -131,15 +127,10 @@ test("failed refresh exposes unread metadata but never makes unseen revisions re
 });
 
 test("initial navigation and later notification requests cannot complete in the wrong cache order", async () => {
-  let resolve!: (dossier: DossierFull) => void;
+  const { promise, resolve } = Promise.withResolvers<DossierFull>();
   const fetch = vi
     .fn()
-    .mockImplementationOnce(
-      () =>
-        new Promise<DossierFull>((done) => {
-          resolve = done;
-        }),
-    )
+    .mockImplementationOnce(() => promise)
     .mockResolvedValueOnce(body("Nouveau", ["r2"]));
   store.capabilities = { recupérerDossierComplet: fetch };
   const first = refreshDossierFull(id);
@@ -170,15 +161,10 @@ test("full values, not excerpts, bind reviews; unrelated instruction changes kee
 });
 
 test("an independent initial list load publishes new IDs only after the corresponding detail values", async () => {
-  let resolve!: (dossier: DossierFull) => void;
+  const { promise, resolve } = Promise.withResolvers<DossierFull>();
   const fetch = vi
     .fn()
-    .mockImplementationOnce(
-      () =>
-        new Promise<DossierFull>((done) => {
-          resolve = done;
-        }),
-    )
+    .mockImplementationOnce(() => promise)
     .mockResolvedValueOnce(body("Nouveau", ["r1", "r2"]));
   const list = vi.fn().mockResolvedValue([notice(["r1", "r2"])]);
   store.capabilities = { recupérerDossierComplet: fetch, listerNotifications: list };

@@ -18,4 +18,12 @@ describe("parseMapCoordinates", () => {
     expect(parseMapCoordinates(`99°99'99"N 199°99'99"E`)).toBeNull();
     expect(parseMapCoordinates("somewhere")).toBeNull();
   });
+
+  it("accepts lowercase compass directions", () => {
+    expect(parseMapCoordinates(`43°00'00"s 006°00'00"w`)).toEqual([-6, -43]);
+  });
+
+  it("rejects Unicode lookalikes for compass directions", () => {
+    expect(parseMapCoordinates(`43°00'00"ſ 006°00'00"E`)).toBeNull();
+  });
 });

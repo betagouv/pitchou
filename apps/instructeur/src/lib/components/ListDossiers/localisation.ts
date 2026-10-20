@@ -19,7 +19,7 @@ export function readLocalisation(params: URLSearchParams): LocalisationQuery {
   const departementSelection: DepartementSelection =
     selection === "all" || selection === "none"
       ? selection
-      : departments.length
+      : departments.length > 0
         ? "custom"
         : selection === "custom"
           ? "none"

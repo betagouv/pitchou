@@ -86,7 +86,7 @@ const number = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
 export function featureLabel(feature: ProjectMapFeature): string {
   const properties = feature.properties ?? {};
   if (properties.source === "cadastre") {
-    const parcelNumber = String(properties.numero ?? "").replace(/^0+/, "") || "?";
+    const parcelNumber = String(properties.numero ?? "").replace(/^0+/u, "") || "?";
     const sheet = String(properties.feuille ?? "?").padStart(3, "0");
     const section = String(properties.section ?? "?");
     const area = Number(properties.contenance);
