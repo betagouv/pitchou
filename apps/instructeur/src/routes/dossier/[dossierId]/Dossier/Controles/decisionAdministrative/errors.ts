@@ -1,4 +1,4 @@
-import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+import { RequestError } from "#lib/shared/createCapObjectFromURLs/requestWrappers.ts";
 
 export class PrescriptionImportError extends Error {}
 

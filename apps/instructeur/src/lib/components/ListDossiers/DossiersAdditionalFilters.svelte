@@ -4,7 +4,7 @@
   import type { DateField, DossiersQuery } from "./listModel.ts";
   const dateFields = Object.entries(DATE_FIELD_LABEL) as [DateField, string][];
   import { especeLabel } from "@pitchou/common/especesUtils.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   type Props = { draft: DossiersQuery; onOpenEspecesDrawer: () => void };
   let { draft = $bindable(), onOpenEspecesDrawer }: Props = $props();
   const newModifications = $derived(draft.nouveaute === "oui");

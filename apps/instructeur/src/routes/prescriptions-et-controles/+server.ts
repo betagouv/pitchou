@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
 import { addPrescriptionsEtControles } from "@pitchou/server/database/prescription.ts";
 import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";

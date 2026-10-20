@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { error, type RequestHandler } from "@sveltejs/kit";
-import { readJsonObject } from "$lib/server/requestValidation.ts";
+import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
 import { EMAIL_ENVIRONMENT_TAG_PREFIX, getEmailEnvironmentTag } from "@pitchou/server/emails.ts";
 

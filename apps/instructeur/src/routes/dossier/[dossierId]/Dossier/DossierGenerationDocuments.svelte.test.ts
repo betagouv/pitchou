@@ -8,7 +8,7 @@ vi.mock(import("@odfjs/odfjs"), () => ({
   getOdtTextContent: vi.fn(async () => "Document complété"),
 }));
 
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn(async () => ({
     activités: { oiseau: new Map(), "faune non-oiseau": new Map(), flore: new Map() },
     méthodes: { oiseau: new Map(), "faune non-oiseau": new Map(), flore: new Map() },
@@ -18,11 +18,11 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 }));
 
 import { fillOdtTemplate } from "@odfjs/odfjs";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossierGenerationDocuments from "./DossierGenerationDocuments.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 
 // Generated documents are recorded in the dossier historique, which is also where
 // their usage metric comes from.

@@ -3,7 +3,7 @@
     DOSSIER_SORT_OPTIONS,
     type DossierSortKey,
     type DossierSortOrder,
-  } from "$lib/actions/adminDossierTypes.ts";
+  } from "#lib/actions/adminDossierTypes.ts";
 
   type Props = {
     selectedSort: DossierSortKey;

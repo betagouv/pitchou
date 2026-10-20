@@ -1,6 +1,6 @@
 <script lang="ts">
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
-  import type { ActiviteLabelAdmin } from "$lib/actions/adminActivites.ts";
+  import CollapsibleNotice from "#lib/components/CollapsibleNotice.svelte";
+  import type { ActiviteLabelAdmin } from "#lib/actions/adminActivites.ts";
 
   type Props = {
     labels: ActiviteLabelAdmin[];

@@ -8,9 +8,9 @@
     loadChangelogAdmin,
     createChangelogEntry,
     type ChangelogEntryAdmin,
-  } from "$lib/actions/adminChangelog.ts";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminChangelog.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");

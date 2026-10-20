@@ -3,7 +3,7 @@
     DossiersQuery,
     DossierSortKey,
     DossierSortOrder,
-  } from "$lib/actions/adminDossierTypes.ts";
+  } from "#lib/actions/adminDossierTypes.ts";
   import DossiersFilterPanel from "./DossiersFilterPanel.svelte";
   import DossiersSortPanel from "./DossiersSortPanel.svelte";
 

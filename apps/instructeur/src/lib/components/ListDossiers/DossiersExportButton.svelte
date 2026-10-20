@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import type { DossiersExportFormat } from "@pitchou/types/dossierExport.ts";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { FilterChip, Localisation } from "./listModel.ts";

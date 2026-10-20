@@ -5,7 +5,7 @@
     uploadEspecesImpactees,
     deleteEspecesImpactees,
     type AdminDossierDetail,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
 
   type Props = {
     detail: AdminDossierDetail;

@@ -11,7 +11,7 @@ vi.mock(import("./Controles/decisionAdministrative.ts"), async (importOriginal) 
   };
 });
 
-vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => {
+vi.mock(import("#lib/dossier/dossier.ts"), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -21,7 +21,7 @@ vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => {
 
 import DossierControles from "./DossierControles.svelte";
 import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
 import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 

@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-  import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
-  import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import type { ModificationEspeceAdmin } from "#lib/actions/adminEspeces.ts";
+  import { saveModificationEspece } from "#lib/actions/adminEspeces.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
 
   import { classificationFromTaxref, type TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";

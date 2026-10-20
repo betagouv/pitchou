@@ -1,4 +1,4 @@
-import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
 import { parseSpeciesImpactChangeField } from "@pitchou/common/especes/impactGroup.ts";
 
 import type { HistoriqueEntry } from "./display.ts";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { truncateFilename } from "./PiecesJointes/filename.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import ProjectField from "./ProjectField.svelte";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";

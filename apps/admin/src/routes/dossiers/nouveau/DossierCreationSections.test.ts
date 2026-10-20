@@ -9,7 +9,7 @@ import DossierCreationJustificationSection from "./DossierCreationJustificationS
 import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
-import { uploadLimit } from "$lib/upload/uploadLimit.svelte.ts";
+import { uploadLimit } from "#lib/upload/uploadLimit.svelte.ts";
 
 describe("dossier creation sections", () => {
   it("shows only the fields matching the demandeur type", () => {

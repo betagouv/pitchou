@@ -2,7 +2,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
   import EspeceSelectionList from "./EspeceSelectionList.svelte";
-  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
+  import ExpandCollapse from "#lib/components/common/ExpandCollapse.svelte";
   import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
   import type {

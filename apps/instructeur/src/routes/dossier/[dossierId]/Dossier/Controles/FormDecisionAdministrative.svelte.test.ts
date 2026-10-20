@@ -5,12 +5,12 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 import { tick } from "svelte";
 
-vi.mock(import("$lib/upload/uploadToStorage.ts"), () => ({
+vi.mock(import("#lib/upload/uploadToStorage.ts"), () => ({
   uploadFichiers: vi.fn(),
 }));
 
 import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 

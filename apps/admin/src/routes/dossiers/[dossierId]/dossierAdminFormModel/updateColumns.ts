@@ -3,7 +3,7 @@ import {
   EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE,
 } from "@pitchou/common/activiteCodes.ts";
 import { requiresScientificDemandeType } from "@pitchou/common/dossierFormOptions.ts";
-import { communeDepartmentCode } from "$lib/dossierLocation.ts";
+import { communeDepartmentCode } from "#lib/dossierLocation.ts";
 import type { DossierAdminColumnModel, TriState } from "./columnModel.ts";
 
 const nullableText = (value: string) => value.trim() || null;

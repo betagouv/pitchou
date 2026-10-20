@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render, waitFor } from "@testing-library/svelte";
-import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+import { RequestError } from "#lib/shared/createCapObjectFromURLs/requestWrappers.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import {
   CnpnEmailModal,

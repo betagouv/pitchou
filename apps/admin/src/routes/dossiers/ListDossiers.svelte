@@ -9,9 +9,9 @@
     AccessDeniedError,
     type DossiersQuery,
     type AdminDossierSummary,
-  } from "$lib/actions/adminDossiers.ts";
-  import type { DossierSortKey, DossierSortOrder } from "$lib/actions/adminDossierTypes.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminDossiers.ts";
+  import type { DossierSortKey, DossierSortOrder } from "#lib/actions/adminDossierTypes.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import DossierCards from "./DossierCards.svelte";
   import CreateDossierModal from "./CreateDossierModal.svelte";
   import DossiersListControls from "./DossiersListControls.svelte";

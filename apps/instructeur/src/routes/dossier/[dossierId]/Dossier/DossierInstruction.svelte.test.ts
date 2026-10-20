@@ -4,11 +4,11 @@ import { cleanup, render, screen } from "@testing-library/svelte";
 import "@gouvfr/dsfr/dist/dsfr.css";
 
 import DossierInstruction from "./DossierInstruction.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 

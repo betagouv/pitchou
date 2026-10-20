@@ -1,5 +1,5 @@
 import { AccessDeniedError } from "./errors.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 
 /** A changelog row as received from `/api/changelog` (timestamps JSON-serialized). */
 export type ChangelogEntryAdmin = {

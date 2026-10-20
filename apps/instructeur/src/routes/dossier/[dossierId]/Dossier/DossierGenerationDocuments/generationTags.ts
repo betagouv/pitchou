@@ -1,12 +1,12 @@
 import { scientificTags } from "./generationTags/scientific.ts";
 import { speciesTags } from "./generationTags/species.ts";
 import { departementName } from "@pitchou/common/departements.ts";
-import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
-import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "#lib/dossier/displayDossier.ts";
+import { groupImpactsByTypeImpact } from "#lib/especes/groupImpactsByTypeImpact.ts";
 
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierFull, FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
-import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
+import type { EspecesByTypeImpact } from "#lib/especes/especesByTypeImpact.ts";
 import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./tagFormatting.ts";
 
 /**

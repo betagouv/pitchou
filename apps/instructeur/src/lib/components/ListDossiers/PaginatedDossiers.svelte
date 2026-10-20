@@ -3,7 +3,7 @@
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import DossiersResults from "./DossiersResults.svelte";
-  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
+  import EditNextDueDateModal from "#lib/components/EditNextDueDateModal.svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";

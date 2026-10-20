@@ -1,4 +1,4 @@
-import type { ChangelogEntryAdmin } from "$lib/actions/adminChangelog.ts";
+import type { ChangelogEntryAdmin } from "#lib/actions/adminChangelog.ts";
 
 type VersionSegments = Pick<
   ChangelogEntryAdmin,

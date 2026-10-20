@@ -7,7 +7,7 @@ import CardDossier from "./CardDossier.svelte";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier } from "./testHelpers.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 afterEach(cleanup);
 
 const dossier = makeDossier({

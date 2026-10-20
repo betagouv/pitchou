@@ -3,7 +3,7 @@
 import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 import { activiteSelectEntries } from "@pitchou/ui/activites/activiteSelectEntries.ts";
 import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
-import type { ActiviteAdmin, ActiviteReferentielAdmin } from "$lib/actions/adminActivites.ts";
+import type { ActiviteAdmin, ActiviteReferentielAdmin } from "#lib/actions/adminActivites.ts";
 
 /** The activities ordered for a form select: alphabetical, « Autre » (the catch-all) last. */
 export function sortedActivites(referentiel: ActiviteReferentielAdmin): ActiviteAdmin[] {

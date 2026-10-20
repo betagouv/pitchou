@@ -3,7 +3,7 @@ import type {
   DossierPhase,
   DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import {
   readLocalisation,
   writeLocalisation,

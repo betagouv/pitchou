@@ -1,6 +1,6 @@
 <script lang="ts">
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { loadReferentielRows } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadReferentielRows } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   import ReferentielTypeImpact from "./ReferentielTypeImpact.svelte";
 

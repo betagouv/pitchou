@@ -3,7 +3,7 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersEspecesPanel from "./DossiersEspecesPanel.svelte";
 import { defaultDossiersQuery, type DossiersQuery } from "./listModel.ts";
 

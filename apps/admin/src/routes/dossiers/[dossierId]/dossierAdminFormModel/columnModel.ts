@@ -1,4 +1,4 @@
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 export { buildDossierUpdateColumns } from "./updateColumns.ts";
 
 export type TriState = "" | "oui" | "non";

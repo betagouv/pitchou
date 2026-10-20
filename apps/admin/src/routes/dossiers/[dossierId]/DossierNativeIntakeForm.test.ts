@@ -1,7 +1,7 @@
 import { render } from "svelte/server";
 import { expect, test } from "vitest";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
 import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
 import {

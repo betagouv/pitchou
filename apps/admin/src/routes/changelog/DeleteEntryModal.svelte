@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Modal from "$lib/components/Modal.svelte";
-  import type { ChangelogEntryAdmin } from "$lib/actions/adminChangelog.ts";
+  import Modal from "#lib/components/Modal.svelte";
+  import type { ChangelogEntryAdmin } from "#lib/actions/adminChangelog.ts";
   import { formatDate, versionOf } from "./format.ts";
 
   // Structural subset so callers can pass either a stored entry or a live draft snapshot.

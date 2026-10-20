@@ -7,12 +7,12 @@ import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
 
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import CardDossier from "./CardDossier.svelte";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier, makeNotification } from "./testHelpers.ts";

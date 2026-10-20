@@ -4,18 +4,18 @@
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
-  import { loadActiviteReferentiel, type ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+  import { loadActiviteReferentiel, type ActiviteAdmin } from "#lib/actions/adminActivites.ts";
   import {
     createDossier,
     loadGroupesInstructeurs,
     AccessDeniedError,
     type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
   import {
     activiteCodeByLabel,
     activiteLabelSelectEntries,
     sortedActivites,
-  } from "$lib/activiteReferentiel.ts";
+  } from "#lib/activiteReferentiel.ts";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
   import DossierIntakeFields from "./DossierIntakeFields.svelte";
@@ -28,7 +28,7 @@
     dossierCreationAttachments,
     validateDossierCreation,
   } from "./dossierCreationSubmission.ts";
-  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
+  import { uploadProgressLabel } from "#lib/upload/uploadProgress.svelte.ts";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");

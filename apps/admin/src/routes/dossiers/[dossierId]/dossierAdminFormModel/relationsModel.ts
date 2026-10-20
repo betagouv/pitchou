@@ -3,7 +3,7 @@ import type {
   AdminDossierIdentite,
   AdminDossierRelationsPayload,
   AdminIdentiteDossierType,
-} from "$lib/actions/adminDossiers.ts";
+} from "#lib/actions/adminDossiers.ts";
 
 export type DemandeurType = "personne_physique" | "personne_morale";
 export type IdentityFormModel = {

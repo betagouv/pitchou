@@ -2,7 +2,7 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   import type { Snippet } from "svelte";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import CardDossier from "./CardDossier.svelte";
   import { dossierSortDate, groupDossiersByMonth, timelineDateLabel } from "./sections.ts";
   import type { SortKey } from "./query.ts";

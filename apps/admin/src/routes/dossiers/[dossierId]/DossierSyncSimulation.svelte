@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
-  import { simulateDossierSync, type SimulatedAction } from "$lib/actions/adminDossiers.ts";
+  import { simulateDossierSync, type SimulatedAction } from "#lib/actions/adminDossiers.ts";
   import Select from "@pitchou/ui/Select.svelte";
   import DossierSpeciesSimulation from "./DossierSpeciesSimulation.svelte";
 

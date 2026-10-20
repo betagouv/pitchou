@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { formatLocalisation } from "$lib/dossier/displayDossier.ts";
-  import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
-  import { activiteIconUrl } from "$lib/dossier/activiteIcon.ts";
-  import DossierNotificationBadges from "$lib/components/DossierNotificationBadges.svelte";
-  import TagEcheance from "$lib/components/TagEcheance.svelte";
+  import { formatLocalisation } from "#lib/dossier/displayDossier.ts";
+  import ActiviteIcon from "#lib/components/ActiviteIcon.svelte";
+  import { activiteIconUrl } from "#lib/dossier/activiteIcon.ts";
+  import DossierNotificationBadges from "#lib/components/DossierNotificationBadges.svelte";
+  import TagEcheance from "#lib/components/TagEcheance.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
-  import AssignDossierFollowersModal from "$lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
+  import AssignDossierFollowersModal from "#lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
   import { readOnlyMode } from "./readOnly.ts";
   import HeaderActions from "./HeaderDossier/HeaderActions.svelte";
   import CompactDossierHeader from "./HeaderDossier/CompactDossierHeader.svelte";

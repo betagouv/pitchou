@@ -45,5 +45,8 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "xlsx": "catalog:"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*"
   }
 }

@@ -3,7 +3,7 @@
   import { getOdtTextContent } from "@odfjs/odfjs";
   import { fillTemplates, generationTimestamp } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import DocumentTemplateSelection from "./DossierGenerationDocuments/DocumentTemplateSelection.svelte";
   import GeneratedDocuments from "./DossierGenerationDocuments/GeneratedDocuments.svelte";
   import {

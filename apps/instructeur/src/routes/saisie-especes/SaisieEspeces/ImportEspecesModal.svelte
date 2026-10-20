@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeHint } from "#lib/upload/uploadSizeHint.ts";
   type Props = {
     modal?: HTMLElement;
     input?: HTMLInputElement;

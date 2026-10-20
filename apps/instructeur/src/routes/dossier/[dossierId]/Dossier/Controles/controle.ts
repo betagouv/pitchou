@@ -1,4 +1,4 @@
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 import type { default as Controle } from "@pitchou/types/database/public/Controle.ts";
 import type { ResultatControle, TypesActionSuiteControle } from "@pitchou/types/API_Pitchou.ts";

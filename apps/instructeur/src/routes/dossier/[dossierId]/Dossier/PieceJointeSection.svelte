@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import type { PieceJointeSimple } from "./piecesJointes.ts";
   import PieceJointeDeleteButton from "./PieceJointeDeleteButton.svelte";

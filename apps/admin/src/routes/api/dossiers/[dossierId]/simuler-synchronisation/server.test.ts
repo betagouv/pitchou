@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { POST } from "./+server.ts";
-import { simulateSpeciesChange } from "$lib/server/simulateSpecies.ts";
+import { simulateSpeciesChange } from "#lib/server/simulateSpecies.ts";
 import { getDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 
-vi.mock("$lib/server/simulateSpecies.ts", () => ({ simulateSpeciesChange: vi.fn() }));
+vi.mock("#lib/server/simulateSpecies.ts", () => ({ simulateSpeciesChange: vi.fn() }));
 vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: vi.fn() }));
 vi.mock("@pitchou/server/database/dossier.ts", () => ({ dumpDossiers: vi.fn() }));
 vi.mock("@pitchou/server/database/action_dossier.ts", () => ({ getDossierActions: vi.fn() }));

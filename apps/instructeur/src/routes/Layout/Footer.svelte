@@ -2,7 +2,7 @@
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
 
-  import type { PitchouState } from "$lib/state/store.svelte.ts";
+  import type { PitchouState } from "#lib/state/store.svelte.ts";
   import UiFooter from "@pitchou/ui/Footer.svelte";
 
   import FooterSupportBlocks from "./FooterSupportBlocks.svelte";

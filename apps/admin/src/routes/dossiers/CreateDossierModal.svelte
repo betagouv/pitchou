@@ -8,7 +8,7 @@
     createMinimalDossier,
     loadGroupesInstructeurs,
     type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
   import CreateDossierPorteurFields from "./CreateDossierPorteurFields.svelte";
   import {
     emptyPorteurForm,

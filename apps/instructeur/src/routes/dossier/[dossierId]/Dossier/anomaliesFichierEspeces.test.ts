@@ -1,10 +1,10 @@
 import { expect, test, vi } from "vitest";
 
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({
+vi.mock(import("#lib/dossier/dossier.ts"), () => ({
   especesImpacteesFromFichierOdsArrayBuffer: vi.fn(),
 }));
 
-import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+import { especesImpacteesFromFichierOdsArrayBuffer } from "#lib/dossier/dossier.ts";
 import { anomaliesFichierEspeces } from "./anomaliesFichierEspeces.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";

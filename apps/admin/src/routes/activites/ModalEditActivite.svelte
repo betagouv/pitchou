@@ -2,7 +2,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry, SelectOption } from "@pitchou/ui/Select/options.ts";
   import { activiteIconUrl } from "@pitchou/ui/activites/activiteIcon.ts";
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "#lib/components/Modal.svelte";
   import type { ActiviteWithLabels } from "./activitesModel.ts";
 
   type Props = {

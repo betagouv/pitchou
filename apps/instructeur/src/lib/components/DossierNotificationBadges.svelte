@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { differenceInCalendarDays } from "date-fns";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
   import { readOnlyMode } from "../../routes/dossier/[dossierId]/Dossier/readOnly.ts";

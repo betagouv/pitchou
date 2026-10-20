@@ -1,7 +1,7 @@
 <script lang="ts">
   import Select from "@pitchou/ui/Select.svelte";
 
-  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
+  import type { AdminGroupeInstructeurs } from "#lib/actions/adminDossiers.ts";
 
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
 

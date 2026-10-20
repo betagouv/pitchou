@@ -4,12 +4,12 @@ import type {
   AdminDossierDetail,
   AdminDossierRelationsPayload,
   AdminDossierUpdatePayload,
-} from "$lib/actions/adminDossiers.ts";
+} from "#lib/actions/adminDossiers.ts";
 import { mergeDossierRelationsForEdit } from "./relations.ts";
 import { buildCreationPayload } from "./payload.ts";
 import type { CompanyDetailsChoice, DossierCreationModel } from "./state.ts";
 import { selectedDossierAttachmentFiles } from "./visibility.ts";
-import { uploadSizeError } from "$lib/upload/uploadLimit.svelte.ts";
+import { uploadSizeError } from "#lib/upload/uploadLimit.svelte.ts";
 
 /**
  * Assembles the columns, relations (only when they changed) and files of the edit form.

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import type { EvenementNavbarLink } from "@pitchou/types/evenement.d.ts";
 
   function trackNavbarLinkClick(link: EvenementNavbarLink) {

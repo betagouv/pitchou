@@ -11,7 +11,7 @@
     addPrescription as addPrescriptionDatabase,
     updatePrescription,
   } from "./prescriptions.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 
   import type {
     FrontEndDecisionAdministrative,

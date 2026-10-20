@@ -3,7 +3,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import { phases } from "@pitchou/common/phases.ts";
 
-  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
+  import type { AdminGroupeInstructeurs } from "#lib/actions/adminDossiers.ts";
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 
   let { model, groupes }: { model: DossierCreationModel; groupes: AdminGroupeInstructeurs[] } =

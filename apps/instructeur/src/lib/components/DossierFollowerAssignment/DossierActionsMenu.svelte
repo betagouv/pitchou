@@ -2,7 +2,7 @@
   import { tick } from "svelte";
   import shareForwardIcon from "@gouvfr/dsfr/dist/icons/system/share-forward-fill.svg?no-inline";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
-  import EditNextDueDateModal from "$lib/components/EditNextDueDateModal.svelte";
+  import EditNextDueDateModal from "#lib/components/EditNextDueDateModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {

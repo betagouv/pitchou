@@ -25,7 +25,7 @@
     groups: PieceJointeGroup[];
     submitted: boolean;
     EmailRichTextEditorComponent:
-      typeof import("$lib/components/EmailRichTextEditor.svelte").default | undefined;
+      typeof import("#lib/components/EmailRichTextEditor.svelte").default | undefined;
     subject: string;
     recipient: string;
     ccEmails: string[];

@@ -2,8 +2,8 @@
   import Loader from "@pitchou/ui/Loader.svelte";
   import StatsContent from "./StatsContent.svelte";
   import IndicatorsAARRI from "./IndicatorsAARRI.svelte";
-  import { loadStats } from "$lib/stats/stats.ts";
-  import { loadIndicatorsAARRI } from "$lib/shared/aarri.ts";
+  import { loadStats } from "#lib/stats/stats.ts";
+  import { loadIndicatorsAARRI } from "#lib/shared/aarri.ts";
 
   const statsP = loadStats();
   const indicatorsByDateP = loadIndicatorsAARRI();

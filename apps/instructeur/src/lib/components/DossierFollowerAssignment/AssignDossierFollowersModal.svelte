@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { SvelteMap, SvelteSet } from "svelte/reactivity";
-  import { store } from "$lib/state/store.svelte.ts";
-  import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
-  import { queueDossierFollowUpdate } from "$lib/dossier/suiviDossier.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { loadNotificationByDossierForCurrentInstructeur } from "#lib/shared/main.ts";
+  import { queueDossierFollowUpdate } from "#lib/dossier/suiviDossier.ts";
   import DossierFollowerCombobox from "./DossierFollowerCombobox.svelte";
   import CurrentDossierFollowers from "./CurrentDossierFollowers.svelte";
   import AssignDossierFollowersFooter from "./AssignDossierFollowersFooter.svelte";

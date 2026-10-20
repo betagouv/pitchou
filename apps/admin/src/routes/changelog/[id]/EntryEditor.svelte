@@ -1,6 +1,6 @@
 <script lang="ts">
-  import RichTextEditor from "$lib/components/RichTextEditor.svelte";
-  import { uploadChangelogMedia, type ChangelogEntryPayload } from "$lib/actions/adminChangelog.ts";
+  import RichTextEditor from "#lib/components/RichTextEditor.svelte";
+  import { uploadChangelogMedia, type ChangelogEntryPayload } from "#lib/actions/adminChangelog.ts";
   import EntryFields from "./EntryFields.svelte";
   import PublishBlockedModal from "./PublishBlockedModal.svelte";
   import SaveStatus from "./SaveStatus.svelte";

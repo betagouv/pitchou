@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DownloadButton from "$lib/components/DownloadButton.svelte";
+  import DownloadButton from "#lib/components/DownloadButton.svelte";
   type Props = { count: number; createBlob: () => Promise<Blob> };
   let { count, createBlob }: Props = $props();
 </script>

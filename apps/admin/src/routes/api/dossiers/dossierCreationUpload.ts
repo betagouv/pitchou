@@ -11,14 +11,14 @@ import {
 import type { AdminDossierCreation } from "@pitchou/server/database/dossier_admin.ts";
 import type { AdminFileUpload } from "@pitchou/server/database/dossier_admin_files.ts";
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseDossierCreation } from "$lib/server/dossierValidation";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { parseDossierCreation } from "#lib/server/dossierValidation.ts";
 import {
   loadActiviteContext,
   type ActiviteContext,
-} from "$lib/server/dossierValidation/activiteContext.ts";
-import { validateSpeciesUpload } from "$lib/server/speciesUpload";
-import { parseUploadedFichier, parseUploadedFichiers } from "$lib/server/uploadedFichier";
+} from "#lib/server/dossierValidation/activiteContext.ts";
+import { validateSpeciesUpload } from "#lib/server/speciesUpload.ts";
+import { parseUploadedFichier, parseUploadedFichiers } from "#lib/server/uploadedFichier.ts";
 
 export const uploadNames = [
   "purposeAttachments",

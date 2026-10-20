@@ -1,13 +1,13 @@
 <script lang="ts">
   import { deleteAvisExpert as deleteAvisExpertServer } from "./avisExpert.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
   import { differenceInDays } from "date-fns";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { readOnlyMode } from "./readOnly.ts";
   import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
-  import Pictogramme from "$lib/components/DSFR/Pictogramme.svelte";
+  import Pictogramme from "#lib/components/DSFR/Pictogramme.svelte";
   import CnpnEmailModal from "./CnpnEmailModal.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
@@ -26,7 +26,7 @@
   }
 
   function preloadCnpnEmailEditor() {
-    void import("$lib/components/EmailRichTextEditor.svelte");
+    void import("#lib/components/EmailRichTextEditor.svelte");
   }
 
   function cnpnEmailEventFor(avisExpert: FrontEndAvisExpert) {

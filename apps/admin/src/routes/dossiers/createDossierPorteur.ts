@@ -1,4 +1,4 @@
-import type { AdminDossierMinimalCreationPayload } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierMinimalCreationPayload } from "#lib/actions/adminDossiers.ts";
 import { legalSiretError } from "./nouveau/dossierCreationModel.ts";
 
 export type PorteurForm = {

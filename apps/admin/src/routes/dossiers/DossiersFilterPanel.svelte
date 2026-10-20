@@ -2,7 +2,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import { phases } from "@pitchou/common/phases.ts";
 
-  import type { DossiersQuery } from "$lib/actions/adminDossiers.ts";
+  import type { DossiersQuery } from "#lib/actions/adminDossiers.ts";
 
   type Props = {
     selectedPhase: string;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { differenceInMonths, differenceInWeeks, addMonths, format } from "date-fns";
   import DelayIndicator from "./DelayIndicator.svelte";
-  import { getCurrentPhaseStart } from "$lib/dossier/getCurrentPhaseStart.ts";
+  import { getCurrentPhaseStart } from "#lib/dossier/getCurrentPhaseStart.ts";
 
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 

@@ -1,5 +1,5 @@
 import { chunk, sendFilesToStorage } from "@pitchou/common/storageUpload.ts";
-import { checkResponse } from "$lib/actions/adminResponse.ts";
+import { checkResponse } from "#lib/actions/adminResponse.ts";
 import { uploadProgress } from "./uploadProgress.svelte.ts";
 import type { UploadUrl, UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 

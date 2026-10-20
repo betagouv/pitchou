@@ -6,7 +6,7 @@ import { cleanup, render, screen } from "@testing-library/svelte";
 import EditNextDueDateModal from "./EditNextDueDateModal.svelte";
 import { dossierId } from "./ListDossiers/testHelpers.ts";
 
-vi.mock("$lib/dossier/dossier.ts", () => ({ updateDossierNextDueDate: vi.fn() }));
+vi.mock("#lib/dossier/dossier.ts", () => ({ updateDossierNextDueDate: vi.fn() }));
 
 afterEach(() => {
   cleanup();

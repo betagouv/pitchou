@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { describeEcheance, type EcheanceUrgency } from "$lib/dossier/echeance.ts";
+  import { describeEcheance, type EcheanceUrgency } from "#lib/dossier/echeance.ts";
 
   type Props = {
     /** Date of the dossier's next échéance; nothing is rendered when it is unknown */

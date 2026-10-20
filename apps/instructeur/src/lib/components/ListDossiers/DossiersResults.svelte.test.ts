@@ -5,13 +5,13 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersResults from "./DossiersResults.svelte";
 import DossierNotificationBadges from "../DossierNotificationBadges.svelte";
 import { dossierId, makeDossier, makeNotification } from "./testHelpers.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));

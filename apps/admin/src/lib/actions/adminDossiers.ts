@@ -6,7 +6,7 @@ import {
   uploadDossierUpdateFiles,
   type DossierCreationAttachments,
 } from "./adminDossierUploads.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import type {
   AdminDossierCreationPayload,
   AdminDossierMinimalCreationPayload,

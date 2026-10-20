@@ -1,5 +1,5 @@
-import { store } from "$lib/state/store.svelte.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 
 import type { default as AvisExpert } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { AvisExpertForTransfer, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";

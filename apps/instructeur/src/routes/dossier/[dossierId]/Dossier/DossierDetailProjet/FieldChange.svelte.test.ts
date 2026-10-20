@@ -4,7 +4,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
 import { page, userEvent } from "vitest/browser";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ProjectField from "./ReviewFieldFixture.svelte";
 import FieldChangeControl from "./FieldChange.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";

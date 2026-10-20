@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+import { RequestError } from "#lib/shared/createCapObjectFromURLs/requestWrappers.ts";
 import { importErrorMessage, PrescriptionImportError } from "./errors.ts";
 
 test("keeps actionable spreadsheet validation messages", () => {

@@ -5,7 +5,7 @@ import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import type { DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
-import { isValidProjectMap } from "$lib/projectMapValidation.ts";
+import { isValidProjectMap } from "#lib/projectMapValidation.ts";
 
 import type { ActiviteContext } from "./activiteContext.ts";
 import { COLUMN_KINDS, type ColumnKind } from "./columnKinds.ts";

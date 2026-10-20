@@ -6,7 +6,7 @@
     loadModificationsEspecesAdmin,
     AccessDeniedError,
     type ModificationEspeceAdmin,
-  } from "$lib/actions/adminEspeces.ts";
+  } from "#lib/actions/adminEspeces.ts";
 
   import ListModifications from "./ListModifications.svelte";
 

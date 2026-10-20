@@ -3,8 +3,8 @@
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import { readOnlyMode } from "./readOnly.ts";
 
   import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";

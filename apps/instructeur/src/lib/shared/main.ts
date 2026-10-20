@@ -1,14 +1,14 @@
-import { json } from "$lib/shared/http.ts";
-import { readStorage, writeStorage, removeStorage } from "$lib/shared/storage.ts";
+import { json } from "#lib/shared/http.ts";
+import { readStorage, writeStorage, removeStorage } from "#lib/shared/storage.ts";
 import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { store } from "$lib/state/store.svelte.ts";
-import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { SCHEMA_DS_88444 } from "#lib/shared/dataPaths.ts";
 
-import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
-import { refreshNotifications } from "$lib/dossier/notification.ts";
+import createCapObjectFromURLs from "#lib/shared/createCapObjectFromURLs.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
+import { refreshNotifications } from "#lib/dossier/notification.ts";
 
 import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {

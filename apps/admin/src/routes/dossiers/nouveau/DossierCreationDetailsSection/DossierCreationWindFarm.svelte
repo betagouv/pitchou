@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DossierCreationModel } from "../dossierCreationModel.ts";
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadLimit.svelte.ts";
   let { model }: { model: DossierCreationModel } = $props();
   let input = $state<HTMLInputElement>();
   let error = $state("");

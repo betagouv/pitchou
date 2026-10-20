@@ -5,16 +5,16 @@ import { afterEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render, screen } from "@testing-library/svelte";
 import HeaderActions from "./HeaderActions.svelte";
-import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
+import DossierActionsMenu from "#lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
-import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
+import { instructeurFollowsDossier, instructeurLeavesDossier } from "#lib/dossier/suiviDossier.ts";
 
-vi.mock("$lib/dossier/suiviDossier.ts", () => ({
+vi.mock("#lib/dossier/suiviDossier.ts", () => ({
   instructeurFollowsDossier: vi.fn(),
   instructeurLeavesDossier: vi.fn(),
   queueDossierFollowUpdate: vi.fn(),
 }));
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 function props(follows = false) {
   return {

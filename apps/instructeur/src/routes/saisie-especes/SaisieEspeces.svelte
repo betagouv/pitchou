@@ -1,6 +1,6 @@
 <script lang="ts">
-  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
-  import { createEspecesGroupedByTypeImpact } from "$lib/especes/createEspecesGroupedByTypeImpact.ts";
+  import EspecesProtegeesGroupedByTypeImpact from "#lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
+  import { createEspecesGroupedByTypeImpact } from "#lib/especes/createEspecesGroupedByTypeImpact.ts";
   import ModalPrefillFromText from "./SaisieEspeces/ModalPrefillFromText.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
@@ -10,7 +10,7 @@
   import SaisieValidationModal from "./SaisieEspeces/SaisieValidationModal.svelte";
   import { tick } from "svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
-  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { flattenImpactedEspeces } from "./SaisieEspeces/impactedEspeces.ts";
   import type {
     ActiviteMenancante,

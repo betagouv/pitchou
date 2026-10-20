@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossierNotificationBadges from "./DossierNotificationBadges.svelte";
 import DossierNotificationReadTracker from "./DossierNotificationReadTracker.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadSizeHint.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
   import { createPrescriptionControlesFromFichier } from "../decisionAdministrative.ts";
   import {
     importErrorMessage,

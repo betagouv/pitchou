@@ -7,7 +7,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 import DossierActionsMenu from "./DossierActionsMenu.svelte";
 import { fakeDossierFull } from "../../../routes/fakeDossier.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 afterEach(cleanup);
 

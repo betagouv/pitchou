@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, untrack } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
-  import { updateDossierNextDueDate } from "$lib/dossier/dossier.ts";
-  import DateInput from "$lib/components/DateInput.svelte";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { updateDossierNextDueDate } from "#lib/dossier/dossier.ts";
+  import DateInput from "#lib/components/DateInput.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
   type Props = {

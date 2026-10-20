@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte";
   import Select from "@pitchou/ui/Select.svelte";
-  import { simulateDossierSpecies, type SimulatedAction } from "$lib/actions/adminDossierSync.ts";
+  import { simulateDossierSpecies, type SimulatedAction } from "#lib/actions/adminDossierSync.ts";
 
   let {
     dossierId,

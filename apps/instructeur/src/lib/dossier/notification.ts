@@ -1,4 +1,4 @@
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { DossierNotification, NotificationUpdate } from "@pitchou/types/notification.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
