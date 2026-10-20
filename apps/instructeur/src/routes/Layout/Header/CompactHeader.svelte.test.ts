@@ -10,7 +10,7 @@ vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 afterEach(async () => {
   cleanup();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
   await page.viewport(1280, 720);
 });
 

@@ -31,7 +31,7 @@ function props(follows = false) {
 afterEach(async () => {
   cleanup();
   vi.clearAllMocks();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
   await page.viewport(1280, 720);
 });
 

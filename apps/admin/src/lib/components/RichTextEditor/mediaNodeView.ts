@@ -15,7 +15,7 @@ export function mediaSizingAttributes() {
     },
     align: {
       default: null,
-      parseHTML: (element: HTMLElement) => element.getAttribute("data-align"),
+      parseHTML: (element: HTMLElement) => element.dataset.align ?? null,
       renderHTML: (attributes: Record<string, unknown>) =>
         attributes.align ? { "data-align": attributes.align } : {},
     },
@@ -66,8 +66,8 @@ export function mediaNodeView(tag: "img" | "video"): NodeViewRenderer {
       }
       if (current.attrs.width) media.setAttribute("width", String(current.attrs.width));
       else media.removeAttribute("width");
-      if (current.attrs.align) dom.setAttribute("data-align", current.attrs.align);
-      else dom.removeAttribute("data-align");
+      if (current.attrs.align) dom.dataset.align = current.attrs.align;
+      else delete dom.dataset.align;
     }
     sync();
 

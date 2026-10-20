@@ -10,7 +10,7 @@ vi.mock("$lib/dossier/dossier.ts", () => ({ updateDossierNextDueDate: vi.fn() })
 
 afterEach(() => {
   cleanup();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
 });
 
 function channels(color: string) {

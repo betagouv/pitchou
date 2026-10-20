@@ -15,7 +15,7 @@ import EmailRichTextEditor from "./EmailRichTextEditor.svelte";
 
 afterEach(() => {
   cleanup();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
 });
 
 test("actualise Annuler et Rétablir après chaque transaction", async () => {

@@ -24,9 +24,9 @@ test.each(["light", "dark"])(
   "%s cards keep readable DSFR colors in both read states",
   async (theme) => {
     const root = document.documentElement;
-    const previousTheme = root.getAttribute("data-fr-theme");
+    const previousTheme = root.dataset.frTheme;
     try {
-      root.setAttribute("data-fr-theme", theme);
+      root.dataset.frTheme = theme;
       const { rerender } = render(CardDossier, {
         dossier,
         notificationViewed: false,
@@ -64,8 +64,8 @@ test.each(["light", "dark"])(
         ).toBe(dark ? "rgb(146, 146, 146)" : "rgb(102, 102, 102)");
       }
     } finally {
-      if (previousTheme === null) root.removeAttribute("data-fr-theme");
-      else root.setAttribute("data-fr-theme", previousTheme);
+      if (previousTheme === undefined) delete root.dataset.frTheme;
+      else root.dataset.frTheme = previousTheme;
     }
   },
 );
