@@ -1,4 +1,5 @@
 import type { DossierFull, DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+import { summaryActeurs } from "./dossierActeur.ts";
 
 export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSummary {
   const {
@@ -25,6 +26,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
 
     // People involved
     porteur_de_projet,
+    acteurs,
     deposant_last_name,
     deposant_first_names,
 
@@ -87,6 +89,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
 
     // People involved
     porteur_de_projet,
+    acteurs: summaryActeurs(acteurs),
     deposant_last_name,
     deposant_first_names,
 

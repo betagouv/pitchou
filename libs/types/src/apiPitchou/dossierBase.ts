@@ -3,9 +3,12 @@ import type { DossierSource } from "../dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarche88444.ts";
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
 import type { PorteurDeProjet } from "../porteurDeProjet.ts";
+import type { DossierActeur } from "../dossierActeur.ts";
 
 type DossierPersonnesImpliqueesSummary = {
   porteur_de_projet: PorteurDeProjet | null;
+  /** Only the déposants and mandataires in the dossiers list. */
+  acteurs: DossierActeur[];
   deposant_last_name: string;
   deposant_first_names: string;
 };

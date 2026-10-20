@@ -24,6 +24,7 @@ export function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
       role: null,
     },
     representative_email: null,
+    acteurs: [],
     deposant_last_name: "Durand",
     deposant_first_names: "Alice",
     next_action_expected_from: null,

@@ -43,6 +43,7 @@ const body = (description: string, ids: string[]): DossierFull =>
     description,
     especesImpactees: { impacts: [] },
     piecesJointesPetitionnaires: [],
+    acteurs: [],
     evenementsPhase: [],
     avisExpert: [],
     depot_date: new Date(),

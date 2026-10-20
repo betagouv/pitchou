@@ -7,6 +7,8 @@ import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.t
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
+import { getDossierActeurs } from "./acteurs.ts";
+import { summaryInvolvements } from "@pitchou/common/dossierActeur.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -47,12 +49,20 @@ export async function getDossiersSummariesByCap(
   const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
   const decisionsP = getDecisionsAdministratives(cap, transaction);
   const avisP = getAvisExpertFilesByCap(cap, transaction);
-  const result = Promise.all([dossiersP, eventsP, decisionsP, avisP]).then(
-    ([dossiers, events, decisions, avis]) => {
+  const acteursP = dossiersP.then((dossiers) =>
+    getDossierActeurs(
+      dossiers.map(({ id }) => id),
+      transaction,
+      summaryInvolvements,
+    ),
+  );
+  const result = Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP]).then(
+    ([dossiers, events, decisions, avis, acteurs]) => {
       const eventByDossier = new Map<Dossier["id"], EvenementPhaseDossier>(
         events.map((event) => [event.dossier, event]),
       );
       for (const dossier of dossiers) {
+        dossier.acteurs = acteurs.get(dossier.id) ?? [];
         const event = eventByDossier.get(dossier.id);
         dossier.phase = event?.phase ?? "Accompagnement amont";
         dossier.phase_start_date = event?.timestamp ?? dossier.depot_date;

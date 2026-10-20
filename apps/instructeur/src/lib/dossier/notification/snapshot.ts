@@ -20,6 +20,7 @@ function applicantValues(dossier: DossierFull): string {
             /^(deposant_|demandeur_|mandataire_|representative_)/u.test(key) ||
             [
               "porteur_de_projet",
+              "acteurs",
               "source",
               "activite_label",
               "especesImpactees",

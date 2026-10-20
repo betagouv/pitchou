@@ -6,6 +6,7 @@ import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
+import { getDossierActeurs } from "./acteurs.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -35,6 +36,7 @@ export async function getDossierFull(
   const attachmentsP = getOtherAttachmentsForDossier(dossierId, transaction);
   const impactsP = getImpactOnEspeces(dossierId, transaction);
   const cnpnEmailSentEventsP = getDossierCnpnEmailSentEvents(dossierId, transaction);
+  const acteursP = getDossierActeurs([dossierId], transaction);
   const prescriptionsP = decisionsP.then((decisions) =>
     getPrescriptions(
       decisions.map(({ id }) => id),
@@ -58,6 +60,7 @@ export async function getDossierFull(
     controlesP,
     impactsP,
     cnpnEmailSentEventsP,
+    acteursP,
   ]);
   if (!databaseConnection.isTransaction) all.then(transaction.commit).catch(transaction.rollback);
   return all.then(
@@ -72,8 +75,10 @@ export async function getDossierFull(
       controles,
       impacts,
       cnpnEmailSentEvents,
-    ]) =>
-      withResolvedActivite(
+      acteurs,
+    ]) => {
+      dossier.acteurs = acteurs.get(dossierId) ?? [];
+      return withResolvedActivite(
         formatDossierFull(
           dossier,
           events,
@@ -87,7 +92,8 @@ export async function getDossierFull(
           cnpnEmailSentEvents,
           cap,
         ),
-      ),
+      );
+    },
   );
 }
 
