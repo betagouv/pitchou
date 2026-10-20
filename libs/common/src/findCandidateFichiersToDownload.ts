@@ -1,11 +1,6 @@
 import { isChampDSPieceJustificative, isChampRepeteDSPieceJustificative } from "./typeguards.ts";
 
-import type {
-  DossierDS88444,
-  ChampDSPieceJustificative,
-  DSFile,
-  ChampRepeteDSPieceJustificative,
-} from "@pitchou/types/demarche-numerique/apiSchema.ts";
+import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 
 export default function findCandidateFichiersToDownload(
@@ -13,12 +8,9 @@ export default function findCandidateFichiersToDownload(
   champDescriptorId: ChampDescriptor["id"],
 ): Map<DossierDS88444["number"], DSFile[]> {
   const candidateFichiers: Map<DossierDS88444["number"], DSFile[]> = new Map(
-    // @ts-ignore
     dossiers
       .map(({ number, champs, annotations }) => {
-        // @ts-ignore
-        const champFichier:
-          ChampDSPieceJustificative | ChampRepeteDSPieceJustificative | undefined =
+        const champFichier =
           champs.find((c) => c.id === champDescriptorId) ||
           annotations.find((c) => c.id === champDescriptorId);
 
@@ -33,7 +25,7 @@ export default function findCandidateFichiersToDownload(
         }
 
         return fichierDescriptions && fichierDescriptions.length > 0
-          ? [number, fichierDescriptions]
+          ? ([number, fichierDescriptions] as const)
           : undefined;
       })
       .filter((x) => x !== undefined),

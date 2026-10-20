@@ -113,7 +113,7 @@ export async function dumpDossiers(
 }
 
 function truncateDossierStrings(dossiers: (DossierForInsert | DossierForUpdate)[]) {
-  const varcharKeys: (keyof Pick<Dossier, "name" | "ddep_required">)[] = ["name", "ddep_required"];
+  const varcharKeys: (keyof Pick<Dossier, "name">)[] = ["name"];
   for (const { dossier } of dossiers) {
     for (const key of varcharKeys) {
       if (typeof dossier[key] === "string" && dossier[key].length >= 255) {
@@ -126,7 +126,6 @@ function truncateDossierStrings(dossiers: (DossierForInsert | DossierForUpdate)[
         );
         console.warn("Valeur:", dossier[key]);
         console.warn(`La valeur est coupée pour qu'elle rentre en base de données`);
-        // @ts-ignore The selected properties are strings.
         dossier[key] = dossier[key].slice(0, 255);
       }
     }

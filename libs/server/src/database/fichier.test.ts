@@ -1,3 +1,4 @@
+import type { FileId } from "@pitchou/types/database/public/File.ts";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(import("../objectStorage.ts"), () => ({
@@ -41,12 +42,10 @@ afterEach(() => {
 describe("storeNewFichier", () => {
   it("uploads to S3, then inserts file row, returning the file", async () => {
     putObject.mockResolvedValue();
-    // @ts-ignore branded id
-    addFile.mockResolvedValue({ id: "file-1", name: "f.pdf" });
+    addFile.mockResolvedValue({ id: "file-1" as FileId, name: "f.pdf" });
     const db = fakeDatabase().build();
     const content = Buffer.from("DATA");
 
-    // @ts-ignore branded id
     const result = await storeNewFichier(
       {
         name: "f.pdf",
@@ -61,7 +60,7 @@ describe("storeNewFichier", () => {
     expect(putObject).toHaveBeenCalledTimes(1);
     expect(addFile).toHaveBeenCalledTimes(1);
     expect(deleteObject).not.toHaveBeenCalled();
-    expect(result).toEqual({ id: "file-1", name: "f.pdf" });
+    expect(result).toEqual({ id: "file-1" as FileId, name: "f.pdf" });
 
     const [putKey, putBody, putContentType] = putObject.mock.calls[0];
     expect(putKey).toMatch(/^files\//u);
@@ -116,8 +115,7 @@ describe("loadFichierContent", () => {
   // Only the "file not found" edge case is unit-tested here.
   it("returns null when file not found", async () => {
     const db = fakeDatabase().selectResolvesForTable("file", []).build();
-    // @ts-ignore branded id
-    const result = await loadFichierContent("f-1", db.knex);
+    const result = await loadFichierContent("f-1" as FileId, db.knex);
     expect(result).toBeNull();
   });
 });
@@ -136,10 +134,9 @@ describe("deleteFichiersWithoutOtherReferences", () => {
     deleteFile.mockResolvedValue(1);
     deleteObject.mockResolvedValue();
 
-    // @ts-ignore branded id
-    const result = await deleteFichiersWithoutOtherReferences(["file-1"], db.knex);
+    const result = await deleteFichiersWithoutOtherReferences(["file-1" as FileId], db.knex);
 
-    expect(result).toEqual(["file-1"]);
+    expect(result).toEqual(["file-1" as FileId]);
     expect(deleteFile).toHaveBeenCalledWith("file-1", db.knex);
     expect(deleteObject).toHaveBeenCalledWith("files/file-1");
   });
@@ -150,8 +147,7 @@ describe("deleteFichiersWithoutOtherReferences", () => {
       .selectResolvesForTable("avis_expert", [{ saisine_fichier: "file-1" }])
       .build();
 
-    // @ts-ignore branded id
-    const result = await deleteFichiersWithoutOtherReferences(["file-1"], db.knex);
+    const result = await deleteFichiersWithoutOtherReferences(["file-1" as FileId], db.knex);
 
     expect(result).toEqual([]);
     expect(deleteFile).not.toHaveBeenCalled();
@@ -166,9 +162,8 @@ describe("deleteFichiersWithoutOtherReferences", () => {
     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(
-      // @ts-ignore branded id
-      deleteFichiersWithoutOtherReferences(["file-1"], db.knex),
-    ).resolves.toEqual(["file-1"]);
+      deleteFichiersWithoutOtherReferences(["file-1" as FileId], db.knex),
+    ).resolves.toEqual(["file-1" as FileId]);
 
     expect(errSpy).toHaveBeenCalled();
   });

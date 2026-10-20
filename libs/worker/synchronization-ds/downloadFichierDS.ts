@@ -20,8 +20,7 @@ async function _downloadFichierDS(
       content: response,
     };
   } catch (err) {
-    // @ts-ignore
-    if (err.name === "TimeoutError") {
+    if (err instanceof Error && err.name === "TimeoutError") {
       const message = `\nTimeout d'une requête HTTP vers DS après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
       const simpleError = new Error(message);
       console.error(message);

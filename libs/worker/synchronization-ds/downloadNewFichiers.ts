@@ -87,7 +87,6 @@ export default async function downloadNewFichiers(
   );
 
   const fichierIdByHashAlreadyInDB = new Map(
-    // @ts-ignore
     fichiersAlreadyInDB.map((f) => [makeFichierHash(f), f.id]),
   );
 
@@ -95,15 +94,13 @@ export default async function downloadNewFichiers(
 
   // Filter the candidate list by removing the files already present in the database
   const fichiersToDownload: typeof candidateFichiersDB = new Map(
-    // @ts-ignore
     [...candidateFichiersDB]
-      .map(([number, fichiers]) => {
+      .map(([number, fichiers]): [number, FichierToDownload[]] => {
         return [
           number,
           fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f))),
         ];
       })
-      // @ts-ignore
       .filter(([, fichiers]) => fichiers.length > 0),
   );
 
@@ -112,7 +109,6 @@ export default async function downloadNewFichiers(
   type ReturnMapEntryData = [DossierDS88444["number"], FileId[]];
 
   // Download the files and put them directly into the database
-  // @ts-ignore
   const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersToDownload].map(
     ([number, fichiers]) => {
       return Promise.all(
@@ -178,10 +174,10 @@ async function downloadAndStoreFichier(
         url,
         `dossier DS`,
         number,
-        // @ts-ignore
-        err.message,
-        // @ts-ignore
-        err.cause ? `cause: ${err.cause?.message}` : "",
+        err instanceof Error ? err.message : String(err),
+        err instanceof Error && err.cause
+          ? `cause: ${err.cause instanceof Error ? err.cause.message : String(err.cause)}`
+          : "",
       );
     }
     return;
@@ -211,8 +207,7 @@ async function downloadAndStoreFichier(
       url,
       `dossier DS`,
       number,
-      // @ts-ignore
-      err.message,
+      err instanceof Error ? err.message : String(err),
     );
     return;
   }

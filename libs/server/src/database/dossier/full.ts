@@ -6,7 +6,6 @@ import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
-import { withPorteurDeProjet } from "./porteur.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -14,25 +13,6 @@ import { getPrescriptions } from "../prescription.ts";
 import { getDossierCnpnEmailSentEvents } from "../dossier_cnpn_email.ts";
 import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-
-export function listAllDossiersFull(
-  databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<DossierFull[]> {
-  return joinDossierIdentities(
-    databaseConnection("dossier")
-      .select(dossierFullColumns)
-      .select(databaseConnection.raw(latestCommentaireSubquery)),
-  ).then((dossiers: DossierFull[]) => {
-    for (const dossier of dossiers) {
-      // @ts-ignore The aliased file fields are selected for URL construction.
-      if (dossier.especes_impactees_id) {
-        // @ts-ignore The URL is part of the historical list-all return shape.
-        dossier.url_fichier_especes_impactees = `/especes-impactees/${dossier.especes_impactees_id}`;
-      }
-    }
-    return dossiers.map((dossier) => withResolvedActivite(withPorteurDeProjet(dossier)));
-  });
-}
 
 export async function getDossierFull(
   dossierId: DossierFull["id"],

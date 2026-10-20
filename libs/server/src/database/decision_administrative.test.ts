@@ -41,8 +41,7 @@ beforeEach(() => {
 describe("deleteDecisionAdministrative", () => {
   it("filters the delete by the given id", async () => {
     const db = fakeDatabase().selectResolves([]).build();
-    // @ts-ignore
-    await deleteDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id" as DecisionAdministrativeId, db.knex);
     expect(db.where).toHaveBeenCalledWith({ id: "some-id" });
     expect(db.delete).toHaveBeenCalledTimes(1);
   });
@@ -51,8 +50,7 @@ describe("deleteDecisionAdministrative", () => {
     const db = fakeDatabase()
       .selectResolvesForTable("decision_administrative", [{ fichier: null }])
       .build();
-    // @ts-ignore
-    await deleteDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id" as DecisionAdministrativeId, db.knex);
     expect(deleteFichiersWithoutOtherReferences).not.toHaveBeenCalled();
   });
 
@@ -60,8 +58,7 @@ describe("deleteDecisionAdministrative", () => {
     const db = fakeDatabase()
       .selectResolvesForTable("decision_administrative", [{ fichier: fId }])
       .build();
-    // @ts-ignore
-    await deleteDecisionAdministrative("some-id", db.knex);
+    await deleteDecisionAdministrative("some-id" as DecisionAdministrativeId, db.knex);
     expect(deleteFichiersWithoutOtherReferences).toHaveBeenCalledWith([fId], db.knex);
   });
 });

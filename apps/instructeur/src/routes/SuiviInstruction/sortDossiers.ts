@@ -2,11 +2,7 @@ import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayD
 
 import { getCurrentPhaseStart } from "$lib/dossier/getCurrentPhaseStart.ts";
 
-import type {
-  DossierPhase,
-  DossierNextActionExpectedFrom,
-  DossierSummary,
-} from "@pitchou/types/API_Pitchou.ts";
+import type { DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
 export const sortDossiersByColumnAlphabetically = (
   dossiers: DossierSummary[],
@@ -54,7 +50,7 @@ function comparePhase(phase1: DossierPhase, phase2: DossierPhase) {
   return phaseToImportance[phase2] - phaseToImportance[phase1];
 }
 
-const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedFrom]: number } = {
+const prochaineActionAttendueParToImportance: Readonly<Partial<Record<string, number>>> = {
   Instructeur: 10,
   "Consultation du public": 9,
   "CNPN/CSRPN": 8,
@@ -67,14 +63,14 @@ const prochaineActionAttendueParToImportance: { [k in DossierNextActionExpectedF
  * Returns a positive number if phase1 is more important than phase2
  */
 function compareProchaineActionAttenduePar(
-  prochaineActionAttenduePar1: DossierNextActionExpectedFrom,
-  prochaineActionAttenduePar2: DossierNextActionExpectedFrom,
+  prochaineActionAttenduePar1: DossierSummary["next_action_expected_from"],
+  prochaineActionAttenduePar2: DossierSummary["next_action_expected_from"],
 ) {
   const importance1 = prochaineActionAttenduePar1
-    ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar1]
+    ? (prochaineActionAttendueParToImportance[prochaineActionAttenduePar1] ?? 11)
     : 11;
   const importance2 = prochaineActionAttenduePar2
-    ? prochaineActionAttendueParToImportance[prochaineActionAttenduePar2]
+    ? (prochaineActionAttendueParToImportance[prochaineActionAttenduePar2] ?? 11)
     : 11;
 
   return importance2 - importance1;
@@ -85,7 +81,6 @@ export function sortDossiersByPhaseProchaineAction(dossiers: DossierSummary[]): 
     const phase1 = dossier1.phase;
     const phase2 = dossier2.phase;
 
-    // @ts-ignore
     const phaseComparison = comparePhase(phase1, phase2);
 
     if (phaseComparison !== 0) {
@@ -97,7 +92,6 @@ export function sortDossiersByPhaseProchaineAction(dossiers: DossierSummary[]): 
       const prochaineActionAttenduePar2 = dossier2.next_action_expected_from;
 
       const prochaineActionAttendueParComparison = compareProchaineActionAttenduePar(
-        // @ts-ignore
         prochaineActionAttenduePar1,
         prochaineActionAttenduePar2,
       );

@@ -41,7 +41,6 @@ const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
     return indexCache.get(dossiers);
   else {
     const index = lunr(function () {
-      // @ts-ignore TS does not understand that we added lunrfr
       this.use(lunr.fr);
 
       this.ref("id");

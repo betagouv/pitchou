@@ -60,8 +60,7 @@ export async function getDossiersForGeoMCE(
             maps.moyensDePoursuite,
           );
         } catch (error) {
-          // @ts-ignore Error causes are not narrowed here.
-          if (error.cause !== "format incorrect") {
+          if (!(error instanceof Error) || error.cause !== "format incorrect") {
             console.error("Erreur lors de la génération du message GeoMCE. Dossier", ids);
             console.error("Dossier", dossier);
             console.error(error);

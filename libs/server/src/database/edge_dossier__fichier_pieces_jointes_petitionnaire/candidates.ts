@@ -23,9 +23,10 @@ export function collectFileChecksums(
     fichierDescriptions.push(candidate);
   }
 
-  // @ts-ignore
   const dossierIds: Set<DossierId> = new Set(
-    dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)),
+    dossiersDS
+      .map(({ number }) => dossierIdByDS_number.get(number))
+      .filter((id) => id !== undefined),
   );
 
   const checksumsByDossier = new Map<DossierId, Set<string>>();

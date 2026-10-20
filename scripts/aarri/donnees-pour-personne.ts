@@ -6,9 +6,6 @@ import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
 const args = parseArgs(process.argv);
 
-// @ts-ignore
-if (args.origin) origin = args.origin;
-
 if (!args.email) {
   console.error(`Il manque le paramètre --email`);
   process.exit(1);

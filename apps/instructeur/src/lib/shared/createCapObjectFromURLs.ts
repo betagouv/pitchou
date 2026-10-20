@@ -45,19 +45,15 @@ function wrapModifierDossier(
     throw new Error(`La capability modifierDossier ne contient pas '${dossierIdURLParam}'`);
   }
 
-  function modifierDossier(dossierId: Dossier["id"], args: any) {
+  const modifierDossier = (dossierId: Dossier["id"], args: any) => {
     console.log("modifierDossier cap", args);
 
-    return json(
-      // @ts-ignore
-      url.replace(dossierIdURLParam, dossierId),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(args),
-      },
-    );
-  }
+    return json(url.replace(dossierIdURLParam, String(dossierId)), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+  };
 
   return modifierDossier;
 }
