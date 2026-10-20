@@ -14,9 +14,9 @@ allowBuilds:
 # Packages reference these with "catalog:" instead of repeating the range.
 # peerDependencies keep their own (wider) ranges and are intentionally not catalog-ed.
 catalog:
-  "@aws-sdk/client-s3": "^3.1154.0"
+  "@aws-sdk/client-s3": "^3.1153.0"
   # Must resolve to the same release as client-s3, or the two disagree on @smithy/types.
-  "@aws-sdk/s3-request-presigner": "3.1154.0"
+  "@aws-sdk/s3-request-presigner": "3.1153.0"
   "@gouvfr/dsfr": "1.15.4"
   "@odfjs/odfjs": "github:odfjs/odfjs#v0.30.0"
   "@playwright/test": "^1.64.1"
@@ -42,7 +42,7 @@ catalog:
   "csv-parse": "^7.0.3"
   "d3-dsv": "^3.0.1"
   "date-fns": "^4.4.0"
-  "jose": "^6.2.13"
+  "jose": "^6.2.12"
   "json-schema-to-typescript": "^15.0.4"
   "kanel": "^4.0.4"
   "knex": "^3.3.0"
@@ -66,8 +66,3 @@ catalog:
   "vite": "^8.3.4"
   "vitest": "^4.1.12"
   "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
-
-minimumReleaseAgeExclude:
-  - "@aws-sdk/client-s3@3.1154.0"
-  - "@aws-sdk/s3-request-presigner@3.1154.0"
-  - jose@6.2.13
