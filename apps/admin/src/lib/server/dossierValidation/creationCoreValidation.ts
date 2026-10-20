@@ -76,6 +76,31 @@ export function validateCreationCore(
     error(400, `Property 'communes' is required for the commune location scope.`);
   if (columns.location_scope === "regions" && !Array.isArray(raw.regions))
     error(400, `Property 'regions' is required for the region location scope.`);
+  validateDerogation(columns, raw, activiteCode, requestContext);
+  validateProjectDescription(columns, raw);
+  const destroyedRequired =
+    activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle";
+  if (
+    destroyedRequired &&
+    (typeof columns.dossier_oiseau_simple_destroyed_nids_count !== "number" ||
+      columns.dossier_oiseau_simple_destroyed_nids_count < 1)
+  )
+    error(400, `Property 'dossier_oiseau_simple_destroyed_nids_count' is required.`);
+  if (!destroyedRequired && columns.dossier_oiseau_simple_destroyed_nids_count !== null)
+    error(400, `Property 'dossier_oiseau_simple_destroyed_nids_count' does not apply.`);
+  const limitedTaking = requiresEspecesPriseDetentionLimiteeType(columns.motif_derogation);
+  if (limitedTaking && typeof columns.especes_prise_detention_limitee_type !== "string")
+    error(400, `Property 'especes_prise_detention_limitee_type' is required.`);
+  if (!limitedTaking && columns.especes_prise_detention_limitee_type !== null)
+    error(400, `Property 'especes_prise_detention_limitee_type' does not apply.`);
+}
+
+function validateDerogation(
+  columns: DossierMutator,
+  raw: Record<string, unknown>,
+  activiteCode: string | null,
+  requestContext: DossierMutator["request_context"],
+) {
   const requiresJustification = requiresSpeciesFile(activiteCode, requestContext as string | null);
   if (requiresJustification) {
     if (
@@ -102,6 +127,9 @@ export function validateCreationCore(
       error(400, `Property 'scientifique_demande_type' requires at least one value.`);
   } else if (columns.scientifique_demande_type !== null)
     error(400, `Property 'scientifique_demande_type' does not apply to this derogation reason.`);
+}
+
+function validateProjectDescription(columns: DossierMutator, raw: Record<string, unknown>) {
   if (typeof columns.description !== "string" || !columns.description.trim())
     error(400, `Property 'description' is required.`);
   if (typeof raw.linked_to_ae_regime !== "boolean" && raw.linked_to_ae_regime !== "unknown")
@@ -116,19 +144,4 @@ export function validateCreationCore(
       error(400, `Property 'ae_other_procedure' is required.`);
   } else if (columns.ae_procedures !== null || columns.ae_other_procedure !== null)
     error(400, `AE procedure properties do not apply to this application.`);
-  const destroyedRequired =
-    activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle";
-  if (
-    destroyedRequired &&
-    (typeof columns.dossier_oiseau_simple_destroyed_nids_count !== "number" ||
-      columns.dossier_oiseau_simple_destroyed_nids_count < 1)
-  )
-    error(400, `Property 'dossier_oiseau_simple_destroyed_nids_count' is required.`);
-  if (!destroyedRequired && columns.dossier_oiseau_simple_destroyed_nids_count !== null)
-    error(400, `Property 'dossier_oiseau_simple_destroyed_nids_count' does not apply.`);
-  const limitedTaking = requiresEspecesPriseDetentionLimiteeType(columns.motif_derogation);
-  if (limitedTaking && typeof columns.especes_prise_detention_limitee_type !== "string")
-    error(400, `Property 'especes_prise_detention_limitee_type' is required.`);
-  if (!limitedTaking && columns.especes_prise_detention_limitee_type !== null)
-    error(400, `Property 'especes_prise_detention_limitee_type' does not apply.`);
 }

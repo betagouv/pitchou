@@ -134,22 +134,7 @@ export function createDossierCreationModelFromDetail(
   model.requestContext = detailText(dossier.request_context);
   model.accompanimentNeed = detailText(dossier.accompaniment_need);
   hydrateDemandeur(model, detail);
-  model.primaryDepartment = detailText(dossier.primary_department);
-  model.locationScope = detailText(dossier.location_scope) as DossierCreationModel["locationScope"];
-  model.communes = Array.isArray(dossier.communes)
-    ? (dossier.communes.filter(
-        (commune): commune is CreationCommune =>
-          !!commune && typeof commune === "object" && typeof commune.name === "string",
-      ) as CreationCommune[])
-    : [];
-  model.locationDepartments = detailStrings(dossier.departments);
-  model.locationRegions = detailStrings(dossier.regions);
-  model.projectMap =
-    dossier.projet_map &&
-    typeof dossier.projet_map === "object" &&
-    (dossier.projet_map as { type?: unknown }).type === "FeatureCollection"
-      ? (dossier.projet_map as CreationProjectMap)
-      : null;
+  hydrateLocation(model, dossier);
   model.noOtherSatisfactorySolutionJustification = detailText(
     dossier.no_other_satisfactory_solution_justification,
   );
@@ -191,4 +176,23 @@ export function createDossierCreationModelFromDetail(
   model.phase = detail.phase;
   model.groupeInstructeurs = detail.groupe?.id ?? "";
   return model;
+}
+
+function hydrateLocation(model: DossierCreationModel, dossier: AdminDossierDetail["dossier"]) {
+  model.primaryDepartment = detailText(dossier.primary_department);
+  model.locationScope = detailText(dossier.location_scope) as DossierCreationModel["locationScope"];
+  model.communes = Array.isArray(dossier.communes)
+    ? (dossier.communes.filter(
+        (commune): commune is CreationCommune =>
+          !!commune && typeof commune === "object" && typeof commune.name === "string",
+      ) as CreationCommune[])
+    : [];
+  model.locationDepartments = detailStrings(dossier.departments);
+  model.locationRegions = detailStrings(dossier.regions);
+  model.projectMap =
+    dossier.projet_map &&
+    typeof dossier.projet_map === "object" &&
+    (dossier.projet_map as { type?: unknown }).type === "FeatureCollection"
+      ? (dossier.projet_map as CreationProjectMap)
+      : null;
 }
