@@ -18,8 +18,17 @@ const dossier = {
   deposant_first_names: "Déposant",
   deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
-  representative_first_names: "Alex",
-  representative_last_name: "Robert",
+  acteurs: [
+    {
+      involvements: ["personne_contact"],
+      first_names: "Alex",
+      last_name: "Robert",
+      email: null,
+      address: null,
+      phone: null,
+      role: null,
+    },
+  ],
 } as unknown as DossierFull;
 
 afterEach(cleanup);
@@ -82,9 +91,9 @@ test("a personne morale porteur shows its entreprise in the porteur block, witho
   expect(porteur.querySelector(".pending")?.textContent).toContain("2 rue du Parc");
   expect(view.container.textContent).not.toContain("Le demandeur");
   expect(view.container.textContent).not.toContain("L'entreprise");
-  expect(
-    view.container.querySelector('[aria-label="Représentant de l\'entreprise"]'),
-  ).not.toBeNull();
+  expect(view.container.querySelector('[aria-label="Personne contact"]')?.textContent).toContain(
+    "Robert",
+  );
 });
 
 test("without porteur the block says Non renseigné, without falling back on the deposant", () => {

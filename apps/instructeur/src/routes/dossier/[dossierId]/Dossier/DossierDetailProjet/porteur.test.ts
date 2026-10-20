@@ -52,5 +52,8 @@ test("a personne physique porteur lists its identity and contact details", () =>
     ["Identité", ["Nom", "Prénom", "Qualité"]],
     ["Coordonnées", ["Adresse électronique", "Téléphone", "Adresse"]],
   ]);
-  expect(groups[1].rows[0]).toMatchObject({ kind: "email", changeKey: "demandeur.email" });
+  expect(groups[1].rows[0]).toMatchObject({
+    kind: "email",
+    changeKey: "beneficiaire_demarche_numerique.email",
+  });
 });
