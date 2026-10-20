@@ -93,41 +93,41 @@
   {/if}
 
   <div class="fr-input-group w-full">
-    <label class="fr-label" for="representative-last-name">
-      Nom du représentant
+    <label class="fr-label" for="personne-contact-last-name">
+      Nom de la personne contact
       <span class="fr-hint-text"> Personne en charge du projet au sein de la personne morale </span>
     </label>
     <input
       class="fr-input w-full"
-      id="representative-last-name"
+      id="personne-contact-last-name"
       type="text"
-      bind:value={model.representativeLastName}
+      bind:value={model.personneContactLastName}
     />
   </div>
 
   <div class="fr-input-group w-full">
-    <label class="fr-label" for="representative-first-names">
-      Prénom du représentant
+    <label class="fr-label" for="personne-contact-first-names">
+      Prénom de la personne contact
       <span class="fr-hint-text"> Personne en charge du projet au sein de la personne morale </span>
     </label>
     <input
       class="fr-input w-full"
-      id="representative-first-names"
+      id="personne-contact-first-names"
       type="text"
-      bind:value={model.representativeFirstNames}
+      bind:value={model.personneContactFirstNames}
     />
   </div>
 
   <div class="fr-input-group w-full">
-    <label class="fr-label" for="representative-role">
-      Qualité du représentant
+    <label class="fr-label" for="personne-contact-role">
+      Qualité de la personne contact
       <span class="fr-hint-text">Si le porteur de projet est une personne morale</span>
     </label>
     <input
       class="fr-input w-full"
-      id="representative-role"
+      id="personne-contact-role"
       type="text"
-      bind:value={model.representativeRole}
+      bind:value={model.personneContactRole}
     />
   </div>
 </div>

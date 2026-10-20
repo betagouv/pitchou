@@ -66,16 +66,18 @@ const rowKey = ({
  * involvement that disappeared loses its dossier_acteur rows, its personne_physique is kept.
  *
  * Returns the dossiers whose acteurs changed, so the synchronization can mark them unread;
- * the first acteurs of a dossier are a baseline, not a change.
+ * the first acteurs of a dossier are a baseline, not a change. Without `historique` (admin
+ * edits, which are not the pétitionnaire's), no action is logged.
  */
 export async function savePorteursDeProjetAndActeurs(
   porteurByDossierId: Map<DossierId, PorteurDeProjetInitializer>,
   acteursByDossierId: Map<DossierId, DossierActeurData[]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  { historique = true }: { historique?: boolean } = {},
 ): Promise<Set<DossierId>> {
   if (!databaseConnection.isTransaction)
     return databaseConnection.transaction((trx) =>
-      savePorteursDeProjetAndActeurs(porteurByDossierId, acteursByDossierId, trx),
+      savePorteursDeProjetAndActeurs(porteurByDossierId, acteursByDossierId, trx, { historique }),
     );
   const dossierIds = [...acteursByDossierId.keys()];
   const currentByDossier = Map.groupBy(
@@ -153,6 +155,7 @@ export async function savePorteursDeProjetAndActeurs(
     // A dossier without acteurs yet is filled for the first time (e.g. resync after the migration).
     actions.push(...actionsFromActeursChanges(dossier, before, after, current.length === 0));
   }
+  if (!historique) return new Set();
   await logActionsDossier(actions, databaseConnection);
   return new Set(
     actions

@@ -86,12 +86,9 @@ test("a native dossier can change groupe and physical demandeur without mutating
     email: "shared@example.org",
     role: "Ecologue",
   });
-  expect(detail.identites).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ type: "demandeur", email: "shared@example.org" }),
-      expect.objectContaining({ type: "mandataire", last_name: "Durand" }),
-    ]),
-  );
+  expect(detail.acteurs).toEqual([
+    expect.objectContaining({ involvements: ["mandataire", "deposant"], last_name: "Durand" }),
+  ]);
   expect(detail.dossier.demandeur_personne_physique).toBe(
     initialDossier?.demandeur_personne_physique,
   );

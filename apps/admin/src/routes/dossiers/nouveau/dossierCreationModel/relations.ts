@@ -4,6 +4,7 @@ import type {
   AdminDossierRelationsPayload,
 } from "#lib/actions/adminDossiers.ts";
 import type { CompanyDetailsChoice } from "./state.ts";
+import { acteurOf, identiteOf } from "$lib/dossierActeurs.ts";
 
 /** Entreprise of a personne morale porteur, with only the fields the admin relations carry. */
 export function porteurEntreprise(detail: AdminDossierDetail): AdminDemandeurPersonneMorale | null {
@@ -23,13 +24,12 @@ export function mergeDossierRelationsForEdit(
   detail: AdminDossierDetail,
   companyDetailsChoice: CompanyDetailsChoice,
 ): AdminDossierRelationsPayload {
-  const identites = [
-    ...relations.identites,
-    ...detail.identites.filter(
-      ({ type }) =>
-        type === "mandataire" && !relations.identites.some((item) => item.type === type),
-    ),
-  ];
+  // The creation form has no mandataire field: the current one is kept.
+  const mandataire = identiteOf("mandataire", acteurOf(detail, "mandataire"));
+  const identites =
+    mandataire && !relations.identites.some(({ type }) => type === "mandataire")
+      ? [...relations.identites, mandataire]
+      : relations.identites;
   const entreprise = porteurEntreprise(detail);
   if (relations.demandeur_type !== "personne_morale" || !entreprise)
     return { ...relations, identites };

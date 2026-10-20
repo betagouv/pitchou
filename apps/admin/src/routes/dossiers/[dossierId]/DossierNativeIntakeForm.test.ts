@@ -23,7 +23,7 @@ function makeDetail(groupe: AdminDossierDetail["groupe"]): AdminDossierDetail {
     phase: "Accompagnement amont",
     porteur_de_projet: null,
     groupe,
-    identites: [],
+    acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,
