@@ -1,4 +1,4 @@
-import { json, text } from "d3-fetch";
+import { json, text } from "$lib/shared/http.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type {
   DossierFollowerCandidate,

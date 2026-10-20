@@ -1,8 +1,8 @@
-import { json } from "d3-fetch";
+import { json } from "$lib/shared/http.ts";
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { store } from "$lib/state/store.svelte.ts";
 import { addRecentSearch } from "$lib/components/ListDossiers/dossiersSearch.ts";
-import debounce from "just-debounce-it";
+import debounce from "$lib/shared/debounce.ts";
 
 import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementMetrique, DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";

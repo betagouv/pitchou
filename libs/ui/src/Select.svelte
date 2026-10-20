@@ -1,6 +1,4 @@
 <script lang="ts" generics="Value">
-  import clsx from "clsx";
-
   import { commandForKey, createTypeahead } from "./Select/keyboard.ts";
   import {
     findByTypeahead,
@@ -163,7 +161,7 @@
 
 <svelte:body onpointerdown={onBodyPointerDown} />
 
-<div class={clsx("relative", className)} bind:this={root}>
+<div class={["relative", className]} bind:this={root}>
   <SelectTrigger
     {id}
     {selected}

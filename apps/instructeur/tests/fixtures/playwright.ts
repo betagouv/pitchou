@@ -25,7 +25,7 @@ export const test = base.extend<Fixtures>({
   loginAs: async ({ page }, use) => {
     await use(async (codeAcces: string) => {
       await page.addInitScript((secret) => {
-        // `remember` (lib used by the app) stores plain strings verbatim and
+        // The storage helper stores plain strings verbatim and
         // tries JSON.parse on read. Either form works; we use the JSON form
         // so it round-trips identically.
         localStorage.setItem("secret-pitchou", JSON.stringify(secret));

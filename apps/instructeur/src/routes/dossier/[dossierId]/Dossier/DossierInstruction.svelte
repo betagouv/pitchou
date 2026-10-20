@@ -1,5 +1,5 @@
 <script lang="ts">
-  import debounce from "just-debounce-it";
+  import debounce from "$lib/shared/debounce.ts";
   import { updateDossier } from "$lib/dossier/dossier.ts";
   import PhaseTimeline from "./DossierInstruction/PhaseTimeline.svelte";
   import DossierInstructionFields from "./DossierInstruction/DossierInstructionFields.svelte";

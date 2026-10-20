@@ -1,4 +1,4 @@
-import { json } from "d3-fetch";
+import { json } from "$lib/shared/http.ts";
 
 import type { PublicStats } from "@pitchou/types/API_Pitchou.ts";
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
-
   import DecisionAdministrative from "./Controles/DecisionAdministrative.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
@@ -40,18 +38,16 @@
 
   const phase = $derived(dossier.evenementsPhase.at(-1)?.phase || "Accompagnement amont");
 
-  let classes = $derived(
-    clsx([
-      "fr-btn",
-      "fr-btn--icon-left",
-      "fr-icon-add-line",
-      decisionsAdministratives.length > 0 ||
-      phase === "Accompagnement amont" ||
-      phase === "Étude recevabilité"
-        ? "fr-btn--secondary"
-        : undefined,
-    ]),
-  );
+  let classes = $derived([
+    "fr-btn",
+    "fr-btn--icon-left",
+    "fr-icon-add-line",
+    decisionsAdministratives.length > 0 ||
+    phase === "Accompagnement amont" ||
+    phase === "Étude recevabilité"
+      ? "fr-btn--secondary"
+      : undefined,
+  ]);
 </script>
 
 <div class="row">
