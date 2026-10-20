@@ -13,7 +13,7 @@ export async function markInitialDossierActions(
   dossierIdByDNNumber: Map<number, DossierId>,
   transaction: Knex.Transaction,
 ) {
-  // Initial files and identities are the submission baseline, not applicant edits.
+  // Initial files and acteurs are the submission baseline, not applicant edits.
   // Keep the records, but exclude them from review and the modification history.
   const existingIds = new Set(existingDossiers.map(({ id }) => id));
   const initialIds = [...dossierIdByDNNumber.values()].filter((id) => !existingIds.has(id));
@@ -37,7 +37,7 @@ export async function synchronizeRelationsAndFiles(
     transaction,
   }: Pick<SynchronizationOptions, "demarcheNumber" | "pitchouKeyToChampDS" | "transaction">,
 ) {
-  const { dossierIdByDNNumber, identitesSynchronization, synchronizations } =
+  const { dossierIdByDNNumber, acteursSynchronization, synchronizations } =
     await synchronizeDossierRelations(dossiersDS, dossiersForSync, demarcheNumber, transaction);
   const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
     fileDownloads,
@@ -46,11 +46,11 @@ export async function synchronizeRelationsAndFiles(
     pitchouKeyToChampDS,
     transaction,
   );
-  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes, dossiersChangedByIdentites] =
+  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes, dossiersChangedByActeurs] =
     await Promise.all([
       especesImpacteesP,
       piecesJointesP,
-      identitesSynchronization,
+      acteursSynchronization,
       groupesInstructeursP,
       ...synchronizations,
     ]);
@@ -59,6 +59,6 @@ export async function synchronizeRelationsAndFiles(
     dossierIdByDNNumber,
     dossiersChangedByEspeces,
     dossiersChangedByPiecesJointes,
-    dossiersChangedByIdentites,
+    dossiersChangedByActeurs,
   };
 }
