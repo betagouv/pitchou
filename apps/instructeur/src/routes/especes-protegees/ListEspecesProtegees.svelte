@@ -36,7 +36,7 @@
   const generationModalId = "modale-generation-especes";
 
   // The URL query string is the single source of truth for search, filters, sort and page.
-  const query = $derived(parseEspecesQuery(page.url.searchParams));
+  const query = $derived(parseEspecesQuery(new URLSearchParams(page.url.searchParams.toString())));
 
   let filterPanelOpen = $state(false);
   let sortPanelOpen = $state(false);
@@ -82,7 +82,7 @@
   // Write the given param updates to the URL. A `null` or empty value removes the param.
   // Any change other than pagination drops the page, sending the user back to the first one.
   function updateQuery(updates: Record<string, string | null>, { resetPage = true } = {}) {
-    const params = new URLSearchParams(page.url.searchParams);
+    const params = new URLSearchParams(page.url.searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
       if (value === null || value === "") {
         params.delete(key);
@@ -96,9 +96,8 @@
 
     const search = params.toString();
     goto(search ? `?${search}` : page.url.pathname, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true,
+      replace: true,
+      reset: false,
     });
   }
 

@@ -63,7 +63,6 @@ function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildPro
       ...process.env,
       PORT: String(port),
       HOST: "127.0.0.1",
-      ORIGIN: `http://127.0.0.1:${port}`,
       DATABASE_URL: databaseUrl(dbName),
       NODE_ENV: "production",
       DEMARCHE_SIMPLIFIEE_API_TOKEN: process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN ?? "test",

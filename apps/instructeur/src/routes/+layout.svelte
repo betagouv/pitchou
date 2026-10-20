@@ -7,9 +7,9 @@
 
   import { afterNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
-  import { env } from "$env/dynamic/public";
+  import * as env from "$app/env/public";
 
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
 
   import BandeauEnvironnement from "./Layout/BandeauEnvironnement.svelte";
   import Header from "./Layout/Header/Header.svelte";
@@ -28,7 +28,7 @@
     if (!urlHasSecret) return;
     const cleaned = new URL(to.url);
     cleaned.searchParams.delete("secret");
-    void goto(cleaned, { replaceState: true, invalidateAll: false, noScroll: true });
+    void goto(cleaned, { replace: true, refreshAll: false, reset: false });
   });
 
   // Send a Matomo page view on every navigation, including client-side (SPA)

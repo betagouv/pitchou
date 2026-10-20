@@ -41,6 +41,7 @@ test("delete validates JSON and IDs and rejects missing, foreign-dossier and mig
     (
       await fetch(`${INTEGRATION_BASE_URL}/dossier/${author.dossier.id}/commentaires`, {
         method: "DELETE",
+        headers: { Origin: INTEGRATION_BASE_URL },
       })
     ).status,
   ).toBe(400);

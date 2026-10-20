@@ -7,14 +7,14 @@ import { page } from "vitest/browser";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import Dossier from "../../Dossier.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
   loadEspecesProtegeesList: vi.fn().mockReturnValue(new Promise(() => {})),
 }));

@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { refreshDossierFull } from "../dossier.ts";
 import { refreshNotifications, updateNotificationForDossier } from "../notification.ts";
 import { boundReviewChanges, registerReviewSnapshot } from "./snapshot.ts";
@@ -10,7 +10,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierNotification, NotificationUpdate } from "@pitchou/types/notification.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 const id = 123 as DossierFull["id"];
 const notice = (ids: string[]): DossierNotification => ({

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -10,22 +10,22 @@ vi.mock(import("$app/navigation"), () => ({
   replaceState: vi.fn(),
 }));
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
 
 // avoid fetching the espèces data files over HTTP from the dossier page
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
   loadEspecesProtegeesList: vi.fn().mockReturnValue(new Promise(() => {})),
 }));
 
 import Dossier from "../Dossier.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { fakeReadOnlyDossier } from "./readOnly.testHelpers.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 
 function renderDossier(readOnly: boolean, canEdit = true) {
   return render(Dossier, {

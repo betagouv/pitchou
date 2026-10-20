@@ -11,21 +11,21 @@ vi.mock("$app/state", async () => {
   const { reactive } = await import("../../../../tests/helpers/reactive.svelte.ts");
   return { page: reactive({ url: new URL("http://localhost/tous-les-dossiers") }) };
 });
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
 import { goto } from "$app/navigation";
 import { page as route } from "$app/state";
-import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ListDossiers from "./ListDossiers.svelte";
 import MesDossiers from "../../../routes/mes-dossiers/MesDossiers.svelte";
 import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
-const routeState: { url: URL } = route;
+const routeState: Pick<typeof route, "url"> = route;
 const summaries = (
   [
     [1, "complet", ["44", "49"], "Owned"],
@@ -44,7 +44,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   routeState.url = new URL("http://localhost/tous-les-dossiers");
   vi.mocked(goto).mockImplementation(async (url) => {
-    routeState.url = new URL(url.toString(), routeState.url);
+    routeState.url = new URL(url.toString(), routeState.url.toString());
   });
   vi.stubGlobal(
     "fetch",

@@ -2,16 +2,16 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
-import DossierNotificationBadges from "$lib/components/DossierNotificationBadges.svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import DossierNotificationBadges from "#lib/components/DossierNotificationBadges.svelte";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierNotification, FieldChange } from "@pitchou/types/notification.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 
 const mode = vi.hoisted(() => ({ current: false }));
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => mode }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 
 const dossier = {
   id: 123,

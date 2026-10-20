@@ -10,21 +10,21 @@ vi.mock("$app/state", async () => {
   const { reactive } = await import("../../../../tests/helpers/reactive.svelte.ts");
   return { page: reactive({ url: new URL("http://localhost/mes-dossiers") }) };
 });
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
 import { goto } from "$app/navigation";
 import { page as route } from "$app/state";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersSortMenu from "./DossiersSortMenu.svelte";
 import DossierActionsMenu from "../DossierFollowerAssignment/DossierActionsMenu.svelte";
 import MesDossiers from "../../../routes/mes-dossiers/MesDossiers.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
 // The route mock accepts any URL, unlike SvelteKit's generated route-specific type.
-const routeState: { url: URL } = route;
+const routeState: Pick<typeof route, "url"> = route;
 
 beforeEach(() => {
   routeState.url = new URL("http://localhost/mes-dossiers");

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 import PorteurDeProjet from "./PorteurDeProjet.svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -13,7 +13,7 @@ import type {
   NotificationUpdate,
 } from "@pitchou/types/notification.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 const dossier = {
   id: 123,
   source: "demarche_numerique",

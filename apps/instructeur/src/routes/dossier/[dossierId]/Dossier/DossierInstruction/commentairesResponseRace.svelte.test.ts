@@ -2,11 +2,11 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import { tick } from "svelte";
 import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
-import { setDossierFull, store } from "$lib/state/store.svelte.ts";
+import { setDossierFull, store } from "#lib/state/store.svelte.ts";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 import Commentaires from "./Commentaires.svelte";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 vi.mock(import("../readOnly.ts"), () => ({
   readOnlyMode: () => ({ current: false }),

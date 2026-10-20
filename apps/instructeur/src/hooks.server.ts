@@ -1,4 +1,4 @@
-import type { Handle, ServerInit } from "@sveltejs/kit";
+import type { Handle, ServerInit } from "@sveltejs/kit/hooks";
 import { setupSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { sequence } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";

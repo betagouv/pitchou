@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import type { Cookies } from "@sveltejs/kit";
-import { dev } from "$app/environment";
+import { dev } from "$app/env";
 
 import {
   SESSION_COOKIE_NAME,

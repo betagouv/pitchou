@@ -21,7 +21,9 @@
   import BdcStatutsResults from "./BdcStatutsResults.svelte";
   import BdcStatutsSearchControls from "./BdcStatutsSearchControls.svelte";
 
-  const query = $derived(parseBdcStatutQuery(page.url.searchParams));
+  const query = $derived(
+    parseBdcStatutQuery(new URLSearchParams(page.url.searchParams.toString())),
+  );
 
   let rows = $state<BdcStatutRow[]>([]);
   let total = $state(0);
@@ -79,7 +81,7 @@
   // Write the given param updates to the URL. A `null` or empty value removes the param.
   // Any change other than pagination drops the page, sending the user back to page 1.
   function updateQuery(updates: Record<string, string | null>, { resetPage = true } = {}) {
-    const params = new URLSearchParams(page.url.searchParams);
+    const params = new URLSearchParams(page.url.searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
       if (value === null || value === "") {
         params.delete(key);
@@ -91,9 +93,8 @@
 
     const search = params.toString();
     goto(search ? `?${search}` : page.url.pathname, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true,
+      replace: true,
+      reset: false,
     });
   }
 

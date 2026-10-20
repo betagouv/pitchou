@@ -10,8 +10,8 @@
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type File from "@pitchou/types/database/public/File.ts";
   import { onMount, untrack } from "svelte";
-  import { dev } from "$app/environment";
-  import { env } from "$env/dynamic/public";
+  import { dev } from "$app/env";
+  import * as env from "$app/env/public";
   type Props = {
     dossier: DossierFull;
     email: string;
@@ -30,7 +30,7 @@
   let ccEmails = $state<string[]>([]);
   let selectedIds: File["id"][] = $state([]);
   let EmailRichTextEditorComponent:
-    typeof import("$lib/components/EmailRichTextEditor.svelte").default | undefined = $state();
+    typeof import("#lib/components/EmailRichTextEditor.svelte").default | undefined = $state();
   const isTestEnvironment = dev || env.PUBLIC_PITCHOU_ENV === "staging";
   const groups = $derived(piecesJointesGroups(dossier));
   $effect(() => {
@@ -51,7 +51,7 @@
     };
   });
   async function loadEditor() {
-    EmailRichTextEditorComponent = (await import("$lib/components/EmailRichTextEditor.svelte"))
+    EmailRichTextEditorComponent = (await import("#lib/components/EmailRichTextEditor.svelte"))
       .default;
   }
   async function initializeDraft() {

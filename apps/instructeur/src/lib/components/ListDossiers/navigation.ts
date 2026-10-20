@@ -7,8 +7,7 @@ export function navigateDossiers(
 ) {
   const search = buildDossiersSearchParams(next).toString();
   return goto(search ? `?${search}` : pathname, {
-    replaceState: true,
-    keepFocus: true,
-    noScroll: true,
+    replace: true,
+    reset: false,
   });
 }

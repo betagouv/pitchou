@@ -3,13 +3,13 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import "@gouvfr/dsfr/dist/dsfr.css";
 import "../../../../../app.css";
 import type { DossierCommentaire } from "@pitchou/types/capabilities.ts";
-import { setDossierFull, store } from "$lib/state/store.svelte.ts";
+import { setDossierFull, store } from "#lib/state/store.svelte.ts";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 import Commentaires from "./Commentaires.svelte";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 
 const readOnly = vi.hoisted(() => ({ current: false }));

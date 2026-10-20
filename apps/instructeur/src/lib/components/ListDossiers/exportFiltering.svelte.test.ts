@@ -9,13 +9,13 @@ vi.mock("$app/state", async () => {
   const { reactive } = await import("../../../../tests/helpers/reactive.svelte.ts");
   return { page: reactive({ url: new URL("http://localhost/tous-les-dossiers") }) };
 });
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
 import { page as route } from "$app/state";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ListDossiers from "./ListDossiers.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
@@ -31,7 +31,7 @@ test.each([false, true])(
     const exporterDossiers = vi.fn().mockResolvedValue(new Blob(["export"]));
     store.capabilities = { exporterDossiers };
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
-    const routeState: { url: URL } = route;
+    const routeState: Pick<typeof route, "url"> = route;
     routeState.url = new URL(
       `http://localhost/${followedOnly ? "mes-dossiers" : "tous-les-dossiers"}?enjeu=1&page=2&pageSize=10`,
     );
