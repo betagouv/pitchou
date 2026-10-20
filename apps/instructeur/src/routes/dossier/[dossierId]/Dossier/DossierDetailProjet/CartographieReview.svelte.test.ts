@@ -11,6 +11,11 @@ const mode = vi.hoisted(() => ({ current: false }));
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => mode }));
 vi.mock("$env/dynamic/public", () => ({ env: {} }));
 vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+// These tests cover dossier review. The real WebGL map is covered by dossier-cartographie.spec.ts.
+vi.mock(
+  "$lib/components/CartographieProjet.svelte",
+  () => import("./CartographieProjet.fixture.svelte"),
+);
 afterEach(() => {
   cleanup();
   mode.current = false;
@@ -116,13 +121,11 @@ test("map download keeps its GeoJSON content, filename and event", async () => {
   });
 });
 
-test("the map accordion mounts the interactive viewport and navigation controls", async () => {
+test("the map accordion passes the dossier geometry to the map", async () => {
   const dossier = detailDossier([]);
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
   view.getByRole("button", { name: "Cartographie du projet" }).click();
-  await vi.waitFor(() => expect(view.container.querySelector(".maplibregl-canvas")).not.toBeNull());
-  expect(view.container.querySelector(".maplibregl-ctrl-zoom-in")).toBeVisible();
-  expect(view.container.querySelector(".maplibregl-ctrl-zoom-out")).toBeVisible();
-  expect(view.container.querySelector(".maplibregl-ctrl-compass")).toBeVisible();
+  await tick();
+  expect(view.getByLabelText("Cartographie de test")).toHaveTextContent(JSON.stringify(projectMap));
   expect(view.getByText(/1 zone tracée/u)).toBeVisible();
 });
