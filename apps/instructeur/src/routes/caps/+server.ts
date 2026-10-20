@@ -68,21 +68,7 @@ export const GET: RequestHandler = async ({ url }) => {
   if (capBundle.remplirAnnotations) {
     ret.remplirAnnotations = `/remplir-annotations?cap=${capBundle.remplirAnnotations}`;
   }
-  if (capBundle.modifierDecisionAdministrativeDansDossier) {
-    const cap = capBundle.modifierDecisionAdministrativeDansDossier;
-    ret.modifierDecisionAdministrativeDansDossier = `/decision-administrative?cap=${cap}`;
-    ret.deleteDecisionAdministrative = `/decision-administrative/:decisionAdministrativeId?cap=${cap}`;
-    ret.addOrUpdatePrescription = `/prescription?cap=${cap}`;
-    ret.addPrescriptionsAndControles = `/prescriptions-et-controles?cap=${cap}`;
-    ret.deletePrescription = `/prescription/:prescriptionId?cap=${cap}`;
-    ret.addOrUpdateControle = `/controle?cap=${cap}`;
-    ret.deleteControle = `/controle/:controleId?cap=${cap}`;
-    ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
-    ret.addOtherAttachment = `/attachment-autre?cap=${cap}`;
-    ret.deletePieceJointe = `/piece-jointe?cap=${cap}`;
-    ret.createUploadUrls = `/fichier/upload-url?cap=${cap}`;
-    ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
-  }
+  addDecisionCapabilities(ret, capBundle);
   if (capBundle.creerEvenementMetrique) {
     ret.creerEvenementMetrique = `/api/metriques/evenements?cap=${capBundle.creerEvenementMetrique}`;
   }
@@ -107,3 +93,24 @@ export const GET: RequestHandler = async ({ url }) => {
 
   return json(ret);
 };
+
+function addDecisionCapabilities(
+  ret: CapURLs,
+  capBundle: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>>,
+) {
+  if (capBundle.modifierDecisionAdministrativeDansDossier) {
+    const cap = capBundle.modifierDecisionAdministrativeDansDossier;
+    ret.modifierDecisionAdministrativeDansDossier = `/decision-administrative?cap=${cap}`;
+    ret.deleteDecisionAdministrative = `/decision-administrative/:decisionAdministrativeId?cap=${cap}`;
+    ret.addOrUpdatePrescription = `/prescription?cap=${cap}`;
+    ret.addPrescriptionsAndControles = `/prescriptions-et-controles?cap=${cap}`;
+    ret.deletePrescription = `/prescription/:prescriptionId?cap=${cap}`;
+    ret.addOrUpdateControle = `/controle?cap=${cap}`;
+    ret.deleteControle = `/controle/:controleId?cap=${cap}`;
+    ret.addOrUpdateAvisExpert = `/avis-expert?cap=${cap}`;
+    ret.addOtherAttachment = `/attachment-autre?cap=${cap}`;
+    ret.deletePieceJointe = `/piece-jointe?cap=${cap}`;
+    ret.createUploadUrls = `/fichier/upload-url?cap=${cap}`;
+    ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
+  }
+}

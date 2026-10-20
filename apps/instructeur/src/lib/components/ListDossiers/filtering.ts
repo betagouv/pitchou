@@ -1,3 +1,7 @@
+import { filterByInstructeur } from "./filtering/instructeur.ts";
+import { filterByDate } from "./filtering/date.ts";
+export { dossierIsFollowed } from "./filtering/instructeur.ts";
+export { dossierDate } from "./filtering/date.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
@@ -7,42 +11,9 @@ import {
   WITHOUT_INSTRUCTEUR,
   copyDossiersQuery,
   defaultDossiersQuery,
-  type DateField,
   type DossiersContext,
   type DossiersQuery,
 } from "./query.ts";
-
-/** True when the dossier is followed by at least one person */
-export function dossierIsFollowed(
-  dossierId: DossierSummary["id"],
-  followRelations: DossiersContext["followRelations"],
-): boolean {
-  if (!followRelations) return false;
-  for (const followedDossiers of followRelations.values()) {
-    if (followedDossiers.has(dossierId)) return true;
-  }
-  return false;
-}
-
-/** Dossier date matching the field chosen in the « dates » filter */
-export function dossierDate(
-  dossier: DossierSummary,
-  field: DateField,
-  notificationByDossier: DossiersContext["notificationByDossier"],
-): Date | undefined {
-  switch (field) {
-    case "phaseStart":
-      return dossier.phase_start_date ?? undefined;
-    case "lastModified":
-      return notificationByDossier.get(dossier.id)?.updated_at ?? undefined;
-    case "nextDue":
-      // A dossier with no échéance never matches an échéance date range.
-      return dossier.next_due_date ? new Date(dossier.next_due_date) : undefined;
-    case "deposit":
-    default:
-      return dossier.depot_date ?? undefined;
-  }
-}
 
 /** Applies the text search and every active filter of `query` */
 export function filterDossiers(
@@ -82,21 +53,7 @@ export function filterDossiers(
         selected.includes(dossier.next_action_expected_from),
     );
   }
-  if (query.instructeur.length) {
-    // « sans instructeur » and named instructeurs combine with OR: keep dossiers that are
-    // unfollowed and/or followed by any of the selected people.
-    const includesWithoutInstructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR);
-    const selectedEmails = query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR);
-    result = result.filter((dossier) => {
-      if (
-        includesWithoutInstructeur &&
-        dossier.access === "complet" &&
-        !dossierIsFollowed(dossier.id, followRelations)
-      )
-        return true;
-      return selectedEmails.some((email) => followRelations?.get(email)?.has(dossier.id) ?? false);
-    });
-  }
+  result = filterByInstructeur(result, query, followRelations);
   if (query.nouveaute === "oui") {
     result = result.filter((dossier) => notificationByDossier.get(dossier.id)?.viewed === false);
   } else if (query.nouveaute === "non") {
@@ -132,17 +89,7 @@ export function filterDossiers(
   if (query.especesImpacteesAbsente) {
     result = result.filter((dossier) => !dossier.especesImpacteesRenseignees);
   }
-  if (query.dateStart || query.dateEnd) {
-    const start = query.dateStart ? new Date(`${query.dateStart}T00:00:00`) : undefined;
-    const end = query.dateEnd ? new Date(`${query.dateEnd}T23:59:59.999`) : undefined;
-    result = result.filter((dossier) => {
-      const date = dossierDate(dossier, query.dateField, notificationByDossier);
-      if (!date) return false;
-      if (start && date < start) return false;
-      if (end && date > end) return false;
-      return true;
-    });
-  }
+  result = filterByDate(result, query, notificationByDossier);
 
   return result;
 }

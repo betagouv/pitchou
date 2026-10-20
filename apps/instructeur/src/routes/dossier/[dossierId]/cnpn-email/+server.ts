@@ -48,15 +48,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   const dossierId = await requireDossierAccessByCap(parseDossierId(params.dossierId!), cap);
   const sender = await getPersonneByDossierCap(cap);
   if (!sender?.email) error(403, "Aucune adresse email n'est associée à cette capability.");
-  // Resolve the cap owner, not a recipient or a dossier follower: /dev-login
-  // publicly exposes this account's access code on staging.
-  if (
-    process.env.PUBLIC_PITCHOU_ENV === "staging" &&
-    sender.email.trim().toLowerCase() ===
-      (process.env.SEED_EMAIL || "dev@localhost.local").trim().toLowerCase()
-  ) {
-    error(403, "L'envoi de mails CNPN est désactivé pour le compte de démonstration.");
-  }
+  requireNonDemoSender(sender.email);
   const draft = parseRequest(await readJsonObject(request));
   const recipient = IS_TEST_ENVIRONMENT ? (draft.recipient ?? sender.email) : CNPN_EMAIL;
   const previousEvent = await getDossierCnpnEmailSentEventById(draft.requestId, dossierId);
@@ -81,24 +73,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     tags: ["cnpn-saisine"],
     headers: { idempotencyKey: draft.requestId, "X-Mailin-custom": draft.requestId },
   };
-  let attachmentBudget =
-    MAX_EMAIL_BYTES -
-    estimateEmailBytes({
-      ...email,
-      attachments: files.map(({ name }) => ({ name, size: 0 })),
-    });
-  if (attachmentBudget <= 0) error(413, EMAIL_SIZE_ERROR);
-  const fileById = new Map(files.map((file) => [file.id, file]));
-  const attachments = [];
-  for (const fileId of draft.attachmentIds) {
-    const metadata = fileById.get(fileId)!;
-    const content = await loadFichierContent(fileId);
-    if (!content) error(409, `La pièce jointe '${metadata.name}' n'est plus disponible.`);
-    // DB sizes can be stale. Enforce the budget on actual bytes, before any attempt is stored.
-    const buffer = await readableToBuffer(content.body, attachmentBudget);
-    attachmentBudget -= base64MimeBytes(buffer.length);
-    attachments.push({ name: metadata.name, content: buffer });
-  }
+  const attachments = await loadEmailAttachments(email, files, draft.attachmentIds);
   const payloadHash = createHash("sha256")
     .update(
       JSON.stringify({
@@ -141,12 +116,44 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     }
   }
 
+  const messageId = await sendCnpnEmail({ ...email, attachments }, draft.requestId);
+  const event = await markDossierCnpnEmailSendAttemptSent(draft.requestId, messageId);
+  return json(event, { status: 201 });
+};
+
+async function loadEmailAttachments(
+  email: EmailMessage,
+  files: Awaited<ReturnType<typeof getAuthorizedDossierFiles>>,
+  attachmentIds: ReturnType<typeof parseRequest>["attachmentIds"],
+) {
+  let attachmentBudget =
+    MAX_EMAIL_BYTES -
+    estimateEmailBytes({
+      ...email,
+      attachments: files.map(({ name }) => ({ name, size: 0 })),
+    });
+  if (attachmentBudget <= 0) error(413, EMAIL_SIZE_ERROR);
+  const fileById = new Map(files.map((file) => [file.id, file]));
+  const attachments = [];
+  for (const fileId of attachmentIds) {
+    const metadata = fileById.get(fileId)!;
+    const content = await loadFichierContent(fileId);
+    if (!content) error(409, `La pièce jointe '${metadata.name}' n'est plus disponible.`);
+    // DB sizes can be stale. Enforce the budget on actual bytes, before any attempt is stored.
+    const buffer = await readableToBuffer(content.body, attachmentBudget);
+    attachmentBudget -= base64MimeBytes(buffer.length);
+    attachments.push({ name: metadata.name, content: buffer });
+  }
+  return attachments;
+}
+
+async function sendCnpnEmail(email: EmailMessage, requestId: string): Promise<string> {
   let messageId: string;
   try {
-    ({ messageId } = await sendEmail({ ...email, attachments }));
+    ({ messageId } = await sendEmail(email));
   } catch (sendError) {
     if (isDefinitiveEmailSendFailure(sendError)) {
-      await markDossierCnpnEmailSendAttemptFailed(draft.requestId).catch(() => undefined);
+      await markDossierCnpnEmailSendAttemptFailed(requestId).catch(() => undefined);
       error(502, "Brevo a refusé l'envoi. Vous pouvez réessayer sans modifier le mail.");
     }
     error(
@@ -154,6 +161,17 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
       "Le résultat de l'envoi est incertain. Ne renvoyez pas le mail avant d'avoir vérifié Brevo.",
     );
   }
-  const event = await markDossierCnpnEmailSendAttemptSent(draft.requestId, messageId);
-  return json(event, { status: 201 });
-};
+  return messageId;
+}
+
+function requireNonDemoSender(email: string) {
+  // Resolve the cap owner, not a recipient or a dossier follower: /dev-login
+  // publicly exposes this account's access code on staging.
+  if (
+    process.env.PUBLIC_PITCHOU_ENV === "staging" &&
+    email.trim().toLowerCase() ===
+      (process.env.SEED_EMAIL || "dev@localhost.local").trim().toLowerCase()
+  ) {
+    error(403, "L'envoi de mails CNPN est désactivé pour le compte de démonstration.");
+  }
+}
