@@ -29,7 +29,15 @@
     "promise/no-return-wrap": "error",
     "promise/no-new-statics": "error",
     "promise/param-names": "error",
-    "promise/no-multiple-resolved": "error"
+    "promise/no-multiple-resolved": "error",
+    "eslint/max-lines-per-function": [
+      "error",
+      {
+        "max": 75,
+        "skipComments": true,
+        "skipBlankLines": true
+      }
+    ]
   },
   "ignorePatterns": [
     "libs/types/src/database/**",
@@ -69,6 +77,20 @@
         ],
         "vitest/no-test-return-statement": "error",
         "vitest/no-interpolation-in-snapshots": "error"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/tests/**",
+        "**/*.testHelpers.ts",
+        "libs/server/src/database/fakeDatabase.ts",
+        "libs/database/migrations/**",
+        "libs/database/seeds/**"
+      ],
+      "rules": {
+        "eslint/max-lines-per-function": "off"
       }
     }
   ]

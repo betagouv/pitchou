@@ -42,6 +42,9 @@ leurs templates. Oxlint utilise les règles de correction sans analyse des types
 Les règles supplémentaires imposent des objets `Error`, la conservation de leur cause, des
 comparaisons strictes sauf pour `== null`, et vérifient plusieurs usages des promesses.
 
+Les fonctions sont limitées à 75 lignes, hors commentaires et lignes vides. Cette limite ne
+s'applique pas aux tests, à leurs helpers, aux migrations ni aux seeds.
+
 Les règles Vitest ciblent les fichiers de test. Elles refusent notamment les tests `.only` ou
 `.skip`, les titres identiques et les assertions asynchrones sans attente. Les messages de
 diagnostic dans `expect(valeur, message)`, le helper `expectTracking` et les assertions de
