@@ -49,7 +49,6 @@ test("a legal dossier creation only stores its representative identity", async (
   expect(detail.acteurs).toEqual([
     expect.objectContaining({ involvements: ["personne_contact"], email: "lou@example.org" }),
   ]);
-  expect(detail.dossier.deposant).toBeNull();
 });
 
 test("a physical dossier can be created without a duplicated identity name", async () => {

@@ -32,7 +32,6 @@ export async function prepareDossiersForPersistence(
   const replacePersonneEntreprise = (dossierForSync: DossierWithInitializers) => {
     const {
       dossier: {
-        deposant,
         demandeur_personne_physique,
         demandeur_personne_morale,
         identites: _identites,
@@ -44,7 +43,6 @@ export async function prepareDossiersForPersistence(
     } = dossierForSync;
     return {
       dossier: {
-        deposant: getPersonneId(deposant) || null,
         demandeur_personne_physique: getPersonneId(demandeur_personne_physique) || null,
         demandeur_personne_morale: demandeur_personne_morale?.siret || null,
         ...otherDossierProperties,

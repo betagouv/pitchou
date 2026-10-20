@@ -14,7 +14,6 @@ import type { DossierActeurData } from "../dossierActeur.ts";
 export type IdentiteDossierData = Omit<IdentiteDossierInitializer, "id" | "dossier">;
 
 export type PersonnesEntreprisesDataInitializer = {
-  deposant: PersonneInitializer;
   demandeur_personne_physique: PersonneInitializer | undefined;
   demandeur_personne_morale: EntrepriseInitializer | undefined;
   identites: IdentiteDossierData[];
@@ -24,7 +23,6 @@ export type PersonnesEntreprisesDataInitializer = {
 
 type DossierWithPersonnesEntreprisesDataInitializers<T = DossierMutator | DossierInitializer> = Omit<
   T,
-  | "deposant"
   | "demandeur_personne_physique"
   | "demandeur_personne_morale"
   | "representative"
@@ -90,7 +88,6 @@ type LegacyDossierInitializer = RenameKeys<
     demarche_numerique_id: "id_demarches_simplifiées";
     depot_date: "date_dépôt";
     departments: "départements";
-    deposant: "déposant";
     regions: "régions";
     name: "nom";
     demarche_numerique_number: "number_demarches_simplifiées";

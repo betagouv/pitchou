@@ -45,18 +45,13 @@ export function getPersonnesEntreprisesData88444(
   )?.stringValue;
   const hasMandataire = Boolean(nomMandataire || prenomMandataire);
   const demandeurIdentityEmail = demandeur.email || (hasMandataire ? undefined : usager.email);
-  const deposant = {
-    first_names: demandeur.prenom,
-    last_name: demandeur.nom,
-    email: demandeurIdentityEmail ? normalizeEmail(demandeurIdentityEmail) : undefined,
-  };
   // Still written to identite_dossier, which will soon be removed in favor of acteurs.
   const identites = initialIdentites(dossierDS, demandeurIdentityEmail);
 
   let porteurDeProjet: PorteurDeProjetInitializer;
   let demandeurPersonnePhysique;
   if (personneMoraleOuPhysique === "une personne physique") {
-    const email = emailContact || demandeur.email || deposant.email;
+    const email = emailContact || demandeurIdentityEmail;
     const addressChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
     const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
     demandeurPersonnePhysique = {
@@ -97,7 +92,6 @@ export function getPersonnesEntreprisesData88444(
   }
 
   return {
-    deposant,
     demandeur_personne_morale: demandeurPersonneMorale,
     demandeur_personne_physique: demandeurPersonnePhysique,
     identites,

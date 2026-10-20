@@ -91,7 +91,7 @@ export async function updateDossierAdminRelations(
   trx: Knex.Transaction,
 ): Promise<void> {
   const current = await trx("dossier")
-    .select("demandeur_personne_physique", "deposant")
+    .select("demandeur_personne_physique")
     .where({ id: dossierId })
     .first();
   if (!current) throw new TypeError(`Unknown dossier: ${dossierId}`);
@@ -115,10 +115,9 @@ export async function updateDossierAdminRelations(
     await trx("dossier").where({ id: dossierId }).update({
       demandeur_personne_physique: personneId,
       demandeur_personne_morale: null,
-      deposant: personneId,
     });
     await deleteUnreferencedDossierPersonnes(
-      [current.demandeur_personne_physique, current.deposant].filter((id) => id !== personneId),
+      [current.demandeur_personne_physique].filter((id) => id !== personneId),
       trx,
     );
     await savePorteurDeProjetAndActeurs(dossierId, relations, trx);
@@ -135,28 +134,11 @@ export async function updateDossierAdminRelations(
       .whereNull("legal_name")
       .update({ legal_name: entreprise.legal_name });
   }
-  const demandeur = relations.identites.find(({ type }) => type === "demandeur");
-  const deposantId = demandeur
-    ? await updateOrInsertDossierPersonne(
-        current.deposant,
-        dossierId,
-        {
-          last_name: demandeur.last_name,
-          first_names: demandeur.first_names,
-          email: demandeur.email,
-        },
-        trx,
-      )
-    : null;
   await trx("dossier").where({ id: dossierId }).update({
     demandeur_personne_physique: null,
     demandeur_personne_morale: entreprise.siret,
-    deposant: deposantId,
   });
-  await deleteUnreferencedDossierPersonnes(
-    [current.demandeur_personne_physique, current.deposant].filter((id) => id !== deposantId),
-    trx,
-  );
+  await deleteUnreferencedDossierPersonnes([current.demandeur_personne_physique], trx);
   // After the entreprise insert above, so that its details are kept.
   await savePorteurDeProjetAndActeurs(dossierId, relations, trx);
 }

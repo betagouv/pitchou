@@ -36,16 +36,13 @@ export async function deleteDossierFromAdmin(
       throw new DossierNotCreatedInPitchouError(dossierId);
     }
     const dossier = await trx("dossier")
-      .select("demandeur_personne_physique", "deposant")
+      .select("demandeur_personne_physique")
       .where({ id: dossierId })
       .first();
     const fileIds = await collectFileIds(dossierId, trx);
     await trx("dossier").where({ id: dossierId }).delete();
     if (dossier)
-      await deleteUnreferencedDossierPersonnes(
-        [dossier.demandeur_personne_physique, dossier.deposant],
-        trx,
-      );
+      await deleteUnreferencedDossierPersonnes([dossier.demandeur_personne_physique], trx);
     await deleteFichiersWithoutOtherReferences(fileIds, trx);
   });
 }

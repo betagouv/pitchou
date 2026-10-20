@@ -135,9 +135,7 @@ test("a physical demandeur referenced by another dossier is replaced without bei
   const sharedId = firstRow?.demandeur_personne_physique;
   if (!sharedId || !secondRow?.demandeur_personne_physique)
     throw new Error("Missing test demandeur");
-  await db("dossier")
-    .where({ id: second.id })
-    .update({ demandeur_personne_physique: sharedId, deposant: sharedId });
+  await db("dossier").where({ id: second.id }).update({ demandeur_personne_physique: sharedId });
   await db("personne").where({ id: secondRow.demandeur_personne_physique }).delete();
   await updateDossierFromAdmin(
     first.id,
