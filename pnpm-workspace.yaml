@@ -43,7 +43,7 @@ catalog:
   "d3-dsv": "^3.0.1"
   "date-fns": "^4.4.0"
   "jose": "^6.2.12"
-  "json-schema-to-typescript": "^15.0.4"
+  "json-schema-to-typescript": "^16.0.0"
   "kanel": "^4.0.4"
   "knex": "^3.3.0"
   "ky": "^2.2.0"
