@@ -35,12 +35,12 @@ function porteurDeProjetFromRelations(
 
 function acteurPersonne({ last_name, first_names, email, phone, role }: AdminDossierIdentite) {
   return {
-    last_name,
-    first_names,
+    last_name: last_name?.trim() || null,
+    first_names: first_names?.trim() || null,
     email: email ? normalizeEmail(email) : null,
     address: null,
-    phone,
-    role,
+    phone: phone?.trim() || null,
+    role: role?.trim() || null,
   };
 }
 

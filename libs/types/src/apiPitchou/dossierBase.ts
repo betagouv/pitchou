@@ -7,7 +7,7 @@ import type { DossierActeur } from "../dossierActeur.ts";
 
 export type DossierPersonnesImpliquees = {
   porteur_de_projet: PorteurDeProjet | null;
-  /** Only the déposants and mandataires in the dossiers list. */
+  /** Every acteur in DossierFull; only the déposants and mandataires in DossierSummary. */
   acteurs: DossierActeur[];
 };
 

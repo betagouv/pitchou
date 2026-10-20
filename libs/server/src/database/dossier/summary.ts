@@ -94,7 +94,7 @@ export async function getDossiersSummariesByCap(
     },
   );
   if (!databaseConnection.isTransaction) {
-    Promise.all([dossiersP, eventsP, decisionsP, avisP])
+    Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP])
       .then(transaction.commit)
       .catch(transaction.rollback);
   }

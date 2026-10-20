@@ -41,7 +41,7 @@ Jusqu'ici, ces personnes vivaient dans `identite_dossier` (une copie par type `d
 
 **`identite_dossier` est supprimée dans une autre PR.** En attendant, elle est encore écrite, mais plus lue.
 
-**Les données existantes sont remplies par une resynchro.**
+**Les données existantes sont remplies par une resynchro.** Les dossiers qui ne viennent pas de Démarche Numérique ne sont pas resynchronisés : une migration les remplit depuis `identite_dossier`, avec les règles de l'admin.
 
 ## Conséquences
 
@@ -56,5 +56,7 @@ Une personne qui a plusieurs rôles produit une ligne d'historique par rôle pou
 Les modifications d'un porteur personne physique sont enregistrées sous `beneficiaire_demarche_numerique.*`, puisque c'est la même fiche. Le bloc du porteur les affiche ; le bloc de l'acteur ne les répète pas.
 
 Une même personne peut apparaître sur deux fiches, par exemple comme personne contact et comme bénéficiaire DN. Comme dans l'ADR-0002, on ne fusionne pas automatiquement.
+
+Supprimer un dossier supprime aussi ses fiches `personne_physique` (porteur et acteurs) qu'aucun autre dossier ne référence. Une fiche laissée sans rôle par une resynchro est gardée.
 
 Les fiches `personne` créées autrefois pour `dossier.deposant` restent en base, sans référence.

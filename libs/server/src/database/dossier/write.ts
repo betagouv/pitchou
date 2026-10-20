@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
@@ -8,10 +9,14 @@ export function deleteDossierByDSNumber(
   numbers: number[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  return databaseConnection("dossier")
-    .whereIn("demarche_numerique_number", numbers)
-    .where("source", "demarche_numerique")
-    .delete();
+  return databaseConnection.transaction((trx) =>
+    deleteDossiersWithPersonnesPhysiques(
+      trx("dossier")
+        .whereIn("demarche_numerique_number", numbers)
+        .where("source", "demarche_numerique"),
+      trx,
+    ),
+  );
 }
 
 /**

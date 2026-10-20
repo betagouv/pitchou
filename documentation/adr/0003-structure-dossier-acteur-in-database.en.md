@@ -41,7 +41,7 @@ Until now, these people lived in `identite_dossier` (one copy per type `demandeu
 
 **`identite_dossier` is dropped in another PR.** Meanwhile, it is still written, but no longer read.
 
-**The existing data is filled by a resync.**
+**The existing data is filled by a resync.** The dossiers that do not come from Démarche Numérique are not resynced: a migration fills them from `identite_dossier`, with the admin rules.
 
 ## Consequences
 
@@ -56,5 +56,7 @@ A person with several roles produces one historique entry per role for the same 
 The changes of a personne physique porteur are recorded under `beneficiaire_demarche_numerique.*`, since it is the same record. The porteur block shows them; the acteur block does not repeat them.
 
 The same person can appear on two records, for example as personne contact and as DN bénéficiaire. As in ADR-0002, they are not merged automatically.
+
+Deleting a dossier also deletes its `personne_physique` records (porteur and acteurs) that no other dossier references. A record left without role by a resync is kept.
 
 The `personne` records once created for `dossier.deposant` stay in the database, without any reference.
