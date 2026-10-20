@@ -65,7 +65,7 @@ catalog:
   "prettier-plugin-svelte": "^4.1.1"
   "remember": "github:DavidBruant/remember#v1.0.2"
   "rust-just": "^1.51.0"
-  "sanitize-html": "^2.17.0"
+  "sanitize-html": "^2.18.0"
   "sass": "^1.58.3"
   "svelte": "^5.46.4"
   "svelte-check": "^4.0.0"
