@@ -98,7 +98,9 @@ test("navigating back to a foreign dossier serves the cache instead of waiting f
   // same call as the load: the URL still does not ask for read-only
   const winner = await Promise.race([
     getDossierFull(DOSSIER_ID, { readOnly: false }).then(({ name }) => name),
-    new Promise((resolve) => setTimeout(() => resolve("bloqué sur le serveur"), 50)),
+    new Promise<string>((resolve) => {
+      setTimeout(() => resolve("bloqué sur le serveur"), 50);
+    }),
   ]);
 
   expect(winner).toBe(DOSSIER_NAME);

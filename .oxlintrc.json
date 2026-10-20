@@ -25,6 +25,7 @@
     "eslint/no-else-return": "error",
     "eslint/no-eval": "error",
     "eslint/no-new-func": "error",
+    "eslint/no-promise-executor-return": "error",
     "eslint/no-throw-literal": "error",
     "eslint/no-var": "error",
     "eslint/preserve-caught-error": "error",

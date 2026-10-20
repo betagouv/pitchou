@@ -102,7 +102,10 @@ export default async function setup() {
     if (kitProcess && kitProcess.exitCode === null) {
       kitProcess.kill("SIGTERM");
       await new Promise<void>((resolve) => {
-        if (!kitProcess) return resolve();
+        if (!kitProcess) {
+          resolve();
+          return;
+        }
         kitProcess.once("exit", () => resolve());
         setTimeout(() => {
           kitProcess?.kill("SIGKILL");

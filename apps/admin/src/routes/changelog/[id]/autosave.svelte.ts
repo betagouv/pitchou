@@ -60,7 +60,9 @@ export class Autosave<Snapshot> {
     clearTimeout(this.#timer);
     while (this.state !== "error") {
       if (this.#inFlight) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
         continue;
       }
       const snapshot = this.#options.snapshot();

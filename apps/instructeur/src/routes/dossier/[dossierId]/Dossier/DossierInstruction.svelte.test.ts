@@ -39,7 +39,9 @@ test("afficher l'onglet instruction n'enregistre rien", async () => {
 
   // Longer than the one-second debounce of the Onagre field, so a save queued
   // at mount would have landed by now.
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
 
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   // Successful saves are reported to the header, not as an in-form alert.
