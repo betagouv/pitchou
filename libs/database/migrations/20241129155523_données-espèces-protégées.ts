@@ -1,4 +1,5 @@
 import type { Knex } from "knex";
+import type { EspeceProtegeeStrings } from "@pitchou/types/especes.d.ts";
 
 import { readFile } from "node:fs/promises";
 import { dsvFormat } from "d3-dsv";
@@ -26,13 +27,12 @@ export async function up(knex: Knex) {
   if (idEtLien.length === 0) return;
 
   /** @type { [ActivitéMenançante[], MéthodeMenançante[], TransportMenançant[], any[]] } */
-  // @ts-ignore
   const [activitesBrutes, methodesBrutes, transportsBruts, dataEspeces] = await Promise.all([
     readFile("data/activités.csv", "utf-8"),
     readFile("data/méthodes.csv", "utf-8"),
     readFile("data/transports.csv", "utf-8"),
     readFile("data/liste-espèces-protégées.csv", "utf-8"),
-  ]).then((fichiers) => fichiers.map((str) => parse(str)));
+  ]).then((fichiers) => fichiers.map((str) => parse<keyof EspeceProtegeeStrings>(str)));
 
   // historical migration: the return shape changed (transports -> moyensDePoursuite)
   // and the argument types became stricter, so this call is cast to `any`.
@@ -47,7 +47,6 @@ export async function up(knex: Knex) {
 
   for (const espStr of dataEspeces) {
     /** @type {EspèceProtégée} */
-    // @ts-ignore
     const espece = Object.freeze(especeProtegeeStringToEspeceProtegee(espStr));
 
     especeByCD_REF.set(espece["CD_REF"], espece);

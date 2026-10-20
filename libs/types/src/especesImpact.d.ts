@@ -98,7 +98,7 @@ export interface DescriptionMenacesEspeces {
 
 export interface DescriptionMenaceEspeceJSON {
   classification: ClassificationEtreVivant;
-  etresVivantsAtteints: (OiseauAtteintJSON | FauneNonOiseauAtteintJSON | FloreAtteinteJSON)[];
+  etresVivantsAtteints: (OiseauAtteintJSON | FauneNonOiseauAtteinteJSON | FloreAtteinteJSON)[];
 }
 
 export interface SimplifiedEspece {

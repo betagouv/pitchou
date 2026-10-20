@@ -84,8 +84,7 @@
   }
 
   function onOuvertureModale(e: Event) {
-    // @ts-ignore EventTarget is an HTMLElement in this case
-    modaleButton = e.target;
+    modaleButton = e.target instanceof HTMLElement ? e.target : null;
   }
 
   function onFermetureModale() {

@@ -17,7 +17,7 @@
     référencesEspèces: TileSaisieEspece[];
     espècesProtégéesParClassification: ByClassification<EspeceProtegee[]>;
     onClickPréRemplirAvecDocumentTexte: (
-      especesImpactees: Array<{ espece: EspeceProtegee; impacts: DescriptionImpact[] }>,
+      especesImpactees: Array<{ espèce: EspeceProtegee; impacts: DescriptionImpact[] }>,
     ) => void;
     activitesParClassificationEtreVivant?: ByClassification<
       Map<ActiviteMenancante["Identifiant Pitchou"], ActiviteMenancante>
@@ -90,11 +90,12 @@
   }
 
   function prefillWithTheseEspecesImpacts() {
-    //@ts-ignore
     let newEspecesImpactees: Array<{
-      espece: EspeceProtegee;
+      espèce: EspeceProtegee;
       impacts: DescriptionImpact[];
-    }> = especesImpacteesToPrefill.filter((especeImpactee) => especeImpactee?.espèce !== undefined);
+    }> = especesImpacteesToPrefill.flatMap(({ espèce, impacts }) =>
+      espèce ? [{ espèce, impacts }] : [],
+    );
 
     onClickPrefillWithTextDocument(newEspecesImpactees);
   }
