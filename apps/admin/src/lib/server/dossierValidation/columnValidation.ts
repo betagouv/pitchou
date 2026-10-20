@@ -124,10 +124,8 @@ function parseStructuredColumn(column: string, raw: unknown): string {
     ) {
       error(400, `Property 'scientifique_intervenants' is invalid.`);
     }
-  } else {
-    if (!isValidProjectMap(raw)) {
-      error(400, `Property 'projet_map' must be a valid GeoJSON FeatureCollection.`);
-    }
+  } else if (!isValidProjectMap(raw)) {
+    error(400, `Property 'projet_map' must be a valid GeoJSON FeatureCollection.`);
   }
   return JSON.stringify(raw);
 }

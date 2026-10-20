@@ -18,7 +18,7 @@ export function updateCnpnAttachmentList(html: string, names: string[]): string 
     names.length > 0
       ? names.map((name) => `<li>${escapeHtml(name)}</li>`).join("")
       : "<li>Aucune pièce jointe sélectionnée</li>";
-  return html.replace(
+  return html.replaceAll(
     ATTACHMENT_LIST_PATTERN,
     (match, heading: string, _tag: string, list: string) =>
       /^Liste des éléments transmis en PJ\s*:\s*$/u.test(heading.replaceAll(/<[^>]*>/gu, "").trim())
