@@ -16,7 +16,7 @@ export async function downloadEvenementsCSV(): Promise<void> {
   const a = document.createElement("a");
   a.href = url;
   a.download = `evenements_metriques_${today}.csv`;
-  document.body.appendChild(a);
+  document.body.append(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);

@@ -53,7 +53,7 @@
           ? "tous-les-dossiers"
           : "dossiers-service";
       link.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.${selectedFormat}`;
-      document.body.appendChild(link);
+      document.body.append(link);
       link.click();
       link.remove();
       sendEvenement({
