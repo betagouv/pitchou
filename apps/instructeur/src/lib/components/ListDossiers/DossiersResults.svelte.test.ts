@@ -81,10 +81,12 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
   const bounds = cards.map((card) => card.getBoundingClientRect());
   expect(bounds[1].top - bounds[0].bottom).toBe(8);
   const containerStyle = getComputedStyle(target);
+  expect(containerStyle.paddingLeft).toMatch(/px$/u);
+  expect(containerStyle.paddingRight).toMatch(/px$/u);
   expect(
     target.clientWidth -
-      parseFloat(containerStyle.paddingLeft) -
-      parseFloat(containerStyle.paddingRight),
+      Number(containerStyle.paddingLeft.slice(0, -2)) -
+      Number(containerStyle.paddingRight.slice(0, -2)),
   ).toBe(width === 1440 ? 1200 : width === 1024 ? 976 : 358);
   expect(document.documentElement.scrollWidth).toBe(document.documentElement.clientWidth);
   expect(target.scrollWidth).toBe(target.clientWidth);
