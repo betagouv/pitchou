@@ -12,7 +12,6 @@ export async function up(knex: Knex) {
     `);
 }
 
-// @ts-ignore migration historique : paramètre knex inutilisé
-export async function down(knex: Knex) {
+export async function down(_knex: Knex) {
   console.warn("Cette migration ne peut pas être défaite");
 }

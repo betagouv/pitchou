@@ -16,7 +16,7 @@ export async function loadStats(): Promise<PublicStats> {
     return stats;
   } catch (error) {
     console.error("Erreur lors du chargement des statistiques :", error);
-    throw new Error(`${error}`);
+    throw new Error(`${error}`, { cause: error });
   }
 }
 

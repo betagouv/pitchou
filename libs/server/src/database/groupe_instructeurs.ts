@@ -54,7 +54,7 @@ export async function synchronizeGroupesInstructeurs(
   const membershipsUpdated = Promise.all(
     groupesAPI.map(({ label, instructeurs: groupeInstructeurs }) => {
       const groupe = groupesDB.get(label);
-      if (!groupe) return Promise.resolve();
+      if (!groupe) return;
       const emailsToRemove = new Set(groupe.instructeurs);
       const emailsToAdd = new Set<NonNullable<Personne["email"]>>();
       for (const { email } of groupeInstructeurs) {

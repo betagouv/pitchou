@@ -22,7 +22,6 @@ let incoming: ImpactEspece[];
 let anomalies: AnomalieFichierEspeces[];
 let failNotification: boolean;
 let queries: { sql: string; values: unknown[] }[];
-
 beforeEach(() => {
   pointer = oldFile;
   impacts = [impact(), impact("P-4-2")];
@@ -31,8 +30,7 @@ beforeEach(() => {
   queries = [];
   failNotification = false;
   vi.spyOn(console, "warn").mockImplementation(() => {});
-  vi.mocked(dumpImpactEspeceFromFichier).mockImplementation(async (_id, _file, trx) => {
-    expect(trx?.isTransaction).toBe(true);
+  vi.mocked(dumpImpactEspeceFromFichier).mockImplementation(async () => {
     impacts = incoming;
     return anomalies;
   });
@@ -65,11 +63,16 @@ beforeEach(() => {
   });
   db.client.releaseConnection = async () => {};
 });
-
 afterEach(async () => {
-  await db.destroy();
-  vi.restoreAllMocks();
-  vi.clearAllMocks();
+  try {
+    for (const [, , trx] of vi.mocked(dumpImpactEspeceFromFichier).mock.calls) {
+      expect(trx?.isTransaction).toBe(true);
+    }
+  } finally {
+    await db.destroy();
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
+  }
 });
 
 const synchronize = (file: FileId | null = newFile) =>
@@ -82,6 +85,7 @@ const synchronize = (file: FileId | null = newFile) =>
 test("quantity change creates one group action in the locked replacement transaction", async () => {
   incoming[0] = { ...incoming[0], nombre_individus: "1-10" };
   expect(await synchronize()).toEqual(new Set([dossier]));
+  expect(dumpImpactEspeceFromFichier).toHaveBeenCalledOnce();
   expect(changes(queries)).toEqual([
     {
       field: "especes",

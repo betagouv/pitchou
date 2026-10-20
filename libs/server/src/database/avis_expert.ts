@@ -71,6 +71,7 @@ export async function addOrUpdateAvisExpertWithFichiers(
     if (e instanceof UploadedFichierError) throw e;
     throw new Error(
       `Une erreur est survenue lors de l'ajout ou de la modification de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`,
+      { cause: e },
     );
   }
 }

@@ -58,13 +58,8 @@ test("cleared values remain highlighted with the fallback date and a visible Vu 
 });
 
 test("review waits for server persistence before updating the global aggregate", async () => {
-  let resolve!: (notification: DossierNotification) => void;
-  const update = vi.fn(
-    () =>
-      new Promise<DossierNotification>((done) => {
-        resolve = done;
-      }),
-  );
+  const { promise, resolve } = Promise.withResolvers<DossierNotification>();
+  const update = vi.fn(() => promise);
   store.capabilities = { updateNotificationForDossier: update };
   const view = render(ProjectField, {
     dossierId,

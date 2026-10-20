@@ -143,8 +143,8 @@ test("envoie le fichier au stockage puis appelle onValidate avec sa référence"
 });
 
 test("affiche un état de chargement pendant l'enregistrement", async () => {
-  let resolve!: () => void;
-  const onValidate = vi.fn(() => new Promise<void>((r) => (resolve = r)));
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const onValidate = vi.fn(() => promise);
   render(FormDecisionAdministrative, {
     decisionAdministrative: decision({ type: TYPE_VALIDE }),
     hasExistingFile: true,

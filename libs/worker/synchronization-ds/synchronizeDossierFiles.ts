@@ -84,7 +84,7 @@ export function synchronizeDownloadedDossierFiles(
           const id = dossierIdByDNNumber.get(number);
           if (!id) {
             console.log("dossierIdByDNNumber", dossierIdByDNNumber);
-            throw `Id de dossier manquant pour dossier DS ${number}`;
+            throw new Error(`Id de dossier manquant pour dossier DS ${number}`);
           }
           return [id, files] as const;
         }),

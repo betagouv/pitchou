@@ -12,7 +12,7 @@
   function updateDescription(index: number, description: string) {
     const features = value.features.map((feature, featureIndex) =>
       featureIndex === index
-        ? { ...feature, properties: { ...(feature.properties ?? {}), description } }
+        ? { ...feature, properties: { ...feature.properties, description } }
         : feature,
     );
     onChange({ ...value, features });

@@ -92,7 +92,7 @@ test("another instructeur cannot edit or delete, including directly through the 
     })
     .returning("*");
 
-  for (const method of ["PUT", "DELETE"]) {
+  for (const method of ["PUT", "DELETE"] as const) {
     const body =
       method === "PUT" ? { id: commentaire.id, content: "Forged edit" } : { id: commentaire.id };
     expect((await mutate(other.cap, author.dossier.id, body, method)).status).toBe(403);

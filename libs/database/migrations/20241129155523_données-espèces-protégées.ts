@@ -77,7 +77,7 @@ export async function up(knex: Knex) {
           });
         }
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }

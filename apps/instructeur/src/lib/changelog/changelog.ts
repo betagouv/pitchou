@@ -24,7 +24,7 @@ export async function loadPublishedChangelogEntries(): Promise<PublishedChangelo
     return entries;
   } catch (error) {
     console.error("Erreur lors du chargement des nouveautés :", error);
-    throw new Error(`${error}`);
+    throw new Error(`${error}`, { cause: error });
   }
 }
 

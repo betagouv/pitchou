@@ -28,7 +28,7 @@ export async function loadIndicatorsAARRI(): Promise<IndicatorsAARRI[]> {
     return indicatorsByDate;
   } catch (error) {
     console.error("Erreur lors du chargement des indicateurs AARRI :", error);
-    throw new Error(`${error}`);
+    throw new Error(`${error}`, { cause: error });
   }
 }
 

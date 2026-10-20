@@ -104,7 +104,7 @@ export default async function downloadNewFichiers(
         ];
       })
       // @ts-ignore
-      .filter(([_, fichiers]) => fichiers.length >= 1),
+      .filter(([, fichiers]) => fichiers.length >= 1),
   );
 
   //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)

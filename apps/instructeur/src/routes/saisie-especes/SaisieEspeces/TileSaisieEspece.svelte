@@ -61,8 +61,7 @@
   }
 
   async function deleteImpact(indexImpactToDelete: number) {
-    descriptionImpacts.splice(indexImpactToDelete, 1);
-    descriptionImpacts = descriptionImpacts;
+    descriptionImpacts = descriptionImpacts.filter((_, index) => index !== indexImpactToDelete);
 
     await tick();
 

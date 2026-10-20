@@ -59,7 +59,7 @@ describe("dossier creation details section", () => {
     expect(carcassBody).toContain('id="carcass-examination-address"');
     setModelActivite(model, "Demande à caractère scientifique");
     model.motifDerogation = motifDerogationOptions[4];
-    model.scientifiqueDemandeType = [...scientifiqueDemandeTypeOptions.slice(0, 3)];
+    model.scientifiqueDemandeType = scientifiqueDemandeTypeOptions.slice(0, 3);
     const methodsBody = render(DossierCreationDetailsSection, { props: { model } }).body;
     expect(methodsBody).toContain('id="scientific-capture-mode-0"');
     expect(methodsBody).toContain('id="scientific-light-sources-oui"');

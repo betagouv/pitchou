@@ -11,6 +11,14 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    name: Lint (oxlint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just check-lint
+
   type-check:
     name: Type check (tsc + reviewdog)
     runs-on: ubuntu-latest

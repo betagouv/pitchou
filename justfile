@@ -54,12 +54,16 @@ aws-usage:
 build:
     {{ all }} vite build
 
-# Run the fast static checks (format, types, svelte-check). check-lint is disabled for now.
-check: sync check-format check-types check-svelte
+# Run the fast static checks (format, lint, types, svelte-check).
+check: sync check-format check-lint check-types check-svelte
 
 # Check formatting without modifying files
 check-format:
     prettier --check .
+
+# Lint JavaScript, TypeScript, and Svelte script blocks
+check-lint:
+    corepack pnpm exec oxlint --max-warnings 0 .
 
 # Check Svelte components (CI svelte-check job), per app
 check-svelte: sync
