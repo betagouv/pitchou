@@ -78,6 +78,21 @@ describe("downloadFichierResponse", () => {
     expect(cd).toContain(encodeURI("été 2025.pdf"));
   });
 
+  it.each(["\u0000", "\t", "\r", "\n", "\u007f", "🐦"])(
+    "removes non-printable or non-ASCII %j from the filename fallback",
+    async (character) => {
+      const name = `été${character}.pdf`;
+      load.mockResolvedValue({ name, media_type: null, body: Readable.from([Buffer.from("x")]) });
+
+      const response = await downloadFichierResponse(id);
+
+      expect(response.headers.get("content-disposition")).toBe(
+        `attachment; filename="ete.pdf"; filename*=UTF-8''${encodeURI(name)}`,
+      );
+      expect(await response.text()).toBe("x");
+    },
+  );
+
   it("omits content-length when taille is undefined (unknown size stream)", async () => {
     load.mockResolvedValue({
       name: "doc.pdf",
