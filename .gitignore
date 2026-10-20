@@ -29,6 +29,7 @@ data/sources_especes/*
 
 # Tests
 test-results/
+.vitest/
 # Artefacts générés par les tests de composants (vitest browser)
 .vitest-attachments/
 **/__screenshots__/

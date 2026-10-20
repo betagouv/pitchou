@@ -142,7 +142,7 @@ test.each(["15/10/2026", ""])(
     expect(dialog).toBeVisible();
     retry.resolve();
     await expect.poll(() => screen.queryByRole("dialog")).toBeNull();
-    expect(screen.getByRole("button", { name: /Plus d’actions/u })).toHaveFocus();
+    await expect.element(page.getByRole("button", { name: /Plus d’actions/u })).toHaveFocus();
     expect(store.dossierSummaries.get(dossier.id)?.next_due_date).toEqual(
       draft ? new Date("2026-10-15T00:00:00") : null,
     );

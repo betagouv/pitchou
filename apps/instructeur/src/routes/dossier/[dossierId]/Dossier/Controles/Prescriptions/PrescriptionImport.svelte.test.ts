@@ -62,7 +62,7 @@ test("shows the conversion and saves only after explicit acceptance", async () =
   await page.getByRole("button", { name: "Importer les prescriptions", exact: true }).click();
   const accept = page.getByRole("button", { name: "Accepter les conversions et importer" });
   await expect.element(accept).toBeVisible();
-  await expect.element(page.getByRole("status")).toHaveTextContent(/2,4 ha.*24\s000 m²/u);
+  await expect.element(page.getByRole("status")).toMatchTextContent(/2,4 ha.*24\s000 m²/u);
   expect(store.capabilities.addPrescriptionsAndControles).not.toHaveBeenCalled();
   await accept.click();
   await expect.poll(() => onimport).toHaveBeenCalledTimes(1);
@@ -85,6 +85,6 @@ test("removing a file dismisses its conversion proposal without saving", async (
   expect(store.capabilities.addPrescriptionsAndControles).not.toHaveBeenCalled();
   await selectSurface(container, "3 ha");
   await page.getByRole("button", { name: "Importer les prescriptions", exact: true }).click();
-  await expect.element(page.getByRole("status")).toHaveTextContent(/3 ha.*30\s000 m²/u);
+  await expect.element(page.getByRole("status")).toMatchTextContent(/3 ha.*30\s000 m²/u);
   expect(store.capabilities.addPrescriptionsAndControles).not.toHaveBeenCalled();
 });

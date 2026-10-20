@@ -107,7 +107,7 @@ test("accepts a dropped ODS file and lets the user remove it before import", asy
   dropZone.element().dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer }));
   await expect
     .element(page.getByRole("alert"))
-    .toHaveTextContent("Sélectionnez un seul fichier au format ODS.");
+    .toMatchTextContent("Sélectionnez un seul fichier au format ODS.");
 });
 
 test("imports on confirmation, shows progress, and edits the saved prescription", async () => {
@@ -136,7 +136,7 @@ test("imports on confirmation, shows progress, and edits the saved prescription"
       },
     ],
   } as unknown as Awaited<ReturnType<typeof refreshDossierFull>>);
-  await expect.element(page.getByRole("status")).toHaveTextContent("1 prescription importée.");
+  await expect.element(page.getByRole("status")).toMatchTextContent("1 prescription importée.");
   await expect.element(page.getByRole("heading", { name: /Prescription importée/u })).toBeVisible();
   await page.getByRole("button", { name: "Modifier les prescriptions" }).click();
   const description = container.querySelector<HTMLInputElement>("tbody td:nth-child(2) input")!;
@@ -158,7 +158,7 @@ test("shows an import error and allows retrying the same file", async () => {
   await button.click();
   await expect
     .element(page.getByRole("alert"))
-    .toHaveTextContent("L'enregistrement n'a pas pu être confirmé");
+    .toMatchTextContent("L'enregistrement n'a pas pu être confirmé");
   await expect.element(button).toBeEnabled();
   await button.click();
   await expect.poll(() => store.capabilities.addPrescriptionsAndControles).toHaveBeenCalledTimes(2);
@@ -171,7 +171,7 @@ test("does not import twice when refreshing after a successful save fails", asyn
   await page.getByRole("button", { name: "Importer les prescriptions" }).click();
   await expect
     .element(page.getByRole("alert"))
-    .toHaveTextContent("Les prescriptions ont été importées");
+    .toMatchTextContent("Les prescriptions ont été importées");
   await expect
     .element(page.getByRole("button", { name: "Importer les prescriptions" }))
     .toBeDisabled();

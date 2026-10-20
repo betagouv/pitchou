@@ -13,9 +13,9 @@ test("tabs override DSFR's stripe and blue inactive background with medium-weigh
   const onSelect = vi.fn();
   render(DossierTabList, { activeTab: "instruction", onSelect });
   const tabs = screen.getAllByRole("tab");
-  expect(tabs[0]).toHaveTextContent("Instruction");
-  expect(tabs[1]).toHaveTextContent(/^Détail du projet$/u);
-  expect(tabs[2]).toHaveTextContent(/^Avis d’experts$/u);
+  expect(tabs[0]).toMatchTextContent("Instruction");
+  expect(tabs[1]).toMatchTextContent(/^Détail du projet$/u);
+  expect(tabs[2]).toMatchTextContent(/^Avis d’experts$/u);
   const active = getComputedStyle(tabs[0]);
   const inactive = getComputedStyle(tabs[1]);
   expect(active.fontWeight).toBe("500");

@@ -104,7 +104,7 @@ test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
   await expect.element(page.getByText(/Boom serveur/u)).toBeVisible();
   expect(onValidate).toHaveBeenCalledTimes(1);
   // Le formulaire reste affiché pour permettre une nouvelle tentative.
-  await expect.element(page.getByText("Type de décision")).toBeVisible();
+  await expect.element(page.getByRole("combobox", { name: "Type de décision" })).toBeVisible();
 });
 
 test("affiche l'échec de l'envoi au stockage sous le champ fichier, sans appeler onValidate", async () => {

@@ -126,6 +126,8 @@ test("the map accordion passes the dossier geometry to the map", async () => {
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
   view.getByRole("button", { name: "Cartographie du projet" }).click();
   await tick();
-  expect(view.getByLabelText("Cartographie de test")).toHaveTextContent(JSON.stringify(projectMap));
+  expect(view.getByLabelText("Cartographie de test")).toMatchTextContent(
+    JSON.stringify(projectMap),
+  );
   expect(view.getByText(/1 zone tracée/u)).toBeVisible();
 });

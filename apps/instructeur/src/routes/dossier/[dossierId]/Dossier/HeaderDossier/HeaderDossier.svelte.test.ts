@@ -65,7 +65,9 @@ async function scroll(y: number) {
 
 test("the compact header appears as soon as the original leaves the viewport, even before 340px", async () => {
   const { rerender, unmount } = render(HeaderDossier, props());
-  expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(props().dossier.name!.trim());
+  expect(screen.getByRole("heading", { level: 2 })).toMatchTextContent(
+    props().dossier.name!.trim(),
+  );
   expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
   expect(screen.queryByTestId("sticky-dossier-header")).toBeNull();
   setIntersection(true, 100);

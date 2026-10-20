@@ -39,7 +39,7 @@ test("shows an error alert when saving the avis fails synchronously", async () =
   await expect.element(alert).toBeVisible();
   await expect
     .element(alert)
-    .toHaveTextContent("L'enregistrement de l'avis a échoué : Network unavailable");
+    .toMatchTextContent("L'enregistrement de l'avis a échoué : Network unavailable");
   expect(refreshDossierFull).not.toHaveBeenCalled();
   expect(closeForm).not.toHaveBeenCalled();
 });
