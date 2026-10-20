@@ -9,7 +9,7 @@
   import Select from "@pitchou/ui/Select.svelte";
 
   function labelToId(label: string): string {
-    return label.replace(/[^a-zA-Z0-9]+/g, "-");
+    return label.replace(/[^a-zA-Z0-9]+/gu, "-");
   }
 
   type Props = {

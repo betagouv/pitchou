@@ -55,7 +55,7 @@ test("exports all 21 columns, preserving identifiers, accents, quotes and multil
     "Non",
   ]);
   for (const bytes of [tableToCsv(table), await tableToOds(table)]) {
-    const workbook = XLSX.read(typeof bytes === "string" ? bytes.replace(/^\uFEFF/, "") : bytes, {
+    const workbook = XLSX.read(typeof bytes === "string" ? bytes.replace(/^\uFEFF/u, "") : bytes, {
       type: typeof bytes === "string" ? "string" : "array",
       raw: true,
     });

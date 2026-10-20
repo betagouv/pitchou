@@ -25,6 +25,7 @@
     "eslint/no-throw-literal": "error",
     "eslint/no-var": "error",
     "eslint/preserve-caught-error": "error",
+    "eslint/require-unicode-regexp": "error",
     "promise/no-return-wrap": "error",
     "promise/no-new-statics": "error",
     "promise/param-names": "error",

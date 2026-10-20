@@ -61,7 +61,7 @@ test("l'échéance se modifie depuis le menu d'une tuile et reste cohérente ave
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
   const card = page.getByTestId("card-dossier").filter({ hasText: dossier.name! });
-  await card.getByRole("button", { name: /Plus d’actions/ }).click();
+  await card.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Modifier la date de la prochaine échéance" }).click();
 
   const dialog = page.getByRole("dialog");
@@ -70,7 +70,7 @@ test("l'échéance se modifie depuis le menu d'une tuile et reste cohérente ave
   await expect(dialog).toBeHidden();
 
   // The tile shows the échéance tag right away, without a reload.
-  await expect(card.locator("p.fr-badge", { hasText: /Échéance|Retard/ })).toBeVisible();
+  await expect(card.locator("p.fr-badge", { hasText: /Échéance|Retard/u })).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   // The dossier page shows the date set from the tile.

@@ -56,20 +56,22 @@ for (const width of [1280, 390]) {
     await expect(counter).toContainText("1 dossiers suivis dans vos territoires d'affectation");
 
     // Unfollowed owned summaries also contribute every one of their departments.
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
     const dialog = page.getByRole("dialog", { name: "Tous les filtres" });
     const location = dialog.getByRole("group", { name: "Localisation", exact: true });
     await expect(location.getByRole("radio")).toHaveCount(0);
     await location.getByRole("button", { name: "Tous les départements" }).click();
     await expect(location.getByRole("checkbox")).toHaveCount(3);
     for (const code of ["44", "49", "85"]) {
-      await expect(location.getByRole("checkbox", { name: new RegExp(`^${code} `) })).toBeChecked();
+      await expect(
+        location.getByRole("checkbox", { name: new RegExp(`^${code} `, "u") }),
+      ).toBeChecked();
     }
-    await expect(location.getByRole("checkbox", { name: /^75 / })).toHaveCount(0);
+    await expect(location.getByRole("checkbox", { name: /^75 /u })).toHaveCount(0);
     await location.getByRole("button", { name: "Aucun", exact: true }).click();
-    await location.locator("label").filter({ hasText: /^49 / }).click();
+    await location.locator("label").filter({ hasText: /^49 /u }).click();
     await expect(cards).toHaveCount(0);
-    await location.locator("label").filter({ hasText: /^44 / }).click();
+    await location.locator("label").filter({ hasText: /^44 /u }).click();
     await expect(cards).toHaveCount(1);
     await dialog.getByRole("button", { name: "Voir 1 résultat", exact: true }).click();
 
@@ -87,31 +89,31 @@ for (const width of [1280, 390]) {
     await expect(cards.filter({ hasText: elsewhere.name! })).toHaveCount(0);
     await expect(cards.filter({ hasText: unlocated.name! })).toHaveCount(0);
 
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
     await expect(
       location.getByRole("radio", { name: "Mes territoires d'affectation" }),
     ).toBeChecked();
     await location.getByRole("button", { name: "Tous les départements" }).click();
     await location.getByRole("button", { name: "Aucun", exact: true }).click();
-    await expect(page).toHaveURL(/departements=none/);
+    await expect(page).toHaveURL(/departements=none/u);
     await expect(cards).toHaveCount(0);
     await page.reload();
     await expect(cards).toHaveCount(0);
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
     await location.getByRole("button", { name: "Aucun département", exact: true }).click();
     await expect(location.getByRole("checkbox", { checked: true })).toHaveCount(0);
-    await location.locator("label").filter({ hasText: /^49 / }).click();
-    await expect(page).toHaveURL(/departements=custom/);
-    await expect(page).toHaveURL(/departement=49/);
+    await location.locator("label").filter({ hasText: /^49 /u }).click();
+    await expect(page).toHaveURL(/departements=custom/u);
+    await expect(page).toHaveURL(/departement=49/u);
     await expect(cards).toHaveCount(1);
     await expect(cards.filter({ hasText: unfollowed.name! })).toHaveCount(1);
     await expect(foreignCard).toHaveCount(0);
     await page.reload();
     await expect(cards).toHaveCount(1);
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
     await location.locator('label[for="localisation-france"]').click();
-    await expect(page).toHaveURL(/localisation=france/);
-    await expect(page).not.toHaveURL(/departements?=/);
+    await expect(page).toHaveURL(/localisation=france/u);
+    await expect(page).not.toHaveURL(/departements?=/u);
     await expect(cards).toHaveCount(5);
     await dialog.getByRole("button", { name: "Voir 5 résultats", exact: true }).click();
     await page.reload();
@@ -129,7 +131,7 @@ for (const width of [1280, 390]) {
     // National scope opens owners in read-only mode too, but only owners can leave it.
     for (const dossier of [nearby, followed]) {
       await page.getByRole("link", { name: dossier.name!, exact: true }).click();
-      await expect(page).toHaveURL(new RegExp(`/dossier/${dossier.id}\\?lecture=1`));
+      await expect(page).toHaveURL(new RegExp(`/dossier/${dossier.id}\\?lecture=1`, "u"));
       await expect(page.getByRole("heading", { level: 2, name: dossier.name! })).toBeVisible();
       await expect(page.getByText("Dossier en lecture seule", { exact: true })).toBeVisible();
       await expect(page.getByRole("combobox", { name: "Phase en cours" })).toBeDisabled();
@@ -146,19 +148,19 @@ for (const width of [1280, 390]) {
     await expect(cards).toContainText(followed.name!);
     await expect(counter).toContainText("1 dossiers suivis dans vos territoires d'affectation");
     await expect(ownedCard.getByRole("link")).toHaveAttribute("href", `/dossier/${followed.id}`);
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
     await expect(location.getByRole("radio")).toHaveCount(0);
     await location.getByRole("button", { name: "Tous les départements" }).click();
     await expect(location.getByRole("checkbox")).toHaveCount(3);
     await location.getByRole("button", { name: "Aucun", exact: true }).click();
-    await location.locator("label").filter({ hasText: /^49 / }).click();
+    await location.locator("label").filter({ hasText: /^49 /u }).click();
     await expect(cards).toHaveCount(0);
-    await expect(page).not.toHaveURL(/localisation=france/);
+    await expect(page).not.toHaveURL(/localisation=france/u);
     await page.reload();
     await expect(cards).toHaveCount(0);
-    await page.getByRole("button", { name: /^Filtres\b/ }).click();
-    await location.getByRole("button", { name: /^49 / }).click();
-    await location.locator("label").filter({ hasText: /^44 / }).click();
+    await page.getByRole("button", { name: /^Filtres\b/u }).click();
+    await location.getByRole("button", { name: /^49 /u }).click();
+    await location.locator("label").filter({ hasText: /^44 /u }).click();
     await expect(cards).toHaveCount(1);
     await expect(ownedCard.getByRole("link")).toHaveAttribute("href", `/dossier/${followed.id}`);
     await page.goto("/tous-les-dossiers");

@@ -23,12 +23,12 @@
   let activeIndex: number | null = $state(null);
   let loading = $state(true);
   let loadFailed = $state(false);
-  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
   const normalizedUsedEmails = $derived(
     new Set(selectedEmails.map((email) => email.toLowerCase())),
   );
   const options = $derived.by<Option[]>(() => {
-    const searchParts = normalize(query).split(/\s+/).filter(Boolean);
+    const searchParts = normalize(query).split(/\s+/u).filter(Boolean);
     const matchingCandidates = candidates.filter((candidate) => {
       if (normalizedUsedEmails.has(candidate.email.toLowerCase())) return false;
       const searchable = normalize(

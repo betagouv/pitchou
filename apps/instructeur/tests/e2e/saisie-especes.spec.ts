@@ -82,7 +82,7 @@ for (const width of [320, 375, 768, 1440]) {
 
     const method = page.getByRole("combobox", { name: "Méthode", exact: true });
     await method.click();
-    const longOption = page.getByRole("option", { name: /^Pour les mammifères/ });
+    const longOption = page.getByRole("option", { name: /^Pour les mammifères/u });
     const methodLabel = await longOption.textContent();
     const optionBounds = await longOption.boundingBox();
     expect(optionBounds!.x).toBeGreaterThanOrEqual(0);
@@ -119,7 +119,7 @@ for (const width of [320, 375, 768, 1440]) {
       .getByRole("option", { name: "Capture pour captivité temporaire ou définitive" })
       .click();
     await page.getByRole("combobox", { name: "Méthode", exact: true }).nth(1).click();
-    await page.getByRole("option", { name: /^Par une des méthodes suivantes/ }).click();
+    await page.getByRole("option", { name: /^Par une des méthodes suivantes/u }).click();
     await page.getByRole("spinbutton", { name: "Nids", exact: true }).fill("2");
     await page.getByRole("spinbutton", { name: "Œufs", exact: true }).fill("3");
     await page.getByRole("spinbutton", { name: "Surface habitat détruit (m²)" }).fill("42");

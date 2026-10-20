@@ -29,7 +29,7 @@ const controleProperties = new Set([
   "next_due_date",
 ]);
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 function parseControle(value: Record<string, unknown>): Partial<Controle> {
   rejectUnknownProperties(value, controleProperties);

@@ -23,7 +23,7 @@
     event: Event & { currentTarget: HTMLInputElement },
     assign: (digits: string) => void,
   ) {
-    const digits = event.currentTarget.value.replace(/\D/g, "").slice(0, 4);
+    const digits = event.currentTarget.value.replace(/\D/gu, "").slice(0, 4);
     event.currentTarget.value = digits;
     assign(digits);
   }

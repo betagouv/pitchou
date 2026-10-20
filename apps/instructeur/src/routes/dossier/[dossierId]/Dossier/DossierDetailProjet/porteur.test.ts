@@ -11,7 +11,7 @@ test("SIRET and SIREN are split in groups of digits, other values are kept", () 
 });
 
 test("the share capital is shown in euros", () => {
-  expect(formatShareCapital("8000")?.replace(/\s/g, " ")).toBe("8 000 €");
+  expect(formatShareCapital("8000")?.replace(/\s/gu, " ")).toBe("8 000 €");
   expect(formatShareCapital("inconnu")).toBe("inconnu");
   expect(formatShareCapital(null)).toBeNull();
 });

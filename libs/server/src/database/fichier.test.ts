@@ -64,7 +64,7 @@ describe("storeNewFichier", () => {
     expect(result).toEqual({ id: "file-1", name: "f.pdf" });
 
     const [putKey, putBody, putContentType] = putObject.mock.calls[0];
-    expect(putKey).toMatch(/^files\//);
+    expect(putKey).toMatch(/^files\//u);
     expect(putBody).toBe(content);
     expect(putContentType).toBe("application/pdf");
 
@@ -88,7 +88,7 @@ describe("storeNewFichier", () => {
 
     await expect(
       storeNewFichier({ name: "f.pdf", content: Buffer.from(""), media_type: null }, db.knex),
-    ).rejects.toThrow(/S3 down/);
+    ).rejects.toThrow(/S3 down/u);
 
     expect(addFile).not.toHaveBeenCalled();
     expect(db.insert).not.toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe("storeNewFichier", () => {
 
     await expect(
       storeNewFichier({ name: "f.pdf", content: Buffer.from(""), media_type: null }, db.knex),
-    ).rejects.toThrow(/file insert failed/);
+    ).rejects.toThrow(/file insert failed/u);
 
     expect(deleteObject).toHaveBeenCalledTimes(1);
     expect(deleteObject.mock.calls[0][0]).toBe(putObject.mock.calls[0][0]);

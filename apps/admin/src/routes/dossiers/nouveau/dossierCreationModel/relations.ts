@@ -44,6 +44,6 @@ export function mergeDossierRelationsForEdit(
 export function legalSiretError(legalSiret: string): string | null {
   const siret = legalSiret.replaceAll(" ", "");
   if (!siret) return "Renseignez le numéro de SIRET.";
-  if (!/^\d{14}$/.test(siret)) return "Le numéro de SIRET doit contenir 14 chiffres.";
+  if (!/^\d{14}$/u.test(siret)) return "Le numéro de SIRET doit contenir 14 chiffres.";
   return null;
 }

@@ -88,7 +88,7 @@ function orderedTaxref(query: Knex.QueryBuilder, search: TaxrefSearch): Knex.Que
 
 /** Keeps rows where every search word appears (case-insensitively) in some column. */
 function applyTextSearch(query: Knex.QueryBuilder, text: string): void {
-  const words = text.trim().split(/\s+/).filter(Boolean);
+  const words = text.trim().split(/\s+/u).filter(Boolean);
   for (const word of words) {
     const pattern = `%${word}%`;
     query.where((builder) => {

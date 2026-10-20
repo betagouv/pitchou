@@ -19,7 +19,7 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   if (value.arrival !== undefined && value.arrival !== true) {
     error(400, "La propriété 'arrival' doit valoir true.");
   }
-  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
   if (
     value.followRevision !== undefined &&
     (typeof value.followRevision !== "string" || !uuid.test(value.followRevision))

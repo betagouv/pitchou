@@ -23,10 +23,10 @@ function parseQuantity(value: unknown, surface: boolean): number | null {
   if (!match || (!surface && match[3])) throw new Error("Invalid quantity");
 
   const scale = match[3]?.toLowerCase() === "ha" ? 4 : 0;
-  const fraction = (match[2] ?? "").replace(/0+$/, "");
+  const fraction = (match[2] ?? "").replace(/0+$/u, "");
   if (fraction.length > scale) throw new Error("Fractional quantity");
   // Shift decimal digits instead of multiplying floats, so 0,0003 ha is exactly 3 m².
-  const amount = BigInt(match[1].replace(/\s/g, "") + fraction.padEnd(scale, "0"));
+  const amount = BigInt(match[1].replace(/\s/gu, "") + fraction.padEnd(scale, "0"));
   if (amount > 2147483647n) throw new Error("Quantity exceeds database limit");
   return Number(amount);
 }
@@ -41,7 +41,7 @@ export function parseQuantities(
     const surface = key.endsWith("_surface");
     try {
       quantities[key] = parseQuantity(row[column], surface);
-      if (surface && typeof row[column] === "string" && /ha\s*$/i.test(row[column])) {
+      if (surface && typeof row[column] === "string" && /ha\s*$/iu.test(row[column])) {
         conversions.push({
           prescription: prescriptionNumber,
           column,

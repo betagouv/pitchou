@@ -32,9 +32,9 @@ test.each([null, { type: "FeatureCollection" as const, features: [] }, projectMa
       }),
     };
     const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
-    const map = view.getByRole("button", { name: /Cartographie du projet/ });
+    const map = view.getByRole("button", { name: /Cartographie du projet/u });
     expect(map.textContent).toContain("Nouvelles modifications");
-    expect(view.getByRole("button", { name: /Informations du projet/ }).textContent).not.toContain(
+    expect(view.getByRole("button", { name: /Informations du projet/u }).textContent).not.toContain(
       "Nouvelles modifications",
     );
     expect(view.getAllByText("Nouvelles modifications")).toHaveLength(1);
@@ -63,7 +63,7 @@ test("an empty map section is visible without any pending modification", async (
   view.getByRole("button", { name: "Cartographie du projet" }).click();
   await tick();
   expect(view.getByText("Aucune cartographie renseignée.")).toBeVisible();
-  expect(view.queryByRole("button", { name: /Télécharger/ })).toBeNull();
+  expect(view.queryByRole("button", { name: /Télécharger/u })).toBeNull();
 });
 
 test("read-only map detail never reads personal notifications or displays review markers", async () => {
@@ -76,8 +76,8 @@ test("read-only map detail never reads personal notifications or displays review
   expect(get).not.toHaveBeenCalled();
   expect(view.queryByText("Nouvelles modifications")).toBeNull();
   expect(view.container.querySelector(".pending, .field-change, .notification-dot")).toBeNull();
-  expect(view.queryByRole("button", { name: /Valider la modification/ })).toBeNull();
-  expect(view.getByRole("button", { name: /Télécharger la cartographie/ })).toBeVisible();
+  expect(view.queryByRole("button", { name: /Valider la modification/u })).toBeNull();
+  expect(view.getByRole("button", { name: /Télécharger la cartographie/u })).toBeVisible();
 });
 
 test("a newer map revision cannot be acknowledged from the previous snapshot", async () => {
@@ -91,7 +91,7 @@ test("a newer map revision cannot be acknowledged from the previous snapshot", a
   view.getByRole("button", { name: "Cartographie du projet" }).click();
   await tick();
   expect(view.getByRole("button", { name: "Actualiser les modifications" })).toBeVisible();
-  expect(view.queryByRole("button", { name: /Valider la modification/ })).toBeNull();
+  expect(view.queryByRole("button", { name: /Valider la modification/u })).toBeNull();
   expect(view.queryByText("Nouvelles modifications")).toBeNull();
 });
 
@@ -102,7 +102,7 @@ test("map download keeps its GeoJSON content, filename and event", async () => {
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
   view.getByRole("button", { name: "Cartographie du projet" }).click();
   await tick();
-  view.getByRole("button", { name: /Télécharger la cartographie/ }).click();
+  view.getByRole("button", { name: /Télécharger la cartographie/u }).click();
   await vi.waitFor(() => expect(click).toHaveBeenCalled());
   const blob = create.mock.calls[0][0] as Blob;
   expect(blob.type).toBe("application/geo+json");
@@ -124,5 +124,5 @@ test("the map accordion mounts the interactive viewport and navigation controls"
   expect(view.container.querySelector(".maplibregl-ctrl-zoom-in")).toBeVisible();
   expect(view.container.querySelector(".maplibregl-ctrl-zoom-out")).toBeVisible();
   expect(view.container.querySelector(".maplibregl-ctrl-compass")).toBeVisible();
-  expect(view.getByText(/1 zone tracée/)).toBeVisible();
+  expect(view.getByText(/1 zone tracée/u)).toBeVisible();
 });

@@ -17,7 +17,7 @@ export function createTextFilter(
   dossiers: DossierSummary[],
 ): (dossier: DossierSummary) => boolean {
   // If the text contains digits, use direct search
-  if (textToSearch.match(/\d[\dA-Za-z-]*/)) {
+  if (textToSearch.match(/\d[\dA-Za-z-]*/u)) {
     return (dossier) => {
       const { id, departments, communes, demarche_numerique_number, onagre_demande_identifier } =
         dossier;

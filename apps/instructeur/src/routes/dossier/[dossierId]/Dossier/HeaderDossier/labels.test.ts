@@ -15,7 +15,7 @@ test("every rectangular background matches the existing activity SVG circle", ()
   const directory = new URL("../../../../../../static/icons/activites/", import.meta.url);
   for (const name of readdirSync(directory).filter((name) => name.endsWith(".svg"))) {
     const svg = readFileSync(new URL(name, directory), "utf8");
-    const fill = svg.match(/<circle cx="316" cy="316" r="316" fill="([^"]+)"/)?.[1];
+    const fill = svg.match(/<circle cx="316" cy="316" r="316" fill="([^"]+)"/u)?.[1];
     expect(activityBackground(`/icons/activites/${name}`), name).toBe(fill);
   }
 });

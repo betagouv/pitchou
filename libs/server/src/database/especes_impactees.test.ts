@@ -94,10 +94,10 @@ test("quantity change creates one group action in the locked replacement transac
       notification: true,
     },
   ]);
-  expect(queries[0].sql).toMatch(/^BEGIN/);
+  expect(queries[0].sql).toMatch(/^BEGIN/u);
   expect(queries[1].sql).toContain('order by "id" asc for update');
   expect(queries[2].sql).toContain('from "impact_espece"');
-  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/);
+  expect(queries.at(-1)?.sql).toMatch(/^COMMIT/u);
   expect(deleteFichiersWithoutOtherReferences).toHaveBeenCalledWith(
     [oldFile],
     expect.objectContaining({ isTransaction: true }),
@@ -195,6 +195,6 @@ test("notification write failure rejects and rolls back instead of committing im
   incoming[0] = { ...incoming[0], nombre_individus: "1-10" };
   failNotification = true;
   await expect(synchronize()).rejects.toThrow("notification insert failed");
-  expect(queries.at(-1)?.sql).toMatch(/^ROLLBACK/);
+  expect(queries.at(-1)?.sql).toMatch(/^ROLLBACK/u);
   expect(deleteFichiersWithoutOtherReferences).not.toHaveBeenCalled();
 });

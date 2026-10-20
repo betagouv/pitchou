@@ -65,16 +65,16 @@ afterEach(cleanup);
 test("la décision disparaît de la liste après suppression, sans recharger la page", async () => {
   render(DossierControles, { dossier });
 
-  await expect.element(page.getByRole("heading", { name: /AP-001/ })).toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /AP-001/u })).toBeVisible();
 
   await page.getByRole("button", { name: "Modifier" }).click();
   await page.getByRole("button", { name: "Supprimer cette décision administrative" }).click();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
 
   // It disappears from the rendered list without a manual reload.
-  await expect.element(page.getByRole("heading", { name: /AP-001/ })).not.toBeInTheDocument();
+  await expect.element(page.getByRole("heading", { name: /AP-001/u })).not.toBeInTheDocument();
   await expect
-    .element(page.getByText(/pas de décisions administrative à contrôler/i))
+    .element(page.getByText(/pas de décisions administrative à contrôler/iu))
     .toBeVisible();
 
   expect(deleteDecisionAdministrative).toHaveBeenCalledTimes(1);

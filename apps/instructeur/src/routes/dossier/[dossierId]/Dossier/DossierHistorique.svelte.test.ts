@@ -105,7 +105,7 @@ test.each([false, true])("renders CNPN emails with tracking available: %s", asyn
       );
     }
   } else {
-    expect(screen.queryByText(/Distribué au destinataire/)).toBeNull();
-    expect(screen.queryByText(/Ouverture détectée/)).toBeNull();
+    expect(screen.queryByText(/Distribué au destinataire/u)).toBeNull();
+    expect(screen.queryByText(/Ouverture détectée/u)).toBeNull();
   }
 });

@@ -45,7 +45,7 @@ test("desktop review control sits to the right, outside the highlight, with the 
   const control = view.container.querySelector<HTMLElement>(".field-change")!;
   const button = control.querySelector("button")!;
   await document.fonts.ready;
-  expect(control.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 31/08/2026");
+  expect(control.textContent?.replace(/\s+/gu, " ")).toContain("Modifié le 31/08/2026");
   expect(control.textContent).not.toContain("détectée");
   expect(control.getBoundingClientRect().left).toBeGreaterThan(
     highlight.getBoundingClientRect().right,

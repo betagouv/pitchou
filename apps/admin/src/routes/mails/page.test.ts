@@ -17,7 +17,7 @@ test("affiche les statistiques des mails CNPN", () => {
   expect(body).toContain("Mails envoyés");
   expect(body).toContain("Mails reçus par le CNPN");
   expect(body).toContain("Mails ouverts");
-  expect(body).toMatch(/>12</);
-  expect(body).toMatch(/>10</);
-  expect(body).toMatch(/>7</);
+  expect(body).toMatch(/>12</u);
+  expect(body).toMatch(/>10</u);
+  expect(body).toMatch(/>7</u);
 });

@@ -75,7 +75,7 @@ describe("créerPersonneOuMettreÀJourCodeAccès", () => {
     it("only contains URL-safe characters", async () => {
       const db = fakeDatabase().build();
       const code = await createPersonneOrUpdateCodeAcces("foo@bar.fr", db.knex);
-      expect(code).toMatch(/^[A-Za-z0-9_-]+$/);
+      expect(code).toMatch(/^[A-Za-z0-9_-]+$/u);
     });
   });
 });

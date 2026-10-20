@@ -16,7 +16,7 @@ export function normalizeEmail(email: string): string {
 export function normalizeEspeceName(name: string): string {
   return name
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[\u0300-\u036f]/gu, "") // remove accents
     .toLowerCase()
     .replaceAll("(le)", "")
     .replaceAll("(la)", "")
@@ -31,11 +31,11 @@ export function normalizeEspeceText(text: string): string {
   return text
     .trim()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[\u0300-\u036f]/gu, "") // remove accents
     .replaceAll("’", "'")
     .toLowerCase();
 }
 
 export function removeAccents(text: string): string {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/gu, "");
 }

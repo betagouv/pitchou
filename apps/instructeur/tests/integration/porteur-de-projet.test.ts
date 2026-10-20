@@ -12,13 +12,13 @@ test("a porteur references exactly one personne physique or personne morale", as
     .insert({ last_name: "Martin" })
     .returning("id");
 
-  await expect(db("porteur_de_projet").insert({})).rejects.toThrow(/porteur_de_projet_check/);
+  await expect(db("porteur_de_projet").insert({})).rejects.toThrow(/porteur_de_projet_check/u);
   await expect(
     db("porteur_de_projet").insert({
       personne_physique: personnePhysique,
       personne_morale: SIRET,
     }),
-  ).rejects.toThrow(/porteur_de_projet_check/);
+  ).rejects.toThrow(/porteur_de_projet_check/u);
   await db("porteur_de_projet").insert([
     { personne_physique: personnePhysique },
     { personne_morale: SIRET },

@@ -106,7 +106,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
       expect(getComputedStyle(element).fontSize).toBe("14px");
       expect(getComputedStyle(element).lineHeight).toBe("24px");
     }
-    const star = content.getByRole("button", { name: /^(Suivre|Ne plus suivre)$/ });
+    const star = content.getByRole("button", { name: /^(Suivre|Ne plus suivre)$/u });
     expect(star.getBoundingClientRect().width).toBe(32);
     expect(star.getBoundingClientRect().height).toBe(32);
     expect(getComputedStyle(star, "::before").width).toBe("24px");
@@ -129,7 +129,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
       const walker = document.createTreeWalker(badge, NodeFilter.SHOW_TEXT);
       while (walker.nextNode()) {
         const node = walker.currentNode;
-        for (const match of node.textContent!.matchAll(/\S+/g)) {
+        for (const match of node.textContent!.matchAll(/\S+/gu)) {
           const word = document.createRange();
           word.setStart(node, match.index);
           word.setEnd(node, match.index + match[0].length);

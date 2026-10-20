@@ -67,11 +67,11 @@ test("affiche les dates du mail associé à la saisine CNPN", async () => {
     deleteAvisExpert: vi.fn(),
   });
 
-  await expect.element(page.getByText(/Date d’ajout du courrier de saisine/)).toBeVisible();
+  await expect.element(page.getByText(/Date d’ajout du courrier de saisine/u)).toBeVisible();
   await expect.element(page.getByText("3 août 2026")).toBeVisible();
-  await expect.element(page.getByText(/Date d’envoi du mail via Pitchou/)).toBeVisible();
+  await expect.element(page.getByText(/Date d’envoi du mail via Pitchou/u)).toBeVisible();
   await expect.element(page.getByText("2 août 2026")).toBeVisible();
-  await expect.element(page.getByText(/Date de lecture de la saisine/)).toBeVisible();
+  await expect.element(page.getByText(/Date de lecture de la saisine/u)).toBeVisible();
   await expect.element(page.getByText("Pas encore lue")).toBeVisible();
 });
 

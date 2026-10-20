@@ -13,7 +13,7 @@ function coordinates(raw: string): Position[] {
   if (!raw.trim()) return [];
   return raw
     .trim()
-    .split(/\s+/)
+    .split(/\s+/u)
     .map((coordinate) => {
       const parts = coordinate.split(",");
       if (parts.length < 2 || !parts[0].trim() || !parts[1].trim()) {

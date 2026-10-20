@@ -120,7 +120,7 @@ describe("updateDecisionAdministrative", () => {
     const db = fakeDatabase().build();
     await expect(
       updateDecisionAdministrative({ ...baseDecision, id: undefined }, db.knex),
-    ).rejects.toThrow(/id manquant/);
+    ).rejects.toThrow(/id manquant/u);
   });
 
   it("does not upload nor clean up when fichier_upload is absent", async () => {

@@ -69,12 +69,12 @@ afterEach(async () => {
 
 test("standalone imports lock and replace rows atomically, retaining the anomaly-array API", async () => {
   expect(await dumpImpactEspeceFromFichier(dossier, file.id, db)).toEqual([]);
-  expect(queries[0]).toMatch(/^BEGIN/);
+  expect(queries[0]).toMatch(/^BEGIN/u);
   expect(queries[1]).toContain("for update");
   expect(queries.findIndex((sql) => sql.startsWith('delete from "impact_espece"'))).toBeLessThan(
     queries.findIndex((sql) => sql.startsWith('insert into "impact_espece"')),
   );
-  expect(queries.at(-1)).toMatch(/^COMMIT/);
+  expect(queries.at(-1)).toMatch(/^COMMIT/u);
 });
 
 test("database replacement errors propagate and roll back, never masquerading as anomalies", async () => {
@@ -82,7 +82,7 @@ test("database replacement errors propagate and roll back, never masquerading as
   await expect(dumpImpactEspeceFromFichier(dossier, file.id, db)).rejects.toThrow(
     "impact insert failed",
   );
-  expect(queries.at(-1)).toMatch(/^ROLLBACK/);
+  expect(queries.at(-1)).toMatch(/^ROLLBACK/u);
 });
 
 test("database read errors also propagate", async () => {
@@ -90,7 +90,7 @@ test("database read errors also propagate", async () => {
   await expect(dumpImpactEspeceFromFichier(dossier, file.id, db)).rejects.toThrow(
     "database unavailable",
   );
-  expect(queries.at(-1)).toMatch(/^ROLLBACK/);
+  expect(queries.at(-1)).toMatch(/^ROLLBACK/u);
 });
 
 test("object storage failures remain file anomalies", async () => {

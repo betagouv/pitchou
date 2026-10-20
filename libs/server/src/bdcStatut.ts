@@ -150,7 +150,7 @@ function applyTextSearch(
   query: Knex.QueryBuilder,
   text: string,
 ): void {
-  const words = text.trim().split(/\s+/).filter(Boolean);
+  const words = text.trim().split(/\s+/u).filter(Boolean);
   for (const word of words) {
     const pattern = `%${word}%`;
     query.where((builder) => {

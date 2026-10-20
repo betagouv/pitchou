@@ -14,7 +14,7 @@ afterEach(() => {
 });
 
 function channels(color: string) {
-  const [r, g, b, a = "1"] = color.match(/[\d.]+/g)!;
+  const [r, g, b, a = "1"] = color.match(/[\d.]+/gu)!;
   return { r: Number(r), g: Number(g), b: Number(b), a: Number(a) };
 }
 

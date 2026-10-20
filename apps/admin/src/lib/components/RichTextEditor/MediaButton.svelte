@@ -34,7 +34,7 @@
         .run();
     } else {
       // The file name (sans extension) makes a better-than-nothing alt text.
-      const alt = file.name.replace(/\.[^.]+$/, "");
+      const alt = file.name.replace(/\.[^.]+$/u, "");
       editor.chain().focus().setImage({ src: url, alt }).run();
     }
   }

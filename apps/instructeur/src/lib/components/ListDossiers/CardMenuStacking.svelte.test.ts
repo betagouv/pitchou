@@ -73,7 +73,7 @@ test("the open sort menu covers the card controls below it", async () => {
       currentInstructeurLeavesDossier: vi.fn(),
     },
   });
-  await userEvent.click(screen.getByRole("button", { name: /^Tri :/ }));
+  await userEvent.click(screen.getByRole("button", { name: /^Tri :/u }));
   const menu = screen.getByRole("menu");
   const button = screen.getByRole("button", { name: "Plus d’actions pour Projet 1" });
   const box = button.getBoundingClientRect();

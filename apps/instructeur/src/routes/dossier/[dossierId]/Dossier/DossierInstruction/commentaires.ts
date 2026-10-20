@@ -10,7 +10,7 @@ export function authorName(authorEmail: DossierCommentaire["author_email"]): str
 /** Initials shown in the avatar bubble, e.g. "vanessa.rispal@…" → "VR". */
 export function authorInitials(authorEmail: DossierCommentaire["author_email"]): string {
   const name = authorName(authorEmail);
-  const parts = name.split(/[._-]+/).filter(Boolean);
+  const parts = name.split(/[._-]+/u).filter(Boolean);
   const letters =
     parts.length >= 2
       ? [parts[0][0], parts[1][0]]

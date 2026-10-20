@@ -35,7 +35,7 @@ export function sanitizeCnpnEmailHtml(html: string): string {
       th: ["colspan"],
       td: ["colspan"],
     },
-    allowedStyles: { "*": { "text-align": [/^(left|center|right|justify)$/] } },
+    allowedStyles: { "*": { "text-align": [/^(left|center|right|justify)$/u] } },
     allowedSchemes: ["http", "https", "mailto"],
     allowProtocolRelative: false,
     transformTags: {

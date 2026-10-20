@@ -87,7 +87,7 @@ test("a champ another instructrice changed is not overwritten when the refresh b
   expect(modifierDossier).not.toHaveBeenCalled();
   expect(store.fullDossiers.get(DOSSIER_ID)?.enjeu).toBe(true);
   await waitFor(() => {
-    expect(screen.getByLabelText(/enjeu/i)).toBeTruthy();
+    expect(screen.getByLabelText(/enjeu/iu)).toBeTruthy();
   });
 });
 

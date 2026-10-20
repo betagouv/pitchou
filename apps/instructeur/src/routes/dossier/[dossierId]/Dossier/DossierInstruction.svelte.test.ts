@@ -145,7 +145,7 @@ test("public consultation uses a loadable filled megaphone mask", async () => {
   expect(style.width).toBe("16px");
   expect(style.height).toBe("16px");
   expect(style.maskImage).toContain("megaphone-fill.svg");
-  const url = style.maskImage.match(/^url\("(.+)"\)$/)![1];
+  const url = style.maskImage.match(/^url\("(.+)"\)$/u)![1];
   const response = await fetch(url);
   expect(response.ok).toBe(true);
   expect(await response.text()).toContain("<path");

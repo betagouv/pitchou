@@ -46,7 +46,7 @@ describe("encrypt then decrypt", () => {
 describe("chiffrerDonnéesSupplémentairesDossiers", () => {
   it("returns a base64 string (chosen to fit in a DS text field)", async () => {
     const cipher = await encryptDossiersAdditionalData("hello");
-    expect(cipher).toMatch(/^[A-Za-z0-9+/]+=*$/);
+    expect(cipher).toMatch(/^[A-Za-z0-9+/]+=*$/u);
   });
 
   it("produces a different ciphertext on each call for the same plaintext (random IV)", async () => {

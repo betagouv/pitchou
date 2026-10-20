@@ -8,7 +8,7 @@ test("affiche le libellé de la phase et la classe fr-tag", async () => {
 
   const tag = page.getByText("Instruction");
   await expect.element(tag).toBeVisible();
-  await expect.element(tag).toHaveClass(/fr-tag/);
+  await expect.element(tag).toHaveClass(/fr-tag/u);
 });
 
 test("applique la classe spécifique à chaque phase connue", async () => {

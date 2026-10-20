@@ -22,7 +22,7 @@
   // The draft is created by the list page's "+" before we get here, so the
   // entry always exists: this page only ever edits.
   const idParam = page.params.id!;
-  const entryId = /^\d+$/.test(idParam) ? Number(idParam) : null;
+  const entryId = /^\d+$/u.test(idParam) ? Number(idParam) : null;
 
   type Etat = "chargement" | "autorise" | "refuse" | "introuvable";
   let etat = $state<Etat>("chargement");

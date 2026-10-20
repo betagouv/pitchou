@@ -69,12 +69,12 @@ describe("downloadFichierResponse", () => {
     const cd = res.headers.get("content-disposition") ?? "";
 
     // No comma between two attachment= directives — undici joins repeated headers with ", ".
-    expect(cd).not.toMatch(/,\s*attachment/i);
-    expect(cd).toMatch(/^attachment;/i);
+    expect(cd).not.toMatch(/,\s*attachment/iu);
+    expect(cd).toMatch(/^attachment;/iu);
     // Diacritics stripped in the ASCII filename.
-    expect(cd).toMatch(/filename="ete 2025\.pdf"/);
+    expect(cd).toMatch(/filename="ete 2025\.pdf"/u);
     // Original name encoded in filename*.
-    expect(cd).toMatch(/filename\*=UTF-8''/);
+    expect(cd).toMatch(/filename\*=UTF-8''/u);
     expect(cd).toContain(encodeURI("été 2025.pdf"));
   });
 

@@ -137,8 +137,8 @@ export function getPersonnesEntreprisesData88444(
 
   if (personneMoraleOuPhysique === "une personne morale") {
     // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
-    const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/g, "");
-    if (/^\d{14}$/.test(siret ?? "")) {
+    const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/gu, "");
+    if (/^\d{14}$/u.test(siret ?? "")) {
       porteurDeProjet = { type: "personne_morale", siret: siret as EntrepriseSiret };
     }
     const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;

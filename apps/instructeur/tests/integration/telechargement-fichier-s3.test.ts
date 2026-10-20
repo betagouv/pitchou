@@ -24,8 +24,8 @@ test("GET /avis-expert/fichier/[id] expose un seul content-disposition même pou
   const res = await fetch(`${INTEGRATION_BASE_URL}${url}`);
 
   const cd = res.headers.get("content-disposition") ?? "";
-  expect(cd).toMatch(/^attachment;/i);
-  expect(cd).not.toMatch(/,\s*attachment/i);
-  expect(cd).toMatch(/filename="[^"]*"/i);
-  expect(cd).toMatch(/filename\*=UTF-8''/i);
+  expect(cd).toMatch(/^attachment;/iu);
+  expect(cd).not.toMatch(/,\s*attachment/iu);
+  expect(cd).toMatch(/filename="[^"]*"/iu);
+  expect(cd).toMatch(/filename\*=UTF-8''/iu);
 });

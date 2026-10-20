@@ -42,7 +42,7 @@ export function parseMinimalCreationRelations(
   if (porteur.type === "personne_morale") {
     rejectUnknownProperties(porteur, new Set(["type", "siret"]));
     const siret = trimmed(porteur.siret).replaceAll(" ", "");
-    if (!/^\d{14}$/.test(siret)) {
+    if (!/^\d{14}$/u.test(siret)) {
       error(400, "Le numéro de SIRET du porteur de projet doit contenir 14 chiffres.");
     }
     return {

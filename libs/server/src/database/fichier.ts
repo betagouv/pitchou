@@ -135,7 +135,7 @@ function transactionCommitted(transaction: Knex.Transaction): Promise<boolean> {
   // A query failure can make PostgreSQL turn COMMIT into ROLLBACK; retain the object then.
   const completed = transaction.executionPromise
     .then(
-      () => !queryFailed && /^(COMMIT;|RELEASE SAVEPOINT \w+;)$/.test(lastQuery),
+      () => !queryFailed && /^(COMMIT;|RELEASE SAVEPOINT \w+;)$/u.test(lastQuery),
       () => false,
     )
     .finally(() => {

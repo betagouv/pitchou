@@ -17,8 +17,8 @@ import type { ActiviteContext } from "./activiteContext.ts";
 const CODES_WITHOUT_CONTEXT = new Set<string>(ACTIVITE_CODES_WITHOUT_REQUEST_CONTEXT);
 
 export function isValidPhone(phone: string): boolean {
-  const digits = phone.replaceAll(/\D/g, "");
-  return /^\+?[0-9(). -]+$/.test(phone) && digits.length >= 10 && digits.length <= 15;
+  const digits = phone.replaceAll(/\D/gu, "");
+  return /^\+?[0-9(). -]+$/u.test(phone) && digits.length >= 10 && digits.length <= 15;
 }
 
 export function validateCreationCore(

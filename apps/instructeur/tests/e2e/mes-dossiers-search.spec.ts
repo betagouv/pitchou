@@ -95,7 +95,7 @@ test("le filtre Dossiers où je dois agir remplace à enjeux", async ({ page, db
   await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
   const button = page.getByRole("button", { name: "Dossiers où je dois agir", exact: true });
   await button.click();
-  await expect(page).toHaveURL(/actionInstructeur=1/);
+  await expect(page).toHaveURL(/actionInstructeur=1/u);
   await expect(page.getByTestId("card-dossier")).toContainText("Parc photovoltaïque à Anglet");
   await button.click();
   await expect(page.getByTestId("card-dossier")).toHaveCount(2);

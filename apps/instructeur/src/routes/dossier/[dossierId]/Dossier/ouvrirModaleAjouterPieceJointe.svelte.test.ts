@@ -72,7 +72,7 @@ test("trace l'ouverture de la modale depuis l'entête du dossier", async () => {
   const triggered = vi.spyOn(trigger, "click");
 
   // The entry point now lives in the "…" actions menu.
-  await page.getByRole("button", { name: /Plus d’actions/ }).click();
+  await page.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Ajouter une pièce jointe" }).click();
 
   expectTracking("enteteDossier");

@@ -31,7 +31,7 @@ describe("createSession", () => {
   it("returns a URL-safe token with at least 128 bits of entropy", async () => {
     const db = fakeDatabase().build();
     const token = await createSession(newSession, db.knex);
-    expect(token).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(token).toMatch(/^[A-Za-z0-9_-]+$/u);
     // 32 random bytes ≈ 43 base64url chars, well above the ~22-char / 128-bit floor.
     expect(token.length).toBeGreaterThanOrEqual(43);
   });

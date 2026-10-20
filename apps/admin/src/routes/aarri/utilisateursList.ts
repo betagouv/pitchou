@@ -49,7 +49,7 @@ function csvEscape(value: string | number | null): string {
   if (value === null || value === undefined) return "";
   const s = String(value);
   if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
-    return `"${s.replace(/"/g, '""')}"`;
+    return `"${s.replace(/"/gu, '""')}"`;
   }
   return s;
 }

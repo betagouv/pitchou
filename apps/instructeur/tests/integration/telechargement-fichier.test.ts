@@ -16,7 +16,7 @@ test("GET /avis-expert/fichier/[id] renvoie un seul en-tête Content-Disposition
   // content-disposition uses "; " between parameters and has no top-level ",".
   const contentDisposition = res.headers.get("content-disposition");
   expect(contentDisposition).not.toBeNull();
-  expect(contentDisposition).not.toMatch(/,\s*attachment/i);
+  expect(contentDisposition).not.toMatch(/,\s*attachment/iu);
 });
 
 test("GET /avis-expert/fichier/[id] expose filename et filename* dans un seul en-tête", async () => {
@@ -26,7 +26,7 @@ test("GET /avis-expert/fichier/[id] expose filename et filename* dans un seul en
   const res = await fetch(`${INTEGRATION_BASE_URL}${url}`);
 
   const contentDisposition = res.headers.get("content-disposition") ?? "";
-  expect(contentDisposition).toMatch(/^attachment;/i);
-  expect(contentDisposition).toMatch(/filename="[^"]*"/i);
-  expect(contentDisposition).toMatch(/filename\*=UTF-8''/i);
+  expect(contentDisposition).toMatch(/^attachment;/iu);
+  expect(contentDisposition).toMatch(/filename="[^"]*"/iu);
+  expect(contentDisposition).toMatch(/filename\*=UTF-8''/iu);
 });

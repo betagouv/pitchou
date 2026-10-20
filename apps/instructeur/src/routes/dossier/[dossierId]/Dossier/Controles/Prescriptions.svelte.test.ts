@@ -137,7 +137,7 @@ test("imports on confirmation, shows progress, and edits the saved prescription"
     ],
   } as unknown as Awaited<ReturnType<typeof refreshDossierFull>>);
   await expect.element(page.getByRole("status")).toHaveTextContent("1 prescription importée.");
-  await expect.element(page.getByRole("heading", { name: /Prescription importée/ })).toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /Prescription importée/u })).toBeVisible();
   await page.getByRole("button", { name: "Modifier les prescriptions" }).click();
   const description = container.querySelector<HTMLInputElement>("tbody td:nth-child(2) input")!;
   description.value = "Prescription modifiée";

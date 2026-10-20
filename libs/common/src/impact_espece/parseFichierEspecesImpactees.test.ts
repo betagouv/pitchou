@@ -129,6 +129,6 @@ describe("importDescriptionMenacesEspecesFromOdsArrayBuffer", () => {
         referentiel.méthodes,
         referentiel.moyensDePoursuite,
       ),
-    ).rejects.toThrow(/404404/);
+    ).rejects.toThrow(/404404/u);
   });
 });

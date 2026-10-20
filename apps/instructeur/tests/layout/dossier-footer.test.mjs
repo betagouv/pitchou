@@ -27,7 +27,7 @@ before(async () => {
         resolveId(source, importer) {
           if (!importer?.endsWith("/Dossier.svelte")) return;
           if (source.endsWith(".svelte") && !source.endsWith("/DossierTabList.svelte")) {
-            return `${fixture}${/Dossier(Instruction|DetailProjet)\.svelte$/.test(source) ? "Panel" : "Empty"}.svelte`;
+            return `${fixture}${/Dossier(Instruction|DetailProjet)\.svelte$/u.test(source) ? "Panel" : "Empty"}.svelte`;
           }
           if (source.endsWith("/aarri.ts")) return "\0layout:analytics";
           if (source.endsWith("/anomaliesFichierEspeces.ts")) return "\0layout:anomalies";
