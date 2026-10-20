@@ -67,9 +67,7 @@ function isDossierSummary(x: any): x is DossierSummary {
   if (!locationValid) return false;
 
   // DossierPersonnesImpliquées
-  const peopleValid =
-    (typeof x.deposant_last_name === "string" || x.deposant_last_name === null) &&
-    (typeof x.deposant_first_names === "string" || x.deposant_first_names === null);
+  const peopleValid = Array.isArray(x.acteurs);
 
   if (!peopleValid) return false;
 

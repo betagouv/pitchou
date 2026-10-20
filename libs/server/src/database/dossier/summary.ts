@@ -31,8 +31,6 @@ const columns = [
   "primary_department",
   "next_action_expected_from",
   "next_due_date",
-  "identite_demandeur.last_name as deposant_last_name",
-  "identite_demandeur.first_names as deposant_first_names",
   "enjeu",
   "onagre_demande_identifier",
   ...porteurDeProjetColumns,
@@ -124,12 +122,6 @@ function loadDossierSummaries(
         "dossier_access.dossier",
         "dossier.id",
       )
-      .leftJoin("identite_dossier as identite_demandeur", function () {
-        this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-          "identite_demandeur.type",
-          "demandeur",
-        );
-      })
       // Only reviewed labels resolve to an activity; labels pending review keep their raw display
       // through the fallback in `withResolvedActivite`.
       .leftJoin("activite_label", (join) =>

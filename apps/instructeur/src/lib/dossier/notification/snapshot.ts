@@ -17,7 +17,7 @@ function applicantValues(dossier: DossierFull): string {
           ([key]) =>
             key in applicantFieldLabels ||
             columns.has(key) ||
-            /^(deposant_|demandeur_|mandataire_|representative_)/u.test(key) ||
+            /^demandeur_/u.test(key) ||
             [
               "porteur_de_projet",
               "acteurs",

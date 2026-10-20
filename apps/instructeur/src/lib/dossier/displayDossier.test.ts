@@ -62,8 +62,7 @@ describe("formatPorteurDeProjet", () => {
   it("does not fall back on the deposant without porteur", () => {
     const dossier = {
       porteur_de_projet: null,
-      deposant_last_name: "Durand",
-      deposant_first_names: "Alice",
+      acteurs: [{ involvements: ["deposant"], last_name: "Durand", first_names: "Alice" }],
     } as unknown as DossierSummary;
     expect(formatPorteurDeProjet(dossier)).toBe("Non renseigné");
   });

@@ -27,8 +27,6 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // People involved
     porteur_de_projet,
     acteurs,
-    deposant_last_name,
-    deposant_first_names,
 
     // Next action
     next_action_expected_from,
@@ -90,8 +88,6 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     // People involved
     porteur_de_projet,
     acteurs: summaryActeurs(acteurs),
-    deposant_last_name,
-    deposant_first_names,
 
     // Phase and next action
     phase: currentPhase,

@@ -27,8 +27,6 @@ const dossier = {
     phone: null,
     role: null,
   },
-  deposant_first_names: "Déposant",
-  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
   acteurs: [
     {

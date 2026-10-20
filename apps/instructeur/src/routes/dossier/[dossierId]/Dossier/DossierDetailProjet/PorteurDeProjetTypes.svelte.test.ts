@@ -15,10 +15,17 @@ const dossier = {
   source: "demarche_numerique",
   name: "Projet test",
   porteur_de_projet: null,
-  deposant_first_names: "Déposant",
-  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
   acteurs: [
+    {
+      involvements: ["deposant"],
+      first_names: "Déposant",
+      last_name: "Ancien",
+      email: null,
+      address: null,
+      phone: null,
+      role: null,
+    },
     {
       involvements: ["personne_contact"],
       first_names: "Alex",
@@ -59,8 +66,8 @@ test("a personne physique porteur shows its own values, not the deposant nor the
     "40000 Mont",
   ])
     expect(porteur.textContent).toContain(value);
-  for (const value of ["Déposant", "Ancien", "ancien-profil@test.fr"])
-    expect(view.container.textContent).not.toContain(value);
+  for (const value of ["Déposant", "Ancien"]) expect(porteur.textContent).not.toContain(value);
+  expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
 });
 
 test("a personne morale porteur shows its entreprise in the porteur block, without a demandeur block", () => {
@@ -101,7 +108,7 @@ test("without porteur the block says Non renseigné, without falling back on the
   const porteur = view.container.querySelector('[aria-label="Porteur de projet"]')!;
   expect(porteur.textContent).toContain("Non renseigné");
   expect(porteur.textContent).not.toContain("Personne");
-  expect(view.container.textContent).not.toContain("Déposant");
+  expect(porteur.textContent).not.toContain("Déposant");
 });
 
 test("the porteur block lists every column of its personne physique or entreprise, even empty", () => {
