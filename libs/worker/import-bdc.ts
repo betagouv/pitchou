@@ -1,3 +1,4 @@
+import { cleanHtmlText } from "./import-bdc/text.ts";
 import { createReadStream } from "node:fs";
 
 import { parse } from "csv-parse";
@@ -62,23 +63,6 @@ async function main() {
   await flush();
 
   console.info(`BDC-Statuts importé : ${total} lignes dans espece_bdc_statut`);
-}
-
-function cleanHtmlText(value: string): string {
-  return decodeHtmlEntities(value.replaceAll(/<[^>]*>/gu, "")).trim();
-}
-
-function decodeHtmlEntities(value: string): string {
-  return value
-    .replaceAll(/&#(\d+);/gu, (_, code: string) => String.fromCharCode(Number(code)))
-    .replaceAll(/&#x([\da-f]+);/giu, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
-    .replaceAll("&nbsp;", " ")
-    .replaceAll("&amp;", "&")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&#39;", "'")
-    .replaceAll("&apos;", "'")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">");
 }
 
 try {
