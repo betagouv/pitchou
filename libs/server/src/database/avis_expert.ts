@@ -54,18 +54,17 @@ export async function addOrUpdateAvisExpertWithFichiers(
         },
         databaseConnection,
       );
-    } else {
-      const avisExpertToInsert = avisExpert as AvisExpertInitializer;
-
-      return addAvisExpert(
-        {
-          ...avisExpertToInsert,
-          saisine_fichier: fichierSaisineAdded?.id ?? undefined,
-          avis_fichier: fichierAvisAdded?.id ?? undefined,
-        },
-        databaseConnection,
-      );
     }
+    const avisExpertToInsert = avisExpert as AvisExpertInitializer;
+
+    return addAvisExpert(
+      {
+        ...avisExpertToInsert,
+        saisine_fichier: fichierSaisineAdded?.id ?? undefined,
+        avis_fichier: fichierAvisAdded?.id ?? undefined,
+      },
+      databaseConnection,
+    );
   } catch (e) {
     // Keep the typed error so the HTTP route can answer 4xx instead of 500.
     if (e instanceof UploadedFichierError) throw e;
@@ -83,10 +82,9 @@ export function addOrUpdateAvisExpert(
   if (isAvisExpertToUpdate(avisExpert)) {
     const avisExpertToUpdate = avisExpert as { id: string } & AvisExpertMutator;
     return updateAvisExpert(avisExpertToUpdate, databaseConnection);
-  } else {
-    const avisExpertToInsert = avisExpert as AvisExpertInitializer;
-    return addAvisExpert(avisExpertToInsert, databaseConnection);
   }
+  const avisExpertToInsert = avisExpert as AvisExpertInitializer;
+  return addAvisExpert(avisExpertToInsert, databaseConnection);
 }
 
 export function addAvisExpert(

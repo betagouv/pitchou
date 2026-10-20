@@ -16,9 +16,8 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
   if (typeof d === "object") {
     if (isValidDate(d)) {
       return d;
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   if (!d) return undefined;
@@ -46,10 +45,8 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
 
   if (isValidDate(date)) {
     return date;
-  } else {
-    //console.warn(`Date non reconnue (${d})`)
-    return undefined;
   }
+  return undefined;
 }
 
 export function normalizeCommuneName(communeName: string): string {

@@ -215,9 +215,6 @@ export function loadDossiers() {
 
       return dossiersById;
     });
-  } else {
-    return Promise.reject(
-      new TypeError("Impossible de charger les dossiers, capability manquante"),
-    );
   }
+  return Promise.reject(new TypeError("Impossible de charger les dossiers, capability manquante"));
 }

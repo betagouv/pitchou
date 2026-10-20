@@ -118,8 +118,6 @@ export default async function downloadNewFichiers(
 
         if (successfullyDownloadedFichiers.length > 0) {
           return [number, successfullyDownloadedFichiers];
-        } else {
-          return;
         }
       });
     },
