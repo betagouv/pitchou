@@ -32,7 +32,7 @@ export default function findCandidateFichiersToDownload(
           fichierDescriptions = champFichier.rows.map((r) => r.champs.map((c) => c.files)).flat(2);
         }
 
-        return fichierDescriptions && fichierDescriptions.length >= 1
+        return fichierDescriptions && fichierDescriptions.length > 0
           ? [number, fichierDescriptions]
           : undefined;
       })

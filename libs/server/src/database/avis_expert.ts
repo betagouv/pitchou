@@ -128,7 +128,7 @@ export async function updateAvisExpert(
     if (checkAvis && old.avis_fichier !== null && old.avis_fichier !== avisExpert.avis_fichier) {
       fichierIdsToCleanUp.push(old.avis_fichier);
     }
-    if (fichierIdsToCleanUp.length >= 1) {
+    if (fichierIdsToCleanUp.length > 0) {
       await deleteFichiersWithoutOtherReferences(fichierIdsToCleanUp, databaseConnection);
     }
   }
@@ -151,7 +151,7 @@ export async function deleteAvisExpert(
 
   const result = await databaseConnection("avis_expert").delete().whereIn("id", idsToDelete);
 
-  if (fichierIds.length >= 1) {
+  if (fichierIds.length > 0) {
     await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
   }
 

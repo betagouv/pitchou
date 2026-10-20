@@ -38,7 +38,7 @@ export function addPrescriptionsEtControles(
     Promise.all(
       prescriptions.map(async ({ controles, ...prescription }) => {
         const { prescriptionId } = await addPrescription(prescription, transaction);
-        if (controles && controles.length >= 1) {
+        if (controles && controles.length > 0) {
           return addControles(
             controles.map((controle) => ({ ...controle, prescription: prescriptionId })),
             transaction,

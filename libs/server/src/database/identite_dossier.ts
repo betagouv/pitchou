@@ -89,7 +89,7 @@ export async function syncIdentitesDossier(
     ([dossier, identitesDossier]) => identitesDossier.map((identite) => ({ ...identite, dossier })),
   );
 
-  if (identites.length >= 1) {
+  if (identites.length > 0) {
     await databaseConnection("identite_dossier").insert(identites);
   }
 

@@ -45,7 +45,7 @@
       "fr-btn",
       "fr-btn--icon-left",
       "fr-icon-add-line",
-      decisionsAdministratives.length >= 1 ||
+      decisionsAdministratives.length > 0 ||
       phase === "Accompagnement amont" ||
       phase === "Étude recevabilité"
         ? "fr-btn--secondary"

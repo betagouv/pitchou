@@ -54,7 +54,7 @@ export async function seedExpertAvis(
           );
         }
 
-        if (Object.keys(fichiersAAjouter).length >= 1) {
+        if (Object.keys(fichiersAAjouter).length > 0) {
           await transaction("avis_expert").where({ id: avisData.id }).update(fichiersAAjouter);
         }
       }

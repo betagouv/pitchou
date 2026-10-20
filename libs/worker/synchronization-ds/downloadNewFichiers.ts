@@ -104,7 +104,7 @@ export default async function downloadNewFichiers(
         ];
       })
       // @ts-ignore
-      .filter(([, fichiers]) => fichiers.length >= 1),
+      .filter(([, fichiers]) => fichiers.length > 0),
   );
 
   //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
@@ -122,7 +122,7 @@ export default async function downloadNewFichiers(
       ).then((downloadedFichiers) => {
         const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
 
-        if (successfullyDownloadedFichiers.length >= 1) {
+        if (successfullyDownloadedFichiers.length > 0) {
           return [number, successfullyDownloadedFichiers];
         } else {
           return undefined;
@@ -148,7 +148,7 @@ export default async function downloadNewFichiers(
 
     const allIds = [...fichierIdsAlreadyInDB, ...newFichierIds];
 
-    if (allIds.length >= 1) fichiersByDossier.set(dossierNumber, allIds);
+    if (allIds.length > 0) fichiersByDossier.set(dossierNumber, allIds);
   }
 
   return fichiersByDossier;

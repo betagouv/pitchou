@@ -12,7 +12,7 @@ export async function removePrefillEspece(
   if (index < 0) return;
   remove(index);
   await tick();
-  if (!impacted.length) return fallback?.focus();
+  if (impacted.length === 0) return fallback?.focus();
   const nextIndex = index === impacted.length ? index - 1 : index;
   const nextEspece = impacted[nextIndex]?.espèce;
   const nextButton = buttonRefs.find(

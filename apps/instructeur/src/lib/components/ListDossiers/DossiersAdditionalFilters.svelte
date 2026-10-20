@@ -12,7 +12,7 @@
   const especesSummary = $derived.by(() => {
     const [first, ...others] = draft.espece;
     if (!first) return "Recherchez une ou plusieurs espèces protégées…";
-    if (others.length) return `${draft.espece.length} espèces sélectionnées`;
+    if (others.length > 0) return `${draft.espece.length} espèces sélectionnées`;
     const espece = store.espèceByCD_REF?.get(first);
     return espece ? especeLabel(espece) : first;
   });

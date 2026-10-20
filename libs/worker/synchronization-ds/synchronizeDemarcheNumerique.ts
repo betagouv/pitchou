@@ -36,7 +36,7 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
   );
 
   const dossierPersistence =
-    dossiersToInitialize.length >= 1 || dossiersToUpdate.length >= 1
+    dossiersToInitialize.length > 0 || dossiersToUpdate.length > 0
       ? dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
       : undefined;
   const deletedDossiers = deletedDossiersP.then((deleted) =>

@@ -130,7 +130,7 @@ function loadDossierSummaries(
       .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
       .then((dossiers: DossierSummary[]) =>
         dossiers.map((dossier) => {
-          dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
+          dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length > 0;
           return withResolvedActivite(withPorteurDeProjet(dossier));
         }),
       )

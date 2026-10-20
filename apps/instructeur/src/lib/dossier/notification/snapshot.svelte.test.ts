@@ -15,23 +15,24 @@ vi.mock("$app/navigation", () => ({ goto: vi.fn() }));
 const id = 123 as DossierFull["id"];
 const notice = (ids: string[]): DossierNotification => ({
   dossier: id,
-  viewed: !ids.length,
+  viewed: ids.length === 0,
   updated_at: new Date(),
   viewed_at: null,
   new_arrival: null,
   new_follow: null,
-  changes: ids.length
-    ? [
-        {
-          field: "Description",
-          column: "description",
-          label: "Description",
-          revisions: ids as ActionDossierId[],
-          detected_at: new Date(),
-          modified_at: null,
-        },
-      ]
-    : [],
+  changes:
+    ids.length > 0
+      ? [
+          {
+            field: "Description",
+            column: "description",
+            label: "Description",
+            revisions: ids as ActionDossierId[],
+            detected_at: new Date(),
+            modified_at: null,
+          },
+        ]
+      : [],
 });
 const body = (description: string, ids: string[]): DossierFull =>
   ({

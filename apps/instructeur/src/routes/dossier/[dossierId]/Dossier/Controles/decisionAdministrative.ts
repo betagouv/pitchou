@@ -23,6 +23,18 @@ import type {
 } from "@pitchou/types/API_Pitchou.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
 
+const prescriptionColumns = [
+  "Numéro article",
+  "Description",
+  "Date échéance",
+  "Surface compensée",
+  "Surface évitée",
+  "Individus compensés",
+  "Individus évités",
+  "Nids compensés",
+  "Nids évités",
+];
+
 export async function createPrescriptionControlesFromFichier(
   fichierPrescriptionControleAB: ArrayBuffer,
   decisionAdministrative: FrontEndDecisionAdministrative,
@@ -43,17 +55,6 @@ export async function createPrescriptionControlesFromFichier(
       "La première feuille du fichier ne contient aucune prescription.",
     );
   }
-  const prescriptionColumns = [
-    "Numéro article",
-    "Description",
-    "Date échéance",
-    "Surface compensée",
-    "Surface évitée",
-    "Individus compensés",
-    "Individus évités",
-    "Nids compensés",
-    "Nids évités",
-  ];
   if (!prescriptionColumns.some((column) => column in cleanData[0])) {
     throw new PrescriptionImportError(
       "Aucune colonne de prescription reconnue. Utilisez les noms de colonnes du modèle.",
@@ -88,7 +89,7 @@ export async function createPrescriptionControlesFromFichier(
 
       const controles = parseControles(row);
 
-      if (controles.length >= 1) {
+      if (controles.length > 0) {
         // @ts-ignore
         prescription.controles = controles;
       }
@@ -96,13 +97,16 @@ export async function createPrescriptionControlesFromFichier(
       return prescription;
     });
 
-  if (!candidatePrescriptions.length) {
+  if (candidatePrescriptions.length === 0) {
     throw new PrescriptionImportError(
       `Aucune prescription ne correspond à cette décision. La colonne "Numéro décision administrative" doit être vide ou contenir "${decisionNumber ?? ""}".`,
     );
   }
 
-  if (conversions.length && JSON.stringify(conversions) !== JSON.stringify(acceptedConversions)) {
+  if (
+    conversions.length > 0 &&
+    JSON.stringify(conversions) !== JSON.stringify(acceptedConversions)
+  ) {
     throw new SurfaceConversionRequired(conversions);
   }
   await addPrescriptionsAndControles(candidatePrescriptions);

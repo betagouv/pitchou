@@ -44,7 +44,7 @@ export async function rebuildEspeceProtegeeReference(
 
   await databaseConnection.transaction(async (trx) => {
     await trx("espece_protegee_reference").truncate();
-    if (rows.length >= 1) await trx.batchInsert("espece_protegee_reference", rows, 1000);
+    if (rows.length > 0) await trx.batchInsert("espece_protegee_reference", rows, 1000);
   });
 }
 

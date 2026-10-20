@@ -17,7 +17,7 @@ export async function markInitialDossierActions(
   // Keep the records, but exclude them from review and the modification history.
   const existingIds = new Set(existingDossiers.map(({ id }) => id));
   const initialIds = [...dossierIdByDNNumber.values()].filter((id) => !existingIds.has(id));
-  if (initialIds.length) {
+  if (initialIds.length > 0) {
     await transaction("action_dossier")
       .whereIn("dossier", initialIds)
       .where("author_petitionnaire", true)

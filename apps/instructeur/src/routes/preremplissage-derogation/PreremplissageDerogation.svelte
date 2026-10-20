@@ -86,7 +86,7 @@
 
     for (const field of fillableFields) {
       if (field["__typename"] === "HeaderSectionChampDescriptor") {
-        if (group.fields.length) {
+        if (group.fields.length > 0) {
           result.push(group);
         }
         group = {

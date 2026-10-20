@@ -85,7 +85,8 @@ export function assertEditableDossierColumns(columns: DossierMutator | undefined
   const unknown = Object.keys(columns ?? {}).filter(
     (key) => !ADMIN_EDITABLE_DOSSIER_COLUMNS.has(key as keyof Dossier),
   );
-  if (unknown.length) throw new TypeError(`Non-editable dossier columns: ${unknown.join(", ")}`);
+  if (unknown.length > 0)
+    throw new TypeError(`Non-editable dossier columns: ${unknown.join(", ")}`);
 }
 export async function getDossierSyncStatus(
   dossierId: DossierId,

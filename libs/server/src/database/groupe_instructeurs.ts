@@ -32,24 +32,26 @@ export async function synchronizeGroupesInstructeurs(
   const groupesDB = await getGroupesInstructeurs(demarcheNumber, databaseConnection);
 
   const groupesMissing = groupesAPI.filter(({ label }) => !groupesDB.has(label));
-  const groupesCreated = groupesMissing.length
-    ? createGroupesInstructeurs(
-        groupesMissing,
-        instructeurByEmail,
-        demarcheNumber,
-        databaseConnection,
-      )
-    : Promise.resolve();
+  const groupesCreated =
+    groupesMissing.length > 0
+      ? createGroupesInstructeurs(
+          groupesMissing,
+          instructeurByEmail,
+          demarcheNumber,
+          databaseConnection,
+        )
+      : Promise.resolve();
 
   const extraGroupes = [...groupesDB].filter(
     ([name]) => !groupesAPI.some(({ label }) => label === name),
   );
-  const groupesDeleted = extraGroupes.length
-    ? deleteGroupesInstructeurs(
-        extraGroupes.map(([, { id }]) => id),
-        databaseConnection,
-      )
-    : Promise.resolve();
+  const groupesDeleted =
+    extraGroupes.length > 0
+      ? deleteGroupesInstructeurs(
+          extraGroupes.map(([, { id }]) => id),
+          databaseConnection,
+        )
+      : Promise.resolve();
 
   const membershipsUpdated = Promise.all(
     groupesAPI.map(({ label, instructeurs: groupeInstructeurs }) => {
@@ -62,10 +64,10 @@ export async function synchronizeGroupesInstructeurs(
         else emailsToAdd.add(email);
       }
       return Promise.all([
-        emailsToAdd.size
+        emailsToAdd.size > 0
           ? addPersonnesToGroupeByEmails(groupe.id, emailsToAdd, databaseConnection)
           : Promise.resolve(),
-        emailsToRemove.size
+        emailsToRemove.size > 0
           ? deletePersonnesFromGroupeByEmail(groupe.id, emailsToRemove, databaseConnection)
           : Promise.resolve(),
       ]);

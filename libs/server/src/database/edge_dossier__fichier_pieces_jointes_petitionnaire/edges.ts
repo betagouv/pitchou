@@ -8,7 +8,7 @@ export async function insertFileEdges(
   dossiersWithNewPiecesJointes: Set<DossierId>,
   databaseConnection: Knex.Transaction | Knex,
 ) {
-  if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
+  if (edgesFichierDossierPiecesJointePetitionnaires.length > 0) {
     // The insert ignores conflicts, so the historique must only log the edges
     // that do not exist yet — every sync run re-submits the same candidates.
     const existingEdges: { dossier: DossierId; fichier: FileId }[] = await databaseConnection(
@@ -34,7 +34,7 @@ export async function insertFileEdges(
       .onConflict(["dossier", "fichier"])
       .ignore();
 
-    if (newEdges.length >= 1) {
+    if (newEdges.length > 0) {
       const fileNames = new Map<FileId, string | null>(
         (
           await databaseConnection("file")

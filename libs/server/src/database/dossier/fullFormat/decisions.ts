@@ -27,7 +27,7 @@ export function assignDecisions(
     values.push(frontEndPrescription);
     prescriptionsByDecision.set(prescription.decision_administrative, values);
   }
-  if (decisions.length) {
+  if (decisions.length > 0) {
     dossier.decisionsAdministratives = decisions.map(
       ({
         id,

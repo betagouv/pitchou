@@ -50,7 +50,7 @@ export function getDocumentGenerationTags(
   // Transform the impacted especes if they exist. Left undefined rather than empty when there is
   // nothing to say: that is what a template testing the tag expects.
   const groupedEspecesByTypeImpact: EspecesByTypeImpact[] | undefined =
-    impacts.length >= 1 ? groupImpactsByTypeImpact(impacts) : undefined;
+    impacts.length > 0 ? groupImpactsByTypeImpact(impacts) : undefined;
 
   const { hirondelleTags, cigogneTags } = birdTags(dossier);
 

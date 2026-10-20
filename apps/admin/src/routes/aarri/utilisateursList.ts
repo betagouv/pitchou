@@ -139,7 +139,7 @@ export function matchesText(utilisateur: UtilisateurAARRI, text: string): boolea
     .trim()
     .split(" ")
     .map((word) => removeAccents(word.toLowerCase()))
-    .filter((word) => word.length >= 1);
+    .filter((word) => word.length > 0);
 
   const haystack = [utilisateur.email, utilisateur.lastName, utilisateur.firstNames]
     .map(normalize)

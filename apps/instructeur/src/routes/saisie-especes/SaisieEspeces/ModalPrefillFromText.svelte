@@ -129,7 +129,7 @@
     for (const especes of Object.values(especesProtegeesParClassification)) {
       for (const espece of especes) {
         const { nomsScientifiques, nomsVernaculaires } = espece;
-        if (nomsScientifiques.size >= 1) {
+        if (nomsScientifiques.size > 0) {
           for (const name of nomsScientifiques) {
             const normalized = normalizeEspeceName(name);
             if (normalized && normalized.length >= 3) {
@@ -138,7 +138,7 @@
           }
         }
 
-        if (nomsVernaculaires.size >= 1) {
+        if (nomsVernaculaires.size > 0) {
           for (const name of nomsVernaculaires) {
             const normalized = normalizeEspeceName(name);
             if (normalized && normalized.length >= 3) {

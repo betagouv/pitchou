@@ -29,7 +29,7 @@ export async function prepareEntreprises(
     entreprisesBySiret.set(entreprise.siret, entreprise as Entreprise);
   }
   const companyActions: ActionDossierInitializer[] = [];
-  if (dossiersToUpdateForSync.length || entreprisesBySiret.size) {
+  if (dossiersToUpdateForSync.length > 0 || entreprisesBySiret.size > 0) {
     const current: (Entreprise & {
       dossier: DossierId;
       demarche_numerique_number: string;
@@ -53,11 +53,12 @@ export async function prepareEntreprises(
         dossier.demandeur_personne_morale,
       ]),
     );
-    const storedCompanies: Entreprise[] = entreprisesBySiret.size
-      ? await transaction("entreprise")
-          .select("*")
-          .whereIn("siret", [...entreprisesBySiret.keys()])
-      : [];
+    const storedCompanies: Entreprise[] =
+      entreprisesBySiret.size > 0
+        ? await transaction("entreprise")
+            .select("*")
+            .whereIn("siret", [...entreprisesBySiret.keys()])
+        : [];
     const storedBySiret = new Map(storedCompanies.map((company) => [company.siret, company]));
     const writtenProperties = new Set([...entreprisesBySiret.values()].flatMap(Object.keys));
     companyActions.push(
@@ -71,7 +72,7 @@ export async function prepareEntreprises(
     );
     await logActionsDossier(companyActions, transaction);
   }
-  if (entreprisesBySiret.size >= 1) {
+  if (entreprisesBySiret.size > 0) {
     await dumpEntreprises([...entreprisesBySiret.values()], transaction);
   }
 

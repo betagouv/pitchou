@@ -92,7 +92,7 @@ async function synchronizeDossierImpacts(
   const anomalies = fileId
     ? await dumpImpactEspeceFromFichier(current.id, fileId, databaseConnection)
     : [];
-  if (anomalies.length) console.warn(`Dossier ${number} — ${anomaliesTitle(anomalies)}`);
+  if (anomalies.length > 0) console.warn(`Dossier ${number} — ${anomaliesTitle(anomalies)}`);
 
   // An old file may still be shared elsewhere, so its cascade is not enough to clear rows.
   const obsolete = databaseConnection("impact_espece").where({ dossier: current.id });
@@ -111,14 +111,15 @@ async function synchronizeDossierImpacts(
         before.every(({ source_file }) => source_file === current.especes_impactees);
   const coarse = !hasPreviousSnapshot || anomalies.length > 0;
   const groups = coarse ? [] : changedImpactTypes(before, after);
-  const labels: { identifiant_pitchou: string; libelle_pitchou: string }[] = groups.length
-    ? await databaseConnection("impact_type")
-        .select("identifiant_pitchou", "libelle_pitchou")
-        .whereIn(
-          "identifiant_pitchou",
-          groups.filter((group) => group !== null),
-        )
-    : [];
+  const labels: { identifiant_pitchou: string; libelle_pitchou: string }[] =
+    groups.length > 0
+      ? await databaseConnection("impact_type")
+          .select("identifiant_pitchou", "libelle_pitchou")
+          .whereIn(
+            "identifiant_pitchou",
+            groups.filter((group) => group !== null),
+          )
+      : [];
   const labelByType = new Map(labels.map((row) => [row.identifiant_pitchou, row.libelle_pitchou]));
   const data = coarse
     ? [{ field: "especes", label: "Espèces impactées", notification: true }]
@@ -135,5 +136,5 @@ async function synchronizeDossierImpacts(
     author_petitionnaire: true,
   }));
   await logActionsDossier(actions, databaseConnection);
-  if (actions.length) changedDossiers.add(current.id);
+  if (actions.length > 0) changedDossiers.add(current.id);
 }

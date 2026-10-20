@@ -15,7 +15,7 @@ export async function createAndReturnInstructeurPersonne(
     .select("*")
     .whereIn("email", emails)
     .where("access_code", null);
-  if (withoutCode.length) {
+  if (withoutCode.length > 0) {
     await databaseConnection("personne")
       .insert(
         withoutCode.map(({ id }) => ({ id, access_code: Math.random().toString(36).slice(2) })),
@@ -38,7 +38,7 @@ export async function addPersonnesToGroupeByEmails(
     .whereIn("email", [...emails])
     .leftJoin("cap_dossier", { "personne.access_code": "cap_dossier.personne_cap" })
     .whereNull("cap");
-  if (missingCaps.length) {
+  if (missingCaps.length > 0) {
     await databaseConnection("cap_dossier")
       .insert(missingCaps.map(({ access_code }) => ({ personne_cap: access_code })))
       .onConflict("personne_cap")

@@ -28,15 +28,15 @@ export function filterDossiers(
     const terms = searchTerms(query.text);
     result = result.filter((dossier) => dossierMatchesSearch(dossier, terms, ctx));
   }
-  if (query.phase.length) {
+  if (query.phase.length > 0) {
     result = result.filter((dossier) => query.phase.includes(dossier.phase));
   }
-  if (query.activite.length) {
+  if (query.activite.length > 0) {
     result = result.filter(
       (dossier) => dossier.activite_code !== null && query.activite.includes(dossier.activite_code),
     );
   }
-  if (query.espece.length) {
+  if (query.espece.length > 0) {
     const selected = new Set(query.espece);
     result = result.filter((dossier) =>
       (dossier.especesImpacteesCD_REF ?? []).some((cdRef) => selected.has(cdRef)),
@@ -45,7 +45,7 @@ export function filterDossiers(
   if (query.actionInstructeur) {
     result = result.filter((dossier) => dossier.next_action_expected_from === "Instructeur");
   }
-  if (query.prochaineAction.length) {
+  if (query.prochaineAction.length > 0) {
     const selected = query.prochaineAction as readonly string[];
     result = result.filter(
       (dossier) =>

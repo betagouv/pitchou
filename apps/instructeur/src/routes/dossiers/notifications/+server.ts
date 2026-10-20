@@ -37,7 +37,7 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   if (
     !value.arrival &&
     !value.followRevision &&
-    !(Array.isArray(value.revisions) && value.revisions.length)
+    !(Array.isArray(value.revisions) && value.revisions.length > 0)
   ) {
     error(400, "Aucune notification à valider.");
   }

@@ -19,7 +19,7 @@
 
   function changeSelection(selection: string[]) {
     const standard = selection.filter((mode) => standardModes.has(mode));
-    const custom = selection.includes(OTHER) ? (customModes.length ? customModes : [""]) : [];
+    const custom = selection.includes(OTHER) ? (customModes.length > 0 ? customModes : [""]) : [];
     onChange([...standard, ...custom]);
   }
 

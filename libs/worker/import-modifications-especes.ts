@@ -158,7 +158,7 @@ async function main() {
 
   console.info(`Drapeaux ministérielle: ${ministerielleCount}, CNPN: ${cnpnCount}`);
   console.info(`Ajouts « Espèce manquante »: ${additionCount}`);
-  if (notFound.length) {
+  if (notFound.length > 0) {
     console.warn(`⚠️  Manquantes introuvables dans espece_taxref: ${notFound.join(", ")}`);
   }
 }

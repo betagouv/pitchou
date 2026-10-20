@@ -43,7 +43,7 @@ export async function preparePersonnes(
     ...personnesWithEmail.values(),
     ...personnesWithoutEmail.values(),
   ].filter((personne) => !getPersonneId(personne));
-  if (personnesToCreate.length >= 1) {
+  if (personnesToCreate.length > 0) {
     const personneIds = await createPersonnes(personnesToCreate, transaction);
     personnesToCreate.forEach((personne, index) => {
       personne.id = personneIds[index].id;

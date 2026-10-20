@@ -50,11 +50,11 @@
     let fichierSaisine: File | undefined;
     let fichierAvis: File | undefined;
 
-    if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
+    if (fileListFichierSaisine && fileListFichierSaisine.length > 0) {
       fichierSaisine = fileListFichierSaisine[0];
     }
 
-    if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
+    if (fileListFichierAvis && fileListFichierAvis.length > 0) {
       fichierAvis = fileListFichierAvis[0];
     }
 

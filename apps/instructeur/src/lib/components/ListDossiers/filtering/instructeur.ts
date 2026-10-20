@@ -18,7 +18,7 @@ export function filterByInstructeur(
   query: DossiersQuery,
   followRelations: DossiersContext["followRelations"],
 ) {
-  if (query.instructeur.length) {
+  if (query.instructeur.length > 0) {
     // « sans instructeur » and named instructeurs combine with OR: keep dossiers that are
     // unfollowed and/or followed by any of the selected people.
     const includesWithoutInstructeur = query.instructeur.includes(WITHOUT_INSTRUCTEUR);

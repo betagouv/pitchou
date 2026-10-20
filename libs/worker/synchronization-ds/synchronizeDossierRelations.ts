@@ -55,10 +55,10 @@ export async function synchronizeDossierRelations(
   // caller needs the dossiers they changed.
   const identitesSynchronization = syncIdentitesDossier(identitesByDossierId, transaction);
   const synchronizations: unknown[] = [savePorteursDeProjet(porteurByDossierId, transaction)];
-  if (messagesByDossierId.size >= 1) {
+  if (messagesByDossierId.size > 0) {
     synchronizations.push(dumpDossierMessages(messagesByDossierId, transaction));
   }
-  if (dossiersDS.length >= 1) {
+  if (dossiersDS.length > 0) {
     synchronizations.push(
       synchronizeDossierInGroupeInstructeur(dossiersDS, demarcheNumber, transaction),
     );

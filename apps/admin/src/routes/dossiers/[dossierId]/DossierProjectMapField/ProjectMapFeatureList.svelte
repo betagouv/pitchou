@@ -20,7 +20,7 @@
 
   function remove(index: number) {
     const features = value.features.filter((_, featureIndex) => featureIndex !== index);
-    onChange(features.length >= 1 ? { ...value, features } : null);
+    onChange(features.length > 0 ? { ...value, features } : null);
   }
 </script>
 

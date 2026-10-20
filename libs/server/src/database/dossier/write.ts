@@ -55,8 +55,9 @@ export async function updateDossier(
         evenementsPhase.map((event) => ({ ...event, caused_by_personne: causePersonne })),
       )
     : undefined;
-  const updated = Object.keys(columns).length
-    ? await databaseConnection("dossier").where({ id }).update(columns)
-    : undefined;
+  const updated =
+    Object.keys(columns).length > 0
+      ? await databaseConnection("dossier").where({ id }).update(columns)
+      : undefined;
   return [phaseAdded, updated];
 }

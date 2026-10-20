@@ -61,6 +61,6 @@ export function boundReviewChanges(
   const pendingIds = new Set(pending.changes.flatMap(({ revisions }) => revisions));
   return snapshot.changes.flatMap((change) => {
     const revisions = change.revisions.filter((id) => pendingIds.has(id));
-    return revisions.length ? [{ ...change, revisions }] : [];
+    return revisions.length > 0 ? [{ ...change, revisions }] : [];
   });
 }

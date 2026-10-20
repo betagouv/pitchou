@@ -60,7 +60,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     (edge) => !checksumsByDossier.get(edge.dossier)?.has(edge.checksum),
   );
 
-  if (edgesToDelete.length >= 1) {
+  if (edgesToDelete.length > 0) {
     await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
       .delete()
       .whereIn(

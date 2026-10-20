@@ -127,7 +127,7 @@ async function replaceDossierRelations(
     groupe_instructeurs: relations.groupe_instructeurs,
   });
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
-  if (relations.identites.length >= 1) {
+  if (relations.identites.length > 0) {
     await trx("identite_dossier").insert(
       relations.identites.map((identite) => ({
         ...identite,
