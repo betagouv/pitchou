@@ -100,7 +100,7 @@ export async function loadFichierContent(
     name: f.name,
     media_type: f.media_type,
     body: s3.body,
-    size: f.size ? Number(f.size) : undefined,
+    size: f.size != null && f.size !== "" ? Number(f.size) : undefined,
   };
 }
 
