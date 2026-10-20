@@ -23,14 +23,15 @@ for (const email of emailsEnArgument) {
   const personne = personnesAvecCesEmails.find((p) => p.email === email);
   if (!personne) {
     console.log(`${email}\tPersonne non trouvée en base de données`);
-  } else {
-    if (personne.access_code) {
-      const lienDeConnexion = `${origin}/?secret=${personne.access_code}`;
+    continue;
+  }
 
-      console.log(`${email}\tLien de connexion: ${lienDeConnexion}`);
-    } else {
-      console.log(`${email}\tn'a pas de lien de connexion`);
-    }
+  if (personne.access_code) {
+    const lienDeConnexion = `${origin}/?secret=${personne.access_code}`;
+
+    console.log(`${email}\tLien de connexion: ${lienDeConnexion}`);
+  } else {
+    console.log(`${email}\tn'a pas de lien de connexion`);
   }
 }
 

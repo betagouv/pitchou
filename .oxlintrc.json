@@ -21,6 +21,7 @@
       }
     ],
     "eslint/no-inline-comments": "error",
+    "eslint/no-negated-condition": "error",
     "eslint/no-eval": "error",
     "eslint/no-new-func": "error",
     "eslint/no-throw-literal": "error",

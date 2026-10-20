@@ -60,19 +60,11 @@
         return possibleFieldTypes.includes(field["__typename"]);
       })
       .filter((field, i, currentArray) => {
-        if (field["__typename"] === "HeaderSectionChampDescriptor") {
-          const nextField = currentArray[i + 1];
+        if (field["__typename"] !== "HeaderSectionChampDescriptor") return true;
 
-          if (!nextField) return field["__typename"] !== "HeaderSectionChampDescriptor";
-
-          if (nextField["__typename"] !== "HeaderSectionChampDescriptor") {
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          return true;
-        }
+        const nextField = currentArray[i + 1];
+        if (!nextField) return false;
+        return nextField["__typename"] !== "HeaderSectionChampDescriptor";
       }),
   );
 

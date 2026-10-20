@@ -85,27 +85,24 @@ export function sortDossiersByPhaseProchaineAction(dossiers: DossierSummary[]): 
 
     if (phaseComparison !== 0) {
       return phaseComparison;
-    } else {
-      // phases are similar,
-      // compare on who the next action is expected from
-      const prochaineActionAttenduePar1 = dossier1.next_action_expected_from;
-      const prochaineActionAttenduePar2 = dossier2.next_action_expected_from;
-
-      const prochaineActionAttendueParComparison = compareProchaineActionAttenduePar(
-        prochaineActionAttenduePar1,
-        prochaineActionAttenduePar2,
-      );
-
-      if (prochaineActionAttendueParComparison !== 0) {
-        return prochaineActionAttendueParComparison;
-      } else {
-        const { startDate: startDate1 } = getCurrentPhaseStart(dossier1);
-        const { startDate: startDate2 } = getCurrentPhaseStart(dossier2);
-        // the prochaineActionAttenduePar are also similar
-        // compare on age (oldest dossier is the most relevant)
-
-        return startDate1.getTime() - startDate2.getTime();
-      }
     }
+
+    // For the same phase, compare who the next action is expected from.
+    const prochaineActionAttenduePar1 = dossier1.next_action_expected_from;
+    const prochaineActionAttenduePar2 = dossier2.next_action_expected_from;
+
+    const prochaineActionAttendueParComparison = compareProchaineActionAttenduePar(
+      prochaineActionAttenduePar1,
+      prochaineActionAttenduePar2,
+    );
+
+    if (prochaineActionAttendueParComparison !== 0) {
+      return prochaineActionAttendueParComparison;
+    }
+
+    // Break remaining ties by phase age, oldest first.
+    const { startDate: startDate1 } = getCurrentPhaseStart(dossier1);
+    const { startDate: startDate2 } = getCurrentPhaseStart(dossier2);
+    return startDate1.getTime() - startDate2.getTime();
   });
 }

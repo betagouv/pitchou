@@ -22,10 +22,10 @@
   function togglePublished() {
     if (model.published) {
       model.published = false;
-    } else if (!model.canPublish) {
-      publishBlockedOpen = true;
-    } else {
+    } else if (model.canPublish) {
       model.published = true;
+    } else {
+      publishBlockedOpen = true;
     }
   }
 </script>
