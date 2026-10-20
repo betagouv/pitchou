@@ -89,7 +89,7 @@ export function getPersonnesEntreprisesData88444(
 
   if (personneMoraleOuPhysique === "une personne morale") {
     // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
-    const siret = etablissement?.siret || siretChamp?.stringValue?.replace(/\s/gu, "");
+    const siret = etablissement?.siret || siretChamp?.stringValue?.replaceAll(/\s/gu, "");
     if (/^\d{14}$/u.test(siret ?? "")) {
       porteurDeProjet = { type: "personne_morale", siret: siret as EntrepriseSiret };
     }

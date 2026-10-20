@@ -55,7 +55,7 @@ export function parseRequest(value: Record<string, unknown>): SendCnpnEmailReque
     error(400, `Les pièces jointes doivent être uniques et limitées à ${MAX_ATTACHMENTS}.`);
   }
   const htmlBody = sanitizeCnpnEmailHtml(value.htmlBody);
-  if (!htmlBody.replace(/<[^>]+>/gu, "").trim()) error(400, "Le corps du mail est vide.");
+  if (!htmlBody.replaceAll(/<[^>]+>/gu, "").trim()) error(400, "Le corps du mail est vide.");
   return {
     requestId: value.requestId,
     recipient:

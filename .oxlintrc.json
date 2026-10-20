@@ -27,6 +27,7 @@
     "eslint/preserve-caught-error": "error",
     "eslint/require-unicode-regexp": "error",
     "unicorn/explicit-length-check": "error",
+    "unicorn/prefer-string-replace-all": "error",
     "promise/no-return-wrap": "error",
     "promise/no-new-statics": "error",
     "promise/param-names": "error",

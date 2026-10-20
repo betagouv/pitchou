@@ -107,7 +107,7 @@ test("modification ages use calendar days, even beyond a month", async () => {
     changes: [{ ...state.changes[0], detected_at: new Date(), modified_at: null }],
   });
   await tick();
-  expect(view.container.textContent?.replace(/\s+/gu, " ")).toContain("Modifié aujourd'hui");
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié aujourd'hui");
 });
 
 test("five seconds acknowledge arrival and the exact follow, never fields", async () => {

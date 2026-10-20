@@ -68,7 +68,7 @@ test.each([1440, 1024, 390])(
     };
     const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
     const headers = [...view.container.querySelectorAll<HTMLButtonElement>("h3 button")];
-    expect(headers.map((button) => button.textContent?.replace(/\s+/gu, " ").trim())).toEqual([
+    expect(headers.map((button) => button.textContent?.replaceAll(/\s+/gu, " ").trim())).toEqual([
       expect.stringMatching(/^Porteur de projet/u),
       expect.stringMatching(/^Informations du projet/u),
       expect.stringMatching(/^Cartographie du projet/u),

@@ -40,7 +40,7 @@ afterEach(() => {
 test("cleared values remain highlighted with the fallback date and a visible Vu button", () => {
   const view = render(ProjectField, { dossierId, label: "Description", value: null, change });
   expect(view.container.textContent).toContain("Non renseigné");
-  expect(view.container.textContent?.replace(/\s+/gu, " ")).toContain("Modifié le 01/09/2026");
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié le 01/09/2026");
   expect(view.container.textContent).not.toMatch(/détecté/iu);
   expect(view.container.querySelector("button")?.textContent?.trim()).toBe("Vu");
   expect(view.container.querySelector(".fr-icon-check-line")?.getAttribute("aria-hidden")).toBe(

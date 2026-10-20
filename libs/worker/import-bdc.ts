@@ -65,20 +65,20 @@ async function main() {
 }
 
 function cleanHtmlText(value: string): string {
-  return decodeHtmlEntities(value.replace(/<[^>]*>/gu, "")).trim();
+  return decodeHtmlEntities(value.replaceAll(/<[^>]*>/gu, "")).trim();
 }
 
 function decodeHtmlEntities(value: string): string {
   return value
-    .replace(/&#(\d+);/gu, (_, code: string) => String.fromCharCode(Number(code)))
-    .replace(/&#x([\da-f]+);/giu, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
-    .replace(/&nbsp;/gu, " ")
-    .replace(/&amp;/gu, "&")
-    .replace(/&quot;/gu, '"')
-    .replace(/&#39;/gu, "'")
-    .replace(/&apos;/gu, "'")
-    .replace(/&lt;/gu, "<")
-    .replace(/&gt;/gu, ">");
+    .replaceAll(/&#(\d+);/gu, (_, code: string) => String.fromCharCode(Number(code)))
+    .replaceAll(/&#x([\da-f]+);/giu, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
+    .replaceAll("&nbsp;", " ")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&apos;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">");
 }
 
 main().finally(() => closeDatabaseConnection());

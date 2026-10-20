@@ -21,7 +21,7 @@ export function updateCnpnAttachmentList(html: string, names: string[]): string 
   return html.replace(
     ATTACHMENT_LIST_PATTERN,
     (match, heading: string, _tag: string, list: string) =>
-      /^Liste des éléments transmis en PJ\s*:\s*$/u.test(heading.replace(/<[^>]*>/gu, "").trim())
+      /^Liste des éléments transmis en PJ\s*:\s*$/u.test(heading.replaceAll(/<[^>]*>/gu, "").trim())
         ? `${heading}${list}${items}</ul>`
         : match,
   );

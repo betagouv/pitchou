@@ -12,7 +12,7 @@ test("displays empty controlled and uncontrolled shares as 0%", () => {
   } as PublicStats;
   const { container } = render(PrescriptionStats, { stats });
   const labels = Array.from(container.querySelectorAll("span"), ({ textContent }) =>
-    textContent?.replace(/\s+/gu, " ").trim(),
+    textContent?.replaceAll(/\s+/gu, " ").trim(),
   );
   const chartWidths = Array.from(
     container.querySelectorAll<HTMLElement>(".fr-progress-bar > div"),
