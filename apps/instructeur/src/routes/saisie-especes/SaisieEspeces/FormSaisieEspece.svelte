@@ -45,7 +45,7 @@
     await tick();
 
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
-    referencesEspeces[referencesEspeces.length - 1].focusEspeceForm();
+    referencesEspeces.at(-1)?.focusEspeceForm();
   }
 
   async function deleteEspece(indexEspeceToDelete: number) {

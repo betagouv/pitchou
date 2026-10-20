@@ -125,7 +125,7 @@
     a.download = `instructrices_aarri_${today}.csv`;
     document.body.append(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }
 </script>

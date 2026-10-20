@@ -57,7 +57,7 @@
     await tick();
 
     referencesImpact = referencesImpact.filter((e) => e !== null);
-    referencesImpact[referencesImpact.length - 1].focusImpactForm();
+    referencesImpact.at(-1)?.focusImpactForm();
   }
 
   async function deleteImpact(indexImpactToDelete: number) {

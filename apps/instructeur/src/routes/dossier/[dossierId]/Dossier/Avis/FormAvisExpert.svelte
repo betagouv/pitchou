@@ -67,10 +67,8 @@
         if (avisExpert.expert !== otherExpertText) {
           avisExpert.expert = otherExpertText;
         }
-      } else {
-        if (avisExpert.expert !== serviceOuPersonneExperte) {
-          avisExpert.expert = serviceOuPersonneExperte;
-        }
+      } else if (avisExpert.expert !== serviceOuPersonneExperte) {
+        avisExpert.expert = serviceOuPersonneExperte;
       }
     }
 

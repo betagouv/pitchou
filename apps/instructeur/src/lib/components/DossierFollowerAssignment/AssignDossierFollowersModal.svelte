@@ -61,9 +61,7 @@
   }
 
   function addFollower({ email }: DossierFollowerCandidate) {
-    const next = new Set(selectedEmails);
-    next.add(email);
-    selectedEmails = next;
+    selectedEmails = new Set([...selectedEmails, email]);
   }
 
   function removeFollower(email: string) {

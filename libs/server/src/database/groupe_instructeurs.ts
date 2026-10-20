@@ -54,24 +54,27 @@ export async function synchronizeGroupesInstructeurs(
       : Promise.resolve();
 
   const membershipsUpdated = Promise.all(
-    groupesAPI.map(({ label, instructeurs: groupeInstructeurs }) => {
-      const groupe = groupesDB.get(label);
-      if (!groupe) return;
-      const emailsToRemove = new Set(groupe.instructeurs);
-      const emailsToAdd = new Set<NonNullable<Personne["email"]>>();
-      for (const { email } of groupeInstructeurs) {
-        if (emailsToRemove.has(email)) emailsToRemove.delete(email);
-        else emailsToAdd.add(email);
-      }
-      return Promise.all([
-        emailsToAdd.size > 0
-          ? addPersonnesToGroupeByEmails(groupe.id, emailsToAdd, databaseConnection)
-          : Promise.resolve(),
-        emailsToRemove.size > 0
-          ? deletePersonnesFromGroupeByEmail(groupe.id, emailsToRemove, databaseConnection)
-          : Promise.resolve(),
-      ]);
-    }),
+    groupesAPI
+      .flatMap(({ label, instructeurs }) => {
+        const groupe = groupesDB.get(label);
+        return groupe ? [{ groupe, instructeurs }] : [];
+      })
+      .map(({ groupe, instructeurs: groupeInstructeurs }) => {
+        const emailsToRemove = new Set(groupe.instructeurs);
+        const emailsToAdd = new Set<NonNullable<Personne["email"]>>();
+        for (const { email } of groupeInstructeurs) {
+          if (emailsToRemove.has(email)) emailsToRemove.delete(email);
+          else emailsToAdd.add(email);
+        }
+        return Promise.all([
+          emailsToAdd.size > 0
+            ? addPersonnesToGroupeByEmails(groupe.id, emailsToAdd, databaseConnection)
+            : Promise.resolve(),
+          emailsToRemove.size > 0
+            ? deletePersonnesFromGroupeByEmail(groupe.id, emailsToRemove, databaseConnection)
+            : Promise.resolve(),
+        ]);
+      }),
   );
 
   const instructeurEmailToId = new Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]>();

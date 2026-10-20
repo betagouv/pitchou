@@ -21,7 +21,7 @@
     link.href = URL.createObjectURL(await makeFileContentBlob());
     document.body.append(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
   }
 </script>
 

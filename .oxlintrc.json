@@ -60,7 +60,27 @@
         "ts-expect-error": "allow-with-description",
         "ts-check": false
       }
-    ]
+    ],
+    "eslint/no-loop-func": "error",
+    "eslint/max-depth": "error",
+    "eslint/no-lonely-if": "error",
+    "eslint/no-useless-return": "error",
+    "eslint/array-callback-return": "error",
+    "oxc/branches-sharing-code": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "unicorn/prefer-at": "error",
+    "unicorn/prefer-dom-node-remove": "error",
+    "unicorn/no-useless-promise-resolve-reject": "error",
+    "unicorn/new-for-builtins": "error",
+    "unicorn/prefer-import-meta-properties": "error",
+    "unicorn/prefer-array-some": "error",
+    "unicorn/prefer-regexp-test": "error",
+    "unicorn/prefer-native-coercion-functions": "error",
+    "unicorn/no-immediate-mutation": "error",
+    "unicorn/no-object-as-default-parameter": "error",
+    "unicorn/prefer-code-point": "error",
+    "unicorn/prefer-string-slice": "error",
+    "unicorn/prefer-single-call": "error"
   },
   "ignorePatterns": [
     "libs/types/src/database/**",

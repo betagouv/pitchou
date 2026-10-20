@@ -12,7 +12,7 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 export function parseSizeLimit(value: string): number {
   const multiplier =
     ({ K: 1024, M: 1024 * 1024, G: 1024 * 1024 * 1024 } as Record<string, number>)[
-      value[value.length - 1]?.toUpperCase()
+      value.at(-1)?.toUpperCase() ?? ""
     ] ?? 1;
   return Number(multiplier === 1 ? value : value.slice(0, -1)) * multiplier;
 }

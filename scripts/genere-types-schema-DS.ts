@@ -11,7 +11,7 @@ import parseArgs from "minimist";
 
 const args = parseArgs(process.argv);
 const schemaId = args.idSchemaDS;
-if (!schemaId) throw Error("L'ID du Schéma DS n'est pas défini.");
+if (!schemaId) throw new Error("L'ID du Schéma DS n'est pas défini.");
 
 const schemaUrl = `https://www.demarches-simplifiees.fr/preremplir/${schemaId}/schema`;
 const schemaPath = `data/demarche-numerique/schema-DS/${schemaId}.json`;

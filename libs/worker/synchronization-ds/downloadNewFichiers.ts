@@ -207,6 +207,5 @@ async function downloadAndStoreFichier(
       number,
       err instanceof Error ? err.message : String(err),
     );
-    return;
   }
 }

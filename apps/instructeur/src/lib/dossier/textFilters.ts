@@ -17,11 +17,11 @@ export function createTextFilter(
   dossiers: DossierSummary[],
 ): (dossier: DossierSummary) => boolean {
   // If the text contains digits, use direct search
-  if (textToSearch.match(/\d[\dA-Za-z-]*/u)) {
+  if (/\d[\dA-Za-z-]*/u.test(textToSearch)) {
     return (dossier) => {
       const { id, departments, communes, demarche_numerique_number, onagre_demande_identifier } =
         dossier;
-      const communesCodes = communes?.map(({ postalCode }) => postalCode).filter((c) => c) || [];
+      const communesCodes = communes?.map(({ postalCode }) => postalCode).filter(Boolean) || [];
 
       return (
         String(id) === textToSearch ||

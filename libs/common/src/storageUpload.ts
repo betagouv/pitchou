@@ -50,8 +50,9 @@ export async function sendFilesToStorage(
   let sentBefore = 0;
   onProgress(0);
   for (const [index, file] of files.entries()) {
+    const completedBytes = sentBefore;
     await putFileToStorage(urls[index].url, file, (loaded) => {
-      onProgress(total === 0 ? 1 : (sentBefore + loaded) / total);
+      onProgress(total === 0 ? 1 : (completedBytes + loaded) / total);
     });
     sentBefore += file.size;
   }
