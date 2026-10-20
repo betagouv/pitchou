@@ -47,7 +47,7 @@ export async function loadChangelogAdmin(): Promise<ChangelogEntryAdmin[]> {
 
   const entries = await response.json();
   if (!Array.isArray(entries)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/changelog.");
+    throw new TypeError("Réponse invalide reçue du serveur pour /api/changelog.");
   }
 
   return entries;
@@ -64,7 +64,7 @@ export async function createChangelogEntry(entry: ChangelogEntryPayload): Promis
 
   const { id } = await response.json();
   if (typeof id !== "number") {
-    throw new Error("Réponse invalide reçue du serveur à la création de l'entrée.");
+    throw new TypeError("Réponse invalide reçue du serveur à la création de l'entrée.");
   }
   return id;
 }
@@ -100,7 +100,7 @@ export async function uploadChangelogMedia(id: number, file: File): Promise<stri
 
   const { url } = await response.json();
   if (typeof url !== "string") {
-    throw new Error("Réponse invalide reçue du serveur à l'envoi du média.");
+    throw new TypeError("Réponse invalide reçue du serveur à l'envoi du média.");
   }
   return url;
 }

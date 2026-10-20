@@ -41,7 +41,7 @@ export async function loadUtilisateursAARRI(): Promise<UtilisateurAARRI[]> {
 
   const result = await response.json();
   if (!Array.isArray(result)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/utilisateurs-aarri.");
+    throw new TypeError("Réponse invalide reçue du serveur pour /api/utilisateurs-aarri.");
   }
   return result as UtilisateurAARRI[];
 }

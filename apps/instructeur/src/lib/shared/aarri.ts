@@ -14,7 +14,7 @@ export async function loadIndicatorsAARRI(): Promise<IndicatorsAARRI[]> {
   try {
     const indicatorsByDate = await json(`/api/aarri`).then((result) => {
       if (!Array.isArray(result)) {
-        throw new Error(
+        throw new TypeError(
           `Réponse invalide reçue du serveur pour la route /api/aarri : le résultat n'est pas un array`,
         );
       }

@@ -128,7 +128,7 @@ export async function loadGroupesInstructeurs(): Promise<AdminGroupeInstructeurs
 
   const groupes = await response.json();
   if (!Array.isArray(groupes)) {
-    throw new Error("Réponse invalide reçue du serveur pour les groupes instructeurs.");
+    throw new TypeError("Réponse invalide reçue du serveur pour les groupes instructeurs.");
   }
   return groupes as AdminGroupeInstructeurs[];
 }
