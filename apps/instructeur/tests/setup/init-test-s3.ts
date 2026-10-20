@@ -9,7 +9,8 @@ import {
 } from "@aws-sdk/client-s3";
 
 const S3_ENDPOINT = process.env.TEST_S3_ENDPOINT ?? "http://127.0.0.1:9100";
-const S3_REGION = "us-east-1"; // RustFS accepts any AWS region; SDK requires one
+// RustFS accepts any AWS region; SDK requires one
+const S3_REGION = "us-east-1";
 const S3_ACCESS_KEY = process.env.TEST_S3_ACCESS_KEY ?? "rustfsadmin";
 const S3_SECRET_KEY = process.env.TEST_S3_SECRET_KEY ?? "rustfsadmin";
 

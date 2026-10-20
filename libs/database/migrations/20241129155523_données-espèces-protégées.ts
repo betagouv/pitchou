@@ -72,7 +72,8 @@ export async function up(knex: Knex) {
             dossier: id,
             nom: "espèces-impactées.ods",
             media_type: "application/vnd.oasis.opendocument.spreadsheet",
-            contenu: Buffer.from(odsArrayBuffer), // knex n'accepte que les Buffer node, pas les ArrayBuffer
+            // Knex requires a Node Buffer rather than an ArrayBuffer.
+            contenu: Buffer.from(odsArrayBuffer),
           });
         }
       }

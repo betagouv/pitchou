@@ -53,11 +53,14 @@ export function recoverDate(d: string | Date | number | undefined): Date | undef
 }
 
 export function normalizeCommuneName(communeName: string): string {
-  return communeName
-    .replaceAll(/-|'/gu, " ")
-    .normalize("NFD")
-    .replaceAll(/[\u0300-\u036f]/gu, "") // remove accents
-    .toLowerCase();
+  return (
+    communeName
+      .replaceAll(/-|'/gu, " ")
+      .normalize("NFD")
+      // remove accents
+      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .toLowerCase()
+  );
 }
 
 // https://stackoverflow.com/a/73974452

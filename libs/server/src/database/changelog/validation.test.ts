@@ -92,8 +92,10 @@ test("rejects a non-boolean published", () => {
 
 test("isValidDate accepts real calendar dates only", () => {
   expect(isValidDate("2026-08-19")).toBe(true);
-  expect(isValidDate("2024-02-29")).toBe(true); // leap year
-  expect(isValidDate("2026-02-29")).toBe(false); // not a leap year
+  // leap year
+  expect(isValidDate("2024-02-29")).toBe(true);
+  // not a leap year
+  expect(isValidDate("2026-02-29")).toBe(false);
   expect(isValidDate("2026-13-01")).toBe(false);
   expect(isValidDate("2026-00-10")).toBe(false);
   expect(isValidDate("2026-8-19")).toBe(false);
@@ -111,5 +113,6 @@ test("isValidIdParam accepts positive integers only", () => {
   expect(isValidIdParam("abc")).toBe(false);
   expect(isValidIdParam("12abc")).toBe(false);
   expect(isValidIdParam("")).toBe(false);
-  expect(isValidIdParam("9007199254740993")).toBe(false); // beyond safe integers
+  // beyond safe integers
+  expect(isValidIdParam("9007199254740993")).toBe(false);
 });

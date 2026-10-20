@@ -6,7 +6,8 @@ export async function up(knex: Knex) {
     table.foreign("dossier").references("id").inTable("dossier").onDelete("CASCADE");
 
     table.string("phase").notNullable();
-    table.datetime("horodatage", { precision: 0 }).notNullable(); // précision à la seconde
+    // Second precision.
+    table.datetime("horodatage", { precision: 0 }).notNullable();
 
     table.unique(["dossier", "phase", "horodatage"]);
   });

@@ -50,7 +50,8 @@
     loadError = null;
     try {
       const page = await loadEvenements(query);
-      if (id !== requestId) return; // A newer request superseded this one.
+      // A newer request superseded this one.
+      if (id !== requestId) return;
       evenements = page.evenements;
       total = page.total;
     } catch (e) {

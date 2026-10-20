@@ -4,7 +4,8 @@ import ky from "ky";
 
 const ENDPOINT = "https://www.demarches-simplifiees.fr/api/v2/graphql";
 
-const TIMEOUT_DELAY = 40 * 1000; // milliseconds
+// milliseconds
+const TIMEOUT_DELAY = 40 * 1000;
 
 export default async function (
   token: string,

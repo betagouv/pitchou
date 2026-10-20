@@ -20,6 +20,7 @@
         "null": "ignore"
       }
     ],
+    "eslint/no-inline-comments": "error",
     "eslint/no-eval": "error",
     "eslint/no-new-func": "error",
     "eslint/no-throw-literal": "error",

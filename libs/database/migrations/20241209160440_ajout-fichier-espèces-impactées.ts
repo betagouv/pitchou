@@ -7,7 +7,8 @@ export async function up(knex: Knex) {
     table.foreign("dossier").references("id").inTable("dossier").onDelete("CASCADE");
 
     table.string("nom");
-    table.string("media_type"); // https://developer.mozilla.org/en-US/docs/Glossary/MIME_type
+    // https://developer.mozilla.org/en-US/docs/Glossary/MIME_type
+    table.string("media_type");
     table.binary("contenu");
   });
 }

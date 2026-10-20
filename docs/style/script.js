@@ -26,7 +26,8 @@ function copyToClipboard(text, element) {
 
       // Feedback sonore subtil (optionnel)
       if (window.navigator.vibrate) {
-        window.navigator.vibrate(50); // Vibration courte sur mobile
+        // Short vibration on mobile.
+        window.navigator.vibrate(50);
       }
 
       // Retour à l'état normal après 2 secondes

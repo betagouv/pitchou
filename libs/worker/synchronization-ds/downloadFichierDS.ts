@@ -1,7 +1,8 @@
 import ky from "ky";
 import pLimit from "p-limit";
 
-const TIMEOUT_DELAY = 20 * 1000; // ms
+// ms
+const TIMEOUT_DELAY = 20 * 1000;
 
 async function _downloadFichierDS(
   url: string,

@@ -14,26 +14,32 @@ export function normalizeEmail(email: string): string {
  * Normalization of the vernacular or scientific name of a single espèce
  */
 export function normalizeEspeceName(name: string): string {
-  return name
-    .normalize("NFD")
-    .replaceAll(/[\u0300-\u036f]/gu, "") // remove accents
-    .toLowerCase()
-    .replaceAll("(le)", "")
-    .replaceAll("(la)", "")
-    .replaceAll(`(l')`, "")
-    .trim();
+  return (
+    name
+      .normalize("NFD")
+      // remove accents
+      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .toLowerCase()
+      .replaceAll("(le)", "")
+      .replaceAll("(la)", "")
+      .replaceAll(`(l')`, "")
+      .trim()
+  );
 }
 
 /**
  * Normalization of a long text that may contain espèce names
  */
 export function normalizeEspeceText(text: string): string {
-  return text
-    .trim()
-    .normalize("NFD")
-    .replaceAll(/[\u0300-\u036f]/gu, "") // remove accents
-    .replaceAll("’", "'")
-    .toLowerCase();
+  return (
+    text
+      .trim()
+      .normalize("NFD")
+      // remove accents
+      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .replaceAll("’", "'")
+      .toLowerCase()
+  );
 }
 
 export function removeAccents(text: string): string {

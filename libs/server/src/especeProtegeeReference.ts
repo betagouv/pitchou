@@ -124,7 +124,8 @@ export function aggregateEspeceProtegeeReference(
 type SpeciesAccumulator = {
   regne: string;
   classe: string;
-  classificationFromAccepted: boolean; // are regne/classe already from the accepted taxon?
+  // are regne/classe already from the accepted taxon?
+  classificationFromAccepted: boolean;
   scientificNames: Map<string, NameRank>;
   vernacularNames: Map<string, NameRank>;
 };
@@ -155,7 +156,8 @@ function accumulateTaxrefRow(
   }
   if (row.lb_nom) addName(acc.scientificNames, row.lb_nom, { accepted, order, pos: 0 });
   row.nom_vern.split(",").forEach((part, pos) => {
-    const name = part.trim(); // JS .trim() strips end spaces incl. U+00A0, as the old generator did
+    // JS .trim() strips end spaces incl. U+00A0, as the old generator did
+    const name = part.trim();
     if (name) addName(acc!.vernacularNames, name, { accepted, order, pos });
   });
 }
