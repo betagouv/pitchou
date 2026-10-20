@@ -31,7 +31,7 @@ export async function preparePersonnes(
   }
 
   const getPersonneId = (personne: Personne | PersonneInitializer | undefined) => {
-    if (!personne) return undefined;
+    if (!personne) return;
     if (personne.id) return personne.id;
     if (personne.email) return personneByEmail.get(personne.email)?.id;
     return allPersonnes.find(

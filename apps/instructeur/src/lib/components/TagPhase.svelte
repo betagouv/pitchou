@@ -20,13 +20,7 @@
     classes?: string[];
   };
 
-  let {
-    phase,
-    size = "MD",
-    onClick = undefined,
-    ariaPressed = undefined,
-    classes = [],
-  }: Props = $props();
+  let { phase, size = "MD", onClick, ariaPressed, classes = [] }: Props = $props();
 
   // Filled style (for <p> and pressed <button>): background = phase color, inverted text,
   // ::after (dismiss icon) = phase color, and DSFR's tag background-image killed.

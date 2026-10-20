@@ -31,7 +31,7 @@
 
   function cnpnEmailEventFor(avisExpert: FrontEndAvisExpert) {
     const saisineFileId = avisExpert.saisine_fichier_description?.id;
-    if (avisExpert.expert?.trim().toUpperCase() !== "CNPN" || !saisineFileId) return undefined;
+    if (avisExpert.expert?.trim().toUpperCase() !== "CNPN" || !saisineFileId) return;
     return dossier.cnpnEmailSentEvents?.find((event) =>
       event.attachment_ids.includes(saisineFileId),
     );

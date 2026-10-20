@@ -153,7 +153,7 @@ async function sendCnpnEmail(email: EmailMessage, requestId: string): Promise<st
     ({ messageId } = await sendEmail(email));
   } catch (sendError) {
     if (isDefinitiveEmailSendFailure(sendError)) {
-      await markDossierCnpnEmailSendAttemptFailed(requestId).catch(() => undefined);
+      await markDossierCnpnEmailSendAttemptFailed(requestId).catch(() => {});
       error(502, "Brevo a refusé l'envoi. Vous pouvez réessayer sans modifier le mail.");
     }
     error(

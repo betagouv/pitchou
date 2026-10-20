@@ -110,7 +110,7 @@ function wrapEnvoyerEmailCnpn(
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify(email),
     });
-    const body = (await response.json().catch(() => undefined)) as
+    const body = (await response.json().catch(() => {})) as
       | Awaited<ReturnType<PitchouInstructeurCapabilities["envoyerEmailCnpn"]>>
       | { message?: unknown }
       | undefined;
@@ -142,7 +142,7 @@ function wrapUpdateFollowRelation(
         personneEmail,
         dossierId,
       }),
-    }).then(() => undefined);
+    }).then(() => {});
   };
 }
 

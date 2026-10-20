@@ -18,9 +18,9 @@ export async function getDossierReviewSnapshot(
   return db.transaction(
     async (trx) => {
       const access = (await dossiersAccessibleViaCap(dossierId, cap, trx)).get(dossierId);
-      if (!access) return undefined;
+      if (!access) return;
       const dossier = await getDossierFull(dossierId, cap, trx);
-      if (!dossier) return undefined;
+      if (!dossier) return;
       if (readOnly || access === "lecture") return { ...dossierFullForReadOnly(dossier), access };
       const [notificationSnapshot] = await getNotificationsForPersonneFromCap(cap, trx, dossierId);
       return { ...dossier, access, notificationSnapshot };

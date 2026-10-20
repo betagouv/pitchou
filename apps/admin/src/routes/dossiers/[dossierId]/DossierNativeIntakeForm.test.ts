@@ -36,8 +36,8 @@ function renderForm(detail: AdminDossierDetail): string {
       detail,
       activites: ACTIVITES_FIXTURE,
       activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
-      onSaved: () => undefined,
-      onFilesChanged: async () => undefined,
+      onSaved: () => {},
+      onFilesChanged: async () => {},
     },
   }).body;
 }

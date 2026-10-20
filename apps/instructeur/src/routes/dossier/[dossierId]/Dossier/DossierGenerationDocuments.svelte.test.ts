@@ -26,9 +26,7 @@ import type { PitchouState } from "$lib/state/store.svelte.ts";
 
 // Generated documents are recorded in the dossier historique, which is also where
 // their usage metric comes from.
-const enregistrerDocumentsGeneres = vi.fn(
-  async (_dossierId: number, _documents: string[]) => undefined,
-);
+const enregistrerDocumentsGeneres = vi.fn(async (_dossierId: number, _documents: string[]) => {});
 
 beforeEach(() => {
   vi.mocked(fillOdtTemplate).mockClear();

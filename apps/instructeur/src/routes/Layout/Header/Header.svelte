@@ -11,7 +11,7 @@
     email?: string | undefined;
   };
 
-  let { nav = true, email = undefined }: Props = $props();
+  let { nav = true, email }: Props = $props();
 
   function logoutAndRedirect() {
     // Send straight to the sign-in page: the route guards only run on load, so

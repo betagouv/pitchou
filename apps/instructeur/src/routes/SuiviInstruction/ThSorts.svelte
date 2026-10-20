@@ -8,7 +8,7 @@
     selectedSort?: TableSort | undefined;
   };
 
-  let { sorts, selectedSort = $bindable(undefined) }: Props = $props();
+  let { sorts, selectedSort = $bindable() }: Props = $props();
 
   const selectSort = (sort: TableSort): void => {
     selectedSort = sort;

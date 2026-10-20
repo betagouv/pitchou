@@ -28,7 +28,7 @@ export async function getDossiersForExport(
   return db.transaction(
     async (trx) => {
       const personne = await getPersonneByDossierCap(cap, trx);
-      if (!personne) return undefined;
+      if (!personne) return;
       const ids = trx("dossier")
         .select("dossier.id")
         .join(

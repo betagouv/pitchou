@@ -123,7 +123,7 @@ export default async function downloadNewFichiers(
         if (successfullyDownloadedFichiers.length > 0) {
           return [number, successfullyDownloadedFichiers];
         } else {
-          return undefined;
+          return;
         }
       });
     },
@@ -184,7 +184,7 @@ async function downloadAndStoreFichier(
         err.cause ? `cause: ${err.cause?.message}` : "",
       );
     }
-    return undefined;
+    return;
   }
 
   try {
@@ -214,6 +214,6 @@ async function downloadAndStoreFichier(
       // @ts-ignore
       err.message,
     );
-    return undefined;
+    return;
   }
 }

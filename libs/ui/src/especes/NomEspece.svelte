@@ -22,7 +22,7 @@
     } else if (otherNomsScientifiques.length > 0) {
       return otherNomsScientifiques.join(", ");
     }
-    return undefined;
+    return;
   });
 </script>
 

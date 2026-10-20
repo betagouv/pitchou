@@ -46,7 +46,7 @@ export function createDossierCommentaireCapabilities(
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ documents }),
-            }).then(() => undefined)
+            }).then(() => {})
         : undefined,
     listerCommentaires:
       listURL && listURL.includes(dossierIdURLParam)
@@ -82,7 +82,7 @@ export function createDossierCommentaireCapabilities(
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id, content }),
-            }).then(() => undefined)
+            }).then(() => {})
         : undefined,
     supprimerCommentaire:
       deleteURL && deleteURL.includes(dossierIdURLParam)
@@ -91,7 +91,7 @@ export function createDossierCommentaireCapabilities(
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id }),
-            }).then(() => undefined)
+            }).then(() => {})
         : undefined,
   };
 }
