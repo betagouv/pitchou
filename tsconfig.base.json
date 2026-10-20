@@ -8,7 +8,6 @@
     "moduleResolution": "bundler",
     "target": "esnext",
     "lib": ["esnext", "dom", "dom.iterable"],
-    "downlevelIteration": true,
     "types": ["node"],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
