@@ -18,7 +18,7 @@ export function normalizeEspeceName(name: string): string {
     name
       .normalize("NFD")
       // remove accents
-      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .replaceAll(/[\u0300-\u036F]/gu, "")
       .toLowerCase()
       .replaceAll("(le)", "")
       .replaceAll("(la)", "")
@@ -36,12 +36,12 @@ export function normalizeEspeceText(text: string): string {
       .trim()
       .normalize("NFD")
       // remove accents
-      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .replaceAll(/[\u0300-\u036F]/gu, "")
       .replaceAll("’", "'")
       .toLowerCase()
   );
 }
 
 export function removeAccents(text: string): string {
-  return text.normalize("NFD").replaceAll(/[\u0300-\u036f]/gu, "");
+  return text.normalize("NFD").replaceAll(/[\u0300-\u036F]/gu, "");
 }

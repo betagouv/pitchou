@@ -19,7 +19,7 @@ function parseQuantity(value: unknown, surface: boolean): number | null {
   }
   const match = String(value)
     .trim()
-    .match(/^(\d+|\d{1,3}(?:[ \u00a0\u202f]\d{3})+)(?:[,.](\d+))?\s*(ha|m²|m2)?$/iu);
+    .match(/^(\d+|\d{1,3}(?:[ \u00A0\u202F]\d{3})+)(?:[,.](\d+))?\s*(ha|m²|m2)?$/iu);
   if (!match || (!surface && match[3])) throw new Error("Invalid quantity");
 
   const scale = match[3]?.toLowerCase() === "ha" ? 4 : 0;

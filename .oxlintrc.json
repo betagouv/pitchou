@@ -29,6 +29,7 @@
     "eslint/preserve-caught-error": "error",
     "eslint/require-unicode-regexp": "error",
     "unicorn/explicit-length-check": "error",
+    "unicorn/escape-case": "error",
     "unicorn/prefer-string-replace-all": "error",
     "unicorn/prefer-dom-node-dataset": "error",
     "promise/no-return-wrap": "error",

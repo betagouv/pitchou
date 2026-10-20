@@ -17,7 +17,7 @@ test.each([
   ]);
 });
 
-test.each([0, "0", "24000", "24 000", "24\u202f000 m²", "24000 m2"])(
+test.each([0, "0", "24000", "24 000", "24\u202F000 m²", "24000 m2"])(
   "accepts square metres %s without proposing a unit conversion",
   (value) => {
     const conversions: SurfaceConversion[] = [];

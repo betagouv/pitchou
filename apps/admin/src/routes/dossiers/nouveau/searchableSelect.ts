@@ -3,7 +3,7 @@ export type SearchableOption = { value: string; label: string };
 function normalizeSearch(value: string): string {
   return value
     .normalize("NFD")
-    .replaceAll(/[\u0300-\u036f]/gu, "")
+    .replaceAll(/[\u0300-\u036F]/gu, "")
     .toLocaleLowerCase("fr");
 }
 

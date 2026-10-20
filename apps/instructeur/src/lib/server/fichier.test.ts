@@ -78,7 +78,7 @@ describe("downloadFichierResponse", () => {
     expect(cd).toContain(encodeURI("été 2025.pdf"));
   });
 
-  it.each(["\u0000", "\t", "\r", "\n", "\u007f", "🐦"])(
+  it.each(["\u0000", "\t", "\r", "\n", "\u007F", "🐦"])(
     "removes non-printable or non-ASCII %j from the filename fallback",
     async (character) => {
       const name = `été${character}.pdf`;

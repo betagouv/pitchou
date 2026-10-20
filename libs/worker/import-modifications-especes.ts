@@ -169,7 +169,7 @@ async function loadProtectionNames() {
   // --- ministérielle / CNPN .ods (names) ---
   const sheetMap = await readFile(MINISTERIELLES_CNPN_PATH).then(getODSTableRawContent);
   // Non-breaking spaces (U+00A0) creep in from copy-paste; normalize for exact matching.
-  const normalizeName = (s: string) => s.replaceAll("\u00a0", " ").trim();
+  const normalizeName = (s: string) => s.replaceAll("\u00A0", " ").trim();
   const normalize = <T>(l: T[]): T[] =>
     l.map(
       (r) =>

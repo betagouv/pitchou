@@ -58,7 +58,7 @@ export function normalizeCommuneName(communeName: string): string {
       .replaceAll(/-|'/gu, " ")
       .normalize("NFD")
       // remove accents
-      .replaceAll(/[\u0300-\u036f]/gu, "")
+      .replaceAll(/[\u0300-\u036F]/gu, "")
       .toLowerCase()
   );
 }
