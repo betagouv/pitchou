@@ -5,7 +5,7 @@
  */
 export function generatePlaceholderPdf(titre: string): Buffer {
   const texte = `Piece jointe de seed : ${titre}`
-    .replaceAll(/[^\x20-\x7E]/gu, " ")
+    .replaceAll(/[^\u0020-\u007E]/gu, " ")
     .replaceAll("\\", "\\\\")
     .replaceAll(/[()]/gu, "\\$&");
 

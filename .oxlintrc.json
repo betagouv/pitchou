@@ -39,6 +39,7 @@
     "unicorn/prefer-dom-node-append": "error",
     "unicorn/prefer-query-selector": "error",
     "unicorn/prefer-number-coercion": "error",
+    "unicorn/no-hex-escape": "error",
     "promise/no-return-wrap": "error",
     "promise/no-new-statics": "error",
     "promise/param-names": "error",

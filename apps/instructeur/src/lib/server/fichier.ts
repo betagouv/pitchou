@@ -14,7 +14,7 @@ export async function downloadFichierResponse(fileId: FileId): Promise<Response>
     // strip diacritics
     .replaceAll(/[\u0300-\u036F]/gu, "")
     // Keep printable ASCII in the header fallback.
-    .replaceAll(/[^\x20-\x7E]/gu, "");
+    .replaceAll(/[^\u0020-\u007E]/gu, "");
 
   const headers = new Headers();
   headers.set(

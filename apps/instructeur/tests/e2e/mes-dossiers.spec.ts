@@ -2,7 +2,7 @@ import { test, expect } from "../fixtures/playwright.ts";
 import { gotoMesDossiers, setupMesDossiers as setup } from "./mesDossiersFixtures.ts";
 
 // Escape the apostrophe so Playwright can chain selectors after this Unicode regex.
-const modificationBadgePattern = /^Modifié (aujourd\x27hui|il y a)/u;
+const modificationBadgePattern = /^Modifié (aujourd\u0027hui|il y a)/u;
 
 test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
