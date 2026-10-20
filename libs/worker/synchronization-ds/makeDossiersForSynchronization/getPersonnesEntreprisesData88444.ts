@@ -13,6 +13,7 @@ import type {
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import { inseeHeadcountRangeLabel } from "../inseeHeadcountRange.ts";
+import { getDossierActeurs88444 } from "./getDossierActeurs88444.ts";
 
 function formatPostalAddress(
   address: DemarchesSimplifeesAddress | null | undefined,
@@ -23,9 +24,7 @@ function formatPostalAddress(
 }
 
 /**
- * The people of a Démarche Numérique dossier. Only porteur_de_projet follows ADR-0002;
- * deposant, demandeur_personne_* and identites keep the former model during the
- * transition and will be restructured with the other people involved.
+ * The people of a Démarche Numérique dossier.
  */
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
@@ -51,6 +50,7 @@ export function getPersonnesEntreprisesData88444(
     last_name: demandeur.nom,
     email: demandeurIdentityEmail ? normalizeEmail(demandeurIdentityEmail) : undefined,
   };
+  // Still written to identite_dossier, which will soon be removed in favor of acteurs.
   const identites = initialIdentites(dossierDS, demandeurIdentityEmail);
 
   let porteurDeProjet: PorteurDeProjetInitializer;
@@ -102,6 +102,10 @@ export function getPersonnesEntreprisesData88444(
     demandeur_personne_physique: demandeurPersonnePhysique,
     identites,
     porteur_de_projet: porteurDeProjet,
+    acteurs: getDossierActeurs88444(
+      dossierDS,
+      (key) => champById.get(pitchouKeyToChampDS.get(key))?.stringValue,
+    ),
   };
 }
 

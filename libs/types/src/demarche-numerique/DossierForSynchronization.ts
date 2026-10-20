@@ -8,6 +8,7 @@ import type { AvisExpertInitializer } from "../database/public/AvisExpert.ts";
 import type { DecisionAdministrativeInitializer } from "../database/public/DecisionAdministrative.ts";
 import type { IdentiteDossierInitializer } from "../database/public/IdentiteDossier.ts";
 import type { PorteurDeProjetInitializer } from "../porteurDeProjet.ts";
+import type { DossierActeurData } from "../dossierActeur.ts";
 
 /** Identity snapshot extracted from Démarche Numérique, before the dossier id is known. */
 export type IdentiteDossierData = Omit<IdentiteDossierInitializer, "id" | "dossier">;
@@ -18,6 +19,7 @@ export type PersonnesEntreprisesDataInitializer = {
   demandeur_personne_morale: EntrepriseInitializer | undefined;
   identites: IdentiteDossierData[];
   porteur_de_projet: PorteurDeProjetInitializer;
+  acteurs: DossierActeurData[];
 };
 
 type DossierWithPersonnesEntreprisesDataInitializers<T = DossierMutator | DossierInitializer> = Omit<

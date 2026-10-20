@@ -37,6 +37,7 @@ export async function prepareDossiersForPersistence(
         demandeur_personne_morale,
         identites: _identites,
         porteur_de_projet: _porteurDeProjet,
+        acteurs: _acteurs,
         ...otherDossierProperties
       },
       ...otherTablesData
