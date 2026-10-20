@@ -150,7 +150,7 @@ test("confirms attachment deletion, preserves it on cancellation or error, and p
   await expect.element(page.getByRole("link", { name: /note.pdf/u })).toBeVisible();
   await page.getByRole("button", { name: "Supprimer note.pdf" }).click();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
-  await expect.element(page.getByRole("alert")).toHaveTextContent("Suppression refusée");
+  await expect.element(page.getByRole("alert")).toMatchTextContent("Suppression refusée");
   await expect.element(page.getByRole("link", { name: /note.pdf/u })).toBeVisible();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
   await expect.element(page.getByRole("link", { name: /note.pdf/u })).not.toBeInTheDocument();

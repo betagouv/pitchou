@@ -29,7 +29,7 @@ test("ouvre la modale avant la fin de la préparation du mail", async () => {
   });
 
   await expect.element(page.getByRole("dialog")).toBeVisible();
-  await expect.element(page.getByRole("status")).toHaveTextContent("Préparation du mail");
+  await expect.element(page.getByRole("status")).toMatchTextContent("Préparation du mail");
   expect(document.documentElement.style.overflow).toBe("hidden");
   expect(document.body.style.overflow).toBe("hidden");
 
@@ -51,7 +51,9 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
 
   await expect
     .element(page.getByRole("group", { name: "Destinataire" }))
-    .toHaveTextContent("derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr");
+    .toMatchTextContent(
+      "derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr",
+    );
   await expect
     .element(page.getByText("Un accusé de lecture du mail vous sera communiqué."))
     .toBeVisible();
@@ -86,7 +88,7 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
     }),
   );
   expect(refreshDossierFull).toHaveBeenCalledWith(42);
-  await expect.element(page.getByRole("status")).toHaveTextContent("Mail envoyé");
+  await expect.element(page.getByRole("status")).toMatchTextContent("Mail envoyé");
 });
 
 test("présélectionne seulement la saisine CNPN la plus récente", async () => {
@@ -152,7 +154,7 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
   await vi.advanceTimersByTimeAsync(3000);
 
-  await expect.element(page.getByRole("alert")).toHaveTextContent("dépassent la limite");
+  await expect.element(page.getByRole("alert")).toMatchTextContent("dépassent la limite");
   const alert = page.getByRole("alert").element();
   expect(alert.closest("footer")).not.toBeNull();
   expect(alert.nextElementSibling?.textContent).toContain("Annuler");
@@ -185,7 +187,7 @@ test("bloque un nouvel envoi lorsque le résultat Brevo est incertain", async ()
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
   await vi.advanceTimersByTimeAsync(3000);
 
-  await expect.element(page.getByRole("alert")).toHaveTextContent("incertain");
+  await expect.element(page.getByRole("alert")).toMatchTextContent("incertain");
   await expect.element(page.getByLabelText("Objet")).toBeDisabled();
   await expect.element(page.getByRole("button", { name: "Envoi à vérifier" })).toBeDisabled();
 });

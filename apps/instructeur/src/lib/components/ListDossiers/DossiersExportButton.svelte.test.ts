@@ -76,7 +76,7 @@ test("prevents duplicate exports and allows retry after failure", async () => {
   reject(new Error("Network failed"));
   await expect
     .element(page.getByRole("alert"))
-    .toHaveTextContent("L'export des dossiers a échoué. Veuillez réessayer.");
+    .toMatchTextContent("L'export des dossiers a échoué. Veuillez réessayer.");
   expect(creerEvenementMetrique).toHaveBeenCalledOnce();
   await page.getByRole("button", { name: "Télécharger l'export" }).click();
   expect(exporterDossiers).toHaveBeenCalledTimes(2);

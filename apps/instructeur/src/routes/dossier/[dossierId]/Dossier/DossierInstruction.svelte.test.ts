@@ -132,7 +132,7 @@ test("reselecting the current phase does not mask a later dossier refresh", asyn
     onSaved,
   });
 
-  await expect.element(page.getByLabelText("Phase en cours")).toHaveTextContent("Instruction");
+  await expect.element(page.getByLabelText("Phase en cours")).toMatchTextContent("Instruction");
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   expect(onSaved).not.toHaveBeenCalled();
 });
