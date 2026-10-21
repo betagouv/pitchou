@@ -20,6 +20,18 @@ Ouvrir **Mon espace > Paramètres**, ou directement `/parametres`. La page affic
 
 ## Recette des parcours
 
+### Présentation des trois mails
+
+Les arrivées, attributions et nouveautés partagent un cadre blanc sur fond clair, un liseré violet, le logo Pitchou et un titre bleu. Le numéro et le titre du dossier forment un grand lien dans un bloc violet clair. Le lien des paramètres reste en bas, en italique et dans une couleur plus discrète. Les objets et les phrases des trois modèles sont conservés.
+
+Dans `/__fleet/mail/`, ouvrir un **nouveau** message de chaque type. Vérifier le logo sans déformation, le titre correspondant au type de notification, le texte, le lien du dossier et le pied de mail en italique. Cliquer le bloc du dossier puis le lien des paramètres, qui doivent ouvrir respectivement `/dossier/ID` et `/parametres`. Vérifier à 320 px et sur ordinateur, y compris avec un titre de dossier long. Lorsque les images sont bloquées, le texte alternatif « Pitchou », le contenu et les deux liens restent utilisables.
+
+Le logo est un PNG transparent en double résolution, exporté depuis `libs/ui/src/pitchou-logo.svg`, servi par l'application instructeur à `/images/pitchou-logo-email.png`. L'URL utilise `PUBLIC_SITE_URL_PITCHOU`. Les styles sont intégrés au HTML et la mise en page utilise des tableaux de présentation, sans police distante ni SVG dans les mails. Les anciens messages déjà reçus restent tels quels. Un message dont la première tentative a déjà figé le contenu conserve également ce contenu lors des reprises.
+
+Dans l'aperçu de cette tâche, trois exemples locaux portant le tag **apercu-visuel** permettent de comparer les modèles sur le dossier 13, **Test2**. Ces exemples ne modifient ni le suivi ni les préférences et n'ont été envoyés à aucun serveur externe. Les rendus réels Outlook, Gmail et les transformations de couleurs de leurs modes sombres restent à vérifier dans ces clients.
+
+### Déclenchements
+
 Utiliser deux comptes instructeurs A et B du même groupe, dans deux sessions de navigateur. Prévoir deux dossiers accessibles à ce groupe, dont un dossier DN, ainsi qu'une décision administrative, une prescription et un contrôle pour tester l'onglet Contrôle. Remplacer `ID` par l'identifiant Pitchou du dossier. Pour vérifier la réception réelle, utiliser uniquement des destinataires de recette et un environnement Brevo contrôlé. Les tests automatisés ci-dessous simulent tous les envois.
 
 | Parcours                                  | Page et actions                                                                                                                                                                                                                                                                                                         | Résultat attendu                                                                                                                                                                                                                              |

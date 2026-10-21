@@ -1,13 +1,5 @@
 import type { EmailMessage } from "../emails.ts";
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+import { notificationEmailHtml } from "./layout.ts";
 
 export function notificationEmailMessage(
   context: {
@@ -27,6 +19,13 @@ export function notificationEmailMessage(
   const label = `${number} - ${context.name ?? "Dossier sans titre"}`;
   const dossierUrl = new URL(`/dossier/${context.dossier}`, siteUrl).href;
   const settingsUrl = new URL("/parametres", siteUrl).href;
+  const logoUrl = new URL("/images/pitchou-logo-email.png", siteUrl).href;
+  const title =
+    context.kind === "arrival"
+      ? "Nouveau dossier"
+      : context.kind === "assignment"
+        ? "Attribution de dossier"
+        : "Nouveautés sur votre dossier";
   const subject =
     context.kind === "arrival"
       ? `Nouveau dossier: ${label}`
@@ -40,7 +39,14 @@ export function notificationEmailMessage(
   return {
     to: [context.email],
     subject,
-    htmlContent: `<p>Bonjour,</p><p>${introduction}</p><p><a href="${escapeHtml(dossierUrl)}">${escapeHtml(label)}</a></p><p>Vous pouvez <a href="${escapeHtml(settingsUrl)}">paramétrer les mails de notifications automatiques dans votre espace</a>.</p>`,
+    htmlContent: notificationEmailHtml({
+      title,
+      introduction,
+      label,
+      dossierUrl,
+      settingsUrl,
+      logoUrl,
+    }),
     tags: [`dossier-${context.kind}`],
     headers: { idempotencyKey: context.id },
   };
