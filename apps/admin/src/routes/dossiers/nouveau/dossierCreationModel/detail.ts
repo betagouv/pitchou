@@ -5,7 +5,8 @@ import {
   transportDemandeOptions,
 } from "@pitchou/common/dossierFormOptions.ts";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
+import { acteurOf, demandeurActeur } from "#lib/dossierActeurs.ts";
 import {
   createDossierCreationModel,
   type CreationCommune,
@@ -22,18 +23,17 @@ const detailStrings = (value: unknown) =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
 function hydrateDemandeur(model: DossierCreationModel, detail: AdminDossierDetail) {
-  const demandeurIdentity = detail.identites.find(({ type }) => type === "demandeur");
-  const representative =
-    detail.identites.find(({ type }) => type === "representant") ?? demandeurIdentity;
+  const demandeurIdentity = demandeurActeur(detail);
+  const personneContact = acteurOf(detail, "personne_contact") ?? demandeurIdentity;
   const porteur = detail.porteur_de_projet;
   if (porteur?.type === "personne_morale") {
     model.demandeurType = "personne_morale";
     model.legalSiret = porteur.siret;
-    model.representativeLastName = representative?.last_name ?? "";
-    model.representativeFirstNames = representative?.first_names ?? "";
-    model.representativeRole = representative?.role ?? "";
-    model.contactPhone = representative?.phone ?? "";
-    model.contactEmail = representative?.email ?? "";
+    model.personneContactLastName = personneContact?.last_name ?? "";
+    model.personneContactFirstNames = personneContact?.first_names ?? "";
+    model.personneContactRole = personneContact?.role ?? "";
+    model.contactPhone = personneContact?.phone ?? "";
+    model.contactEmail = personneContact?.email ?? "";
   } else if (porteur?.type === "personne_physique") {
     model.demandeurType = "personne_physique";
     model.physicalLastName = porteur.last_name ?? "";
@@ -134,22 +134,7 @@ export function createDossierCreationModelFromDetail(
   model.requestContext = detailText(dossier.request_context);
   model.accompanimentNeed = detailText(dossier.accompaniment_need);
   hydrateDemandeur(model, detail);
-  model.primaryDepartment = detailText(dossier.primary_department);
-  model.locationScope = detailText(dossier.location_scope) as DossierCreationModel["locationScope"];
-  model.communes = Array.isArray(dossier.communes)
-    ? (dossier.communes.filter(
-        (commune): commune is CreationCommune =>
-          !!commune && typeof commune === "object" && typeof commune.name === "string",
-      ) as CreationCommune[])
-    : [];
-  model.locationDepartments = detailStrings(dossier.departments);
-  model.locationRegions = detailStrings(dossier.regions);
-  model.projectMap =
-    dossier.projet_map &&
-    typeof dossier.projet_map === "object" &&
-    (dossier.projet_map as { type?: unknown }).type === "FeatureCollection"
-      ? (dossier.projet_map as CreationProjectMap)
-      : null;
+  hydrateLocation(model, dossier);
   model.noOtherSatisfactorySolutionJustification = detailText(
     dossier.no_other_satisfactory_solution_justification,
   );
@@ -191,4 +176,23 @@ export function createDossierCreationModelFromDetail(
   model.phase = detail.phase;
   model.groupeInstructeurs = detail.groupe?.id ?? "";
   return model;
+}
+
+function hydrateLocation(model: DossierCreationModel, dossier: AdminDossierDetail["dossier"]) {
+  model.primaryDepartment = detailText(dossier.primary_department);
+  model.locationScope = detailText(dossier.location_scope) as DossierCreationModel["locationScope"];
+  model.communes = Array.isArray(dossier.communes)
+    ? (dossier.communes.filter(
+        (commune): commune is CreationCommune =>
+          !!commune && typeof commune === "object" && typeof commune.name === "string",
+      ) as CreationCommune[])
+    : [];
+  model.locationDepartments = detailStrings(dossier.departments);
+  model.locationRegions = detailStrings(dossier.regions);
+  model.projectMap =
+    dossier.projet_map &&
+    typeof dossier.projet_map === "object" &&
+    (dossier.projet_map as { type?: unknown }).type === "FeatureCollection"
+      ? (dossier.projet_map as CreationProjectMap)
+      : null;
 }

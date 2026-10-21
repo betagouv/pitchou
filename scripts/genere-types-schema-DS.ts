@@ -7,11 +7,13 @@ import type {
 } from "@pitchou/types/demarche-numerique/schema.ts";
 import { compile, type JSONSchema } from "json-schema-to-typescript";
 import ky from "ky";
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: { idSchemaDS: { type: "string" }, skipDownload: { type: "boolean" } },
+});
 const schemaId = args.idSchemaDS;
-if (!schemaId) throw Error("L'ID du Schéma DS n'est pas défini.");
+if (!schemaId) throw new Error("L'ID du Schéma DS n'est pas défini.");
 
 const schemaUrl = `https://www.demarches-simplifiees.fr/preremplir/${schemaId}/schema`;
 const schemaPath = `data/demarche-numerique/schema-DS/${schemaId}.json`;

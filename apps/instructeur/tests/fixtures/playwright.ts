@@ -11,8 +11,8 @@ type Fixtures = {
 export const test = base.extend<Fixtures>({
   // One knex connection per worker. Reused across tests in the same worker;
   // truncated at the start of every test for a clean slate.
-  // eslint-disable-next-line no-empty-pattern
   db: [
+    // oxlint-disable-next-line no-empty-pattern -- Playwright requires fixture dependencies to use object destructuring.
     async ({}, use) => {
       const db = makeKnex(E2E_DB_NAME);
       await truncateAll(db);
@@ -25,7 +25,7 @@ export const test = base.extend<Fixtures>({
   loginAs: async ({ page }, use) => {
     await use(async (codeAcces: string) => {
       await page.addInitScript((secret) => {
-        // `remember` (lib used by the app) stores plain strings verbatim and
+        // The storage helper stores plain strings verbatim and
         // tries JSON.parse on read. Either form works; we use the JSON form
         // so it round-trips identically.
         localStorage.setItem("secret-pitchou", JSON.stringify(secret));

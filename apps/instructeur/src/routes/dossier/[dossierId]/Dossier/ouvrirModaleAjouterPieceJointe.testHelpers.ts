@@ -1,6 +1,6 @@
 import { expect, vi } from "vitest";
 import { tick } from "svelte";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export const DOSSIER_ID = 123;
@@ -23,9 +23,7 @@ export function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
       phone: null,
       role: null,
     },
-    representative_email: null,
-    deposant_last_name: "Durand",
-    deposant_first_names: "Alice",
+    acteurs: [],
     next_action_expected_from: null,
     enjeu: false,
     linked_to_ae_regime: false,

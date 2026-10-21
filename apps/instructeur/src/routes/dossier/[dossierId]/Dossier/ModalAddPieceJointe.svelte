@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeError } from "#lib/upload/uploadSizeHint.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
   import PieceJointeForm from "./ModalAddPieceJointe/PieceJointeForm.svelte";
@@ -93,7 +93,6 @@
   function close() {
     reset();
     type = defaultType();
-    // @ts-ignore DSFR installs this browser global.
     if (modal) window.dsfr(modal).modal.conceal();
   }
   function submit() {

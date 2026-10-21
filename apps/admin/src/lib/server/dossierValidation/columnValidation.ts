@@ -5,7 +5,7 @@ import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import type { DossierNextActionExpectedFrom } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierMutator } from "@pitchou/types/database/public/Dossier.ts";
 
-import { isValidProjectMap } from "$lib/projectMapValidation.ts";
+import { isValidProjectMap } from "#lib/projectMapValidation.ts";
 
 import type { ActiviteContext } from "./activiteContext.ts";
 import { COLUMN_KINDS, type ColumnKind } from "./columnKinds.ts";
@@ -124,10 +124,8 @@ function parseStructuredColumn(column: string, raw: unknown): string {
     ) {
       error(400, `Property 'scientifique_intervenants' is invalid.`);
     }
-  } else {
-    if (!isValidProjectMap(raw)) {
-      error(400, `Property 'projet_map' must be a valid GeoJSON FeatureCollection.`);
-    }
+  } else if (!isValidProjectMap(raw)) {
+    error(400, `Property 'projet_map' must be a valid GeoJSON FeatureCollection.`);
   }
   return JSON.stringify(raw);
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import type { DossiersExportFormat } from "@pitchou/types/dossierExport.ts";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { FilterChip, Localisation } from "./listModel.ts";
@@ -53,7 +53,7 @@
           ? "tous-les-dossiers"
           : "dossiers-service";
       link.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.${selectedFormat}`;
-      document.body.appendChild(link);
+      document.body.append(link);
       link.click();
       link.remove();
       sendEvenement({

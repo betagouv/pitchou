@@ -1,5 +1,5 @@
-import { env as privateEnv } from "$env/dynamic/private";
-import { env as publicEnv } from "$env/dynamic/public";
+import * as privateEnv from "$app/env/private";
+import * as publicEnv from "$app/env/public";
 import type { PageServerLoad } from "./$types";
 
 export type DashboardLink = {
@@ -9,7 +9,7 @@ export type DashboardLink = {
   icon: string;
 };
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = () => {
   const candidates: { href: string | undefined; title: string; detail: string; icon: string }[] = [
     {
       href: publicEnv.PUBLIC_SITE_URL_PITCHOU,

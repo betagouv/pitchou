@@ -1,5 +1,5 @@
 import { extname } from "node:path";
-import byteSize from "byte-size";
+import { formatFileSize } from "@pitchou/common/fileSize.ts";
 import { HTTPError } from "ky";
 
 import {
@@ -87,7 +87,6 @@ export default async function downloadNewFichiers(
   );
 
   const fichierIdByHashAlreadyInDB = new Map(
-    // @ts-ignore
     fichiersAlreadyInDB.map((f) => [makeFichierHash(f), f.id]),
   );
 
@@ -95,16 +94,14 @@ export default async function downloadNewFichiers(
 
   // Filter the candidate list by removing the files already present in the database
   const fichiersToDownload: typeof candidateFichiersDB = new Map(
-    // @ts-ignore
     [...candidateFichiersDB]
-      .map(([number, fichiers]) => {
+      .map(([number, fichiers]): [number, FichierToDownload[]] => {
         return [
           number,
           fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f))),
         ];
       })
-      // @ts-ignore
-      .filter(([_, fichiers]) => fichiers.length >= 1),
+      .filter(([, fichiers]) => fichiers.length > 0),
   );
 
   //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
@@ -112,79 +109,15 @@ export default async function downloadNewFichiers(
   type ReturnMapEntryData = [DossierDS88444["number"], FileId[]];
 
   // Download the files and put them directly into the database
-  // @ts-ignore
   const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersToDownload].map(
     ([number, fichiers]) => {
       return Promise.all(
-        fichiers.map(async (fichier) => {
-          const { url } = fichier;
-          const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } =
-            fichier;
-
-          let buffer: Buffer;
-          try {
-            const { content } = await downloadFichierDS(url);
-            buffer = Buffer.from(content);
-          } catch (err) {
-            if (err instanceof HTTPError) {
-              console.error(
-                `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
-                url,
-                `dossier DS`,
-                number,
-              );
-            } else {
-              console.error(
-                `Erreur lors du téléchargement d'un fichier`,
-                url,
-                `dossier DS`,
-                number,
-                // @ts-ignore
-                err.message,
-                // @ts-ignore
-                err.cause ? `cause: ${err.cause?.message}` : "",
-              );
-            }
-            return undefined;
-          }
-
-          try {
-            const insertedFichier = await storeNewFichier(
-              {
-                name,
-                content: buffer,
-                media_type,
-                demarche_numerique_checksum,
-                demarche_numerique_created_at,
-              },
-              transaction,
-            );
-            console.log(
-              `Dossier DS`,
-              number,
-              `- Téléchargement et stockage fichier '${name}'`,
-              `(${byteSize(buffer.byteLength)})`,
-            );
-            return insertedFichier.id;
-          } catch (err) {
-            console.error(
-              `Échec stockage fichier pour`,
-              url,
-              `dossier DS`,
-              number,
-              // @ts-ignore
-              err.message,
-            );
-            return undefined;
-          }
-        }),
+        fichiers.map((fichier) => downloadAndStoreFichier(fichier, number, transaction)),
       ).then((downloadedFichiers) => {
         const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
 
-        if (successfullyDownloadedFichiers.length >= 1) {
+        if (successfullyDownloadedFichiers.length > 0) {
           return [number, successfullyDownloadedFichiers];
-        } else {
-          return undefined;
         }
       });
     },
@@ -207,8 +140,72 @@ export default async function downloadNewFichiers(
 
     const allIds = [...fichierIdsAlreadyInDB, ...newFichierIds];
 
-    if (allIds.length >= 1) fichiersByDossier.set(dossierNumber, allIds);
+    if (allIds.length > 0) fichiersByDossier.set(dossierNumber, allIds);
   }
 
   return fichiersByDossier;
+}
+
+async function downloadAndStoreFichier(
+  fichier: FichierToDownload,
+  number: DossierDS88444["number"],
+  transaction?: Knex.Transaction | Knex,
+) {
+  const { url } = fichier;
+  const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } = fichier;
+
+  let buffer: Buffer;
+  try {
+    const { content } = await downloadFichierDS(url);
+    buffer = Buffer.from(content);
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      console.error(
+        `Erreur HTTP ${err.response.status} lors du téléchagement de l'url`,
+        url,
+        `dossier DS`,
+        number,
+      );
+    } else {
+      console.error(
+        `Erreur lors du téléchargement d'un fichier`,
+        url,
+        `dossier DS`,
+        number,
+        err instanceof Error ? err.message : String(err),
+        err instanceof Error && err.cause
+          ? `cause: ${err.cause instanceof Error ? err.cause.message : String(err.cause)}`
+          : "",
+      );
+    }
+    return;
+  }
+
+  try {
+    const insertedFichier = await storeNewFichier(
+      {
+        name,
+        content: buffer,
+        media_type,
+        demarche_numerique_checksum,
+        demarche_numerique_created_at,
+      },
+      transaction,
+    );
+    console.log(
+      `Dossier DS`,
+      number,
+      `- Téléchargement et stockage fichier '${name}'`,
+      `(${formatFileSize(buffer.byteLength)})`,
+    );
+    return insertedFichier.id;
+  } catch (err) {
+    console.error(
+      `Échec stockage fichier pour`,
+      url,
+      `dossier DS`,
+      number,
+      err instanceof Error ? err.message : String(err),
+    );
+  }
 }

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { updateNotificationForDossier } from "#lib/dossier/notification.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { readOnlyMode } from "../readOnly.ts";
   import { getContext } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
-  import { boundReviewChanges, dossierReviewContext } from "$lib/dossier/notification/snapshot.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { boundReviewChanges, dossierReviewContext } from "#lib/dossier/notification/snapshot.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { FieldChange } from "@pitchou/types/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";

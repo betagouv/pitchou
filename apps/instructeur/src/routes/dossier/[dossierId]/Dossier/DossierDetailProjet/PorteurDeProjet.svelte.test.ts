@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 import PorteurDeProjet from "./PorteurDeProjet.svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -13,7 +13,7 @@ import type {
   NotificationUpdate,
 } from "@pitchou/types/notification.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 const dossier = {
   id: 123,
   source: "demarche_numerique",
@@ -27,22 +27,37 @@ const dossier = {
     phone: null,
     role: null,
   },
-  deposant_first_names: "Déposant",
-  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
-  mandataire_first_names: "Lou",
-  mandataire_last_name: "Durand",
-  mandataire_email: "lou@test.fr",
-  representative_first_names: "Alex",
-  representative_last_name: "Robert",
-  representative_role: "Écologue",
+  acteurs: [
+    {
+      involvements: ["mandataire", "deposant"],
+      first_names: "Lou",
+      last_name: "Durand",
+      email: "lou@test.fr",
+      address: null,
+      phone: null,
+      role: null,
+    },
+    {
+      involvements: ["personne_contact"],
+      first_names: "Alex",
+      last_name: "Robert",
+      email: null,
+      address: null,
+      phone: null,
+      role: "Écologue",
+    },
+  ],
   especesImpactees: { impacts: [], sourceFile: undefined },
   piecesJointesPetitionnaires: [],
 } as unknown as DossierFull;
 const fields = [
-  ["demandeur.email", "Demandeur : Adresse électronique"],
+  [
+    "beneficiaire_demarche_numerique.email",
+    "Bénéficiaire Démarche Numérique : Adresse électronique",
+  ],
   ["mandataire.last_name", "Mandataire : Nom"],
-  ["representant.role", "Représentant de l'entreprise : Qualité"],
+  ["personne_contact.role", "Personne contact : Qualité"],
 ] as const;
 const changes = (): FieldChange[] =>
   fields.map(([field, label], index) => ({
@@ -73,7 +88,7 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test("only the changed identity properties are highlighted, including a cleared email", () => {
+test("only the changed porteur and acteur properties are highlighted, including a cleared email", () => {
   const view = render(PorteurDeProjet, {
     dossier,
     modifiedFields: new Map(changes().map((change) => [change.field, change])),
@@ -89,7 +104,7 @@ test("only the changed identity properties are highlighted, including a cleared 
   expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
   expect(view.container.querySelector("section.pending")).toBeNull();
   expect(view.container.querySelector(".pending .field-change")).toBeNull();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 01/09/2026");
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié le 01/09/2026");
 });
 
 test("property acknowledgments submit only that revision and clear the porteur badge after the last one", async () => {

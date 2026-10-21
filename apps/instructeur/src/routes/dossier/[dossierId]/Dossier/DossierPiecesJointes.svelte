@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import PieceJointeSection from "./PieceJointeSection.svelte";
   import { deletePieceJointe } from "./deletePieceJointe.ts";

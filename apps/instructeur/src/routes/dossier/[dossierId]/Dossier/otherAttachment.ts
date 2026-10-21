@@ -1,5 +1,5 @@
-import { store } from "$lib/state/store.svelte.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 

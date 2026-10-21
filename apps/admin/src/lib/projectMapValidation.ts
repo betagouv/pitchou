@@ -30,19 +30,19 @@ function validGeometry(value: unknown): boolean {
   if (geometry.type === "MultiLineString") {
     return (
       Array.isArray(coordinates) &&
-      coordinates.length >= 1 &&
+      coordinates.length > 0 &&
       coordinates.every((line) => positions(line, 2))
     );
   }
   if (geometry.type === "Polygon") {
-    return Array.isArray(coordinates) && coordinates.length >= 1 && coordinates.every(ring);
+    return Array.isArray(coordinates) && coordinates.length > 0 && coordinates.every(ring);
   }
   if (geometry.type === "MultiPolygon") {
     return (
       Array.isArray(coordinates) &&
-      coordinates.length >= 1 &&
+      coordinates.length > 0 &&
       coordinates.every(
-        (polygon) => Array.isArray(polygon) && polygon.length >= 1 && polygon.every(ring),
+        (polygon) => Array.isArray(polygon) && polygon.length > 0 && polygon.every(ring),
       )
     );
   }

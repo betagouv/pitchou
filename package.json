@@ -13,8 +13,8 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "kanel": "catalog:",
-    "prettier": "catalog:",
-    "prettier-plugin-svelte": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
     "rust-just": "catalog:",
     "sass": "catalog:",
     "svelte": "catalog:",

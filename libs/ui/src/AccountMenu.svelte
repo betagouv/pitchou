@@ -41,7 +41,7 @@
   onMount(() => {
     const root = document.documentElement;
     const sync = () => {
-      theme = root.getAttribute("data-fr-theme") === "dark" ? "dark" : "light";
+      theme = root.dataset.frTheme === "dark" ? "dark" : "light";
     };
     sync();
     const observer = new MutationObserver(sync);
@@ -51,9 +51,9 @@
 
   function toggleTheme() {
     const root = document.documentElement;
-    const next = root.getAttribute("data-fr-theme") === "dark" ? "light" : "dark";
+    const next = root.dataset.frTheme === "dark" ? "light" : "dark";
     // DSFR observes data-fr-scheme, applies data-fr-theme and persists the choice.
-    root.setAttribute("data-fr-scheme", next);
+    root.dataset.frScheme = next;
   }
 </script>
 

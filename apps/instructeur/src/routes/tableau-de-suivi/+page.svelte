@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import remember from "remember";
+  import { readStorage, writeStorage } from "#lib/shared/storage.ts";
 
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import SuiviInstruction from "../SuiviInstruction/SuiviInstruction.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
 
-  import { logout } from "$lib/shared/main.ts";
-  import { loadDossiers } from "$lib/dossier/dossier.ts";
+  import { logout } from "#lib/shared/main.ts";
+  import { loadDossiers } from "#lib/dossier/dossier.ts";
 
   import type {
     SortFilterLocalStorage,
@@ -23,7 +23,7 @@
   let dossiersLoadingFinished = $state(false);
 
   onMount(async () => {
-    const stored = await remember(SORT_FILTER_LOCALSTORAGE_KEY);
+    const stored = await readStorage<SortFilterLocalStorage>(SORT_FILTER_LOCALSTORAGE_KEY);
     if (stored && typeof stored !== "string") {
       selectedSortFilters = stored;
     } else if (typeof stored === "string") {
@@ -43,11 +43,10 @@
         });
         await goto("/connexion");
         return;
-      } else {
-        store.errors.add({
-          message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
-        });
       }
+      store.errors.add({
+        message: `Erreur de chargement des dossiers - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
+      });
     }
     dossiersLoadingFinished = true;
   });
@@ -67,7 +66,7 @@
         texte: filters.texte ?? undefined,
       },
     };
-    remember(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
+    writeStorage(SORT_FILTER_LOCALSTORAGE_KEY, newSortFilters);
     selectedSortFilters = newSortFilters;
   }
 

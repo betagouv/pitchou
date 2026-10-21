@@ -27,9 +27,6 @@ export default interface Dossier {
   /** List of municipalities covered by the project */
   communes: unknown | null;
 
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant: PersonneId | null;
-
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique: PersonneId | null;
 
@@ -237,9 +234,6 @@ export interface DossierInitializer {
 
   /** List of municipalities covered by the project */
   communes?: unknown | null;
-
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant?: PersonneId | null;
 
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique?: PersonneId | null;
@@ -459,9 +453,6 @@ export interface DossierMutator {
 
   /** List of municipalities covered by the project */
   communes?: unknown | null;
-
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant?: PersonneId | null;
 
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique?: PersonneId | null;

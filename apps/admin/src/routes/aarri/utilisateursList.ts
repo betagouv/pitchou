@@ -49,7 +49,7 @@ function csvEscape(value: string | number | null): string {
   if (value === null || value === undefined) return "";
   const s = String(value);
   if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
-    return `"${s.replace(/"/g, '""')}"`;
+    return `"${s.replaceAll('"', '""')}"`;
   }
   return s;
 }
@@ -139,7 +139,7 @@ export function matchesText(utilisateur: UtilisateurAARRI, text: string): boolea
     .trim()
     .split(" ")
     .map((word) => removeAccents(word.toLowerCase()))
-    .filter((word) => word.length >= 1);
+    .filter((word) => word.length > 0);
 
   const haystack = [utilisateur.email, utilisateur.lastName, utilisateur.firstNames]
     .map(normalize)

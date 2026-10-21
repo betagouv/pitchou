@@ -2,7 +2,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
   import EspeceSelectionList from "./EspeceSelectionList.svelte";
-  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
+  import ExpandCollapse from "#lib/components/common/ExpandCollapse.svelte";
   import { mailtoMissingEspece } from "@pitchou/common/constants.ts";
 
   import type {
@@ -35,28 +35,27 @@
     supprimerEspèceImpactée: removeEspeceImpactee,
   }: Props = $props();
 
-  //@ts-ignore
   let oiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
-        (e) => e && e.classification === "oiseau",
-      ),
+      especesImpacteesToPrefill
+        .map((especeImpactee) => especeImpactee.espèce)
+        .filter((e): e is EspeceProtegee => e !== undefined && e.classification === "oiseau"),
     ),
   );
-  //@ts-ignore
   let fauneNonOiseauxToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
-        (e) => e && e.classification === "faune non-oiseau",
-      ),
+      especesImpacteesToPrefill
+        .map((especeImpactee) => especeImpactee.espèce)
+        .filter(
+          (e): e is EspeceProtegee => e !== undefined && e.classification === "faune non-oiseau",
+        ),
     ),
   );
-  //@ts-ignore
   let floreToPrefill: SvelteSet<EspeceProtegee> = $derived(
     new SvelteSet(
-      [...especesImpacteesToPrefill.map((especeImpactee) => especeImpactee.espèce)].filter(
-        (e) => e && e.classification === "flore",
-      ),
+      especesImpacteesToPrefill
+        .map((especeImpactee) => especeImpactee.espèce)
+        .filter((e): e is EspeceProtegee => e !== undefined && e.classification === "flore"),
     ),
   );
 

@@ -32,44 +32,49 @@ export async function synchronizeGroupesInstructeurs(
   const groupesDB = await getGroupesInstructeurs(demarcheNumber, databaseConnection);
 
   const groupesMissing = groupesAPI.filter(({ label }) => !groupesDB.has(label));
-  const groupesCreated = groupesMissing.length
-    ? createGroupesInstructeurs(
-        groupesMissing,
-        instructeurByEmail,
-        demarcheNumber,
-        databaseConnection,
-      )
-    : Promise.resolve();
+  const groupesCreated =
+    groupesMissing.length > 0
+      ? createGroupesInstructeurs(
+          groupesMissing,
+          instructeurByEmail,
+          demarcheNumber,
+          databaseConnection,
+        )
+      : Promise.resolve();
 
   const extraGroupes = [...groupesDB].filter(
     ([name]) => !groupesAPI.some(({ label }) => label === name),
   );
-  const groupesDeleted = extraGroupes.length
-    ? deleteGroupesInstructeurs(
-        extraGroupes.map(([, { id }]) => id),
-        databaseConnection,
-      )
-    : Promise.resolve();
+  const groupesDeleted =
+    extraGroupes.length > 0
+      ? deleteGroupesInstructeurs(
+          extraGroupes.map(([, { id }]) => id),
+          databaseConnection,
+        )
+      : Promise.resolve();
 
   const membershipsUpdated = Promise.all(
-    groupesAPI.map(({ label, instructeurs: groupeInstructeurs }) => {
-      const groupe = groupesDB.get(label);
-      if (!groupe) return Promise.resolve();
-      const emailsToRemove = new Set(groupe.instructeurs);
-      const emailsToAdd = new Set<NonNullable<Personne["email"]>>();
-      for (const { email } of groupeInstructeurs) {
-        if (emailsToRemove.has(email)) emailsToRemove.delete(email);
-        else emailsToAdd.add(email);
-      }
-      return Promise.all([
-        emailsToAdd.size
-          ? addPersonnesToGroupeByEmails(groupe.id, emailsToAdd, databaseConnection)
-          : Promise.resolve(),
-        emailsToRemove.size
-          ? deletePersonnesFromGroupeByEmail(groupe.id, emailsToRemove, databaseConnection)
-          : Promise.resolve(),
-      ]);
-    }),
+    groupesAPI
+      .flatMap(({ label, instructeurs }) => {
+        const groupe = groupesDB.get(label);
+        return groupe ? [{ groupe, instructeurs }] : [];
+      })
+      .map(({ groupe, instructeurs: groupeInstructeurs }) => {
+        const emailsToRemove = new Set(groupe.instructeurs);
+        const emailsToAdd = new Set<NonNullable<Personne["email"]>>();
+        for (const { email } of groupeInstructeurs) {
+          if (emailsToRemove.has(email)) emailsToRemove.delete(email);
+          else emailsToAdd.add(email);
+        }
+        return Promise.all([
+          emailsToAdd.size > 0
+            ? addPersonnesToGroupeByEmails(groupe.id, emailsToAdd, databaseConnection)
+            : Promise.resolve(),
+          emailsToRemove.size > 0
+            ? deletePersonnesFromGroupeByEmail(groupe.id, emailsToRemove, databaseConnection)
+            : Promise.resolve(),
+        ]);
+      }),
   );
 
   const instructeurEmailToId = new Map<API_DS.Instructeur["email"], API_DS.Instructeur["id"]>();

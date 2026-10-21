@@ -10,7 +10,7 @@ import { habitat, impact, speciesDossier } from "./impactGroups.fixture.ts";
 
 const mode = vi.hoisted(() => ({ current: false }));
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => mode }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 beforeEach(() => {
   mode.current = false;
 });
@@ -27,7 +27,7 @@ test("numeric columns share one width across tables and the species column takes
       ]),
       anomalies: undefined,
     });
-    view.getByRole("button", { name: /^Espèces impactées/ }).click();
+    view.getByRole("button", { name: /^Espèces impactées/u }).click();
     await tick();
     const widths = new Set<number>();
     for (const table of view.getAllByRole("table")) {

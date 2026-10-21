@@ -1,4 +1,4 @@
-import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
+import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
 import { NO_INSTRUCTEUR } from "./state.svelte.ts";
 import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { TableSort } from "@pitchou/types/interfaceUtilisateur.ts";

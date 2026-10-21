@@ -7,13 +7,13 @@
   import {
     loadPublishedChangelogEntries,
     type PublishedChangelogEntry,
-  } from "$lib/changelog/changelog.ts";
+  } from "#lib/changelog/changelog.ts";
 
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
 
-  let entries = $state<PublishedChangelogEntry[] | undefined>(undefined);
+  let entries = $state<PublishedChangelogEntry[]>();
   let loadError = $state<string | null>(null);
 
   onMount(async () => {

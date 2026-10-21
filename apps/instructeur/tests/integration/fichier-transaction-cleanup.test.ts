@@ -40,7 +40,7 @@ test("retains the object when PostgreSQL turns COMMIT on an aborted transaction 
   const trx = await db.transaction();
   try {
     await deleteFichiersWithoutOtherReferences([file.id], trx);
-    await expect(trx.raw("SELECT 1 / 0")).rejects.toThrow(/division by zero/);
+    await expect(trx.raw("SELECT 1 / 0")).rejects.toThrow(/division by zero/u);
     await trx.commit();
     expect(await db("file").where({ id: file.id })).toHaveLength(1);
     expect(await s3HasKey(file.key)).toBe(true);

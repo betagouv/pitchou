@@ -56,7 +56,7 @@ export async function loadEspecesProtegeesAdmin(): Promise<EspeceProtegee[]> {
 
   const rows: EspeceProtegeeRow[] = await response.json();
   if (!Array.isArray(rows)) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/especes-protegees.");
+    throw new TypeError("Réponse invalide reçue du serveur pour /api/especes-protegees.");
   }
 
   return rows.map(dbRowToEspeceProtegee);
@@ -80,7 +80,7 @@ export async function loadModificationsEspecesAdmin(): Promise<ModificationEspec
 
   const modifications = await response.json();
   if (!Array.isArray(modifications)) {
-    throw new Error("Réponse invalide reçue du serveur pour les modifications d'espèces.");
+    throw new TypeError("Réponse invalide reçue du serveur pour les modifications d'espèces.");
   }
 
   return modifications;

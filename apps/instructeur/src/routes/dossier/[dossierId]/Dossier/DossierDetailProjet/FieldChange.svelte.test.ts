@@ -4,7 +4,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
 import { page, userEvent } from "vitest/browser";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ProjectField from "./ReviewFieldFixture.svelte";
 import FieldChangeControl from "./FieldChange.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -40,8 +40,8 @@ afterEach(() => {
 test("cleared values remain highlighted with the fallback date and a visible Vu button", () => {
   const view = render(ProjectField, { dossierId, label: "Description", value: null, change });
   expect(view.container.textContent).toContain("Non renseigné");
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 01/09/2026");
-  expect(view.container.textContent).not.toMatch(/détecté/i);
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié le 01/09/2026");
+  expect(view.container.textContent).not.toMatch(/détecté/iu);
   expect(view.container.querySelector("button")?.textContent?.trim()).toBe("Vu");
   expect(view.container.querySelector(".fr-icon-check-line")?.getAttribute("aria-hidden")).toBe(
     "true",
@@ -58,13 +58,8 @@ test("cleared values remain highlighted with the fallback date and a visible Vu 
 });
 
 test("review waits for server persistence before updating the global aggregate", async () => {
-  let resolve!: (notification: DossierNotification) => void;
-  const update = vi.fn(
-    () =>
-      new Promise<DossierNotification>((done) => {
-        resolve = done;
-      }),
-  );
+  const { promise, resolve } = Promise.withResolvers<DossierNotification>();
+  const update = vi.fn(() => promise);
   store.capabilities = { updateNotificationForDossier: update };
   const view = render(ProjectField, {
     dossierId,

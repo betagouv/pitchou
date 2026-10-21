@@ -10,7 +10,7 @@ import { groupChange, habitat, impact, speciesDossier } from "./impactGroups.fix
 
 const mode = vi.hoisted(() => ({ current: false }));
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => mode }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 beforeEach(() => {
   mode.current = false;
 });
@@ -42,7 +42,7 @@ test("three impacts count as two species; separate status badges follow names", 
     expect(name.lastElementChild?.classList.contains("species-status")).toBe(true);
   }
   expect(view.container.textContent).toContain("MINISTÈRE");
-  expect(view.container.textContent).not.toMatch(/menac/i);
+  expect(view.container.textContent).not.toMatch(/menac/iu);
 });
 
 test("zero status counts are omitted", () => {
@@ -79,7 +79,7 @@ test("legacy review is file-level and does not color any table", () => {
   });
   expect(view.container.textContent).toContain("Le groupe d'impact concerné n'est pas précisé.");
   expect(view.container.querySelectorAll("table.pending")).toHaveLength(0);
-  expect(view.getAllByRole("button", { name: /Valider la modification/ })).toHaveLength(1);
+  expect(view.getAllByRole("button", { name: /Valider la modification/u })).toHaveLength(1);
 });
 
 test("read-only hides all reviews, highlights and deleted groups", () => {
@@ -93,7 +93,7 @@ test("read-only hides all reviews, highlights and deleted groups", () => {
       ["removed", groupChange("removed")],
     ]),
   });
-  expect(view.queryByRole("button", { name: /Valider la modification/ })).toBeNull();
+  expect(view.queryByRole("button", { name: /Valider la modification/u })).toBeNull();
   expect(view.container.querySelector(".pending")).toBeNull();
   expect(view.queryByText("removed")).toBeNull();
   expect(view.getAllByRole("table")).toHaveLength(2);
@@ -133,7 +133,7 @@ test("file anomalies retain their details, reference link and original download"
   view.getByRole("button", { name: "Voir le détail" }).click();
   await tick();
   expect(view.container.textContent).toContain("Type d'impact inconnu");
-  expect(view.getByRole("link", { name: /Quels types d'impact/ }).getAttribute("href")).toBe(
+  expect(view.getByRole("link", { name: /Quels types d'impact/u }).getAttribute("href")).toBe(
     "/referentiel-type-impact",
   );
   expect(view.getByRole("button", { name: "Télécharger le fichier original" })).toBeTruthy();
@@ -187,7 +187,7 @@ test("threatened species carry their red-list category on the row and in the acc
   );
   expect(
     badges.map((badge) => [
-      [...badge.classList].find((name) => /^species-status--[A-Z]{2}$/.test(name))?.slice(-2),
+      [...badge.classList].find((name) => /^species-status--[A-Z]{2}$/u.test(name))?.slice(-2),
       badge.textContent,
       getComputedStyle(badge).color,
       getComputedStyle(badge).backgroundColor,

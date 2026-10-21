@@ -1,8 +1,8 @@
 <script lang="ts">
   import HeaderDossier from "./Dossier/HeaderDossier.svelte";
   import { onDestroy } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
-  import DossierNotificationReadTracker from "$lib/components/DossierNotificationReadTracker.svelte";
+  import { store } from "#lib/state/store.svelte.ts";
+  import DossierNotificationReadTracker from "#lib/components/DossierNotificationReadTracker.svelte";
 
   import DossierInstruction from "./Dossier/DossierInstruction.svelte";
   import DossierDetailProjet from "./Dossier/DossierDetailProjet.svelte";
@@ -11,8 +11,8 @@
   import DossierHistorique from "./Dossier/DossierHistorique.svelte";
   import DossierPiecesJointes from "./Dossier/DossierPiecesJointes.svelte";
   import DossierGenerationDocuments from "./Dossier/DossierGenerationDocuments.svelte";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
-  import debounce from "just-debounce-it";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
+  import debounce from "#lib/shared/debounce.ts";
   import DossierTabList from "./Dossier/DossierTabList.svelte";
   import ReadOnlyBanner from "./Dossier/ReadOnlyBanner.svelte";
   import { visibleDossierTabs, type DossierTab } from "./Dossier/dossierTabs.ts";

@@ -1,8 +1,8 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import type { PieceJointeDeletion } from "@pitchou/types/capabilities.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { deletePieceJointe } from "@pitchou/server/database/piece_jointe.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
@@ -24,7 +24,7 @@ export const DELETE: RequestHandler = async ({ url, request }) => {
   for (const property of ["entityId", "fileId"] as const) {
     if (
       typeof body[property] !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body[property])
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(body[property])
     ) {
       error(400, `La propriété '${property}' doit être un UUID.`);
     }

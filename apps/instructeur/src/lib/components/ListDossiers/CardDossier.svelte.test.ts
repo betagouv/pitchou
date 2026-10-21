@@ -7,12 +7,12 @@ import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
 
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import CardDossier from "./CardDossier.svelte";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier, makeNotification } from "./testHelpers.ts";
@@ -55,7 +55,7 @@ afterEach(() => {
 test("cards omit references, SIRET and tasks, but keep a clickable non-underlined title", async () => {
   const { container, rerender } = render(CardDossier, cardProps());
   expect(container.textContent).not.toMatch(
-    /987654|12345678900012|Rédiger une décision|Dossier n°/,
+    /987654|12345678900012|Rédiger une décision|Dossier n°/u,
   );
   expect(screen.getByText("Association des marais").getAttribute("title")).toBe(
     "Association des marais",
@@ -93,18 +93,18 @@ test("cards omit references, SIRET and tasks, but keep a clickable non-underline
 test("both stars stay violet-blue and Moi only replaces Instructeur for followed dossiers", async () => {
   const props = cardProps(true, false);
   const { rerender } = render(CardDossier, props);
-  expect(getComputedStyle(screen.getByRole("button", { name: /^Suivre$/ })).color).toBe(
+  expect(getComputedStyle(screen.getByRole("button", { name: /^Suivre$/u })).color).toBe(
     "rgb(106, 106, 244)",
   );
-  await fireEvent.click(screen.getByRole("button", { name: /^Suivre$/ }));
+  await fireEvent.click(screen.getByRole("button", { name: /^Suivre$/u }));
   expect(props.currentInstructeurFollowsDossier).toHaveBeenCalledWith(dossier.id);
   expect(screen.getByText("Instructeur", { exact: true })).toBeTruthy();
   await rerender({ ...props, dossierFollowedByCurrentInstructeur: true });
   expect(screen.getByText("Moi", { exact: true })).toBeTruthy();
-  expect(getComputedStyle(screen.getByRole("button", { name: /^Ne plus suivre$/ })).color).toBe(
+  expect(getComputedStyle(screen.getByRole("button", { name: /^Ne plus suivre$/u })).color).toBe(
     "rgb(106, 106, 244)",
   );
-  await fireEvent.click(screen.getByRole("button", { name: /^Ne plus suivre$/ }));
+  await fireEvent.click(screen.getByRole("button", { name: /^Ne plus suivre$/u }));
   expect(props.currentInstructeurLeavesDossier).toHaveBeenCalledWith(dossier.id);
 });
 
@@ -136,7 +136,7 @@ test("unassigned can coexist with shared notification badges and never makes a r
 
 test("card menu retains assignment and deadline editing, without sharing or manual unread actions", async () => {
   render(CardDossier, cardProps());
-  const trigger = screen.getByRole("button", { name: /Plus d’actions/ });
+  const trigger = screen.getByRole("button", { name: /Plus d’actions/u });
   for (const element of [trigger, trigger.querySelector("svg")!]) {
     const bounds = element.getBoundingClientRect();
     expect(bounds.width).toBe(24);
@@ -150,7 +150,7 @@ test("card menu retains assignment and deadline editing, without sharing or manu
   for (const [index, icon] of ["share-forward-fill", "calendar-event-line"].entries()) {
     const glyph = screen.getAllByRole("menuitem")[index].querySelector(`.fr-icon-${icon}`)!;
     expect(glyph).toHaveAttribute("aria-hidden", "true");
-    expect(getComputedStyle(glyph, "::before").maskImage).toMatch(/^url\(/);
+    expect(getComputedStyle(glyph, "::before").maskImage).toMatch(/^url\(/u);
     expect(getComputedStyle(glyph, "::before").color).toBe("rgb(0, 0, 145)");
   }
   await fireEvent.click(

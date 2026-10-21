@@ -1,4 +1,4 @@
-import { json, text } from "d3-fetch";
+import { json, text } from "#lib/shared/http.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type {
@@ -45,19 +45,15 @@ function wrapModifierDossier(
     throw new Error(`La capability modifierDossier ne contient pas '${dossierIdURLParam}'`);
   }
 
-  function modifierDossier(dossierId: Dossier["id"], args: any) {
+  const modifierDossier = (dossierId: Dossier["id"], args: any) => {
     console.log("modifierDossier cap", args);
 
-    return json(
-      // @ts-ignore
-      url.replace(dossierIdURLParam, dossierId),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(args),
-      },
-    );
-  }
+    return json(url.replace(dossierIdURLParam, String(dossierId)), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+  };
 
   return modifierDossier;
 }
@@ -110,7 +106,7 @@ function wrapEnvoyerEmailCnpn(
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify(email),
     });
-    const body = (await response.json().catch(() => undefined)) as
+    const body = (await response.json().catch(() => {})) as
       | Awaited<ReturnType<PitchouInstructeurCapabilities["envoyerEmailCnpn"]>>
       | { message?: unknown }
       | undefined;
@@ -142,7 +138,7 @@ function wrapUpdateFollowRelation(
         personneEmail,
         dossierId,
       }),
-    }).then(() => undefined);
+    }).then(() => {});
   };
 }
 
@@ -171,7 +167,7 @@ export default function (
       decisionAdministrativeIdURLParam,
     ),
     addOrUpdatePrescription: wrapPOSTUrl(capURLs.addOrUpdatePrescription),
-    addPrescriptionsAndControles: wrapPOSTUrl(capURLs.addPrescriptionsAndControles),
+    addPrescriptionsAndControles: wrapJsonPOST(capURLs.addPrescriptionsAndControles),
     deletePrescription: wrapDeleteById(capURLs.deletePrescription, prescriptionIdURLParam),
     addOrUpdateControle: wrapPOSTUrl(capURLs.addOrUpdateControle),
     deleteControle: wrapDeleteById(capURLs.deleteControle, controleIdURLParam),

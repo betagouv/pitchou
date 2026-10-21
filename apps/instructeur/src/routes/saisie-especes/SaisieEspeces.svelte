@@ -1,6 +1,6 @@
 <script lang="ts">
-  import EspecesProtegeesGroupedByTypeImpact from "$lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
-  import { createEspecesGroupedByTypeImpact } from "$lib/especes/createEspecesGroupedByTypeImpact.ts";
+  import EspecesProtegeesGroupedByTypeImpact from "#lib/components/EspecesProtegeesGroupedByTypeImpact.svelte";
+  import { createEspecesGroupedByTypeImpact } from "#lib/especes/createEspecesGroupedByTypeImpact.ts";
   import ModalPrefillFromText from "./SaisieEspeces/ModalPrefillFromText.svelte";
   import FormSaisieEspece from "./SaisieEspeces/FormSaisieEspece.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
@@ -10,7 +10,7 @@
   import SaisieValidationModal from "./SaisieEspeces/SaisieValidationModal.svelte";
   import { tick } from "svelte";
   import { descriptionMenacesEspecesToOdsArrayBuffer } from "@pitchou/common/especesUtils.ts";
-  import { loadActivitesMethodesMoyensDePoursuite } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadActivitesMethodesMoyensDePoursuite } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
   import { flattenImpactedEspeces } from "./SaisieEspeces/impactedEspeces.ts";
   import type {
     ActiviteMenancante,
@@ -83,8 +83,7 @@
     try {
       if (!odsFile) throw new Error("Aucun fichier espèces .ods n'a été téléchargé.");
       const description = await odsFile.arrayBuffer().then(importOds);
-      if (Object.keys(description).length) impacted = flattenImpactedEspeces(description);
-      // @ts-ignore DSFR installs this browser global.
+      if (Object.keys(description).length > 0) impacted = flattenImpactedEspeces(description);
       if (importModal) window.dsfr(importModal).modal.conceal();
     } catch (error) {
       importError =
@@ -98,9 +97,9 @@
     }
   }
   async function importFromText(
-    items: Array<{ espece: EspeceProtegee; impacts?: DescriptionImpact[] }>,
+    items: Array<{ espèce: EspeceProtegee; impacts?: DescriptionImpact[] }>,
   ) {
-    if (!items.length) return;
+    if (items.length === 0) return;
     impacted = items;
     await tick();
     references = references.filter(Boolean);

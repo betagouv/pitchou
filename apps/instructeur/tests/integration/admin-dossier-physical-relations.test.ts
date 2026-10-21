@@ -86,12 +86,9 @@ test("a native dossier can change groupe and physical demandeur without mutating
     email: "shared@example.org",
     role: "Ecologue",
   });
-  expect(detail.identites).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ type: "demandeur", email: "shared@example.org" }),
-      expect.objectContaining({ type: "mandataire", last_name: "Durand" }),
-    ]),
-  );
+  expect(detail.acteurs).toEqual([
+    expect.objectContaining({ involvements: ["mandataire", "deposant"], last_name: "Durand" }),
+  ]);
   expect(detail.dossier.demandeur_personne_physique).toBe(
     initialDossier?.demandeur_personne_physique,
   );
@@ -138,9 +135,7 @@ test("a physical demandeur referenced by another dossier is replaced without bei
   const sharedId = firstRow?.demandeur_personne_physique;
   if (!sharedId || !secondRow?.demandeur_personne_physique)
     throw new Error("Missing test demandeur");
-  await db("dossier")
-    .where({ id: second.id })
-    .update({ demandeur_personne_physique: sharedId, deposant: sharedId });
+  await db("dossier").where({ id: second.id }).update({ demandeur_personne_physique: sharedId });
   await db("personne").where({ id: secondRow.demandeur_personne_physique }).delete();
   await updateDossierFromAdmin(
     first.id,

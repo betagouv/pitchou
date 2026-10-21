@@ -4,7 +4,8 @@ import ky from "ky";
 
 const ENDPOINT = "https://www.demarches-simplifiees.fr/api/v2/graphql";
 
-const TIMEOUT_DELAY = 40 * 1000; // milliseconds
+// milliseconds
+const TIMEOUT_DELAY = 40 * 1000;
 
 export default async function (
   token: string,
@@ -36,8 +37,7 @@ export default async function (
 
     return response.data;
   } catch (err) {
-    // @ts-ignore
-    if (err.name === "TimeoutError") {
+    if (err instanceof Error && err.name === "TimeoutError") {
       const message = `\nTimeout d'une requête HTTP vers ${ENDPOINT} après ${TIMEOUT_DELAY / 1000} secondes\n\n`;
       const simpleError = new Error(message);
       console.error(message);

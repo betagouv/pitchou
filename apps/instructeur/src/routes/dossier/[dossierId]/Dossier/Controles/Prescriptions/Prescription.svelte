@@ -1,10 +1,10 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import PrescriptionControles from "./PrescriptionControles.svelte";
-  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
+  import ExpandCollapse from "#lib/components/common/ExpandCollapse.svelte";
   import PrescriptionSummary from "./PrescriptionSummary.svelte";
 
-  import { formatDateRelative } from "$lib/dossier/displayDossier.ts";
+  import { formatDateRelative } from "#lib/dossier/displayDossier.ts";
   import { addControle as sendControle, updateControle, deleteControle } from "../controle.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
@@ -88,17 +88,8 @@
   async function validateControleModifications(controleValide: Partial<Controle>) {
     if (!editedControle) throw new TypeError(`pas de contrôle en modificaion`);
 
-    // replace editedControle with controleValide in the array of contrôles
-    // @ts-ignore
-    const index = prescription.controles?.indexOf(editedControle) || -1;
-    if (index !== -1) {
-      prescription.controles?.splice(index, 1);
-    }
+    Object.assign(editedControle, controleValide);
     editedControle = undefined;
-
-    // @ts-ignore
-    prescription.controles?.push(controleValide);
-
     await updateControle(controleValide);
   }
 

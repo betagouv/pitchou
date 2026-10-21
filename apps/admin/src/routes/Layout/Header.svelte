@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
 
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { pageInfoFor } from "./nav.ts";
 
   type Props = {

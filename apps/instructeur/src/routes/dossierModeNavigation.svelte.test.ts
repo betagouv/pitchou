@@ -5,7 +5,7 @@ import { afterNavigate, goto, replaceState } from "$app/navigation";
 import { page as kitPage } from "$app/state";
 
 vi.mock("$app/state", () => ({ page: { state: {} } }));
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -14,19 +14,19 @@ vi.mock(import("$app/navigation"), () => ({
   replaceState: vi.fn(),
 }));
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
 
 // Avoid fetching the espèces data files over HTTP from the dossier page.
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
   loadEspecesProtegeesList: vi.fn().mockReturnValue(new Promise(() => {})),
 }));
 
-import { store } from "$lib/state/store.svelte.ts";
-import { getDossierFull, updateDossier } from "$lib/dossier/dossier.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { getDossierFull, updateDossier } from "#lib/dossier/dossier.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
@@ -124,16 +124,16 @@ test("normal entry preserves an explicit tab while both mode switches reset Inst
     "true",
   );
 
-  screen.getByRole("button", { name: /Plus d’actions/ }).click();
+  screen.getByRole("button", { name: /Plus d’actions/u }).click();
   await tick();
-  expect(screen.queryByRole("menuitem", { name: /échéance/ })).toBeNull();
-  expect(screen.queryByRole("menuitem", { name: /Partager.*lecture seule/ })).toBeNull();
+  expect(screen.queryByRole("menuitem", { name: /échéance/u })).toBeNull();
+  expect(screen.queryByRole("menuitem", { name: /Partager.*lecture seule/u })).toBeNull();
   screen.getByRole("menuitem", { name: "Voir le dossier en lecture seule" }).click();
   await tick();
   const [readUrl, options] = vi.mocked(goto).mock.lastCall!;
   expect((readUrl as URL).search).toBe("?lecture=1");
   expect(options).toMatchObject({
-    replaceState: true,
+    replace: true,
     state: { dossierReturnPath: "/tous-les-dossiers?recherche=carriere" },
   });
   expect(screen.getByRole("tab", { name: "Instruction" })).toHaveAttribute("aria-selected", "true");
@@ -145,11 +145,11 @@ test("normal entry preserves an explicit tab while both mode switches reset Inst
   await tick();
   const [editUrl, editOptions] = vi.mocked(goto).mock.lastCall!;
   expect((editUrl as URL).search).toBe("");
-  expect(editOptions).toMatchObject({ replaceState: true });
+  expect(editOptions).toMatchObject({ replace: true });
 
   screen.getByRole("button", { name: "Fermer le dossier" }).click();
   expect(goto).toHaveBeenLastCalledWith("/tous-les-dossiers?recherche=carriere", {
-    replaceState: true,
+    replace: true,
   });
 });
 
@@ -163,7 +163,7 @@ test.each([true, false])(
     await tick();
     screen.getByRole("button", { name: "Fermer le dossier" }).click();
     expect(goto).toHaveBeenCalledWith(following ? "/mes-dossiers" : "/tous-les-dossiers", {
-      replaceState: true,
+      replace: true,
     });
   },
 );
@@ -175,7 +175,7 @@ test("a reload retains the original list saved in history state", async () => {
   navigateFrom();
   await tick();
   screen.getByRole("button", { name: "Fermer le dossier" }).click();
-  expect(goto).toHaveBeenCalledWith("/mes-dossiers?recherche=test", { replaceState: true });
+  expect(goto).toHaveBeenCalledWith("/mes-dossiers?recherche=test", { replace: true });
 });
 
 test("initial navigation tolerates a source without a URL", async () => {
@@ -187,5 +187,5 @@ test("initial navigation tolerates a source without a URL", async () => {
   ).not.toThrow();
   await tick();
   screen.getByRole("button", { name: "Fermer le dossier" }).click();
-  expect(goto).toHaveBeenCalledWith("/tous-les-dossiers", { replaceState: true });
+  expect(goto).toHaveBeenCalledWith("/tous-les-dossiers", { replace: true });
 });

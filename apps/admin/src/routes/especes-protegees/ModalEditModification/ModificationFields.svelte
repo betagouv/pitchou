@@ -2,7 +2,7 @@
   import type {
     ModificationEspeceAdmin,
     PatchModificationEspece,
-  } from "$lib/actions/adminEspeces.ts";
+  } from "#lib/actions/adminEspeces.ts";
   import FieldClassification from "./FieldClassification.svelte";
   import FieldNoms from "./FieldNoms.svelte";
   import FieldStatuts from "./FieldStatuts.svelte";

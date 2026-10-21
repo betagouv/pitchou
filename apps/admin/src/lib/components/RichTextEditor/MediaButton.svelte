@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Editor } from "@tiptap/core";
-  import { portal } from "$lib/portal.ts";
+  import { portal } from "#lib/portal.ts";
   import { CHANGELOG_MEDIA_ACCEPT } from "./mediaTypes.ts";
   import { TOOLBAR_BUTTON_CLASS } from "./toolbarButtons.ts";
 
@@ -34,7 +34,7 @@
         .run();
     } else {
       // The file name (sans extension) makes a better-than-nothing alt text.
-      const alt = file.name.replace(/\.[^.]+$/, "");
+      const alt = file.name.replace(/\.[^.]+$/u, "");
       editor.chain().focus().setImage({ src: url, alt }).run();
     }
   }

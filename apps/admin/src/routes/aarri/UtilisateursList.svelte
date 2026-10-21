@@ -15,8 +15,8 @@
     type SortKey,
     type SortOrder,
   } from "./utilisateursList.ts";
-  import { downloadEvenementsCSV } from "$lib/actions/admin.ts";
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
+  import { downloadEvenementsCSV } from "#lib/actions/admin.ts";
+  import CollapsibleNotice from "#lib/components/CollapsibleNotice.svelte";
   import UtilisateursListControls from "./UtilisateursListControls.svelte";
   import UtilisateurCards from "./UtilisateurCards.svelte";
   import RepartitionNiveaux from "./RepartitionNiveaux.svelte";
@@ -31,7 +31,9 @@
   const UTILISATEURS_PER_PAGE = 20;
 
   // The URL query string is the single source of truth for search, filter, sort and page.
-  const query = $derived(parseUtilisateursQuery(page.url.searchParams));
+  const query = $derived(
+    parseUtilisateursQuery(new URLSearchParams(page.url.searchParams.toString())),
+  );
 
   let downloadError: string | null = $state(null);
   let pageTitleElement: HTMLHeadingElement | undefined = $state();
@@ -61,7 +63,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
     return [undefined, ...selectors];
   });
@@ -75,7 +77,7 @@
   // Write the given param updates to the URL. A `null` or empty value removes the param.
   // Any change other than pagination drops the page, sending the user back to the first one.
   function updateQuery(updates: Record<string, string | null>, { resetPage = true } = {}) {
-    const params = new URLSearchParams(page.url.searchParams);
+    const params = new URLSearchParams(page.url.searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
       if (value === null || value === "") {
         params.delete(key);
@@ -89,9 +91,8 @@
 
     const search = params.toString();
     goto(search ? `?${search}` : page.url.pathname, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true,
+      replace: true,
+      reset: false,
     });
   }
 
@@ -123,9 +124,9 @@
     const a = document.createElement("a");
     a.href = url;
     a.download = `instructrices_aarri_${today}.csv`;
-    document.body.appendChild(a);
+    document.body.append(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }
 </script>

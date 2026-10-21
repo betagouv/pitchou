@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+import { RequestError } from "#lib/shared/createCapObjectFromURLs/requestWrappers.ts";
 import { CnpnEmailModal, sendCnpnEmail } from "./setup.ts";
 import { dossier } from "./fixtures.ts";
 

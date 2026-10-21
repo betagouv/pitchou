@@ -50,9 +50,8 @@ export async function createGroupesInstructeurs(
   const capByCodeP = databaseConnection("cap_dossier")
     .select(["cap", "personne_cap"])
     .whereIn(
-      // @ts-ignore Access codes are completed before this function is called.
       "personne_cap",
-      instructeurs.map(({ access_code }) => access_code),
+      instructeurs.map(({ access_code }) => access_code).filter((code) => code != null),
     )
     .then((caps) => new Map(caps.map(({ cap, personne_cap }) => [personne_cap, cap])));
   const codeByEmail = new Map(instructeurs.map(({ email, access_code }) => [email, access_code]));

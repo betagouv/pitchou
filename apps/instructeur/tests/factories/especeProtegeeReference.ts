@@ -53,8 +53,8 @@ export async function seedEspeceProtegeeReference(
     }
   }
 
-  if (taxrefRows.length >= 1) await db.batchInsert("espece_taxref", taxrefRows, 1000);
-  if (bdcRows.length >= 1) await db.batchInsert("espece_bdc_statut", bdcRows, 1000);
+  if (taxrefRows.length > 0) await db.batchInsert("espece_taxref", taxrefRows, 1000);
+  if (bdcRows.length > 0) await db.batchInsert("espece_bdc_statut", bdcRows, 1000);
   await rebuildEspeceProtegeeReference(db);
 }
 
@@ -62,5 +62,6 @@ export async function seedEspeceProtegeeReference(
 function taxrefClassification(classification: string): { regne: string; classe: string } {
   if (classification === "oiseau") return { regne: "Animalia", classe: "Aves" };
   if (classification === "flore") return { regne: "Plantae", classe: "" };
-  return { regne: "Animalia", classe: "Mammalia" }; // faune non-oiseau
+  // faune non-oiseau
+  return { regne: "Animalia", classe: "Mammalia" };
 }

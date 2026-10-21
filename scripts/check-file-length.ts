@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import ts from "typescript";
 
 /**
@@ -29,6 +29,7 @@ const DEFAULT_MAX = 200;
 const IGNORES = [
   "node_modules",
   ".git",
+  ".fleet",
   ".svelte-kit",
   ".direnv",
   "build",
@@ -44,8 +45,9 @@ const IGNORES = [
   "libs/database/seeds/fixtures/dossiers/records.ts",
 ];
 
-const args = parseArgs(process.argv.slice(2), {
-  default: { max: DEFAULT_MAX },
+const { values: args, positionals } = parseArgs({
+  options: { max: { type: "string", default: String(DEFAULT_MAX) } },
+  allowPositionals: true,
 });
 
 const max = Number(args.max);
@@ -54,7 +56,7 @@ if (!Number.isInteger(max) || max <= 0) {
   process.exit(1);
 }
 
-const roots = args._.length > 0 ? args._.map(String) : ["."];
+const roots = positionals.length > 0 ? positionals : ["."];
 
 const repoRoot = process.cwd();
 
@@ -66,7 +68,7 @@ const pathIgnores = new Set(IGNORES.filter((entry) => entry.includes("/")).map(n
 /** Turn a path into a comparable form: relative to the repo root, with `/` separators and no trailing slash. */
 function normalise(path: string): string {
   const rel = relative(repoRoot, resolve(repoRoot, path));
-  return rel.split(sep).join("/").replace(/\/+$/, "");
+  return rel.split(sep).join("/").replace(/\/+$/u, "");
 }
 
 /** A path is ignored if any segment matches a name ignore, or it sits under a path ignore. */
@@ -89,7 +91,7 @@ async function collectFiles(dir: string, found: string[]): Promise<void> {
 
     if (entry.isDirectory()) {
       await collectFiles(fullPath, found);
-    } else if (entry.isFile() && /\.(svelte|ts)$/.test(entry.name)) {
+    } else if (entry.isFile() && /\.(svelte|ts)$/u.test(entry.name)) {
       found.push(fullPath);
     }
   }
@@ -119,7 +121,7 @@ function countLines(filePath: string): number {
   }
 
   if (filePath.endsWith(".svelte")) {
-    for (const match of content.matchAll(/<!--[\s\S]*?-->/g)) {
+    for (const match of content.matchAll(/<!--[\s\S]*?-->/gu)) {
       blankRange(withoutComments, match.index, match.index + match[0].length);
     }
   }
@@ -138,7 +140,7 @@ function blankRange(content: string[], start: number, end: number): void {
 }
 
 function dropTrailingNewline(content: string): string {
-  return content.replace(/\r?\n$/, "");
+  return content.replace(/\r?\n$/u, "");
 }
 
 const files: string[] = [];

@@ -1,10 +1,10 @@
 <script lang="ts">
   import ThSorts from "./ThSorts.svelte";
-  import TagPhase from "$lib/components/TagPhase.svelte";
-  import ModalButton from "$lib/components/DSFR/ModalButton.svelte";
+  import TagPhase from "#lib/components/TagPhase.svelte";
+  import ModalButton from "#lib/components/DSFR/ModalButton.svelte";
   import Pagination from "@pitchou/ui/DSFR/Pagination.svelte";
   import PhaseDelayIndicator from "./PhaseDelayIndicator.svelte";
-  import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
+  import { formatLocalisation, formatPorteurDeProjet } from "#lib/dossier/displayDossier.ts";
   import type { SuiviInstructionState } from "./state.svelte.ts";
   import type { TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";

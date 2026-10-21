@@ -5,14 +5,14 @@ import "@gouvfr/dsfr/dist/dsfr.css";
 import "@gouvfr/dsfr/dist/utility/utility.css";
 import "../../../../../app.css";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 import { groupChange, speciesDossier } from "./impactGroups.fixture.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierNotification, FieldChange } from "@pitchou/types/notification.ts";
 
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => ({ current: false }) }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 afterEach(() => {
   cleanup();
   store.capabilities = {};
@@ -42,7 +42,7 @@ async function openReview(changes: FieldChange[]) {
     })),
   };
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
-  const accordion = view.getByRole("button", { name: /Espèces impactées/ });
+  const accordion = view.getByRole("button", { name: /Espèces impactées/u });
   accordion.click();
   await tick();
   return { view, dossier, accordion, notification };

@@ -1,10 +1,12 @@
+import { scientificTags } from "./generationTags/scientific.ts";
+import { speciesTags } from "./generationTags/species.ts";
 import { departementName } from "@pitchou/common/departements.ts";
-import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
-import { groupImpactsByTypeImpact } from "$lib/especes/groupImpactsByTypeImpact.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "#lib/dossier/displayDossier.ts";
+import { groupImpactsByTypeImpact } from "#lib/especes/groupImpactsByTypeImpact.ts";
 
 import type { BalisesGenerationDocument } from "@pitchou/types/balisesGenerationDocument.d.ts";
 import type { DossierFull, FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
-import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
+import type { EspecesByTypeImpact } from "#lib/especes/especesByTypeImpact.ts";
 import { formatDocumentDate, formatNumber, formatSimpleDocumentDate } from "./tagFormatting.ts";
 
 /**
@@ -29,8 +31,6 @@ export function getDocumentGenerationTags(
     no_other_satisfactory_solution_justification: noOtherSatisfactorySolutionJustification,
     mesures_erc_planned: ercMesuresPlanned,
     motif_derogation: motifDerogation,
-    dossier_oiseau_simple_compensated_nids_count: compensatedNidsCount,
-    dossier_oiseau_simple_destroyed_nids_count: destroyedNidsCount,
     motif_derogation_justification: motifDerogationJustification,
     intervention_start_date: interventionStartDate,
     intervention_end_date: interventionEndDate,
@@ -39,18 +39,6 @@ export function getDocumentGenerationTags(
     onagre_demande_identifier: onagreDemandeIdentifier,
     main_activite: mainActivite,
     linked_to_ae_regime: linkedToAeRegime,
-    type,
-    scientifique_demande_type: scientifiqueDemandeType,
-    scientifique_previous_assessment: scientifiquePreviousAssessment,
-    scientifique_demande_purposes: scientifiqueDemandePurposes,
-    scientifique_suivi_protocol_description: scientifiqueSuiviProtocolDescription,
-    scientifique_capture_mode: scientifiqueCaptureMode,
-    scientifique_light_source_conditions: scientifiqueLightSourceConditions,
-    scientifique_marking_conditions: scientifiqueMarkingConditions,
-    scientifique_transport_conditions: scientifiqueTransportConditions,
-    scientifique_intervention_perimeter: scientifiqueInterventionPerimeter,
-    scientifique_intervenants: scientifiqueIntervenants,
-    scientifique_other_intervenants_details: scientifiqueOtherIntervenantsDetails,
   } = dossier;
 
   // json column, so it may not be an array at runtime
@@ -62,36 +50,11 @@ export function getDocumentGenerationTags(
   // Transform the impacted especes if they exist. Left undefined rather than empty when there is
   // nothing to say: that is what a template testing the tag expects.
   const groupedEspecesByTypeImpact: EspecesByTypeImpact[] | undefined =
-    impacts.length >= 1 ? groupImpactsByTypeImpact(impacts) : undefined;
+    impacts.length > 0 ? groupImpactsByTypeImpact(impacts) : undefined;
 
-  const hirondelleTags: BalisesGenerationDocument["hirondelles"] =
-    type === "Hirondelle"
-      ? {
-          nids_détruits: destroyedNidsCount ?? null,
-          nids_compensés: compensatedNidsCount ?? null,
-        }
-      : undefined;
+  const { hirondelleTags, cigogneTags } = birdTags(dossier);
 
-  const cigogneTags: BalisesGenerationDocument["cigognes"] =
-    type === "Cigogne"
-      ? {
-          nids_détruits: destroyedNidsCount ?? null,
-          nids_compensés: compensatedNidsCount ?? null,
-        }
-      : undefined;
-
-  const porteur = dossier.porteur_de_projet;
-  const porteurDeProjet: BalisesGenerationDocument["porteur_de_projet"] = {
-    adresse: porteur?.address ?? "",
-    nom:
-      (porteur?.type === "personne_morale" && (porteur.legal_name || `SIRET ${porteur.siret}`)) ||
-      (porteur?.type === "personne_physique" &&
-        [porteur.first_names, porteur.last_name].filter(Boolean).join(" ")) ||
-      "Non renseigné",
-    toString() {
-      return formatPorteurDeProjet(dossier);
-    },
-  };
+  const porteurDeProjet = porteurTags(dossier);
 
   return {
     nom: dossierName,
@@ -125,41 +88,8 @@ export function getDocumentGenerationTags(
     régime_autorisation_environnementale_renseigné: linkedToAeRegime !== null,
     régime_autorisation_environnementale:
       linkedToAeRegime === null ? "Non renseigné" : linkedToAeRegime,
-    liste_espèces_par_impact: groupedEspecesByTypeImpact?.map(
-      ({ especes, typeImpact, criteriaAllowed }) => ({
-        liste_espèces: especes.map(
-          ({
-            nomVernaculaire,
-            nomScientifique,
-            impactsValues,
-            especeCNPN,
-            especeMinisterielle,
-          }) => ({
-            nomVernaculaire,
-            nomScientifique,
-            liste_impacts_quantifiés: impactsValues,
-            estCNPN: especeCNPN,
-            estMinistérielle: especeMinisterielle,
-          }),
-        ),
-        impact: typeImpact,
-        liste_noms_impacts_quantifiés: criteriaAllowed,
-      }),
-    ),
-    scientifique: {
-      type_demande: scientifiqueDemandeType,
-      bilan_antérieur: scientifiquePreviousAssessment,
-      // @ts-expect-error json column, so type generation misunderstands it
-      finalité_demande: scientifiqueDemandePurposes,
-      description_protocole_suivi: scientifiqueSuiviProtocolDescription,
-      mode_capture: scientifiqueCaptureMode,
-      modalités_source_lumineuses: scientifiqueLightSourceConditions,
-      modalités_marquage: scientifiqueMarkingConditions,
-      modalités_transport: scientifiqueTransportConditions,
-      périmètre_intervention: scientifiqueInterventionPerimeter,
-      intervenants: scientifiqueIntervenants,
-      précisions_autres_intervenants: scientifiqueOtherIntervenantsDetails,
-    },
+    liste_espèces_par_impact: speciesTags(groupedEspecesByTypeImpact),
+    scientifique: scientificTags(dossier),
     // Dossiers created directly in Pitchou have no DN number: fall back to the Pitchou id
     numéro_dossier: dossier.demarche_numerique_number ?? String(dossier.id),
     // deprecated
@@ -169,4 +99,45 @@ export function getDocumentGenerationTags(
     formatter_date: formatDocumentDate,
     formatter_date_simple: formatSimpleDocumentDate,
   };
+}
+
+function porteurTags(dossier: DossierFull): BalisesGenerationDocument["porteur_de_projet"] {
+  const porteur = dossier.porteur_de_projet;
+  const porteurDeProjet: BalisesGenerationDocument["porteur_de_projet"] = {
+    adresse: porteur?.address ?? "",
+    nom:
+      (porteur?.type === "personne_morale" && (porteur.legal_name || `SIRET ${porteur.siret}`)) ||
+      (porteur?.type === "personne_physique" &&
+        [porteur.first_names, porteur.last_name].filter(Boolean).join(" ")) ||
+      "Non renseigné",
+    toString() {
+      return formatPorteurDeProjet(dossier);
+    },
+  };
+
+  return porteurDeProjet;
+}
+
+function birdTags({
+  type,
+  dossier_oiseau_simple_compensated_nids_count: compensatedNidsCount,
+  dossier_oiseau_simple_destroyed_nids_count: destroyedNidsCount,
+}: DossierFull) {
+  const hirondelleTags: BalisesGenerationDocument["hirondelles"] =
+    type === "Hirondelle"
+      ? {
+          nids_détruits: destroyedNidsCount ?? null,
+          nids_compensés: compensatedNidsCount ?? null,
+        }
+      : undefined;
+
+  const cigogneTags: BalisesGenerationDocument["cigognes"] =
+    type === "Cigogne"
+      ? {
+          nids_détruits: destroyedNidsCount ?? null,
+          nids_compensés: compensatedNidsCount ?? null,
+        }
+      : undefined;
+
+  return { hirondelleTags, cigogneTags };
 }

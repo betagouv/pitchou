@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "vitest";
 
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { maxUploadSizeMo, uploadSizeHint, uploadSizeError } from "./uploadSizeHint.ts";
 
 function fauxFichier(octets: number): File {

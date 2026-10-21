@@ -10,8 +10,8 @@ import {
   type ListAdminDossiersOptions,
 } from "@pitchou/server/database/dossier_admin_list.ts";
 import { UploadedFichierError } from "@pitchou/server/upload.ts";
-import { throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { RequestHandler } from "./$types";
@@ -79,7 +79,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         await trx("dossier")
           .where({ id: created.id })
           .update({ especes_impactees: storedSpeciesId });
-      if (storedAttachmentIds.length)
+      if (storedAttachmentIds.length > 0)
         await trx("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
           storedAttachmentIds.map((fichier) => ({ dossier: created.id, fichier })),
         );
@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     await dispatchArrivalEmailsAfterCommit(id);
     return json({ id }, { status: 201 });
   } catch (caught) {
-    if (storedSpeciesId || storedAttachmentIds.length) {
+    if (storedSpeciesId || storedAttachmentIds.length > 0) {
       await deleteFichiersWithoutOtherReferences([
         ...(storedSpeciesId ? [storedSpeciesId] : []),
         ...storedAttachmentIds,

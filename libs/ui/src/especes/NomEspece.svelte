@@ -13,16 +13,15 @@
   let otherNomsScientifiques = $derived([...espece.nomsScientifiques].slice(1));
 
   let title: string | undefined = $derived.by(() => {
-    if (otherNomsVernaculaires.length >= 1) {
+    if (otherNomsVernaculaires.length > 0) {
       let t = otherNomsVernaculaires.join(", ");
-      if (otherNomsScientifiques.length >= 1) {
+      if (otherNomsScientifiques.length > 0) {
         t += " | " + otherNomsScientifiques.join(", ");
       }
       return t;
-    } else if (otherNomsScientifiques.length >= 1) {
+    } else if (otherNomsScientifiques.length > 0) {
       return otherNomsScientifiques.join(", ");
     }
-    return undefined;
   });
 </script>
 

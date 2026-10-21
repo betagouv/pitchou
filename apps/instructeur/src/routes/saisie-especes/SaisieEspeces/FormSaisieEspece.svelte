@@ -45,7 +45,7 @@
     await tick();
 
     referencesEspeces = referencesEspeces.filter((ref) => ref !== null);
-    referencesEspeces[referencesEspeces.length - 1].focusEspeceForm();
+    referencesEspeces.at(-1)?.focusEspeceForm();
   }
 
   async function deleteEspece(indexEspeceToDelete: number) {
@@ -84,8 +84,7 @@
   }
 
   function onOuvertureModale(e: Event) {
-    // @ts-ignore EventTarget is an HTMLElement in this case
-    modaleButton = e.target;
+    modaleButton = e.target instanceof HTMLElement ? e.target : null;
   }
 
   function onFermetureModale() {

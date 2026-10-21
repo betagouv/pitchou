@@ -1,3 +1,4 @@
+import type { Knex } from "knex";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { joinPorteurDeProjet, porteurDeProjetColumns } from "./porteur.ts";
 
@@ -51,18 +52,6 @@ export const dossierFullColumns = [
   "projet_map",
   "next_action_expected_from",
   "next_due_date",
-  "identite_demandeur.last_name as deposant_last_name",
-  "identite_demandeur.first_names as deposant_first_names",
-  "identite_mandataire.last_name as mandataire_last_name",
-  "identite_mandataire.first_names as mandataire_first_names",
-  "identite_mandataire.email as mandataire_email",
-  "identite_mandataire.phone as mandataire_phone",
-  "identite_mandataire.role as mandataire_role",
-  "identite_representant.last_name as representative_last_name",
-  "identite_representant.first_names as representative_first_names",
-  "identite_representant.email as representative_email",
-  "identite_representant.phone as representative_phone",
-  "identite_representant.role as representative_role",
   "ddep_required",
   "scientifique_demande_type",
   "scientifique_previous_assessment",
@@ -92,38 +81,19 @@ export const dossierFullColumns = [
   ...porteurDeProjetColumns,
 ] as (keyof DossierFull)[];
 
-export function joinDossierIdentities<T extends { leftJoin: Function }>(query: T): T {
-  return (
-    joinPorteurDeProjet(query)
-      .leftJoin("identite_dossier as identite_demandeur", function (this: any) {
-        this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-          "identite_demandeur.type",
-          "demandeur",
-        );
-      })
-      .leftJoin("identite_dossier as identite_mandataire", function (this: any) {
-        this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
-          "identite_mandataire.type",
-          "mandataire",
-        );
-      })
-      .leftJoin("identite_dossier as identite_representant", function (this: any) {
-        this.on("identite_representant.dossier", "dossier.id").andOnVal(
-          "identite_representant.type",
-          "representant",
-        );
-      })
-      .leftJoin("file as file_especes_impactees", {
-        "file_especes_impactees.id": "dossier.especes_impactees",
-      })
-      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
-      // through the fallback in `withResolvedActivite`.
-      .leftJoin("activite_label", function (this: any) {
-        this.on("activite_label.label", "dossier.main_activite").andOnVal(
-          "activite_label.needs_review",
-          false,
-        );
-      })
-      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
-  );
+export function joinDossierIdentities<T extends Knex.QueryBuilder>(query: T): T {
+  joinPorteurDeProjet(query)
+    .leftJoin("file as file_especes_impactees", {
+      "file_especes_impactees.id": "dossier.especes_impactees",
+    })
+    // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+    // through the fallback in `withResolvedActivite`.
+    .leftJoin("activite_label", function () {
+      this.on("activite_label.label", "dossier.main_activite").andOnVal(
+        "activite_label.needs_review",
+        false,
+      );
+    })
+    .leftJoin("activite", { "activite.code": "activite_label.activite_code" });
+  return query;
 }

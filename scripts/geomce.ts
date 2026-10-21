@@ -1,8 +1,15 @@
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { resetSecretGeoMCE, getSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: {
+    "capability-url": { type: "boolean" },
+    "reset-capability-url": { type: "boolean" },
+    dev: { type: "boolean" },
+    origin: { type: "string" },
+  },
+});
 
 const getCap = args["capability-url"];
 const resetCap = args["reset-capability-url"];

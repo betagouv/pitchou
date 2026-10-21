@@ -94,7 +94,7 @@ export async function loadEvenementTypes(): Promise<string[]> {
 
   const types = await response.json();
   if (!Array.isArray(types)) {
-    throw new Error("Réponse invalide reçue du serveur pour les types d'évènements.");
+    throw new TypeError("Réponse invalide reçue du serveur pour les types d'évènements.");
   }
 
   return types;

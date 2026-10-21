@@ -1,7 +1,7 @@
-// Server-side Sentry init. Loaded early via SvelteKit's experimental
-// `instrumentation.server` hook. The server `handleError` lives in hooks.server.ts.
+// Server-side Sentry init, loaded automatically before the application starts.
+// The server `handleError` lives in hooks.server.ts.
 import * as Sentry from "@sentry/sveltekit";
-import { env } from "$env/dynamic/public";
+import * as env from "$app/env/public";
 Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN_INSTRUCTEUR,
   // Events with the "development" environment are not reported in the Sentry interface.

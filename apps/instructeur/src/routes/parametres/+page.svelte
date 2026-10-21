@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import type { EmailNotificationPreferences } from "@pitchou/types/capabilities.ts";
 
   const notificationOptions = [

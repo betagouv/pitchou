@@ -57,7 +57,7 @@ describe("getObject", () => {
   it("throws when the response has no body", async () => {
     sendMock.mockResolvedValue({ Body: undefined });
     const { getObject } = await import("./objectStorage.ts");
-    await expect(getObject("files/missing")).rejects.toThrow(/no body/i);
+    await expect(getObject("files/missing")).rejects.toThrow(/no body/iu);
   });
 });
 
@@ -65,6 +65,6 @@ describe("getBucket", () => {
   it("throws when S3_BUCKET is not set", async () => {
     delete process.env.S3_BUCKET;
     const { getBucket } = await import("./objectStorage.ts");
-    expect(() => getBucket()).toThrow(/S3_BUCKET/);
+    expect(() => getBucket()).toThrow(/S3_BUCKET/u);
   });
 });

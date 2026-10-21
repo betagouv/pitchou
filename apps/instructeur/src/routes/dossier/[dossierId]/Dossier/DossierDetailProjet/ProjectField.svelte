@@ -3,7 +3,7 @@
   import "./review-layout.css";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { readOnlyMode } from "../readOnly.ts";
   import type { Snippet } from "svelte";
   let {
@@ -29,7 +29,8 @@
     if (value == null || value === "") return "Non renseigné";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
     if (value instanceof Date) return formatDateAbsolute(value, "dd/MM/yyyy");
-    if (Array.isArray(value)) return value.length ? value.map(display).join(", ") : "Non renseigné";
+    if (Array.isArray(value))
+      return value.length > 0 ? value.map(display).join(", ") : "Non renseigné";
     if (typeof value === "object")
       return Object.values(value)
         .filter((item) => item != null)

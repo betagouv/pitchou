@@ -3,8 +3,8 @@
 
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
+  import { updateDossier, type AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
   import DossierIntakeFields from "../nouveau/DossierIntakeFields.svelte";
   import {
@@ -81,7 +81,7 @@
       showPorteurErrors = true;
       saveError = null;
       await tick();
-      document.getElementById(invalidField)?.focus();
+      document.querySelector<HTMLElement>(`#${CSS.escape(invalidField)}`)?.focus();
       return;
     }
     if (legalSiretChanged && !companyDetailsChoice) {

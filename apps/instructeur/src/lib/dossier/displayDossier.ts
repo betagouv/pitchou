@@ -2,6 +2,8 @@ import { differenceInCalendarDays, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
 import type { DossierSummary, DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
+import { summaryInvolvements } from "@pitchou/common/dossierActeur.ts";
 
 export { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 export { formatDateAbsolute, formatDateRelative } from "@pitchou/common/formatDate.ts";
@@ -60,6 +62,16 @@ export function porteurDeProjetSearchTerms(porteur: DossierSummary["porteur_de_p
   if (porteur?.type === "personne_physique")
     return [porteur.last_name, porteur.first_names].filter(Boolean) as string[];
   return [];
+}
+
+/** What the searches match the acteurs on: the names of the déposants and mandataires. */
+export function acteursSearchTerms(acteurs: DossierActeur[] | undefined): string[] {
+  return (acteurs ?? [])
+    .filter(({ involvements }) =>
+      involvements.some((involvement) => summaryInvolvements.includes(involvement)),
+    )
+    .flatMap(({ last_name, first_names }) => [last_name, first_names])
+    .filter(Boolean) as string[];
 }
 
 export function formatPorteurDeProjet(dossier: DossierFull | DossierSummary): string {

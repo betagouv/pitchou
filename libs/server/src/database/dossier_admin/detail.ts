@@ -12,7 +12,8 @@ import {
   withPorteurDeProjet,
 } from "../dossier/porteur.ts";
 import { DossierNotFoundError } from "./errors.ts";
-import type { AdminDossierIdentite } from "./relationTypes.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
+import { getDossierActeurs } from "../dossier/acteurs.ts";
 
 export type AdminPhaseHistoryEntry = {
   phase: DossierPhase;
@@ -31,7 +32,7 @@ export type AdminDossierDetail = {
   phase: DossierPhase;
   porteur_de_projet: PorteurDeProjet | null;
   groupe: Pick<GroupeInstructeurs, "id" | "name"> | null;
-  identites: AdminDossierIdentite[];
+  acteurs: DossierActeur[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
   especesImpactees: Pick<File, "id" | "name" | "media_type"> | null;
@@ -46,7 +47,7 @@ export async function getDossierDetailForAdmin(
     .where({ id: dossierId })
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
-  const [porteurRow, groupe, identites, evenementsPhase, piecesJointes, especesImpactees] =
+  const [porteurRow, groupe, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
     await Promise.all([
       joinPorteurDeProjet(db("dossier"))
         .select(porteurDeProjetColumns)
@@ -59,7 +60,7 @@ export async function getDossierDetailForAdmin(
         })
         .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
         .first(),
-      db("identite_dossier").select("*").where({ dossier: dossierId }),
+      getDossierActeurs([dossierId], db),
       db("evenement_phase_dossier")
         .select([
           "evenement_phase_dossier.phase",
@@ -100,7 +101,7 @@ export async function getDossierDetailForAdmin(
     phase: evenementsPhase[0]?.phase ?? "Accompagnement amont",
     porteur_de_projet: withPorteurDeProjet(porteurRow ?? {}).porteur_de_projet,
     groupe: groupe ?? null,
-    identites,
+    acteurs: acteurs.get(dossierId) ?? [],
     evenementsPhase,
     piecesJointes,
     especesImpactees: especesImpactees ?? null,

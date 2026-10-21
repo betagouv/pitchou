@@ -6,7 +6,7 @@ import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import HeaderDossier from "../HeaderDossier.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
@@ -65,7 +65,9 @@ async function scroll(y: number) {
 
 test("the compact header appears as soon as the original leaves the viewport, even before 340px", async () => {
   const { rerender, unmount } = render(HeaderDossier, props());
-  expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(props().dossier.name!.trim());
+  expect(screen.getByRole("heading", { level: 2 })).toMatchTextContent(
+    props().dossier.name!.trim(),
+  );
   expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
   expect(screen.queryByTestId("sticky-dossier-header")).toBeNull();
   setIntersection(true, 100);
@@ -111,5 +113,5 @@ test("both follow states keep the outlined medium button and the untruncated loc
   expect(getComputedStyle(unfollow).boxShadow).toContain(
     getComputedStyle(unfollow, "::before").color,
   );
-  expect(screen.queryByRole("button", { name: /Marquer le dossier/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: /Marquer le dossier/u })).toBeNull();
 });

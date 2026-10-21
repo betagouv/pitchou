@@ -3,8 +3,6 @@
    * @deprecated Use BadgePhase instead.
    */
 
-  import clsx from "clsx";
-
   import type { MouseEventHandler } from "svelte/elements";
   import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
@@ -20,13 +18,7 @@
     classes?: string[];
   };
 
-  let {
-    phase,
-    size = "MD",
-    onClick = undefined,
-    ariaPressed = undefined,
-    classes = [],
-  }: Props = $props();
+  let { phase, size = "MD", onClick, ariaPressed, classes = [] }: Props = $props();
 
   // Filled style (for <p> and pressed <button>): background = phase color, inverted text,
   // ::after (dismiss icon) = phase color, and DSFR's tag background-image killed.
@@ -91,19 +83,20 @@
     ["MD", "fr-tag--md"],
   ]);
 
-  let pClasses = $derived(
-    clsx(
-      "fr-tag",
-      "whitespace-nowrap",
-      sizeToClass.get(size),
-      phaseToFilledClass.get(phase),
-      classes,
-    ),
-  );
+  let pClasses = $derived([
+    "fr-tag",
+    "whitespace-nowrap",
+    sizeToClass.get(size),
+    phaseToFilledClass.get(phase),
+    classes,
+  ]);
 
-  let buttonClasses = $derived(
-    clsx("fr-tag", sizeToClass.get(size), phaseToButtonClass.get(phase), classes),
-  );
+  let buttonClasses = $derived([
+    "fr-tag",
+    sizeToClass.get(size),
+    phaseToButtonClass.get(phase),
+    classes,
+  ]);
 
   // The DSFR adds its own listeners to handle aria-pressed, but we don't need them,
   // so we disable event propagation to avoid display issues

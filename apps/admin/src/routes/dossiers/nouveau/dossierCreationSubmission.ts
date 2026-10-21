@@ -2,7 +2,7 @@ import {
   requiresEspecesPriseDetentionLimiteeType,
   requiresScientificDemandeType,
 } from "@pitchou/common/dossierFormOptions.ts";
-import { uploadSizeError } from "$lib/upload/uploadLimit.svelte.ts";
+import { uploadSizeError } from "#lib/upload/uploadLimit.svelte.ts";
 import type { DossierCreationModel } from "./dossierCreationModel.ts";
 import {
   selectedDossierAttachmentFiles,
@@ -17,11 +17,15 @@ import {
   showsWindFarmDetails,
 } from "./dossierCreationModel.ts";
 
+function focusSpeciesFileButton() {
+  document.querySelector<HTMLButtonElement>("#species-file-button")?.focus();
+}
+
 export function validateDossierCreation(model: DossierCreationModel): string | null {
   const needsSpeciesFile = showsSpeciesSection(model);
   if (!model.depotDate) return "La date de dépôt est requise.";
   if (needsSpeciesFile && !model.speciesFile) {
-    requestAnimationFrame(() => document.getElementById("species-file-button")?.focus());
+    requestAnimationFrame(focusSpeciesFileButton);
     return "Le fichier des espèces concernées est requis.";
   }
   if (

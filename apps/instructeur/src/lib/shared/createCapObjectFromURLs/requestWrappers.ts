@@ -1,4 +1,4 @@
-import { json, text } from "d3-fetch";
+import { json, text } from "#lib/shared/http.ts";
 
 const commonRequestInit = { headers: { Accept: "application/json" } };
 
@@ -56,7 +56,7 @@ function errorMessageFromBody(body: string): string {
 }
 
 /**
- * JSON POST that surfaces the server's error message instead of d3-fetch's
+ * JSON POST that surfaces the server's error message instead of the HTTP helper's
  * bare status text, and returns undefined on an empty (204) response.
  */
 export function wrapJsonPOST(url: string | undefined, extraInit: RequestInit = {}): any {

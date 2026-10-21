@@ -10,7 +10,7 @@ function escapeHtml(value: string) {
 }
 
 export function notificationPage(accounts: string[], params: URLSearchParams) {
-  const count = Math.max(0, Math.min(100, Number.parseInt(params.get("sent") ?? "0", 10) || 0));
+  const count = Math.max(0, Math.min(100, Math.trunc(Number(params.get("sent") ?? "0")) || 0));
   const result = params.get("notifications");
   const message =
     result === "error"

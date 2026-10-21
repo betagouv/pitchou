@@ -2,8 +2,8 @@
   import type { Snippet } from "svelte";
 
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import type { AdminGroupeInstructeurs } from "$lib/actions/adminDossiers.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
+  import type { AdminGroupeInstructeurs } from "#lib/actions/adminDossiers.ts";
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
   import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";

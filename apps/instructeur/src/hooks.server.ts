@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle, ServerInit } from "@sveltejs/kit/hooks";
 import { setupSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { sequence } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
@@ -8,10 +8,12 @@ if (!process.env.PUBLIC_SITE_URL_PITCHOU) {
 
 console.log("NODE_ENV", process.env.NODE_ENV);
 
-// fire-and-forget
-setupSecretGeoMCE().catch((err) => {
-  console.error("setupSecretGeoMCE failed:", err);
-});
+export const init: ServerInit = () => {
+  // Start initialization without making requests wait for the database.
+  void setupSecretGeoMCE().catch((err) => {
+    console.error("setupSecretGeoMCE failed:", err);
+  });
+};
 
 const STATIC_PREFIXES = ["/_app/", "/docs/", "/data/"];
 

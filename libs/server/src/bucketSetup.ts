@@ -25,7 +25,7 @@ function createBucketConfigClient(): S3Client {
     (next) => async (args) => {
       const request = args.request as { headers: Record<string, string>; body?: string };
       for (const header of Object.keys(request.headers)) {
-        if (/^x-amz-(sdk-)?checksum-/i.test(header)) delete request.headers[header];
+        if (/^x-amz-(sdk-)?checksum-/iu.test(header)) delete request.headers[header];
       }
       if (request.body) {
         request.headers["Content-MD5"] = createHash("md5")
@@ -51,7 +51,7 @@ export function assertOrigins(origins: string[]): void {
     } catch {
       // handled below
     }
-    if (!parsed || !/^https?:$/.test(parsed.protocol) || parsed.origin !== origin) {
+    if (!parsed || !/^https?:$/u.test(parsed.protocol) || parsed.origin !== origin) {
       throw new TypeError(
         `Origine invalide : '${origin}'. Attendu : schéma et hôte seuls, sans chemin ni barre finale.`,
       );

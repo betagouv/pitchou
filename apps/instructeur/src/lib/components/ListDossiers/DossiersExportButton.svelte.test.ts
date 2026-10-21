@@ -3,7 +3,7 @@ import "../../../app.css";
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { page } from "vitest/browser";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersExportButton from "./DossiersExportButton.svelte";
 import { dossierId, makeQuery } from "./testHelpers.ts";
 
@@ -60,15 +60,10 @@ test.each([false, true])(
 );
 
 test("prevents duplicate exports and allows retry after failure", async () => {
-  let reject!: (error: Error) => void;
+  const { promise, reject } = Promise.withResolvers<Blob>();
   const exporterDossiers = vi
     .fn()
-    .mockImplementationOnce(
-      () =>
-        new Promise((_, fail) => {
-          reject = fail;
-        }),
-    )
+    .mockImplementationOnce(() => promise)
     .mockResolvedValue(new Blob(["export"]));
   const creerEvenementMetrique = vi.fn().mockResolvedValue(undefined);
   store.capabilities = { exporterDossiers, creerEvenementMetrique };
@@ -81,7 +76,7 @@ test("prevents duplicate exports and allows retry after failure", async () => {
   reject(new Error("Network failed"));
   await expect
     .element(page.getByRole("alert"))
-    .toHaveTextContent("L'export des dossiers a échoué. Veuillez réessayer.");
+    .toMatchTextContent("L'export des dossiers a échoué. Veuillez réessayer.");
   expect(creerEvenementMetrique).toHaveBeenCalledOnce();
   await page.getByRole("button", { name: "Télécharger l'export" }).click();
   expect(exporterDossiers).toHaveBeenCalledTimes(2);

@@ -23,18 +23,18 @@ export function buildSearchEvent(
   if (query.text.trim()) {
     filters.text = query.text;
   }
-  if (query.phase.length) {
+  if (query.phase.length > 0) {
     filters.phases = query.phase;
   }
-  if (query.activite.length) {
+  if (query.activite.length > 0) {
     filters.activitesPrincipales = query.activite.map(
       (code) => context.activiteLabelByCode?.get(code) ?? code,
     );
   }
-  if (query.espece.length) {
+  if (query.espece.length > 0) {
     filters.especes = query.espece.map((cdRef) => context.especeLabelByCD_REF?.get(cdRef) ?? cdRef);
   }
-  if (query.prochaineAction.length) {
+  if (query.prochaineAction.length > 0) {
     filters.nextActionExpectedFrom = query.prochaineAction;
   } else if (query.actionInstructeur) {
     filters.nextActionExpectedFrom = ["Instructeur"];
@@ -46,7 +46,7 @@ export function buildSearchEvent(
     filters.withoutInstructeur = true;
   }
   const selectedEmails = query.instructeur.filter((value) => value !== WITHOUT_INSTRUCTEUR);
-  if (selectedEmails.length) {
+  if (selectedEmails.length > 0) {
     filters.followedBy = {
       selectedCount: selectedEmails.length,
       totalCount: context.instructeurCount,

@@ -6,12 +6,12 @@ import { page } from "vitest/browser";
 import Dossier from "../Dossier.svelte";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 import type { DossierTab } from "./dossierTabs.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
-vi.mock("$lib/especes/activitesMethodesMoyensDePoursuite.ts", () => ({
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/especes/activitesMethodesMoyensDePoursuite.ts", () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn(() => new Promise(() => {})),
   loadEspecesProtegeesList: vi.fn(() => new Promise(() => {})),
 }));

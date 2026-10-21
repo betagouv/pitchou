@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import {
     assignedDepartments,

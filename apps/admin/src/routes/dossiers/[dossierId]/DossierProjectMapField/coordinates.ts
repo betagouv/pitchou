@@ -1,7 +1,7 @@
 import type { Position } from "./geometry.ts";
 
 const coordinatePattern =
-  /(\d{1,3})\s*°\s*(\d{1,2})\s*['’]\s*(\d{1,2}(?:[.,]\d+)?)\s*["”]?\s*([NSEW])/gi;
+  /(\d{1,3})\s*°\s*(\d{1,2})\s*['’]\s*(\d{1,2}(?:[.,]\d+)?)\s*["”]?\s*([NSEWnsew])/gu;
 
 function decimalDegrees(degrees: string, minutes: string, seconds: string, direction: string) {
   const degreesValue = Number(degrees);
@@ -28,7 +28,7 @@ export function parseMapCoordinates(raw: string): Position | null {
     if (latitude !== undefined && longitude !== undefined) return [longitude, latitude];
   }
 
-  const decimal = raw.match(/^\s*(-?\d+(?:[.,]\d+)?)\s*[,; ]\s*(-?\d+(?:[.,]\d+)?)\s*$/);
+  const decimal = raw.match(/^\s*(-?\d+(?:[.,]\d+)?)\s*[,; ]\s*(-?\d+(?:[.,]\d+)?)\s*$/u);
   if (!decimal) return null;
   const latitude = Number(decimal[1].replace(",", "."));
   const longitude = Number(decimal[2].replace(",", "."));

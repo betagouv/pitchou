@@ -110,7 +110,7 @@ export async function updateNotificationDossierFromCap(
         .where({ dossier: update.dossier, author_petitionnaire: true })
         .whereRaw("data->>'notification' = 'true'")
         .whereIn("id", update.revisions);
-      if (actions.length)
+      if (actions.length > 0)
         await trx("notification_review")
           .insert(actions.map(({ id }) => ({ action: id, personne: personne.id })))
           .onConflict(["action", "personne"])
@@ -137,7 +137,7 @@ export async function markDossiersUnreadForFollowers(
   modifiedAtByDossier: Map<DossierId, Date>,
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
-  if (!modifiedAtByDossier.size) return;
+  if (modifiedAtByDossier.size === 0) return;
   const rows = await db("action_dossier as a")
     .join("edge_personne_follows_dossier as f", "f.dossier", "a.dossier")
     .select("a.dossier", "f.personne")
@@ -146,7 +146,7 @@ export async function markDossiersUnreadForFollowers(
     .where("a.author_petitionnaire", true)
     .whereRaw("a.data->>'notification' = 'true'")
     .groupBy("a.dossier", "f.personne");
-  if (rows.length)
+  if (rows.length > 0)
     await db("notification")
       .insert(rows.map((row) => ({ ...row, viewed: false })))
       .onConflict(["dossier", "personne"])

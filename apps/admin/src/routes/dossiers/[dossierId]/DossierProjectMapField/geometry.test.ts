@@ -42,7 +42,7 @@ describe("project map geometry", () => {
       code_insee: "33063",
     });
 
-    expect(featureLabel(line)).toMatch(/^Une ligne longue de /);
+    expect(featureLabel(line)).toMatch(/^Une ligne longue de /u);
     expect(featureLabel(parcel)).toBe("Parcelle n° 57 - Feuille 001 HI - 1 234 m² - commune 33063");
   });
 

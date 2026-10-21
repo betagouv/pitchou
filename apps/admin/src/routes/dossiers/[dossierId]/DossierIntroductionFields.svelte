@@ -2,7 +2,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
   import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
   import TriStateRadio from "./TriStateRadio.svelte";

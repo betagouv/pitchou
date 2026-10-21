@@ -43,46 +43,7 @@ export async function claimEmail(
       .skipLocked()
       .first<PendingEmail>();
     if (!row) return undefined;
-    const recipientQuery = trx("personne as p")
-      .join("email_notification_preferences as pref", "pref.personne", "p.id")
-      .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
-      .where({ "p.id": row.personne })
-      .where(`pref.${row.kind}`, true)
-      .whereNotNull("p.email")
-      .whereExists(
-        trx("cap_dossier as c")
-          .join("edge_cap_dossier__groupe_instructeurs as cg", "cg.cap_dossier", "c.cap")
-          .join(
-            "edge_groupe_instructeurs__dossier as gd",
-            "gd.groupe_instructeurs",
-            "cg.groupe_instructeurs",
-          )
-          .select(trx.raw("1"))
-          .where("c.personne_cap", trx.ref("p.access_code"))
-          .where("gd.dossier", trx.ref("d.id"))
-          .modify((q) => {
-            if (row.kind === "arrival")
-              q.whereExists(
-                trx("email_notification_groupe_arrival as arrival")
-                  .select(trx.raw("1"))
-                  .where("arrival.dossier", row.dossier)
-                  .where("arrival.revision", row.batch_key)
-                  .where("arrival.groupe_instructeurs", trx.ref("gd.groupe_instructeurs")),
-              );
-          }),
-      );
-    if (row.kind !== "arrival")
-      recipientQuery.whereExists(
-        trx("edge_personne_follows_dossier as f")
-          .select(trx.raw("1"))
-          .where({ "f.personne": row.personne, "f.dossier": row.dossier }),
-      );
-    const recipient = await recipientQuery.first<{
-      email: string;
-      name: string | null;
-      enjeu: boolean | null;
-      demarche_numerique_number: number | null;
-    }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
+    const recipient = await recipientForEmail(trx, row);
     if (!recipient) {
       await trx("email_notification_outbox")
         .where({ id })
@@ -107,4 +68,47 @@ export async function claimEmail(
       });
     return { ...row, message };
   });
+}
+
+function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
+  const recipientQuery = trx("personne as p")
+    .join("email_notification_preferences as pref", "pref.personne", "p.id")
+    .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
+    .where({ "p.id": row.personne })
+    .where(`pref.${row.kind}`, true)
+    .whereNotNull("p.email")
+    .whereExists(
+      trx("cap_dossier as c")
+        .join("edge_cap_dossier__groupe_instructeurs as cg", "cg.cap_dossier", "c.cap")
+        .join(
+          "edge_groupe_instructeurs__dossier as gd",
+          "gd.groupe_instructeurs",
+          "cg.groupe_instructeurs",
+        )
+        .select(trx.raw("1"))
+        .where("c.personne_cap", trx.ref("p.access_code"))
+        .where("gd.dossier", trx.ref("d.id"))
+        .modify((q) => {
+          if (row.kind === "arrival")
+            q.whereExists(
+              trx("email_notification_groupe_arrival as arrival")
+                .select(trx.raw("1"))
+                .where("arrival.dossier", row.dossier)
+                .where("arrival.revision", row.batch_key)
+                .where("arrival.groupe_instructeurs", trx.ref("gd.groupe_instructeurs")),
+            );
+        }),
+    );
+  if (row.kind !== "arrival")
+    recipientQuery.whereExists(
+      trx("edge_personne_follows_dossier as f")
+        .select(trx.raw("1"))
+        .where({ "f.personne": row.personne, "f.dossier": row.dossier }),
+    );
+  return recipientQuery.first<{
+    email: string;
+    name: string | null;
+    enjeu: boolean | null;
+    demarche_numerique_number: number | null;
+  }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
 }

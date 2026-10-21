@@ -6,7 +6,7 @@
     model.eolienCarcassAddressManual = checked;
     if (checked)
       requestAnimationFrame(() =>
-        document.getElementById("carcass-examination-address-manual")?.focus(),
+        document.querySelector<HTMLInputElement>("#carcass-examination-address-manual")?.focus(),
       );
   }
 </script>

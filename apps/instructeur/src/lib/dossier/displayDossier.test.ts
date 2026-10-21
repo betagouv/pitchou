@@ -62,8 +62,7 @@ describe("formatPorteurDeProjet", () => {
   it("does not fall back on the deposant without porteur", () => {
     const dossier = {
       porteur_de_projet: null,
-      deposant_last_name: "Durand",
-      deposant_first_names: "Alice",
+      acteurs: [{ involvements: ["deposant"], last_name: "Durand", first_names: "Alice" }],
     } as unknown as DossierSummary;
     expect(formatPorteurDeProjet(dossier)).toBe("Non renseigné");
   });
@@ -87,7 +86,7 @@ describe("formatLastModified", () => {
   it("au-delà du mois, le nombre de jours ne dit plus rien", () => {
     const longAgo = new Date();
     longAgo.setDate(longAgo.getDate() - 70);
-    expect(formatLastModified(longAgo)).toMatch(/^Modifié il y a (environ )?2 mois$/);
+    expect(formatLastModified(longAgo)).toMatch(/^Modifié il y a (environ )?2 mois$/u);
   });
 
   it("sans date de modification connue, le badge reste générique", () => {

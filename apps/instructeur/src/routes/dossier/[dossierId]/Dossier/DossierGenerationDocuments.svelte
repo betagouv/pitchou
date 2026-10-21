@@ -3,7 +3,7 @@
   import { getOdtTextContent } from "@odfjs/odfjs";
   import { fillTemplates, generationTimestamp } from "./DossierGenerationDocuments/fill.ts";
   import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import DocumentTemplateSelection from "./DossierGenerationDocuments/DocumentTemplateSelection.svelte";
   import GeneratedDocuments from "./DossierGenerationDocuments/GeneratedDocuments.svelte";
   import {
@@ -108,8 +108,7 @@
         )
         .catch((err) => console.warn(`Échec de l'enregistrement des documents générés`, err));
     } catch (err) {
-      // @ts-ignore
-      documentGenerationError = err;
+      documentGenerationError = err instanceof Error ? err : new Error(String(err), { cause: err });
     }
   }
 </script>

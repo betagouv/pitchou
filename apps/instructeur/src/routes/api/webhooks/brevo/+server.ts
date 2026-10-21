@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { error, type RequestHandler } from "@sveltejs/kit";
-import { readJsonObject } from "$lib/server/requestValidation.ts";
+import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
 import { EMAIL_ENVIRONMENT_TAG_PREFIX, getEmailEnvironmentTag } from "@pitchou/server/emails.ts";
 
@@ -9,15 +9,15 @@ const eventTypes: Readonly<Record<string, "delivered" | "opened">> = {
   unique_opened: "opened",
   opened: "opened",
 };
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
 function requireWebhookSecret(request: Request) {
   const expected = process.env.BREVO_WEBHOOK_SECRET;
   if (!expected?.trim()) error(503, "Le webhook Brevo n'est pas configuré.");
-  const actual = /^Bearer +([a-z0-9._~+/-]+=*)$/i.exec(
-    request.headers.get("Authorization") ?? "",
-  )?.[1];
-  if (!actual) error(401, "Authentification du webhook invalide.");
+  const actual = /^Bearer +(.+)$/iu.exec(request.headers.get("Authorization") ?? "")?.[1];
+  if (!actual || !/^[A-Za-z0-9._~+/-]+=*$/u.test(actual)) {
+    error(401, "Authentification du webhook invalide.");
+  }
   const expectedBuffer = Buffer.from(expected);
   const actualBuffer = Buffer.from(actual);
   if (

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { activiteIconUrl } from "$lib/dossier/activiteIcon.ts";
+  import { activiteIconUrl } from "#lib/dossier/activiteIcon.ts";
 
   type Props = {
     mainActivite: string | null | undefined;

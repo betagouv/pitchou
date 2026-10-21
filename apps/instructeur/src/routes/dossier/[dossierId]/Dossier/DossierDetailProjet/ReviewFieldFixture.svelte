@@ -4,7 +4,7 @@
   import {
     dossierReviewContext,
     registerReviewSnapshot,
-  } from "$lib/dossier/notification/snapshot.ts";
+  } from "#lib/dossier/notification/snapshot.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import type { FieldChange } from "@pitchou/types/notification.ts";
   let {

@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { PageLoad } from "./$types.js";
 
 export const load: PageLoad = async ({ parent }) => {

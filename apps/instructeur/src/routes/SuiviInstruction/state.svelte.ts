@@ -1,8 +1,8 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import { untrack } from "svelte";
-import { createTextFilter } from "$lib/dossier/textFilters.ts";
-import { phases, prochaineActionAttenduePar } from "$lib/dossier/displayDossier.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { createTextFilter } from "#lib/dossier/textFilters.ts";
+import { phases, prochaineActionAttenduePar } from "#lib/dossier/displayDossier.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import { createSuiviInstructionSorts } from "./sorts.ts";
 import { persistSuiviState, trackSuiviSearch } from "./analytics.ts";
 import { displayedSuiviPage, suiviPageSelectors } from "./pagination.ts";
@@ -13,7 +13,7 @@ import type {
   DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { FiltersLocalStorage, TableSort } from "@pitchou/types/interfaceUtilisateur.ts";
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 
 export const NO_INSTRUCTEUR = "(aucun instructeur)" as const;
 export const NO_ACTIVITY = "(aucune activité principale)" as const;
@@ -172,9 +172,8 @@ export class SuiviInstructionState {
     this.track();
   }
   togglePhase(phase: DossierPhase) {
-    this.selectedPhases.has(phase)
-      ? this.selectedPhases.delete(phase)
-      : this.selectedPhases.add(phase);
+    if (this.selectedPhases.has(phase)) this.selectedPhases.delete(phase);
+    else this.selectedPhases.add(phase);
     this.apply();
     this.track();
   }

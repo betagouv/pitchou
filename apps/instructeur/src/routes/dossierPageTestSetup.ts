@@ -9,7 +9,7 @@
 import { cleanup } from "@testing-library/svelte";
 import { vi } from "vitest";
 
-import { store, type PitchouState } from "$lib/state/store.svelte.ts";
+import { store, type PitchouState } from "#lib/state/store.svelte.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierAction } from "@pitchou/types/capabilities.ts";

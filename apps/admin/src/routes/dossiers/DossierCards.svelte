@@ -1,7 +1,7 @@
 <script lang="ts">
   import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
-  import type { AdminDossierSummary } from "$lib/actions/adminDossiers.ts";
-  import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
+  import type { AdminDossierSummary } from "#lib/actions/adminDossiers.ts";
+  import ActiviteIcon from "#lib/components/ActiviteIcon.svelte";
   import PhaseProgress from "./PhaseProgress.svelte";
 
   type Props = {

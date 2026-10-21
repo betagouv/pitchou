@@ -4,12 +4,12 @@
 
   type Props = {
     identity: IdentityFormModel;
-    kind: "mandataire" | "representant";
+    kind: "mandataire" | "personne_contact";
     enabled: boolean;
   };
   let { identity, kind, enabled = $bindable() }: Props = $props();
 
-  const title = $derived(kind === "mandataire" ? "Mandataire" : "Représentant");
+  const title = $derived(kind === "mandataire" ? "Mandataire" : "Personne contact");
   const idPrefix = $derived(`edit-${kind}`);
 </script>
 
@@ -29,7 +29,7 @@
     >
       {kind === "mandataire"
         ? "Le dossier comporte un mandataire"
-        : "La personne morale a un représentant"}
+        : "Le dossier a une personne contact"}
     </label>
   </div>
 
@@ -37,7 +37,7 @@
     <div class="w-full flex flex-col gap-4">
       <h3 class="fr-h6 fr-mb-0">{title}</h3>
       <DossierIdentityFields {identity} {idPrefix} />
-      {#if kind === "representant"}
+      {#if kind === "personne_contact"}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <div class="fr-input-group w-full">
             <label class="fr-label" for={`${idPrefix}-phone`}>Téléphone</label>

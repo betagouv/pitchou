@@ -1,9 +1,9 @@
 <script lang="ts">
-  import DateInput from "$lib/components/DateInput.svelte";
+  import DateInput from "#lib/components/DateInput.svelte";
   import ExpertServiceFields from "./ExpertServiceFields.svelte";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
-  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
+  import { uploadSizeHint } from "#lib/upload/uploadSizeHint.ts";
+  import { uploadProgressLabel } from "#lib/upload/uploadProgress.svelte.ts";
   import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
   import type { TypePieceJointe } from "./submission.ts";
   type Props = {

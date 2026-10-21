@@ -31,6 +31,34 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 
 [documentation sur les migrations knex](https://knexjs.org/guide/migrations.html)
 
+### Analyse statique
+
+`just check-lint` lance Oxlint sur le JavaScript, le TypeScript et les blocs script des composants
+Svelte. Cette vérification fait partie de `just check` et de la CI. La configuration se trouve dans
+`.oxlintrc.json`. Les types générés et les fichiers DSFR copiés dans la documentation sont exclus.
+
+`just format` applique Oxfmt et `just check-format` vérifie le formatage sans modifier les fichiers.
+La configuration se trouve dans `.oxfmtrc.json`, avec les exclusions des fichiers générés et des
+données locales. Le formatage Svelte est activé, avec une indentation de deux espaces pour les
+blocs script et style.
+
+`svelte-check` vérifie les composants Svelte, y compris
+leurs templates. Oxlint utilise les règles de correction sans analyse des types pour le moment.
+Les règles supplémentaires imposent des objets `Error`, la conservation de leur cause, des
+comparaisons strictes sauf pour `== null`, et vérifient plusieurs usages des promesses.
+
+Les fonctions sont limitées à 75 lignes, hors commentaires et lignes vides. Cette limite ne
+s'applique pas aux tests, à leurs helpers, aux migrations ni aux seeds.
+
+Les règles Vitest ciblent les fichiers de test. Elles refusent notamment les tests `.only` ou
+`.skip`, les titres identiques et les assertions asynchrones sans attente. Les messages de
+diagnostic dans `expect(valeur, message)`, le helper `expectTracking` et les assertions de
+nettoyage dans `afterEach` sont reconnus. Les règles sur les assertions conditionnelles et les
+types explicites de tous les mocks ne sont pas activées : nos tests paramétrés ont des attentes
+différentes selon le cas, et Vitest sait inférer les types des mocks.
+
+Les commentaires de désactivation devenus inutiles font échouer le lint.
+
 ### Types
 
 Pour régénérer tous les types :

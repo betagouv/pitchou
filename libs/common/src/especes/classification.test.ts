@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 
-import { especeLabel } from "./classification.ts";
-import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
+import { especeLabel, especeProtegeeStringToEspeceProtegee } from "./classification.ts";
+import type { EspeceProtegee, EspeceProtegeeStrings } from "@pitchou/types/especes.d.ts";
 
 function makeEspece(overrides: Partial<EspeceProtegee> = {}): EspeceProtegee {
   return {
@@ -33,4 +33,23 @@ describe("especeLabel", () => {
     const espece = makeEspece({ nomsVernaculaires: new Set(), nomsScientifiques: new Set() });
     expect(especeLabel(espece)).toBe("");
   });
+});
+
+test("parses protection codes and rejects unknown codes", () => {
+  const row: EspeceProtegeeStrings = {
+    CD_REF: "2938",
+    classification: "oiseau",
+    nomsScientifiques: "Aquila chrysaetos",
+    nomsVernaculaires: "Aigle royal",
+    CD_TYPE_STATUTS: "PN,PR",
+    espèceCNPN: "",
+    espèceMinistérielle: "",
+  };
+  expect(especeProtegeeStringToEspeceProtegee(row).CD_TYPE_STATUTS).toEqual(new Set(["PN", "PR"]));
+  expect(
+    especeProtegeeStringToEspeceProtegee({ ...row, CD_TYPE_STATUTS: "" }).CD_TYPE_STATUTS,
+  ).toEqual(new Set());
+  expect(() =>
+    especeProtegeeStringToEspeceProtegee({ ...row, CD_TYPE_STATUTS: "unknown" }),
+  ).toThrow("Statut de protection non reconnu: unknown");
 });

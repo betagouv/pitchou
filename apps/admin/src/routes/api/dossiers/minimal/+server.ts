@@ -4,9 +4,9 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
 
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { parseMinimalCreationRelations } from "$lib/server/dossierValidation/minimalCreation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { parseMinimalCreationRelations } from "#lib/server/dossierValidation/minimalCreation.ts";
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   const body = await readJsonObject(request);

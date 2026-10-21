@@ -14,19 +14,19 @@ import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/f
 import { registerUploadedFichier } from "@pitchou/server/database/fichier_upload.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 import { UploadedFichierError } from "@pitchou/server/upload.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   parseDossierId,
   parseDossierUpdate,
   throwHttpErrorForAdminDossier,
-} from "$lib/server/dossierValidation";
-import { loadActiviteContext } from "$lib/server/dossierValidation/activiteContext.ts";
-import { validateSpeciesUpload } from "$lib/server/speciesUpload";
+} from "#lib/server/dossierValidation.ts";
+import { loadActiviteContext } from "#lib/server/dossierValidation/activiteContext.ts";
+import { validateSpeciesUpload } from "#lib/server/speciesUpload.ts";
 import {
   parseUploadedFichier,
   parseUploadedFichiers,
   throwUploadedFichierHttpError,
-} from "$lib/server/uploadedFichier";
+} from "#lib/server/uploadedFichier.ts";
 
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
@@ -129,7 +129,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
           .where({ id: dossierId })
           .update({ especes_impactees: storedSpeciesFileId });
       }
-      if (storedAttachmentIds.length >= 1) {
+      if (storedAttachmentIds.length > 0) {
         await trx("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
           storedAttachmentIds.map((fichier) => ({ dossier: dossierId, fichier })),
         );
@@ -140,7 +140,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
       ...(storedSpeciesFileId ? [storedSpeciesFileId] : []),
       ...storedAttachmentIds,
     ];
-    if (storedFileIds.length >= 1) {
+    if (storedFileIds.length > 0) {
       await deleteFichiersWithoutOtherReferences(storedFileIds).catch(() => {});
     }
     throwHttpErrorForUpdate(err);

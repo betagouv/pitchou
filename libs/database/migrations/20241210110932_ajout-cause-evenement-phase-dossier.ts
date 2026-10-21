@@ -20,8 +20,8 @@ export async function up(knex: Knex) {
 
 export async function down(knex: Knex) {
   await knex.schema.alterTable("dossier", function (table) {
-    table.string("phase"); // des données sont perdues,
-    // mais rien d'important n'est stocké actuellement dans cette colonne
+    // This rollback loses data, but the column held nothing important when this migration was written.
+    table.string("phase");
   });
 
   await knex.schema.alterTable("évènement_phase_dossier", function (table) {

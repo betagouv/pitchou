@@ -1,7 +1,12 @@
 import type { ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
 
 export type CritereName =
-  "methode" | "moyenDePoursuite" | "nombreIndividus" | "nids" | "oeufs" | "surfaceHabitatDetruit";
+  | "methode"
+  | "moyenDePoursuite"
+  | "nombreIndividus"
+  | "nids"
+  | "oeufs"
+  | "surfaceHabitatDetruit";
 
 export type TypeImpactProjete = {
   identifiantPitchou: string;

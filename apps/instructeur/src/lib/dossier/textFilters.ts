@@ -1,5 +1,5 @@
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-import { findDossierIdsMatchingText } from "$lib/dossier/searchInDossier.ts";
+import { findDossierIdsMatchingText } from "#lib/dossier/searchInDossier.ts";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
@@ -17,11 +17,11 @@ export function createTextFilter(
   dossiers: DossierSummary[],
 ): (dossier: DossierSummary) => boolean {
   // If the text contains digits, use direct search
-  if (textToSearch.match(/\d[\dA-Za-z\-]*/)) {
+  if (/\d[\dA-Za-z-]*/u.test(textToSearch)) {
     return (dossier) => {
       const { id, departments, communes, demarche_numerique_number, onagre_demande_identifier } =
         dossier;
-      const communesCodes = communes?.map(({ postalCode }) => postalCode).filter((c) => c) || [];
+      const communesCodes = communes?.map(({ postalCode }) => postalCode).filter(Boolean) || [];
 
       return (
         String(id) === textToSearch ||
@@ -31,22 +31,21 @@ export function createTextFilter(
         onagre_demande_identifier === textToSearch
       );
     };
-  } else {
-    // Otherwise, use lunr for text search.
-    // Split the text into words (hyphens separate compound commune names)
-    // then, for each word, search both the exact term — run through the French
-    // stemmer — and its prefix (`word*`). Partial input thus finds the commune
-    // before typing ends (« cleyra » → « Cleyrac »), while keeping the stemmed
-    // word matches that the prefix alone would miss (« bordeaux » is indexed
-    // « bordeau », so `bordeaux*` would not match).
-    const words = removeAccents(textToSearch)
-      .split(/[^\p{L}\p{N}]+/u)
-      .filter(Boolean);
-    const toSearch = words.map((word) => `${word} ${word}*`).join(" ");
-    const dossierIdsMatchingText = findDossierIdsMatchingText(toSearch, dossiers);
-
-    return (dossier) => {
-      return dossierIdsMatchingText.has(dossier.id);
-    };
   }
+  // Otherwise, use lunr for text search.
+  // Split the text into words (hyphens separate compound commune names)
+  // then, for each word, search both the exact term — run through the French
+  // stemmer — and its prefix (`word*`). Partial input thus finds the commune
+  // before typing ends (« cleyra » → « Cleyrac »), while keeping the stemmed
+  // word matches that the prefix alone would miss (« bordeaux » is indexed
+  // « bordeau », so `bordeaux*` would not match).
+  const words = removeAccents(textToSearch)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+  const toSearch = words.map((word) => `${word} ${word}*`).join(" ");
+  const dossierIdsMatchingText = findDossierIdsMatchingText(toSearch, dossiers);
+
+  return (dossier) => {
+    return dossierIdsMatchingText.has(dossier.id);
+  };
 }

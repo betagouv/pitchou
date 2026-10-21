@@ -1,10 +1,10 @@
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
 import { error, json } from "@sveltejs/kit";
 import { getActiviteReferentiel, updateActiviteGroupe } from "@pitchou/server/database/activite.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import type { RequestHandler } from "./$types.ts";
 
-const HEX_COLOR = /^#[0-9a-f]{6}$/;
+const HEX_COLOR = /^#[0-9a-f]{6}$/u;
 
 export const PUT: RequestHandler = async ({ request, params }) => {
   const body = await readJsonObject(request);

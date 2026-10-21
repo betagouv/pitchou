@@ -22,19 +22,19 @@ export function makeFichierHash(fichier: Partial<File>): string {
  * Finds existing file records that match the given descriptions (used for deduplication during DS sync).
  */
 export function findExistingFichiers(
-  fichierDescriptions: Partial<File>[],
+  fichierDescriptions: Pick<File, "name" | "media_type" | "demarche_numerique_checksum">[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Partial<File>[]> {
+): Promise<Pick<File, "id" | "name" | "media_type" | "demarche_numerique_checksum">[]> {
   return databaseConnection("file")
     .select(["id", "demarche_numerique_checksum", "name", "media_type"])
     .whereIn(
       ["demarche_numerique_checksum", "name", "media_type"],
-      // @ts-ignore
-      fichierDescriptions.map(({ demarche_numerique_checksum, name, media_type }) => [
-        demarche_numerique_checksum,
-        name,
-        media_type,
-      ]),
+      // SQL tuple equality never matches NULL, so omit those candidates.
+      fichierDescriptions.flatMap(({ demarche_numerique_checksum, name, media_type }) =>
+        demarche_numerique_checksum !== null && media_type !== null
+          ? [[demarche_numerique_checksum, name, media_type]]
+          : [],
+      ),
     );
 }
 
@@ -53,7 +53,7 @@ export async function storeNewFichier(
     demarche_numerique_created_at?: Date | null;
   },
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<Partial<File>> {
+): Promise<Partial<File> & Pick<File, "id">> {
   const { name, content, media_type, demarche_numerique_checksum, demarche_numerique_created_at } =
     fichier;
   const fileId = randomUUID() as FileId;
@@ -62,7 +62,7 @@ export async function storeNewFichier(
   await putObject(key, content, media_type);
 
   try {
-    return await addFile(
+    const stored = await addFile(
       {
         id: fileId,
         name,
@@ -73,6 +73,8 @@ export async function storeNewFichier(
       },
       databaseConnection,
     );
+    if (!stored.id) throw new Error("Identifiant du fichier stocké absent");
+    return { ...stored, id: stored.id };
   } catch (err) {
     await deleteObject(key).catch(() => {});
     throw err;
@@ -100,7 +102,7 @@ export async function loadFichierContent(
     name: f.name,
     media_type: f.media_type,
     body: s3.body,
-    size: f.size ? Number(f.size) : undefined,
+    size: f.size != null && f.size !== "" ? Number(f.size) : undefined,
   };
 }
 
@@ -135,7 +137,7 @@ function transactionCommitted(transaction: Knex.Transaction): Promise<boolean> {
   // A query failure can make PostgreSQL turn COMMIT into ROLLBACK; retain the object then.
   const completed = transaction.executionPromise
     .then(
-      () => !queryFailed && /^(COMMIT;|RELEASE SAVEPOINT \w+;)$/.test(lastQuery),
+      () => !queryFailed && /^(COMMIT;|RELEASE SAVEPOINT \w+;)$/u.test(lastQuery),
       () => false,
     )
     .finally(() => {

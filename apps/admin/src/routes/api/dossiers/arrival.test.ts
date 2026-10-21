@@ -21,7 +21,7 @@ vi.mock("@pitchou/server/database/dossier_admin_list.ts", () => ({
   getDossierDetailForAdmin: async () => ({ id: 42 }),
   listDossiersForAdmin: vi.fn(),
 }));
-vi.mock("$lib/server/dossierValidation/activiteContext.ts", () => ({
+vi.mock("#lib/server/dossierValidation/activiteContext.ts", () => ({
   loadActiviteContext: async () => ({}),
 }));
 import { POST as createFull } from "./+server.ts";

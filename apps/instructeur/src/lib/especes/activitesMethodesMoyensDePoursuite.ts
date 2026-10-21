@@ -1,8 +1,8 @@
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { dbRowToEspeceProtegee } from "@pitchou/common/especesUtils.ts";
 import { referentielRowsToBundle } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
 import type { default as EspeceProtegeeRow } from "@pitchou/types/database/public/EspeceProtegee.ts";
 import type { ReferentielRows } from "@pitchou/common/referentielTypeImpactMethodeMoyenDePoursuite.ts";
@@ -17,10 +17,10 @@ export async function loadEspecesProtegeesList(): Promise<{
       espèceByCD_REF: especeByCD_REF,
     } = store;
 
-    return Promise.resolve({
+    return {
       espècesProtégéesParClassification: especesProtegeesParClassification,
       espèceByCD_REF: especeByCD_REF,
-    });
+    };
   }
 
   const response = await fetch("/api/especes-protegees");
@@ -52,10 +52,10 @@ export async function loadEspecesProtegeesList(): Promise<{
   store.espècesProtégéesParClassification = especesProtegeesParClassification;
   store.espèceByCD_REF = especeByCD_REF;
 
-  return Promise.resolve({
+  return {
     espècesProtégéesParClassification: especesProtegeesParClassification,
     espèceByCD_REF: especeByCD_REF,
-  });
+  };
 }
 
 /**
@@ -78,7 +78,7 @@ export async function loadActivitesMethodesMoyensDePoursuite(): Promise<
   NonNullable<PitchouState["ActivitésMéthodesMoyensDePoursuite"]>
 > {
   if (store.ActivitésMéthodesMoyensDePoursuite) {
-    return Promise.resolve(store.ActivitésMéthodesMoyensDePoursuite);
+    return store.ActivitésMéthodesMoyensDePoursuite;
   }
 
   const ret = referentielRowsToBundle(await loadReferentielRows());

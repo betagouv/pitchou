@@ -53,4 +53,8 @@ async function main() {
   console.info(`TAXREF importé : ${total} lignes dans espece_taxref`);
 }
 
-main().finally(() => closeDatabaseConnection());
+try {
+  await main();
+} finally {
+  await closeDatabaseConnection();
+}

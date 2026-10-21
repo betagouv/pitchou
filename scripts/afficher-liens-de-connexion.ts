@@ -1,8 +1,10 @@
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { getPersonnesByEmail } from "@pitchou/server/database/personne.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: { emails: { type: "string" }, prod: { type: "boolean" }, origin: { type: "string" } },
+});
 
 if (!args.emails) {
   console.error(`Il manque le paramètre --emails et des adresses emails séparées par des virgules`);
@@ -23,14 +25,15 @@ for (const email of emailsEnArgument) {
   const personne = personnesAvecCesEmails.find((p) => p.email === email);
   if (!personne) {
     console.log(`${email}\tPersonne non trouvée en base de données`);
-  } else {
-    if (personne.access_code) {
-      const lienDeConnexion = `${origin}/?secret=${personne.access_code}`;
+    continue;
+  }
 
-      console.log(`${email}\tLien de connexion: ${lienDeConnexion}`);
-    } else {
-      console.log(`${email}\tn'a pas de lien de connexion`);
-    }
+  if (personne.access_code) {
+    const lienDeConnexion = `${origin}/?secret=${personne.access_code}`;
+
+    console.log(`${email}\tLien de connexion: ${lienDeConnexion}`);
+  } else {
+    console.log(`${email}\tn'a pas de lien de connexion`);
   }
 }
 

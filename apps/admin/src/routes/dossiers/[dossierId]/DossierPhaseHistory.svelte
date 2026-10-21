@@ -4,7 +4,7 @@
   import { phases } from "@pitchou/common/phases.ts";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
-  import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import { updateDossier, type AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
   type Props = {
     detail: AdminDossierDetail;

@@ -51,12 +51,15 @@
     {:else}
       <h3 class="fr-h6 fr-mb-0">Informations de la personne morale</h3>
       <DossierLegalDemandeurFields {model} />
-      <DossierOptionalIdentityFields
-        identity={model.representant}
-        kind="representant"
-        bind:enabled={model.hasRepresentant}
-      />
     {/if}
+  </div>
+
+  <div class="fr-fieldset__element w-full">
+    <DossierOptionalIdentityFields
+      identity={model.personneContact}
+      kind="personne_contact"
+      bind:enabled={model.hasPersonneContact}
+    />
   </div>
 
   <div class="fr-fieldset__element w-full">

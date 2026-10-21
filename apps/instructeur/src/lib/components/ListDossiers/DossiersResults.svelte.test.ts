@@ -5,13 +5,13 @@ import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersResults from "./DossiersResults.svelte";
 import DossierNotificationBadges from "../DossierNotificationBadges.svelte";
 import { dossierId, makeDossier, makeNotification } from "./testHelpers.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
@@ -81,10 +81,12 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
   const bounds = cards.map((card) => card.getBoundingClientRect());
   expect(bounds[1].top - bounds[0].bottom).toBe(8);
   const containerStyle = getComputedStyle(target);
+  expect(containerStyle.paddingLeft).toMatch(/px$/u);
+  expect(containerStyle.paddingRight).toMatch(/px$/u);
   expect(
     target.clientWidth -
-      parseFloat(containerStyle.paddingLeft) -
-      parseFloat(containerStyle.paddingRight),
+      Number(containerStyle.paddingLeft.slice(0, -2)) -
+      Number(containerStyle.paddingRight.slice(0, -2)),
   ).toBe(width === 1440 ? 1200 : width === 1024 ? 976 : 358);
   expect(document.documentElement.scrollWidth).toBe(document.documentElement.clientWidth);
   expect(target.scrollWidth).toBe(target.clientWidth);
@@ -106,7 +108,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
       expect(getComputedStyle(element).fontSize).toBe("14px");
       expect(getComputedStyle(element).lineHeight).toBe("24px");
     }
-    const star = content.getByRole("button", { name: /^(Suivre|Ne plus suivre)$/ });
+    const star = content.getByRole("button", { name: /^(Suivre|Ne plus suivre)$/u });
     expect(star.getBoundingClientRect().width).toBe(32);
     expect(star.getBoundingClientRect().height).toBe(32);
     expect(getComputedStyle(star, "::before").width).toBe("24px");
@@ -129,7 +131,7 @@ test.each([1440, 1024, 390])("list geometry and typography at %ipx", async (widt
       const walker = document.createTreeWalker(badge, NodeFilter.SHOW_TEXT);
       while (walker.nextNode()) {
         const node = walker.currentNode;
-        for (const match of node.textContent!.matchAll(/\S+/g)) {
+        for (const match of node.textContent!.matchAll(/\S+/gu)) {
           const word = document.createRange();
           word.setStart(node, match.index);
           word.setEnd(node, match.index + match[0].length);

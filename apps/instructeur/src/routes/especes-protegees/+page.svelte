@@ -1,6 +1,6 @@
 <script lang="ts">
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { loadEspecesProtegeesList } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  import { loadEspecesProtegeesList } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   import ListEspecesProtegees from "./ListEspecesProtegees.svelte";
 

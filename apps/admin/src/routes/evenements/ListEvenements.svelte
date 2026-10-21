@@ -8,7 +8,7 @@
     defaultEvenementsQuery,
     type EvenementsQuery,
     type EvenementMetriqueRow,
-  } from "$lib/actions/adminEvenements.ts";
+  } from "#lib/actions/adminEvenements.ts";
   import EvenementsFilterPanel from "./EvenementsFilterPanel.svelte";
   import TableEvenements from "./TableEvenements.svelte";
 
@@ -38,7 +38,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
     return [undefined, ...selectors];
   });
@@ -50,7 +50,8 @@
     loadError = null;
     try {
       const page = await loadEvenements(query);
-      if (id !== requestId) return; // A newer request superseded this one.
+      // A newer request superseded this one.
+      if (id !== requestId) return;
       evenements = page.evenements;
       total = page.total;
     } catch (e) {

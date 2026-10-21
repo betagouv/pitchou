@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "sortPackageJson": false,
+  "svelte": {
+    "sortOrder": "options-scripts-markup-styles",
+    "indentScriptAndStyle": true
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "build",
+    ".svelte-kit",
+    "backups",
+    "pgdata",
+    "data/sources_especes",
+    "test-results",
+    "playwright-report",
+    ".direnv",
+    ".corepack",
+    "docs/_site",
+    "docs/.jekyll-cache",
+    "docs/.bundle",
+    "docs/vendor",
+    "libs/types/src/database",
+    "libs/types/src/demarche-numerique",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "*.min.js",
+    "*.min.css"
+  ]
+}

@@ -19,9 +19,9 @@
     const link = document.createElement("a");
     link.download = makeFilename();
     link.href = URL.createObjectURL(await makeFileContentBlob());
-    document.body.appendChild(link);
+    document.body.append(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
   }
 </script>
 

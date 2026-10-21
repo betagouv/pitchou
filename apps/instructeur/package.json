@@ -18,16 +18,12 @@
     "@tiptap/extension-text-align": "catalog:",
     "@tiptap/pm": "catalog:",
     "@tiptap/starter-kit": "catalog:",
-    "clsx": "catalog:",
-    "d3-fetch": "catalog:",
     "date-fns": "catalog:",
-    "just-debounce-it": "catalog:",
     "knex": "catalog:",
     "lunr": "catalog:",
     "lunr-languages": "catalog:",
     "maplibre-gl": "catalog:",
-    "pg": "catalog:",
-    "remember": "catalog:"
+    "pg": "catalog:"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
@@ -37,12 +33,10 @@
     "@tailwindcss/vite": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/svelte": "catalog:",
-    "@types/d3-fetch": "catalog:",
     "@types/lunr": "catalog:",
     "@types/node": "catalog:",
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
-    "prettier-plugin-svelte": "catalog:",
     "sass": "catalog:",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
@@ -50,5 +44,8 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "xlsx": "catalog:"
+  },
+  "imports": {
+    "#lib/*": "./src/lib/*"
   }
 }

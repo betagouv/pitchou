@@ -1,6 +1,4 @@
 <script lang="ts" generics="Value">
-  import clsx from "clsx";
-
   import { commandForKey, createTypeahead } from "./Select/keyboard.ts";
   import {
     findByTypeahead,
@@ -112,7 +110,9 @@
   // The active option follows the keyboard even when the list has to scroll.
   $effect(() => {
     if (open && activeIndex >= 0)
-      document.getElementById(`${id}-option-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
+      document
+        .querySelector(`#${CSS.escape(`${id}-option-${activeIndex}`)}`)
+        ?.scrollIntoView({ block: "nearest" });
   });
 
   const typeahead = createTypeahead();
@@ -161,7 +161,7 @@
 
 <svelte:body onpointerdown={onBodyPointerDown} />
 
-<div class={clsx("relative", className)} bind:this={root}>
+<div class={["relative", className]} bind:this={root}>
   <SelectTrigger
     {id}
     {selected}

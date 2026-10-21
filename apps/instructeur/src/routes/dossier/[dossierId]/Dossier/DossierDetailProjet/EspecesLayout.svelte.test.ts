@@ -7,11 +7,11 @@ import "@gouvfr/dsfr/dist/utility/utility.css";
 import "../../../../../app.css";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import { groupChange, habitat, impact, speciesDossier } from "./impactGroups.fixture.ts";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => ({ current: false }) }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 afterEach(async () => {
   cleanup();
   store.notificationByDossier.clear();
@@ -45,7 +45,7 @@ test.each([1440, 390, 320])("species tables and reviews fit a %ipx viewport", as
   store.notificationByDossier.set(dossier.id, dossier.notificationSnapshot);
   registerReviewSnapshot(dossier);
   const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
-  const accordion = view.getByRole("button", { name: /Espèces impactées/ });
+  const accordion = view.getByRole("button", { name: /Espèces impactées/u });
   accordion.click();
   await tick();
   await document.fonts.ready;

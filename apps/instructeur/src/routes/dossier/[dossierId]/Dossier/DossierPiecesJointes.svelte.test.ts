@@ -7,9 +7,9 @@ import { cleanup, render } from "@testing-library/svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
-vi.mock("$lib/dossier/dossier.ts", () => ({
+vi.mock("#lib/dossier/dossier.ts", () => ({
   recordLocalWrite: vi.fn(),
   refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));
@@ -77,25 +77,27 @@ test("affiche les pièces jointes du projet, des avis et des arrêtés", async (
     .element(page.getByRole("button", { name: "Ajouter une pièce jointe" }))
     .toBeVisible();
   await expect.element(page.getByRole("heading", { name: "Projet" })).toBeVisible();
-  await expect.element(page.getByRole("link", { name: /etude-impact\.pdf/ })).toBeVisible();
-  await expect.element(page.getByText(/Date de dépôt : 1 janvier 2026/)).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /etude-impact\.pdf/u })).toBeVisible();
+  await expect.element(page.getByText(/Date de dépôt : 1 janvier 2026/u)).toBeVisible();
   await expect
     .element(
       page.getByRole("link", {
-        name: /saisine-csrpn-pistes-cyclables-rennes-metropole\.pdf/,
+        name: /saisine-csrpn-pistes-cyclables-rennes-metropole\.pdf/u,
       }),
     )
     .toBeVisible();
-  await expect.element(page.getByText(/\(\.\.\.\)/)).not.toBeInTheDocument();
-  await expect.element(page.getByRole("link", { name: /arrete-ap-123\.pdf/ })).toBeVisible();
-  await expect.element(page.getByRole("link", { name: /note-interne\.pdf/ })).toBeVisible();
-  await expect.element(page.getByText(/application\/pdf - 1KB - Date de saisine/)).toBeVisible();
+  await expect.element(page.getByText(/\(\.\.\.\)/u)).not.toBeInTheDocument();
+  await expect.element(page.getByRole("link", { name: /arrete-ap-123\.pdf/u })).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /note-interne\.pdf/u })).toBeVisible();
+  await expect.element(page.getByText(/application\/pdf - 1KB - Date de saisine/u)).toBeVisible();
   await expect
-    .element(page.getByText(/application\/pdf - 4\.1KB - Date de signature/))
+    .element(page.getByText(/application\/pdf - 4\.1KB - Date de signature/u))
     .toBeVisible();
-  await expect.element(page.getByText(/Note interne - application\/pdf/)).toBeVisible();
-  await expect.element(page.getByText(/Saisine - CNPN - application\/pdf/)).toBeVisible();
-  await expect.element(page.getByText(/Arrêté dérogation AP-123 - application\/pdf/)).toBeVisible();
+  await expect.element(page.getByText(/Note interne - application\/pdf/u)).toBeVisible();
+  await expect.element(page.getByText(/Saisine - CNPN - application\/pdf/u)).toBeVisible();
+  await expect
+    .element(page.getByText(/Arrêté dérogation AP-123 - application\/pdf/u))
+    .toBeVisible();
   await expect.element(page.getByRole("heading", { name: "Autres" })).toBeVisible();
   await expect.element(page.getByRole("link", { name: "Télécharger" })).not.toBeInTheDocument();
 
@@ -145,19 +147,19 @@ test("confirms attachment deletion, preserves it on cancellation or error, and p
     .toBeVisible();
   expect(deletePieceJointe).not.toHaveBeenCalled();
   await page.getByRole("button", { name: "Annuler", exact: true }).click();
-  await expect.element(page.getByRole("link", { name: /note.pdf/ })).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /note.pdf/u })).toBeVisible();
   await page.getByRole("button", { name: "Supprimer note.pdf" }).click();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
-  await expect.element(page.getByRole("alert")).toHaveTextContent("Suppression refusée");
-  await expect.element(page.getByRole("link", { name: /note.pdf/ })).toBeVisible();
+  await expect.element(page.getByRole("alert")).toMatchTextContent("Suppression refusée");
+  await expect.element(page.getByRole("link", { name: /note.pdf/u })).toBeVisible();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
-  await expect.element(page.getByRole("link", { name: /note.pdf/ })).not.toBeInTheDocument();
+  await expect.element(page.getByRole("link", { name: /note.pdf/u })).not.toBeInTheDocument();
   expect(deletePieceJointe).toHaveBeenLastCalledWith({
     dossier: 42,
     type: "autre",
     entityId: "attachment",
     fileId: "file",
   });
-  await expect.element(page.getByRole("link", { name: /projet.pdf/ })).toBeVisible();
+  await expect.element(page.getByRole("link", { name: /projet.pdf/u })).toBeVisible();
   store.capabilities = {};
 });

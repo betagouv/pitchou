@@ -49,5 +49,5 @@ export function especesCountsLabel({ total, cnpn, ministerielles }: EspecesCount
   if (cnpn) parts.push(`${cnpn} CNPN`);
   if (ministerielles)
     parts.push(`${ministerielles} ${ministerielles > 1 ? "ministérielles" : "ministérielle"}`);
-  return parts.length ? `${total} dont ${parts.join(" et ")}` : `${total}`;
+  return parts.length > 0 ? `${total} dont ${parts.join(" et ")}` : `${total}`;
 }

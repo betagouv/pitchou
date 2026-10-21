@@ -50,6 +50,60 @@ export function toolbarButtonGroups(context: ToolbarContext): ToolbarButton[][] 
         run: () => chain()?.redo().run(),
       },
     ],
+    ...textFormattingGroups(context),
+    [
+      {
+        title: "Aligner à gauche",
+        bars: "start",
+        active: () => alignActive("left"),
+        run: () => setAlign("left"),
+      },
+      {
+        title: "Centrer",
+        bars: "center",
+        active: () => alignActive("center"),
+        run: () => setAlign("center"),
+      },
+      {
+        title: "Aligner à droite",
+        bars: "end",
+        active: () => alignActive("right"),
+        run: () => setAlign("right"),
+      },
+    ],
+    [
+      {
+        title: "Citation",
+        icon: "fr-icon-quote-line",
+        active: () => isActive("blockquote"),
+        run: () => chain()?.toggleBlockquote().run(),
+      },
+      {
+        title: "Bloc de code",
+        icon: "fr-icon-code-s-slash-line",
+        active: () => isActive("codeBlock"),
+        run: () => chain()?.toggleCodeBlock().run(),
+      },
+      {
+        title: "Séparateur horizontal",
+        icon: "fr-icon-separator",
+        run: () => chain()?.setHorizontalRule().run(),
+      },
+    ],
+    [
+      {
+        title: "Lien",
+        icon: "fr-icon-link",
+        active: () => isActive("link"),
+        run: toggleLink,
+      },
+    ],
+  ];
+}
+
+function textFormattingGroups({ editor, isActive }: ToolbarContext): ToolbarButton[][] {
+  const chain = () => editor()?.chain().focus();
+  return [
     [
       {
         title: "Gras",
@@ -104,53 +158,6 @@ export function toolbarButtonGroups(context: ToolbarContext): ToolbarButton[][] 
         icon: "fr-icon-list-ordered",
         active: () => isActive("orderedList"),
         run: () => chain()?.toggleOrderedList().run(),
-      },
-    ],
-    [
-      {
-        title: "Aligner à gauche",
-        bars: "start",
-        active: () => alignActive("left"),
-        run: () => setAlign("left"),
-      },
-      {
-        title: "Centrer",
-        bars: "center",
-        active: () => alignActive("center"),
-        run: () => setAlign("center"),
-      },
-      {
-        title: "Aligner à droite",
-        bars: "end",
-        active: () => alignActive("right"),
-        run: () => setAlign("right"),
-      },
-    ],
-    [
-      {
-        title: "Citation",
-        icon: "fr-icon-quote-line",
-        active: () => isActive("blockquote"),
-        run: () => chain()?.toggleBlockquote().run(),
-      },
-      {
-        title: "Bloc de code",
-        icon: "fr-icon-code-s-slash-line",
-        active: () => isActive("codeBlock"),
-        run: () => chain()?.toggleCodeBlock().run(),
-      },
-      {
-        title: "Séparateur horizontal",
-        icon: "fr-icon-separator",
-        run: () => chain()?.setHorizontalRule().run(),
-      },
-    ],
-    [
-      {
-        title: "Lien",
-        icon: "fr-icon-link",
-        active: () => isActive("link"),
-        run: toggleLink,
       },
     ],
   ];

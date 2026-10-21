@@ -7,14 +7,9 @@ import type {
 import type EspeceProtegeeRow from "@pitchou/types/database/public/EspeceProtegee.ts";
 import { isStatutListeRouge } from "./listeRouge.ts";
 
-const classifications: Set<"oiseau" | "faune non-oiseau" | "flore"> = new Set([
-  "oiseau",
-  "faune non-oiseau",
-  "flore",
-]);
+const classifications: ReadonlySet<string> = new Set(["oiseau", "faune non-oiseau", "flore"]);
 
 export function isClassif(x: string): x is ClassificationEtreVivant {
-  // @ts-ignore Set.has accepts the narrower union at runtime.
   return classifications.has(x);
 }
 
@@ -46,8 +41,7 @@ export function especeProtegeeStringToEspeceProtegee({
   assertClassification(classification);
   return {
     CD_REF,
-    // @ts-ignore Trusting generated data.
-    CD_TYPE_STATUTS: new Set(CD_TYPE_STATUTS.split(",")),
+    CD_TYPE_STATUTS: parseProtectionStatuts(CD_TYPE_STATUTS.split(",").filter(Boolean)),
     classification,
     nomsScientifiques: new Set(nomsScientifiques.split(",")),
     nomsVernaculaires: new Set(nomsVernaculaires.split(",")),
@@ -76,8 +70,7 @@ export function dbRowToEspeceProtegee(
     classification: row.classification,
     nomsScientifiques: new Set(row.noms_scientifiques),
     nomsVernaculaires: new Set(row.noms_vernaculaires),
-    // @ts-ignore Trusting generated data.
-    CD_TYPE_STATUTS: new Set(row.cd_type_statuts),
+    CD_TYPE_STATUTS: parseProtectionStatuts(row.cd_type_statuts),
     statutsProtection: row.statutsProtection ?? row.statuts_protection ?? [],
     espèceMinistérielle: row.espece_ministerielle ? "O" : undefined,
     espèceCNPN: row.espece_cnpn ? "O" : undefined,
@@ -93,4 +86,21 @@ function assertClassification(value: string): asserts value is ClassificationEtr
       `Classification d'espèce non reconnue: ${value}. Les choix sont : ${[...classifications].join(", ")}`,
     );
   }
+}
+
+function parseProtectionStatuts(values: string[]): EspeceProtegee["CD_TYPE_STATUTS"] {
+  return new Set(
+    values.map((value) => {
+      switch (value) {
+        case "POM":
+        case "PD":
+        case "PN":
+        case "PR":
+        case "Espèce manquante":
+          return value;
+        default:
+          throw new TypeError(`Statut de protection non reconnu: ${value}`);
+      }
+    }),
+  );
 }

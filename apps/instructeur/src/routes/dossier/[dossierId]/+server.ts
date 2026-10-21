@@ -1,8 +1,8 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject } from "$lib/server/requestValidation";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { getDossierInstructionState, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";

@@ -6,13 +6,13 @@ vi.mock(import("../avisExpert.ts"), () => ({
   addOrUpdateAvisExpert: vi.fn(),
 }));
 
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({
+vi.mock(import("#lib/dossier/dossier.ts"), () => ({
   refreshDossierFull: vi.fn(),
 }));
 
 import FormAvisExpert from "./FormAvisExpert.svelte";
 import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
@@ -39,7 +39,7 @@ test("shows an error alert when saving the avis fails synchronously", async () =
   await expect.element(alert).toBeVisible();
   await expect
     .element(alert)
-    .toHaveTextContent("L'enregistrement de l'avis a échoué : Network unavailable");
+    .toMatchTextContent("L'enregistrement de l'avis a échoué : Network unavailable");
   expect(refreshDossierFull).not.toHaveBeenCalled();
   expect(closeForm).not.toHaveBeenCalled();
 });

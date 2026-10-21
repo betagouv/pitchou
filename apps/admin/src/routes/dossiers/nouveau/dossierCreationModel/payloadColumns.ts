@@ -79,6 +79,27 @@ export function buildCreationColumns(
           ? false
           : null
       : null,
+    ...buildWindFarmColumns(model),
+    intervention_start_date: showsOperationDates(model)
+      ? nullable(model.interventionStartDate)
+      : null,
+    intervention_end_date: showsOperationDates(model) ? nullable(model.interventionEndDate) : null,
+    commissioning_date: showsOperationDates(model) ? nullable(model.commissioningDate) : null,
+    intervention_duration: showsDerogationDuration(model) ? model.interventionDuration : null,
+    scientifique_suivi_protocol_description: showsOperationDetails(model)
+      ? nullable(model.scientifiqueSuiviProtocolDescription)
+      : null,
+    ...buildWindMonitoringColumns(model),
+    ...buildCaptureColumns(model),
+    ...buildIntervenantColumns(model),
+    dossier_oiseau_simple_compensated_nids_count: showsCompensatedNidsCount(model)
+      ? model.compensatedNidsCount
+      : null,
+  };
+}
+
+function buildWindFarmColumns(model: DossierCreationModel) {
+  return {
     scientifique_mortality_measures_taken: showsWindFarmDetails(model)
       ? model.scientifiqueMortalityMeasuresTaken === "oui"
         ? true
@@ -95,15 +116,11 @@ export function buildCreationColumns(
     eolien_tip_height: showsWindFarmDetails(model) ? model.eolienTipHeight : null,
     eolien_rotor_diameter: showsWindFarmDetails(model) ? model.eolienRotorDiameter : null,
     eolien_ground_clearance: showsWindFarmDetails(model) ? model.eolienGroundClearance : null,
-    intervention_start_date: showsOperationDates(model)
-      ? nullable(model.interventionStartDate)
-      : null,
-    intervention_end_date: showsOperationDates(model) ? nullable(model.interventionEndDate) : null,
-    commissioning_date: showsOperationDates(model) ? nullable(model.commissioningDate) : null,
-    intervention_duration: showsDerogationDuration(model) ? model.interventionDuration : null,
-    scientifique_suivi_protocol_description: showsOperationDetails(model)
-      ? nullable(model.scientifiqueSuiviProtocolDescription)
-      : null,
+  };
+}
+
+function buildWindMonitoringColumns(model: DossierCreationModel) {
+  return {
     eolien_monitored_turbines_count: showsWindFarmDetails(model)
       ? model.eolienMonitoredTurbinesCount
       : null,
@@ -126,6 +143,11 @@ export function buildCreationColumns(
     eolien_carcass_examination_address: showsCarcassAnalysis(model)
       ? nullable(model.eolienCarcassExaminationAddress)
       : null,
+  };
+}
+
+function buildCaptureColumns(model: DossierCreationModel) {
+  return {
     scientifique_capture_mode: showsScientificCaptureDetails(model)
       ? [
           ...model.scientifiqueCaptureModes.filter(
@@ -151,6 +173,11 @@ export function buildCreationColumns(
       model.scientifiqueDemandeType.includes(scientifiqueDemandeTypeOptions[2])
         ? nullable(model.scientifiqueTransportConditions)
         : null,
+  };
+}
+
+function buildIntervenantColumns(model: DossierCreationModel) {
+  return {
     scientifique_intervenants: showsOperationDetails(model)
       ? model.scientifiqueIntervenants
           .filter(({ nom_complet, qualification }) => nom_complet.trim() || qualification.trim())
@@ -161,9 +188,6 @@ export function buildCreationColumns(
       : null,
     scientifique_other_intervenants_details: showsOperationDetails(model)
       ? nullable(model.scientifiqueOtherIntervenantsDetails)
-      : null,
-    dossier_oiseau_simple_compensated_nids_count: showsCompensatedNidsCount(model)
-      ? model.compensatedNidsCount
       : null,
   };
 }

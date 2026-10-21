@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
-vi.mock(import("$lib/upload/uploadToStorage.ts"), () => ({
+vi.mock(import("#lib/upload/uploadToStorage.ts"), () => ({
   uploadFichiers: vi.fn(),
 }));
 
-import { store, type PitchouState } from "$lib/state/store.svelte.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { store, type PitchouState } from "#lib/state/store.svelte.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import { addOrUpdateAvisExpert } from "./avisExpert.ts";
 
 const addOrUpdateAvisExpertCapability = vi.fn().mockResolvedValue("avis-expert-1");

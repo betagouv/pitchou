@@ -8,7 +8,7 @@ export async function getEvenementsForPersonne(email: Personne["email"]): Promis
     .select("id")
     .where("email", "=", email);
 
-  if (!(requeteSQL && Array.isArray(requeteSQL) && requeteSQL.length >= 1 && requeteSQL[0].id)) {
+  if (!(requeteSQL && Array.isArray(requeteSQL) && requeteSQL.length > 0 && requeteSQL[0].id)) {
     throw new Error(`Aucun id n'a été trouvé pour l'email ${email}.`);
   }
 

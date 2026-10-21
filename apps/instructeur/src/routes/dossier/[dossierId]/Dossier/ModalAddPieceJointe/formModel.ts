@@ -1,7 +1,7 @@
 import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
 import type { TypePieceJointe } from "./submission.ts";
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { EvenementPieceJointeSource } from "@pitchou/types/evenement.d.ts";
 
 export function currentAttachmentDate() {
@@ -15,7 +15,7 @@ export function defaultPieceJointeType(
   showChoice: boolean,
   types: TypePieceJointe[],
 ) {
-  return initial ?? (!showChoice ? (types[0] ?? null) : null);
+  return initial ?? (showChoice ? null : (types[0] ?? null));
 }
 
 export function pieceJointeLabel(value: TypePieceJointe) {

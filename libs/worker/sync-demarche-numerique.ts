@@ -15,7 +15,7 @@ import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.t
 import type DemarcheNumerique88444SynchronizationResult from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import { format, formatDistanceToNow, sub } from "date-fns";
 import { fr } from "date-fns/locale";
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { synchronizeDemarcheNumerique } from "./synchronization-ds/synchronizeDemarcheNumerique.ts";
 
 const apiToken = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN;
@@ -24,7 +24,9 @@ if (!apiToken)
 if (!process.env.DATABASE_URL)
   throw new TypeError(`Variable d'environnement DATABASE_URL manquante`);
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: { IdSchemaDS: { type: "string" }, lastModified: { type: "string" } },
+});
 const schemaId = args.IdSchemaDS;
 if (!schemaId) {
   const files = await readdir(join(import.meta.dirname, `../../data/demarche-numerique/schema-DS`));

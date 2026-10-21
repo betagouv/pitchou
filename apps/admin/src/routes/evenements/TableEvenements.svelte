@@ -1,6 +1,6 @@
 <script lang="ts">
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
-  import type { EvenementMetriqueRow } from "$lib/actions/adminEvenements.ts";
+  import type { EvenementMetriqueRow } from "#lib/actions/adminEvenements.ts";
 
   type Props = {
     rows: EvenementMetriqueRow[];

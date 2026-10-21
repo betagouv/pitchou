@@ -23,14 +23,14 @@ test("toute la tuile ouvre le dossier, sauf ses propres commandes", async ({
 
   // The middle of the tile, far from the title, opens the dossier.
   await card.click();
-  await expect(page).toHaveURL(new RegExp(`/dossier/${dossier.id}`));
+  await expect(page).toHaveURL(new RegExp(`/dossier/${dossier.id}`, "u"));
   await expect(page.getByRole("heading", { name: dossier.name! })).toBeVisible();
 
   // The star keeps its own job: it stops following instead of navigating, which
   // takes the dossier out of « Mes dossiers ».
   await page.goto("/mes-dossiers");
   await card.getByRole("button", { name: "Ne plus suivre" }).click();
-  await expect(page).toHaveURL(/\/mes-dossiers/);
+  await expect(page).toHaveURL(/\/mes-dossiers/u);
   await expect(card).toHaveCount(0);
 });
 

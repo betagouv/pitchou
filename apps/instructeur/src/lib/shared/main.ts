@@ -1,14 +1,14 @@
-import { json } from "d3-fetch";
-import remember, { forget } from "remember";
+import { json } from "#lib/shared/http.ts";
+import { readStorage, writeStorage, removeStorage } from "#lib/shared/storage.ts";
 import { goto } from "$app/navigation";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { store } from "$lib/state/store.svelte.ts";
-import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { SCHEMA_DS_88444 } from "#lib/shared/dataPaths.ts";
 
-import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
-import { refreshNotifications } from "$lib/dossier/notification.ts";
+import createCapObjectFromURLs from "#lib/shared/createCapObjectFromURLs.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
+import { refreshNotifications } from "#lib/dossier/notification.ts";
 
 import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {
@@ -52,17 +52,16 @@ export function loadNotificationByDossierForCurrentInstructeur() {
 }
 
 export function loadSchemaDS88444() {
-  return json(SCHEMA_DS_88444).then((schema) => {
-    //@ts-ignore
+  return json<NonNullable<typeof store.schemaDS88444>>(SCHEMA_DS_88444).then((schema) => {
     store.schemaDS88444 = schema;
     return schema;
   });
 }
 
 export function loadSynchronizationResults() {
-  return json("/resultats-synchronisation").then(
-    // @ts-ignore
-    (synchronizationResults: DemarcheNumerique88444SynchronizationResult[]) => {
+  return json<DemarcheNumerique88444SynchronizationResult[]>("/resultats-synchronisation").then(
+    (synchronizationResults) => {
+      if (!synchronizationResults) throw new Error("Résultats de synchronisation absents");
       for (const r of synchronizationResults) {
         r.timestamp = new Date(r.timestamp);
       }
@@ -77,7 +76,7 @@ export async function consumeSecretFromURL(url: URL) {
   if (!secret) return;
 
   return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY, secret),
+    writeStorage(PITCHOU_SECRET_STORAGE_KEY, secret),
     initCapabilities(secret).catch(async () => {
       await logout();
       store.errors.add({
@@ -98,7 +97,7 @@ export async function logout() {
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;
 
-  return forget(PITCHOU_SECRET_STORAGE_KEY);
+  return removeStorage(PITCHOU_SECRET_STORAGE_KEY);
 }
 
 export async function logoutAndRedirectToHome(erreur?: { message: string }) {
@@ -137,9 +136,10 @@ function initCapabilities(secret: string) {
 
 export function init() {
   return Promise.all([
-    remember(PITCHOU_SECRET_STORAGE_KEY)
-      //@ts-ignore
-      .then((secret) => (secret ? initCapabilities(secret) : undefined))
+    readStorage(PITCHOU_SECRET_STORAGE_KEY)
+      .then((secret) =>
+        typeof secret === "string" && secret ? initCapabilities(secret) : undefined,
+      )
       .catch(() =>
         logoutAndRedirectToHome({
           message: `Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,

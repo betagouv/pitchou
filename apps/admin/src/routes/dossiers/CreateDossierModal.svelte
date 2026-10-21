@@ -8,7 +8,7 @@
     createMinimalDossier,
     loadGroupesInstructeurs,
     type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
   import CreateDossierPorteurFields from "./CreateDossierPorteurFields.svelte";
   import {
     emptyPorteurForm,
@@ -48,7 +48,7 @@
       // Shown under each invalid field, with the focus on the first one.
       showPorteurErrors = true;
       await tick();
-      document.getElementById(porteurFieldIds[invalidField])?.focus();
+      document.querySelector<HTMLElement>(`#${CSS.escape(porteurFieldIds[invalidField])}`)?.focus();
       return;
     }
     saving = true;

@@ -5,7 +5,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/svelte";
 import { page, userEvent } from "vitest/browser";
 import Settings from "./+page.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 beforeEach(async () => {
   await page.viewport(1280, 900);
@@ -14,7 +14,7 @@ beforeEach(async () => {
 afterEach(() => {
   cleanup();
   store.capabilities = {};
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
 });
 test("loads saved values and saves independent preferences", async () => {
   store.capabilities.getEmailNotificationPreferences = vi

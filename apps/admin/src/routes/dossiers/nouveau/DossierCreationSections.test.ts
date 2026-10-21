@@ -9,7 +9,7 @@ import DossierCreationJustificationSection from "./DossierCreationJustificationS
 import DossierCreationMapSection from "./DossierCreationMapSection.svelte";
 import DossierCreationSpeciesSection from "./DossierCreationSpeciesSection.svelte";
 import { createDossierCreationModel } from "./dossierCreationModel.ts";
-import { uploadLimit } from "$lib/upload/uploadLimit.svelte.ts";
+import { uploadLimit } from "#lib/upload/uploadLimit.svelte.ts";
 
 describe("dossier creation sections", () => {
   it("shows only the fields matching the demandeur type", () => {
@@ -39,7 +39,7 @@ describe("dossier creation sections", () => {
     expect(manualAddressBody).toContain('id="physical-city"');
 
     expect(legalBody).toContain('id="legal-siret"');
-    expect(legalBody).toContain('id="representative-role"');
+    expect(legalBody).toContain('id="personne-contact-role"');
     expect(legalBody).toContain("Format attendu : 14 chiffres");
     expect(legalBody).toContain("Personne en charge du projet au sein de la personne morale");
     expect(legalBody).not.toContain('id="legal-name"');

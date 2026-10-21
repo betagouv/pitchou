@@ -93,7 +93,7 @@ export function groupDossiersByMonth(
         dossiers: [],
       });
     }
-    sections[sections.length - 1].dossiers.push(dossier);
+    sections.at(-1)!.dossiers.push(dossier);
   }
 
   return sections;

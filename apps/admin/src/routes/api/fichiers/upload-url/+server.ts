@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 import { createUploadUrls, parseUploadSizes } from "@pitchou/server/upload.ts";
 
 // Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).

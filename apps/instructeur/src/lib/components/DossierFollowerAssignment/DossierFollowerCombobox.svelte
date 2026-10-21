@@ -20,7 +20,7 @@
 
   const listboxId = $derived(`${id}-listbox`);
   const filteredCandidates = $derived.by(() => {
-    const searchParts = normalize(query).split(/\s+/).filter(Boolean);
+    const searchParts = normalize(query).split(/\s+/u).filter(Boolean);
     if (searchParts.length === 0) return candidates;
 
     return candidates.filter((candidate) => {

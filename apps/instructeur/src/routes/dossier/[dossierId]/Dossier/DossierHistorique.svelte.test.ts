@@ -2,8 +2,8 @@ import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 
 import DossierHistorique from "./DossierHistorique.svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
 import type { DossierCnpnEmailSentEvent, DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(() => {
@@ -50,11 +50,11 @@ test.each([false, true])(
     await expect.element(await screen.findByText("Instruction")).toBeVisible();
     const entries = screen.getAllByRole("listitem");
     expect(entries).toHaveLength(2);
-    expect(entries[0]).toHaveTextContent("Phase renseignée :");
-    expect(entries[0]).toHaveTextContent(
+    expect(entries[0]).toMatchTextContent("Phase renseignée :");
+    expect(entries[0]).toMatchTextContent(
       `Le 01/02/2025 par ${hasAction ? "claire.morin" : "agent"}`,
     );
-    expect(entries[0]).not.toHaveTextContent("à 00:00");
+    expect(entries[0]).not.toMatchTextContent("à 00:00");
   },
 );
 
@@ -88,24 +88,24 @@ test.each([false, true])("renders CNPN emails with tracking available: %s", asyn
   expect(store.capabilities.listerActionsDossier).toHaveBeenCalledWith(dossier.id);
   const entries = screen.getAllByRole("listitem");
   expect(entries).toHaveLength(2);
-  expect(entries[0]).toHaveTextContent("Mail de saisine du CNPN envoyé :");
-  expect(entries[0]).toHaveTextContent("2 pièces jointes");
-  expect(entries[0]).toHaveTextContent(
+  expect(entries[0]).toMatchTextContent("Mail de saisine du CNPN envoyé :");
+  expect(entries[0]).toMatchTextContent("2 pièces jointes");
+  expect(entries[0]).toMatchTextContent(
     `Le ${formatDateAbsolute(new Date(event.sent_at), "dd/MM/yyyy 'à' HH:mm")} par claire.morin`,
   );
-  expect(entries[1]).toHaveTextContent("Dossier créé dans Pitchou");
+  expect(entries[1]).toMatchTextContent("Dossier créé dans Pitchou");
 
   if (tracked) {
     for (const [label, date] of [
       ["Distribué au destinataire", event.delivered_at],
       ["Ouverture détectée", event.opened_at],
     ] as const) {
-      expect(entries[0]).toHaveTextContent(
+      expect(entries[0]).toMatchTextContent(
         `${label} le ${formatDateAbsolute(new Date(date!), "dd/MM/yyyy 'à' HH:mm")}`,
       );
     }
   } else {
-    expect(screen.queryByText(/Distribué au destinataire/)).toBeNull();
-    expect(screen.queryByText(/Ouverture détectée/)).toBeNull();
+    expect(screen.queryByText(/Distribué au destinataire/u)).toBeNull();
+    expect(screen.queryByText(/Ouverture détectée/u)).toBeNull();
   }
 });

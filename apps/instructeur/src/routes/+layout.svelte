@@ -7,13 +7,14 @@
 
   import { afterNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
-  import { env } from "$env/dynamic/public";
+  import * as env from "$app/env/public";
 
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
 
   import BandeauEnvironnement from "./Layout/BandeauEnvironnement.svelte";
   import Header from "./Layout/Header/Header.svelte";
   import Footer from "./Layout/Footer.svelte";
+  import { createPageViewTracker } from "./Layout/tracking.ts";
 
   let { children } = $props();
 
@@ -27,28 +28,18 @@
     if (!urlHasSecret) return;
     const cleaned = new URL(to.url);
     cleaned.searchParams.delete("secret");
-    void goto(cleaned, { replaceState: true, invalidateAll: false, noScroll: true });
+    void goto(cleaned, { replace: true, refreshAll: false, reset: false });
   });
 
   // Send a Matomo page view on every navigation, including client-side (SPA)
   // navigations. The app.html snippet only bootstraps the tracker.
   const matomoEnabled = Boolean(env.PUBLIC_MATOMO_SITE_ID);
-  let lastTrackedUrl: string | undefined;
+  const trackPageView = createPageViewTracker();
   afterNavigate(({ to }) => {
     if (!matomoEnabled || !to) return;
     const paq = (window as Window & { _paq?: unknown[][] })._paq;
     if (!paq) return;
-    // Never send the magic-link secret to Matomo.
-    const url = new URL(to.url);
-    url.searchParams.delete("secret");
-    const trackedUrl = url.toString();
-    // Skip duplicates (the secret-stripping redirect above re-navigates to the same URL).
-    if (trackedUrl === lastTrackedUrl) return;
-    if (lastTrackedUrl) paq.push(["setReferrerUrl", lastTrackedUrl]);
-    paq.push(["setCustomUrl", trackedUrl]);
-    paq.push(["setDocumentTitle", document.title]);
-    paq.push(["trackPageView"]);
-    lastTrackedUrl = trackedUrl;
+    trackPageView(paq, to.url, document.title);
   });
 </script>
 

@@ -12,13 +12,13 @@ test("a porteur references exactly one personne physique or personne morale", as
     .insert({ last_name: "Martin" })
     .returning("id");
 
-  await expect(db("porteur_de_projet").insert({})).rejects.toThrow(/porteur_de_projet_check/);
+  await expect(db("porteur_de_projet").insert({})).rejects.toThrow(/porteur_de_projet_check/u);
   await expect(
     db("porteur_de_projet").insert({
       personne_physique: personnePhysique,
       personne_morale: SIRET,
     }),
-  ).rejects.toThrow(/porteur_de_projet_check/);
+  ).rejects.toThrow(/porteur_de_projet_check/u);
   await db("porteur_de_projet").insert([
     { personne_physique: personnePhysique },
     { personne_morale: SIRET },
@@ -87,18 +87,19 @@ test("the Démarche Numérique synchronization of the relations stores the porte
     dossier: {
       demarche_numerique_number: String(number),
       identites: [],
+      acteurs: [],
       porteur_de_projet: index === 0 ? physique("Martin") : morale(SIRET),
     },
   }));
 
   await db.transaction(async (trx) => {
-    const { identitesSynchronization, synchronizations } = await synchronizeDossierRelations(
+    const { acteursSynchronization, synchronizations } = await synchronizeDossierRelations(
       dossiersDS as unknown as Parameters<typeof synchronizeDossierRelations>[0],
       dossiersForSync as unknown as Parameters<typeof synchronizeDossierRelations>[1],
       88444,
       trx,
     );
-    await Promise.all([identitesSynchronization, ...synchronizations]);
+    await Promise.all([acteursSynchronization, ...synchronizations]);
   });
 
   expect(await porteurOf(db, dossiers[0].id)).toMatchObject({ last_name: "Martin" });

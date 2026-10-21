@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import LoginViaEmail from "../LoginViaEmail/LoginViaEmail.svelte";
   import { envoiEmailConnexion } from "../LoginViaEmail/serveur.ts";
   import { authorizedEmailDomains } from "@pitchou/common/constants.ts";

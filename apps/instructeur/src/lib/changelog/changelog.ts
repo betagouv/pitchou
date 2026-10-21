@@ -1,4 +1,4 @@
-import { json } from "d3-fetch";
+import { json } from "#lib/shared/http.ts";
 
 export type PublishedChangelogEntry = {
   /** Editor-chosen « X.Y.Z », also the public URL segment. */
@@ -24,7 +24,7 @@ export async function loadPublishedChangelogEntries(): Promise<PublishedChangelo
     return entries;
   } catch (error) {
     console.error("Erreur lors du chargement des nouveautés :", error);
-    throw new Error(`${error}`);
+    throw new Error(`${error}`, { cause: error });
   }
 }
 

@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/sveltekit";
-import { env } from "$env/dynamic/public";
+import * as env from "$app/env/public";
 Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN_ADMIN,
   // Events with the "development" environment are not reported in the Sentry interface.

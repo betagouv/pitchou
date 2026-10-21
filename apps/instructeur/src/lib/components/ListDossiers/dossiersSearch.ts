@@ -1,7 +1,7 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { departementNameByCode } from "@pitchou/common/departements.ts";
-import { porteurDeProjetSearchTerms } from "$lib/dossier/displayDossier.ts";
+import { acteursSearchTerms, porteurDeProjetSearchTerms } from "#lib/dossier/displayDossier.ts";
 import type { DossiersContext } from "./query.ts";
 
 /** Strips accents and lowercases so the search is accent- and case-insensitive. */
@@ -74,7 +74,7 @@ export function especesSearchableText(
 /**
  * Every searchable field of a dossier concatenated and normalised. Covers the nom,
  * commentaire libre, activité principale, départements (code + name), communes (name +
- * postal code), régions, décision numéros, porteur de projet / déposant, the DS number, the
+ * postal code), régions, décision numéros, porteur de projet, déposants and mandataires, the DS number, the
  * ONAGRE identifier, the instructeurs following the dossier and the impacted especes.
  */
 export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
@@ -85,9 +85,8 @@ export function searchableText(dossier: DossierSummary, ctx: DossiersContext): s
     dossier.activite_label,
     dossier.demarche_numerique_number,
     dossier.onagre_demande_identifier,
-    dossier.deposant_last_name,
-    dossier.deposant_first_names,
     ...porteurDeProjetSearchTerms(dossier.porteur_de_projet),
+    ...acteursSearchTerms(dossier.acteurs),
   ];
 
   for (const code of dossier.departments ?? []) {

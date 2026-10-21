@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
+  import type { EspecesByTypeImpact } from "#lib/especes/especesByTypeImpact.ts";
 
   type Props = {
     especesParTypeImpact: EspecesByTypeImpact[];

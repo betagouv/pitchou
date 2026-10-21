@@ -11,7 +11,7 @@ jobs:
     name: Unit tests (vitest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
 
       - name: Run unit tests
@@ -43,7 +43,7 @@ jobs:
         ports:
           - 9100:9000
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
 
       - name: Install Playwright Browsers
@@ -60,7 +60,7 @@ jobs:
         run: pnpm exec just test-e2e
         timeout-minutes: 10
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: test-results

@@ -10,8 +10,7 @@ export async function up(knex: Knex) {
     `);
 }
 
-// @ts-ignore migration historique : paramètre knex inutilisé
-export async function down(knex: Knex) {
+export async function down(_knex: Knex) {
   // Cette migration ne peut pas être annulée de manière sûre
   // car nous ne savons pas quelles étaient les valeurs originales de date_dépôt
   console.log("Attention: Cette migration ne peut pas être annulée de manière sûre.");

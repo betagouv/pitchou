@@ -17,10 +17,22 @@ export default defineConfig({
   projects: [
     {
       name: "firefox",
+      testIgnore: "**/dossier-cartographie.spec.ts",
       use: {
         ...devices["Desktop Firefox"],
         locale: "fr",
         timezoneId: "Europe/Paris",
+      },
+    },
+    {
+      name: "chromium-map",
+      testMatch: "**/dossier-cartographie.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        locale: "fr",
+        timezoneId: "Europe/Paris",
+        // Software WebGL keeps this test independent of the CI host's GPU and drivers.
+        launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] },
       },
     },
   ],

@@ -11,7 +11,7 @@ test("SIRET and SIREN are split in groups of digits, other values are kept", () 
 });
 
 test("the share capital is shown in euros", () => {
-  expect(formatShareCapital("8000")?.replace(/\s/g, " ")).toBe("8 000 €");
+  expect(formatShareCapital("8000")?.replaceAll(/\s/gu, " ")).toBe("8 000 €");
   expect(formatShareCapital("inconnu")).toBe("inconnu");
   expect(formatShareCapital(null)).toBeNull();
 });
@@ -52,5 +52,8 @@ test("a personne physique porteur lists its identity and contact details", () =>
     ["Identité", ["Nom", "Prénom", "Qualité"]],
     ["Coordonnées", ["Adresse électronique", "Téléphone", "Adresse"]],
   ]);
-  expect(groups[1].rows[0]).toMatchObject({ kind: "email", changeKey: "demandeur.email" });
+  expect(groups[1].rows[0]).toMatchObject({
+    kind: "email",
+    changeKey: "beneficiaire_demarche_numerique.email",
+  });
 });

@@ -7,7 +7,7 @@
   import {
     loadEspecesProtegeesList,
     loadActivitesMethodesMoyensDePoursuite,
-  } from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+  } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
 
   const initP = Promise.all([loadEspecesProtegeesList(), loadActivitesMethodesMoyensDePoursuite()]);
 </script>

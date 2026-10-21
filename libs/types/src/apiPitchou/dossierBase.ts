@@ -3,24 +3,12 @@ import type { DossierSource } from "../dossierSource.ts";
 import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarche88444.ts";
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
 import type { PorteurDeProjet } from "../porteurDeProjet.ts";
+import type { DossierActeur } from "../dossierActeur.ts";
 
-type DossierPersonnesImpliqueesSummary = {
+export type DossierPersonnesImpliquees = {
   porteur_de_projet: PorteurDeProjet | null;
-  deposant_last_name: string;
-  deposant_first_names: string;
-};
-
-export type DossierPersonnesImpliqueesFull = DossierPersonnesImpliqueesSummary & {
-  representative_last_name: string | null;
-  representative_first_names: string | null;
-  representative_email: string | null;
-  representative_phone: string | null;
-  representative_role: string | null;
-  mandataire_last_name: string | null;
-  mandataire_first_names: string | null;
-  mandataire_email: string | null;
-  mandataire_phone: string | null;
-  mandataire_role: string | null;
+  /** Every acteur in DossierFull; only the déposants and mandataires in DossierSummary. */
+  acteurs: DossierActeur[];
 };
 
 export type DossierPhase =
@@ -84,7 +72,7 @@ export type DossierSummary = Pick<
   | "next_due_date"
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
-  DossierPersonnesImpliqueesSummary & {
+  DossierPersonnesImpliquees & {
     access: DossierAccess;
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile?: boolean; hasAvisFile: boolean }[];

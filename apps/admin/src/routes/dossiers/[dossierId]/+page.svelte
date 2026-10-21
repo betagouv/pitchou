@@ -5,17 +5,17 @@
 
   import { onMount } from "svelte";
 
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import {
     loadActiviteReferentiel,
     type ActiviteReferentielAdmin,
-  } from "$lib/actions/adminActivites.ts";
+  } from "#lib/actions/adminActivites.ts";
   import {
     loadDossierDetail,
     AccessDeniedError,
     type AdminDossierDetail,
-  } from "$lib/actions/adminDossiers.ts";
-  import { activiteFormContext } from "$lib/activiteReferentiel.ts";
+  } from "#lib/actions/adminDossiers.ts";
+  import { activiteFormContext } from "#lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";

@@ -8,7 +8,7 @@ vi.mock(import("@odfjs/odfjs"), () => ({
   getOdtTextContent: vi.fn(async () => "Document complété"),
 }));
 
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn(async () => ({
     activités: { oiseau: new Map(), "faune non-oiseau": new Map(), flore: new Map() },
     méthodes: { oiseau: new Map(), "faune non-oiseau": new Map(), flore: new Map() },
@@ -18,17 +18,15 @@ vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
 }));
 
 import { fillOdtTemplate } from "@odfjs/odfjs";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossierGenerationDocuments from "./DossierGenerationDocuments.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 
 // Generated documents are recorded in the dossier historique, which is also where
 // their usage metric comes from.
-const enregistrerDocumentsGeneres = vi.fn(
-  async (_dossierId: number, _documents: string[]) => undefined,
-);
+const enregistrerDocumentsGeneres = vi.fn(async (_dossierId: number, _documents: string[]) => {});
 
 beforeEach(() => {
   vi.mocked(fillOdtTemplate).mockClear();
@@ -82,8 +80,8 @@ test("génère un document téléchargeable pour chaque modèle sélectionné", 
     container.querySelectorAll<HTMLAnchorElement>("a[download]"),
     (link) => link.download,
   );
-  expect(downloadNames[0]).toMatch(/^mail-saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/);
-  expect(downloadNames[1]).toMatch(/^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/);
+  expect(downloadNames[0]).toMatch(/^mail-saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/u);
+  expect(downloadNames[1]).toMatch(/^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/u);
   await waitFor(() => {
     expect(enregistrerDocumentsGeneres).toHaveBeenCalledTimes(1);
   });
@@ -126,6 +124,6 @@ test("affiche les modèles sélectionnés et permet d'en retirer un", async () =
     expect(container.querySelectorAll("a[download]")).toHaveLength(1);
   });
   expect(container.querySelector<HTMLAnchorElement>("a[download]")?.download).toMatch(
-    /^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/,
+    /^saisine-cnpn-\d{4}-\d{2}-\d{2}-\d{2}h\d{2}\.odt$/u,
   );
 });

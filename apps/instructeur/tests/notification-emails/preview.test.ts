@@ -28,7 +28,7 @@ test("sends a future grouped novelty locally once, then allows a later new modif
   );
   const payload = JSON.parse(capture.mock.calls[0][1].body);
   expect(payload.To).toEqual([{ Email: "recipient@test.fr" }]);
-  expect(payload.Subject).toMatch(/^Nouveauté:/);
+  expect(payload.Subject).toMatch(/^Nouveauté:/u);
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
   expect(capture).toHaveBeenCalledOnce();
   await action("avis_modifie");

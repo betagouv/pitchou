@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   getNotificationsForPersonneFromCap,
   updateNotificationDossierFromCap,
@@ -19,7 +19,7 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   if (value.arrival !== undefined && value.arrival !== true) {
     error(400, "La propriété 'arrival' doit valoir true.");
   }
-  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
   if (
     value.followRevision !== undefined &&
     (typeof value.followRevision !== "string" || !uuid.test(value.followRevision))
@@ -37,7 +37,7 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   if (
     !value.arrival &&
     !value.followRevision &&
-    !(Array.isArray(value.revisions) && value.revisions.length)
+    !(Array.isArray(value.revisions) && value.revisions.length > 0)
   ) {
     error(400, "Aucune notification à valider.");
   }

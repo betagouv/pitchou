@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { loadEvenementTypes, AccessDeniedError } from "$lib/actions/adminEvenements.ts";
+  import { loadEvenementTypes, AccessDeniedError } from "#lib/actions/adminEvenements.ts";
 
   import ListEvenements from "./ListEvenements.svelte";
 
@@ -18,12 +18,10 @@
       types = await loadEvenementTypes();
       etat = "autorise";
     } catch (e) {
-      if (e instanceof AccessDeniedError) {
-        etat = "refuse";
-      } else {
+      if (!(e instanceof AccessDeniedError)) {
         loadError = e instanceof Error ? e.message : String(e);
-        etat = "refuse";
       }
+      etat = "refuse";
     }
   }
 

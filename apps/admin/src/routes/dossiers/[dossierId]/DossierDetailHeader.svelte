@@ -1,6 +1,6 @@
 <script lang="ts">
   import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
-  import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
   let { detail, formId, saving }: { detail: AdminDossierDetail; formId: string; saving: boolean } =
     $props();
 </script>

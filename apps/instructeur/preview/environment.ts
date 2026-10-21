@@ -20,7 +20,7 @@ export function previewEnvironment(root: string, env: NodeJS.ProcessEnv = proces
   const context = JSON.parse(readFileSync(env.FLEET_PITCHOU_CONTEXT, "utf8"));
   const site = new URL(env.PUBLIC_SITE_URL_PITCHOU ?? "");
   const database = new URL(env.DATABASE_URL ?? "");
-  const identifier = /^pitchou-([a-f0-9]{32})$/.exec(context.bucket)?.[1];
+  const identifier = /^pitchou-([a-f0-9]{32})$/u.exec(context.bucket)?.[1];
   if (
     !identifier ||
     realpathSync(context.checkout) !== realpathSync(resolve(root, "../..")) ||

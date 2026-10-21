@@ -11,17 +11,17 @@ function escapeHtml(value: unknown): string {
 }
 
 const ATTACHMENT_LIST_PATTERN =
-  /(<(p|h[23])\b[^>]*>(?:(?!<\/\2>)[\s\S])*<\/\2>\s*)(<ul\b[^>]*>)[\s\S]*?<\/ul>/g;
+  /(<(p|h[23])\b[^>]*>(?:(?!<\/\2>)[\s\S])*<\/\2>\s*)(<ul\b[^>]*>)[\s\S]*?<\/ul>/gu;
 
 export function updateCnpnAttachmentList(html: string, names: string[]): string {
   const items =
     names.length > 0
       ? names.map((name) => `<li>${escapeHtml(name)}</li>`).join("")
       : "<li>Aucune pièce jointe sélectionnée</li>";
-  return html.replace(
+  return html.replaceAll(
     ATTACHMENT_LIST_PATTERN,
     (match, heading: string, _tag: string, list: string) =>
-      /^Liste des éléments transmis en PJ\s*:\s*$/.test(heading.replace(/<[^>]*>/g, "").trim())
+      /^Liste des éléments transmis en PJ\s*:\s*$/u.test(heading.replaceAll(/<[^>]*>/gu, "").trim())
         ? `${heading}${list}${items}</ul>`
         : match,
   );

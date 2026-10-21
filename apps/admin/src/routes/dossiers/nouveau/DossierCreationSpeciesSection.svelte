@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
 
-  import { speciesFileError } from "$lib/speciesFile.ts";
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+  import { speciesFileError } from "#lib/speciesFile.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadLimit.svelte.ts";
 
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 

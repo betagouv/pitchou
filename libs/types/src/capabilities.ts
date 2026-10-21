@@ -3,7 +3,7 @@ import type {
   DossierFull,
   DossierSummary,
   DecisionAdministrativeForTransfer,
-  FrontEndPrescription,
+  PrescriptionWithNewControles,
   OtherAttachmentForTransfer,
   UploadUrl,
   UploadUrlRequest,
@@ -120,12 +120,10 @@ export interface PitchouInstructeurCapabilities {
   deleteDecisionAdministrative: (id: DecisionAdministrative["id"]) => Promise<unknown>;
   addOrUpdatePrescription: (
     prescription: Partial<Prescription>,
-  ) => Promise<Prescription["id"] | undefined>;
-  addPrescriptionsAndControles: (
-    prescriptions: Omit<FrontEndPrescription, "id">[],
-  ) => Promise<unknown>;
+  ) => Promise<{ prescriptionId: Prescription["id"] } | number>;
+  addPrescriptionsAndControles: (prescriptions: PrescriptionWithNewControles[]) => Promise<unknown>;
   deletePrescription: (id: Prescription["id"]) => Promise<unknown>;
-  addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
+  addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"][] | number>;
   deleteControle: (id: Controle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (avisExpert: AvisExpertForTransfer) => Promise<string>;
   addOtherAttachment: (attachment: OtherAttachmentForTransfer) => Promise<string[]>;

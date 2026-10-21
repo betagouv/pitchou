@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { DossiersQuery } from "./listModel.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import { compareEspeces, matchesText } from "@pitchou/ui/especes/especesList.ts";
   import { classificationIconUrl } from "@pitchou/ui/especes/classificationIcon.ts";
   import NomEspece from "@pitchou/ui/especes/NomEspece.svelte";

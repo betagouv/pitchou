@@ -1,5 +1,5 @@
 {
-  "extends": ["./.svelte-kit/tsconfig.json", "../../tsconfig.base.json"],
+  "extends": ["$app/tsconfig", "../../tsconfig.base.json"],
   "include": [
     ".svelte-kit/ambient.d.ts",
     ".svelte-kit/non-ambient.d.ts",
@@ -11,5 +11,8 @@
     "src/**/*.svelte",
     "tests/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "types": ["node", "$app/types"]
+  }
 }

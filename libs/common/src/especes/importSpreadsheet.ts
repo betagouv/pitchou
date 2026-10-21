@@ -46,7 +46,8 @@ async function parseSpreadsheet(
   const oiseaux = filledLines(content.get("oiseau") as OiseauAtteintOds_V1[] | undefined);
   const faunes = filledLines(
     (content.get("faune non-oiseau") || content.get("faune_non-oiseau")) as
-      FauneNonOiseauAtteinteOds_V1[] | undefined,
+      | FauneNonOiseauAtteinteOds_V1[]
+      | undefined,
   );
   const flores = filledLines(content.get("flore") as FloreAtteinteOds_V1[] | undefined);
 

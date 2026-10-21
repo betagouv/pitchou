@@ -29,12 +29,6 @@ export type NotificationUpdate = {
   revisions?: ActionDossierId[];
 };
 
-export const identityTypeLabels = {
-  demandeur: "Demandeur",
-  mandataire: "Mandataire",
-  representant: "Représentant de l'entreprise",
-} as const;
-
 export const identityPropertyLabels = {
   first_names: "Prénom",
   last_name: "Nom",

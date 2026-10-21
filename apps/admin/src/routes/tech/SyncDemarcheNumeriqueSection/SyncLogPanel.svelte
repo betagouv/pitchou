@@ -11,8 +11,9 @@
 
   // Follow the log tail unless the admin scrolled up to read something.
   $effect(() => {
-    log;
-    if (logElement && autoScroll) logElement.scrollTop = logElement.scrollHeight;
+    if (log && logElement && autoScroll) {
+      logElement.scrollTop = logElement.scrollHeight;
+    }
   });
 
   function onLogScroll() {

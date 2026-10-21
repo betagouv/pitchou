@@ -1,6 +1,6 @@
 import { DOMParser, type Document, type Element } from "@xmldom/xmldom";
 
-import { isValidProjectMap } from "$lib/projectMapValidation.ts";
+import { isValidProjectMap } from "#lib/projectMapValidation.ts";
 
 import type { FeatureCollection, ProjectMapFeature } from "../dossierAdminFormModel.ts";
 import { selectionFeature, type Position } from "./geometry.ts";
@@ -13,7 +13,7 @@ function coordinates(raw: string): Position[] {
   if (!raw.trim()) return [];
   return raw
     .trim()
-    .split(/\s+/)
+    .split(/\s+/u)
     .map((coordinate) => {
       const parts = coordinate.split(",");
       if (parts.length < 2 || !parts[0].trim() || !parts[1].trim()) {
@@ -29,9 +29,7 @@ function coordinates(raw: string): Position[] {
 }
 
 function elements(root: Document | Element, localName: string): Element[] {
-  return Array.from(root.getElementsByTagName("*")).filter(
-    (element) => element.localName === localName,
-  );
+  return Array.from(root.getElementsByTagNameNS("*", localName));
 }
 
 function parseXml(text: string, expectedRoot: string): Document {

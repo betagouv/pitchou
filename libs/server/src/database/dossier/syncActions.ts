@@ -17,7 +17,6 @@ const notPetitionnaireColumns: Set<string> = new Set([
   "demarche_number",
   "source",
   "depot_date",
-  "deposant",
   "demandeur_personne_physique",
   // Company properties are diffed before their shared row is overwritten.
   "demandeur_personne_morale",

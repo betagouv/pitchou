@@ -1,7 +1,7 @@
 <!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot (bouton-valider to bouton_valider) making the component unusable -->
 <script lang="ts">
   import { untrack } from "svelte";
-  import DateInput from "$lib/components/DateInput.svelte";
+  import DateInput from "#lib/components/DateInput.svelte";
 
   import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
   import { resultatsControle, typesActionSuiteControle } from "./controle.ts";
@@ -21,7 +21,7 @@
 
   let editedControle: Props["controle"] = $state(untrack(() => controle));
 
-  async function formSubmit(e: Event) {
+  function formSubmit(e: Event) {
     e.preventDefault();
 
     if (editedControle.post_controle_action_date) {
@@ -35,7 +35,7 @@
       });
     }
 
-    onValidate(editedControle);
+    return onValidate(editedControle);
   }
 </script>
 

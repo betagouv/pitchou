@@ -3,7 +3,7 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersEspecesPanel from "./DossiersEspecesPanel.svelte";
 import { defaultDossiersQuery, type DossiersQuery } from "./listModel.ts";
 
@@ -52,7 +52,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-test("liste toutes les espèces du référentiel avec leur compteur", async () => {
+test("liste toutes les espèces du référentiel avec leur compteur", () => {
   const { container } = renderPanel();
 
   expect(container.textContent).toContain("3 espèces");
@@ -73,7 +73,7 @@ test("filtre la liste sur le nom scientifique ou vernaculaire", async () => {
 test("cocher une espèce l'ajoute au brouillon de filtre", async () => {
   const { draft, container } = renderPanel();
 
-  await page.getByRole("checkbox", { name: /Aigle royal/ }).click();
+  await page.getByRole("checkbox", { name: /Aigle royal/u }).click();
 
   await expect.poll(() => draft.espece).toEqual(["2938"]);
   // The selected espece is pinned above the results so it survives a new search
@@ -99,14 +99,14 @@ test("affiche un message quand aucune espèce ne correspond", async () => {
     .toContain("Aucune espèce protégée ne correspond à cette recherche.");
 });
 
-test("attend le référentiel avant de proposer des espèces", async () => {
+test("attend le référentiel avant de proposer des espèces", () => {
   store.espèceByCD_REF = undefined;
   const { container } = renderPanel();
 
   expect(container.textContent).toContain("Chargement des espèces protégées…");
 });
 
-test("affiche le nom scientifique seul quand l'espèce n'a pas de nom vernaculaire", async () => {
+test("affiche le nom scientifique seul quand l'espèce n'a pas de nom vernaculaire", () => {
   store.espèceByCD_REF = new Map([[sansNomVernaculaire.CD_REF, sansNomVernaculaire]]);
   const { container } = renderPanel();
 
@@ -122,16 +122,16 @@ test("les filtres du panneau restreignent la liste par type, statut et instance"
   ]);
   const { container } = renderPanel();
 
-  await page.getByRole("button", { name: /Filtres/ }).click();
+  await page.getByRole("button", { name: /Filtres/u }).click();
 
   // Type d'espèce : des bascules, pas des cases à cocher
-  await page.getByRole("button", { name: /Flore/ }).click();
+  await page.getByRole("button", { name: /Flore/u }).click();
   await expect.poll(() => container.textContent).toContain("1 espèce");
   expect(container.textContent).toContain("Cyclamen de Naples");
   expect(container.textContent).not.toContain("Aigle royal");
 
   // Désélectionner rend la bascule inactive et rouvre la liste
-  await page.getByRole("button", { name: /Flore/ }).click();
+  await page.getByRole("button", { name: /Flore/u }).click();
   await expect.poll(() => container.textContent).toContain("2 espèces");
 
   await page
@@ -144,9 +144,9 @@ test("les filtres du panneau restreignent la liste par type, statut et instance"
 test("le bouton Filtres affiche le nombre de valeurs sélectionnées", async () => {
   renderPanel();
 
-  await page.getByRole("button", { name: /Filtres/ }).click();
+  await page.getByRole("button", { name: /Filtres/u }).click();
   await page.getByRole("checkbox", { name: "PN (protection nationale)" }).click();
-  await page.getByRole("button", { name: /Oiseau/ }).click();
+  await page.getByRole("button", { name: /Oiseau/u }).click();
 
   await expect.element(page.getByLabelText("2 filtre(s) actif(s)")).toBeVisible();
 });

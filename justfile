@@ -54,12 +54,16 @@ aws-usage:
 build:
     {{ all }} vite build
 
-# Run the fast static checks (format, types, svelte-check). check-lint is disabled for now.
-check: sync check-format check-types check-svelte
+# Run the fast static checks (format, lint, types, svelte-check).
+check: sync check-format check-lint check-types check-svelte
 
 # Check formatting without modifying files
 check-format:
-    prettier --check .
+    corepack pnpm exec oxfmt --check .
+
+# Lint JavaScript, TypeScript, and Svelte script blocks
+check-lint:
+    corepack pnpm exec oxlint --max-warnings 0 .
 
 # Check Svelte components (CI svelte-check job), per app
 check-svelte: sync
@@ -144,9 +148,9 @@ docker-test-up:
 docker-up:
     docker compose {{ compose-dev }} up
 
-# Reformat the code with prettier
+# Reformat the code with Oxfmt
 format:
-    prettier --write . --log-level warn
+    corepack pnpm exec oxfmt --write .
 
 # Generate SvelteKit types for every app
 sync:
@@ -198,11 +202,13 @@ test-component:
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=component
 
 # Run end-to-end tests with playwright (optional flags passed to playwright, e.g. just test-e2e --grep "mon test" --headed)
-test-e2e *flags: build
+test-e2e *flags:
+    ORIGIN=http://127.0.0.1:32648 {{ instructeur }} vite build
     {{ instructeur }} playwright test --config tests/playwright.config.ts {{ flags }}
 
 # Run integration tests (endpoints + real DB)
-test-integration: build
+test-integration:
+    ORIGIN=http://127.0.0.1:32649 {{ instructeur }} vite build
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=integration
 
 # Run unit tests with vitest (every app)

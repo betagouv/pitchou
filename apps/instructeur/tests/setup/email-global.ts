@@ -1,5 +1,4 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { makeAdminKnex, makeKnex, databaseUrl } from "./db.ts";
 
 export const EMAIL_TEST_DB_NAME = "pitchou_test_notifications";
@@ -11,7 +10,7 @@ export default async function setup() {
     await admin.raw("DROP DATABASE IF EXISTS ??", [EMAIL_TEST_DB_NAME]);
     await admin.raw("CREATE DATABASE ??", [EMAIL_TEST_DB_NAME]);
     process.env.DATABASE_URL = databaseUrl(EMAIL_TEST_DB_NAME);
-    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+    const root = path.resolve(import.meta.dirname, "../../../..");
     await db.migrate.latest({ directory: path.join(root, "libs/database/migrations") });
   } finally {
     await db.destroy();

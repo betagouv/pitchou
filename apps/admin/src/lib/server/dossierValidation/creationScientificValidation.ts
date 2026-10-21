@@ -63,6 +63,30 @@ export function validateCreationScientific(
     error(400, `Wind farm numeric properties must be positive.`);
   if (!wind && windFarmValues.some(hasValue))
     error(400, `Wind farm properties do not apply to this application.`);
+  validateOperationDates(columns, activiteCode, requestContext);
+  const operationDetails = research || wind;
+  if (!operationDetails && hasValue(columns.scientifique_suivi_protocol_description))
+    error(400, `Property 'scientifique_suivi_protocol_description' does not apply.`);
+  validateWindMonitoring(columns, raw, wind);
+  validateCaptureDetails(columns, scientificTypes, research, operationDetails);
+  const compensation =
+    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle") ||
+    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && columns.type === "Cigogne");
+  if (
+    compensation &&
+    (typeof columns.dossier_oiseau_simple_compensated_nids_count !== "number" ||
+      columns.dossier_oiseau_simple_compensated_nids_count < 1)
+  )
+    error(400, `Property 'dossier_oiseau_simple_compensated_nids_count' is required.`);
+  if (!compensation && hasValue(columns.dossier_oiseau_simple_compensated_nids_count))
+    error(400, `Property 'dossier_oiseau_simple_compensated_nids_count' does not apply.`);
+}
+
+function validateOperationDates(
+  columns: DossierMutator,
+  activiteCode: string | null,
+  requestContext: string | null,
+) {
   const operationDates = requiresOperationDates(activiteCode, requestContext);
   if (
     operationDates &&
@@ -94,9 +118,13 @@ export function validateCreationScientific(
     error(400, `Property 'intervention_duration' must be positive.`);
   if (!derogationDuration && hasValue(columns.intervention_duration))
     error(400, `Property 'intervention_duration' does not apply to this application.`);
-  const operationDetails = research || wind;
-  if (!operationDetails && hasValue(columns.scientifique_suivi_protocol_description))
-    error(400, `Property 'scientifique_suivi_protocol_description' does not apply.`);
+}
+
+function validateWindMonitoring(
+  columns: DossierMutator,
+  raw: Record<string, unknown>,
+  wind: boolean,
+) {
   const monitoringValues = [
     columns.eolien_monitored_turbines_count,
     columns.eolien_monitoring_visits_count,
@@ -126,6 +154,14 @@ export function validateCreationScientific(
     ].some(hasValue)
   )
     error(400, `Carcass analysis properties do not apply to this application.`);
+}
+
+function validateCaptureDetails(
+  columns: DossierMutator,
+  scientificTypes: string[],
+  research: boolean,
+  operationDetails: boolean,
+) {
   const capture =
     research &&
     scientificTypes.some((value) =>
@@ -160,15 +196,4 @@ export function validateCreationScientific(
     )
   )
     error(400, `Scientific intervenant properties do not apply to this application.`);
-  const compensation =
-    (activiteCode === RESTAURATION_BATIMENTS_ACTIVITE_CODE && columns.type === "Hirondelle") ||
-    (TRANSPORT_ACTIVITE_CODES.includes(activiteCode as never) && columns.type === "Cigogne");
-  if (
-    compensation &&
-    (typeof columns.dossier_oiseau_simple_compensated_nids_count !== "number" ||
-      columns.dossier_oiseau_simple_compensated_nids_count < 1)
-  )
-    error(400, `Property 'dossier_oiseau_simple_compensated_nids_count' is required.`);
-  if (!compensation && hasValue(columns.dossier_oiseau_simple_compensated_nids_count))
-    error(400, `Property 'dossier_oiseau_simple_compensated_nids_count' does not apply.`);
 }

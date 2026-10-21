@@ -70,6 +70,10 @@ export async function getUtilisateursAARRI(
       "evenement_metrique.date as date",
     );
 
+  return summarizePersonnes(rows);
+}
+
+function summarizePersonnes(rows: PersonneEventRow[]): UtilisateurAARRI[] {
   type Accumulator = {
     personneId: number;
     email: string | null;

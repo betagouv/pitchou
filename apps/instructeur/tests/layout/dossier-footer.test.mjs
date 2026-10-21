@@ -27,15 +27,18 @@ before(async () => {
         resolveId(source, importer) {
           if (!importer?.endsWith("/Dossier.svelte")) return;
           if (source.endsWith(".svelte") && !source.endsWith("/DossierTabList.svelte")) {
-            return `${fixture}${/Dossier(Instruction|DetailProjet)\.svelte$/.test(source) ? "Panel" : "Empty"}.svelte`;
+            return `${fixture}${/Dossier(Instruction|DetailProjet)\.svelte$/u.test(source) ? "Panel" : "Empty"}.svelte`;
           }
           if (source.endsWith("/aarri.ts")) return "\0layout:analytics";
           if (source.endsWith("/anomaliesFichierEspeces.ts")) return "\0layout:anomalies";
+          if (source === "#lib/state/store.svelte.ts") return "\0layout:store";
         },
         load(id) {
           if (id === "\0layout:analytics") return "export const sendEvenement = () => {};";
           if (id === "\0layout:anomalies")
             return "export const anomaliesFichierEspeces = () => undefined;";
+          if (id === "\0layout:store")
+            return "export const store = { notificationByDossier: new Map() };";
         },
       },
       svelte({ configFile: false }),
@@ -87,7 +90,7 @@ async function footerPixels(page, width, above = [255, 255, 255]) {
   }
 }
 
-for (const width of [1440, 390]) {
+function registerLayoutTests(width) {
   test(`dossier footer, retained forms and viewport dialog at ${width}px`, async () => {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
@@ -139,12 +142,12 @@ for (const width of [1440, 390]) {
         [1, Math.round(y)],
         [width - 2, Math.round(y)],
       ]);
-      // DSFR's rgba(22, 22, 22, .64) overlay over white and the blue divider.
+      // Pitchou's rgba(0, 0, 0, .64) overlay over white and the blue divider.
       assert.deepEqual(colors, [
-        [106, 106, 106],
-        [106, 106, 106],
-        [14, 14, 66],
-        [14, 14, 66],
+        [92, 92, 92],
+        [92, 92, 92],
+        [0, 0, 52],
+        [0, 0, 52],
       ]);
       assert.equal(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -156,20 +159,24 @@ for (const width of [1440, 390]) {
     }
   });
 
-  for (const mode of ["list", "public"]) {
-    test(`${mode} footer retains its grey margin at ${width}px`, async () => {
-      const page = await browser.newPage({ viewport: { width, height: 900 } });
-      try {
-        await page.goto(`${url}?mode=${mode}`);
-        await page.locator("#footer").waitFor();
-        assert.equal(
-          await page.locator("#footer").evaluate((footer) => getComputedStyle(footer).marginTop),
-          "16px",
-        );
-        await footerPixels(page, width, [246, 246, 246]);
-      } finally {
-        await page.close();
-      }
-    });
-  }
+  for (const mode of ["list", "public"]) registerFooterTest(width, mode);
 }
+
+function registerFooterTest(width, mode) {
+  test(`${mode} footer retains its grey margin at ${width}px`, async () => {
+    const page = await browser.newPage({ viewport: { width, height: 900 } });
+    try {
+      await page.goto(`${url}?mode=${mode}`);
+      await page.locator("#footer").waitFor();
+      assert.equal(
+        await page.locator("#footer").evaluate((footer) => getComputedStyle(footer).marginTop),
+        "16px",
+      );
+      await footerPixels(page, width, [246, 246, 246]);
+    } finally {
+      await page.close();
+    }
+  });
+}
+
+for (const width of [1440, 390]) registerLayoutTests(width);

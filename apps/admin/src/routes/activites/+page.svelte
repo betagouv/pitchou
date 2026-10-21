@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
   import {
     createActivite,
     loadActiviteReferentiel,
@@ -11,9 +11,9 @@
     renameActivite,
     updateActiviteGroupe,
     type ActiviteReferentielAdmin,
-  } from "$lib/actions/adminActivites.ts";
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminActivites.ts";
+  import CollapsibleNotice from "#lib/components/CollapsibleNotice.svelte";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import {
     activiteSelectEntries,
     groupeSections,

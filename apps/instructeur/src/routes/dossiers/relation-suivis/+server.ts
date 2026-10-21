@@ -1,7 +1,7 @@
 import { dispatchAssignmentEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
+import { requireCap } from "#lib/server/auth.ts";
 import { getRelationSuivis, createTransaction } from "@pitchou/server/database.ts";
 import {
   findRelationPersonneFromCap,

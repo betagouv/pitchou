@@ -22,9 +22,9 @@ test("classification is dated and unreached phases are not completed or upcoming
   expect(getByText("Classé sans suite le 01/02/2026")).toBeVisible();
   const items = [...container.querySelectorAll("li")];
   expect(items).toHaveLength(6);
-  expect(items[3]).toHaveTextContent("(terminée)");
+  expect(items[3]).toMatchTextContent("(terminée)");
   for (const item of items.slice(4)) {
-    expect(item).toHaveTextContent("(non atteinte)");
+    expect(item).toMatchTextContent("(non atteinte)");
     expect(item.querySelector(".fr-icon-check-line")).toBeNull();
     expect(item.querySelector(".connector")?.className).toContain("background-contrast-grey");
   }
