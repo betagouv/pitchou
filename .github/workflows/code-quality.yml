@@ -15,7 +15,7 @@ jobs:
     name: Lint (oxlint)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
       - run: pnpm exec just check-lint
 
@@ -26,7 +26,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
 
       - name: Check file length
@@ -51,7 +51,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
 
       - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
@@ -81,6 +81,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - uses: ./.github/actions/setup
       - run: pnpm exec just build
