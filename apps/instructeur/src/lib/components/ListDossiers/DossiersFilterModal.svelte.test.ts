@@ -3,7 +3,7 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersFilterModal from "./DossiersFilterModal.svelte";
 import { defaultDossiersQuery, type DossiersQuery } from "./listModel.ts";
 
@@ -49,7 +49,7 @@ test("le tiroir ouvre le sous-panneau espèces et revient aux filtres", async ()
   await trigger.click();
 
   // The espece view has its own footer: it confirms the selection, it does not run the search
-  await expect.element(page.getByRole("heading", { name: /Espèces impactées/ })).toBeVisible();
+  await expect.element(page.getByRole("heading", { name: /Espèces impactées/u })).toBeVisible();
   await expect.element(page.getByRole("button", { name: "Valider les résultats" })).toBeVisible();
   await expect
     .element(page.getByRole("button", { name: "Voir 12 résultats" }))
@@ -69,7 +69,7 @@ test("l'espèce cochée dans le sous-panneau se résume sur le déclencheur", as
   await page
     .getByRole("button", { name: "Recherchez une ou plusieurs espèces protégées…" })
     .click();
-  await page.getByRole("checkbox", { name: /Aigle royal/ }).click();
+  await page.getByRole("checkbox", { name: /Aigle royal/u }).click();
   await page.getByRole("button", { name: "Revenir à tous les filtres" }).click();
 
   expect(draft.espece).toEqual(["2938"]);
@@ -94,7 +94,7 @@ test("« Valider les résultats » ramène aux filtres sans lancer la recherche"
   await page
     .getByRole("button", { name: "Recherchez une ou plusieurs espèces protégées…" })
     .click();
-  await page.getByRole("checkbox", { name: /Aigle royal/ }).click();
+  await page.getByRole("checkbox", { name: /Aigle royal/u }).click();
   await page.getByRole("button", { name: "Valider les résultats" }).click();
 
   // Same effect as the header chevron: back to the filters, the selection kept, nothing applied

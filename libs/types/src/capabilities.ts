@@ -3,7 +3,7 @@ import type {
   DossierFull,
   DossierSummary,
   DecisionAdministrativeForTransfer,
-  FrontEndPrescription,
+  PrescriptionWithNewControles,
   OtherAttachmentForTransfer,
   UploadUrl,
   UploadUrlRequest,
@@ -18,6 +18,7 @@ import type AvisExpert from "./database/public/AvisExpert.ts";
 import type { FileId } from "./database/public/File.ts";
 import type { EvenementMetrique } from "./evenement.ts";
 import type { DossierCnpnEmailSentEvent, SendCnpnEmailRequest } from "./API_Pitchou.ts";
+import type { DossiersExportFormat, DossiersExportScope } from "./dossierExport.ts";
 
 export type DossierFollowerCandidate = {
   email: NonNullable<Personne["email"]>;
@@ -57,6 +58,11 @@ export type DossierCommentaire = {
 
 export interface PitchouInstructeurCapabilities {
   listerDossiers: () => Promise<DossierSummary[]>;
+  exporterDossiers: (
+    scope: DossiersExportScope,
+    format: DossiersExportFormat,
+    dossierIds: Dossier["id"][],
+  ) => Promise<Blob>;
   /**
    * `readOnly` requests the restricted projection available to other services,
    * even when the caller has full access to the dossier.
@@ -104,12 +110,10 @@ export interface PitchouInstructeurCapabilities {
   deleteDecisionAdministrative: (id: DecisionAdministrative["id"]) => Promise<unknown>;
   addOrUpdatePrescription: (
     prescription: Partial<Prescription>,
-  ) => Promise<Prescription["id"] | undefined>;
-  addPrescriptionsAndControles: (
-    prescriptions: Omit<FrontEndPrescription, "id">[],
-  ) => Promise<unknown>;
+  ) => Promise<{ prescriptionId: Prescription["id"] } | number>;
+  addPrescriptionsAndControles: (prescriptions: PrescriptionWithNewControles[]) => Promise<unknown>;
   deletePrescription: (id: Prescription["id"]) => Promise<unknown>;
-  addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"] | undefined>;
+  addOrUpdateControle: (controle: Partial<Controle>) => Promise<Controle["id"][] | number>;
   deleteControle: (id: Controle["id"]) => Promise<unknown>;
   addOrUpdateAvisExpert: (avisExpert: AvisExpertForTransfer) => Promise<string>;
   addOtherAttachment: (attachment: OtherAttachmentForTransfer) => Promise<string[]>;

@@ -2,7 +2,7 @@
   import type { Snippet } from "svelte";
 
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
 
   import DossierCreationAdminSection from "./DossierCreationAdminSection.svelte";
   import DossierCreationDemandeurSection from "./DossierCreationDemandeurSection.svelte";
@@ -29,6 +29,7 @@
     originalLegalSiret,
     companyDetailsChoice = "",
     onCompanyDetailsChoice = () => {},
+    showPorteurErrors = false,
     existingSpeciesFiles,
     existingAttachments,
   }: {
@@ -43,6 +44,7 @@
     originalLegalSiret?: string | null;
     companyDetailsChoice?: CompanyDetailsChoice;
     onCompanyDetailsChoice?: (choice: CompanyDetailsChoice) => void;
+    showPorteurErrors?: boolean;
     existingSpeciesFiles?: Snippet;
     existingAttachments?: Snippet;
   } = $props();
@@ -55,6 +57,7 @@
   {originalLegalSiret}
   {companyDetailsChoice}
   {onCompanyDetailsChoice}
+  {showPorteurErrors}
 />
 <DossierCreationLocationSection {model} />
 <DossierCreationMapSection {model} />

@@ -14,7 +14,7 @@ export async function downloadNewFichiersFromChampId(
   const candidateFichiers: Map<DossierDS88444["number"], DSFile[]> =
     findCandidateFichiersToDownload(dossiers, champDescriptorId);
 
-  if (candidateFichiers.size >= 1) {
+  if (candidateFichiers.size > 0) {
     return downloadNewFichiers(candidateFichiers, synchronizationTransactionDS);
   }
 }
@@ -27,7 +27,7 @@ export async function downloadNewFichiersEspecesImpactees(
   const candidateFichiersEspecesImpactees: Map<DossierDS88444["number"], DSFile[]> =
     findCandidateFichiersToDownload(dossiers, champDescriptorId);
 
-  if (candidateFichiersEspecesImpactees.size >= 1) {
+  if (candidateFichiersEspecesImpactees.size > 0) {
     // keep only the first file and ignore the others
 
     let candidateFichiersEspecesImpacteesOnePerChamp: Map<DossierDS88444["number"], DSFile[]> =
@@ -57,7 +57,7 @@ export async function downloadNewFichiersMotivation(
 
   //console.log('candidateFichiersMotivation', candidateFichiersMotivation.size)
 
-  if (candidateFichiersMotivation.size >= 1) {
+  if (candidateFichiersMotivation.size > 0) {
     // keep only the first file and ignore the others
     let candidateFichiersMotivationForDownload: Map<DossierDS88444["number"], DSFile[]> = new Map(
       [...candidateFichiersMotivation].map(([number, fichierDescription]) => [

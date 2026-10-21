@@ -1,5 +1,5 @@
-import { store } from "$lib/state/store.svelte.ts";
-import { recordLocalWrite, refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { recordLocalWrite, refreshDossierFull } from "#lib/dossier/dossier.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { PieceJointeSimple } from "./piecesJointes.ts";
 

@@ -60,7 +60,7 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
       ? await trx("groupe_instructeurs").where({ id: input.id }).update(values).returning("*")
       : await trx("groupe_instructeurs").insert(values).returning("*");
     // Add before removing so followers retain eligibility through unchanged coverage.
-    if (input.departments.length)
+    if (input.departments.length > 0)
       await trx("groupe_departement")
         .insert(
           [...new Set(input.departments)].map((department) => ({
@@ -74,7 +74,7 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
       .where({ groupe_instructeurs: group.id })
       .whereNotIn("department", input.departments)
       .delete();
-    if (input.members.length)
+    if (input.members.length > 0)
       await trx("user_groupe")
         .insert(
           [...new Set(input.members)].map((user_id) => ({

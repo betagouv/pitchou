@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getFileAccess } from "../../fileAccess.ts";
   const fileAccess = getFileAccess();
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadLimit.svelte.ts";
 
   type Props = {
     id: string;

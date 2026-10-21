@@ -10,7 +10,7 @@
 
   let { stats }: Props = $props();
 
-  const estimatedAnnualPetitionnaireCountInFrance = 1500;
+  const estimatedAnnualPorteurDeProjetCountInFrance = 1500;
 
   const withDecisionPercentage = $derived(
     stats.controlePhaseDossierCount
@@ -48,10 +48,10 @@
                   class="flex flex-col items-center text-center fr-p-2w rounded-[6px] bg-[var(--background-action-high-blue-france)] text-white"
                 >
                   <span class="text-[2rem] fr-text--bold block text-white"
-                    >{stats.petitionnaireCountSinceSeptember2024}</span
+                    >{stats.porteurDeProjetCountSinceSeptember2024}</span
                   >
                   <span class="text-[0.875rem] fr-mt-1v text-white"
-                    >Pétitionnaires dans Pitchou<br /><span class="fr-text--xs"
+                    >Porteurs de projet dans Pitchou<br /><span class="fr-text--xs"
                       >(depuis 09/2024)</span
                     ></span
                   >
@@ -63,10 +63,10 @@
                 >
                   <span
                     class="text-[2rem] fr-text--bold block text-[color:var(--text-default-info)]"
-                    >{estimatedAnnualPetitionnaireCountInFrance}</span
+                    >{estimatedAnnualPorteurDeProjetCountInFrance}</span
                   >
                   <span class="text-[0.875rem] fr-mt-1v text-[color:var(--text-mention-grey)]"
-                    >Pétitionnaires en France<br /><span class="fr-text--xs">(référence)</span
+                    >Porteurs de projet en France<br /><span class="fr-text--xs">(référence)</span
                     ></span
                   >
                 </div>

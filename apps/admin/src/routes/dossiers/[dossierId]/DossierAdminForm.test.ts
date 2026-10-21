@@ -1,7 +1,7 @@
 import { render } from "svelte/server";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
 import DossierAdminForm from "./DossierAdminForm.svelte";
 import {
@@ -28,7 +28,8 @@ function detail(
     source: "pitchou",
     managedByDn: false,
     phase: "construction",
-    demandeur_personne_physique: {
+    porteur_de_projet: {
+      type: "personne_physique",
       last_name: "Martin",
       first_names: "Camille",
       email: null,
@@ -36,9 +37,8 @@ function detail(
       phone: null,
       role: null,
     },
-    demandeur_personne_morale: null,
     groupes: [{ id: "groupe-1", name: "Groupe test" }],
-    identites: [],
+    acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,
@@ -55,8 +55,8 @@ function formBody(
       detail: detail(ecologicalInventoryCompleted, especesPresentInInfluenceArea, locationScope),
       activites: ACTIVITES_FIXTURE,
       activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
-      onSaved: () => undefined,
-      onFilesChanged: async () => undefined,
+      onSaved: () => {},
+      onFilesChanged: async () => {},
     },
   }).body;
 }

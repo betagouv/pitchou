@@ -11,17 +11,17 @@ function escapeHtml(value: unknown): string {
 }
 
 const ATTACHMENT_LIST_PATTERN =
-  /(<(p|h[23])\b[^>]*>(?:(?!<\/\2>)[\s\S])*<\/\2>\s*)(<ul\b[^>]*>)[\s\S]*?<\/ul>/g;
+  /(<(p|h[23])\b[^>]*>(?:(?!<\/\2>)[\s\S])*<\/\2>\s*)(<ul\b[^>]*>)[\s\S]*?<\/ul>/gu;
 
 export function updateCnpnAttachmentList(html: string, names: string[]): string {
   const items =
     names.length > 0
       ? names.map((name) => `<li>${escapeHtml(name)}</li>`).join("")
       : "<li>Aucune pièce jointe sélectionnée</li>";
-  return html.replace(
+  return html.replaceAll(
     ATTACHMENT_LIST_PATTERN,
     (match, heading: string, _tag: string, list: string) =>
-      /^Liste des éléments transmis en PJ\s*:\s*$/.test(heading.replace(/<[^>]*>/g, "").trim())
+      /^Liste des éléments transmis en PJ\s*:\s*$/u.test(heading.replaceAll(/<[^>]*>/gu, "").trim())
         ? `${heading}${list}${items}</ul>`
         : match,
   );
@@ -70,7 +70,7 @@ export async function createCnpnEmailDraft(
     <p>Je vous prie de bien vouloir trouver, ci-joint, la saisine du CNPN concernant une demande de dérogation espèces protégées.</p>
     <ul>
       <li><strong>Nom du projet :</strong> ${escapeHtml(tags.nom)}</li>
-      <li><strong>Porteur de projet :</strong> ${escapeHtml(tags.demandeur.nom)}</li>
+      <li><strong>Porteur de projet :</strong> ${escapeHtml(tags.porteur_de_projet.nom)}</li>
       <li><strong>Identifiant du dossier sur Pitchou :</strong> ${escapeHtml(tags.numéro_dossier)}</li>
       <li><strong>Autorisation environnementale :</strong> ${escapeHtml(typeof aeRegime === "boolean" ? (aeRegime ? "Oui" : "Non") : aeRegime)}</li>
       <li><strong>Activité principale du dossier :</strong> ${escapeHtml(tags.activité_principale)}</li>

@@ -29,12 +29,6 @@ export type NotificationUpdate = {
   revisions?: ActionDossierId[];
 };
 
-export const identityTypeLabels = {
-  demandeur: "Demandeur",
-  mandataire: "Mandataire",
-  representant: "Représentant de l'entreprise",
-} as const;
-
 export const identityPropertyLabels = {
   first_names: "Prénom",
   last_name: "Nom",
@@ -86,7 +80,7 @@ export const applicantFieldLabels: Partial<Record<keyof Dossier, string>> = {
   risk_despite_erc_mesures: "Risque malgré les mesures d'évitement et de réduction",
   mesures_erc_planned: "Mesures ERC prévues",
   urgent_contact_phone: "Téléphone en cas de demande urgente",
-  request_context: "Situation du demandeur",
+  request_context: "Situation du porteur de projet",
   accompaniment_need: "Besoin d'accompagnement",
   linked_to_ae_regime: "Rattachement au régime AE",
   ae_procedures: "Procédures de l'autorisation environnementale",

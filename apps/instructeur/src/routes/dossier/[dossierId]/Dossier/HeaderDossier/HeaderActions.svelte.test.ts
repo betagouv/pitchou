@@ -5,16 +5,16 @@ import { afterEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render, screen } from "@testing-library/svelte";
 import HeaderActions from "./HeaderActions.svelte";
-import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
+import DossierActionsMenu from "#lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
-import { instructeurFollowsDossier, instructeurLeavesDossier } from "$lib/dossier/suiviDossier.ts";
+import { instructeurFollowsDossier, instructeurLeavesDossier } from "#lib/dossier/suiviDossier.ts";
 
-vi.mock("$lib/dossier/suiviDossier.ts", () => ({
+vi.mock("#lib/dossier/suiviDossier.ts", () => ({
   instructeurFollowsDossier: vi.fn(),
   instructeurLeavesDossier: vi.fn(),
   queueDossierFollowUpdate: vi.fn(),
 }));
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 function props(follows = false) {
   return {
@@ -31,7 +31,7 @@ function props(follows = false) {
 afterEach(async () => {
   cleanup();
   vi.clearAllMocks();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
   await page.viewport(1280, 720);
 });
 
@@ -86,7 +86,7 @@ test.each(["light", "dark"])(
     document.documentElement.dataset.frTheme = theme;
     const { rerender } = render(HeaderActions, props());
     render(DossierActionsMenu, { dossierId: props().dossier.id, dossierName: "Liste" });
-    const list = screen.getByRole("button", { name: /Plus d’actions pour Liste/ });
+    const list = screen.getByRole("button", { name: /Plus d’actions pour Liste/u });
     const probe = document.createElement("span");
     document.body.append(probe);
     try {
@@ -95,7 +95,7 @@ test.each(["light", "dark"])(
         const follow = screen.getByRole("button", {
           name: follows ? "Vous suivez ce dossier" : "Suivre ce dossier",
         });
-        const menu = screen.getByRole("button", { name: /Plus d’actions pour Dossier test/ });
+        const menu = screen.getByRole("button", { name: /Plus d’actions pour Dossier test/u });
         for (const button of [follow, menu, list]) {
           await userEvent.hover(screen.getByRole("button", { name: props().followersLabel }));
           const idle = getComputedStyle(button).backgroundColor;
@@ -161,7 +161,7 @@ test("header callbacks, labels and extra icons stay intact", async () => {
     ["Ajouter une pièce jointe", "fr-icon-attachment-line", callbacks.onAddPieceJointe],
     ["Voir le dossier en lecture seule", "fr-icon-eye-line", callbacks.onEnterReadOnly],
   ] as const) {
-    await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/ }));
+    await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
     expect(screen.getAllByRole("menuitem").map((item) => item.textContent?.trim())).toEqual([
       "Faire suivre le dossier",
       "Ajouter une pièce jointe",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ChangelogEntryAdmin } from "$lib/actions/adminChangelog.ts";
+  import type { ChangelogEntryAdmin } from "#lib/actions/adminChangelog.ts";
   import { formatDate, formatTimestamp, versionOf } from "./format.ts";
 
   let { entry }: { entry: ChangelogEntryAdmin } = $props();

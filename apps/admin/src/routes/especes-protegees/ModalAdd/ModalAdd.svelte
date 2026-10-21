@@ -4,9 +4,9 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { loadEspecesProtegeesAdmin } from "$lib/actions/adminEspeces.ts";
+  import { loadEspecesProtegeesAdmin } from "#lib/actions/adminEspeces.ts";
 
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "#lib/components/Modal.svelte";
   import SelectorEspece from "./SelectorEspece.svelte";
   import SelectorTaxref from "./SelectorTaxref.svelte";
 

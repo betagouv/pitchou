@@ -7,7 +7,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 import DossierActionsMenu from "./DossierActionsMenu.svelte";
 import { fakeDossierFull } from "../../../routes/fakeDossier.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 afterEach(cleanup);
 
@@ -24,7 +24,7 @@ test("all menu icons download SVG masks and paint blue glyphs, not solid rectang
   container.style.padding = "32px";
   container.style.display = "flex";
   container.style.justifyContent = "flex-end";
-  await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/ }));
+  await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
   await document.fonts.ready;
   for (const [index, name] of [
     "share-forward-fill",
@@ -37,10 +37,10 @@ test("all menu icons download SVG masks and paint blue glyphs, not solid rectang
     expect(glyph).toHaveAttribute("aria-hidden", "true");
     expect(item.querySelector("svg")).toBeNull();
     const style = getComputedStyle(glyph, "::before");
-    expect(style.maskImage).toMatch(/^url\("/);
+    expect(style.maskImage).toMatch(/^url\("/u);
     expect(style.color).toBe("rgb(0, 0, 145)");
     expect([style.width, style.height]).toEqual(["24px", "24px"]);
-    const url = style.maskImage.match(/^url\("(.+)"\)$/)![1];
+    const url = style.maskImage.match(/^url\("(.+)"\)$/u)![1];
     const response = await fetch(url);
     expect(response.ok).toBe(true);
     expect(response.headers.get("content-type")).toContain("image/svg+xml");
@@ -68,7 +68,7 @@ test("keyboard opens on the first item, navigates all entries and restores focus
     ...props,
     extraItems: [{ label: "Sans icône", onClick }],
   });
-  const trigger = screen.getByRole("button", { name: /Plus d’actions/ });
+  const trigger = screen.getByRole("button", { name: /Plus d’actions/u });
   trigger.focus();
   await userEvent.keyboard("{ArrowDown}");
   const items = screen.getAllByRole("menuitem");
@@ -94,7 +94,7 @@ test("keyboard opens on the first item, navigates all entries and restores focus
   expect(screen.queryByRole("menu")).toBeNull();
   await rerender({ ...props, showDeadline: false });
   await userEvent.click(trigger);
-  expect(screen.queryByRole("menuitem", { name: /Modifier la date/ })).toBeNull();
+  expect(screen.queryByRole("menuitem", { name: /Modifier la date/u })).toBeNull();
   await userEvent.tab();
   expect(screen.queryByRole("menu")).toBeNull();
   await userEvent.click(trigger);
@@ -106,7 +106,7 @@ test.each(["Faire suivre le dossier", "Modifier la date de la prochaine échéan
   "%s still opens its dialog and restores trigger focus on close",
   async (label) => {
     render(DossierActionsMenu, props);
-    const trigger = screen.getByRole("button", { name: /Plus d’actions/ });
+    const trigger = screen.getByRole("button", { name: /Plus d’actions/u });
     await userEvent.click(trigger);
     await userEvent.click(screen.getByRole("menuitem", { name: label }));
     await waitFor(() => expect(screen.getByRole("dialog", { name: label })).toBeVisible());
@@ -122,7 +122,7 @@ test("the menu hugs its longest label and paints labels in blue France", async (
     ...props,
     extraItems: [{ label: "Modifier la date de prochaine échéance", onClick: vi.fn() }],
   });
-  await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/ }));
+  await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
   const menu = screen.getByRole("menu");
   const items = screen.getAllByRole("menuitem");
   let widest = 0;

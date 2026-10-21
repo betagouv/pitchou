@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import Select from "@pitchou/ui/Select.svelte";
 
   import type {
     ModificationEspeceAdmin,
     PatchModificationEspece,
-  } from "$lib/actions/adminEspeces.ts";
-  import { saveModificationEspece, deleteModificationEspece } from "$lib/actions/adminEspeces.ts";
+  } from "#lib/actions/adminEspeces.ts";
+  import { saveModificationEspece, deleteModificationEspece } from "#lib/actions/adminEspeces.ts";
 
   import { CLASSIFICATIONS, displayedNom } from "../adminModificationsList.ts";
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "#lib/components/Modal.svelte";
   import ModificationFields from "./ModificationFields.svelte";
 
   type Props = {

@@ -1,8 +1,8 @@
-import { json } from "d3-fetch";
+import { json } from "#lib/shared/http.ts";
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
-import { store } from "$lib/state/store.svelte.ts";
-import { addRecentSearch } from "$lib/components/ListDossiers/dossiersSearch.ts";
-import debounce from "just-debounce-it";
+import { store } from "#lib/state/store.svelte.ts";
+import { addRecentSearch } from "#lib/components/ListDossiers/dossiersSearch.ts";
+import debounce from "#lib/shared/debounce.ts";
 
 import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
 import type { EvenementMetrique, DossierSearchEventDetails } from "@pitchou/types/evenement.d.ts";
@@ -14,7 +14,7 @@ export async function loadIndicatorsAARRI(): Promise<IndicatorsAARRI[]> {
   try {
     const indicatorsByDate = await json(`/api/aarri`).then((result) => {
       if (!Array.isArray(result)) {
-        throw new Error(
+        throw new TypeError(
           `Réponse invalide reçue du serveur pour la route /api/aarri : le résultat n'est pas un array`,
         );
       }
@@ -28,7 +28,7 @@ export async function loadIndicatorsAARRI(): Promise<IndicatorsAARRI[]> {
     return indicatorsByDate;
   } catch (error) {
     console.error("Erreur lors du chargement des indicateurs AARRI :", error);
-    throw new Error(`${error}`);
+    throw new Error(`${error}`, { cause: error });
   }
 }
 

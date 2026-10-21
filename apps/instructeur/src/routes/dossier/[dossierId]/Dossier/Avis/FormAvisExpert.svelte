@@ -3,8 +3,8 @@
   import { untrack } from "svelte";
 
   import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { uploadProgressLabel } from "#lib/upload/uploadProgress.svelte.ts";
   import AvisExpertFields from "./AvisExpertFields.svelte";
 
   type Props = {
@@ -50,11 +50,11 @@
     let fichierSaisine: File | undefined;
     let fichierAvis: File | undefined;
 
-    if (fileListFichierSaisine && fileListFichierSaisine.length >= 1) {
+    if (fileListFichierSaisine && fileListFichierSaisine.length > 0) {
       fichierSaisine = fileListFichierSaisine[0];
     }
 
-    if (fileListFichierAvis && fileListFichierAvis.length >= 1) {
+    if (fileListFichierAvis && fileListFichierAvis.length > 0) {
       fichierAvis = fileListFichierAvis[0];
     }
 
@@ -67,10 +67,8 @@
         if (avisExpert.expert !== otherExpertText) {
           avisExpert.expert = otherExpertText;
         }
-      } else {
-        if (avisExpert.expert !== serviceOuPersonneExperte) {
-          avisExpert.expert = serviceOuPersonneExperte;
-        }
+      } else if (avisExpert.expert !== serviceOuPersonneExperte) {
+        avisExpert.expert = serviceOuPersonneExperte;
       }
     }
 

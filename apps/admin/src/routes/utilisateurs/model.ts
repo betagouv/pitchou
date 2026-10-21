@@ -27,7 +27,7 @@ export function userName(user: User) {
 export function normalize(value: string) {
   return value
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u0300-\u036F]/gu, "")
     .toLowerCase()
     .trim();
 }

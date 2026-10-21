@@ -9,7 +9,7 @@ import type { DossierCnpnEmailSentEvent } from "./cnpnEmail.ts";
 import type { UploadedFichier } from "./upload.ts";
 import type {
   DossierCommonData,
-  DossierPersonnesImpliqueesFull,
+  DossierPersonnesImpliquees,
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
 import type { StatutListeRouge } from "../especes.d.ts";
@@ -20,6 +20,10 @@ import type { DossierNotification } from "../notification.ts";
  * Existing caps can consult every dossier; only owning groups can instruct it.
  */
 export type DossierAccess = "complet" | "lecture";
+
+export type PrescriptionWithNewControles = Omit<Prescription, "id"> & {
+  controles?: Omit<Controle, "id" | "prescription">[];
+};
 
 export type FrontEndPrescription = Prescription & { controles: Controle[] | undefined };
 
@@ -92,10 +96,16 @@ export type FrontEndImpactOnEspecesWithSourceFile = {
 
 export type DossierFull = Omit<
   Dossier,
-  "communes" | "departments" | "regions" | "main_activite" | "projet_map" | "source"
+  | "communes"
+  | "departments"
+  | "regions"
+  | "main_activite"
+  | "projet_map"
+  | "source"
+  | "porteur_de_projet"
 > &
   DossierCommonData &
-  DossierPersonnesImpliqueesFull & {
+  DossierPersonnesImpliquees & {
     /**
      * What the cap that fetched this dossier may do with it. `lecture` means the
      * payload is already narrowed and no write will be accepted, whatever the UI
@@ -124,7 +134,11 @@ export type DossierFull = Omit<
   };
 
 export type TypeDecisionAdministrative =
-  "Arrêté dérogation" | "Arrêté refus" | "Arrêté modificatif" | "Courrier" | "Autre décision";
+  | "Arrêté dérogation"
+  | "Arrêté refus"
+  | "Arrêté modificatif"
+  | "Courrier"
+  | "Autre décision";
 
 export type ResultatControle =
   | "Conforme"
@@ -134,4 +148,6 @@ export type ResultatControle =
   | "Non conforme (Pas d'informations reçues)";
 
 export type TypesActionSuiteControle =
-  "Email" | "Courrier" | "Courrier recommandé avec accusé de réception";
+  | "Email"
+  | "Courrier"
+  | "Courrier recommandé avec accusé de réception";

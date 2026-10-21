@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 import PorteurDeProjet from "./PorteurDeProjet.svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -13,32 +13,51 @@ import type {
   NotificationUpdate,
 } from "@pitchou/types/notification.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 const dossier = {
   id: 123,
   source: "demarche_numerique",
   name: "Projet test",
-  deposant_first_names: "Camille",
-  deposant_last_name: "Martin",
-  deposant_email: null,
+  porteur_de_projet: {
+    type: "personne_physique",
+    first_names: "Camille",
+    last_name: "Martin",
+    email: null,
+    address: null,
+    phone: null,
+    role: null,
+  },
   demandeur_personne_physique_email: "ancien-profil@test.fr",
-  mandataire_first_names: "Lou",
-  mandataire_last_name: "Durand",
-  mandataire_email: "lou@test.fr",
-  representative_first_names: "Alex",
-  representative_last_name: "Robert",
-  representative_role: "Écologue",
-  demandeur_personne_morale_siret: "12345678900001",
-  demandeur_personne_morale_legal_name: "Société test",
-  demandeur_address: "2 rue du Parc",
+  acteurs: [
+    {
+      involvements: ["mandataire", "deposant"],
+      first_names: "Lou",
+      last_name: "Durand",
+      email: "lou@test.fr",
+      address: null,
+      phone: null,
+      role: null,
+    },
+    {
+      involvements: ["personne_contact"],
+      first_names: "Alex",
+      last_name: "Robert",
+      email: null,
+      address: null,
+      phone: null,
+      role: "Écologue",
+    },
+  ],
   especesImpactees: { impacts: [], sourceFile: undefined },
   piecesJointesPetitionnaires: [],
 } as unknown as DossierFull;
 const fields = [
-  ["demandeur.email", "Demandeur : Adresse électronique"],
+  [
+    "beneficiaire_demarche_numerique.email",
+    "Bénéficiaire Démarche Numérique : Adresse électronique",
+  ],
   ["mandataire.last_name", "Mandataire : Nom"],
-  ["representant.role", "Représentant de l'entreprise : Qualité"],
-  ["entreprise.address", "Entreprise : Adresse"],
+  ["personne_contact.role", "Personne contact : Qualité"],
 ] as const;
 const changes = (): FieldChange[] =>
   fields.map(([field, label], index) => ({
@@ -69,24 +88,23 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test("only the changed identity/company properties are highlighted, including a cleared email", () => {
+test("only the changed porteur and acteur properties are highlighted, including a cleared email", () => {
   const view = render(PorteurDeProjet, {
     dossier,
     modifiedFields: new Map(changes().map((change) => [change.field, change])),
   });
   const highlights = [...view.container.querySelectorAll(".pending")];
-  expect(highlights).toHaveLength(4);
+  expect(highlights).toHaveLength(3);
   const text = highlights.map((element) => element.textContent).join(" ");
   expect(text).toContain("Non renseigné");
   expect(text).toContain("Durand");
   expect(text).toContain("Écologue");
-  expect(text).toContain("2 rue du Parc");
-  for (const unchanged of ["Camille", "Martin", "Lou", "Alex", "Robert", "Société test"])
+  for (const unchanged of ["Camille", "Martin", "Lou", "Alex", "Robert"])
     expect(text).not.toContain(unchanged);
   expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
   expect(view.container.querySelector("section.pending")).toBeNull();
   expect(view.container.querySelector(".pending .field-change")).toBeNull();
-  expect(view.container.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 01/09/2026");
+  expect(view.container.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié le 01/09/2026");
 });
 
 test("property acknowledgments submit only that revision and clear the porteur badge after the last one", async () => {
@@ -148,28 +166,10 @@ test("coarse historical entries remain reviewable without claiming every identit
     dossier,
     modifiedFields: new Map([[legacy.field, legacy]]),
   });
-  expect(view.container.querySelector('[aria-label="Demandeur"] .pending')).toBeNull();
+  expect(view.container.querySelector('[aria-label="Porteur de projet"] .pending')).toBeNull();
   const history = view.container.querySelector('[aria-label="Modifications antérieures"]')!;
   expect(history.textContent).toContain("Le détail du champ modifié n'a pas été enregistré");
   expect(history.querySelector("button")?.getAttribute("aria-label")).toBe(
     "Valider la modification : Demandeur",
   );
-});
-
-test("native physical applicant contact values remain visible without a DN snapshot", () => {
-  const view = render(PorteurDeProjet, {
-    dossier: {
-      ...dossier,
-      source: "pitchou",
-      demandeur_personne_morale_siret: "",
-      demandeur_personne_physique_first_names: "Sam",
-      demandeur_personne_physique_last_name: "Petit",
-      demandeur_personne_physique_phone: "0102030405",
-      demandeur_personne_physique_role: "Biologiste",
-    },
-  });
-  const applicant = view.container.querySelector('[aria-label="Demandeur"]')!;
-  for (const value of ["Sam", "Petit", "0102030405", "Biologiste", "ancien-profil@test.fr"])
-    expect(applicant.textContent).toContain(value);
-  expect(applicant.querySelector(".pending")).toBeNull();
 });

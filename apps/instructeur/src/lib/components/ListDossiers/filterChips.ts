@@ -1,11 +1,6 @@
-import { departementNameByCode } from "@pitchou/common/departements.ts";
-import {
-  WITHOUT_INSTRUCTEUR,
-  PROCHAINE_ACTION_LABEL,
-  DATE_FIELD_LABEL,
-  type DossiersQuery,
-} from "./query.ts";
-import { LOCALISATION_LABEL } from "./localisation.ts";
+import { PROCHAINE_ACTION_LABEL, DATE_FIELD_LABEL, type DossiersQuery } from "./query.ts";
+import { appendAssignmentChips } from "./filterChips/assignment.ts";
+import { appendStatusChips } from "./filterChips/status.ts";
 
 /** A removable filter shown as a tag: its label and the query with that value removed */
 export type FilterChip = {
@@ -75,82 +70,8 @@ export function buildActiveFilterChips(
       next: withUpdates({ activite: query.activite.filter((activite) => activite !== value) }),
     });
   }
-  if (query.localisation === "france") {
-    chips.push({
-      key: "localisation",
-      label: LOCALISATION_LABEL.france,
-      next: withUpdates({ localisation: "assigned", departementSelection: "all", departement: [] }),
-    });
-  }
-  if (query.departementSelection === "none") {
-    chips.push({
-      key: "departements:none",
-      label: "Aucun département",
-      next: withUpdates({ departementSelection: "all", departement: [] }),
-    });
-  }
-  for (const code of query.departementSelection === "custom" ? query.departement : []) {
-    const name = departementNameByCode.get(code);
-    chips.push({
-      key: `departement:${code}`,
-      label: name ? `${code} — ${name}` : code,
-      next: withUpdates({
-        departement: query.departement.filter((value) => value !== code),
-        departementSelection: query.departement.length === 1 ? "all" : "custom",
-      }),
-    });
-  }
-  for (const value of query.instructeur) {
-    chips.push({
-      key: `instructeur:${value}`,
-      label: value === WITHOUT_INSTRUCTEUR ? "Sans instructeur·ice" : value,
-      next: withUpdates({ instructeur: query.instructeur.filter((email) => email !== value) }),
-    });
-  }
-  if (query.nouveaute === "oui") {
-    chips.push({
-      key: "nouveaute",
-      label: "Nouvelles modifications",
-      next: withUpdates({ nouveaute: "" }),
-    });
-  } else if (query.nouveaute === "non") {
-    chips.push({
-      key: "nouveaute",
-      label: "Sans nouvelle modification",
-      next: withUpdates({ nouveaute: "" }),
-    });
-  }
-  if (query.actionInstructeur) {
-    chips.push({
-      key: "actionInstructeur",
-      label: "Dossiers où je dois agir",
-      next: withUpdates({ actionInstructeur: false }),
-    });
-  }
-  if (query.enjeu) {
-    chips.push({ key: "enjeu", label: "À enjeu", next: withUpdates({ enjeu: false }) });
-  }
-  if (query.decisionText.trim()) {
-    chips.push({
-      key: "decision",
-      label: `Décision : ${query.decisionText.trim()}`,
-      next: withUpdates({ decisionText: "" }),
-    });
-  }
-  if (query.decisionAbsente) {
-    chips.push({
-      key: "decisionAbsente",
-      label: "Décision administrative non renseignée",
-      next: withUpdates({ decisionAbsente: false }),
-    });
-  }
-  if (query.avisExpertManquant) {
-    chips.push({
-      key: "avisManquant",
-      label: "Avis CNPN/CSRPN non renseigné",
-      next: withUpdates({ avisExpertManquant: false }),
-    });
-  }
+  appendAssignmentChips(chips, query, withUpdates);
+  appendStatusChips(chips, query, withUpdates);
   for (const cdRef of query.espece) {
     chips.push({
       key: `espece:${cdRef}`,

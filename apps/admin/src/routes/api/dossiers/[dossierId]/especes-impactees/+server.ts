@@ -6,9 +6,9 @@ import {
   setEspecesImpacteesFromAdmin,
 } from "@pitchou/server/database/dossier_admin_files.ts";
 import { UploadedFichierError } from "@pitchou/server/upload.ts";
-import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { validateSpeciesUpload } from "$lib/server/speciesUpload";
-import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { parseDossierId, throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { validateSpeciesUpload } from "#lib/server/speciesUpload.ts";
+import { readSingleUpload, throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 
 // Auth is enforced upstream by hooks.server.ts (session and permissions).
 /** Sets the species spreadsheet from a file the browser sent to storage (`{ file: { id, name } }`). */

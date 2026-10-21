@@ -168,7 +168,7 @@
   S’il est nécessaire de faire des groupes plus fins parce qu’il existe beaucoup de dossiers partagés entre plusieurs régions.
   Il faut créer un groupe dans DS pour traiter ce cas.
 
-- **Est-ce qu’un courrier d’accusé de réception du dossier complet sera généré par pitchou ou envoyé par mail au demandeur afin de faire partir le délai de 4 mois d’instruction de la demande ?**
+- **Est-ce qu’un courrier d’accusé de réception du dossier complet sera généré par pitchou ou envoyé par mail au porteur de projet afin de faire partir le délai de 4 mois d’instruction de la demande ?**
   Dans DS, il est possible de configurer l’email qui est envoyé lorsque le dossier est passé en instruction, donc on peut utiliser ça pour fournir une information sur le délai.
 
 - **Quel impact légal sur l’instruction si le pétitionnaire ne passe que par GUN ENV sans remplir Pitchou? La conséquence sera-t-elle uniquement un manque de visibilité pour le suivi stat ?**

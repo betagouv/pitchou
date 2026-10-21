@@ -3,6 +3,17 @@ import { describe, expect, test } from "vitest";
 import { evenementMetriqueGuard } from "./evenements_metriques.ts";
 
 describe("evenementMetriqueGuard", () => {
+  test.each(["mes-dossiers", "tous-les-dossiers"])("accepts export clicks on %s", (page) => {
+    expect(evenementMetriqueGuard({ type: "clickExportDossiers", details: { page } })).toBe(true);
+  });
+
+  test.each([undefined, null, {}, { page: "tableau-de-suivi" }])(
+    "rejects invalid export details %s",
+    (details) => {
+      expect(evenementMetriqueGuard({ type: "clickExportDossiers", details })).toBe(false);
+    },
+  );
+
   test("accepte l'ouverture de la modale d'ajout de pièce jointe depuis l'entête", () => {
     expect(
       evenementMetriqueGuard({

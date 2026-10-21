@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { goto } from "$app/navigation";
 
-  import { deleteDossier } from "$lib/actions/adminDossiers.ts";
+  import { deleteDossier } from "#lib/actions/adminDossiers.ts";
 
   let { dossierId }: { dossierId: number } = $props();
 

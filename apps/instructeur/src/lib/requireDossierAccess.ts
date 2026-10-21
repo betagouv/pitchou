@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 // Call after the parent layout has loaded the session.
 export function requireDossierAccess() {

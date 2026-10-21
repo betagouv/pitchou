@@ -5,7 +5,7 @@ function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return "";
   const s = typeof value === "object" ? JSON.stringify(value) : String(value);
   if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
-    return `"${s.replace(/"/g, '""')}"`;
+    return `"${s.replaceAll('"', '""')}"`;
   }
   return s;
 }

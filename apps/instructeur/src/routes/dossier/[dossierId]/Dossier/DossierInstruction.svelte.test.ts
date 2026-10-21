@@ -4,11 +4,11 @@ import { cleanup, render, screen } from "@testing-library/svelte";
 import "@gouvfr/dsfr/dist/dsfr.css";
 
 import DossierInstruction from "./DossierInstruction.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { reactive } from "../../../../../tests/helpers/reactive.svelte.ts";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -39,7 +39,9 @@ test("afficher l'onglet instruction n'enregistre rien", async () => {
 
   // Longer than the one-second debounce of the Onagre field, so a save queued
   // at mount would have landed by now.
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
 
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   // Successful saves are reported to the header, not as an in-form alert.
@@ -130,7 +132,7 @@ test("reselecting the current phase does not mask a later dossier refresh", asyn
     onSaved,
   });
 
-  await expect.element(page.getByLabelText("Phase en cours")).toHaveTextContent("Instruction");
+  await expect.element(page.getByLabelText("Phase en cours")).toMatchTextContent("Instruction");
   expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   expect(onSaved).not.toHaveBeenCalled();
 });
@@ -145,7 +147,7 @@ test("public consultation uses a loadable filled megaphone mask", async () => {
   expect(style.width).toBe("16px");
   expect(style.height).toBe("16px");
   expect(style.maskImage).toContain("megaphone-fill.svg");
-  const url = style.maskImage.match(/^url\("(.+)"\)$/)![1];
+  const url = style.maskImage.match(/^url\("(.+)"\)$/u)![1];
   const response = await fetch(url);
   expect(response.ok).toBe(true);
   expect(await response.text()).toContain("<path");

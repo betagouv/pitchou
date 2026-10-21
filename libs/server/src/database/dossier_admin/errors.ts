@@ -7,7 +7,7 @@ export class DossierNotFoundError extends Error {
 export class DossierManagedByDnError extends Error {
   fields: string[];
   constructor(dossierId: number, fields: string[] = []) {
-    const detail = fields.length ? ` (fields: ${fields.join(", ")})` : "";
+    const detail = fields.length > 0 ? ` (fields: ${fields.join(", ")})` : "";
     super(`Dossier ${dossierId} is synchronized from Demarche Numerique${detail}`);
     this.name = "DossierManagedByDnError";
     this.fields = fields;

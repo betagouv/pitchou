@@ -2,8 +2,8 @@
   import "./UserEditor/styles.css";
   import { untrack } from "svelte";
   import { enhance } from "$app/forms";
-  import Modal from "$lib/components/Modal.svelte";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import Modal from "#lib/components/Modal.svelte";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { type User } from "./model.ts";
   import type { PageData } from "./$types";
   import UserAccountFields from "./UserEditor/UserAccountFields.svelte";

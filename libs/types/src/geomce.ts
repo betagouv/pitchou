@@ -54,7 +54,8 @@ export interface GeoMceProcedure {
   type: "En Attente de GeoMCE Dérogation Espèces Protégées";
   description: string;
   references: string[];
-  date_decision: string | null; // ISO8601Date
+  // ISO8601Date
+  date_decision: string | null;
   instructeurs: GeoMceInstructeur[];
   autorite_decisionnaire: "Préfet" | "Ministre" | "Autre" | null;
   specimens_faunes: GeoMceSpecimenFaune[];

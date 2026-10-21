@@ -5,10 +5,10 @@ import { dumpDossiers } from "@pitchou/server/database/dossier.ts";
 import { getDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { markDossiersUnreadForFollowers } from "@pitchou/server/database/notification.ts";
 
-import { parseDossierId } from "$lib/server/dossierValidation";
-import { simulatableChamps, simulationAllowed } from "$lib/server/simulation.ts";
-import { simulateSpeciesChange } from "$lib/server/simulateSpecies.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { parseDossierId } from "#lib/server/dossierValidation.ts";
+import { simulatableChamps, simulationAllowed } from "#lib/server/simulation.ts";
+import { simulateSpeciesChange } from "#lib/server/simulateSpecies.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 
 import type { RequestHandler } from "./$types";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";

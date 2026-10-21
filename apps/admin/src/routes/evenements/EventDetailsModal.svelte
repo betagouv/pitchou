@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Modal from "$lib/components/Modal.svelte";
-  import type { EvenementMetriqueRow } from "$lib/actions/adminEvenements.ts";
+  import Modal from "#lib/components/Modal.svelte";
+  import type { EvenementMetriqueRow } from "#lib/actions/adminEvenements.ts";
 
   let {
     evenement,
@@ -32,7 +32,7 @@
       ?.querySelectorAll<HTMLButtonElement>("button");
     if (!buttons?.length) return;
     const first = buttons[0];
-    const last = buttons[buttons.length - 1];
+    const last = Array.from(buttons).at(-1)!;
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();

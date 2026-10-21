@@ -1,16 +1,16 @@
 import { SvelteMap } from "svelte/reactivity";
-import { store, setDossierFull } from "$lib/state/store.svelte.ts";
+import { store, setDossierFull } from "#lib/state/store.svelte.ts";
 import { enqueueNotificationRequest, formatNotification } from "./notification.ts";
 import { registerReviewSnapshot } from "./notification/snapshot.ts";
 import { parseFichierEspecesImpactees } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 import {
   loadActivitesMethodesMoyensDePoursuite,
   loadEspecesProtegeesList,
-} from "$lib/especes/activitesMethodesMoyensDePoursuite.ts";
+} from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
-import { loadRelationSuivi, loadRecentSearches } from "$lib/shared/main.ts";
+import { loadRelationSuivi, loadRecentSearches } from "#lib/shared/main.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
@@ -215,9 +215,6 @@ export function loadDossiers() {
 
       return dossiersById;
     });
-  } else {
-    return Promise.reject(
-      new TypeError("Impossible de charger les dossiers, capability manquante"),
-    );
   }
+  return Promise.reject(new TypeError("Impossible de charger les dossiers, capability manquante"));
 }

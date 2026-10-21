@@ -18,7 +18,7 @@ test("admin autosave uses the header and keeps failed saves beside the editor", 
   await expect(page.getByLabel("Titre", { exact: true })).toBeVisible();
   const status = page.locator("header").getByRole("status");
   await page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
-  await expect(page).toHaveURL(/\/changelog\/\d+$/);
+  await expect(page).toHaveURL(/\/changelog\/\d+$/u);
   await expect(status).toHaveText("Brouillon créé");
   await page.getByLabel("Titre", { exact: true }).fill("Nouvelle version");
   await expect(status).toHaveText("Enregistrement…");
@@ -41,8 +41,12 @@ test("admin autosave uses the header and keeps failed saves beside the editor", 
   // A save that finishes after leaving must not put feedback on the next page.
   let releaseSave!: () => void;
   let markStarted!: () => void;
-  const saveHeld = new Promise<void>((resolve) => (releaseSave = resolve));
-  const saveStarted = new Promise<void>((resolve) => (markStarted = resolve));
+  const saveHeld = new Promise<void>((resolve) => {
+    releaseSave = resolve;
+  });
+  const saveStarted = new Promise<void>((resolve) => {
+    markStarted = resolve;
+  });
   await page.route("**/api/changelog/*", async (route) => {
     if (route.request().method() === "PUT") {
       markStarted();

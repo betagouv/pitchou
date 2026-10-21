@@ -61,59 +61,7 @@ export async function createProjectMap(options: Options): Promise<MapLibreMap> {
   });
   map.addControl(new maplibregl.NavigationControl(), "top-right");
   map.on("load", () => {
-    for (const id of ["project-map", "project-map-draft"]) {
-      map.addLayer({
-        id: `${id}-fill`,
-        type: "fill",
-        source: id,
-        paint: { "fill-color": "#18753c", "fill-opacity": 0.35 },
-      });
-      map.addLayer({
-        id: `${id}-line`,
-        type: "line",
-        source: id,
-        paint: { "line-color": "#18753c", "line-width": 3 },
-      });
-      map.addLayer({
-        id: `${id}-point`,
-        type: "circle",
-        source: id,
-        paint: { "circle-color": "#18753c", "circle-radius": 7 },
-      });
-    }
-    map.addLayer({
-      id: "project-map-hover-fill",
-      type: "fill",
-      source: "project-map-hover",
-      paint: { "fill-color": "#feecc2", "fill-opacity": 0.65 },
-    });
-    map.addLayer({
-      id: "project-map-hover-line",
-      type: "line",
-      source: "project-map-hover",
-      paint: { "line-color": "#a55800", "line-width": 3 },
-    });
-    map.addLayer({
-      id: "project-map-selected-parcel-fill",
-      type: "fill",
-      source: "project-map-selected-parcels",
-      paint: { "fill-color": "#18753c", "fill-opacity": 0.65 },
-    });
-    map.addLayer({
-      id: "project-map-selected-parcel-line",
-      type: "line",
-      source: "project-map-selected-parcels",
-      paint: { "line-color": "#006131", "line-width": 4 },
-    });
-    for (const sourceId of [
-      "project-map",
-      "project-map-draft",
-      "project-map-hover",
-      "project-map-selected-parcels",
-    ]) {
-      const source = map.getSource(sourceId) as GeoJSONSource;
-      source.on("error", (event) => options.onError(event.error.message));
-    }
+    addProjectLayers(map, options.onError);
     options.onLoad(map);
     const bounds = computeBounds(options.initialValue ?? emptyFeatureCollection());
     if (bounds) map.fitBounds(bounds, { padding: 40, maxZoom: 17, duration: 0 });
@@ -123,4 +71,60 @@ export async function createProjectMap(options: Options): Promise<MapLibreMap> {
   map.on("mousemove", options.onMouseMove);
   map.getCanvas().addEventListener("mouseleave", options.onMouseLeave);
   return map;
+}
+
+function addProjectLayers(map: MapLibreMap, onError: Options["onError"]) {
+  for (const id of ["project-map", "project-map-draft"]) {
+    map.addLayer({
+      id: `${id}-fill`,
+      type: "fill",
+      source: id,
+      paint: { "fill-color": "#18753c", "fill-opacity": 0.35 },
+    });
+    map.addLayer({
+      id: `${id}-line`,
+      type: "line",
+      source: id,
+      paint: { "line-color": "#18753c", "line-width": 3 },
+    });
+    map.addLayer({
+      id: `${id}-point`,
+      type: "circle",
+      source: id,
+      paint: { "circle-color": "#18753c", "circle-radius": 7 },
+    });
+  }
+  map.addLayer({
+    id: "project-map-hover-fill",
+    type: "fill",
+    source: "project-map-hover",
+    paint: { "fill-color": "#feecc2", "fill-opacity": 0.65 },
+  });
+  map.addLayer({
+    id: "project-map-hover-line",
+    type: "line",
+    source: "project-map-hover",
+    paint: { "line-color": "#a55800", "line-width": 3 },
+  });
+  map.addLayer({
+    id: "project-map-selected-parcel-fill",
+    type: "fill",
+    source: "project-map-selected-parcels",
+    paint: { "fill-color": "#18753c", "fill-opacity": 0.65 },
+  });
+  map.addLayer({
+    id: "project-map-selected-parcel-line",
+    type: "line",
+    source: "project-map-selected-parcels",
+    paint: { "line-color": "#006131", "line-width": 4 },
+  });
+  for (const sourceId of [
+    "project-map",
+    "project-map-draft",
+    "project-map-hover",
+    "project-map-selected-parcels",
+  ]) {
+    const source = map.getSource(sourceId) as GeoJSONSource;
+    source.on("error", (event) => onError(event.error.message));
+  }
 }

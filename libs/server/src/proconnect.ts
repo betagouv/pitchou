@@ -47,7 +47,7 @@ function getJwks(jwksUri: string) {
 }
 
 function redirectUri(baseUrl: string): string {
-  return `${baseUrl.replace(/\/+$/, "")}${REDIRECT_PATH}`;
+  return `${baseUrl.replace(/\/+$/u, "")}${REDIRECT_PATH}`;
 }
 
 /** ProConnect requires state and nonce to be at least 32 characters long. */
@@ -162,7 +162,7 @@ export async function buildLogoutUrl(
   const { end_session_endpoint } = await getDiscovery();
   const params = new URLSearchParams({
     id_token_hint: idToken,
-    post_logout_redirect_uri: `${baseUrl.replace(/\/+$/, "")}${POST_LOGOUT_PATH}`,
+    post_logout_redirect_uri: `${baseUrl.replace(/\/+$/u, "")}${POST_LOGOUT_PATH}`,
     state,
   });
   return `${end_session_endpoint}?${params}`;

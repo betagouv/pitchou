@@ -113,7 +113,7 @@ export async function personneFollowsDossier(
   return relation !== undefined;
 }
 
-export async function instructeurFollowsDossier(
+export function instructeurFollowsDossier(
   personneId: Personne["id"],
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
@@ -121,7 +121,7 @@ export async function instructeurFollowsDossier(
   return followDossierForPersonnes([personneId], dossierId, databaseConnection);
 }
 
-export async function instructeurLeavesDossier(
+export function instructeurLeavesDossier(
   personneId: Personne["id"],
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,

@@ -14,7 +14,7 @@
     ["Nom du projet", dossier.name],
     ["Activité principale", dossier.activite_label],
     ["Téléphone en cas de demande urgente", dossier.urgent_contact_phone],
-    ["Situation du demandeur", dossier.request_context],
+    ["Situation du porteur de projet", dossier.request_context],
     ["Besoin d'accompagnement", dossier.accompaniment_need],
     ["État des lieux écologique", dossier.ecological_inventory_completed],
     [

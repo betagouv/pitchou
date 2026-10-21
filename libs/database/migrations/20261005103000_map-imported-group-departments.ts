@@ -47,9 +47,9 @@ const inactiveNames = new Set(["ddt37", "ddt 41", "ddt 45 loiret"]);
 function normalizeName(name: string): string {
   return name
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u0300-\u036F]/gu, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
+    .replaceAll(/[^a-z0-9]+/gu, " ")
     .trim();
 }
 
@@ -77,15 +77,15 @@ export async function up(db: Knex) {
     );
   }
   // Deactivate before adding coverage so these services never acquire dossiers during the migration.
-  if (inactive.length)
+  if (inactive.length > 0)
     await db("groupe_instructeurs").whereIn("id", inactive).update({ active: false });
   // One insert lets the ownership trigger recalculate all affected dossiers together.
-  if (additions.length)
+  if (additions.length > 0)
     await db("groupe_departement")
       .insert(additions)
       .onConflict(["groupe_instructeurs", "department"])
       .ignore();
-  if (reviewed.length)
+  if (reviewed.length > 0)
     await db("groupe_instructeurs")
       .whereIn("id", reviewed)
       .update({ coverage_needs_review: false });

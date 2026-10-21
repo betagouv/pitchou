@@ -3,7 +3,7 @@ export interface PublicStats {
   controlePhaseDossierCount: number;
   controlePhaseDossierWithDecisionCount: number;
   controlePhaseDossierWithoutDecisionCount: number;
-  petitionnaireCountSinceSeptember2024: number;
+  porteurDeProjetCountSinceSeptember2024: number;
   controllablePrescriptionCount: number;
   prescriptionWithControleCount: number;
   conformiteStats: ConformiteStats;

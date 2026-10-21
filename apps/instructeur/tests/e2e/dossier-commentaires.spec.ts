@@ -42,7 +42,7 @@ test("les commentaires du dossier s'ajoutent, se modifient et persistent", async
   await page.getByLabel("Modifier le commentaire").fill("Retour corrigé sur ce dossier.");
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Retour corrigé sur ce dossier.")).toBeVisible();
-  await expect(page.getByText(/modifié le/)).toBeVisible();
+  await expect(page.getByText(/modifié le/u)).toBeVisible();
 
   await page.reload();
   await expect(page.getByText("Retour corrigé sur ce dossier.")).toBeVisible();

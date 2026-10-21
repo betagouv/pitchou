@@ -118,5 +118,5 @@ test("read-only access is refused before writing any personal state", async () =
   await expect(updateNotificationDossier(cap, { dossier, arrival: true }, db)).rejects.toThrow(
     "Accès au dossier refusé",
   );
-  expect(queries.some(({ sql }) => /^(insert|update)/.test(sql))).toBe(false);
+  expect(queries.some(({ sql }) => /^(insert|update)/u.test(sql))).toBe(false);
 });

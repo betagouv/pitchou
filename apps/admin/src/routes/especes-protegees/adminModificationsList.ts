@@ -1,5 +1,5 @@
 import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
+import type { ModificationEspeceAdmin } from "#lib/actions/adminEspeces.ts";
 import { normalizeEspeceName, normalizeEspeceText } from "@pitchou/common/stringManipulation.ts";
 
 import { CLASSIFICATIONS, STATUTS } from "@pitchou/ui/especes/especesList.ts";
@@ -72,7 +72,7 @@ export function matchesText(modification: ModificationEspeceAdmin, text: string)
     .trim()
     .split(" ")
     .map(normalizeEspeceText)
-    .filter((word) => word.length >= 1);
+    .filter((word) => word.length > 0);
 
   const haystack = [
     modification.cd_ref,

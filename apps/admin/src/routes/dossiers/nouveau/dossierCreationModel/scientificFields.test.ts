@@ -47,7 +47,7 @@ describe("scientific dossier creation conditions", () => {
     });
     setModelActivite(model, "Demande à caractère scientifique");
     model.motifDerogation = motifDerogationOptions[4];
-    model.scientifiqueDemandeType = [...scientifiqueDemandeTypeOptions.slice(0, 3)];
+    model.scientifiqueDemandeType = scientifiqueDemandeTypeOptions.slice(0, 3);
     model.scientifiqueCaptureModes = ["Manuelle", "Autre moyen de capture (préciser)"];
     model.scientifiqueOtherCaptureMode = "Piège adapté";
     model.scientifiqueUsesLightSources = "oui";

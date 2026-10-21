@@ -1,6 +1,6 @@
 import toJSONPerserveDate from "@pitchou/common/DateToJSON.js";
-import { uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadSizeError } from "#lib/upload/uploadSizeHint.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.js";
 
 export function readableDecisionError(error: unknown): string {

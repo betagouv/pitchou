@@ -5,12 +5,12 @@ import { page } from "vitest/browser";
 import { render, cleanup } from "@testing-library/svelte";
 import { tick } from "svelte";
 
-vi.mock(import("$lib/upload/uploadToStorage.ts"), () => ({
+vi.mock(import("#lib/upload/uploadToStorage.ts"), () => ({
   uploadFichiers: vi.fn(),
 }));
 
 import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
@@ -60,7 +60,7 @@ async function chooseFichier(container: HTMLElement, fichier: File) {
 }
 
 function clickSave() {
-  return page.getByRole("button", { name: /^Sauvegarder$/ }).click();
+  return page.getByRole("button", { name: /^Sauvegarder$/u }).click();
 }
 
 test("refuse une décision sans type et n'appelle pas onValidate", async () => {
@@ -72,7 +72,7 @@ test("refuse une décision sans type et n'appelle pas onValidate", async () => {
 
   await clickSave();
 
-  await expect.element(page.getByText(/Veuillez sélectionner une option/i)).toBeVisible();
+  await expect.element(page.getByText(/Veuillez sélectionner une option/iu)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
 });
 
@@ -86,7 +86,7 @@ test("refuse un format non supporté et n'appelle pas onValidate", async () => {
   await chooseFichier(container, fichierWithSize("notes.txt", "text/plain", 1000));
   await clickSave();
 
-  await expect.element(page.getByText(/Format de fichier non supporté/i)).toBeVisible();
+  await expect.element(page.getByText(/Format de fichier non supporté/iu)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
 });
 
@@ -100,11 +100,11 @@ test("affiche une erreur lisible quand l'enregistrement échoue", async () => {
   await chooseFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
   await clickSave();
 
-  await expect.element(page.getByText(/l'enregistrement de la décision/i)).toBeVisible();
-  await expect.element(page.getByText(/Boom serveur/)).toBeVisible();
+  await expect.element(page.getByText(/l'enregistrement de la décision/iu)).toBeVisible();
+  await expect.element(page.getByText(/Boom serveur/u)).toBeVisible();
   expect(onValidate).toHaveBeenCalledTimes(1);
   // Le formulaire reste affiché pour permettre une nouvelle tentative.
-  await expect.element(page.getByText("Type de décision")).toBeVisible();
+  await expect.element(page.getByRole("combobox", { name: "Type de décision" })).toBeVisible();
 });
 
 test("affiche l'échec de l'envoi au stockage sous le champ fichier, sans appeler onValidate", async () => {
@@ -120,9 +120,9 @@ test("affiche l'échec de l'envoi au stockage sous le champ fichier, sans appele
   await chooseFichier(container, new File(["%PDF-1.4"], "ok.pdf", { type: "application/pdf" }));
   await clickSave();
 
-  await expect.element(page.getByText(/L'envoi du fichier ok.pdf a échoué/)).toBeVisible();
+  await expect.element(page.getByText(/L'envoi du fichier ok.pdf a échoué/u)).toBeVisible();
   expect(onValidate).not.toHaveBeenCalled();
-  await expect.element(page.getByRole("button", { name: /^Sauvegarder$/ })).toBeEnabled();
+  await expect.element(page.getByRole("button", { name: /^Sauvegarder$/u })).toBeEnabled();
 });
 
 test("envoie le fichier au stockage puis appelle onValidate avec sa référence", async () => {
@@ -143,8 +143,8 @@ test("envoie le fichier au stockage puis appelle onValidate avec sa référence"
 });
 
 test("affiche un état de chargement pendant l'enregistrement", async () => {
-  let resolve!: () => void;
-  const onValidate = vi.fn(() => new Promise<void>((r) => (resolve = r)));
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const onValidate = vi.fn(() => promise);
   render(FormDecisionAdministrative, {
     decisionAdministrative: decision({ type: TYPE_VALIDE }),
     hasExistingFile: true,
@@ -153,12 +153,12 @@ test("affiche un état de chargement pendant l'enregistrement", async () => {
 
   await clickSave();
 
-  const savingButton = page.getByRole("button", { name: /Sauvegarde en cours/ });
+  const savingButton = page.getByRole("button", { name: /Sauvegarde en cours/u });
   await expect.element(savingButton).toBeDisabled();
 
   resolve();
 
-  await expect.element(page.getByRole("button", { name: /^Sauvegarder$/ })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: /^Sauvegarder$/u })).toBeVisible();
 });
 
 test("bloque l'enregistrement sans fichier et autorise la conservation du fichier existant", async () => {

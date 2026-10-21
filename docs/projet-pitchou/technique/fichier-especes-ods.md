@@ -7,7 +7,7 @@ Ce document décrit le format du fichier que l'on export sur la page <https://pi
 La plateforme Pitchou permet de gérer la procédure Demande de Dérogations Espèces Protégées (DDEP)
 Elle se repose notamment sur un [formulaire Démarche Numérique dédié](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
 
-La DDEP demande notamment au demandeur ou "pétitionnaire" de communiquer la liste des espèces protégées dont il demande une dérogation à déranger. Et pour chaque espèces, des données spécifiques (nombre d'individus, surface, activité, etc.)
+La DDEP demande notamment au porteur de projet (ou "pétitionnaire" ou "demandeur") de communiquer la liste des espèces protégées dont il demande une dérogation à déranger. Et pour chaque espèces, des données spécifiques (nombre d'individus, surface, activité, etc.)
 
 Après divers expérimentation, l'équipe Pitchou décide que cette communication aura lieu sous la forme d'un fichier à télécharger
 

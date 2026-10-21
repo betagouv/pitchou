@@ -1,10 +1,10 @@
 <script lang="ts">
-  import ListToolbar from "$lib/components/ListToolbar.svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import type {
     DossiersQuery,
     DossierSortKey,
     DossierSortOrder,
-  } from "$lib/actions/adminDossierTypes.ts";
+  } from "#lib/actions/adminDossierTypes.ts";
   import DossiersFilterPanel from "./DossiersFilterPanel.svelte";
   import DossiersSortPanel from "./DossiersSortPanel.svelte";
 
@@ -35,7 +35,7 @@
     <ListToolbar
       id="recherche-dossier"
       label="Rechercher un dossier"
-      placeholder="Nom, demandeur ou numéro DN"
+      placeholder="Nom, porteur de projet ou numéro DN"
       value={query.search}
       {onSearch}
       bind:filterOpen={filterPanelOpen}

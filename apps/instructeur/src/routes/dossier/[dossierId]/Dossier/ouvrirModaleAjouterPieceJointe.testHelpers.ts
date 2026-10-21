@@ -1,6 +1,6 @@
 import { expect, vi } from "vitest";
 import { tick } from "svelte";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export const DOSSIER_ID = 123;
@@ -14,15 +14,16 @@ export function dossier(overrides: Partial<DossierFull> = {}): DossierFull {
     regions: null,
     main_activite: "Travaux",
     demarche_numerique_number: 456,
-    demandeur_personne_morale_siret: null,
-    demandeur_personne_morale_legal_name: "",
-    representative_email: null,
-    demandeur_personne_physique_last_name: "Durand",
-    demandeur_personne_physique_first_names: "Alice",
-    demandeur_personne_physique_email: null,
-    deposant_last_name: "Durand",
-    deposant_first_names: "Alice",
-    deposant_email: null,
+    porteur_de_projet: {
+      type: "personne_physique",
+      last_name: "Durand",
+      first_names: "Alice",
+      email: null,
+      address: null,
+      phone: null,
+      role: null,
+    },
+    acteurs: [],
     next_action_expected_from: null,
     enjeu: false,
     linked_to_ae_regime: false,

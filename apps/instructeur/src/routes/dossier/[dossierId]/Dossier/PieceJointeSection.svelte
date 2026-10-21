@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
   import type { PieceJointeSimple } from "./piecesJointes.ts";
   import PieceJointeDeleteButton from "./PieceJointeDeleteButton.svelte";
@@ -23,7 +23,7 @@
     if (typeof piece.description?.size === "number")
       values.push(byteFormat.format(piece.description.size));
     if (piece.date) values.push(`${piece.labelDate} : ${formatDateAbsolute(piece.date)}`);
-    return values.length ? `${piece.label} - ${values.join(" - ")}` : piece.label;
+    return values.length > 0 ? `${piece.label} - ${values.join(" - ")}` : piece.label;
   }
 </script>
 

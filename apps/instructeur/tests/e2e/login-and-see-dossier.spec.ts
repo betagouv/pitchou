@@ -16,6 +16,6 @@ test("l'instructeur·rice se connecte via ?secret et voit son dossier", async ({
   // The dossier belongs to the instructeur's groupe but isn't followed, so it
   // shows on the Tableau de suivi page (which lists every groupe dossier)
   await page.goto("/tableau-de-suivi");
-  await expect(page.getByRole("heading", { name: /Tableau de suivi/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Tableau de suivi/u })).toBeVisible();
   await expect(page.getByText(dossier.name!)).toBeVisible();
 });

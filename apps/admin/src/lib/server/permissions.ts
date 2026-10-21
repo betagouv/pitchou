@@ -2,60 +2,64 @@ import type { Permission } from "@pitchou/types/permissions.ts";
 
 // Every write route must opt into a permission. Unlisted writes are denied.
 const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
-  { method: "POST", path: /^\/api\/dossiers(?:\/minimal)?$/, anyOf: ["admin:dossiers:create"] },
-  { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/, anyOf: ["admin:dossiers:update"] },
-  { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/, anyOf: ["admin:dossiers:delete"] },
+  { method: "POST", path: /^\/api\/dossiers(?:\/minimal)?$/u, anyOf: ["admin:dossiers:create"] },
+  { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:update"] },
+  { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:delete"] },
   {
     method: "POST",
-    path: /^\/api\/dossiers\/[^/]+\/pieces-jointes$/,
+    path: /^\/api\/dossiers\/[^/]+\/pieces-jointes$/u,
     anyOf: ["admin:dossiers:files"],
   },
   {
     method: "DELETE",
-    path: /^\/api\/dossiers\/[^/]+\/pieces-jointes\/[^/]+$/,
+    path: /^\/api\/dossiers\/[^/]+\/pieces-jointes\/[^/]+$/u,
     anyOf: ["admin:dossiers:files"],
   },
   {
     method: "POST",
-    path: /^\/api\/dossiers\/[^/]+\/especes-impactees$/,
+    path: /^\/api\/dossiers\/[^/]+\/especes-impactees$/u,
     anyOf: ["admin:dossiers:species"],
   },
   {
     method: "DELETE",
-    path: /^\/api\/dossiers\/[^/]+\/especes-impactees$/,
+    path: /^\/api\/dossiers\/[^/]+\/especes-impactees$/u,
     anyOf: ["admin:dossiers:species"],
   },
   {
     method: "POST",
-    path: /^\/api\/dossiers\/[^/]+\/simuler-synchronisation$/,
+    path: /^\/api\/dossiers\/[^/]+\/simuler-synchronisation$/u,
     anyOf: ["admin:sync:simulate"],
   },
-  { method: "POST", path: /^\/api\/activites$/, anyOf: ["admin:activites:manage"] },
+  { method: "POST", path: /^\/api\/activites$/u, anyOf: ["admin:activites:manage"] },
   {
     method: "PUT",
-    path: /^\/api\/activites\/(?:[^/]+|groupes\/[^/]+)$/,
+    path: /^\/api\/activites\/(?:[^/]+|groupes\/[^/]+)$/u,
     anyOf: ["admin:activites:manage"],
   },
   {
     method: "PUT",
-    path: /^\/api\/especes-protegees\/modifications\/[^/]+$/,
+    path: /^\/api\/especes-protegees\/modifications\/[^/]+$/u,
     anyOf: ["admin:especes:manage"],
   },
   {
     method: "DELETE",
-    path: /^\/api\/especes-protegees\/modifications\/[^/]+$/,
+    path: /^\/api\/especes-protegees\/modifications\/[^/]+$/u,
     anyOf: ["admin:especes:manage"],
   },
-  { method: "POST", path: /^\/api\/changelog$/, anyOf: ["admin:changelog:create"] },
-  { method: "PUT", path: /^\/api\/changelog\/[^/]+$/, anyOf: ["admin:changelog:update"] },
-  { method: "DELETE", path: /^\/api\/changelog\/[^/]+$/, anyOf: ["admin:changelog:delete"] },
-  { method: "POST", path: /^\/api\/changelog\/[^/]+\/media$/, anyOf: ["admin:changelog:update"] },
-  { method: "DELETE", path: /^\/api\/changelog\/[^/]+\/media$/, anyOf: ["admin:changelog:update"] },
-  { method: "POST", path: /^\/api\/synchronisation-dn$/, anyOf: ["admin:sync:run"] },
+  { method: "POST", path: /^\/api\/changelog$/u, anyOf: ["admin:changelog:create"] },
+  { method: "PUT", path: /^\/api\/changelog\/[^/]+$/u, anyOf: ["admin:changelog:update"] },
+  { method: "DELETE", path: /^\/api\/changelog\/[^/]+$/u, anyOf: ["admin:changelog:delete"] },
+  { method: "POST", path: /^\/api\/changelog\/[^/]+\/media$/u, anyOf: ["admin:changelog:update"] },
+  {
+    method: "DELETE",
+    path: /^\/api\/changelog\/[^/]+\/media$/u,
+    anyOf: ["admin:changelog:update"],
+  },
+  { method: "POST", path: /^\/api\/synchronisation-dn$/u, anyOf: ["admin:sync:run"] },
   // Uploading bytes grants no right to attach them. Each attachment route also checks access.
   {
     method: "POST",
-    path: /^\/api\/fichiers\/upload-url$/,
+    path: /^\/api\/fichiers\/upload-url$/u,
     anyOf: [
       "admin:dossiers:create",
       "admin:dossiers:files",
@@ -76,10 +80,10 @@ export function canAccessAdminRoute(
   const path = routeId ?? "";
   if (path === "/dossiers/nouveau") return permissions.includes("admin:dossiers:create");
   if (path === "/changelog/nouveau") return permissions.includes("admin:changelog:create");
-  if (/^\/(?:api\/users|utilisateurs)(?:\/|$)/.test(path))
+  if (/^\/(?:api\/users|utilisateurs)(?:\/|$)/u.test(path))
     return permissions.includes("users:manage");
   if (
-    /^\/groupes-instructeurs(?:\/|$)/.test(path) ||
+    /^\/groupes-instructeurs(?:\/|$)/u.test(path) ||
     (path === "/api/groupes-instructeurs" && method !== "GET")
   )
     return permissions.includes("groups:manage");

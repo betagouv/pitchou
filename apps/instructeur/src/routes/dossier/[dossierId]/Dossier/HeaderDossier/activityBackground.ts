@@ -51,6 +51,6 @@ export function activityBackground(src: string): string {
   const slug = src
     .split("/")
     .pop()
-    ?.replace(/\.svg$/, "");
+    ?.replace(/\.svg$/u, "");
   return Object.entries(groups).find(([, slugs]) => slug && slugs.includes(slug))?.[0] ?? "#C3FAD5";
 }

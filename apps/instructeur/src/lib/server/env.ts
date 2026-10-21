@@ -9,5 +9,5 @@ export function requireEnv(name: string): string {
 
 /** The instructor app's public base URL (used to build the ProConnect redirect URIs), without a trailing slash. */
 export function getBaseUrl(): string {
-  return requireEnv("PUBLIC_SITE_URL_PITCHOU").replace(/\/+$/, "");
+  return requireEnv("PUBLIC_SITE_URL_PITCHOU").replace(/\/+$/u, "");
 }

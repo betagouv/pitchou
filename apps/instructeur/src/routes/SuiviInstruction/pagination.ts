@@ -1,7 +1,7 @@
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
 export function suiviPageSelectors(length: number, selectPage: (page: number) => void) {
-  if (length < 41) return undefined;
+  if (length < 41) return;
   return [
     undefined,
     ...Array.from({ length: Math.ceil(length / 20) }, (_, i) => () => selectPage(i + 1)),

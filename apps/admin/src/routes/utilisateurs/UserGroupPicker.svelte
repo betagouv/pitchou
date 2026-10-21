@@ -12,7 +12,7 @@
   const normalize = (value: string) =>
     value
       .normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "")
+      .replaceAll(/\p{Diacritic}/gu, "")
       .toLowerCase();
   const filtered = $derived(
     groups.filter((group) => normalize(group.name).includes(normalize(search.trim()))),

@@ -2,8 +2,8 @@ import { redirect } from "@sveltejs/kit";
 
 import { deleteSession } from "@pitchou/server/session.ts";
 
-import { randomToken, buildLogoutUrl } from "$lib/server/proconnect.ts";
-import { readSessionToken, clearSessionCookie } from "$lib/server/session.ts";
+import { randomToken, buildLogoutUrl } from "#lib/server/proconnect.ts";
+import { readSessionToken, clearSessionCookie } from "#lib/server/session.ts";
 
 import type { RequestHandler } from "./$types";
 

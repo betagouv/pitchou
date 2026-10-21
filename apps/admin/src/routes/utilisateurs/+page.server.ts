@@ -1,6 +1,6 @@
 import { fail } from "@sveltejs/kit";
 import { listUsers, listUserGroupOptions, saveUser } from "@pitchou/server/administration.ts";
-import { parseUser } from "$lib/server/administration.ts";
+import { parseUser } from "#lib/server/administration.ts";
 import type { Actions, PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ locals }) => {
   const [users, groups] = await Promise.all([

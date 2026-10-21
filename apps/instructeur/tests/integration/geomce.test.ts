@@ -79,7 +79,7 @@ test("générerDéclarationGeoMCE résout les spécimens depuis la vue espece_pr
   const [decision] = await db("decision_administrative")
     .select("signature_date")
     .where({ dossier: dossier.id });
-  expect(message!.procedure.date_decision).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  expect(message!.procedure.date_decision).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
   expect(message!.procedure.date_decision).toBe(decision.signature_date.toISOString().slice(0, 10));
 
   expect(message!.procedure.instructeurs.map((i) => i.email)).toContain("instructeur@example.org");

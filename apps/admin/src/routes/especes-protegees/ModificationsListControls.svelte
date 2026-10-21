@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ListToolbar from "$lib/components/ListToolbar.svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import type {
     EtatFilter,
     ListeFilter,

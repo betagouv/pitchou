@@ -34,7 +34,7 @@ test("events open full details with keyboard access and a visible mobile footer"
   await loginAs(admin.codeAcces);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto(E2E_ADMIN_BASE_URL + "/evenements");
-  const row = page.getByRole("button", { name: /^Voir modifierPrescription/ });
+  const row = page.getByRole("button", { name: /^Voir modifierPrescription/u });
   await expect(row).toBeVisible();
   const date = row.locator("td").first();
   expect(
@@ -74,7 +74,7 @@ test("events open full details with keyboard access and a visible mobile footer"
   await expect(dialog.locator("footer button")).toBeInViewport();
   await page.screenshot({ path: testInfo.outputPath("event-details-mobile.png") });
   await dialog.locator("footer button").click();
-  const legacy = page.getByRole("button", { name: /^Voir seConnecter/ });
+  const legacy = page.getByRole("button", { name: /^Voir seConnecter/u });
   await expect(legacy.locator("td").first()).not.toContainText(":");
   await legacy.click();
   await expect(dialog).toContainText("Aucun détail supplémentaire pour cet évènement.");

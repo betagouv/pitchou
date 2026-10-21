@@ -11,21 +11,21 @@ vi.mock("$app/state", async () => {
   const { reactive } = await import("../../../../tests/helpers/reactive.svelte.ts");
   return { page: reactive({ url: new URL("http://localhost/tous-les-dossiers") }) };
 });
-vi.mock("$lib/shared/aarri.ts", () => ({
+vi.mock("#lib/shared/aarri.ts", () => ({
   sendDossierSearchEvent: vi.fn(),
   sendEvenement: vi.fn(),
 }));
 
 import { goto } from "$app/navigation";
 import { page as route } from "$app/state";
-import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ListDossiers from "./ListDossiers.svelte";
 import MesDossiers from "../../../routes/mes-dossiers/MesDossiers.svelte";
 import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
-const routeState: { url: URL } = route;
+const routeState: Pick<typeof route, "url"> = route;
 const summaries = (
   [
     [1, "complet", ["44", "49"], "Owned"],
@@ -44,7 +44,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   routeState.url = new URL("http://localhost/tous-les-dossiers");
   vi.mocked(goto).mockImplementation(async (url) => {
-    routeState.url = new URL(url.toString(), routeState.url);
+    routeState.url = new URL(url.toString(), routeState.url.toString());
   });
   vi.stubGlobal(
     "fetch",
@@ -88,12 +88,12 @@ test.each([1280, 390])(
     ).toBeGreaterThanOrEqual(8);
     await fireEvent.click(filters.getByRole("button", { name: "Tous les départements" }));
     expect(filters.getAllByRole("checkbox")).toHaveLength(4);
-    expect(filters.getByRole("checkbox", { name: /49/ })).toBeChecked();
+    expect(filters.getByRole("checkbox", { name: /49/u })).toBeChecked();
     await fireEvent.click(filters.getByRole("button", { name: "Aucun" }));
     expect(routeState.url.searchParams.get("departements")).toBe("none");
     expect(screen.queryAllByTestId("card-dossier")).toHaveLength(0);
     expect(filters.getByRole("button", { name: "Aucun département" })).toBeTruthy();
-    await fireEvent.click(filters.getByRole("checkbox", { name: /49/ }));
+    await fireEvent.click(filters.getByRole("checkbox", { name: /49/u }));
     expect(routeState.url.searchParams.getAll("departement")).toEqual(["49"]);
     expect(routeState.url.searchParams.get("departements")).toBe("custom");
     expect(screen.queryAllByTestId("card-dossier")).toHaveLength(1);
@@ -114,8 +114,8 @@ test.each([1280, 390])(
         filters.getByText("France entière (lecture seule)").getBoundingClientRect().bottom,
     ).toBeGreaterThanOrEqual(8);
     await fireEvent.click(filters.getByRole("button", { name: "Tous les départements" }));
-    expect(filters.getByRole("checkbox", { name: /75.*Paris/ })).toBeTruthy();
-    expect(filters.getByRole("checkbox", { name: /unknown/ })).toBeTruthy();
+    expect(filters.getByRole("checkbox", { name: /75.*Paris/u })).toBeTruthy();
+    expect(filters.getByRole("checkbox", { name: /unknown/u })).toBeTruthy();
     await fireEvent.click(filters.getByRole("button", { name: "Aucun" }));
     await fireEvent.click(filters.getByRole("button", { name: "Tout" }));
     expect(screen.queryAllByTestId("card-dossier")).toHaveLength(7);
@@ -148,15 +148,15 @@ test.each(["", "?localisation=france"])(
     await fireEvent.click(filters.getByRole("button", { name: "Tous les départements" }));
     expect(filters.getAllByRole("checkbox")).toHaveLength(4);
     for (const code of ["33", "44", "49", "85"]) {
-      expect(filters.getByRole("checkbox", { name: new RegExp(`^${code} `) })).toBeChecked();
+      expect(filters.getByRole("checkbox", { name: new RegExp(`^${code} `, "u") })).toBeChecked();
     }
-    expect(filters.queryByRole("checkbox", { name: /75.*Paris/ })).toBeNull();
-    expect(filters.queryByRole("checkbox", { name: /unknown/ })).toBeNull();
+    expect(filters.queryByRole("checkbox", { name: /75.*Paris/u })).toBeNull();
+    expect(filters.queryByRole("checkbox", { name: /unknown/u })).toBeNull();
     await fireEvent.click(filters.getByRole("button", { name: "Aucun" }));
     expect(screen.queryAllByTestId("card-dossier")).toHaveLength(0);
-    await fireEvent.click(filters.getByRole("checkbox", { name: /^33 / }));
+    await fireEvent.click(filters.getByRole("checkbox", { name: /^33 /u }));
     expect(screen.queryAllByTestId("card-dossier")).toHaveLength(0);
-    await fireEvent.click(filters.getByRole("checkbox", { name: /^49 / }));
+    await fireEvent.click(filters.getByRole("checkbox", { name: /^49 /u }));
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(1);
     expect(routeState.url.searchParams.has("localisation")).toBe(false);
     expect(routeState.url.searchParams.getAll("departement")).toEqual(["33", "49"]);

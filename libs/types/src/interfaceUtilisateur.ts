@@ -3,8 +3,10 @@ import type Dossier from "./database/public/Dossier";
 import type Personne from "./database/public/Personne";
 
 export type TableSort = {
-  id: string; // serializable identifier to identify the selected sort in localStorage
-  nom: string; // display name in the user interface
+  // serializable identifier to identify the selected sort in localStorage
+  id: string;
+  // display name in the user interface
+  nom: string;
   sort: () => void;
 };
 

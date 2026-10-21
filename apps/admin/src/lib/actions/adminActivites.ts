@@ -50,7 +50,7 @@ async function fetchActiviteReferentiel(): Promise<ActiviteReferentielAdmin> {
     !Array.isArray(referentiel?.activites) ||
     !Array.isArray(referentiel?.labels)
   ) {
-    throw new Error("Réponse invalide reçue du serveur pour /api/activites.");
+    throw new TypeError("Réponse invalide reçue du serveur pour /api/activites.");
   }
   return referentiel;
 }

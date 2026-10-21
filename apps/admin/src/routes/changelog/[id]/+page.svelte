@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import { onMount } from "svelte";
   import { beforeNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -16,12 +16,12 @@
     deleteChangelogEntry,
     cleanupChangelogMedia,
     type ChangelogEntryPayload,
-  } from "$lib/actions/adminChangelog.ts";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminChangelog.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
 
   const idParam = page.params.id!;
-  const entryId = /^\d+$/.test(idParam) ? Number(idParam) : null;
+  const entryId = /^\d+$/u.test(idParam) ? Number(idParam) : null;
 
   type Etat = "chargement" | "autorise" | "refuse" | "introuvable";
   let etat = $state<Etat>("chargement");
@@ -70,9 +70,9 @@
   $effect(() => {
     if (etat !== "autorise") return;
     pageHeader.setTitle(
-      model.version !== null
-        ? `Version ${model.version} — ${formatDate(model.date)}`
-        : `Brouillon du ${formatDate(model.date)}`,
+      model.version === null
+        ? `Brouillon du ${formatDate(model.date)}`
+        : `Version ${model.version} — ${formatDate(model.date)}`,
     );
     return () => pageHeader.clearTitle();
   });
@@ -87,7 +87,7 @@
     if (!can("admin:changelog:delete")) return;
     pageHeader.setAction({
       label:
-        model.version !== null ? `Supprimer la version ${model.version}` : "Supprimer le brouillon",
+        model.version === null ? "Supprimer le brouillon" : `Supprimer la version ${model.version}`,
       icon: "fr-icon-delete-line fr-icon--sm",
       onClick: () => (deleteModalOpen = true),
     });

@@ -43,7 +43,7 @@ export function parseOiseaux(
       if (codeActivite === "4") {
         activiteId =
           (nombreOeufs && nombreOeufs > 0) || (nombreNids && nombreNids > 0) ? "P-4-1" : "P-4-2";
-      } else if (codeActivite == "2") {
+      } else if (String(codeActivite) === "2") {
         activiteId = "P-2-1";
       } else {
         activiteId = `P-${codeActivite}`;

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { can } from "$lib/access.svelte.ts";
-  import { createChangelogEntry } from "$lib/actions/adminChangelog.ts";
-  import RichTextEditor from "$lib/components/RichTextEditor.svelte";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
+  import { createChangelogEntry } from "#lib/actions/adminChangelog.ts";
+  import RichTextEditor from "#lib/components/RichTextEditor.svelte";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import EntryFields from "../EntryFields.svelte";
   import { EntryModel } from "../entryModel.svelte.ts";
 

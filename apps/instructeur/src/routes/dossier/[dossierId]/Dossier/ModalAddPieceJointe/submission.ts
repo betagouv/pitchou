@@ -1,10 +1,13 @@
 import { addOtherAttachment } from "../otherAttachment.ts";
 import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
 export type TypePieceJointe =
-  "Décision administrative" | "Avis expert" | "Saisine expert" | "Autre";
+  | "Décision administrative"
+  | "Avis expert"
+  | "Saisine expert"
+  | "Autre";
 type Values = {
   dossier: Pick<DossierFull, "id" | "avisExpert">;
   files: FileList;

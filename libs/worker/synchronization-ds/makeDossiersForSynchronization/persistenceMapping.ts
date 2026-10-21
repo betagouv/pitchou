@@ -67,7 +67,7 @@ export async function makeChampsDossierForInitialization(
   return {
     dossier: {
       ...makeCommonDossierColumnsForSync(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
-      ...(additionalData?.dossier || {}),
+      ...additionalData?.dossier,
       depot_date: additionalData?.dossier?.depot_date ?? dossierDS.dateDepot,
       demarche_number: demarcheNumber,
       source: "demarche_numerique",
@@ -84,7 +84,7 @@ function traitementPhaseToDossierPhase(state: Traitement["state"]): DossierPhase
   if (state === "accepte") return "Contrôle";
   if (state === "sans_suite") return "Classé sans suite";
   if (state === "refuse") return "Obligations terminées";
-  throw `Traitement phase non reconnue: ${state}`;
+  throw new Error(`Traitement phase non reconnue: ${state}`);
 }
 
 export function makeEvenementsPhaseDossierFromTraitementsDS(

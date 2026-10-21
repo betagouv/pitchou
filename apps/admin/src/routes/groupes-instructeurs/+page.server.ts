@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import { listGroups, saveGroup } from "@pitchou/server/administration.ts";
-import { parseGroup } from "$lib/server/administration.ts";
-import { DEPARTEMENT_VALUES } from "$lib/server/dossierValidation/columnAcceptedValues.ts";
+import { parseGroup } from "#lib/server/administration.ts";
+import { DEPARTEMENT_VALUES } from "#lib/server/dossierValidation/columnAcceptedValues.ts";
 import type { Actions, PageServerLoad } from "./$types";
 export const load: PageServerLoad = async () => ({
   ...(await listGroups()),

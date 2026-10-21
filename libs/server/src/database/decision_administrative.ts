@@ -144,7 +144,7 @@ export async function deleteDecisionAdministrative(
 
   const result = await databaseConnection("decision_administrative").delete().where({ id });
 
-  if (fichierIds.length >= 1) {
+  if (fichierIds.length > 0) {
     await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
   }
 

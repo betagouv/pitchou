@@ -25,7 +25,7 @@ test("all admin pages contain their content on desktop and mobile", async ({
   await page.getByRole("button", { name: "Nouvelle entrée" }).click();
   await expect(page.getByLabel("Titre", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
-  await expect(page).toHaveURL(/\/changelog\/\d+$/);
+  await expect(page).toHaveURL(/\/changelog\/\d+$/u);
   const entryPath = new URL(page.url()).pathname;
   const paths = [
     "/",
@@ -73,6 +73,9 @@ test("all admin pages contain their content on desktop and mobile", async ({
   await expect(page.locator("#project-name")).toBeVisible();
   await expect(page.locator("#information-title")).toHaveCSS("font-size", "16px");
   await page.locator("#project-name").fill("Projet mis à jour dans Pitchou");
+  await page.locator('label[for="demandeur-physical"]').click();
+  await page.locator("#physical-last-name").fill("Martin");
+  await page.locator("#physical-first-names").fill("Camille");
   await page.locator("main").evaluate((el) => {
     el.parentElement!.scrollTop = 100000;
   });

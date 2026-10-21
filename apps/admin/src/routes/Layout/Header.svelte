@@ -3,7 +3,7 @@
   import { afterNavigate, beforeNavigate } from "$app/navigation";
   import { onDestroy } from "svelte";
 
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { pageInfoFor } from "./nav.ts";
   import HeaderDownloadMenu from "./HeaderDownloadMenu.svelte";
 

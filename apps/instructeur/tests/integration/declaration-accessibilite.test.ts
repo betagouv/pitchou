@@ -9,5 +9,5 @@ test("GET /declaration-accessibilite_*.html sert la déclaration d'accessibilit�
   expect(res.status).toBe(200);
 
   const body = await res.text();
-  expect(body).toMatch(/Déclaration d.accessibilité/);
+  expect(body).toMatch(/Déclaration d.accessibilité/u);
 });

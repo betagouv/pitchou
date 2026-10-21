@@ -43,7 +43,7 @@ const legacyTabAliases: Record<string, DossierTab> = {
 };
 
 export function parseDossierTab(hash: string): DossierTab | undefined {
-  const tab = hash.replace(/^#/, "");
+  const tab = hash.replace(/^#/u, "");
   if (dossierTabs.some(({ id }) => id === tab)) return tab as DossierTab;
   return legacyTabAliases[tab];
 }

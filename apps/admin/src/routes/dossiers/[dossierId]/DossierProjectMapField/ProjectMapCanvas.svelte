@@ -130,7 +130,6 @@
   }
 
   $effect(() => {
-    value;
     if (loaded) updateMap();
   });
 

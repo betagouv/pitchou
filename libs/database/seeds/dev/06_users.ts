@@ -13,7 +13,7 @@ export async function seed(db: Knex) {
         .ignore()
         .returning("id");
       // A rerun preserves coverage subsequently configured through the admin app.
-      if (created && departments.length)
+      if (created && departments.length > 0)
         await trx("groupe_departement").insert(
           departments.map((department) => ({ groupe_instructeurs: created.id, department })),
         );
@@ -54,7 +54,7 @@ export async function seed(db: Knex) {
         .filter(Boolean),
     ),
   ];
-  if (!adminEmails.length) return;
+  if (adminEmails.length === 0) return;
   await db.transaction(async (trx) => {
     const group = await trx("groupe_instructeurs")
       .where({ name: "Administrateur", demarche_number: SEED_DEMARCHE_NUMBER })

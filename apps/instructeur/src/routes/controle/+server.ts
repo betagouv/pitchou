@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
   addControles,
@@ -29,7 +29,7 @@ const controleProperties = new Set([
   "next_due_date",
 ]);
 
-const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 function parseControle(value: Record<string, unknown>): Partial<Controle> {
   rejectUnknownProperties(value, controleProperties);

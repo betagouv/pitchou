@@ -1,6 +1,6 @@
 export { dumpDossierMessages } from "./dossier/messages.ts";
 export { dumpDossiers, getDossierIdsFromDS_Ids } from "./dossier/sync.ts";
-export { getDossierFull, listAllDossiersFull } from "./dossier/full.ts";
+export { getDossierFull } from "./dossier/full.ts";
 export { dossierFullForReadOnly, isFichierSharedInReadOnly } from "./dossier/readOnly.ts";
 export { getDossiersSummariesForUser } from "./dossier/summary.ts";
 export {

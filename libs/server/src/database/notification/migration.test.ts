@@ -36,7 +36,7 @@ test("migration SQL preserves existing personal reads and leaves new arrivals/fo
     expect(files.sql).toContain("earlier.type = a.type");
     expect(files.sql).toContain("a.id::text");
     expect(files.sql).toContain("baseline");
-    expect(queries.some(({ sql }) => /^\s*insert into ["']?notification_arrival/i.test(sql))).toBe(
+    expect(queries.some(({ sql }) => /^\s*insert into ["']?notification_arrival/iu.test(sql))).toBe(
       false,
     );
     expect(

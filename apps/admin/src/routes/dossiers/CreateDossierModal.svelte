@@ -1,12 +1,20 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
-  import { onMount } from "svelte";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
+  import { onMount, tick } from "svelte";
   import { goto } from "$app/navigation";
 
   import Select from "@pitchou/ui/Select.svelte";
 
-  import { createMinimalDossier } from "$lib/actions/adminDossiers.ts";
+  import { createMinimalDossier } from "#lib/actions/adminDossiers.ts";
   import { departements } from "@pitchou/common/departements.ts";
+  import CreateDossierPorteurFields from "./CreateDossierPorteurFields.svelte";
+  import {
+    emptyPorteurForm,
+    porteurFieldIds,
+    porteurFormErrors,
+    porteurPayload,
+    type PorteurField,
+  } from "./createDossierPorteur.ts";
 
   let { onClose }: { onClose: () => void } = $props();
   let name = $state("");
@@ -14,6 +22,8 @@
   let saving = $state(false);
   let error = $state<string | null>(null);
   let nameInput = $state<HTMLInputElement>();
+  let porteur = $state(emptyPorteurForm());
+  let showPorteurErrors = $state(false);
 
   onMount(() => {
     nameInput?.focus();
@@ -21,6 +31,14 @@
 
   async function create(event: SubmitEvent) {
     event.preventDefault();
+    const [invalidField] = Object.keys(porteurFormErrors(porteur)) as PorteurField[];
+    if (invalidField) {
+      // Shown under each invalid field, with the focus on the first one.
+      showPorteurErrors = true;
+      await tick();
+      document.querySelector<HTMLElement>(`#${CSS.escape(porteurFieldIds[invalidField])}`)?.focus();
+      return;
+    }
     saving = true;
     error = null;
     try {
@@ -28,6 +46,7 @@
       const { id } = await createMinimalDossier({
         name: name.trim(),
         primary_department: department,
+        porteur_de_projet: porteurPayload(porteur),
       });
       await goto(`/dossiers/${id}`);
       pageHeader.showSaved("Dossier créé");
@@ -96,6 +115,11 @@
             bind:value={department}
           />
         </div>
+        <CreateDossierPorteurFields
+          bind:form={porteur}
+          showErrors={showPorteurErrors}
+          disabled={saving}
+        />
         {#if error}
           <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{error}</p></div>
         {/if}

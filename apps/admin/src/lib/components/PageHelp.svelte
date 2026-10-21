@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick, type Snippet } from "svelte";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import Modal from "./Modal.svelte";
 
   let { title, children }: { title: string; children: Snippet } = $props();
@@ -31,7 +31,7 @@
       );
     if (!controls?.length) return;
     const first = controls[0];
-    const last = controls[controls.length - 1];
+    const last = Array.from(controls).at(-1)!;
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();

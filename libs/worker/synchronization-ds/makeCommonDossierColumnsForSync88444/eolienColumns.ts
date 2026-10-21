@@ -48,7 +48,7 @@ export function makeDossierEolienColumns88444(
     eolien_monitoring_visits_count: windMortality ? monitoringVisitsCount : null,
     eolien_weekly_monitoring_visits_count: windMortality ? weeklyVisitsCount : null,
     eolien_mortality_actions:
-      windMortality && validActions.length >= 1 ? JSON.stringify(validActions) : null,
+      windMortality && validActions.length > 0 ? JSON.stringify(validActions) : null,
     eolien_carcass_collection_method: showsCarcassAnalysis
       ? getString("Description du mode de collecte sur le terrain") || null
       : null,

@@ -29,7 +29,7 @@ test("displays selected reference objects through the parent's state proxy", asy
     ["Moyen de poursuite", "Avion"],
   ]) {
     const trigger = page.getByRole("combobox", { name: label, exact: true });
-    await expect.element(trigger).toHaveTextContent(value);
+    await expect.element(trigger).toMatchTextContent(value);
     await trigger.click();
     await expect
       .element(page.getByRole("option", { name: value, exact: true }))
@@ -44,7 +44,7 @@ test("reselecting the same activity preserves every quantity, method and transpo
   expect(component.getImpact()).toEqual(initialImpact);
   await expect
     .element(page.getByRole("combobox", { name: "Nombre d’individus" }))
-    .toHaveTextContent("11-100");
+    .toMatchTextContent("11-100");
   await expect.element(page.getByRole("spinbutton", { name: "Nids", exact: true })).toHaveValue(0);
   await expect.element(page.getByRole("spinbutton", { name: "Œufs" })).toHaveValue(3);
   await expect
@@ -66,7 +66,7 @@ test.each(["Destruction", "-"])("changing activity to %s clears all details", as
   });
   await expect
     .element(page.getByRole("combobox", { name: "Type d’impact" }))
-    .toHaveTextContent(option);
+    .toMatchTextContent(option);
 });
 
 test("method and transport selections keep reference objects in the bound impact", async () => {
@@ -84,8 +84,8 @@ test("method and transport selections keep reference objects in the bound impact
   expect(component.getImpact()).toEqual(initialImpact);
   await expect
     .element(page.getByRole("combobox", { name: "Méthode", exact: true }))
-    .toHaveTextContent("Filets");
+    .toMatchTextContent("Filets");
   await expect
     .element(page.getByRole("combobox", { name: "Moyen de poursuite" }))
-    .toHaveTextContent("Avion");
+    .toMatchTextContent("Avion");
 });

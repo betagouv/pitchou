@@ -5,12 +5,15 @@ import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type File from "@pitchou/types/database/public/File.ts";
 import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
-import type Personne from "@pitchou/types/database/public/Personne.ts";
+import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import {
+  joinPorteurDeProjet,
+  porteurDeProjetColumns,
+  withPorteurDeProjet,
+} from "../dossier/porteur.ts";
 import { DossierNotFoundError } from "./errors.ts";
-import type {
-  AdminDemandeurPersonneMoraleRelations,
-  AdminDossierIdentite,
-} from "./relationTypes.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
+import { getDossierActeurs } from "../dossier/acteurs.ts";
 
 export type AdminPhaseHistoryEntry = {
   phase: DossierPhase;
@@ -27,13 +30,9 @@ export type AdminDossierDetail = {
   source: DossierSource;
   managedByDn: boolean;
   phase: DossierPhase;
-  demandeur_personne_physique: Pick<
-    Personne,
-    "last_name" | "first_names" | "email" | "address" | "phone" | "role"
-  > | null;
-  demandeur_personne_morale: AdminDemandeurPersonneMoraleRelations | null;
+  porteur_de_projet: PorteurDeProjet | null;
   groupes: Pick<GroupeInstructeurs, "id" | "name">[];
-  identites: AdminDossierIdentite[];
+  acteurs: DossierActeur[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
   especesImpactees: Pick<File, "id" | "name" | "media_type"> | null;
@@ -48,70 +47,60 @@ export async function getDossierDetailForAdmin(
     .where({ id: dossierId })
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
-  const [
-    personne,
-    entreprise,
-    groupes,
-    identites,
-    evenementsPhase,
-    piecesJointes,
-    especesImpactees,
-  ] = await Promise.all([
-    dossier.demandeur_personne_physique
-      ? db("personne").select("*").where({ id: dossier.demandeur_personne_physique }).first()
-      : null,
-    dossier.demandeur_personne_morale
-      ? db("entreprise").select("*").where({ siret: dossier.demandeur_personne_morale }).first()
-      : null,
-    db("edge_groupe_instructeurs__dossier")
-      .select(["groupe_instructeurs.id", "groupe_instructeurs.name"])
-      .join("groupe_instructeurs", {
-        "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-      })
-      .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
-      .orderBy("groupe_instructeurs.name"),
-    db("identite_dossier").select("*").where({ dossier: dossierId }),
-    db("evenement_phase_dossier")
-      .select([
-        "evenement_phase_dossier.phase",
-        "evenement_phase_dossier.timestamp",
-        "personne.email as caused_by_email",
-        "evenement_phase_dossier.demarche_numerique_agent_email",
-      ])
-      .leftJoin("auth_user as personne", {
-        "personne.id": "evenement_phase_dossier.caused_by_personne",
-      })
-      .where({ dossier: dossierId })
-      .orderBy("timestamp", "desc"),
-    db("edge_dossier__fichier_pieces_jointes_petitionnaire")
-      .select([
-        "file.id",
-        "file.name",
-        "file.media_type",
-        db.raw("file.size::integer as size"),
-        "file.created_at",
-        "file.demarche_numerique_created_at",
-      ])
-      .join("file", { "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier" })
-      .where({ "edge_dossier__fichier_pieces_jointes_petitionnaire.dossier": dossierId })
-      .orderBy("file.created_at", "desc"),
-    dossier.especes_impactees
-      ? db("file")
-          .select(["id", "name", "media_type"])
-          .where({ id: dossier.especes_impactees })
-          .first()
-      : null,
-  ]);
+  const [porteurRow, groupes, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
+    await Promise.all([
+      joinPorteurDeProjet(db("dossier"))
+        .select(porteurDeProjetColumns)
+        .where("dossier.id", dossierId)
+        .first(),
+      db("edge_groupe_instructeurs__dossier")
+        .select(["groupe_instructeurs.id", "groupe_instructeurs.name"])
+        .join("groupe_instructeurs", {
+          "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
+        })
+        .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
+        .orderBy("groupe_instructeurs.name"),
+      getDossierActeurs([dossierId], db),
+      db("evenement_phase_dossier")
+        .select([
+          "evenement_phase_dossier.phase",
+          "evenement_phase_dossier.timestamp",
+          "personne.email as caused_by_email",
+          "evenement_phase_dossier.demarche_numerique_agent_email",
+        ])
+        .leftJoin("auth_user as personne", {
+          "personne.id": "evenement_phase_dossier.caused_by_personne",
+        })
+        .where({ dossier: dossierId })
+        .orderBy("timestamp", "desc"),
+      db("edge_dossier__fichier_pieces_jointes_petitionnaire")
+        .select([
+          "file.id",
+          "file.name",
+          "file.media_type",
+          db.raw("file.size::integer as size"),
+          "file.created_at",
+          "file.demarche_numerique_created_at",
+        ])
+        .join("file", { "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier" })
+        .where({ "edge_dossier__fichier_pieces_jointes_petitionnaire.dossier": dossierId })
+        .orderBy("file.created_at", "desc"),
+      dossier.especes_impactees
+        ? db("file")
+            .select(["id", "name", "media_type"])
+            .where({ id: dossier.especes_impactees })
+            .first()
+        : null,
+    ]);
   const source: DossierSource = isDossierSource(dossier.source) ? dossier.source : "unknown";
   return {
     dossier,
     source,
     managedByDn: source === "demarche_numerique",
     phase: evenementsPhase[0]?.phase ?? "Accompagnement amont",
-    demandeur_personne_physique: personne ?? null,
-    demandeur_personne_morale: entreprise ?? null,
+    porteur_de_projet: withPorteurDeProjet(porteurRow ?? {}).porteur_de_projet,
     groupes,
-    identites,
+    acteurs: acteurs.get(dossierId) ?? [],
     evenementsPhase,
     piecesJointes,
     especesImpactees: especesImpactees ?? null,

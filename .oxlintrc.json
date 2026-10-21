@@ -1,0 +1,140 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "promise"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "eslint/eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "eslint/no-inline-comments": "error",
+    "eslint/no-negated-condition": "error",
+    "eslint/no-else-return": "error",
+    "eslint/no-eval": "error",
+    "eslint/no-new-func": "error",
+    "eslint/no-promise-executor-return": "error",
+    "eslint/no-throw-literal": "error",
+    "eslint/no-var": "error",
+    "eslint/preserve-caught-error": "error",
+    "eslint/require-unicode-regexp": "error",
+    "unicorn/explicit-length-check": "error",
+    "unicorn/escape-case": "error",
+    "unicorn/prefer-type-error": "error",
+    "unicorn/prefer-top-level-await": "error",
+    "unicorn/prefer-string-replace-all": "error",
+    "unicorn/prefer-dom-node-dataset": "error",
+    "unicorn/prefer-dom-node-append": "error",
+    "unicorn/prefer-query-selector": "error",
+    "unicorn/prefer-number-coercion": "error",
+    "unicorn/no-hex-escape": "error",
+    "promise/no-return-wrap": "error",
+    "promise/no-new-statics": "error",
+    "promise/param-names": "error",
+    "promise/no-multiple-resolved": "error",
+    "eslint/max-lines-per-function": [
+      "error",
+      {
+        "max": 75,
+        "skipComments": true,
+        "skipBlankLines": true
+      }
+    ],
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-ignore": true,
+        "ts-nocheck": true,
+        "ts-expect-error": "allow-with-description",
+        "ts-check": false
+      }
+    ],
+    "eslint/no-loop-func": "error",
+    "eslint/max-depth": "error",
+    "eslint/no-lonely-if": "error",
+    "eslint/no-useless-return": "error",
+    "eslint/array-callback-return": "error",
+    "oxc/branches-sharing-code": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "unicorn/prefer-at": "error",
+    "unicorn/prefer-dom-node-remove": "error",
+    "unicorn/no-useless-promise-resolve-reject": "error",
+    "unicorn/new-for-builtins": "error",
+    "unicorn/prefer-import-meta-properties": "error",
+    "unicorn/prefer-array-some": "error",
+    "unicorn/prefer-regexp-test": "error",
+    "unicorn/prefer-native-coercion-functions": "error",
+    "unicorn/no-immediate-mutation": "error",
+    "unicorn/no-object-as-default-parameter": "error",
+    "unicorn/prefer-code-point": "error",
+    "unicorn/prefer-string-slice": "error",
+    "unicorn/prefer-single-call": "error"
+  },
+  "ignorePatterns": [
+    "libs/types/src/database/**",
+    "libs/types/src/demarche-numerique/**",
+    "docs/style/dsfr/**",
+    "**/*.min.js"
+  ],
+  "options": {
+    "reportUnusedDisableDirectives": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.mjs"],
+      "plugins": ["typescript", "unicorn", "oxc", "promise", "vitest"],
+      "rules": {
+        "vitest/no-focused-tests": "error",
+        "vitest/no-disabled-tests": "error",
+        "vitest/no-identical-title": "error",
+        "vitest/valid-describe-callback": "error",
+        "vitest/valid-expect": [
+          "error",
+          {
+            "maxArgs": 2
+          }
+        ],
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": ["expect", "expectTracking"]
+          }
+        ],
+        "vitest/no-standalone-expect": [
+          "error",
+          {
+            "additionalTestBlockFunctions": ["afterEach"]
+          }
+        ],
+        "vitest/no-test-return-statement": "error",
+        "vitest/no-interpolation-in-snapshots": "error"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/tests/**",
+        "**/*.testHelpers.ts",
+        "libs/server/src/database/fakeDatabase.ts",
+        "libs/database/migrations/**",
+        "libs/database/seeds/**"
+      ],
+      "rules": {
+        "eslint/max-lines-per-function": "off"
+      }
+    }
+  ]
+}

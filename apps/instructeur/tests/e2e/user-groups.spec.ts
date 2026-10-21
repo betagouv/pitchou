@@ -46,7 +46,7 @@ test("user editor saves, removes and prepares group memberships", async ({
   await row.click();
   await expect(dialog.getByRole("checkbox", { name: "Ancien service", exact: true })).toBeChecked();
   await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).uncheck();
-  await expect(dialog.getByText(/Aucun groupe actif sélectionné/)).toBeVisible();
+  await expect(dialog.getByText(/Aucun groupe actif sélectionné/u)).toBeVisible();
   await dialog.getByRole("checkbox", { name: "Ancien service", exact: true }).uncheck();
   await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(dialog).toHaveCount(0);

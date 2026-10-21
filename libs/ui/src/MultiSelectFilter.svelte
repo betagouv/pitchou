@@ -54,7 +54,7 @@
     const values = checkedValues.includes(value)
       ? checkedValues.filter((v) => v !== value)
       : [...checkedValues, value];
-    onChange(values, values.length ? "custom" : "none");
+    onChange(values, values.length > 0 ? "custom" : "none");
   }
 
   const summary = $derived.by(() => {

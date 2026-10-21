@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { activiteIconUrl } from "@pitchou/ui/activites/activiteIcon.ts";
-import type { ActiviteReferentielAdmin } from "$lib/actions/adminActivites.ts";
+import type { ActiviteReferentielAdmin } from "#lib/actions/adminActivites.ts";
 import {
   activiteSelectEntries,
   groupeSections,

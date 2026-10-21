@@ -9,7 +9,7 @@
 
   import AdminHeader from "./Layout/Header.svelte";
   import Sidebar from "./Layout/Sidebar.svelte";
-  import { uploadLimit } from "$lib/upload/uploadLimit.svelte.ts";
+  import { uploadLimit } from "#lib/upload/uploadLimit.svelte.ts";
 
   import type { LayoutData } from "./$types";
 

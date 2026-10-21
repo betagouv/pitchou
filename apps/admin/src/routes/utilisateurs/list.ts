@@ -14,7 +14,7 @@ function positivePage(value: string | null) {
   const page = Number(value);
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
-export function parseQuery(params: URLSearchParams) {
+export function parseQuery(params: Pick<URLSearchParams, "get">) {
   const sort = params.get("tri");
   const profile = params.get("profil") ?? "";
   return {
@@ -53,4 +53,4 @@ export function compareUsers(a: User, b: User, sort: SortKey, order: SortOrder) 
   );
 }
 
-export { visiblePages } from "$lib/components/pagination.ts";
+export { visiblePages } from "#lib/components/pagination.ts";

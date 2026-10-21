@@ -6,13 +6,13 @@ import { cleanup, render } from "@testing-library/svelte";
 import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 import { dossier, setupDsfrModalMock } from "./ouvrirModaleAjouterPieceJointe.testHelpers.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 beforeEach(setupDsfrModalMock);
 
 afterEach(() => {
   cleanup();
-  document.documentElement.removeAttribute("data-fr-theme");
+  delete document.documentElement.dataset.frTheme;
 });
 
 test.each(["light", "dark"])(

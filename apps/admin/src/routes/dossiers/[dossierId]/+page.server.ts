@@ -1,9 +1,9 @@
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
-import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { simulatableChamps, simulationAllowed } from "$lib/server/simulation.ts";
-import { speciesSimulationGroups } from "$lib/server/simulateSpecies.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
+import { parseDossierId, throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { simulatableChamps, simulationAllowed } from "#lib/server/simulation.ts";
+import { speciesSimulationGroups } from "#lib/server/simulateSpecies.ts";
 
 import type { PageServerLoad } from "./$types";
 

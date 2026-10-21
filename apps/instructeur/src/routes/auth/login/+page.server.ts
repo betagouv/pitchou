@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 
-import { sanitizeInternalPath } from "$lib/server/redirect.ts";
+import { sanitizeInternalPath } from "#lib/server/redirect.ts";
 
 import type { PageServerLoad } from "./$types";
 
@@ -9,7 +9,7 @@ export const load: PageServerLoad = ({ url, locals }) => {
 
   // Already signed in: skip the wall.
   if (locals.user) {
-    if (!locals.user.groupes.length || !locals.user.permissions.includes("dossier:read")) {
+    if (locals.user.groupes.length === 0 || !locals.user.permissions.includes("dossier:read")) {
       redirect(303, "/auth/acces-refuse");
     }
     redirect(303, redirectTo);

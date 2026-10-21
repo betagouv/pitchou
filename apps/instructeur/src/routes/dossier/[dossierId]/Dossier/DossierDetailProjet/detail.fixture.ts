@@ -2,8 +2,8 @@ import { speciesDossier } from "./impactGroups.fixture.ts";
 import type { DossierFull, GeoJSONFeatureCollection } from "@pitchou/types/API_Pitchou.ts";
 import type { FieldChange } from "@pitchou/types/notification.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 export const projectMap: GeoJSONFeatureCollection = {
   type: "FeatureCollection",
@@ -44,7 +44,7 @@ export function detailDossier(changes: FieldChange[], overrides: Partial<Dossier
     ...overrides,
     notificationSnapshot: {
       dossier: speciesDossier().id,
-      viewed: !changes.length,
+      viewed: changes.length === 0,
       updated_at: new Date("2026-09-01T12:00:00Z"),
       viewed_at: null,
       changes,

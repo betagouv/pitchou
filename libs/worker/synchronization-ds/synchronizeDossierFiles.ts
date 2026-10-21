@@ -66,20 +66,21 @@ export async function prepareDossierFiles(
   ]);
   const preparedFiles = new Map<FileId, PreparedImpactFile>();
   const candidates = [...(especesImpactees ?? [])];
-  const imported: { demarche_numerique_number: string; source_file: FileId }[] = candidates.length
-    ? await transaction("impact_espece as i")
-        .join("dossier as d", "d.id", "i.dossier")
-        .where("d.source", "demarche_numerique")
-        .whereIn(
-          "d.demarche_numerique_number",
-          candidates.map(([number]) => number),
-        )
-        .whereIn(
-          "i.source_file",
-          candidates.map(([, fileId]) => fileId),
-        )
-        .distinct("d.demarche_numerique_number", "i.source_file")
-    : [];
+  const imported: { demarche_numerique_number: string; source_file: FileId }[] =
+    candidates.length > 0
+      ? await transaction("impact_espece as i")
+          .join("dossier as d", "d.id", "i.dossier")
+          .where("d.source", "demarche_numerique")
+          .whereIn(
+            "d.demarche_numerique_number",
+            candidates.map(([number]) => number),
+          )
+          .whereIn(
+            "i.source_file",
+            candidates.map(([, fileId]) => fileId),
+          )
+          .distinct("d.demarche_numerique_number", "i.source_file")
+      : [];
   const importedPairs = new Set(
     imported.map((row) => `${row.demarche_numerique_number}:${row.source_file}`),
   );
@@ -111,7 +112,7 @@ export function synchronizeDownloadedDossierFiles(
       if (isChampDSPieceJustificative(field) && field.files.length === 0)
         files.set(dossier.number, null);
     }
-    if (files.size >= 1) {
+    if (files.size > 0) {
       return synchronizeFichiersEspecesImpacteesFromDS88444(
         files,
         dossierIdByDNNumber,
@@ -127,7 +128,7 @@ export function synchronizeDownloadedDossierFiles(
           const id = dossierIdByDNNumber.get(number);
           if (!id) {
             console.log("dossierIdByDNNumber", dossierIdByDNNumber);
-            throw `Id de dossier manquant pour dossier DS ${number}`;
+            throw new Error(`Id de dossier manquant pour dossier DS ${number}`);
           }
           return [id, files] as const;
         }),

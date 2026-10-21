@@ -1,9 +1,9 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import ListTable from "$lib/components/ListTable.svelte";
+  import ListTable from "#lib/components/ListTable.svelte";
   import EventDetailsModal from "./EventDetailsModal.svelte";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
-  import type { EvenementMetriqueRow } from "$lib/actions/adminEvenements.ts";
+  import type { EvenementMetriqueRow } from "#lib/actions/adminEvenements.ts";
 
   type Props = {
     total: number;

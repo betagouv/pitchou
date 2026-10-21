@@ -22,7 +22,7 @@ export function isNavActive(pathname: string, href: string): boolean {
 
 export type PageInfo = { title: string; backHref?: string };
 
-const CHANGELOG_ENTRY = /^\/changelog\/\d+$/;
+const CHANGELOG_ENTRY = /^\/changelog\/\d+$/u;
 
 /**
  * The shell header owns the page `<h1>`: title (and optional back arrow) come

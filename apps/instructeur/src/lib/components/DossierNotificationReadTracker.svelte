@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { updateNotificationForDossier } from "#lib/dossier/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
   import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 
   let { dossierId, readOnly }: { dossierId: DossierId; readOnly: boolean } = $props();
   const arrival = $derived(!readOnly && !!store.notificationByDossier.get(dossierId)?.new_arrival);
   const followRevision = $derived(
-    !readOnly ? store.notificationByDossier.get(dossierId)?.new_follow?.revision : undefined,
+    readOnly ? undefined : store.notificationByDossier.get(dossierId)?.new_follow?.revision,
   );
 
   function startTimer(update: NotificationUpdate) {

@@ -3,13 +3,17 @@ import type {
   IdentiteDossierData,
   PersonnesEntreprisesDataInitializer,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
+import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type {
   DemarchesSimplifeesAddress,
+  DemarchesSimplifeesEtablissement,
   DossierDS88444,
 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
+import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import { inseeHeadcountRangeLabel } from "../inseeHeadcountRange.ts";
+import { getDossierActeurs88444 } from "./getDossierActeurs88444.ts";
 
 function formatPostalAddress(
   address: DemarchesSimplifeesAddress | null | undefined,
@@ -19,6 +23,9 @@ function formatPostalAddress(
   return [address.streetAddress, secondLine].filter(Boolean).join("\n") || undefined;
 }
 
+/**
+ * The people of a Démarche Numérique dossier.
+ */
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
@@ -38,11 +45,126 @@ export function getPersonnesEntreprisesData88444(
   )?.stringValue;
   const hasMandataire = Boolean(nomMandataire || prenomMandataire);
   const demandeurIdentityEmail = demandeur.email || (hasMandataire ? undefined : usager.email);
-  const deposant = {
-    first_names: demandeur.prenom,
-    last_name: demandeur.nom,
-    email: demandeurIdentityEmail ? normalizeEmail(demandeurIdentityEmail) : undefined,
+  // Still written to identite_dossier, which will soon be removed in favor of acteurs.
+  const identites = initialIdentites(dossierDS, demandeurIdentityEmail);
+
+  let porteurDeProjet: PorteurDeProjetInitializer;
+  let demandeurPersonnePhysique;
+  if (personneMoraleOuPhysique === "une personne physique") {
+    const email = emailContact || demandeurIdentityEmail;
+    const addressChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
+    const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
+    demandeurPersonnePhysique = {
+      first_names: demandeur.prenom,
+      last_name: demandeur.nom,
+      email: email ? normalizeEmail(email) : undefined,
+    };
+    // Keep the reviewed contact values on this dossier, not on a shared person.
+    Object.assign(identites[0], {
+      email: demandeurPersonnePhysique.email ?? null,
+      phone: phoneContact || null,
+      role: role || null,
+    });
+    // dossier.demandeur is the porteur de projet, with or without a mandataire.
+    const porteurEmail = emailContact || demandeur.email;
+    porteurDeProjet = {
+      type: "personne_physique",
+      first_names: demandeur.prenom || null,
+      last_name: demandeur.nom || null,
+      email: porteurEmail ? normalizeEmail(porteurEmail) : null,
+      address: formatPostalAddress(addressChamp?.address) ?? null,
+      phone: phoneContact || null,
+      role: role || null,
+    };
+  }
+
+  const siretChamp = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"));
+  const etablissement = siretChamp?.etablissement;
+  const demandeurPersonneMorale = formatEntreprise(etablissement);
+
+  if (personneMoraleOuPhysique === "une personne morale") {
+    // Without etablissement (e.g. API Entreprise unavailable), fall back to the entered SIRET.
+    const siret = etablissement?.siret || siretChamp?.stringValue?.replaceAll(/\s/gu, "");
+    if (/^\d{14}$/u.test(siret ?? "")) {
+      porteurDeProjet = { type: "personne_morale", siret: siret as EntrepriseSiret };
+    }
+    appendRepresentative(identites, champById, pitchouKeyToChampDS, emailContact, phoneContact);
+  }
+
+  return {
+    demandeur_personne_morale: demandeurPersonneMorale,
+    demandeur_personne_physique: demandeurPersonnePhysique,
+    identites,
+    porteur_de_projet: porteurDeProjet,
+    acteurs: getDossierActeurs88444(
+      dossierDS,
+      (key) => champById.get(pitchouKeyToChampDS.get(key))?.stringValue,
+    ),
   };
+}
+
+function formatEntreprise(etablissement: DemarchesSimplifeesEtablissement | null | undefined) {
+  let demandeurPersonneMorale;
+  if (etablissement) {
+    const { siret, address, entreprise, libelleNaf, naf } = etablissement;
+    const {
+      raisonSociale,
+      siren,
+      formeJuridique,
+      dateCreation,
+      etatAdministratif,
+      capitalSocial,
+      codeEffectifEntreprise,
+    } = entreprise ?? {};
+    demandeurPersonneMorale = {
+      siret: siret as EntrepriseSiret,
+      legal_name: raisonSociale,
+      address: formatPostalAddress(address),
+      siren: siren || undefined,
+      legal_form: formeJuridique || undefined,
+      naf_code: naf || undefined,
+      naf_label: libelleNaf || undefined,
+      creation_date: dateCreation || undefined,
+      admin_status: etatAdministratif || undefined,
+      headcount: inseeHeadcountRangeLabel(codeEffectifEntreprise),
+      share_capital: capitalSocial && capitalSocial !== "-1" ? capitalSocial : undefined,
+      insee_code: address?.cityCode || undefined,
+      postal_code: address?.postalCode || undefined,
+      department: address?.departmentName || undefined,
+      region: address?.regionName || undefined,
+    };
+  }
+  return demandeurPersonneMorale;
+}
+
+function appendRepresentative(
+  identites: IdentiteDossierData[],
+  champById: Map<string | undefined, any>,
+  pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
+  emailContact: string | undefined,
+  phoneContact: string | undefined,
+) {
+  const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
+  const firstNames = champById.get(pitchouKeyToChampDS.get("Prénom du représentant"))?.stringValue;
+  const role = champById.get(pitchouKeyToChampDS.get("Qualité du représentant"))?.stringValue;
+  if (lastName || firstNames || role || emailContact || phoneContact) {
+    identites.push({
+      type: "representant",
+      last_name: lastName || null,
+      first_names: firstNames || null,
+      email: emailContact ? normalizeEmail(emailContact) : null,
+      phone: phoneContact || null,
+      role: role || null,
+    });
+  }
+}
+
+function initialIdentites(
+  dossierDS: DossierDS88444,
+  demandeurIdentityEmail: string | undefined,
+): IdentiteDossierData[] {
+  const { demandeur, nomMandataire = "", prenomMandataire = "", usager } = dossierDS;
+  const hasMandataire = Boolean(nomMandataire || prenomMandataire);
   const identites: IdentiteDossierData[] = [
     {
       type: "demandeur",
@@ -65,81 +187,5 @@ export function getPersonnesEntreprisesData88444(
     });
   }
 
-  let demandeurPersonnePhysique;
-  if (personneMoraleOuPhysique === "une personne physique") {
-    const email = emailContact || demandeur.email || deposant.email;
-    const addressChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
-    const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
-    demandeurPersonnePhysique = {
-      first_names: demandeur.prenom,
-      last_name: demandeur.nom,
-      email: email ? normalizeEmail(email) : undefined,
-      address: formatPostalAddress(addressChamp?.address),
-      phone: phoneContact || undefined,
-      role: role || undefined,
-    };
-    // Keep the reviewed contact values on this dossier, not on a shared person.
-    Object.assign(identites[0], {
-      email: demandeurPersonnePhysique.email ?? null,
-      phone: demandeurPersonnePhysique.phone ?? null,
-      role: demandeurPersonnePhysique.role ?? null,
-    });
-  }
-
-  let demandeurPersonneMorale;
-  const etablissement = champById.get(pitchouKeyToChampDS.get("Numéro de SIRET"))?.etablissement;
-  if (etablissement) {
-    const { siret, address, entreprise, libelleNaf, naf } = etablissement;
-    const {
-      raisonSociale,
-      siren,
-      formeJuridique,
-      dateCreation,
-      etatAdministratif,
-      capitalSocial,
-      codeEffectifEntreprise,
-    } = entreprise ?? {};
-    demandeurPersonneMorale = {
-      siret,
-      legal_name: raisonSociale,
-      address: formatPostalAddress(address),
-      siren: siren || undefined,
-      legal_form: formeJuridique || undefined,
-      naf_code: naf || undefined,
-      naf_label: libelleNaf || undefined,
-      creation_date: dateCreation || undefined,
-      admin_status: etatAdministratif || undefined,
-      headcount: inseeHeadcountRangeLabel(codeEffectifEntreprise),
-      share_capital: capitalSocial && capitalSocial !== "-1" ? capitalSocial : undefined,
-      insee_code: address?.cityCode || undefined,
-      postal_code: address?.postalCode || undefined,
-      department: address?.departmentName || undefined,
-      region: address?.regionName || undefined,
-    };
-  }
-
-  if (personneMoraleOuPhysique === "une personne morale") {
-    const lastName = champById.get(pitchouKeyToChampDS.get("Nom du représentant"))?.stringValue;
-    const firstNames = champById.get(
-      pitchouKeyToChampDS.get("Prénom du représentant"),
-    )?.stringValue;
-    const role = champById.get(pitchouKeyToChampDS.get("Qualité du représentant"))?.stringValue;
-    if (lastName || firstNames || role || emailContact || phoneContact) {
-      identites.push({
-        type: "representant",
-        last_name: lastName || null,
-        first_names: firstNames || null,
-        email: emailContact ? normalizeEmail(emailContact) : null,
-        phone: phoneContact || null,
-        role: role || null,
-      });
-    }
-  }
-
-  return {
-    deposant,
-    demandeur_personne_morale: demandeurPersonneMorale,
-    demandeur_personne_physique: demandeurPersonnePhysique,
-    identites,
-  };
+  return identites;
 }

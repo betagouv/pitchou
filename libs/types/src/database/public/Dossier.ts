@@ -6,6 +6,7 @@ import type { EntrepriseSiret } from "./Entreprise";
 import type { FileId } from "./File";
 import type { default as TypeDossier } from "./TypeDossier";
 import type { DossierSource } from "../../dossierSource.ts";
+import type { PorteurDeProjetId } from "./PorteurDeProjet";
 
 /** Identifier type for public.dossier */
 export type DossierId = number & { __brand: "public.dossier" };
@@ -25,9 +26,6 @@ export default interface Dossier {
 
   /** List of municipalities covered by the project */
   communes: unknown | null;
-
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant: PersonneId | null;
 
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique: PersonneId | null;
@@ -215,6 +213,9 @@ export default interface Dossier {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet: PorteurDeProjetId | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -233,9 +234,6 @@ export interface DossierInitializer {
 
   /** List of municipalities covered by the project */
   communes?: unknown | null;
-
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant?: PersonneId | null;
 
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique?: PersonneId | null;
@@ -435,6 +433,9 @@ export interface DossierInitializer {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date?: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet?: PorteurDeProjetId | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -452,9 +453,6 @@ export interface DossierMutator {
 
   /** List of municipalities covered by the project */
   communes?: unknown | null;
-
-  /** The deposant is the personne who submits the dossier on DS. In some situations, this personne differs from the demandeur (the personne morale or personne physique requesting the derogation), for example when a consulting firm authorized by a personne morale submits the dossier. The deposant is not necessarily the demandeur's internal representative (main point of contact). In DS terminology, what we call "déposant" is stored in the "demandeur" property (which differs from our "demandeur") */
-  deposant?: PersonneId | null;
 
   /** If the demandeur is a personne physique, this field is not null */
   demandeur_personne_physique?: PersonneId | null;
@@ -642,4 +640,7 @@ export interface DossierMutator {
 
   /** Date of the dossier's next échéance, set by the instructeurs to prioritise their work. Null when no échéance is planned. */
   next_due_date?: Date | null;
+
+  /** Porteur de projet of the dossier. */
+  porteur_de_projet?: PorteurDeProjetId | null;
 }

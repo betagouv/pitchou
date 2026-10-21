@@ -30,11 +30,11 @@ test("admin lists keep search, filtering, sorting and pagination usable on deskt
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto(E2E_ADMIN_BASE_URL + "/especes-protegees");
   const species = page.getByRole("region", { name: "Espèces protégées", exact: true });
-  await expect(species.getByRole("button", { name: /Test species/ })).toHaveCount(20);
+  await expect(species.getByRole("button", { name: /Test species/u })).toHaveCount(20);
   await page.getByRole("button", { name: "Page suivante", exact: true }).click();
-  await expect(species.getByRole("button", { name: /Test species/ })).toHaveCount(5);
+  await expect(species.getByRole("button", { name: /Test species/u })).toHaveCount(5);
   await page.getByRole("searchbox").fill("Test species 24");
-  await expect(species.getByRole("button", { name: /Test species/ })).toHaveCount(1);
+  await expect(species.getByRole("button", { name: /Test species/u })).toHaveCount(1);
   await expect(page.getByRole("navigation", { name: "Pagination", exact: true })).toHaveCount(0);
   await page.getByRole("searchbox").fill("");
   await page.getByRole("button", { name: "Trier", exact: true }).click();
@@ -43,7 +43,7 @@ test("admin lists keep search, filtering, sorting and pagination usable on deskt
   await page.getByRole("button", { name: "Filtrer", exact: true }).click();
   await page.getByRole("combobox", { name: "État choisi" }).click();
   await page.getByRole("option", { name: "Exclues", exact: true }).click();
-  await expect(species.getByRole("button", { name: /Test species/ })).toHaveCount(1);
+  await expect(species.getByRole("button", { name: /Test species/u })).toHaveCount(1);
   await page.screenshot({ path: testInfo.outputPath("species-desktop-dark.png") });
 
   await page.goto(E2E_ADMIN_BASE_URL + "/evenements");

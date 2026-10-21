@@ -1,22 +1,22 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
 
   import { onMount } from "svelte";
 
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import {
     loadActiviteReferentiel,
     type ActiviteReferentielAdmin,
-  } from "$lib/actions/adminActivites.ts";
+  } from "#lib/actions/adminActivites.ts";
   import {
     loadDossierDetail,
     AccessDeniedError,
     type AdminDossierDetail,
-  } from "$lib/actions/adminDossiers.ts";
-  import { activiteFormContext } from "$lib/activiteReferentiel.ts";
+  } from "#lib/actions/adminDossiers.ts";
+  import { activiteFormContext } from "#lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
@@ -71,7 +71,7 @@
       icon: "fr-icon-save-line",
       disabled: saving,
       onClick: () => {
-        const form = document.getElementById(editFormId);
+        const form = document.querySelector(`#${editFormId}`);
         if (!saving && form instanceof HTMLFormElement) form.requestSubmit();
       },
     });

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
-  import RichTextEditor from "$lib/components/RichTextEditor.svelte";
-  import { uploadChangelogMedia, type ChangelogEntryPayload } from "$lib/actions/adminChangelog.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
+  import RichTextEditor from "#lib/components/RichTextEditor.svelte";
+  import { uploadChangelogMedia, type ChangelogEntryPayload } from "#lib/actions/adminChangelog.ts";
   import EntryFields from "../EntryFields.svelte";
   import PublishBlockedModal from "./PublishBlockedModal.svelte";
   import type { Autosave } from "./autosave.svelte.ts";
@@ -30,10 +30,10 @@
   function togglePublished() {
     if (model.published) {
       model.published = false;
-    } else if (!model.canPublish) {
-      publishBlockedOpen = true;
-    } else {
+    } else if (model.canPublish) {
       model.published = true;
+    } else {
+      publishBlockedOpen = true;
     }
   }
 </script>

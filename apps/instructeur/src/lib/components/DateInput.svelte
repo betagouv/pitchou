@@ -14,7 +14,7 @@
 
   let {
     YYYYMMDD = "yyyy-MM-dd",
-    date = $bindable(undefined),
+    date = $bindable(),
     id,
     label = "Date",
     disabled = false,

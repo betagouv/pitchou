@@ -6,6 +6,7 @@ import type {
   EspeceProtegee,
   MethodeMenancante,
   MoyenDePoursuiteMenacant,
+  OiseauAtteintJSON,
 } from "@pitchou/types/especes.d.ts";
 import type { ReferentielMaps } from "./types.ts";
 
@@ -18,17 +19,29 @@ function descriptionFromJSON(
 ): DescriptionMenacesEspeces {
   const description: DescriptionMenacesEspeces = Object.create(null);
   rows.forEach(({ classification, etresVivantsAtteints }) => {
-    // @ts-ignore The discriminated arrays are indexed by their classification.
     description[classification] = etresVivantsAtteints.map(
-      // @ts-ignore Supports both the current accented key and persisted legacy data.
-      ({ espèce, espece, activité: activite, méthode: methode, moyenDePoursuite, ...rest }) => ({
-        espèce: especeByCD_REF.get(espèce) || especeByCD_REF.get(espece),
-        // @ts-ignore Classification determines the activity row type.
-        activité: activites[classification].get(activite),
-        méthode: methodes[classification].get(methode),
-        moyenDePoursuite: moyens[classification].get(moyenDePoursuite),
-        ...rest,
-      }),
+      ({
+        espèce: cdRef,
+        espece: legacyCdRef,
+        activité: activite,
+        méthode: methode,
+        moyenDePoursuite,
+        ...rest
+      }: OiseauAtteintJSON) => {
+        const espece =
+          especeByCD_REF.get(cdRef) ?? (legacyCdRef ? especeByCD_REF.get(legacyCdRef) : undefined);
+        if (!espece) throw new TypeError(`Espèce inconnue: ${cdRef ?? legacyCdRef}`);
+        return {
+          espèce: espece,
+          activité: activite === undefined ? undefined : activites[classification].get(activite),
+          méthode: methode === undefined ? undefined : methodes[classification].get(methode),
+          moyenDePoursuite:
+            moyenDePoursuite === undefined
+              ? undefined
+              : moyens[classification].get(moyenDePoursuite),
+          ...rest,
+        };
+      },
     );
   });
   return description;

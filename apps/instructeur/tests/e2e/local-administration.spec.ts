@@ -47,7 +47,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await page.getByLabel("Nom du groupe").fill("Service Paris");
   await page.getByRole("searchbox", { name: "Rechercher un département" }).fill("paris");
   await page.getByLabel("75 · Paris", { exact: true }).check();
-  await page.getByRole("tab", { name: /Membres/ }).click();
+  await page.getByRole("tab", { name: /Membres/u }).click();
   await page.getByLabel("future@example.org", { exact: true }).check();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   const saveStatus = page.locator("header").getByRole("status");
@@ -80,7 +80,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await expect(page.getByLabel("Nom du groupe")).toHaveValue("Service Paris");
   await page.getByRole("searchbox", { name: "Rechercher un département" }).fill("paris");
   await expect(page.getByLabel("75 · Paris", { exact: true })).toBeChecked();
-  await page.getByRole("tab", { name: /Membres/ }).click();
+  await page.getByRole("tab", { name: /Membres/u }).click();
   await expect(page.getByLabel("future@example.org", { exact: true })).toBeChecked();
   await page.getByLabel("Groupe actif", { exact: true }).uncheck();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
@@ -89,9 +89,9 @@ test("an administrator prepares a user and assigns department coverage through t
     "Service Paris",
   );
   await expect(page.locator("main section[aria-label] > header > h2")).toHaveText([
-    /À vérifier/,
-    /Actifs/,
-    /Archivés/,
+    /À vérifier/u,
+    /Actifs/u,
+    /Archivés/u,
   ]);
 
   await page.goto(`${E2E_ADMIN_BASE_URL}/utilisateurs`);
@@ -135,7 +135,7 @@ test("group member pagination preserves selections across pages, searches and ta
   await expect(name).toHaveAttribute("autocomplete", "off");
   await expect(name).toHaveAttribute("data-form-type", "other");
   await name.fill("Service paginé");
-  const membersTab = page.getByRole("tab", { name: /Membres/ });
+  const membersTab = page.getByRole("tab", { name: /Membres/u });
   await membersTab.hover();
   await expect(membersTab).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   await membersTab.click();
@@ -157,7 +157,7 @@ test("group member pagination preserves selections across pages, searches and ta
   await expect(page.getByRole("navigation", { name: "Pagination des membres" })).toContainText(
     "Page 1 / 2",
   );
-  await page.getByRole("tab", { name: /Départements/ }).click();
+  await page.getByRole("tab", { name: /Départements/u }).click();
   const departmentSearch = page.getByRole("searchbox", { name: "Rechercher un département" });
   await departmentSearch.fill("paris");
   await page.getByLabel("75 · Paris", { exact: true }).check();

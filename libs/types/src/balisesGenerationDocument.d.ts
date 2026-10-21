@@ -40,11 +40,11 @@ interface ScientificData {
 /**
  * Utility functions for formatting
  */
-interface UtilityFunctions {
+type UtilityFunctions = {
   afficher_nombre: (n: any, precision?: number) => string | undefined;
   formatter_date: (date: any, formatString: string) => string | undefined;
   formatter_date_simple: (date: any) => string | undefined;
-}
+};
 
 /**
  * Main type for the document generation tags
@@ -53,13 +53,15 @@ interface UtilityFunctions {
  * @remark Warning, changing the return type of this function can break the rendering of existing documents.
  * @see {@link https://betagouv.github.io/pitchou/instruction/document-types/creation.html}
  **/
-export type BalisesGenerationDocument = {
+export type BalisesGenerationDocument = UtilityFunctions & {
   nom: string | null;
-  demandeur: {
+  porteur_de_projet: {
     adresse: string;
     nom: string;
     toString: () => string;
   };
+  /** @deprecated Former name of porteur_de_projet, kept for the existing templates. */
+  demandeur: BalisesGenerationDocument["porteur_de_projet"];
   activité_principale: string | null;
   description: string | null;
   localisation: string;

@@ -3,6 +3,8 @@
   import { serviceLabel } from "./listModel.ts";
   import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
+  import DossiersExportButton from "./DossiersExportButton.svelte";
+  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     title: string;
@@ -21,6 +23,7 @@
     numberFiltered: number;
     localisation?: Localisation;
     followedOnly?: boolean;
+    exportDossierIds?: DossierSummary["id"][];
     /** Active filters shown as removable tags */
     chips: FilterChip[];
     sortKey: SortKey;
@@ -51,6 +54,7 @@
     numberFiltered,
     localisation = "assigned",
     followedOnly = false,
+    exportDossierIds = [],
     chips,
     sortKey,
     sortOrder,
@@ -66,7 +70,10 @@
 </script>
 
 <div class="flex flex-col gap-4 fr-mt-2w">
-  <h1 class="fr-m-0">{title}</h1>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="fr-m-0">{title}</h1>
+    <DossiersExportButton {followedOnly} {localisation} dossierIds={exportDossierIds} {chips} />
+  </div>
 
   <div class="dossiers-toolbar-controls flex flex-wrap items-center gap-4">
     <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />

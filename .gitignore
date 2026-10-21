@@ -29,6 +29,7 @@ data/sources_especes/*
 
 # Tests
 test-results/
+.vitest/
 # Artefacts générés par les tests de composants (vitest browser)
 .vitest-attachments/
 **/__screenshots__/
@@ -46,3 +47,6 @@ docs/vendor/
 .cache/
 compose.dev.override.yml
 compose.test.override.yml
+
+# Local development configuration and worktrees
+/.fleet/

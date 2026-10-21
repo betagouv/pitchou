@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId } from "$lib/server/auth";
+import { requireUserId } from "#lib/server/auth.ts";
 import { evenementMetriqueGuard } from "@pitchou/server/evenements_metriques.ts";
 import { addEvenementForUser } from "@pitchou/server/database/evenements_metriques.ts";
 

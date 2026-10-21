@@ -3,7 +3,7 @@
   import UsersControls from "./UsersControls.svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import UserEditor from "./UserEditor.svelte";
   import UsersTable from "./UsersTable.svelte";
   import { normalize, userName, type User } from "./model.ts";
@@ -15,7 +15,7 @@
   const query = $derived(parseQuery(page.url.searchParams));
   let editorOpen = $state(false);
   function updateQuery(values: Record<string, string>, resetPages = true) {
-    const url = new URL(page.url);
+    const url = new URL(page.url.href);
     if (resetPages) {
       url.searchParams.delete("actifs");
       url.searchParams.delete("desactives");
@@ -24,7 +24,7 @@
       if (value) url.searchParams.set(key, value);
       else url.searchParams.delete(key);
     }
-    void goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+    void goto(url, { replace: true, reset: false });
   }
   function select(id: number | null) {
     selected = id;

@@ -15,7 +15,7 @@ test("create-only users compose a draft before saving and cannot edit or publish
   await loginAs(user.codeAcces);
   await page.goto(E2E_ADMIN_BASE_URL + "/changelog");
   await page.getByRole("button", { name: "Nouvelle entrée", exact: true }).click();
-  await expect(page).toHaveURL(/\/changelog\/nouveau$/);
+  await expect(page).toHaveURL(/\/changelog\/nouveau$/u);
   await page.getByLabel("Titre", { exact: true }).fill("Première note");
   await page.locator(".tiptap").fill("Le contenu du brouillon initial.");
   await page.getByLabel("Version majeure", { exact: true }).fill("1");
@@ -25,7 +25,7 @@ test("create-only users compose a draft before saving and cannot edit or publish
   await expect(page.getByRole("switch")).toHaveCount(0);
 
   await page.getByRole("link", { name: "Annuler", exact: true }).click();
-  await expect(page).toHaveURL(/\/changelog$/);
+  await expect(page).toHaveURL(/\/changelog$/u);
   expect(await db("changelog")).toHaveLength(0);
   await page.getByRole("button", { name: "Nouvelle entrée", exact: true }).click();
   await page.getByLabel("Titre", { exact: true }).fill("Première note");
@@ -42,7 +42,7 @@ test("create-only users compose a draft before saving and cannot edit or publish
   expect(await db("changelog")).toHaveLength(0);
   await page.unroute("**/api/changelog");
   await page.getByRole("button", { name: "Enregistrer le brouillon", exact: true }).click();
-  await expect(page).toHaveURL(/\/changelog\/\d+$/);
+  await expect(page).toHaveURL(/\/changelog\/\d+$/u);
   const [entry] = await db("changelog");
   expect(entry).toMatchObject({
     titre: "Première note",

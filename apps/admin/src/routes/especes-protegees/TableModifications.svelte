@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ListTable from "$lib/components/ListTable.svelte";
-  import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
+  import ListTable from "#lib/components/ListTable.svelte";
+  import type { ModificationEspeceAdmin } from "#lib/actions/adminEspeces.ts";
 
   import {
     effectiveNomsScientifiques,

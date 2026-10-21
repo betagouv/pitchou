@@ -3,7 +3,8 @@ import type {
   AdminDossierIdentite,
   AdminDossierRelationsPayload,
   AdminIdentiteDossierType,
-} from "$lib/actions/adminDossiers.ts";
+} from "#lib/actions/adminDossiers.ts";
+import { acteurOf, demandeurActeur, identiteOf } from "#lib/dossierActeurs.ts";
 
 export type DemandeurType = "personne_physique" | "personne_morale";
 export type IdentityFormModel = {
@@ -38,17 +39,12 @@ function identity(value: AdminDossierIdentite | undefined): IdentityFormModel {
   };
 }
 
-function findIdentity(detail: AdminDossierDetail, type: AdminIdentiteDossierType) {
-  return Array.isArray(detail.identites)
-    ? detail.identites.find((item) => item?.type === type)
-    : undefined;
-}
-
 export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
-  const personnePhysique = detail.demandeur_personne_physique;
-  const personneMorale = detail.demandeur_personne_morale;
+  const porteur = detail.porteur_de_projet;
+  const personnePhysique = porteur?.type === "personne_physique" ? porteur : null;
+  const personneMorale = porteur?.type === "personne_morale" ? porteur : null;
   const demandeurIdentity =
-    findIdentity(detail, "demandeur") ??
+    identiteOf("demandeur", demandeurActeur(detail)) ??
     (personnePhysique
       ? {
           type: "demandeur" as const,
@@ -59,8 +55,8 @@ export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
           role: null,
         }
       : undefined);
-  const mandataire = findIdentity(detail, "mandataire");
-  const representant = findIdentity(detail, "representant");
+  const mandataire = identiteOf("mandataire", acteurOf(detail, "mandataire"));
+  const personneContact = identiteOf("representant", acteurOf(detail, "personne_contact"));
   const demandeurType: DemandeurType = personneMorale ? "personne_morale" : "personne_physique";
 
   return {
@@ -82,8 +78,8 @@ export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
     },
     hasMandataire: !!mandataire,
     mandataire: identity(mandataire),
-    hasRepresentant: !!representant,
-    representant: identity(representant),
+    hasPersonneContact: !!personneContact,
+    personneContact: identity(personneContact),
   };
 }
 
@@ -109,8 +105,8 @@ export function buildDossierRelations(
     identites.push(buildIdentity("demandeur", model.demandeurIdentity));
   }
   if (model.hasMandataire) identites.push(buildIdentity("mandataire", model.mandataire));
-  if (model.demandeurType === "personne_morale" && model.hasRepresentant) {
-    identites.push(buildIdentity("representant", model.representant));
+  if (model.hasPersonneContact) {
+    identites.push(buildIdentity("representant", model.personneContact));
   }
 
   const base = {

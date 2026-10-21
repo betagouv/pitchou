@@ -47,7 +47,7 @@ describe("dossier creation model", () => {
       },
     });
   });
-  it("builds the legal representative and maps the activity-specific dossier type", () => {
+  it("builds the legal personne contact and maps the activity-specific dossier type", () => {
     const model = createDossierCreationModel();
     Object.assign(model, {
       name: "Travaux sur bâtiment",
@@ -59,9 +59,9 @@ describe("dossier creation model", () => {
       urgentContactPhone: "0612345678",
       demandeurType: "personne_morale",
       legalSiret: "123 456 789 01234",
-      representativeLastName: "Durand",
-      representativeFirstNames: "Lou",
-      representativeRole: "Directrice",
+      personneContactLastName: "Durand",
+      personneContactFirstNames: "Lou",
+      personneContactRole: "Directrice",
       contactEmail: "lou@example.org",
     } satisfies Partial<typeof model>);
     const payload = buildCreationPayload(model);

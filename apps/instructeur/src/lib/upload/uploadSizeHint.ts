@@ -1,5 +1,5 @@
 import { formatFileSize } from "@pitchou/common/fileSize.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 /** Upload size limit in Mo, or null when unknown or unlimited. */
 export function maxUploadSizeMo(): number | null {

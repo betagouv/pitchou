@@ -20,7 +20,7 @@ describe("setMapData", () => {
   });
 
   it("reports a missing source instead of silently dropping the update", async () => {
-    const map = { getSource: () => undefined } as never;
+    const map = { getSource: () => {} } as never;
 
     await expect(
       setMapData(map, "project-map", { type: "FeatureCollection", features: [] }),

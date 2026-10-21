@@ -1,4 +1,4 @@
-import { readJsonObject } from "$lib/server/requestValidation.ts";
+import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async () => {
 };
 
 import { saveGroup } from "@pitchou/server/administration.ts";
-import { parseGroup, saveAdministration } from "$lib/server/administration.ts";
+import { parseGroup, saveAdministration } from "#lib/server/administration.ts";
 export const POST: RequestHandler = async ({ request, locals }) =>
   json(
     await saveAdministration(async () =>

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import ListToolbar from "$lib/components/ListToolbar.svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import { onMount } from "svelte";
 
-  import Pagination from "$lib/components/ListPagination.svelte";
+  import Pagination from "#lib/components/ListPagination.svelte";
 
   import {
     loadEvenements,
@@ -11,7 +11,7 @@
     type EvenementMetriqueRow,
     type EvenementSortKey,
     type EvenementSortOrder,
-  } from "$lib/actions/adminEvenements.ts";
+  } from "#lib/actions/adminEvenements.ts";
   import EvenementsFilterPanel from "./EvenementsFilterPanel.svelte";
   import EvenementsSortPanel from "./EvenementsSortPanel.svelte";
   import TableEvenements from "./TableEvenements.svelte";
@@ -43,7 +43,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => goToPage(i + 1));
     return [undefined, ...selectors];
   });
@@ -55,7 +55,8 @@
     loadError = null;
     try {
       const page = await loadEvenements(query);
-      if (id !== requestId) return; // A newer request superseded this one.
+      // A newer request superseded this one.
+      if (id !== requestId) return;
       evenements = page.evenements;
       total = page.total;
     } catch (e) {

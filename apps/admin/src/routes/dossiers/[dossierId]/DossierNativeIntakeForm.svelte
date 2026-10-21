@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import { setFileAccess } from "../fileAccess.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
+  import { tick } from "svelte";
+
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
-  import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
+  import { updateDossier, type AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
   import DossierIntakeFields from "../nouveau/DossierIntakeFields.svelte";
   import {
@@ -14,6 +16,8 @@
     clearSelectedDossierFiles,
     createDossierCreationModelFromDetail,
     hasLegalSiretChanged,
+    legalSiretError,
+    porteurEntreprise,
     mergeDossierRelationsForEdit,
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
@@ -50,14 +54,36 @@
     mergeDossierRelationsForEdit(buildCreationPayload(model).relations, detail, ""),
   );
   let saveError = $state<string | null>(null);
+  let showPorteurErrors = $state(false);
   let formVersion = $state(0);
   let companyDetailsChoice = $state<CompanyDetailsChoice>("");
   const legalSiretChanged = $derived(
     model.demandeurType === "personne_morale" && hasLegalSiretChanged(detail, model.legalSiret),
   );
 
+  function invalidPorteurField(): string | null {
+    if (!model.demandeurType) return "demandeur-physical";
+    if (model.demandeurType === "personne_physique") {
+      if (!model.physicalLastName.trim()) return "physical-last-name";
+      if (!model.physicalFirstNames.trim()) return "physical-first-names";
+    }
+    if (model.demandeurType === "personne_morale" && legalSiretError(model.legalSiret)) {
+      return "legal-siret";
+    }
+    return null;
+  }
+
   async function save(event: SubmitEvent) {
     event.preventDefault();
+    const invalidField = invalidPorteurField();
+    if (invalidField) {
+      // Shown under each invalid field, with the focus on the first one.
+      showPorteurErrors = true;
+      saveError = null;
+      await tick();
+      document.querySelector<HTMLElement>(`#${CSS.escape(invalidField)}`)?.focus();
+      return;
+    }
     if (legalSiretChanged && !companyDetailsChoice) {
       saveError = "Indiquez si les informations de l'entreprise doivent être conservées.";
       return;
@@ -125,9 +151,10 @@
       {activiteCodeByLabel}
       showAdminSection={false}
       showFirstSectionTopBorder={false}
-      originalLegalSiret={detail.demandeur_personne_morale?.siret}
+      originalLegalSiret={porteurEntreprise(detail)?.siret}
       {companyDetailsChoice}
       onCompanyDetailsChoice={(choice) => (companyDetailsChoice = choice)}
+      {showPorteurErrors}
       {existingSpeciesFiles}
       {existingAttachments}
     />

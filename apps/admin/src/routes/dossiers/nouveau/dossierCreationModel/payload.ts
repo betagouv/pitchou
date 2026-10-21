@@ -1,5 +1,5 @@
-import type { AdminDossierCreationPayload } from "$lib/actions/adminDossiers.ts";
-import { communeDepartmentCode } from "$lib/dossierLocation.ts";
+import type { AdminDossierCreationPayload } from "#lib/actions/adminDossiers.ts";
+import { communeDepartmentCode } from "#lib/dossierLocation.ts";
 
 import { buildCreationColumns } from "./payloadColumns.ts";
 import type { DossierCreationModel } from "./state.ts";
@@ -11,28 +11,20 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
   const contactEmail = nullable(model.contactEmail);
   const contactPhone = nullable(model.contactPhone);
   const isPhysical = model.demandeurType === "personne_physique";
-  const lastName = isPhysical ? model.physicalLastName.trim() : model.representativeLastName.trim();
+  const lastName = isPhysical
+    ? model.physicalLastName.trim()
+    : model.personneContactLastName.trim();
   const firstNames = isPhysical
     ? model.physicalFirstNames.trim()
-    : model.representativeFirstNames.trim();
-  const role = nullable(isPhysical ? model.physicalQualification : model.representativeRole);
+    : model.personneContactFirstNames.trim();
+  const role = nullable(isPhysical ? model.physicalQualification : model.personneContactRole);
   const manualAddress = [model.physicalStreet, model.physicalCity].filter(Boolean).join(", ");
   const physicalCountry =
     model.physicalCountry === "Autre pays" ? model.physicalOtherCountry : model.physicalCountry;
   const physicalAddress = model.physicalManualAddress
     ? nullable([manualAddress, physicalCountry].filter(Boolean).join(", "))
     : nullable(model.physicalAddress);
-  const communeDepartments = model.communes
-    .map(communeDepartmentCode)
-    .filter((value): value is string => !!value);
-  const scopedDepartments =
-    model.locationScope === "departements"
-      ? model.locationDepartments
-      : model.locationScope === "communes"
-        ? communeDepartments
-        : [];
-  const departments = [...new Set(scopedDepartments)];
-  const communes = model.communes.map(({ departmentCode: _, ...commune }) => commune);
+  const { departments, communes } = buildLocation(model);
   const identity = {
     type: "demandeur" as const,
     last_name: lastName,
@@ -89,4 +81,19 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
       projet_map: model.projectMap,
     },
   };
+}
+
+function buildLocation(model: DossierCreationModel) {
+  const communeDepartments = model.communes
+    .map(communeDepartmentCode)
+    .filter((value): value is string => !!value);
+  const scopedDepartments =
+    model.locationScope === "departements"
+      ? model.locationDepartments
+      : model.locationScope === "communes"
+        ? communeDepartments
+        : [];
+  const departments = [...new Set(scopedDepartments)];
+  const communes = model.communes.map(({ departmentCode: _, ...commune }) => commune);
+  return { departments, communes };
 }

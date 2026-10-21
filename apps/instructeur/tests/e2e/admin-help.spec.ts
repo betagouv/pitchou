@@ -51,7 +51,7 @@ test("page help and AARRI downloads live in the header", async ({
   let downloaded = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   const usersFile = await downloaded;
-  expect(usersFile.suggestedFilename()).toMatch(/^instructrices_aarri_.*\.csv$/);
+  expect(usersFile.suggestedFilename()).toMatch(/^instructrices_aarri_.*\.csv$/u);
   expect(await readFile((await usersFile.path())!, "utf8")).toContain("admin@example.org");
   await expect(page.getByRole("menu")).toHaveCount(0);
   await download.click();
@@ -61,7 +61,7 @@ test("page help and AARRI downloads live in the header", async ({
   downloaded = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   const eventsFile = await downloaded;
-  expect(eventsFile.suggestedFilename()).toMatch(/^evenements_metriques_.*\.csv$/);
+  expect(eventsFile.suggestedFilename()).toMatch(/^evenements_metriques_.*\.csv$/u);
   expect(await readFile((await eventsFile.path())!, "utf8")).toContain(
     "email,groupes instructeurs,date,évènement,détails",
   );
@@ -82,5 +82,5 @@ test("page help and AARRI downloads live in the header", async ({
   expect(mask).toContain("bar-chart-box-line.svg");
   await page.getByRole("link", { name: "Dossiers", exact: true }).click();
   await expect(download).toHaveCount(0);
-  await expect(page.locator("header").getByRole("button", { name: /^Aide :/ })).toHaveCount(0);
+  await expect(page.locator("header").getByRole("button", { name: /^Aide :/u })).toHaveCount(0);
 });

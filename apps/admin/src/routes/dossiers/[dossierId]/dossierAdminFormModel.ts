@@ -1,4 +1,4 @@
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
 import {
   buildDossierUpdateColumns,

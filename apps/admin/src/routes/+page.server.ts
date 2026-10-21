@@ -1,7 +1,7 @@
-import { env as privateEnv } from "$env/dynamic/private";
-import { env as publicEnv } from "$env/dynamic/public";
+import * as privateEnv from "$app/env/private";
+import * as publicEnv from "$app/env/public";
 import type { PageServerLoad } from "./$types";
-import { getDashboardAttention } from "$lib/server/dashboard.ts";
+import { getDashboardAttention } from "#lib/server/dashboard.ts";
 
 export type DashboardLink = {
   href: string;

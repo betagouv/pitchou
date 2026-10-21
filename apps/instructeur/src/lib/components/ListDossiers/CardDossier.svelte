@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-  import { formatLocalisation } from "$lib/dossier/displayDossier.ts";
-  import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
-  import TagEcheance from "$lib/components/TagEcheance.svelte";
-  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
-  import DossierNotificationBadges from "$lib/components/DossierNotificationBadges.svelte";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { formatLocalisation } from "#lib/dossier/displayDossier.ts";
+  import ActiviteIcon from "#lib/components/ActiviteIcon.svelte";
+  import TagEcheance from "#lib/components/TagEcheance.svelte";
+  import DossierActionsMenu from "#lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
+  import DossierNotificationBadges from "#lib/components/DossierNotificationBadges.svelte";
+  import { store } from "#lib/state/store.svelte.ts";
   import { dossierIsFollowed } from "./filtering.ts";
   import { applicantName } from "./presentation.ts";
   import PhaseProgress from "./PhaseProgress.svelte";
@@ -98,7 +98,7 @@
       class="dossier-text fr-mb-0 truncate {unread ? 'font-bold' : 'font-normal'}"
       title={porteurDeProjet}
     >
-      <span class="fr-sr-only">Pétitionnaire&nbsp;:</span>
+      <span class="fr-sr-only">Porteur de projet&nbsp;:</span>
       {porteurDeProjet}
     </p>
     <p

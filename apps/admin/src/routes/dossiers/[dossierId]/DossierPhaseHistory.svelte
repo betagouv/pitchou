@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
   import { phases } from "@pitchou/common/phases.ts";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
-  import { updateDossier, type AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import { updateDossier, type AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
   type Props = {
     detail: AdminDossierDetail;

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
 import { deleteControle, getDossierIdFromControle } from "@pitchou/server/database/controle.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { getUserById } from "@pitchou/server/database/personne.ts";

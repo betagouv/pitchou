@@ -60,7 +60,7 @@ test("la page de saisie renvoie vers le référentiel", async ({ page }) => {
   await page.goto("/saisie-especes");
 
   const lienAide = page.getByRole("link", {
-    name: /Quels types d'impact existe-t-il/,
+    name: /Quels types d'impact existe-t-il/u,
   });
 
   await expect(lienAide).toBeVisible();

@@ -44,7 +44,7 @@ const mocks = vi.hoisted(() => {
 export { mocks };
 
 vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: mocks.database }));
-vi.mock("$lib/server/auth", () => ({
+vi.mock("#lib/server/auth.ts", () => ({
   requireUserId: () => 7,
   requireDossierAccess: mocks.access,
 }));

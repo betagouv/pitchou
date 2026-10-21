@@ -17,6 +17,8 @@ test("migration preserves staff history and applicants while moving memberships 
       getMigrations: async () => migrations,
       getMigrationName: (name: string) => name,
       getMigration: (name: string) =>
+        // Vite needs this directive inside the dynamic import.
+        // eslint-disable-next-line no-inline-comments
         import(/* @vite-ignore */ fileURLToPath(new URL(name, directory))),
     });
     await db.migrate.latest({

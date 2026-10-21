@@ -16,7 +16,7 @@ function renderPanel(simulable: boolean): string {
 
 test("le panneau propose les champs simulables d'un dossier venu de DN", () => {
   const html = renderPanel(true);
-  expect(html).toContain("Simuler une modification du pétitionnaire");
+  expect(html).toContain("Simuler une modification du porteur de projet");
   // The champ list lives in a listbox opened on click, so only the current
   // choice shows up in the server-rendered markup.
   expect(html).toContain('id="simulation-champ"');

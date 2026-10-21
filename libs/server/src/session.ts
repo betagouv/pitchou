@@ -42,7 +42,7 @@ export type Session = SessionUser & { idToken: string | null };
  * Leave unset only when both apps use the same hostname, such as localhost.
  */
 export function sessionCookieDomain(): string | undefined {
-  return process.env.SESSION_COOKIE_DOMAIN?.trim().replace(/^\./, "") || undefined;
+  return process.env.SESSION_COOKIE_DOMAIN?.trim().replace(/^\./u, "") || undefined;
 }
 
 function hashToken(token: string): string {

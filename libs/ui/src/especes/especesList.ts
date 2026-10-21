@@ -72,7 +72,7 @@ export function matchesText(espece: EspeceProtegee, text: string): boolean {
     .trim()
     .split(" ")
     .map(normalizeEspeceText)
-    .filter((word) => word.length >= 1);
+    .filter((word) => word.length > 0);
 
   return words.every((word) => {
     for (const name of espece.nomsScientifiques) {

@@ -1,3 +1,4 @@
+import type { Knex } from "knex";
 import { directDatabaseConnection as db } from "../database/connection.ts";
 import { getSessionUser } from "../users.ts";
 import { audit } from "./audit.ts";
@@ -38,7 +39,7 @@ export async function listUserGroupOptions() {
     .orderBy("name");
 }
 export async function saveUser(actor: UserId, input: UserUpdate) {
-  if (!input.id && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email))
+  if (!input.id && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(input.email))
     throw new TypeError("Adresse e-mail invalide");
   if (
     input.bundles.some((value) => !Object.hasOwn(BUNDLES, value)) ||
@@ -47,30 +48,8 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
     throw new TypeError("Permission inconnue");
   return db.transaction(async (trx) => {
     await trx.raw("select pg_advisory_xact_lock(2105102026)");
-    if (input.groupIds !== undefined) {
-      const actorBefore = await getSessionUser(actor, trx);
-      if (!actorBefore?.permissions.includes("groups:manage"))
-        throw new TypeError("Gestion des groupes non autorisée");
-      const groups = await trx("groupe_instructeurs").whereIn("id", input.groupIds).select("id");
-      if (groups.length !== new Set(input.groupIds).size)
-        throw new TypeError("Un groupe est introuvable. Actualisez la page.");
-    }
-    const before = input.id ? await trx("auth_user").where({ id: input.id }).first() : null;
-    if (input.id && !before) throw new TypeError("Utilisateur introuvable");
-    if (before) {
-      before.bundles = await trx("auth_permission_bundle")
-        .where({ user_id: before.id })
-        .pluck("bundle");
-      before.grants = await trx("auth_permission")
-        .where({ user_id: before.id })
-        .pluck("permission");
-      before.exclusions = await trx("auth_permission_exclusion")
-        .where({ user_id: before.id })
-        .pluck("permission");
-      before.groupIds = await trx("user_groupe")
-        .where({ user_id: before.id })
-        .pluck("groupe_instructeurs");
-    }
+    await validateGroupAssignments(actor, input.groupIds, trx);
+    const before = await previousUser(input.id, trx);
     if (before && (before.email ?? "") !== input.email.trim().toLowerCase())
       throw new TypeError("L'adresse d'un compte existant provient de ProConnect");
     const [user] = before
@@ -87,7 +66,7 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
       ["auth_permission_exclusion", "permission", input.exclusions],
     ] as const;
     for (const [table, column, values] of assignments) {
-      if (values.length)
+      if (values.length > 0)
         await trx(table)
           .insert([...new Set(values)].map((value) => ({ user_id: user.id, [column]: value })))
           .onConflict(["user_id", column])
@@ -98,7 +77,7 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
     }
     if (input.groupIds !== undefined) {
       // Keep shared memberships in place so changing groups preserves eligible followers.
-      if (input.groupIds.length)
+      if (input.groupIds.length > 0)
         await trx("user_groupe")
           .insert(
             [...new Set(input.groupIds)].map((groupe_instructeurs) => ({
@@ -125,4 +104,37 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
     await audit(trx, actor, "user_saved", { id: user.id, before, after: input });
     return user;
   });
+}
+
+async function validateGroupAssignments(
+  actor: UserId,
+  groupIds: string[] | undefined,
+  trx: Knex.Transaction,
+) {
+  if (groupIds !== undefined) {
+    const actorBefore = await getSessionUser(actor, trx);
+    if (!actorBefore?.permissions.includes("groups:manage"))
+      throw new TypeError("Gestion des groupes non autorisée");
+    const groups = await trx("groupe_instructeurs").whereIn("id", groupIds).select("id");
+    if (groups.length !== new Set(groupIds).size)
+      throw new TypeError("Un groupe est introuvable. Actualisez la page.");
+  }
+}
+
+async function previousUser(id: number | undefined, trx: Knex.Transaction) {
+  const before = id ? await trx("auth_user").where({ id: id }).first() : null;
+  if (id && !before) throw new TypeError("Utilisateur introuvable");
+  if (before) {
+    before.bundles = await trx("auth_permission_bundle")
+      .where({ user_id: before.id })
+      .pluck("bundle");
+    before.grants = await trx("auth_permission").where({ user_id: before.id }).pluck("permission");
+    before.exclusions = await trx("auth_permission_exclusion")
+      .where({ user_id: before.id })
+      .pluck("permission");
+    before.groupIds = await trx("user_groupe")
+      .where({ user_id: before.id })
+      .pluck("groupe_instructeurs");
+  }
+  return before;
 }

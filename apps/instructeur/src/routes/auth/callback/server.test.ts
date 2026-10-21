@@ -9,12 +9,12 @@ const mocks = vi.hoisted(() => ({
   sessionUser: vi.fn(),
   createSession: vi.fn(),
 }));
-vi.mock("$lib/server/session.ts", () => ({
+vi.mock("#lib/server/session.ts", () => ({
   readTransaction: mocks.transaction,
   clearTransaction: mocks.clear,
   setSessionCookie: mocks.cookie,
 }));
-vi.mock("$lib/server/proconnect.ts", () => ({ exchangeCodeAndFetchUser: mocks.exchange }));
+vi.mock("#lib/server/proconnect.ts", () => ({ exchangeCodeAndFetchUser: mocks.exchange }));
 vi.mock("@pitchou/server/users.ts", () => ({
   connectUser: mocks.connect,
   getSessionUser: mocks.sessionUser,

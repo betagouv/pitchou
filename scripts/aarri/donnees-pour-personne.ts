@@ -1,13 +1,10 @@
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { getEvenementsForPersonne } from "@pitchou/server/database/aarri/utils.ts";
 import { createOdsFile } from "@odfjs/odfjs";
 import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 
-const args = parseArgs(process.argv);
-
-// @ts-ignore
-if (args.origin) origin = args.origin;
+const { values: args } = parseArgs({ options: { email: { type: "string" } } });
 
 if (!args.email) {
   console.error(`Il manque le paramètre --email`);

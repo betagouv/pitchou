@@ -1,11 +1,11 @@
 <script lang="ts">
   import "./GroupEditor/styles.css";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { untrack } from "svelte";
   import GroupIdentityFields from "./GroupEditor/GroupIdentityFields.svelte";
   import GroupAssignmentFields from "./GroupEditor/GroupAssignmentFields.svelte";
   import { enhance } from "$app/forms";
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "#lib/components/Modal.svelte";
   import type { PageData } from "./$types";
 
   let {

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
-
   import type { ResultatControle } from "@pitchou/types/API_Pitchou.ts";
 
   // https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/tag/
@@ -45,4 +43,4 @@
   ]);
 </script>
 
-<p class={clsx(allClasses)}>{result}</p>
+<p class={allClasses}>{result}</p>

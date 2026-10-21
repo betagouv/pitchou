@@ -2,14 +2,15 @@ import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
-import { DEPARTEMENT_VALUES } from "$lib/server/dossierValidation/columnAcceptedValues.ts";
+import { DEPARTEMENT_VALUES } from "#lib/server/dossierValidation/columnAcceptedValues.ts";
 
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { parseMinimalCreationRelations } from "#lib/server/dossierValidation/minimalCreation.ts";
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   const body = await readJsonObject(request);
-  rejectUnknownProperties(body, new Set(["name", "primary_department"]));
+  rejectUnknownProperties(body, new Set(["name", "primary_department", "porteur_de_projet"]));
   if (typeof body.name !== "string" || !body.name.trim()) {
     error(400, "Le nom du dossier est requis.");
   }
@@ -19,6 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   ) {
     error(400, "Le département principal est requis.");
   }
+  const relations = parseMinimalCreationRelations(body);
 
   try {
     const { id } = await createDossierFromAdmin(
@@ -27,28 +29,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         columns: { primary_department: body.primary_department },
         depot_date: new Date(),
         phase: "Accompagnement amont",
-        relations: {
-          demandeur_type: "personne_physique",
-          demandeur_personne_physique: {
-            last_name: "",
-            first_names: "",
-            email: null,
-            address: null,
-            phone: null,
-            role: null,
-          },
-          demandeur_personne_morale: null,
-          identites: [
-            {
-              type: "demandeur",
-              last_name: "",
-              first_names: "",
-              email: null,
-              phone: null,
-              role: null,
-            },
-          ],
-        },
+        relations,
       },
       locals.user!.email,
     );

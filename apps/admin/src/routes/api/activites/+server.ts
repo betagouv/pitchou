@@ -5,7 +5,7 @@ import {
   findActiviteLabelConflict,
   getActiviteReferentiel,
 } from "@pitchou/server/database/activite.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { activiteCodeFromLabel } from "./codeFromLabel.ts";
 import type { RequestHandler } from "./$types.ts";
 

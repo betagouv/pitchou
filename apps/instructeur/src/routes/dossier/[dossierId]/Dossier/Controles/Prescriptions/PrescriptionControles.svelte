@@ -1,7 +1,7 @@
 <script lang="ts">
   import FormControle from "../FormControle.svelte";
   import TagResultatControle from "../../../TagResultatControle.svelte";
-  import { formatDateAbsolute, formatDateRelative } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute, formatDateRelative } from "#lib/dossier/displayDossier.ts";
   import type Controle from "@pitchou/types/database/public/Controle.ts";
   type Props = {
     controles: Partial<Controle>[];

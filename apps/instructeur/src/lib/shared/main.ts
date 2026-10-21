@@ -1,13 +1,13 @@
-import { json } from "d3-fetch";
-import { forget } from "remember";
+import { json } from "#lib/shared/http.ts";
+import { removeStorage } from "#lib/shared/storage.ts";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import { store } from "$lib/state/store.svelte.ts";
-import { SCHEMA_DS_88444 } from "$lib/shared/dataPaths.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { SCHEMA_DS_88444 } from "#lib/shared/dataPaths.ts";
 
-import createCapObjectFromURLs from "$lib/shared/createCapObjectFromURLs.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
-import { refreshNotifications } from "$lib/dossier/notification.ts";
+import createCapObjectFromURLs from "#lib/shared/createCapObjectFromURLs.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
+import { refreshNotifications } from "#lib/dossier/notification.ts";
 
 import type { default as DemarcheNumerique88444SynchronizationResult } from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import type {
@@ -51,17 +51,16 @@ export function loadNotificationByDossierForCurrentInstructeur() {
 }
 
 export function loadSchemaDS88444() {
-  return json(SCHEMA_DS_88444).then((schema) => {
-    //@ts-ignore
+  return json<NonNullable<typeof store.schemaDS88444>>(SCHEMA_DS_88444).then((schema) => {
     store.schemaDS88444 = schema;
     return schema;
   });
 }
 
 export function loadSynchronizationResults() {
-  return json("/resultats-synchronisation").then(
-    // @ts-ignore
-    (synchronizationResults: DemarcheNumerique88444SynchronizationResult[]) => {
+  return json<DemarcheNumerique88444SynchronizationResult[]>("/resultats-synchronisation").then(
+    (synchronizationResults) => {
+      if (!synchronizationResults) throw new Error("Résultats de synchronisation absents");
       for (const r of synchronizationResults) {
         r.timestamp = new Date(r.timestamp);
       }
@@ -82,7 +81,7 @@ export async function logout() {
   store.notificationByDossier = new SvelteMap();
   store.recentSearches = undefined;
 
-  await forget(PITCHOU_SECRET_STORAGE_KEY);
+  await removeStorage(PITCHOU_SECRET_STORAGE_KEY);
   window.location.href = "/auth/logout";
 }
 
@@ -148,7 +147,7 @@ function initCapabilities() {
 export function init() {
   window.addEventListener("focus", refreshAuthorization);
   return Promise.all([
-    forget(PITCHOU_SECRET_STORAGE_KEY).then(() => initCapabilities()),
+    removeStorage(PITCHOU_SECRET_STORAGE_KEY).then(() => initCapabilities()),
     loadSchemaDS88444(),
     loadSynchronizationResults(),
   ]);

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import { setContext } from "svelte";
-  import { boundReviewChanges, dossierReviewContext } from "$lib/dossier/notification/snapshot.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+  import { boundReviewChanges, dossierReviewContext } from "#lib/dossier/notification/snapshot.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
   import Accordion from "./DossierDetailProjet/Accordion.svelte";
   import PorteurDeProjet from "./DossierDetailProjet/PorteurDeProjet.svelte";
   import InformationsProjet from "./DossierDetailProjet/InformationsProjet.svelte";
@@ -11,7 +11,7 @@
   import EspecesImpactees from "./DossierDetailProjet/EspecesImpactees.svelte";
   import PiecesJointes from "./DossierDetailProjet/PiecesJointes.svelte";
   import { especesCounts, listeRougeCountLabel } from "./DossierDetailProjet/especes.ts";
-  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
+  import EspecesStatusBadge from "#lib/components/EspecesStatusBadge.svelte";
   import { nouvellesModifications } from "./DossierDetailProjet/modifications.ts";
   import { readOnlyMode } from "./readOnly.ts";
 

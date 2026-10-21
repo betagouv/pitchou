@@ -1,4 +1,4 @@
-const prettier = require("prettier");
+const formatOptions = require("./.oxfmtrc.json");
 const { markAsGenerated } = require("kanel");
 
 function setEvenementPhaseDossierPhaseType(output) {
@@ -96,23 +96,22 @@ const dossierEolienMortalityActions = makePreRenderHook(
 // (TS1284). Rewrite it into a type-only default export.
 function fixTypeOnlyDefaultExport(path, lines) {
   return lines.map((line) => {
-    const match = line.match(/^export default (\w+);$/);
+    const match = line.match(/^export default (\w+);$/u);
     const isTypeAlias = match && lines.some((l) => l.startsWith(`type ${match[1]} =`));
     return isTypeAlias ? `export type { ${match[1]} as default };` : line;
   });
 }
 
 // Kanel has no quote-style option and emits single quotes + multi-line unions.
-// Format every generated file with Prettier so output matches the repo style
-// (double quotes, compact unions). Calling Prettier directly bypasses
-// .prettierignore, which deliberately excludes these generated dirs.
-async function formatWithPrettier(path, lines) {
-  const options = (await prettier.resolveConfig(path)) ?? {};
-  const formatted = await prettier.format(lines.join("\n"), {
-    ...options,
-    parser: "typescript",
-  });
-  return formatted.split("\n");
+// Format generated files with the repo's Oxfmt settings. The format API bypasses
+// ignorePatterns, which excludes these directories from routine formatting.
+async function formatWithOxfmt(path, lines) {
+  const { format } = await import("oxfmt");
+  const { code, errors } = await format(path, lines.join("\n"), formatOptions);
+  if (errors.length > 0) {
+    throw new Error(`Could not format ${path}: ${errors.map(({ message }) => message).join("; ")}`);
+  }
+  return code.split("\n");
 }
 
 module.exports = {
@@ -134,7 +133,7 @@ module.exports = {
 
   // Providing postRenderHooks replaces Kanel's default `[markAsGenerated]`
   // (see processDatabase: `config.postRenderHooks ?? [markAsGenerated]`), so we
-  // must re-add it to keep the "@generated" banner. It runs first; Prettier
+  // must re-add it to keep the "@generated" banner. It runs first; Oxfmt
   // preserves the banner when formatting afterwards.
-  postRenderHooks: [markAsGenerated, fixTypeOnlyDefaultExport, formatWithPrettier],
+  postRenderHooks: [markAsGenerated, fixTypeOnlyDefaultExport, formatWithOxfmt],
 };

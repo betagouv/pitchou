@@ -13,7 +13,7 @@
   <legend class="fr-fieldset__legend">1. Porteur de projet</legend>
 
   <div class="fr-fieldset__element">
-    <h3 class="fr-mb-2w">Type de demandeur</h3>
+    <h3 class="fr-mb-2w">Type de porteur de projet</h3>
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="fr-radio-group">
         <input
@@ -39,7 +39,7 @@
 
   {#if model.demandeurType === "personne_physique"}
     <div class="fr-fieldset__element w-full flex flex-col gap-4">
-      <h3 class="fr-mb-0">Identité du demandeur ou déposant</h3>
+      <h3 class="fr-mb-0">Identité du porteur de projet</h3>
       <DossierIdentityFields identity={model.demandeurIdentity} idPrefix="edit-demandeur" />
     </div>
   {/if}
@@ -51,12 +51,15 @@
     {:else}
       <h3 class="fr-mb-0">Informations de la personne morale</h3>
       <DossierLegalDemandeurFields {model} />
-      <DossierOptionalIdentityFields
-        identity={model.representant}
-        kind="representant"
-        bind:enabled={model.hasRepresentant}
-      />
     {/if}
+  </div>
+
+  <div class="fr-fieldset__element w-full">
+    <DossierOptionalIdentityFields
+      identity={model.personneContact}
+      kind="personne_contact"
+      bind:enabled={model.hasPersonneContact}
+    />
   </div>
 
   <div class="fr-fieldset__element w-full">

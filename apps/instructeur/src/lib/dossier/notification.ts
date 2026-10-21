@@ -1,4 +1,4 @@
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { DossierNotification, NotificationUpdate } from "@pitchou/types/notification.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -101,7 +101,7 @@ export async function refreshNotifications() {
   const versions = new Map(session.versions);
   // Read after requests already in flight, especially acknowledgments whose
   // writes have not committed. This wait belongs to the list, not to navigation.
-  await Promise.allSettled([...session.pending.values()]);
+  await Promise.allSettled(session.pending.values());
   if (session.capabilities !== store.capabilities || listVersion !== session.listVersion) return;
   const notifications = await capability();
   if (session.capabilities !== store.capabilities || listVersion !== session.listVersion) return;

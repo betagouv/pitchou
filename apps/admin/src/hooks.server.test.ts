@@ -1,9 +1,10 @@
-import type { Handle, RequestEvent } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit/hooks";
+import type { RequestEvent } from "@sveltejs/kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UserId } from "@pitchou/types/permissions.ts";
 import { readSession } from "@pitchou/server/session.ts";
-import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
+import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
 import { handle } from "./hooks.server.ts";
 
 // Isolate authentication from Sentry and SvelteKit's request-context setup.
@@ -15,7 +16,7 @@ vi.mock("@sentry/sveltekit", () => ({
   handleErrorWithSentry: vi.fn(),
 }));
 vi.mock("@pitchou/server/session.ts", () => ({ readSession: vi.fn() }));
-vi.mock("$lib/server/session.ts", () => ({
+vi.mock("#lib/server/session.ts", () => ({
   readSessionToken: vi.fn(),
   setSessionCookie: vi.fn(),
 }));

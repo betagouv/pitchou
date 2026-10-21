@@ -7,7 +7,7 @@ import type {
   ActiviteGroupeAdmin,
   ActiviteLabelAdmin,
   ActiviteReferentielAdmin,
-} from "$lib/actions/adminActivites.ts";
+} from "#lib/actions/adminActivites.ts";
 
 export type ActiviteWithLabels = {
   activite: ActiviteAdmin;

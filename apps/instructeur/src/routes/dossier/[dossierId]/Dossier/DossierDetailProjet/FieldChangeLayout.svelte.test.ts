@@ -3,7 +3,7 @@ import "@gouvfr/dsfr/dist/utility/utility.css";
 import { afterEach, beforeEach, expect, test } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { page } from "vitest/browser";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import ProjectField from "./ReviewFieldFixture.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
@@ -45,7 +45,7 @@ test("desktop review control sits to the right, outside the highlight, with the 
   const control = view.container.querySelector<HTMLElement>(".field-change")!;
   const button = control.querySelector("button")!;
   await document.fonts.ready;
-  expect(control.textContent?.replace(/\s+/g, " ")).toContain("Modifié le 31/08/2026");
+  expect(control.textContent?.replaceAll(/\s+/gu, " ")).toContain("Modifié le 31/08/2026");
   expect(control.textContent).not.toContain("détectée");
   expect(control.getBoundingClientRect().left).toBeGreaterThan(
     highlight.getBoundingClientRect().right,
@@ -77,8 +77,10 @@ test("desktop review control sits to the right, outside the highlight, with the 
   expect(notch.content).toBe('""');
   expect(notch.borderRightColor).toBe("rgb(255, 255, 255)");
   expect(notch.borderRightWidth).toBe("8px");
-  expect(parseFloat(notch.right)).toBeCloseTo(bounds.width, 2);
-  expect(parseFloat(notch.top)).toBeCloseTo(bounds.height / 2, 0);
+  expect(notch.right).toMatch(/px$/u);
+  expect(notch.top).toMatch(/px$/u);
+  expect(Number(notch.right.slice(0, -2))).toBeCloseTo(bounds.width, 2);
+  expect(Number(notch.top.slice(0, -2))).toBeCloseTo(bounds.height / 2, 0);
 });
 
 test.each([320, 390, 768])(

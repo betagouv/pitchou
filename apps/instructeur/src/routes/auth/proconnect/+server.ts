@@ -1,8 +1,8 @@
 import { error, redirect } from "@sveltejs/kit";
 
-import { randomToken, buildAuthorizationUrl } from "$lib/server/proconnect.ts";
-import { sanitizeInternalPath } from "$lib/server/redirect.ts";
-import { setTransaction } from "$lib/server/session.ts";
+import { randomToken, buildAuthorizationUrl } from "#lib/server/proconnect.ts";
+import { sanitizeInternalPath } from "#lib/server/redirect.ts";
+import { setTransaction } from "#lib/server/session.ts";
 
 import type { RequestHandler } from "./$types";
 

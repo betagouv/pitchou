@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
-  import type { ModificationEspeceAdmin } from "$lib/actions/adminEspeces.ts";
-  import { saveModificationEspece } from "$lib/actions/adminEspeces.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
-  import Pagination from "$lib/components/ListPagination.svelte";
+  import type { ModificationEspeceAdmin } from "#lib/actions/adminEspeces.ts";
+  import { saveModificationEspece } from "#lib/actions/adminEspeces.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
+  import Pagination from "#lib/components/ListPagination.svelte";
 
   import { classificationFromTaxref, type TaxrefRow } from "@pitchou/ui/taxref/taxrefList.ts";
   import {
@@ -62,7 +62,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (!paginated) return undefined;
+    if (!paginated) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => (currentPage = i + 1));
     return [undefined, ...selectors];
   });

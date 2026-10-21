@@ -6,7 +6,7 @@
     showsOperationDetails,
     type DossierCreationModel,
   } from "../dossierCreationModel.ts";
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadLimit.svelte.ts";
 
   let { model }: { model: DossierCreationModel } = $props();
   let cvError = $state("");

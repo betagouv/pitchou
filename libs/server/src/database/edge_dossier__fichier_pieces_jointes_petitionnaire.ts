@@ -1,13 +1,16 @@
+import { collectFileChecksums } from "./edge_dossier__fichier_pieces_jointes_petitionnaire/candidates.ts";
+import {
+  insertFileEdges,
+  logRemovedFiles,
+} from "./edge_dossier__fichier_pieces_jointes_petitionnaire/edges.ts";
 import type { Knex } from "knex";
 
-import findCandidateFichiersToDownload from "@pitchou/common/findCandidateFichiersToDownload.ts";
 import { directDatabaseConnection } from "../database.ts";
-import { logActionsDossier } from "./action_dossier.ts";
 import { deleteFichiersWithoutOtherReferences } from "./fichier.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { DossierDS88444, DSFile } from "@pitchou/types/demarche-numerique/apiSchema.ts";
+import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 
@@ -32,34 +35,12 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
         trx,
       ),
     );
-  let fichierDescriptions: Map<DossierDS88444["number"], DSFile[]>[] = [];
-
-  for (const field of fieldsWithPiecesJointes) {
-    const fieldId: ChampDescriptor["id"] | undefined = pitchouKeyToChampDS.get(field);
-    if (!fieldId) {
-      throw new Error(`fieldId for ${field} is undefined`);
-    }
-    const candidate = findCandidateFichiersToDownload(dossiersDS, fieldId);
-
-    fichierDescriptions.push(candidate);
-  }
-
-  // @ts-ignore
-  const dossierIds: Set<DossierId> = new Set(
-    dossiersDS.map(({ number }) => dossierIdByDS_number.get(number)),
+  const { dossierIds, checksumsByDossier } = collectFileChecksums(
+    dossiersDS,
+    dossierIdByDS_number,
+    pitchouKeyToChampDS,
+    fieldsWithPiecesJointes,
   );
-
-  const checksumsByDossier = new Map<DossierId, Set<string>>();
-  for (const descriptions of fichierDescriptions) {
-    for (const [number, files] of descriptions) {
-      const id = dossierIdByDS_number.get(number);
-      if (!id) continue;
-      const checksums = checksumsByDossier.get(id) ?? new Set<string>();
-      for (const file of files) checksums.add(file.checksum);
-      checksumsByDossier.set(id, checksums);
-    }
-  }
-
   //console.log('dossierIds', dossierIds)
   //console.log('checksumsDS', checksumsDS)
 
@@ -79,7 +60,7 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
     (edge) => !checksumsByDossier.get(edge.dossier)?.has(edge.checksum),
   );
 
-  if (edgesToDelete.length >= 1) {
+  if (edgesToDelete.length > 0) {
     await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
       .delete()
       .whereIn(
@@ -99,78 +80,13 @@ export async function synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
   const dossiersWithNewPiecesJointes = new Set<DossierId>(
     edgesToDelete.map(({ dossier }) => dossier),
   );
-  await logActionsDossier(
-    edgesToDelete.map(({ dossier, fichier, name }) => ({
-      dossier,
-      type: "champ_modifie",
-      author_petitionnaire: true,
-      data: {
-        field: name ?? "Pièce jointe",
-        notification_field: `piece:${fichier}`,
-        label: name ?? "Pièce jointe supprimée",
-        from: name,
-        to: null,
-        notification: true,
-      },
-    })),
+  await logRemovedFiles(edgesToDelete, databaseConnection);
+
+  await insertFileEdges(
+    edgesFichierDossierPiecesJointePetitionnaires,
+    dossiersWithNewPiecesJointes,
     databaseConnection,
   );
-
-  if (edgesFichierDossierPiecesJointePetitionnaires.length >= 1) {
-    // The insert ignores conflicts, so the historique must only log the edges
-    // that do not exist yet — every sync run re-submits the same candidates.
-    const existingEdges: { dossier: DossierId; fichier: FileId }[] = await databaseConnection(
-      "edge_dossier__fichier_pieces_jointes_petitionnaire",
-    )
-      .select(["dossier", "fichier"])
-      .whereIn(
-        ["dossier", "fichier"],
-        edgesFichierDossierPiecesJointePetitionnaires.map(({ dossier, fichier }) => [
-          dossier,
-          fichier,
-        ]),
-      );
-    const existingKeys = new Set(
-      existingEdges.map(({ dossier, fichier }) => `${dossier}:${fichier}`),
-    );
-    const newEdges = edgesFichierDossierPiecesJointePetitionnaires.filter(
-      ({ dossier, fichier }) => !existingKeys.has(`${dossier}:${fichier}`),
-    );
-
-    await databaseConnection("edge_dossier__fichier_pieces_jointes_petitionnaire")
-      .insert(edgesFichierDossierPiecesJointePetitionnaires)
-      .onConflict(["dossier", "fichier"])
-      .ignore();
-
-    if (newEdges.length >= 1) {
-      const fileNames = new Map<FileId, string | null>(
-        (
-          await databaseConnection("file")
-            .select(["id", "name"])
-            .whereIn(
-              "id",
-              newEdges.map(({ fichier }) => fichier),
-            )
-        ).map(({ id, name }: { id: FileId; name: string | null }) => [id, name]),
-      );
-      await logActionsDossier(
-        newEdges.map(({ dossier, fichier }) => ({
-          dossier,
-          type: "piece_jointe_importee",
-          data: {
-            name: fileNames.get(fichier) ?? null,
-            field: fileNames.get(fichier) ?? "Pièce jointe",
-            notification_field: `piece:${fichier}`,
-            label: fileNames.get(fichier) ?? "Pièce jointe",
-            notification: true,
-          },
-          author_petitionnaire: true,
-        })),
-        databaseConnection,
-      );
-      for (const { dossier } of newEdges) dossiersWithNewPiecesJointes.add(dossier);
-    }
-  }
 
   // A removed file may be linked to another dossier in this same batch.
   // Finish all link mutations before deciding which files are orphaned.

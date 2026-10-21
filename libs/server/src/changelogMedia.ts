@@ -31,7 +31,7 @@ export const CHANGELOG_MEDIA_TYPES: Record<string, string> = {
 
 // Stored file names are always `<uuid>.<extension>`.
 const FILE_NAME_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,5}$/u;
 
 export function isValidMediaFileName(fileName: string): boolean {
   return FILE_NAME_PATTERN.test(fileName);
@@ -64,7 +64,7 @@ export function isOwnMediaUrl(src: string, entryId: number): boolean {
  */
 export function referencedMediaFileNames(entryId: number, contenu: string): Set<string> {
   const fileNames = new Set<string>();
-  for (const match of contenu.matchAll(/src="([^"]*)"/g)) {
+  for (const match of contenu.matchAll(/src="([^"]*)"/gu)) {
     const fileName = ownMediaFileName(match[1], entryId);
     if (fileName !== null) fileNames.add(fileName);
   }
@@ -114,7 +114,7 @@ export async function changelogMediaResponse(
   entryParam: string,
   fileName: string,
 ): Promise<Response | null> {
-  if (!/^\d+$/.test(entryParam)) return null;
+  if (!/^\d+$/u.test(entryParam)) return null;
   const media = await getChangelogMedia(Number(entryParam), fileName);
   if (!media) return null;
 

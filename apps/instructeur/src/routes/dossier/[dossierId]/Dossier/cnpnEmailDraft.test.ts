@@ -6,7 +6,7 @@ vi.mock("./DossierGenerationDocuments/generationTags.ts", () => ({
     activité_principale: "Énergie éolienne",
     localisation: "Nantes",
     liste_départements: ["44", "49"],
-    demandeur: { nom: "Société Exemple" },
+    porteur_de_projet: { nom: "Société Exemple" },
     numéro_dossier: "12345",
     régime_autorisation_environnementale: true,
     motif_dérogation: "Intérêt public majeur",
@@ -33,6 +33,10 @@ import { createCnpnEmailDraft, updateCnpnAttachmentList } from "./cnpnEmailDraft
 import { getDocumentGenerationTags } from "./DossierGenerationDocuments/generationTags.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
+const { getDocumentGenerationTags: generateTags } = await vi.importActual<
+  typeof import("./DossierGenerationDocuments/generationTags.ts")
+>("./DossierGenerationDocuments/generationTags.ts");
+
 test("reprend l'objet et le contenu du modèle de saisine CNPN", async () => {
   const draft = await createCnpnEmailDraft(
     { especesImpactees: { impacts: [] } } as unknown as DossierFull,
@@ -55,9 +59,6 @@ test.each([
   [false, "Non"],
   [null, "Non renseigné"],
 ] as const)("traduit le régime AE %s uniquement dans le mail", async (regime, label) => {
-  const { getDocumentGenerationTags: generateTags } = await vi.importActual<
-    typeof import("./DossierGenerationDocuments/generationTags.ts")
-  >("./DossierGenerationDocuments/generationTags.ts");
   const dossier = {
     linked_to_ae_regime: regime,
     especesImpactees: { impacts: [] },

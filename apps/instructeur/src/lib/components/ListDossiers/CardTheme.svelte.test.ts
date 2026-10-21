@@ -4,14 +4,19 @@ import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import "../../../app.css";
 import CardDossier from "./CardDossier.svelte";
+import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { makeDossier } from "./testHelpers.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 afterEach(cleanup);
 
 const dossier = makeDossier({
   name: "Restauration des marais",
-  demandeur_personne_morale_legal_name: "Association des marais",
+  porteur_de_projet: {
+    type: "personne_morale",
+    siret: "12345678900012",
+    legal_name: "Association des marais",
+  } as DossierSummary["porteur_de_projet"],
   next_action_expected_from: "Instructeur",
 });
 
@@ -19,9 +24,9 @@ test.each(["light", "dark"])(
   "%s cards keep readable DSFR colors in both read states",
   async (theme) => {
     const root = document.documentElement;
-    const previousTheme = root.getAttribute("data-fr-theme");
+    const previousTheme = root.dataset.frTheme;
     try {
-      root.setAttribute("data-fr-theme", theme);
+      root.dataset.frTheme = theme;
       const { rerender } = render(CardDossier, {
         dossier,
         notificationViewed: false,
@@ -59,8 +64,8 @@ test.each(["light", "dark"])(
         ).toBe(dark ? "rgb(146, 146, 146)" : "rgb(102, 102, 102)");
       }
     } finally {
-      if (previousTheme === null) root.removeAttribute("data-fr-theme");
-      else root.setAttribute("data-fr-theme", previousTheme);
+      if (previousTheme === undefined) delete root.dataset.frTheme;
+      else root.dataset.frTheme = previousTheme;
     }
   },
 );

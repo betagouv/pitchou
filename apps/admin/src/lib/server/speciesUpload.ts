@@ -3,7 +3,7 @@ import { assertSpeciesSpreadsheet } from "@pitchou/common/especesUtils.ts";
 import { loadPendingUploadContent } from "@pitchou/server/database/fichier_upload.ts";
 import type { AdminFileUpload } from "@pitchou/server/database/dossier_admin_files.ts";
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
-import { speciesFileError, speciesFileMediaType } from "$lib/speciesFile.ts";
+import { speciesFileError, speciesFileMediaType } from "#lib/speciesFile.ts";
 import { throwUploadedFichierHttpError } from "./uploadedFichier.ts";
 
 /**

@@ -1,8 +1,11 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { requireUserId } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import {
+  parseUploadedFichier,
+  throwUploadedFichierHttpError,
+} from "#lib/server/uploadedFichier.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier.ts";
 import {

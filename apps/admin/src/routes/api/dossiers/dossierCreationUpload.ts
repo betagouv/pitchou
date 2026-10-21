@@ -11,14 +11,14 @@ import {
 import type { AdminDossierCreation } from "@pitchou/server/database/dossier_admin.ts";
 import type { AdminFileUpload } from "@pitchou/server/database/dossier_admin_files.ts";
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseDossierCreation } from "$lib/server/dossierValidation";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { parseDossierCreation } from "#lib/server/dossierValidation.ts";
 import {
   loadActiviteContext,
   type ActiviteContext,
-} from "$lib/server/dossierValidation/activiteContext.ts";
-import { validateSpeciesUpload } from "$lib/server/speciesUpload";
-import { parseUploadedFichier, parseUploadedFichiers } from "$lib/server/uploadedFichier";
+} from "#lib/server/dossierValidation/activiteContext.ts";
+import { validateSpeciesUpload } from "#lib/server/speciesUpload.ts";
+import { parseUploadedFichier, parseUploadedFichiers } from "#lib/server/uploadedFichier.ts";
 
 export const uploadNames = [
   "purposeAttachments",
@@ -96,19 +96,19 @@ function validateAttachments(
         : "Le bilan des opérations antérieures ne s'applique pas à cette demande.",
     );
   }
-  if (columns?.scientifique_demande_purposes == null && uploads.purposeAttachments.length)
+  if (columns?.scientifique_demande_purposes == null && uploads.purposeAttachments.length > 0)
     error(400, "Les pièces justifiant la finalité ne s'appliquent pas à cette demande.");
   if (
     columns?.scientifique_mortality_measures_taken !== true &&
-    uploads.mortalityMeasureAttachments.length
+    uploads.mortalityMeasureAttachments.length > 0
   )
     error(400, "Les pièces décrivant les mesures ne s'appliquent pas à cette demande.");
   const wind = activiteCode === EOLIEN_SUIVI_MORTALITE_ACTIVITE_CODE;
-  if (!wind && uploads.windFarmPlanAttachments.length)
+  if (!wind && uploads.windFarmPlanAttachments.length > 0)
     error(400, "Le plan des installations ne s'applique pas à cette demande.");
-  if (!wind && uploads.eolienProtocolAttachments.length)
+  if (!wind && uploads.eolienProtocolAttachments.length > 0)
     error(400, "Les pièces décrivant le protocole ne s'appliquent pas à cette demande.");
-  if (columns?.scientifique_intervenants == null && uploads.intervenantCvAttachments.length)
+  if (columns?.scientifique_intervenants == null && uploads.intervenantCvAttachments.length > 0)
     error(400, "Les CV des intervenants ne s'appliquent pas à cette demande.");
 }
 

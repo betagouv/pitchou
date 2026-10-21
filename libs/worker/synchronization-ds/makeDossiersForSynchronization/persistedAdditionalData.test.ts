@@ -39,4 +39,17 @@ describe("mapPersistedAdditionalData", () => {
       followers: [{ email: "legacy@example.test", last_name: "Dupont" }],
     });
   });
+
+  it("drops the former déposant column, legacy or current", () => {
+    for (const dossier of [
+      { nom: "Legacy dossier", déposant: 12 },
+      { name: "Current dossier", deposant: 12 },
+    ]) {
+      const mapped = mapPersistedAdditionalData({
+        dossier,
+      } as unknown as AdditionalDataForDossierCreation);
+      expect(mapped?.dossier).not.toHaveProperty("déposant");
+      expect(mapped?.dossier).not.toHaveProperty("deposant");
+    }
+  });
 });

@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
   addPrescription,

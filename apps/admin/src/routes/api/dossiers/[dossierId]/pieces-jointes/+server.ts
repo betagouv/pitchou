@@ -3,8 +3,8 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { addPieceJointeFromAdmin } from "@pitchou/server/database/dossier_admin_files.ts";
 import { UploadedFichierError } from "@pitchou/server/upload.ts";
-import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { parseDossierId, throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { readSingleUpload, throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 
 // Auth is enforced upstream by hooks.server.ts (session and permissions).
 /** Attaches a file the browser already sent to object storage (`{ file: { id, name } }`). */

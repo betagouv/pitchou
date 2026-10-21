@@ -7,6 +7,9 @@ import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.t
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
+import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
+import { getDossierActeurs } from "./acteurs.ts";
+import { summaryInvolvements } from "@pitchou/common/dossierActeur.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { DossierSummary, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
@@ -28,14 +31,9 @@ const columns = [
   "primary_department",
   "next_action_expected_from",
   "next_due_date",
-  "identite_demandeur.last_name as deposant_last_name",
-  "identite_demandeur.first_names as deposant_first_names",
-  "demandeur_personne_physique.last_name as demandeur_personne_physique_last_name",
-  "demandeur_personne_physique.first_names as demandeur_personne_physique_first_names",
-  "demandeur_personne_morale.siret as demandeur_personne_morale_siret",
-  "demandeur_personne_morale.legal_name as demandeur_personne_morale_legal_name",
   "enjeu",
   "onagre_demande_identifier",
+  ...porteurDeProjetColumns,
 ] as (keyof DossierSummary)[];
 
 export async function getDossiersSummariesForUser(
@@ -45,57 +43,24 @@ export async function getDossiersSummariesForUser(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP: Promise<DossierSummary[]> = transaction("dossier")
-    .select(columns)
-    .select("dossier_access.access")
-    // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
-    // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
-    .select(
-      transaction.raw(
-        `coalesce((select array_agg(distinct impact_espece.cd_ref) from impact_espece where impact_espece."dossier" = dossier.id), '{}'::text[]) as "especesImpacteesCD_REF"`,
-      ),
-    )
-    .select(transaction.raw(latestCommentaireSubquery))
-    .join(
-      dossierAccessQuery(userId, transaction).as("dossier_access"),
-      "dossier_access.dossier",
-      "dossier.id",
-    )
-    .leftJoin("identite_dossier as identite_demandeur", function () {
-      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-        "identite_demandeur.type",
-        "demandeur",
-      );
-    })
-    .leftJoin("personne as demandeur_personne_physique", {
-      "demandeur_personne_physique.id": "dossier.demandeur_personne_physique",
-    })
-    .leftJoin("entreprise as demandeur_personne_morale", {
-      "demandeur_personne_morale.siret": "dossier.demandeur_personne_morale",
-    })
-    // Only reviewed labels resolve to an activity; labels pending review keep their raw display
-    // through the fallback in `withResolvedActivite`.
-    .leftJoin("activite_label", (join) =>
-      join
-        .on("activite_label.label", "dossier.main_activite")
-        .andOnVal("activite_label.needs_review", false),
-    )
-    .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
-    .then((dossiers: DossierSummary[]) =>
-      dossiers.map((dossier) => {
-        dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length >= 1;
-        return withResolvedActivite(dossier);
-      }),
-    );
+  const dossiersP = loadDossierSummaries(userId, transaction);
   const eventsP = getLatestEvenementsPhaseDossiers(userId, transaction);
   const decisionsP = getDecisionsAdministratives(userId, transaction);
   const avisP = getAvisExpertFilesForUser(userId, transaction);
-  const result = Promise.all([dossiersP, eventsP, decisionsP, avisP]).then(
-    ([dossiers, events, decisions, avis]) => {
+  const acteursP = dossiersP.then((dossiers) =>
+    getDossierActeurs(
+      dossiers.map(({ id }) => id),
+      transaction,
+      summaryInvolvements,
+    ),
+  );
+  const result = Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP]).then(
+    ([dossiers, events, decisions, avis, acteurs]) => {
       const eventByDossier = new Map<Dossier["id"], EvenementPhaseDossier>(
         events.map((event) => [event.dossier, event]),
       );
       for (const dossier of dossiers) {
+        dossier.acteurs = acteurs.get(dossier.id) ?? [];
         const event = eventByDossier.get(dossier.id);
         dossier.phase = event?.phase ?? "Accompagnement amont";
         dossier.phase_start_date = event?.timestamp ?? dossier.depot_date;
@@ -129,9 +94,47 @@ export async function getDossiersSummariesForUser(
     },
   );
   if (!databaseConnection.isTransaction) {
-    Promise.all([dossiersP, eventsP, decisionsP, avisP])
+    Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP])
       .then(transaction.commit)
       .catch(transaction.rollback);
   }
   return result;
+}
+
+function loadDossierSummaries(
+  userId: UserId,
+  transaction: Knex.Transaction,
+): Promise<DossierSummary[]> {
+  return (
+    joinPorteurDeProjet(transaction("dossier"))
+      .select(columns)
+      .select("dossier_access.access")
+      // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
+      // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
+      .select(
+        transaction.raw(
+          `coalesce((select array_agg(distinct impact_espece.cd_ref) from impact_espece where impact_espece."dossier" = dossier.id), '{}'::text[]) as "especesImpacteesCD_REF"`,
+        ),
+      )
+      .select(transaction.raw(latestCommentaireSubquery))
+      .join(
+        dossierAccessQuery(userId, transaction).as("dossier_access"),
+        "dossier_access.dossier",
+        "dossier.id",
+      )
+      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
+      // through the fallback in `withResolvedActivite`.
+      .leftJoin("activite_label", (join) =>
+        join
+          .on("activite_label.label", "dossier.main_activite")
+          .andOnVal("activite_label.needs_review", false),
+      )
+      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
+      .then((dossiers: DossierSummary[]) =>
+        dossiers.map((dossier) => {
+          dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length > 0;
+          return withResolvedActivite(withPorteurDeProjet(dossier));
+        }),
+      )
+  );
 }

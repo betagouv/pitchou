@@ -12,9 +12,9 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 export function parseSizeLimit(value: string): number {
   const multiplier =
     ({ K: 1024, M: 1024 * 1024, G: 1024 * 1024 * 1024 } as Record<string, number>)[
-      value[value.length - 1]?.toUpperCase()
+      value.at(-1)?.toUpperCase() ?? ""
     ] ?? 1;
-  return Number(multiplier !== 1 ? value.slice(0, -1) : value) * multiplier;
+  return Number(multiplier === 1 ? value : value.slice(0, -1)) * multiplier;
 }
 
 /**
@@ -44,7 +44,7 @@ export class UploadedFichierError extends Error {
   }
 }
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 export function isUploadId(value: unknown): value is FileId {
   return typeof value === "string" && UUID_PATTERN.test(value);

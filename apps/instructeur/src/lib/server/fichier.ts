@@ -11,8 +11,10 @@ export async function downloadFichierResponse(fileId: FileId): Promise<Response>
 
   const nomAscii = fichier.name
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
-    .replace(/[^\x00-\x7F]/g, ""); // strip remaining non-ASCII
+    // strip diacritics
+    .replaceAll(/[\u0300-\u036F]/gu, "")
+    // Keep printable ASCII in the header fallback.
+    .replaceAll(/[^\u0020-\u007E]/gu, "");
 
   const headers = new Headers();
   headers.set(

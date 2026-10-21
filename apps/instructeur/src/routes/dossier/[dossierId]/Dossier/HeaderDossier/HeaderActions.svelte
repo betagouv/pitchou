@@ -1,9 +1,9 @@
 <script lang="ts">
-  import DossierActionsMenu from "$lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
+  import DossierActionsMenu from "#lib/components/DossierFollowerAssignment/DossierActionsMenu.svelte";
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
-  } from "$lib/dossier/suiviDossier.ts";
+  } from "#lib/dossier/suiviDossier.ts";
   import { readOnlyMode } from "../readOnly.ts";
 
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";

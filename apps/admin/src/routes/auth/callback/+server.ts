@@ -2,8 +2,8 @@ import { error, redirect } from "@sveltejs/kit";
 import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { createSession } from "@pitchou/server/session.ts";
 
-import { exchangeCodeAndFetchUser } from "$lib/server/proconnect.ts";
-import { readTransaction, clearTransaction, setSessionCookie } from "$lib/server/session.ts";
+import { exchangeCodeAndFetchUser } from "#lib/server/proconnect.ts";
+import { readTransaction, clearTransaction, setSessionCookie } from "#lib/server/session.ts";
 
 import type { RequestHandler } from "./$types";
 

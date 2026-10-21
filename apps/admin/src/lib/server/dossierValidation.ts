@@ -60,8 +60,8 @@ function parseCreationRelations(raw: unknown): AdminDossierRelations {
     const phone = relations.demandeur_personne_physique.phone;
     if (phone && !isValidPhone(phone))
       error(400, `The physical demandeur phone number must be valid.`);
-  } else if (!relations.identites.find(({ type }) => type === "representant")) {
-    error(400, `A representative identity is required for a legal demandeur.`);
+  } else if (!relations.identites.some(({ type }) => type === "representant")) {
+    error(400, `A personne contact identity is required for a legal demandeur.`);
   }
   for (const identity of relations.identites)
     if (identity.phone && !isValidPhone(identity.phone))

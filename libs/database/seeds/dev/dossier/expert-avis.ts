@@ -34,29 +34,27 @@ export async function seedExpertAvis(
             ? await stockerPlaceholderPdf(nom_fichier_avis, transaction)
             : null,
         });
-      } else {
-        const fichiersAAjouter: {
-          saisine_fichier?: FileId | null;
-          avis_fichier?: FileId | null;
-        } = {};
+        continue;
+      }
 
-        if (nom_fichier_saisine && !existing.saisine_fichier) {
-          fichiersAAjouter.saisine_fichier = await stockerPlaceholderPdf(
-            nom_fichier_saisine,
-            transaction,
-          );
-        }
+      const fichiersAAjouter: {
+        saisine_fichier?: FileId | null;
+        avis_fichier?: FileId | null;
+      } = {};
 
-        if (nom_fichier_avis && !existing.avis_fichier) {
-          fichiersAAjouter.avis_fichier = await stockerPlaceholderPdf(
-            nom_fichier_avis,
-            transaction,
-          );
-        }
+      if (nom_fichier_saisine && !existing.saisine_fichier) {
+        fichiersAAjouter.saisine_fichier = await stockerPlaceholderPdf(
+          nom_fichier_saisine,
+          transaction,
+        );
+      }
 
-        if (Object.keys(fichiersAAjouter).length >= 1) {
-          await transaction("avis_expert").where({ id: avisData.id }).update(fichiersAAjouter);
-        }
+      if (nom_fichier_avis && !existing.avis_fichier) {
+        fichiersAAjouter.avis_fichier = await stockerPlaceholderPdf(nom_fichier_avis, transaction);
+      }
+
+      if (Object.keys(fichiersAAjouter).length > 0) {
+        await transaction("avis_expert").where({ id: avisData.id }).update(fichiersAAjouter);
       }
     } catch (err) {
       console.error(

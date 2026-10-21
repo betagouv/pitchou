@@ -1,6 +1,4 @@
 <script lang="ts">
-  import clsx from "clsx";
-
   /*
     Implementation of the DSFR pagination component
     https://www.systeme-de-design.gouv.fr/composants-et-modeles/composants/pagination/
@@ -82,7 +80,7 @@
       <li>
         <button
           type="button"
-          class={clsx(["fr-pagination__link", "fr-displayed-lg"])}
+          class={[["fr-pagination__link", "fr-displayed-lg"]]}
           aria-current={currentPage === pageSelectors[pageNumber] ? "page" : undefined}
           title={`Page ${pageNumber}`}
           onclick={pageSelectors[pageNumber]}

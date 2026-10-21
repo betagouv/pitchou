@@ -73,7 +73,7 @@ test("POST /avis-expert refuse un fichier jamais reçu par le stockage sans cré
   });
 
   expect(res.status).toBe(400);
-  expect(await res.text()).toMatch(/n'a pas été reçu/);
+  expect(await res.text()).toMatch(/n'a pas été reçu/u);
   expect(await db("avis_expert").where({ dossier: dossier.id })).toHaveLength(0);
   expect(await db("file")).toHaveLength(0);
 });

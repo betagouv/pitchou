@@ -1,6 +1,6 @@
 import { readSession } from "@pitchou/server/session.ts";
-import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
-import type { Handle } from "@sveltejs/kit";
+import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
+import type { Handle, ServerInit } from "@sveltejs/kit/hooks";
 import { setupSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { sequence } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
@@ -10,10 +10,12 @@ if (!process.env.PUBLIC_SITE_URL_PITCHOU) {
 
 console.log("NODE_ENV", process.env.NODE_ENV);
 
-// fire-and-forget
-setupSecretGeoMCE().catch((err) => {
-  console.error("setupSecretGeoMCE failed:", err);
-});
+export const init: ServerInit = () => {
+  // Start initialization without making requests wait for the database.
+  void setupSecretGeoMCE().catch((err) => {
+    console.error("setupSecretGeoMCE failed:", err);
+  });
+};
 
 const STATIC_PREFIXES = ["/_app/", "/docs/", "/data/"];
 
@@ -39,7 +41,44 @@ const authenticate: Handle = async ({ event, resolve }) => {
   event.locals.user = session ? (({ idToken, ...user }) => user)(session) : null;
   if (token && session) setSessionCookie(event.cookies, token);
   const path = event.url.pathname;
-  const publicRoute =
+  if (isPublicRoute(path)) return resolve(event);
+  if (!session) {
+    if (event.request.headers.get("accept")?.includes("text/html"))
+      return new Response(null, {
+        status: 303,
+        headers: {
+          location: "/auth/login?redirectTo=" + encodeURIComponent(path + event.url.search),
+        },
+      });
+    return new Response("Authentification requise", { status: 401 });
+  }
+  if (
+    path !== "/api/session" &&
+    (session.groupes.length === 0 || !session.permissions.includes("dossier:read"))
+  ) {
+    if (
+      ["GET", "HEAD"].includes(event.request.method) &&
+      event.request.headers.get("accept")?.includes("text/html")
+    )
+      return new Response(null, { status: 303, headers: { location: "/auth/acces-refuse" } });
+    return new Response("Accès aux dossiers non autorisé", { status: 403 });
+  }
+  if (!["GET", "HEAD", "OPTIONS"].includes(event.request.method)) {
+    if (event.request.headers.get("origin") !== event.url.origin)
+      return new Response("Origine de la requête refusée", { status: 403 });
+    if (
+      !path.startsWith("/api/metriques/") &&
+      path !== "/dossiers/export" &&
+      !session.permissions.includes("dossier:instruct")
+    )
+      return new Response("Permission d'instruction requise", { status: 403 });
+  }
+  return resolve(event);
+};
+export const handle = sequence(Sentry.sentryHandle(), requestLogger, authenticate);
+
+function isPublicRoute(path: string) {
+  return (
     path.startsWith("/auth/") ||
     STATIC_PREFIXES.some((p) => path.startsWith(p)) ||
     [
@@ -75,35 +114,6 @@ const authenticate: Handle = async ({ event, resolve }) => {
       "/api/taxref",
       "/api/bdc-statuts",
       "/api/referentiel-type-impact-methode-moyen-de-poursuite",
-    ].some((p) => path === p || path.startsWith(p + "/"));
-  if (publicRoute) return resolve(event);
-  if (!session) {
-    if (event.request.headers.get("accept")?.includes("text/html"))
-      return new Response(null, {
-        status: 303,
-        headers: {
-          location: "/auth/login?redirectTo=" + encodeURIComponent(path + event.url.search),
-        },
-      });
-    return new Response("Authentification requise", { status: 401 });
-  }
-  if (
-    path !== "/api/session" &&
-    (!session.groupes.length || !session.permissions.includes("dossier:read"))
-  ) {
-    if (
-      ["GET", "HEAD"].includes(event.request.method) &&
-      event.request.headers.get("accept")?.includes("text/html")
-    )
-      return new Response(null, { status: 303, headers: { location: "/auth/acces-refuse" } });
-    return new Response("Accès aux dossiers non autorisé", { status: 403 });
-  }
-  if (!["GET", "HEAD", "OPTIONS"].includes(event.request.method)) {
-    if (event.request.headers.get("origin") !== event.url.origin)
-      return new Response("Origine de la requête refusée", { status: 403 });
-    if (!path.startsWith("/api/metriques/") && !session.permissions.includes("dossier:instruct"))
-      return new Response("Permission d'instruction requise", { status: 403 });
-  }
-  return resolve(event);
-};
-export const handle = sequence(Sentry.sentryHandle(), requestLogger, authenticate);
+    ].some((p) => path === p || path.startsWith(p + "/"))
+  );
+}

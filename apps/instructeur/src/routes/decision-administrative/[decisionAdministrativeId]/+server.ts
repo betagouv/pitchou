@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
 import {
   deleteDecisionAdministrative,
   getDossierIdFromDecisionAdministrative,

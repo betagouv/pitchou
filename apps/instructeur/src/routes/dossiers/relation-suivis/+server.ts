@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId } from "$lib/server/auth";
+import { requireUserId } from "#lib/server/auth.ts";
 import { getRelationSuivis, createTransaction } from "@pitchou/server/database.ts";
 import {
   findFollowerUser,

@@ -4,7 +4,7 @@
   import type { DateField, DossiersQuery } from "./listModel.ts";
   const dateFields = Object.entries(DATE_FIELD_LABEL) as [DateField, string][];
   import { especeLabel } from "@pitchou/common/especesUtils.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   type Props = { draft: DossiersQuery; onOpenEspecesDrawer: () => void };
   let { draft = $bindable(), onOpenEspecesDrawer }: Props = $props();
   const newModifications = $derived(draft.nouveaute === "oui");
@@ -12,7 +12,7 @@
   const especesSummary = $derived.by(() => {
     const [first, ...others] = draft.espece;
     if (!first) return "Recherchez une ou plusieurs espèces protégées…";
-    if (others.length) return `${draft.espece.length} espèces sélectionnées`;
+    if (others.length > 0) return `${draft.espece.length} espèces sélectionnées`;
     const espece = store.espèceByCD_REF?.get(first);
     return espece ? especeLabel(espece) : first;
   });

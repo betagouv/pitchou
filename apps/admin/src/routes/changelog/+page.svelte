@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
   import Loader from "@pitchou/ui/Loader.svelte";
   import EntryCard from "./EntryCard.svelte";
-  import { loadChangelogAdmin, type ChangelogEntryAdmin } from "$lib/actions/adminChangelog.ts";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { loadChangelogAdmin, type ChangelogEntryAdmin } from "#lib/actions/adminChangelog.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
 
   type Etat = "chargement" | "autorise" | "refuse";
   let etat = $state<Etat>("chargement");

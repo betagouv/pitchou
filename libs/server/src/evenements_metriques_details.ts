@@ -1,6 +1,7 @@
 import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import type {
   DossierSearchEventDetails,
+  DossiersDownloadEventDetails,
   EvenementAddPieceJointeDetails,
   EvenementAssignDossierFollowersDetails,
   EvenementClickNavbarLinkDetails,
@@ -127,4 +128,16 @@ export function isAddPieceJointeDetails(details: any): details is EvenementAddPi
 
 export function isClickNavbarLinkDetails(details: any): details is EvenementClickNavbarLinkDetails {
   return Object(details) === details && navbarLinks.has(details.link);
+}
+
+export function isDossiersDownloadDetails(details: any): details is DossiersDownloadEventDetails {
+  return (
+    Object(details) === details &&
+    ["mes-dossiers", "tous-les-dossiers"].includes(details.page) &&
+    ["ods", "csv"].includes(details.format) &&
+    ["service", "followed", "france"].includes(details.scope) &&
+    Number.isInteger(details.dossierCount) &&
+    details.dossierCount >= 0 &&
+    (details.page === "mes-dossiers" ? details.scope === "followed" : details.scope !== "followed")
+  );
 }

@@ -65,6 +65,34 @@ test("Tab closes the open select without consuming the event", async () => {
   expect(onWindowKeydown.mock.calls[0][0].defaultPrevented).toBe(false);
 });
 
+test.each(["choice.with.dots", "choice:with:colons", "123choice"])(
+  "scrolls the active option when the select ID is %s",
+  async (id) => {
+    const scrolledIds: string[] = [];
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView").mockImplementation(function (
+      this: Element,
+    ) {
+      scrolledIds.push(this.id);
+    });
+    try {
+      render(Select, {
+        id,
+        ariaLabel: "Choice",
+        options: [
+          { value: "yes", label: "Oui" },
+          { value: "no", label: "Non" },
+        ],
+        value: "yes",
+      });
+      await page.getByRole("combobox", { name: "Choice" }).click();
+      await userEvent.keyboard("{ArrowDown}");
+      await vi.waitFor(() => expect(scrolledIds).toContain(`${id}-option-1`));
+    } finally {
+      scroll.mockRestore();
+    }
+  },
+);
+
 test("the list stays under its trigger inside a container that traps fixed positioning", async () => {
   // A DSFR modal body has a `filter`, which turns it into the containing block of
   // `position: fixed` descendants: viewport coordinates then land in the wrong place.

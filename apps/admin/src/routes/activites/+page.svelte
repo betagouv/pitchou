@@ -1,9 +1,9 @@
 <script lang="ts">
-  import PageHelp from "$lib/components/PageHelp.svelte";
-  import { can } from "$lib/access.svelte.ts";
+  import PageHelp from "#lib/components/PageHelp.svelte";
+  import { can } from "#lib/access.svelte.ts";
   import { onMount } from "svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
   import {
     createActivite,
     loadActiviteReferentiel,
@@ -13,8 +13,8 @@
     renameActivite,
     updateActiviteGroupe,
     type ActiviteReferentielAdmin,
-  } from "$lib/actions/adminActivites.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminActivites.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import {
     activiteSelectEntries,
     groupeSections,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import type { ActiviteWithLabels, GroupeSection } from "./activitesModel.ts";
   import ActiviteCard from "./ActiviteCard.svelte";
 
@@ -11,7 +11,7 @@
 
   let { section, onSelect, onUpdateGroupe }: Props = $props();
 
-  const HEX_COLOR = /^#[0-9a-f]{6}$/;
+  const HEX_COLOR = /^#[0-9a-f]{6}$/u;
 
   let editing = $state(false);
   let draftLabel = $state("");

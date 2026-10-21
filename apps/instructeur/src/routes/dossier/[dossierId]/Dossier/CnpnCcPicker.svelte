@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import CnpnCcRecipients from "./CnpnCcRecipients.svelte";
   import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   type Option =
-    { kind: "candidate"; candidate: DossierFollowerCandidate } | { kind: "email"; email: string };
+    | { kind: "candidate"; candidate: DossierFollowerCandidate }
+    | { kind: "email"; email: string };
 
   let {
     dossierId,
@@ -23,12 +24,12 @@
   let activeIndex: number | null = $state(null);
   let loading = $state(true);
   let loadFailed = $state(false);
-  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
   const normalizedUsedEmails = $derived(
     new Set(selectedEmails.map((email) => email.toLowerCase())),
   );
   const options = $derived.by<Option[]>(() => {
-    const searchParts = normalize(query).split(/\s+/).filter(Boolean);
+    const searchParts = normalize(query).split(/\s+/u).filter(Boolean);
     const matchingCandidates = candidates.filter((candidate) => {
       if (normalizedUsedEmails.has(candidate.email.toLowerCase())) return false;
       const searchable = normalize(
@@ -108,7 +109,6 @@
 </script>
 
 <svelte:body onclick={closeOnOutsideClick} />
-
 <div class="fr-mb-3w">
   <label class="fr-label" for={`cnpn-cc-${dossierId}`}>
     En copie

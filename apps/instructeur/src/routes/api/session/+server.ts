@@ -4,6 +4,7 @@ import { getMaxUploadSizeBytes } from "@pitchou/server/upload.ts";
 import type { RequestHandler } from "./$types";
 const endpoints = {
   listerDossiers: "/dossiers",
+  exporterDossiers: "/dossiers/export",
   recupérerDossierComplet: "/dossier/:dossierId",
   listFollowRelations: "/dossiers/relation-suivis",
   updateFollowRelation: "/dossiers/relation-suivis",
@@ -36,6 +37,7 @@ const endpoints = {
 };
 const readActions = new Set([
   "listerDossiers",
+  "exporterDossiers",
   "recupérerDossierComplet",
   "listRecentSearches",
   "creerEvenementMetrique",

@@ -4,31 +4,30 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PersonneId, PersonneInitializer } from "@pitchou/types/database/public/Personne.ts";
 
 async function hasReferences(id: PersonneId, trx: Knex.Transaction, excludedDossierId?: DossierId) {
-  const dossiers = trx("dossier")
-    .select("id")
-    .where(function () {
-      this.where("demandeur_personne_physique", id).orWhere("deposant", id);
-    });
+  const dossiers = trx("dossier").select("id").where("demandeur_personne_physique", id);
   if (excludedDossierId !== undefined) dossiers.whereNot("id", excludedDossierId);
   if (await dossiers.first()) return true;
   return false;
 }
 
+/** Only the identity of a personne: its contact details now live in personne_physique. */
+type DossierPersonne = Pick<PersonneInitializer, "last_name" | "first_names" | "email">;
+
 async function insertPersonne(
-  personne: PersonneInitializer,
+  { last_name, first_names, ...personne }: DossierPersonne,
   trx: Knex.Transaction,
 ): Promise<PersonneId> {
   const email = personne.email ? normalizeEmail(personne.email) : null;
   if (email) {
     const [inserted] = await trx("personne")
-      .insert({ ...personne, email })
+      .insert({ last_name, first_names, email })
       .onConflict("email")
       .ignore()
       .returning("id");
     if (inserted) return inserted.id;
   }
   const [inserted] = await trx("personne")
-    .insert({ ...personne, email: null })
+    .insert({ last_name, first_names, email: null })
     .returning("id");
   return inserted.id;
 }
@@ -36,7 +35,7 @@ async function insertPersonne(
 export async function updateOrInsertDossierPersonne(
   currentId: PersonneId | null,
   dossierId: DossierId,
-  personne: PersonneInitializer,
+  personne: DossierPersonne,
   trx: Knex.Transaction,
 ): Promise<PersonneId> {
   const current =
@@ -61,9 +60,6 @@ export async function updateOrInsertDossierPersonne(
       last_name: personne.last_name ?? null,
       first_names: personne.first_names ?? null,
       email,
-      address: personne.address ?? null,
-      phone: personne.phone ?? null,
-      role: personne.role ?? null,
     });
   return currentId;
 }

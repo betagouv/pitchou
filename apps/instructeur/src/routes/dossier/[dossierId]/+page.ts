@@ -1,12 +1,12 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageLoad } from "./$types";
-import { getDossierFull } from "$lib/dossier/dossier.ts";
+import { getDossierFull } from "#lib/dossier/dossier.ts";
 import {
   loadNotificationByDossierForCurrentInstructeur,
   loadRelationSuivi,
-} from "$lib/shared/main.ts";
+} from "#lib/shared/main.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import { requireDossierAccess } from "$lib/requireDossierAccess.ts";
+import { requireDossierAccess } from "#lib/requireDossierAccess.ts";
 
 export const load: PageLoad = async ({ params, parent, url }) => {
   const dossierId = Number(params.dossierId);

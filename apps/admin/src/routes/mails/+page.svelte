@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHelp from "$lib/components/PageHelp.svelte";
+  import PageHelp from "#lib/components/PageHelp.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

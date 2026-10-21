@@ -13,9 +13,9 @@
 
   <p>
     <a href="https://beta.gouv.fr/startups/pitchou.html">Pitchou est une startup d'État</a> qui fabrique
-    notamment un produit numérique à destination des pétitionnaires (personnes physiques ou morales qui
-    déposent des demandes de dérogation espèces protégées (DDEP)) et des instructeurs·rices espèces protégées
-    dans différentes DREAL et DDT(M) qui gèrent et instruisent ces demandes.
+    notamment un produit numérique à destination des porteurs de projet (personnes physiques ou morales
+    qui déposent des demandes de dérogation espèces protégées (DDEP)) et des instructeurs·rices espèces
+    protégées dans différentes DREAL et DDT(M) qui gèrent et instruisent ces demandes.
   </p>
   <p>
     Ce produit numérique collecte et traite des données à caractère personnelles (au sens de
@@ -24,16 +24,16 @@
     >)
   </p>
   <p>
-    Cette page liste les données collectées pour les pétitionnaires et les instructrices et explique
-    leur traitement.
+    Cette page liste les données collectées pour les porteurs de projet et les instructrices et
+    explique leur traitement.
   </p>
 
   <h2>Données personnelles collectées</h2>
 
-  <h3>Pour les pétitionnaires</h3>
+  <h3>Pour les porteurs de projet</h3>
   <h4>Données collectées</h4>
   <p>
-    Pour les pétitionnaires, les données personnelles collectées se restreignent strictement aux
+    Pour les porteurs de projet, les données personnelles collectées se restreignent strictement aux
     données du dossier déposé et aux échanges par messagerie avec les instructeurs·rices {@render DDEP()}.
   </p>
 

@@ -1,5 +1,5 @@
-import { browser } from "$app/environment";
-import { init } from "$lib/shared/main.ts";
+import { browser } from "$app/env";
+import { init } from "#lib/shared/main.ts";
 import type { LayoutLoad } from "./$types.js";
 
 export const ssr = false;

@@ -26,7 +26,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import type { PitchouState } from "$lib/state/store.svelte.ts";
+  import type { PitchouState } from "#lib/state/store.svelte.ts";
   import type { ActiviteReferentielLite, DossiersQuery } from "./listModel.ts";
   import {
     WITHOUT_INSTRUCTEUR,
@@ -34,7 +34,7 @@
     activiteFilterEntries,
     listAvailableInstructeurs,
   } from "./listModel.ts";
-  import { phases as allPhases } from "$lib/dossier/displayDossier.ts";
+  import { phases as allPhases } from "#lib/dossier/displayDossier.ts";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import DossiersAdditionalFilters from "./DossiersAdditionalFilters.svelte";
   import DossiersLocalisationFilter from "./DossiersLocalisationFilter.svelte";

@@ -69,8 +69,8 @@ describe("parseUploadedFichier", () => {
   test("parseUploadedFichiers refuse un élément nul dans la liste", () => {
     expect(parseUploadedFichiers([{ id, name: "a" }], "files")).toHaveLength(1);
     expect(parseUploadedFichiers(undefined, "files")).toEqual([]);
-    expect(() => parseUploadedFichiers([null], "files")).toThrow(/files\[0\]/);
-    expect(() => parseUploadedFichiers("x", "files")).toThrow(/liste/);
+    expect(() => parseUploadedFichiers([null], "files")).toThrow(/files\[0\]/u);
+    expect(() => parseUploadedFichiers("x", "files")).toThrow(/liste/u);
   });
 });
 

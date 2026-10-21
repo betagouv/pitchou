@@ -8,7 +8,7 @@
 </script>
 
 <!-- Help and orientation blocks of the footer: support contact, and the entry points
-     shared with pétitionnaires (pre-filled form, species list). -->
+     shared with porteurs de projet (pre-filled form, species list). -->
 <div class="grid gap-4 {withOrientationBlock ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}">
   <section
     class="rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-p-2w"
@@ -35,7 +35,7 @@
       class="rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-p-2w"
     >
       <h3 class="fr-text--sm fr-mb-2w">
-        DREAL, DDT → Besoin d’orienter les pétitionnaires vers le bon formulaire&nbsp;?
+        DREAL, DDT → Besoin d’orienter les porteurs de projet vers le bon formulaire&nbsp;?
       </h3>
       <a class="fr-btn fr-btn--secondary fr-btn--sm" href="/preremplissage-derogation">
         Générer un formulaire pré-rempli
@@ -47,7 +47,7 @@
     class="rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] fr-p-2w"
   >
     <h3 class="fr-text--sm fr-mb-2w">
-      Pétitionnaires → Besoin de générer une liste d’espèces protégées et les impacts
+      Porteurs de projet → Besoin de générer une liste d’espèces protégées et les impacts
       associés&nbsp;?
     </h3>
     <a class="fr-btn fr-btn--secondary fr-btn--sm" href="/saisie-especes">

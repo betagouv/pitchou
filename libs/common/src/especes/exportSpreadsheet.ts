@@ -134,10 +134,10 @@ export function descriptionMenacesEspecesToOdsArrayBuffer(
   description: DescriptionMenacesEspeces,
 ): Promise<ArrayBuffer> {
   const content = new Map();
-  if (description.oiseau.length) content.set("oiseau", oiseauxToTable(description.oiseau));
-  if (description["faune non-oiseau"].length)
+  if (description.oiseau.length > 0) content.set("oiseau", oiseauxToTable(description.oiseau));
+  if (description["faune non-oiseau"].length > 0)
     content.set("faune non-oiseau", faunesToTable(description["faune non-oiseau"]));
-  if (description.flore.length) content.set("flore", floresToTable(description.flore));
+  if (description.flore.length > 0) content.set("flore", floresToTable(description.flore));
   content.set("metadata", [
     ["version fichier", "version TaxRef", "schema rapportage européen"].map(cell),
     ["1.1.0", "17.0", "http://dd.eionet.europa.eu/schemas/habides-2.0/derogations.xsd"].map(cell),

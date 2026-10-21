@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
   import {
     updateDossier,
     type AdminDossierDetail,
     type AdminDossierUpdatePayload,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
 
   import {
     buildDossierRelations,

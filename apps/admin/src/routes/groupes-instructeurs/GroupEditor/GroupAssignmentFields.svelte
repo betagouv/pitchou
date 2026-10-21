@@ -14,7 +14,7 @@
   function normalized(value: string) {
     return value
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replaceAll(/[\u0300-\u036F]/gu, "")
       .toLowerCase();
   }
   const visibleDepartments = $derived(
@@ -44,7 +44,7 @@
             ? "members"
             : "departments",
     );
-    document.getElementById(formId + "-" + tab)?.focus();
+    document.querySelector<HTMLElement>(`#${CSS.escape(formId + "-" + tab)}`)?.focus();
   }
 </script>
 

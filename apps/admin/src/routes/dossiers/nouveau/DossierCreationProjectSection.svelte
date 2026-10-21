@@ -9,7 +9,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
 
-  import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+  import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
   import {
     ACCOMPANIMENT_CONTEXT,
     activiteDetailKind,
@@ -19,7 +19,7 @@
 
   type Props = {
     model: DossierCreationModel;
-    /** The activity referentiel, already sorted for display (see $lib/activiteReferentiel.ts). */
+    /** The activity referentiel, already sorted for display (see #lib/activiteReferentiel.ts). */
     activites: ActiviteAdmin[];
     /** Grouped, illustrated options over the same activities; plain labels when absent. */
     activiteEntries?: SelectEntry<string>[];

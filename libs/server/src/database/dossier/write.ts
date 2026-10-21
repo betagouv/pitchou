@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
@@ -8,10 +9,14 @@ export function deleteDossierByDSNumber(
   numbers: number[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  return databaseConnection("dossier")
-    .whereIn("demarche_numerique_number", numbers)
-    .where("source", "demarche_numerique")
-    .delete();
+  return databaseConnection.transaction((trx) =>
+    deleteDossiersWithPersonnesPhysiques(
+      trx("dossier")
+        .whereIn("demarche_numerique_number", numbers)
+        .where("source", "demarche_numerique"),
+      trx,
+    ),
+  );
 }
 
 /**
@@ -55,8 +60,9 @@ export async function updateDossier(
         evenementsPhase.map((event) => ({ ...event, caused_by_personne: causePersonne })),
       )
     : undefined;
-  const updated = Object.keys(columns).length
-    ? await databaseConnection("dossier").where({ id }).update(columns)
-    : undefined;
+  const updated =
+    Object.keys(columns).length > 0
+      ? await databaseConnection("dossier").where({ id }).update(columns)
+      : undefined;
   return [phaseAdded, updated];
 }

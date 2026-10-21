@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { sanitizeCnpnEmailHtml } from "@pitchou/server/cnpnEmail.ts";
 import type { SendCnpnEmailRequest } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -14,8 +14,8 @@ const requestProperties = new Set([
   "attachmentIds",
 ]);
 const MAX_ATTACHMENTS = 20;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
 export function parseDossierId(raw: string): DossierId {
   const dossierId = Number(raw);
@@ -55,7 +55,7 @@ export function parseRequest(value: Record<string, unknown>): SendCnpnEmailReque
     error(400, `Les pièces jointes doivent être uniques et limitées à ${MAX_ATTACHMENTS}.`);
   }
   const htmlBody = sanitizeCnpnEmailHtml(value.htmlBody);
-  if (!htmlBody.replace(/<[^>]+>/g, "").trim()) error(400, "Le corps du mail est vide.");
+  if (!htmlBody.replaceAll(/<[^>]+>/gu, "").trim()) error(400, "Le corps du mail est vide.");
   return {
     requestId: value.requestId,
     recipient:

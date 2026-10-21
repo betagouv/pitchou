@@ -1,6 +1,6 @@
 <script lang="ts">
-  import PageHelp from "$lib/components/PageHelp.svelte";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import PageHelp from "#lib/components/PageHelp.svelte";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import GroupsTable from "./GroupsTable.svelte";
   import GroupEditor from "./GroupEditor.svelte";
   import type { PageData, ActionData } from "./$types";

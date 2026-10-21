@@ -70,7 +70,7 @@ test("lists distinct groups belonging only to this dossier, including the null g
   expect(await speciesSimulationGroups(id, db)).toEqual([
     { id: "P-2-1", label: capture.libelle_pitchou },
     { id: "P-4-2", label: reference.libelle_pitchou },
-    { id: null, label: "Type d'impact non renseign\u00e9" },
+    { id: null, label: "Type d'impact non renseign\u00E9" },
   ]);
   const empty = await createDossier(db);
   expect(await speciesSimulationGroups(empty.id as DossierId, db)).toEqual([]);
@@ -147,7 +147,7 @@ test("allows local execution and changes the null group's fallback quantity", as
     });
   }
   expect((await notification()).changes).toMatchObject([
-    { field: speciesImpactChangeField(null), label: "Type d'impact non renseign\u00e9" },
+    { field: speciesImpactChangeField(null), label: "Type d'impact non renseign\u00E9" },
   ]);
   expect((await notification()).changes[0].revisions).toHaveLength(2);
   expect(await db("impact_espece").whereNot({ id: first.id }).orderBy("id")).toEqual(

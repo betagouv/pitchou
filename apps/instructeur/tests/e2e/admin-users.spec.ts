@@ -49,10 +49,10 @@ test("users can be found, paginated and edited without losing their permissions"
     name: "Pages des utilisateurs actifs",
     exact: true,
   });
-  await expect(active.getByRole("button", { name: /^Modifier / })).toHaveCount(20);
+  await expect(active.getByRole("button", { name: /^Modifier /u })).toHaveCount(20);
   await topPagination.getByRole("button", { name: "Page suivante" }).click();
   await expect(active.getByText("Page 2 sur 2")).toBeVisible();
-  await expect(page).toHaveURL(/actifs=2/);
+  await expect(page).toHaveURL(/actifs=2/u);
   await page.reload();
   await expect(active.getByText("Page 2 sur 2")).toBeVisible();
   const pagination = active.getByRole("navigation", {
@@ -65,32 +65,32 @@ test("users can be found, paginated and edited without losing their permissions"
   await expect(topPagination.getByRole("button", { name: "Page suivante" })).toBeDisabled();
   await page.getByRole("button", { name: "Trier", exact: true }).click();
   await page.getByRole("button", { name: "Adresse e-mail Ordre croissant" }).click();
-  await expect(active.getByRole("button", { name: /^Modifier / }).first()).toHaveAttribute(
+  await expect(active.getByRole("button", { name: /^Modifier /u }).first()).toHaveAttribute(
     "aria-label",
     "Modifier user24@example.org",
   );
   await expect(active.getByText("Page 1 sur 2")).toBeVisible();
-  await expect(page).toHaveURL(/ordre=desc/);
+  await expect(page).toHaveURL(/ordre=desc/u);
   await page.screenshot({ path: testInfo.outputPath("users-sort-dark.png") });
   await page.getByRole("button", { name: "Adresse e-mail Ordre décroissant" }).click();
-  await expect(active.getByRole("button", { name: /^Modifier / }).first()).toHaveAttribute(
+  await expect(active.getByRole("button", { name: /^Modifier /u }).first()).toHaveAttribute(
     "aria-label",
     "Modifier admin@example.org",
   );
   await page.getByRole("button", { name: "Trier", exact: true }).click();
   await topPagination.getByRole("button", { name: "Page suivante" }).click();
   await page.getByRole("searchbox", { name: "Rechercher un utilisateur" }).fill("elodie");
-  await expect(active.getByRole("button", { name: /^Modifier / })).toHaveCount(1);
+  await expect(active.getByRole("button", { name: /^Modifier /u })).toHaveCount(1);
   await expect(active).toContainText("Élodie Moreau");
   await expect(active.getByRole("navigation")).toHaveCount(0);
-  await expect(page).not.toHaveURL(/actifs=/);
+  await expect(page).not.toHaveURL(/actifs=/u);
   await page.getByRole("searchbox").fill("aucun-resultat");
   await expect(active).toContainText("Aucun utilisateur ne correspond");
   await page.getByRole("button", { name: "Réinitialiser" }).click();
   await expect(active.getByText("Page 1 sur 2")).toBeVisible();
   await page.getByRole("combobox", { name: "Filtrer par profil" }).click();
   await page.getByRole("option", { name: "Instructeur", exact: true }).click();
-  await expect(active.getByRole("button", { name: /^Modifier / })).toHaveCount(2);
+  await expect(active.getByRole("button", { name: /^Modifier /u })).toHaveCount(2);
   await page.screenshot({ path: testInfo.outputPath("users-dark.png") });
   const targetRow = page.getByRole("button", { name: `Modifier ${target.email}`, exact: true });
   await targetRow.focus();

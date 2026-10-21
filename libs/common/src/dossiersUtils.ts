@@ -1,4 +1,5 @@
 import type { DossierFull, DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+import { summaryActeurs } from "./dossierActeur.ts";
 
 export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSummary {
   const {
@@ -24,12 +25,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     regions,
 
     // People involved
-    deposant_last_name,
-    deposant_first_names,
-    demandeur_personne_physique_last_name,
-    demandeur_personne_physique_first_names,
-    demandeur_personne_morale_legal_name,
-    demandeur_personne_morale_siret,
+    porteur_de_projet,
+    acteurs,
 
     // Next action
     next_action_expected_from,
@@ -78,7 +75,7 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     especesImpacteesCD_REF: [
       ...new Set(especesImpactees.impacts.map(({ espece }) => espece.CD_REF)),
     ],
-    especesImpacteesRenseignees: especesImpactees.impacts.length >= 1,
+    especesImpacteesRenseignees: especesImpactees.impacts.length > 0,
 
     // Statistics
     depot_date,
@@ -89,12 +86,8 @@ export function DossierFullToDossierSummary(dossierFull: DossierFull): DossierSu
     regions,
 
     // People involved
-    deposant_last_name,
-    deposant_first_names,
-    demandeur_personne_physique_last_name,
-    demandeur_personne_physique_first_names,
-    demandeur_personne_morale_legal_name,
-    demandeur_personne_morale_siret,
+    porteur_de_projet,
+    acteurs: summaryActeurs(acteurs),
 
     // Phase and next action
     phase: currentPhase,

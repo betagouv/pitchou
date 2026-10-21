@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EvenementSortKey, EvenementSortOrder } from "$lib/actions/adminEvenements.ts";
+  import type { EvenementSortKey, EvenementSortOrder } from "#lib/actions/adminEvenements.ts";
   let {
     selectedSort,
     sortOrder,

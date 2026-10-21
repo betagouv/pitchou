@@ -1,4 +1,4 @@
-import { json, text } from "d3-fetch";
+import { json, text } from "#lib/shared/http.ts";
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type {
   DossierFollowerCandidate,
@@ -39,7 +39,7 @@ export function createDossierFollowerCapabilities(
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ personneEmails }),
-            }).then(() => undefined)
+            }).then(() => {})
         : undefined,
   };
 }

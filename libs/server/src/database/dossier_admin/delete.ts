@@ -6,6 +6,7 @@ import type { FileId } from "@pitchou/types/database/public/File.ts";
 import { DossierNotCreatedInPitchouError } from "./errors.ts";
 import { getDossierSyncStatus } from "./policy.ts";
 import { deleteUnreferencedDossierPersonnes } from "./relations.ts";
+import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 
 async function collectFileIds(dossierId: DossierId, trx: Knex.Transaction): Promise<FileId[]> {
   const [dossier, pieces, decisions, avis, attachments] = await Promise.all([
@@ -36,16 +37,13 @@ export async function deleteDossierFromAdmin(
       throw new DossierNotCreatedInPitchouError(dossierId);
     }
     const dossier = await trx("dossier")
-      .select("demandeur_personne_physique", "deposant")
+      .select("demandeur_personne_physique")
       .where({ id: dossierId })
       .first();
     const fileIds = await collectFileIds(dossierId, trx);
-    await trx("dossier").where({ id: dossierId }).delete();
+    await deleteDossiersWithPersonnesPhysiques(trx("dossier").where({ id: dossierId }), trx);
     if (dossier)
-      await deleteUnreferencedDossierPersonnes(
-        [dossier.demandeur_personne_physique, dossier.deposant],
-        trx,
-      );
+      await deleteUnreferencedDossierPersonnes([dossier.demandeur_personne_physique], trx);
     await deleteFichiersWithoutOtherReferences(fileIds, trx);
   });
 }

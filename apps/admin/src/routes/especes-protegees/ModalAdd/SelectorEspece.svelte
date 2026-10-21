@@ -1,7 +1,7 @@
 <script lang="ts">
-  import ListToolbar from "$lib/components/ListToolbar.svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import type { EspeceProtegee, ClassificationEtreVivant } from "@pitchou/types/especes.d.ts";
-  import Pagination from "$lib/components/ListPagination.svelte";
+  import Pagination from "#lib/components/ListPagination.svelte";
 
   import {
     filterEspeces,
@@ -55,7 +55,7 @@
 
   type PageSelector = () => void;
   const pageSelectors = $derived.by<undefined | [undefined, ...PageSelector[]]>(() => {
-    if (pageCount <= 1) return undefined;
+    if (pageCount <= 1) return;
     const selectors = Array.from({ length: pageCount }, (_v, i) => () => (query.page = i + 1));
     return [undefined, ...selectors];
   });

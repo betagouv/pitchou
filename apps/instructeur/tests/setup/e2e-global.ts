@@ -1,6 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { E2E_DB_NAME, databaseUrl, makeAdminKnex, makeKnex } from "./db.ts";
 import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
@@ -8,7 +7,7 @@ import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
 export const E2E_PORT = 32648;
 export const E2E_BASE_URL = `http://127.0.0.1:${E2E_PORT}`;
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..", "..");
 
 export const E2E_ADMIN_BASE_URL = "http://127.0.0.1:32647";
 let kitProcess: ChildProcess | undefined;
@@ -65,19 +64,18 @@ async function waitForKitReady(
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-async function spawnKit(
+function spawnKit(
   dbName: string,
   port: number,
   s3: TestS3Credentials,
   app = "instructeur",
-): Promise<ChildProcess> {
+): ChildProcess {
   const child = spawn("node", [`apps/${app}/build/index.js`], {
     cwd: repoRoot,
     env: {
       ...process.env,
       PORT: String(port),
       HOST: "127.0.0.1",
-      ORIGIN: `http://127.0.0.1:${port}`,
       DATABASE_URL: databaseUrl(dbName),
       NODE_ENV: "production",
       DEMARCHE_SIMPLIFIEE_API_TOKEN: process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN ?? "test",
@@ -108,9 +106,9 @@ export default async function globalSetup() {
   await dropAndCreateDb(E2E_DB_NAME);
   await runMigrations(E2E_DB_NAME);
   const s3 = await initTestS3();
-  kitProcess = await spawnKit(E2E_DB_NAME, E2E_PORT, s3);
+  kitProcess = spawnKit(E2E_DB_NAME, E2E_PORT, s3);
   await waitForKitReady(E2E_BASE_URL, kitProcess);
-  adminProcess = await spawnKit(E2E_DB_NAME, 32647, s3, "admin");
+  adminProcess = spawnKit(E2E_DB_NAME, 32647, s3, "admin");
   await waitForKitReady(E2E_ADMIN_BASE_URL, adminProcess);
 
   return async () => {
@@ -127,7 +125,10 @@ export default async function globalSetup() {
     if (kitProcess && kitProcess.exitCode === null) {
       kitProcess.kill("SIGTERM");
       await new Promise<void>((resolve) => {
-        if (!kitProcess) return resolve();
+        if (!kitProcess) {
+          resolve();
+          return;
+        }
         kitProcess.once("exit", () => resolve());
         setTimeout(() => {
           kitProcess?.kill("SIGKILL");

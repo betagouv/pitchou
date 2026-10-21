@@ -37,7 +37,7 @@
   }
 
   async function save() {
-    const cleaned = draft.map((name) => name.trim()).filter((name) => name.length >= 1);
+    const cleaned = draft.map((name) => name.trim()).filter((name) => name.length > 0);
     if (await onSave(inherit ? null : cleaned)) editing = false;
   }
 </script>

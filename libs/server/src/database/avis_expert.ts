@@ -55,23 +55,23 @@ export async function addOrUpdateAvisExpertWithFichiers(
         },
         databaseConnection,
       );
-    } else {
-      const avisExpertToInsert = avisExpert as AvisExpertInitializer;
-
-      return addAvisExpert(
-        {
-          ...avisExpertToInsert,
-          saisine_fichier: fichierSaisineAdded?.id ?? undefined,
-          avis_fichier: fichierAvisAdded?.id ?? undefined,
-        },
-        databaseConnection,
-      );
     }
+    const avisExpertToInsert = avisExpert as AvisExpertInitializer;
+
+    return addAvisExpert(
+      {
+        ...avisExpertToInsert,
+        saisine_fichier: fichierSaisineAdded?.id ?? undefined,
+        avis_fichier: fichierAvisAdded?.id ?? undefined,
+      },
+      databaseConnection,
+    );
   } catch (e) {
     // Keep the typed error so the HTTP route can answer 4xx instead of 500.
     if (e instanceof UploadedFichierError) throw e;
     throw new Error(
       `Une erreur est survenue lors de l'ajout ou de la modification de l'avis d'expert avec les fichiers de saisine et d'avis : ${e}.`,
+      { cause: e },
     );
   }
 }
@@ -83,10 +83,9 @@ export function addOrUpdateAvisExpert(
   if (isAvisExpertToUpdate(avisExpert)) {
     const avisExpertToUpdate = avisExpert as { id: string } & AvisExpertMutator;
     return updateAvisExpert(avisExpertToUpdate, databaseConnection);
-  } else {
-    const avisExpertToInsert = avisExpert as AvisExpertInitializer;
-    return addAvisExpert(avisExpertToInsert, databaseConnection);
   }
+  const avisExpertToInsert = avisExpert as AvisExpertInitializer;
+  return addAvisExpert(avisExpertToInsert, databaseConnection);
 }
 
 export function addAvisExpert(
@@ -128,7 +127,7 @@ export async function updateAvisExpert(
     if (checkAvis && old.avis_fichier !== null && old.avis_fichier !== avisExpert.avis_fichier) {
       fichierIdsToCleanUp.push(old.avis_fichier);
     }
-    if (fichierIdsToCleanUp.length >= 1) {
+    if (fichierIdsToCleanUp.length > 0) {
       await deleteFichiersWithoutOtherReferences(fichierIdsToCleanUp, databaseConnection);
     }
   }
@@ -151,7 +150,7 @@ export async function deleteAvisExpert(
 
   const result = await databaseConnection("avis_expert").delete().whereIn("id", idsToDelete);
 
-  if (fichierIds.length >= 1) {
+  if (fichierIds.length > 0) {
     await deleteFichiersWithoutOtherReferences(fichierIds, databaseConnection);
   }
 

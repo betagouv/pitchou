@@ -2,7 +2,7 @@
   import { differenceInMinutes, format } from "date-fns";
   import { fr } from "date-fns/locale";
 
-  import type { PitchouState } from "$lib/state/store.svelte.ts";
+  import type { PitchouState } from "#lib/state/store.svelte.ts";
   import UiFooter from "@pitchou/ui/Footer.svelte";
 
   import FooterSupportBlocks from "./FooterSupportBlocks.svelte";
@@ -16,8 +16,7 @@
     demarcheNumerique88444SynchronizationResults?: PitchouState["demarcheNumerique88444SynchronizationResults"];
   };
 
-  let { compact = false, demarcheNumerique88444SynchronizationResults = undefined }: Props =
-    $props();
+  let { compact = false, demarcheNumerique88444SynchronizationResults }: Props = $props();
 
   // Narrower link columns when the support blocks share the row with them.
   const columnClass = $derived(
@@ -103,7 +102,7 @@
         <FooterSupportBlocks />
       </div>
     {:else}
-      <!-- Public visitors are pétitionnaires: no need for the DREAL/DDT orientation block. -->
+      <!-- Public visitors are porteurs de projet: no need for the DREAL/DDT orientation block. -->
       <div class="fr-col-12 fr-col-md-6">
         <FooterSupportBlocks withOrientationBlock={false} />
       </div>

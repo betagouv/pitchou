@@ -3,9 +3,9 @@
   import FormDecisionAdministrative from "./FormDecisionAdministrative.svelte";
   import CardDecisionAdministrative from "./CardDecisionAdministrative.svelte";
 
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import { labelForDecisionAdministrativeType } from "@pitchou/common/decisionAdministrative.js";
   import { readOnlyMode } from "../readOnly.ts";
 

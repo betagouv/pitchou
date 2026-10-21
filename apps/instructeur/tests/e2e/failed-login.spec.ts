@@ -28,7 +28,7 @@ test("un compte sans groupe d'instructeurs affiche l'erreur correspondante", asy
 
   await loginBrowser(page, db, codeAcces);
 
-  await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+  await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Votre accès aux dossiers");
   await expect(
     page.getByText(

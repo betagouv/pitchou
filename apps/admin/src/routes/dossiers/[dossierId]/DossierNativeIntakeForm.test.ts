@@ -1,7 +1,7 @@
 import { render } from "svelte/server";
 import { expect, test, vi } from "vitest";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
 import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
 import {
@@ -21,17 +21,9 @@ function makeDetail(groupe: AdminDossierDetail["groupes"][number] | null): Admin
     source: "pitchou",
     managedByDn: false,
     phase: "Accompagnement amont",
-    demandeur_personne_physique: {
-      last_name: "",
-      first_names: "",
-      email: null,
-      address: null,
-      phone: null,
-      role: null,
-    },
-    demandeur_personne_morale: null,
+    porteur_de_projet: null,
     groupes: groupe ? [groupe] : [],
-    identites: [],
+    acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,
@@ -44,8 +36,8 @@ function renderForm(detail: AdminDossierDetail): string {
       detail,
       activites: ACTIVITES_FIXTURE,
       activiteCodeByLabel: ACTIVITE_CODE_BY_LABEL_FIXTURE,
-      onSaved: () => undefined,
-      onFilesChanged: async () => undefined,
+      onSaved: () => {},
+      onFilesChanged: async () => {},
     },
   }).body;
 }

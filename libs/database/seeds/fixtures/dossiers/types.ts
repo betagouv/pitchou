@@ -9,7 +9,6 @@ export type SeedDossier = Omit<
   DossierInitializer,
   | "id"
   | "demarche_numerique_id"
-  | "deposant"
   | "demandeur_personne_physique"
   | "demandeur_personne_morale"
   | "representative"
@@ -21,11 +20,11 @@ export type SeedDossier = Omit<
   demandeur_personne_morale?: string;
   /** Email of the personne physique demandeur. The personne must be listed in SEED_PERSONNES. */
   demandeur_personne_physique_email?: string;
-  /** Email of the representant (personne morale), stored as an identite_dossier snapshot. The personne must be listed in SEED_PERSONNES. */
+  /** Email of the personne contact, seeded as a dossier acteur. The personne must be listed in SEED_PERSONNES. */
   representative_email?: string;
-  /** Email of the demandeur identity (DN identity block), stored as an identite_dossier snapshot and linked as dossier.deposant. The personne must be listed in SEED_PERSONNES. */
+  /** Email of the Démarche Numérique demandeur (bénéficiaire), seeded as a dossier acteur, and déposant without mandataire. The personne must be listed in SEED_PERSONNES. */
   deposant_email?: string;
-  /** Email of the mandataire (when the dossier was deposited par un tiers), stored as an identite_dossier snapshot. The personne must be listed in SEED_PERSONNES. */
+  /** Email of the mandataire (when the dossier was deposited par un tiers), seeded as a dossier acteur and déposant. The personne must be listed in SEED_PERSONNES. */
   mandataire_email?: string;
 };
 

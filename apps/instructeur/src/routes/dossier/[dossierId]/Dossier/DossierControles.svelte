@@ -1,12 +1,10 @@
 <script lang="ts">
-  import clsx from "clsx";
-
   import DecisionAdministrative from "./Controles/DecisionAdministrative.svelte";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
 
   import { deleteDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import { readOnlyMode } from "./readOnly.ts";
 
   import type { DossierFull, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
@@ -40,18 +38,16 @@
 
   const phase = $derived(dossier.evenementsPhase.at(-1)?.phase || "Accompagnement amont");
 
-  let classes = $derived(
-    clsx([
-      "fr-btn",
-      "fr-btn--icon-left",
-      "fr-icon-add-line",
-      decisionsAdministratives.length >= 1 ||
-      phase === "Accompagnement amont" ||
-      phase === "Étude recevabilité"
-        ? "fr-btn--secondary"
-        : undefined,
-    ]),
-  );
+  let classes = $derived([
+    "fr-btn",
+    "fr-btn--icon-left",
+    "fr-icon-add-line",
+    decisionsAdministratives.length > 0 ||
+    phase === "Accompagnement amont" ||
+    phase === "Étude recevabilité"
+      ? "fr-btn--secondary"
+      : undefined,
+  ]);
 </script>
 
 <div class="row">

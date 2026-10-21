@@ -96,14 +96,14 @@ export async function logDossierActions(
   if (metricOverride === null || authors.size === 0) return;
 
   const events =
-    metricOverride !== undefined
-      ? [...authors].map((personne) => ({ personne, event: metricOverride }))
-      : actions
+    metricOverride === undefined
+      ? actions
           .filter(({ author_personne }) => author_personne != null)
           .flatMap((action) => {
             const event = metricByActionType[action.type]?.(action);
             return event ? [{ personne: action.author_personne!, event }] : [];
-          });
+          })
+      : [...authors].map((personne) => ({ personne, event: metricOverride }));
   if (events.length === 0) return;
 
   await databaseConnection("evenement_metrique").insert(

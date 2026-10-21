@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import type { HeaderAction } from "$lib/pageHeader.svelte.ts";
+  import type { HeaderAction } from "#lib/pageHeader.svelte.ts";
   let { items }: { items: HeaderAction[] } = $props();
   const id = $props.id();
   let open = $state(false);

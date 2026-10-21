@@ -1,3 +1,6 @@
+import type { PrescriptionId } from "@pitchou/types/database/public/Prescription.ts";
+const prescriptionId = "p-id" as PrescriptionId;
+const missingId = "missing" as PrescriptionId;
 import { describe, it, expect, vi } from "vitest";
 import type { Knex } from "knex";
 import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
@@ -14,8 +17,7 @@ describe("getDossierIdFromPrescription", () => {
       .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
       .selectResolvesForTable("decision_administrative", [{ dossier: 42 }])
       .build();
-    // @ts-ignore: id is a branded string, the test passes a literal
-    await getDossierIdFromPrescription("p-id", db.knex);
+    await getDossierIdFromPrescription(prescriptionId, db.knex);
     const tables = db.table.mock.calls.map(([name]) => name);
     expect(tables).toEqual(["prescription", "decision_administrative"]);
   });
@@ -25,15 +27,13 @@ describe("getDossierIdFromPrescription", () => {
       .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
       .selectResolvesForTable("decision_administrative", [{ dossier: 42 }])
       .build();
-    // @ts-ignore
-    const result = await getDossierIdFromPrescription("p-id", db.knex);
+    const result = await getDossierIdFromPrescription(prescriptionId, db.knex);
     expect(result).toBe(42);
   });
 
   it("returns undefined when the prescription does not exist", async () => {
     const db = fakeDatabase().selectResolvesForTable("prescription", []).build();
-    // @ts-ignore
-    const result = await getDossierIdFromPrescription("missing", db.knex);
+    const result = await getDossierIdFromPrescription(missingId, db.knex);
     expect(result).toBeUndefined();
   });
 
@@ -42,8 +42,7 @@ describe("getDossierIdFromPrescription", () => {
       .selectResolvesForTable("prescription", [{ decision_administrative: "da-id" }])
       .selectResolvesForTable("decision_administrative", [])
       .build();
-    // @ts-ignore
-    const result = await getDossierIdFromPrescription("p-id", db.knex);
+    const result = await getDossierIdFromPrescription(prescriptionId, db.knex);
     expect(result).toBeUndefined();
   });
 });
@@ -51,16 +50,14 @@ describe("getDossierIdFromPrescription", () => {
 describe("deletePrescription", () => {
   it("only touches the prescription table", async () => {
     const db = fakeDatabase().build();
-    // @ts-ignore
-    await deletePrescription("p-id", db.knex);
+    await deletePrescription(prescriptionId, db.knex);
     const tables = new Set(db.table.mock.calls.map(([name]) => name));
     expect(tables).toEqual(new Set(["prescription"]));
   });
 
   it("filters the delete by the given id", async () => {
     const db = fakeDatabase().build();
-    // @ts-ignore
-    await deletePrescription("p-id", db.knex);
+    await deletePrescription(prescriptionId, db.knex);
     expect(db.where).toHaveBeenCalledWith({ id: "p-id" });
     expect(db.delete).toHaveBeenCalledTimes(1);
   });

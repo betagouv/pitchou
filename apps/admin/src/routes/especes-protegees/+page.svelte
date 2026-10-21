@@ -6,7 +6,7 @@
     loadModificationsEspecesAdmin,
     AccessDeniedError,
     type ModificationEspeceAdmin,
-  } from "$lib/actions/adminEspeces.ts";
+  } from "#lib/actions/adminEspeces.ts";
 
   import ListModifications from "./ListModifications.svelte";
 
@@ -22,13 +22,11 @@
       modifications = await loadModificationsEspecesAdmin();
       etat = "autorise";
     } catch (e) {
-      if (e instanceof AccessDeniedError) {
-        etat = "refuse";
-      } else {
+      if (!(e instanceof AccessDeniedError)) {
         // Real (network/server) error: keep the admin UI hidden, show a generic alert.
         loadError = e instanceof Error ? e.message : String(e);
-        etat = "refuse";
       }
+      etat = "refuse";
     }
   }
 

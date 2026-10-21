@@ -28,21 +28,21 @@ test("dashboard links to pending work, respects access and clears resolved alert
     await page.goto(E2E_ADMIN_BASE_URL);
     const attention = page.getByRole("region", { name: "À votre attention" });
     await expect(attention.getByRole("link")).toHaveCount(4);
-    await expect(attention.getByRole("link", { name: /Dossiers sans groupe/ })).toContainText("1");
-    await expect(attention.getByRole("link", { name: /Groupes à vérifier/ })).toContainText("1");
+    await expect(attention.getByRole("link", { name: /Dossiers sans groupe/u })).toContainText("1");
+    await expect(attention.getByRole("link", { name: /Groupes à vérifier/u })).toContainText("1");
     await expect(
-      attention.getByRole("link", { name: /Départements sans groupe actif/ }),
+      attention.getByRole("link", { name: /Départements sans groupe actif/u }),
     ).toContainText(String(departements.length));
     await expect(page.getByText("Tout est à jour")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("dashboard-attention-desktop.png") });
-    await attention.getByRole("link", { name: /Dossiers sans groupe/ }).click();
+    await attention.getByRole("link", { name: /Dossiers sans groupe/u }).click();
     await expect(page.locator("#unmatched-dossiers")).toBeInViewport();
     await page.goto(E2E_ADMIN_BASE_URL);
-    await attention.getByRole("link", { name: /Groupes à vérifier/ }).click();
+    await attention.getByRole("link", { name: /Groupes à vérifier/u }).click();
     await expect(page.locator("#groups-to-review")).toBeInViewport();
     await page.goto(E2E_ADMIN_BASE_URL);
-    await attention.getByRole("link", { name: /Libellés d'activité/ }).click();
-    await page.getByRole("button", { name: /libellé.*détecté/ }).click();
+    await attention.getByRole("link", { name: /Libellés d'activité/u }).click();
+    await page.getByRole("button", { name: /libellé.*détecté/u }).click();
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
 
     await db("auth_permission_exclusion").insert({
@@ -51,7 +51,7 @@ test("dashboard links to pending work, respects access and clears resolved alert
     });
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByRole("link")).toHaveCount(1);
-    await expect(attention.getByRole("link", { name: /Libellés d'activité/ })).toBeVisible();
+    await expect(attention.getByRole("link", { name: /Libellés d'activité/u })).toBeVisible();
     await db("auth_permission_exclusion").where({ user_id: admin.id }).delete();
 
     await db("groupe_departement").insert(
@@ -63,7 +63,7 @@ test("dashboard links to pending work, respects access and clears resolved alert
     await db("activite_label").where({ label }).update({ needs_review: false });
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByRole("link")).toHaveCount(1);
-    await expect(attention.getByRole("link", { name: /Dossiers sans groupe/ })).toBeVisible();
+    await expect(attention.getByRole("link", { name: /Dossiers sans groupe/u })).toBeVisible();
     await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByText("Tout est à jour")).toBeVisible();

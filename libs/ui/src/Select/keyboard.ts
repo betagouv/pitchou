@@ -25,9 +25,7 @@ export function commandForKey(event: KeyboardEvent, state: ListState): SelectCom
   if (event.key === "Tab") return open ? { action: "close", keepEvent: true } : null;
   if (event.key === "Escape") return open ? { action: "close" } : null;
 
-  if (!open) {
-    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) return { action: "open" };
-  } else {
+  if (open) {
     switch (event.key) {
       case "ArrowDown":
         return { action: "move", index: activeIndex + 1 };
@@ -41,6 +39,8 @@ export function commandForKey(event: KeyboardEvent, state: ListState): SelectCom
       case " ":
         return { action: "commit" };
     }
+  } else if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+    return { action: "open" };
   }
 
   if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey) {

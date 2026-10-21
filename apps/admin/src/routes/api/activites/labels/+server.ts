@@ -4,7 +4,7 @@ import {
   getActiviteReferentiel,
   reassignActiviteLabel,
 } from "@pitchou/server/database/activite.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import type { RequestHandler } from "./$types.ts";
 
 /**

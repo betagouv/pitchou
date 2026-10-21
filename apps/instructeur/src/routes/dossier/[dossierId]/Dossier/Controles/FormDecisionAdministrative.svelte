@@ -1,12 +1,12 @@
 <script lang="ts">
-  import DateInput from "$lib/components/DateInput.svelte";
+  import DateInput from "#lib/components/DateInput.svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import {
     typesDecisionAdministrative,
     labelForDecisionAdministrativeType,
   } from "@pitchou/common/decisionAdministrative.js";
-  import { uploadSizeHint } from "$lib/upload/uploadSizeHint.ts";
-  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
+  import { uploadSizeHint } from "#lib/upload/uploadSizeHint.ts";
+  import { uploadProgressLabel } from "#lib/upload/uploadProgress.svelte.ts";
   import {
     preserveDecisionDates,
     uploadDecisionFile,
@@ -74,7 +74,7 @@
     preserveDecisionDates(decision);
 
     inProgress = true;
-    if (fichiers && fichiers.length >= 1) {
+    if (fichiers && fichiers.length > 0) {
       try {
         decision.fichier_upload = await uploadDecisionFile(decision.dossier, fichiers);
       } catch (error) {

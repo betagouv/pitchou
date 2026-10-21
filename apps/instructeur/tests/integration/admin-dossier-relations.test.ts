@@ -67,11 +67,14 @@ test("a native dossier can switch to a legal demandeur without changing shared c
   );
 
   const detail = await getDossierDetailForAdmin(id, db);
-  expect(detail.demandeur_personne_physique).toBeNull();
-  expect(detail.demandeur_personne_morale?.legal_name).toBe("Nom officiel");
-  expect(detail.identites).toEqual(
-    expect.arrayContaining([expect.objectContaining({ type: "representant", role: "Directrice" })]),
-  );
+  expect(detail.porteur_de_projet).toMatchObject({
+    type: "personne_morale",
+    legal_name: "Nom officiel",
+  });
+  expect(detail.acteurs).toEqual([
+    expect.objectContaining({ involvements: ["deposant"], last_name: "Petit" }),
+    expect.objectContaining({ involvements: ["personne_contact"], role: "Directrice" }),
+  ]);
 });
 
 test("switching demandeur type deletes an unreferenced dossier-specific personne", async () => {
@@ -124,4 +127,44 @@ test("switching demandeur type deletes an unreferenced dossier-specific personne
   );
 
   expect(await db("personne").where({ id: initialPersonneId }).first()).toBeUndefined();
+});
+
+test("the admin writes the acteurs without historique: the porteur is the déposant without mandataire", async () => {
+  const relations = physicalAdminDossierRelations("Martin", "Camille");
+  relations.identites.push({
+    type: "representant",
+    last_name: "Leroy",
+    first_names: "Anne",
+    email: null,
+    phone: "0612345678",
+    role: null,
+  });
+  const { id } = await createDossierFromAdmin(
+    {
+      name: "Dossier acteurs",
+      depot_date: new Date("2026-10-20"),
+      phase: "Instruction",
+      relations,
+    },
+    ADMIN_EMAIL,
+    db,
+  );
+
+  const [{ personne_physique: porteur }] = await db("dossier")
+    .join("porteur_de_projet", "porteur_de_projet.id", "dossier.porteur_de_projet")
+    .select("porteur_de_projet.personne_physique")
+    .where("dossier.id", id);
+  expect(
+    await db("dossier_acteur").select("involvement", "personne_physique").where({ dossier: id }),
+  ).toEqual(
+    expect.arrayContaining([
+      { involvement: "deposant", personne_physique: porteur },
+      { involvement: "personne_contact", personne_physique: expect.any(Number) },
+    ]),
+  );
+  expect(
+    await db("action_dossier")
+      .where({ dossier: id })
+      .whereRaw("data->>'notification_field' like 'personne_contact.%'"),
+  ).toEqual([]);
 });

@@ -74,7 +74,7 @@ function parseNullableString(value: Record<string, unknown>, property: string): 
 
 function parseEmail(value: Record<string, unknown>, property: string): string | null {
   const email = parseNullableString(value, property);
-  if (email !== null && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (email !== null && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
     error(400, `Property '${property}' must be a valid email address or null.`);
   }
   return email === null ? null : normalizeEmail(email);
@@ -95,7 +95,7 @@ function parsePersonnePhysique(raw: unknown): AdminDemandeurPersonnePhysiqueRela
 function parsePersonneMorale(raw: unknown): AdminDemandeurPersonneMoraleRelations {
   const value = parseExactObject(raw, "demandeur_personne_morale", PERSONNE_MORALE_PROPERTIES);
   const siret = parseString(value, "siret");
-  if (!/^\d{14}$/.test(siret)) {
+  if (!/^\d{14}$/u.test(siret)) {
     error(400, `Property 'siret' must contain exactly 14 digits.`);
   }
   return {

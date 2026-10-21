@@ -20,14 +20,14 @@ for (const missing of ["group", "permission"] as const) {
     }
     await page.goto("/auth/acces-refuse");
     await page.getByTitle("Accueil - Pitchou", { exact: true }).click();
-    await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+    await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
     await expect(page.getByRole("heading", { name: "Votre accès aux dossiers" })).toBeVisible();
     for (const label of ["Mes dossiers", "Tous les dossiers", "Tableau de suivi"]) {
       await page
         .locator("header")
-        .getByRole("link", { name: new RegExp(label) })
+        .getByRole("link", { name: new RegExp(label, "u") })
         .click();
-      await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+      await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
     }
     for (const path of [
       "/",
@@ -39,7 +39,7 @@ for (const missing of ["group", "permission"] as const) {
       "/auth/login",
     ]) {
       await page.goto(path);
-      await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+      await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
       await expect(page.getByRole("heading", { name: "Votre accès aux dossiers" })).toBeVisible();
     }
     // Data requests still fail with 403 instead of returning a page or following a redirect.
@@ -51,7 +51,7 @@ for (const missing of ["group", "permission"] as const) {
 
     // Reload uses the current access rights without requiring another sign-in.
     await page.reload();
-    await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+    await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
     if (missing === "group") {
       await db("user_groupe").insert(membership);
     } else {
@@ -60,7 +60,7 @@ for (const missing of ["group", "permission"] as const) {
         .delete();
     }
     await page.reload();
-    await expect(page).toHaveURL(/\/mes-dossiers$/);
+    await expect(page).toHaveURL(/\/mes-dossiers$/u);
   });
 }
 
@@ -70,19 +70,19 @@ test("anonymous visitors sign in and authorized users reach their dossiers", asy
   loginAs,
 }) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/connexion$/);
+  await expect(page).toHaveURL(/\/connexion$/u);
   await expect(page.getByRole("heading", { name: "Connexion à Pitchou" })).toBeVisible();
   await page.goto("/auth/acces-refuse");
-  await expect(page).toHaveURL(/\/auth\/acces-refuse$/);
+  await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
   await expect(page.getByRole("heading", { name: "Votre accès aux dossiers" })).toBeVisible();
   await page.getByRole("link", { name: "Retour à la connexion" }).click();
-  await expect(page).toHaveURL(/\/auth\/login$/);
+  await expect(page).toHaveURL(/\/auth\/login$/u);
   const user = await createInstructeurWithCapToGroup(db);
   await loginAs(user.codeAcces);
   await page.goto("/connexion");
-  await expect(page).toHaveURL(/\/mes-dossiers$/);
+  await expect(page).toHaveURL(/\/mes-dossiers$/u);
   await page.goto("/auth/acces-refuse");
-  await expect(page).toHaveURL(/\/mes-dossiers$/);
+  await expect(page).toHaveURL(/\/mes-dossiers$/u);
 });
 
 test("disabled accounts can read the denial reason without an authenticated session", async ({
@@ -94,7 +94,7 @@ test("disabled accounts can read the denial reason without an authenticated sess
   await loginAs(user.codeAcces);
   await db("auth_user").where({ id: user.id }).update({ active: false });
   await page.goto("/auth/acces-refuse?reason=disabled");
-  await expect(page).toHaveURL(/\/auth\/acces-refuse\?reason=disabled$/);
+  await expect(page).toHaveURL(/\/auth\/acces-refuse\?reason=disabled$/u);
   await expect(
     page.getByText("Votre compte Pitchou est désactivé. Vous ne pouvez pas accéder aux dossiers."),
   ).toBeVisible();

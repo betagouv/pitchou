@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ListToolbar from "$lib/components/ListToolbar.svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import type { NiveauAARRI } from "@pitchou/types/API_Pitchou.ts";
   import type { SortKey, SortOrder, UtilisateursQuery } from "./utilisateursList.ts";
   import UtilisateursFilterPanel from "./UtilisateursFilterPanel.svelte";

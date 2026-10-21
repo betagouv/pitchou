@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { untrack } from "svelte";
   import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
-  import { simulateDossierSync, type SimulatedAction } from "$lib/actions/adminDossiers.ts";
+  import { simulateDossierSync, type SimulatedAction } from "#lib/actions/adminDossiers.ts";
   import Select from "@pitchou/ui/Select.svelte";
   import DossierSpeciesSimulation from "./DossierSpeciesSimulation.svelte";
 
@@ -55,7 +55,9 @@
 </script>
 
 <section class="admin-panel" aria-labelledby="dossier-simulation-title">
-  <h2 id="dossier-simulation-title" class="fr-mb-2w">Simuler une modification du pétitionnaire</h2>
+  <h2 id="dossier-simulation-title" class="fr-mb-2w">
+    Simuler une modification du porteur de projet
+  </h2>
   <div>
     <p class="fr-hint-text fr-mb-2w">
       Rejoue une synchronisation Démarches Numériques sur ce dossier : le champ est réellement
@@ -107,7 +109,7 @@
                 {describe(action)}
                 <span class="fr-hint-text">
                   {formatDate(action.created_at)}
-                  {action.author_petitionnaire ? "· par le pétitionnaire" : ""}
+                  {action.author_petitionnaire ? "· par le porteur de projet" : ""}
                 </span>
               </li>
             {/each}

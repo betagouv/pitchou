@@ -8,11 +8,11 @@ import { tick } from "svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import { detailDossier, fieldChange } from "./detail.fixture.ts";
 import { groupChange } from "./impactGroups.fixture.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => ({ current: false }) }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 afterEach(async () => {
   cleanup();
   store.notificationByDossier.clear();
@@ -40,7 +40,15 @@ test.each([1440, 1024, 390])(
       no_other_satisfactory_solution_justification: text,
       scientifique_demande_type: ["recherche"],
       scientifique_suivi_protocol_description: text,
-      deposant_email: `${"adresse".repeat(20)}@example.org`,
+      porteur_de_projet: {
+        type: "personne_physique",
+        first_names: "Camille",
+        last_name: "Martin",
+        email: `${"adresse".repeat(20)}@example.org`,
+        address: null,
+        phone: null,
+        role: null,
+      },
       piecesJointesPetitionnaires: [
         {
           id: "test",
@@ -60,18 +68,18 @@ test.each([1440, 1024, 390])(
     };
     const view = render(DossierDetailProjet, { dossier, anomalies: undefined });
     const headers = [...view.container.querySelectorAll<HTMLButtonElement>("h3 button")];
-    expect(headers.map((button) => button.textContent?.replace(/\s+/g, " ").trim())).toEqual([
-      expect.stringMatching(/^Porteur de projet/),
-      expect.stringMatching(/^Informations du projet/),
-      expect.stringMatching(/^Cartographie du projet/),
-      expect.stringMatching(/^Espèces impactées/),
-      expect.stringMatching(/^Pièces jointes/),
+    expect(headers.map((button) => button.textContent?.replaceAll(/\s+/gu, " ").trim())).toEqual([
+      expect.stringMatching(/^Porteur de projet/u),
+      expect.stringMatching(/^Informations du projet/u),
+      expect.stringMatching(/^Cartographie du projet/u),
+      expect.stringMatching(/^Espèces impactées/u),
+      expect.stringMatching(/^Pièces jointes/u),
     ]);
     for (const header of headers) header.click();
     await tick();
     await document.fonts.ready;
     const dnLink = view.getByRole("link", { name: "Voir le dossier sur Démarche Numérique" });
-    expect(dnLink.getAttribute("href")).toMatch(/\/procedures\/88444\/dossiers\/123456$/);
+    expect(dnLink.getAttribute("href")).toMatch(/\/procedures\/88444\/dossiers\/123456$/u);
     expect(dnLink.getAttribute("target")).toBe("_blank");
     expect(dnLink.classList.contains("fr-btn--secondary")).toBe(false);
     expect(dnLink.getBoundingClientRect().right).toBeLessThanOrEqual(width);

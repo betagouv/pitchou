@@ -50,11 +50,13 @@ export function toRenderedGroups<Value>(entries: SelectEntry<Value>[]): Rendered
 
   for (const entry of entries) {
     if (isGroup(entry)) {
+      const firstIndex = index;
       groups.push({
         label: entry.label,
         color: entry.color,
-        options: entry.options.map((option) => ({ option, index: index++ })),
+        options: entry.options.map((option, offset) => ({ option, index: firstIndex + offset })),
       });
+      index += entry.options.length;
       continue;
     }
 

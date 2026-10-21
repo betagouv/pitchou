@@ -1,8 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 import { createUploadUrls, parseUploadSizes } from "@pitchou/server/upload.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 

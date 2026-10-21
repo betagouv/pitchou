@@ -1,9 +1,12 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import {
+  parseUploadedFichier,
+  throwUploadedFichierHttpError,
+} from "#lib/server/uploadedFichier.ts";
 import {
   addOrUpdateAvisExpert,
   addOrUpdateAvisExpertWithFichiers,
@@ -90,31 +93,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       throwUploadedFichierHttpError(err);
     }
     await logDossierActionsAfterCommit(
-      (async () => {
-        const author = await getUserById(userId);
-        return [
-          ...(fichierSaisine
-            ? [
-                {
-                  dossier: authorizedDossierId,
-                  type: "saisine_importee",
-                  data: { expert: expert ?? null },
-                  author_personne: author?.id ?? null,
-                },
-              ]
-            : []),
-          ...(fichierAvis
-            ? [
-                {
-                  dossier: authorizedDossierId,
-                  type: "avis_importe",
-                  data: { avis: avis ?? null },
-                  author_personne: author?.id ?? null,
-                },
-              ]
-            : []),
-        ];
-      })(),
+      importedAvisActions(
+        userId,
+        authorizedDossierId,
+        expert,
+        avis,
+        !!fichierSaisine,
+        !!fichierAvis,
+      ),
     );
   } else {
     await directDatabaseConnection.transaction(async (transaction) => {
@@ -138,3 +124,36 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   return new Response(null, { status: 204 });
 };
+
+async function importedAvisActions(
+  userId: Parameters<typeof getUserById>[0],
+  authorizedDossierId: DossierId,
+  expert: string | undefined,
+  avis: string | undefined,
+  fichierSaisine: boolean,
+  fichierAvis: boolean,
+) {
+  const author = await getUserById(userId);
+  return [
+    ...(fichierSaisine
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "saisine_importee",
+            data: { expert: expert ?? null },
+            author_personne: author?.id ?? null,
+          },
+        ]
+      : []),
+    ...(fichierAvis
+      ? [
+          {
+            dossier: authorizedDossierId,
+            type: "avis_importe",
+            data: { avis: avis ?? null },
+            author_personne: author?.id ?? null,
+          },
+        ]
+      : []),
+  ];
+}

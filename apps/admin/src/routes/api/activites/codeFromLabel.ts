@@ -5,8 +5,8 @@
 export function activiteCodeFromLabel(label: string): string {
   return label
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
+    .replaceAll(/\p{Diacritic}/gu, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replaceAll(/[^a-z0-9]+/gu, "-")
+    .replaceAll(/^-+|-+$/gu, "");
 }

@@ -1,5 +1,5 @@
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-import { RequestError } from "$lib/shared/createCapObjectFromURLs/requestWrappers.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+import { RequestError } from "#lib/shared/createCapObjectFromURLs/requestWrappers.ts";
 import { sendCnpnEmail } from "../sendCnpnEmail.ts";
 import type { DossierFull, SendCnpnEmailRequest } from "@pitchou/types/API_Pitchou.ts";
 

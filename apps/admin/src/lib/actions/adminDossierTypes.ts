@@ -1,4 +1,6 @@
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
+import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
 
 export type AdminDossierSummary = {
   id: number;
@@ -10,9 +12,7 @@ export type AdminDossierSummary = {
   main_activite: string | null;
   activite_code: string | null;
   activite_label: string | null;
-  demandeur_last_name: string | null;
-  demandeur_first_names: string | null;
-  demandeur_entreprise: string | null;
+  porteur_de_projet: PorteurDeProjet | null;
   groupe_name: string | null;
 };
 
@@ -119,17 +119,9 @@ export type AdminDossierDetail = {
   source: DossierSource;
   managedByDn: boolean;
   phase: string;
-  demandeur_personne_physique: {
-    last_name: string | null;
-    first_names: string | null;
-    email: string | null;
-    address: string | null;
-    phone: string | null;
-    role: string | null;
-  } | null;
-  demandeur_personne_morale: AdminDemandeurPersonneMorale | null;
+  porteur_de_projet: PorteurDeProjet | null;
   groupes: { id: string; name: string }[];
-  identites: AdminDossierIdentite[];
+  acteurs: DossierActeur[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
   especesImpactees: { id: string; name: string; media_type: string | null } | null;
@@ -146,6 +138,9 @@ export type AdminDossierCreationPayload = {
 export type AdminDossierMinimalCreationPayload = {
   name: string;
   primary_department: string;
+  porteur_de_projet:
+    | { type: "personne_physique"; last_name: string; first_names: string }
+    | { type: "personne_morale"; siret: string };
 };
 
 export type AdminDossierUpdatePayload = {

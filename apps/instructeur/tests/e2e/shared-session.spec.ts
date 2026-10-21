@@ -27,9 +27,9 @@ for (const logoutApp of ["instructeur", "admin"]) {
     ).toBeVisible();
 
     await page.goto(`${E2E_BASE_URL}/mes-dossiers`);
-    await expect(page).toHaveURL(/\/auth\/login\?redirectTo=/);
+    await expect(page).toHaveURL(/\/auth\/login\?redirectTo=/u);
     await adminPage.reload();
-    await expect(adminPage).toHaveURL(/\/auth\/login/);
+    await expect(adminPage).toHaveURL(/\/auth\/login/u);
     expect((await context.request.get(`${E2E_BASE_URL}/api/session`)).status()).toBe(401);
     expect((await context.request.get(`${E2E_ADMIN_BASE_URL}/api/users`)).status()).toBe(401);
     await page.reload();

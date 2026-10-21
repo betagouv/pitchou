@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import {
     uploadPieceJointe,
     deletePieceJointe,
     uploadEspecesImpactees,
     deleteEspecesImpactees,
     type AdminDossierDetail,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
 
   type Props = {
     detail: AdminDossierDetail;

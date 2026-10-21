@@ -16,7 +16,7 @@ export function parseUser(body: Record<string, unknown>): UserUpdate {
   const groupIds = body.groupIds === undefined ? undefined : strings(body.groupIds);
   if (
     groupIds?.some(
-      (id) => !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id),
+      (id) => !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(id),
     )
   )
     error(400, "Identifiant de groupe invalide");
@@ -37,7 +37,7 @@ export function parseGroup(body: Record<string, unknown>): GroupUpdate {
   if (
     body.id !== undefined &&
     (typeof body.id !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id))
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(body.id))
   )
     error(400, "Identifiant invalide");
   const departments = strings(body.departments);

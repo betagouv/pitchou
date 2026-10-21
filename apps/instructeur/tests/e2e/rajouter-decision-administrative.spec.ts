@@ -36,7 +36,7 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
   await page.getByRole("button", { name: "Sauvegarder" }).click();
 
   // The décision appears in the list (outside the form), identified by its numéro.
-  await expect(page.getByRole("heading", { name: /AP-E2E-001/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /AP-E2E-001/u })).toBeVisible();
 
   // And it is properly persisted in the database with its file.
   await expect
@@ -57,7 +57,7 @@ test("rajouter une décision administrative l'ajoute à la liste du dossier", as
     page.getByRole("dialog", { name: "Voulez-vous supprimer arrete.pdf ?" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Confirmer la suppression" }).click();
-  await expect(page.getByRole("link", { name: /arrete.pdf/ })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /arrete.pdf/u })).toHaveCount(0);
   expect(await db("decision_administrative").where({ id: decision.id }).first()).toMatchObject({
     number: "AP-E2E-001",
     fichier: null,

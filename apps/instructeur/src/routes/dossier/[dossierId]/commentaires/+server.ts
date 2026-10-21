@@ -1,8 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireUserId, requireDossierAccess } from "$lib/server/auth.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   addCommentaireFromCap,
   deleteCommentaireFromCap,
@@ -21,7 +21,7 @@ const deleteProperties = new Set(["id"]);
 function parseCommentaireId(value: Record<string, unknown>): CommentaireId {
   if (
     typeof value.id !== "string" ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.id)
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(value.id)
   ) {
     error(400, "La propriété 'id' doit être un identifiant de commentaire UUID.");
   }

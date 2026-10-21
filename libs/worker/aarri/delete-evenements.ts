@@ -1,4 +1,4 @@
-import parseArgs from "minimist";
+import { parseArgs } from "node:util";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
@@ -8,15 +8,16 @@ import {
 } from "@pitchou/server/database/evenements_metriques.ts";
 import { subWeeks } from "date-fns";
 
-const args = parseArgs(process.argv);
+const { values: args } = parseArgs({
+  options: { email: { type: "string" }, "conserver-dernières-semaines": { type: "string" } },
+});
 
 const email = args["email"];
 
-let numberWeeksToKeep = args["conserver-dernières-semaines"];
+const weeksArgument = args["conserver-dernières-semaines"];
+const numberWeeksToKeep = weeksArgument === undefined ? undefined : Number(weeksArgument);
 
-if (numberWeeksToKeep) {
-  numberWeeksToKeep = Number(numberWeeksToKeep);
-
+if (numberWeeksToKeep !== undefined) {
   if (!Number.isSafeInteger(numberWeeksToKeep)) {
     console.error(`"${args["conserver-dernières-semaines"]}" n'est pas un nombre`);
     process.exit(1);

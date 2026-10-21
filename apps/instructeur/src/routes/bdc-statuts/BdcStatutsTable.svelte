@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { BdcStatutRow } from "./bdcStatutsList.ts";
-  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
+  import EspecesStatusBadge from "#lib/components/EspecesStatusBadge.svelte";
   import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
   type Props = {

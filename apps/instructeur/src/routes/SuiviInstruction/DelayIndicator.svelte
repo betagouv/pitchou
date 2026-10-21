@@ -1,8 +1,6 @@
 <script lang="ts">
   import { run } from "svelte/legacy";
 
-  import clsx from "clsx";
-
   type IndicatorStyle = "info" | "success" | "warning" | "error";
 
   type Props = {
@@ -17,10 +15,8 @@
   run(() => {
     if (adjustedQuantity < 0) {
       adjustedQuantity = 0;
-    } else {
-      if (adjustedQuantity > 5) {
-        adjustedQuantity = 5;
-      }
+    } else if (adjustedQuantity > 5) {
+      adjustedQuantity = 5;
     }
 
     // round to the nearest half-value
@@ -39,9 +35,11 @@
   const lineBase = "h-1/2 translate-y-1/2 border-0 border-t-2 border-solid mr-[0.2rem]";
 
   let lineClasses = $derived(
-    [...Array(Math.ceil(adjustedQuantity))].map((_, i) =>
-      clsx(lineBase, styleToBorderColor[style], adjustedQuantity - i >= 1 ? "w-6" : "w-3"),
-    ),
+    Array.from({ length: Math.ceil(adjustedQuantity) }, (_, i) => [
+      lineBase,
+      styleToBorderColor[style],
+      adjustedQuantity - i >= 1 ? "w-6" : "w-3",
+    ]),
   );
 </script>
 

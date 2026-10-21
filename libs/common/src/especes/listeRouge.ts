@@ -32,7 +32,7 @@ export function parseUicnFilter(value: unknown): StatutListeRouge | "" {
 export function statutListeRougeLePlusMenace(codes: Iterable<string>): StatutListeRouge | null {
   let worst: StatutListeRouge | null = null;
   for (const raw of codes) {
-    const code = raw.replace(/\*$/, "");
+    const code = raw.replace(/\*$/u, "");
     if (!isStatutListeRouge(code)) continue;
     if (worst === null || STATUTS_LISTE_ROUGE.indexOf(code) < STATUTS_LISTE_ROUGE.indexOf(worst)) {
       worst = code;

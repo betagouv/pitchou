@@ -3,7 +3,7 @@
   import UserRow from "./UsersTable/UserRow.svelte";
   import { type User } from "./model.ts";
   import { USERS_PER_PAGE as perPage } from "./list.ts";
-  import UsersPagination from "$lib/components/Pagination.svelte";
+  import UsersPagination from "#lib/components/Pagination.svelte";
   let {
     title,
     active,

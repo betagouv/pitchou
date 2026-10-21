@@ -1,6 +1,4 @@
 <script lang="ts" generics="Value">
-  import clsx from "clsx";
-
   import type { SelectOption } from "./options.ts";
   import SelectOptionMarker from "./SelectOptionMarker.svelte";
 
@@ -75,7 +73,7 @@
   aria-required={required || undefined}
   aria-invalid={invalid || undefined}
   aria-describedby={invalid ? `${id}-error` : undefined}
-  class={clsx(
+  class={[
     "fr-px-2w fr-py-1w box-border flex w-full cursor-pointer items-center justify-between gap-2 rounded-t-[0.25rem] bg-[var(--background-contrast-grey)] text-left",
     "enabled:hover:bg-[var(--background-contrast-grey-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0a76f6]",
     // Matches how DSFR greys out a disabled `.fr-select`, including when an
@@ -84,7 +82,7 @@
     open
       ? "shadow-[inset_0_-2px_0_0_var(--background-action-high-blue-france)]"
       : "shadow-[inset_0_-2px_0_0_var(--border-plain-grey)]",
-  )}
+  ]}
   bind:this={element}
   onclick={onToggle}
   onkeydown={onKeydown}
@@ -93,15 +91,15 @@
     {#if selected}
       <SelectOptionMarker color={selected.color} icon={selected.icon} />
     {/if}
-    <span class={clsx("truncate", !selected && "text-[color:var(--text-mention-grey)]")}>
+    <span class={["truncate", !selected && "text-[color:var(--text-mention-grey)]"]}>
       {selected?.label ?? placeholder}
     </span>
   </span>
   <span
-    class={clsx(
+    class={[
       "fr-icon-arrow-down-s-line fr-icon--sm flex-none transition-transform duration-150",
       open && "rotate-180",
-    )}
+    ]}
     aria-hidden="true"
   ></span>
 </button>

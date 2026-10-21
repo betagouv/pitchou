@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+  import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
+  import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
   let { detail }: { detail: AdminDossierDetail } = $props();
 </script>
 
@@ -23,16 +24,10 @@
   </div>
   <p class="text-xs text-[var(--text-mention-grey)] mt-2 mb-0">
     {#if detail.groupes.length}Groupes instructeurs : {detail.groupes.map((g) => g.name).join(", ")} ·{/if}
-    Demandeur :
-    {#if detail.demandeur_personne_morale}
-      {detail.demandeur_personne_morale.legal_name ?? detail.demandeur_personne_morale.siret}
-    {:else if detail.demandeur_personne_physique}
-      {[
-        detail.demandeur_personne_physique.last_name,
-        detail.demandeur_personne_physique.first_names,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    {:else}(inconnu){/if}
+    Porteur de projet :
+    {porteurDeProjetName(detail.porteur_de_projet) ??
+      (detail.porteur_de_projet?.type === "personne_morale"
+        ? `SIRET ${detail.porteur_de_projet.siret}`
+        : "Non renseigné")}
   </p>
 </header>

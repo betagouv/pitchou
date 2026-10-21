@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { can } from "$lib/access.svelte.ts";
+  import { can } from "#lib/access.svelte.ts";
   import { onMount } from "svelte";
   import DatePicker from "@pitchou/ui/DatePicker.svelte";
 

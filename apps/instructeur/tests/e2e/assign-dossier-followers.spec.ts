@@ -62,11 +62,11 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   let card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await card.getByRole("link", { name: assigner.dossier.name! }).click();
   await expect(page.getByRole("button", { name: "Suivre ce dossier" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Plus d’actions/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Plus d’actions/u })).toBeVisible();
 
   await page.goto("/tous-les-dossiers");
   card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
-  await card.getByRole("button", { name: /Plus d’actions/ }).click();
+  await card.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Faire suivre le dossier" }).click();
 
   const dialog = page.getByRole("dialog", { name: "Faire suivre le dossier" });
@@ -79,7 +79,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
   await followerSelector.click();
   await expect(dialog.getByRole("option", { name: assigner.email, exact: true })).toBeVisible();
   await expect(
-    dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/ }),
+    dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/u }),
   ).toBeVisible();
   await expect(dialog.getByRole("option", { name: memberTwo.email, exact: true })).toBeVisible();
   await followerSelector.press("Escape");
@@ -96,7 +96,7 @@ test("assigning a dossier adds and removes followers and marks it as new", async
     })
     .click();
   await followerSelector.fill("camille");
-  await dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/ }).click();
+  await dialog.getByRole("option", { name: /Camille Martin.*member-one@test\.fr/u }).click();
   await expect(
     dialog.getByRole("button", {
       name: `Retirer ${memberOne.email} des personnes qui suivent le dossier`,
@@ -156,7 +156,7 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
   });
 
   await loginBrowser(page, db, assigner.codeAcces, `/dossier/${assigner.dossier.id}`);
-  await page.getByRole("button", { name: /Plus d’actions/ }).click();
+  await page.getByRole("button", { name: /Plus d’actions/u }).click();
   await page.getByRole("menuitem", { name: "Faire suivre le dossier" }).click();
   const dialog = page.getByRole("dialog", { name: "Faire suivre le dossier" });
   const followerSelector = dialog.getByLabel("Ajouter une personne au suivi du dossier");
@@ -180,5 +180,5 @@ test("assigning oneself while viewing a dossier marks it as viewed after the rea
   await page.getByRole("link", { name: "Mes dossiers", exact: true }).click();
   const card = page.getByTestId("card-dossier").filter({ hasText: assigner.dossier.name! });
   await expect(card).toBeVisible();
-  await expect(card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié)/)).toHaveCount(0);
+  await expect(card.getByText(/^(Nouveau dossier|Nouveau suivi|Modifié)/u)).toHaveCount(0);
 });

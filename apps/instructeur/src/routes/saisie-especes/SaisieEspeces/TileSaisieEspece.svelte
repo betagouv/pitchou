@@ -38,11 +38,11 @@
   let {
     index,
     idModaleEspèceNonTrouvée: idModaleEspeceNonTrouvee,
-    espèce: espece = $bindable(undefined),
+    espèce: espece = $bindable(),
     descriptionImpacts = $bindable([{}]),
-    onOuvertureModale = undefined,
-    onDupliquerEspèce: onDupliquerEspece = undefined,
-    onSuprimerEspèce: onSuprimerEspece = undefined,
+    onOuvertureModale,
+    onDupliquerEspèce: onDupliquerEspece,
+    onSuprimerEspèce: onSuprimerEspece,
     espècesProtégées: especesProtegees = [],
     activitesParClassificationEtreVivant,
     méthodesParClassificationEtreVivant: methodesParClassificationEtreVivant,
@@ -57,12 +57,11 @@
     await tick();
 
     referencesImpact = referencesImpact.filter((e) => e !== null);
-    referencesImpact[referencesImpact.length - 1].focusImpactForm();
+    referencesImpact.at(-1)?.focusImpactForm();
   }
 
   async function deleteImpact(indexImpactToDelete: number) {
-    descriptionImpacts.splice(indexImpactToDelete, 1);
-    descriptionImpacts = descriptionImpacts;
+    descriptionImpacts = descriptionImpacts.filter((_, index) => index !== indexImpactToDelete);
 
     await tick();
 
