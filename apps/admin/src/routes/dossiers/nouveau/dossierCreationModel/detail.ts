@@ -6,6 +6,7 @@ import {
 } from "@pitchou/common/dossierFormOptions.ts";
 
 import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
+import { acteurOf, demandeurActeur } from "#lib/dossierActeurs.ts";
 import {
   createDossierCreationModel,
   type CreationCommune,
@@ -22,18 +23,17 @@ const detailStrings = (value: unknown) =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
 function hydrateDemandeur(model: DossierCreationModel, detail: AdminDossierDetail) {
-  const demandeurIdentity = detail.identites.find(({ type }) => type === "demandeur");
-  const representative =
-    detail.identites.find(({ type }) => type === "representant") ?? demandeurIdentity;
+  const demandeurIdentity = demandeurActeur(detail);
+  const personneContact = acteurOf(detail, "personne_contact") ?? demandeurIdentity;
   const porteur = detail.porteur_de_projet;
   if (porteur?.type === "personne_morale") {
     model.demandeurType = "personne_morale";
     model.legalSiret = porteur.siret;
-    model.representativeLastName = representative?.last_name ?? "";
-    model.representativeFirstNames = representative?.first_names ?? "";
-    model.representativeRole = representative?.role ?? "";
-    model.contactPhone = representative?.phone ?? "";
-    model.contactEmail = representative?.email ?? "";
+    model.personneContactLastName = personneContact?.last_name ?? "";
+    model.personneContactFirstNames = personneContact?.first_names ?? "";
+    model.personneContactRole = personneContact?.role ?? "";
+    model.contactPhone = personneContact?.phone ?? "";
+    model.contactEmail = personneContact?.email ?? "";
   } else if (porteur?.type === "personne_physique") {
     model.demandeurType = "personne_physique";
     model.physicalLastName = porteur.last_name ?? "";

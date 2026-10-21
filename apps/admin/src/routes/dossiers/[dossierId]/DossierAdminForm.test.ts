@@ -38,7 +38,7 @@ function detail(
       role: null,
     },
     groupe: { id: "groupe-1", name: "Groupe test" },
-    identites: [],
+    acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,

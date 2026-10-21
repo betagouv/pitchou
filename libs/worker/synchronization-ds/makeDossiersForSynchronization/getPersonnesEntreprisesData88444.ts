@@ -13,6 +13,7 @@ import type {
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 import { inseeHeadcountRangeLabel } from "../inseeHeadcountRange.ts";
+import { getDossierActeurs88444 } from "./getDossierActeurs88444.ts";
 
 function formatPostalAddress(
   address: DemarchesSimplifeesAddress | null | undefined,
@@ -23,9 +24,7 @@ function formatPostalAddress(
 }
 
 /**
- * The people of a Démarche Numérique dossier. Only porteur_de_projet follows ADR-0002;
- * deposant, demandeur_personne_* and identites keep the former model during the
- * transition and will be restructured with the other people involved.
+ * The people of a Démarche Numérique dossier.
  */
 export function getPersonnesEntreprisesData88444(
   dossierDS: DossierDS88444,
@@ -46,17 +45,13 @@ export function getPersonnesEntreprisesData88444(
   )?.stringValue;
   const hasMandataire = Boolean(nomMandataire || prenomMandataire);
   const demandeurIdentityEmail = demandeur.email || (hasMandataire ? undefined : usager.email);
-  const deposant = {
-    first_names: demandeur.prenom,
-    last_name: demandeur.nom,
-    email: demandeurIdentityEmail ? normalizeEmail(demandeurIdentityEmail) : undefined,
-  };
+  // Still written to identite_dossier, which will soon be removed in favor of acteurs.
   const identites = initialIdentites(dossierDS, demandeurIdentityEmail);
 
   let porteurDeProjet: PorteurDeProjetInitializer;
   let demandeurPersonnePhysique;
   if (personneMoraleOuPhysique === "une personne physique") {
-    const email = emailContact || demandeur.email || deposant.email;
+    const email = emailContact || demandeurIdentityEmail;
     const addressChamp = champById.get(pitchouKeyToChampDS.get("Adresse"));
     const role = champById.get(pitchouKeyToChampDS.get("Qualification"))?.stringValue;
     demandeurPersonnePhysique = {
@@ -97,11 +92,14 @@ export function getPersonnesEntreprisesData88444(
   }
 
   return {
-    deposant,
     demandeur_personne_morale: demandeurPersonneMorale,
     demandeur_personne_physique: demandeurPersonnePhysique,
     identites,
     porteur_de_projet: porteurDeProjet,
+    acteurs: getDossierActeurs88444(
+      dossierDS,
+      (key) => champById.get(pitchouKeyToChampDS.get(key))?.stringValue,
+    ),
   };
 }
 

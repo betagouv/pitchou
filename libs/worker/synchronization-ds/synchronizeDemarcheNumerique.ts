@@ -48,7 +48,7 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
     dossierIdByDNNumber,
     dossiersChangedByEspeces,
     dossiersChangedByPiecesJointes,
-    dossiersChangedByIdentites,
+    dossiersChangedByActeurs,
   } = await synchronizeRelationsAndFiles(
     dossiersDS,
     dossiersForSync,
@@ -69,7 +69,7 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
       ...(dossiersChangedByColumns ?? []),
       ...(dossiersChangedByEspeces ?? []),
       ...(dossiersChangedByPiecesJointes ?? []),
-      ...(dossiersChangedByIdentites ?? []),
+      ...(dossiersChangedByActeurs ?? []),
     ]),
     transaction,
   );

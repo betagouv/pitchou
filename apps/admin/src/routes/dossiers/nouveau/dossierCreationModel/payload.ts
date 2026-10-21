@@ -11,11 +11,13 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
   const contactEmail = nullable(model.contactEmail);
   const contactPhone = nullable(model.contactPhone);
   const isPhysical = model.demandeurType === "personne_physique";
-  const lastName = isPhysical ? model.physicalLastName.trim() : model.representativeLastName.trim();
+  const lastName = isPhysical
+    ? model.physicalLastName.trim()
+    : model.personneContactLastName.trim();
   const firstNames = isPhysical
     ? model.physicalFirstNames.trim()
-    : model.representativeFirstNames.trim();
-  const role = nullable(isPhysical ? model.physicalQualification : model.representativeRole);
+    : model.personneContactFirstNames.trim();
+  const role = nullable(isPhysical ? model.physicalQualification : model.personneContactRole);
   const manualAddress = [model.physicalStreet, model.physicalCity].filter(Boolean).join(", ");
   const physicalCountry =
     model.physicalCountry === "Autre pays" ? model.physicalOtherCountry : model.physicalCountry;

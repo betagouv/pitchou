@@ -6,6 +6,7 @@ import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
+import { getDossierActeurs } from "./acteurs.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -91,15 +92,20 @@ export async function getDossierFull(
   );
 }
 
-function loadDossier(
+async function loadDossier(
   dossierId: DossierFull["id"],
   transaction: Knex.Transaction,
 ): Promise<LoadedDossier> {
-  return joinDossierIdentities(
-    transaction("dossier")
-      .select(dossierFullColumns)
-      .select(transaction.raw(latestCommentaireSubquery)),
-  )
-    .where({ "dossier.id": dossierId })
-    .first();
+  const [dossier, acteurs] = await Promise.all([
+    joinDossierIdentities(
+      transaction("dossier")
+        .select(dossierFullColumns)
+        .select(transaction.raw(latestCommentaireSubquery)),
+    )
+      .where({ "dossier.id": dossierId })
+      .first(),
+    getDossierActeurs([dossierId], transaction),
+  ]);
+  dossier.acteurs = acteurs.get(dossierId) ?? [];
+  return dossier;
 }

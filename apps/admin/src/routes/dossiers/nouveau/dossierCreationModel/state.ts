@@ -108,9 +108,9 @@ function createDemandeurFields() {
     physicalStreet: "",
     physicalCity: "",
     legalSiret: "",
-    representativeLastName: "",
-    representativeFirstNames: "",
-    representativeRole: "",
+    personneContactLastName: "",
+    personneContactFirstNames: "",
+    personneContactRole: "",
     contactPhone: "",
     contactEmail: "",
   };

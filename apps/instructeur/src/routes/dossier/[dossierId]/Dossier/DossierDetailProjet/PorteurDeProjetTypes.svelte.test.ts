@@ -15,11 +15,27 @@ const dossier = {
   source: "demarche_numerique",
   name: "Projet test",
   porteur_de_projet: null,
-  deposant_first_names: "Déposant",
-  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
-  representative_first_names: "Alex",
-  representative_last_name: "Robert",
+  acteurs: [
+    {
+      involvements: ["deposant"],
+      first_names: "Déposant",
+      last_name: "Ancien",
+      email: null,
+      address: null,
+      phone: null,
+      role: null,
+    },
+    {
+      involvements: ["personne_contact"],
+      first_names: "Alex",
+      last_name: "Robert",
+      email: null,
+      address: null,
+      phone: null,
+      role: null,
+    },
+  ],
 } as unknown as DossierFull;
 
 afterEach(cleanup);
@@ -50,8 +66,8 @@ test("a personne physique porteur shows its own values, not the deposant nor the
     "40000 Mont",
   ])
     expect(porteur.textContent).toContain(value);
-  for (const value of ["Déposant", "Ancien", "ancien-profil@test.fr"])
-    expect(view.container.textContent).not.toContain(value);
+  for (const value of ["Déposant", "Ancien"]) expect(porteur.textContent).not.toContain(value);
+  expect(view.container.textContent).not.toContain("ancien-profil@test.fr");
 });
 
 test("a personne morale porteur shows its entreprise in the porteur block, without a demandeur block", () => {
@@ -82,9 +98,9 @@ test("a personne morale porteur shows its entreprise in the porteur block, witho
   expect(porteur.querySelector(".pending")?.textContent).toContain("2 rue du Parc");
   expect(view.container.textContent).not.toContain("Le demandeur");
   expect(view.container.textContent).not.toContain("L'entreprise");
-  expect(
-    view.container.querySelector('[aria-label="Représentant de l\'entreprise"]'),
-  ).not.toBeNull();
+  expect(view.container.querySelector('[aria-label="Personne contact"]')?.textContent).toContain(
+    "Robert",
+  );
 });
 
 test("without porteur the block says Non renseigné, without falling back on the deposant", () => {
@@ -92,7 +108,7 @@ test("without porteur the block says Non renseigné, without falling back on the
   const porteur = view.container.querySelector('[aria-label="Porteur de projet"]')!;
   expect(porteur.textContent).toContain("Non renseigné");
   expect(porteur.textContent).not.toContain("Personne");
-  expect(view.container.textContent).not.toContain("Déposant");
+  expect(porteur.textContent).not.toContain("Déposant");
 });
 
 test("the porteur block lists every column of its personne physique or entreprise, even empty", () => {

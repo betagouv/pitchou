@@ -1,4 +1,4 @@
-# ADR-0002 : Structurer les personnes impliquées dans un dossier en base de données
+# ADR-0002 : Structurer le porteur de projet en base de données
 
 _English version: [0002-structure-porteur-de-projet-in-database.en.md](0002-structure-porteur-de-projet-in-database.en.md)_
 
@@ -12,7 +12,7 @@ Les personnes impliquées dans un dossier étaient mal distinguées, dans les do
 
 Au 8 octobre 2026, la base de production compte 3 098 dossiers Démarche Numérique. Parmi eux, 1 047 n'ont pas la section « Porteur de projet », et 918 déclarent une personne morale sans donner de SIRET. Dans Démarche Numérique, ces informations ne sont pas obligatoires : le SIRET est facultatif, et le type de porteur (« Le demandeur est… ») n'est demandé que si la section « Porteur de projet » s'affiche, ce qui dépend des réponses précédentes du formulaire.
 
-Cet ADR traite le porteur de projet. Les autres personnes impliquées (déposant, mandataire, personne contact) seront structurées plus tard.
+Cet ADR traite le porteur de projet. Les autres personnes impliquées (déposant, mandataire, personne contact) sont structurées par l'[ADR-0003](0003-structure-dossier-acteur-in-database.md).
 
 ## Décision
 

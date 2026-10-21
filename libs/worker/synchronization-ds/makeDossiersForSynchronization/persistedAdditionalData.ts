@@ -13,7 +13,6 @@ const dossierColumnRenames = {
   id_demarches_simplifiées: "demarche_numerique_id",
   date_dépôt: "depot_date",
   départements: "departments",
-  déposant: "deposant",
   régions: "regions",
   nom: "name",
   number_demarches_simplifiées: "demarche_numerique_number",
@@ -78,11 +77,14 @@ export function mapPersistedAdditionalData(
 ): Partial<DossierForInsert> | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const persisted = value as unknown as Record<string, unknown>;
+  const dossier = renameProperties(persisted.dossier, dossierColumnRenames);
+  if (dossier) {
+    // The déposant is a dossier acteur now, filled from Démarche Numérique.
+    delete dossier.déposant;
+    delete dossier.deposant;
+  }
   return {
-    dossier: renameProperties(
-      persisted.dossier,
-      dossierColumnRenames,
-    ) as unknown as DossierInitializer,
+    dossier: dossier as unknown as DossierInitializer,
     evenement_phase_dossier: renameArrayProperties(
       persisted.evenement_phase_dossier ?? persisted["évènement_phase_dossier"],
       {

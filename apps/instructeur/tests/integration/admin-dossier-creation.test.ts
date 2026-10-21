@@ -46,10 +46,9 @@ test("a legal dossier creation only stores its representative identity", async (
 
   const detail = await getDossierDetailForAdmin(id, db);
   expect(detail.porteur_de_projet).toMatchObject({ type: "personne_morale", legal_name: null });
-  expect(detail.identites).toEqual([
-    expect.objectContaining({ type: "representant", last_name: "" }),
+  expect(detail.acteurs).toEqual([
+    expect.objectContaining({ involvements: ["personne_contact"], email: "lou@example.org" }),
   ]);
-  expect(detail.dossier.deposant).toBeNull();
 });
 
 test("a physical dossier can be created without a duplicated identity name", async () => {
@@ -137,5 +136,5 @@ test("a dossier created with only the SIRET of its porteur has a personne morale
     type: "personne_morale",
     siret: "43229623400029",
   });
-  expect(detail.identites).toEqual([]);
+  expect(detail.acteurs).toEqual([]);
 });
