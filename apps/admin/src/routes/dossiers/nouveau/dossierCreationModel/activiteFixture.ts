@@ -1,7 +1,7 @@
 // Test fixture: the few activities the creation-model tests use, mirroring the referentiel seed.
 
 import { activiteCodeForLabel } from "@pitchou/common/activiteCodes.ts";
-import type { ActiviteAdmin } from "$lib/actions/adminActivites.ts";
+import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
 import type { DossierCreationModel } from "./state.ts";
 
 export const ACTIVITE_CODE_BY_LABEL_FIXTURE: ReadonlyMap<string, string> = new Map([

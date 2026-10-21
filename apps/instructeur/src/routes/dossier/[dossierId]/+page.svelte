@@ -1,7 +1,7 @@
 <script lang="ts">
   import { afterNavigate, goto, replaceState } from "$app/navigation";
   import { page } from "$app/state";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
   import {
     defaultDossierTab,
@@ -97,7 +97,7 @@
     void goto(
       returnPath ??
         (currentDossierFollowedByCurrentInstructeur ? "/mes-dossiers" : "/tous-les-dossiers"),
-      { replaceState: true },
+      { replace: true },
     );
   }
 
@@ -125,8 +125,8 @@
     // server sends, so the load has to run again. Keep the original list entry
     // rather than putting an editable copy of this dossier in browser history.
     void goto(url, {
-      noScroll: true,
-      replaceState: true,
+      reset: false,
+      replace: true,
       state: { ...page.state, dossierReturnPath: returnPath },
     });
   }

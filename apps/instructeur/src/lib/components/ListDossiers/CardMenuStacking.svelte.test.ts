@@ -7,7 +7,7 @@ import CardDossier from "./CardDossier.svelte";
 import DossiersSortMenu from "./DossiersSortMenu.svelte";
 import { dossierId, makeDossier } from "./testHelpers.ts";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 afterEach(async () => {
   cleanup();

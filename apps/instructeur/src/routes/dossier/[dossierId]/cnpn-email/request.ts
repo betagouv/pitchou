@@ -1,5 +1,5 @@
 import { error } from "@sveltejs/kit";
-import { rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { sanitizeCnpnEmailHtml } from "@pitchou/server/cnpnEmail.ts";
 import type { SendCnpnEmailRequest } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";

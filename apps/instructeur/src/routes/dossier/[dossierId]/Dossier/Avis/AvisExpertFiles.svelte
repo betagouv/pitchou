@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { readOnlyMode } from "../readOnly.ts";
   import { piecesJointesAvis, type PieceJointeSimple } from "../piecesJointes.ts";
   import { deletePieceJointe } from "../deletePieceJointe.ts";

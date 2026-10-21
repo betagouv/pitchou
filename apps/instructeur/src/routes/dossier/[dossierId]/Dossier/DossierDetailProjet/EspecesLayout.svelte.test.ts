@@ -7,11 +7,11 @@ import "@gouvfr/dsfr/dist/utility/utility.css";
 import "../../../../../app.css";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import { groupChange, habitat, impact, speciesDossier } from "./impactGroups.fixture.ts";
-import { store } from "$lib/state/store.svelte.ts";
-import { registerReviewSnapshot } from "$lib/dossier/notification/snapshot.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { registerReviewSnapshot } from "#lib/dossier/notification/snapshot.ts";
 
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => ({ current: false }) }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 afterEach(async () => {
   cleanup();
   store.notificationByDossier.clear();

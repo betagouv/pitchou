@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { tick } from "svelte";
 
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 
 vi.mock(import("$app/navigation"), () => ({
   afterNavigate: vi.fn(),
@@ -11,28 +11,28 @@ vi.mock(import("$app/navigation"), () => ({
   replaceState: vi.fn(),
 }));
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
 
 // avoid fetching the espèces data files over HTTP from the dossier page
-vi.mock(import("$lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
+vi.mock(import("#lib/especes/activitesMethodesMoyensDePoursuite.ts"), () => ({
   loadActivitesMethodesMoyensDePoursuite: vi.fn().mockReturnValue(new Promise(() => {})),
   loadEspecesProtegeesList: vi.fn().mockReturnValue(new Promise(() => {})),
 }));
 
-import { store, setDossierFull } from "$lib/state/store.svelte.ts";
+import { store, setDossierFull } from "#lib/state/store.svelte.ts";
 import {
   refreshDossierFull,
   updateDossier,
   updateDossierNextDueDate,
-} from "$lib/dossier/dossier.ts";
+} from "#lib/dossier/dossier.ts";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull } from "./fakeDossier.ts";
 import { dossierPageProps, resetDossierPageState } from "./dossierPageTestSetup.ts";
 
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 

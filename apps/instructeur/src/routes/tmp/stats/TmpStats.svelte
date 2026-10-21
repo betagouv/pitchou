@@ -8,7 +8,7 @@
 
     */
 
-  import TagPhase from "$lib/components/TagPhase.svelte";
+  import TagPhase from "#lib/components/TagPhase.svelte";
 
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import { DEMANDE_SCIENTIFIQUE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";

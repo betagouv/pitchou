@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 
-import { sanitizeInternalPath } from "$lib/server/redirect.ts";
+import { sanitizeInternalPath } from "#lib/server/redirect.ts";
 
 import type { PageServerLoad } from "./$types";
 

@@ -1,6 +1,6 @@
 import { DOMParser, type Document, type Element } from "@xmldom/xmldom";
 
-import { isValidProjectMap } from "$lib/projectMapValidation.ts";
+import { isValidProjectMap } from "#lib/projectMapValidation.ts";
 
 import type { FeatureCollection, ProjectMapFeature } from "../dossierAdminFormModel.ts";
 import { selectionFeature, type Position } from "./geometry.ts";

@@ -6,7 +6,7 @@ import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import HeaderDossier from "../HeaderDossier.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));

@@ -1,8 +1,8 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import type { PieceJointeDeletion } from "@pitchou/types/capabilities.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { deletePieceJointe } from "@pitchou/server/database/piece_jointe.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";

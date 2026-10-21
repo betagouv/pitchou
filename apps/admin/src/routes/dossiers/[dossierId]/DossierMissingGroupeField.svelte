@@ -6,7 +6,7 @@
   import {
     loadGroupesInstructeurs,
     type AdminGroupeInstructeurs,
-  } from "$lib/actions/adminDossiers.ts";
+  } from "#lib/actions/adminDossiers.ts";
 
   let { value = $bindable() }: { value: string } = $props();
 

@@ -3,9 +3,9 @@
   import "./review-layout.css";
   import { impactGroups } from "./impactGroups.ts";
   import { typeImpactIconUrl } from "@pitchou/ui/especes/typeImpactIcon.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import FichierEspecesAlert from "./FichierEspecesAlert.svelte";
-  import DownloadButton from "$lib/components/DownloadButton.svelte";
+  import DownloadButton from "#lib/components/DownloadButton.svelte";
   import FieldChange from "./FieldChange.svelte";
   import { readOnlyMode } from "../readOnly.ts";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";

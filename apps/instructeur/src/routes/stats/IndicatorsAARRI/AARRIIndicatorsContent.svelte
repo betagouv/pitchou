@@ -2,7 +2,7 @@
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
   import { untrack } from "svelte";
   import Select from "@pitchou/ui/Select.svelte";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { isSameDay } from "date-fns";
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import MatrixImpact from "./MatrixImpact.svelte";

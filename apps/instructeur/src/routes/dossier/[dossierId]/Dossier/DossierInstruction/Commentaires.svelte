@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { setDossierFull, store } from "$lib/state/store.svelte.ts";
-  import { recordLocalWrite } from "$lib/dossier/dossier.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { setDossierFull, store } from "#lib/state/store.svelte.ts";
+  import { recordLocalWrite } from "#lib/dossier/dossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { authorInitials, authorName, avatarClass } from "./commentaires.ts";
   import CommentaireActions from "./CommentaireActions.svelte";
   import CommentaireEditor from "./CommentaireEditor.svelte";

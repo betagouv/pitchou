@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { updateNotificationForDossier } from "$lib/dossier/notification.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { updateNotificationForDossier } from "#lib/dossier/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
   import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 

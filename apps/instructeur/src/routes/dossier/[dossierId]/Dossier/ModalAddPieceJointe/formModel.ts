@@ -1,7 +1,7 @@
 import toJSONPerserveDate from "@pitchou/common/DateToJSON.ts";
 import type { TypePieceJointe } from "./submission.ts";
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { EvenementPieceJointeSource } from "@pitchou/types/evenement.d.ts";
 
 export function currentAttachmentDate() {

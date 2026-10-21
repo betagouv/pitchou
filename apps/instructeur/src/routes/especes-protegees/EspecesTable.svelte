@@ -4,7 +4,7 @@
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import { firstName } from "@pitchou/ui/especes/especesList.ts";
   import EspecesSynonymesModal from "./EspecesSynonymesModal.svelte";
-  import EspecesStatusBadge from "$lib/components/EspecesStatusBadge.svelte";
+  import EspecesStatusBadge from "#lib/components/EspecesStatusBadge.svelte";
   import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
   type Props = {

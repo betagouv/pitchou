@@ -20,7 +20,7 @@
   import TaxrefResults from "./TaxrefResults.svelte";
   import TaxrefSearchControls from "./TaxrefSearchControls.svelte";
 
-  const query = $derived(parseTaxrefQuery(page.url.searchParams));
+  const query = $derived(parseTaxrefQuery(new URLSearchParams(page.url.searchParams.toString())));
 
   let rows = $state<TaxrefRow[]>([]);
   let total = $state(0);
@@ -78,7 +78,7 @@
   // Write the given param updates to the URL. A `null` or empty value removes the param.
   // Any change other than pagination drops the page, sending the user back to page 1.
   function updateQuery(updates: Record<string, string | null>, { resetPage = true } = {}) {
-    const params = new URLSearchParams(page.url.searchParams);
+    const params = new URLSearchParams(page.url.searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
       if (value === null || value === "") {
         params.delete(key);
@@ -90,9 +90,8 @@
 
     const search = params.toString();
     goto(search ? `?${search}` : page.url.pathname, {
-      replaceState: true,
-      keepFocus: true,
-      noScroll: true,
+      replace: true,
+      reset: false,
     });
   }
 

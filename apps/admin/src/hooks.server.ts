@@ -1,11 +1,11 @@
 import { sequence } from "@sveltejs/kit/hooks";
-import type { Handle } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
 
 import { isAdminEmail } from "@pitchou/server/admin.ts";
 import { readSession } from "@pitchou/server/session.ts";
 
-import { readSessionToken, setSessionCookie } from "$lib/server/session.ts";
+import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
 
 export const handleError = Sentry.handleErrorWithSentry();
 

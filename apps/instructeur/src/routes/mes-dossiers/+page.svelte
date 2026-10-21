@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import MesDossiers from "./MesDossiers.svelte";
-  import { loadDossiers } from "$lib/dossier/dossier.ts";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
-  import { loadNotificationByDossierForCurrentInstructeur } from "$lib/shared/main.ts";
+  import { loadDossiers } from "#lib/dossier/dossier.ts";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
+  import { loadNotificationByDossierForCurrentInstructeur } from "#lib/shared/main.ts";
 
   onMount(async () => {
     loadNotificationByDossierForCurrentInstructeur();

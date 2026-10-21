@@ -3,17 +3,17 @@ import { cleanup, render } from "@testing-library/svelte";
 import { tick } from "svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import { detailDossier, fieldChange, projectMap } from "./detail.fixture.ts";
-import { store } from "$lib/state/store.svelte.ts";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossier.ts";
 
 const mode = vi.hoisted(() => ({ current: false }));
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => mode }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 // These tests cover dossier review. The real WebGL map is covered by dossier-cartographie.spec.ts.
 vi.mock(
-  "$lib/components/CartographieProjet.svelte",
+  "#lib/components/CartographieProjet.svelte",
   () => import("./CartographieProjet.fixture.svelte"),
 );
 afterEach(() => {

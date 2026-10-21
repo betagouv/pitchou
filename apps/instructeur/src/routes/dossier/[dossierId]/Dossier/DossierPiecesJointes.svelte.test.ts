@@ -7,9 +7,9 @@ import { cleanup, render } from "@testing-library/svelte";
 import DossierPiecesJointes from "./DossierPiecesJointes.svelte";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
-vi.mock("$lib/dossier/dossier.ts", () => ({
+vi.mock("#lib/dossier/dossier.ts", () => ({
   recordLocalWrite: vi.fn(),
   refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));

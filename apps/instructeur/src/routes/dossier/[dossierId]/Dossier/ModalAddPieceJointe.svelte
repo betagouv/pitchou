@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uploadSizeError } from "$lib/upload/uploadSizeHint.ts";
+  import { uploadSizeError } from "#lib/upload/uploadSizeHint.ts";
   import { saveNewDecisionAdministrative } from "./Controles/decisionAdministrative.ts";
   import FormDecisionAdministrative from "./Controles/FormDecisionAdministrative.svelte";
   import PieceJointeForm from "./ModalAddPieceJointe/PieceJointeForm.svelte";

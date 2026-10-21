@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ActiviteIcon from "$lib/components/ActiviteIcon.svelte";
-  import { formatLocalisation } from "$lib/dossier/displayDossier.ts";
+  import ActiviteIcon from "#lib/components/ActiviteIcon.svelte";
+  import { formatLocalisation } from "#lib/dossier/displayDossier.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   let { dossier, updated }: { dossier: DossierFull; updated: boolean } = $props();

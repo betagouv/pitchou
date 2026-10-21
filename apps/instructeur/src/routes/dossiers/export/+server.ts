@@ -1,10 +1,10 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth.ts";
+import { requireCap } from "#lib/server/auth.ts";
 import { getDossiersForExport } from "@pitchou/server/database/dossier/export.ts";
 import { dossiersExportTable } from "@pitchou/common/dossiersExport.ts";
 import { tableToCsv, tableToOds } from "@pitchou/common/spreadsheet.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 export const POST: RequestHandler = async ({ url, request }) => {

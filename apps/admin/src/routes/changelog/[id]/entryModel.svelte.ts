@@ -1,4 +1,4 @@
-import type { ChangelogEntryAdmin, ChangelogEntryPayload } from "$lib/actions/adminChangelog.ts";
+import type { ChangelogEntryAdmin, ChangelogEntryPayload } from "#lib/actions/adminChangelog.ts";
 
 function toSegmentNumber(segment: string): number | null {
   return segment === "" ? null : Number(segment);

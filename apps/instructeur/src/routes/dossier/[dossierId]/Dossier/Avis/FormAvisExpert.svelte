@@ -3,8 +3,8 @@
   import { untrack } from "svelte";
 
   import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-  import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-  import { uploadProgressLabel } from "$lib/upload/uploadProgress.svelte.ts";
+  import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+  import { uploadProgressLabel } from "#lib/upload/uploadProgress.svelte.ts";
   import AvisExpertFields from "./AvisExpertFields.svelte";
 
   type Props = {

@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-
 import { db } from "../setup/db.ts";
 import {
   createFichierS3,
@@ -155,6 +154,7 @@ test("un autre service ne peut rien écrire sur le dossier", async () => {
       // This route uses 400 for ownership denial too; rule out a validation error.
       expect(response.status).toBe(400);
       expect(await response.json()).toEqual({
+        status: 400,
         message: `La capability ${capLecture} ne permet pas d'avoir accès au dossier ${dossierId}`,
       });
     }

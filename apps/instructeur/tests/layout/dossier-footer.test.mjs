@@ -31,7 +31,7 @@ before(async () => {
           }
           if (source.endsWith("/aarri.ts")) return "\0layout:analytics";
           if (source.endsWith("/anomaliesFichierEspeces.ts")) return "\0layout:anomalies";
-          if (source === "$lib/state/store.svelte.ts") return "\0layout:store";
+          if (source === "#lib/state/store.svelte.ts") return "\0layout:store";
         },
         load(id) {
           if (id === "\0layout:analytics") return "export const sendEvenement = () => {};";

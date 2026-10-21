@@ -9,7 +9,7 @@ import {
   type FieldChange,
 } from "@pitchou/types/notification.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 const dossier = {
   id: 123,
   source: "demarche_numerique",

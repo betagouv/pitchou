@@ -1,4 +1,4 @@
-import type { EspecesByTypeImpact } from "$lib/especes/especesByTypeImpact.ts";
+import type { EspecesByTypeImpact } from "#lib/especes/especesByTypeImpact.ts";
 export function speciesTags(groupedEspecesByTypeImpact: EspecesByTypeImpact[] | undefined) {
   return groupedEspecesByTypeImpact?.map(({ especes, typeImpact, criteriaAllowed }) => ({
     liste_espèces: especes.map(

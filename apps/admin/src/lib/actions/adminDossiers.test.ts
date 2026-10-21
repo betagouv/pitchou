@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock(import("$lib/upload/uploadToStorage.ts"), () => ({
+vi.mock(import("#lib/upload/uploadToStorage.ts"), () => ({
   uploadFichiers: vi.fn(),
 }));
 
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import { createDossier, updateDossier, uploadPieceJointe } from "./adminDossiers.ts";
 import { emptyDossierCreationAttachments } from "./adminDossierUploads.ts";
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { store } from "$lib/state/store.svelte.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { store } from "#lib/state/store.svelte.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { historiqueEntries, type HistoriqueEntry } from "./DossierHistorique/display.ts";
   import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";

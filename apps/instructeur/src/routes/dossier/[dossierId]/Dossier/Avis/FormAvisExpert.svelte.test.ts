@@ -6,13 +6,13 @@ vi.mock(import("../avisExpert.ts"), () => ({
   addOrUpdateAvisExpert: vi.fn(),
 }));
 
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({
+vi.mock(import("#lib/dossier/dossier.ts"), () => ({
   refreshDossierFull: vi.fn(),
 }));
 
 import FormAvisExpert from "./FormAvisExpert.svelte";
 import { addOrUpdateAvisExpert } from "../avisExpert.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import type { FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 

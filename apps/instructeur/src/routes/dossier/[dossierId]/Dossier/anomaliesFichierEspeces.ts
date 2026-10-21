@@ -1,4 +1,4 @@
-import { especesImpacteesFromFichierOdsArrayBuffer } from "$lib/dossier/dossier.ts";
+import { especesImpacteesFromFichierOdsArrayBuffer } from "#lib/dossier/dossier.ts";
 
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import type { AnomalieFichierEspeces } from "@pitchou/types/especesImpact.d.ts";

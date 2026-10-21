@@ -48,6 +48,7 @@ test("le cycle de vie d'une prescription est tracé dans l'historique", async ()
 
   const deleted = await fetch(`${INTEGRATION_BASE_URL}/prescription/${prescriptionId}?cap=${cap}`, {
     method: "DELETE",
+    headers: { Origin: INTEGRATION_BASE_URL },
   });
   expect(deleted.status).toBe(204);
 
@@ -110,7 +111,7 @@ test("supprimer une décision administrative est tracé", async () => {
 
   const deleted = await fetch(
     `${INTEGRATION_BASE_URL}/decision-administrative/${decision.id}?cap=${cap}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: { Origin: INTEGRATION_BASE_URL } },
   );
   expect(deleted.status).toBe(204);
 

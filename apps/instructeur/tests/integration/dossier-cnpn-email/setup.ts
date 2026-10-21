@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, vi } from "vitest";
 import { sendEmail } from "@pitchou/server/emails.ts";
 
-vi.mock("$app/environment", () => ({ dev: false }));
+vi.mock("$app/env", () => ({ dev: false }));
 // Keep the real access checks and persistence, but use the isolated test database.
 vi.mock("@pitchou/server/database/connection.ts", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@pitchou/server/database/connection.ts")>()),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { AdminDossierDetail } from "$lib/actions/adminDossiers.ts";
+import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
 import { buildDossierRelations, createDossierAdminRelationsModel } from "./relationsModel.ts";
 

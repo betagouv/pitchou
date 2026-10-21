@@ -7,8 +7,8 @@ import {
 
 import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import { addPrescriptionsAndControles } from "./prescriptions.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { parseQuantities } from "./decisionAdministrative/quantities.ts";
 import {
   PrescriptionImportError,

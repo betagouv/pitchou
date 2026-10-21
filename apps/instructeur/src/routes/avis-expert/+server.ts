@@ -1,9 +1,12 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseUploadedFichier, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import {
+  parseUploadedFichier,
+  throwUploadedFichierHttpError,
+} from "#lib/server/uploadedFichier.ts";
 import {
   addOrUpdateAvisExpert,
   addOrUpdateAvisExpertWithFichiers,

@@ -2,7 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, render } from "@testing-library/svelte";
 import Prescription from "./Prescription.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { reactive } from "../../../../../../../tests/helpers/reactive.svelte.ts";
 import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";

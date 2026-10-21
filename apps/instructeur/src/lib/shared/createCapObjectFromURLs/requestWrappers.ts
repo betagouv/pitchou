@@ -1,4 +1,4 @@
-import { json, text } from "$lib/shared/http.ts";
+import { json, text } from "#lib/shared/http.ts";
 
 const commonRequestInit = { headers: { Accept: "application/json" } };
 

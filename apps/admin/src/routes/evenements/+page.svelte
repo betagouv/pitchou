@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-  import { loadEvenementTypes, AccessDeniedError } from "$lib/actions/adminEvenements.ts";
+  import { loadEvenementTypes, AccessDeniedError } from "#lib/actions/adminEvenements.ts";
 
   import ListEvenements from "./ListEvenements.svelte";
 

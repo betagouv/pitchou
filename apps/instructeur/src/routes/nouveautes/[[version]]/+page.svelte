@@ -7,7 +7,7 @@
   import {
     loadPublishedChangelogEntries,
     type PublishedChangelogEntry,
-  } from "$lib/changelog/changelog.ts";
+  } from "#lib/changelog/changelog.ts";
 
   import type { PageData } from "./$types";
 

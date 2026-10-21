@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireSecret } from "$lib/server/auth";
+import { requireSecret } from "#lib/server/auth.ts";
 import { verifySecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 import { generateDeclarationGeoMCE } from "@pitchou/server/database/geomce.ts";
 import type { CapabilityGeomceSecret } from "@pitchou/types/database/public/CapabilityGeomce.ts";

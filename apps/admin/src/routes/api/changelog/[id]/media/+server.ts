@@ -5,7 +5,7 @@ import {
   cleanupChangelogMediaOrphans,
   registerChangelogMediaUpload,
 } from "@pitchou/server/changelogMedia.ts";
-import { readSingleUpload, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { readSingleUpload, throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 
 async function existingEntryId(idParam: string | undefined) {
   if (!idParam || !isValidIdParam(idParam)) {

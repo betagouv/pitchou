@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "@testing-library/svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import CnpnCcPicker from "./CnpnCcPicker.svelte";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 

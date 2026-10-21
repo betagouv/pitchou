@@ -1,3 +1,5 @@
+import adapter from "@sveltejs/adapter-node";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { sentrySvelteKit } from "@sentry/sveltekit";
@@ -17,7 +19,12 @@ export default defineConfig({
       adapter: "node",
     }),
     tailwindcss(),
-    sveltekit(),
+    sveltekit({
+      adapter: adapter(),
+      paths: { origin: process.env.ORIGIN || undefined },
+      preprocess: vitePreprocess(),
+      tracing: { server: true },
+    }),
   ],
   server: {
     port: 5173,

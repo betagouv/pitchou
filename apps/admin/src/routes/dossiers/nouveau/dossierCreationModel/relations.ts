@@ -2,7 +2,7 @@ import type {
   AdminDemandeurPersonneMorale,
   AdminDossierDetail,
   AdminDossierRelationsPayload,
-} from "$lib/actions/adminDossiers.ts";
+} from "#lib/actions/adminDossiers.ts";
 import type { CompanyDetailsChoice } from "./state.ts";
 
 /** Entreprise of a personne morale porteur, with only the fields the admin relations carry. */

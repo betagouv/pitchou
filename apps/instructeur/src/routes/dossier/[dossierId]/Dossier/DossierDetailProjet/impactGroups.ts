@@ -1,6 +1,6 @@
 import type { FrontEndImpactOnEspece } from "@pitchou/types/API_Pitchou.ts";
 import type { FieldChange } from "@pitchou/types/notification.ts";
-import { TYPE_IMPACT_NOT_PROVIDED } from "$lib/especes/especesByTypeImpact.ts";
+import { TYPE_IMPACT_NOT_PROVIDED } from "#lib/especes/especesByTypeImpact.ts";
 
 export type ImpactGroup = {
   id: string | null;

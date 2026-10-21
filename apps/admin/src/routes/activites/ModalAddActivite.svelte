@@ -1,7 +1,7 @@
 <script lang="ts">
   import Select from "@pitchou/ui/Select.svelte";
   import type { SelectOption } from "@pitchou/ui/Select/options.ts";
-  import Modal from "$lib/components/Modal.svelte";
+  import Modal from "#lib/components/Modal.svelte";
 
   type Props = {
     groupeOptions: SelectOption<string>[];

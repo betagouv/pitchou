@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import { store, type PitchouState } from "$lib/state/store.svelte.ts";
+  import { store, type PitchouState } from "#lib/state/store.svelte.ts";
   import type { Snippet } from "svelte";
   import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
   import {
@@ -22,8 +22,8 @@
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
-  } from "$lib/dossier/suiviDossier.ts";
-  import { sendDossierSearchEvent } from "$lib/shared/aarri.ts";
+  } from "#lib/dossier/suiviDossier.ts";
+  import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
   import PaginatedDossiers from "./PaginatedDossiers.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
   import DossiersFilterModal from "./DossiersFilterModal.svelte";
@@ -70,7 +70,7 @@
   // The applied query lives entirely in the URL: search, filters, sort and page are all
   // reflected as query params, so the view is shareable and survives a reload.
   const query = $derived.by(() => {
-    const query = readDossiersQuery(page.url.searchParams);
+    const query = readDossiersQuery(new URLSearchParams(page.url.searchParams.toString()));
     if (followedOnly) query.localisation = "assigned";
     return query;
   });

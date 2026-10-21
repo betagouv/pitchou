@@ -8,11 +8,11 @@ import { tick } from "svelte";
 import DossierDetailProjet from "../DossierDetailProjet.svelte";
 import { detailDossier, fieldChange } from "./detail.fixture.ts";
 import { groupChange } from "./impactGroups.fixture.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 vi.mock("../readOnly.ts", () => ({ readOnlyMode: () => ({ current: false }) }));
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 afterEach(async () => {
   cleanup();
   store.notificationByDossier.clear();

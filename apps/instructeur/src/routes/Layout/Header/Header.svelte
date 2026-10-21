@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { logout } from "$lib/shared/main.ts";
+  import { logout } from "#lib/shared/main.ts";
   import UiHeader from "@pitchou/ui/Header.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
 

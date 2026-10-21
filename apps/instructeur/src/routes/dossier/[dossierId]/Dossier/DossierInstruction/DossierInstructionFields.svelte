@@ -2,7 +2,7 @@
   import { phases } from "@pitchou/common/phases.ts";
   import megaphoneIcon from "@gouvfr/dsfr/dist/icons/business/megaphone-fill.svg?no-inline";
   import { nextActionOptions } from "./nextAction.ts";
-  import DateInput from "$lib/components/DateInput.svelte";
+  import DateInput from "#lib/components/DateInput.svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 

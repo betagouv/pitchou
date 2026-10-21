@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit/hooks";
 import { afterEach, expect, test, vi } from "vitest";
 import { setupSecretGeoMCE } from "@pitchou/server/database/capability_geomce.ts";
 

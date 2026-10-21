@@ -6,7 +6,7 @@ import { cleanup, render, screen } from "@testing-library/svelte";
 import { page, userEvent } from "vitest/browser";
 import CompactHeader from "./CompactHeader.svelte";
 
-vi.mock("$lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
+vi.mock("#lib/shared/aarri.ts", () => ({ sendEvenement: vi.fn() }));
 
 afterEach(async () => {
   cleanup();

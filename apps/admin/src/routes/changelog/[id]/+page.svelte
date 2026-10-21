@@ -15,9 +15,9 @@
     deleteChangelogEntry,
     cleanupChangelogMedia,
     type ChangelogEntryPayload,
-  } from "$lib/actions/adminChangelog.ts";
-  import { AccessDeniedError } from "$lib/actions/errors.ts";
-  import { pageHeader } from "$lib/pageHeader.svelte.ts";
+  } from "#lib/actions/adminChangelog.ts";
+  import { AccessDeniedError } from "#lib/actions/errors.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
 
   // The draft is created by the list page's "+" before we get here, so the
   // entry always exists: this page only ever edits.

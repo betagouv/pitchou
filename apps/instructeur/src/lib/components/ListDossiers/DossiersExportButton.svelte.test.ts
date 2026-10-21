@@ -3,7 +3,7 @@ import "../../../app.css";
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render } from "@testing-library/svelte";
 import { page } from "vitest/browser";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import DossiersExportButton from "./DossiersExportButton.svelte";
 import { dossierId, makeQuery } from "./testHelpers.ts";
 

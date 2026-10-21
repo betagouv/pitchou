@@ -2,8 +2,8 @@ import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 
 import DossierHistorique from "./DossierHistorique.svelte";
-import { store } from "$lib/state/store.svelte.ts";
-import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+import { store } from "#lib/state/store.svelte.ts";
+import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
 import type { DossierCnpnEmailSentEvent, DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 afterEach(() => {

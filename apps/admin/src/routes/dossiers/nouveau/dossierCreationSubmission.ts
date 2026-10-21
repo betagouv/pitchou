@@ -2,7 +2,7 @@ import {
   requiresEspecesPriseDetentionLimiteeType,
   requiresScientificDemandeType,
 } from "@pitchou/common/dossierFormOptions.ts";
-import { uploadSizeError } from "$lib/upload/uploadLimit.svelte.ts";
+import { uploadSizeError } from "#lib/upload/uploadLimit.svelte.ts";
 import type { DossierCreationModel } from "./dossierCreationModel.ts";
 import {
   selectedDossierAttachmentFiles,

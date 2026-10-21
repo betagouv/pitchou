@@ -1,4 +1,4 @@
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 
 import type { default as Prescription } from "@pitchou/types/database/public/Prescription.ts";
 import type { PrescriptionWithNewControles } from "@pitchou/types/API_Pitchou.ts";

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import CnpnCcRecipients from "./CnpnCcRecipients.svelte";
   import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";

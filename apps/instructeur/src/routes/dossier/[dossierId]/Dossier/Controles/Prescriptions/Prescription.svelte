@@ -1,10 +1,10 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import PrescriptionControles from "./PrescriptionControles.svelte";
-  import ExpandCollapse from "$lib/components/common/ExpandCollapse.svelte";
+  import ExpandCollapse from "#lib/components/common/ExpandCollapse.svelte";
   import PrescriptionSummary from "./PrescriptionSummary.svelte";
 
-  import { formatDateRelative } from "$lib/dossier/displayDossier.ts";
+  import { formatDateRelative } from "#lib/dossier/displayDossier.ts";
   import { addControle as sendControle, updateControle, deleteControle } from "../controle.ts";
 
   import type { FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";

@@ -4,7 +4,7 @@ import { cleanup, render, waitFor } from "@testing-library/svelte";
 import { format } from "date-fns";
 import { tick } from "svelte";
 
-vi.mock("$env/dynamic/public", () => ({ env: { PUBLIC_PITCHOU_ENV: "" } }));
+vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 import {
   chooseFichiers,
   DOSSIER_ID,
@@ -19,12 +19,12 @@ vi.mock(import("$app/navigation"), () => ({
   goto: vi.fn(),
 }));
 
-vi.mock(import("$lib/shared/aarri.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),
 }));
 
-vi.mock(import("$lib/dossier/dossier.ts"), async (importOriginal) => ({
+vi.mock(import("#lib/dossier/dossier.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   refreshDossierFull: vi.fn().mockResolvedValue(undefined),
 }));
@@ -33,8 +33,8 @@ vi.mock(import("./otherAttachment.ts"), () => ({
   addOtherAttachment: vi.fn().mockResolvedValue(["attachment-1", "attachment-2"]),
 }));
 
-import { sendEvenement } from "$lib/shared/aarri.ts";
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 import { addOtherAttachment } from "./otherAttachment.ts";
 import DossierAvis from "./DossierAvis.svelte";
 import DossierControles from "./DossierControles.svelte";

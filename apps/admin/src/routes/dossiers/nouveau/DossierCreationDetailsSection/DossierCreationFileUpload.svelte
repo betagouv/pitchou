@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { uploadSizeError, uploadSizeHint } from "$lib/upload/uploadLimit.svelte.ts";
+  import { uploadSizeError, uploadSizeHint } from "#lib/upload/uploadLimit.svelte.ts";
 
   type Props = {
     id: string;

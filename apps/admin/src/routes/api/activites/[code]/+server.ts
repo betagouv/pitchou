@@ -6,7 +6,7 @@ import {
   renameActivite,
   setActiviteGroupe,
 } from "@pitchou/server/database/activite.ts";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import type { RequestHandler } from "./$types.ts";
 
 /** Updates an activity: rename it and/or move it to another group. */

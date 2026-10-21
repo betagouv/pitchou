@@ -1,4 +1,4 @@
-import { uploadFichiers } from "$lib/upload/uploadToStorage.ts";
+import { uploadFichiers } from "#lib/upload/uploadToStorage.ts";
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 
 /** Files picked in the creation form, per field. */

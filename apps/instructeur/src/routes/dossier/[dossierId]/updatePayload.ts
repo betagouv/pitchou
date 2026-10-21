@@ -1,6 +1,6 @@
 import { error } from "@sveltejs/kit";
 
-import { rejectUnknownProperties } from "$lib/server/requestValidation";
+import { rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 
 import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";

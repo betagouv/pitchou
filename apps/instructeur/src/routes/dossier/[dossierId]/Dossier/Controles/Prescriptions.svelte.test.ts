@@ -6,12 +6,12 @@ import { fr } from "date-fns/locale";
 import { createOdsFile } from "@odfjs/odfjs";
 import { tick } from "svelte";
 
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({ refreshDossierFull: vi.fn() }));
+vi.mock(import("#lib/dossier/dossier.ts"), () => ({ refreshDossierFull: vi.fn() }));
 
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 
 import Prescriptions from "./Prescriptions.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { reactive } from "../../../../../../tests/helpers/reactive.svelte.ts";
 import type { FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";

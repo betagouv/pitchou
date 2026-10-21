@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { readStorage, writeStorage } from "$lib/shared/storage.ts";
+  import { readStorage, writeStorage } from "#lib/shared/storage.ts";
 
-  import { store } from "$lib/state/store.svelte.ts";
+  import { store } from "#lib/state/store.svelte.ts";
   import SuiviInstruction from "../SuiviInstruction/SuiviInstruction.svelte";
   import Loader from "@pitchou/ui/Loader.svelte";
 
-  import { logout } from "$lib/shared/main.ts";
-  import { loadDossiers } from "$lib/dossier/dossier.ts";
+  import { logout } from "#lib/shared/main.ts";
+  import { loadDossiers } from "#lib/dossier/dossier.ts";
 
   import type {
     SortFilterLocalStorage,

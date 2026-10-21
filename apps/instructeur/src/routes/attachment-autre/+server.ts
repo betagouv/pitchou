@@ -1,8 +1,11 @@
 import { error, json } from "@sveltejs/kit";
 
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
-import { readJsonObject, rejectUnknownProperties } from "$lib/server/requestValidation";
-import { parseUploadedFichiers, throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import {
+  parseUploadedFichiers,
+  throwUploadedFichierHttpError,
+} from "#lib/server/uploadedFichier.ts";
 import { addOtherAttachment } from "@pitchou/server/database/other_attachment.ts";
 import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";

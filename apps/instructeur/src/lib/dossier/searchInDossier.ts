@@ -3,7 +3,7 @@ import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-import { porteurDeProjetSearchTerms } from "$lib/dossier/displayDossier.ts";
+import { porteurDeProjetSearchTerms } from "#lib/dossier/displayDossier.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";

@@ -8,7 +8,7 @@
     defaultEvenementsQuery,
     type EvenementsQuery,
     type EvenementMetriqueRow,
-  } from "$lib/actions/adminEvenements.ts";
+  } from "#lib/actions/adminEvenements.ts";
   import EvenementsFilterPanel from "./EvenementsFilterPanel.svelte";
   import TableEvenements from "./TableEvenements.svelte";
 

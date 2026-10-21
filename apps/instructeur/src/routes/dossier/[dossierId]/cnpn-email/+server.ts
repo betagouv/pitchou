@@ -1,9 +1,9 @@
 import { error, json } from "@sveltejs/kit";
-import { dev } from "$app/environment";
+import { dev } from "$app/env";
 import { createHash } from "node:crypto";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth.ts";
-import { readJsonObject } from "$lib/server/requestValidation.ts";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import {
   createDossierCnpnEmailSendAttempt,

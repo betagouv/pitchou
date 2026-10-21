@@ -1,6 +1,6 @@
 import { parseDossiersQuery, type DossiersQuery, type DossiersContext } from "./listModel.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-import type { PitchouState } from "$lib/state/store.svelte.ts";
+import type { PitchouState } from "#lib/state/store.svelte.ts";
 
 /** Brands a raw number as a DossierId for the test fixtures */
 export const dossierId = (n: number) => n as DossierSummary["id"];

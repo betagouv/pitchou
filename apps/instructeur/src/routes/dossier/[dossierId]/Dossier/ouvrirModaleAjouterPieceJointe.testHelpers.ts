@@ -1,6 +1,6 @@
 import { expect, vi } from "vitest";
 import { tick } from "svelte";
-import { sendEvenement } from "$lib/shared/aarri.ts";
+import { sendEvenement } from "#lib/shared/aarri.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export const DOSSIER_ID = 123;

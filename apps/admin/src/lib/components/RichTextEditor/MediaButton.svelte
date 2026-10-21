@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Editor } from "@tiptap/core";
-  import { portal } from "$lib/portal.ts";
+  import { portal } from "#lib/portal.ts";
   import { CHANGELOG_MEDIA_ACCEPT } from "./mediaTypes.ts";
   import { TOOLBAR_BUTTON_CLASS } from "./toolbarButtons.ts";
 

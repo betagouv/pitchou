@@ -9,8 +9,8 @@ import {
   type ListAdminDossiersOptions,
 } from "@pitchou/server/database/dossier_admin_list.ts";
 import { UploadedFichierError } from "@pitchou/server/upload.ts";
-import { throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
-import { throwUploadedFichierHttpError } from "$lib/server/uploadedFichier";
+import { throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
+import { throwUploadedFichierHttpError } from "#lib/server/uploadedFichier.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type { RequestHandler } from "./$types";

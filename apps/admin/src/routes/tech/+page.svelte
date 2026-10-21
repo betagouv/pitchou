@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CollapsibleNotice from "$lib/components/CollapsibleNotice.svelte";
+  import CollapsibleNotice from "#lib/components/CollapsibleNotice.svelte";
   import SyncDemarcheNumeriqueSection from "./SyncDemarcheNumeriqueSection.svelte";
 
   function triggerSentryTestError() {

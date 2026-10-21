@@ -1,6 +1,6 @@
-import { formatLocalisation, formatPorteurDeProjet } from "$lib/dossier/displayDossier.ts";
+import { formatLocalisation, formatPorteurDeProjet } from "#lib/dossier/displayDossier.ts";
 
-import { getCurrentPhaseStart } from "$lib/dossier/getCurrentPhaseStart.ts";
+import { getCurrentPhaseStart } from "#lib/dossier/getCurrentPhaseStart.ts";
 
 import type { DossierPhase, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 

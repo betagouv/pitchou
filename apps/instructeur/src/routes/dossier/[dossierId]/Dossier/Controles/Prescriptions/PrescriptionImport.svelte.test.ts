@@ -4,12 +4,12 @@ import { cleanup, render } from "@testing-library/svelte";
 import { createOdsFile } from "@odfjs/odfjs";
 import { tick } from "svelte";
 import PrescriptionImport from "./PrescriptionImport.svelte";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import type { FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
-vi.mock(import("$lib/dossier/dossier.ts"), () => ({ refreshDossierFull: vi.fn() }));
-import { refreshDossierFull } from "$lib/dossier/dossier.ts";
+vi.mock(import("#lib/dossier/dossier.ts"), () => ({ refreshDossierFull: vi.fn() }));
+import { refreshDossierFull } from "#lib/dossier/dossier.ts";
 
 afterEach(() => {
   cleanup();

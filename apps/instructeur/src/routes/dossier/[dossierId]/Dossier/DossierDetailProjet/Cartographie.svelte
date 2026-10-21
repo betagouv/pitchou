@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DownloadButton from "$lib/components/DownloadButton.svelte";
-  import CartographieProjet from "$lib/components/CartographieProjet.svelte";
-  import { sendEvenement } from "$lib/shared/aarri.ts";
+  import DownloadButton from "#lib/components/DownloadButton.svelte";
+  import CartographieProjet from "#lib/components/CartographieProjet.svelte";
+  import { sendEvenement } from "#lib/shared/aarri.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
   import ProjectField from "./ProjectField.svelte";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";

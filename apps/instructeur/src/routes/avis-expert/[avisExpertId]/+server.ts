@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "$lib/server/auth";
+import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
 import {
   deleteAvisExpert,
   getDossierIdFromAvisExpert,

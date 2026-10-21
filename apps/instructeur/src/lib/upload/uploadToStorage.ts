@@ -1,5 +1,5 @@
 import { chunk, sendFilesToStorage } from "@pitchou/common/storageUpload.ts";
-import { store } from "$lib/state/store.svelte.ts";
+import { store } from "#lib/state/store.svelte.ts";
 import { uploadProgress } from "./uploadProgress.svelte.ts";
 import type { UploadUrl, UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";

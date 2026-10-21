@@ -2,7 +2,7 @@ import { error } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
 import { deletePieceJointeFromAdmin } from "@pitchou/server/database/dossier_admin_files.ts";
-import { parseDossierId, throwHttpErrorForAdminDossier } from "$lib/server/dossierValidation";
+import { parseDossierId, throwHttpErrorForAdminDossier } from "#lib/server/dossierValidation.ts";
 
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 

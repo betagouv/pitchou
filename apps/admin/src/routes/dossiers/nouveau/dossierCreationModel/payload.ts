@@ -1,5 +1,5 @@
-import type { AdminDossierCreationPayload } from "$lib/actions/adminDossiers.ts";
-import { communeDepartmentCode } from "$lib/dossierLocation.ts";
+import type { AdminDossierCreationPayload } from "#lib/actions/adminDossiers.ts";
+import { communeDepartmentCode } from "#lib/dossierLocation.ts";
 
 import { buildCreationColumns } from "./payloadColumns.ts";
 import type { DossierCreationModel } from "./state.ts";

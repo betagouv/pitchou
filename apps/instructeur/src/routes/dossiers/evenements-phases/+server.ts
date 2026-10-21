@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "$lib/server/auth";
+import { requireCap } from "#lib/server/auth.ts";
 import { getEvenementsPhaseDossiers } from "@pitchou/server/database/dossier.ts";
 
 export const GET: RequestHandler = async ({ url }) => {

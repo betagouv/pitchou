@@ -2,7 +2,7 @@
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
   import type { FieldChange } from "@pitchou/types/notification.ts";
   import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
-  import { porteurDeProjetName } from "$lib/dossier/displayDossier.ts";
+  import { porteurDeProjetName } from "#lib/dossier/displayDossier.ts";
   import { porteurDeProjetGroups } from "./porteur.ts";
   import CopyIconButton from "../CopyIconButton.svelte";
   import ProjectField from "./ProjectField.svelte";

@@ -3,7 +3,7 @@
   import "./review-layout.css";
   import type { FieldChange as Change } from "@pitchou/types/notification.ts";
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-  import { formatDateAbsolute } from "$lib/dossier/displayDossier.ts";
+  import { formatDateAbsolute } from "#lib/dossier/displayDossier.ts";
   import { readOnlyMode } from "../readOnly.ts";
   import type { Snippet } from "svelte";
   let {

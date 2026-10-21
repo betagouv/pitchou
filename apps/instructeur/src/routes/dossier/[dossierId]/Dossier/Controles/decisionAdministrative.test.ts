@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import { createOdsFile } from "@odfjs/odfjs";
 
 vi.mock("./prescriptions.ts", () => ({ addPrescriptionsAndControles: vi.fn() }));
-vi.mock("$lib/dossier/dossier.ts", () => ({ refreshDossierFull: vi.fn() }));
-vi.mock("$lib/state/store.svelte.ts", () => ({ store: { capabilities: {} } }));
+vi.mock("#lib/dossier/dossier.ts", () => ({ refreshDossierFull: vi.fn() }));
+vi.mock("#lib/state/store.svelte.ts", () => ({ store: { capabilities: {} } }));
 
 import { createPrescriptionControlesFromFichier } from "./decisionAdministrative.ts";
 import { addPrescriptionsAndControles } from "./prescriptions.ts";
