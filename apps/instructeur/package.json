@@ -37,7 +37,6 @@
     "@types/node": "catalog:",
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
-    "prettier-plugin-svelte": "catalog:",
     "sass": "catalog:",
     "svelte": "catalog:",
     "svelte-check": "catalog:",

@@ -37,7 +37,12 @@ modifier les fonction `up()` `down()` du fichier `./migrations/XXX-nom.js`
 Svelte. Cette vérification fait partie de `just check` et de la CI. La configuration se trouve dans
 `.oxlintrc.json`. Les types générés et les fichiers DSFR copiés dans la documentation sont exclus.
 
-Prettier reste responsable du formatage. `svelte-check` vérifie les composants Svelte, y compris
+`just format` applique Oxfmt et `just check-format` vérifie le formatage sans modifier les fichiers.
+La configuration se trouve dans `.oxfmtrc.json`, avec les exclusions des fichiers générés et des
+données locales. Le formatage Svelte est activé, avec une indentation de deux espaces pour les
+blocs script et style.
+
+`svelte-check` vérifie les composants Svelte, y compris
 leurs templates. Oxlint utilise les règles de correction sans analyse des types pour le moment.
 Les règles supplémentaires imposent des objets `Error`, la conservation de leur cause, des
 comparaisons strictes sauf pour `== null`, et vérifient plusieurs usages des promesses.

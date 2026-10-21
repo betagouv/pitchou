@@ -30,7 +30,8 @@
   let ccEmails = $state<string[]>([]);
   let selectedIds: File["id"][] = $state([]);
   let EmailRichTextEditorComponent:
-    typeof import("#lib/components/EmailRichTextEditor.svelte").default | undefined = $state();
+    | typeof import("#lib/components/EmailRichTextEditor.svelte").default
+    | undefined = $state();
   const isTestEnvironment = dev || env.PUBLIC_PITCHOU_ENV === "staging";
   const groups = $derived(piecesJointesGroups(dossier));
   $effect(() => {

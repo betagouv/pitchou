@@ -26,10 +26,16 @@ export type CodeActiviteStandard =
   | "90";
 
 export type CodeActivitePitchou =
-  "4-1-pitchou-aires" | "4-2-pitchou-nids" | "4-3-pitchou-œufs" | "mix-1-10-3-30-6-40";
+  | "4-1-pitchou-aires"
+  | "4-2-pitchou-nids"
+  | "4-3-pitchou-œufs"
+  | "mix-1-10-3-30-6-40";
 
 export type QuantifiedImpact =
-  `Nombre d'individus` | "Nids" | "Œufs" | "Surface habitat détruit (m²)";
+  | `Nombre d'individus`
+  | "Nids"
+  | "Œufs"
+  | "Surface habitat détruit (m²)";
 
 export interface EtreVivantAtteint {
   espèce: EspeceProtegee;

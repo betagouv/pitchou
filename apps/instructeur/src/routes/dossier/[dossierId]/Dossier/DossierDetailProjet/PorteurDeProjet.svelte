@@ -26,7 +26,9 @@
 
   function identityValue(type: IdentityType, property: IdentityProperty) {
     return dossier[`${identityPrefixes[type]}_${property}` as keyof DossierFull] as
-      string | null | undefined;
+      | string
+      | null
+      | undefined;
   }
 </script>
 

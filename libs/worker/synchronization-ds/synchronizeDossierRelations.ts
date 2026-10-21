@@ -16,7 +16,8 @@ import type { DossierDS88444, Message } from "@pitchou/types/demarche-numerique/
 import type { Knex } from "knex";
 
 type DossierForSync =
-  DossierEntreprisesPersonneInitializersForInsert | DossierEntreprisesPersonneInitializersForUpdate;
+  | DossierEntreprisesPersonneInitializersForInsert
+  | DossierEntreprisesPersonneInitializersForUpdate;
 
 export async function synchronizeDossierRelations(
   dossiersDS: DossierDS88444[],
