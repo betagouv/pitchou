@@ -6,12 +6,18 @@ export type PendingEmail = {
   id: string;
   personne: number;
   dossier: number;
-  kind: "assignment" | "novelty";
+  kind: "assignment" | "novelty" | "arrival";
+  batch_key: string;
   first_attempt_at: Date | null;
   message: EmailMessage | null;
 };
 
-export function dueEmails(db: Knex | Knex.Transaction, now: Date, dossier?: number) {
+export function dueEmails(
+  db: Knex | Knex.Transaction,
+  now: Date,
+  dossier?: number,
+  kind?: PendingEmail["kind"],
+) {
   const query = db("email_notification_outbox")
     .where({ status: "pending" })
     .where("due_at", "<=", now)
@@ -19,7 +25,8 @@ export function dueEmails(db: Knex | Knex.Transaction, now: Date, dossier?: numb
     .andWhere((q) =>
       q.whereNull("claimed_at").orWhere("claimed_at", "<", new Date(now.getTime() - 120_000)),
     );
-  if (dossier !== undefined) query.where({ dossier, kind: "assignment" });
+  if (dossier !== undefined) query.where({ dossier });
+  if (kind || dossier !== undefined) query.where({ kind: kind ?? "assignment" });
   return query;
 }
 
@@ -36,11 +43,10 @@ export async function claimEmail(
       .skipLocked()
       .first<PendingEmail>();
     if (!row) return undefined;
-    const recipient = await trx("personne as p")
+    const recipientQuery = trx("personne as p")
       .join("email_notification_preferences as pref", "pref.personne", "p.id")
-      .join("edge_personne_follows_dossier as f", "f.personne", "p.id")
-      .join("dossier as d", "d.id", "f.dossier")
-      .where({ "p.id": row.personne, "f.dossier": row.dossier })
+      .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
+      .where({ "p.id": row.personne })
       .where(`pref.${row.kind}`, true)
       .whereNotNull("p.email")
       .whereExists(
@@ -53,14 +59,30 @@ export async function claimEmail(
           )
           .select(trx.raw("1"))
           .where("c.personne_cap", trx.ref("p.access_code"))
-          .where("gd.dossier", trx.ref("d.id")),
-      )
-      .first<{
-        email: string;
-        name: string | null;
-        enjeu: boolean | null;
-        demarche_numerique_number: number | null;
-      }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
+          .where("gd.dossier", trx.ref("d.id"))
+          .modify((q) => {
+            if (row.kind === "arrival")
+              q.whereExists(
+                trx("email_notification_groupe_arrival as arrival")
+                  .select(trx.raw("1"))
+                  .where("arrival.dossier", row.dossier)
+                  .where("arrival.revision", row.batch_key)
+                  .where("arrival.groupe_instructeurs", trx.ref("gd.groupe_instructeurs")),
+              );
+          }),
+      );
+    if (row.kind !== "arrival")
+      recipientQuery.whereExists(
+        trx("edge_personne_follows_dossier as f")
+          .select(trx.raw("1"))
+          .where({ "f.personne": row.personne, "f.dossier": row.dossier }),
+      );
+    const recipient = await recipientQuery.first<{
+      email: string;
+      name: string | null;
+      enjeu: boolean | null;
+      demarche_numerique_number: number | null;
+    }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
     if (!recipient) {
       await trx("email_notification_outbox")
         .where({ id })

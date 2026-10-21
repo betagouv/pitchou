@@ -10,6 +10,8 @@ export default interface EmailNotificationPreferences {
   assignment: boolean;
 
   novelty: boolean;
+
+  arrival: boolean;
 }
 
 /** Represents the initializer for the table public.email_notification_preferences */
@@ -21,6 +23,9 @@ export interface EmailNotificationPreferencesInitializer {
 
   /** Default value: true */
   novelty?: boolean;
+
+  /** Default value: true */
+  arrival?: boolean;
 }
 
 /** Represents the mutator for the table public.email_notification_preferences */
@@ -30,4 +35,6 @@ export interface EmailNotificationPreferencesMutator {
   assignment?: boolean;
 
   novelty?: boolean;
+
+  arrival?: boolean;
 }

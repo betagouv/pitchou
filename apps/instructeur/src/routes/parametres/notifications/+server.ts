@@ -13,13 +13,18 @@ export const GET: RequestHandler = async ({ url }) => {
 export const POST: RequestHandler = async ({ url, request }) => {
   const cap = requireCap(url);
   const body = await readJsonObject(request);
-  rejectUnknownProperties(body, new Set(["assignment", "novelty"]));
-  if (typeof body.assignment !== "boolean" || typeof body.novelty !== "boolean") {
-    error(400, "Les deux préférences doivent être des booléens.");
+  rejectUnknownProperties(body, new Set(["assignment", "novelty", "arrival"]));
+  if (
+    typeof body.assignment !== "boolean" ||
+    typeof body.novelty !== "boolean" ||
+    typeof body.arrival !== "boolean"
+  ) {
+    error(400, "Les trois préférences doivent être des booléens.");
   }
   const preferences = await emailNotificationPreferencesFromCap(cap, {
     assignment: body.assignment,
     novelty: body.novelty,
+    arrival: body.arrival,
   });
   if (!preferences) error(403, "Capability invalide");
   return json(preferences);

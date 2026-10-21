@@ -1,3 +1,4 @@
+import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import { phases } from "@pitchou/common/phases.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
@@ -84,6 +85,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         );
       return created;
     });
+    await dispatchArrivalEmailsAfterCommit(id);
     return json({ id }, { status: 201 });
   } catch (caught) {
     if (storedSpeciesId || storedAttachmentIds.length) {

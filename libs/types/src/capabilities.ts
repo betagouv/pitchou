@@ -56,7 +56,11 @@ export type DossierCommentaire = {
   author_email: string | null;
 };
 
-export type EmailNotificationPreferences = { assignment: boolean; novelty: boolean };
+export type EmailNotificationPreferences = {
+  assignment: boolean;
+  novelty: boolean;
+  arrival: boolean;
+};
 
 export interface PitchouInstructeurCapabilities {
   getEmailNotificationPreferences: () => Promise<EmailNotificationPreferences>;

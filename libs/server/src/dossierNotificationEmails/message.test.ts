@@ -38,3 +38,26 @@ test("keeps an undetermined enjeu distinct from an explicit absence of enjeu", (
     notificationEmailMessage({ ...context, enjeu: false }, "https://pitchou.test").subject,
   ).toContain("Sans enjeu");
 });
+
+test("arrival mail uses the requested subject and concise body without enjeu", () => {
+  const message = notificationEmailMessage(
+    {
+      id: "arrival-event",
+      kind: "arrival",
+      email: "member@test.fr",
+      dossier: 42,
+      demarche_numerique_number: 123456,
+      name: "Projet <test>",
+      enjeu: true,
+    },
+    "https://pitchou.test",
+  );
+  expect(message.subject).toBe("Nouveau dossier: 123456 - Projet <test>");
+  expect(message.subject).not.toContain("enjeu");
+  expect(message.htmlContent).toContain(
+    "Un nouveau dossier vient d’arriver dans Pitchou et attend d'être suivi par un-e instructeur-trice:",
+  );
+  expect(message.htmlContent).toContain("123456 - Projet &lt;test&gt;");
+  expect(message.htmlContent).toContain('href="https://pitchou.test/parametres"');
+  expect(message.headers).toEqual({ idempotencyKey: "arrival-event" });
+});

@@ -21,28 +21,41 @@ test("returns and saves only the authenticated person's preferences", async () =
   vi.mocked(emailNotificationPreferencesFromCap).mockResolvedValue({
     assignment: false,
     novelty: true,
+    arrival: true,
   });
-  expect(await (await GET(event())).json()).toEqual({ assignment: false, novelty: true });
-  expect(await (await POST(event({ assignment: false, novelty: true }))).json()).toEqual({
+  expect(await (await GET(event())).json()).toEqual({
     assignment: false,
     novelty: true,
+    arrival: true,
+  });
+  expect(
+    await (await POST(event({ assignment: false, novelty: true, arrival: true }))).json(),
+  ).toEqual({
+    assignment: false,
+    novelty: true,
+    arrival: true,
   });
   expect(emailNotificationPreferencesFromCap).toHaveBeenLastCalledWith(cap, {
     assignment: false,
     novelty: true,
+    arrival: true,
   });
 });
 test.each([
-  { assignment: "false", novelty: true },
+  { assignment: true, novelty: true },
+  { assignment: true, novelty: true, arrival: "false" },
+  { assignment: "false", novelty: true, arrival: true },
   { assignment: true },
-  { assignment: true, novelty: false, personne: 42 },
+  { assignment: true, novelty: false, arrival: true, personne: 42 },
 ])("rejects invalid preferences without writing", async (body) => {
   await expect(POST(event(body))).rejects.toMatchObject({ status: 400 });
   expect(emailNotificationPreferencesFromCap).not.toHaveBeenCalled();
 });
 test("rejects unknown and malformed capabilities", async () => {
   await expect(GET(event())).rejects.toMatchObject({ status: 403 });
-  await expect(POST(event({ assignment: true, novelty: true }, "invalid"))).rejects.toMatchObject({
+  await expect(
+    POST(event({ assignment: true, novelty: true, arrival: true }, "invalid")),
+  ).rejects.toMatchObject({
     status: 403,
   });
 });

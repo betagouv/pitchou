@@ -5,6 +5,12 @@
 
   const notificationOptions = [
     {
+      key: "arrival",
+      title: "Nouveaux dossiers dans mon groupe instructeur",
+      description: "Lorsqu’un nouveau dossier arrive dans votre groupe instructeur.",
+      frequency: "Un mail immédiat à chaque arrivée, même si vous ne suivez pas encore le dossier.",
+    },
+    {
       key: "assignment",
       title: "Attributions de dossiers",
       description: "Lorsqu'une autre personne vous attribue le suivi d'un dossier.",

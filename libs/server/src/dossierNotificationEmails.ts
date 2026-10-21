@@ -21,6 +21,7 @@ export async function dispatchDossierNotificationEmails(
     db?: Knex;
     now?: Date;
     dossier?: number;
+    kind?: "assignment" | "novelty" | "arrival";
     send?: (message: EmailMessage) => Promise<unknown>;
     siteUrl?: string;
     dryRun?: boolean;
@@ -30,7 +31,7 @@ export async function dispatchDossierNotificationEmails(
   const now = options.now ?? new Date();
   const siteUrl = options.siteUrl ?? process.env.PUBLIC_SITE_URL_PITCHOU;
   if (!siteUrl) throw new Error("Missing PUBLIC_SITE_URL_PITCHOU environment variable");
-  const candidates = await dueEmails(db, now, options.dossier)
+  const candidates = await dueEmails(db, now, options.dossier, options.kind)
     .select("id", "dossier", "personne", "kind")
     .orderBy("due_at")
     .limit(100);
@@ -77,6 +78,18 @@ export async function dispatchAssignmentEmailsAfterCommit(dossier: number): Prom
     // The assignment is committed. The worker will retry the durable outbox.
     console.error(
       "Assignment notification dispatch failed",
+      dossier,
+      error instanceof Error ? error.name : "Error",
+    );
+  }
+}
+
+export async function dispatchArrivalEmailsAfterCommit(dossier?: number): Promise<void> {
+  try {
+    await dispatchDossierNotificationEmails({ dossier, kind: "arrival" });
+  } catch (error) {
+    console.error(
+      "Arrival notification dispatch failed",
       dossier,
       error instanceof Error ? error.name : "Error",
     );

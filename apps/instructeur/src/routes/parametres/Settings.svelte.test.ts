@@ -19,11 +19,11 @@ afterEach(() => {
 test("loads saved values and saves independent preferences", async () => {
   store.capabilities.getEmailNotificationPreferences = vi
     .fn()
-    .mockResolvedValue({ assignment: true, novelty: true });
+    .mockResolvedValue({ assignment: true, novelty: true, arrival: true });
   const save = vi.fn().mockImplementation(async (values) => values);
   store.capabilities.updateEmailNotificationPreferences = save;
   render(Settings);
-  await waitFor(() => expect(screen.getAllByRole("radio", { name: "Activé" })).toHaveLength(2));
+  await waitFor(() => expect(screen.getAllByRole("radio", { name: "Activé" })).toHaveLength(3));
   const assignment = within(
     screen.getByRole("group", {
       name: "Attributions de dossiers",
@@ -32,13 +32,13 @@ test("loads saved values and saves independent preferences", async () => {
   await document.fonts.ready;
   await userEvent.click(assignment.getByText("Désactivé", { selector: "label" }));
   await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
-  expect(save).toHaveBeenCalledWith({ assignment: false, novelty: true });
+  expect(save).toHaveBeenCalledWith({ assignment: false, novelty: true, arrival: true });
   await waitFor(() => expect(screen.getByRole("status").textContent).toContain("enregistrés"));
 });
 test("displays a save failure and allows retry", async () => {
   store.capabilities.getEmailNotificationPreferences = vi
     .fn()
-    .mockResolvedValue({ assignment: false, novelty: true });
+    .mockResolvedValue({ assignment: false, novelty: true, arrival: true });
   store.capabilities.updateEmailNotificationPreferences = vi
     .fn()
     .mockRejectedValue(new Error("offline"));
@@ -47,6 +47,32 @@ test("displays a save failure and allows retry", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
   await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Réessayez"));
   expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
+});
+
+test("saves the group arrival preference independently and reloads it", async () => {
+  let saved = { arrival: true, assignment: true, novelty: true };
+  store.capabilities.getEmailNotificationPreferences = vi
+    .fn()
+    .mockImplementation(async () => ({ ...saved }));
+  const save = vi.fn().mockImplementation(async (values) => (saved = { ...values }));
+  store.capabilities.updateEmailNotificationPreferences = save;
+  render(Settings);
+  const group = await screen.findByRole("group", {
+    name: "Nouveaux dossiers dans mon groupe instructeur",
+  });
+  await document.fonts.ready;
+  await userEvent.click(within(group).getByText("Désactivé", { selector: "label" }));
+  await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+  await waitFor(() =>
+    expect(save).toHaveBeenCalledWith({ arrival: false, assignment: true, novelty: true }),
+  );
+  await waitFor(() => expect(screen.getByRole("status").textContent).toContain("enregistrés"));
+  cleanup();
+  render(Settings);
+  const reloaded = await screen.findByRole("group", {
+    name: "Nouveaux dossiers dans mon groupe instructeur",
+  });
+  expect(within(reloaded).getByRole("radio", { name: "Désactivé" })).toBeChecked();
 });
 
 test.each(
@@ -58,10 +84,10 @@ test.each(
     document.documentElement.dataset.frTheme = theme;
     store.capabilities.getEmailNotificationPreferences = vi
       .fn()
-      .mockResolvedValue({ assignment: true, novelty: false });
+      .mockResolvedValue({ assignment: true, novelty: false, arrival: true });
     const { container } = render(Settings);
     container.className = "fr-container";
-    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(4));
+    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(6));
     await document.fonts.ready;
     const groups = screen.getAllByRole("group");
     const controls = groups.map((group) => {
@@ -77,11 +103,12 @@ test.each(
       return choices;
     });
     expect(controls[1].top).toBeGreaterThan(controls[0].bottom);
+    expect(controls[2].top).toBeGreaterThan(controls[1].bottom);
     expect(Math.abs(controls[0].left - controls[1].left)).toBeLessThan(1);
     const panel = screen.getByRole("region", { name: "Notifications par mail" });
     expect(panel.getBoundingClientRect().width).toBeLessThanOrEqual(864);
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(width);
     expect(within(groups[0]).getByRole("radio", { name: "Activé" })).toBeChecked();
-    expect(within(groups[1]).getByRole("radio", { name: "Désactivé" })).toBeChecked();
+    expect(within(groups[2]).getByRole("radio", { name: "Désactivé" })).toBeChecked();
   },
 );

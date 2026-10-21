@@ -134,6 +134,7 @@ test("disabling or unfollowing discards pending news; only a new change queues a
 
 test("keeps separate messages for each dossier followed by the same recipient", async () => {
   const { action, recipient, actor } = await setup();
+  await db("email_notification_preferences").update({ arrival: false });
   const [second] = await db("dossier")
     .insert({
       name: "Second dossier",

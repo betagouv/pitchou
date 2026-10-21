@@ -15,7 +15,7 @@ export async function emailNotificationPreferencesFromCap(
     await db("email_notification_preferences").where({ personne: personne.id }).update(preferences);
   }
   return db("email_notification_preferences")
-    .select("assignment", "novelty")
+    .select("assignment", "novelty", "arrival")
     .where({ personne: personne.id })
     .first();
 }

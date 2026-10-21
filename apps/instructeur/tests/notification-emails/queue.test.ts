@@ -12,18 +12,18 @@ test("preferences default to enabled, persist independently and belong to the ca
   const { actor, recipient } = await setup();
   expect(
     await emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: true, novelty: true });
+  ).toEqual({ assignment: true, novelty: true, arrival: true });
   await emailNotificationPreferencesFromCap(
     recipient.cap as CapDossierCap,
-    { assignment: false, novelty: true },
+    { assignment: false, novelty: true, arrival: true },
     db,
   );
   expect(
     await emailNotificationPreferencesFromCap(recipient.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: false, novelty: true });
+  ).toEqual({ assignment: false, novelty: true, arrival: true });
   expect(
     await emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: true, novelty: true });
+  ).toEqual({ assignment: true, novelty: true, arrival: true });
 });
 
 test("aggregates third-party changes per followed dossier, sends at the due time once", async () => {
@@ -155,7 +155,7 @@ test.each(["preference", "unfollow", "access"])("rechecks %s before delivery", a
   if (change === "preference")
     await db("email_notification_preferences")
       .where({ personne: recipient.id })
-      .update({ novelty: false });
+      .update({ novelty: false, arrival: true });
   if (change === "unfollow")
     await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
   if (change === "access")
@@ -170,7 +170,7 @@ test("disabled categories do not queue and are independent", async () => {
   const { action, recipient } = await setup();
   await db("email_notification_preferences")
     .where({ personne: recipient.id })
-    .update({ novelty: false });
+    .update({ novelty: false, arrival: true });
   await action("avis_modifie");
   await action("dossier_suivi", { data: { follower: recipient.email } });
   expect((await db("email_notification_outbox")).map((r) => r.kind)).toEqual(["assignment"]);

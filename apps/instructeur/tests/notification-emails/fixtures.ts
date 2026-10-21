@@ -19,6 +19,9 @@ export async function setup() {
     { dossier: actor.dossier.id, personne: actor.id },
     { dossier: actor.dossier.id, personne: recipient.id },
   ]);
+  // These fixtures exercise assignment/novelty behavior after the dossier has arrived.
+  if (await db.schema.hasTable("email_notification_outbox"))
+    await db("email_notification_outbox").where({ kind: "arrival" }).delete();
   const action = (type: string, extra: Partial<ActionDossierInitializer> = {}) =>
     logActionsDossier(
       [
