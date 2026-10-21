@@ -44,7 +44,7 @@ function block(
       const change = modifiedFields.get(`${involvement}.${property}`);
       return change ? [change] : [];
     });
-    if (!value && !changes.length && !alwaysShown.includes(property)) return [];
+    if (!value && changes.length === 0 && !alwaysShown.includes(property)) return [];
     const label = property === "address" ? "Adresse" : identityPropertyLabels[property];
     return [{ property, label, value, changes }];
   });

@@ -21,7 +21,7 @@
   const legacyFields = ["Entreprise", "Demandeur", "Mandataire", "Représentant de l'entreprise"];
   const legacyChanges = $derived(
     [...modifiedFields.values()].filter(
-      ({ field }) => legacyFields.includes(field) || /^(demandeur|representant)\./.test(field),
+      ({ field }) => legacyFields.includes(field) || /^(demandeur|representant)\./u.test(field),
     ),
   );
 </script>

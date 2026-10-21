@@ -70,7 +70,7 @@ export async function up(knex: Knex) {
         personne_physique: await insertPersonne(representant),
       });
     }
-    if (rows.length >= 1) await knex("dossier_acteur").insert(rows);
+    if (rows.length > 0) await knex("dossier_acteur").insert(rows);
   }
 }
 

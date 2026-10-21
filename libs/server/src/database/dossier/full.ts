@@ -36,7 +36,6 @@ export async function getDossierFull(
   const attachmentsP = getOtherAttachmentsForDossier(dossierId, transaction);
   const impactsP = getImpactOnEspeces(dossierId, transaction);
   const cnpnEmailSentEventsP = getDossierCnpnEmailSentEvents(dossierId, transaction);
-  const acteursP = getDossierActeurs([dossierId], transaction);
   const prescriptionsP = decisionsP.then((decisions) =>
     getPrescriptions(
       decisions.map(({ id }) => id),
@@ -60,7 +59,6 @@ export async function getDossierFull(
     controlesP,
     impactsP,
     cnpnEmailSentEventsP,
-    acteursP,
   ]);
   if (!databaseConnection.isTransaction) all.then(transaction.commit).catch(transaction.rollback);
   return all.then(
@@ -75,10 +73,8 @@ export async function getDossierFull(
       controles,
       impacts,
       cnpnEmailSentEvents,
-      acteurs,
-    ]) => {
-      dossier.acteurs = acteurs.get(dossierId) ?? [];
-      return withResolvedActivite(
+    ]) =>
+      withResolvedActivite(
         formatDossierFull(
           dossier,
           events,
@@ -92,20 +88,24 @@ export async function getDossierFull(
           cnpnEmailSentEvents,
           cap,
         ),
-      );
-    },
+      ),
   );
 }
 
-function loadDossier(
+async function loadDossier(
   dossierId: DossierFull["id"],
   transaction: Knex.Transaction,
 ): Promise<LoadedDossier> {
-  return joinDossierIdentities(
-    transaction("dossier")
-      .select(dossierFullColumns)
-      .select(transaction.raw(latestCommentaireSubquery)),
-  )
-    .where({ "dossier.id": dossierId })
-    .first();
+  const [dossier, acteurs] = await Promise.all([
+    joinDossierIdentities(
+      transaction("dossier")
+        .select(dossierFullColumns)
+        .select(transaction.raw(latestCommentaireSubquery)),
+    )
+      .where({ "dossier.id": dossierId })
+      .first(),
+    getDossierActeurs([dossierId], transaction),
+  ]);
+  dossier.acteurs = acteurs.get(dossierId) ?? [];
+  return dossier;
 }

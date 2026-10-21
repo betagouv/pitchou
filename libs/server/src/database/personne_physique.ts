@@ -27,7 +27,7 @@ export async function deleteDossiersWithPersonnesPhysiques(
         .whereNotNull("porteur_de_projet.personne_physique"),
     );
   await trx("dossier").whereIn("id", ids).delete();
-  if (personnes.length >= 1) {
+  if (personnes.length > 0) {
     await trx("personne_physique")
       .whereIn(
         "id",

@@ -9,6 +9,6 @@ export function summaryActeurs(acteurs: DossierActeur[]): DossierActeur[] {
     const involvements = acteur.involvements.filter((involvement) =>
       summaryInvolvements.includes(involvement),
     );
-    return involvements.length >= 1 ? [{ ...acteur, involvements }] : [];
+    return involvements.length > 0 ? [{ ...acteur, involvements }] : [];
   });
 }

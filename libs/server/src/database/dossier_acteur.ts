@@ -56,6 +56,72 @@ const rowKey = ({
 }: Pick<CurrentActeur, "involvement" | "personne_physique">) =>
   `${involvement}:${personne_physique}`;
 
+type SavedActeur = ActeurValues & { personne_physique: PersonnePhysiqueId };
+
+/** Updates the existing personne_physique in place when a value changed, otherwise creates one. */
+async function savePersonne(
+  personne: Partial<Personne>,
+  existing: CurrentActeur | undefined,
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<PersonnePhysiqueId> {
+  if (!existing) {
+    const [{ id }] = await databaseConnection("personne_physique").insert(personne).returning("id");
+    return id;
+  }
+  if (personneColumns.some((column) => (existing[column] ?? null) !== (personne[column] ?? null))) {
+    await databaseConnection("personne_physique")
+      .where({ id: existing.personne_physique })
+      .update(personne);
+  }
+  return existing.personne_physique;
+}
+
+/** Saves the personnes physiques of a dossier, then replaces its rows when they changed. */
+async function saveDossierActeurs(
+  dossier: DossierId,
+  acteurs: DossierActeurData[],
+  current: CurrentActeur[],
+  porteur: ({ id: PersonnePhysiqueId } & Personne) | undefined,
+  databaseConnection: Knex.Transaction | Knex,
+): Promise<SavedActeur[]> {
+  const used = new Set<PersonnePhysiqueId>();
+  const after: SavedActeur[] = [];
+  for (const acteur of acteurs) {
+    let saved: { id: PersonnePhysiqueId; personne: Partial<Personne> } | undefined;
+    if ("porteur" in acteur) {
+      saved = porteur && { id: porteur.id, personne: porteur };
+    } else {
+      const existing = current.find(
+        (row) =>
+          row.involvement === acteur.involvements[0] &&
+          row.personne_physique !== porteur?.id &&
+          !used.has(row.personne_physique),
+      );
+      const id = await savePersonne(acteur.personne, existing, databaseConnection);
+      saved = { id, personne: acteur.personne };
+    }
+    if (!saved) continue;
+    used.add(saved.id);
+    for (const involvement of acteur.involvements) {
+      after.push({ involvement, personne_physique: saved.id, personne: saved.personne });
+    }
+  }
+
+  if (after.map(rowKey).sort().join() !== current.map(rowKey).sort().join()) {
+    await databaseConnection("dossier_acteur").where({ dossier }).delete();
+    if (after.length > 0) {
+      await databaseConnection("dossier_acteur").insert(
+        after.map(({ involvement, personne_physique }) => ({
+          dossier,
+          involvement,
+          personne_physique,
+        })),
+      );
+    }
+  }
+  return after;
+}
+
 /**
  * Stores the porteur de projet and the acteurs of each dossier (Démarche Numérique
  * synchronization or admin). The acteurs are read before the porteur, which is updated
@@ -96,61 +162,7 @@ export async function savePorteursDeProjetAndActeurs(
   for (const [dossier, acteurs] of acteursByDossierId) {
     const current = currentByDossier.get(dossier) ?? [];
     const porteur = porteurByDossier.get(dossier);
-    const used = new Set<PersonnePhysiqueId>();
-    const after: (ActeurValues & { personne_physique: PersonnePhysiqueId })[] = [];
-
-    for (const acteur of acteurs) {
-      let personneId: PersonnePhysiqueId;
-      let personne: Partial<Personne>;
-      if ("porteur" in acteur) {
-        if (!porteur) continue;
-        personneId = porteur.id;
-        personne = porteur;
-      } else {
-        personne = acteur.personne;
-        const existing = current.find(
-          (row) =>
-            row.involvement === acteur.involvements[0] &&
-            row.personne_physique !== porteur?.id &&
-            !used.has(row.personne_physique),
-        );
-        if (existing) {
-          personneId = existing.personne_physique;
-          if (
-            personneColumns.some(
-              (column) => (existing[column] ?? null) !== (personne[column] ?? null),
-            )
-          ) {
-            await databaseConnection("personne_physique")
-              .where({ id: personneId })
-              .update(personne);
-          }
-        } else {
-          [{ id: personneId }] = await databaseConnection("personne_physique")
-            .insert(personne)
-            .returning("id");
-        }
-      }
-      used.add(personneId);
-      for (const involvement of acteur.involvements) {
-        after.push({ involvement, personne_physique: personneId, personne });
-      }
-    }
-
-    const currentKeys = current.map(rowKey).sort().join();
-    if (after.map(rowKey).sort().join() !== currentKeys) {
-      await databaseConnection("dossier_acteur").where({ dossier }).delete();
-      if (after.length >= 1) {
-        await databaseConnection("dossier_acteur").insert(
-          after.map(({ involvement, personne_physique }) => ({
-            dossier,
-            involvement,
-            personne_physique,
-          })),
-        );
-      }
-    }
-
+    const after = await saveDossierActeurs(dossier, acteurs, current, porteur, databaseConnection);
     const before = current.map((row) => ({ involvement: row.involvement, personne: row }));
     // A dossier without acteurs yet is filled for the first time (e.g. resync after the migration).
     actions.push(...actionsFromActeursChanges(dossier, before, after, current.length === 0));
