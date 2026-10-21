@@ -52,18 +52,6 @@ export const dossierFullColumns = [
   "projet_map",
   "next_action_expected_from",
   "next_due_date",
-  "identite_demandeur.last_name as deposant_last_name",
-  "identite_demandeur.first_names as deposant_first_names",
-  "identite_mandataire.last_name as mandataire_last_name",
-  "identite_mandataire.first_names as mandataire_first_names",
-  "identite_mandataire.email as mandataire_email",
-  "identite_mandataire.phone as mandataire_phone",
-  "identite_mandataire.role as mandataire_role",
-  "identite_representant.last_name as representative_last_name",
-  "identite_representant.first_names as representative_first_names",
-  "identite_representant.email as representative_email",
-  "identite_representant.phone as representative_phone",
-  "identite_representant.role as representative_role",
   "ddep_required",
   "scientifique_demande_type",
   "scientifique_previous_assessment",
@@ -95,24 +83,6 @@ export const dossierFullColumns = [
 
 export function joinDossierIdentities<T extends Knex.QueryBuilder>(query: T): T {
   joinPorteurDeProjet(query)
-    .leftJoin("identite_dossier as identite_demandeur", function () {
-      this.on("identite_demandeur.dossier", "dossier.id").andOnVal(
-        "identite_demandeur.type",
-        "demandeur",
-      );
-    })
-    .leftJoin("identite_dossier as identite_mandataire", function () {
-      this.on("identite_mandataire.dossier", "dossier.id").andOnVal(
-        "identite_mandataire.type",
-        "mandataire",
-      );
-    })
-    .leftJoin("identite_dossier as identite_representant", function () {
-      this.on("identite_representant.dossier", "dossier.id").andOnVal(
-        "identite_representant.type",
-        "representant",
-      );
-    })
     .leftJoin("file as file_especes_impactees", {
       "file_especes_impactees.id": "dossier.especes_impactees",
     })

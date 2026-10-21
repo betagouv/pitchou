@@ -27,22 +27,37 @@ const dossier = {
     phone: null,
     role: null,
   },
-  deposant_first_names: "Déposant",
-  deposant_last_name: "Ancien",
   demandeur_personne_physique_email: "ancien-profil@test.fr",
-  mandataire_first_names: "Lou",
-  mandataire_last_name: "Durand",
-  mandataire_email: "lou@test.fr",
-  representative_first_names: "Alex",
-  representative_last_name: "Robert",
-  representative_role: "Écologue",
+  acteurs: [
+    {
+      involvements: ["mandataire", "deposant"],
+      first_names: "Lou",
+      last_name: "Durand",
+      email: "lou@test.fr",
+      address: null,
+      phone: null,
+      role: null,
+    },
+    {
+      involvements: ["personne_contact"],
+      first_names: "Alex",
+      last_name: "Robert",
+      email: null,
+      address: null,
+      phone: null,
+      role: "Écologue",
+    },
+  ],
   especesImpactees: { impacts: [], sourceFile: undefined },
   piecesJointesPetitionnaires: [],
 } as unknown as DossierFull;
 const fields = [
-  ["demandeur.email", "Demandeur : Adresse électronique"],
+  [
+    "beneficiaire_demarche_numerique.email",
+    "Bénéficiaire Démarche Numérique : Adresse électronique",
+  ],
   ["mandataire.last_name", "Mandataire : Nom"],
-  ["representant.role", "Représentant de l'entreprise : Qualité"],
+  ["personne_contact.role", "Personne contact : Qualité"],
 ] as const;
 const changes = (): FieldChange[] =>
   fields.map(([field, label], index) => ({
@@ -73,7 +88,7 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test("only the changed identity properties are highlighted, including a cleared email", () => {
+test("only the changed porteur and acteur properties are highlighted, including a cleared email", () => {
   const view = render(PorteurDeProjet, {
     dossier,
     modifiedFields: new Map(changes().map((change) => [change.field, change])),

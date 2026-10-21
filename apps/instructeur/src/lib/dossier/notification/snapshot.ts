@@ -17,9 +17,10 @@ function applicantValues(dossier: DossierFull): string {
           ([key]) =>
             key in applicantFieldLabels ||
             columns.has(key) ||
-            /^(deposant_|demandeur_|mandataire_|representative_)/u.test(key) ||
+            key.startsWith("demandeur_") ||
             [
               "porteur_de_projet",
+              "acteurs",
               "source",
               "activite_label",
               "especesImpactees",

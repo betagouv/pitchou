@@ -9,7 +9,7 @@ import type { DossierCnpnEmailSentEvent } from "./cnpnEmail.ts";
 import type { UploadedFichier } from "./upload.ts";
 import type {
   DossierCommonData,
-  DossierPersonnesImpliqueesFull,
+  DossierPersonnesImpliquees,
   GeoJSONFeatureCollection,
 } from "./dossierBase.ts";
 import type { StatutListeRouge } from "../especes.d.ts";
@@ -105,7 +105,7 @@ export type DossierFull = Omit<
   | "porteur_de_projet"
 > &
   DossierCommonData &
-  DossierPersonnesImpliqueesFull & {
+  DossierPersonnesImpliquees & {
     /**
      * What the cap that fetched this dossier may do with it. `lecture` means the
      * payload is already narrowed and no write will be accepted, whatever the UI

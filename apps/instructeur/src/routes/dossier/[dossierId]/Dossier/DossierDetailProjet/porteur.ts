@@ -90,7 +90,8 @@ function personneMoraleGroups(entreprise: Entreprise): PorteurGroup[] {
 }
 
 function personnePhysiqueGroups(personne: PorteurDeProjetPersonnePhysique): PorteurGroup[] {
-  // Changes of a personne physique come from the Démarche Numérique identity.
+  // The porteur personne physique is the bénéficiaire Démarche Numérique, whose acteur
+  // records its changes.
   const row = (
     property: keyof typeof identityPropertyLabels | "address",
     kind: PorteurRow["kind"] = "text",
@@ -98,7 +99,7 @@ function personnePhysiqueGroups(personne: PorteurDeProjetPersonnePhysique): Port
     label: property === "address" ? "Adresse" : identityPropertyLabels[property],
     value: personne[property] || null,
     kind,
-    changeKey: `demandeur.${property}`,
+    changeKey: `beneficiaire_demarche_numerique.${property}`,
   });
   return [
     { title: "Identité", rows: [row("last_name"), row("first_names"), row("role")] },

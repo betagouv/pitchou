@@ -3,7 +3,7 @@ import stemmerSupport from "lunr-languages/lunr.stemmer.support";
 import lunrfr from "lunr-languages/lunr.fr";
 
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
-import { porteurDeProjetSearchTerms } from "#lib/dossier/displayDossier.ts";
+import { acteursSearchTerms, porteurDeProjetSearchTerms } from "#lib/dossier/displayDossier.ts";
 
 import type { StringValues } from "@pitchou/types/tools.d.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
@@ -12,23 +12,14 @@ stemmerSupport(lunr);
 lunrfr(lunr);
 
 const createIndexableDossier = (dossier: DossierSummary): StringValues<Partial<DossierSummary>> => {
-  const {
-    id,
-    name,
-    demarche_numerique_number,
-    communes,
-    deposant_last_name,
-    deposant_first_names,
-    porteur_de_projet,
-  } = dossier;
+  const { id, name, demarche_numerique_number, communes, acteurs, porteur_de_projet } = dossier;
 
   return {
     id: id.toString(),
     demarche_numerique_number: demarche_numerique_number?.toString(),
     name: removeAccents(name || ""),
     communes: communes?.map(({ name }) => removeAccents(name || "")).join(" ") || "",
-    deposant_last_name: removeAccents(deposant_last_name || ""),
-    deposant_first_names: removeAccents(deposant_first_names || ""),
+    acteurs: removeAccents(acteursSearchTerms(acteurs).join(" ")),
     porteur_de_projet: removeAccents(porteurDeProjetSearchTerms(porteur_de_projet).join(" ")),
   };
 };
@@ -45,8 +36,7 @@ const createDossiersIndex = (dossiers: DossierSummary[]): lunr.Index => {
     this.field("demarche_numerique_number");
     this.field("communes");
     this.field("name");
-    this.field("deposant_last_name");
-    this.field("deposant_first_names");
+    this.field("acteurs");
     this.field("porteur_de_projet");
 
     for (const dossier of dossiers) {

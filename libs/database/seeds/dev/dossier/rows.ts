@@ -3,7 +3,7 @@ import type { Knex } from "knex";
 import { SEED_DEMARCHE_NUMBER } from "../../fixtures/demarche_numerique.ts";
 import { SEED_DOSSIERS } from "../../fixtures/dossiers.ts";
 import type { seedDossierActors } from "./actors.ts";
-import { seedPorteurDeProjet } from "./porteur.ts";
+import { seedPorteurDeProjetAndActeurs } from "./porteur.ts";
 
 type Actors = Awaited<ReturnType<typeof seedDossierActors>>;
 
@@ -69,7 +69,6 @@ export async function seedDossierRows(
         demandeur_personne_physique: demandeur_personne_physique_email
           ? (personneIdByEmail.get(demandeur_personne_physique_email) ?? null)
           : null,
-        deposant: deposant_email ? (personneIdByEmail.get(deposant_email) ?? null) : null,
       });
 
       if (dossier) {
@@ -83,20 +82,25 @@ export async function seedDossierRows(
 
       dossierIdMap[dossierData.demarche_numerique_number!] = dossier.id;
 
-      await seedPorteurDeProjet(
+      const fixture = (email: string | undefined) =>
+        email ? personneFixtureByEmail.get(email) : undefined;
+      const demandeurFixture = fixture(deposant_email);
+      const mandataireFixture = fixture(mandataire_email);
+      const representantFixture = fixture(representative_email);
+      await seedPorteurDeProjetAndActeurs(
         transaction,
         dossier.id,
-        demandeur_personne_physique_email
-          ? personneFixtureByEmail.get(demandeur_personne_physique_email)
-          : undefined,
+        fixture(demandeur_personne_physique_email),
         dossierData.demandeur_personne_morale,
+        {
+          demandeur: demandeurFixture,
+          mandataire: mandataireFixture,
+          personneContact: representantFixture,
+        },
       );
 
-      // Identities shown in the "Porteur de projet" tab (per-dossier snapshots)
+      // Still written while identite_dossier is replaced by dossier_acteur; to be removed soon.
       const identites = [];
-      const demandeurFixture = deposant_email
-        ? personneFixtureByEmail.get(deposant_email)
-        : undefined;
       if (demandeurFixture) {
         identites.push({
           dossier: dossier.id,
@@ -106,9 +110,6 @@ export async function seedDossierRows(
           email: demandeurFixture.email,
         });
       }
-      const mandataireFixture = mandataire_email
-        ? personneFixtureByEmail.get(mandataire_email)
-        : undefined;
       if (mandataireFixture) {
         identites.push({
           dossier: dossier.id,
@@ -118,9 +119,6 @@ export async function seedDossierRows(
           email: mandataireFixture.email,
         });
       }
-      const representantFixture = representative_email
-        ? personneFixtureByEmail.get(representative_email)
-        : undefined;
       if (representantFixture) {
         identites.push({
           dossier: dossier.id,

@@ -17,7 +17,7 @@ function detail(dossier: AdminDossierDetail["dossier"]): AdminDossierDetail {
     phase: "Accompagnement amont",
     porteur_de_projet: null,
     groupe: { id: "groupe-1", name: "Groupe test" },
-    identites: [],
+    acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
     especesImpactees: null,
@@ -49,12 +49,13 @@ describe("dossier creation detail", () => {
       phone: "0611223344",
       role: "Écologue",
     };
-    source.identites = [
+    source.acteurs = [
       {
-        type: "demandeur",
+        involvements: ["deposant"],
         last_name: "Martin",
         first_names: "Camille",
         email: "camille@example.org",
+        address: null,
         phone: "0611223344",
         role: "Écologue",
       },

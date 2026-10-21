@@ -12,11 +12,7 @@ const references = [
 ] as const;
 
 async function hasReferences(id: PersonneId, trx: Knex.Transaction, excludedDossierId?: DossierId) {
-  const dossiers = trx("dossier")
-    .select("id")
-    .where(function () {
-      this.where("demandeur_personne_physique", id).orWhere("deposant", id);
-    });
+  const dossiers = trx("dossier").select("id").where("demandeur_personne_physique", id);
   if (excludedDossierId !== undefined) dossiers.whereNot("id", excludedDossierId);
   if (await dossiers.first()) return true;
   for (const [table, column] of references) {

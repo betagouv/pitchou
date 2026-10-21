@@ -1,5 +1,6 @@
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
 
 export type AdminDossierSummary = {
   id: number;
@@ -121,7 +122,7 @@ export type AdminDossierDetail = {
   phase: string;
   porteur_de_projet: PorteurDeProjet | null;
   groupe: { id: string; name: string } | null;
-  identites: AdminDossierIdentite[];
+  acteurs: DossierActeur[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
   especesImpactees: { id: string; name: string; media_type: string | null } | null;

@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 import type { Knex } from "knex";
 import { synchronizeDemarcheNumerique } from "./synchronizeDemarcheNumerique.ts";
 
-const state = vi.hoisted(() => ({ identityFinished: false, filesFinished: false }));
+const state = vi.hoisted(() => ({ acteursFinished: false, filesFinished: false }));
 vi.mock("@pitchou/server/database/activite.ts", () => ({
   getActiviteReferentiel: async () => ({ labels: [] }),
   registerActiviteLabels: async () => {},
@@ -56,8 +56,8 @@ vi.mock("./synchronizeDossierRelations.ts", () => ({
       [102, 2],
     ]),
     synchronizations: [],
-    identitesSynchronization: Promise.resolve().then(() => {
-      state.identityFinished = true;
+    acteursSynchronization: Promise.resolve().then(() => {
+      state.acteursFinished = true;
       return new Set([1, 2]);
     }),
   }),
@@ -77,7 +77,7 @@ vi.mock("./synchronization-notification.ts", () => ({ updateNotification: vi.fn(
 test("initial relation/file snapshots are excluded only for newly inserted dossiers, after every sync finishes", async () => {
   const whereIn = vi.fn().mockReturnThis();
   const update = vi.fn(async () => {
-    expect(state.identityFinished).toBe(true);
+    expect(state.acteursFinished).toBe(true);
     expect(state.filesFinished).toBe(true);
   });
   const transaction = Object.assign(

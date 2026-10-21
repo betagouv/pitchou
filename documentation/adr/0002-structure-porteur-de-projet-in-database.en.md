@@ -1,4 +1,4 @@
-# ADR-0002: Structure the people involved in a dossier in the database
+# ADR-0002: Structure the porteur de projet in the database
 
 _Version française : [0002-structure-porteur-de-projet-in-database.md](0002-structure-porteur-de-projet-in-database.md)_
 
@@ -12,7 +12,7 @@ The people involved in a dossier were poorly told apart, in the data as in the t
 
 On October 8, 2026, the production database holds 3,098 Démarche Numérique dossiers. Among them, 1,047 have no "Porteur de projet" section, and 918 declare a personne morale without giving a SIRET. In Démarche Numérique, this information is not mandatory: the SIRET is optional, and the porteur type ("Le demandeur est…") is only asked when the "Porteur de projet" section is shown, which depends on the previous answers of the form.
 
-This ADR covers the porteur de projet. The other people involved (déposant, mandataire, personne contact) will be structured later.
+This ADR covers the porteur de projet. The other people involved (déposant, mandataire, personne contact) are structured by [ADR-0003](0003-structure-dossier-acteur-in-database.en.md).
 
 ## Decision
 

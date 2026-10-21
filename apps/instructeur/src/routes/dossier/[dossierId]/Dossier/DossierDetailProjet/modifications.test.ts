@@ -43,10 +43,13 @@ test("map changes belong only to the cartographie accordion", () => {
   expect(nouvellesModifications([]).cartographie).toBeUndefined();
 });
 
-test("property-level identity and company revisions belong to the porteur accordion", () => {
+test("property-level acteur, former identity and company revisions belong to the porteur accordion", () => {
   const fields = [
-    "demandeur.email",
+    "deposant.last_name",
     "mandataire.last_name",
+    "personne_contact.phone",
+    "beneficiaire_demarche_numerique.email",
+    "demandeur.email",
     "representant.phone",
     "entreprise.address",
   ];

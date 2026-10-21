@@ -26,7 +26,6 @@ export async function preparePersonnes(
     else personnesWithoutEmail.set(`${personne.first_names}|${personne.last_name}`, personne);
   };
   for (const { dossier } of dossiers) {
-    collectPersonne(dossier.deposant);
     collectPersonne(dossier.demandeur_personne_physique);
   }
 

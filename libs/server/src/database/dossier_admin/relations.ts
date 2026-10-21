@@ -1,13 +1,14 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { DossierActeurData } from "@pitchou/types/dossierActeur.ts";
 import type { PorteurDeProjetInitializer } from "@pitchou/types/porteurDeProjet.ts";
-import { savePorteursDeProjet } from "../porteur_de_projet.ts";
+import { savePorteursDeProjetAndActeurs } from "../dossier_acteur.ts";
 import {
   deleteUnreferencedDossierPersonnes,
   updateOrInsertDossierPersonne,
 } from "./relationPersonnes.ts";
-import type { AdminDossierRelations } from "./relationTypes.ts";
+import type { AdminDossierIdentite, AdminDossierRelations } from "./relationTypes.ts";
 
 export { deleteUnreferencedDossierPersonnes };
 
@@ -32,12 +33,56 @@ function porteurDeProjetFromRelations(
   };
 }
 
-async function savePorteurDeProjet(
+function acteurPersonne({ last_name, first_names, email, phone, role }: AdminDossierIdentite) {
+  return {
+    last_name: last_name?.trim() || null,
+    first_names: first_names?.trim() || null,
+    email: email ? normalizeEmail(email) : null,
+    address: null,
+    phone: phone?.trim() || null,
+    role: role?.trim() || null,
+  };
+}
+
+/**
+ * The mandataire is the déposant; without mandataire, the déposant is the porteur personne
+ * physique, or the demandeur identity of a personne morale. The représentant is the
+ * personne contact.
+ */
+function acteursFromRelations(relations: AdminDossierRelations): DossierActeurData[] {
+  const identite = (type: AdminDossierIdentite["type"]) =>
+    relations.identites.find((item) => item.type === type);
+  const mandataire = identite("mandataire");
+  const demandeur = identite("demandeur");
+  const personneContact = identite("representant");
+  const acteurs: DossierActeurData[] = [];
+  if (mandataire) {
+    acteurs.push({
+      involvements: ["mandataire", "deposant"],
+      personne: acteurPersonne(mandataire),
+    });
+  } else if (relations.demandeur_type === "personne_physique") {
+    acteurs.push({ involvements: ["deposant"], porteur: true });
+  } else if (demandeur) {
+    acteurs.push({ involvements: ["deposant"], personne: acteurPersonne(demandeur) });
+  }
+  if (personneContact) {
+    acteurs.push({ involvements: ["personne_contact"], personne: acteurPersonne(personneContact) });
+  }
+  return acteurs;
+}
+
+async function savePorteurDeProjetAndActeurs(
   dossierId: DossierId,
   relations: AdminDossierRelations,
   trx: Knex.Transaction,
 ): Promise<void> {
-  await savePorteursDeProjet(new Map([[dossierId, porteurDeProjetFromRelations(relations)]]), trx);
+  await savePorteursDeProjetAndActeurs(
+    new Map([[dossierId, porteurDeProjetFromRelations(relations)]]),
+    new Map([[dossierId, acteursFromRelations(relations)]]),
+    trx,
+    { historique: false },
+  );
 }
 
 export async function updateDossierAdminRelations(
@@ -46,7 +91,7 @@ export async function updateDossierAdminRelations(
   trx: Knex.Transaction,
 ): Promise<void> {
   const current = await trx("dossier")
-    .select("demandeur_personne_physique", "deposant")
+    .select("demandeur_personne_physique")
     .where({ id: dossierId })
     .first();
   if (!current) throw new TypeError(`Unknown dossier: ${dossierId}`);
@@ -70,13 +115,12 @@ export async function updateDossierAdminRelations(
     await trx("dossier").where({ id: dossierId }).update({
       demandeur_personne_physique: personneId,
       demandeur_personne_morale: null,
-      deposant: personneId,
     });
     await deleteUnreferencedDossierPersonnes(
-      [current.demandeur_personne_physique, current.deposant].filter((id) => id !== personneId),
+      [current.demandeur_personne_physique].filter((id) => id !== personneId),
       trx,
     );
-    await savePorteurDeProjet(dossierId, relations, trx);
+    await savePorteurDeProjetAndActeurs(dossierId, relations, trx);
     return;
   }
   const entreprise = relations.demandeur_personne_morale;
@@ -90,30 +134,13 @@ export async function updateDossierAdminRelations(
       .whereNull("legal_name")
       .update({ legal_name: entreprise.legal_name });
   }
-  const demandeur = relations.identites.find(({ type }) => type === "demandeur");
-  const deposantId = demandeur
-    ? await updateOrInsertDossierPersonne(
-        current.deposant,
-        dossierId,
-        {
-          last_name: demandeur.last_name,
-          first_names: demandeur.first_names,
-          email: demandeur.email,
-        },
-        trx,
-      )
-    : null;
   await trx("dossier").where({ id: dossierId }).update({
     demandeur_personne_physique: null,
     demandeur_personne_morale: entreprise.siret,
-    deposant: deposantId,
   });
-  await deleteUnreferencedDossierPersonnes(
-    [current.demandeur_personne_physique, current.deposant].filter((id) => id !== deposantId),
-    trx,
-  );
+  await deleteUnreferencedDossierPersonnes([current.demandeur_personne_physique], trx);
   // After the entreprise insert above, so that its details are kept.
-  await savePorteurDeProjet(dossierId, relations, trx);
+  await savePorteurDeProjetAndActeurs(dossierId, relations, trx);
 }
 
 async function replaceDossierRelations(
@@ -126,6 +153,7 @@ async function replaceDossierRelations(
     dossier: dossierId,
     groupe_instructeurs: relations.groupe_instructeurs,
   });
+  // Still written while identite_dossier is replaced by dossier_acteur; to be removed soon.
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
   if (relations.identites.length > 0) {
     await trx("identite_dossier").insert(

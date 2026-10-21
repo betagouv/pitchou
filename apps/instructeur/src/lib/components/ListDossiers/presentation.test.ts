@@ -24,7 +24,21 @@ test("applicant names show the porteur de projet without its SIRET", () => {
 test("applicant names do not fall back on the deposant without porteur", () => {
   expect(applicantName(makeDossier())).toBe("Non renseigné");
   expect(
-    applicantName(makeDossier({ deposant_last_name: "Martin", deposant_first_names: "Jeanne" })),
+    applicantName(
+      makeDossier({
+        acteurs: [
+          {
+            involvements: ["deposant"],
+            first_names: "Jeanne",
+            last_name: "Martin",
+            email: null,
+            address: null,
+            phone: null,
+            role: null,
+          },
+        ],
+      }),
+    ),
   ).toBe("Non renseigné");
 });
 
