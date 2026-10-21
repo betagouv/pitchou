@@ -6,7 +6,8 @@
   import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
   type Option =
-    { kind: "candidate"; candidate: DossierFollowerCandidate } | { kind: "email"; email: string };
+    | { kind: "candidate"; candidate: DossierFollowerCandidate }
+    | { kind: "email"; email: string };
 
   let {
     dossierId,
@@ -108,7 +109,6 @@
 </script>
 
 <svelte:body onclick={closeOnOutsideClick} />
-
 <div class="fr-mb-3w">
   <label class="fr-label" for={`cnpn-cc-${dossierId}`}>
     En copie

@@ -3,7 +3,10 @@ import type { PersonnePhysiqueInitializer } from "./database/public/PersonnePhys
 
 /** Known values of dossier_acteur.involvement, which stays free text in the database for now. */
 export type Involvement =
-  "deposant" | "mandataire" | "personne_contact" | "beneficiaire_demarche_numerique";
+  | "deposant"
+  | "mandataire"
+  | "personne_contact"
+  | "beneficiaire_demarche_numerique";
 
 export const involvementLabels: Record<Involvement, string> = {
   deposant: "Déposant",
@@ -20,5 +23,6 @@ export type DossierActeur = { involvements: Involvement[] } & Omit<PersonnePhysi
  * of the porteur de projet instead of creating another one.
  */
 export type DossierActeurData = { involvements: Involvement[] } & (
-  { personne: Omit<PersonnePhysiqueInitializer, "id"> } | { porteur: true }
+  | { personne: Omit<PersonnePhysiqueInitializer, "id"> }
+  | { porteur: true }
 );

@@ -11,6 +11,14 @@ permissions:
   contents: read
 
 jobs:
+  format:
+    name: Format (oxfmt)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just check-format
+
   lint:
     name: Lint (oxlint)
     runs-on: ubuntu-latest

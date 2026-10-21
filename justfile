@@ -59,7 +59,7 @@ check: sync check-format check-lint check-types check-svelte
 
 # Check formatting without modifying files
 check-format:
-    prettier --check .
+    corepack pnpm exec oxfmt --check .
 
 # Lint JavaScript, TypeScript, and Svelte script blocks
 check-lint:
@@ -148,9 +148,9 @@ docker-test-up:
 docker-up:
     docker compose {{ compose-dev }} up
 
-# Reformat the code with prettier
+# Reformat the code with Oxfmt
 format:
-    prettier --write . --log-level warn
+    corepack pnpm exec oxfmt --write .
 
 # Generate SvelteKit types for every app
 sync:

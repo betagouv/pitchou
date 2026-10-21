@@ -10,7 +10,8 @@ import type {
 import type { Knex } from "knex";
 
 type DossierWithInitializers =
-  DossierEntreprisesPersonneInitializersForInsert | DossierEntreprisesPersonneInitializersForUpdate;
+  | DossierEntreprisesPersonneInitializersForInsert
+  | DossierEntreprisesPersonneInitializersForUpdate;
 
 export async function prepareDossiersForPersistence(
   dossiersToInitializeForSync: DossierEntreprisesPersonneInitializersForInsert[],
