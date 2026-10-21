@@ -27,7 +27,7 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
-          include: ["../../libs/**/*.test.ts", "src/**/*.test.ts"],
+          include: ["../../libs/**/*.test.ts", "src/**/*.test.ts", "preview/**/*.test.ts"],
           exclude: ["**/node_modules/**", "**/*.svelte.test.ts"],
         },
       },

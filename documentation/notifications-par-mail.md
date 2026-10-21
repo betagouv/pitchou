@@ -59,6 +59,22 @@ La migration ne doit pas envoyer les dossiers déjà présents. Vérifier la fil
 
 ## Vérifications sans envoyer de mail
 
+### Bouton de test dans l'aperçu Fleet
+
+Dans l'application instructeur de l'aperçu, ouvrir `/__fleet/accounts`, section **Tester les mails de nouveautés**. Le bouton **Envoyer les nouveautés en attente** permet de tester les mails de 06:00 immédiatement. Le lien **Ouvrir la boîte mail de test** ouvre `/__fleet/mail/`.
+
+1. Dans deux profils de navigateur, choisir A et B sur cette page. Avec B, suivre le dossier et activer **Nouveautés sur mes dossiers suivis** dans **Mon espace > Paramètres**, puis enregistrer. Avec A, modifier un champ d'Instruction ou ajouter un commentaire dans `/dossier/ID?tab=instruction`. Faire plusieurs modifications du même dossier.
+2. Ouvrir `/__fleet/accounts` et cliquer **Envoyer les nouveautés en attente**. La page confirme le nombre de mails envoyés dans la boîte locale. Ouvrir la boîte, vérifier un seul mail de nouveauté pour B et ce dossier, avec les liens du dossier et des paramètres. A ne reçoit rien pour sa propre action.
+3. Cliquer à nouveau sans activité supplémentaire. Le message **Aucun mail de nouveauté à envoyer.** apparaît, aucun mail supplémentaire. Ajouter ensuite un nouveau commentaire avec A, puis recliquer. Un nouveau mail est possible pour ce nouveau lot, même avant le lendemain, sans renvoyer l'ancien.
+4. Avec B, désactiver les nouveautés, quitter le suivi ou perdre l'accès au groupe avant l'envoi, séparément. Le bouton ne contourne aucun de ces contrôles. Les actions personnelles, les changements de suivi et la génération de documents seuls ne produisent aucun mail de nouveauté.
+5. En cas d'échec, la page indique **L'envoi a échoué.** et le nombre éventuellement envoyé. Réessayer après une minute. Une boîte locale indisponible ne provoque jamais d'envoi externe de secours. Les cas d'erreur sont simulés dans les tests, sans interrompre la boîte de l'aperçu.
+
+Le bouton traite jusqu'à 100 mails par clic, tous destinataires admissibles de cet aperçu confondus. Il conserve les reprises, les réservations concurrentes et les états de la file habituelle. Il avance seulement l'échéance des lots de nouveautés non tentés et libère leur clé de regroupement calendaire pour les modifications suivantes. Il ne rejoue pas les lignes envoyées, ne change pas l'horloge et ne touche pas aux attributions ou aux arrivées.
+
+L'extension maintenue dans `apps/instructeur/preview/` est chargée par Vite en développement uniquement. Elle exige le contexte Fleet de ce checkout, son origine HTTPS, sa base isolée et un Mailpit sur `127.0.0.1`. Le déclenchement utilise POST avec contrôle d'origine et livraison directe vers Mailpit. Aucun endpoint n'est ajouté à l'application de production. L'outillage hôte et ses fichiers générés restent inchangés. La migration d'arrivée doit déjà être appliquée pour le reste des paramètres.
+
+### Tests automatisés
+
 Démarrer PostgreSQL de test, puis lancer les tests. Ils créent et suppriment uniquement la base `pitchou_test_notifications`, utilisent les migrations réelles et simulent Brevo. Le port par défaut est 5433. `TEST_DB_PORT` permet de choisir un autre port.
 
 ```sh
