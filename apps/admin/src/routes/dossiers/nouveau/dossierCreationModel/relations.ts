@@ -4,7 +4,7 @@ import type {
   AdminDossierRelationsPayload,
 } from "#lib/actions/adminDossiers.ts";
 import type { CompanyDetailsChoice } from "./state.ts";
-import { acteurOf, identiteOf } from "$lib/dossierActeurs.ts";
+import { acteurOf, identiteOf } from "#lib/dossierActeurs.ts";
 
 /** Entreprise of a personne morale porteur, with only the fields the admin relations carry. */
 export function porteurEntreprise(detail: AdminDossierDetail): AdminDemandeurPersonneMorale | null {

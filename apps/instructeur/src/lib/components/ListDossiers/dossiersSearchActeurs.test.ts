@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierActeur, Involvement } from "@pitchou/types/dossierActeur.ts";
-import { findDossierIdsMatchingText } from "$lib/dossier/searchInDossier.ts";
+import { findDossierIdsMatchingText } from "#lib/dossier/searchInDossier.ts";
 import { searchableText } from "./listModel.ts";
 import { makeDossier, makeContext } from "./testHelpers.ts";
 

@@ -3,7 +3,7 @@ import type {
   AdminDossierDetail,
   AdminDossierIdentite,
   AdminIdentiteDossierType,
-} from "$lib/actions/adminDossiers.ts";
+} from "#lib/actions/adminDossiers.ts";
 
 export function acteurOf(
   detail: AdminDossierDetail,
