@@ -6,7 +6,7 @@ const modificationBadgePattern = /^Modifié (aujourd\u0027hui|il y a)/u;
 
 test("dossiers triés par défaut sur la date de dépôt décroissante", async ({ page, db }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   // Mes dossiers counts followed dossiers in the assigned geographic scope.
   await expect(page.getByTestId("compteur-dossier")).toContainText(
@@ -31,14 +31,13 @@ test("les dossiers avec notification non vue portent un badge de modification", 
   db,
 }) => {
   await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
-  const withBadge = await page
+  const withBadge = page
     .getByTestId("card-dossier")
-    .filter({ has: page.getByText(modificationBadgePattern) })
-    .all();
+    .filter({ has: page.getByText(modificationBadgePattern) });
 
-  expect(withBadge).toHaveLength(2);
+  await expect(withBadge).toHaveCount(2);
   // The badge dates the change rather than merely flagging it.
   await expect(page.getByText(modificationBadgePattern).first()).toBeVisible();
 });
@@ -48,7 +47,7 @@ test("le filtre Nouveauté ne montre que les dossiers à notification non vue", 
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   await page.getByRole("button", { name: "Filtres" }).click();
   const modal = page.getByRole("dialog", { name: "Tous les filtres" });
@@ -95,7 +94,7 @@ test("le badge de modification persiste après consultation et disparaît après
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });
@@ -130,7 +129,7 @@ test("Le badge Dossier à enjeu apparaît lorsque le dossier possède un enjeu",
   db,
 }) => {
   const fixtures = await setup(db);
-  await gotoMesDossiers(page);
+  await gotoMesDossiers(page, db);
 
   const title = page.getByRole("link", { name: fixtures.unviewedRecent.name });
   const card = page.getByTestId("card-dossier").filter({ has: title });

@@ -4,7 +4,6 @@ import { parseMinimalCreationRelations } from "./minimalCreation.ts";
 
 const body = (porteur_de_projet: unknown) => ({
   name: "Dossier",
-  groupe_instructeurs: "groupe-1",
   porteur_de_projet,
 });
 
@@ -15,7 +14,6 @@ describe("parseMinimalCreationRelations", () => {
         body({ type: "personne_physique", last_name: " Martin ", first_names: "Camille" }),
       ),
     ).toMatchObject({
-      groupe_instructeurs: "groupe-1",
       demandeur_type: "personne_physique",
       demandeur_personne_physique: { last_name: "Martin", first_names: "Camille" },
       identites: [{ type: "demandeur", last_name: "Martin", first_names: "Camille" }],

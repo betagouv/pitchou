@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 export function mutate(
@@ -11,5 +12,9 @@ export function mutate(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   };
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}/commentaires?cap=${cap}`, options);
+  return fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossier/${dossierId}/commentaires`,
+    options,
+  );
 }

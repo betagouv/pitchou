@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
@@ -7,7 +8,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { s3HasKey } from "../helpers/fileStorage.ts";
 
 function remove(cap: string, body: unknown) {
-  return fetch(`${INTEGRATION_BASE_URL}/piece-jointe?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/piece-jointe`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

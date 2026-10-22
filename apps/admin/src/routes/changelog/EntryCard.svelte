@@ -6,7 +6,7 @@
 </script>
 
 <li
-  class="group relative rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] shadow-sm transition hover:border-[color:var(--border-default-blue-france)] hover:shadow-md"
+  class="group relative rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] hover:bg-[var(--background-alt-grey-hover)]"
 >
   <a href={`/changelog/${entry.id}`} class="fr-raw-link block p-4 pr-12 no-underline">
     <div class="flex flex-wrap items-center gap-3">
@@ -34,7 +34,7 @@
         </span>
       {/if}
     </div>
-    <p class="fr-mb-0 mt-1 truncate text-lg">
+    <p class="fr-mb-0 mt-1 truncate text-base">
       {#if entry.titre}{entry.titre}{:else}<span
           class="text-[color:var(--text-mention-grey)] italic">Sans titre</span
         >{/if}

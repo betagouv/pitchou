@@ -16,7 +16,7 @@
   ];
 </script>
 
-<div class="flex flex-col gap-6 fr-mb-3w">
+<div class="flex flex-col gap-4 fr-mb-2w">
   <div class="fr-input-group w-full" class:fr-input-group--error={lastNameMissing}>
     <label class="fr-label" for="physical-last-name">
       Nom <span aria-hidden="true">*</span>
@@ -96,7 +96,7 @@
   {#if model.physicalManualAddress}
     <fieldset class="border border-[color:var(--border-default-grey)] fr-p-3w">
       <legend class="fr-sr-only">Saisie manuelle de l'adresse</legend>
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-4">
         <div class="fr-select-group w-full md:w-1/3">
           <label class="fr-label" for="physical-country">Pays</label>
           <Select

@@ -1,9 +1,7 @@
 import { dumpDossiers, deleteDossierByDSNumber } from "@pitchou/server/database/dossier.ts";
-import { synchronizeGroupesInstructeurs } from "@pitchou/server/database/groupe_instructeurs.ts";
 import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts";
-import { getGroupesInstructeurs } from "@pitchou/server/demarche-numerique/getGroupesInstructeurs.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import { startDossierFileDownloads } from "./synchronizeDossierFiles.ts";
+import { startDossierFileDownloads, prepareDossierFiles } from "./synchronizeDossierFiles.ts";
 import { updateNotification } from "./synchronization-notification.ts";
 import {
   prepareSynchronization,
@@ -17,9 +15,6 @@ import {
 export async function synchronizeDemarcheNumerique(options: SynchronizationOptions): Promise<void> {
   const { apiToken, demarcheNumber, pitchouKeyToChampDS, transaction } = options;
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
-  const groupesInstructeursP = getGroupesInstructeurs(apiToken, demarcheNumber).then((groupes) =>
-    synchronizeGroupesInstructeurs(groupes, demarcheNumber, transaction),
-  );
   const {
     dossiersDS,
     existingDossiers,
@@ -35,12 +30,16 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
     transaction,
   );
 
+  // Finish DN and object-storage reads before dossier ownership takes the access lock.
+  const files = await prepareDossierFiles(fileDownloads, transaction);
+  const deleted = await deletedDossiersP;
   const dossierPersistence =
     dossiersToInitialize.length > 0 || dossiersToUpdate.length > 0
       ? dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
       : undefined;
-  const deletedDossiers = deletedDossiersP.then((deleted) =>
-    deleteDossierByDSNumber(deleted.map(({ number }) => number)),
+  const deletedDossiers = deleteDossierByDSNumber(
+    deleted.map(({ number }) => number),
+    transaction,
   );
   const [dossiersChangedByColumns] = await Promise.all([dossierPersistence, deletedDossiers]);
 
@@ -49,13 +48,11 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
     dossiersChangedByEspeces,
     dossiersChangedByPiecesJointes,
     dossiersChangedByActeurs,
-  } = await synchronizeRelationsAndFiles(
-    dossiersDS,
-    dossiersForSync,
-    fileDownloads,
-    groupesInstructeursP,
-    { demarcheNumber, pitchouKeyToChampDS, transaction },
-  );
+  } = await synchronizeRelationsAndFiles(dossiersDS, dossiersForSync, files, {
+    demarcheNumber,
+    pitchouKeyToChampDS,
+    transaction,
+  });
 
   await markInitialDossierActions(existingDossiers, dossierIdByDNNumber, transaction);
 

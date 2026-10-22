@@ -1,15 +1,15 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { withResolvedActivite } from "../activite.ts";
-import { getAvisExpertFilesByCap } from "../avis_expert.ts";
+import { getAvisExpertFilesForUser } from "../avis_expert.ts";
 import { getDecisionsAdministratives } from "../decision_administrative.ts";
 import { dossierAccessQuery, getLatestEvenementsPhaseDossiers } from "./access.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
 import { getDossierActeurs } from "./acteurs.ts";
 import { summaryInvolvements } from "@pitchou/common/dossierActeur.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { DossierSummary, FrontEndDecisionAdministrative } from "@pitchou/types/API_Pitchou.ts";
@@ -36,17 +36,17 @@ const columns = [
   ...porteurDeProjetColumns,
 ] as (keyof DossierSummary)[];
 
-export async function getDossiersSummariesByCap(
-  cap: CapDossier["cap"],
+export async function getDossiersSummariesForUser(
+  userId: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierSummary[]> {
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP = loadDossierSummaries(cap, transaction);
-  const eventsP = getLatestEvenementsPhaseDossiers(cap, transaction);
-  const decisionsP = getDecisionsAdministratives(cap, transaction);
-  const avisP = getAvisExpertFilesByCap(cap, transaction);
+  const dossiersP = loadDossierSummaries(userId, transaction);
+  const eventsP = getLatestEvenementsPhaseDossiers(userId, transaction);
+  const decisionsP = getDecisionsAdministratives(userId, transaction);
+  const avisP = getAvisExpertFilesForUser(userId, transaction);
   const acteursP = dossiersP.then((dossiers) =>
     getDossierActeurs(
       dossiers.map(({ id }) => id),
@@ -102,7 +102,7 @@ export async function getDossiersSummariesByCap(
 }
 
 function loadDossierSummaries(
-  cap: CapDossier["cap"],
+  userId: UserId,
   transaction: Knex.Transaction,
 ): Promise<DossierSummary[]> {
   return (
@@ -118,7 +118,7 @@ function loadDossierSummaries(
       )
       .select(transaction.raw(latestCommentaireSubquery))
       .join(
-        dossierAccessQuery(cap, transaction).as("dossier_access"),
+        dossierAccessQuery(userId, transaction).as("dossier_access"),
         "dossier_access.dossier",
         "dossier.id",
       )

@@ -47,7 +47,7 @@ export function exportDossiersQuery(
 export async function exportRelationsQueries(ids: Knex.QueryBuilder, trx: Knex.Transaction) {
   const followers = await trx("edge_personne_follows_dossier")
     .select<{ dossier: Dossier["id"]; email: string }[]>("dossier", "personne.email")
-    .join("personne", "personne.id", "edge_personne_follows_dossier.personne")
+    .join("auth_user as personne", "personne.id", "edge_personne_follows_dossier.personne")
     .whereIn("dossier", ids.clone())
     .whereNotNull("personne.email");
   const especes = await trx("impact_espece")

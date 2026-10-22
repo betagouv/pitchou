@@ -21,45 +21,22 @@ type PersonneEventRow = {
   date: Date | null;
 };
 
-/**
- * Lists every Pitchou account (a personne with a code d'accès) together with
- * their current AARRI level and a few summary metrics. Personnes without a code
- * d'accès (e.g. imported contacts that never were login accounts) are excluded,
- * as are the team's own accounts (@beta.gouv.fr), to stay consistent with the
- * public stats funnel.
- *
- * One row is fetched per (personne, event) pair via a left join, then grouped
- * and reduced in memory so the level logic stays the single, well-tested
- * `computeNiveauAARRI`.
- */
+/** Lists local accounts and their AARRI activity, excluding the team accounts. */
 export async function getUtilisateursAARRI(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<UtilisateurAARRI[]> {
-  const groupesParPersonne = databaseConnection("cap_dossier")
-    .join(
-      "edge_cap_dossier__groupe_instructeurs",
-      "edge_cap_dossier__groupe_instructeurs.cap_dossier",
-      "cap_dossier.cap",
-    )
-    .join(
-      "groupe_instructeurs",
-      "groupe_instructeurs.id",
-      "edge_cap_dossier__groupe_instructeurs.groupe_instructeurs",
-    )
-    .select("cap_dossier.personne_cap")
-    .select(
-      databaseConnection.raw(
-        "array_agg(DISTINCT groupe_instructeurs.name ORDER BY groupe_instructeurs.name) as groupes",
-      ),
-    )
-    .groupBy("cap_dossier.personne_cap")
+  const groupesParPersonne = databaseConnection("user_groupe as m")
+    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
+    .where("g.active", true)
+    .select("m.user_id")
+    .select(databaseConnection.raw("array_agg(distinct g.name order by g.name) as groupes"))
+    .groupBy("m.user_id")
     .as("groupes_par_personne");
 
-  const rows: PersonneEventRow[] = await databaseConnection("personne")
-    .whereNotNull("personne.access_code")
+  const rows: PersonneEventRow[] = await databaseConnection("auth_user as personne")
     .whereRaw("(personne.email IS NULL OR personne.email NOT ILIKE '%@beta.gouv.fr')")
     .leftJoin("evenement_metrique", "evenement_metrique.personne", "personne.id")
-    .leftJoin(groupesParPersonne, "groupes_par_personne.personne_cap", "personne.access_code")
+    .leftJoin(groupesParPersonne, "groupes_par_personne.user_id", "personne.id")
     .select(
       "personne.id as personneId",
       "personne.email as email",

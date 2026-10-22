@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import {
@@ -7,11 +8,10 @@ import {
 import * as actionDossier from "@pitchou/server/database/action_dossier.ts";
 import { speciesImpactChangeField } from "@pitchou/common/especes/impactGroup.ts";
 import {
-  getNotificationsForPersonneFromCap,
-  updateNotificationDossierFromCap,
+  getNotificationsForUser,
+  updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
 import { db } from "../setup/db.ts";
 import {
   attachCapToGroupe,
@@ -32,7 +32,7 @@ afterEach(() => {
 async function setup() {
   const owner = await createInstructeurWithDossier(db);
   const id = owner.dossier.id as DossierId;
-  const cap = owner.cap as CapDossierCap;
+  const cap = sessionUserId(owner.cap);
   const other = await createDossier(db, { demarche_numerique_number: "102" });
   const file = {
     id: randomUUID(),
@@ -60,7 +60,7 @@ async function setup() {
   );
   const rows = await db("impact_espece").orderBy("id");
   const notification = async (personCap = cap) =>
-    (await getNotificationsForPersonneFromCap(personCap, db, id))[0];
+    (await getNotificationsForUser(personCap, db, id))[0];
   return { owner, id, cap, other, otherType, file, reference, rows, notification };
 }
 
@@ -120,9 +120,9 @@ test("changes only the first selected row and reopens personal review with a new
       await db("notification").where({ dossier: id, personne: owner.id }).first(),
     ).toMatchObject({ viewed: false });
     if (quantity === 102) expect(action.id).not.toBe(actions[0].id);
-    await updateNotificationDossierFromCap(cap, { dossier: id, revisions: [action.id] }, db);
+    await updateNotificationDossier(cap, { dossier: id, revisions: [action.id] }, db);
     expect((await notification()).changes).toEqual([]);
-    expect((await notification(colleague.cap as CapDossierCap)).changes[0].revisions).toHaveLength(
+    expect((await notification(sessionUserId(colleague.cap))).changes[0].revisions).toHaveLength(
       quantity - 100,
     );
     expect((await notification()).new_arrival).toEqual(arrival);

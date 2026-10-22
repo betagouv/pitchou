@@ -9,7 +9,9 @@ export const E2E_BASE_URL = `http://127.0.0.1:${E2E_PORT}`;
 
 const repoRoot = path.resolve(import.meta.dirname, "..", "..", "..", "..");
 
+export const E2E_ADMIN_BASE_URL = "http://127.0.0.1:32647";
 let kitProcess: ChildProcess | undefined;
+let adminProcess: ChildProcess | undefined;
 
 async function dropAndCreateDb(dbName: string): Promise<void> {
   const admin = makeAdminKnex();
@@ -41,10 +43,16 @@ async function runMigrations(dbName: string): Promise<void> {
   }
 }
 
-async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
+async function waitForKitReady(
+  url: string,
+  child: ChildProcess,
+  timeoutMs = 60_000,
+): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   let lastError: unknown;
   while (Date.now() < deadline) {
+    if (child.exitCode !== null || child.signalCode !== null)
+      throw new Error("Application exited before readiness");
     try {
       const res = await fetch(url, { method: "GET" });
       if (res.status < 500) return;
@@ -56,8 +64,13 @@ async function waitForKitReady(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`Kit server did not start in ${timeoutMs}ms: ${String(lastError)}`);
 }
 
-function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildProcess {
-  const child = spawn("node", ["apps/instructeur/build/index.js"], {
+function spawnKit(
+  dbName: string,
+  port: number,
+  s3: TestS3Credentials,
+  app = "instructeur",
+): ChildProcess {
+  const child = spawn("node", [`apps/${app}/build/index.js`], {
     cwd: repoRoot,
     env: {
       ...process.env,
@@ -70,6 +83,8 @@ function spawnKit(dbName: string, port: number, s3: TestS3Credentials): ChildPro
       KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER:
         process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER ??
         "testtesttesttesttesttesttesttesttesttest",
+      ADMIN_SESSION_SECRET: "test-proconnect-transaction-secret-at-least-32-characters",
+      PUBLIC_SITE_URL_ADMIN: E2E_ADMIN_BASE_URL,
       PUBLIC_SITE_URL_PITCHOU: `http://127.0.0.1:${port}`,
       AWS_ENDPOINT_URL_S3: s3.endpoint,
       AWS_REGION: s3.region,
@@ -92,9 +107,21 @@ export default async function globalSetup() {
   await runMigrations(E2E_DB_NAME);
   const s3 = await initTestS3();
   kitProcess = spawnKit(E2E_DB_NAME, E2E_PORT, s3);
-  await waitForKitReady(E2E_BASE_URL);
+  await waitForKitReady(E2E_BASE_URL, kitProcess);
+  adminProcess = spawnKit(E2E_DB_NAME, 32647, s3, "admin");
+  await waitForKitReady(E2E_ADMIN_BASE_URL, adminProcess);
 
   return async () => {
+    if (adminProcess && adminProcess.exitCode === null) {
+      adminProcess.kill("SIGTERM");
+      await new Promise<void>((resolve) => {
+        adminProcess!.once("exit", () => resolve());
+        setTimeout(() => {
+          adminProcess?.kill("SIGKILL");
+          resolve();
+        }, 3000);
+      });
+    }
     if (kitProcess && kitProcess.exitCode === null) {
       kitProcess.kill("SIGTERM");
       await new Promise<void>((resolve) => {

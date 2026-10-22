@@ -1,7 +1,6 @@
 import {
   dumpDossierMessages,
   getDossierIdsFromDS_Ids as getDossierIdsFromDNIds,
-  synchronizeDossierInGroupeInstructeur,
 } from "@pitchou/server/database/dossier.ts";
 import { syncIdentitesDossier } from "@pitchou/server/database/identite_dossier.ts";
 import { savePorteursDeProjetAndActeurs } from "@pitchou/server/database/dossier_acteur.ts";
@@ -23,7 +22,7 @@ type DossierForSync =
 export async function synchronizeDossierRelations(
   dossiersDS: DossierDS88444[],
   dossiersForSync: DossierForSync[],
-  demarcheNumber: number,
+  _demarcheNumber: number,
   transaction: Knex.Transaction,
 ) {
   const dossierIds = await getDossierIdsFromDNIds(
@@ -65,11 +64,6 @@ export async function synchronizeDossierRelations(
   const synchronizations: unknown[] = [syncIdentitesDossier(identitesByDossierId, transaction)];
   if (messagesByDossierId.size > 0) {
     synchronizations.push(dumpDossierMessages(messagesByDossierId, transaction));
-  }
-  if (dossiersDS.length > 0) {
-    synchronizations.push(
-      synchronizeDossierInGroupeInstructeur(dossiersDS, demarcheNumber, transaction),
-    );
   }
   return { dossierIdByDNNumber, acteursSynchronization, synchronizations };
 }

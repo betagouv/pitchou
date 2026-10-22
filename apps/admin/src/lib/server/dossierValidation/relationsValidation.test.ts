@@ -3,7 +3,6 @@ import { describe, expect, test } from "vitest";
 import { parseDossierRelations } from "./relationsValidation.ts";
 
 const physicalRelations = {
-  groupe_instructeurs: "groupe-1",
   demandeur_type: "personne_physique",
   demandeur_personne_physique: {
     last_name: "Martin",

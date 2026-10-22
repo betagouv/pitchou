@@ -60,7 +60,6 @@ export async function makeDossiersForSynchronization(
       evenement_phase_dossier: champs.evenement_phase_dossier ?? evenements,
       avis_expert: champs.avis_expert || [],
       decision_administrative: [...(champs.decision_administrative || []), ...decision],
-      followers: champs.followers,
     };
   });
   const dossiersToUpdateForSync = dossiersDSToUpdate.map((dossierDS) => {

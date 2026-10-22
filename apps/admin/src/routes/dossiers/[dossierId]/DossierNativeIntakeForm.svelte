@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { can } from "#lib/access.svelte.ts";
+  import { setFileAccess } from "../fileAccess.ts";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { tick } from "svelte";
 
   import type { SelectEntry } from "@pitchou/ui/Select/options.ts";
@@ -19,7 +22,10 @@
     type CompanyDetailsChoice,
   } from "../nouveau/dossierCreationModel.ts";
   import DossierAdminFiles from "./DossierAdminFiles.svelte";
-  import DossierMissingGroupeField from "./DossierMissingGroupeField.svelte";
+  setFileAccess({
+    attachments: () => can("admin:dossiers:files"),
+    species: () => can("admin:dossiers:species"),
+  });
 
   let {
     detail,
@@ -49,10 +55,8 @@
   );
   let saveError = $state<string | null>(null);
   let showPorteurErrors = $state(false);
-  let saved = $state(false);
   let formVersion = $state(0);
   let companyDetailsChoice = $state<CompanyDetailsChoice>("");
-  const missingGroupe = $derived(detail.groupe === null);
   const legalSiretChanged = $derived(
     model.demandeurType === "personne_morale" && hasLegalSiretChanged(detail, model.legalSiret),
   );
@@ -71,10 +75,6 @@
 
   async function save(event: SubmitEvent) {
     event.preventDefault();
-    if (!model.groupeInstructeurs) {
-      saveError = "Sélectionnez un groupe instructeurs avant d'enregistrer le dossier.";
-      return;
-    }
     const invalidField = invalidPorteurField();
     if (invalidField) {
       // Shown under each invalid field, with the focus on the first one.
@@ -89,7 +89,7 @@
       return;
     }
     onSavingChange(true);
-    saved = false;
+    const confirmSaved = pageHeader.beginSave("Dossier enregistré");
     saveError = null;
     try {
       const { payload, relations, attachments } = buildNativeEditPayload(
@@ -108,7 +108,7 @@
       initialRelations = structuredClone(relations);
       formVersion += 1;
       onSaved(updated);
-      saved = true;
+      confirmSaved();
     } catch (error) {
       saveError = error instanceof Error ? error.message : String(error);
     } finally {
@@ -117,13 +117,7 @@
   }
 </script>
 
-<form
-  id={formId}
-  class="w-full flex flex-col gap-10 fr-mt-3w"
-  style="overflow-anchor: none"
-  novalidate
-  onsubmit={save}
->
+<form id={formId} class="dossier-form" style="overflow-anchor: none" novalidate onsubmit={save}>
   {#snippet existingSpeciesFiles()}
     {#if detail.especesImpactees}
       <DossierAdminFiles
@@ -150,16 +144,11 @@
   {/snippet}
 
   {#key formVersion}
-    {#if missingGroupe}
-      <DossierMissingGroupeField bind:value={model.groupeInstructeurs} />
-    {/if}
-
     <DossierIntakeFields
       {model}
       {activites}
       {activiteEntries}
       {activiteCodeByLabel}
-      groupes={[]}
       showAdminSection={false}
       showFirstSectionTopBorder={false}
       originalLegalSiret={porteurEntreprise(detail)?.siret}
@@ -173,10 +162,5 @@
 
   {#if saveError}
     <div class="fr-alert fr-alert--error fr-alert--sm" role="alert"><p>{saveError}</p></div>
-  {/if}
-  {#if saved}
-    <div class="fr-alert fr-alert--success fr-alert--sm" role="status">
-      <p>Dossier enregistré.</p>
-    </div>
   {/if}
 </form>

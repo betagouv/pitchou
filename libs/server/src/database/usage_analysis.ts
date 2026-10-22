@@ -9,7 +9,7 @@ import type { default as Personne } from "@pitchou/types/database/public/Personn
 export async function getLastUsageDateByInstructrice(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<Map<NonNullable<Personne["email"]>, Date>> {
-  const emailsAndDates = await databaseConnection("personne")
+  const emailsAndDates = await databaseConnection("auth_user as personne")
     .select(["email"])
     .max("timestamp as most_recent_phase_change")
     .max("depot_date as most_recent_depot")

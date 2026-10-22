@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 
@@ -8,7 +9,7 @@ test("se déconnecter renvoie vers la page de connexion", async ({ page, db }) =
   });
 
   // Login via ?secret lands on the home page, which is now "Mes dossiers"
-  await page.goto(`/?secret=${codeAcces}`);
+  await loginBrowser(page, db, codeAcces);
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 
   // Sign out from the account menu

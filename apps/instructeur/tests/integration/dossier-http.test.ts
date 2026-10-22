@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -5,7 +6,7 @@ import { createInstructeurWithDossier } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 function updateDossier(cap: string, dossierId: number, body: Record<string, unknown>) {
-  return fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

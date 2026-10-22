@@ -12,11 +12,11 @@
 
 {#if showsOperationDetails(model)}
   <section
-    class="border-t border-[color:var(--border-default-grey)] fr-pt-4w fr-mt-5w"
+    class="border-t border-[color:var(--border-default-grey)] fr-mt-2w"
     aria-labelledby="operation-details-title"
   >
-    <h3 class="fr-h3" id="operation-details-title">8.3. Modalités de l'opération</h3>
-    <div class="fr-input-group w-full fr-mb-4w">
+    <h3 id="operation-details-title">8.3. Modalités de l'opération</h3>
+    <div class="fr-input-group w-full fr-mb-2w">
       <label class="fr-label" for="scientific-protocol-description"
         >Description du protocole de suivi</label
       >

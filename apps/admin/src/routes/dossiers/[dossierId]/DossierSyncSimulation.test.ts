@@ -42,8 +42,6 @@ test("species groups can be selected independently of scalar fields", () => {
   }).body;
   expect(html).toContain('aria-labelledby="dossier-simulation-title"');
   expect(html).toContain('id="dossier-simulation-title"');
-  expect(html).toContain("border-[color:var(--border-default-grey)]");
-  expect(html).toContain("bg-[var(--background-alt-grey)]");
   expect(html).not.toContain("fr-fieldset__element");
   expect(html).toContain("Groupe d'impact à modifier");
   expect(html).toContain("Destruction d'habitat (P-4-2)");

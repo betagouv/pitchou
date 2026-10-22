@@ -4,10 +4,10 @@ import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { physique } from "../factories/porteurDeProjet.ts";
 
-import { getDossierFull, getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 import { savePorteursDeProjetAndActeurs } from "@pitchou/server/database/dossier_acteur.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 
 function personne(last_name: string, phone: string | null = null) {
   return { first_names: "Jean", last_name, email: null, address: null, phone, role: null };
@@ -15,7 +15,7 @@ function personne(last_name: string, phone: string | null = null) {
 
 test("the dossiers read by the instructeurs carry their acteurs, one per personne", async () => {
   const instructeur = await createInstructeurWithDossier(db);
-  const cap = instructeur.cap as CapDossierCap;
+  const userId = instructeur.id as UserId;
   const dossierId = instructeur.dossier.id as DossierId;
   await savePorteursDeProjetAndActeurs(
     new Map([[dossierId, physique("Martin")]]),
@@ -32,7 +32,7 @@ test("the dossiers read by the instructeurs carry their acteurs, one per personn
     db,
   );
 
-  const full = await getDossierFull(dossierId, cap, db);
+  const full = await getDossierFull(dossierId, userId, db);
   expect(full?.acteurs).toEqual([
     {
       involvements: ["beneficiaire_demarche_numerique"],
@@ -47,7 +47,9 @@ test("the dossiers read by the instructeurs carry their acteurs, one per personn
     { involvements: ["personne_contact"], ...personne("Leroy", "0612345678") },
   ]);
 
-  const summary = (await getDossiersSummariesByCap(cap, db)).find(({ id }) => id === dossierId);
+  const summary = (await getDossiersSummariesForUser(userId, db)).find(
+    ({ id }) => id === dossierId,
+  );
   expect(summary?.acteurs).toEqual([
     { involvements: ["mandataire", "deposant"], ...personne("Dupont") },
   ]);
@@ -55,8 +57,10 @@ test("the dossiers read by the instructeurs carry their acteurs, one per personn
 
 test("a dossier without acteurs reads an empty list", async () => {
   const instructeur = await createInstructeurWithDossier(db);
-  const cap = instructeur.cap as CapDossierCap;
+  const userId = instructeur.id as UserId;
 
-  expect((await getDossierFull(instructeur.dossier.id as DossierId, cap, db))?.acteurs).toEqual([]);
-  expect((await getDossiersSummariesByCap(cap, db))[0].acteurs).toEqual([]);
+  expect((await getDossierFull(instructeur.dossier.id as DossierId, userId, db))?.acteurs).toEqual(
+    [],
+  );
+  expect((await getDossiersSummariesForUser(userId, db))[0].acteurs).toEqual([]);
 });

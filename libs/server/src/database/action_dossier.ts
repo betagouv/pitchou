@@ -143,7 +143,7 @@ export async function getDossierActions(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ActionDossierView[]> {
   return databaseConnection("action_dossier")
-    .leftJoin("personne", { "personne.id": "action_dossier.author_personne" })
+    .leftJoin("auth_user as personne", { "personne.id": "action_dossier.author_personne" })
     .select([
       "action_dossier.id",
       "action_dossier.type",

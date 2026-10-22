@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
@@ -5,7 +6,7 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { putPendingUpload, readS3Body, s3HasKey } from "../helpers/fileStorage.ts";
 
 function postAvis(cap: string, body: unknown) {
-  return fetch(`${INTEGRATION_BASE_URL}/avis-expert?cap=${cap}`, {
+  return fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/avis-expert`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

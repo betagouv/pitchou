@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 
@@ -7,7 +8,7 @@ test("l'instructeur·rice se connecte via ?secret et voit son dossier", async ({
     dossierNom: "Projet de test",
   });
 
-  await page.goto(`/?secret=${codeAcces}`);
+  await loginBrowser(page, db, codeAcces);
 
   // Login lands on the home page, now "Mes dossiers"
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();

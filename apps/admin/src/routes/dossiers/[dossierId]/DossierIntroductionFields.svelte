@@ -33,6 +33,7 @@
 </script>
 
 <fieldset class="fr-fieldset w-full" aria-label="Identification du projet" {disabled}>
+  <legend class="fr-fieldset__legend">Identification du projet</legend>
   <div class="fr-fieldset__element">
     <div class="fr-input-group w-full">
       <label class="fr-label" for="edit-name"

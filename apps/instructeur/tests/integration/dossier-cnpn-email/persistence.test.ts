@@ -1,3 +1,4 @@
+import { sessionUserId } from "../../helpers/auth.ts";
 import "./setup.ts";
 import { expect, test } from "vitest";
 import { db } from "../../setup/db.ts";
@@ -17,8 +18,7 @@ import {
 } from "@pitchou/server/database/dossier_cnpn_email.ts";
 import { getDossierFull } from "@pitchou/server/database/dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 
 test("charge seulement les pièces jointes du dossier", async () => {
   const instructeur = await createInstructeurWithDossier(db);
@@ -184,7 +184,7 @@ test("persiste l'envoi et le charge dans le dossier complet", async () => {
     openedCount: 1,
   });
   await expect(
-    getDossierFull(dossierId, instructeur.cap as CapDossierCap, db),
+    getDossierFull(dossierId, sessionUserId(instructeur.cap), db),
   ).resolves.toMatchObject({
     cnpnEmailSentEvents: [{ id: event.id, delivered_at: deliveredAt, opened_at: openedAt }],
   });

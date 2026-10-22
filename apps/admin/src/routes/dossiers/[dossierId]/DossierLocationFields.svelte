@@ -46,7 +46,7 @@
   ];
 </script>
 
-<div class="w-full flex flex-col gap-6">
+<div class="w-full flex flex-col gap-4">
   <div class="fr-select-group w-full">
     <label class="fr-label" for="edit-primary-department">
       Département dans lequel se situe majoritairement le projet

@@ -1,4 +1,4 @@
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 import { error, json } from "@sveltejs/kit";
 import {
   getActiviteReferentiel,

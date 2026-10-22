@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -10,7 +11,7 @@ test("POST /prescription accepte le schéma courant", async () => {
     .insert({ dossier: dossier.id, type: "Arrêté dérogation" })
     .returning(["id"]);
 
-  const res = await fetch(`${INTEGRATION_BASE_URL}/prescription?cap=${cap}`, {
+  const res = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/prescription`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -38,7 +39,7 @@ test("POST /prescription rejette un type de propriété incorrect", async () => 
     .insert({ dossier: dossier.id, type: "Arrêté dérogation" })
     .returning(["id"]);
 
-  const res = await fetch(`${INTEGRATION_BASE_URL}/prescription?cap=${cap}`, {
+  const res = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/prescription`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

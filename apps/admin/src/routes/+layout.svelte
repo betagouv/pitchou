@@ -39,7 +39,7 @@
 
 {#if data.isAdmin}
   <!-- Logged-in admins get the internal-tool shell: sidebar + topbar, no DSFR chrome. -->
-  <div class="flex h-screen overflow-hidden">
+  <div class="admin-ui relative flex h-dvh overflow-hidden">
     <Sidebar
       open={sidebarOpen}
       collapsed={sidebarCollapsed}
@@ -48,7 +48,10 @@
       onLogout={logout}
     />
 
-    <div class="flex min-w-0 flex-1 flex-col overflow-y-auto">
+    <!-- Contain absolute elements such as hidden table captions inside this scroll area. -->
+    <div
+      class="relative flex min-h-0 min-w-0 flex-1 scroll-pt-16 flex-col overflow-y-auto overscroll-y-contain"
+    >
       <AdminHeader
         {sidebarCollapsed}
         onMobileMenuClick={() => (sidebarOpen = true)}
@@ -70,7 +73,7 @@
     menuLinks={data.user ? menuLinks : undefined}
   />
 
-  <main tabindex="-1" id="main">
+  <main tabindex="-1" id="main" class="admin-ui">
     <div class="fr-container fr-py-6w">
       {@render children()}
     </div>

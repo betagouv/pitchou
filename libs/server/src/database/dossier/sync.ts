@@ -1,12 +1,9 @@
 import type { Knex } from "knex";
-import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { directDatabaseConnection } from "../../database.ts";
 import { logActionsDossier } from "../action_dossier.ts";
 import { actionsFromSyncUpdates } from "./syncActions.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type Personne from "@pitchou/types/database/public/Personne.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
-import type EdgePersonneFollowsDossier from "@pitchou/types/database/public/EdgePersonneFollowsDossier.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
 import type {
   DossierForInsert,
@@ -42,22 +39,6 @@ async function newDecisions(decisions: DecisionToInsert[], db: Knex.Transaction 
   return decisions.filter((decision) => !existingKeys.has(key(decision)));
 }
 
-async function synchronizePersonnes(dossiers: DossierForInsert[], db: Knex.Transaction | Knex) {
-  // @ts-expect-error Synchronization input permits omitted nullable name fields.
-  const followers: Pick<Personne, "email" | "last_name" | "first_names">[] = dossiers
-    .flatMap(({ followers }) => followers)
-    .filter((value) => value != null)
-    .map(({ email, last_name, first_names }) => ({
-      email: email ? normalizeEmail(email) : null,
-      last_name,
-      first_names,
-    }));
-  if (followers.length === 0) return [];
-  await db("personne").insert(followers).onConflict(["email"]).ignore();
-  const emails = followers.map(({ email }) => email).filter((email) => email != null);
-  return db("personne").select("id", "email").whereIn("email", emails);
-}
-
 export async function dumpDossiers(
   dossiersForInsert: DossierForInsert[],
   dossiersForUpdate: DossierForUpdate[],
@@ -78,10 +59,17 @@ export async function dumpDossiers(
       .update(dossier)
       .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]),
   );
-  const { follows, avis, commentaires } = await insertDossiers(dossiersForInsert, db);
+  const { avis, commentaires } = await insertDossiers(dossiersForInsert, db);
   const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
   const events = allDossiers.flatMap(
     ({ evenement_phase_dossier }) => evenement_phase_dossier ?? [],
+  );
+  // Historical attribution does not grant access or create follower assignments.
+  const authorIds = events.flatMap(({ caused_by_personne }) =>
+    caused_by_personne == null ? [] : [caused_by_personne],
+  );
+  const existingAuthors = new Set(
+    authorIds.length > 0 ? await db("auth_user").whereIn("id", authorIds).pluck("id") : [],
   );
   const decisions = await newDecisions(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
@@ -90,20 +78,20 @@ export async function dumpDossiers(
   await Promise.all([
     events.length > 0
       ? db("evenement_phase_dossier")
-          .insert(events)
+          .insert(
+            events.map((event) => ({
+              ...event,
+              caused_by_personne: existingAuthors.has(event.caused_by_personne)
+                ? event.caused_by_personne
+                : null,
+            })),
+          )
           .onConflict(["dossier", "phase", "timestamp"])
-          .merge()
+          .merge(["demarche_numerique_agent_email", "demarche_numerique_motivation"])
       : Promise.resolve([]),
     avis.length > 0 ? db("avis_expert").insert(avis) : Promise.resolve([]),
     commentaires.length > 0 ? db("commentaire").insert(commentaires) : Promise.resolve([]),
     decisions.length > 0 ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
-    follows.length > 0
-      ? db("edge_personne_follows_dossier")
-          .insert(follows)
-          .onConflict(["personne", "dossier"])
-          .ignore()
-      : Promise.resolve([]),
-    Promise.resolve([]),
     ...updates,
   ]);
 
@@ -133,7 +121,6 @@ function truncateDossierStrings(dossiers: (DossierForInsert | DossierForUpdate)[
 }
 
 async function insertDossiers(dossiersForInsert: DossierForInsert[], db: Knex.Transaction | Knex) {
-  const follows: EdgePersonneFollowsDossier[] = [];
   let avis: PartialBy<AvisExpertInitializer, "dossier">[] = [];
   const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
   if (dossiersForInsert.length > 0) {
@@ -145,20 +132,6 @@ async function insertDossiers(dossiersForInsert: DossierForInsert[], db: Knex.Tr
         })),
       )
       .returning(["id"]);
-    const personnes = await synchronizePersonnes(dossiersForInsert, db);
-    if (personnes.length > 0) {
-      inserted.forEach(({ id }, index) => {
-        const source = dossiersForInsert[index];
-        const emails = new Set(source.followers?.map(({ email }) => email));
-        const dossierFollowers = personnes.filter(({ email }) => email && emails.has(email));
-        dossierFollowers.forEach(({ id: personne }) => follows.push({ dossier: id, personne }));
-        if (dossierFollowers.length > 0) {
-          source.evenement_phase_dossier.forEach((event) => {
-            if (!event.caused_by_personne) event.caused_by_personne = dossierFollowers[0].id;
-          });
-        }
-      });
-    }
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
       const source = dossiersForInsert[index];
@@ -179,5 +152,5 @@ async function insertDossiers(dossiersForInsert: DossierForInsert[], db: Knex.Tr
       });
     });
   }
-  return { follows, avis, commentaires };
+  return { avis, commentaires };
 }

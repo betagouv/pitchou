@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { withResolvedActivite } from "../activite.ts";
 import { getControles } from "../controle.ts";
-import { dossiersAccessibleViaCap, getEvenementsPhaseDossier } from "./access.ts";
+import { dossiersAccessibleToUser, getEvenementsPhaseDossier } from "./access.ts";
 import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
@@ -12,20 +12,20 @@ import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
 import { getPrescriptions } from "../prescription.ts";
 import { getDossierCnpnEmailSentEvents } from "../dossier_cnpn_email.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export async function getDossierFull(
   dossierId: DossierFull["id"],
-  cap: CapDossier["cap"],
+  userId: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierFull | undefined> {
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  if (!(await dossiersAccessibleViaCap(dossierId, cap, transaction)).has(dossierId)) {
+  if (!(await dossiersAccessibleToUser(dossierId, userId, transaction)).has(dossierId)) {
     if (!databaseConnection.isTransaction) await transaction.commit();
-    throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la cap ${cap}`);
+    throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la userId ${userId}`);
   }
   // Access was checked above, so the fetch itself selects the dossier by id.
   const dossierP = loadDossier(dossierId, transaction);
@@ -86,7 +86,6 @@ export async function getDossierFull(
           controles,
           impacts,
           cnpnEmailSentEvents,
-          cap,
         ),
       ),
   );

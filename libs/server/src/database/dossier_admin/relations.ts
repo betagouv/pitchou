@@ -95,14 +95,6 @@ export async function updateDossierAdminRelations(
     .where({ id: dossierId })
     .first();
   if (!current) throw new TypeError(`Unknown dossier: ${dossierId}`);
-  if (
-    !(await trx("groupe_instructeurs")
-      .select("id")
-      .where({ id: relations.groupe_instructeurs })
-      .first())
-  ) {
-    throw new TypeError(`Unknown groupe_instructeurs: ${relations.groupe_instructeurs}`);
-  }
   await replaceDossierRelations(dossierId, relations, trx);
   if (relations.demandeur_type === "personne_physique") {
     const { last_name, first_names, email } = relations.demandeur_personne_physique;
@@ -148,11 +140,6 @@ async function replaceDossierRelations(
   relations: AdminDossierRelations,
   trx: Knex.Transaction,
 ): Promise<void> {
-  await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossierId }).delete();
-  await trx("edge_groupe_instructeurs__dossier").insert({
-    dossier: dossierId,
-    groupe_instructeurs: relations.groupe_instructeurs,
-  });
   // Still written while identite_dossier is replaced by dossier_acteur; to be removed soon.
   await trx("identite_dossier").where({ dossier: dossierId }).delete();
   if (relations.identites.length > 0) {

@@ -59,13 +59,10 @@
   }
 </script>
 
-<section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
-  aria-labelledby="project-title"
->
-  <h2 class="fr-h2" id="project-title">2. Votre projet</h2>
+<section class="border-t border-[color:var(--border-default-grey)]" aria-labelledby="project-title">
+  <h2 id="project-title">2. Votre projet</h2>
 
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
     <div class="fr-input-group">
       <label class="fr-label" for="project-name">
         Nom du projet

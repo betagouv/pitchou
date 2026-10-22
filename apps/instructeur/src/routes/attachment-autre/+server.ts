@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 
-import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   parseUploadedFichiers,
@@ -8,15 +8,15 @@ import {
 } from "#lib/server/uploadedFichier.ts";
 import { addOtherAttachment } from "@pitchou/server/database/other_attachment.ts";
 import { logDossierActionsAfterCommit } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 
 import type { RequestHandler } from "./$types";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
 const attachmentProperties = new Set(["dossier", "type", "attachment_date", "files"]);
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, attachmentProperties);
 
@@ -39,7 +39,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     error(400, `Aucun fichier fourni`);
   }
 
-  await requireDossierAccessByCap(dossier as Dossier["id"], cap);
+  await requireDossierAccess(dossier as Dossier["id"], userId);
 
   let ids: string[];
   try {
@@ -55,7 +55,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
   await logDossierActionsAfterCommit(
     (async () => {
-      const author = await getPersonneByDossierCap(cap);
+      const author = await getUserById(userId);
       return files.map((file) => ({
         dossier: dossier as Dossier["id"],
         type: "piece_jointe_importee",

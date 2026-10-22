@@ -1,15 +1,10 @@
 import type File from "@pitchou/types/database/public/File.ts";
 import type { DossierFull, FrontEndFichier } from "@pitchou/types/API_Pitchou.ts";
 import type { AvisWithFiles } from "../fullQueries.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 
-/**
- * The download routes authorize on the cap, so every file URL handed to the
- * browser carries the cap the dossier was fetched with — the same way the
- * capability URLs do.
- */
-export function fichierUrl(route: string, id: File["id"], cap: CapDossier["cap"]): string {
-  return `${route}/${id}?cap=${encodeURIComponent(cap)}`;
+// Downloads authenticate through the session cookie. File links contain no credentials.
+export function fichierUrl(route: string, id: File["id"]): string {
+  return `${route}/${id}`;
 }
 
 export function describeFichier(
@@ -18,13 +13,12 @@ export function describeFichier(
   media_type: File["media_type"],
   size: number | null,
   route: string,
-  cap: CapDossier["cap"],
   created_at?: File["created_at"] | null,
 ): FrontEndFichier | undefined {
   return id
     ? {
         id,
-        url: fichierUrl(route, id, cap),
+        url: fichierUrl(route, id),
         name: name as string,
         media_type: media_type as string,
         size,
@@ -33,10 +27,7 @@ export function describeFichier(
     : undefined;
 }
 
-export function formatAvis(
-  avisRows: AvisWithFiles[],
-  cap: CapDossier["cap"],
-): DossierFull["avisExpert"] {
+export function formatAvis(avisRows: AvisWithFiles[]): DossierFull["avisExpert"] {
   return avisRows.map(
     ({
       avis_fichier,
@@ -57,7 +48,6 @@ export function formatAvis(
         avis_fichier_media_type,
         avis_file_size,
         "/avis-expert/fichier",
-        cap,
         avis_file_created_at,
       );
       const saisineFile = describeFichier(
@@ -66,7 +56,6 @@ export function formatAvis(
         saisine_fichier_media_type,
         saisine_file_size,
         "/avis-expert/fichier",
-        cap,
         saisine_file_created_at,
       );
       return {

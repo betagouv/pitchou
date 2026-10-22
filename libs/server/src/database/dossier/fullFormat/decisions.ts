@@ -3,7 +3,6 @@ import type DecisionAdministrative from "@pitchou/types/database/public/Decision
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type { DossierFull, FrontEndPrescription } from "@pitchou/types/API_Pitchou.ts";
 import type { DecisionWithFile } from "../fullQueries.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import { describeFichier } from "./attachments.ts";
 
 export function assignDecisions(
@@ -11,7 +10,6 @@ export function assignDecisions(
   decisions: DecisionWithFile[],
   prescriptions: Prescription[],
   controles: Controle[],
-  cap: CapDossier["cap"],
 ) {
   const controlesByPrescription = new Map<Prescription["id"], Controle[]>();
   for (const controle of controles) {
@@ -47,7 +45,6 @@ export function assignDecisions(
           file_media_type,
           file_size,
           "/decision-administrative/fichier",
-          cap,
         );
         return {
           id,

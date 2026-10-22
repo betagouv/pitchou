@@ -10,7 +10,6 @@ import type {
 } from "@pitchou/types/API_Pitchou.ts";
 import type { OtherAttachmentWithFileDescription } from "../other_attachment.ts";
 import type { AvisWithFiles, DecisionWithFile } from "./fullQueries.ts";
-import type CapDossier from "@pitchou/types/database/public/CapDossier.ts";
 import { withPorteurDeProjet } from "./porteur.ts";
 
 import { fichierUrl, describeFichier, formatAvis } from "./fullFormat/attachments.ts";
@@ -34,15 +33,14 @@ export function formatDossierFull(
   controles: Controle[],
   impacts: FrontEndImpactOnEspece[],
   cnpnEmailSentEvents: DossierCnpnEmailSentEvent[],
-  cap: CapDossier["cap"],
 ): DossierFull {
   withPorteurDeProjet(dossier);
   dossier.evenementsPhase = events;
   dossier.cnpnEmailSentEvents = cnpnEmailSentEvents;
-  dossier.avisExpert = formatAvis(avisRows, cap);
+  dossier.avisExpert = formatAvis(avisRows);
   dossier.piecesJointesPetitionnaires = pieces.map(({ id, ...piece }) => ({
     id,
-    url: fichierUrl("/piece-jointe-petitionnaire/fichier", id, cap),
+    url: fichierUrl("/piece-jointe-petitionnaire/fichier", id),
     ...piece,
   }));
   dossier.especesImpactees = {
@@ -51,7 +49,7 @@ export function formatDossierFull(
       dossier.especes_impactees_media_type &&
       dossier.especes_impactees_name
         ? {
-            url: fichierUrl("/especes-impactees", dossier.especes_impactees_id, cap),
+            url: fichierUrl("/especes-impactees", dossier.especes_impactees_id),
             media_type: dossier.especes_impactees_media_type,
             name: dossier.especes_impactees_name,
           }
@@ -61,7 +59,7 @@ export function formatDossierFull(
   delete dossier.especes_impactees_id;
   delete dossier.especes_impactees_media_type;
   delete dossier.especes_impactees_name;
-  assignDecisions(dossier, decisions, prescriptions, controles, cap);
+  assignDecisions(dossier, decisions, prescriptions, controles);
   dossier.otherAttachments = attachments.map(
     ({ fichier, file_name, file_media_type, file_size, ...attachment }) => {
       const file = describeFichier(
@@ -70,7 +68,6 @@ export function formatDossierFull(
         file_media_type,
         file_size,
         "/attachment-autre/fichier",
-        cap,
       );
       return { ...attachment, fichier, fichier_url: file?.url, fichier_description: file };
     },

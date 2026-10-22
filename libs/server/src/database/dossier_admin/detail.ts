@@ -31,7 +31,7 @@ export type AdminDossierDetail = {
   managedByDn: boolean;
   phase: DossierPhase;
   porteur_de_projet: PorteurDeProjet | null;
-  groupe: Pick<GroupeInstructeurs, "id" | "name"> | null;
+  groupes: Pick<GroupeInstructeurs, "id" | "name">[];
   acteurs: DossierActeur[];
   evenementsPhase: AdminPhaseHistoryEntry[];
   piecesJointes: AdminPieceJointe[];
@@ -47,7 +47,7 @@ export async function getDossierDetailForAdmin(
     .where({ id: dossierId })
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
-  const [porteurRow, groupe, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
+  const [porteurRow, groupes, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
     await Promise.all([
       joinPorteurDeProjet(db("dossier"))
         .select(porteurDeProjetColumns)
@@ -59,7 +59,7 @@ export async function getDossierDetailForAdmin(
           "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
         })
         .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
-        .first(),
+        .orderBy("groupe_instructeurs.name"),
       getDossierActeurs([dossierId], db),
       db("evenement_phase_dossier")
         .select([
@@ -68,11 +68,10 @@ export async function getDossierDetailForAdmin(
           "personne.email as caused_by_email",
           "evenement_phase_dossier.demarche_numerique_agent_email",
         ])
-        .leftJoin("personne", { "personne.id": "evenement_phase_dossier.caused_by_personne" })
-        .where({ dossier: dossierId })
-        .andWhere(function () {
-          this.whereNotNull("caused_by_personne").orWhereNotNull("demarche_numerique_agent_email");
+        .leftJoin("auth_user as personne", {
+          "personne.id": "evenement_phase_dossier.caused_by_personne",
         })
+        .where({ dossier: dossierId })
         .orderBy("timestamp", "desc"),
       db("edge_dossier__fichier_pieces_jointes_petitionnaire")
         .select([
@@ -100,7 +99,7 @@ export async function getDossierDetailForAdmin(
     managedByDn: source === "demarche_numerique",
     phase: evenementsPhase[0]?.phase ?? "Accompagnement amont",
     porteur_de_projet: withPorteurDeProjet(porteurRow ?? {}).porteur_de_projet,
-    groupe: groupe ?? null,
+    groupes,
     acteurs: acteurs.get(dossierId) ?? [],
     evenementsPhase,
     piecesJointes,

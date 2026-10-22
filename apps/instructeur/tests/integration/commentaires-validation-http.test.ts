@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
@@ -24,8 +25,9 @@ test("delete validates JSON and IDs and rejects missing, foreign-dossier and mig
   ]) {
     expect((await mutate(author.cap, author.dossier.id, body)).status).toBe(400);
   }
-  const invalidJson = await fetch(
-    `${INTEGRATION_BASE_URL}/dossier/${author.dossier.id}/commentaires?cap=${author.cap}`,
+  const invalidJson = await fetchAuthenticated(
+    author.cap,
+    `${INTEGRATION_BASE_URL}/dossier/${author.dossier.id}/commentaires`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -36,7 +38,7 @@ test("delete validates JSON and IDs and rejects missing, foreign-dossier and mig
   for (const id of [randomUUID(), migrated.id, foreign.id]) {
     expect((await mutate(author.cap, author.dossier.id, { id })).status).toBe(403);
   }
-  expect((await mutate("invalid-cap", author.dossier.id, { id: migrated.id })).status).toBe(403);
+  expect((await mutate("invalid-cap", author.dossier.id, { id: migrated.id })).status).toBe(401);
   expect(
     (
       await fetch(`${INTEGRATION_BASE_URL}/dossier/${author.dossier.id}/commentaires`, {
@@ -44,7 +46,7 @@ test("delete validates JSON and IDs and rejects missing, foreign-dossier and mig
         headers: { Origin: INTEGRATION_BASE_URL },
       })
     ).status,
-  ).toBe(400);
+  ).toBe(401);
   expect(await db("action_dossier")).toEqual([]);
   expect(await db("commentaire").where({ dossier: author.dossier.id })).toEqual([migrated]);
   expect(await db("commentaire").where({ dossier: other.dossier.id })).toEqual([foreign]);

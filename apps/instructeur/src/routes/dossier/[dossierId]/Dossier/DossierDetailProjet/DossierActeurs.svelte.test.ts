@@ -5,7 +5,7 @@ import type { ActionDossierId } from "@pitchou/types/database/public/ActionDossi
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { FieldChange } from "@pitchou/types/notification.ts";
 
-vi.mock("$env/dynamic/public", () => ({ env: {} }));
+vi.mock("$app/env/public", () => ({}));
 afterEach(cleanup);
 
 const change = (field: string, label: string): [string, FieldChange] => [
