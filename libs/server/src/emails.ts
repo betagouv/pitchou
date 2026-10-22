@@ -1,3 +1,4 @@
+import { StagingEmailSuppressedError } from "./emails/recipients.ts";
 import { createHash } from "node:crypto";
 import { sendBrevoEmail } from "./emails/delivery.ts";
 export { getEmailEnvironmentTag, EMAIL_ENVIRONMENT_TAG_PREFIX } from "./emails/delivery.ts";
@@ -12,6 +13,7 @@ export type BrevoSendResponse = { messageId: string };
 export type EmailMessage = {
   to: string[];
   cc?: string[];
+  bcc?: string[];
   replyTo?: string;
   subject: string;
   htmlContent: string;
@@ -52,6 +54,7 @@ export function estimateEmailBytes({
 }
 
 export function isDefinitiveEmailSendFailure(value: unknown): boolean {
+  if (value instanceof StagingEmailSuppressedError) return true;
   if (value instanceof Error && value.message === "Missing BREVO_API_KEY environment variable") {
     return true;
   }
@@ -75,6 +78,7 @@ export async function sendLoginEmail(email: string, loginLink: string): Promise<
 export function sendEmail({
   to,
   cc = [],
+  bcc = [],
   replyTo,
   subject,
   htmlContent,
@@ -86,6 +90,7 @@ export function sendEmail({
     sender: PITCHOU_SENDER,
     to: to.map((email) => ({ email })),
     ...(cc.length > 0 ? { cc: cc.map((email) => ({ email })) } : {}),
+    ...(bcc.length > 0 ? { bcc: bcc.map((email) => ({ email })) } : {}),
     ...(replyTo ? { replyTo: { email: replyTo } } : {}),
     subject,
     htmlContent,

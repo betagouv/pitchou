@@ -8,6 +8,7 @@ export const statusLabels: Record<string, string> = {
   sent: "Accepté par l'expéditeur",
   cancelled: "Annulé",
   uncertain: "Incertain",
+  suppressed: "Bloqué en préproduction",
 };
 export const environmentLabels: Record<string, string> = {
   production: "Production",
@@ -23,8 +24,10 @@ export const eventLabels: Record<string, string> = {
   failed: "Échec de tentative",
   cancelled: "Annulation",
   uncertain: "Envoi incertain",
+  suppressed: "Envoi bloqué en préproduction",
 };
 export const reasonLabels: Record<string, string> = {
+  staging_allowlist: "Destinataire non autorisé en préproduction",
   disabled_preference: "Préférence désactivée",
   unfollowed_dossier: "Suivi quitté",
   lost_access: "Accès au groupe perdu",

@@ -1,4 +1,5 @@
 import ky from "ky";
+import { assertStagingEmailPayload } from "./recipients.ts";
 import type { BrevoSendResponse } from "../emails.ts";
 import { captureEmail } from "./capture.ts";
 
@@ -21,6 +22,7 @@ export function sendBrevoEmail({
 }: Record<string, unknown> & { tags?: string[] }): Promise<BrevoSendResponse> {
   const captured = captureEmail(payload, tags);
   if (captured) return captured;
+  assertStagingEmailPayload(payload);
   const BREVO_API_KEY = process.env.BREVO_API_KEY;
   if (!BREVO_API_KEY) {
     throw new Error("Missing BREVO_API_KEY environment variable");

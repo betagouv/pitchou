@@ -1,3 +1,4 @@
+import { suppressNotification } from "@pitchou/server/dossierNotificationEmails/suppression.ts";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
@@ -18,6 +19,7 @@ test("local admin permissions grant notification monitoring, search and history"
       due_at: new Date(),
     })
     .returning("id");
+  await suppressNotification(db, row.id);
   await loginAs(owner.codeAcces);
   await page.goto(`${E2E_ADMIN_BASE_URL}/mails/notifications`);
   await expect(
@@ -34,6 +36,10 @@ test("local admin permissions grant notification monitoring, search and history"
     page.getByRole("heading", { name: "Historique de la notification", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".history-timeline")).toContainText("Mise en file");
+  await expect(page.locator(".history-timeline")).toContainText("Envoi bloqué en préproduction");
+  await expect(page.getByRole("region", { name: "Tableau des envois" })).toContainText(
+    "Destinataire non autorisé en préproduction",
+  );
   await page.getByRole("link", { name: "Fermer l'historique" }).click();
   await expect(
     page.getByRole("heading", { name: "Historique de la notification", exact: true }),
