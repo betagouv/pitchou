@@ -1,0 +1,244 @@
+.notification-monitor .notification-filters {
+  margin: 0 0 1rem;
+}
+.notification-monitor .filter-main {
+  display: grid;
+  grid-template-columns: minmax(16rem, 2fr) repeat(3, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+.notification-monitor .search-field {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  height: 2.5rem;
+  border: 1px solid var(--monitor-border);
+  border-radius: 0.5rem;
+  padding: 0 0.75rem;
+  background: var(--background-lifted-grey);
+  color: var(--monitor-muted);
+}
+.notification-monitor .search-field input {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--text-default-grey);
+}
+.notification-monitor .search-field input:focus {
+  outline: none;
+}
+.notification-monitor .search-field:focus-within,
+.notification-monitor .date-input:focus-within {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 2px;
+}
+.notification-monitor .filter-select {
+  min-width: 0;
+}
+.notification-monitor .filter-select [role="combobox"] {
+  height: 2.5rem;
+  border: 1px solid var(--monitor-border);
+  border-radius: 0.5rem;
+  box-shadow: none;
+  background: var(--background-lifted-grey);
+  font-size: 0.8125rem;
+  padding: 0 0.75rem;
+}
+.notification-monitor .filter-select [role="combobox"][aria-expanded="true"] {
+  border-color: var(--border-action-high-blue-france);
+  background: var(--background-action-low-blue-france);
+}
+.notification-monitor .filter-select [role="listbox"] {
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+}
+.notification-monitor .filter-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.notification-monitor .date-kind {
+  width: 9rem;
+}
+.notification-monitor .notification-date {
+  position: relative;
+  width: 10.5rem;
+}
+.notification-monitor .date-input {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--monitor-border);
+  border-radius: 0.5rem;
+  background: var(--background-lifted-grey);
+  padding-left: 0.625rem;
+}
+.notification-monitor .date-input label {
+  font-size: 0.6875rem;
+  color: var(--monitor-muted);
+  white-space: nowrap;
+}
+.notification-monitor .date-input input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-default-grey);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0 0.125rem;
+  height: 100%;
+}
+.notification-monitor .date-input input:focus {
+  outline: 0;
+}
+.notification-monitor .date-input button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  color: var(--monitor-muted);
+  border-radius: 0.5rem;
+}
+.notification-monitor .date-error {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--text-default-error);
+}
+.notification-monitor .overdue-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  min-height: 2.5rem;
+  padding-inline: 0.25rem;
+  position: relative;
+}
+.notification-monitor .overdue-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.notification-monitor .toggle-track {
+  display: inline-flex;
+  align-items: center;
+  width: 1.75rem;
+  height: 1rem;
+  padding: 2px;
+  border-radius: 1rem;
+  background: var(--border-plain-grey);
+  transition: background 0.15s;
+}
+.notification-monitor .toggle-track::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--background-default-grey);
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+.notification-monitor .overdue-toggle input:checked + .toggle-track {
+  background: var(--background-action-high-blue-france);
+}
+.notification-monitor .overdue-toggle input:checked + .toggle-track::before {
+  transform: translateX(0.75rem);
+}
+.notification-monitor .overdue-toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 3px;
+}
+.notification-monitor .filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+.notification-monitor .reset-label {
+  display: none;
+}
+@media (max-width: 1200px) {
+  .notification-monitor .filter-main {
+    grid-template-columns: minmax(12rem, 2fr) repeat(3, minmax(7rem, 1fr));
+  }
+}
+@media (max-width: 850px) {
+  .notification-monitor .filter-main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .notification-monitor .search-field {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 700px) {
+  .notification-monitor .filter-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .notification-monitor .filter-main > :last-child {
+    grid-column: 1 / -1;
+  }
+  .notification-monitor .filter-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .notification-monitor .date-kind {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+  .notification-monitor .notification-date {
+    width: 100%;
+  }
+  .notification-monitor .overdue-toggle {
+    grid-column: 1 / -1;
+  }
+  .notification-monitor .filter-actions {
+    margin: 0;
+    grid-column: 1 / -1;
+  }
+  .notification-monitor .filter-actions > * {
+    flex: 1;
+  }
+  .notification-monitor .reset-label {
+    display: inline;
+  }
+}
+
+.notification-monitor .notification-button.mobile-filters,
+.notification-monitor .mobile-search {
+  display: none;
+}
+@media (max-width: 700px) {
+  .notification-monitor .notification-button.mobile-filters {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .notification-monitor .notification-button.mobile-filters > :last-child {
+    margin-left: auto;
+  }
+  .notification-monitor .mobile-search {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 0.25rem;
+  }
+  .notification-monitor .notification-filters[data-expanded="false"] .collapsible {
+    display: none;
+  }
+  .notification-monitor .filter-main > .filter-select:last-child {
+    grid-column: 1 / -1;
+  }
+  .notification-monitor .filter-main {
+    margin-bottom: 0.5rem;
+  }
+}

@@ -1,75 +1,143 @@
 <script lang="ts">
+  import { untrack } from "svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   import type { NotificationFilters } from "@pitchou/types/emailNotifications.ts";
+  import NotificationDateField from "./NotificationDateField.svelte";
   import { kindLabels, statusLabels, environmentLabels } from "./labels.ts";
   let { filters }: { filters: NotificationFilters } = $props();
+  let expanded = $state(false);
+  const activeCount = $derived(
+    [
+      filters.kind,
+      filters.status,
+      filters.environment,
+      filters.dateFrom,
+      filters.dateTo,
+      filters.overdue,
+    ].filter(Boolean).length,
+  );
+  let draft = $state(untrack(() => ({ ...filters })));
+  $effect(() => {
+    draft = { ...filters };
+  });
+  const options = (labels: Record<string, string>, all: string) => [
+    { value: "", label: all },
+    ...Object.entries(labels).map(([value, label]) => ({ value, label })),
+  ];
 </script>
 
 <form
   method="get"
-  class="grid grid-cols-1 gap-4 border border-[var(--border-default-grey)] p-4 md:grid-cols-3"
+  class="notification-filters"
+  data-expanded={expanded}
   aria-label="Filtrer les notifications"
 >
-  <div class="md:col-span-3">
-    <label class="fr-label" for="notification-search"
-      >Rechercher un dossier, un destinataire ou un identifiant de notification</label
-    ><input id="notification-search" class="fr-input" name="search" value={filters.search} />
-  </div>
-  {#each [{ name: "kind", title: "Type", labels: kindLabels, value: filters.kind }, { name: "status", title: "État", labels: statusLabels, value: filters.status }, { name: "environment", title: "Environnement", labels: environmentLabels, value: filters.environment }] as select}
-    <div>
-      <label class="fr-label" for={select.name}>{select.title}</label><select
-        id={select.name}
-        class="fr-select"
-        name={select.name}
-        value={select.value}
-        ><option value="">Tous</option
-        >{#each Object.entries(select.labels) as [value, label]}<option {value}>{label}</option
-          >{/each}</select
+  <div class="filter-main">
+    <div class="search-field">
+      <span class="fr-icon-search-line fr-icon--sm" aria-hidden="true"></span>
+      <label class="sr-only" for="notification-search"
+        >Rechercher un dossier, un destinataire ou une notification</label
+      >
+      <input
+        id="notification-search"
+        type="search"
+        name="search"
+        bind:value={draft.search}
+        placeholder="Dossier, destinataire, identifiant…"
+        autocomplete="off"
+      />
+      <button type="submit" class="mobile-search" aria-label="Lancer la recherche"
+        ><span class="fr-icon-arrow-right-line fr-icon--sm" aria-hidden="true"></span></button
       >
     </div>
-  {/each}
-  <div>
-    <label class="fr-label" for="notification-date-field">Date à filtrer</label><select
-      id="notification-date-field"
-      name="dateField"
-      class="fr-select"
-      value={filters.dateField}
-      ><option value="due_at">Envoi prévu</option><option value="sent_at">Envoi accepté</option
-      ><option value="created_at">Mise en file</option></select
+    <button
+      type="button"
+      class="notification-button mobile-filters"
+      aria-expanded={expanded}
+      aria-controls="notification-kind-filter notification-status-filter notification-environment-filter notification-secondary"
+      onclick={() => {
+        expanded = !expanded;
+      }}
+      ><span class="fr-icon-filter-line fr-icon--sm" aria-hidden="true"
+      ></span>Filtres{#if activeCount}<span class="result-count"
+          >{activeCount} actif{activeCount > 1 ? "s" : ""}</span
+        >{/if}<span
+        class={expanded
+          ? "fr-icon-arrow-up-s-line fr-icon--sm"
+          : "fr-icon-arrow-down-s-line fr-icon--sm"}
+        aria-hidden="true"
+      ></span></button
     >
+    {#each [{ name: "kind", title: "Type", labels: kindLabels, all: "Tous les types" }, { name: "status", title: "État", labels: statusLabels, all: "Tous les états" }, { name: "environment", title: "Environnement", labels: environmentLabels, all: "Tous les environnements" }] as field}
+      <div class="filter-select collapsible" id={`notification-${field.name}-filter`}>
+        <Select
+          id={`notification-${field.name}`}
+          ariaLabel={field.title}
+          options={options(field.labels, field.all)}
+          value={draft[field.name as "kind" | "status" | "environment"]}
+          onChange={(value) => {
+            draft[field.name as "kind" | "status" | "environment"] = value;
+          }}
+        />
+        <input
+          type="hidden"
+          name={field.name}
+          value={draft[field.name as "kind" | "status" | "environment"]}
+        />
+      </div>
+    {/each}
   </div>
-  <div>
-    <label class="fr-label" for="notification-from">Du, heure de Paris</label><input
-      class="fr-input"
+  <div id="notification-secondary" class="filter-secondary collapsible">
+    <div class="filter-select date-kind">
+      <Select
+        id="notification-date-field"
+        ariaLabel="Date à filtrer"
+        value={draft.dateField}
+        options={[
+          { value: "due_at", label: "Envoi prévu" },
+          { value: "sent_at", label: "Envoi accepté" },
+          { value: "created_at", label: "Mise en file" },
+        ]}
+        onChange={(value) => {
+          draft.dateField = value as NotificationFilters["dateField"];
+        }}
+      />
+      <input type="hidden" name="dateField" value={draft.dateField} />
+    </div>
+    <NotificationDateField
       id="notification-from"
       name="from"
-      type="date"
-      value={filters.dateFrom}
+      label="Du"
+      value={draft.dateFrom}
+      onChange={(value) => {
+        draft.dateFrom = value;
+      }}
     />
-  </div>
-  <div>
-    <label class="fr-label" for="notification-to">Au, inclus</label><input
-      class="fr-input"
+    <NotificationDateField
       id="notification-to"
       name="to"
-      type="date"
-      value={filters.dateTo}
+      label="Au inclus"
+      value={draft.dateTo}
+      onChange={(value) => {
+        draft.dateTo = value;
+      }}
+      align="right"
     />
-  </div>
-  <div class="fr-checkbox-group md:col-span-3">
-    <input
-      id="notification-overdue"
-      name="overdue"
-      type="checkbox"
-      value="1"
-      checked={filters.overdue}
-    /><label class="fr-label" for="notification-overdue"
-      >Seulement les envois en attente dont l'échéance est dépassée</label
-    >
-  </div>
-  <div class="flex gap-4 md:col-span-3">
-    <button type="submit" class="fr-btn">Filtrer</button><a
-      class="fr-btn fr-btn--secondary"
-      href="/mails/notifications">Réinitialiser</a
-    >
+    <label class="overdue-toggle">
+      <input name="overdue" type="checkbox" value="1" bind:checked={draft.overdue} />
+      <span class="toggle-track" aria-hidden="true"></span>Échéance dépassée
+    </label>
+    <div class="filter-actions">
+      <button type="submit" class="notification-button primary">Appliquer</button>
+      <a
+        class="notification-button"
+        href="/mails/notifications"
+        aria-label="Réinitialiser les filtres"
+        title="Réinitialiser les filtres"
+        ><span class="fr-icon-refresh-line fr-icon--sm" aria-hidden="true"></span><span
+          class="reset-label">Effacer</span
+        ></a
+      >
+    </div>
   </div>
 </form>
