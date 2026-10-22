@@ -2,7 +2,6 @@
 .notification-monitor {
   --monitor-border: var(--border-default-grey);
   --monitor-muted: var(--text-mention-grey);
-  padding: 1rem;
   color: var(--text-default-grey);
   font-size: 0.875rem;
   min-width: 0;
@@ -375,9 +374,6 @@
   }
 }
 @media (max-width: 700px) {
-  .notification-monitor {
-    padding: 0.75rem 0.25rem;
-  }
   .notification-monitor .monitor-intro {
     align-items: flex-start;
     flex-direction: column;
