@@ -10,6 +10,7 @@ export type PendingEmail = {
   batch_key: string;
   first_attempt_at: Date | null;
   message: EmailMessage | null;
+  attempt_count: number;
 };
 
 export function dueEmails(
@@ -53,9 +54,11 @@ export async function claimEmail(
     // A crash or lost response may hide an accepted message. Never retry it after
     // Brevo's deduplication window; an operator must reconcile it with Brevo logs.
     if (row.first_attempt_at && now.getTime() - row.first_attempt_at.getTime() >= 25 * 60_000) {
-      await trx("email_notification_outbox")
-        .where({ id })
-        .update({ status: "uncertain", claimed_at: null });
+      await trx("email_notification_outbox").where({ id }).update({
+        status: "uncertain",
+        claimed_at: null,
+        last_error: "deduplication_window_expired",
+      });
       return undefined;
     }
     const message = row.message ?? notificationEmailMessage({ ...row, ...recipient }, siteUrl);
@@ -65,6 +68,7 @@ export async function claimEmail(
         claimed_at: now,
         first_attempt_at: row.first_attempt_at ?? now,
         message: JSON.stringify(message),
+        attempt_count: row.attempt_count + 1,
       });
     return { ...row, message };
   });

@@ -10,12 +10,19 @@ export const NAV: NavItem[] = [
   { href: "/activites", label: "Activités", icon: "fr-icon-briefcase-line" },
   { href: "/evenements", label: "Évènements", icon: "fr-icon-calendar-event-line" },
   { href: "/mails", label: "Mails", icon: "fr-icon-mail-line" },
+  {
+    href: "/mails/notifications",
+    label: "Notifications par mail",
+    icon: "fr-icon-notification-3-line",
+  },
   { href: "/changelog", label: "Changelog", icon: "fr-icon-newspaper-line" },
   { href: "/tech", label: "Tech", icon: "fr-icon-terminal-line" },
 ];
 
 export function isNavActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return href === "/" || href === "/mails"
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export type PageInfo = { title: string; backHref?: string };
@@ -38,6 +45,8 @@ export function pageInfoFor(pathname: string): PageInfo {
   if (pathname === "/activites") return { title: "Activités et regroupement des libellés" };
   if (pathname === "/evenements") return { title: "Évènements suivis" };
   if (pathname === "/mails") return { title: "Mails" };
+  if (pathname === "/mails/notifications")
+    return { title: "Notifications par mail", backHref: "/mails" };
   if (pathname === "/changelog") return { title: "Changelog" };
   if (pathname === "/tech") return { title: "Tech" };
   if (CHANGELOG_ENTRY.test(pathname)) {

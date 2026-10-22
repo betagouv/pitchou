@@ -12,7 +12,20 @@ export async function emailNotificationPreferencesFromCap(
   const personne = await getPersonneByDossierCap(cap, db);
   if (!personne) return undefined;
   if (preferences) {
-    await db("email_notification_preferences").where({ personne: personne.id }).update(preferences);
+    return db.transaction(async (trx) => {
+      await trx.raw("SELECT set_config('pitchou.settings_actor', ?, true)", [String(personne.id)]);
+      await trx("email_notification_preferences")
+        .where({ personne: personne.id })
+        .forUpdate()
+        .first();
+      await trx("email_notification_preferences")
+        .where({ personne: personne.id })
+        .update(preferences);
+      return trx("email_notification_preferences")
+        .select("assignment", "novelty", "arrival")
+        .where({ personne: personne.id })
+        .first();
+    });
   }
   return db("email_notification_preferences")
     .select("assignment", "novelty", "arrival")

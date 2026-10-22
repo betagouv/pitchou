@@ -34,6 +34,16 @@ export default interface EmailNotificationOutbox {
   last_error: string | null;
 
   message: unknown | null;
+
+  attempt_count: number;
+
+  provider_message_id: string | null;
+
+  cancellation_reason: string | null;
+
+  environment: string;
+
+  created_at: Date;
 }
 
 /** Represents the initializer for the table public.email_notification_outbox */
@@ -65,6 +75,19 @@ export interface EmailNotificationOutboxInitializer {
   last_error?: string | null;
 
   message?: unknown | null;
+
+  /** Default value: 0 */
+  attempt_count?: number;
+
+  provider_message_id?: string | null;
+
+  cancellation_reason?: string | null;
+
+  /** Default value: pitchou_notification_environment() */
+  environment?: string;
+
+  /** Default value: clock_timestamp() */
+  created_at?: Date;
 }
 
 /** Represents the mutator for the table public.email_notification_outbox */
@@ -94,4 +117,14 @@ export interface EmailNotificationOutboxMutator {
   last_error?: string | null;
 
   message?: unknown | null;
+
+  attempt_count?: number;
+
+  provider_message_id?: string | null;
+
+  cancellation_reason?: string | null;
+
+  environment?: string;
+
+  created_at?: Date;
 }

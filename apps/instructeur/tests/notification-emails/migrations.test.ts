@@ -14,8 +14,13 @@ import {
 } from "../../../../libs/database/migrations/20261014120000_email-notification-preferences.ts";
 import { setup } from "./fixtures.ts";
 import { setupArrival } from "./arrivalFixtures.ts";
+import {
+  up as upAudit,
+  down as downAudit,
+} from "../../../../libs/database/migrations/20261022140000_notification-observability.ts";
 
 test("migrations roll back and reapply, initialize existing accounts, and never backfill old events", async () => {
+  await downAudit(db);
   await downArrival(db);
   await downOutbox(db);
   await downPreferences(db);
@@ -24,6 +29,7 @@ test("migrations roll back and reapply, initialize existing accounts, and never 
   await upPreferences(db);
   await upOutbox(db);
   await upArrival(db);
+  await upAudit(db);
   expect(await db("email_notification_outbox")).toHaveLength(0);
   expect(
     await db("email_notification_preferences").where({ personne: actor.id }).first(),
@@ -33,6 +39,7 @@ test("migrations roll back and reapply, initialize existing accounts, and never 
 });
 
 test("arrival migration preserves disabled preferences and baselines existing groups", async () => {
+  await downAudit(db);
   await downArrival(db);
   const { arrive, member, dossier } = await setupArrival();
   await arrive();
@@ -40,6 +47,7 @@ test("arrival migration preserves disabled preferences and baselines existing gr
     .where({ personne: member.id })
     .update({ assignment: false, novelty: false });
   await upArrival(db);
+  await upAudit(db);
   expect(
     await db("email_notification_preferences").where({ personne: member.id }).first(),
   ).toMatchObject({ assignment: false, novelty: false, arrival: true });

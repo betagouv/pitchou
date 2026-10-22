@@ -4,7 +4,7 @@ Les paramètres sont globaux au compte. Les trois options sont activées par dé
 
 ## Déploiement
 
-Le démarrage de l'application instructeur applique les migrations `20261014120000_email-notification-preferences.ts`, `20261014121000_email-notification-outbox.ts` et `20261021120000_group-arrival-emails.ts`. Pour les appliquer en développement, utiliser `pnpm exec just db-migrate-latest`. La dernière migration est nécessaire avant de charger les nouveaux paramètres, qui lisent la colonne `arrival`.
+Le démarrage de l'application instructeur applique les migrations `20261014120000_email-notification-preferences.ts`, `20261014121000_email-notification-outbox.ts`, `20261021120000_group-arrival-emails.ts` et `20261022140000_notification-observability.ts`. Pour les appliquer en développement, utiliser `pnpm exec just db-migrate-latest`. La migration d'arrivée fournit la colonne `arrival` des paramètres. Celle d'observabilité doit précéder le déploiement du worker et de la vue d'administration utilisant les nouvelles métadonnées.
 
 Configurer `BREVO_API_KEY` et `PUBLIC_SITE_URL_PITCHOU` dans les applications instructeur, admin et les tâches planifiées. L'expéditeur existant `contact@pitchou.beta.gouv.fr` doit être autorisé dans Brevo. Les trois modèles sont fixes dans le code et ne demandent aucun nouveau template Brevo.
 
@@ -111,6 +111,30 @@ psql "$DATABASE_URL" -c 'SELECT id, kind, dossier, personne, status, due_at, ret
 ```
 
 ## Reprise et surveillance
+
+### Suivi AARRI et historique en base
+
+Les notifications alimentent `evenement_metrique` côté serveur avec les types `notificationEmailQueued`, `notificationEmailSent`, `notificationEmailFailed`, `notificationEmailCancelled` et `notificationEmailUncertain`. Une sauvegarde authentifiée qui change au moins un réglage produit `notificationEmailSettingsChanged`, avec l'identifiant de la personne, les seules préférences modifiées, leurs valeurs avant/après et l'horodatage serveur. Une sauvegarde identique ou annulée ne crée rien. Les mises à jour de maintenance gardent une trace en base sans se présenter comme des actions utilisateur.
+
+Les déclencheurs écrivent l'état, l'historique et l'événement AARRI dans la même transaction. L'historique durable se trouve dans `email_notification_history`, celui des réglages dans `email_notification_settings_history`. Une réservation incrémente `attempt_count` et conserve une trace de tentative. Un succès garde `provider_message_id`, un échec une catégorie normalisée et une annulation son motif. Les états déjà envoyés ou les mises à jour sans transition ne créent pas de nouvel événement. Les traces restent consultables par identifiant après suppression du dossier ; les événements antérieurs à cette migration ne sont pas reconstitués.
+
+Les événements système sont attribués au destinataire avec `source: system` et `attribution: recipient`. Ils ne comptent pas comme une action ni une dernière activité utilisateur dans AARRI. `environment` distingue production, préproduction, développement, test et aperçu Fleet ; la base isolée Fleet et les bases de tests sont reconnues même pour leurs déclencheurs SQL. Aucune adresse, aucun corps HTML, secret ou message brut du prestataire n'entre dans ces événements. La vue admin peut afficher l'identité du destinataire grâce à une jointure protégée, sans la recopier dans l'analytique. Les événements de notification ne sont pas acceptés par l'API de métriques cliente.
+
+### Administration en lecture seule
+
+Ouvrir **Administration > Notifications par mail**, ou **Mails > Consulter les notifications par mail des dossiers**, à `/mails/notifications`. L'accès utilise la session et la liste des administrateurs habituelles. La page affiche les comptes par type/état correspondant aux filtres, puis 20 lignes par page. Rechercher par nom ou numéro de dossier, identité de destinataire, identifiant de personne ou de notification. Combiner type, état, environnement et dates de mise en file, d'envoi prévu ou d'acceptation. Les bornes de dates sont inclusives, à l'heure de Paris. Le filtre d'échéance dépassée sélectionne les envois encore en attente, même lorsqu'une reprise est différée.
+
+Chaque ligne montre type, dossier, destinataire, dates, état, environnement, tentatives et diagnostic. **Historique** ouvre les transitions et tentatives de cette notification. Une erreur de tentative reste en attente, avec sa catégorie et sa date de reprise. **Accepté par l'expéditeur** signifie une acceptation par Brevo ou Mailpit, sans preuve de réception. Aucun suivi de distribution, rebond, ouverture ou clic n'est ajouté. Le lien vers **Événements** permet de retrouver les changements de réglages en filtrant `notificationEmailSettingsChanged`.
+
+### Scénarios de recette dans l'aperçu isolé
+
+Le script suivant exige les variables de l'aperçu actif, son contexte Fleet, sa base isolée et Mailpit local. Il refuse une base ordinaire ou de production. Il crée des dossiers **Recette notifications 2542**, des comptes de recette auteur/destinataire et leur groupe. Il réutilise les dossiers existants sans supprimer l'historique ou remettre à zéro une recette déjà manipulée. Les accès des deux comptes Fleet habituels sont ajoutés au seul groupe de recette. Aucun dossier ou mail préexistant n'est supprimé.
+
+```sh
+pnpm --filter @pitchou/scripts exec tsx prepare-notification-observability.ts
+```
+
+Les scénarios incluent trois acceptations capturées dans Mailpit, une erreur 429 simulée avec reprise différée, une réponse ambiguë simulée devenue incertaine, un suivi quitté entraînant une annulation, une nouveauté en retard et des envois futurs pour la pagination. Les réglages du destinataire de recette sont désactivés, sauvegardés sans changement puis réactivés pour montrer deux événements et aucun événement intermédiaire. Les autres préférences utilisateur restent intactes. Les dossiers, identités, notifications, états et identifiants sont affichés par le script pour le compte rendu de recette. Les reprises de recette sont différées, les envois futurs peuvent évoluer normalement au passage du worker : ne pas utiliser le bouton de test sur ces scénarios avant de les avoir inspectés.
 
 Un succès passe le message à `sent`. Une préférence désactivée ou un accès révoqué entraîne `cancelled`. Quitter le suivi annule les attributions et nouveautés en attente, mais pas les arrivées dans le groupe. Un transfert annule les arrivées encore en attente pour l'ancien groupe. Une réponse explicite de rejet permet une reprise après une minute, y compris après une panne prolongée. Chaque tentative conserve le même corps et la même clé de déduplication.
 

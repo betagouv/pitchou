@@ -104,7 +104,12 @@ function summarizePersonnes(rows: PersonneEventRow[]): UtilisateurAARRI[] {
     }
 
     // A personne with no event still produces a single row (null join columns).
-    if (row.type === null || row.date === null) continue;
+    if (
+      row.type === null ||
+      row.date === null ||
+      (row.type.startsWith("notificationEmail") && row.type !== "notificationEmailSettingsChanged")
+    )
+      continue;
 
     const date = row.date instanceof Date ? row.date : new Date(row.date);
     acc.events.push({ type: row.type, date });

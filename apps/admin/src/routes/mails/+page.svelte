@@ -30,6 +30,9 @@
 </svelte:head>
 
 <div class="flex flex-col gap-4">
+  <a class="fr-link" href="/mails/notifications"
+    >Consulter les notifications par mail des dossiers</a
+  >
   <p class="fr-text--lead m-0!">Suivi des mails de saisine du CNPN envoyés depuis Pitchou.</p>
 
   <dl class="m-0! grid grid-cols-1 gap-4 p-0! min-[42rem]:grid-cols-3">
