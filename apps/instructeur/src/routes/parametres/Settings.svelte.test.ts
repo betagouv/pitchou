@@ -4,7 +4,7 @@ import "../../app.css";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/svelte";
 import { page, userEvent } from "vitest/browser";
-import Settings from "./+page.svelte";
+import Settings from "./NotificationSettings.svelte";
 import { store } from "#lib/state/store.svelte.ts";
 
 beforeEach(async () => {
@@ -97,7 +97,7 @@ test.each(
       expect(
         Math.abs(radios[0].getBoundingClientRect().top - radios[1].getBoundingClientRect().top),
       ).toBeLessThan(1);
-      if (width >= 768) expect(choices.left).toBeGreaterThanOrEqual(description.right + 24);
+      if (width >= 1280) expect(choices.left).toBeGreaterThanOrEqual(description.right + 24);
       else expect(choices.top).toBeGreaterThanOrEqual(description.bottom + 16);
       expect(choices.width).toBeGreaterThan(150);
       return choices;
@@ -105,8 +105,8 @@ test.each(
     expect(controls[1].top).toBeGreaterThan(controls[0].bottom);
     expect(controls[2].top).toBeGreaterThan(controls[1].bottom);
     expect(Math.abs(controls[0].left - controls[1].left)).toBeLessThan(1);
-    const panel = screen.getByRole("region", { name: "Notifications par mail" });
-    expect(panel.getBoundingClientRect().width).toBeLessThanOrEqual(864);
+    expect(container.querySelector("section")).toBeNull();
+    expect(container.querySelector("h1, h2")).toBeNull();
     expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(width);
     expect(within(groups[0]).getByRole("radio", { name: "Activé" })).toBeChecked();
     expect(within(groups[2]).getByRole("radio", { name: "Désactivé" })).toBeChecked();

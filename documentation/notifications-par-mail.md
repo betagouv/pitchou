@@ -24,7 +24,11 @@ Les imports DN initiaux, même marqués comme baseline en fin de synchronisation
 
 ## Présentation des paramètres
 
-Ouvrir **Mon espace > Paramètres**, ou directement `/parametres`. La page affiche un panneau centré, avec trois réglages, **Nouveaux dossiers dans mon groupe instructeur**, **Attributions de dossiers** et **Nouveautés sur mes dossiers suivis**. Chaque réglage présente son explication, sa fréquence et les choix Activé et Désactivé. Sur ordinateur, les choix des trois lignes sont alignés à droite. Sur mobile, ils passent sous le texte sans défilement horizontal. Vérifier cette disposition à 320 px, 768 px et sur grand écran, en thèmes clair et sombre. Le bouton Enregistrer se trouve en bas du panneau, avec la confirmation ou l'erreur d'enregistrement.
+Ouvrir **Mon espace > Paramètres > Notifications**, ou directement `/parametres/notifications`. Le cadre commun contient un seul titre Paramètres, une navigation latérale et un panneau Notifications par mail. Les trois réglages et le bouton Enregistrer se trouvent directement dans ce panneau, sans carte supplémentaire. Sur mobile, le sélecteur Rubrique des paramètres remplace la navigation latérale. Les choix restent indépendants. Une confirmation ou une erreur apparaît après Enregistrer.
+
+La rubrique Général à `/parametres` contient le composant DisplaySettings de la branche `feat/admin-managed-groupes-instructeurs`. Elle applique les thèmes Clair, Sombre et Automatique via DSFR. Le cadre `parametres/+layout.svelte` reprend les mêmes classes, titres et contrats de navigation que cette branche. Seules les entrées Général et Notifications sont présentes ici. Lors de l'intégration des deux branches, conserver le cadre unique et réunir ses entrées Général, Mes groupes et Notifications. Cette tâche n'importe ni les routes de gestion des groupes ni leur autorisation serveur. Son contrôle d'accès par capability est déplacé dans `+layout.ts`, pour couvrir les deux rubriques. L'autre branche conserve son propre contrôle serveur à intégrer selon le modèle d'authentification retenu.
+
+Les nouveaux mails pointent vers `/parametres/notifications`. Les anciens liens `/parametres` restent valides et ouvrent Général ; Notifications est accessible dans la navigation. L'API JSON GET/POST reste à `/parametres/notifications?cap=…` et conserve ses contrôles et événements. Les requêtes de lecture de l'application utilisent Accept: application/json, distinct de la page HTML. Aucun changement de sauvegarde, d'analytique ni de règles d'envoi n'est nécessaire.
 
 ## Recette des parcours
 

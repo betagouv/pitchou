@@ -48,7 +48,7 @@ test("aggregates third-party changes per followed dossier, sends at the due time
   expect(sent.send.mock.calls[0][0]).toMatchObject({
     to: [recipient.email],
     subject: expect.stringContaining("Nouveauté:"),
-    htmlContent: expect.stringContaining("https://pitchou.test/parametres"),
+    htmlContent: expect.stringContaining("https://pitchou.test/parametres/notifications"),
   });
   expect(
     (await dispatch(new Date(queued.due_at.getTime() + 86400000))).send,

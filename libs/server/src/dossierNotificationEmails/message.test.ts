@@ -17,7 +17,7 @@ test("escapes dossier names and includes dossier and settings links without capa
   expect(message.subject).toBe('Attribution dossier: 123456 - À enjeu - <script>"A&B"</script>');
   expect(message.htmlContent).toContain("&lt;script&gt;&quot;A&amp;B&quot;&lt;/script&gt;");
   expect(message.htmlContent).toContain('href="https://pitchou.test/dossier/42"');
-  expect(message.htmlContent).toContain('href="https://pitchou.test/parametres"');
+  expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');
   expect(message.htmlContent).not.toContain("cap=");
   expect(message.headers).toEqual({ idempotencyKey: "event-id" });
 });
@@ -58,6 +58,6 @@ test("arrival mail uses the requested subject and concise body without enjeu", (
     "Un nouveau dossier vient d’arriver dans Pitchou et attend d'être suivi par un-e instructeur-trice:",
   );
   expect(message.htmlContent).toContain("123456 - Projet &lt;test&gt;");
-  expect(message.htmlContent).toContain('href="https://pitchou.test/parametres"');
+  expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');
   expect(message.headers).toEqual({ idempotencyKey: "arrival-event" });
 });
