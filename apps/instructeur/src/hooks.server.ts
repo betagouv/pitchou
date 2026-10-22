@@ -41,6 +41,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
   event.locals.user = session ? (({ idToken, ...user }) => user)(session) : null;
   if (token && session) setSessionCookie(event.cookies, token);
   const path = event.url.pathname;
+  const isSettings = path === "/parametres" || path.startsWith("/parametres/");
   if (isPublicRoute(path)) return resolve(event);
   if (!session) {
     if (event.request.headers.get("accept")?.includes("text/html"))
@@ -54,6 +55,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
   }
   if (
     path !== "/api/session" &&
+    !isSettings &&
     (session.groupes.length === 0 || !session.permissions.includes("dossier:read"))
   ) {
     if (
@@ -68,6 +70,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
       return new Response("Origine de la requête refusée", { status: 403 });
     if (
       !path.startsWith("/api/metriques/") &&
+      !isSettings &&
       path !== "/dossiers/export" &&
       !session.permissions.includes("dossier:instruct")
     )

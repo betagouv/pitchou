@@ -35,12 +35,21 @@
 
 {#snippet tools()}
   {#if email}
-    <AccountMenu {email} onLogout={logoutAndRedirect} />
+    <AccountMenu
+      links={[{ href: "/parametres", label: "Paramètres", icon: "fr-icon-settings-5-line" }]}
+      {email}
+      onLogout={logoutAndRedirect}
+    />
   {/if}
 {/snippet}
 
 {#snippet menuLinks()}
   {#if email}
-    <AccountMenu {email} onLogout={logoutAndRedirect} align="start" />
+    <AccountMenu
+      links={[{ href: "/parametres", label: "Paramètres", icon: "fr-icon-settings-5-line" }]}
+      {email}
+      onLogout={logoutAndRedirect}
+      align="start"
+    />
   {/if}
 {/snippet}
