@@ -23,5 +23,5 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
     );
   }
 
-  redirect(302, authorizationUrl);
+  redirect(302, authorizationUrl, { external: true });
 };
