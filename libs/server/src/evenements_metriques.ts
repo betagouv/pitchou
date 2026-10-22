@@ -19,6 +19,7 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
     case "notificationEmailFailed":
     case "notificationEmailCancelled":
     case "notificationEmailUncertain":
+    case "notificationEmailSuppressed":
       return false;
     case "seConnecter":
     case "modifierCommentaireInstruction":

@@ -94,7 +94,8 @@ export type EvenementMetrique =
         | "notificationEmailSent"
         | "notificationEmailFailed"
         | "notificationEmailCancelled"
-        | "notificationEmailUncertain";
+        | "notificationEmailUncertain"
+        | "notificationEmailSuppressed";
       details: {
         notificationId: string;
         type: string;

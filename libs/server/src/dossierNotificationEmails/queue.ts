@@ -1,3 +1,4 @@
+import { stagingSuppressesMessage, suppressNotification } from "./suppression.ts";
 import type { Knex } from "knex";
 import type { EmailMessage } from "../emails.ts";
 import { notificationEmailMessage } from "./message.ts";
@@ -62,6 +63,10 @@ export async function claimEmail(
       return undefined;
     }
     const message = row.message ?? notificationEmailMessage({ ...row, ...recipient }, siteUrl);
+    if (stagingSuppressesMessage(message)) {
+      await suppressNotification(trx, id);
+      return undefined;
+    }
     await trx("email_notification_outbox")
       .where({ id })
       .update({
