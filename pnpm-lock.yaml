@@ -230,6 +230,9 @@ importers:
       '@xmldom/xmldom':
         specifier: 0.9.12
         version: 0.9.12
+      date-fns:
+        specifier: 'catalog:'
+        version: 4.4.0
       jose:
         specifier: 'catalog:'
         version: 6.2.12

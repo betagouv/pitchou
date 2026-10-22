@@ -17,6 +17,7 @@
     "@tiptap/pm": "catalog:",
     "@tiptap/starter-kit": "catalog:",
     "@xmldom/xmldom": "0.9.12",
+    "date-fns": "catalog:",
     "jose": "catalog:",
     "knex": "catalog:",
     "maplibre-gl": "catalog:",

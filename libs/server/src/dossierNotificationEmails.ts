@@ -2,6 +2,10 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "./database.ts";
 import { sendEmail, isBrevoDuplicateIdempotencyError, type EmailMessage } from "./emails.ts";
 import { claimEmail, dueEmails } from "./dossierNotificationEmails/queue.ts";
+import {
+  notificationErrorCategory,
+  providerMessageId,
+} from "./dossierNotificationEmails/failures.ts";
 
 function definitelyRejected(error: unknown): boolean {
   if (error instanceof Error && error.message === "Missing BREVO_API_KEY environment variable")
@@ -42,17 +46,21 @@ export async function dispatchDossierNotificationEmails(
     const row = await claimEmail(db, id, now, siteUrl);
     if (!row?.message) continue;
     try {
+      let result: unknown;
       try {
-        await (options.send ?? sendEmail)(row.message);
+        result = await (options.send ?? sendEmail)(row.message);
       } catch (error) {
         if (!(await isBrevoDuplicateIdempotencyError(error))) throw error;
       }
-      await db("email_notification_outbox").where({ id, claimed_at: now }).update({
-        status: "sent",
-        sent_at: now,
-        claimed_at: null,
-        last_error: null,
-      });
+      await db("email_notification_outbox")
+        .where({ id, claimed_at: now })
+        .update({
+          status: "sent",
+          sent_at: now,
+          claimed_at: null,
+          last_error: null,
+          provider_message_id: providerMessageId(result),
+        });
       sent++;
     } catch (error) {
       failed++;
@@ -63,7 +71,7 @@ export async function dispatchDossierNotificationEmails(
           retry_at: new Date(now.getTime() + 60_000),
           // Only an explicit rejection permits a later retry outside the TTL.
           ...(definitelyRejected(error) ? { first_attempt_at: null } : {}),
-          last_error: error instanceof Error ? error.name : "Email send failure",
+          last_error: notificationErrorCategory(error),
         });
       console.error("Dossier notification email failed", id);
     }

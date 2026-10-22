@@ -13,7 +13,7 @@
       "size": "S"
     },
     {
-      "command": "* * * * * corepack pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts",
+      "command": "*/10 * * * * corepack pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts",
       "size": "S"
     }
   ]

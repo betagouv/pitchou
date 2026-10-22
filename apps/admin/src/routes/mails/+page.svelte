@@ -46,6 +46,12 @@
   </p>
 </PageHelp>
 
+<p>
+  <a class="fr-link" href="/mails/notifications"
+    >Consulter les notifications par mail des dossiers</a
+  >
+</p>
+
 <section class="mail-summary" aria-labelledby="mail-summary-title">
   <header>
     <span class="fr-icon-mail-line fr-icon--sm" aria-hidden="true"></span>

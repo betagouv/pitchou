@@ -9,7 +9,15 @@ export async function emailNotificationPreferencesForUser(
   db: Knex | Knex.Transaction = directDatabaseConnection,
 ): Promise<EmailNotificationPreferences | undefined> {
   if (preferences) {
-    await db("email_notification_preferences").where({ personne: userId }).update(preferences);
+    return db.transaction(async (trx) => {
+      await trx.raw("SELECT set_config('pitchou.settings_actor', ?, true)", [String(userId)]);
+      await trx("email_notification_preferences").where({ personne: userId }).forUpdate().first();
+      await trx("email_notification_preferences").where({ personne: userId }).update(preferences);
+      return trx("email_notification_preferences")
+        .select("assignment", "novelty", "arrival")
+        .where({ personne: userId })
+        .first();
+    });
   }
   return db("email_notification_preferences")
     .select("assignment", "novelty", "arrival")
