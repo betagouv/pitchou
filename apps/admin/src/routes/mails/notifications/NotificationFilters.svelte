@@ -130,13 +130,21 @@
     <div class="filter-actions">
       <button type="submit" class="notification-button primary">Appliquer</button>
       <a
-        class="notification-button"
+        class="notification-button reset-filters"
         href="/mails/notifications"
         aria-label="Réinitialiser les filtres"
         title="Réinitialiser les filtres"
-        ><span class="fr-icon-refresh-line fr-icon--sm" aria-hidden="true"></span><span
-          class="reset-label">Effacer</span
-        ></a
+        ><!-- DSFR arrow-go-back-line icon. -->
+        <svg
+          class="reset-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+          focusable="false"
+          ><path
+            d="m5.828 7 2.536 2.536L6.95 10.95 2 6l4.95-4.95 1.414 1.414L5.828 5H13a8 8 0 1 1 0 16H4v-2h9a6 6 0 1 0 0-12H5.828Z"
+          /></svg
+        ><span>Effacer</span></a
       >
     </div>
   </div>

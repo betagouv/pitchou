@@ -21,18 +21,6 @@
 
 <svelte:head><title>Administration - notifications par mail - Pitchou</title></svelte:head>
 <div class="notification-monitor">
-  <header class="monitor-intro">
-    <div>
-      <p class="intro-title">Les envois, en un coup d'œil</p>
-      <p class="muted">Arrivées, attributions et nouveautés · Lecture seule</p>
-    </div>
-    <a class="notification-button" href="/evenements"
-      ><span class="fr-icon-line-chart-line fr-icon--sm" aria-hidden="true"></span>Événements AARRI<span
-        class="fr-icon-arrow-right-s-line fr-icon--sm"
-        aria-hidden="true"
-      ></span></a
-    >
-  </header>
   <section class="summary" aria-label="Répartition des résultats filtrés">
     {#each Object.entries(statusLabels) as [status, label]}
       <div class="summary-card" data-status={status}>

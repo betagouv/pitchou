@@ -19,18 +19,6 @@
   color: var(--monitor-muted);
   font-size: 0.75rem;
 }
-.notification-monitor .monitor-intro {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-.notification-monitor .intro-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
 .notification-monitor .notification-button {
   display: inline-flex;
   align-items: center;
@@ -374,11 +362,6 @@
   }
 }
 @media (max-width: 700px) {
-  .notification-monitor .monitor-intro {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
   .notification-monitor .summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
