@@ -9,7 +9,7 @@ export async function prepareIdentities() {
       .returning("*");
   const people = [];
   for (const role of ["actor", "recipient"]) {
-    const email = `notifications-2542-${role}@dev.pitchou.fr`;
+    const email = `notifications-2542-${role}@dev-pitchou-fr.example`;
     let person = await db("auth_user").where({ email }).first();
     if (!person)
       [person] = await db("auth_user")
@@ -85,7 +85,7 @@ export async function createScenario(label: string, kind: string, identities: Id
 
 export async function grantOwnerAccess(group: string) {
   const users = await db("auth_user")
-    .whereIn("email", ["dev@localhost.local", "camille.rousseau@dev.pitchou.fr"])
+    .whereIn("email", ["dev@localhost.local", "camille.rousseau@dev-pitchou-fr.example"])
     .select("id");
   for (const user of users)
     await db("user_groupe")

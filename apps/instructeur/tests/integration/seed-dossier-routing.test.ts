@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import { seed as seedUsers } from "../../../../libs/database/seeds/dev/06_users.ts";
 import { seedDossierActors } from "../../../../libs/database/seeds/dev/dossier/actors.ts";
 import { seedDossierRows } from "../../../../libs/database/seeds/dev/dossier/rows.ts";
+import { baselineSeedNotifications } from "../../../../libs/database/seeds/dev/dossier/notifications.ts";
 import { SEED_DOSSIERS } from "../../../../libs/database/seeds/fixtures/dossiers.ts";
 import { departements } from "@pitchou/common/departements.ts";
 import { db } from "../setup/db.ts";
@@ -15,7 +16,9 @@ test("fresh and repeated seeds route realistic dossiers and keep one deliberate 
   const seedRows = () =>
     db.transaction(async (trx) => {
       const actors = await seedDossierActors(trx, process.env.SEED_EMAIL ?? "dev@localhost.local");
-      return seedDossierRows(trx, actors);
+      const rows = await seedDossierRows(trx, actors);
+      await baselineSeedNotifications(trx, Object.values(rows.dossierIdMap));
+      return rows;
     });
   const first = await seedRows();
   const owners = (id: number) =>
@@ -37,6 +40,8 @@ test("fresh and repeated seeds route realistic dossiers and keep one deliberate 
       expect([...first.agentVisibleDossiers.values()].flat()).not.toContain(id);
     }
   }
+  expect(await db("email_notification_outbox")).toHaveLength(0);
+  expect(await db("email_notification_groupe_arrival").distinct("dossier")).toHaveLength(11);
   expect(SEED_DOSSIERS.filter((dossier) => !dossier.primary_department)).toHaveLength(1);
   expect(await owners(first.dossierIdMap["99000011"])).toEqual([
     "Administrateur",
