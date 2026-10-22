@@ -18,6 +18,12 @@
       title: "Mes groupes instructeurs",
       icon: "fr-icon-team-line",
     },
+    {
+      value: "/parametres/notifications",
+      label: "Notifications",
+      title: "Notifications",
+      icon: "fr-icon-mail-line",
+    },
   ];
   const selected = $derived(page.url.pathname.replace(/\/$/u, ""));
   const currentSection = $derived(

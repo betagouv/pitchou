@@ -1,10 +1,10 @@
 import "@gouvfr/dsfr/dist/dsfr.css";
 import "@gouvfr/dsfr/dist/utility/utility.css";
-import "../../app.css";
+import "../../../app.css";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/svelte";
 import { page, userEvent } from "vitest/browser";
-import Settings from "./+page.svelte";
+import Notifications from "./+page.svelte";
 import { store } from "#lib/state/store.svelte.ts";
 
 beforeEach(async () => {
@@ -22,7 +22,7 @@ test("loads saved values and saves independent preferences", async () => {
     .mockResolvedValue({ assignment: true, novelty: true, arrival: true });
   const save = vi.fn().mockImplementation(async (values) => values);
   store.capabilities.updateEmailNotificationPreferences = save;
-  render(Settings);
+  render(Notifications);
   await waitFor(() => expect(screen.getAllByRole("radio", { name: "Activé" })).toHaveLength(3));
   const assignment = within(
     screen.getByRole("group", {
@@ -42,7 +42,7 @@ test("displays a save failure and allows retry", async () => {
   store.capabilities.updateEmailNotificationPreferences = vi
     .fn()
     .mockRejectedValue(new Error("offline"));
-  render(Settings);
+  render(Notifications);
   await waitFor(() => expect(screen.getByRole("button", { name: "Enregistrer" })).toBeTruthy());
   await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
   await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Réessayez"));
@@ -56,7 +56,7 @@ test("saves the group arrival preference independently and reloads it", async ()
     .mockImplementation(async () => ({ ...saved }));
   const save = vi.fn().mockImplementation(async (values) => (saved = { ...values }));
   store.capabilities.updateEmailNotificationPreferences = save;
-  render(Settings);
+  render(Notifications);
   const group = await screen.findByRole("group", {
     name: "Nouveaux dossiers dans mon groupe instructeur",
   });
@@ -68,7 +68,7 @@ test("saves the group arrival preference independently and reloads it", async ()
   );
   await waitFor(() => expect(screen.getByRole("status").textContent).toContain("enregistrés"));
   cleanup();
-  render(Settings);
+  render(Notifications);
   const reloaded = await screen.findByRole("group", {
     name: "Nouveaux dossiers dans mon groupe instructeur",
   });
@@ -85,9 +85,9 @@ test.each(
     store.capabilities.getEmailNotificationPreferences = vi
       .fn()
       .mockResolvedValue({ assignment: true, novelty: false, arrival: true });
-    const { container } = render(Settings);
+    const { container } = render(Notifications);
     container.className = "fr-container";
-    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(9));
+    await waitFor(() => expect(screen.getAllByRole("radio")).toHaveLength(6));
     await document.fonts.ready;
     const groups = screen
       .getAllByRole("group")

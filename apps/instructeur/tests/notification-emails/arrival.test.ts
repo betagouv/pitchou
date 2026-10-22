@@ -25,7 +25,7 @@ test("notifies all current group members immediately without requiring suivi", a
     `href="https://pitchou.test/dossier/${dossier.id}"`,
   );
   expect(result.send.mock.calls[0][0].htmlContent).toContain(
-    'href="https://pitchou.test/parametres"',
+    'href="https://pitchou.test/parametres/notifications"',
   );
   expect((await dispatch(new Date())).send).not.toHaveBeenCalled();
 });

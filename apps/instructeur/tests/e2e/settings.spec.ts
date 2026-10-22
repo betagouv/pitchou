@@ -11,6 +11,14 @@ test("settings sections have direct links and appearance follows the shared brow
   await db("user_groupe").insert({ user_id: owner.id, groupe_instructeurs: colleague.groupeId });
   await loginAs(owner.codeAcces);
   await page.goto("/parametres");
+  await expect(
+    page.getByRole("heading", { name: "Notifications par mail", exact: true }),
+  ).toHaveCount(0);
+  const notificationsLink = page.getByRole("link", { name: "Notifications", exact: true });
+  await notificationsLink.click();
+  await expect(page).toHaveURL(/\/parametres\/notifications$/u);
+  await expect(notificationsLink).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("radio", { name: /^Sombre/u })).toHaveCount(0);
   const arrivals = page.getByRole("group", {
     name: "Nouveaux dossiers dans mon groupe instructeur",
   });
@@ -20,6 +28,10 @@ test("settings sections have direct links and appearance follows the shared brow
   await expect(page.getByRole("status")).toContainText("Vos paramètres ont été enregistrés.");
   await page.reload();
   await expect(arrivals.getByRole("radio", { name: "Désactivé", exact: true })).toBeChecked();
+  await page
+    .locator("main")
+    .screenshot({ path: testInfo.outputPath("settings-notifications-desktop.png") });
+  await page.getByRole("link", { name: "Général", exact: true }).click();
   await page.getByText("Sombre", { exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-fr-theme", "dark");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("scheme"))).toBe("dark");
@@ -65,4 +77,12 @@ test("settings sections have direct links and appearance follows the shared brow
   await page.locator("main").screenshot({
     path: testInfo.outputPath("settings-general-mobile.png"),
   });
+  await section.click();
+  await page.getByRole("option", { name: "Notifications", exact: true }).click();
+  await expect(page).toHaveURL(/\/parametres\/notifications$/u);
+  await expect(arrivals.getByRole("radio", { name: "Désactivé", exact: true })).toBeChecked();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await page
+    .locator("main")
+    .screenshot({ path: testInfo.outputPath("settings-notifications-mobile.png") });
 });

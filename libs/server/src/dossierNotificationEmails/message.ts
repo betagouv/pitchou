@@ -18,7 +18,7 @@ export function notificationEmailMessage(
     context.enjeu === null ? "Enjeu à déterminer" : context.enjeu ? "À enjeu" : "Sans enjeu";
   const label = `${number} - ${context.name ?? "Dossier sans titre"}`;
   const dossierUrl = new URL(`/dossier/${context.dossier}`, siteUrl).href;
-  const settingsUrl = new URL("/parametres", siteUrl).href;
+  const settingsUrl = new URL("/parametres/notifications", siteUrl).href;
   const logoUrl = new URL("/images/pitchou-logo-email.png", siteUrl).href;
   const title =
     context.kind === "arrival"
