@@ -11,6 +11,15 @@ test("settings sections have direct links and appearance follows the shared brow
   await db("user_groupe").insert({ user_id: owner.id, groupe_instructeurs: colleague.groupeId });
   await loginAs(owner.codeAcces);
   await page.goto("/parametres");
+  const arrivals = page.getByRole("group", {
+    name: "Nouveaux dossiers dans mon groupe instructeur",
+  });
+  await expect(arrivals.getByRole("radio", { name: "Activé", exact: true })).toBeChecked();
+  await arrivals.getByText("Désactivé", { exact: true }).click();
+  await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Vos paramètres ont été enregistrés.");
+  await page.reload();
+  await expect(arrivals.getByRole("radio", { name: "Désactivé", exact: true })).toBeChecked();
   await page.getByText("Sombre", { exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-fr-theme", "dark");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("scheme"))).toBe("dark");

@@ -125,7 +125,7 @@ function cnpnReadReceiptIdempotencyKey(eventId: string): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-async function isBrevoDuplicateIdempotencyError(error: unknown): Promise<boolean> {
+export async function isBrevoDuplicateIdempotencyError(error: unknown): Promise<boolean> {
   if (!error || typeof error !== "object" || !("response" in error)) return false;
   const { response } = error as { response?: unknown };
   if (!(response instanceof Response) || response.status !== 400) return false;

@@ -1,3 +1,4 @@
+import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
@@ -94,6 +95,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     } catch (err) {
       throwHttpErrorForUpdate(err);
     }
+    await dispatchArrivalEmailsAfterCommit(dossierId);
     return json(await getDossierDetailForAdmin(dossierId));
   }
 
@@ -150,6 +152,7 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
     throwHttpErrorForUpdate(err);
   }
 
+  await dispatchArrivalEmailsAfterCommit(dossierId);
   if (previousSpeciesFileId) {
     await deleteFichiersWithoutOtherReferences([previousSpeciesFileId]).catch((err) => {
       console.error("Failed to clean up the previous impacted-species file", err);

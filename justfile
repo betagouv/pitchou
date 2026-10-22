@@ -195,7 +195,7 @@ sync-ds lastModified="":
     {{ worker }} sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
 # Run all tests (unit + component + integration + e2e)
-test: test-unit test-component test-integration test-e2e
+test: test-unit test-component test-email-notifications test-integration test-e2e
 
 # Run Svelte component tests (vitest browser mode)
 test-component:
@@ -220,3 +220,7 @@ test-unit:
 # Run unit tests in watch mode
 test-unit-watch:
     {{ instructeur }} vitest --config tests/vitest.config.ts --project=unit
+
+# Test email queues against PostgreSQL with simulated delivery, without S3 or real emails
+test-email-notifications:
+    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=notification-integration

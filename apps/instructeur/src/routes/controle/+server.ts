@@ -1,3 +1,4 @@
+import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
@@ -134,12 +135,23 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   // for the browser to retry.
   const transaction = await createTransaction();
   try {
+    const current = modification
+      ? await transaction("controle").where({ id: controleData.id }).forUpdate().first()
+      : undefined;
     const controleId = modification
       ? await updateControle(controleData, transaction)
       : await addControles(controleData, transaction);
     if (dossierId) {
       await logDossierActions(
-        await controleActions(controleData, dossierId, author.id, modification, transaction),
+        (await controleActions(controleData, dossierId, author.id, modification, transaction)).map(
+          (action) => ({
+            ...action,
+            data: {
+              ...(action.data as object),
+              email_notification: hasChangedValues(current, controleData),
+            },
+          }),
+        ),
         transaction,
       );
     }

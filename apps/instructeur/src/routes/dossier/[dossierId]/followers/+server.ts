@@ -1,3 +1,4 @@
+import { dispatchAssignmentEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireUserId } from "#lib/server/auth.ts";
@@ -92,6 +93,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       },
     );
     await transaction.commit();
+    await dispatchAssignmentEmailsAfterCommit(dossierId);
     return new Response(null, { status: 204 });
   } catch (err) {
     if (!transaction.isCompleted()) await transaction.rollback();

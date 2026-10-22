@@ -55,6 +55,8 @@ export const GET: RequestHandler = async ({ locals }) => {
           Object.entries(endpoints).filter(([key]) => canInstruct || readActions.has(key)),
         )
       : {}),
+    getEmailNotificationPreferences: "/parametres/notifications",
+    updateEmailNotificationPreferences: "/parametres/notifications",
     identité: {
       email: user.email,
       estAdmin: user.permissions.includes("admin:access"),

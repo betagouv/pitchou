@@ -49,6 +49,7 @@ test.each(["2026-07-19T12:00:00.499Z", "2026-07-19T12:00:00.500Z"])(
       dossier: events[0].dossier,
       value: events[0].phase,
       timestamp: events[0].timestamp.toISOString(),
+      email_notification: true,
     });
   },
 );

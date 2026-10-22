@@ -1,3 +1,4 @@
+import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
@@ -33,6 +34,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       },
       locals.user!.email,
     );
+    await dispatchArrivalEmailsAfterCommit(id);
     return json({ id }, { status: 201 });
   } catch (err) {
     throwHttpErrorForAdminDossier(err);

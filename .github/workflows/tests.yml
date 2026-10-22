@@ -49,6 +49,10 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm --filter @pitchou/app-instructeur exec playwright install --with-deps
 
+      - name: Test email notification queues with simulated delivery
+        run: pnpm exec just test-email-notifications
+        timeout-minutes: 5
+
       - name: Build the app
         run: pnpm exec just build
 
