@@ -64,3 +64,46 @@ test("arrival migration preserves disabled preferences and baselines existing gr
     .update({ groupe_instructeurs: member.groupeId });
   expect(await db("email_notification_outbox")).toHaveLength(0);
 });
+
+test("a schema downgrade preserves sent outbox IDs and bodies but makes suppressed rows terminal", async () => {
+  const { recipient, actor } = await setup();
+  const [sent, suppressed] = await db("email_notification_outbox")
+    .insert([
+      {
+        personne: recipient.id,
+        dossier: actor.dossier.id,
+        kind: "assignment",
+        batch_key: "rollback-sent",
+        due_at: new Date(),
+        status: "sent",
+        message: JSON.stringify({ htmlContent: "frozen body" }),
+      },
+      {
+        personne: recipient.id,
+        dossier: actor.dossier.id,
+        kind: "assignment",
+        batch_key: "rollback-suppressed",
+        due_at: new Date(),
+        status: "suppressed",
+        cancellation_reason: "staging_allowlist",
+      },
+    ])
+    .returning("*");
+  await downProtection(db);
+  expect(await db("email_notification_outbox").where({ id: suppressed.id }).first()).toMatchObject({
+    status: "cancelled",
+  });
+  await downAudit(db);
+  expect(await db("email_notification_outbox").where({ id: sent.id }).first()).toMatchObject({
+    status: "sent",
+    message: { htmlContent: "frozen body" },
+  });
+  await upAudit(db);
+  await upProtection(db);
+  expect(await db("email_notification_outbox").where({ id: sent.id }).first()).toMatchObject({
+    status: "sent",
+  });
+  expect(await db("email_notification_outbox").where({ id: suppressed.id }).first()).toMatchObject({
+    status: "cancelled",
+  });
+});
