@@ -1,3 +1,5 @@
+import { StagingEmailSuppressedError } from "./emails/recipients.ts";
+import { suppressNotification } from "./dossierNotificationEmails/suppression.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "./database.ts";
 import { sendEmail, isBrevoDuplicateIdempotencyError, type EmailMessage } from "./emails.ts";
@@ -63,6 +65,10 @@ export async function dispatchDossierNotificationEmails(
         });
       sent++;
     } catch (error) {
+      if (error instanceof StagingEmailSuppressedError) {
+        await suppressNotification(db, id);
+        continue;
+      }
       failed++;
       await db("email_notification_outbox")
         .where({ id, claimed_at: now })

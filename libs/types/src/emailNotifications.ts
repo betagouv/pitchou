@@ -1,5 +1,11 @@
 export const NOTIFICATION_KINDS = ["arrival", "assignment", "novelty"] as const;
-export const NOTIFICATION_STATUSES = ["pending", "sent", "cancelled", "uncertain"] as const;
+export const NOTIFICATION_STATUSES = [
+  "pending",
+  "sent",
+  "cancelled",
+  "uncertain",
+  "suppressed",
+] as const;
 export const NOTIFICATION_ENVIRONMENTS = [
   "production",
   "staging",

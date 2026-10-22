@@ -34,6 +34,7 @@ export function captureEmail(
   const message = {
     From: address(sender),
     To: (payload.to as Address[]).map(address),
+    Bcc: ((payload.bcc ?? []) as Address[]).map(address),
     Cc: ((payload.cc ?? []) as Address[]).map(address),
     ...(payload.replyTo ? { ReplyTo: [address(payload.replyTo as Address)] } : {}),
     Subject: payload.subject,

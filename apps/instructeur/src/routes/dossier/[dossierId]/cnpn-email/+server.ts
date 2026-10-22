@@ -1,3 +1,4 @@
+import { StagingEmailSuppressedError } from "@pitchou/server/emails/recipients.ts";
 import { error, json } from "@sveltejs/kit";
 import { dev } from "$app/env";
 import { createHash } from "node:crypto";
@@ -152,6 +153,10 @@ async function sendCnpnEmail(email: EmailMessage, requestId: string): Promise<st
   try {
     ({ messageId } = await sendEmail(email));
   } catch (sendError) {
+    if (sendError instanceof StagingEmailSuppressedError) {
+      await markDossierCnpnEmailSendAttemptFailed(requestId);
+      error(403, sendError.message);
+    }
     if (isDefinitiveEmailSendFailure(sendError)) {
       await markDossierCnpnEmailSendAttemptFailed(requestId).catch(() => {});
       error(502, "Brevo a refusé l'envoi. Vous pouvez réessayer sans modifier le mail.");

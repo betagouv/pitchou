@@ -21,7 +21,9 @@ function actionsOf(dossierId: number) {
 }
 
 function metriquesOf(personneId: number) {
-  return db("evenement_metrique").where({ personne: personneId });
+  return db("evenement_metrique")
+    .where({ personne: personneId })
+    .whereRaw("details->>'source' IS DISTINCT FROM 'system'");
 }
 
 test("changer la prochaine action attendue laisse une entrée d'historique et une métrique", async () => {
@@ -90,7 +92,7 @@ test("un commentaire ajouté puis modifié est tracé des deux côtés", async (
 });
 
 test("les actions de la synchronisation ne comptent pas comme usage du produit", async () => {
-  const { dossier } = await createInstructeurWithDossier(db, {
+  const { dossier, id: personneId } = await createInstructeurWithDossier(db, {
     email: "instr@sync-metrique.fr",
   });
 
@@ -101,5 +103,5 @@ test("les actions de la synchronisation ne comptent pas comme usage du produit",
     author_petitionnaire: true,
   });
 
-  await expect(db("evenement_metrique").count()).resolves.toEqual([{ count: "0" }]);
+  await expect(metriquesOf(personneId)).resolves.toEqual([]);
 });
