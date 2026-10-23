@@ -1,21 +1,20 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
-import * as XLSX from "xlsx";
+import { readSpreadsheetRows as readRows } from "../helpers/spreadsheet.ts";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 
 async function exportSelection(cap: string, dossierIds: unknown, scope = "service") {
-  return fetch(`${INTEGRATION_BASE_URL}/dossiers/export?cap=${cap}&scope=${scope}&format=csv`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ dossierIds }),
-  });
-}
-
-async function readRows(response: Response): Promise<string[][]> {
-  expect(response.status).toBe(200);
-  const book = XLSX.read(await response.arrayBuffer(), { type: "array", raw: true });
-  return XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { header: 1, defval: "" });
+  return fetchAuthenticated(
+    cap,
+    `${INTEGRATION_BASE_URL}/dossiers/export?scope=${scope}&format=csv`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dossierIds }),
+    },
+  );
 }
 
 test("exports exactly the selected filtered dossiers and accepts an empty selection", async () => {

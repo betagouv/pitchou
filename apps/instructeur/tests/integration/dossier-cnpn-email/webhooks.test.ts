@@ -8,7 +8,7 @@ import {
   recordDossierCnpnEmailBrevoEvent,
 } from "@pitchou/server/database/dossier_cnpn_email.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 
 test("réconcilie un webhook reçu avant la fin de l'envoi et ignore les copies", async () => {
   const instructeur = await createInstructeurWithDossier(db, { email: "sender@example.com" });

@@ -6,7 +6,7 @@ import type { EmailFilters } from "@pitchou/types/adminEmails.ts";
 export function emailRows(db: Knex.Transaction) {
   const notifications = db("email_notification_outbox as n")
     .leftJoin("dossier as d", "d.id", "n.dossier")
-    .leftJoin("personne as p", "p.id", "n.personne")
+    .leftJoin("auth_user as p", "p.id", "n.personne")
     .select(
       db.raw("'notification'::text as source"),
       "n.id",

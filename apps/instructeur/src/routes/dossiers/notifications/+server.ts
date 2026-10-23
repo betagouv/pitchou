@@ -1,11 +1,12 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
-  getNotificationsForPersonneFromCap,
-  updateNotificationDossierFromCap,
+  getNotificationsForUser,
+  updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
+import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 
 const notificationUpdateProperties = new Set(["dossier", "arrival", "followRevision", "revisions"]);
@@ -44,16 +45,19 @@ function parseNotificationUpdate(value: Record<string, unknown>): NotificationUp
   return value as NotificationUpdate;
 }
 
-export const GET: RequestHandler = async ({ url }) => {
-  const cap = requireCap(url);
-  return json(await getNotificationsForPersonneFromCap(cap));
+export const GET: RequestHandler = async ({ locals }) => {
+  const userId = requireUserId(locals);
+  return json(await getNotificationsForUser(userId));
 };
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const notification = parseNotificationUpdate(await readJsonObject(request));
   // The update upserts, so an unchecked dossier id would create a notification
-  // row for a dossier the cap cannot reach.
-  await requireDossierAccessByCap(notification.dossier, cap);
-  return json(await updateNotificationDossierFromCap(cap, notification));
+  // row for a dossier the userId cannot reach.
+  const updated = await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(notification.dossier, userId, transaction);
+    return updateNotificationDossier(userId, notification, transaction);
+  });
+  return json(updated);
 };

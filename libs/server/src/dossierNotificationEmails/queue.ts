@@ -82,22 +82,24 @@ export async function claimEmail(
 }
 
 function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
-  const recipientQuery = trx("personne as p")
+  const recipientQuery = trx("auth_user as p")
     .join("email_notification_preferences as pref", "pref.personne", "p.id")
     .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
     .where({ "p.id": row.personne })
+    .whereRaw("pitchou_can_instruct(p.id)")
     .where(`pref.${row.kind}`, true)
     .whereNotNull("p.email")
     .whereExists(
-      trx("cap_dossier as c")
-        .join("edge_cap_dossier__groupe_instructeurs as cg", "cg.cap_dossier", "c.cap")
+      trx("user_groupe as cg")
+        .join("groupe_instructeurs as g", "g.id", "cg.groupe_instructeurs")
+        .where("g.active", true)
         .join(
           "edge_groupe_instructeurs__dossier as gd",
           "gd.groupe_instructeurs",
           "cg.groupe_instructeurs",
         )
         .select(trx.raw("1"))
-        .where("c.personne_cap", trx.ref("p.access_code"))
+        .where("cg.user_id", trx.ref("p.id"))
         .where("gd.dossier", trx.ref("d.id"))
         .modify((q) => {
           if (row.kind === "arrival")

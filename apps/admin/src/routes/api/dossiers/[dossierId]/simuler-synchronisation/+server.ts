@@ -1,6 +1,6 @@
-import { error, json } from "@sveltejs/kit";
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
+import { error, json, type RequestHandler } from "@sveltejs/kit";
 
-import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { dumpDossiers } from "@pitchou/server/database/dossier.ts";
 import { getDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { markDossiersUnreadForFollowers } from "@pitchou/server/database/notification.ts";
@@ -10,7 +10,6 @@ import { simulatableChamps, simulationAllowed } from "#lib/server/simulation.ts"
 import { simulateSpeciesChange } from "#lib/server/simulateSpecies.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 
-import type { RequestHandler } from "./$types";
 import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 
 /**
@@ -19,9 +18,9 @@ import type { DossierForUpdate } from "@pitchou/types/demarche-numerique/Dossier
  * historique entries, the same unread badge. Useful to see what instructeurs will
  * be shown without waiting for a real modification.
  *
- * Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+ * Auth is enforced upstream by hooks.server.ts (session and permissions).
  */
-export const POST: RequestHandler = async ({ params, request }) => {
+export const POST: RequestHandler<{ dossierId: string }> = async ({ params, request, locals }) => {
   if (!simulationAllowed()) error(404);
 
   const dossierId = parseDossierId(params.dossierId);
@@ -34,8 +33,11 @@ export const POST: RequestHandler = async ({ params, request }) => {
     ) {
       error(400, "Groupe d'impact invalide.");
     }
-    const result = await simulateSpeciesChange(dossierId, body.impactType);
-    return json({ ...result, actions: (await getDossierActions(dossierId)).slice(0, 10) });
+    const impactType = body.impactType;
+    return withAdminWriteAccess(locals, "admin:sync:simulate", async (trx) => {
+      const result = await simulateSpeciesChange(dossierId, impactType, trx);
+      return json({ ...result, actions: (await getDossierActions(dossierId, trx)).slice(0, 10) });
+    });
   }
   rejectUnknownProperties(body, new Set(["champ", "valeur"]));
   const column = body?.champ;
@@ -48,34 +50,36 @@ export const POST: RequestHandler = async ({ params, request }) => {
     error(400, "La valeur doit être une chaîne.");
   }
 
-  const dossier = await directDatabaseConnection("dossier")
-    .select(["id", "demarche_numerique_number", "source"])
-    .where({ id: dossierId })
-    .first();
-  if (!dossier) error(404, "Dossier introuvable.");
-  if (dossier.source !== "demarche_numerique" || !dossier.demarche_numerique_number) {
-    error(400, "Seul un dossier venu de Démarches Numériques peut être synchronisé.");
-  }
+  return withAdminWriteAccess(locals, "admin:sync:simulate", async (trx) => {
+    const dossier = await trx("dossier")
+      .select(["id", "demarche_numerique_number", "source"])
+      .where({ id: dossierId })
+      .first();
+    if (!dossier) error(404, "Dossier introuvable.");
+    if (dossier.source !== "demarche_numerique" || !dossier.demarche_numerique_number) {
+      error(400, "Seul un dossier venu de Démarches Numériques peut être synchronisé.");
+    }
 
-  const update = {
-    dossier: {
-      demarche_numerique_number: dossier.demarche_numerique_number,
-      [column]: value.trim() || null,
-    },
-    evenement_phase_dossier: [],
-    decision_administrative: [],
-  } as unknown as DossierForUpdate;
+    const update = {
+      dossier: {
+        demarche_numerique_number: dossier.demarche_numerique_number,
+        [column]: value.trim() || null,
+      },
+      evenement_phase_dossier: [],
+      decision_administrative: [],
+    } as unknown as DossierForUpdate;
 
-  const changedDossiers = await dumpDossiers([], [update], directDatabaseConnection);
-  // A real synchronization notifies the followers of what it found changed.
-  await markDossiersUnreadForFollowers(
-    new Map([...changedDossiers].map((id) => [id, new Date()])),
-    directDatabaseConnection,
-  );
+    const changedDossiers = await dumpDossiers([], [update], trx);
+    // A real synchronization notifies the followers of what it found changed.
+    await markDossiersUnreadForFollowers(
+      new Map([...changedDossiers].map((id) => [id, new Date()])),
+      trx,
+    );
 
-  const actions = await getDossierActions(dossierId);
-  return json({
-    changed: changedDossiers.has(dossierId),
-    actions: actions.slice(0, 10),
+    const actions = await getDossierActions(dossierId, trx);
+    return json({
+      changed: changedDossiers.has(dossierId),
+      actions: actions.slice(0, 10),
+    });
   });
 };

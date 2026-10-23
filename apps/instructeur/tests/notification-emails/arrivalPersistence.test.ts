@@ -1,20 +1,20 @@
 import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import { setupArrival } from "./arrivalFixtures.ts";
 import { dispatch } from "./fixtures.ts";
 
 test("native admin creation queues arrivals only when its outer transaction commits", async () => {
   const { member } = await setupArrival();
+  await db("groupe_departement").insert({ groupe_instructeurs: member.groupeId, department: "75" });
   const created = await db.transaction(async (trx) => {
     const dossier = await createDossierFromAdmin(
       {
         name: "Dossier natif",
+        columns: { primary_department: "75" },
         depot_date: new Date(),
         phase: "Accompagnement amont",
         relations: {
-          groupe_instructeurs: member.groupeId as GroupeInstructeursId,
           identites: [],
           demandeur_type: "personne_physique",
           demandeur_personne_morale: null,

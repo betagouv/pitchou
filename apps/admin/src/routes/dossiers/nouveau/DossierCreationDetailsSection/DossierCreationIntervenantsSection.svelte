@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getFileAccess } from "../../fileAccess.ts";
+  const fileAccess = getFileAccess();
   import {
     showsCompensatedNidsCount,
     showsOperationDetails,
@@ -23,6 +25,7 @@
   }
 
   function setCvFiles(index: number, files: File[]) {
+    if (!fileAccess.attachments()) return;
     cvError = uploadSizeError(files) ?? "";
     if (cvError) return;
     model.scientifiqueIntervenants[index].cvFiles = files;
@@ -31,11 +34,11 @@
 
 {#if showsOperationDetails(model)}
   <section
-    class="border-t border-[color:var(--border-default-grey)] fr-pt-4w fr-mt-5w"
+    class="border-t border-[color:var(--border-default-grey)] fr-mt-2w"
     aria-labelledby="intervenants-title"
   >
-    <h3 class="fr-h3" id="intervenants-title">8.4. Personnes amenées à intervenir</h3>
-    <h4 class="fr-h4">Qualification des intervenants</h4>
+    <h3 id="intervenants-title">8.4. Personnes amenées à intervenir</h3>
+    <h4>Qualification des intervenants</h4>
 
     <div class="flex flex-col gap-4">
       {#each model.scientifiqueIntervenants as intervenant, index (index)}
@@ -46,7 +49,7 @@
             [{index + 1}] Qualification des intervenants
           </summary>
           <div class="fr-p-3w">
-            <div class="fr-input-group w-full fr-mb-3w">
+            <div class="fr-input-group w-full fr-mb-2w">
               <label class="fr-label" for={`intervenant-name-${index}`}>Nom Prénom</label>
               <input
                 class="fr-input"
@@ -54,7 +57,7 @@
                 bind:value={intervenant.nom_complet}
               />
             </div>
-            <div class="fr-input-group w-full fr-mb-3w">
+            <div class="fr-input-group w-full fr-mb-2w">
               <label class="fr-label" for={`intervenant-qualification-${index}`}
                 >Qualification</label
               >
@@ -92,6 +95,7 @@
                   class="fr-sr-only"
                   id={`intervenant-cv-${index}`}
                   type="file"
+                  disabled={!fileAccess.attachments()}
                   multiple
                   onchange={(event) => setCvFiles(index, [...(event.currentTarget.files ?? [])])}
                 />
@@ -102,7 +106,7 @@
                 </ul>
               {/if}
             </div>
-            <div class="flex justify-end fr-mt-3w">
+            <div class="flex justify-end fr-mt-2w">
               <button
                 type="button"
                 class="fr-btn fr-btn--secondary fr-icon-delete-line fr-btn--icon-left"
@@ -117,11 +121,11 @@
     {#if cvError}<p class="fr-error-text" role="alert">{cvError}</p>{/if}
     <button
       type="button"
-      class="fr-btn fr-btn--secondary fr-icon-add-circle-line fr-btn--icon-left fr-mt-3w"
+      class="fr-btn fr-btn--secondary fr-icon-add-circle-line fr-btn--icon-left fr-mt-2w"
       onclick={addIntervenant}>Ajouter un élément à « Qualification des intervenants »</button
     >
 
-    <div class="fr-input-group w-full fr-mt-5w">
+    <div class="fr-input-group w-full fr-mt-2w">
       <label class="fr-label" for="scientific-other-intervenants"
         >Apporter des précisions complémentaires sur la possible intervention de
         stagiaire(s)/vacataire(s)/bénévole(s)</label
@@ -136,7 +140,7 @@
 {/if}
 
 {#if showsCompensatedNidsCount(model)}
-  <div class="fr-input-group max-w-xl fr-mt-5w">
+  <div class="fr-input-group max-w-xl fr-mt-2w">
     <label class="fr-label" for="compensated-nids-count"
       >Indiquer le nombre de nids artificiels posés en compensation *<span class="fr-hint-text"
         >Ce nombre doit être positif.</span

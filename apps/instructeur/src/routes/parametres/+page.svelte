@@ -3,4 +3,5 @@
 </script>
 
 <svelte:head><title>Général - Paramètres - Pitchou</title></svelte:head>
+
 <DisplaySettings />

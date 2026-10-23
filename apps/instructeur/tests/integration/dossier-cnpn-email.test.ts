@@ -1,3 +1,4 @@
+import { sessionUserId } from "../helpers/auth.ts";
 import "./dossier-cnpn-email/setup.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test, vi } from "vitest";
@@ -36,6 +37,7 @@ async function postEmail(
     }),
   });
   return POST({
+    locals: { user: { id: sessionUserId(instructeur.cap) } },
     params: { dossierId: String(instructeur.dossier.id) },
     url,
     request,

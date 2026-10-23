@@ -52,10 +52,12 @@ export { mocks };
 
 vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: mocks.database }));
 vi.mock("#lib/server/auth.ts", () => ({
-  requireCap: () => "cap",
-  requireDossierAccessByCap: mocks.access,
+  requireUserId: () => 7,
+  requireDossierAccess: mocks.access,
+  requireDossierWriteAccess: mocks.access,
+  lockDossierAccess: vi.fn(),
 }));
-vi.mock("@pitchou/server/database/personne.ts", () => ({ getPersonneByDossierCap: mocks.author }));
+vi.mock("@pitchou/server/database/personne.ts", () => ({ getUserById: mocks.author }));
 vi.mock("@pitchou/server/database/controle.ts", () => ({
   getDossierIdFromControle: async () => 42,
   deleteControle: mocks.deleteControle,
@@ -87,7 +89,7 @@ vi.mock("@pitchou/server/database/other_attachment.ts", () => ({
 
 export function event(body: unknown = {}) {
   return {
-    url: new URL("http://localhost/?cap=cap"),
+    url: new URL("http://localhost/"),
     params: {
       dossierId: "42",
       controleId: "controle",

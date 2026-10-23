@@ -19,21 +19,19 @@ test("fresh and repeated dossier seeds record final group baselines without queu
   const first = await seedRows();
   const ownerships = await db("edge_groupe_instructeurs__dossier")
     .select("dossier", "groupe_instructeurs")
-    .orderBy("dossier");
+    .orderBy(["dossier", "groupe_instructeurs"]);
   expect(ownerships.length).toBeGreaterThan(0);
   expect(
     await db("email_notification_groupe_arrival")
       .select("dossier", "groupe_instructeurs")
       .whereNotNull("groupe_instructeurs")
-      .orderBy("dossier"),
+      .orderBy(["dossier", "groupe_instructeurs"]),
   ).toEqual(ownerships);
   expect(await db("email_notification_outbox")).toEqual([]);
   expect(await db("email_notification_history")).toEqual([]);
   // Repair an old seed baseline when the seed writer restores its fixture group.
   const [ownership] = ownerships;
-  await db("email_notification_groupe_arrival")
-    .where({ dossier: ownership.dossier })
-    .update({ groupe_instructeurs: null });
+  await db("email_notification_groupe_arrival").where({ dossier: ownership.dossier }).delete();
   const second = await seedRows();
   expect(second.dossierIdMap).toEqual(first.dossierIdMap);
   expect(await db("email_notification_groupe_arrival").where(ownership).first()).toBeDefined();

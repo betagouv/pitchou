@@ -60,7 +60,6 @@ export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
   const demandeurType: DemandeurType = personneMorale ? "personne_morale" : "personne_physique";
 
   return {
-    groupeInstructeurs: detail.groupe?.id ?? "",
     demandeurType,
     hasDemandeurIdentity: !!demandeurIdentity,
     demandeurIdentity: identity(demandeurIdentity),
@@ -111,7 +110,6 @@ export function buildDossierRelations(
   }
 
   const base = {
-    groupe_instructeurs: model.groupeInstructeurs.trim(),
     identites,
   };
   if (model.demandeurType === "personne_physique") {

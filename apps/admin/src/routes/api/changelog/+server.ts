@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import {
@@ -6,7 +7,7 @@ import {
   validateChangelogPayload,
 } from "@pitchou/server/database/changelog.ts";
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const GET: RequestHandler = async () => {
   return json(await listChangelogEntries());
 };
@@ -19,9 +20,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   // `updated_by` is always the logged-in admin email, never trusted from the client.
   try {
-    const id = await createChangelogEntry({
-      ...validation.value,
-      updated_by: locals.user!.email,
+    const id = await withAdminWriteAccess(locals, "admin:changelog:create", async (trx, actor) => {
+      if (validation.value.published && !actor.permissions.includes("admin:changelog:update")) {
+        error(403, "Vous n'avez pas le droit de publier une nouveauté.");
+      }
+      return createChangelogEntry({ ...validation.value, updated_by: actor.email }, trx);
     });
     return json({ id }, { status: 201 });
   } catch (err) {

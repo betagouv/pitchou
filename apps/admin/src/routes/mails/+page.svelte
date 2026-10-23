@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PageHelp from "#lib/components/PageHelp.svelte";
   import { navigating } from "$app/state";
   import { goto } from "$app/navigation";
   import { untrack } from "svelte";
@@ -49,6 +50,19 @@
 </script>
 
 <svelte:head><title>Administration - mails - Pitchou</title></svelte:head>
+<PageHelp title="Mails">
+  <h3>Historique des envois</h3>
+  <p>
+    Cette page rassemble les notifications par mail et les saisines du CNPN. Recherchez un
+    destinataire ou un dossier, puis cliquez sur un mail pour consulter son contenu et son suivi.
+  </p>
+  <h3>Distribution et ouverture</h3>
+  <p>
+    Un envoi accepté par l'expéditeur ne signifie pas qu'il a été livré. Les distributions et
+    ouvertures concernent le destinataire principal. Une ouverture détectée ne garantit pas que le
+    message a été lu intégralement.
+  </p>
+</PageHelp>
 <div class="notification-monitor" aria-busy={!!navigating.to}>
   <section class="summary" aria-label="Répartition des résultats filtrés">
     {#each [{ label: "En attente", states: ["pending"], status: "pending" }, { label: "Acceptés par l’expéditeur", states: ["sent"], status: "sent" }, { label: "À vérifier", states: ["failed", "uncertain"], status: "uncertain" }, { label: "Annulés ou bloqués", states: ["cancelled", "suppressed"], status: "cancelled" }] as card}

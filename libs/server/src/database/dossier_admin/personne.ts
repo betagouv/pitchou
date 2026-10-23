@@ -1,18 +1,18 @@
 import type { Knex } from "knex";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 import { directDatabaseConnection } from "../../database.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 
 export async function ensurePersonneIdByEmail(
   email: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
-): Promise<PersonneId> {
+): Promise<UserId> {
   const normalized = normalizeEmail(email);
-  await databaseConnection("personne")
+  await databaseConnection("auth_user")
     .insert({ email: normalized, last_name: "", first_names: "" })
-    .onConflict("email")
+    .onConflict()
     .ignore();
-  const row = await databaseConnection("personne")
+  const row = await databaseConnection("auth_user")
     .select("id")
     .where({ email: normalized })
     .first();

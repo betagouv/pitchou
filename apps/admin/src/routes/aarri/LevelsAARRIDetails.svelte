@@ -12,7 +12,7 @@
   class="grid grid-cols-[6rem_1fr] items-baseline gap-x-3 fr-mt-2w [&_p]:mb-0 [&_.fr-badge]:justify-self-start"
 >
   <BadgeNiveauAARRI niveau="base" />
-  <p>A un compte Pitchou (un code d'accès lui a été créé) mais ne s'est encore jamais connectée.</p>
+  <p>A un compte Pitchou, mais ne s'est encore jamais connectée.</p>
 </div>
 
 <div

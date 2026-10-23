@@ -17,10 +17,7 @@ test.each(["disabled_preference", "unfollowed_dossier", "lost_access"])(
       await db("edge_personne_follows_dossier")
         .where({ personne: recipient.id, dossier: actor.dossier.id })
         .delete();
-    if (reason === "lost_access")
-      await db("edge_cap_dossier__groupe_instructeurs")
-        .where({ cap_dossier: recipient.cap })
-        .delete();
+    if (reason === "lost_access") await db("user_groupe").where({ user_id: recipient.id }).delete();
     await dispatch(row.due_at);
     await dispatch(row.due_at);
     expect((await db("email_notification_outbox").first()).cancellation_reason).toBe(reason);

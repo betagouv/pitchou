@@ -336,6 +336,9 @@ importers:
       date-fns:
         specifier: 'catalog:'
         version: 4.4.0
+      jose:
+        specifier: 'catalog:'
+        version: 6.2.12
       knex:
         specifier: 'catalog:'
         version: 3.3.0(pg@8.23.1)(supports-color@7.2.0)
@@ -480,6 +483,9 @@ importers:
       date-fns:
         specifier: 'catalog:'
         version: 4.4.0
+      jose:
+        specifier: 'catalog:'
+        version: 6.2.12
       knex:
         specifier: 'catalog:'
         version: 3.3.0(pg@8.23.1)(supports-color@7.2.0)

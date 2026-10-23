@@ -3,7 +3,7 @@ import {
   down as downArrival,
 } from "../../../../libs/database/migrations/20261021120000_group-arrival-emails.ts";
 import { expect, test } from "vitest";
-import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { db, setup, setupArrival } from "./legacyMigrationFixtures.ts";
 import {
   up as upOutbox,
   down as downOutbox,
@@ -16,8 +16,6 @@ import {
   up as upProtection,
   down as downProtection,
 } from "../../../../libs/database/migrations/20261022160000_staging-email-protection.ts";
-import { setup } from "./fixtures.ts";
-import { setupArrival } from "./arrivalFixtures.ts";
 import {
   up as upAudit,
   down as downAudit,

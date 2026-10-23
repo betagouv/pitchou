@@ -91,7 +91,6 @@ export function createDossierCreationModel() {
     supplementalFiles: [] as File[],
     depotDate: new Date().toISOString().slice(0, 10),
     phase: "Accompagnement amont",
-    groupeInstructeurs: "",
   };
 }
 

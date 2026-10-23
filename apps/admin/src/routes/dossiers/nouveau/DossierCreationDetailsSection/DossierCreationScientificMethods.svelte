@@ -13,7 +13,7 @@
   }
 </script>
 
-<fieldset class="fr-fieldset fr-mt-5w fr-mb-4w">
+<fieldset class="fr-fieldset fr-mt-2w fr-mb-2w">
   <legend class="fr-fieldset__legend font-normal"
     >En cas de nécessité de capture d'individus, précisez le mode de capture<span
       class="fr-hint-text">Vous pouvez sélectionner un ou plusieurs choix.</span
@@ -34,7 +34,7 @@
   {/each}
 </fieldset>
 {#if model.scientifiqueCaptureModes.includes(otherCaptureMode)}
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="scientific-other-capture-mode"
       >Préciser le(s) autre(s) moyen(s) de capture</label
     >
@@ -45,7 +45,7 @@
       bind:value={model.scientifiqueOtherCaptureMode}></textarea>
   </div>
 {/if}
-<fieldset class="fr-fieldset fr-mb-4w">
+<fieldset class="fr-fieldset fr-mb-2w">
   <legend class="fr-fieldset__legend font-normal">Utilisez-vous des sources lumineuses ?</legend>
   {#each [["oui", "Oui"], ["non", "Non"]] as [value, label]}
     <div class="fr-fieldset__element fr-fieldset__element--inline">
@@ -63,7 +63,7 @@
   {/each}
 </fieldset>
 {#if model.scientifiqueUsesLightSources === "oui"}
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="scientific-light-source-conditions"
       >Précisez les modalités de l'utilisation des sources lumineuses</label
     ><textarea
@@ -74,7 +74,7 @@
   </div>
 {/if}
 {#if model.scientifiqueDemandeType.includes(scientifiqueDemandeTypeOptions[1])}
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="scientific-marking-conditions"
       >Précisez les modalités de marquage pour chaque taxon</label
     ><textarea

@@ -12,9 +12,10 @@ export async function baselineSeedNotifications(trx: Knex.Transaction, dossierId
   const ownerships = await trx("edge_groupe_instructeurs__dossier")
     .whereIn("dossier", dossierIds)
     .select("dossier", "groupe_instructeurs");
+  await trx("email_notification_groupe_arrival").whereIn("dossier", dossierIds).delete();
   if (ownerships.length > 0)
     await trx("email_notification_groupe_arrival")
       .insert(ownerships)
-      .onConflict("dossier")
-      .merge(["groupe_instructeurs"]);
+      .onConflict(["dossier", "groupe_instructeurs"])
+      .ignore();
 }

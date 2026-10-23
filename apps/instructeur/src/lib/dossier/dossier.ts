@@ -9,6 +9,7 @@ import {
 } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
 import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
 import { loadRelationSuivi, loadRecentSearches } from "#lib/shared/main.ts";
+import { comparePhaseEventsNewestFirst } from "@pitchou/common/phases.ts";
 
 import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
@@ -32,7 +33,9 @@ export function updateDossier(dossier: DossierFull, updates: Partial<DossierFull
   // optimistically modify the dossier in the store
   const updatedDossier: DossierFull = Object.assign({}, dossier, updates);
   if (updates.evenementsPhase) {
-    updatedDossier.evenementsPhase = [...updates.evenementsPhase, ...dossier.evenementsPhase];
+    updatedDossier.evenementsPhase = [...updates.evenementsPhase, ...dossier.evenementsPhase].sort(
+      comparePhaseEventsNewestFirst,
+    );
   }
 
   // The metric events of these changes are recorded by the server, along with the

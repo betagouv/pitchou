@@ -9,6 +9,7 @@ import { POST as updatePrescription } from "../../src/routes/prescription/+serve
 import { PUT as updateCommentaire } from "../../src/routes/dossier/[dossierId]/commentaires/+server.ts";
 import { POST as updateDecision } from "../../src/routes/decision-administrative/+server.ts";
 import { setup } from "./fixtures.ts";
+import { sessionUserId } from "../helpers/auth.ts";
 
 vi.mock("@pitchou/server/emails.ts", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@pitchou/server/emails.ts")>()),
@@ -16,7 +17,8 @@ vi.mock("@pitchou/server/emails.ts", async (importOriginal) => ({
 }));
 function event(cap: string, dossierId: number, body: unknown) {
   return {
-    url: new URL(`http://pitchou.test/?cap=${cap}`),
+    url: new URL("http://pitchou.test/"),
+    locals: { user: { id: sessionUserId(cap) } },
     params: { dossierId: String(dossierId) },
     request: new Request("http://pitchou.test/", {
       method: "POST",

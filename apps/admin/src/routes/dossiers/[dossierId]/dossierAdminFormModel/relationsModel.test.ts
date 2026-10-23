@@ -23,7 +23,7 @@ describe("dossier admin relations model", () => {
         department: null,
         region: null,
       } as AdminDossierDetail["porteur_de_projet"],
-      groupe: { id: "groupe-1", name: "Groupe test" },
+      groupes: [{ id: "groupe-1", name: "Groupe test" }],
       acteurs: [
         {
           involvements: ["personne_contact"],
@@ -68,7 +68,7 @@ describe("dossier admin relations model", () => {
         phone: null,
         role: null,
       } as AdminDossierDetail["porteur_de_projet"],
-      groupe: { id: "groupe-1", name: "Groupe test" },
+      groupes: [{ id: "groupe-1", name: "Groupe test" }],
       acteurs: [
         {
           involvements: ["mandataire", "deposant"],

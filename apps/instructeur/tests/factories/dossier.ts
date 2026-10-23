@@ -46,8 +46,11 @@ export async function attachDossierToGroupe(
   dossierId: number,
   groupeId: string,
 ): Promise<void> {
-  await db("edge_groupe_instructeurs__dossier").insert({
-    dossier: dossierId,
-    groupe_instructeurs: groupeId,
-  });
+  const dossier = await db("dossier").where({ id: dossierId }).first();
+  const department = dossier.primary_department ?? `test-${dossierId}`;
+  await db("dossier").where({ id: dossierId }).update({ primary_department: department });
+  await db("groupe_departement")
+    .insert({ groupe_instructeurs: groupeId, department })
+    .onConflict(["groupe_instructeurs", "department"])
+    .ignore();
 }

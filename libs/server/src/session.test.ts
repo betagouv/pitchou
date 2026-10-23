@@ -1,6 +1,10 @@
+import type { UserId } from "@pitchou/types/permissions.ts";
+vi.mock("./users.ts", () => ({
+  getSessionUser: vi.fn(async () => ({ email: "a@b.fr", name: "Nom" })),
+}));
 import { createHash } from "node:crypto";
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 import { createSession, readSession, deleteSession, deleteExpiredSessions } from "./session.ts";
 import { fakeDatabase } from "./database/fakeDatabase.ts";
@@ -8,7 +12,12 @@ import { fakeDatabase } from "./database/fakeDatabase.ts";
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
 
 describe("createSession", () => {
-  const newSession = { email: "agent@pitchou.test", name: "Agent Test", idToken: "id-token-xyz" };
+  const newSession = {
+    userId: 1 as UserId,
+    email: "agent@pitchou.test",
+    name: "Agent Test",
+    idToken: "id-token-xyz",
+  };
 
   it("only touches the session table", async () => {
     const db = fakeDatabase().build();
@@ -63,7 +72,7 @@ describe("createSession", () => {
 
   it("accepts a null id_token", async () => {
     const db = fakeDatabase().build();
-    await createSession({ email: "a@b.fr", name: "", idToken: null }, db.knex);
+    await createSession({ userId: 1 as UserId, email: "a@b.fr", name: "", idToken: null }, db.knex);
     const inserted = db.insert.mock.calls[0][0] as { id_token: string | null };
     expect(inserted.id_token).toBeNull();
   });

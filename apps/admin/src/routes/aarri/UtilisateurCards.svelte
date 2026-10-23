@@ -23,9 +23,9 @@
     {#each utilisateurs as utilisateur (utilisateur.personneId)}
       <!-- One row on wide screens: identity | groupes | activity. Wraps on narrow screens. -->
       <li
-        class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] px-4 py-3 shadow-sm"
+        class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-lifted-grey)] px-4 py-3"
       >
-        <div class="flex w-96 min-w-0 shrink-0 items-center gap-3">
+        <div class="flex w-96 max-w-full min-w-0 shrink-0 items-center gap-3">
           <!-- Fixed slot so the badges form an aligned column, like the levels legend. -->
           <span class="w-24 shrink-0">
             <BadgeNiveauAARRI niveau={utilisateur.niveau} />

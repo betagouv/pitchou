@@ -1,4 +1,4 @@
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error, json } from "@sveltejs/kit";
 import { getActiviteReferentiel, updateActiviteGroupe } from "@pitchou/server/database/activite.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
@@ -6,7 +6,7 @@ import type { RequestHandler } from "./$types.ts";
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/u;
 
-export const PUT: RequestHandler = async ({ request, params }) => {
+export const PUT: RequestHandler = async ({ request, params, locals }) => {
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, new Set(["label", "color"]));
 
@@ -18,13 +18,15 @@ export const PUT: RequestHandler = async ({ request, params }) => {
     error(400, "La couleur du groupe doit être un code hexadécimal, par exemple '#fdedac'");
   }
 
-  const { groupes } = await getActiviteReferentiel();
-  if (groupes.some((groupe) => groupe.label === label && groupe.code !== params.code)) {
-    error(409, "Un groupe d'activités avec ce nom existe déjà");
-  }
+  return withAdminWriteAccess(locals, "admin:activites:manage", async (trx) => {
+    const { groupes } = await getActiviteReferentiel(trx);
+    if (groupes.some((groupe) => groupe.label === label && groupe.code !== params.code)) {
+      error(409, "Un groupe d'activités avec ce nom existe déjà");
+    }
 
-  const updated = await updateActiviteGroupe(params.code, { label, color });
-  if (!updated) error(404, `Aucun groupe d'activités avec le code '${params.code}'`);
+    const updated = await updateActiviteGroupe(params.code, { label, color }, trx);
+    if (!updated) error(404, `Aucun groupe d'activités avec le code '${params.code}'`);
 
-  return json({ succès: true });
+    return json({ succès: true });
+  });
 };

@@ -23,7 +23,8 @@
     "lunr": "catalog:",
     "lunr-languages": "catalog:",
     "maplibre-gl": "catalog:",
-    "pg": "catalog:"
+    "pg": "catalog:",
+    "jose": "catalog:"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

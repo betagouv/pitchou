@@ -1,14 +1,14 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { GET, POST } from "./+server.ts";
-import { emailNotificationPreferencesFromCap } from "@pitchou/server/database/email_notification_preferences.ts";
+import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
 
 vi.mock("@pitchou/server/database/email_notification_preferences.ts", () => ({
-  emailNotificationPreferencesFromCap: vi.fn(),
+  emailNotificationPreferencesForUser: vi.fn(),
 }));
-const cap = "11111111-1111-4111-8111-111111111111";
-function event(body?: unknown, capability = cap) {
+const userId = 12;
+function event(body?: unknown, authenticated = true) {
   return {
-    url: new URL(`http://pitchou.test/parametres/notifications?cap=${capability}`),
+    locals: { user: authenticated ? { id: userId } : null },
     request: new Request("http://pitchou.test/parametres/notifications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -18,7 +18,7 @@ function event(body?: unknown, capability = cap) {
 }
 beforeEach(() => vi.resetAllMocks());
 test("returns and saves only the authenticated person's preferences", async () => {
-  vi.mocked(emailNotificationPreferencesFromCap).mockResolvedValue({
+  vi.mocked(emailNotificationPreferencesForUser).mockResolvedValue({
     assignment: false,
     novelty: true,
     arrival: true,
@@ -35,7 +35,7 @@ test("returns and saves only the authenticated person's preferences", async () =
     novelty: true,
     arrival: true,
   });
-  expect(emailNotificationPreferencesFromCap).toHaveBeenLastCalledWith(cap, {
+  expect(emailNotificationPreferencesForUser).toHaveBeenLastCalledWith(userId, {
     assignment: false,
     novelty: true,
     arrival: true,
@@ -49,13 +49,13 @@ test.each([
   { assignment: true, novelty: false, arrival: true, personne: 42 },
 ])("rejects invalid preferences without writing", async (body) => {
   await expect(POST(event(body))).rejects.toMatchObject({ status: 400 });
-  expect(emailNotificationPreferencesFromCap).not.toHaveBeenCalled();
+  expect(emailNotificationPreferencesForUser).not.toHaveBeenCalled();
 });
-test("rejects unknown and malformed capabilities", async () => {
+test("rejects inaccessible accounts and anonymous requests", async () => {
   await expect(GET(event())).rejects.toMatchObject({ status: 403 });
   await expect(
-    POST(event({ assignment: true, novelty: true, arrival: true }, "invalid")),
+    POST(event({ assignment: true, novelty: true, arrival: true }, false)),
   ).rejects.toMatchObject({
-    status: 403,
+    status: 401,
   });
 });

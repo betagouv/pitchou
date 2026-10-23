@@ -18,12 +18,12 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
+  class="border-t border-[color:var(--border-default-grey)]"
   aria-labelledby="justification-title"
 >
-  <h2 class="fr-h2" id="justification-title">7. Justifications de la demande de dérogation</h2>
+  <h2 id="justification-title">7. Justifications de la demande de dérogation</h2>
 
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="no-other-solution-justification">
       Synthèse des éléments démontrant qu'il n'existe aucune alternative au projet
       <span aria-hidden="true">*</span>
@@ -37,13 +37,13 @@
       bind:value={model.noOtherSatisfactorySolutionJustification}></textarea>
   </div>
 
-  <div class="fr-callout fr-icon-information-line fr-mb-4w">
+  <div class="fr-callout fr-icon-information-line fr-mb-2w">
     <p class="fr-callout__text fr-text--bold">
       {motifDerogationGuidance(model)}
     </p>
   </div>
 
-  <div class="fr-select-group w-full fr-mb-4w">
+  <div class="fr-select-group w-full fr-mb-2w">
     <label class="fr-label" id="creation-motif-derogation-label" for="creation-motif-derogation">
       Motif de la dérogation <span aria-hidden="true">*</span>
       <span class="fr-sr-only">Champ obligatoire</span>
@@ -59,7 +59,7 @@
     />
   </div>
 
-  <div class="fr-input-group w-full fr-mb-4w">
+  <div class="fr-input-group w-full fr-mb-2w">
     <label class="fr-label" for="creation-motif-justification">
       Synthèse des éléments justifiant le motif de la dérogation
       <span aria-hidden="true">*</span>

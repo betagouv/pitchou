@@ -2,7 +2,7 @@ import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   parseUploadedFichier,
@@ -13,11 +13,8 @@ import {
   addOrUpdateAvisExpertWithFichiers,
   getDossierIdFromAvisExpert,
 } from "@pitchou/server/database/avis_expert.ts";
-import {
-  logDossierActions,
-  logDossierActionsAfterCommit,
-} from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { AvisExpertId } from "@pitchou/types/database/public/AvisExpert.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -53,8 +50,8 @@ function parseOptionalString(body: Record<string, unknown>, property: string): s
   return value;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, avisExpertProperties);
 
@@ -82,59 +79,62 @@ export const POST: RequestHandler = async ({ url, request }) => {
   };
   const avisExpert = id ? { ...baseAvisExpert, id: id as AvisExpertId } : baseAvisExpert;
 
-  const authorizedDossierId = await requireDossierAccessByCap(
-    id ? await getDossierIdFromAvisExpert(id as AvisExpertId) : dossierId,
-    cap,
-  );
-
-  if (fichierAvis || fichierSaisine) {
-    try {
-      await addOrUpdateAvisExpertWithFichiers(avisExpert, fichierSaisine, fichierAvis);
-    } catch (err) {
-      throwUploadedFichierHttpError(err);
+  await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(dossierId, userId, transaction);
+    if (id && (await getDossierIdFromAvisExpert(id as AvisExpertId, transaction)) !== dossierId) {
+      error(403, "L'avis d'expert n'appartient pas au dossier");
     }
-    await logDossierActionsAfterCommit(
-      importedAvisActions(cap, authorizedDossierId, expert, avis, !!fichierSaisine, !!fichierAvis),
-    );
-  } else {
-    await directDatabaseConnection.transaction(async (transaction) => {
-      const current = id
-        ? await transaction("avis_expert").where({ id }).forUpdate().first()
-        : undefined;
+    const current = id
+      ? await transaction("avis_expert").where({ id }).forUpdate().first()
+      : undefined;
+    if (fichierAvis || fichierSaisine) {
+      try {
+        await addOrUpdateAvisExpertWithFichiers(
+          avisExpert,
+          fichierSaisine,
+          fichierAvis,
+          transaction,
+        );
+      } catch (err) {
+        throwUploadedFichierHttpError(err);
+      }
+      await logDossierActions(
+        importedAvisActions(userId, dossierId, expert, avis, !!fichierSaisine, !!fichierAvis),
+        transaction,
+      );
+    } else {
       await addOrUpdateAvisExpert(avisExpert, transaction);
       if (id || hasChangedValues(current, avisExpert)) {
-        const author = await getPersonneByDossierCap(cap, transaction);
         await logDossierActions(
           [
             {
-              dossier: authorizedDossierId,
+              dossier: dossierId,
               type: id ? "avis_modifie" : "avis_importe",
               data: {
                 expert: expert ?? null,
                 avis: avis ?? null,
                 email_notification: hasChangedValues(current, avisExpert),
               },
-              author_personne: author?.id ?? null,
+              author_personne: userId,
             },
           ],
           transaction,
         );
       }
-    });
-  }
+    }
+  });
 
   return new Response(null, { status: 204 });
 };
 
-async function importedAvisActions(
-  cap: Parameters<typeof getPersonneByDossierCap>[0],
+function importedAvisActions(
+  userId: UserId,
   authorizedDossierId: DossierId,
   expert: string | undefined,
   avis: string | undefined,
   fichierSaisine: boolean,
   fichierAvis: boolean,
 ) {
-  const author = await getPersonneByDossierCap(cap);
   return [
     ...(fichierSaisine
       ? [
@@ -142,7 +142,7 @@ async function importedAvisActions(
             dossier: authorizedDossierId,
             type: "saisine_importee",
             data: { expert: expert ?? null },
-            author_personne: author?.id ?? null,
+            author_personne: userId,
           },
         ]
       : []),
@@ -152,7 +152,7 @@ async function importedAvisActions(
             dossier: authorizedDossierId,
             type: "avis_importe",
             data: { avis: avis ?? null },
-            author_personne: author?.id ?? null,
+            author_personne: userId,
           },
         ]
       : []),

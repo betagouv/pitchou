@@ -14,7 +14,7 @@ Eligible updates include changes to the DN form, its attachments and species, at
 
 Unchanged values, identical assignments and synchronization without changes do not create duplicates. Existing dossiers, historical changes and re-enabled preferences do not trigger catch-up emails. Reading a notification in Pitchou does not remove a pending email.
 
-Before sending, the worker checks the preference and dossier access again. Assignments and updates still require follow-up; arrival notifications require access to the relevant group. Disabling a preference, losing access or leaving follow-up cancels the affected pending emails. A transfer cancels pending arrival notifications for the previous group.
+Before sending, the worker checks the preference, active account, instructor permissions and active group membership again. Preferences belong to the authenticated account, and remain editable even without dossier access. Assignments and updates still require follow-up; arrival notifications require access to the relevant group. Disabling a preference, losing access or leaving follow-up cancels the affected pending emails. A dossier can belong to several groups. When several groups receive it in the same transaction, a shared member receives one email. Losing one group does not cancel delivery if the recipient still belongs to another receiving group.
 
 ## Email content
 
@@ -43,7 +43,7 @@ The instructeur worker processes at most 100 candidates per run. Cron runs it ev
 
 ## Automated tests
 
-The PostgreSQL suite uses real migrations in the disposable `pitchou_test_notifications` database and simulates all sends. The default port is 5433; use `TEST_DB_PORT` to change it.
+The PostgreSQL suite uses real migrations in the disposable `pitchou_test_notifications` database, with deployed-schema rollback checks isolated in `pitchou_test_legacy_notifications` and simulates all sends. The default port is 5433; use `TEST_DB_PORT` to change it.
 
 ```sh
 docker compose -f compose.test.yml up -d test_db

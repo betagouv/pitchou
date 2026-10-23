@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 
 import { db } from "../setup/db.ts";
@@ -11,13 +12,13 @@ import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import type { DossierNotification } from "@pitchou/types/notification.ts";
 
 async function notificationsFor(cap: string): Promise<DossierNotification[]> {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`);
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`);
   expect(response.status).toBe(200);
   return response.json();
 }
 
 async function review(cap: string, body: object): Promise<DossierNotification> {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${cap}`, {
+  const response = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossiers/notifications`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -133,10 +134,10 @@ test("seuls les dossiers réellement modifiés repassent en non lu", async () =>
     name: "Dossier stable",
     demarche_numerique_number: "920005",
   });
-  await attachPersonneSuitDossier(db, instructeur.id, modifie.id);
-  await attachPersonneSuitDossier(db, instructeur.id, inchange.id);
   await attachDossierToGroupe(db, modifie.id, instructeur.groupeId);
   await attachDossierToGroupe(db, inchange.id, instructeur.groupeId);
+  await attachPersonneSuitDossier(db, instructeur.id, modifie.id);
+  await attachPersonneSuitDossier(db, instructeur.id, inchange.id);
   for (const notification of await notificationsFor(instructeur.cap)) {
     await review(instructeur.cap, {
       dossier: notification.dossier,

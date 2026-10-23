@@ -4,6 +4,7 @@ import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
 import { joinDossierIdentities } from "../fullColumns.ts";
+import { orderPhaseEvents } from "../../phaseHistory.ts";
 
 export function exportDossiersQuery(
   ids: Knex.QueryBuilder,
@@ -35,10 +36,13 @@ export function exportDossiersQuery(
     ]),
   )
     .select(
-      trx.raw(`coalesce((select phase from evenement_phase_dossier
-      where evenement_phase_dossier.dossier = dossier.id
-        and (caused_by_personne is not null or demarche_numerique_agent_email is not null)
-      order by timestamp desc limit 1), 'Accompagnement amont') as phase`),
+      trx.raw("coalesce((?), 'Accompagnement amont') as phase", [
+        trx("evenement_phase_dossier")
+          .select("phase")
+          .where("evenement_phase_dossier.dossier", trx.ref("dossier.id"))
+          .modify(orderPhaseEvents)
+          .limit(1),
+      ]),
     )
     .whereIn("dossier.id", ids.clone())
     .orderBy("dossier.id");
@@ -47,7 +51,7 @@ export function exportDossiersQuery(
 export async function exportRelationsQueries(ids: Knex.QueryBuilder, trx: Knex.Transaction) {
   const followers = await trx("edge_personne_follows_dossier")
     .select<{ dossier: Dossier["id"]; email: string }[]>("dossier", "personne.email")
-    .join("personne", "personne.id", "edge_personne_follows_dossier.personne")
+    .join("auth_user as personne", "personne.id", "edge_personne_follows_dossier.personne")
     .whereIn("dossier", ids.clone())
     .whereNotNull("personne.email");
   const especes = await trx("impact_espece")

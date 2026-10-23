@@ -1,7 +1,7 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import { phases } from "@pitchou/common/phases.ts";
-import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
 import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/fichier.ts";
 import { registerUploadedFichier } from "@pitchou/server/database/fichier_upload.ts";
@@ -62,29 +62,33 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   let storedSpeciesId: FileId | undefined;
   const storedAttachmentIds: FileId[] = [];
   try {
-    if (species) {
-      const stored = await registerUploadedFichier(species, directDatabaseConnection, {
-        mediaType: species.media_type,
-      });
-      storedSpeciesId = stored.id;
-    }
-    for (const attachment of attachments) {
-      const stored = await registerUploadedFichier(attachment);
-      if (!stored.id) throw new Error("Le fichier joint n'a pas pu être enregistré.");
-      storedAttachmentIds.push(stored.id);
-    }
-    const { id } = await directDatabaseConnection.transaction(async (trx) => {
-      const created = await createDossierFromAdmin(creation, locals.user!.email, trx);
-      if (storedSpeciesId)
-        await trx("dossier")
-          .where({ id: created.id })
-          .update({ especes_impactees: storedSpeciesId });
-      if (storedAttachmentIds.length > 0)
-        await trx("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
-          storedAttachmentIds.map((fichier) => ({ dossier: created.id, fichier })),
-        );
-      return created;
-    });
+    const { id } = await withAdminWriteAccess(
+      locals,
+      "admin:dossiers:create",
+      async (trx, actor) => {
+        if (species) {
+          const stored = await registerUploadedFichier(species, trx, {
+            mediaType: species.media_type,
+          });
+          storedSpeciesId = stored.id;
+        }
+        for (const attachment of attachments) {
+          const stored = await registerUploadedFichier(attachment, trx);
+          if (!stored.id) throw new Error("Le fichier joint n'a pas pu être enregistré.");
+          storedAttachmentIds.push(stored.id);
+        }
+        const created = await createDossierFromAdmin(creation, actor.email, trx);
+        if (storedSpeciesId)
+          await trx("dossier")
+            .where({ id: created.id })
+            .update({ especes_impactees: storedSpeciesId });
+        if (storedAttachmentIds.length > 0)
+          await trx("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
+            storedAttachmentIds.map((fichier) => ({ dossier: created.id, fichier })),
+          );
+        return created;
+      },
+    );
     await dispatchArrivalEmailsAfterCommit(id);
     return json({ id }, { status: 201 });
   } catch (caught) {

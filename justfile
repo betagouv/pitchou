@@ -203,11 +203,13 @@ test-component:
 
 # Run end-to-end tests with playwright (optional flags passed to playwright, e.g. just test-e2e --grep "mon test" --headed)
 test-e2e *flags:
+    ORIGIN=http://127.0.0.1:32647 {{ admin }} vite build
     ORIGIN=http://127.0.0.1:32648 {{ instructeur }} vite build
     {{ instructeur }} playwright test --config tests/playwright.config.ts {{ flags }}
 
 # Run integration tests (endpoints + real DB)
 test-integration:
+    ORIGIN=http://127.0.0.1:32650 {{ admin }} vite build
     ORIGIN=http://127.0.0.1:32649 {{ instructeur }} vite build
     {{ instructeur }} vitest run --config tests/vitest.config.ts --project=integration
 

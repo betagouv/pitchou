@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
       forUpdate: vi.fn().mockReturnThis(),
       first: vi.fn().mockResolvedValue(undefined),
     })),
-    { commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
+    { raw: vi.fn(), commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
   ),
   access: vi.fn(),
   dossierFromDecision: vi.fn(),
@@ -20,7 +20,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@pitchou/server/database.ts", () => ({
   createTransaction: async () => mocks.transaction,
 }));
-vi.mock("@pitchou/server/database/dossier.ts", () => ({ dossiersAccessibleViaCap: mocks.access }));
+vi.mock("@pitchou/server/database/dossier.ts", () => ({ dossiersAccessibleToUser: mocks.access }));
 vi.mock("@pitchou/server/database/decision_administrative.ts", () => ({
   getDossierIdFromDecisionAdministrative: mocks.dossierFromDecision,
   getDecisionAdministratives: mocks.decisions,
@@ -29,7 +29,7 @@ vi.mock("@pitchou/server/database/decision_administrative.ts", () => ({
 }));
 vi.mock("@pitchou/server/database/action_dossier.ts", () => ({ logDossierActions: mocks.audit }));
 vi.mock("@pitchou/server/database/personne.ts", () => ({
-  getPersonneByDossierCap: async () => ({ id: 7 }),
+  getUserById: async () => ({ id: 7 }),
 }));
 
 import { POST } from "./+server.ts";
@@ -45,6 +45,7 @@ const completeDecision = {
 
 function updateDecision(overrides: Record<string, unknown> = {}) {
   return POST({
+    locals: { user: { id: 7 } },
     url: new URL(
       "http://localhost/decision-administrative?cap=11111111-1111-4111-8111-111111111111",
     ),

@@ -1,12 +1,11 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
 import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { getDossierInstructionState, updateDossier } from "@pitchou/server/database/dossier.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import { getDossierReviewSnapshot } from "@pitchou/server/database/notification/snapshot.ts";
 import { actionsFromDossierUpdate } from "./updateActions.ts";
 import { parseDossierId, parseDossierUpdate } from "./updatePayload.ts";
@@ -21,13 +20,13 @@ function isUniqueViolation(err: unknown): boolean {
   );
 }
 
-export const GET: RequestHandler = async ({ params, url }) => {
-  const cap = requireCap(url);
+export const GET: RequestHandler = async ({ params, url, locals }) => {
+  const userId = requireUserId(locals);
   const dossierId = parseDossierId(params.dossierId!);
 
   const dossier = await getDossierReviewSnapshot(
     dossierId,
-    cap,
+    userId,
     url.searchParams.get("lecture") === "1",
   );
   if (!dossier) {
@@ -37,25 +36,20 @@ export const GET: RequestHandler = async ({ params, url }) => {
   return json(dossier);
 };
 
-export const POST: RequestHandler = async ({ params, url, request }) => {
-  const cap = requireCap(url);
-  const dossierId = await requireDossierAccessByCap(parseDossierId(params.dossierId!), cap);
-
-  const capPersonne = await getPersonneByDossierCap(cap);
-  if (!capPersonne) {
-    error(403, "Personne associée à la cap introuvable");
-  }
-
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = parseDossierId(params.dossierId!);
   const dossierUpdate = parseDossierUpdate(await readJsonObject(request), dossierId);
   const transaction = await createTransaction();
   try {
+    await requireDossierWriteAccess(dossierId, userId, transaction);
+    const current = await transaction("dossier").where({ id: dossierId }).forUpdate().first();
     // Read before writing: the historique labels the update against the state
     // it replaces.
     const before = await getDossierInstructionState(dossierId, transaction);
-    const current = await transaction("dossier").where({ id: dossierId }).forUpdate().first();
-    const updated = await updateDossier(dossierId, dossierUpdate, capPersonne.id, transaction);
+    const updated = await updateDossier(dossierId, dossierUpdate, userId, transaction);
     await logDossierActions(
-      actionsFromDossierUpdate(dossierUpdate, dossierId, capPersonne.id, before).map((action) => ({
+      actionsFromDossierUpdate(dossierUpdate, dossierId, userId, before).map((action) => ({
         ...action,
         data: {
           ...(action.data as object),

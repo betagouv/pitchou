@@ -85,13 +85,13 @@
 </script>
 
 {#snippet divider()}
-  <span class="mx-1 h-6 w-px shrink-0 bg-gray-300" aria-hidden="true"></span>
+  <span class="mx-1 h-6 w-px shrink-0 bg-[var(--border-default-grey)]" aria-hidden="true"></span>
 {/snippet}
 
 <!-- Framed toolbar, sticky right below the admin shell topbar (h-14): its own
      background and border keep it readable while the content scrolls under. -->
 <div
-  class="sticky top-14 z-10 rounded-t-lg border border-solid border-[var(--border-default-grey)] bg-gray-50 px-2 py-1.5 shadow-sm"
+  class="sticky top-14 z-10 rounded-t-lg border border-solid border-[var(--border-default-grey)] bg-[var(--background-lifted-grey)] px-2 py-1.5 shadow-sm"
 >
   <div class="flex items-center justify-between gap-4">
     <div class="flex flex-wrap items-center gap-0.5" role="toolbar" aria-label="Mise en forme">
@@ -103,7 +103,7 @@
           <button
             type="button"
             class="{TOOLBAR_BUTTON_CLASS} {button.icon ?? ''} {button.active?.()
-              ? 'bg-blue-100'
+              ? 'bg-[var(--background-action-low-blue-france)]'
               : ''}"
             title={button.title}
             aria-pressed={button.active ? button.active() : undefined}

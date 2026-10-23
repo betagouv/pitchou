@@ -24,12 +24,12 @@
 </script>
 
 <section
-  class="border-t border-[color:var(--border-default-grey)] fr-pt-4w"
+  class="border-t border-[color:var(--border-default-grey)]"
   aria-labelledby="location-title"
 >
-  <h2 class="fr-h2" id="location-title">4. Localisation du projet</h2>
+  <h2 id="location-title">4. Localisation du projet</h2>
 
-  <div class="fr-select-group w-full fr-mb-4w">
+  <div class="fr-select-group w-full fr-mb-2w">
     <label class="fr-label" for="location-primary-department">
       Dans quel département se localise majoritairement votre projet ?
       <span aria-hidden="true">*</span>

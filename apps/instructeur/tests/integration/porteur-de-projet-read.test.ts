@@ -5,15 +5,15 @@ import { attachDossierToGroupe, createDossier } from "../factories/dossier.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { SIRET, morale, physique } from "../factories/porteurDeProjet.ts";
 
-import { getDossierFull, getDossiersSummariesByCap } from "@pitchou/server/database/dossier.ts";
+import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 import { listDossiersForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 import { savePorteursDeProjet } from "@pitchou/server/database/porteur_de_projet.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 
 test("the dossiers read by the instructeurs carry their porteur de projet object", async () => {
   const instructeur = await createInstructeurWithDossier(db);
-  const cap = instructeur.cap as CapDossierCap;
+  const userId = instructeur.id as UserId;
   const physiqueId = instructeur.dossier.id as DossierId;
   const moraleId = (await createDossier(db)).id as DossierId;
   const sansPorteurId = (await createDossier(db)).id as DossierId;
@@ -28,7 +28,7 @@ test("the dossiers read by the instructeurs carry their porteur de projet object
     db,
   );
 
-  const summaries = await getDossiersSummariesByCap(cap, db);
+  const summaries = await getDossiersSummariesForUser(userId, db);
   const porteurOf = (id: DossierId) => summaries.find((summary) => summary.id === id)!;
   expect(porteurOf(physiqueId).porteur_de_projet).toMatchObject({
     type: "personne_physique",
@@ -45,7 +45,7 @@ test("the dossiers read by the instructeurs carry their porteur de projet object
     "porteur_de_projet",
   ]);
 
-  const full = await getDossierFull(physiqueId, cap, db);
+  const full = await getDossierFull(physiqueId, userId, db);
   expect(full?.porteur_de_projet).toEqual({
     type: "personne_physique",
     first_names: "Camille",
@@ -55,7 +55,7 @@ test("the dossiers read by the instructeurs carry their porteur de projet object
     phone: "0612345678",
     role: null,
   });
-  expect((await getDossierFull(moraleId, cap, db))?.porteur_de_projet).toMatchObject({
+  expect((await getDossierFull(moraleId, userId, db))?.porteur_de_projet).toMatchObject({
     type: "personne_morale",
     address: "2 rue B",
   });

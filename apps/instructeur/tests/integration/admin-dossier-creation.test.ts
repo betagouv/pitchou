@@ -7,17 +7,15 @@ import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.t
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 test("a legal dossier creation only stores its representative identity", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier personne morale",
       depot_date: new Date("2026-08-01"),
       phase: "Accompagnement amont",
       relations: {
-        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
         demandeur_type: "personne_morale",
         demandeur_personne_physique: null,
         demandeur_personne_morale: {
@@ -52,9 +50,9 @@ test("a legal dossier creation only stores its representative identity", async (
 });
 
 test("a physical dossier can be created without a duplicated identity name", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
-  const groupeId = instructeur.groupeId as GroupeInstructeursId;
-  const relations = physicalAdminDossierRelations(groupeId, "", "");
+  await createInstructeurWithCapToGroup(db);
+
+  const relations = physicalAdminDossierRelations("", "");
   relations.demandeur_personne_physique.address = "11 rue Réaumur, Paris 75002, France";
 
   const { id } = await createDossierFromAdmin(
@@ -107,14 +105,12 @@ test("a physical dossier can be created without a duplicated identity name", asy
 });
 
 test("a dossier created with only the SIRET of its porteur has a personne morale porteur", async () => {
-  const instructeur = await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier créé depuis la modale",
       depot_date: new Date("2026-08-01"),
       phase: "Accompagnement amont",
       relations: {
-        groupe_instructeurs: instructeur.groupeId as GroupeInstructeursId,
         demandeur_type: "personne_morale",
         demandeur_personne_physique: null,
         demandeur_personne_morale: {

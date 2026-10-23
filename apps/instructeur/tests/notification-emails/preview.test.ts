@@ -55,10 +55,7 @@ test.each(["preference", "follow", "access"])("preserves the %s delivery check",
     await db("edge_personne_follows_dossier")
       .where({ personne: recipient.id, dossier: actor.dossier.id })
       .delete();
-  if (change === "access")
-    await db("edge_cap_dossier__groupe_instructeurs")
-      .where({ cap_dossier: recipient.cap })
-      .delete();
+  if (change === "access") await db("user_groupe").where({ user_id: recipient.id }).delete();
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
   expect(capture).not.toHaveBeenCalled();
 });

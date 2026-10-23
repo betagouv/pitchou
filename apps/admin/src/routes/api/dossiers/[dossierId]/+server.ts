@@ -1,13 +1,12 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
-import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import {
   DossierNotCreatedInPitchouError,
   deleteDossierFromAdmin,
   getDossierSyncStatus,
-  updateDossierFromAdmin,
   updateDossierFromAdminInTransaction,
 } from "@pitchou/server/database/dossier_admin.ts";
 import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/fichier.ts";
@@ -30,6 +29,7 @@ import {
 
 import type { UploadedFichier } from "@pitchou/types/API_Pitchou.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
+import type { SessionUser } from "@pitchou/types/permissions.ts";
 
 // 23505 = unique_violation in PostgreSQL (duplicate phase event).
 function isUniqueViolation(err: unknown): boolean {
@@ -66,7 +66,16 @@ function parseUploads(value: unknown): {
   };
 }
 
-// Auth is enforced upstream by hooks.server.ts (session + isAdminEmail).
+function requireUploadPermissions(user: SessionUser, uploads: ReturnType<typeof parseUploads>) {
+  if (uploads.attachments.length > 0 && !user.permissions.includes("admin:dossiers:files")) {
+    error(403, "Permission requise pour gérer les pièces jointes des dossiers.");
+  }
+  if (uploads.speciesFile && !user.permissions.includes("admin:dossiers:species")) {
+    error(403, "Permission requise pour gérer les espèces impactées des dossiers.");
+  }
+}
+
+// Auth is enforced upstream by hooks.server.ts (session and permissions).
 export const GET: RequestHandler = async ({ params }) => {
   const dossierId = parseDossierId(params.dossierId!);
 
@@ -80,18 +89,12 @@ export const GET: RequestHandler = async ({ params }) => {
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const dossierId = parseDossierId(params.dossierId!);
   const { uploads: rawUploads, ...rawUpdate } = await readJsonObject(request);
-  const { speciesFile, attachments } = parseUploads(rawUploads);
+  const uploads = parseUploads(rawUploads);
+  const { speciesFile, attachments } = uploads;
+  // Reject missing upload rights before inspecting storage or validating the
+  // dossier payload. This early check never replaces the locked check below.
+  requireUploadPermissions(locals.user!, uploads);
   const update = parseDossierUpdate(rawUpdate, await loadActiviteContext());
-
-  if (!speciesFile && attachments.length === 0) {
-    try {
-      await updateDossierFromAdmin(dossierId, update, locals.user!.email);
-    } catch (err) {
-      throwHttpErrorForUpdate(err);
-    }
-    await dispatchArrivalEmailsAfterCommit(dossierId);
-    return json(await getDossierDetailForAdmin(dossierId));
-  }
 
   const species = speciesFile ? await validateSpeciesUpload(speciesFile) : null;
 
@@ -100,24 +103,26 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   let previousSpeciesFileId: FileId | undefined;
 
   try {
-    if (species) {
-      const stored = await registerUploadedFichier(species, directDatabaseConnection, {
-        mediaType: species.media_type,
-      });
-      if (!stored.id) throw new Error("Le fichier espèces impactées n'a pas pu être enregistré.");
-      storedSpeciesFileId = stored.id;
-    }
-    for (const attachment of attachments) {
-      const stored = await registerUploadedFichier(attachment);
-      if (!stored.id) throw new Error("La pièce jointe n'a pas pu être enregistrée.");
-      storedAttachmentIds.push(stored.id);
-    }
+    await withAdminWriteAccess(locals, "admin:dossiers:update", async (trx, actor) => {
+      requireUploadPermissions(actor, uploads);
+      if (species || attachments.length > 0) {
+        const { createdInPitchou } = await getDossierSyncStatus(dossierId, trx);
+        if (!createdInPitchou) throw new DossierNotCreatedInPitchouError(dossierId);
+      }
+      if (species) {
+        const stored = await registerUploadedFichier(species, trx, {
+          mediaType: species.media_type,
+        });
+        if (!stored.id) throw new Error("Le fichier espèces impactées n'a pas pu être enregistré.");
+        storedSpeciesFileId = stored.id;
+      }
+      for (const attachment of attachments) {
+        const stored = await registerUploadedFichier(attachment, trx);
+        if (!stored.id) throw new Error("La pièce jointe n'a pas pu être enregistrée.");
+        storedAttachmentIds.push(stored.id);
+      }
 
-    await directDatabaseConnection.transaction(async (trx) => {
-      const { createdInPitchou } = await getDossierSyncStatus(dossierId, trx);
-      if (!createdInPitchou) throw new DossierNotCreatedInPitchouError(dossierId);
-
-      await updateDossierFromAdminInTransaction(dossierId, update, locals.user!.email, trx);
+      await updateDossierFromAdminInTransaction(dossierId, update, actor.email, trx);
 
       if (storedSpeciesFileId) {
         const current = await trx("dossier")
@@ -156,11 +161,13 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
   return json(await getDossierDetailForAdmin(dossierId));
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
   const dossierId = parseDossierId(params.dossierId!);
 
   try {
-    await deleteDossierFromAdmin(dossierId);
+    await withAdminWriteAccess(locals, "admin:dossiers:delete", (trx) =>
+      deleteDossierFromAdmin(dossierId, trx),
+    );
   } catch (err) {
     throwHttpErrorForAdminDossier(err);
   }

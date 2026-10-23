@@ -4,6 +4,17 @@ import { timelineSteps } from "./timeline.ts";
 const DEPOT = new Date("2025-09-01");
 
 describe("timelineSteps", () => {
+  test("a timestamp tie keeps the timeline on the same phase as the dossier", () => {
+    const steps = timelineSteps(
+      [
+        { phase: "Contrôle", timestamp: new Date("2025-10-01") },
+        { phase: "Instruction", timestamp: new Date("2025-10-01") },
+      ],
+      DEPOT,
+    );
+    expect(steps.find(({ state }) => state === "current")?.label).toBe("Contrôle");
+  });
+
   test("a dossier without phase events is in Accompagnement amont", () => {
     const steps = timelineSteps([], DEPOT);
     expect(steps.map(({ label, state }) => [label, state])).toEqual([

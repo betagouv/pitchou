@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { randomUUID } from "node:crypto";
 import { db } from "../setup/db.ts";
@@ -14,7 +15,7 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   const pdfBytes = "DECISION-PDF-V1";
   const upload = await putPendingUpload(pdfBytes, "arrete.pdf");
 
-  const res = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+  const res = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/decision-administrative`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -44,7 +45,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   const v2 = await putPendingUpload("DECISION-V2-DIFFERENT", "v2.pdf");
 
   // initial creation
-  const res1 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+  const res1 = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/decision-administrative`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -64,7 +65,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   const v1Key = `files/${decision1.fichier}`;
 
   // modification
-  const res2 = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+  const res2 = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/decision-administrative`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -94,7 +95,7 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
 test("POST /decision-administrative rejette un type de propriété incorrect", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
 
-  const res = await fetch(`${INTEGRATION_BASE_URL}/decision-administrative?cap=${cap}`, {
+  const res = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/decision-administrative`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -128,8 +129,9 @@ test("decision updates reject foreign IDs and reassignment, even between owned d
   const filesBefore = await db("file").pluck("id");
   const replacement = await putPendingUpload("REPLACEMENT", "replacement.pdf");
   for (const id of [foreignDecision.id, ownedDecision.id, randomUUID()]) {
-    const response = await fetch(
-      `${INTEGRATION_BASE_URL}/decision-administrative?cap=${owner.cap}`,
+    const response = await fetchAuthenticated(
+      owner.cap,
+      `${INTEGRATION_BASE_URL}/decision-administrative`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -34,7 +34,6 @@ export const activiteContextFixture: ActiviteContext = {
 };
 
 export const relations = {
-  groupe_instructeurs: "groupe-1",
   demandeur_type: "personne_physique",
   demandeur_personne_physique: {
     last_name: "Martin",

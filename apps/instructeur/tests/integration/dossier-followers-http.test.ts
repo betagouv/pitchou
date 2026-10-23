@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import {
@@ -100,15 +101,19 @@ test("refollow creates a new personal revision without changing the applicant mo
   const first = await notificationFor(member.cap, assigner.dossier.id);
   expect(first.updated_at).toBeNull();
   expect(first.new_follow).not.toBeNull();
-  const read = await fetch(`${INTEGRATION_BASE_URL}/dossiers/notifications?cap=${member.cap}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      dossier: assigner.dossier.id,
-      arrival: true,
-      followRevision: first.new_follow!.revision,
-    }),
-  });
+  const read = await fetchAuthenticated(
+    member.cap,
+    `${INTEGRATION_BASE_URL}/dossiers/notifications`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dossier: assigner.dossier.id,
+        arrival: true,
+        followRevision: first.new_follow!.revision,
+      }),
+    },
+  );
   expect(read.status).toBe(200);
   expect(await read.json()).toMatchObject({ viewed: true, new_follow: null, updated_at: null });
   expect((await updateFollowers(assigner.cap, assigner.dossier.id, [])).status).toBe(204);
@@ -132,8 +137,9 @@ test("refollow creates a new personal revision without changing the applicant mo
 test("the self-follow endpoint creates a notification on first follow", async () => {
   const instructeur = await createInstructeurWithDossier(db, { email: "self@test.fr" });
 
-  const response = await fetch(
-    `${INTEGRATION_BASE_URL}/dossiers/relation-suivis?cap=${instructeur.cap}`,
+  const response = await fetchAuthenticated(
+    instructeur.cap,
+    `${INTEGRATION_BASE_URL}/dossiers/relation-suivis`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

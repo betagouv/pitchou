@@ -11,21 +11,15 @@ import {
   setEspecesImpacteesFromAdmin,
 } from "@pitchou/server/database/dossier_admin_files.ts";
 
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
-
 test("the fichier especes impactees can be replaced and removed from a native dossier", async () => {
   await getTestS3();
-  const instructeur = await createInstructeurWithCapToGroup(db);
+  await createInstructeurWithCapToGroup(db);
   const { id } = await createDossierFromAdmin(
     {
       name: "Dossier espèces impactées",
       depot_date: new Date("2026-07-13"),
       phase: "Instruction",
-      relations: physicalAdminDossierRelations(
-        instructeur.groupeId as GroupeInstructeursId,
-        "Martin",
-        "Camille",
-      ),
+      relations: physicalAdminDossierRelations("Martin", "Camille"),
     },
     "admin-files@pitchou.test",
     db,

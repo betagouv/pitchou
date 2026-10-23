@@ -56,7 +56,7 @@ export function notificationFilters(params: URLSearchParams): NotificationFilter
 export function notificationQuery(filters: NotificationFilters, db: Knex.Transaction) {
   const base = db("email_notification_outbox as n")
     .leftJoin("dossier as d", "d.id", "n.dossier")
-    .leftJoin("personne as p", "p.id", "n.personne");
+    .leftJoin("auth_user as p", "p.id", "n.personne");
   if (filters.kind) base.where("n.kind", filters.kind);
   if (filters.status) base.where("n.status", filters.status);
   if (filters.environment) base.where("n.environment", filters.environment);

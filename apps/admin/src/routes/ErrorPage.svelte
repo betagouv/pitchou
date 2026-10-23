@@ -38,11 +38,9 @@
   <title>{title} — Pitchou Admin</title>
 </svelte:head>
 
-<div
-  class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-grid-row--center"
->
-  <div class="fr-py-0 fr-col-12 fr-col-md-6">
-    <h1>{heading}</h1>
+<div class="admin-panel grid gap-6 items-center p-6! md:grid-cols-[1fr_12rem]">
+  <div class="min-w-0">
+    <h1 class="text-2xl mb-3">{heading}</h1>
     <p class="fr-text--sm fr-mb-3w">Erreur {status}</p>
     <p class="fr-text--lead fr-mb-3w">{lead}</p>
     {#if isNotFound}
@@ -87,7 +85,7 @@
       </button>
     </p>
   </div>
-  <div class="fr-col-12 fr-col-md-3 fr-col-offset-md-1 fr-px-6w fr-px-md-0 fr-py-0">
+  <div class="hidden md:block">
     <svg
       class="w-full h-auto max-w-[14rem] block mx-auto"
       aria-hidden="true"

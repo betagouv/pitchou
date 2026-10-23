@@ -8,7 +8,7 @@ import type { GroupeInstructeursId } from "./GroupeInstructeurs";
 export default interface EmailNotificationGroupeArrival {
   dossier: DossierId;
 
-  groupe_instructeurs: GroupeInstructeursId | null;
+  groupe_instructeurs: GroupeInstructeursId;
 
   revision: string;
 }
@@ -17,7 +17,7 @@ export default interface EmailNotificationGroupeArrival {
 export interface EmailNotificationGroupeArrivalInitializer {
   dossier: DossierId;
 
-  groupe_instructeurs?: GroupeInstructeursId | null;
+  groupe_instructeurs: GroupeInstructeursId;
 
   /** Default value: gen_random_uuid() */
   revision?: string;
@@ -27,7 +27,7 @@ export interface EmailNotificationGroupeArrivalInitializer {
 export interface EmailNotificationGroupeArrivalMutator {
   dossier?: DossierId;
 
-  groupe_instructeurs?: GroupeInstructeursId | null;
+  groupe_instructeurs?: GroupeInstructeursId;
 
   revision?: string;
 }

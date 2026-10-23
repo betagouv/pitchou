@@ -3,7 +3,7 @@ import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema
 import type { Knex } from "knex";
 import { synchronizeDossierRelations } from "../synchronizeDossierRelations.ts";
 import {
-  type startDossierFileDownloads,
+  type prepareDossierFiles,
   synchronizeDownloadedDossierFiles,
 } from "../synchronizeDossierFiles.ts";
 import type { SynchronizationOptions } from "./preparation.ts";
@@ -29,8 +29,7 @@ export async function markInitialDossierActions(
 export async function synchronizeRelationsAndFiles(
   dossiersDS: DossierDS88444[],
   dossiersForSync: Parameters<typeof synchronizeDossierRelations>[1],
-  fileDownloads: ReturnType<typeof startDossierFileDownloads>,
-  groupesInstructeursP: Promise<unknown>,
+  files: Awaited<ReturnType<typeof prepareDossierFiles>>,
   {
     demarcheNumber,
     pitchouKeyToChampDS,
@@ -40,7 +39,7 @@ export async function synchronizeRelationsAndFiles(
   const { dossierIdByDNNumber, acteursSynchronization, synchronizations } =
     await synchronizeDossierRelations(dossiersDS, dossiersForSync, demarcheNumber, transaction);
   const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
-    fileDownloads,
+    files,
     dossiersDS,
     dossierIdByDNNumber,
     pitchouKeyToChampDS,
@@ -51,7 +50,6 @@ export async function synchronizeRelationsAndFiles(
       especesImpacteesP,
       piecesJointesP,
       acteursSynchronization,
-      groupesInstructeursP,
       ...synchronizations,
     ]);
 

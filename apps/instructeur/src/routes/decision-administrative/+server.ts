@@ -1,14 +1,14 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "#lib/server/auth.ts";
+import { requireUserId, lockDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   parseUploadedFichier,
   throwUploadedFichierHttpError,
 } from "#lib/server/uploadedFichier.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
-import { dossiersAccessibleViaCap } from "@pitchou/server/database/dossier.ts";
+import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier.ts";
 import {
   updateDecisionAdministrative,
   addDecisionAdministrativeWithFichier,
@@ -16,7 +16,7 @@ import {
   getDecisionAdministratives,
 } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { DecisionAdministrativeForTransfer } from "@pitchou/types/API_Pitchou.ts";
 
 const decisionProperties = new Set([
@@ -60,24 +60,22 @@ function parseDecision(value: Record<string, unknown>): ValidatedDecision {
   return value as ValidatedDecision;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const decisionData = parseDecision(await readJsonObject(request));
 
   const transaction = await createTransaction();
   try {
-    const dossiersAccessibles = await dossiersAccessibleViaCap(
+    await lockDossierAccess(transaction);
+    const dossiersAccessibles = await dossiersAccessibleToUser(
       decisionData.dossier,
-      cap,
+      userId,
       transaction,
     );
     // Only an owning group can instruct the dossier.
     if (dossiersAccessibles.get(decisionData.dossier) !== "complet") {
       await transaction.rollback();
-      error(
-        400,
-        `La capability ${cap} ne permet pas d'avoir accès au dossier ${decisionData.dossier}`,
-      );
+      error(400, `Accès au dossier ${decisionData.dossier} refusé`);
     }
 
     if (
@@ -113,7 +111,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
       throwUploadedFichierHttpError(err);
     }
 
-    const author = await getPersonneByDossierCap(cap);
+    const author = await getUserById(userId, transaction);
     await logDossierActions(
       [
         {

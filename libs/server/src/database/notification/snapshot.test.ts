@@ -1,17 +1,17 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { getDossierReviewSnapshot } from "./snapshot.ts";
 import { getDossierFull } from "../dossier/full.ts";
-import { dossiersAccessibleViaCap } from "../dossier/access.ts";
-import { getNotificationsForPersonneFromCap } from "../notification.ts";
+import { dossiersAccessibleToUser } from "../dossier/access.ts";
+import { getNotificationsForUser } from "../notification.ts";
 import type { Knex } from "knex";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { DossierNotification } from "@pitchou/types/notification.ts";
 vi.mock("../dossier/full.ts", () => ({ getDossierFull: vi.fn() }));
-vi.mock("../dossier/access.ts", () => ({ dossiersAccessibleViaCap: vi.fn() }));
-vi.mock("../notification.ts", () => ({ getNotificationsForPersonneFromCap: vi.fn() }));
+vi.mock("../dossier/access.ts", () => ({ dossiersAccessibleToUser: vi.fn() }));
+vi.mock("../notification.ts", () => ({ getNotificationsForUser: vi.fn() }));
 const id = 1 as DossierFull["id"];
-const cap = "cap" as CapDossierCap;
+const cap = 1 as UserId;
 const dossier = {
   id,
   description: "Ancien",
@@ -20,9 +20,9 @@ const dossier = {
 } as unknown as DossierFull;
 const notification = { dossier: id, changes: [] } as unknown as DossierNotification;
 beforeEach(() => {
-  vi.mocked(dossiersAccessibleViaCap).mockResolvedValue(new Map([[id, "complet"]]));
+  vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map([[id, "complet"]]));
   vi.mocked(getDossierFull).mockResolvedValue(dossier);
-  vi.mocked(getNotificationsForPersonneFromCap).mockReset().mockResolvedValue([notification]);
+  vi.mocked(getNotificationsForUser).mockReset().mockResolvedValue([notification]);
 });
 
 test("values and personal revisions use the same owned repeatable-read transaction", async () => {
@@ -34,7 +34,7 @@ test("values and personal revisions use the same owned repeatable-read transacti
     readOnly: true,
   });
   expect(getDossierFull).toHaveBeenCalledWith(id, cap, trx);
-  expect(getNotificationsForPersonneFromCap).toHaveBeenCalledWith(cap, trx, id);
+  expect(getNotificationsForUser).toHaveBeenCalledWith(cap, trx, id);
   expect(result).toMatchObject({
     description: "Ancien",
     notificationSnapshot: notification,
@@ -46,13 +46,13 @@ test.each(["preview", "shared"])(
   "%s never reads or exposes personal review state",
   async (mode) => {
     if (mode === "shared")
-      vi.mocked(dossiersAccessibleViaCap).mockResolvedValue(new Map([[id, "lecture"]]));
+      vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map([[id, "lecture"]]));
     const db = {
       transaction: async (run: (trx: Knex.Transaction) => Promise<unknown>) =>
         run({} as Knex.Transaction),
     } as unknown as Knex;
     const result = await getDossierReviewSnapshot(id, cap, mode === "preview", db);
-    expect(getNotificationsForPersonneFromCap).not.toHaveBeenCalled();
+    expect(getNotificationsForUser).not.toHaveBeenCalled();
     expect(result?.notificationSnapshot).toBeUndefined();
   },
 );

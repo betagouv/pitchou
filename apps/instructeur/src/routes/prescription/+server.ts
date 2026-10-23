@@ -1,7 +1,7 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
-import { error, json } from "@sveltejs/kit";
+import { error, isHttpError, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap, requireDossierAccessByCap } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierAccess, lockDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
@@ -11,7 +11,6 @@ import {
 } from "@pitchou/server/database/prescription.ts";
 import { getDossierIdFromDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getPersonneByDossierCap } from "@pitchou/server/database/personne.ts";
 import type Prescription from "@pitchou/types/database/public/Prescription.ts";
 
 const prescriptionProperties = new Set([
@@ -81,31 +80,33 @@ function parsePrescription(value: Record<string, unknown>): Partial<Prescription
   return value as Partial<Prescription>;
 }
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ request, locals }) => {
+  const userId = requireUserId(locals);
   const prescriptionData = parsePrescription(await readJsonObject(request));
 
-  let dossierId;
-  if (prescriptionData.id) {
-    dossierId = await getDossierIdFromPrescription(prescriptionData.id);
-  } else if (prescriptionData.decision_administrative) {
-    dossierId = await getDossierIdFromDecisionAdministrative(
-      prescriptionData.decision_administrative,
-    );
-  }
-  const authorizedDossierId = await requireDossierAccessByCap(dossierId, cap);
-
-  const author = await getPersonneByDossierCap(cap);
-  if (!author) {
-    error(403, "Personne associée à la cap introuvable");
-  }
-
   const modification = !!prescriptionData.id;
-  // One transaction for the prescription and its historique: the timeline must
-  // never silently miss a change that went through — and a rolled-back write is
-  // safe for the browser to retry.
   const transaction = await createTransaction();
   try {
+    await lockDossierAccess(transaction);
+    let dossierId;
+    if (prescriptionData.id) {
+      dossierId = await requireDossierAccess(
+        await getDossierIdFromPrescription(prescriptionData.id, transaction),
+        userId,
+        transaction,
+      );
+    }
+    if (prescriptionData.decision_administrative) {
+      dossierId = await requireDossierAccess(
+        await getDossierIdFromDecisionAdministrative(
+          prescriptionData.decision_administrative,
+          transaction,
+        ),
+        userId,
+        transaction,
+      );
+    }
+    const authorizedDossierId = await requireDossierAccess(dossierId, userId, transaction);
     const current = modification
       ? await transaction("prescription").where({ id: prescriptionData.id }).forUpdate().first()
       : undefined;
@@ -121,7 +122,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
             article_number: prescriptionData.article_number ?? null,
             email_notification: hasChangedValues(current, prescriptionData),
           },
-          author_personne: author.id,
+          author_personne: userId,
         },
       ],
       transaction,
@@ -132,6 +133,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     if (!transaction.isCompleted()) {
       await transaction.rollback();
     }
+    if (isHttpError(err)) throw err;
     error(500, `Erreur lors de l'ajout/modification de prescription. ${err}`);
   }
 };

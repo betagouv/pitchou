@@ -2,7 +2,6 @@ import { expect, test, describe } from "vitest";
 
 import { db } from "../setup/db.ts";
 import {
-  createPersonne,
   createInstructeurWithCapToGroup,
   createGroupeInstructeurs,
   attachCapToGroupe,
@@ -10,6 +9,10 @@ import {
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 
 import type { EvenementMetrique } from "@pitchou/types/evenement.d.ts";
+
+async function createUser(values: { email: string; last_name?: string }) {
+  return (await db("auth_user").insert(values).returning("*"))[0];
+}
 
 // A fixed Wednesday so several events for one personne land in the same week.
 const WEEK_DAY = new Date("2026-02-04T12:00:00.000Z");
@@ -30,10 +33,10 @@ async function ajouterEvenements(
 
 describe("getUtilisateursAARRI", () => {
   test("computes the AARRI level of each Pitchou account", async () => {
-    await createPersonne(db, { email: "base@dept.gouv.fr", last_name: "Base" });
-    const acquis = await createPersonne(db, { email: "acquis@dept.gouv.fr", last_name: "Acquis" });
-    const actif = await createPersonne(db, { email: "actif@dept.gouv.fr", last_name: "Actif" });
-    const impact = await createPersonne(db, { email: "impact@dept.gouv.fr", last_name: "Impact" });
+    await createUser({ email: "base@dept.gouv.fr", last_name: "Base" });
+    const acquis = await createUser({ email: "acquis@dept.gouv.fr", last_name: "Acquis" });
+    const actif = await createUser({ email: "actif@dept.gouv.fr", last_name: "Actif" });
+    const impact = await createUser({ email: "impact@dept.gouv.fr", last_name: "Impact" });
 
     await ajouterEvenements(acquis.id, "seConnecter", 1);
     await ajouterEvenements(actif.id, "modifierPrescription", 5);
@@ -67,7 +70,7 @@ describe("getUtilisateursAARRI", () => {
     await attachCapToGroupe(db, cap, autreGroupe.id);
 
     // Belongs to no groupe.
-    await createPersonne(db, { email: "sans-groupe@dept.gouv.fr" });
+    await createUser({ email: "sans-groupe@dept.gouv.fr" });
 
     const utilisateurs = await getUtilisateursAARRI(db);
     const byEmail = new Map(utilisateurs.map((u) => [u.email, u]));
@@ -79,8 +82,8 @@ describe("getUtilisateursAARRI", () => {
     expect(byEmail.get("sans-groupe@dept.gouv.fr")?.groupesInstructeurs).toEqual([]);
   });
 
-  test("excludes personnes that are not Pitchou accounts (no code d'accès)", async () => {
-    await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
+  test("excludes applicant contacts from Pitchou accounts", async () => {
+    await createUser({ email: "instructeur@dept.gouv.fr" });
     // A contact with no code d'accès, inserted directly to bypass the factory default.
     await db("personne").insert({ email: "petitionnaire@exemple.fr", access_code: null });
 
@@ -92,8 +95,8 @@ describe("getUtilisateursAARRI", () => {
   });
 
   test("excludes the team's own accounts (@beta.gouv.fr)", async () => {
-    await createPersonne(db, { email: "instructeur@dept.gouv.fr" });
-    await createPersonne(db, { email: "membre@beta.gouv.fr" });
+    await createUser({ email: "instructeur@dept.gouv.fr" });
+    await createUser({ email: "membre@beta.gouv.fr" });
 
     const utilisateurs = await getUtilisateursAARRI(db);
     const emails = utilisateurs.map((u) => u.email);

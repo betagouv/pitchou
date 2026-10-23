@@ -1,10 +1,10 @@
 import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { emailNotificationPreferencesFromCap } from "@pitchou/server/database/email_notification_preferences.ts";
+import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
 import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
 import { setup, dispatch } from "./fixtures.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 
 const metrics = (name: string) =>
   db("evenement_metrique").where({ evenement: `notificationEmail${name}` });
@@ -13,8 +13,8 @@ test("authenticated settings changes are atomic, private, timestamped and skip n
   const { actor } = await setup();
   const values = { arrival: true, assignment: false, novelty: true };
   await Promise.all([
-    emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, values, db),
-    emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, values, db),
+    emailNotificationPreferencesForUser(actor.id as UserId, values, db),
+    emailNotificationPreferencesForUser(actor.id as UserId, values, db),
   ]);
   const events = await metrics("SettingsChanged");
   expect(events).toHaveLength(1);
@@ -29,8 +29,8 @@ test("authenticated settings changes are atomic, private, timestamped and skip n
   expect(new Date(events[0].details.occurredAt).getTime()).toBe(events[0].date.getTime());
   await expect(
     db.transaction(async (trx) => {
-      await emailNotificationPreferencesFromCap(
-        actor.cap as CapDossierCap,
+      await emailNotificationPreferencesForUser(
+        actor.id as UserId,
         { ...values, novelty: false },
         trx,
       );
@@ -38,13 +38,7 @@ test("authenticated settings changes are atomic, private, timestamped and skip n
     }),
   ).rejects.toThrow("rollback");
   expect(await metrics("SettingsChanged")).toHaveLength(1);
-  expect(
-    await emailNotificationPreferencesFromCap(
-      "00000000-0000-0000-0000-000000000000" as CapDossierCap,
-      values,
-      db,
-    ),
-  ).toBeUndefined();
+  expect(await emailNotificationPreferencesForUser(0 as UserId, values, db)).toBeUndefined();
   expect(await metrics("SettingsChanged")).toHaveLength(1);
   await db("email_notification_preferences")
     .where({ personne: actor.id })

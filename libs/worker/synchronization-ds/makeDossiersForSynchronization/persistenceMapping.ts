@@ -75,7 +75,6 @@ export async function makeChampsDossierForInitialization(
     evenement_phase_dossier: additionalData?.evenement_phase_dossier,
     avis_expert: additionalData?.avis_expert,
     decision_administrative: additionalData?.decision_administrative,
-    followers: additionalData?.followers,
   };
 }
 

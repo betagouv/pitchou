@@ -1,29 +1,35 @@
 import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
-import { updateDossierFollowersFromCap } from "@pitchou/server/database/relation_suivi.ts";
-import { emailNotificationPreferencesFromCap } from "@pitchou/server/database/email_notification_preferences.ts";
-import type { CapDossierCap } from "@pitchou/types/database/public/CapDossier.ts";
+import { updateDossierFollowers } from "@pitchou/server/database/relation_suivi.ts";
+import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 
 import { setup, dispatch } from "./fixtures.ts";
 
-test("preferences default to enabled, persist independently and belong to the capability owner", async () => {
+test("preferences default to enabled, persist independently and belong to the authenticated user", async () => {
   const { actor, recipient } = await setup();
-  expect(
-    await emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: true, novelty: true, arrival: true });
-  await emailNotificationPreferencesFromCap(
-    recipient.cap as CapDossierCap,
+  expect(await emailNotificationPreferencesForUser(actor.id as UserId, undefined, db)).toEqual({
+    assignment: true,
+    novelty: true,
+    arrival: true,
+  });
+  await emailNotificationPreferencesForUser(
+    recipient.id as UserId,
     { assignment: false, novelty: true, arrival: true },
     db,
   );
-  expect(
-    await emailNotificationPreferencesFromCap(recipient.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: false, novelty: true, arrival: true });
-  expect(
-    await emailNotificationPreferencesFromCap(actor.cap as CapDossierCap, undefined, db),
-  ).toEqual({ assignment: true, novelty: true, arrival: true });
+  expect(await emailNotificationPreferencesForUser(recipient.id as UserId, undefined, db)).toEqual({
+    assignment: false,
+    novelty: true,
+    arrival: true,
+  });
+  expect(await emailNotificationPreferencesForUser(actor.id as UserId, undefined, db)).toEqual({
+    assignment: true,
+    novelty: true,
+    arrival: true,
+  });
 });
 
 test("aggregates third-party changes per followed dossier, sends at the due time once", async () => {
@@ -122,8 +128,8 @@ test("queues immediate assignments only for newly added third-party followers", 
   await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
   const assign = async () =>
     db.transaction(async (trx) => {
-      const updated = await updateDossierFollowersFromCap(
-        actor.cap as CapDossierCap,
+      const updated = await updateDossierFollowers(
+        actor.id as UserId,
         actor.dossier.id as ActionDossierInitializer["dossier"],
         [actor.email, recipient.email],
         trx,
@@ -158,10 +164,7 @@ test.each(["preference", "unfollow", "access"])("rechecks %s before delivery", a
       .update({ novelty: false, arrival: true });
   if (change === "unfollow")
     await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
-  if (change === "access")
-    await db("edge_cap_dossier__groupe_instructeurs")
-      .where({ cap_dossier: recipient.cap })
-      .delete();
+  if (change === "access") await db("user_groupe").where({ user_id: recipient.id }).delete();
   expect((await dispatch(row.due_at)).send).not.toHaveBeenCalled();
   expect((await db("email_notification_outbox").first()).status).toBe("cancelled");
 });

@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { synchronizeDossierInGroupeInstructeur } from "@pitchou/server/database/dossier.ts";
+import { attachDossierToGroupe } from "../factories/index.ts";
 import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
 import { setupArrival } from "./arrivalFixtures.ts";
 import { dispatch } from "./fixtures.ts";
@@ -42,15 +42,11 @@ test("enforces the arrival preference independently of assignment and novelty", 
   expect((await db("email_notification_outbox")).map((r) => r.personne)).toEqual([member.id]);
 });
 
-test("DN upserts and admin delete/reinsert saves do not notify unchanged groups again", async () => {
+test("Department routing and admin delete/reinsert saves do not notify unchanged groups again", async () => {
   const { arrive, dossier, member } = await setupArrival();
   await arrive();
   await dispatch(new Date());
-  await synchronizeDossierInGroupeInstructeur(
-    [{ number: 123456, groupeInstructeur: { label: "Arrival group" } }],
-    88444,
-    db,
-  );
+  await db.transaction((trx) => attachDossierToGroupe(trx, dossier.id, member.groupeId));
   await db.transaction(async (trx) => {
     await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossier.id }).delete();
     await trx("edge_groupe_instructeurs__dossier").insert({
@@ -62,13 +58,9 @@ test("DN upserts and admin delete/reinsert saves do not notify unchanged groups 
   expect((await dispatch(new Date())).send).not.toHaveBeenCalled();
 });
 
-test("a newly synchronized DN group relation queues arrivals without any novelty event", async () => {
-  await setupArrival();
-  await synchronizeDossierInGroupeInstructeur(
-    [{ number: 123456, groupeInstructeur: { label: "Arrival group" } }],
-    88444,
-    db,
-  );
+test("a newly routed department relation queues arrivals without any novelty event", async () => {
+  const { dossier, member } = await setupArrival();
+  await db.transaction((trx) => attachDossierToGroupe(trx, dossier.id, member.groupeId));
   const rows = await db("email_notification_outbox");
   expect(rows).toHaveLength(2);
   expect(rows.every((row) => row.kind === "arrival")).toBe(true);
@@ -110,12 +102,7 @@ test("uses final transaction membership and never queues rolled-back arrivals", 
       dossier: dossier.id,
       groupe_instructeurs: member.groupeId,
     });
-    await trx("edge_cap_dossier__groupe_instructeurs")
-      .whereIn(
-        "cap_dossier",
-        trx("cap_dossier").select("cap").where({ personne_cap: colleague.codeAcces }),
-      )
-      .delete();
+    await trx("user_groupe").where({ user_id: colleague.id }).delete();
   });
   expect((await db("email_notification_outbox")).map((r) => r.personne)).toEqual([member.id]);
 });
@@ -129,8 +116,7 @@ test.each(["preference", "membership", "dossier"])(
       await db("email_notification_preferences")
         .where({ personne: member.id })
         .update({ arrival: false });
-    if (change === "membership")
-      await db("edge_cap_dossier__groupe_instructeurs").where({ cap_dossier: member.cap }).delete();
+    if (change === "membership") await db("user_groupe").where({ user_id: member.id }).delete();
     if (change === "dossier") await db("dossier").where({ id: dossier.id }).delete();
     const result = await dispatch(new Date());
     expect(result.send.mock.calls.map(([message]) => message.to)).toEqual(

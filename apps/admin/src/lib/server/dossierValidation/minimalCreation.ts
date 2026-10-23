@@ -2,20 +2,15 @@ import { error } from "@sveltejs/kit";
 
 import type { AdminDossierRelations } from "@pitchou/server/database/dossier_admin_relations.ts";
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
-import type { GroupeInstructeursId } from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 
 import { rejectUnknownProperties } from "../requestValidation";
 
 const trimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
-/** Relations of a dossier created from the « Créer un dossier » modal: its groupe and porteur. */
+/** Relations of a dossier created from the « Créer un dossier » modal: its porteur. */
 export function parseMinimalCreationRelations(
   body: Record<string, unknown>,
 ): AdminDossierRelations {
-  if (typeof body.groupe_instructeurs !== "string" || !body.groupe_instructeurs) {
-    error(400, "Le groupe instructeurs est requis.");
-  }
-  const groupe_instructeurs = body.groupe_instructeurs as GroupeInstructeursId;
   const raw = body.porteur_de_projet;
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     error(400, "Le porteur de projet est requis.");
@@ -31,7 +26,6 @@ export function parseMinimalCreationRelations(
     }
     const identity = { last_name, first_names, email: null, phone: null, role: null };
     return {
-      groupe_instructeurs,
       demandeur_type: "personne_physique",
       demandeur_personne_physique: { ...identity, address: null },
       demandeur_personne_morale: null,
@@ -46,7 +40,6 @@ export function parseMinimalCreationRelations(
       error(400, "Le numéro de SIRET du porteur de projet doit contenir 14 chiffres.");
     }
     return {
-      groupe_instructeurs,
       demandeur_type: "personne_morale",
       demandeur_personne_physique: null,
       demandeur_personne_morale: {

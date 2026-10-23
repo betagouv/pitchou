@@ -136,7 +136,7 @@ export async function seed(knex: Knex) {
       const profile = ACTIVITY_PROFILES[i];
       const seedPerson = SEED_PERSONNES[i];
 
-      const personne = await transaction("personne").where({ email: seedPerson.email }).first();
+      const personne = await transaction("auth_user").where({ email: seedPerson.email }).first();
       if (!personne) continue;
 
       // Idempotence: remove existing metric events before re-inserting

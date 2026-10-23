@@ -1,17 +1,17 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireCap } from "#lib/server/auth.ts";
+import { requireUserId } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
-import { emailNotificationPreferencesFromCap } from "@pitchou/server/database/email_notification_preferences.ts";
+import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
 
-export const GET: RequestHandler = async ({ url }) => {
-  const preferences = await emailNotificationPreferencesFromCap(requireCap(url));
-  if (!preferences) error(403, "Capability invalide");
+export const GET: RequestHandler = async ({ locals }) => {
+  const preferences = await emailNotificationPreferencesForUser(requireUserId(locals));
+  if (!preferences) error(403, "Compte inaccessible");
   return json(preferences);
 };
 
-export const POST: RequestHandler = async ({ url, request }) => {
-  const cap = requireCap(url);
+export const POST: RequestHandler = async ({ locals, request }) => {
+  const userId = requireUserId(locals);
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, new Set(["assignment", "novelty", "arrival"]));
   if (
@@ -21,11 +21,11 @@ export const POST: RequestHandler = async ({ url, request }) => {
   ) {
     error(400, "Les trois préférences doivent être des booléens.");
   }
-  const preferences = await emailNotificationPreferencesFromCap(cap, {
+  const preferences = await emailNotificationPreferencesForUser(userId, {
     assignment: body.assignment,
     novelty: body.novelty,
     arrival: body.arrival,
   });
-  if (!preferences) error(403, "Capability invalide");
+  if (!preferences) error(403, "Compte inaccessible");
   return json(preferences);
 };

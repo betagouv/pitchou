@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import {
@@ -18,19 +19,27 @@ export const PUT: RequestHandler = async ({ request, params, locals }) => {
   }
 
   // `modified_by` is always the logged-in admin email, never trusted from the client.
-  await upsertEspeceProtegeeModification(cd_ref, {
-    ...validation.value,
-    modified_by: locals.user!.email,
-  });
+  await withAdminWriteAccess(locals, "admin:especes:manage", (trx, actor) =>
+    upsertEspeceProtegeeModification(
+      cd_ref,
+      {
+        ...validation.value,
+        modified_by: actor.email,
+      },
+      trx,
+    ),
+  );
   return json({ succès: true });
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
   const { cd_ref } = params;
   if (!cd_ref) {
     error(400, "Paramètre 'cd_ref' manquant");
   }
 
-  await deleteEspeceProtegeeModification(cd_ref);
+  await withAdminWriteAccess(locals, "admin:especes:manage", (trx) =>
+    deleteEspeceProtegeeModification(cd_ref, trx),
+  );
   return new Response(null, { status: 204 });
 };

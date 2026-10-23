@@ -1,5 +1,5 @@
 import { render } from "svelte/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
@@ -37,7 +37,7 @@ function detail(
       phone: null,
       role: null,
     },
-    groupe: { id: "groupe-1", name: "Groupe test" },
+    groupes: [{ id: "groupe-1", name: "Groupe test" }],
     acteurs: [],
     evenementsPhase: [],
     piecesJointes: [],
@@ -102,3 +102,11 @@ describe("DossierAdminForm", () => {
     expect(regions).not.toContain('id="edit-commune-search"');
   });
 });
+
+vi.mock("$app/state", async () => ({
+  page: {
+    data: {
+      user: { permissions: (await import("@pitchou/types/permissions.ts")).BUNDLES.administrateur },
+    },
+  },
+}));

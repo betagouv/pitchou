@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type { PersonneId } from "@pitchou/types/database/public/Personne.ts";
+import type { UserId as PersonneId } from "@pitchou/types/permissions.ts";
 import { updateDecisionAdministrative } from "@pitchou/server/database/decision_administrative.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { fileKey } from "@pitchou/server/objectStorage.ts";

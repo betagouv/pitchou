@@ -1,3 +1,4 @@
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
 
@@ -73,7 +74,11 @@ const ROUTES = {
 } as const;
 
 function download(route: string, fileId: string, query = "") {
-  return fetch(`${INTEGRATION_BASE_URL}${route}/${fileId}${query}`);
+  const params = new URLSearchParams(query);
+  const token = params.get("cap");
+  params.delete("cap");
+  const url = `${INTEGRATION_BASE_URL}${route}/${fileId}?${params}`;
+  return token ? fetchAuthenticated(token, url) : fetch(url);
 }
 
 test("un fichier n'est pas téléchargeable sans cap", async () => {
@@ -81,7 +86,7 @@ test("un fichier n'est pas téléchargeable sans cap", async () => {
 
   for (const [kind, route] of Object.entries(ROUTES)) {
     const response = await download(route, files[kind as keyof typeof files]);
-    expect(response.status, `${kind} sans cap`).toBe(400);
+    expect(response.status, `${kind} sans cap`).toBe(401);
   }
 });
 
@@ -105,7 +110,7 @@ test("une cap inconnue ou malformée ne permet aucun téléchargement", async ()
   for (const cap of [randomUUID(), "invalid-cap"]) {
     for (const [kind, route] of Object.entries(ROUTES)) {
       const response = await download(route, files[kind as keyof typeof files], `?cap=${cap}`);
-      expect([403, 404]).toContain(response.status);
+      expect([401]).toContain(response.status);
     }
   }
 });
@@ -164,11 +169,11 @@ test("en lecture seule, seuls les fichiers partagés sont téléchargeables", as
   }
 });
 
-test("les URL de fichiers du dossier portent la cap", async () => {
+test("les URL de fichiers utilisent la session sans secret dans le lien", async () => {
   const { cap, dossierId } = await createDossierWithFiles("instr@fichier-urls.fr");
 
   const dossier = await (
-    await fetch(`${INTEGRATION_BASE_URL}/dossier/${dossierId}?cap=${cap}`)
+    await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossierId}`)
   ).json();
 
   const urls = [
@@ -180,8 +185,8 @@ test("les URL de fichiers du dossier portent la cap", async () => {
     dossier.especesImpactees.sourceFile.url,
   ];
   for (const url of urls) {
-    expect(url).toContain(`cap=${cap}`);
+    expect(url).not.toContain("cap=");
     // And the URL works as handed out, without the client adding anything.
-    expect((await fetch(`${INTEGRATION_BASE_URL}${url}`)).status).toBe(200);
+    expect((await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}${url}`)).status).toBe(200);
   }
 });

@@ -1,28 +1,32 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { render } from "svelte/server";
-import { isAdminEmail } from "@pitchou/server/admin.ts";
 import { emailFilters, emailOverview } from "@pitchou/server/database/email_monitoring.ts";
 import { load } from "./+page.server.ts";
 import { emailListUrl, defaultEmailFilters } from "./query.ts";
 import MailTable from "./MailTable.svelte";
 import type { EmailRow } from "@pitchou/types/adminEmails.ts";
-vi.mock("@pitchou/server/admin.ts", () => ({ isAdminEmail: vi.fn() }));
 vi.mock("@pitchou/server/database/email_monitoring.ts", async (original) => ({
   ...(await original<typeof import("@pitchou/server/database/email_monitoring.ts")>()),
   emailOverview: vi.fn(),
 }));
 function event(user: { email: string } | null, search = "") {
-  return { locals: { user }, url: new URL(`https://admin.test/mails${search}`) } as never;
+  return {
+    locals: {
+      user: user && {
+        ...user,
+        permissions: user.email === "admin@test.fr" ? ["admin:access"] : [],
+      },
+    },
+    url: new URL(`https://admin.test/mails${search}`),
+  } as never;
 }
 beforeEach(() => vi.clearAllMocks());
 test("requires an authenticated admin before querying either source or details", async () => {
   await expect(load(event(null))).rejects.toMatchObject({ status: 401 });
-  vi.mocked(isAdminEmail).mockReturnValue(false);
   await expect(load(event({ email: "user@test.fr" }))).rejects.toMatchObject({ status: 403 });
   expect(emailOverview).not.toHaveBeenCalled();
 });
 test("validates filters before querying, and returns unified read-only results", async () => {
-  vi.mocked(isAdminEmail).mockReturnValue(true);
   vi.mocked(emailOverview).mockResolvedValue({
     rows: [],
     counts: [],

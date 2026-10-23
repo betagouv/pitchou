@@ -1,3 +1,4 @@
+import { loginBrowser } from "../helpers/browserAuth.ts";
 import { expect, type Page } from "@playwright/test";
 import type { Knex } from "knex";
 import {
@@ -74,7 +75,7 @@ export async function setupMesDossiers(db: Knex) {
   };
 }
 
-export async function gotoMesDossiers(page: Page): Promise<void> {
-  await page.goto(`/?secret=${MES_DOSSIERS_CODE}`);
+export async function gotoMesDossiers(page: Page, db: Knex): Promise<void> {
+  await loginBrowser(page, db, MES_DOSSIERS_CODE);
   await expect(page.getByRole("heading", { level: 1, name: "Mes dossiers" })).toBeVisible();
 }

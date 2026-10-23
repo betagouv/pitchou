@@ -17,7 +17,8 @@
     "ky": "catalog:",
     "p-limit": "catalog:",
     "pg": "catalog:",
-    "sanitize-html": "catalog:"
+    "sanitize-html": "catalog:",
+    "jose": "catalog:"
   },
   "devDependencies": {
     "@types/sanitize-html": "catalog:",
