@@ -1,5 +1,5 @@
 import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
-import { orderedPhases } from "@pitchou/common/phases.ts";
+import { orderedPhases, comparePhaseEventsNewestFirst } from "@pitchou/common/phases.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
 type PhaseEvent = { phase: DossierPhase; timestamp: Date | string };
@@ -26,9 +26,7 @@ export function timelineSteps(
   events: readonly PhaseEvent[],
   depotDate: Date | string | null | undefined,
 ): TimelineStep[] {
-  const ascending = [...events].sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  );
+  const ascending = [...events].sort(comparePhaseEventsNewestFirst).reverse();
   // No event records the initial default phase. Actual returns keep their event dates.
   if (depotDate && ascending[0]?.phase !== "Accompagnement amont") {
     ascending.unshift({ phase: "Accompagnement amont", timestamp: depotDate });

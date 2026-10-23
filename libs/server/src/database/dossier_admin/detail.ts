@@ -14,6 +14,7 @@ import {
 import { DossierNotFoundError } from "./errors.ts";
 import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
 import { getDossierActeurs } from "../dossier/acteurs.ts";
+import { orderPhaseEvents } from "../phaseHistory.ts";
 
 export type AdminPhaseHistoryEntry = {
   phase: DossierPhase;
@@ -72,7 +73,7 @@ export async function getDossierDetailForAdmin(
           "personne.id": "evenement_phase_dossier.caused_by_personne",
         })
         .where({ dossier: dossierId })
-        .orderBy("timestamp", "desc"),
+        .modify(orderPhaseEvents),
       db("edge_dossier__fichier_pieces_jointes_petitionnaire")
         .select([
           "file.id",

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { timelineSteps } from "./timeline.ts";
   import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
+  import { comparePhaseEventsNewestFirst } from "@pitchou/common/phases.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
@@ -11,11 +12,7 @@
   let { events, depotDate }: Props = $props();
 
   const steps = $derived(timelineSteps(events, depotDate));
-  const latestEvent = $derived(
-    [...events]
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-      .at(-1),
-  );
+  const latestEvent = $derived([...events].sort(comparePhaseEventsNewestFirst)[0]);
 
   // Same green as the list's progress bar.
   const DONE_COLOR = "bg-[#61CE8C]";

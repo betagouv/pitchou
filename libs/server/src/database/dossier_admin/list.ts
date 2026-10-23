@@ -11,6 +11,7 @@ import {
   withPorteurDeProjet,
 } from "../dossier/porteur.ts";
 import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import { orderPhaseEvents } from "../phaseHistory.ts";
 
 export type AdminDossierSummary = {
   id: DossierId;
@@ -40,10 +41,8 @@ function latestPhase(db: Knex.Transaction | Knex) {
   return db("evenement_phase_dossier")
     .distinctOn("dossier")
     .select(["dossier", "phase", "timestamp"])
-    .orderBy([
-      { column: "dossier", order: "asc" },
-      { column: "timestamp", order: "desc" },
-    ])
+    .orderBy("dossier", "asc")
+    .modify(orderPhaseEvents)
     .as("latest_phase");
 }
 function withRelations(query: Knex.QueryBuilder, db: Knex.Transaction | Knex) {

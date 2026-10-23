@@ -36,7 +36,7 @@
     };
   }
 
-  const phase = $derived(dossier.evenementsPhase.at(-1)?.phase || "Accompagnement amont");
+  const phase = $derived(dossier.evenementsPhase[0]?.phase || "Accompagnement amont");
 
   let classes = $derived([
     "fr-btn",

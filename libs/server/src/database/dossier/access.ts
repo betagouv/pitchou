@@ -4,6 +4,7 @@ import { BUNDLES, type Permission, type UserId } from "@pitchou/types/permission
 import type { DossierAccess } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import { orderPhaseEvents } from "../phaseHistory.ts";
 
 export function permissionQuery(
   userId: UserId,
@@ -77,10 +78,8 @@ export async function getLatestEvenementsPhaseDossiers(
     .select("dossier", "phase", "timestamp")
     .whereIn("dossier", dossierAccessQuery(userId, db).clearSelect().select("dossier.id"))
     .distinctOn("dossier")
-    .orderBy([
-      { column: "dossier", order: "asc" },
-      { column: "timestamp", order: "desc" },
-    ]);
+    .orderBy("dossier", "asc")
+    .modify(orderPhaseEvents);
 }
 
 export async function getEvenementsPhaseDossiers(
@@ -94,7 +93,8 @@ export async function getEvenementsPhaseDossiers(
       "access.dossier",
       "evenement_phase_dossier.dossier",
     )
-    .where("access.access", "complet");
+    .where("access.access", "complet")
+    .modify(orderPhaseEvents);
 }
 
 export async function getEvenementsPhaseDossier(
@@ -104,5 +104,5 @@ export async function getEvenementsPhaseDossier(
   return db("evenement_phase_dossier")
     .select("*")
     .where({ dossier: dossierId })
-    .orderBy("timestamp", "desc");
+    .modify(orderPhaseEvents);
 }

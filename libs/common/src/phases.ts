@@ -9,6 +9,22 @@ export const phases: Set<DossierPhase> = new Set([
   "Obligations terminées",
 ]);
 
+// At equal timestamps, prefer the later phase in this order, regardless of author.
+// Closed states follow active phases; Obligations terminées wins a tie with Classé sans suite.
+export const phaseTieBreakOrder: readonly DossierPhase[] = [...phases];
+
+export function comparePhaseEventsNewestFirst(
+  a: { phase: DossierPhase; timestamp: Date | string },
+  b: { phase: DossierPhase; timestamp: Date | string },
+): number {
+  // Match PostgreSQL timestamp precision 0, including optimistic events not saved yet.
+  return (
+    Math.round(new Date(b.timestamp).getTime() / 1000) -
+      Math.round(new Date(a.timestamp).getTime() / 1000) ||
+    phaseTieBreakOrder.indexOf(b.phase) - phaseTieBreakOrder.indexOf(a.phase)
+  );
+}
+
 /**
  * The phases a dossier goes through, in order. « Classé sans suite » is left out: it ends
  * the dossier early, wherever it stood, so it has no place in the progression.
