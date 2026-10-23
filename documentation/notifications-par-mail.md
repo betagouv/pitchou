@@ -42,7 +42,7 @@ Dans `/__fleet/mail/`, ouvrir un **nouveau** message de chaque type. Vérifier l
 
 Le logo est un PNG transparent en double résolution, exporté depuis `libs/ui/src/pitchou-logo.svg`, servi par l'application instructeur à `/images/pitchou-logo-email.png`. L'URL utilise `PUBLIC_SITE_URL_PITCHOU`. Les styles sont intégrés au HTML et la mise en page utilise des tableaux de présentation, sans police distante ni SVG dans les mails. Les anciens messages déjà reçus restent tels quels. Un message dont la première tentative a déjà figé le contenu conserve également ce contenu lors des reprises.
 
-La boîte locale de l'aperçu était vide lors du contrôle du 22 octobre 2026. Ne pas supposer que les anciens exemples visuels sont encore disponibles. Les tests des trois modèles vérifient le contenu et les liens ; les rendus réels Outlook, Gmail et les transformations de couleurs de leurs modes sombres restent à vérifier dans ces clients.
+Les tests des trois modèles vérifient le contenu et les liens. Les rendus réels Outlook, Gmail et les transformations de couleurs de leurs modes sombres restent à vérifier dans ces clients.
 
 ### Déclenchements
 
@@ -140,24 +140,10 @@ Ouvrir **Administration > Notifications par mail**, ou **Mails > Consulter les n
 
 Chaque ligne montre type, dossier, destinataire, dates, état, environnement, tentatives et diagnostic. **Historique** ouvre les transitions et tentatives de cette notification. Une erreur de tentative reste en attente, avec sa catégorie et sa date de reprise. **Accepté par l'expéditeur** signifie une acceptation par Brevo ou Mailpit, sans preuve de réception. Aucun suivi de distribution, rebond, ouverture ou clic n'est ajouté. Le lien vers **Événements** permet de retrouver les changements de réglages en filtrant `notificationEmailSettingsChanged`.
 
-### Scénarios de recette dans l'aperçu isolé
-
-Le script suivant exige les variables de l'aperçu actif, son contexte Fleet, sa base isolée et Mailpit local. Il refuse une base ordinaire ou de production. Il crée des dossiers **Recette notifications 2542**, des comptes de recette auteur/destinataire et leur groupe. Il réutilise les dossiers existants sans supprimer l'historique ou remettre à zéro une recette déjà manipulée. Les accès des deux comptes Fleet habituels sont ajoutés au seul groupe de recette. Aucun dossier ou mail préexistant n'est supprimé.
-
-```sh
-pnpm --filter @pitchou/scripts exec tsx prepare-notification-observability.ts
-```
-
-Les scénarios incluent trois acceptations capturées dans Mailpit, une erreur 429 simulée avec reprise différée, une réponse ambiguë simulée devenue incertaine, un suivi quitté entraînant une annulation, une nouveauté en retard et des envois futurs pour la pagination. Les réglages du destinataire de recette sont désactivés, sauvegardés sans changement puis réactivés pour montrer deux événements et aucun événement intermédiaire. Les autres préférences utilisateur restent intactes. Les dossiers, identités, notifications, états et identifiants sont affichés par le script pour le compte rendu de recette. Les reprises de recette sont différées, les envois futurs peuvent évoluer normalement au passage du worker : ne pas utiliser le bouton de test sur ces scénarios avant de les avoir inspectés.
+### Reprises et erreurs
 
 Un succès passe le message à `sent`. Une préférence désactivée ou un accès révoqué entraîne `cancelled`. Quitter le suivi annule les attributions et nouveautés en attente, mais pas les arrivées dans le groupe. Un transfert annule les arrivées encore en attente pour l'ancien groupe. Si toutes les tentatives ont été explicitement rejetées, une reprise reste possible après une minute, y compris après une panne prolongée. Dès qu’une tentative a un résultat ambigu, un rejet ultérieur ne permet plus d’effacer sa première date potentiellement acceptée. Chaque tentative conserve le même corps et la même clé de déduplication.
 
 Une réponse perdue peut masquer un envoi accepté. Les tentatives automatiques s'arrêtent après 25 minutes et passent le message à `uncertain`, avant l'expiration de 30 minutes documentée par [Brevo](https://developers.brevo.com/docs/heterogenous-versions-batch-emails). Un worker interrompu retrouve sa réservation après deux minutes. Vérifier les envois `uncertain` dans les journaux transactionnels Brevo, avec le destinataire, l'objet, la période de tentative et le tag `dossier-assignment`, `dossier-novelty` ou `dossier-arrival`. Confirmer l'envoi avant de marquer la ligne `sent`, ou confirmer son absence avant de remettre `status` à `pending`, `first_attempt_at` et `claimed_at` à `NULL`. Ne pas remettre toute la file en attente.
 
 Les erreurs sont journalisées avec l'identifiant de l'envoi. Le worker retourne un code non nul si une tentative échoue. Il conserve les lignes envoyées pour empêcher un rattrapage involontaire lors d'une nouvelle exécution.
-
-### Régression de reprise après réponse perdue
-
-Dans l’environnement isolé de l’aperçu, `pnpm exec tsx scripts/prepare-notification-retry.ts` prépare un dossier supplémentaire **Recette notifications 2542 · Régression réponse perdue puis 429**, un groupe **Recette reprise 2542** et ses identités dédiées. Le script exige le contexte de cet aperçu et sa base restreinte. Les deux appels à l’expéditeur sont entièrement simulés : réponse perdue puis rejet 429. Les dates injectées au dispatcher, limitées à ce dossier, représentent t0, t+10 et t+40 minutes sans changer les horloges de l’application.
-
-L’état final est `uncertain`, avec deux tentatives, `deduplication_window_expired`, la première date de tentative conservée, aucun événement Sent et un seul événement Uncertain. L’historique est queued, attempted, failed, attempted, failed, uncertain. Une nouvelle exécution réutilise le dossier sans rejouer ces tentatives ni réinitialiser les scénarios existants. Les tests PostgreSQL couvrent également le rejet 401, les rejets exclusivement explicites, la concurrence et les réservations expirées.
