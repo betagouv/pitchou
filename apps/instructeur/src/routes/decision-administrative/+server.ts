@@ -1,7 +1,7 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId } from "#lib/server/auth.ts";
+import { requireUserId, lockDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   parseUploadedFichier,
@@ -66,6 +66,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   const transaction = await createTransaction();
   try {
+    await lockDossierAccess(transaction);
     const dossiersAccessibles = await dossiersAccessibleToUser(
       decisionData.dossier,
       userId,
@@ -110,7 +111,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       throwUploadedFichierHttpError(err);
     }
 
-    const author = await getUserById(userId);
+    const author = await getUserById(userId, transaction);
     await logDossierActions(
       [
         {

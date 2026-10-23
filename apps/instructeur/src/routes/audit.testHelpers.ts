@@ -54,6 +54,8 @@ vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: mocks.
 vi.mock("#lib/server/auth.ts", () => ({
   requireUserId: () => 7,
   requireDossierAccess: mocks.access,
+  requireDossierWriteAccess: mocks.access,
+  lockDossierAccess: vi.fn(),
 }));
 vi.mock("@pitchou/server/database/personne.ts", () => ({ getUserById: mocks.author }));
 vi.mock("@pitchou/server/database/controle.ts", () => ({

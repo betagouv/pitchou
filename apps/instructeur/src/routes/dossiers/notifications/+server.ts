@@ -1,11 +1,12 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   getNotificationsForUser,
   updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
+import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 
 const notificationUpdateProperties = new Set(["dossier", "arrival", "followRevision", "revisions"]);
@@ -54,6 +55,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const notification = parseNotificationUpdate(await readJsonObject(request));
   // The update upserts, so an unchecked dossier id would create a notification
   // row for a dossier the userId cannot reach.
-  await requireDossierAccess(notification.dossier, userId);
-  return json(await updateNotificationDossier(userId, notification));
+  const updated = await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(notification.dossier, userId, transaction);
+    return updateNotificationDossier(userId, notification, transaction);
+  });
+  return json(updated);
 };

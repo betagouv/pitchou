@@ -1,7 +1,7 @@
 import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
-import { error, json } from "@sveltejs/kit";
+import { error, isHttpError, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierAccess, lockDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import {
@@ -12,7 +12,6 @@ import {
 } from "@pitchou/server/database/controle.ts";
 import { getDossierIdFromPrescription } from "@pitchou/server/database/prescription.ts";
 import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
-import { getUserById } from "@pitchou/server/database/personne.ts";
 import type { Knex } from "knex";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 import type Controle from "@pitchou/types/database/public/Controle.ts";
@@ -113,28 +112,25 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   const userId = requireUserId(locals);
   const controleData = parseControle(await readJsonObject(request));
 
-  let dossierId: DossierId | undefined;
-  if (controleData.id) {
-    dossierId = await requireDossierAccess(await getDossierIdFromControle(controleData.id), userId);
-  }
-  if (controleData.prescription) {
-    dossierId = await requireDossierAccess(
-      await getDossierIdFromPrescription(controleData.prescription),
-      userId,
-    );
-  }
-
-  const author = await getUserById(userId);
-  if (!author) {
-    error(403, "Utilisateur introuvable");
-  }
-
   const modification = !!controleData.id;
-  // One transaction for the contrôle and its historique: the timeline must never
-  // silently miss a change that went through — and a rolled-back write is safe
-  // for the browser to retry.
   const transaction = await createTransaction();
   try {
+    await lockDossierAccess(transaction);
+    let dossierId: DossierId | undefined;
+    if (controleData.id) {
+      dossierId = await requireDossierAccess(
+        await getDossierIdFromControle(controleData.id, transaction),
+        userId,
+        transaction,
+      );
+    }
+    if (controleData.prescription) {
+      dossierId = await requireDossierAccess(
+        await getDossierIdFromPrescription(controleData.prescription, transaction),
+        userId,
+        transaction,
+      );
+    }
     const current = modification
       ? await transaction("controle").where({ id: controleData.id }).forUpdate().first()
       : undefined;
@@ -143,7 +139,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       : await addControles(controleData, transaction);
     if (dossierId) {
       await logDossierActions(
-        (await controleActions(controleData, dossierId, author.id, modification, transaction)).map(
+        (await controleActions(controleData, dossierId, userId, modification, transaction)).map(
           (action) => ({
             ...action,
             data: {
@@ -161,6 +157,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     if (!transaction.isCompleted()) {
       await transaction.rollback();
     }
+    if (isHttpError(err)) throw err;
     error(500, `Erreur lors de l'ajout/modification de contrôle. ${err}`);
   }
 };

@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
       forUpdate: vi.fn().mockReturnThis(),
       first: vi.fn().mockResolvedValue(undefined),
     })),
-    { commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
+    { raw: vi.fn(), commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
   ),
   access: vi.fn(),
   dossierFromDecision: vi.fn(),

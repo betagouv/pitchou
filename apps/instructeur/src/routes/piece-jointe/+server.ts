@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import type { PieceJointeDeletion } from "@pitchou/types/capabilities.ts";
-import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import { createTransaction } from "@pitchou/server/database.ts";
 import { deletePieceJointe } from "@pitchou/server/database/piece_jointe.ts";
@@ -30,9 +30,9 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
     }
   }
   const piece = body as PieceJointeDeletion;
-  await requireDossierAccess(piece.dossier, userId);
   const transaction = await createTransaction();
   try {
+    await requireDossierWriteAccess(piece.dossier, userId, transaction);
     const name = await deletePieceJointe(piece, transaction);
     if (name === undefined) error(404, "Pièce jointe introuvable dans ce dossier.");
     const author = await getUserById(userId, transaction);

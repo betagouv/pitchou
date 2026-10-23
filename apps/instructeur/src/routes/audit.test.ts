@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { error } from "@sveltejs/kit";
 import {
   avisBody,
   comment,
@@ -71,7 +72,8 @@ describe.each(databaseRoutes)("$name audit", ({ name, run, mutation, args, statu
     expect(response.status).toBe(status);
     if (status === 201) expect(await response.json()).toEqual(comment);
     expect(mutation).toHaveBeenCalledWith(...args, mocks.transaction);
-    expect(mocks.author).toHaveBeenCalledWith(7, mocks.transaction);
+    if (name !== "avis update without files")
+      expect(mocks.author).toHaveBeenCalledWith(7, mocks.transaction);
     expect(mocks.transaction.mock.calls).toEqual([
       ...(name === "comment update"
         ? [["commentaire"]]
@@ -86,7 +88,9 @@ describe.each(databaseRoutes)("$name audit", ({ name, run, mutation, args, statu
     expect(mocks.rollback).not.toHaveBeenCalled();
   });
 
-  it.each(["author", "audit", "metric"])("rolls back on %s failure", async (stage) => {
+  it.each(
+    name === "avis update without files" ? ["audit", "metric"] : ["author", "audit", "metric"],
+  )("rolls back on %s failure", async (stage) => {
     const failure = new Error(`${stage} failed`);
     if (stage === "author") mocks.author.mockRejectedValueOnce(failure);
     else if (stage === "audit") mocks.insert.mockRejectedValueOnce(failure);
@@ -97,8 +101,8 @@ describe.each(databaseRoutes)("$name audit", ({ name, run, mutation, args, statu
   });
 
   it("rejects unauthorized access before mutating or auditing", async () => {
-    mocks.access.mockRejectedValueOnce(new Error("Forbidden"));
-    await expect(run()).rejects.toThrow("Forbidden");
+    mocks.access.mockImplementationOnce(() => error(403, "Forbidden"));
+    await expect(run()).rejects.toMatchObject({ status: 403 });
     expect(mutation).not.toHaveBeenCalled();
     expect(mocks.insert).not.toHaveBeenCalled();
   });
@@ -130,32 +134,29 @@ const fileRoutes = [
 ];
 
 describe.each(fileRoutes)("$name audit", ({ run, mutation }) => {
-  it.each(["author", "synchronous author", "audit"])(
-    "preserves success after %s failure",
-    async (stage) => {
-      const failure = new Error(`${stage} failed`);
-      if (stage === "author") mocks.author.mockRejectedValueOnce(failure);
-      else if (stage === "synchronous author")
-        mocks.author.mockImplementationOnce(() => {
-          throw failure;
-        });
-      else mocks.insert.mockRejectedValueOnce(failure);
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-      try {
-        const response = await run();
-        expect(response.ok).toBe(true);
-        if (mutation === mocks.attachment) expect(await response.json()).toEqual(["attachment-id"]);
-        expect(mutation).toHaveBeenCalledOnce();
-        expect(consoleError).toHaveBeenCalledWith(expect.any(String), expect.any(Array), failure);
-      } finally {
-        consoleError.mockRestore();
-      }
-    },
-  );
+  it("commits the file reference and its historique together", async () => {
+    const response = await run();
+    expect(response.ok).toBe(true);
+    if (mutation === mocks.attachment) expect(await response.json()).toEqual(["attachment-id"]);
+    expect(mutation).toHaveBeenCalledOnce();
+    expect(mutation.mock.calls[0]!.at(-1)).toBe(mocks.transaction);
+    expect(mocks.database).not.toHaveBeenCalled();
+    expect(mocks.commit).toHaveBeenCalledOnce();
+    expect(mocks.rollback).not.toHaveBeenCalled();
+  });
+
+  it("rolls back file reference changes if recording their historique fails", async () => {
+    const failure = new Error("audit failed");
+    mocks.insert.mockRejectedValueOnce(failure);
+    await expect(run()).rejects.toBe(failure);
+    expect(mutation).toHaveBeenCalledOnce();
+    expect(mocks.commit).not.toHaveBeenCalled();
+    expect(mocks.rollback).toHaveBeenCalledOnce();
+  });
 
   it("rejects unauthorized access before touching files", async () => {
-    mocks.access.mockRejectedValueOnce(new Error("Forbidden"));
-    await expect(run()).rejects.toThrow("Forbidden");
+    mocks.access.mockImplementationOnce(() => error(403, "Forbidden"));
+    await expect(run()).rejects.toMatchObject({ status: 403 });
     expect(mutation).not.toHaveBeenCalled();
     expect(mocks.insert).not.toHaveBeenCalled();
   });

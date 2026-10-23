@@ -1,7 +1,11 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import {
+  requireUserId,
+  requireDossierAccess,
+  requireDossierWriteAccess,
+} from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   addCommentaireFromCap,
@@ -43,11 +47,12 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
   const userId = requireUserId(locals);
-  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
+  const dossierId = Number(params.dossierId!) as DossierId;
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, createProperties);
   const content = parseContent(body);
   const commentaire = await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(dossierId, userId, transaction);
     const commentaire = await addCommentaireFromCap(userId, dossierId, content, transaction);
     const author = await getUserById(userId, transaction);
     await logDossierActions(
@@ -68,12 +73,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
   const userId = requireUserId(locals);
-  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
+  const dossierId = Number(params.dossierId!) as DossierId;
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, updateProperties);
   const commentaireId = parseCommentaireId(body);
   const content = parseContent(body);
   await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(dossierId, userId, transaction);
     const current = await transaction("commentaire")
       .where({ id: commentaireId })
       .forUpdate()
@@ -106,10 +112,14 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 
 export const DELETE: RequestHandler = async ({ params, request, locals }) => {
   const userId = requireUserId(locals);
-  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
+  const dossierId = Number(params.dossierId!) as DossierId;
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, deleteProperties);
-  const deleted = await deleteCommentaireFromCap(userId, dossierId, parseCommentaireId(body));
+  const commentaireId = parseCommentaireId(body);
+  const deleted = await directDatabaseConnection.transaction(async (transaction) => {
+    await requireDossierWriteAccess(dossierId, userId, transaction);
+    return deleteCommentaireFromCap(userId, dossierId, commentaireId, transaction);
+  });
   if (!deleted) {
     error(403, "Seule l'autrice ou l'auteur d'un commentaire peut le supprimer.");
   }

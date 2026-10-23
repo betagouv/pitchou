@@ -1,6 +1,6 @@
 import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
-import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierAccess, lockDossierAccess } from "#lib/server/auth.ts";
 import {
   deletePrescription,
   getDossierIdFromPrescription,
@@ -13,16 +13,19 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
   const userId = requireUserId(locals);
   const prescriptionId = params.prescriptionId as PrescriptionId;
 
-  const dossierId = await getDossierIdFromPrescription(prescriptionId);
-  const authorizedDossierId = await requireDossierAccess(dossierId, userId);
-
   await directDatabaseConnection.transaction(async (transaction) => {
+    await lockDossierAccess(transaction);
+    const dossierId = await requireDossierAccess(
+      await getDossierIdFromPrescription(prescriptionId, transaction),
+      userId,
+      transaction,
+    );
     await deletePrescription(prescriptionId, transaction);
     const author = await getUserById(userId, transaction);
     await logDossierActions(
       [
         {
-          dossier: authorizedDossierId,
+          dossier: dossierId,
           type: "prescription_supprimee",
           data: {},
           author_personne: author?.id ?? null,
