@@ -17,6 +17,38 @@ async function coverage(id: string) {
     .pluck("department");
 }
 
+test("coverage migration retains follows when a replacement regional group grants final access", async () => {
+  const oldGroup = await group("DDT37");
+  const regional = await group("DREAL Centre Val de Loire");
+  await db("groupe_departement").insert({ groupe_instructeurs: oldGroup.id, department: "37" });
+  const [member, departing] = await db("auth_user")
+    .insert([{ email: "regional@example.org" }, { email: "departing@example.org" }])
+    .returning("id");
+  await db("auth_permission_bundle").insert(
+    [member, departing].map(({ id }) => ({ user_id: id, bundle: "instructeur" })),
+  );
+  await db("user_groupe").insert([
+    { user_id: member.id, groupe_instructeurs: oldGroup.id },
+    { user_id: member.id, groupe_instructeurs: regional.id },
+    { user_id: departing.id, groupe_instructeurs: oldGroup.id },
+  ]);
+  const [dossier] = await db("dossier")
+    .insert({ depot_date: new Date(), primary_department: "37" })
+    .returning("id");
+  await db("edge_personne_follows_dossier").insert(
+    [member, departing].map(({ id }) => ({ personne: id, dossier: dossier.id })),
+  );
+  await db.transaction(up);
+  expect(
+    await db("edge_groupe_instructeurs__dossier")
+      .where({ dossier: dossier.id })
+      .pluck("groupe_instructeurs"),
+  ).toEqual([regional.id]);
+  expect(
+    await db("edge_personne_follows_dossier").where({ dossier: dossier.id }).pluck("personne"),
+  ).toEqual([member.id]);
+});
+
 test("backfills the supplied DN routing rules, administrator coverage and inactive services", async () => {
   const rules: Record<string, string> = {
     "DDT02 -  AISNE": "02",

@@ -77,10 +77,11 @@ export async function up(db: Knex) {
       ...departments.map((department) => ({ groupe_instructeurs: group.id, department })),
     );
   }
-  // Deactivate before adding coverage so these services never acquire dossiers during the migration.
+  // Apply routing once after the final coverage is in place. Intermediate states must not remove follows.
+  await db.raw("ALTER TABLE groupe_instructeurs DISABLE TRIGGER groupe_ownership");
+  await db.raw("ALTER TABLE groupe_departement DISABLE TRIGGER department_ownership");
   if (inactive.length > 0)
     await db("groupe_instructeurs").whereIn("id", inactive).update({ active: false });
-  // One insert lets the ownership trigger recalculate all affected dossiers together.
   if (additions.length > 0)
     await db("groupe_departement")
       .insert(additions)
@@ -90,6 +91,9 @@ export async function up(db: Knex) {
     await db("groupe_instructeurs")
       .whereIn("id", reviewed)
       .update({ coverage_needs_review: false });
+  await db.raw("ALTER TABLE groupe_instructeurs ENABLE TRIGGER groupe_ownership");
+  await db.raw("ALTER TABLE groupe_departement ENABLE TRIGGER department_ownership");
+  await db.raw("SELECT refresh_pitchou_ownership(NULL)");
 }
 
 export async function down() {
