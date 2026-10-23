@@ -16,7 +16,7 @@ test("escapes dossier names and includes dossier and settings links without capa
   );
   expect(message.subject).toBe('Attribution dossier: 123456 - À enjeu - <script>"A&B"</script>');
   expect(message.htmlContent).toContain("&lt;script&gt;&quot;A&amp;B&quot;&lt;/script&gt;");
-  expect(message.htmlContent).toContain('href="https://pitchou.test/dossier/42"');
+  expect(message.htmlContent).toContain('href="https://pitchou.test/dossier/42?tab=historique"');
   expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');
   expect(message.htmlContent).not.toContain("cap=");
   expect(message.headers).toEqual({ idempotencyKey: "event-id" });
@@ -61,3 +61,23 @@ test("arrival mail uses the requested subject and concise body without enjeu", (
   expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');
   expect(message.headers).toEqual({ idempotencyKey: "arrival-event" });
 });
+
+test.each(["arrival", "assignment", "novelty"] as const)(
+  "%s links directly to dossier history",
+  (kind) => {
+    const message = notificationEmailMessage(
+      {
+        id: "new-event",
+        kind,
+        email: "recipient@test.fr",
+        dossier: 42,
+        demarche_numerique_number: null,
+        name: "Projet",
+        enjeu: null,
+      },
+      "https://pitchou.test",
+    );
+    expect(message.htmlContent).toContain('href="https://pitchou.test/dossier/42?tab=historique"');
+    expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');
+  },
+);
