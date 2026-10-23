@@ -67,26 +67,36 @@ export async function prepareSynchronization({
       transaction,
     );
   const dossiersForSync = [...dossiersToInitializeForSync, ...dossiersToUpdateForSync];
+  return {
+    dossiersDS,
+    existingDossiers,
+    dossiersForSync,
+    dossiersToInitializeForSync,
+    dossiersToUpdateForSync,
+  };
+}
+
+export async function persistSynchronizationPreparation(
+  {
+    dossiersForSync,
+    dossiersToInitializeForSync,
+    dossiersToUpdateForSync,
+  }: Awaited<ReturnType<typeof prepareSynchronization>>,
+  transaction: Knex.Transaction,
+) {
+  // Company history and activity labels must follow the same lock order as admin writes.
+  await transaction.raw("select pg_advisory_xact_lock(2105102026)");
   const activiteLabels = new Set(
     dossiersForSync
       .map(({ dossier }) => dossier.main_activite)
       .filter((label): label is string => !!label),
   );
   await registerActiviteLabels([...activiteLabels], transaction);
-  const { dossiersToInitialize, dossiersToUpdate, dossiersChangedByEntreprises } =
-    await prepareDossiersForPersistence(
-      dossiersToInitializeForSync,
-      dossiersToUpdateForSync,
-      transaction,
-    );
-  return {
-    dossiersDS,
-    existingDossiers,
-    dossiersForSync,
-    dossiersToInitialize,
-    dossiersToUpdate,
-    dossiersChangedByEntreprises,
-  };
+  return prepareDossiersForPersistence(
+    dossiersToInitializeForSync,
+    dossiersToUpdateForSync,
+    transaction,
+  );
 }
 
 async function mapDossiersForSynchronization(

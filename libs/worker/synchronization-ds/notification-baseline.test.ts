@@ -1,20 +1,22 @@
 import { expect, test, vi } from "vitest";
 import type { Knex } from "knex";
-import { dumpDossiers } from "@pitchou/server/database/dossier.ts";
+import { dumpDossiers, deleteDossierByDSNumber } from "@pitchou/server/database/dossier.ts";
+import { registerActiviteLabels } from "@pitchou/server/database/activite.ts";
+import { prepareDossiersForPersistence } from "./prepareDossiersForPersistence.ts";
 import { prepareDossierFiles } from "./synchronizeDossierFiles.ts";
 import { synchronizeDemarcheNumerique } from "./synchronizeDemarcheNumerique.ts";
 
 const state = vi.hoisted(() => ({ acteursFinished: false, filesFinished: false }));
 vi.mock("@pitchou/server/database/activite.ts", () => ({
   getActiviteReferentiel: async () => ({ labels: [] }),
-  registerActiviteLabels: async () => {},
+  registerActiviteLabels: vi.fn(async () => {}),
 }));
 vi.mock("@pitchou/server/database/dossier.ts", () => ({
   getDossierIdsFromDS_Ids: async () => [
     { id: 1, demarche_numerique_number: "101", demarche_numerique_id: "old" },
   ],
   dumpDossiers: vi.fn(async () => new Set([1])),
-  deleteDossierByDSNumber: async () => {},
+  deleteDossierByDSNumber: vi.fn(async () => {}),
 }));
 vi.mock("@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts", () => ({
   default: async () => [],
@@ -39,11 +41,11 @@ vi.mock("./makeCommonDossierColumnsForSync88444.ts", () => ({
   makeCommonDossierColumnsForSync88444: vi.fn(),
 }));
 vi.mock("./prepareDossiersForPersistence.ts", () => ({
-  prepareDossiersForPersistence: async () => ({
+  prepareDossiersForPersistence: vi.fn(async () => ({
     dossiersToInitialize: [{}],
     dossiersChangedByEntreprises: new Set(),
     dossiersToUpdate: [{}],
-  }),
+  })),
 }));
 vi.mock("./synchronizeDossierRelations.ts", () => ({
   synchronizeDossierRelations: async () => ({
@@ -105,6 +107,8 @@ test("dossier writes wait for all downloads and species file preparation", async
   const ready = Promise.withResolvers<void>();
   const started = Promise.withResolvers<void>();
   vi.mocked(dumpDossiers).mockClear();
+  vi.mocked(prepareDossiersForPersistence).mockClear();
+  vi.mocked(registerActiviteLabels).mockClear();
   vi.mocked(prepareDossierFiles).mockImplementationOnce(async () => {
     started.resolve();
     await ready.promise;
@@ -134,9 +138,55 @@ test("dossier writes wait for all downloads and species file preparation", async
   await started.promise;
   try {
     expect(dumpDossiers).not.toHaveBeenCalled();
+    expect(prepareDossiersForPersistence).not.toHaveBeenCalled();
+    expect(registerActiviteLabels).not.toHaveBeenCalled();
+    expect(transaction.raw).not.toHaveBeenCalled();
   } finally {
     ready.resolve();
     await synchronization;
   }
   expect(dumpDossiers).toHaveBeenCalledOnce();
+});
+
+test("company preparation, labels, persistence and deletion wait for the access lock", async () => {
+  vi.clearAllMocks();
+  const locked = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  const transaction = Object.assign(
+    vi.fn(() => ({
+      whereIn: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      whereRaw: vi.fn().mockReturnThis(),
+      update: vi.fn(),
+    })),
+    {
+      raw: vi.fn((sql: string) => {
+        if (sql.includes("pg_advisory_xact_lock")) {
+          locked.resolve();
+          return release.promise;
+        }
+      }),
+    },
+  );
+  const synchronization = synchronizeDemarcheNumerique({
+    apiToken: "test",
+    demarcheNumber: 88444,
+    lastModified: new Date(),
+    pitchouKeyToChampDS: new Map(),
+    pitchouKeyToAnnotationDS: new Map(),
+    transaction: transaction as unknown as Knex.Transaction,
+  });
+  try {
+    await locked.promise;
+    expect(registerActiviteLabels).not.toHaveBeenCalled();
+    expect(prepareDossiersForPersistence).not.toHaveBeenCalled();
+    expect(dumpDossiers).not.toHaveBeenCalled();
+    expect(deleteDossierByDSNumber).not.toHaveBeenCalled();
+  } finally {
+    release.resolve();
+    await synchronization;
+  }
+  expect(prepareDossiersForPersistence).toHaveBeenCalledOnce();
+  expect(dumpDossiers).toHaveBeenCalledOnce();
+  expect(deleteDossierByDSNumber).toHaveBeenCalledOnce();
 });

@@ -46,6 +46,8 @@ export async function dumpDossiers(
 ): Promise<Set<DossierId>> {
   if (!db.isTransaction)
     return db.transaction((trx) => dumpDossiers(dossiersForInsert, dossiersForUpdate, trx));
+  // History inserts take dossier FK locks. Take access first, like instructor saves.
+  await db.raw("select pg_advisory_xact_lock(2105102026)");
   truncateDossierStrings([...dossiersForInsert, ...dossiersForUpdate]);
   // Diffed against the current rows before they are overwritten, so the
   // historique records what the pétitionnaire changed.

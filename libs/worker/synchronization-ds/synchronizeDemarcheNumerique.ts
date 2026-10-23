@@ -5,6 +5,7 @@ import { startDossierFileDownloads, prepareDossierFiles } from "./synchronizeDos
 import { updateNotification } from "./synchronization-notification.ts";
 import {
   prepareSynchronization,
+  persistSynchronizationPreparation,
   type SynchronizationOptions,
 } from "./synchronizeDemarcheNumerique/preparation.ts";
 import {
@@ -15,14 +16,8 @@ import {
 export async function synchronizeDemarcheNumerique(options: SynchronizationOptions): Promise<void> {
   const { apiToken, demarcheNumber, pitchouKeyToChampDS, transaction } = options;
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
-  const {
-    dossiersDS,
-    existingDossiers,
-    dossiersForSync,
-    dossiersToInitialize,
-    dossiersToUpdate,
-    dossiersChangedByEntreprises,
-  } = await prepareSynchronization(options);
+  const prepared = await prepareSynchronization(options);
+  const { dossiersDS, existingDossiers, dossiersForSync } = prepared;
   const fileDownloads = startDossierFileDownloads(
     dossiersDS,
     demarcheNumber,
@@ -30,9 +25,11 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
     transaction,
   );
 
-  // Finish DN and object-storage reads before dossier ownership takes the access lock.
+  // Finish DN and object-storage reads before taking the access lock for database writes.
   const files = await prepareDossierFiles(fileDownloads, transaction);
   const deleted = await deletedDossiersP;
+  const { dossiersToInitialize, dossiersToUpdate, dossiersChangedByEntreprises } =
+    await persistSynchronizationPreparation(prepared, transaction);
   const dossierPersistence =
     dossiersToInitialize.length > 0 || dossiersToUpdate.length > 0
       ? dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
