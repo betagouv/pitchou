@@ -71,12 +71,17 @@ test("counts and filters both sources in one snapshot, including Paris boundarie
 });
 test("source-qualified details survive filters and distinguish identical IDs without exposing raw payloads", async () => {
   const { id } = await mixed();
+  const storedBefore = await db("email_notification_outbox").where({ id }).first("message");
   const notification = await emailOverview(filters(`search=no-match&email=notification:${id}`), db);
   expect(notification.total).toBe(0);
   expect(notification.detail?.row.subject).toBe("Notification figée");
   expect(notification.detail?.recipients).toEqual(["frozen@test.fr"]);
   expect(notification.detail?.history.map((e) => e.event)).toEqual(["queued"]);
   expect(notification.detail?.html).toContain("Bonjour");
+  expect(notification.detail?.html).toContain("Content-Security-Policy");
+  expect(await db("email_notification_outbox").where({ id }).first("message")).toEqual(
+    storedBefore,
+  );
   expect(JSON.stringify(notification)).not.toMatch(/secret|private|javascript:/u);
   const cnpn = (await emailOverview(filters(`email=cnpn:${id}`), db)).detail!;
   expect(cnpn.row.source).toBe("cnpn");

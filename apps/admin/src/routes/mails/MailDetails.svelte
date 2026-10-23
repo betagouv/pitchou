@@ -1,14 +1,12 @@
 <script lang="ts">
   import Modal from "#lib/components/Modal.svelte";
   import type { EmailDetail } from "@pitchou/types/adminEmails.ts";
-  import {
-    kindLabels,
-    statusLabels,
-    environmentLabels,
-    reasonLabels,
-    eventLabels,
-    formatDate,
-  } from "./labels.ts";
+  import MailPreview from "./MailPreview.svelte";
+  import MailTimeline from "./MailTimeline.svelte";
+  import { kindLabels, statusLabels, environmentLabels } from "./labels.ts";
+  import { trapDialogFocus, showMailDialog } from "./MailDetails/dialog.ts";
+  import { mailMetadata } from "./MailDetails/metadata.ts";
+  import "./MailDetails/styles.css";
   let {
     detail,
     onClose,
@@ -16,133 +14,133 @@
   }: { detail: EmailDetail | null; onClose: () => void; trigger: HTMLElement | null } = $props();
   const row = $derived(detail?.row);
   let closing = false;
+  let active = $state("preview");
+  const tabs = $derived([
+    { id: "preview", label: "Mail" },
+    { id: "history", label: `Historique${detail ? ` · ${detail.history.length}` : ""}` },
+    { id: "information", label: "Informations" },
+  ]);
   function close() {
     if (closing) return;
     closing = true;
     onClose();
   }
-  function trapFocus(event: KeyboardEvent & { currentTarget: HTMLDialogElement }) {
-    if (event.key !== "Tab") return;
-    const items = [
-      ...event.currentTarget.querySelectorAll<HTMLElement>("button, a[href], [tabindex]"),
-    ].filter(
-      (item) =>
-        item.tabIndex >= 0 && !item.hasAttribute("disabled") && item.getClientRects().length > 0,
-    );
-    const first = items[0],
-      last = items.at(-1);
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
-    }
-  }
   function open(dialog: HTMLDialogElement) {
-    dialog.showModal();
-    return {
-      destroy() {
-        dialog.close();
-        if (trigger?.isConnected) trigger.focus({ preventScroll: true });
-      },
-    };
+    return showMailDialog(dialog, () => trigger);
+  }
+  function tabKey(event: KeyboardEvent, index: number) {
+    const next =
+      event.key === "ArrowRight"
+        ? (index + 1) % tabs.length
+        : event.key === "ArrowLeft"
+          ? (index + tabs.length - 1) % tabs.length
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : null;
+    if (next === null) return;
+    event.preventDefault();
+    active = tabs[next].id;
+    document.querySelector<HTMLElement>(`#mail-tab-${active}`)?.focus();
   }
 </script>
 
 <dialog
   class="mail-dialog"
   use:open
-  onkeydown={trapFocus}
+  onkeydown={trapDialogFocus}
   oncancel={(event) => {
     event.preventDefault();
     close();
   }}
   aria-label="Détails du mail"
 >
-  <Modal title="Détails du mail" size="large" onClose={close}>
-    <div class="mail-detail notification-monitor">
-      {#if detail && row}
-        <div class="detail-heading">
-          <span class="row-eyebrow"
-            >{kindLabels[row.kind]} · {environmentLabels[row.environment] ?? row.environment}</span
-          >
+  <Modal title="Détails du mail" size="xlarge" onClose={close} insideNativeDialog>
+    {#if detail && row}
+      <div class="mail-detail">
+        <header class="mail-summary">
+          <div class="mail-eyebrow">
+            <span>{kindLabels[row.kind]}</span><span
+              >{environmentLabels[row.environment] ?? row.environment}</span
+            ><span class="mail-state" data-status={row.status}
+              >{statusLabels[row.status] ?? row.status}</span
+            >
+          </div>
           <h3>{row.subject ?? "Objet non enregistré"}</h3>
-          <p class="history-id">{row.source}:{row.id}</p>
-        </div>
-        <dl class="mail-metadata">
-          {#each [["Dossier", `${row.dossier} · ${row.dossier_name ?? "Dossier sans titre"}`], ["Destinataire", [row.first_names, row.last_name]
-                .filter(Boolean)
-                .join(" ") || (row.source === "cnpn" ? "CNPN" : "Nom non renseigné")], ["Personne", row.personne ? `#${row.personne}` : "Non enregistrée"], ["Adresses d’envoi", detail.recipients.join(", ") || "Non enregistrées"], ["Copie", detail.cc.join(", ") || "Aucune copie enregistrée"], ["Envoyé par", detail.sentBy ?? "Non enregistré"], ["État", statusLabels[row.status] ?? row.status], ["Création", formatDate(row.created_at)], [row.source === "cnpn" ? "Demande d’envoi" : "Envoi prévu", formatDate(row.due_at)], ["Accepté par l’expéditeur", formatDate(row.sent_at)], ["Première tentative", formatDate(detail.firstAttemptAt)], ["Prochaine reprise", formatDate(row.retry_at)], ["Tentatives", row.attempt_count === null ? "Non enregistrées" : String(row.attempt_count)], ["Identifiant du prestataire", row.provider_message_id ?? "Non enregistré"], ["Erreur", row.last_error ? (reasonLabels[row.last_error] ?? row.last_error) : "Aucune enregistrée"], ["Motif d’annulation", row.cancellation_reason ? (reasonLabels[row.cancellation_reason] ?? row.cancellation_reason) : "Aucun"]] as [label, value]}<div
+          <div class="mail-envelope">
+            <a href={`/dossiers/${row.dossier}`}>Dossier #{row.dossier}</a><span
+              >À {detail.recipients.join(", ") || "Destinataire non enregistré"}</span
             >
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>{/each}
-          {#if row.source === "cnpn"}
-            {#each [["Reçu par le CNPN", row.delivered_at], ["Ouverture détectée", row.opened_at], ["Accusé de lecture envoyé", detail.readReceiptSentAt]] as [label, date]}<div
+          </div>
+        </header>
+        <div class="mail-tabs" role="tablist" aria-label="Détails du mail">
+          {#each tabs as tab, index}<button
+              type="button"
+              role="tab"
+              id={`mail-tab-${tab.id}`}
+              aria-selected={active === tab.id}
+              aria-controls={`mail-pane-${tab.id}`}
+              tabindex={active === tab.id ? 0 : -1}
+              onclick={() => (active = tab.id)}
+              onkeydown={(event) => tabKey(event, index)}>{tab.label}</button
+            >{/each}
+        </div>
+        <div
+          class="mail-pane"
+          role="tabpanel"
+          id={`mail-pane-${active}`}
+          aria-labelledby={`mail-tab-${active}`}
+          tabindex="0"
+        >
+          {#if active === "preview"}<MailPreview html={detail.html} />
+          {:else if active === "history"}<div class="mail-pane-content">
+              <MailTimeline
+                history={detail.history}
+                attempts={row.source === "notification"}
+              />{#if row.source === "cnpn"}<p class="mail-note">
+                  Dates enregistrées uniquement. Les tentatives intermédiaires ne sont pas
+                  conservées pour les mails CNPN.
+                </p>{/if}
+            </div>
+          {:else}<div class="mail-pane-content">
+              <dl class="mail-metadata">
+                {#each mailMetadata(detail) as [label, value]}<div>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>{/each}
+              </dl>
+              {#if detail.attachments.length}<h4>Pièces jointes</h4>
+                <ul class="mail-attachments">
+                  {#each detail.attachments as attachment}<li>{attachment.name}</li>{/each}
+                </ul>{/if}
+              <p class="mail-note">
+                Accepté signifie pris en charge par l'expéditeur. Les confirmations CNPN concernent
+                le destinataire principal ; une ouverture détectée ne prouve pas une lecture
+                complète.
+              </p>
+              <a
+                class="mail-permalink"
+                href={`?${new URLSearchParams({ email: `${row.source}:${row.id}` })}`}
+                >Lien direct vers ce mail<span class="fr-icon-link fr-icon--sm" aria-hidden="true"
+                ></span></a
               >
-                <dt>{label}</dt>
-                <dd>{formatDate(date)}</dd>
-              </div>{/each}
+            </div>
           {/if}
-        </dl>
-        <div class="detail-actions">
-          <a class="fr-btn fr-btn--secondary fr-btn--sm" href={`/dossiers/${row.dossier}`}
-            >Ouvrir le dossier</a
-          ><a
-            class="fr-link fr-link--sm"
-            href={`?${new URLSearchParams({ email: `${row.source}:${row.id}` })}`}
-            >Lien direct vers ce mail</a
-          >
         </div>
-        <p class="history-note">
-          Accepté signifie pris en charge par l'expéditeur. Les confirmations CNPN concernent le
-          destinataire principal. Une ouverture détectée ne prouve pas une lecture complète.
-        </p>
-        {#if detail.attachments.length}<section class="detail-section">
-            <h3>Pièces jointes</h3>
-            <ul>
-              {#each detail.attachments as attachment}<li>{attachment.name}</li>{/each}
-            </ul>
-          </section>{/if}
-        <section class="detail-section">
-          <h3>Historique</h3>
-          {#if detail.history.length}<ol class="history-timeline">
-              {#each detail.history as event}<li>
-                  <div>
-                    <strong>{eventLabels[event.event] ?? event.event}</strong><time
-                      >{formatDate(event.occurred_at)}</time
-                    >
-                  </div>
-                  {#if row.source === "notification"}<p class="muted">
-                      Tentative {event.attempt}
-                    </p>{/if}
-                  {#each ["reason", "errorCategory", "providerMessageId"] as key}{#if event.details[key]}<p
-                        class="provider-id"
-                      >
-                        {key === "providerMessageId"
-                          ? "Identifiant du prestataire"
-                          : key === "reason"
-                            ? "Motif"
-                            : "Erreur"} : {reasonLabels[String(event.details[key])] ??
-                          String(event.details[key])}
-                      </p>{/if}{/each}
-                </li>{/each}
-            </ol>{:else}<p class="muted">Aucun événement enregistré.</p>{/if}
-          {#if row.source === "cnpn"}<p class="muted">
-              Dates enregistrées uniquement. Le nombre de tentatives et les échecs intermédiaires ne
-              sont pas conservés pour ces mails.
-            </p>{/if}
-        </section>
-        <section class="detail-section">
-          <h3>Contenu enregistré</h3>
-          {#if detail.html}<div class="mail-content">{@html detail.html}</div>{:else}<p
-              class="muted"
-            >
-              Le contenu est figé à la première tentative. Aucun contenu enregistré pour ce mail.
-            </p>{/if}
-        </section>
-      {:else}<p role="alert">Ce mail est introuvable ou a été supprimé.</p>{/if}
-    </div>
+      </div>
+    {:else}<p class="mail-pane-content" role="alert">
+        Ce mail est introuvable ou a été supprimé.
+      </p>{/if}
+    {#snippet footer()}<span class="mail-footer-note"
+        >{active === "preview" && detail?.html
+          ? "Contenu enregistré · Images externes bloquées"
+          : "Dates à l'heure de Paris"}</span
+      ><button
+        type="button"
+        class="mail-close"
+        aria-label="Fermer les détails du mail"
+        onclick={close}>Fermer</button
+      >{/snippet}
   </Modal>
 </dialog>

@@ -1,6 +1,6 @@
 import type { Knex } from "knex";
 import type { EmailDetail, EmailRow } from "@pitchou/types/adminEmails.ts";
-import { sanitizeCnpnEmailHtml } from "../../cnpnEmail.ts";
+import { emailPreviewHtml } from "./preview.ts";
 import { emailRows } from "./query.ts";
 
 export async function emailDetail(key: string, db: Knex.Transaction): Promise<EmailDetail | null> {
@@ -26,8 +26,7 @@ async function notificationDetail(row: EmailRow, db: Knex.Transaction): Promise<
       .where({ notification_id: id })
       .orderBy("occurred_at")
       .orderBy("id"),
-    html:
-      typeof message?.htmlContent === "string" ? sanitizeCnpnEmailHtml(message.htmlContent) : null,
+    html: typeof message?.htmlContent === "string" ? emailPreviewHtml(message.htmlContent) : null,
     recipients: Array.isArray(message?.to)
       ? message.to.filter((v: unknown) => typeof v === "string")
       : row.email
@@ -75,7 +74,7 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
   return {
     row,
     history,
-    html: sanitizeCnpnEmailHtml(stored.html_body),
+    html: emailPreviewHtml(stored.html_body),
     recipients: row.email ? [row.email] : [],
     cc: stored.cc_emails,
     sentBy: stored.sent_by_email,

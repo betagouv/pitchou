@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, untrack } from "svelte";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
   import Select from "@pitchou/ui/Select.svelte";
   import type { EmailFilters } from "@pitchou/types/adminEmails.ts";
   import NotificationDateField from "./NotificationDateField.svelte";
@@ -49,46 +50,28 @@
 </script>
 
 <div class="mail-controls">
-  <div class="mail-toolbar">
-    <div class="search-field" role="search">
-      <span class="fr-icon-search-line fr-icon--sm" aria-hidden="true"></span>
-      <label class="sr-only" for="mail-search">Rechercher un mail</label>
-      <input
-        id="mail-search"
-        type="search"
-        value={search}
-        placeholder="Dossier, destinataire, objet, identifiant…"
-        autocomplete="off"
-        oninput={(event) => {
-          search = event.currentTarget.value;
-          clearTimeout(searchTimer);
-          searchTimer = setTimeout(() => onChange({ search }), 300);
-        }}
-      />
-    </div>
+  <div class="mail-toolbar-row">
+    <ListToolbar
+      id="mail-search"
+      label="Rechercher un mail"
+      placeholder="Dossier, destinataire, objet, identifiant…"
+      value={search}
+      onSearch={(value) => {
+        search = value;
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => onChange({ search }), 300);
+      }}
+      filterOpen={panel === "filter"}
+      sortOpen={panel === "sort"}
+      filterCount={activeCount}
+      onToggleFilter={() => (panel = panel === "filter" ? null : "filter")}
+      onToggleSort={() => (panel = panel === "sort" ? null : "sort")}
+      filterId="mail-filter-panel"
+      sortId="mail-sort-panel"
+    />
     <button
-      class="fr-btn fr-btn--secondary fr-icon-filter-line fr-btn--icon-left"
       type="button"
-      aria-expanded={panel === "filter"}
-      aria-controls="mail-filter-panel"
-      onclick={() => (panel = panel === "filter" ? null : "filter")}
-    >
-      Filtrer {#if activeCount}<span class="result-count">{activeCount}</span>{/if}
-    </button>
-    <button
-      class="fr-btn fr-btn--secondary"
-      type="button"
-      aria-expanded={panel === "sort"}
-      aria-controls="mail-sort-panel"
-      onclick={() => (panel = panel === "sort" ? null : "sort")}
-      ><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"
-        ><path
-          d="M20 4V16H23L19 21L15 16H18V4H20ZM12 18V20H3V18H12ZM14 11V13H3V11H14ZM14 4V6H3V4H14Z"
-        /></svg
-      >Trier</button
-    >
-    <button
-      class="notification-button reset-filters"
+      class="mail-reset"
       title="Réinitialiser les filtres"
       aria-label="Réinitialiser les filtres"
       onclick={() => {
@@ -97,11 +80,9 @@
         panel = null;
         onReset();
       }}
+      ><span class="fr-icon-arrow-go-back-line fr-icon--sm" aria-hidden="true"
+      ></span>Effacer</button
     >
-      <span class="fr-icon-arrow-go-back-line fr-icon--sm" aria-hidden="true"></span><span
-        >Effacer</span
-      >
-    </button>
   </div>
   {#if panel === "filter"}
     <fieldset id="mail-filter-panel" class="mail-panel">
@@ -162,7 +143,7 @@
         {#each [{ key: "due_at", label: "Envoi prévu / demande CNPN" }, { key: "sent_at", label: "Envoi accepté" }, { key: "created_at", label: "Création" }, { key: "dossier", label: "Dossier" }, { key: "email", label: "Destinataire" }] as option}
           <button
             type="button"
-            class="fr-btn fr-btn--sm {filters.sort === option.key ? '' : 'fr-btn--tertiary'}"
+            class="mail-sort-option"
             aria-pressed={filters.sort === option.key}
             onclick={() => sort(option.key as EmailFilters["sort"])}
           >

@@ -7,6 +7,7 @@ import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "@testing-library/svelte";
 import MailControls from "./MailControls.svelte";
 import MailDetails from "./MailDetails.svelte";
+import MailTimeline from "./MailTimeline.svelte";
 import MailTable from "./MailTable.svelte";
 import type { EmailDetail, EmailFilters } from "@pitchou/types/adminEmails.ts";
 
@@ -113,15 +114,55 @@ test("details reuse the admin modal inside a native modal dialog with trapped an
   const close = vi.fn();
   const rendered = render(MailDetails, { detail, onClose: close, trigger });
   const dialog = document.querySelector("dialog")!;
+  expect(document.querySelectorAll('dialog, [role="dialog"]')).toHaveLength(1);
   expect(dialog.matches(":modal")).toBe(true);
   const closeButton = page.getByRole("button", { name: "Fermer", exact: true });
   await expect.element(closeButton).toHaveFocus();
   await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
   expect(dialog.contains(document.activeElement)).toBe(true);
-  await expect.element(page.getByText("Message enregistré")).toBeInTheDocument();
+  const frame = document.querySelector<HTMLIFrameElement>("iframe")!;
+  expect(frame.srcdoc).toContain("Message enregistré");
+  expect(frame.sandbox.contains("allow-scripts")).toBe(false);
+  expect(frame.sandbox.contains("allow-same-origin")).toBe(false);
+  await page.getByRole("tab", { name: /Historique/u }).click();
+  await expect.element(page.getByText("Aucun événement enregistré.")).toBeInTheDocument();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .element(page.getByRole("tab", { name: "Informations", exact: true }))
+    .toHaveAttribute("aria-selected", "true");
   await userEvent.keyboard("{Escape}");
   expect(close).toHaveBeenCalledOnce();
   rendered.unmount();
   expect(document.activeElement).toBe(trigger);
   trigger.remove();
+});
+
+test("timeline suppresses global list counters and keeps long identifiers inside a separate content column", async () => {
+  const style = document.createElement("style");
+  style.textContent = 'ol > li::before {content:"1.";position:absolute;}';
+  document.head.append(style);
+  const { container } = render(MailTimeline, {
+    attempts: true,
+    history: [
+      {
+        id: "history",
+        notification_id: "mail",
+        event: "sent",
+        environment: "preview",
+        occurred_at: new Date(),
+        attempt: 2,
+        details: { providerMessageId: "provider-".repeat(50) },
+      },
+    ],
+  });
+  const item = container.querySelector("li")!;
+  expect(getComputedStyle(item, "::before").content).toBe("none");
+  expect(getComputedStyle(item, "::marker").content).toBe('""');
+  const marker = container.querySelector(".event-rail span")!.getBoundingClientRect(),
+    title = container.querySelector("strong")!.getBoundingClientRect();
+  expect(marker.right).toBeLessThan(title.left);
+  expect(getComputedStyle(container.querySelector(".event-diagnostic")!).overflowWrap).toBe(
+    "anywhere",
+  );
+  style.remove();
 });
