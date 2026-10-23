@@ -48,7 +48,7 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
     throw new TypeError("Permission inconnue");
   return db.transaction(async (trx) => {
     await trx.raw("select pg_advisory_xact_lock(2105102026)");
-    await validateGroupAssignments(actor, input.groupIds, trx);
+    await validateUserAdministration(actor, input.groupIds, trx);
     const before = await previousUser(input.id, trx);
     if (before && (before.email ?? "") !== input.email.trim().toLowerCase())
       throw new TypeError("L'adresse d'un compte existant provient de ProConnect");
@@ -110,13 +110,18 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
   });
 }
 
-async function validateGroupAssignments(
+async function validateUserAdministration(
   actor: UserId,
   groupIds: string[] | undefined,
   trx: Knex.Transaction,
 ) {
+  const actorBefore = await getSessionUser(actor, trx);
+  if (
+    !actorBefore?.permissions.includes("admin:access") ||
+    !actorBefore.permissions.includes("users:manage")
+  )
+    throw new TypeError("Gestion des utilisateurs non autorisée");
   if (groupIds !== undefined) {
-    const actorBefore = await getSessionUser(actor, trx);
     if (!actorBefore?.permissions.includes("groups:manage"))
       throw new TypeError("Gestion des groupes non autorisée");
     const groups = await trx("groupe_instructeurs").whereIn("id", groupIds).select("id");
