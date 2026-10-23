@@ -37,7 +37,6 @@ export function exportDossiersQuery(
     .select(
       trx.raw(`coalesce((select phase from evenement_phase_dossier
       where evenement_phase_dossier.dossier = dossier.id
-        and (caused_by_personne is not null or demarche_numerique_agent_email is not null)
       order by timestamp desc limit 1), 'Accompagnement amont') as phase`),
     )
     .whereIn("dossier.id", ids.clone())

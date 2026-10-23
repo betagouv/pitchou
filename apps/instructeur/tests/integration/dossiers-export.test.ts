@@ -169,7 +169,7 @@ test("export includes enriched data, tagged species, expert stages and latest pr
   expect(row.slice(5, 7)).toEqual(["75", "Paris ; 75 ; Île-de-France"]);
   expect(row.slice(8)).toEqual([
     "Oui",
-    "Instruction",
+    "Contrôle",
     "Non car mesures ER suffisantes",
     "Oui",
     "Fou de Bassan (Morus bassanus)",

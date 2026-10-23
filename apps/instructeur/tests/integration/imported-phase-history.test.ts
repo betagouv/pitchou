@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+import { getDossiersForExport } from "@pitchou/server/database/dossier/export.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import { db } from "../setup/db.ts";
 import { attachDossierToGroupe, createInstructeurWithCapToGroup } from "../factories/index.ts";
@@ -48,6 +49,9 @@ test("imported phases retain history and current phase without importing followe
   const full = await getDossierFull(dossier.id, userId, db);
   expect(full?.evenementsPhase.map(({ phase }) => phase)).toEqual(["Contrôle", "Instruction"]);
   expect((await getDossiersSummariesForUser(userId, db))[0].phase).toBe("Contrôle");
+  expect((await getDossiersForExport(userId, "service", [dossier.id], db))?.[0].phase).toBe(
+    "Contrôle",
+  );
   expect(await getEvenementsPhaseDossiers(userId, db)).toHaveLength(2);
   const admin = await getDossierDetailForAdmin(dossier.id, db);
   expect(admin.phase).toBe("Contrôle");
