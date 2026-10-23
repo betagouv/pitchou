@@ -55,10 +55,14 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
     const [user] = before
       ? await trx("auth_user")
           .where({ id: before.id })
-          .update({ active: input.active })
+          .update({ active: input.active, permissions_configured: true })
           .returning("*")
       : await trx("auth_user")
-          .insert({ email: input.email.trim().toLowerCase(), active: input.active })
+          .insert({
+            email: input.email.trim().toLowerCase(),
+            active: input.active,
+            permissions_configured: true,
+          })
           .returning("*");
     const assignments = [
       ["auth_permission_bundle", "bundle", input.bundles],

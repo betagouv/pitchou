@@ -21,6 +21,8 @@ export default interface AuthUser {
   first_login_at: Date | null;
 
   last_login_at: Date | null;
+
+  permissions_configured: boolean;
 }
 
 /** Represents the initializer for the table public.auth_user */
@@ -43,6 +45,9 @@ export interface AuthUserInitializer {
   first_login_at?: Date | null;
 
   last_login_at?: Date | null;
+
+  /** Default value: false */
+  permissions_configured?: boolean;
 }
 
 /** Represents the mutator for the table public.auth_user */
@@ -62,4 +67,6 @@ export interface AuthUserMutator {
   first_login_at?: Date | null;
 
   last_login_at?: Date | null;
+
+  permissions_configured?: boolean;
 }

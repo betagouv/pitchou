@@ -12,7 +12,7 @@ export async function accountForMembership(email: string, trx: Knex.Transaction)
     ),
   );
   // Only bootstrap unconfigured accounts. Explicit administrator choices stay intact.
-  if (configured.every((assignment) => !assignment))
+  if (!user.permissions_configured && configured.every((assignment) => !assignment))
     await trx("auth_permission_bundle").insert({ user_id: user.id, bundle: "instructeur" });
   return user;
 }

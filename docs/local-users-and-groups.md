@@ -28,6 +28,8 @@ The admin pages `/utilisateurs` and `/groupes-instructeurs` manage accounts and 
 
 The `instructeur` bundle grants both dossier permissions. The `administrateur` bundle grants every permission. Admin pages still require `admin:access` alongside their management permission. An administrator needs group membership to access dossiers through the instructor application.
 
+Adding a group member grants the instructor bundle only if that account's permissions have never been configured. The database remembers permission changes even after the last grant or exclusion is removed. Saving an account in administration also records an explicit configuration when all permissions are empty. Removing and re-adding a member cannot undo those administrator choices.
+
 Every active group covering a dossier's primary department owns that dossier. Several groups can own the same dossier. Database triggers recalculate ownership when the primary department, department coverage or group activity changes. This applies to DN dossiers and native dossiers. The groups page lists uncovered departments. The dossiers page lists dossiers without an owning group.
 
 Users read dossiers outside their groups with the existing read-only field and document restrictions. Removing the last active membership removes all dossier access. Sessions resolve permissions and membership on every request. A browser also checks for access changes when it regains focus. Followers must retain instruction permission and membership in an owning group. Losing one of several qualifying memberships preserves the follow.
