@@ -2,7 +2,7 @@
 
 ## Préférences et déclenchements
 
-Les trois préférences sont indépendantes et globales au compte. Elles sont activées par défaut. Elles se règlent dans **Mon espace > Paramètres > Notifications**, à `/parametres/notifications`. Une sauvegarde réussie conserve les choix au rechargement. Les anciens liens `/parametres` ouvrent Général, qui donne accès à Notifications.
+Les trois préférences sont indépendantes et globales au compte. Elles sont activées par défaut. Elles se règlent dans **Mon espace > Paramètres > Notifications**, à `/parametres/notifications`. Une sauvegarde réussie conserve les choix au rechargement.
 
 | Notification                       | Destinataires et rythme                                                                                                                                                                                             |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
