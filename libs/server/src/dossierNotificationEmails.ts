@@ -75,8 +75,11 @@ export async function dispatchDossierNotificationEmails(
         .update({
           claimed_at: null,
           retry_at: new Date(now.getTime() + 60_000),
-          // Only an explicit rejection permits a later retry outside the TTL.
-          ...(definitelyRejected(error) ? { first_attempt_at: null } : {}),
+          // Clear only the anchor introduced by this claim. A later rejection
+          // cannot rule out acceptance of an earlier ambiguous attempt.
+          ...(definitelyRejected(error) && row.first_attempt_at === null
+            ? { first_attempt_at: null }
+            : {}),
           last_error: notificationErrorCategory(error),
         });
       console.error("Dossier notification email failed", id);

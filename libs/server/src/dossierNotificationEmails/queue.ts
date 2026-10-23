@@ -75,6 +75,8 @@ export async function claimEmail(
         message: JSON.stringify(message),
         attempt_count: row.attempt_count + 1,
       });
+    // Keep the persisted pre-claim anchor so failure handling can distinguish
+    // a first potentially accepted attempt from an earlier unresolved attempt.
     return { ...row, message };
   });
 }
