@@ -199,7 +199,7 @@ test: test-unit test-component test-email-notifications test-integration test-e2
 
 # Run Svelte component tests (vitest browser mode)
 test-component:
-    {{ instructeur }} vitest run --config tests/vitest.config.ts --project=component
+    {{ all }} vitest run --config tests/vitest.config.ts --project=component
 
 # Run end-to-end tests with playwright (optional flags passed to playwright, e.g. just test-e2e --grep "mon test" --headed)
 test-e2e *flags:

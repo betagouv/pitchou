@@ -24,7 +24,7 @@ The three templates share the Pitchou logo, a light layout with a purple border,
 - Assignment: `Attribution dossier: N° - Enjeu - Titre`.
 - Update: `Nouveauté: N° - Enjeu - Titre`.
 
-The enjeu label is **À enjeu**, **Sans enjeu** or **Enjeu à déterminer**. Without a DN number, the email uses the Pitchou dossier ID. Links open `/dossier/ID` and `/parametres/notifications`, without secrets or capabilities. The PNG logo is served at `/images/pitchou-logo-email.png`. Content frozen for a first sending attempt stays unchanged during retries.
+The enjeu label is **À enjeu**, **Sans enjeu** or **Enjeu à déterminer**. Without a DN number, the email uses the Pitchou dossier ID. Links open `/dossier/ID?tab=historique` and `/parametres/notifications`, without secrets or capabilities. The PNG logo is served at `/images/pitchou-logo-email.png`. Content frozen for a first sending attempt stays unchanged during retries.
 
 ## Configuration
 
@@ -50,17 +50,20 @@ docker compose -f compose.test.yml up -d test_db
 pnpm exec just test-email-notifications
 pnpm --filter @pitchou/app-instructeur exec vitest run --config tests/vitest.config.ts --project=unit dossierNotificationEmails deployment.test.ts
 pnpm --filter @pitchou/app-instructeur exec vitest run --config tests/vitest.config.ts --project=component src/routes/parametres
+pnpm --filter @pitchou/app-admin exec vitest run --config tests/vitest.config.ts --project=unit src/routes/mails
+pnpm --filter @pitchou/app-admin exec vitest run --config tests/vitest.config.ts --project=component src/routes/mails
 ```
 
 These tests cover preferences, author identity, unchanged or failed saves, arrivals, assignments, grouped updates, exclusions, access, absence of catch-up emails, daylight saving changes, concurrency, retries and deduplication. In particular, `retrySafety.test.ts` checks that a lost response followed by a 429 or 401 rejection cannot permit another send outside the safety window, while attempts that were all explicitly rejected remain retryable after a prolonged outage.
 
 ## Troubleshooting and history
 
-The admin page at `/mails/notifications` uses the usual admin session and permissions. It shows counts by type/status and 20 rows per page. Filters cover dossier, recipient, notification ID, type, status, environment and dates. Date boundaries are inclusive in Paris time. **Échéance dépassée** includes pending emails with a deferred retry. **Historique** shows transitions and attempts.
+The admin page at `/mails` uses the usual admin session and permissions. It lists notifications and CNPN emails together, with counts by type/status and 20 rows per page. Filters cover dossier, recipient, email ID, source, type, status, environment, existing CNPN tracking and dates. Date boundaries are inclusive in Paris time. **Échéance dépassée** includes pending emails with a deferred retry. Filters apply immediately. The sort panel orders the complete result set. Click a row to open its details and recorded history. CNPN receipt and opening counts use existing tracking for the principal recipient. CNPN records have no environment or attempt counter. Detail links use `email=notification:UUID` or `email=cnpn:UUID` to distinguish sources. Notification details show the frozen content when an attempt has started; unsent content is not reconstructed.
 
 | Status       | Meaning                                                                                               |
 | ------------ | ----------------------------------------------------------------------------------------------------- |
 | `pending`    | Waiting to be sent, possibly with a normalized error and retry date.                                  |
+| `failed`     | A CNPN send attempt failed. Intermediate attempts and raw errors are not recorded.                    |
 | `sent`       | Accepted by the sender, without proof of delivery.                                                    |
 | `cancelled`  | Cancelled with a reason such as a disabled preference, discontinued follow-up or lost access.         |
 | `suppressed` | Recipient not allowed in staging, with no automatic retry.                                            |
@@ -78,4 +81,4 @@ Durable state is stored in `email_notification_outbox`, attempts in `email_notif
 
 Server-side AARRI events are `notificationEmailQueued`, `notificationEmailSent`, `notificationEmailFailed`, `notificationEmailCancelled`, `notificationEmailUncertain`, `notificationEmailSuppressed` and `notificationEmailSettingsChanged`. Transitions are recorded with the outbox. An authenticated save produces an event only when it succeeds and changes a preference, with only the changed values before/after and the server timestamp.
 
-System events are attributed to the recipient with `source: system` and `attribution: recipient`, without counting as a user action. The environment distinguishes real activity from tests. These events contain no email addresses, HTML bodies, secrets or raw provider errors. Admin views obtain recipient identity through an authorized join. No delivery, bounce, open or click tracking is added.
+System events are attributed to the recipient with `source: system` and `attribution: recipient`, without counting as a user action. The environment distinguishes real activity from tests. These events contain no email addresses, HTML bodies, secrets or raw provider errors. Admin views obtain recipient identity through an authorized join. Notification emails do not add delivery, bounce, open or click tracking. The CNPN list uses its existing receipt and opening timestamps.

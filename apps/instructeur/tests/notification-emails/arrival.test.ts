@@ -22,7 +22,7 @@ test("notifies all current group members immediately without requiring suivi", a
     ),
   });
   expect(result.send.mock.calls[0][0].htmlContent).toContain(
-    `href="https://pitchou.test/dossier/${dossier.id}"`,
+    `href="https://pitchou.test/dossier/${dossier.id}?tab=historique"`,
   );
   expect(result.send.mock.calls[0][0].htmlContent).toContain(
     'href="https://pitchou.test/parametres/notifications"',

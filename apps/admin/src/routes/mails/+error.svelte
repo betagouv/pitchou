@@ -12,6 +12,6 @@
         ? page.error?.message
         : "Le chargement a échoué. Réessayez dans quelques instants."}
     </p>
-    <a href="/mails/notifications" class="notification-button">Revenir aux envois sans filtre</a>
+    <a href="/mails" class="notification-button">Revenir aux envois sans filtre</a>
   </section>
 </div>

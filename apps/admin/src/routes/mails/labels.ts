@@ -1,9 +1,11 @@
 export const kindLabels: Record<string, string> = {
+  cnpn: "Saisine CNPN",
   arrival: "Arrivée",
   assignment: "Attribution",
   novelty: "Nouveauté",
 };
 export const statusLabels: Record<string, string> = {
+  failed: "Échec",
   pending: "En attente",
   sent: "Accepté par l'expéditeur",
   cancelled: "Annulé",
@@ -15,9 +17,14 @@ export const environmentLabels: Record<string, string> = {
   staging: "Préproduction",
   development: "Développement",
   test: "Test automatisé",
-  preview: "Aperçu Fleet",
+  preview: "Aperçu",
+  unrecorded: "Non enregistré",
 };
 export const eventLabels: Record<string, string> = {
+  created: "Création de la demande d’envoi",
+  delivered: "Réception confirmée par le CNPN",
+  opened: "Ouverture détectée",
+  read_receipt: "Accusé de lecture envoyé",
   queued: "Mise en file",
   attempted: "Tentative",
   sent: "Accepté par l'expéditeur",
