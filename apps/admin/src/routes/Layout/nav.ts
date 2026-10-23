@@ -17,7 +17,9 @@ export const NAV: NavItem[] = [
 ];
 
 export function isNavActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return href === "/" || href === "/mails"
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export type PageInfo = { title: string; backHref?: string };

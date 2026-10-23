@@ -50,6 +50,8 @@ export const GET: RequestHandler = async ({ locals }) => {
   const revision = await db("administration_event").max("id as id").first();
   return json({
     authorizationVersion: JSON.stringify([user.id, user.groupes, user.permissions, revision?.id]),
+    getEmailNotificationPreferences: "/parametres/notifications",
+    updateEmailNotificationPreferences: "/parametres/notifications",
     ...(canRead
       ? Object.fromEntries(
           Object.entries(endpoints).filter(([key]) => canInstruct || readActions.has(key)),

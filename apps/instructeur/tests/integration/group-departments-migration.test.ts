@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { departements } from "@pitchou/common/departements.ts";
-import { up } from "../../../../libs/database/migrations/20261005103000_map-imported-group-departments.ts";
+import { up } from "../../../../libs/database/migrations/20261023103000_map-imported-group-departments.ts";
 import { db } from "../setup/db.ts";
 
 async function group(name: string, overrides: Record<string, unknown> = {}) {

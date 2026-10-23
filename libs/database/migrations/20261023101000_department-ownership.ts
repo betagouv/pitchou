@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 export async function up(db: Knex) {
+  await db.raw("SELECT set_config('pitchou.notification_baseline', 'true', true)");
   await db.raw(`
     CREATE FUNCTION lock_pitchou_access() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN

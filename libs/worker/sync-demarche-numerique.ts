@@ -1,3 +1,4 @@
+import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -78,7 +79,7 @@ try {
   };
   await Promise.allSettled([
     addDemarcheNumerique88444SynchronizationResult(result),
-    transaction.commit(),
+    transaction.commit().then(() => dispatchArrivalEmailsAfterCommit()),
   ]);
 } catch (error) {
   console.error("Sync échoué", error, "rollback de la transaction");

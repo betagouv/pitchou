@@ -22,7 +22,7 @@ test("migration preserves staff history and applicants while moving memberships 
         import(/* @vite-ignore */ fileURLToPath(new URL(name, directory))),
     });
     await db.migrate.latest({
-      migrationSource: migrationSource(names.filter((name) => name < "20261005")),
+      migrationSource: migrationSource(names.filter((name) => name < "20261023")),
     });
     const [instructor] = await db("personne")
       .insert({ email: "agent@example.org", first_names: "Camille", access_code: "legacy-secret" })
@@ -63,7 +63,19 @@ test("migration preserves staff history and applicants while moving memberships 
       personne: instructor.id,
     });
     process.env.PITCHOU_ADMIN_EMAILS = "bootstrap@example.org";
+    await db("email_notification_preferences")
+      .where({ personne: applicant.id })
+      .update({ assignment: false });
+    await db("email_notification_preferences")
+      .where({ personne: instructor.id })
+      .update({ novelty: false });
+    const pendingBefore = await db("email_notification_outbox").orderBy("id");
     await db.migrate.latest({ migrationSource: migrationSource(names) });
+
+    expect(
+      await db("email_notification_preferences").where({ personne: instructor.id }).first(),
+    ).toMatchObject({ assignment: true, arrival: true, novelty: false });
+    expect(await db("email_notification_outbox").orderBy("id")).toEqual(pendingBefore);
 
     expect(await db("auth_user").where({ id: instructor.id }).first()).toMatchObject({
       email: instructor.email,
@@ -100,6 +112,10 @@ test("migration preserves staff history and applicants while moving memberships 
     expect(await db.schema.hasTable("cap_dossier")).toBe(false);
     const [newUser] = await db("auth_user").insert({ email: "next@example.org" }).returning("id");
     expect(newUser.id).toBeGreaterThan(instructor.id);
+    expect(newUser.id).toBeGreaterThan(applicant.id);
+    expect(
+      await db("email_notification_preferences").where({ personne: newUser.id }).first(),
+    ).toMatchObject({ assignment: true, novelty: true, arrival: true });
   } finally {
     if (initialAdmins === undefined) delete process.env.PITCHOU_ADMIN_EMAILS;
     else process.env.PITCHOU_ADMIN_EMAILS = initialAdmins;

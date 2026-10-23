@@ -1,0 +1,116 @@
+.notification-monitor .filter-select {
+  min-width: 0;
+}
+.notification-monitor .filter-select [role="combobox"] {
+  height: 2.5rem;
+  border: 1px solid var(--monitor-border);
+  border-radius: 0.5rem;
+  box-shadow: none;
+  background: var(--background-lifted-grey);
+  font-size: 0.8125rem;
+  padding: 0 0.75rem;
+}
+.notification-monitor .filter-select [role="combobox"][aria-expanded="true"] {
+  border-color: var(--border-action-high-blue-france);
+  background: var(--background-action-low-blue-france);
+}
+.notification-monitor .filter-select [role="listbox"] {
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+}
+.notification-monitor .notification-date {
+  position: relative;
+  width: 10.5rem;
+}
+.notification-monitor .date-input {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--monitor-border);
+  border-radius: 0.5rem;
+  background: var(--background-lifted-grey);
+  padding-left: 0.625rem;
+}
+.notification-monitor .date-input label {
+  font-size: 0.6875rem;
+  color: var(--monitor-muted);
+  white-space: nowrap;
+}
+.notification-monitor .date-input input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-default-grey);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0 0.125rem;
+  height: 100%;
+}
+.notification-monitor .date-input input:focus {
+  outline: 0;
+}
+.notification-monitor .date-input button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  color: var(--monitor-muted);
+  border-radius: 0.5rem;
+}
+.notification-monitor .date-error {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--text-default-error);
+}
+.notification-monitor .overdue-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  min-height: 2.5rem;
+  padding-inline: 0.25rem;
+  position: relative;
+}
+.notification-monitor .overdue-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.notification-monitor .toggle-track {
+  display: inline-flex;
+  align-items: center;
+  width: 1.75rem;
+  height: 1rem;
+  padding: 2px;
+  border-radius: 1rem;
+  background: var(--border-plain-grey);
+  transition: background 0.15s;
+}
+.notification-monitor .toggle-track::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--background-default-grey);
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+.notification-monitor .overdue-toggle input:checked + .toggle-track {
+  background: var(--background-action-high-blue-france);
+}
+.notification-monitor .overdue-toggle input:checked + .toggle-track::before {
+  transform: translateX(0.75rem);
+}
+.notification-monitor .overdue-toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 3px;
+}
+
+.notification-monitor .date-input:focus-within {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 2px;
+}

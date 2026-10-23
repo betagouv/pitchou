@@ -34,7 +34,9 @@ test("les documents générés entrent dans l'historique et comptent comme usage
   expect(actions[0].data).toEqual({ name: "saisine-CSRPN-2026-08-16.odt" });
   expect(actions[0].author_petitionnaire).toBe(false);
 
-  const metriques = await db("evenement_metrique").where({ personne: personneId });
+  const metriques = await db("evenement_metrique")
+    .where({ personne: personneId })
+    .whereRaw("details->>'source' IS DISTINCT FROM 'system'");
   expect(metriques.map(({ evenement }) => evenement)).toEqual([
     "générerUnDocument",
     "générerUnDocument",

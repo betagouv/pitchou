@@ -13,6 +13,12 @@
       icon: "fr-icon-settings-5-line",
     },
     {
+      value: "/parametres/notifications",
+      label: "Notifications",
+      title: "Notifications par mail",
+      icon: "fr-icon-mail-line",
+    },
+    {
       value: "/parametres/groupes",
       label: "Mes groupes",
       title: "Mes groupes instructeurs",

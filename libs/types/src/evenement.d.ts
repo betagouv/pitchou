@@ -79,6 +79,40 @@ export type EvenementAssignDossierFollowersDetails = {
 
 export type EvenementMetrique =
   | {
+      type: "notificationEmailSettingsChanged";
+      details: {
+        personneId: number;
+        changes: Record<string, { previous: boolean; new: boolean }>;
+        occurredAt: string;
+        environment: string;
+        source: "user";
+      };
+    }
+  | {
+      type:
+        | "notificationEmailQueued"
+        | "notificationEmailSent"
+        | "notificationEmailFailed"
+        | "notificationEmailCancelled"
+        | "notificationEmailUncertain"
+        | "notificationEmailSuppressed";
+      details: {
+        notificationId: string;
+        type: string;
+        recipientId: number;
+        dossierId: number;
+        scheduledAt: string;
+        occurredAt: string;
+        attempt: number;
+        environment: string;
+        source: "system";
+        attribution: "recipient";
+        providerMessageId?: string | null;
+        errorCategory?: string;
+        reason?: string;
+      };
+    }
+  | {
       // We consider that a connection corresponds to loading Pitchou and successfully retrieving the caps URLs
       type: "seConnecter";
     }

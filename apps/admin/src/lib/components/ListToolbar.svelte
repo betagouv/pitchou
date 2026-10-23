@@ -12,6 +12,7 @@
     filterId = "filter-panel",
     sortId = "sort-panel",
     onToggleFilter,
+    onToggleSort,
   }: {
     id: string;
     label: string;
@@ -25,6 +26,7 @@
     filterId?: string;
     sortId?: string;
     onToggleFilter?: () => void;
+    onToggleSort?: () => void;
   } = $props();
 </script>
 
@@ -64,7 +66,7 @@
       type="button"
       aria-expanded={sortOpen}
       aria-controls={sortId}
-      onclick={() => (sortOpen = !sortOpen)}
+      onclick={() => (onToggleSort ? onToggleSort() : (sortOpen = !sortOpen))}
     >
       <span class="fr-icon-list-ordered fr-icon--sm" aria-hidden="true"></span>
       Trier

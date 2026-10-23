@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { up } from "../../../../libs/database/migrations/20261005104000_granular-admin-permissions.ts";
+import { up } from "../../../../libs/database/migrations/20261023104000_granular-admin-permissions.ts";
 import { db } from "../setup/db.ts";
 import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { createSession } from "@pitchou/server/session.ts";

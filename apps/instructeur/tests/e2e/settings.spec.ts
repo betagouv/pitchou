@@ -29,6 +29,15 @@ test("settings sections have direct links and appearance follows the shared brow
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.locator("html")).toHaveAttribute("data-fr-theme", "light");
 
+  await page.getByRole("link", { name: "Notifications", exact: true }).click();
+  const assignment = page.getByRole("group", { name: "Attributions de dossiers" });
+  await assignment.getByText("Désactivé", { exact: true }).click();
+  await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(page.getByRole("status")).toHaveText("Vos paramètres ont été enregistrés.");
+  await page.reload();
+  await expect(assignment.getByRole("radio", { name: "Désactivé", exact: true })).toBeChecked();
+  await page.getByRole("link", { name: "Général", exact: true }).click();
+
   const groupsLink = page.getByRole("link", { name: /Mes groupes/u });
   await groupsLink.click();
   await expect(page).toHaveURL(/\/parametres\/groupes$/u);

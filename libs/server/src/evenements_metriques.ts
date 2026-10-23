@@ -13,6 +13,14 @@ export function evenementMetriqueGuard(event: any): event is EvenementMetrique {
   if (!event.type) return false;
   const type: EvenementMetrique["type"] = event.type;
   switch (type) {
+    case "notificationEmailSettingsChanged":
+    case "notificationEmailQueued":
+    case "notificationEmailSent":
+    case "notificationEmailFailed":
+    case "notificationEmailCancelled":
+    case "notificationEmailUncertain":
+    case "notificationEmailSuppressed":
+      return false;
     case "seConnecter":
     case "modifierCommentaireInstruction":
     case "afficherLesDossiersSuivis":

@@ -5,6 +5,7 @@
     ".svelte-kit/non-ambient.d.ts",
     ".svelte-kit/types/**/$types.d.ts",
     "vite.config.ts",
+    "preview/**/*.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.svelte",

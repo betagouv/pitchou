@@ -25,6 +25,7 @@ test.each([
 ])("tags every email from %s / %s as %s", async (pitchouEnv, nodeEnv, tag) => {
   vi.stubEnv("PUBLIC_PITCHOU_ENV", pitchouEnv);
   vi.stubEnv("NODE_ENV", nodeEnv);
+  vi.stubEnv("STAGING_EMAIL_ALLOWLIST", "test@example.com");
   vi.stubEnv("BREVO_API_KEY", "test-key");
   post.mockReturnValue({ json: vi.fn().mockResolvedValue({ messageId: "test-message" }) });
 

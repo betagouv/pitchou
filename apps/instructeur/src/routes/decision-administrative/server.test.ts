@@ -1,7 +1,14 @@
 import { beforeEach, expect, test, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  transaction: { commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
+  transaction: Object.assign(
+    vi.fn(() => ({
+      where: vi.fn().mockReturnThis(),
+      forUpdate: vi.fn().mockReturnThis(),
+      first: vi.fn().mockResolvedValue(undefined),
+    })),
+    { commit: vi.fn(), rollback: vi.fn(), isCompleted: vi.fn() },
+  ),
   access: vi.fn(),
   dossierFromDecision: vi.fn(),
   decisions: vi.fn(),

@@ -14,6 +14,7 @@ import {
 } from "../factories/index.ts";
 import type { SendCnpnEmailRequest } from "@pitchou/types/API_Pitchou.ts";
 import { sendEmail } from "@pitchou/server/emails.ts";
+import { StagingEmailSuppressedError } from "@pitchou/server/emails/recipients.ts";
 
 async function postEmail(
   instructeur: Pick<InstructeurWithDossier, "cap" | "dossier">,
@@ -98,6 +99,19 @@ test("rejects a capability without dossier access before sending", async () => {
   });
   expect(sendEmail).not.toHaveBeenCalled();
   await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
+});
+
+test("staging recipient restrictions show a handled refusal without recording an accepted send", async () => {
+  const instructeur = await createInstructeurWithDossier(db, { email: "tester@example.com" });
+  vi.mocked(sendEmail).mockRejectedValueOnce(new StagingEmailSuppressedError());
+  await expect(postEmail(instructeur)).rejects.toMatchObject({
+    status: 403,
+    body: { message: expect.stringContaining("bloqué en préproduction") },
+  });
+  expect(await db("dossier_cnpn_email_sent_event").first()).toMatchObject({
+    status: "failed",
+    provider_message_id: null,
+  });
 });
 
 test.each(["accurate", "underreported"])(

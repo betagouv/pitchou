@@ -11,6 +11,7 @@ const actors = [
   ["notification", "personne"],
   ["notification_review", "personne"],
   ["edge_personne_follows_dossier", "personne"],
+  ["email_notification_outbox", "personne"],
 ] as const;
 
 export async function up(db: Knex) {
@@ -36,7 +37,7 @@ export async function up(db: Knex) {
     "create unique index auth_user_email_unique on auth_user (lower(email)) where email is not null",
   );
   await db.raw(
-    "select setval(pg_get_serial_sequence('auth_user','id'), coalesce(max(id), 1), max(id) is not null) from auth_user",
+    "select setval(pg_get_serial_sequence('auth_user','id'), coalesce(max(id), 1), max(id) is not null) from (select id from auth_user union all select id from personne) identities",
   );
   for (const [table, column] of actors) {
     const { rows } = await db.raw(
@@ -48,7 +49,10 @@ export async function up(db: Knex) {
     for (const { conname } of rows)
       await db.raw("alter table ?? drop constraint ??", [table, conname]);
     await db.schema.alterTable(table, (t) => {
-      t.foreign(column).references("id").inTable("auth_user").onDelete("RESTRICT");
+      t.foreign(column)
+        .references("id")
+        .inTable("auth_user")
+        .onDelete(table === "email_notification_outbox" ? "CASCADE" : "RESTRICT");
     });
   }
   await db.schema.createTable("auth_identity", (t) => {

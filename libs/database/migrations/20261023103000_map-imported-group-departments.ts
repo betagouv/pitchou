@@ -54,6 +54,7 @@ function normalizeName(name: string): string {
 }
 
 export async function up(db: Knex) {
+  await db.raw("SELECT set_config('pitchou.notification_baseline', 'true', true)");
   await db.raw("select pg_advisory_xact_lock(2105102026)");
   const groups = await db("groupe_instructeurs")
     .where({ coverage_needs_review: true })

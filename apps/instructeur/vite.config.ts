@@ -4,6 +4,7 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import tailwindcss from "@tailwindcss/vite";
+import { fleetNotifications } from "./preview/notificationPlugin.ts";
 
 // The app runs with CWD = this folder (apps/instructeur); the .env lives at the repo root.
 try {
@@ -12,6 +13,7 @@ try {
 
 export default defineConfig({
   plugins: [
+    fleetNotifications(),
     sentrySvelteKit({
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT_INSTRUCTEUR,
