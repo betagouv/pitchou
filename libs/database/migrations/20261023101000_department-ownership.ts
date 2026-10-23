@@ -92,8 +92,9 @@ export async function up(db: Knex) {
       FOR EACH STATEMENT EXECUTE FUNCTION lock_pitchou_access();
     CREATE TRIGGER exclusion_lock BEFORE INSERT OR UPDATE OR DELETE ON auth_permission_exclusion
       FOR EACH STATEMENT EXECUTE FUNCTION lock_pitchou_access();
-    SELECT refresh_pitchou_ownership(NULL);
   `);
+  // Defer the initial refresh and follower cleanup to 20261023103000, after imported
+  // regional coverage is installed. Legacy DN follows can precede that coverage.
 }
 
 export async function down() {
