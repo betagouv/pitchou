@@ -3,6 +3,10 @@ import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
+function metricsOf(personneId: number) {
+  return db("evenement_metrique").where({ personne: personneId }).orderBy("id");
+}
+
 function post(path: string, cap: string, body: unknown) {
   return fetch(`${INTEGRATION_BASE_URL}/${path}?cap=${cap}`, {
     method: "POST",
@@ -15,6 +19,7 @@ test.each(["action_dossier", "evenement_metrique"])(
   "a %s failure rolls back comment creation",
   async (table) => {
     const author = await createInstructeurWithDossier(db);
+    const metricsBefore = await metricsOf(author.id);
     await db.raw("ALTER TABLE ?? ADD CONSTRAINT reject_audit_test CHECK (false) NOT VALID", [
       table,
     ]);
@@ -25,7 +30,7 @@ test.each(["action_dossier", "evenement_metrique"])(
       expect(response.status).toBe(500);
       expect(await db("commentaire").where({ dossier: author.dossier.id })).toEqual([]);
       expect(await db("action_dossier").where({ dossier: author.dossier.id })).toEqual([]);
-      expect(await db("evenement_metrique").where({ personne: author.id })).toEqual([]);
+      expect(await metricsOf(author.id)).toEqual(metricsBefore);
     } finally {
       await db.raw("ALTER TABLE ?? DROP CONSTRAINT reject_audit_test", [table]);
     }
@@ -34,6 +39,7 @@ test.each(["action_dossier", "evenement_metrique"])(
 
 async function bulkFixture() {
   const author = await createInstructeurWithDossier(db);
+  const metricsBefore = await metricsOf(author.id);
   const [decision] = await db("decision_administrative")
     .insert({ dossier: author.dossier.id, type: "Arrêté dérogation" })
     .returning("id");
@@ -49,11 +55,11 @@ async function bulkFixture() {
       controles: [{ result: "Non conforme" }],
     },
   ];
-  return { author, decision, prescriptions };
+  return { author, decision, prescriptions, metricsBefore };
 }
 
 test("a failed controle insert rolls back the whole prescription batch without success audits", async () => {
-  const { author, decision, prescriptions } = await bulkFixture();
+  const { author, decision, prescriptions, metricsBefore } = await bulkFixture();
   const response = await post("prescriptions-et-controles", author.cap, [
     prescriptions[0],
     { ...prescriptions[1], controles: [{ controle_date: "invalid-date" }] },
@@ -62,11 +68,11 @@ test("a failed controle insert rolls back the whole prescription batch without s
   expect(await db("prescription").where({ decision_administrative: decision.id })).toEqual([]);
   expect(await db("controle")).toEqual([]);
   expect(await db("action_dossier").where({ dossier: author.dossier.id })).toEqual([]);
-  expect(await db("evenement_metrique").where({ personne: author.id })).toEqual([]);
+  expect(await metricsOf(author.id)).toEqual(metricsBefore);
 });
 
 test("an audit failure also rolls back successful bulk inserts", async () => {
-  const { author, decision, prescriptions } = await bulkFixture();
+  const { author, decision, prescriptions, metricsBefore } = await bulkFixture();
   await db.raw(
     "ALTER TABLE action_dossier ADD CONSTRAINT reject_audit_test CHECK (false) NOT VALID",
   );
@@ -76,14 +82,14 @@ test("an audit failure also rolls back successful bulk inserts", async () => {
     expect(await db("prescription").where({ decision_administrative: decision.id })).toEqual([]);
     expect(await db("controle")).toEqual([]);
     expect(await db("action_dossier").where({ dossier: author.dossier.id })).toEqual([]);
-    expect(await db("evenement_metrique").where({ personne: author.id })).toEqual([]);
+    expect(await metricsOf(author.id)).toEqual(metricsBefore);
   } finally {
     await db.raw("ALTER TABLE action_dossier DROP CONSTRAINT reject_audit_test");
   }
 });
 
 test("a successful bulk insert records its prescriptions, controls, audits and metrics", async () => {
-  const { author, decision, prescriptions } = await bulkFixture();
+  const { author, decision, prescriptions, metricsBefore } = await bulkFixture();
   const response = await post("prescriptions-et-controles", author.cap, prescriptions);
   expect(response.status).toBe(204);
   expect(await db("prescription").where({ decision_administrative: decision.id })).toHaveLength(2);
@@ -95,5 +101,5 @@ test("a successful bulk insert records its prescriptions, controls, audits and m
     "prescription_ajoutee",
     "prescription_ajoutee",
   ]);
-  expect(await db("evenement_metrique").where({ personne: author.id })).toHaveLength(4);
+  expect(await metricsOf(author.id)).toHaveLength(metricsBefore.length + 4);
 });

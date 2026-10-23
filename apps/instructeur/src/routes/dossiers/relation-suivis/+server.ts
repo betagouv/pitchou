@@ -1,3 +1,4 @@
+import { dispatchAssignmentEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "#lib/server/auth.ts";
@@ -69,7 +70,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
 
     // Historique entry, only when the follow relation actually changed.
     if ((direction === "suivre") !== alreadyFollowing) {
-      const actor = await getPersonneByDossierCap(cap);
+      const actor = await getPersonneByDossierCap(cap, transaction);
       await logDossierActions(
         [
           {
@@ -90,6 +91,7 @@ export const POST: RequestHandler = async ({ url, request }) => {
     }
 
     await transaction.commit();
+    await dispatchAssignmentEmailsAfterCommit(dossierId);
     return new Response(null, { status: 204 });
   } catch (err) {
     if (!transaction.isCompleted()) {

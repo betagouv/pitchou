@@ -3,6 +3,8 @@
 
   type Props = {
     title: string;
+    /** Avoid a duplicate dialog landmark when the consumer supplies a native dialog. */
+    insideNativeDialog?: boolean;
     onClose: () => void;
     /** Widens the dialog: "large" for forms, "xlarge" for the species/taxon list selectors. */
     size?: "default" | "large" | "xlarge";
@@ -13,7 +15,15 @@
     children: Snippet;
   };
 
-  let { title, onClose, size = "default", headerStart, footer, children }: Props = $props();
+  let {
+    title,
+    onClose,
+    size = "default",
+    headerStart,
+    footer,
+    children,
+    insideNativeDialog = false,
+  }: Props = $props();
 
   function onKeydown(event: KeyboardEvent) {
     if (event.key === "Escape") onClose();
@@ -38,9 +48,10 @@
       : size === 'xlarge'
         ? 'max-w-[72rem]'
         : 'max-w-[42rem]'}"
-    role="dialog"
-    aria-modal="true"
-    aria-label={title}
+    data-dialog-panel
+    role={insideNativeDialog ? "presentation" : "dialog"}
+    aria-modal={insideNativeDialog ? undefined : true}
+    aria-label={insideNativeDialog ? undefined : title}
   >
     <header
       class="flex-[0_0_auto] flex flex-row items-center gap-4 fr-py-2w fr-px-3w border-b border-[color:var(--border-default-grey)]"

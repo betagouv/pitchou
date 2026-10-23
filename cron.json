@@ -11,6 +11,10 @@
     {
       "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx delete-expired-sessions.ts",
       "size": "S"
+    },
+    {
+      "command": "*/10 * * * * corepack pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts",
+      "size": "S"
     }
   ]
 }

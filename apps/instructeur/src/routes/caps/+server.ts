@@ -20,6 +20,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const ret = Object.create(null) as CapURLs;
 
+  addEmailNotificationCapabilities(ret, capBundle);
   if (capBundle.listerDossiers) {
     ret.listerDossiers = `/dossiers?cap=${capBundle.listerDossiers}`;
   }
@@ -112,5 +113,15 @@ function addDecisionCapabilities(
     ret.deletePieceJointe = `/piece-jointe?cap=${cap}`;
     ret.createUploadUrls = `/fichier/upload-url?cap=${cap}`;
     ret.deleteAvisExpert = `/avis-expert/:avisExpertId?cap=${cap}`;
+  }
+}
+
+function addEmailNotificationCapabilities(
+  ret: CapURLs,
+  capBundle: Awaited<ReturnType<typeof getInstructeurCapBundleByPersonneCodeAcces>>,
+) {
+  if (capBundle.getEmailNotificationPreferences) {
+    ret.getEmailNotificationPreferences = `/parametres/notifications?cap=${capBundle.getEmailNotificationPreferences}`;
+    ret.updateEmailNotificationPreferences = ret.getEmailNotificationPreferences;
   }
 }

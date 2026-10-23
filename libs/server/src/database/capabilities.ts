@@ -47,6 +47,8 @@ export async function getInstructeurCapBundleByPersonneCodeAcces(
     ]);
   return {
     remplirAnnotations: fillAnnotations?.cap,
+    getEmailNotificationPreferences: listDossiers,
+    updateEmailNotificationPreferences: listDossiers,
     listerDossiers: listDossiers,
     exporterDossiers: listDossiers,
     recupérerDossierComplet: listDossiers,

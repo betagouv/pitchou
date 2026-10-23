@@ -21,6 +21,10 @@ const initialApiKey = process.env.BREVO_API_KEY;
 
 beforeEach(() => {
   vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
+  vi.stubEnv(
+    "STAGING_EMAIL_ALLOWLIST",
+    "instructeur@example.com,cnpn@example.com,cheffe@example.com",
+  );
   process.env.BREVO_API_KEY = "test-api-key";
   responseJson.mockResolvedValue({ messageId: "test-message" });
   post.mockReturnValue({ json: responseJson });

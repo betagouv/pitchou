@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 # Single repo, two deployed apps. PITCHOU_APP selects which one this container runs.
 # Only instructeur runs the database migrations; admin shares the same database.

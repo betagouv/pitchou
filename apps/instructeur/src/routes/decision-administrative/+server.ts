@@ -1,3 +1,4 @@
+import { hasChangedValues } from "@pitchou/server/database/changedValues.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireCap } from "#lib/server/auth.ts";
@@ -87,6 +88,12 @@ export const POST: RequestHandler = async ({ url, request }) => {
       error(403, "La décision administrative n'appartient pas au dossier");
     }
 
+    const current = decisionData.id
+      ? await transaction("decision_administrative")
+          .where({ id: decisionData.id })
+          .forUpdate()
+          .first()
+      : undefined;
     let id: string;
     if (!decisionData.fichier_upload) {
       const existingDecision = decisionData.id
@@ -112,7 +119,11 @@ export const POST: RequestHandler = async ({ url, request }) => {
         {
           dossier: decisionData.dossier,
           type: decisionData.id ? "decision_modifiee" : "decision_importee",
-          data: { decision_type: decisionData.type ?? null },
+          data: {
+            decision_type: decisionData.type ?? null,
+            email_notification:
+              !!decisionData.fichier_upload || hasChangedValues(current, decisionData),
+          },
           author_personne: author?.id ?? null,
         },
       ],

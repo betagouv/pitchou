@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { SEED_DOSSIERS } from "../fixtures/dossiers.ts";
+import { baselineSeedNotifications } from "./dossier/notifications.ts";
 import { seedActionsDossier } from "./dossier/actions.ts";
 import { seedCommentaires } from "./dossier/commentaires.ts";
 import { seedDossierActors } from "./dossier/actors.ts";
@@ -18,6 +19,9 @@ const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
 export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
+    await transaction.raw("SELECT set_config('pitchou.environment', ?, true)", [
+      process.env.PUBLIC_PITCHOU_ENV === "staging" ? "staging" : "development",
+    ]);
     const actors = await seedDossierActors(transaction, SEED_EMAIL);
     const { dossierIdMap, agentVisibleDossiers } = await seedDossierRows(transaction, actors);
 
@@ -30,6 +34,7 @@ export async function seed(knex: Knex) {
     await seedEspecesImpactees(transaction, dossierIdMap);
     await seedCommentaires(transaction, dossierIdMap);
     await seedActionsDossier(transaction, dossierIdMap, actors.person?.id ?? null);
+    await baselineSeedNotifications(transaction, Object.values(dossierIdMap));
 
     console.log("");
     console.log(`  Seed dossiers OK — ${SEED_DOSSIERS.length} dossiers`);

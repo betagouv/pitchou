@@ -74,6 +74,10 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
   const commentaireId = parseCommentaireId(body);
   const content = parseContent(body);
   await directDatabaseConnection.transaction(async (transaction) => {
+    const current = await transaction("commentaire")
+      .where({ id: commentaireId })
+      .forUpdate()
+      .first();
     const updated = await updateCommentaireFromCap(
       cap,
       dossierId,
@@ -90,7 +94,7 @@ export const PUT: RequestHandler = async ({ params, url, request }) => {
         {
           dossier: dossierId,
           type: "commentaire_modifie",
-          data: { excerpt: content.slice(0, 80) },
+          data: { excerpt: content.slice(0, 80), email_notification: current?.content !== content },
           author_personne: author?.id ?? null,
         },
       ],
