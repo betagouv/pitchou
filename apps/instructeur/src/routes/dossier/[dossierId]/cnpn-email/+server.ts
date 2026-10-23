@@ -7,14 +7,11 @@ import { requireUserId, requireDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { getUserById } from "@pitchou/server/database/personne.ts";
 import {
-  createDossierCnpnEmailSendAttempt,
   getAuthorizedDossierFiles,
-  getDossierCnpnEmailSendAttempt,
   getDossierCnpnEmailSentEventById,
   getPendingDossierCnpnEmailSendAttempt,
   markDossierCnpnEmailSendAttemptFailed,
   markDossierCnpnEmailSendAttemptSent,
-  restartDossierCnpnEmailFailedAttempt,
 } from "@pitchou/server/database/dossier_cnpn_email.ts";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
 import {
@@ -26,6 +23,7 @@ import {
   type EmailMessage,
 } from "@pitchou/server/emails.ts";
 import { parseDossierId, parseRequest } from "./request.ts";
+import { authorizeSendAttempt } from "./attempt.ts";
 
 const CNPN_EMAIL = "derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr";
 const EMAIL_SIZE_ERROR =
@@ -46,11 +44,11 @@ async function readableToBuffer(body: NodeJS.ReadableStream, budget: number): Pr
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
   const userId = requireUserId(locals);
+  const draft = parseRequest(await readJsonObject(request));
   const dossierId = await requireDossierAccess(parseDossierId(params.dossierId!), userId);
   const sender = await getUserById(userId);
   if (!sender?.email) error(403, "Aucune adresse email n'est associée à cette capability.");
   requireNonDemoSender(sender.email);
-  const draft = parseRequest(await readJsonObject(request));
   const recipient = IS_TEST_ENVIRONMENT ? (draft.recipient ?? sender.email) : CNPN_EMAIL;
   const previousEvent = await getDossierCnpnEmailSentEventById(draft.requestId, dossierId);
   if (previousEvent) return json(previousEvent);
@@ -89,7 +87,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     )
     .digest("hex");
 
-  const created = await createDossierCnpnEmailSendAttempt({
+  const existing = await authorizeSendAttempt({
     id: draft.requestId,
     dossier: dossierId,
     sentBy: sender.id,
@@ -102,20 +100,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     attachmentIds: draft.attachmentIds,
     attachmentNames: attachments.map(({ name }) => name),
   });
-  if (!created) {
-    const existing = await getDossierCnpnEmailSentEventById(draft.requestId, dossierId);
-    if (existing) return json(existing);
-    const attempt = await getDossierCnpnEmailSendAttempt(draft.requestId, dossierId);
-    if (
-      attempt?.status === "failed" &&
-      attempt.payload_hash === payloadHash &&
-      (await restartDossierCnpnEmailFailedAttempt(draft.requestId))
-    ) {
-      // Brevo rejected the previous request before accepting it. Retry the frozen payload.
-    } else {
-      error(425, "Cet envoi a déjà été lancé. Vérifiez Brevo avant de recommencer.");
-    }
-  }
+  if (existing) return json(existing);
 
   const messageId = await sendCnpnEmail({ ...email, attachments }, draft.requestId);
   const event = await markDossierCnpnEmailSendAttemptSent(draft.requestId, messageId);
