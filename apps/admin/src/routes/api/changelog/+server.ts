@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import {
@@ -16,15 +17,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   if (!validation.ok) {
     error(400, validation.message);
   }
-  if (validation.value.published && !locals.user!.permissions.includes("admin:changelog:update")) {
-    error(403, "Vous n'avez pas le droit de publier une nouveauté.");
-  }
 
   // `updated_by` is always the logged-in admin email, never trusted from the client.
   try {
-    const id = await createChangelogEntry({
-      ...validation.value,
-      updated_by: locals.user!.email,
+    const id = await withAdminWriteAccess(locals, "admin:changelog:create", async (trx, actor) => {
+      if (validation.value.published && !actor.permissions.includes("admin:changelog:update")) {
+        error(403, "Vous n'avez pas le droit de publier une nouveauté.");
+      }
+      return createChangelogEntry({ ...validation.value, updated_by: actor.email }, trx);
     });
     return json({ id }, { status: 201 });
   } catch (err) {

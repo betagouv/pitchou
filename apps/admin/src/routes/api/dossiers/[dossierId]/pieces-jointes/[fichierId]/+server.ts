@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error } from "@sveltejs/kit";
 
 import type { RequestHandler } from "./$types";
@@ -7,12 +8,14 @@ import { parseDossierId, throwHttpErrorForAdminDossier } from "#lib/server/dossi
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 // Auth is enforced upstream by hooks.server.ts (session and permissions).
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, locals }) => {
   const dossierId = parseDossierId(params.dossierId!);
   const fichierId = params.fichierId! as FileId;
 
   try {
-    const deletedEdges = await deletePieceJointeFromAdmin(dossierId, fichierId);
+    const deletedEdges = await withAdminWriteAccess(locals, "admin:dossiers:files", (trx) =>
+      deletePieceJointeFromAdmin(dossierId, fichierId, trx),
+    );
     if (deletedEdges === 0) {
       error(404, "Pièce jointe introuvable pour ce dossier.");
     }

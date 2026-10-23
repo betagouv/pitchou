@@ -1,4 +1,4 @@
-// Auth is enforced upstream by hooks.server.ts (session and permissions).
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { error, json } from "@sveltejs/kit";
 import {
   getActiviteReferentiel,
@@ -11,7 +11,7 @@ import type { RequestHandler } from "./$types.ts";
  * Groups a raw « Activité principale » label under an activity and marks it as reviewed.
  * Accepting a flagged label as « Autre » is the same call with its current activity code.
  */
-export const PUT: RequestHandler = async ({ request }) => {
+export const PUT: RequestHandler = async ({ request, locals }) => {
   const body = await readJsonObject(request);
   rejectUnknownProperties(body, new Set(["label", "activiteCode"]));
 
@@ -19,13 +19,15 @@ export const PUT: RequestHandler = async ({ request }) => {
   const activiteCode = typeof body.activiteCode === "string" ? body.activiteCode : "";
   if (!label || !activiteCode) error(400, "Les propriétés 'label' et 'activiteCode' sont requises");
 
-  const { activites } = await getActiviteReferentiel();
-  if (!activites.some((activite) => activite.code === activiteCode)) {
-    error(400, `Aucune activité avec le code '${activiteCode}'`);
-  }
+  return withAdminWriteAccess(locals, "admin:activites:manage", async (trx) => {
+    const { activites } = await getActiviteReferentiel(trx);
+    if (!activites.some((activite) => activite.code === activiteCode)) {
+      error(400, `Aucune activité avec le code '${activiteCode}'`);
+    }
 
-  const reassigned = await reassignActiviteLabel(label, activiteCode);
-  if (!reassigned) error(404, "Ce libellé n'est pas dans le référentiel");
+    const reassigned = await reassignActiviteLabel(label, activiteCode, trx);
+    if (!reassigned) error(404, "Ce libellé n'est pas dans le référentiel");
 
-  return json({ succès: true });
+    return json({ succès: true });
+  });
 };

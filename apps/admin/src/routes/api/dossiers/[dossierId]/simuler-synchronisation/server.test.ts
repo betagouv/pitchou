@@ -4,6 +4,13 @@ import { simulateSpeciesChange } from "#lib/server/simulateSpecies.ts";
 import { getDossierActions } from "@pitchou/server/database/action_dossier.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 
+vi.mock("#lib/server/writeAccess.ts", () => ({
+  withAdminWriteAccess: async (
+    _locals: unknown,
+    _permission: unknown,
+    callback: (trx: unknown) => Promise<unknown>,
+  ) => callback(directDatabaseConnection),
+}));
 vi.mock("#lib/server/simulateSpecies.ts", () => ({ simulateSpeciesChange: vi.fn() }));
 vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: vi.fn() }));
 vi.mock("@pitchou/server/database/dossier.ts", () => ({ dumpDossiers: vi.fn() }));
@@ -54,8 +61,12 @@ test.each(["P-4-2", null])(
     const response = await POST(event({ type: "especes", impactType }));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ...result, actions: actions.slice(0, 10) });
-    expect(simulateSpeciesChange).toHaveBeenCalledExactlyOnceWith(42, impactType);
-    expect(getDossierActions).toHaveBeenCalledExactlyOnceWith(42);
+    expect(simulateSpeciesChange).toHaveBeenCalledExactlyOnceWith(
+      42,
+      impactType,
+      directDatabaseConnection,
+    );
+    expect(getDossierActions).toHaveBeenCalledExactlyOnceWith(42, directDatabaseConnection);
     expect(directDatabaseConnection).not.toHaveBeenCalled();
   },
 );

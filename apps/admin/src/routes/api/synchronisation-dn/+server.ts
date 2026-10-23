@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { spawn } from "node:child_process";
 
 import { error, json } from "@sveltejs/kit";
@@ -56,16 +57,12 @@ export const GET: RequestHandler = async ({ url }) => {
   });
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
   if (!process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN) {
     error(
       500,
       "La variable d'environnement DEMARCHE_SIMPLIFIEE_API_TOKEN n'est pas définie sur cette application ; la synchronisation ne peut pas être lancée d'ici.",
     );
-  }
-
-  if (currentRun && currentRun.finishedAt === null) {
-    error(409, "Une synchronisation lancée depuis cette page est déjà en cours.");
   }
 
   const { lastModified: lastModifiedRaw } = await request.json();
@@ -78,6 +75,16 @@ export const POST: RequestHandler = async ({ request }) => {
   }
   if (lastModified < INCEPTION_DATE) {
     error(400, "La date ne peut pas être antérieure au 1er janvier 2024.");
+  }
+
+  return withAdminWriteAccess(locals, "admin:sync:run", async () =>
+    startSynchronization(lastModified),
+  );
+};
+
+function startSynchronization(lastModified: Date) {
+  if (currentRun && currentRun.finishedAt === null) {
+    error(409, "Une synchronisation lancée depuis cette page est déjà en cours.");
   }
 
   const run: SyncRun = {
@@ -132,4 +139,4 @@ export const POST: RequestHandler = async ({ request }) => {
   });
 
   return json({ started: true }, { status: 202 });
-};
+}

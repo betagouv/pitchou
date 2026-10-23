@@ -1,3 +1,4 @@
+import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { dispatchArrivalEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
 import { error, json } from "@sveltejs/kit";
 
@@ -21,18 +22,23 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   ) {
     error(400, "Le département principal est requis.");
   }
+  const name = body.name.trim();
+  const primaryDepartment = body.primary_department;
   const relations = parseMinimalCreationRelations(body);
 
   try {
-    const { id } = await createDossierFromAdmin(
-      {
-        name: body.name.trim(),
-        columns: { primary_department: body.primary_department },
-        depot_date: new Date(),
-        phase: "Accompagnement amont",
-        relations,
-      },
-      locals.user!.email,
+    const { id } = await withAdminWriteAccess(locals, "admin:dossiers:create", (trx, actor) =>
+      createDossierFromAdmin(
+        {
+          name,
+          columns: { primary_department: primaryDepartment },
+          depot_date: new Date(),
+          phase: "Accompagnement amont",
+          relations,
+        },
+        actor.email,
+        trx,
+      ),
     );
     await dispatchArrivalEmailsAfterCommit(id);
     return json({ id }, { status: 201 });
