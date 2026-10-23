@@ -1,6 +1,8 @@
 import { readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
+import { connectUser } from "@pitchou/server/users.ts";
+import { createSession, readSession } from "@pitchou/server/session.ts";
 import { makeAdminKnex, makeKnex } from "../setup/db.ts";
 
 const directory = new URL("../../../../libs/database/migrations/", import.meta.url);
@@ -104,6 +106,43 @@ test("migration preserves staff history and applicants while moving memberships 
     expect(await db("auth_permission_bundle").where({ user_id: instructor.id })).toMatchObject([
       { bundle: "instructeur" },
     ]);
+    const accountCount = await db("auth_user").count("* as count").first();
+    const identity = {
+      issuer: "https://proconnect.test",
+      subject: "migrated-instructor",
+      email: " AGENT@example.org ",
+      firstNames: "Camille",
+      lastName: "Martin",
+    };
+    const connected = await connectUser(identity, db);
+    expect(connected.id).toBe(instructor.id);
+    expect(await db("auth_user").count("* as count").first()).toEqual(accountCount);
+    const token = await createSession(
+      { userId: connected.id, email: connected.email!, name: "Camille Martin", idToken: null },
+      db,
+    );
+    const session = await readSession(token, db);
+    expect(session?.id).toBe(instructor.id);
+    expect(session?.permissions).toEqual(
+      expect.arrayContaining(["dossier:read", "dossier:instruct"]),
+    );
+    expect(session?.groupes.map(({ id }) => id)).toContain(group.id);
+    expect(await db("edge_personne_follows_dossier")).toMatchObject([
+      { personne: instructor.id, dossier: dossier.id },
+    ]);
+    expect(
+      await db("email_notification_preferences").where({ personne: connected.id }).first(),
+    ).toMatchObject({ novelty: false });
+    expect((await connectUser(identity, db)).id).toBe(instructor.id);
+    const differentEmail = await connectUser(
+      { ...identity, subject: "different-identity", email: "alias@example.org" },
+      db,
+    );
+    expect(differentEmail.id).not.toBe(instructor.id);
+    expect(await db("user_groupe").where({ user_id: differentEmail.id })).toHaveLength(0);
+    expect(await db("auth_permission_bundle").where({ user_id: differentEmail.id })).toHaveLength(
+      0,
+    );
     expect(
       await db("auth_user as u")
         .join("auth_permission_bundle as b", "u.id", "b.user_id")

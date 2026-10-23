@@ -2,7 +2,7 @@
 
 Pitchou owns users, permissions, group membership and dossier ownership. DN supplies dossier data. Its groups and instructor list no longer change access in Pitchou. A Pitchou account does not need a DN account.
 
-Both applications use ProConnect. A successful first login creates an `auth_user` record with no permissions or groups. Administrators can also prepare an account by email. The first matching ProConnect login binds it to an issuer and subject. Later logins use that binding, even if the email changes. A different identity cannot claim an already bound account by email.
+Both applications use ProConnect. On the first login, Pitchou matches the ProConnect email to an existing `auth_user`, ignoring case and surrounding spaces. This includes accounts migrated from email-link login and accounts prepared by administrators. It preserves the account ID, permissions and memberships, then binds the account to the ProConnect issuer and subject. If no email matches, it creates an account with no permissions or groups. A different address or alias does not automatically recover an existing account. Later logins use the identity binding, even if the email changes. A different identity cannot claim an already bound account by email.
 
 The admin pages `/utilisateurs` and `/groupes-instructeurs` manage accounts and coverage. Effective permissions are the union of bundle permissions and individual grants, minus exclusions. The definitions live in `libs/types/src/permissions.ts`.
 
