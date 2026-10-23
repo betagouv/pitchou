@@ -14,10 +14,17 @@
   }: { detail: EmailDetail | null; onClose: () => void; trigger: HTMLElement | null } = $props();
   const row = $derived(detail?.row);
   let closing = false;
-  let active = $state("preview");
+  let active = $state("history");
+  const recordKey = $derived(row ? `${row.source}:${row.id}` : "");
+  $effect(() => {
+    if (recordKey) {
+      active = "history";
+      closing = false;
+    }
+  });
   const tabs = $derived([
-    { id: "preview", label: "Mail" },
     { id: "history", label: `Historique${detail ? ` · ${detail.history.length}` : ""}` },
+    { id: "preview", label: "Mail" },
     { id: "information", label: "Informations" },
   ]);
   function close() {
@@ -69,9 +76,11 @@
           </div>
           <h3>{row.subject ?? "Objet non enregistré"}</h3>
           <div class="mail-envelope">
-            <a href={`/dossiers/${row.dossier}`}>Dossier #{row.dossier}</a><span
-              >À {detail.recipients.join(", ") || "Destinataire non enregistré"}</span
-            >
+            <a class="mail-dossier" href={`/dossiers/${row.dossier}`}>
+              <span class="fr-icon-folder-2-line fr-icon--sm" aria-hidden="true"></span>
+              Dossier #{row.dossier}
+              <span class="fr-icon-arrow-right-s-line fr-icon--sm" aria-hidden="true"></span>
+            </a><span>À {detail.recipients.join(", ") || "Destinataire non enregistré"}</span>
           </div>
         </header>
         <div class="mail-tabs" role="tablist" aria-label="Détails du mail">

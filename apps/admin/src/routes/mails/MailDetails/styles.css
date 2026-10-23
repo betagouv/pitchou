@@ -113,7 +113,7 @@
 }
 .mail-envelope {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.375rem 1rem;
   font-size: 0.75rem;
@@ -121,24 +121,51 @@
   color: var(--text-mention-grey);
   overflow-wrap: anywhere;
 }
-.mail-envelope a {
+.mail-dialog .mail-dossier {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  background: var(--background-lifted-grey);
   background-image: none;
-  text-decoration: underline;
+  text-decoration: none;
+  font-weight: 500;
   color: var(--text-action-high-blue-france);
+}
+.mail-dialog .mail-dossier:hover {
+  border-color: var(--border-action-high-blue-france);
+  background: var(--background-action-low-blue-france);
+}
+.mail-dialog .mail-dossier:focus-visible {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 2px;
 }
 .mail-tabs {
   display: flex;
-  gap: 1.25rem;
+  gap: 0.25rem;
   padding: 0 1.25rem;
   border-bottom: 1px solid var(--border-default-grey);
 }
 .mail-tabs > button {
   position: relative;
-  padding: 0.625rem 0;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.375rem 0.375rem 0 0;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-mention-grey);
   white-space: nowrap;
+}
+.mail-tabs > button:hover {
+  background: var(--background-alt-grey-hover);
+  color: var(--text-default-grey);
+}
+.mail-tabs > button:focus-visible {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: -3px;
 }
 .mail-tabs > button[aria-selected="true"] {
   color: var(--text-action-high-blue-france);
@@ -147,8 +174,8 @@
   content: "";
   position: absolute;
   bottom: -1px;
-  left: 0;
-  right: 0;
+  left: 0.75rem;
+  right: 0.75rem;
   height: 2px;
   background: var(--text-action-high-blue-france);
 }
@@ -213,7 +240,6 @@
     font-size: 1rem;
   }
   .mail-tabs {
-    gap: 1rem;
     padding: 0 1rem;
   }
   .mail-pane-content {

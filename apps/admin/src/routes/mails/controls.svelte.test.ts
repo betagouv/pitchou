@@ -120,23 +120,55 @@ test("details reuse the admin modal inside a native modal dialog with trapped an
   await expect.element(closeButton).toHaveFocus();
   await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
   expect(dialog.contains(document.activeElement)).toBe(true);
+  await expect
+    .element(page.getByRole("tab", { name: /Historique/u }))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(page.getByText("Aucun événement enregistré.")).toBeInTheDocument();
+  await page.getByRole("tab", { name: /Historique/u }).click();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .element(page.getByRole("tab", { name: "Mail", exact: true }))
+    .toHaveAttribute("aria-selected", "true");
   const frame = document.querySelector<HTMLIFrameElement>("iframe")!;
   expect(frame.srcdoc).toContain("Message enregistré");
   expect(frame.sandbox.contains("allow-scripts")).toBe(false);
   expect(frame.sandbox.contains("allow-same-origin")).toBe(false);
-  await page.getByRole("tab", { name: /Historique/u }).click();
-  await expect.element(page.getByText("Aucun événement enregistré.")).toBeInTheDocument();
-  await userEvent.keyboard("{ArrowRight}");
+  await userEvent.keyboard("{End}");
   await expect
     .element(page.getByRole("tab", { name: "Informations", exact: true }))
     .toHaveAttribute("aria-selected", "true");
+  await userEvent.keyboard("{Home}{ArrowLeft}");
+  await expect.element(page.getByRole("tab", { name: "Informations", exact: true })).toHaveFocus();
   await userEvent.keyboard("{Escape}");
   expect(close).toHaveBeenCalledOnce();
   rendered.unmount();
   expect(document.activeElement).toBe(trigger);
   trigger.remove();
 });
-
+test("another record resets to history with linked panels and padded tabs under app styles", async () => {
+  const rendered = render(MailDetails, { detail, onClose: vi.fn(), trigger: null });
+  expect([...document.querySelectorAll('[role="tab"]')].map((tab) => tab.id)).toEqual([
+    "mail-tab-history",
+    "mail-tab-preview",
+    "mail-tab-information",
+  ]);
+  const dossier = page.getByRole("link", { name: "Dossier #12", exact: true });
+  await expect.element(dossier).toHaveAttribute("href", "/dossiers/12");
+  expect(getComputedStyle(dossier.element()).textDecorationLine).toBe("none");
+  for (const tab of document.querySelectorAll<HTMLElement>('[role="tab"]')) {
+    expect(Number(getComputedStyle(tab).paddingLeft.replace("px", ""))).toBeGreaterThanOrEqual(12);
+    expect(tab.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
+  }
+  await page.getByRole("tab", { name: "Mail", exact: true }).click();
+  await rendered.rerender({ detail: { ...detail, row: { ...detail.row, id: "another" } } });
+  await expect
+    .element(page.getByRole("tab", { name: /Historique/u }))
+    .toHaveAttribute("aria-selected", "true");
+  const panel = page.getByRole("tabpanel").element();
+  expect(panel.id).toBe("mail-pane-history");
+  expect(panel.getAttribute("aria-labelledby")).toBe("mail-tab-history");
+  expect(document.querySelector("iframe")).toBeNull();
+});
 test("timeline suppresses global list counters and keeps long identifiers inside a separate content column", async () => {
   const style = document.createElement("style");
   style.textContent = 'ol > li::before {content:"1.";position:absolute;}';
