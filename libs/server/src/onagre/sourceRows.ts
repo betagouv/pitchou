@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type { OnagreTable, SourceRow } from "@pitchou/types/onagre.ts";
+import { readFilters, applyFilter, escapePattern } from "./filters.ts";
 
 export async function browseSourceRows(
   connection: Knex,
@@ -13,29 +14,32 @@ export async function browseSourceRows(
     tables[0];
   if (!table) return null;
   const search = (url.searchParams.get("search") ?? "").slice(0, 200);
-  const column = table.columns.find((name) => name === url.searchParams.get("column")) ?? "";
+  const { filters, error: filterError } = readFilters(url.searchParams, table.columns);
   const base = connection("onagre_source_row").where({
     snapshot_id: snapshotId,
     table_name: table.name,
   });
   const query = base.clone();
+  if (filterError) query.whereRaw("false");
+  else for (const filter of filters) applyFilter(query, filter);
   if (search) {
-    const pattern = `%${search.replaceAll(/[\\%_]/gu, "\\$&")}%`;
-    if (column) query.whereRaw("content ->> ? ilike ?", [column, pattern]);
-    else
-      query.whereRaw(
-        "exists (select 1 from jsonb_each_text(content) cell where cell.value ilike ?)",
-        [pattern],
-      );
+    const pattern = `%${escapePattern(search)}%`;
+    query.whereRaw(
+      "exists (select 1 from jsonb_each_text(content) cell where cell.value ilike ?)",
+      [pattern],
+    );
   }
-  const total = search ? Number((await query.clone().count("* as count"))[0].count) : table.count;
+  const restricted = Boolean(search || filters.length > 0 || filterError);
+  const total = restricted
+    ? Number((await query.clone().count("* as count"))[0].count)
+    : table.count;
   const pages = Math.max(1, Math.ceil(total / 25));
   const page = Math.min(
     pages,
     Math.max(1, Math.floor(Number(url.searchParams.get("rowsPage")) || 1)),
   );
   const paginated = query.clone().select("row_number", "content").orderBy("row_number").limit(25);
-  if (search) paginated.offset((page - 1) * 25);
+  if (restricted) paginated.offset((page - 1) * 25);
   else paginated.where("row_number", ">", (page - 1) * 25);
   const rows: { row_number: number; content: SourceRow }[] = await paginated;
   const requested = Number(url.searchParams.get("row"));
@@ -50,7 +54,9 @@ export async function browseSourceRows(
     page,
     pages,
     search,
-    column,
+    filters,
+    filterError,
+    sourceCount: table.count,
     rows,
     selected: selected ?? null,
   };

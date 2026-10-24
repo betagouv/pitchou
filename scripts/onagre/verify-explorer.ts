@@ -41,7 +41,7 @@ async function verifyQueries(trx: Knex.Transaction, snapshotId: number, bundle: 
   assert.equal((await browse("rowsPage=2"))?.rows[0].row_number, 26);
   assert.equal((await browse("rowsPage=999"))?.rows.at(-1)?.row_number, 60);
   assert.equal((await browse(`search=${encodeURIComponent("%_\\é")}`))?.total, 1);
-  assert.equal((await browse("search=Identique&column=text"))?.total, 57);
+  assert.equal((await browse("search=Identique"))?.total, 57);
   assert.equal((await browse("row=2"))?.selected?.content.text, null);
   assert.equal((await browse("row=3"))?.selected?.content.text, "");
   assert.equal((await browse("row=61"))?.selected, null);

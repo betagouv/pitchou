@@ -15,6 +15,7 @@
   let rowCount = $derived(
     data.selected?.tables.reduce((total, table) => total + table.count, 0) ?? 0,
   );
+  let currentUrl = $derived(page.shallow?.url ?? page.url);
 </script>
 
 <DumpToolbar {data} {writable} />
@@ -35,13 +36,15 @@
       <nav class="dump-table-list" aria-label="Choisir une table">
         {#each tables as table}
           <a
-            href={dumpLink(page.url, {
+            href={dumpLink(currentUrl, {
               snapshot: data.selected.id,
               table: table.name,
               rowsPage: null,
               row: null,
               search: null,
               column: null,
+              columns: null,
+              filters: null,
             })}
             aria-current={data.explorer?.table === table.name ? "page" : undefined}
           >

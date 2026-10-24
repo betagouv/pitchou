@@ -7,6 +7,7 @@
   import { dumpLink } from "./navigation.ts";
   let { data, writable }: { data: PageData; writable: boolean } = $props();
   let showInfo = $state(false);
+  let currentUrl = $derived(page.shallow?.url ?? page.url);
 </script>
 
 <section class="admin-panel dump-toolbar" aria-label="Dump consulté">
@@ -22,7 +23,8 @@
             label: snapshot.filename,
             hint: `Chargé le ${new Date(snapshot.created_at).toLocaleDateString("fr-FR")}`,
           }))}
-          onChange={(snapshot) => goto(dumpLink(page.url, { snapshot, row: null, rowsPage: null }))}
+          onChange={(snapshot) =>
+            goto(dumpLink(currentUrl, { snapshot, row: null, rowsPage: null }))}
         />
       </div>
       <button

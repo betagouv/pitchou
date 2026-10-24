@@ -5,7 +5,8 @@
   import type { PageData } from "./$types";
   import { dumpLink } from "./navigation.ts";
   let { explorer }: { explorer: NonNullable<PageData["explorer"]> } = $props();
-  const close = () => goto(dumpLink(page.url, { row: null }), { reset: false });
+  const close = () => goto(dumpLink(currentUrl, { row: null }), { reset: false });
+  let currentUrl = $derived(page.shallow?.url ?? page.url);
 </script>
 
 <WorkspaceDialog

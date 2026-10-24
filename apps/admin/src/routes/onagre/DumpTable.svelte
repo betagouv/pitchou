@@ -1,12 +1,19 @@
 <script lang="ts">
-  import { page } from "$app/state";
+  import { page, navigating } from "$app/state";
   import type { PageData } from "./$types";
   import DumpSearch from "./DumpSearch.svelte";
   import DumpRowDetail from "./DumpRowDetail.svelte";
-  import { dumpLink } from "./navigation.ts";
+  import { dumpLink, visibleColumns } from "./navigation.ts";
   let { data, explorer }: { data: PageData; explorer: NonNullable<PageData["explorer"]> } =
     $props();
-  let structure = $derived(page.url.searchParams.get("view") === "structure");
+  let currentUrl = $derived(page.shallow?.url ?? page.url);
+  let structure = $derived(currentUrl.searchParams.get("view") === "structure");
+  let selectedColumns = $derived(visibleColumns(currentUrl.searchParams, explorer.columns));
+  let filtered = $derived(
+    Boolean(explorer.search || explorer.filters.length > 0 || explorer.filterError),
+  );
+  let rowLabel = $derived(explorer.total === 1 ? "ligne" : "lignes");
+  let matchLabel = $derived(explorer.total === 1 ? "trouvée" : "trouvées");
   const display = (value: string | null) => (value === null ? "NULL" : value === "" ? '""' : value);
 </script>
 
@@ -14,18 +21,20 @@
   <div class="dump-data-heading">
     <div>
       <h2>{explorer.table}</h2>
-      <span class="onagre-context"
-        >{explorer.total.toLocaleString("fr-FR")} lignes{explorer.search ? " trouvées" : ""} · {explorer
-          .columns.length} colonnes</span
+      <span class="onagre-context" role="status" aria-live="polite"
+        >{navigating.to
+          ? "Recherche en cours…"
+          : `${explorer.total.toLocaleString("fr-FR")} ${rowLabel}${filtered ? ` ${matchLabel} sur ${explorer.sourceCount.toLocaleString("fr-FR")}` : ""}`}
+        · {selectedColumns.length} / {explorer.columns.length} colonnes affichées</span
       >
     </div>
     <nav class="dump-switch" aria-label="Affichage de la table">
       <a
-        href={dumpLink(page.url, { view: null, row: null })}
+        href={dumpLink(currentUrl, { view: null, row: null })}
         aria-current={!structure ? "page" : undefined}>Données</a
       >
       <a
-        href={dumpLink(page.url, { view: "structure", row: null })}
+        href={dumpLink(currentUrl, { view: "structure", row: null })}
         aria-current={structure ? "page" : undefined}>Structure</a
       >
     </nav>
@@ -53,22 +62,30 @@
       </table>
     </div>
   {:else}
-    {#key `${data.selected?.id}:${explorer.table}:${explorer.search}:${explorer.column}`}<DumpSearch
+    {#key `${data.selected?.id}:${explorer.table}:${explorer.search}:${JSON.stringify(explorer.filters)}:${explorer.filterError}`}<DumpSearch
         {explorer}
         snapshotId={data.selected!.id}
+        selected={selectedColumns}
       />{/key}
+    {#if explorer.filterError}<p class="dump-filter-error" role="alert">
+        {explorer.filterError}
+      </p>{/if}
+    {#if selectedColumns.length === 0}<p class="dump-empty">
+        Aucune colonne affichée. Choisissez des colonnes pour voir leurs valeurs. Les lignes restent
+        accessibles.
+      </p>{/if}
     <!-- svelte-ignore a11y_no_noninteractive_tabindex: keyboard users need to scroll the table. -->
     <div
       class="onagre-table-scroll dump-grid"
       tabindex="0"
       role="region"
       aria-label={`Lignes de ${explorer.table}`}
+      aria-busy={navigating.to !== null}
     >
       <table>
         <thead
           ><tr
-            ><th scope="col">Ligne</th>{#each explorer.columns as column}<th scope="col"
-                >{column}</th
+            ><th scope="col">Ligne</th>{#each selectedColumns as column}<th scope="col">{column}</th
               >{/each}</tr
           ></thead
         >
@@ -78,12 +95,12 @@
                 ><a
                   class="dump-row-link"
                   aria-label={`Ouvrir la ligne ${row.row_number}`}
-                  href={dumpLink(page.url, { row: row.row_number })}>{row.row_number}</a
+                  href={dumpLink(currentUrl, { row: row.row_number })}>{row.row_number}</a
                 ></th
               >
-              {#each explorer.columns as column}<td
+              {#each selectedColumns as column}<td
                   ><a
-                    href={dumpLink(page.url, { row: row.row_number })}
+                    href={dumpLink(currentUrl, { row: row.row_number })}
                     tabindex="-1"
                     title={row.content[column] ?? "NULL"}
                     class:dump-null={row.content[column] === null}>{display(row.content[column])}</a
@@ -93,9 +110,7 @@
         >
       </table>
       {#if !explorer.rows.length}<p class="dump-empty">
-          {explorer.search
-            ? "Aucune ligne ne correspond à cette recherche."
-            : "Cette table est vide."}
+          {filtered ? "Aucune ligne ne correspond à cette recherche." : "Cette table est vide."}
         </p>{/if}
     </div>
     <nav class="dump-pagination" aria-label="Pagination des lignes">
@@ -106,12 +121,12 @@
       >
       <div>
         {#if explorer.page > 1}
-          <a href={dumpLink(page.url, { rowsPage: 1, row: null })}>Première</a>
-          <a href={dumpLink(page.url, { rowsPage: explorer.page - 1, row: null })}>Précédente</a>
+          <a href={dumpLink(currentUrl, { rowsPage: 1, row: null })}>Première</a>
+          <a href={dumpLink(currentUrl, { rowsPage: explorer.page - 1, row: null })}>Précédente</a>
         {/if}
         {#if explorer.page < explorer.pages}
-          <a href={dumpLink(page.url, { rowsPage: explorer.page + 1, row: null })}>Suivante</a>
-          <a href={dumpLink(page.url, { rowsPage: explorer.pages, row: null })}>Dernière</a>
+          <a href={dumpLink(currentUrl, { rowsPage: explorer.page + 1, row: null })}>Suivante</a>
+          <a href={dumpLink(currentUrl, { rowsPage: explorer.pages, row: null })}>Dernière</a>
         {/if}
       </div>
     </nav>

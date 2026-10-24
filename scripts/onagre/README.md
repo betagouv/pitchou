@@ -38,7 +38,7 @@ Older JSON packages remain supported. They cannot populate the full explorer. Pr
 3. Enter the Pitchou destination, transformation rule, and unresolved questions.
 4. Mark the entry **À discuter**, **Validée**, or **Exclue**. Validation requires a destination and a rule. Exclusion requires a reason.
 5. Save each decision. Concurrent edits return a conflict instead of replacing another person's work.
-6. Use **Demandes Onagre** to search demandes and their linked projects. **Explorer le dump** lists every source table, including empty ones. Search table names in the sidebar, browse rows in pages of 25, search all values or a specific column, and click a row to read every value in full. The **Structure** view shows columns and their source descriptions. NULL and empty strings remain distinct.
+6. Use **Demandes Onagre** to search demandes and their linked projects. **Explorer le dump** lists every source table, including empty ones. Search table names in the sidebar, browse rows in pages of 25, search all values, choose the visible columns with all/none/individual selections, and click a row to read every value in full. Use **Ajouter un filtre** for column conditions. Conditions combine with AND and with the text search. Exact equality is case-sensitive; contains/starts/ends searches are case-insensitive and treat SQL wildcard characters literally. Numeric comparisons compare numbers, and date comparisons use calendar dates in YYYY-MM-DD format. Missing values and empty strings have separate operators. Negative comparisons exclude NULL. Up to 12 conditions are supported. Column selection updates immediately; **Rechercher** or **Appliquer les filtres** applies the query and returns to page one. The URL preserves columns, search, filters and pagination through reloads and row details. The **Structure** view shows columns and their source descriptions. NULL and empty strings remain distinct.
 7. Export decisions and their full revision history with **Exporter les décisions** in the header. Database backups remain the authoritative backup of the workspace.
 
 The destination input suggests current database columns but also accepts descriptions for multi-table transformations. The recorded rules are prose, so they require implementation and tests before an actual import.
@@ -82,6 +82,9 @@ pnpm --filter @pitchou/app-instructeur exec vitest run --config tests/vitest.con
 pnpm --filter @pitchou/app-admin exec vitest run --config tests/vitest.config.ts --project=unit src/lib/server/permissions.test.ts
 node --env-file=.env --import tsx scripts/onagre/verify.ts
 node --env-file=.env --import tsx scripts/onagre/verify-explorer.ts
+node --env-file=.env --import tsx scripts/onagre/verify-filters.ts
 ```
 
 The verification scripts require a migrated local database and refuse remote database hosts. They roll back all fixtures. The first checks repeated loading, snapshot differences, preserved decisions, stale-edit rejection and revision history. The explorer check covers upgrading an older snapshot, repeated and future loads, pagination, literal search characters, null and empty values, and rollback on malformed or truncated packages.
+
+The filter check covers combined text/column queries, numeric and date comparisons, NULL and empty strings, SQL wildcard escaping, and rejection of unknown columns or invalid filter values.
