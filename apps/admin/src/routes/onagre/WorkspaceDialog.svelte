@@ -7,18 +7,21 @@
     children,
     busy = false,
     triggerSelector,
+    size = "large",
+    footer,
   }: {
     title: string;
-    onClose: () => void;
+    onClose: () => void | boolean | Promise<void>;
     children: Snippet;
     busy?: boolean;
     triggerSelector?: string;
+    size?: "large" | "xlarge";
+    footer?: Snippet;
   } = $props();
   let closing = false;
   function close() {
     if (busy || closing) return;
-    closing = true;
-    onClose();
+    closing = onClose() !== false;
   }
   function open(dialog: HTMLDialogElement) {
     const trigger = triggerSelector
@@ -43,7 +46,7 @@
     close();
   }}
 >
-  <Modal {title} onClose={close} size="large" insideNativeDialog>{@render children()}</Modal>
+  <Modal {title} onClose={close} {size} {footer} insideNativeDialog>{@render children()}</Modal>
 </dialog>
 
 <style>

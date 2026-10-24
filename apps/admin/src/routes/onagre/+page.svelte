@@ -33,7 +33,9 @@
 
 <svelte:head><title>Migration Onagre · Pitchou</title></svelte:head>
 <div class="onagre admin-stack">
-  {#if form?.message}<p role="status" class="fr-alert fr-alert--info">{form.message}</p>{/if}
+  {#if form?.message && tab !== "correspondances"}<p role="status" class="fr-alert fr-alert--info">
+      {form.message}
+    </p>{/if}
   <nav class="onagre-tabs" aria-label="Migration Onagre">
     {#each tabs as value, i}
       <a
@@ -43,7 +45,12 @@
     {/each}
   </nav>
   {#if tab === "correspondances"}
-    <MappingWorkspace mappings={data.mappings} targets={data.targets} {writable} />
+    <MappingWorkspace
+      mappings={data.mappings}
+      targets={data.targets}
+      tables={data.selected?.tables ?? []}
+      {writable}
+    />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}
