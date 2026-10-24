@@ -62,24 +62,6 @@
   }
 </script>
 
-<section class="mapping-summary" aria-label="Avancement des correspondances">
-  <div>
-    <h2>Préparer les correspondances</h2>
-    <p>Décidez quoi reprendre d'Onagre et comment l'intégrer à Pitchou.</p>
-  </div>
-  <div class="mapping-progress">
-    <span><strong>{complete}</strong> / {mappings.length} décisions prises</span>
-    <div
-      role="progressbar"
-      aria-label="Correspondances décidées"
-      aria-valuenow={complete}
-      aria-valuemin={0}
-      aria-valuemax={mappings.length || 1}
-    >
-      <span style:width={`${mappings.length ? (complete / mappings.length) * 100 : 0}%`}></span>
-    </div>
-  </div>
-</section>
 {#if message}<div class="mapping-feedback" role="status">
     {message}<button
       type="button"
@@ -99,7 +81,18 @@
           ).length} propositions de l'équipe</span
         >
       </div>
-      <span class="mapping-total">{filtered.length} correspondances</span>
+      <div class="mapping-progress">
+        <span><strong>{complete}</strong> / {mappings.length} décisions prises au total</span>
+        <div
+          role="progressbar"
+          aria-label="Correspondances décidées"
+          aria-valuenow={complete}
+          aria-valuemin={0}
+          aria-valuemax={mappings.length || 1}
+        >
+          <span style:width={`${mappings.length ? (complete / mappings.length) * 100 : 0}%`}></span>
+        </div>
+      </div>
     </div>
     <MappingFilters {search} {status} {kind} {matches} onChange={filter} />
     {#if filtered.length}

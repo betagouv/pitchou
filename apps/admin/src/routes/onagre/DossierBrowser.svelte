@@ -86,7 +86,7 @@
   }
   .demande-row a {
     display: block;
-    padding: 0.65rem;
+    padding: 0.5rem;
     background-image: none;
     color: inherit;
   }

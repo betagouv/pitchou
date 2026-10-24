@@ -68,7 +68,7 @@
 
 <style>
   .demande-detail {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem;
   }
   .detail-tabs {
     display: flex;
@@ -77,7 +77,7 @@
     padding-bottom: 0.5rem;
   }
   .detail-tabs button {
-    padding: 0.65rem 1rem;
+    padding: 0.5rem;
     border-radius: 0.5rem;
   }
   .detail-tabs [aria-selected="true"] {
@@ -86,13 +86,13 @@
     font-weight: 600;
   }
   dl {
-    margin: 1rem 0 0;
+    margin: 0.5rem 0 0;
   }
   dl > div {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: 1rem;
-    padding: 0.75rem 0;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
     border-bottom: 1px solid var(--border-default-grey);
   }
   dt {
@@ -111,7 +111,7 @@
   }
   @media (max-width: 600px) {
     .demande-detail {
-      padding: 1rem;
+      padding: 0.5rem;
     }
     dl > div {
       grid-template-columns: minmax(0, 1fr);

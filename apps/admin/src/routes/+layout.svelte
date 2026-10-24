@@ -2,6 +2,7 @@
   import "../app.css";
 
   import { afterNavigate } from "$app/navigation";
+  import { untrack } from "svelte";
 
   import UiHeader from "@pitchou/ui/Header.svelte";
   import UiFooter from "@pitchou/ui/Footer.svelte";
@@ -21,7 +22,13 @@
   });
 
   let sidebarOpen = $state(false);
-  let sidebarCollapsed = $state(false);
+  let sidebarCollapsed = $state(untrack(() => data.sidebarCollapsed));
+
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    const value = sidebarCollapsed ? "collapsed" : "expanded";
+    document.cookie = `pitchou-admin-sidebar=${value}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+  }
 
   // Close the mobile sidebar when a link inside it navigates.
   afterNavigate(() => {
@@ -55,7 +62,7 @@
       <AdminHeader
         {sidebarCollapsed}
         onMobileMenuClick={() => (sidebarOpen = true)}
-        onSidebarToggle={() => (sidebarCollapsed = !sidebarCollapsed)}
+        onSidebarToggle={toggleSidebar}
       />
 
       <!-- Full-width content with slim padding, like the rest of the shell. -->

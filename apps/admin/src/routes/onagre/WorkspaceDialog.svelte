@@ -64,4 +64,9 @@
   .workspace-dialog::backdrop {
     background: transparent;
   }
+  .workspace-dialog :global([data-dialog-panel] > header),
+  .workspace-dialog :global([data-dialog-panel] > footer) {
+    padding: 0.75rem !important;
+    gap: 0.5rem;
+  }
 </style>

@@ -3,8 +3,19 @@
   width: 100%;
   margin: 0 auto;
 }
+.onagre.admin-stack,
+.onagre .admin-stack {
+  gap: 0.5rem;
+}
+:where(.onagre) .admin-panel:not(:where(.dump-data, .dump-sidebar)) {
+  padding: 0.5rem;
+}
+.onagre .admin-panel > h2 {
+  margin: -0.5rem -0.5rem 0.5rem;
+  padding: 0.5rem;
+}
 .onagre p {
-  margin: 0.65rem 0;
+  margin: 0.5rem 0;
 }
 .onagre h3 {
   font-size: 1rem;
@@ -18,7 +29,7 @@
   padding: 0.5rem;
 }
 .onagre-tabs a {
-  padding: 0.65rem 1rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   background-image: none;
 }
@@ -30,7 +41,7 @@
 .onagre-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.5rem;
 }
 .onagre-stats strong {
   display: block;
@@ -47,16 +58,16 @@
   overflow-wrap: anywhere;
 }
 .onagre-notice {
-  padding: 1rem;
+  padding: 0.5rem;
   background: var(--background-alt-grey);
   border-radius: 0.5rem;
 }
 .onagre-controls {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   align-items: end;
   flex-wrap: wrap;
-  margin: 0.75rem 0;
+  margin: 0.5rem 0;
 }
 .onagre-controls > label,
 .onagre-controls > .onagre-field {
@@ -78,7 +89,7 @@
 .onagre legend {
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 .onagre textarea {
   min-height: 6rem;
@@ -93,7 +104,7 @@
 }
 .onagre th,
 .onagre td {
-  padding: 0.65rem;
+  padding: 0.5rem;
   border-bottom: 1px solid var(--border-default-grey);
   text-align: left;
   vertical-align: top;
@@ -105,7 +116,7 @@
   background: var(--background-alt-grey);
 }
 .onagre-history {
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid var(--border-default-grey);
   overflow-wrap: anywhere;
 }
@@ -114,7 +125,7 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  padding: 0.75rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   font-weight: 600;
 }
@@ -124,8 +135,8 @@
 .onagre-upload {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.5rem;
+  padding: 0.5rem;
   border: 1px dashed var(--border-default-grey);
   border-radius: 0.5rem;
   background: var(--background-alt-grey);
@@ -148,7 +159,7 @@
   cursor: wait;
 }
 .onagre-file-action {
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-default-grey);
   border-radius: 0.5rem;
   background: var(--background-default-grey);
@@ -174,7 +185,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 0.65rem 0.75rem;
+  padding: 0.5rem;
   text-align: left;
   overflow-wrap: anywhere;
 }
