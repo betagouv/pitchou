@@ -3,12 +3,15 @@ import type { MappingStatus, OnagreMapping } from "@pitchou/types/onagre.ts";
 export type Target = { table_name: string; column_name: string; data_type: string };
 export const statusLabels: Record<MappingStatus, string> = {
   todo: "À traiter",
+  review: "À valider",
   discuss: "À discuter",
   validated: "Validée",
   excluded: "Exclue",
 };
 export const statusHints: Record<MappingStatus, string> = {
   todo: "La correspondance reste à préparer.",
+  review:
+    "Un brouillon est proposé. Relisez la destination, la règle et les notes avant de valider.",
   discuss: "Une question doit être tranchée avec l'équipe.",
   validated: "La destination et la règle sont décidées. Elles seront à implémenter.",
   excluded: "Cette information ne sera pas reprise. Expliquez pourquoi ci-dessous.",

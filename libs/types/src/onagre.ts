@@ -14,7 +14,7 @@ export type MappingSeed = {
   confidence: string;
   notes: string;
 };
-export type MappingStatus = "todo" | "discuss" | "validated" | "excluded";
+export type MappingStatus = "todo" | "review" | "discuss" | "validated" | "excluded";
 export type OnagreMapping = MappingSeed & {
   status: MappingStatus;
   target: string;

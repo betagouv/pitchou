@@ -181,7 +181,7 @@
 .mapping-list-head,
 .mapping-list-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.5fr) minmax(0, 0.85fr) 90px 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1.7fr) 90px 16px;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
@@ -219,7 +219,7 @@
   font-size: 0.875rem;
   font-weight: 600;
 }
-.mapping-row-proposal,
+.mapping-row-rule,
 .mapping-row-source strong,
 .mapping-row-target {
   overflow: hidden;
@@ -228,7 +228,7 @@
   -webkit-line-clamp: 2;
   overflow-wrap: anywhere;
 }
-.mapping-row-proposal {
+.mapping-row-rule {
   color: var(--text-default-grey);
 }
 .mapping-row-target {
@@ -250,6 +250,9 @@
 }
 .mapping-status[data-status="todo"] {
   color: var(--text-mention-grey);
+}
+.mapping-status[data-status="review"] {
+  color: var(--text-action-high-blue-france);
 }
 .mapping-status[data-status="discuss"] {
   color: var(--text-default-warning);
@@ -410,7 +413,7 @@
 }
 .mapping-decision-status {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.35rem;
 }
 .mapping-decision-status button {
@@ -516,7 +519,7 @@
     padding-inline: 0.5rem;
   }
   .mapping-list-head > :nth-child(3),
-  .mapping-row-target {
+  .mapping-row-rule {
     display: none;
   }
   .mapping-searchbar {
@@ -585,7 +588,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.5rem;
   }
-  .mapping-row-proposal {
+  .mapping-row-target {
     grid-column: 1 / -1;
     grid-row: 2;
   }
@@ -683,4 +686,15 @@
   margin-left: auto;
   color: var(--text-action-high-blue-france);
   text-decoration: underline;
+}
+
+.mapping-original-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
 }

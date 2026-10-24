@@ -55,6 +55,10 @@ it("requires explicit rules for validation or exclusion", () => {
   form.set("status", "excluded");
   form.set("rule", "");
   expect(() => parseDecision(form)).toThrow();
+  form.set("status", "review");
+  expect(parseDecision(form).status).toBe("review");
+  form.set("status", "not-a-status");
+  expect(() => parseDecision(form)).toThrow("Décision invalide");
 });
 
 it("rejects a package that tries to seed already validated decisions", () => {

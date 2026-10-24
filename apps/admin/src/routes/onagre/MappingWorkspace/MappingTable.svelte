@@ -7,8 +7,7 @@
 
 <div class="mapping-list" aria-label="Liste des correspondances">
   <div class="mapping-list-head" aria-hidden="true">
-    <span>Information Onagre</span><span>Proposition de l'équipe</span><span
-      >Destination Pitchou</span
+    <span>Information Onagre</span><span>Destination Pitchou</span><span>Règle de reprise</span
     ><span>Avancement</span><span></span>
   </div>
   {#each mappings as mapping}
@@ -23,11 +22,10 @@
         ><small>{mapping.section} · {mapping.key.startsWith("field:") ? "Champ" : "Valeur"}</small
         ><strong>{mapping.label}</strong></span
       >
-      <span class="mapping-row-proposal" class:muted={!mapping.proposal}
-        >{mapping.proposal || "À définir"}</span
-      >
       <span class="mapping-row-target" class:muted={!mapping.target}
         >{mapping.target || "À définir"}</span
+      >
+      <span class="mapping-row-rule" class:muted={!mapping.rule}>{mapping.rule || "À rédiger"}</span
       >
       <span class="mapping-status" data-status={mapping.status}
         ><span></span>{statusLabels[mapping.status]}</span

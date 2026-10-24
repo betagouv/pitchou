@@ -34,14 +34,28 @@ Older JSON packages remain supported. They cannot populate the full explorer. Pr
 ## Use during the meeting
 
 1. Filter **Correspondances** by source table, text or status.
-2. Read the original proposal and confidence level.
-3. Enter the Pitchou destination, transformation rule, and unresolved questions.
-4. Mark the entry **À discuter**, **Validée**, or **Exclue**. Validation requires a destination and a rule. Exclusion requires a reason.
+2. Read the destination and rule in the list, then open an entry to review its notes. The original workbook text and confidence remain available under **Proposition d'origine**.
+3. Edit the Pitchou destination, transformation rule, and unresolved questions.
+4. Use **À valider** for a draft awaiting review and **À discuter** for a question the team must resolve. **Validée** requires a destination and a rule. **Exclue** requires a reason. Only validated and excluded entries count toward completed decisions.
 5. Save each decision. Concurrent edits return a conflict instead of replacing another person's work.
 6. Use **Demandes Onagre** to search demandes and their linked projects. **Explorer le dump** lists every source table, including empty ones. Search table names in the sidebar, browse rows in pages of 25, search all values, choose the visible columns with all/none/individual selections, and click a row to read every value in full. Use **Ajouter un filtre** for column conditions. Conditions combine with AND and with the text search. Exact equality is case-sensitive; contains/starts/ends searches are case-insensitive and treat SQL wildcard characters literally. Numeric comparisons compare numbers, and date comparisons use calendar dates in YYYY-MM-DD format. Missing values and empty strings have separate operators. Negative comparisons exclude NULL. Up to 12 conditions are supported. Column selection updates immediately; **Rechercher** or **Appliquer les filtres** applies the query and returns to page one. The URL preserves columns, search, filters and pagination through reloads and row details. The **Structure** view shows columns and their source descriptions. NULL and empty strings remain distinct.
 7. Export decisions and their full revision history with **Exporter les décisions** in the header. Database backups remain the authoritative backup of the workspace.
 
 The destination input suggests current database columns but also accepts descriptions for multi-table transformations. The recorded rules are prose, so they require implementation and tests before an actual import.
+
+## Prepare drafts from the team's proposals
+
+`reviewed-decisions.json` contains the review of all 190 nonempty workbook proposals against the current Pitchou schema. It proposes 127 drafts **À valider** and 63 **À discuter**, with destinations, rules and notes. Existing notes are preserved. The 340 entries without a proposal remain untouched. No entry is automatically validated or excluded.
+
+After applying the migrations, preview these drafts against the local preparation database:
+
+```sh
+node --env-file=.env --env-file=.fleet/onagre/local.env --import tsx scripts/onagre/apply-decisions.ts
+```
+
+To save them, append `--apply actor-email`, using an existing active administrator's email for revision attribution. The script refuses remote database hosts. It locks each correspondence and requires its version, original proposal, context and decision fields to match the reviewed baseline. Entries edited since the review are skipped and listed by key. Matching drafts are unchanged on repeat runs, without extra revisions. All changes commit in one transaction through the normal decision history mechanism.
+
+The manifest is a dated review of this workbook, not a general proposal parser. Keep later edits in the admin app. New dumps preserve these decisions as usual. Original proposals remain stored separately and available in the editor and export.
 
 ## Load a later dump
 
@@ -83,8 +97,11 @@ pnpm --filter @pitchou/app-admin exec vitest run --config tests/vitest.config.ts
 node --env-file=.env --import tsx scripts/onagre/verify.ts
 node --env-file=.env --import tsx scripts/onagre/verify-explorer.ts
 node --env-file=.env --import tsx scripts/onagre/verify-filters.ts
+node --env-file=.env --import tsx scripts/onagre/verify-decisions.ts
 ```
 
 The verification scripts require a migrated local database and refuse remote database hosts. They roll back all fixtures. The first checks repeated loading, snapshot differences, preserved decisions, stale-edit rejection and revision history. The explorer check covers upgrading an older snapshot, repeated and future loads, pagination, literal search characters, null and empty values, and rollback on malformed or truncated packages.
 
 The filter check covers combined text/column queries, numeric and date comparisons, NULL and empty strings, SQL wildcard escaping, and rejection of unknown columns or invalid filter values.
+
+The reviewed-decision check verifies manifest coverage and destination columns, dry runs, repeat application, preserved source text and notes, later edits, and audit history. When using the isolated preview database, add `--env-file=.fleet/onagre/local.env` after `--env-file=.env`.

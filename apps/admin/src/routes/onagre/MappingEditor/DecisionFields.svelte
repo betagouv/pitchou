@@ -3,12 +3,8 @@
   import TargetPicker from "../TargetPicker.svelte";
   import { statusLabels, statusHints, type Target } from "../mappings.ts";
   import type { DecisionDraft } from "./decision.svelte.ts";
-  let {
-    draft,
-    targets,
-    writable,
-    proposal,
-  }: { draft: DecisionDraft; targets: Target[]; writable: boolean; proposal: string } = $props();
+  let { draft, targets, writable }: { draft: DecisionDraft; targets: Target[]; writable: boolean } =
+    $props();
 </script>
 
 <fieldset disabled={!writable || draft.busy} class="mapping-decision-fields">
@@ -32,9 +28,6 @@
           : "Facultatif"}</span
       ></label
     >
-    {#if proposal && !draft.rule}<button type="button" onclick={() => (draft.rule = proposal)}
-        >Reprendre la proposition</button
-      >{/if}
   </div>
   <textarea
     id="mapping-rule"

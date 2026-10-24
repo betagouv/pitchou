@@ -174,7 +174,7 @@
       {#if draft.error}<p id="mapping-save-error" class="mapping-error" role="alert" tabindex="-1">
           {draft.error}
         </p>{/if}
-      <DecisionFields {draft} {targets} {writable} proposal={mapping.proposal} />
+      <DecisionFields {draft} {targets} {writable} />
       <p class="mapping-version">
         Version {mapping.version}{mapping.updated_at
           ? ` · Modifiée le ${new Date(mapping.updated_at).toLocaleDateString("fr-FR")}`

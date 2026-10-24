@@ -113,7 +113,7 @@ export function parseDecision(form: FormData) {
     notes = get("notes");
   const version = Number(get("version"));
   if (
-    !["todo", "discuss", "validated", "excluded"].includes(status) ||
+    !["todo", "review", "discuss", "validated", "excluded"].includes(status) ||
     !Number.isSafeInteger(version) ||
     version < 1
   )
