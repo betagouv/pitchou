@@ -1,19 +1,19 @@
 {
   "jobs": [
     {
-      "command": "*/10 * * * * corepack pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees",
+      "command": "*/10 * * * * pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees",
       "size": "L"
     },
     {
-      "command": "0 23 * * 0 corepack pnpm --filter @pitchou/worker exec tsx aarri/delete-evenements.ts --conserver-dernières-semaines 50",
+      "command": "0 23 * * 0 pnpm --filter @pitchou/worker exec tsx aarri/delete-evenements.ts --conserver-dernières-semaines 50",
       "size": "S"
     },
     {
-      "command": "0 4 * * * corepack pnpm --filter @pitchou/worker exec tsx delete-expired-sessions.ts",
+      "command": "0 4 * * * pnpm --filter @pitchou/worker exec tsx delete-expired-sessions.ts",
       "size": "S"
     },
     {
-      "command": "*/10 * * * * corepack pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts",
+      "command": "*/10 * * * * pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts",
       "size": "S"
     }
   ]

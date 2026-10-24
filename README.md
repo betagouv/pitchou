@@ -122,6 +122,10 @@ Le site sera accessible à l'adresse :
 
 L'application est déployée sur Scalingo
 
+Le buildpack installe la version de pnpm déclarée dans `package.json`. Les commandes de démarrage
+et les tâches planifiées utilisent directement `pnpm` pour éviter un téléchargement par Corepack
+au démarrage des conteneurs.
+
 Nous utilisons [l'outil ligne de commande de Scalingo](https://doc.scalingo.com/platform/cli/start)
 
 ### Stockage objet (S3)
@@ -141,7 +145,7 @@ just aws-bucket-setup http://localhost:5173 http://localhost:5174
 Sur Scalingo, avec l'app instructeur (exemple pour staging) :
 
 ```sh
-scalingo --region osc-secnum-fr1 --app pitchou-staging run 'corepack pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts https://staging.pitchou.incubateur.net https://staging.admin.pitchou.incubateur.net'
+scalingo --region osc-secnum-fr1 --app pitchou-staging run 'pnpm --filter @pitchou/server exec node scripts/setup-bucket.ts https://staging.pitchou.incubateur.net https://staging.admin.pitchou.incubateur.net'
 ```
 
 La commande agit sur le bucket `$S3_BUCKET` de l'environnement où elle tourne. Si l'app joint le
@@ -286,7 +290,7 @@ Parfois, notamment après des changements dans le modèle de données, il est n�
 Pour le faire, on peut utiliser un [_one-off container_}(https://doc.scalingo.com/platform/app/tasks) :
 
 ```sh
-scalingo --region osc-secnum-fr1 --app pitchou run --size 2XL 'corepack pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
+scalingo --region osc-secnum-fr1 --app pitchou run --size 2XL 'pnpm --filter @pitchou/worker exec tsx sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees --lastModified 2024-01-01'
 ```
 
 ### Se connecter en local
