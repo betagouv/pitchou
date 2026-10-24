@@ -110,15 +110,15 @@ docker run --rm -p 4000:4000 -v "$PWD/docs":/srv/jekyll -e PAGES_REPO_NWO="dev" 
 Le site sera accessible à l'adresse :
 [http://localhost:4000/](http://localhost:4000/)
 
-### Tests automatisés avec Playwright
+### Tests et CI
 
-1. Installer le navigateur de test et les dépendances système: `pnpm exec playwright install --with-deps firefox`
-2. Lancer Pitchou en mode dev: `pnpm run dev`
-3. Lancer les tests `pnpm exec playwright test tests/e2e`
+Voir [la documentation CI et déploiements](documentation/ci.md) pour lancer les mêmes
+contrôles que GitHub avec `just ci`, préparer les services jetables et installer Firefox
+et Chromium. Elle décrit aussi les contrôles requis et les responsabilités de Scalingo.
 
 ## En prod
 
-`pnpm start:production`
+Le `Procfile` lance `bash scripts/start.sh`. `PITCHOU_APP` sélectionne instructeur ou admin.
 
 L'application est déployée sur Scalingo
 
@@ -241,11 +241,13 @@ Sinon, on peut suivre la [procédure de la documentation Scalingo](https://doc.s
 
 ### Migration base de données
 
-`knex migrate:latest` (fait automatiquement à chaque déploiement, voir package.json `scripts.prestart:prod-server`)
+`scripts/start.sh` applique les migrations avant le démarrage instructeur. Admin partage
+la base et ne lance pas de migration. Voir les risques de démarrage et de rollback dans
+[la documentation CI](documentation/ci.md#déploiements-scalingo).
 
 Pour aller en arrière et en avant d'un cran dans la liste des migrations :
-`pnpm run migrate:down`
-`pnpm run migrate:up`
+`just db-migrate-down`
+`just db-migrate-up`
 
 ### Fabriquer la liste des espèces protégées
 

@@ -54,7 +54,7 @@ async function waitForKitReady(
     if (child.exitCode !== null || child.signalCode !== null)
       throw new Error("Application exited before readiness");
     try {
-      const res = await fetch(url, { method: "GET" });
+      const res = await fetch(url, { method: "GET", signal: AbortSignal.timeout(1000) });
       if (res.status < 500) return;
     } catch (e) {
       lastError = e;
@@ -102,51 +102,63 @@ function spawnKit(
   return child;
 }
 
-export default async function globalSetup() {
-  await dropAndCreateDb(E2E_DB_NAME);
-  await runMigrations(E2E_DB_NAME);
-  const s3 = await initTestS3();
-  kitProcess = spawnKit(E2E_DB_NAME, E2E_PORT, s3);
-  await waitForKitReady(E2E_BASE_URL, kitProcess);
-  adminProcess = spawnKit(E2E_DB_NAME, 32647, s3, "admin");
-  await waitForKitReady(E2E_ADMIN_BASE_URL, adminProcess);
-
-  return async () => {
-    if (adminProcess && adminProcess.exitCode === null) {
-      adminProcess.kill("SIGTERM");
-      await new Promise<void>((resolve) => {
-        adminProcess!.once("exit", () => resolve());
-        setTimeout(() => {
-          adminProcess?.kill("SIGKILL");
-          resolve();
-        }, 3000);
-      });
-    }
-    if (kitProcess && kitProcess.exitCode === null) {
-      kitProcess.kill("SIGTERM");
-      await new Promise<void>((resolve) => {
-        if (!kitProcess) {
-          resolve();
-          return;
-        }
-        kitProcess.once("exit", () => resolve());
-        setTimeout(() => {
-          kitProcess?.kill("SIGKILL");
-          resolve();
-        }, 3000);
-      });
-    }
-    const admin = makeAdminKnex();
-    try {
-      await admin.raw(
-        `SELECT pg_terminate_backend(pid)
+async function teardown() {
+  if (adminProcess && adminProcess.exitCode === null) {
+    adminProcess.kill("SIGTERM");
+    await new Promise<void>((resolve) => {
+      adminProcess!.once("exit", () => resolve());
+      setTimeout(() => {
+        adminProcess?.kill("SIGKILL");
+        resolve();
+      }, 3000);
+    });
+  }
+  if (kitProcess && kitProcess.exitCode === null) {
+    kitProcess.kill("SIGTERM");
+    await new Promise<void>((resolve) => {
+      if (!kitProcess) {
+        resolve();
+        return;
+      }
+      kitProcess.once("exit", () => resolve());
+      setTimeout(() => {
+        kitProcess?.kill("SIGKILL");
+        resolve();
+      }, 3000);
+    });
+  }
+  const admin = makeAdminKnex();
+  try {
+    await admin.raw(
+      `SELECT pg_terminate_backend(pid)
            FROM pg_stat_activity
           WHERE datname = ? AND pid <> pg_backend_pid()`,
-        [E2E_DB_NAME],
-      );
-      await admin.raw(`DROP DATABASE IF EXISTS ??`, [E2E_DB_NAME]);
-    } finally {
-      await admin.destroy();
+      [E2E_DB_NAME],
+    );
+    await admin.raw(`DROP DATABASE IF EXISTS ??`, [E2E_DB_NAME]);
+  } finally {
+    await admin.destroy();
+  }
+}
+
+export default async function globalSetup() {
+  try {
+    await dropAndCreateDb(E2E_DB_NAME);
+    await runMigrations(E2E_DB_NAME);
+    const s3 = await initTestS3();
+    kitProcess = spawnKit(E2E_DB_NAME, E2E_PORT, s3);
+    await waitForKitReady(E2E_BASE_URL, kitProcess);
+    adminProcess = spawnKit(E2E_DB_NAME, 32647, s3, "admin");
+    await waitForKitReady(E2E_ADMIN_BASE_URL, adminProcess);
+    return teardown;
+  } catch (error) {
+    try {
+      await teardown();
+    } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError], "Test setup and cleanup failed", {
+        cause: cleanupError,
+      });
     }
-  };
+    throw error;
+  }
 }

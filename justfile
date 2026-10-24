@@ -108,10 +108,6 @@ data-seed:
 db-size:
     psql "$DATABASE_URL" -c "SELECT relname, pg_size_pretty(pg_total_relation_size(relid)) AS total FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;"
 
-# Deploy to staging after all CI checks
-deploy-staging: ci
-    git push staging staging:main
-
 # Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
 dev:
     corepack pnpm --parallel --filter "./apps/*" exec vite dev
@@ -142,7 +138,7 @@ docker-test-down:
 
 # Start the test containers (Postgres + rustfs S3) for integration and e2e tests
 docker-test-up:
-    docker compose {{ compose-test }} up -d
+    docker compose {{ compose-test }} up -d --wait --wait-timeout 90
 
 # Run the support Docker containers (Postgres + pgadmin + rustfs S3)
 docker-up:
@@ -194,7 +190,7 @@ generate-modifications-especes:
 sync-ds lastModified="":
     {{ worker }} sync-demarche-numerique.ts --IdSchemaDS derogation-especes-protegees {{ if lastModified == "" { "" } else { "--lastModified " + lastModified } }}
 
-# Run all tests (unit + component + integration + e2e)
+# Run all tests (unit + component + notifications + integration + e2e)
 test: test-unit test-component test-email-notifications test-integration test-e2e
 
 # Run Svelte component tests (vitest browser mode)

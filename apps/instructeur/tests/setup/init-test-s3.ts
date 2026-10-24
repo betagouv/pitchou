@@ -41,12 +41,14 @@ async function waitForS3Ready(client: S3Client, bucket: string, timeoutMs = 30_0
   let lastError: unknown;
   while (Date.now() < deadline) {
     try {
-      await client.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 }));
+      await client.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 }), {
+        abortSignal: AbortSignal.timeout(Math.min(1000, deadline - Date.now())),
+      });
       return;
     } catch (e) {
       // The bucket may not exist yet — that's normal during bootstrap, treat
       // "NoSuchBucket" as "server is up" and let the caller create the bucket.
-      if (e instanceof S3ServiceException) return;
+      if (e instanceof S3ServiceException && e.name === "NoSuchBucket") return;
       lastError = e;
     }
     await sleep(200);

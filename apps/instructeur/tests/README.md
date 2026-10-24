@@ -1,44 +1,22 @@
 # Tests
 
-Quatre niveaux, distingués par l'emplacement et l'extension du fichier :
+Les [instructions CI](../../../documentation/ci.md) décrivent l'installation, les services
+jetables et les commandes communes à GitHub et au poste local.
 
-| Niveau      | Runner                | Fichiers                         | Navigateur     | Base   | Couverture                 |
-| ----------- | --------------------- | -------------------------------- | -------------- | ------ | -------------------------- |
-| Unit        | Vitest (node)         | `scripts/**/*.test.ts`           | non            | non    | Logique pure               |
-| Composant   | Vitest (browser mode) | `scripts/**/*.svelte.test.ts`    | oui (Chromium) | non    | Un composant Svelte        |
-| Intégration | Vitest (node)         | `tests/integration/**/*.test.ts` | non            | réelle | Un endpoint Kit + Postgres |
-| E2E         | Playwright            | `tests/e2e/**/*.spec.ts`         | oui (Firefox)  | réelle | Parcours utilisateur       |
+| Niveau        | Recette                         | Fichiers                                                                                                                  | Services                                              |
+| ------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Unitaires     | `just test-unit`                | `libs/*/src/**/*.test.ts`, `libs/worker/**/*.test.ts`, `apps/*/src/**/*.test.ts`, `apps/instructeur/preview/**/*.test.ts` | Aucun                                                 |
+| Composants    | `just test-component`           | `apps/*/src/**/*.svelte.test.ts`                                                                                          | Chromium                                              |
+| Notifications | `just test-email-notifications` | `tests/notification-emails/**/*.test.ts`                                                                                  | PostgreSQL, envois simulés                            |
+| Intégration   | `just test-integration`         | `tests/integration/**/*.test.ts`                                                                                          | PostgreSQL, RustFS, HTTP                              |
+| E2E           | `just test-e2e`                 | `tests/e2e/**/*.spec.ts`                                                                                                  | PostgreSQL, RustFS, Firefox et Chromium pour la carte |
 
-## Lancer les tests
+Les chemins `tests/` de cette table sont relatifs à `apps/instructeur`. Les configs Vitest
+excluent les fichiers `*.svelte.test.ts` de la suite unitaire.
 
-Postgres et rustfs S3 pour intégration et e2e :
+`just test` lance les cinq suites ; `just ci` ajoute les contrôles statiques et les builds.
+Les recettes intégration et E2E compilent et démarrent les deux apps avec leurs origines
+respectives. Ne pas réutiliser le build d'une suite pour l'autre.
 
-```sh
-just docker-test-up
-```
-
-Puis :
-
-```sh
-just test-unit         # unitaires uniquement
-just test-component    # composants Svelte
-just test-integration  # intégration (nécessite Postgres + build)
-just test-e2e          # e2e (nécessite Postgres + build)
-just test              # les quatre
-```
-
-`just test-integration` et `just test-e2e` lancent chacun leur propre serveur
-Kit sur la machine hôte (ports 32649 et 32648), avec des bases distinctes
-(`pitchou_test`, `pitchou_test_e2e`).
-
-## Ajouter un test
-
-Copier le modèle correspondant :
-
-- Unit : `scripts/commun/stringManipulation.test.ts`
-- Composant : `scripts/front-end/components/TagPhase.svelte.test.ts`
-- Intégration : `tests/integration/caps.test.ts`
-- E2E : `tests/e2e/login-and-see-dossier.spec.ts`
-
-Les données de test se créent via les factories programmatiques de
-`tests/factories/` — pas de SQL.
+Pour ajouter un test, partir d'un fichier existant du même niveau et utiliser les factories
+de `tests/factories/`. Les suites qui utilisent la base tournent en série dans leur runner.
