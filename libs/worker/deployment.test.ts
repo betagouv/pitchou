@@ -10,8 +10,13 @@ async function runStart(app: string, migrationStatus: number) {
   const log = join(directory, "calls");
   try {
     await writeFile(
-      join(directory, "corepack"),
+      join(directory, "pnpm"),
       `#!/bin/sh\nprintf 'migrate\\n' >> "$START_TEST_LOG"\nexit ${migrationStatus}\n`,
+      { mode: 0o755 },
+    );
+    await writeFile(
+      join(directory, "corepack"),
+      '#!/bin/sh\nprintf "unexpected corepack\\n" >> "$START_TEST_LOG"\nexit 99\n',
       { mode: 0o755 },
     );
     await writeFile(

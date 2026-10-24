@@ -68,7 +68,7 @@
           shellHook = ''
             mkdir -p "$PWD/.corepack"
             corepack enable --install-directory="$PWD/.corepack"
-            corepack prepare pnpm@11.17.0 --activate
+            corepack prepare pnpm@12.15.0 --activate
             export PATH="$PWD/.corepack:$PWD/node_modules/.bin:$PATH"
             ${pkgs.lib.optionalString isLinux ''
               export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath playwrightLibs}:''${LD_LIBRARY_PATH:-}"
