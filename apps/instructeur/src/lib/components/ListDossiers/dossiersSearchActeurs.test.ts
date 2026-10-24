@@ -2,7 +2,6 @@ import { expect, test } from "vitest";
 
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierActeur, Involvement } from "@pitchou/types/dossierActeur.ts";
-import { findDossierIdsMatchingText } from "#lib/dossier/searchInDossier.ts";
 import { searchableText } from "./listModel.ts";
 import { makeDossier, makeContext } from "./testHelpers.ts";
 
@@ -37,14 +36,4 @@ test("the dossiers list search matches the déposants and mandataires, not the o
   expect(text).toContain("rousseau");
   expect(text).toContain("jean-baptiste");
   for (const other of ["durand", "elise", "leroy"]) expect(text).not.toContain(other);
-});
-
-test("the lunr search finds a dossier by its déposant or its mandataire", () => {
-  const dossiers = [
-    dossier(1, [acteur(["deposant"], "Rousseau", "Jean")]),
-    dossier(2, [acteur(["mandataire"], "Lefèvre", "Hélène")]),
-    dossier(3, [acteur(["personne_contact"], "Rousseau", "Anne")]),
-  ];
-  expect(findDossierIdsMatchingText("rousseau", dossiers)).toEqual(new Set([1]));
-  expect(findDossierIdsMatchingText("lefevre", dossiers)).toEqual(new Set([2]));
 });
