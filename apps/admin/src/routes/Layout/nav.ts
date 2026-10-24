@@ -13,6 +13,7 @@ export const NAV: NavItem[] = [
   { href: "/evenements", label: "Évènements", icon: "fr-icon-calendar-event-line" },
   { href: "/mails", label: "Mails", icon: "fr-icon-mail-line" },
   { href: "/changelog", label: "Changelog", icon: "fr-icon-newspaper-line" },
+  { href: "/onagre", label: "Migration Onagre", icon: "fr-icon-database-line" },
   { href: "/tech", label: "Tech", icon: "fr-icon-terminal-line" },
 ];
 
@@ -45,6 +46,7 @@ export function pageInfoFor(pathname: string): PageInfo {
   if (pathname === "/evenements") return { title: "Évènements suivis" };
   if (pathname === "/mails") return { title: "Mails" };
   if (pathname === "/changelog") return { title: "Changelog" };
+  if (pathname.startsWith("/onagre")) return { title: "Migration Onagre" };
   if (pathname === "/tech") return { title: "Tech" };
   if (CHANGELOG_ENTRY.test(pathname)) {
     // The editor registers the real title (« Entrée du <date> ») itself.

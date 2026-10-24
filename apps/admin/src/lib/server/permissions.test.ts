@@ -3,6 +3,7 @@ import { BUNDLES, type Permission } from "@pitchou/types/permissions.ts";
 import { canAccessAdminRoute } from "./permissions.ts";
 
 const cases: [string, string, Permission][] = [
+  ["POST", "/onagre", "admin:onagre:manage"],
   ["POST", "/api/dossiers", "admin:dossiers:create"],
   ["POST", "/api/dossiers/minimal", "admin:dossiers:create"],
   ["PUT", "/api/dossiers/[dossierId]", "admin:dossiers:update"],

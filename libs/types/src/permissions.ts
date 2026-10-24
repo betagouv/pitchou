@@ -1,6 +1,7 @@
 export const PERMISSIONS = {
   "dossier:read": "Consulter les dossiers",
   "dossier:instruct": "Instruire les dossiers de ses groupes",
+  "admin:onagre:manage": "Préparer la migration Onagre",
   "admin:access": "Accéder à l'administration",
   "admin:dossiers:create": "Créer des dossiers",
   "admin:dossiers:update": "Modifier les dossiers",
@@ -45,7 +46,7 @@ export const PERMISSION_GROUPS = [
   },
   {
     label: "Administration : synchronisation",
-    permissions: ["admin:sync:run", "admin:sync:simulate"],
+    permissions: ["admin:sync:run", "admin:sync:simulate", "admin:onagre:manage"],
   },
 ] satisfies { label: string; permissions: Permission[] }[];
 export const BUNDLES = {

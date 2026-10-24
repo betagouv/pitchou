@@ -1,0 +1,204 @@
+.onagre {
+  max-width: 1800px;
+  width: 100%;
+  margin: 0 auto;
+}
+.onagre p {
+  margin: 0.65rem 0;
+}
+.onagre h3 {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+.onagre-intro {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+.onagre-intro h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.onagre-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  padding: 0.5rem;
+}
+.onagre-tabs a {
+  padding: 0.65rem 1rem;
+  border-radius: 0.5rem;
+  background-image: none;
+}
+.onagre-tabs [aria-current] {
+  background: var(--background-action-low-blue-france);
+  color: var(--text-action-high-blue-france);
+  font-weight: 600;
+}
+.onagre-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+.onagre-stats strong {
+  display: block;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.onagre-stats span,
+.onagre-context,
+.onagre-fingerprint {
+  font-size: 0.85rem;
+  color: var(--text-mention-grey);
+}
+.onagre-fingerprint {
+  overflow-wrap: anywhere;
+}
+.onagre-notice,
+.onagre-original {
+  padding: 1rem;
+  background: var(--background-alt-grey);
+  border-radius: 0.5rem;
+}
+.onagre-original {
+  margin-bottom: 1rem;
+}
+.onagre-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+.onagre-controls label {
+  flex: 1;
+  min-width: 180px;
+}
+.onagre-controls select {
+  max-width: 100%;
+}
+.onagre-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.onagre-editor {
+  position: sticky;
+  top: 4rem;
+}
+.onagre-mapping-list > button {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  text-align: left;
+  width: 100%;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-default-grey);
+}
+.onagre-mapping-list > button:hover,
+.onagre-mapping-list > button.selected {
+  background: var(--background-action-low-blue-france);
+}
+.onagre-mapping-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  flex: 1;
+}
+.onagre-badge {
+  font-size: 0.75rem;
+  border-radius: 1rem;
+  padding: 0.1rem 0.6rem;
+  background: var(--background-alt-grey);
+}
+.onagre-badge[data-status="validated"] {
+  color: var(--text-default-success);
+}
+.onagre-badge[data-status="discuss"] {
+  color: var(--text-default-warning);
+}
+.onagre-proposal {
+  width: 100%;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+}
+.onagre fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.onagre legend {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.onagre textarea {
+  min-height: 6rem;
+}
+.onagre-table-scroll {
+  overflow-x: auto;
+}
+.onagre table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.onagre th,
+.onagre td {
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 450px;
+}
+.onagre th {
+  background: var(--background-alt-grey);
+}
+.onagre-history {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-default-grey);
+  overflow-wrap: anywhere;
+}
+.onagre details > summary {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  font-weight: 600;
+}
+.onagre input[type="file"] {
+  display: block;
+  margin: 0.75rem 0;
+  max-width: 100%;
+}
+@media (max-width: 1000px) {
+  .onagre-split {
+    grid-template-columns: 1fr;
+  }
+  .onagre-editor {
+    position: static;
+  }
+  .onagre-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .onagre-intro {
+    flex-direction: column;
+    align-items: start;
+  }
+  .onagre-stats {
+    gap: 0.5rem;
+  }
+  .onagre-tabs a {
+    padding: 0.5rem;
+  }
+}
+
+.onagre-original p,
+.onagre-proposal {
+  white-space: pre-wrap;
+}
