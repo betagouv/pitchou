@@ -1,0 +1,216 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, staging]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded PR runs. Keep each deployed-branch commit's result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CI: true
+
+jobs:
+  static:
+    name: Formatting, lint and file length
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just check-format check-lint check-file-length
+
+  types:
+    name: TypeScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just check-types
+        id: check
+      # The check above owns the result, even if annotation reporting fails.
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
+        if: failure() && steps.check.outcome == 'failure'
+        with:
+          reviewdog_version: v0.21.0
+      - name: Annotate diagnostics at workspace-relative paths
+        if: failure() && steps.check.outcome == 'failure'
+        continue-on-error: true
+        run: bash scripts/ci/annotate.sh types
+
+  svelte:
+    name: Svelte checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just check-svelte
+        id: check
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
+        if: failure() && steps.check.outcome == 'failure'
+        with:
+          reviewdog_version: v0.21.0
+      - name: Annotate diagnostics at workspace-relative paths
+        if: failure() && steps.check.outcome == 'failure'
+        continue-on-error: true
+        run: bash scripts/ci/annotate.sh svelte
+
+  build:
+    name: Production builds
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just build
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just sync test-unit
+
+  component:
+    name: Browser component tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just sync
+      - name: Install Chromium and system dependencies
+        run: pnpm --filter @pitchou/app-instructeur exec playwright install --with-deps chromium
+      - run: pnpm exec just test-component
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: component-failures
+          path: |
+            apps/*/**/__screenshots__/**
+            apps/*/.vitest-attachments/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
+  notifications:
+    name: Notification database tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:15.7
+        env:
+          POSTGRES_USER: dev
+          POSTGRES_PASSWORD: dev_password
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U dev"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm exec just sync test-email-notifications
+
+  backend:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: integration
+            name: HTTP and database integration tests
+          - suite: e2e
+            name: E2E Firefox and Chromium map
+    services:
+      postgres:
+        image: postgres:15.7
+        env:
+          POSTGRES_USER: dev
+          POSTGRES_PASSWORD: dev_password
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U dev"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+      rustfs:
+        image: rustfs/rustfs:1.0.0-beta.6
+        env:
+          RUSTFS_ACCESS_KEY: rustfsadmin
+          RUSTFS_SECRET_KEY: rustfsadmin
+        ports:
+          - 9100:9000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Install Firefox, Chromium and system dependencies
+        if: matrix.suite == 'e2e'
+        run: pnpm --filter @pitchou/app-instructeur exec playwright install --with-deps firefox chromium
+      # Each recipe builds both apps with its own build-time origins.
+      # Global setup waits for S3 and both HTTP servers, then tears them down.
+      - name: Build and test
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: pnpm exec just "test-$SUITE"
+      - name: Upload failure traces and screenshots
+        if: failure() && matrix.suite == 'e2e'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-failures
+          path: apps/instructeur/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  ci:
+    name: CI
+    if: always()
+    needs: [static, types, svelte, build, unit, component, notifications, backend]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every job to pass
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: echo "$JOB_RESULTS" | jq -e 'all(.[]; .result == "success")'
