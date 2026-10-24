@@ -1,7 +1,7 @@
 import { fail, isHttpError } from "@sveltejs/kit";
 import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
-import { parseBundle, parseDecision } from "@pitchou/server/onagre/validation.ts";
-import { stageSnapshot } from "@pitchou/server/onagre/snapshots.ts";
+import { parseDecision } from "@pitchou/server/onagre/validation.ts";
+import { stagePackage } from "@pitchou/server/onagre/package.ts";
 import { saveMapping, MappingConflict } from "@pitchou/server/onagre/mappings.ts";
 import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import type { Actions, PageServerLoad } from "./$types";
@@ -31,15 +31,16 @@ export const actions: Actions = {
       const form = await request.formData();
       const file = form.get("bundle");
       if (!(file instanceof File) || file.size === 0 || file.size > 64 * 1024 * 1024)
-        return fail(400, { message: "Sélectionnez un paquet JSON de 64 Mo maximum." });
-      const bundle = parseBundle(JSON.parse(await file.text()));
+        return fail(400, { message: "Sélectionnez un paquet JSON ou JSONL.gz de 64 Mo maximum." });
+      const magic = new Uint8Array(await file.slice(0, 2).arrayBuffer());
       const result = await withAdminWriteAccess(locals, "admin:onagre:manage", (trx) =>
-        stageSnapshot(trx, bundle),
+        stagePackage(trx, file.stream(), magic[0] === 0x1f && magic[1] === 0x8b),
       );
       return {
         message: result.duplicate
-          ? "Ce dump est déjà chargé. Les correspondances sont conservées."
+          ? "Dump déjà chargé. Son contenu est disponible ; les correspondances sont conservées."
           : "Dump chargé dans l'espace de préparation. Aucun dossier Pitchou créé.",
+        snapshotId: result.id,
       };
     } catch (cause) {
       return failure(cause);

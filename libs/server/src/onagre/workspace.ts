@@ -2,6 +2,7 @@ import type { Knex } from "knex";
 import type { OnagreMapping, OnagreTable } from "@pitchou/types/onagre.ts";
 import { directDatabaseConnection as db } from "../database.ts";
 import { compareSnapshots, browseDemandes, sourceDiagnostics } from "./queries.ts";
+import { browseSourceRows } from "./sourceRows.ts";
 
 type Snapshot = {
   id: number;
@@ -9,10 +10,11 @@ type Snapshot = {
   fingerprint: string;
   created_at: Date;
   tables: OnagreTable[];
+  records_complete: boolean;
 };
 export async function loadWorkspace(url: URL, connection: Knex = db) {
   const snapshots = await connection<Snapshot>("onagre_snapshot")
-    .select("id", "filename", "fingerprint", "created_at", "tables")
+    .select("id", "filename", "fingerprint", "created_at", "tables", "records_complete")
     .orderBy("id", "desc");
   const selected =
     snapshots.find((s) => String(s.id) === url.searchParams.get("snapshot")) ?? snapshots[0];
@@ -37,6 +39,7 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
       dossierCount: 0,
       dossier: null,
       history: [],
+      explorer: null,
     };
   const comparison = await compareSnapshots(
     connection,
@@ -65,5 +68,9 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
     dossierCount,
     dossier,
     history,
+    explorer:
+      ["dump", "source"].includes(url.searchParams.get("tab") ?? "") && selected.records_complete
+        ? await browseSourceRows(connection, selected.id, selected.tables, url)
+        : null,
   };
 }

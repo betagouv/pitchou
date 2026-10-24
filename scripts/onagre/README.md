@@ -6,7 +6,7 @@ This version does not create or update Pitchou dossiers. Validating a correspond
 
 ## Load the first backup
 
-Apply the repository migrations with the usual deployment procedure. The new migration creates four separate preparation tables. Set the admin Node adapter's `BODY_SIZE_LIMIT=66M`, and allow that request size at the reverse proxy. The application accepts packages up to 64 MiB. The supplied backup produces a package of about 30.5 MB. Increase both limits together if a later package exceeds them.
+Apply the repository migrations with the usual deployment procedure. The migrations create the preparation tables and a separate table for the full source rows. Set the admin Node adapter's `BODY_SIZE_LIMIT=66M`, and allow that request size at the reverse proxy. The application accepts packages up to 64 MiB. The supplied backup produces a compressed full package of about 52 MiB. Increase both limits together if a later package exceeds them.
 
 In the repository's Nix shell, prepare a package:
 
@@ -14,14 +14,22 @@ In the repository's Nix shell, prepare a package:
 node --import tsx scripts/onagre/prepare.ts \
   '/path/to/postgresql_database-onagre-lastbackup(6)' \
   '/path/to/Correspondance Pitchou onagre.xlsx' \
-  '.fleet/onagre/prepared.json'
+  '.fleet/onagre/prepared.jsonl.gz'
 ```
 
 The parent output directory must exist. The script refuses to overwrite an existing output. `pg_restore` must be installed. It decodes the backup to stdout; no SQL from the backup is executed. The script preserves source IDs, text, nulls and empty strings. PostgreSQL column types and comments supply the descriptions for fields absent from the workbook.
 
-Open **Migration Onagre**, expand **Charger un dump préparé**, and select the JSON package. The upload runs in one transaction. A failed load leaves no partial snapshot. The original dump and prepared package contain personal data and belong outside Git. `.fleet/` is ignored.
+Open **Migration Onagre → Explorer le dump → Charger un autre dump**, and select the JSONL.gz package. The upload runs in one transaction. A failed load leaves no partial snapshot. The original dump and prepared package contain personal data and belong outside Git. `.fleet/` is ignored.
 
 The first load copies every recognized field and reference proposal from all five workbook sheets. Repeated activity IDs remain separate proposals. Original workbook rows are retained with the snapshot. All proposals start as **À traiter**, including rows marked with a check in Excel. The app adds a correspondence for every source column absent from the workbook.
+
+## Full source storage
+
+The preparation script reads the backup twice. The first pass builds the schema manifest, correspondence seeds and core records. The second streams every source row in batches of 500 into a gzip-compressed JSONL file. It never builds the entire multi-million-row JSON document in memory. The upload accepts at most 64 MiB compressed, 2 GiB expanded and 64 MiB per JSONL block.
+
+The loader validates table names, column names, cell types and counts, and checks that the streamed demandes and projects agree with the manifest. All writes and the completed flag commit together. Truncated or malformed loads roll back. Rows use the snapshot, table name and source row position as their explorer key, so duplicate values and tables without a primary key remain browsable. This position is not a dossier migration identity.
+
+Older JSON packages remain supported. They cannot populate the full explorer. Prepare the original dump again with a .jsonl.gz output and upload it: the loader fills the same snapshot's missing rows, without adding a duplicate snapshot or touching mapping decisions. New packages use the full format; an explicit .json output still creates the older core-and-samples package.
 
 ## Use during the meeting
 
@@ -30,8 +38,8 @@ The first load copies every recognized field and reference proposal from all fiv
 3. Enter the Pitchou destination, transformation rule, and unresolved questions.
 4. Mark the entry **À discuter**, **Validée**, or **Exclue**. Validation requires a destination and a rule. Exclusion requires a reason.
 5. Save each decision. Concurrent edits return a conflict instead of replacing another person's work.
-6. Use **Demandes Onagre** to search the full demandes and their linked projects. **Tables source** shows source row counts and three examples per table.
-7. Export decisions and their full revision history from the page. Database backups remain the authoritative backup of the workspace.
+6. Use **Demandes Onagre** to search demandes and their linked projects. **Explorer le dump** lists every source table, including empty ones. Search table names in the sidebar, browse rows in pages of 25, search all values or a specific column, and click a row to read every value in full. The **Structure** view shows columns and their source descriptions. NULL and empty strings remain distinct.
+7. Export decisions and their full revision history with **Exporter les décisions** in the header. Database backups remain the authoritative backup of the workspace.
 
 The destination input suggests current database columns but also accepts descriptions for multi-table transformations. The recorded rules are prose, so they require implementation and tests before an actual import.
 
@@ -39,13 +47,13 @@ The destination input suggests current database columns but also accepts descrip
 
 Run the same preparation command with the new backup and the unchanged original workbook. The admin workspace is now the place to edit correspondences. A different workbook is rejected to prevent moved spreadsheet rows from being mistaken for existing decisions.
 
-Upload the package from the admin page. The SHA-256 of the original dump identifies an already-loaded snapshot. The unique database constraint and transaction lock also protect concurrent loads. A new snapshot keeps existing decisions and adds newly discovered columns.
+Upload the package from **Explorer le dump**. The explorer switches to the uploaded snapshot; the selector also lets you return to an earlier dump. The SHA-256 of the original dump identifies an already-loaded snapshot. The unique database constraint and transaction lock also protect concurrent loads. A new snapshot keeps existing decisions and adds newly discovered columns.
 
 The comparison uses `demandesid`. It reports added, changed, unchanged and absent demandes compared with the preceding loaded snapshot. A canonical hash covers the complete demande and its linked project. Changes confined to species, decisions, attachments or other related tables are outside this comparison. Loading an older dump later does not establish that it is newer source data. Select and label the intended snapshot before interpreting the comparison. No absent record is deleted.
 
 ## Findings from the supplied folder
 
-The inspected backup contains 58 tables, 22,069 demandes and 17,569 projects. There are 848 demandes without a reception date and 13 repeated demande-code occurrences beyond the distinct codes. Do not use the human-readable code as a unique migration key, and do not copy `demandesid` into Pitchou's own primary key.
+The inspected backup contains 58 tables and 3,268,584 rows, including 22,069 demandes and 17,569 projects. There are 848 demandes without a reception date and 13 repeated demande-code occurrences beyond the distinct codes. Do not use the human-readable code as a unique migration key, and do not copy `demandesid` into Pitchou's own primary key.
 
 The workbook has 190 nonempty proposals. With uncovered source fields, the workspace has 530 correspondence entries. The renewable-energy activity has several competing targets. Some statuses and date meanings still need confirmation. A project can have several demandes, and one demande per Pitchou dossier remains a business choice to confirm.
 
@@ -73,6 +81,7 @@ For later updates, compare the last imported source values, incoming source valu
 pnpm --filter @pitchou/app-instructeur exec vitest run --config tests/vitest.config.ts --project=unit onagre
 pnpm --filter @pitchou/app-admin exec vitest run --config tests/vitest.config.ts --project=unit src/lib/server/permissions.test.ts
 node --env-file=.env --import tsx scripts/onagre/verify.ts
+node --env-file=.env --import tsx scripts/onagre/verify-explorer.ts
 ```
 
-The last command requires a migrated local database. It checks repeated loading, snapshot differences, preserved decisions, stale-edit rejection and revision history inside a transaction that rolls back all test fixtures. It refuses remote database hosts.
+The verification scripts require a migrated local database and refuse remote database hosts. They roll back all fixtures. The first checks repeated loading, snapshot differences, preserved decisions, stale-edit rejection and revision history. The explorer check covers upgrading an older snapshot, repeated and future loads, pagination, literal search characters, null and empty values, and rollback on malformed or truncated packages.

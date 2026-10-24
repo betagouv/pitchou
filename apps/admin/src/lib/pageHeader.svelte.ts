@@ -18,6 +18,7 @@ export type HeaderAction = {
   label: string;
   /** DSFR icon class; defaults to the "+" add icon. */
   icon?: string;
+  presentation?: "icon" | "text";
   disabled?: boolean;
   onClick: () => void;
 };

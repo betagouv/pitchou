@@ -53,7 +53,7 @@
     <h2>Demande Onagre #{data.dossier.source_id}</h2>
     <p>
       Valeurs source, avant toute transformation. Les avis, décisions et pièces jointes se
-      consultent pour l'instant dans les exemples de tables.
+      consultent dans l'onglet Explorer le dump.
     </p>
     {#each [data.dossier.demande, data.dossier.projet] as row, index}<h3>
         {index === 0 ? "Demande" : "Projet lié"}

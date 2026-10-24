@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { basename } from "node:path";
+import { writeFullPackage } from "./stream.ts";
 import { readCopyHeader, readCopyRow } from "@pitchou/common/onagre/copy.ts";
 import { readOnagreWorkbook } from "@pitchou/common/onagre/workbook.ts";
 import type { OnagreBundle, OnagreTable } from "@pitchou/types/onagre.ts";
@@ -58,7 +59,6 @@ try {
       continue;
     }
     current.count++;
-    // Full core records support dossier browsing; other tables expose bounded samples.
     if (current.samples.length < 3 || ["demandes", "projet"].includes(current.name)) {
       const row = readCopyRow(line, current.columns);
       if (current.samples.length < 3) current.samples.push(row);
@@ -96,10 +96,12 @@ for (const table of bundle.tables)
         notes: "",
       });
   }
-await writeFile(outputPath, JSON.stringify(bundle), { mode: 0o600, flag: "wx" });
+if (outputPath.endsWith(".jsonl.gz")) await writeFullPackage(dumpPath, outputPath, bundle);
+else await writeFile(outputPath, JSON.stringify(bundle), { mode: 0o600, flag: "wx" });
 console.log(
   JSON.stringify({
     tables: bundle.tables.length,
+    rows: bundle.tables.reduce((total, table) => total + table.count, 0),
     demandes: bundle.demandes.length,
     projets: bundle.projets.length,
     mappings: bundle.mappings.length,

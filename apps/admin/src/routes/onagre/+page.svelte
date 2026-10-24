@@ -5,16 +5,16 @@
   import type { PageData, ActionData } from "./$types";
   import MappingWorkspace from "./MappingWorkspace.svelte";
   import SnapshotOverview from "./SnapshotOverview.svelte";
-  import SourceBrowser from "./SourceBrowser.svelte";
+  import DumpExplorer from "./DumpExplorer.svelte";
   import DossierBrowser from "./DossierBrowser.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  const tabs = ["synthese", "correspondances", "dossiers", "source", "historique"];
+  const tabs = ["synthese", "correspondances", "dossiers", "dump", "historique"];
   const labels = [
     "Vue d'ensemble",
     "Correspondances",
     "Demandes Onagre",
-    "Tables source",
+    "Explorer le dump",
     "Historique",
   ];
   let tab = $derived(page.url.searchParams.get("tab") ?? "synthese");
@@ -22,7 +22,7 @@
   $effect(() => {
     pageHeader.setAction({
       label: "Exporter les décisions",
-      icon: "fr-icon-download-line",
+      presentation: "text",
       onClick: () => {
         window.location.href = "/onagre/export";
       },
@@ -46,8 +46,8 @@
     <MappingWorkspace mappings={data.mappings} targets={data.targets} {writable} />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
-  {:else if tab === "source"}
-    <SourceBrowser tables={data.selected?.tables ?? []} mappings={data.mappings} />
+  {:else if tab === "dump" || tab === "source"}
+    <DumpExplorer {data} {writable} />
   {:else if tab === "historique"}
     <section class="admin-panel">
       <h2>Dernières décisions enregistrées</h2>
@@ -68,6 +68,6 @@
       </p>
     </section>
   {:else}
-    <SnapshotOverview {data} {writable} />
+    <SnapshotOverview {data} />
   {/if}
 </div>
