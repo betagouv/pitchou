@@ -11,11 +11,11 @@
   gap: 0.5rem;
 }
 :where(.onagre) .admin-panel:not(:where(.dump-data, .dump-sidebar)) {
-  padding: 0.5rem;
+  padding: 1rem;
 }
 .onagre .admin-panel > h2 {
-  margin: -0.5rem -0.5rem 0.5rem;
-  padding: 0.5rem;
+  margin: -1rem -1rem 1rem;
+  padding: 0.75rem 1rem;
 }
 .onagre p {
   margin: 0.5rem 0;
