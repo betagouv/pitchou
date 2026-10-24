@@ -29,12 +29,7 @@ export async function applyReviewedDecisions(
     }))
       form.set(key, String(value));
     const decision = parseDecision(form);
-    if (
-      !["review", "discuss"].includes(decision.status) ||
-      !decision.target ||
-      !decision.rule ||
-      !decision.notes
-    )
+    if (!["review", "discuss"].includes(decision.status) || !decision.target || !decision.rule)
       throw new Error(`Incomplete or already approved draft: ${entry.key}`);
     const current = await trx<OnagreMapping>("onagre_mapping")
       .where({ key: entry.key })
@@ -51,9 +46,7 @@ export async function applyReviewedDecisions(
     }
     if (
       !current ||
-      current.target ||
-      current.rule ||
-      current.status !== "todo" ||
+      !["todo", "review", "discuss"].includes(current.status) ||
       !Object.entries(entry.expected).every(
         ([key, value]) => current[key as keyof OnagreMapping] === value,
       )

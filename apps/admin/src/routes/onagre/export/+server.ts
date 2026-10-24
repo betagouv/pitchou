@@ -1,7 +1,7 @@
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import type { RequestHandler } from "./$types";
 export const GET: RequestHandler = async () => {
-  const [mappings, revisions, snapshots] = await Promise.all([
+  const [mappings, revisions, snapshots, sharedRules, sharedRuleRevisions] = await Promise.all([
     db("onagre_mapping").select("*"),
     db("onagre_mapping_revision").select("*"),
     db("onagre_snapshot").select(
@@ -11,6 +11,8 @@ export const GET: RequestHandler = async () => {
       "workbook_fingerprint",
       "created_at",
     ),
+    db("onagre_shared_rule").select("*"),
+    db("onagre_shared_rule_revision").select("*"),
   ]);
   return new Response(
     JSON.stringify(
@@ -20,6 +22,8 @@ export const GET: RequestHandler = async () => {
         mappings,
         revisions,
         snapshots,
+        sharedRules,
+        sharedRuleRevisions,
       },
       null,
       2,

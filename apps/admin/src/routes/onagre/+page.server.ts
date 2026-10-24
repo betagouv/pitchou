@@ -1,6 +1,7 @@
 import { fail, isHttpError } from "@sveltejs/kit";
 import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
 import { parseDecision } from "@pitchou/server/onagre/validation.ts";
+import { parseSharedRule, saveSharedRule } from "@pitchou/server/onagre/sharedRules.ts";
 import { stagePackage } from "@pitchou/server/onagre/package.ts";
 import { saveMapping, MappingConflict } from "@pitchou/server/onagre/mappings.ts";
 import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
@@ -15,6 +16,17 @@ const failure = (cause: unknown) => {
   });
 };
 export const actions: Actions = {
+  saveSharedRule: async ({ request, locals }) => {
+    try {
+      const decision = parseSharedRule(await request.formData());
+      await withAdminWriteAccess(locals, "admin:onagre:manage", (trx, actor) =>
+        saveSharedRule(trx, actor.id, decision),
+      );
+      return { message: "Règle commune enregistrée." };
+    } catch (cause) {
+      return failure(cause);
+    }
+  },
   save: async ({ request, locals }) => {
     try {
       const decision = parseDecision(await request.formData());

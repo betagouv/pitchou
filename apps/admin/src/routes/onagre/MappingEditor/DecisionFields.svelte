@@ -19,6 +19,10 @@
       >{/each}
   </div>
   <p class="mapping-status-hint">{statusHints[draft.status]}</p>
+  <p class="onagre-context">
+    Décrivez ici uniquement cette correspondance. Les <a href="?tab=regles">règles communes</a> regroupent
+    les choix partagés.
+  </p>
   <TargetPicker {targets} bind:value={draft.target} disabled={!writable || draft.busy} />
   <div class="mapping-rule-label">
     <label for="mapping-rule"
@@ -38,7 +42,7 @@
     bind:value={draft.rule}
     placeholder={draft.status === "excluded"
       ? "Pourquoi ne pas reprendre cette information ?"
-      : "Que conserver ? Comment le transformer ? Que faire si la valeur manque ?"}></textarea>
+      : "Transformation propre à ce champ ou à cette valeur Onagre."}></textarea>
   <label for="mapping-notes"
     >Notes et questions <span class="onagre-context">Facultatif</span></label
   >
@@ -49,5 +53,6 @@
     rows="3"
     maxlength="20000"
     bind:value={draft.notes}
-    placeholder="Points à trancher, exemples à vérifier, décision de la réunion…"></textarea>
+    placeholder="Une question à trancher pour cette correspondance ? Sinon, laissez vide."
+  ></textarea>
 </fieldset>

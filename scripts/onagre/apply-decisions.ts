@@ -6,10 +6,17 @@ import { applyReviewedDecisions, type ReviewedDecision } from "./reviewedDecisio
 const url = new URL(process.env.DATABASE_URL!);
 if (!["localhost", "127.0.0.1", "::1"].includes(url.hostname))
   throw new Error("Use a local preparation database.");
-const [mode, email] = process.argv.slice(2);
-if (mode && mode !== "--apply") throw new Error("Usage: apply-decisions.ts [--apply actor-email]");
+const args = process.argv.slice(2);
+const concise = args[0] === "--concise";
+if (concise) args.shift();
+const [mode, email] = args;
+if ((mode && mode !== "--apply") || args.length > 2)
+  throw new Error("Usage: apply-decisions.ts [--concise] [--apply actor-email]");
 const manifest = JSON.parse(
-  await readFile(new URL("./reviewed-decisions.json", import.meta.url), "utf8"),
+  await readFile(
+    new URL(concise ? "./concise-decisions.json" : "./reviewed-decisions.json", import.meta.url),
+    "utf8",
+  ),
 ) as {
   format: string;
   entries: ReviewedDecision[];

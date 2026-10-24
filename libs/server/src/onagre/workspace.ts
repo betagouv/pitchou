@@ -1,5 +1,5 @@
 import type { Knex } from "knex";
-import type { OnagreMapping, OnagreTable } from "@pitchou/types/onagre.ts";
+import type { OnagreMapping, OnagreTable, OnagreSharedRule } from "@pitchou/types/onagre.ts";
 import { directDatabaseConnection as db } from "../database.ts";
 import { compareSnapshots, browseDemandes, sourceDiagnostics } from "./queries.ts";
 import { browseSourceRows } from "./sourceRows.ts";
@@ -13,6 +13,9 @@ type Snapshot = {
   records_complete: boolean;
 };
 export async function loadWorkspace(url: URL, connection: Knex = db) {
+  const sharedRules = await connection<OnagreSharedRule>("onagre_shared_rule")
+    .select("*")
+    .orderBy("key");
   const snapshots = await connection<Snapshot>("onagre_snapshot")
     .select("id", "filename", "fingerprint", "created_at", "tables", "records_complete")
     .orderBy("id", "desc");
@@ -32,6 +35,7 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
       snapshots,
       selected: null,
       mappings,
+      sharedRules,
       targets,
       comparison: null,
       diagnostics: null,
@@ -52,22 +56,30 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
     mapping_key: string;
     actor_id: number;
     created_at: Date;
-    after: OnagreMapping;
+    after: { version: number; rule: string; target?: string };
   }[] = await connection("onagre_mapping_revision")
     .select("id", "mapping_key", "actor_id", "created_at", "after")
     .orderBy("id", "desc")
     .limit(30);
+  const sharedHistory = await connection("onagre_shared_rule_revision")
+    .select("id", "rule_key", "actor_id", "created_at", "after")
+    .orderBy("id", "desc")
+    .limit(30);
+  for (const revision of sharedHistory)
+    history.push({ ...revision, mapping_key: `Règle commune · ${revision.after.title}` });
+  history.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   return {
     snapshots,
     selected,
     mappings,
+    sharedRules,
     targets,
     comparison,
     diagnostics: await sourceDiagnostics(connection, selected.id),
     dossiers,
     dossierCount,
     dossier,
-    history,
+    history: history.slice(0, 30),
     explorer:
       ["dump", "source"].includes(url.searchParams.get("tab") ?? "") && selected.records_complete
         ? await browseSourceRows(connection, selected.id, selected.tables, url)

@@ -15,6 +15,15 @@ export type MappingSeed = {
   notes: string;
 };
 export type MappingStatus = "todo" | "review" | "discuss" | "validated" | "excluded";
+export type OnagreSharedRule = {
+  key: string;
+  title: string;
+  rule: string;
+  notes: string;
+  status: "review" | "discuss" | "validated";
+  version: number;
+  updated_at: string | null;
+};
 export type OnagreMapping = MappingSeed & {
   status: MappingStatus;
   target: string;

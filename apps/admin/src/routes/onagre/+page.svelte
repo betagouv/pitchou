@@ -7,12 +7,14 @@
   import SnapshotOverview from "./SnapshotOverview.svelte";
   import DumpExplorer from "./DumpExplorer.svelte";
   import DossierBrowser from "./DossierBrowser.svelte";
+  import SharedRules from "./SharedRules.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  const tabs = ["synthese", "correspondances", "dossiers", "dump", "historique"];
+  const tabs = ["synthese", "correspondances", "regles", "dossiers", "dump", "historique"];
   const labels = [
     "Vue d'ensemble",
     "Correspondances",
+    "Règles communes",
     "Demandes Onagre",
     "Explorer le dump",
     "Historique",
@@ -51,6 +53,8 @@
       tables={data.selected?.tables ?? []}
       {writable}
     />
+  {:else if tab === "regles"}
+    <SharedRules rules={data.sharedRules} {writable} />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}
@@ -65,7 +69,7 @@
             {new Date(revision.created_at).toLocaleString("fr-FR")} · Compte #{revision.actor_id} · Version
             {revision.after.version}
           </p>
-          <p>{revision.after.target || "Sans destination"} · {revision.after.rule}</p>
+          <p>{revision.after.target ? `${revision.after.target} · ` : ""}{revision.after.rule}</p>
         </article>
       {:else}<p>
           Aucune décision enregistrée. Les propositions du classeur restent à relire.
