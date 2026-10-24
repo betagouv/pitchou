@@ -12,7 +12,7 @@ permissions:
 
 # Cancel superseded PR runs. Keep each deployed-branch commit's result.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event_name }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
@@ -36,6 +36,10 @@ jobs:
 
   types:
     name: TypeScript
+    # reviewdog reads the PR diff even with filter-mode=nofilter.
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -53,10 +57,15 @@ jobs:
       - name: Annotate diagnostics at workspace-relative paths
         if: failure() && steps.check.outcome == 'failure'
         continue-on-error: true
-        run: bash scripts/ci/annotate.sh types
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+        run: bash scripts/annotate-ci.sh types
 
   svelte:
     name: Svelte checks
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -73,7 +82,9 @@ jobs:
       - name: Annotate diagnostics at workspace-relative paths
         if: failure() && steps.check.outcome == 'failure'
         continue-on-error: true
-        run: bash scripts/ci/annotate.sh svelte
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+        run: bash scripts/annotate-ci.sh svelte
 
   build:
     name: Production builds
@@ -194,8 +205,9 @@ jobs:
         env:
           SUITE: ${{ matrix.suite }}
         run: pnpm exec just "test-$SUITE"
-      - name: Upload failure traces and screenshots
-        if: failure() && matrix.suite == 'e2e'
+      # Keep failed-attempt traces even when a retry makes the suite pass.
+      - name: Upload E2E diagnostics
+        if: ${{ !cancelled() && matrix.suite == 'e2e' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: e2e-failures

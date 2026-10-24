@@ -154,7 +154,13 @@ export default async function setup() {
     await waitForKitReady(ADMIN_BASE_URL, adminProcess);
     return teardown;
   } catch (error) {
-    await teardown();
+    try {
+      await teardown();
+    } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError], "Test setup and cleanup failed", {
+        cause: cleanupError,
+      });
+    }
     throw error;
   }
 }

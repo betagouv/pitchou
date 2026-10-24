@@ -138,7 +138,7 @@ docker-test-down:
 
 # Start the test containers (Postgres + rustfs S3) for integration and e2e tests
 docker-test-up:
-    docker compose {{ compose-test }} up -d
+    docker compose {{ compose-test }} up -d --wait --wait-timeout 90
 
 # Run the support Docker containers (Postgres + pgadmin + rustfs S3)
 docker-up:
