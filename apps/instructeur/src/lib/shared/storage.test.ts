@@ -14,9 +14,9 @@ afterEach(() => vi.unstubAllGlobals());
 
 it("reads existing secrets and filters without migrating stored values", async () => {
   data.set("secret-pitchou", "existing-secret");
-  data.set("tri-filtres-tableau-suivi", '{"tri":"date","filtres":{"texte":"renard"}}');
+  data.set("filters", '{"tri":"date","filtres":{"texte":"renard"}}');
   expect(await readStorage("secret-pitchou")).toBe("existing-secret");
-  expect(await readStorage("tri-filtres-tableau-suivi")).toEqual({
+  expect(await readStorage("filters")).toEqual({
     tri: "date",
     filtres: { texte: "renard" },
   });

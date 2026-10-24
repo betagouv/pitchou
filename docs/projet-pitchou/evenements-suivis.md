@@ -25,14 +25,14 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 #### `rechercherDesDossiers`
 
 - **Ce que ça représente :** Utiliser les filtres ou la recherche dans la liste des dossiers
-- **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi"
+- **Page :** "Tous les dossiers", "Mes dossiers"
 - **Action :** Utiliser un filtre pour chercher un dossier (par exemple, en utilisant le champ texte, en filtrant par instructeur.ices, par activité principale, par espèce protégée impactée...)
 - **Note :** Le champ texte cherche aussi dans les noms des espèces impactées, vernaculaires comme scientifiques
 
 #### `afficherLesDossiersSuivis`
 
 - **Ce que ça représente :** Filtrer pour n'afficher que les dossiers que l'utilisateur.ice connecté.e suit.
-- **Page :** "Mes dossiers", "Tableau de suivi"
+- **Page :** "Mes dossiers"
 
 #### `clickExportDossiers`
 
@@ -64,7 +64,7 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 
 - **Ce que ça représente :** Cliquer sur un lien de la barre de navigation principale
 - **Page :** N'importe quelle page
-- **Note :** Enregistre quel lien a été suivi ("Mes dossiers", "Tous les dossiers", "Tableau de suivi", "Saisie espèces", "Préremplissage dérogation", "Aide Pitchou")
+- **Note :** Enregistre quel lien a été suivi ("Mes dossiers", "Tous les dossiers"). Les anciens évènements peuvent aussi référencer "Tableau de suivi", "Saisie espèces", "Préremplissage dérogation" ou "Aide Pitchou".
 
 ---
 
@@ -73,12 +73,12 @@ Un évènement correspond à une action précise : un clic sur un bouton, une mo
 #### `suivreUnDossier`
 
 - **Ce que ça représente :** Mettre un dossier en suivi (par moi)
-- **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi"
+- **Page :** "Tous les dossiers", "Mes dossiers"
 
 #### `assignDossierFollowers`
 
 - **Ce que ça représente :** Modifier la liste des instructeur.ices qui suivent un dossier (en ajouter, en retirer)
-- **Page :** "Tous les dossiers", "Mes dossiers", "Tableau de suivi", page d'un dossier
+- **Page :** "Tous les dossiers", "Mes dossiers", page d'un dossier
 
 #### `modifierCommentaireInstruction`
 

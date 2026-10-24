@@ -9,7 +9,6 @@
   <ul>
     <li><a href="/mes-dossiers">Mes dossiers</a></li>
     <li><a href="/tous-les-dossiers">Tous les dossiers</a></li>
-    <li><a href="/tableau-de-suivi">Tableau de suivi</a></li>
     <li><a href="/saisie-especes">Saisie espèces protégées</a></li>
     <li><a href="/preremplissage-derogation">Pré-remplissage dérogation</a></li>
     <li>

@@ -22,7 +22,7 @@ for (const missing of ["group", "permission"] as const) {
     await page.getByTitle("Accueil - Pitchou", { exact: true }).click();
     await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
     await expect(page.getByRole("heading", { name: "Votre accès aux dossiers" })).toBeVisible();
-    for (const label of ["Mes dossiers", "Tous les dossiers", "Tableau de suivi"]) {
+    for (const label of ["Mes dossiers", "Tous les dossiers"]) {
       await page
         .locator("header")
         .getByRole("link", { name: new RegExp(label, "u") })
@@ -34,7 +34,6 @@ for (const missing of ["group", "permission"] as const) {
       "/connexion",
       "/mes-dossiers",
       "/tous-les-dossiers",
-      "/tableau-de-suivi",
       "/dossier/1",
       "/auth/login",
     ]) {

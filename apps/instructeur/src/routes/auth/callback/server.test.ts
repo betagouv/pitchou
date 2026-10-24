@@ -41,7 +41,7 @@ beforeEach(() => {
   mocks.transaction.mockResolvedValue({
     state: "state",
     nonce: "nonce",
-    redirectTo: "/tableau-de-suivi",
+    redirectTo: "/tous-les-dossiers",
   });
   mocks.exchange.mockResolvedValue(identity);
   mocks.connect.mockResolvedValue({ id: 7, active: true });
@@ -52,7 +52,7 @@ beforeEach(() => {
   });
 });
 test("an instructor can sign in without admin permission", async () => {
-  await expect(callback()).rejects.toMatchObject({ status: 303, location: "/tableau-de-suivi" });
+  await expect(callback()).rejects.toMatchObject({ status: 303, location: "/tous-les-dossiers" });
   expect(mocks.connect).toHaveBeenCalledWith(identity);
   expect(mocks.createSession).toHaveBeenCalledWith({
     userId: 7,

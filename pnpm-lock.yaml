@@ -63,9 +63,6 @@ catalogs:
     '@types/d3-dsv':
       specifier: ^3.0.7
       version: 3.0.7
-    '@types/lunr':
-      specifier: ^2.3.7
-      version: 2.3.7
     '@types/node':
       specifier: ^24.19.2
       version: 24.19.2
@@ -102,12 +99,6 @@ catalogs:
     ky:
       specifier: ^2.2.0
       version: 2.2.0
-    lunr:
-      specifier: ^2.3.9
-      version: 2.3.9
-    lunr-languages:
-      specifier: ^1.23.0
-      version: 1.23.0
     maplibre-gl:
       specifier: ^6.15.0
       version: 6.15.0
@@ -342,12 +333,6 @@ importers:
       knex:
         specifier: 'catalog:'
         version: 3.3.0(pg@8.23.1)(supports-color@7.2.0)
-      lunr:
-        specifier: 'catalog:'
-        version: 2.3.9
-      lunr-languages:
-        specifier: 'catalog:'
-        version: 1.23.0
       maplibre-gl:
         specifier: 'catalog:'
         version: 6.15.0
@@ -376,9 +361,6 @@ importers:
       '@testing-library/svelte':
         specifier: 'catalog:'
         version: 5.4.2(svelte@5.57.2)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.2)(tsx@4.23.15))(vitest@5.0.5)
-      '@types/lunr':
-        specifier: 'catalog:'
-        version: 2.3.7
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
@@ -2162,9 +2144,6 @@ packages:
   '@types/lodash@4.17.26':
     resolution: {integrity: sha512-48NWfiY6oNcKOh47Z4h+sIvwcQR91h6KPhaYKgeMIrkT2jV82Gy90SErj60vW8jQbeMSOSbhIv3bZ7JoqPPVhA==}
 
-  '@types/lunr@2.3.7':
-    resolution: {integrity: sha512-Tb/kUm38e8gmjahQzdCKhbdsvQ9/ppzHFfsJ0dMs3ckqQsRj+P5IkSAwFTBrBxdyr3E/LoMUUrZngjDYAjiE3A==}
-
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
 
@@ -2949,12 +2928,6 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lunr-languages@1.23.0:
-    resolution: {integrity: sha512-Jl6uyBwwSBs6j9B06aTbTtgL8mE4M+m7y9qhySuq8k0mBEoR5qGG+rWQ7ZPmy4wxg9YRY5GTqmpkJA8EF5Okeg==}
-
-  lunr@2.3.9:
-    resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
 
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -5094,8 +5067,6 @@ snapshots:
 
   '@types/lodash@4.17.26': {}
 
-  '@types/lunr@2.3.7': {}
-
   '@types/node@24.19.2':
     dependencies:
       undici-types: 7.24.6
@@ -5785,10 +5756,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lunr-languages@1.23.0: {}
-
-  lunr@2.3.9: {}
 
   lz-string@1.5.0: {}
 

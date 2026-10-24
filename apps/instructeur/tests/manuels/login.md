@@ -13,7 +13,7 @@ Un email est envoyé avec une capability url pour se connecter. Cet email contie
 - Vérifier que la page de login par email s'affiche
 - Vérifier qu'on reçoit bien un email pour une adresse valide
 - Vérifier qu'on ne reçoit pas d'email pour une adresse invalide
-- Vérifier que l'email affiche des données secrètes correctement (tableau de suivi)
+- Vérifier que le lien de connexion permet de consulter les données privées dans "Tous les dossiers"
   - Vérifier que l'URL est nettoyée du secret
   - et que celui-ci est dans le localStorage
 
@@ -61,7 +61,7 @@ Un email est envoyé avec une capability url pour se connecter. Cet email contie
 
   Étapes :
   1. Ouvrir l’email reçu.
-  2. Vérifier le contenu du tableau de suivi et la présence des données secrètes.
+  2. Ouvrir "Tous les dossiers" et vérifier la présence des données privées.
   3. Vérifier que l’URL a été nettoyée du secret.
   4. Vérifier que le secret est bien stocké dans le `localStorage`.
 

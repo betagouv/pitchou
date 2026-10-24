@@ -23,14 +23,6 @@
         onclick={() => trackNavbarLinkClick("tous-les-dossiers")}>Tous les dossiers</a
       >
     </li>
-    <li class="fr-nav__item">
-      <a
-        class="fr-nav__link"
-        href="/tableau-de-suivi"
-        onclick={() => trackNavbarLinkClick("tableau-de-suivi")}
-        >Tableau de suivi <span class="fr-badge fr-badge--sm text-[0.55rem]">Obsolète</span></a
-      >
-    </li>
     <!-- « Saisie espèces protégées » and « Pré-remplissage dérogation » are not in the
          menu anymore: the footer orientation blocks point to them instead. -->
   </ul>
