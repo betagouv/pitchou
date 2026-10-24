@@ -73,14 +73,7 @@
   <MappingSidebar {mappings} {section} onSelect={(value) => filter({ mappingTable: value })} />
   <section class="mapping-catalog" aria-label="Correspondances">
     <div class="mapping-catalog-heading">
-      <div>
-        <h2>{section || "Toutes les tables"}</h2>
-        <span class="onagre-context"
-          >{section ? "Correspondances de cette table" : `${tables.length} tables du dump`} · {mappings.filter(
-            (m) => (!section || m.section === section) && m.proposal,
-          ).length} propositions de l'équipe</span
-        >
-      </div>
+      <h2>{section || "Toutes les tables"}</h2>
       <div class="mapping-progress">
         <span><strong>{complete}</strong> / {mappings.length} décisions prises au total</span>
         <div
