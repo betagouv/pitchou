@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { OnagreMapping } from "@pitchou/types/onagre.ts";
   import MappingEditor from "./MappingEditor.svelte";
+  import Select from "@pitchou/ui/Select.svelte";
   let {
     mappings,
     targets,
@@ -45,20 +46,28 @@
         placeholder="Champ, proposition, commentaire…"
       /></label
     >
-    <label
-      >Table source<select class="fr-select" bind:value={section}
-        ><option value="">Toutes les tables</option>{#each sections as value}<option {value}
-            >{value}</option
-          >{/each}</select
-      ></label
-    >
-    <label
-      >Avancement<select class="fr-select" bind:value={status}
-        ><option value="">Tous les états</option
-        >{#each Object.entries(labels) as [value, label]}<option {value}>{label}</option
-          >{/each}</select
-      ></label
-    >
+    <div class="onagre-field">
+      <label for="mapping-section">Table source</label>
+      <Select
+        id="mapping-section"
+        bind:value={section}
+        options={[
+          { value: "", label: "Toutes les tables" },
+          ...sections.map((value) => ({ value, label: value })),
+        ]}
+      />
+    </div>
+    <div class="onagre-field">
+      <label for="mapping-status-filter">Avancement</label>
+      <Select
+        id="mapping-status-filter"
+        bind:value={status}
+        options={[
+          { value: "", label: "Tous les états" },
+          ...Object.entries(labels).map(([value, label]) => ({ value, label })),
+        ]}
+      />
+    </div>
   </div>
   <p>
     {filtered.length} correspondances · {mappings.filter((m) => m.proposal).length} propositions reprises

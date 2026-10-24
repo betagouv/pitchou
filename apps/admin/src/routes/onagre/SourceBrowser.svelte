@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
   import type { OnagreTable, OnagreMapping } from "@pitchou/types/onagre.ts";
   let { tables, mappings }: { tables: OnagreTable[]; mappings: OnagreMapping[] } = $props();
   let name = $state("demandes");
@@ -7,14 +8,17 @@
 
 <section class="admin-panel">
   <h2>Structure et exemples du dump</h2>
-  <label for="source-table">Table Onagre</label><select
-    class="fr-select"
-    id="source-table"
-    bind:value={name}
-    >{#each tables as item}<option value={item.name}
-        >{item.name} · {item.count.toLocaleString("fr-FR")} lignes</option
-      >{/each}</select
-  >
+  <div class="onagre-field">
+    <label for="source-table">Table Onagre</label>
+    <Select
+      id="source-table"
+      bind:value={name}
+      options={tables.map((item) => ({
+        value: item.name,
+        label: `${item.name} · ${item.count.toLocaleString("fr-FR")} lignes`,
+      }))}
+    />
+  </div>
   {#if table}<p>
       {table.columns.length} colonnes · {table.count.toLocaleString("fr-FR")} lignes dans le dump. Les
       trois premiers exemples ne représentent pas toutes les valeurs possibles.

@@ -10,16 +10,6 @@
   font-size: 1rem;
   margin: 0.5rem 0;
 }
-.onagre-intro {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-}
-.onagre-intro h2 {
-  margin: 0;
-  font-size: 1.25rem;
-}
 .onagre-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -72,12 +62,16 @@
   flex-wrap: wrap;
   margin: 0.75rem 0;
 }
-.onagre-controls label {
+.onagre-controls > label,
+.onagre-controls > .onagre-field {
   flex: 1;
   min-width: 180px;
 }
-.onagre-controls select {
-  max-width: 100%;
+.onagre-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
 }
 .onagre-split {
   display: grid;
@@ -164,15 +158,78 @@
   border-bottom: 1px solid var(--border-default-grey);
   overflow-wrap: anywhere;
 }
-.onagre details > summary {
+.onagre-disclosure {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
-  padding: 0.75rem 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
   font-weight: 600;
 }
-.onagre input[type="file"] {
+.onagre-disclosure:hover {
+  background: var(--background-alt-grey);
+}
+.onagre-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px dashed var(--border-default-grey);
+  border-radius: 0.5rem;
+  background: var(--background-alt-grey);
+  cursor: pointer;
+}
+.onagre-upload > span:nth-of-type(2) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.onagre-upload .onagre-context {
   display: block;
-  margin: 0.75rem 0;
-  max-width: 100%;
+}
+.onagre-upload:focus-within {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 2px;
+}
+.onagre-upload.disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.onagre-file-action {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  background: var(--background-default-grey);
+}
+.onagre-target {
+  position: relative;
+}
+.onagre-suggestions {
+  position: absolute;
+  z-index: 30;
+  top: 4.5rem;
+  left: 0;
+  right: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+  background: var(--background-default-grey);
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px #0002;
+}
+.onagre-suggestions > button,
+.onagre-empty {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.onagre-suggestions > button:hover,
+.onagre-suggestions [aria-selected="true"] {
+  background: var(--background-action-low-blue-france);
 }
 @media (max-width: 1000px) {
   .onagre-split {
@@ -186,10 +243,6 @@
   }
 }
 @media (max-width: 600px) {
-  .onagre-intro {
-    flex-direction: column;
-    align-items: start;
-  }
   .onagre-stats {
     gap: 0.5rem;
   }

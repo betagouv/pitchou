@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { untrack } from "svelte";
+  import Select from "@pitchou/ui/Select.svelte";
+  import TargetPicker from "./TargetPicker.svelte";
   import { enhance } from "$app/forms";
   import { page } from "$app/state";
   import type { OnagreMapping } from "@pitchou/types/onagre.ts";
@@ -12,6 +15,8 @@
     writable: boolean;
   } = $props();
   let busy = $state(false);
+  let status = $state(untrack(() => mapping.status));
+  let target = $state(untrack(() => mapping.target));
 </script>
 
 <h2>{mapping.section} · {mapping.label}</h2>
@@ -43,28 +48,22 @@
   />
   <fieldset disabled={!writable || busy} class="admin-stack">
     <legend>Décision de l'équipe</legend>
-    <label
-      >Avancement<select class="fr-select" name="status" value={mapping.status}
-        ><option value="todo">À traiter</option><option value="discuss">À discuter</option><option
-          value="validated">Validée</option
-        ><option value="excluded">Exclue de la reprise</option></select
-      ></label
-    >
-    <label
-      >Destination dans Pitchou<input
-        class="fr-input"
-        name="target"
-        value={mapping.target}
-        list="pitchou-targets"
-        maxlength="20000"
-        placeholder="Ex. dossier.name, commentaire, donnée source conservée"
-      /></label
-    >
-    <datalist id="pitchou-targets"
-      >{#each targets as target}<option value={`${target.table_name}.${target.column_name}`}
-          >{target.data_type}</option
-        >{/each}</datalist
-    >
+    <input type="hidden" name="status" value={status} />
+    <div class="onagre-field">
+      <label for="mapping-status">Avancement</label>
+      <Select
+        id="mapping-status"
+        bind:value={status}
+        disabled={!writable || busy}
+        options={[
+          { value: "todo", label: "À traiter" },
+          { value: "discuss", label: "À discuter" },
+          { value: "validated", label: "Validée" },
+          { value: "excluded", label: "Exclue de la reprise" },
+        ]}
+      />
+    </div>
+    <TargetPicker {targets} bind:value={target} disabled={!writable || busy} />
     <label
       >Règle de reprise<textarea
         class="fr-input"

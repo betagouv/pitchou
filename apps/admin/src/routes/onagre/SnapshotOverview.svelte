@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
+  import Select from "@pitchou/ui/Select.svelte";
+  import SnapshotUpload from "./SnapshotUpload.svelte";
   import type { PageData } from "./$types";
   let { data, writable }: { data: PageData; writable: boolean } = $props();
-  let busy = $state(false);
+  let snapshotId = $state(0);
+  $effect(() => {
+    snapshotId = data.selected?.id ?? 0;
+  });
   let complete = $derived(
     data.mappings.filter((m) => ["validated", "excluded"].includes(m.status)).length,
   );
@@ -55,14 +59,20 @@
   <h2>Dumps et mises à jour</h2>
   {#if data.selected}
     <form method="GET" class="onagre-controls">
-      <input type="hidden" name="tab" value="synthese" /><label for="snapshot">Dump consulté</label>
-      <select class="fr-select" id="snapshot" name="snapshot" value={data.selected.id}
-        >{#each data.snapshots as snapshot}<option value={snapshot.id}
-            >#{snapshot.id} · {snapshot.filename} · chargé le {new Date(
-              snapshot.created_at,
-            ).toLocaleDateString("fr-FR")}</option
-          >{/each}</select
-      ><button class="fr-btn fr-btn--secondary">Afficher</button>
+      <input type="hidden" name="tab" value="synthese" />
+      <input type="hidden" name="snapshot" value={snapshotId} />
+      <div class="onagre-field">
+        <label for="snapshot">Dump consulté</label>
+        <Select
+          id="snapshot"
+          bind:value={snapshotId}
+          options={data.snapshots.map((snapshot) => ({
+            value: snapshot.id,
+            label: `#${snapshot.id} · ${snapshot.filename} · chargé le ${new Date(snapshot.created_at).toLocaleDateString("fr-FR")}`,
+          }))}
+        />
+      </div>
+      <button class="fr-btn fr-btn--secondary">Afficher</button>
     </form>
     <p class="onagre-fingerprint">Empreinte du fichier · {data.selected.fingerprint}</p>
     {#if data.comparison}
@@ -81,41 +91,5 @@
     Recharger le même dump ne crée pas de doublon. Les décisions restent en place à chaque nouveau
     dump. Une demande absente n'entraîne aucune suppression.
   </p>
-  <details>
-    <summary>Charger un dump préparé</summary>
-    <p>
-      Le script <code>scripts/onagre/prepare.ts</code> transforme le backup PostgreSQL et le classeur
-      en paquet JSON. Le chargement conserve les demandes et projets complets, ainsi que trois exemples
-      par table. Les autres lignes restent dans le dump original.
-    </p>
-    {#if writable}<form
-        method="POST"
-        action="?/upload"
-        enctype="multipart/form-data"
-        use:enhance={() => {
-          busy = true;
-          return async ({ update }) => {
-            try {
-              await update();
-            } finally {
-              busy = false;
-            }
-          };
-        }}
-      >
-        <label class="fr-label" for="bundle">Paquet Onagre JSON, 64 Mo maximum</label><input
-          id="bundle"
-          type="file"
-          name="bundle"
-          accept=".json,application/json"
-          required
-          disabled={busy}
-        />
-        <button class="fr-btn" disabled={busy}
-          >{busy ? "Chargement en cours…" : "Charger dans l'espace de préparation"}</button
-        >
-      </form>{:else}<p>
-        La permission de préparer la migration Onagre est nécessaire pour charger un dump.
-      </p>{/if}
-  </details>
+  <SnapshotUpload {writable} />
 </section>

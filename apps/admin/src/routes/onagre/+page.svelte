@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { can } from "#lib/access.svelte.ts";
   import type { PageData, ActionData } from "./$types";
   import MappingWorkspace from "./MappingWorkspace.svelte";
@@ -18,17 +19,20 @@
   ];
   let tab = $derived(page.url.searchParams.get("tab") ?? "synthese");
   let writable = $derived(can("admin:onagre:manage"));
+  $effect(() => {
+    pageHeader.setAction({
+      label: "Exporter les décisions",
+      icon: "fr-icon-download-line",
+      onClick: () => {
+        window.location.href = "/onagre/export";
+      },
+    });
+    return () => pageHeader.clearAction();
+  });
 </script>
 
 <svelte:head><title>Migration Onagre · Pitchou</title></svelte:head>
 <div class="onagre admin-stack">
-  <div class="admin-panel onagre-intro">
-    <div>
-      <h2>Préparer la reprise des dossiers</h2>
-      <p>Les choix de l'équipe et les données Onagre, au même endroit.</p>
-    </div>
-    <a class="fr-btn fr-btn--secondary fr-btn--sm" href="/onagre/export">Exporter les décisions</a>
-  </div>
   {#if form?.message}<p role="status" class="fr-alert fr-alert--info">{form.message}</p>{/if}
   <nav class="onagre-tabs" aria-label="Migration Onagre">
     {#each tabs as value, i}
