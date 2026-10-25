@@ -12,7 +12,13 @@ const snapshot = {
   tables: [],
   records_complete: true,
 };
-const data = { selected: snapshot, snapshots: [snapshot], importEnabled: true, importRuns: [] };
+const data = {
+  selected: snapshot,
+  snapshots: [snapshot],
+  importEnabled: true,
+  importRuns: [],
+  importJobs: [],
+};
 function makePreview(): OnagreImportPreview {
   return {
     previewId: "test-preview",
@@ -48,6 +54,7 @@ function makePreview(): OnagreImportPreview {
   };
 }
 const fillSelection = async () => {
+  await page.getByRole("tab", { name: "Tester une sélection" }).click();
   await page
     .getByRole("textbox", { name: "Identifiants internes des demandes Onagre" })
     .fill("1, 2, 3, 4");
@@ -181,6 +188,7 @@ test("retained reports are available on a fresh page without another API call", 
   const fetchMock = vi.fn();
   vi.stubGlobal("fetch", fetchMock);
   render(ImportWorkspace, { data: { ...data, importRuns: [run] }, writable: false });
+  await page.getByRole("tab", { name: "Tester une sélection" }).click();
   const report = page.getByRole("button", { name: /Import du/u });
   await expect.element(report).toHaveAttribute("aria-expanded", "false");
   await report.click();

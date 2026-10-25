@@ -20,7 +20,7 @@
   </div>
   <div class="admin-panel">
     {#if rehearsal}
-      <strong>10 maximum</strong><span>demandes par essai d'import expérimental</span>
+      <strong>Tout le dump</strong><span>analyse et import expérimental par lots</span>
     {:else}
       <strong>Préparation</strong><span>sources et décisions, sans création de dossier</span>
     {/if}

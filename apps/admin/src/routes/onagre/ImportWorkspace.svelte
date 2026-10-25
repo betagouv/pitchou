@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   import { ImportModel } from "./ImportWorkspace/model.svelte.ts";
+  import ImportAll from "./ImportWorkspace/ImportAll.svelte";
   import ImportSourceSelection from "./ImportWorkspace/ImportSourceSelection.svelte";
   import ImportPreview from "./ImportWorkspace/ImportPreview.svelte";
   import ImportRunResult from "./ImportWorkspace/ImportRunResult.svelte";
@@ -11,10 +12,11 @@
     data,
     writable,
   }: {
-    data: Pick<PageData, "selected" | "snapshots" | "importEnabled" | "importRuns">;
+    data: Pick<PageData, "selected" | "snapshots" | "importEnabled" | "importRuns" | "importJobs">;
     writable: boolean;
   } = $props();
   const model = new ImportModel();
+  let mode = $state<"all" | "sample">("all");
   let enabled = $derived(writable && data.importEnabled);
   let previousRuns = $derived(data.importRuns.filter((run) => run.runId !== model.run?.runId));
 </script>
@@ -36,57 +38,77 @@
         Votre compte peut consulter les aperçus. L'exécution nécessite le droit de gestion Onagre.
       </p>{/if}
   </section>
-  <ImportSourceSelection
-    {data}
-    bind:input={model.input}
-    busy={model.busy}
-    onPreview={() => {
-      if (data.selected) void model.calculate(data.selected.id);
-    }}
-  />
-  {#if model.error}<p class="fr-alert fr-alert--error" role="alert">{model.error}</p>{/if}
-  {#if model.preview && !model.current}
-    <p class="onagre-notice" role="status">
-      La sélection a changé. Recalculez l'aperçu avant d'importer.
-    </p>
-  {/if}
-  {#if model.preview && model.current}
-    <ImportPreview
-      preview={model.preview}
-      selected={model.selected}
-      disabled={!enabled ||
-        !model.preview.availability.enabled ||
-        model.busy ||
-        model.applyAttempted}
-      onToggle={(id, checked) => model.toggle(id, checked)}
+  <div class="onagre-controls" role="tablist" aria-label="Périmètre de l'import">
+    <button
+      role="tab"
+      aria-selected={mode === "all"}
+      class="fr-btn"
+      class:fr-btn--tertiary={mode !== "all"}
+      onclick={() => (mode = "all")}>Tout le dump</button
+    >
+    <button
+      role="tab"
+      aria-selected={mode === "sample"}
+      class="fr-btn"
+      class:fr-btn--tertiary={mode !== "sample"}
+      onclick={() => (mode = "sample")}>Tester une sélection</button
+    >
+  </div>
+  {#if mode === "all"}
+    <ImportAll {data} {writable} />
+  {:else}
+    <ImportSourceSelection
+      {data}
+      bind:input={model.input}
+      busy={model.busy}
+      onPreview={() => {
+        if (data.selected) void model.calculate(data.selected.id);
+      }}
     />
-    <section class="admin-panel" aria-label="Exécuter l'import sélectionné">
-      {#if model.preview.availability.reason}<p class="onagre-notice">
-          {model.preview.availability.reason}
-        </p>{/if}
-      {#if model.applyAttempted}
-        <p>Recalculez un aperçu pour lancer un nouvel import.</p>
-      {:else}
-        <p>
-          {model.selected.length} demande sélectionnée. Seules les demandes cochées seront importées dans
-          cette base.
-        </p>
-      {/if}
-      <button
-        class="fr-btn"
-        type="button"
+    {#if model.error}<p class="fr-alert fr-alert--error" role="alert">{model.error}</p>{/if}
+    {#if model.preview && !model.current}
+      <p class="onagre-notice" role="status">
+        La sélection a changé. Recalculez l'aperçu avant d'importer.
+      </p>
+    {/if}
+    {#if model.preview && model.current}
+      <ImportPreview
+        preview={model.preview}
+        selected={model.selected}
         disabled={!enabled ||
           !model.preview.availability.enabled ||
-          model.selected.length === 0 ||
           model.busy ||
           model.applyAttempted}
-        onclick={() => void model.apply(enabled)}
-        >{model.busy
-          ? "Import en cours…"
-          : `Importer les demandes sélectionnées · ${model.selected.length}`}</button
-      >
-    </section>
+        onToggle={(id, checked) => model.toggle(id, checked)}
+      />
+      <section class="admin-panel" aria-label="Exécuter l'import sélectionné">
+        {#if model.preview.availability.reason}<p class="onagre-notice">
+            {model.preview.availability.reason}
+          </p>{/if}
+        {#if model.applyAttempted}
+          <p>Recalculez un aperçu pour lancer un nouvel import.</p>
+        {:else}
+          <p>
+            {model.selected.length} demande sélectionnée. Seules les demandes cochées seront importées
+            dans cette base.
+          </p>
+        {/if}
+        <button
+          class="fr-btn"
+          type="button"
+          disabled={!enabled ||
+            !model.preview.availability.enabled ||
+            model.selected.length === 0 ||
+            model.busy ||
+            model.applyAttempted}
+          onclick={() => void model.apply(enabled)}
+          >{model.busy
+            ? "Import en cours…"
+            : `Importer les demandes sélectionnées · ${model.selected.length}`}</button
+        >
+      </section>
+    {/if}
+    {#if model.run}<ImportRunResult run={model.run} />{/if}
+    {#if previousRuns.length || !model.run}<ImportRunHistory runs={previousRuns} />{/if}
   {/if}
-  {#if model.run}<ImportRunResult run={model.run} />{/if}
-  {#if previousRuns.length || !model.run}<ImportRunHistory runs={previousRuns} />{/if}
 </div>

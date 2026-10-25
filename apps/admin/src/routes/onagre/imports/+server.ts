@@ -11,35 +11,7 @@ import type { RequestHandler } from "./$types";
 
 const headers = { "cache-control": "no-store" };
 
-async function readBody(request: Request) {
-  if (Number(request.headers.get("content-length")) > 4096) error(413, "Requête trop volumineuse.");
-  const reader = request.body?.getReader();
-  let text = "";
-  let size = 0;
-  const decoder = new TextDecoder();
-  if (reader) {
-    try {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        size += value.byteLength;
-        if (size > 4096) {
-          await reader.cancel();
-          error(413, "Requête trop volumineuse.");
-        }
-        text += decoder.decode(value, { stream: true });
-      }
-      text += decoder.decode();
-    } finally {
-      reader.releaseLock();
-    }
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    error(400, "Requête JSON invalide.");
-  }
-}
+import { readImportBody } from "../importBody.ts";
 
 export const GET: RequestHandler = async ({ url }) => {
   try {
@@ -54,7 +26,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   if (!locals.user?.id) error(401, "Authentification requise.");
-  const body = await readBody(request);
+  const body = await readImportBody(request);
   try {
     if (body?.action === "preview")
       return json(await createImportPreview(db, body, locals.user.id), { headers });

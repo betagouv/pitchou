@@ -29,9 +29,7 @@ export async function capture(connection: Knex, snapshotId: number, ids: string[
     .whereIn("source_id", ids.map(Number))
     .select("*");
   const sources = ids.map((id) => rows.find((row) => row.source_id === Number(id)) ?? null);
-  const targets: Target[] = [];
-  for (let i = 0; i < ids.length; i++)
-    targets.push(await captureTarget(connection, snapshotId, ids[i], sources[i]));
+  const targets = await captureTargets(connection, snapshotId, ids, sources);
   const records = ids.map((id, i) => inspectRecord(id, sources[i], targets[i], schema));
   const frozen: Omit<FrozenInput, "preview"> = {
     snapshot,
@@ -52,47 +50,54 @@ export async function capture(connection: Knex, snapshotId: number, ids: string[
   };
 }
 
-async function captureTarget(
+async function captureTargets(
   connection: Knex,
   snapshotId: number,
-  recordId: string,
-  source: Source | null,
-): Promise<Target> {
-  const code = source?.demande.codedemande?.trim();
-  const identity =
-    (await connection("onagre_import_identity")
-      .where({ source_instance: SOURCE_INSTANCE, source_id: Number(recordId) })
-      .first()) ?? null;
-  // JSON from PostgreSQL preserves timestamp microseconds that the JS Date
-  // parser would otherwise discard when checking target changes.
-  const dossier = identity
-    ? ((
-        await connection("dossier")
-          .where({ id: identity.dossier_id })
-          .select(connection.raw("to_jsonb(dossier) as content"))
-          .first()
-      )?.content ?? null)
-    : null;
-  const candidates = code
-    ? await connection("dossier")
-        .whereRaw("btrim(onagre_demande_identifier) = ?", [code])
-        .select(connection.raw("to_jsonb(dossier) as content"))
-        .orderBy("id")
-    : [];
-  const duplicateSources = code
-    ? Number(
-        (
-          await connection("onagre_source_demande")
-            .where({ snapshot_id: snapshotId })
-            .whereRaw("btrim(demande->>'codedemande') = ?", [code])
-            .count("* as count")
-        )[0].count,
-      )
-    : 0;
-  return {
-    identity,
-    dossier,
-    candidates: candidates.map((row) => row.content),
-    duplicateSources,
-  };
+  ids: string[],
+  sources: (Source | null)[],
+): Promise<Target[]> {
+  if (ids.length === 0) return [];
+  const codes = [
+    ...new Set(
+      sources
+        .map((source) => source?.demande.codedemande?.trim())
+        .filter((code): code is string => !!code),
+    ),
+  ];
+  const identities = await connection("onagre_import_identity")
+    .where({ source_instance: SOURCE_INSTANCE })
+    .whereIn("source_id", ids.map(Number));
+  // Query all matching codes once per batch, retaining exact PostgreSQL timestamps.
+  const dossiers = await connection("dossier")
+    .where((builder) => {
+      builder.whereIn(
+        "id",
+        identities.map((identity) => identity.dossier_id),
+      );
+      if (codes.length > 0)
+        builder.orWhereRaw("btrim(onagre_demande_identifier) = any(?::text[])", [codes]);
+    })
+    .select(
+      connection.raw("to_jsonb(dossier) as content, btrim(onagre_demande_identifier) as code"),
+    )
+    .orderBy("id");
+  const duplicates =
+    codes.length > 0
+      ? await connection("onagre_source_demande")
+          .where({ snapshot_id: snapshotId })
+          .whereRaw("btrim(demande->>'codedemande') = any(?::text[])", [codes])
+          .select(connection.raw("btrim(demande->>'codedemande') as code"))
+          .count("* as count")
+          .groupByRaw("btrim(demande->>'codedemande')")
+      : [];
+  return ids.map((id, index) => {
+    const code = sources[index]?.demande.codedemande?.trim();
+    const identity = identities.find((row) => row.source_id === Number(id)) ?? null;
+    return {
+      identity,
+      dossier: dossiers.find((row) => row.content.id === identity?.dossier_id)?.content ?? null,
+      candidates: code ? dossiers.filter((row) => row.code === code).map((row) => row.content) : [],
+      duplicateSources: Number(duplicates.find((row) => row.code === code)?.count ?? 0),
+    };
+  });
 }

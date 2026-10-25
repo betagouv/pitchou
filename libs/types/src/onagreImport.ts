@@ -63,3 +63,38 @@ export type OnagreImportApplyRequest = {
   recordIds: string[];
 };
 export type OnagreImportRequest = OnagreImportPreviewRequest | OnagreImportApplyRequest;
+
+export type OnagreImportJobStatus =
+  | "analyzing"
+  | "review"
+  | "importing"
+  | "completed"
+  | "failed"
+  | "cancelled";
+export type OnagreImportCounts = Record<
+  OnagreImportRecord["status"] | "created" | "omitted",
+  number
+>;
+export type OnagreImportJob = {
+  id: string;
+  actorId: number;
+  snapshotId: number;
+  status: OnagreImportJobStatus;
+  total: number;
+  analyzed: number;
+  processed: number;
+  counts: OnagreImportCounts;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+  policy: OnagreImportPolicy;
+};
+export type OnagreImportJobPage = {
+  job: OnagreImportJob;
+  records: (
+    | OnagreImportRecord
+    | (OnagreImportOutcome & { name: string | null; code: string | null })
+  )[];
+  page: number;
+  pages: number;
+};

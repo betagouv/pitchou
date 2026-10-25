@@ -9,6 +9,7 @@ export async function writeRun(
   actorId: number,
   frozen: FrozenInput,
   ids: string[],
+  jobId?: string,
 ) {
   assertImportEnabled();
   const { preview } = frozen;
@@ -22,6 +23,7 @@ export async function writeRun(
   };
   await trx("onagre_import_run").insert({
     id: report.runId,
+    ...(jobId ? { job_id: jobId } : {}),
     preview_id: preview.previewId,
     actor_id: actorId,
     snapshot_id: preview.snapshotId,
@@ -30,7 +32,9 @@ export async function writeRun(
     mapping_hash: preview.mappingHash,
     input_hash: preview.inputHash,
     target_hash: preview.targetHash,
-    frozen_input: JSON.stringify(frozen),
+    frozen_input: JSON.stringify(
+      jobId ? { jobId, sources: frozen.sources, targets: frozen.targets, preview } : frozen,
+    ),
     report: JSON.stringify(report),
     created_at: report.createdAt,
   });

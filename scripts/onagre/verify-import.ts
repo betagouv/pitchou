@@ -36,6 +36,8 @@ try {
   });
   const { verify } = await import("./verify-import/scenarios.ts");
   await verify(db);
+  const { verifyJobs } = await import("./verify-import/jobs.ts");
+  await verifyJobs(db);
   console.log(
     "PASS: disposable PostgreSQL migrations, preview safety, gates, atomic writes, replay, conflicts, stale previews, concurrency and raw provenance.",
   );

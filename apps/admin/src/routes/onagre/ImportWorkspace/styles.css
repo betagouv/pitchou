@@ -75,3 +75,53 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+.import-job-progress {
+  height: 0.5rem;
+  background: var(--border-default-grey);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.import-job-progress > div {
+  height: 100%;
+  background: var(--text-action-high-blue-france);
+  transition: width 0.3s;
+}
+.import-job-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.5rem;
+}
+.import-job-counts > div {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+}
+.import-job-counts strong {
+  font-size: 1.5rem;
+}
+.import-job-counts span {
+  font-size: 0.8rem;
+  color: var(--text-mention-grey);
+}
+.import-job-table {
+  overflow: auto;
+  max-height: 32rem;
+}
+.import-job-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.import-job-table th,
+.import-job-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default-grey);
+  vertical-align: top;
+}
+.import-job-table th {
+  position: sticky;
+  top: 0;
+  background: var(--background-default-grey);
+}

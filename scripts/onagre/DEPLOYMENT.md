@@ -17,7 +17,7 @@ An invalid role fails startup. The existing instructeur staging startup is uncha
 
 Set `ONAGRE_SOURCE_INSTANCE=onagre-national` consistently across dumps and environments.
 Only rehearsal may set `ONAGRE_IMPORT_ENABLED=true`. Leave it absent or false elsewhere.
-The first importer is an experimental sample of at most ten demandes, not a complete migration.
+The importer offers full-dump analysis and background batches, plus a manual sample of at most ten demandes. Its experimental profile still creates only minimal dossiers. See [IMPORT.md](IMPORT.md).
 
 Set `ORIGIN` and `PUBLIC_SITE_URL_ADMIN` to that app's HTTPS URL, and register its
 `/auth/callback` URL with the configured ProConnect client. Use a fresh

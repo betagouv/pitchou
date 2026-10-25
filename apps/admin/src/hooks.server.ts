@@ -1,3 +1,6 @@
+import { building } from "$app/env";
+import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { startImportWorker } from "@pitchou/server/onagre/import/jobs.ts";
 import { sequence } from "@sveltejs/kit/hooks";
 import type { Handle } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
@@ -66,3 +69,14 @@ const authenticate: Handle = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(Sentry.sentryHandle(), authenticate);
+
+export const init = () => {
+  if (
+    !building &&
+    process.env.NODE_ENV !== "test" &&
+    process.env.ONAGRE_DEPLOYMENT_ROLE === "rehearsal"
+  ) {
+    const stop = startImportWorker(db);
+    if (import.meta.hot) import.meta.hot.dispose(stop);
+  }
+};
