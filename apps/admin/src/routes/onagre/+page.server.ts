@@ -6,8 +6,18 @@ import { stagePackage } from "@pitchou/server/onagre/package.ts";
 import { saveMapping, MappingConflict } from "@pitchou/server/onagre/mappings.ts";
 import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import type { Actions, PageServerLoad } from "./$types";
+import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { listDocuments, browseDocument } from "@pitchou/server/onagre/documents.ts";
 
-export const load: PageServerLoad = ({ url }) => loadWorkspace(url);
+export const load: PageServerLoad = async ({ url }) => {
+  const sources = url.searchParams.get("tab") === "sources";
+  const [workspace, documents, sourceDocument] = await Promise.all([
+    loadWorkspace(url),
+    sources ? listDocuments(db) : [],
+    sources ? browseDocument(db, url) : null,
+  ]);
+  return { ...workspace, documents, sourceDocument };
+};
 const failure = (cause: unknown) => {
   if (isHttpError(cause)) throw cause;
   if (cause instanceof MappingConflict) return fail(409, { message: cause.message });

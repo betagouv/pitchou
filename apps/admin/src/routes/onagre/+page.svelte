@@ -8,15 +8,25 @@
   import DumpExplorer from "./DumpExplorer.svelte";
   import DossierBrowser from "./DossierBrowser.svelte";
   import SharedRules from "./SharedRules.svelte";
+  import SourceLibrary from "./SourceLibrary.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  const tabs = ["synthese", "correspondances", "regles", "dossiers", "dump", "historique"];
+  const tabs = [
+    "synthese",
+    "correspondances",
+    "regles",
+    "dossiers",
+    "dump",
+    "sources",
+    "historique",
+  ];
   const labels = [
     "Vue d'ensemble",
     "Correspondances",
     "Règles communes",
     "Demandes Onagre",
     "Explorer le dump",
+    "Sources",
     "Historique",
   ];
   let tab = $derived(page.url.searchParams.get("tab") ?? "synthese");
@@ -59,6 +69,8 @@
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}
     <DumpExplorer {data} {writable} />
+  {:else if tab === "sources"}
+    <SourceLibrary {data} />
   {:else if tab === "historique"}
     <section class="admin-panel">
       <h2>Dernières décisions enregistrées</h2>

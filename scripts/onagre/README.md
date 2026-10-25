@@ -75,15 +75,36 @@ The inspected backup contains 58 tables and 3,268,584 rows, including 22,069 dem
 
 The workbook has 190 nonempty proposals. With uncovered source fields, the workspace has 530 correspondence entries. The renewable-energy activity has several competing targets. Some statuses and date meanings still need confirmation. A project can have several demandes, and one demande per Pitchou dossier remains a business choice to confirm.
 
-Other files inspected:
+## Supporting files in Sources
 
-- `structure_et_contenu.md` and `onagre_structure.xlsx` describe the source schema and samples. The preparation script reads the backup's schema directly.
-- `services.xlsx` lists 281 Onagre services and a separate sheet of Pitchou groups. It does not contain a completed association between them.
-- `Correspondance_Nom_projet_Objet_projet.ods` is an older activity correspondence. It is not merged into the team's newer workbook automatically.
-- `TaxrefOnagre.ods` refers to TAXREF v10. Pitchou's species documentation currently uses TAXREF v18. Species IDs and groups need explicit reconciliation.
-- `export_especes_groupes2.ods`, `groupesespeces.csv`, `especes.csv`, and `20240109.csv` are species/reference inputs. They are retained locally, not treated as validated migration rules.
-- `20240607_ONAGRE_listedemandes.ods` is an older list of demandes. The supplied database backup is the source for this workspace's record counts.
-- The PDF documents remain reference material. This implementation does not ingest their contents.
+The **Sources** tab inventories all 15 files verified in Polaris's `Downloads/Onagre` folder on 25 October 2026. `source-review.json` records their contents, previous use, inclusion decision, rationale and reviewed SHA-256. The original local copies matched Polaris byte for byte. The tab shows the same review and links to the matching dump or correspondences.
+
+Thirteen originals are stored in PostgreSQL behind the admin authentication check. Spreadsheets and CSVs have searchable, paginated views with original row numbers. PDFs display extracted text and provide an original-file link for figures and layout. Markdown displays as escaped plain text. Source cells are text, not executable HTML or spreadsheet formulas. Empty sheet rows are omitted, but populated cells, duplicates and original files are retained.
+
+The dump and the 107 MB species CSV are not duplicated as document blobs. Their metadata links to the full dump explorer. The library does not merge historical exports, create species, assign services, or replace existing correspondence decisions. Each document retains the snapshot examined during its review, even when another dump becomes available.
+
+Files and findings:
+
+- `structure_et_contenu.md` and `onagre_structure.xlsx` describe the 58 tables, keys, constraints and samples. Both are readable in Sources; the workbook has 59 sheets. They supplement the explorer, which reads the backup directly.
+- `services.xlsx` lists 281 Onagre services and 29 historical Pitchou groups associated with démarche 88444. It contains no completed service-to-group association. Both sheets are available for review.
+- `services.csv` and `groupesespeces.csv` contain 281 and 175 records. Every row matched the corresponding dump table after normalizing nulls and booleans and ignoring unnamed trailing CSV columns. They remain available as supporting files, without another business import.
+- `Correspondance_Nom_projet_Objet_projet.ods` has 59 work rows linking tracking categories, Onagre objects and proposed DS objects. It is available for comparison, without overwriting the team's current workbook decisions.
+- `TaxrefOnagre.ods` compares two Onagre rows and two TAXREF v10 rows for Salamandra corsica, including IDs 701817 and 79253. It illustrates names and synonymy, not a complete migration mapping.
+- `export_especes_groupes2.ods` joins species and group labels. Its 17,999 data rows comprise the dump's 17,997 associations plus two groups without species. The joined view is available in Sources.
+- `especes.csv` has 574,366 rows and 18 columns. Every normalized row matched the dump, so its entry points to that table instead of storing a second 107 MB copy. The dump contains versionespeces values 1, 8, 10 and 12; this column alone does not establish each row's TAXREF version. Pitchou's importer uses TAXREF v18.
+- `20240109.csv` is a tab-separated list of 4,351 projects, with number, object, name, petitioner and reception date. Earlier documentation incorrectly classified it as a species file. It is now a searchable historical reference, without merging it into the dump.
+- `20240607_ONAGRE_listedemandes.ods` lists 17,349 demandes, including status labels, instructeur, service and region. Its heading says 2 June 2024 despite the filename's 7 June date. It lacks demandesid and is available as historical evidence, not an update source.
+- `onagre_-_liste_des_tables_de_reference_-_v2-8_cle291a3c.pdf` is a 27-page January 2019 reference guide with screenshots and allowed labels. It helps interpret fields, but cannot replace the dump's actual values or a confirmed status-code dictionary.
+- `Gargominy_et_al_2018.pdf` describes TAXREF v12, CD_NOM, CD_REF, synonymy and version changes. The supplied PDF contains 62 pages despite a 156-page internal citation. It is methodology, not TAXREF v18 or a version-conversion table.
+
+Load the reviewed library with `pdftotext` on PATH after applying migrations:
+
+```sh
+node --env-file=.env --env-file=.fleet/onagre/local.env --import tsx scripts/onagre/load-documents.ts /path/to/Onagre
+node --env-file=.env --env-file=.fleet/onagre/local.env --import tsx scripts/onagre/load-documents.ts /path/to/Onagre --apply
+```
+
+The first command previews. The second saves all documents in one transaction. The script rejects unreviewed filenames, changed checksums and remote databases, and requires the matching dump to be loaded. Repeated filename/checksum pairs create no copies. A revised file can be retained as another document version after its review is updated. The decision export includes source metadata and reviews, without the original binary files. Database backups retain the originals and extracted views.
 
 The database has 89,377 attachment metadata records. Their file paths do not supply the attachment bytes. Obtain a corresponding file archive before attachment migration.
 
@@ -103,6 +124,7 @@ node --env-file=.env --import tsx scripts/onagre/verify-explorer.ts
 node --env-file=.env --import tsx scripts/onagre/verify-filters.ts
 node --env-file=.env --import tsx scripts/onagre/verify-decisions.ts
 node --env-file=.env --import tsx scripts/onagre/verify-shared-rules.ts
+node --env-file=.env --import tsx scripts/onagre/verify-documents.ts
 ```
 
 The verification scripts require a migrated local database and refuse remote database hosts. They roll back all fixtures. The first checks repeated loading, snapshot differences, preserved decisions, stale-edit rejection and revision history. The explorer check covers upgrading an older snapshot, repeated and future loads, pagination, literal search characters, null and empty values, and rollback on malformed or truncated packages.
@@ -112,3 +134,5 @@ The filter check covers combined text/column queries, numeric and date compariso
 The reviewed-decision check verifies manifest coverage and destination columns, dry runs, repeat application, preserved source text and notes, later edits, and audit history. When using the isolated preview database, add `--env-file=.fleet/onagre/local.env` after `--env-file=.env`.
 
 The shared-rule check covers the concise revision's full coverage, preserved destinations/statuses/original notes, empty notes, repeat application, protection of human edits, and shared-rule validation, conflicts and history. Its fixtures roll back.
+
+The document check covers UTF-8 and tab-separated data, row numbering, original bytes, repeated loading, new file versions, pagination, literal search and unchanged correspondence decisions. Its fixtures roll back.
