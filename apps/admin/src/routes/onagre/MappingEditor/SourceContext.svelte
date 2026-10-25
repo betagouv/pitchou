@@ -6,7 +6,13 @@
   let field = $derived(
     mapping.key.startsWith("field:") ? mapping.key.slice(`field:${mapping.section}.`.length) : null,
   );
-  let samples = $derived(field && table ? table.samples.map((row) => row[field!]) : []);
+  let samples = $derived(
+    field && table
+      ? table.samples
+          .map((row) => row[field!])
+          .filter((value) => value != null && value.trim() !== "")
+      : [],
+  );
   let url = $derived(page.shallow?.url ?? page.url);
   let dumpUrl = $derived(
     `?${new URLSearchParams({ tab: "dump", snapshot: url.searchParams.get("snapshot") ?? "", table: mapping.section, ...(field ? { columns: JSON.stringify([field]) } : {}) })}`,
@@ -47,11 +53,9 @@
     </section>{/if}
   {#if samples.length}<section class="mapping-samples">
       <h4>Exemples du dump</h4>
-      <p class="onagre-context">Premières lignes de la table, sans transformation.</p>
+      <p class="onagre-context">Valeurs renseignées parmi les premières lignes de la table.</p>
       <ol>
-        {#each samples as sample}<li class:muted={sample == null}>
-            {sample == null ? "Non renseigné" : sample === "" ? '""' : sample}
-          </li>{/each}
+        {#each samples as sample}<li>{sample}</li>{/each}
       </ol>
     </section>{/if}
   <a class="mapping-dump-link" href={dumpUrl} target="_blank" rel="noreferrer"
