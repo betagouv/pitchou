@@ -1,0 +1,77 @@
+.import-workspace .onagre-field + .onagre-field {
+  margin-top: 0.75rem;
+}
+.import-experimental,
+.import-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--background-alt-grey);
+  color: var(--text-default-grey);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.import-experimental {
+  margin-left: 0.5rem;
+  background: var(--background-contrast-warning);
+  color: var(--text-default-warning);
+}
+.import-records {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.import-record {
+  padding: 1rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+}
+.import-record-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.import-record-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.import-status[data-status="ready"],
+.import-status[data-status="created"] {
+  background: var(--background-contrast-success);
+  color: var(--text-default-success);
+}
+.import-status[data-status="blocked"],
+.import-status[data-status="conflict"] {
+  background: var(--background-contrast-warning);
+  color: var(--text-default-warning);
+}
+.import-workspace .fr-checkbox-group {
+  margin-top: 0.75rem;
+}
+.import-details {
+  margin: 0.5rem 0;
+}
+.import-details > summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  color: var(--text-action-high-blue-france);
+}
+.import-workspace ul {
+  margin: 0.5rem 0;
+}
+.import-provenance {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+}
+.import-provenance dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from "./$types";
   let { data }: { data: PageData } = $props();
+  let rehearsal = $derived(data.deploymentRole === "rehearsal");
   let complete = $derived(
     data.mappings.filter((m) => ["validated", "excluded"].includes(m.status)).length,
   );
@@ -17,14 +18,36 @@
   <div class="admin-panel">
     <strong>{complete} / {data.mappings.length}</strong><span>correspondances traitées</span>
   </div>
-  <div class="admin-panel"><strong>0</strong><span>dossier Pitchou créé par cet espace</span></div>
+  <div class="admin-panel">
+    {#if rehearsal}
+      <strong>10 maximum</strong><span>demandes par essai d'import expérimental</span>
+    {:else}
+      <strong>Préparation</strong><span>sources et décisions, sans création de dossier</span>
+    {/if}
+  </div>
 </div>
 <section class="admin-panel">
-  <h2>Préparer la réunion</h2>
-  <p>
-    Les propositions du classeur ont été conservées telles quelles. Même les lignes cochées restent
-    à valider dans cet espace.
-  </p>
+  <h2>{rehearsal ? "Répéter un import sur un échantillon" : "Préparer la réunion"}</h2>
+  {#if rehearsal}
+    <p>
+      Le profil expérimental reprend le nom du projet, le code de demande et la date de réception
+      historique. L'aperçu détaille les données non reprises et les blocages avant la création des
+      dossiers.
+    </p>
+    <p>
+      <a href={`?tab=import${data.selected ? `&snapshot=${data.selected.id}` : ""}`}
+        >Tester l'import et consulter les rapports enregistrés</a
+      >
+    </p>
+    <p>
+      Les règles de reprise ci-dessous restent à confirmer. Ce premier profil ne les valide pas.
+    </p>
+  {:else}
+    <p>
+      Les propositions du classeur ont été conservées telles quelles. Même les lignes cochées
+      restent à valider dans cet espace.
+    </p>
+  {/if}
   <ul>
     <li>Confirmer l'unité de reprise. Un projet Onagre peut contenir plusieurs demandes.</li>
     <li>
@@ -45,7 +68,8 @@
       demande.
     </p>{/if}
   <p class="onagre-notice">
-    Cet espace prépare la migration. La validation d'une correspondance enregistre une décision
-    métier. Elle ne lance pas d'import dans les dossiers Pitchou.
+    {rehearsal
+      ? "Les imports lancés depuis l'onglet Tester l'import créent des dossiers dans cette base de répétition. Les rapports conservent les résultats et les liens vers les dossiers."
+      : "Cet espace prépare la migration. La validation d'une correspondance enregistre une décision métier. Elle ne lance pas d'import dans les dossiers Pitchou."}
   </p>
 </section>

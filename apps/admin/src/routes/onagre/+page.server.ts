@@ -8,15 +8,32 @@ import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import type { Actions, PageServerLoad } from "./$types";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { listDocuments, browseDocument } from "@pitchou/server/onagre/documents.ts";
+import { getImportAvailability } from "@pitchou/server/onagre/import.ts";
+import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
 
 export const load: PageServerLoad = async ({ url }) => {
   const sources = url.searchParams.get("tab") === "sources";
-  const [workspace, documents, sourceDocument] = await Promise.all([
+  const rehearsal = process.env.ONAGRE_DEPLOYMENT_ROLE === "rehearsal";
+  const [workspace, documents, sourceDocument, importRuns] = await Promise.all([
     loadWorkspace(url),
     sources ? listDocuments(db) : [],
     sources ? browseDocument(db, url) : null,
+    rehearsal && url.searchParams.get("tab") === "import"
+      ? db<{ report: OnagreImportRun }>("onagre_import_run")
+          .select("report")
+          .orderBy("created_at", "desc")
+          .limit(10)
+          .then((rows) => rows.map((row) => row.report))
+      : [],
   ]);
-  return { ...workspace, documents, sourceDocument };
+  return {
+    ...workspace,
+    documents,
+    sourceDocument,
+    deploymentRole: rehearsal ? "rehearsal" : "workspace",
+    importEnabled: getImportAvailability().enabled,
+    importRuns,
+  };
 };
 const failure = (cause: unknown) => {
   if (isHttpError(cause)) throw cause;

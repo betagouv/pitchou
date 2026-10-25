@@ -2,7 +2,7 @@
 
 The admin route `/onagre` supports the team's correspondence meetings. It stores proposals, decisions, comments and revision history in PostgreSQL. All administrators can read it. Writes require `admin:onagre:manage`, included in the administrator bundle.
 
-This version does not create or update Pitchou dossiers. Validating a correspondence records a business decision, not an executable transformation.
+The shared workspace records business decisions. Validating a correspondence does not execute a transformation. A separate, explicitly enabled rehearsal deployment can now create a sample of at most ten skeletal dossiers with the experimental importer. See [IMPORT.md](IMPORT.md) for supported fields and limits, and [DEPLOYMENT.md](DEPLOYMENT.md) for environment setup.
 
 ## Load the first backup
 
@@ -108,11 +108,11 @@ The first command previews. The second saves all documents in one transaction. T
 
 The database has 89,377 attachment metadata records. Their file paths do not supply the attachment bytes. Obtain a corresponding file archive before attachment migration.
 
-## Remaining implementation before dossier import
+## Beyond the experimental sample importer
 
-After the team resolves the mappings, implement a dry run that produces proposed dossier changes and blocking issues. Keep a permanent source-to-Pitchou ledger with a unique key for the Onagre instance, source table and internal source ID. Store child mappings for decisions, comments, species impacts and attachments too. Create each dossier and its ledger entry in the same transaction. Existing Pitchou dossiers carrying Onagre codes need reconciliation, since the source codes are not unique.
+The experimental importer provides previews, a demande-to-dossier identity ledger and transactional sample creation. It refuses existing Onagre-code matches and source or target changes. Extend it as the team resolves mappings, including explicit adoption of existing dossiers and child identities for decisions, comments, species impacts and attachments. Source codes are not unique.
 
-For later updates, compare the last imported source values, incoming source values and current Pitchou values. Flag conflicts instead of overwriting instructeur changes. Retain source payloads and mapping versions. Scope email notifications and dossier routing explicitly for the import. This workspace does not yet implement that ledger, dry run, update policy or migration executor.
+For later updates, compare the last imported source values, incoming source values and current Pitchou values. Flag conflicts instead of overwriting instructeur changes. The sample importer retains raw demande/project payloads and exact mapping versions, but does not apply updates, adopt existing dossiers or migrate child data. Dossier routing and notifications remain disabled for these first trials.
 
 ## Verification
 

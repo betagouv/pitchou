@@ -9,9 +9,10 @@
   import DossierBrowser from "./DossierBrowser.svelte";
   import SharedRules from "./SharedRules.svelte";
   import SourceLibrary from "./SourceLibrary.svelte";
+  import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  const tabs = [
+  let tabs = $derived([
     "synthese",
     "correspondances",
     "regles",
@@ -19,7 +20,8 @@
     "dump",
     "sources",
     "historique",
-  ];
+    ...(data.deploymentRole === "rehearsal" ? ["import"] : []),
+  ]);
   const labels = [
     "Vue d'ensemble",
     "Correspondances",
@@ -28,6 +30,7 @@
     "Explorer le dump",
     "Sources",
     "Historique",
+    "Tester l'import",
   ];
   let tab = $derived(page.url.searchParams.get("tab") ?? "synthese");
   let writable = $derived(can("admin:onagre:manage"));
@@ -45,6 +48,18 @@
 
 <svelte:head><title>Migration Onagre · Pitchou</title></svelte:head>
 <div class="onagre admin-stack">
+  <div class="onagre-environment" class:rehearsal={data.deploymentRole === "rehearsal"}>
+    <strong
+      >{data.deploymentRole === "rehearsal"
+        ? "Répétition d'import"
+        : "Préparation partagée"}</strong
+    >
+    <span
+      >{data.deploymentRole === "rehearsal"
+        ? "Environnement de test. Les imports créent des dossiers dans cette base."
+        : "Cet espace conserve les sources et les décisions de reprise."}</span
+    >
+  </div>
   {#if form?.message && tab !== "correspondances"}<p role="status" class="fr-alert fr-alert--info">
       {form.message}
     </p>{/if}
@@ -71,6 +86,10 @@
     <DumpExplorer {data} {writable} />
   {:else if tab === "sources"}
     <SourceLibrary {data} />
+  {:else if tab === "import" && data.deploymentRole === "rehearsal"}
+    {#key data.selected?.id}
+      <ImportWorkspace {data} {writable} />
+    {/key}
   {:else if tab === "historique"}
     <section class="admin-panel">
       <h2>Dernières décisions enregistrées</h2>
@@ -94,3 +113,21 @@
     <SnapshotOverview {data} />
   {/if}
 </div>
+
+<style>
+  .onagre-environment {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-default-grey);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: var(--background-alt-grey);
+  }
+  .onagre-environment.rehearsal {
+    background: var(--background-contrast-warning);
+    border-color: var(--border-plain-warning);
+  }
+</style>

@@ -51,6 +51,8 @@ describe("admin write permissions", () => {
     );
   });
   it("retains read access without giving write access", () => {
+    expect(canAccessAdminRoute("/onagre/imports", "POST", ["admin:access"])).toBe(true);
+    expect(canAccessAdminRoute("/onagre/imports", "POST", [])).toBe(false);
     expect(canAccessAdminRoute("/api/dossiers/[dossierId]", "GET", ["admin:access"])).toBe(true);
     expect(canAccessAdminRoute("/utilisateurs", "GET", ["admin:access"])).toBe(false);
     expect(canAccessAdminRoute("/groupes-instructeurs", "GET", ["admin:access"])).toBe(false);

@@ -3,6 +3,8 @@ import type { Permission } from "@pitchou/types/permissions.ts";
 // Every write route must opt into a permission. Unlisted writes are denied.
 const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
   { method: "POST", path: /^\/onagre$/u, anyOf: ["admin:onagre:manage"] },
+  // Preview is read-only. The apply action separately requires admin:onagre:manage.
+  { method: "POST", path: /^\/onagre\/imports$/u, anyOf: ["admin:access"] },
   { method: "POST", path: /^\/api\/dossiers(?:\/minimal)?$/u, anyOf: ["admin:dossiers:create"] },
   { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:update"] },
   { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:delete"] },
