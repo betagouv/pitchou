@@ -17,6 +17,7 @@ vi.mock("#lib/server/session.ts", () => ({
   readSessionToken: vi.fn(),
   setTransaction: vi.fn(),
 }));
+vi.mock("#lib/server/loginBridge.ts", () => ({ beginBridgeLogin: vi.fn() }));
 
 beforeEach(() => vi.resetAllMocks());
 
@@ -24,7 +25,8 @@ function request<Route extends "/auth/proconnect" | "/auth/logout">(path: Route,
   return {
     url: new URL(path + search, "https://admin.example.fr"),
     cookies: {},
-  } as RequestEvent<Record<string, never>, Route>;
+    setHeaders: vi.fn(),
+  } as unknown as RequestEvent<Record<string, never>, Route>;
 }
 
 test("login redirects to ProConnect using SvelteKit's real redirect helper", async () => {

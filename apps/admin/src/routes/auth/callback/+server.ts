@@ -4,10 +4,12 @@ import { createSession } from "@pitchou/server/session.ts";
 
 import { exchangeCodeAndFetchUser } from "#lib/server/proconnect.ts";
 import { readTransaction, clearTransaction, setSessionCookie } from "#lib/server/session.ts";
+import { finishBridgeLogin } from "#lib/server/loginBridge.ts";
 
 import type { RequestHandler } from "./$types";
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ url, cookies, setHeaders }) => {
+  setHeaders({ "cache-control": "no-store", "referrer-policy": "no-referrer" });
   const tx = await readTransaction(cookies);
   clearTransaction(cookies);
 
@@ -24,6 +26,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
     console.error("ProConnect callback failed", err);
     error(502, "Échec de l'authentification ProConnect.");
   }
+
+  // Onagre receives only verified identity claims, never a staging session or ProConnect token.
+  if (tx.bridge) redirect(303, await finishBridgeLogin(tx.bridge, user), { external: true });
 
   // Create the session for any authenticated user, so it can be reused by the other
   // Pitchou apps; the admin app then applies its own authorization below.
