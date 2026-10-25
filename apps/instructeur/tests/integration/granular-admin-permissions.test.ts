@@ -23,16 +23,22 @@ test("migration expands grants and exclusions without restoring denied access", 
   ]);
   await db.transaction(up);
   await db.transaction(up);
-  expect(await db("auth_permission").where({ user_id: granted.id })).toHaveLength(12);
+  const migratedPermissions = await db("auth_permission")
+    .where({ user_id: granted.id })
+    .pluck("permission");
+  expect(migratedPermissions).toHaveLength(12);
+  expect(migratedPermissions).not.toContain("admin:onagre:manage");
   expect((await getSessionUser(granted.id, db))!.permissions).toContain("admin:sync:run");
   expect((await getSessionUser(granted.id, db))!.permissions).not.toContain(
     "admin:dossiers:delete",
   );
   expect(
-    (await getSessionUser(excluded.id, db))!.permissions.filter(
-      (p) => p.startsWith("admin:") && p !== "admin:access",
+    (await getSessionUser(excluded.id, db))!.permissions.filter((p) =>
+      migratedPermissions.includes(p),
     ),
   ).toEqual([]);
+  // Onagre was introduced later and is not part of the historical admin:write expansion.
+  expect((await getSessionUser(excluded.id, db))!.permissions).toContain("admin:onagre:manage");
   expect(await db("auth_permission_exclusion").where({ permission: "admin:write" })).toHaveLength(
     0,
   );
