@@ -22,7 +22,7 @@
     {#if rehearsal}
       <strong>Tout le dump</strong><span>analyse et import expérimental par lots</span>
     {:else}
-      <strong>Préparation</strong><span>sources et décisions, sans création de dossier</span>
+      <strong>Préparation</strong><span>dump et décisions, sans création de dossier</span>
     {/if}
   </div>
 </div>

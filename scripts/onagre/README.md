@@ -75,9 +75,9 @@ The inspected backup contains 58 tables and 3,268,584 rows, including 22,069 dem
 
 The workbook has 190 nonempty proposals. With uncovered source fields, the workspace has 530 correspondence entries. The renewable-energy activity has several competing targets. Some statuses and date meanings still need confirmation. A project can have several demandes, and one demande per Pitchou dossier remains a business choice to confirm.
 
-## Supporting files in Sources
+## Supporting file audit
 
-The **Sources** tab inventories all 15 files verified in Polaris's `Downloads/Onagre` folder on 25 October 2026. `source-review.json` records their contents, previous use, inclusion decision, rationale and reviewed SHA-256. The original local copies matched Polaris byte for byte. The tab shows the same review and links to the matching dump or correspondences.
+The historical audit covers 15 files verified in Polaris's `Downloads/Onagre` folder on 25 October 2026. The Sources view has since been removed at the owner's request. File cleanup decisions are reviewed one at a time in conversation against the current Polaris folder. Removing the view does not delete archived documents or migration decisions. `source-review.json` records their contents, previous use, inclusion decision, rationale and reviewed SHA-256. The original local copies matched Polaris byte for byte. The inventory below records the original audit, including the former document library; it is not a current folder listing.
 
 Thirteen originals are stored in PostgreSQL behind the admin authentication check. Spreadsheets and CSVs have searchable, paginated views with original row numbers. PDFs display extracted text and provide an original-file link for figures and layout. Markdown displays as escaped plain text. Source cells are text, not executable HTML or spreadsheet formulas. Empty sheet rows are omitted, but populated cells, duplicates and original files are retained.
 

@@ -1,4 +1,4 @@
-import { fail, isHttpError } from "@sveltejs/kit";
+import { fail, isHttpError, redirect } from "@sveltejs/kit";
 import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
 import { parseDecision } from "@pitchou/server/onagre/validation.ts";
 import { parseSharedRule, saveSharedRule } from "@pitchou/server/onagre/sharedRules.ts";
@@ -7,18 +7,20 @@ import { saveMapping, MappingConflict } from "@pitchou/server/onagre/mappings.ts
 import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import type { Actions, PageServerLoad } from "./$types";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { listDocuments, browseDocument } from "@pitchou/server/onagre/documents.ts";
 import { getImportAvailability } from "@pitchou/server/onagre/import.ts";
 import { listImportJobs } from "@pitchou/server/onagre/import/jobs.ts";
 import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
 
 export const load: PageServerLoad = async ({ url }) => {
-  const sources = url.searchParams.get("tab") === "sources";
+  if (url.searchParams.get("tab") === "sources") {
+    const params = new URLSearchParams({ tab: "synthese" });
+    const snapshot = url.searchParams.get("snapshot");
+    if (snapshot) params.set("snapshot", snapshot);
+    redirect(303, `/onagre?${params}`);
+  }
   const rehearsal = process.env.ONAGRE_DEPLOYMENT_ROLE === "rehearsal";
-  const [workspace, documents, sourceDocument, importRuns, importJobs] = await Promise.all([
+  const [workspace, importRuns, importJobs] = await Promise.all([
     loadWorkspace(url),
-    sources ? listDocuments(db) : [],
-    sources ? browseDocument(db, url) : null,
     rehearsal && url.searchParams.get("tab") === "import"
       ? db<{ report: OnagreImportRun }>("onagre_import_run")
           .select("report")
@@ -31,8 +33,6 @@ export const load: PageServerLoad = async ({ url }) => {
   ]);
   return {
     ...workspace,
-    documents,
-    sourceDocument,
     deploymentRole: rehearsal ? "rehearsal" : "workspace",
     importEnabled: getImportAvailability().enabled,
     importRuns,

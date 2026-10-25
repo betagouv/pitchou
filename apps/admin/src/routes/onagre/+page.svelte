@@ -8,7 +8,6 @@
   import DumpExplorer from "./DumpExplorer.svelte";
   import DossierBrowser from "./DossierBrowser.svelte";
   import SharedRules from "./SharedRules.svelte";
-  import SourceLibrary from "./SourceLibrary.svelte";
   import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -18,7 +17,6 @@
     "regles",
     "dossiers",
     "dump",
-    "sources",
     "historique",
     ...(data.deploymentRole === "rehearsal" ? ["import"] : []),
   ]);
@@ -28,7 +26,6 @@
     "Règles communes",
     "Demandes Onagre",
     "Explorer le dump",
-    "Sources",
     "Historique",
     "Tester l'import",
   ];
@@ -57,7 +54,7 @@
     <span
       >{data.deploymentRole === "rehearsal"
         ? "Environnement de test. Les imports créent des dossiers dans cette base."
-        : "Cet espace conserve les sources et les décisions de reprise."}</span
+        : "Cet espace conserve le dump et les décisions de reprise."}</span
     >
   </div>
   {#if form?.message && tab !== "correspondances"}<p role="status" class="fr-alert fr-alert--info">
@@ -84,8 +81,6 @@
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}
     <DumpExplorer {data} {writable} />
-  {:else if tab === "sources"}
-    <SourceLibrary {data} />
   {:else if tab === "import" && data.deploymentRole === "rehearsal"}
     {#key data.selected?.id}
       <ImportWorkspace {data} {writable} />
