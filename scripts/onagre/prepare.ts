@@ -1,5 +1,6 @@
 import { promisify } from "node:util";
 import { columnDescriptions } from "@pitchou/common/onagre/schema.ts";
+import { withConstraints } from "@pitchou/common/onagre/constraints.ts";
 import { spawn, execFile } from "node:child_process";
 import { copyLines } from "@pitchou/common/onagre/lines.ts";
 import { createHash } from "node:crypto";
@@ -9,21 +10,27 @@ import { basename } from "node:path";
 import { writeFullPackage } from "./stream.ts";
 import { readCopyHeader, readCopyRow } from "@pitchou/common/onagre/copy.ts";
 import { readOnagreWorkbook } from "@pitchou/common/onagre/workbook.ts";
+import { originalMappings, originalWorkbook } from "@pitchou/common/onagre/originalWorkbook.ts";
 import type { OnagreBundle, OnagreTable } from "@pitchou/types/onagre.ts";
 
-const [dumpPath, workbookPath, outputPath] = process.argv.slice(2);
-if (!dumpPath || !workbookPath || !outputPath)
-  throw new Error("Usage: prepare.ts DUMP WORKBOOK OUTPUT.json");
+const args = process.argv.slice(2);
+const [dumpPath] = args;
+const workbookPath = args.length === 3 ? args[1] : null;
+const outputPath = args.at(-1);
+if (!dumpPath || !outputPath || ![2, 3].includes(args.length))
+  throw new Error("Usage: prepare.ts DUMP OUTPUT.jsonl.gz (legacy: DUMP WORKBOOK OUTPUT.jsonl.gz)");
 const hash = createHash("sha256");
 for await (const chunk of createReadStream(dumpPath)) hash.update(chunk);
-const workbook = await readFile(workbookPath);
+const workbook = workbookPath ? await readFile(workbookPath) : null;
 const bundle: OnagreBundle = {
   format: "pitchou-onagre-v1",
   fingerprint: hash.digest("hex"),
-  workbookFingerprint: createHash("sha256").update(workbook).digest("hex"),
+  workbookFingerprint: workbook
+    ? createHash("sha256").update(workbook).digest("hex")
+    : originalWorkbook.fingerprint,
   filename: basename(dumpPath),
   tables: [],
-  mappings: readOnagreWorkbook(workbook),
+  mappings: workbook ? readOnagreWorkbook(workbook) : structuredClone(originalMappings),
   demandes: [],
   projets: [],
 };
@@ -81,6 +88,7 @@ const { stdout: schema } = await promisify(execFile)(
   { maxBuffer: 32 * 1024 * 1024 },
 );
 const descriptions = columnDescriptions(schema);
+bundle.tables = withConstraints(schema, bundle.tables);
 const known = new Set(bundle.mappings.map((entry) => entry.key));
 for (const table of bundle.tables)
   for (const column of table.columns) {

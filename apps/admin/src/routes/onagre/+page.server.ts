@@ -1,4 +1,5 @@
 import { fail, isHttpError, redirect } from "@sveltejs/kit";
+import { loadActivityWorkspace } from "@pitchou/server/onagre/activities.ts";
 import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
 import { parseDecision } from "@pitchou/server/onagre/validation.ts";
 import { parseSharedRule, saveSharedRule } from "@pitchou/server/onagre/sharedRules.ts";
@@ -9,6 +10,11 @@ import type { Actions, PageServerLoad } from "./$types";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { getImportAvailability } from "@pitchou/server/onagre/import.ts";
 import { listImportJobs } from "@pitchou/server/onagre/import/jobs.ts";
+import {
+  loadServiceMappings,
+  parseServiceDecision,
+  saveServiceMapping,
+} from "@pitchou/server/onagre/services.ts";
 import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -33,6 +39,13 @@ export const load: PageServerLoad = async ({ url }) => {
   ]);
   return {
     ...workspace,
+    activityWorkspace: ["activites", "correspondances"].includes(url.searchParams.get("tab") ?? "")
+      ? await loadActivityWorkspace(db, workspace.mappings)
+      : null,
+    servicesWorkspace:
+      url.searchParams.get("tab") === "services" && workspace.selected?.records_complete
+        ? await loadServiceMappings(db, workspace.selected.id)
+        : null,
     deploymentRole: rehearsal ? "rehearsal" : "workspace",
     importEnabled: getImportAvailability().enabled,
     importRuns,
@@ -47,6 +60,17 @@ const failure = (cause: unknown) => {
   });
 };
 export const actions: Actions = {
+  saveService: async ({ request, locals }) => {
+    try {
+      const decision = parseServiceDecision(await request.formData());
+      await withAdminWriteAccess(locals, "admin:onagre:manage", (trx, actor) =>
+        saveServiceMapping(trx, actor.id, decision),
+      );
+      return { message: "Correspondance de service enregistrée." };
+    } catch (cause) {
+      return failure(cause);
+    }
+  },
   saveSharedRule: async ({ request, locals }) => {
     try {
       const decision = parseSharedRule(await request.formData());

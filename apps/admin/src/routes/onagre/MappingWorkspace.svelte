@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { OnagreActivities } from "@pitchou/types/onagreActivities.ts";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import type { OnagreMapping, OnagreTable } from "@pitchou/types/onagre.ts";
@@ -6,18 +7,20 @@
   import MappingEditor from "./MappingEditor.svelte";
   import MappingSidebar from "./MappingWorkspace/MappingSidebar.svelte";
   import MappingTable from "./MappingWorkspace/MappingTable.svelte";
-  import { isComplete, normalize, mappingLink, type Target } from "./mappings.ts";
+  import { isComplete, compareMappings, normalize, mappingLink, type Target } from "./mappings.ts";
   import "./mapping.css";
   let {
     mappings,
     targets,
     writable,
     tables,
+    activityWorkspace = null,
   }: {
     mappings: OnagreMapping[];
     targets: Target[];
     writable: boolean;
     tables: OnagreTable[];
+    activityWorkspace?: OnagreActivities | null;
   } = $props();
   let url = $derived(page.shallow?.url ?? page.url);
   let search = $derived(url.searchParams.get("mappingSearch") ?? "");
@@ -37,7 +40,9 @@
         ).includes(normalize(search)),
     ),
   );
-  let filtered = $derived(matches.filter((m) => !status || m.status === status));
+  let filtered = $derived(
+    matches.filter((m) => !status || m.status === status).toSorted(compareMappings),
+  );
   let pages = $derived(Math.max(1, Math.ceil(filtered.length / 25)));
   let currentPage = $derived(
     Math.min(pages, Math.max(1, Math.floor(Number(url.searchParams.get("mappingPage"))) || 1)),
@@ -90,6 +95,7 @@
     <MappingFilters {search} {status} {kind} {matches} onChange={filter} />
     {#if filtered.length}
       {#key `${section}:${search}:${status}:${kind}:${currentPage}`}<MappingTable
+          activities={activityWorkspace?.activities ?? []}
           mappings={filtered.slice((currentPage - 1) * 25, currentPage * 25)}
           onSelect={open}
         />{/key}
@@ -131,6 +137,7 @@
 {#if selected}
   {#key `${selected.key}:${selected.version}`}
     <MappingEditor
+      {activityWorkspace}
       mapping={selected}
       {targets}
       {writable}

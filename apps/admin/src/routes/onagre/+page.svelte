@@ -7,6 +7,8 @@
   import SnapshotOverview from "./SnapshotOverview.svelte";
   import DumpExplorer from "./DumpExplorer.svelte";
   import DossierBrowser from "./DossierBrowser.svelte";
+  import ActivityWorkspace from "./ActivityWorkspace.svelte";
+  import ServiceWorkspace from "./ServiceWorkspace.svelte";
   import SharedRules from "./SharedRules.svelte";
   import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
@@ -14,6 +16,8 @@
   let tabs = $derived([
     "synthese",
     "correspondances",
+    "services",
+    "activites",
     "regles",
     "dossiers",
     "dump",
@@ -23,6 +27,8 @@
   const labels = [
     "Vue d'ensemble",
     "Correspondances",
+    "Services et groupes",
+    "Objets et activités",
     "Règles communes",
     "Demandes Onagre",
     "Explorer le dump",
@@ -70,11 +76,32 @@
   </nav>
   {#if tab === "correspondances"}
     <MappingWorkspace
+      activityWorkspace={data.activityWorkspace}
       mappings={data.mappings}
       targets={data.targets}
       tables={data.selected?.tables ?? []}
       {writable}
     />
+  {:else if tab === "activites" && data.activityWorkspace}
+    <ActivityWorkspace
+      workspace={data.activityWorkspace}
+      mappings={data.mappings}
+      targets={data.targets}
+      tables={data.selected?.tables ?? []}
+      {writable}
+    />
+  {:else if tab === "services"}
+    {#if data.servicesWorkspace && data.selected}
+      <ServiceWorkspace
+        workspace={data.servicesWorkspace}
+        snapshotId={data.selected.id}
+        {writable}
+      />
+    {:else}
+      <p class="admin-panel">
+        Chargez un dump complet pour préparer les correspondances des services.
+      </p>
+    {/if}
   {:else if tab === "regles"}
     <SharedRules rules={data.sharedRules} {writable} />
   {:else if tab === "dossiers"}

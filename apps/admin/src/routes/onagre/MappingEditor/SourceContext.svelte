@@ -1,8 +1,19 @@
 <script lang="ts">
+  import type { OnagreActivities } from "@pitchou/types/onagreActivities.ts";
+  import ActivityWorksheet from "../ActivityWorksheet.svelte";
   import { page } from "$app/state";
   import type { OnagreMapping, OnagreTable } from "@pitchou/types/onagre.ts";
-  let { mapping, table }: { mapping: OnagreMapping; table?: OnagreTable } = $props();
-  let showOriginal = $state(false);
+  let {
+    mapping,
+    table,
+    activityWorkspace = null,
+  }: {
+    mapping: OnagreMapping;
+    table?: OnagreTable;
+    activityWorkspace?: OnagreActivities | null;
+  } = $props();
+  import WorkbookOriginal from "./WorkbookOriginal.svelte";
+  import SourceRelations from "./SourceRelations.svelte";
   let field = $derived(
     mapping.key.startsWith("field:") ? mapping.key.slice(`field:${mapping.section}.`.length) : null,
   );
@@ -48,36 +59,22 @@
 
 <aside class="mapping-source-context" aria-label="Information source">
   <div class="mapping-source-heading">
-    <span class="mapping-eyebrow">ONAGRE · {field ? "CHAMP" : "VALEUR DE RÉFÉRENCE"}</span><span
-      class="mapping-source-table">{mapping.section}</span
-    >
+    <span class="mapping-eyebrow"
+      >ONAGRE · {field
+        ? "CHAMP"
+        : mapping.key.startsWith("worksheet:")
+          ? "ANCIEN CLASSEUR · SANS IDENTIFIANT ONAGRE"
+          : "VALEUR DE RÉFÉRENCE"}</span
+    ><span class="mapping-source-table">{mapping.section}</span>
     <h3>{mapping.label}</h3>
   </div>
   {#if mapping.context}<p class="mapping-source-description">{mapping.context}</p>{/if}
-  {#if mapping.proposal}<section class="mapping-proposal-card">
-      <button
-        type="button"
-        class="mapping-original-toggle"
-        aria-expanded={showOriginal}
-        aria-controls="mapping-original-proposal"
-        onclick={() => (showOriginal = !showOriginal)}
-      >
-        Proposition d'origine<span
-          class={showOriginal
-            ? "fr-icon-arrow-up-s-line fr-icon--sm"
-            : "fr-icon-arrow-down-s-line fr-icon--sm"}
-          aria-hidden="true"
-        ></span>
-      </button>
-      {#if showOriginal}<div id="mapping-original-proposal">
-          <p class:muted={!mapping.proposal}>
-            {mapping.proposal}
-          </p>
-          {#if mapping.confidence}<span class="mapping-confidence"
-              >Confiance indiquée · {mapping.confidence}</span
-            >{/if}
-        </div>{/if}
-    </section>{/if}
+  {#if field}<SourceRelations relations={mapping.relations} />{/if}
+  <WorkbookOriginal {mapping} />
+  {#if activityWorkspace && mapping.section === "objet" && !field}<ActivityWorksheet
+      workspace={activityWorkspace}
+      mappingKey={mapping.key}
+    />{/if}
   {#if field && table}<section class="mapping-samples" aria-busy={loading}>
       <h4>Exemples du dump</h4>
       {#if loading}<p role="status">Chargement des exemples…</p>

@@ -1,5 +1,8 @@
+import { loadHistory } from "./history.ts";
+import { loadMappings } from "./workbook.ts";
+import { fieldRelations } from "@pitchou/common/onagre/constraints.ts";
 import type { Knex } from "knex";
-import type { OnagreMapping, OnagreTable, OnagreSharedRule } from "@pitchou/types/onagre.ts";
+import type { OnagreTable, OnagreSharedRule } from "@pitchou/types/onagre.ts";
 import { directDatabaseConnection as db } from "../database.ts";
 import { compareSnapshots, browseDemandes, sourceDiagnostics } from "./queries.ts";
 import { browseSourceRows } from "./sourceRows.ts";
@@ -21,9 +24,12 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
     .orderBy("id", "desc");
   const selected =
     snapshots.find((s) => String(s.id) === url.searchParams.get("snapshot")) ?? snapshots[0];
-  const mappings = await connection<OnagreMapping>("onagre_mapping")
-    .select("*")
-    .orderBy(["section", "key"]);
+  const mappings = await loadMappings(connection);
+  if (selected)
+    for (const mapping of mappings) {
+      if (mapping.key.startsWith("field:"))
+        mapping.relations = fieldRelations(selected.tables, mapping.section, mapping.label);
+    }
   const targets: { table_name: string; column_name: string; data_type: string }[] =
     await connection("information_schema.columns")
       .select("table_name", "column_name", "data_type")
@@ -51,23 +57,7 @@ export async function loadWorkspace(url: URL, connection: Knex = db) {
     snapshots.find((s) => s.id < selected.id)?.id,
   );
   const { dossiers, dossierCount, dossier } = await browseDemandes(connection, selected.id, url);
-  const history: {
-    id: number;
-    mapping_key: string;
-    actor_id: number;
-    created_at: Date;
-    after: { version: number; rule: string; target?: string };
-  }[] = await connection("onagre_mapping_revision")
-    .select("id", "mapping_key", "actor_id", "created_at", "after")
-    .orderBy("id", "desc")
-    .limit(30);
-  const sharedHistory = await connection("onagre_shared_rule_revision")
-    .select("id", "rule_key", "actor_id", "created_at", "after")
-    .orderBy("id", "desc")
-    .limit(30);
-  for (const revision of sharedHistory)
-    history.push({ ...revision, mapping_key: `Règle commune · ${revision.after.title}` });
-  history.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const history = await loadHistory(connection);
   return {
     snapshots,
     selected,

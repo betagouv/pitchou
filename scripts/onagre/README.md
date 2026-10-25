@@ -13,7 +13,6 @@ In the repository's Nix shell, prepare a package:
 ```sh
 node --import tsx scripts/onagre/prepare.ts \
   '/path/to/postgresql_database-onagre-lastbackup(6)' \
-  '/path/to/Correspondance Pitchou onagre.xlsx' \
   '.fleet/onagre/prepared.jsonl.gz'
 ```
 
@@ -21,7 +20,13 @@ The parent output directory must exist. The script refuses to overwrite an exist
 
 Open **Migration Onagre → Explorer le dump → Charger un autre dump**, and select the JSONL.gz package. The upload runs in one transaction. A failed load leaves no partial snapshot. The original dump and prepared package contain personal data and belong outside Git. `.fleet/` is ignored.
 
-The first load copies every recognized field and reference proposal from all five workbook sheets. Repeated activity IDs remain separate proposals. Original workbook rows are retained with the snapshot. All proposals start as **À traiter**, including rows marked with a check in Excel. The app adds a correspondence for every source column absent from the workbook.
+The preparation script uses the reviewed workbook contents retained in `libs/common/src/onagre/workbook/source.json`; it no longer needs the Excel file. This source preserves every nonempty cell from all five sheets, including comments, confidence and sheet notes. The original fingerprint and mapping keys remain unchanged. The old three-argument command is still accepted for compatibility. See [WORKBOOK.md](WORKBOOK.md) for the audit and verification.
+
+The first load copies every recognized field and reference proposal from those retained sheets. Repeated activity IDs remain separate proposals. Original mapping seeds are retained with the snapshot. All proposals start as **À traiter**, including rows marked with a check in Excel. The app adds a correspondence for every source column absent from the workbook.
+
+Prepared packages also retain primary and foreign key constraints from the dump. The correspondence list marks primary-key fields; the editor shows outgoing and incoming references with links to the selected snapshot's tables. Composite keys keep all their columns. These are declared database constraints, not relationships guessed from names. Old packages display an unavailable notice instead of claiming there are no relationships.
+
+Uploading a freshly prepared package for an existing dump fills missing constraint metadata without recreating rows or changing decisions. Existing conflicting metadata is rejected. For local workspaces, `node --import tsx scripts/onagre/refresh-schema.ts /path/to/dump` previews the schema counts; `--apply` enriches only the snapshot with the exact same SHA-256. The reviewed dump has 57 primary keys and 97 foreign keys across 58 tables.
 
 ## Full source storage
 
@@ -34,7 +39,7 @@ Older JSON packages remain supported. They cannot populate the full explorer. Pr
 ## Use during the meeting
 
 1. Filter **Correspondances** by source table, text or status.
-2. Read the destination and rule in the list, then open an entry to review its notes. The original workbook text and confidence remain available under **Proposition d'origine**.
+2. Read the destination and rule in the list, then open an entry to review its notes. **Proposition d'origine** shows the original proposal, confidence, comment, sheet notes and source values independently of editable decision notes. This also applies to the **Objets et activités** editor.
 3. Edit the Pitchou destination and the transformation specific to this correspondence. Leave notes empty when there is no unresolved question. Use **Règles communes** for decisions shared across correspondences, such as comment authors, identity matching, missing dates and update conflicts.
 4. Use **À valider** for a draft awaiting review and **À discuter** for a question the team must resolve. **Validée** requires a destination and a rule. **Exclue** requires a reason. Only validated and excluded entries count toward completed decisions.
 5. Save each decision. Concurrent edits return a conflict instead of replacing another person's work.
@@ -46,6 +51,8 @@ The destination input suggests current database columns but also accepts descrip
 **Règles communes** contains nine editable drafts. They have their own review status, revision history and optimistic concurrency checks. They do not affect the correspondence progress count. The history tab and decision export include their revisions. Validating a shared rule records a decision; it does not configure or execute an importer.
 
 ## Prepare drafts from the team's proposals
+
+The initial draft process below predates the owner-authorized validation batch. See [DECISIONS.md](DECISIONS.md) for the subsequent review of all 340 unhandled fields, the 122 workbook validations and the guarded local application command.
 
 `reviewed-decisions.json` contains the review of all 190 nonempty workbook proposals against the current Pitchou schema. It proposes 127 drafts **À valider** and 63 **À discuter**, with destinations, rules and notes. Existing notes are preserved. The 340 entries without a proposal remain untouched. No entry is automatically validated or excluded.
 
@@ -63,7 +70,7 @@ The manifest is a dated review of this workbook, not a general proposal parser. 
 
 ## Load a later dump
 
-Run the same preparation command with the new backup and the unchanged original workbook. The admin workspace is now the place to edit correspondences. A different workbook is rejected to prevent moved spreadsheet rows from being mistaken for existing decisions.
+Run the same two-argument preparation command with the new backup and a new output path. No workbook or database connection is needed to prepare the package. The admin workspace is now the place to edit correspondences. The retained source fingerprint identifies the original mapping lineage; a package from a different workbook is still rejected to prevent moved spreadsheet rows from being mistaken for existing decisions. Existing decisions are never overwritten by these seeds.
 
 Upload the package from **Explorer le dump**. The explorer switches to the uploaded snapshot; the selector also lets you return to an earlier dump. The SHA-256 of the original dump identifies an already-loaded snapshot. The unique database constraint and transaction lock also protect concurrent loads. A new snapshot keeps existing decisions and adds newly discovered columns.
 

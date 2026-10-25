@@ -61,6 +61,8 @@ async function schema(db: Connection) {
     ...tables.map((table) => table.name),
     "onagre_import_run",
     "onagre_import_identity",
+    "onagre_import_job",
+    "onagre_import_batch",
   ]);
   for (const row of relations.rows.filter((row) =>
     ["r", "p", "v", "m", "f"].includes(row.relkind),

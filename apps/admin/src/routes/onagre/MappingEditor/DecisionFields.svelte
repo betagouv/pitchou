@@ -1,10 +1,21 @@
 <script lang="ts">
+  import type { ActivityOption } from "@pitchou/types/onagreActivities.ts";
+  import ActivityPicker from "../ActivityPicker.svelte";
   import type { MappingStatus } from "@pitchou/types/onagre.ts";
   import TargetPicker from "../TargetPicker.svelte";
   import { statusLabels, statusHints, type Target } from "../mappings.ts";
   import type { DecisionDraft } from "./decision.svelte.ts";
-  let { draft, targets, writable }: { draft: DecisionDraft; targets: Target[]; writable: boolean } =
-    $props();
+  let {
+    draft,
+    targets,
+    writable,
+    activities = [],
+  }: {
+    draft: DecisionDraft;
+    targets: Target[];
+    writable: boolean;
+    activities?: ActivityOption[];
+  } = $props();
 </script>
 
 <fieldset disabled={!writable || draft.busy} class="mapping-decision-fields">
@@ -23,7 +34,13 @@
     Décrivez ici uniquement cette correspondance. Les <a href="?tab=regles">règles communes</a> regroupent
     les choix partagés.
   </p>
-  <TargetPicker {targets} bind:value={draft.target} disabled={!writable || draft.busy} />
+  {#if draft.activityMode}
+    <ActivityPicker {activities} {draft} disabled={!writable || draft.busy} />
+  {:else}<TargetPicker
+      {targets}
+      bind:value={draft.target}
+      disabled={!writable || draft.busy}
+    />{/if}
   <div class="mapping-rule-label">
     <label for="mapping-rule"
       >{draft.status === "excluded" ? "Motif d'exclusion" : "Règle de reprise"}<span

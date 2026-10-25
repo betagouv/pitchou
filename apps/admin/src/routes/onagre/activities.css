@@ -1,0 +1,98 @@
+.onagre .admin-panel.activity-workspace {
+  padding: 0;
+  overflow: hidden;
+}
+.activity-heading {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+.activity-heading h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.activity-heading p {
+  color: var(--text-mention-grey);
+  font-size: 0.875rem;
+}
+.activity-progress {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 12rem;
+  font-size: 0.8rem;
+}
+.activity-progress strong {
+  font-size: 1.3rem;
+}
+.activity-progress progress {
+  width: 100%;
+  height: 0.4rem;
+  accent-color: var(--text-action-high-blue-france);
+}
+.activity-toolbar {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+.activity-columns,
+.activity-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.1fr 1.6fr 0.7fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  align-items: center;
+}
+.activity-columns {
+  background: var(--background-alt-grey);
+  color: var(--text-mention-grey);
+  font-size: 0.85rem;
+}
+.activity-row {
+  border-top: 1px solid var(--border-default-grey);
+  width: 100%;
+  text-align: left;
+  font-size: 0.875rem;
+}
+.activity-row:hover {
+  background: var(--background-action-low-blue-france);
+}
+.activity-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.activity-row small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-mention-grey);
+}
+.activity-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-default-grey);
+}
+.activity-pagination > :first-child {
+  margin-right: auto;
+}
+.activity-message {
+  padding: 0.5rem 1rem;
+}
+@media (max-width: 800px) {
+  .activity-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .activity-toolbar {
+    grid-template-columns: 1fr;
+  }
+  .activity-columns {
+    display: none;
+  }
+  .activity-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

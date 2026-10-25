@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Knex } from "knex";
 import type { OnagreBundle, SourceRow } from "@pitchou/types/onagre.ts";
+import { enrichSnapshotConstraints } from "./constraints.ts";
 
 export function recordFingerprint(demande: SourceRow, projet: SourceRow): string {
   const canonical = (row: SourceRow) =>
@@ -24,7 +25,10 @@ export async function stageSnapshot(trx: Knex.Transaction, bundle: OnagreBundle)
   const existing = await trx("onagre_snapshot")
     .where({ fingerprint: bundle.fingerprint })
     .first("id");
-  if (existing) return { id: existing.id as number, duplicate: true };
+  if (existing) {
+    await enrichSnapshotConstraints(trx, existing.id, bundle.tables);
+    return { id: existing.id as number, duplicate: true };
+  }
   const [snapshot] = await trx("onagre_snapshot")
     .insert({
       fingerprint: bundle.fingerprint,

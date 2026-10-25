@@ -1,4 +1,5 @@
-import type { OnagreBundle, MappingStatus, SourceRow } from "@pitchou/types/onagre.ts";
+import type { OnagreBundle, OnagreTable, MappingStatus, SourceRow } from "@pitchou/types/onagre.ts";
+import { validConstraints } from "./constraints.ts";
 
 export function sourceId(value: unknown): number {
   if (
@@ -22,6 +23,22 @@ function isRow(value: unknown): value is SourceRow {
   );
 }
 const seedFields = ["key", "section", "label", "context", "proposal", "confidence", "notes"];
+
+function validTable(table: OnagreTable): boolean {
+  return (
+    Boolean(table) &&
+    /^[a-z_]+$/u.test(table.name) &&
+    Number.isSafeInteger(table.count) &&
+    table.count >= 0 &&
+    Array.isArray(table.columns) &&
+    table.columns.every(
+      (column) => typeof column === "string" && /^[a-z_][a-z0-9_]*$/u.test(column),
+    ) &&
+    Array.isArray(table.samples) &&
+    table.samples.length <= 3 &&
+    table.samples.every(isRow)
+  );
+}
 
 export function parseBundle(value: unknown): OnagreBundle {
   const fail = () => {
@@ -49,20 +66,9 @@ export function parseBundle(value: unknown): OnagreBundle {
     b.projets.length > 100000
   )
     return fail();
-  for (const table of b.tables) {
-    if (
-      !/^[a-z_]+$/u.test(table.name) ||
-      !Number.isSafeInteger(table.count) ||
-      table.count < 0 ||
-      !Array.isArray(table.columns) ||
-      !table.columns.every((c) => typeof c === "string" && /^[a-z_][a-z0-9_]*$/u.test(c)) ||
-      !Array.isArray(table.samples) ||
-      table.samples.length > 3 ||
-      !table.samples.every(isRow)
-    )
-      return fail();
-  }
-  if (new Set(b.tables.map((t) => t.name)).size !== b.tables.length) return fail();
+  if (!b.tables.every(validTable)) return fail();
+  if (new Set(b.tables.map((t) => t.name)).size !== b.tables.length || !validConstraints(b.tables))
+    return fail();
   for (const mapping of b.mappings) {
     if (!mapping || Object.keys(mapping).some((key) => !seedFields.includes(key))) return fail();
     if (
@@ -122,5 +128,16 @@ export function parseDecision(form: FormData) {
     throw new Error("Précisez la destination Pitchou et la règle avant de valider.");
   if (status === "excluded" && !rule)
     throw new Error("Expliquez pourquoi cette information est exclue.");
-  return { key, version, status, target, rule, notes };
+  const activity = form.get("activity_code");
+  if (activity !== null && (typeof activity !== "string" || activity.length > 255))
+    throw new Error("Activité invalide.");
+  return {
+    key,
+    version,
+    status,
+    target,
+    rule,
+    notes,
+    ...(activity === null ? {} : { activity_code: String(activity).trim() }),
+  };
 }

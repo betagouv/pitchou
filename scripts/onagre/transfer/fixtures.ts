@@ -6,6 +6,8 @@ import { up as sourceRows } from "../../../libs/database/migrations/202610251200
 import { up as reviewStatus } from "../../../libs/database/migrations/20261026120000_onagre-review-status.ts";
 import { up as sharedRules } from "../../../libs/database/migrations/20261027120000_onagre-shared-rules.ts";
 import { up as documents } from "../../../libs/database/migrations/20261028120000_onagre-documents.ts";
+import { up as serviceMappings } from "../../../libs/database/migrations/20261101120000_onagre-service-mappings.ts";
+import { up as activityChoice } from "../../../libs/database/migrations/20261102120000_onagre-activity-choice.ts";
 import { connectTo, type Connection } from "./connection.ts";
 
 const knex = createRequire(new URL("../../../libs/database/package.json", import.meta.url))(
@@ -83,7 +85,15 @@ async function createSchema(url: string, client: Connection) {
     create table onagre_import_identity(id integer primary key, sentinel text);`);
   const db = knex({ client: "pg", connection: url });
   try {
-    for (const migrate of [workspace, sourceRows, reviewStatus, sharedRules, documents])
+    for (const migrate of [
+      workspace,
+      sourceRows,
+      reviewStatus,
+      sharedRules,
+      documents,
+      serviceMappings,
+      activityChoice,
+    ])
       await migrate(db);
   } finally {
     await db.destroy();
@@ -113,6 +123,9 @@ async function populate(source: Connection) {
       from generate_series(1,2501) n;
     insert into onagre_document (id,filename,fingerprint,size,mime,review,snapshot_id,original,text)
       values (23,'fixture.bin',repeat('d',64),5,'application/octet-stream','{}',17,decode('00ff5c0a09','hex'),E'é\\ntext');
+    insert into onagre_group_catalog values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Fixture group',true,false,'["01"]','Test',now());
+    insert into onagre_service_mapping values ('onagre-national',42,17,'{"servicesid":"42","nomservice":"Fixture service"}',repeat('e',64),'["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"]','validated','',1,now());
+    insert into onagre_service_mapping_revision (id,source_instance,service_id,actor_id,after,groups) values (45,'onagre-national',42,3,'{"version":1}','[]');
     insert into onagre_document_sheet values (23,0,'Sheet',1,'["value"]');
     insert into onagre_document_row values (23,0,1,'[null,false,"",9007199254740993]');`);
 }

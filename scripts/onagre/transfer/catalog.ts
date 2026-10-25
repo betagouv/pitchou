@@ -9,7 +9,7 @@ export const tables = [
   {
     name: "onagre_mapping",
     columns:
-      "key section label context proposal confidence notes target rule status version updated_at",
+      "key section label context proposal confidence notes target rule status version updated_at activity_code",
   },
   {
     name: "onagre_shared_rule",
@@ -38,6 +38,21 @@ export const tables = [
     columns: "document_id sheet_index row_number cells",
   },
   {
+    name: "onagre_group_catalog",
+    columns: "id name active coverage_needs_review departments source refreshed_at",
+  },
+  {
+    name: "onagre_service_mapping",
+    columns:
+      "source_instance service_id snapshot_id source source_hash group_ids status notes version updated_at",
+  },
+  {
+    name: "onagre_service_mapping_revision",
+    columns: "id source_instance service_id actor_id before after groups created_at",
+    sequence: true,
+    actor: true,
+  },
+  {
     name: "onagre_mapping_revision",
     columns: "id mapping_key actor_id before after created_at",
     sequence: true,
@@ -64,7 +79,8 @@ export const quote = (name: string) => `"${name.replaceAll('"', '""')}"`;
 export const relation = (name: string) => `public.${quote(name)}`;
 export const columnNames = (table: Table) => table.columns.split(" ");
 export const revisionActors = `select actor_id from public.onagre_mapping_revision
-  union select actor_id from public.onagre_shared_rule_revision`;
+  union select actor_id from public.onagre_shared_rule_revision
+  union select actor_id from public.onagre_service_mapping_revision`;
 
 // Keep the cursor result in PostgreSQL text form. JS Date would lose timestamp microseconds.
 // Text parameters also preserve bigint, bytea and JSON without number coercion.

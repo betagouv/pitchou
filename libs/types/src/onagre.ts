@@ -1,9 +1,24 @@
+import type { WorkbookContext } from "./onagreWorkbook.ts";
+
 export type SourceRow = Record<string, string | null>;
+export type OnagreForeignKey = {
+  name: string;
+  columns: string[];
+  targetTable: string;
+  targetColumns: string[];
+};
+export type OnagreConstraints = { primaryKey: string[]; foreignKeys: OnagreForeignKey[] };
+export type OnagreFieldRelations = {
+  primaryKey: string[];
+  outgoing: OnagreForeignKey[];
+  incoming: (OnagreForeignKey & { sourceTable: string })[];
+};
 export type OnagreTable = {
   name: string;
   columns: string[];
   count: number;
   samples: SourceRow[];
+  constraints?: OnagreConstraints;
 };
 export type MappingSeed = {
   key: string;
@@ -25,7 +40,10 @@ export type OnagreSharedRule = {
   updated_at: string | null;
 };
 export type OnagreMapping = MappingSeed & {
+  originalWorkbook?: WorkbookContext;
+  relations?: OnagreFieldRelations;
   status: MappingStatus;
+  activity_code?: string | null;
   target: string;
   rule: string;
   version: number;

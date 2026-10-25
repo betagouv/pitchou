@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { OnagreActivities } from "@pitchou/types/onagreActivities.ts";
   import { untrack, tick } from "svelte";
   import { enhance } from "$app/forms";
   import { beforeNavigate, goto } from "$app/navigation";
@@ -11,6 +12,7 @@
   import { mappingLink, type Target } from "./mappings.ts";
   let {
     mapping,
+    activityWorkspace = null,
     targets,
     writable,
     table,
@@ -22,6 +24,7 @@
     onSaved,
   }: {
     mapping: OnagreMapping;
+    activityWorkspace?: OnagreActivities | null;
     targets: Target[];
     writable: boolean;
     table?: OnagreTable;
@@ -32,7 +35,10 @@
     onClose: () => void;
     onSaved: (next?: string) => void;
   } = $props();
-  const draft = new DecisionDraft(untrack(() => mapping));
+  const draft = new DecisionDraft(
+    untrack(() => mapping),
+    untrack(() => activityWorkspace?.activities ?? []),
+  );
   let pending = $state<(() => void) | null>(null);
   let bypass = false;
   let url = $derived(page.shallow?.url ?? page.url);
@@ -127,11 +133,11 @@
     </div>
   </nav>
   <div class="mapping-editor-layout">
-    <SourceContext {mapping} {table} />
+    <SourceContext {mapping} {table} {activityWorkspace} />
     <form
       id="mapping-decision-form"
       method="POST"
-      action={`?/save&${mappingLink(url, {}).slice(1)}`}
+      action={`?/save&${url.searchParams.get("tab") === "activites" ? url.searchParams.toString() : mappingLink(url, {}).slice(1)}`}
       class="mapping-decision"
       use:enhance={({ cancel, submitter }) => {
         if (!writable || draft.busy) {
@@ -174,7 +180,12 @@
       {#if draft.error}<p id="mapping-save-error" class="mapping-error" role="alert" tabindex="-1">
           {draft.error}
         </p>{/if}
-      <DecisionFields {draft} {targets} {writable} />
+      <DecisionFields
+        {draft}
+        {targets}
+        {writable}
+        activities={activityWorkspace?.activities ?? []}
+      />
       <p class="mapping-version">
         Version {mapping.version}{mapping.updated_at
           ? ` · Modifiée le ${new Date(mapping.updated_at).toLocaleDateString("fr-FR")}`

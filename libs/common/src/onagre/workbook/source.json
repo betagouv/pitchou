@@ -1,0 +1,2787 @@
+{
+  "filename": "Correspondance Pitchou onagre.xlsx",
+  "fingerprint": "718741d4c7c5450a946b47fab622c8dca5b5cb11185007c83dff51745310a548",
+  "sheets": [
+    {
+      "name": "Projet",
+      "rows": [
+        {
+          "number": 1,
+          "cells": [
+            "STRUCTURE",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Correspondance Pitchou",
+            "Niveau de confiance",
+            "Commentaire"
+          ]
+        },
+        {
+          "number": 2,
+          "cells": [
+            "Colonne",
+            "Type",
+            "Nullable",
+            "Défaut",
+            "Clé",
+            "Commentaire",
+            "⚙️ à réfléchir",
+            "",
+            "il y a ~18000 projets"
+          ]
+        },
+        {
+          "number": 3,
+          "cells": [
+            "projetid",
+            "integer",
+            "NO",
+            "",
+            "PK",
+            "id - numéro de série de la table Projet",
+            "peut être qu'on va plutôt faire 1 demande = 1 dossier pitchou, au lieu de 1 projet = 1 dossier pitchou",
+            "fort",
+            "vérifier si dans onagre les utilisateurs ont plutôt l'habitude de projetid ou de demandesid"
+          ]
+        },
+        {
+          "number": 4,
+          "cells": [
+            "civiliteid",
+            "integer",
+            "YES",
+            "",
+            "FK→civilite.civiliteid",
+            "",
+            "madame monsieur, on sait pas à qui ça correspond + rempli que par 300/17k dossier",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 5,
+          "cells": [
+            "communesid",
+            "integer",
+            "YES",
+            "",
+            "FK→communes.communesid",
+            "",
+            "ça a l'air d'être la commune du siège social de l'entreprise (adresse porteur de projet)",
+            "moyen",
+            ""
+          ]
+        },
+        {
+          "number": 6,
+          "cells": [
+            "objetid",
+            "integer",
+            "YES",
+            "",
+            "FK→objet.objetid",
+            "",
+            "Activité principale",
+            "moyen-fort",
+            ""
+          ]
+        },
+        {
+          "number": 7,
+          "cells": [
+            "petitionnairesid",
+            "integer",
+            "YES",
+            "",
+            "FK→petitionnaires.petitionnairesid",
+            "",
+            "type de pétitionnaire -> lié à la catégorie du pétitionnaire (personne morale, personne Physique)",
+            "fort",
+            "on perd l'info de la catégorie de pétitionnaire"
+          ]
+        },
+        {
+          "number": 8,
+          "cells": [
+            "adressemailchefprojet",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "adresseMailChefProjet - Adresse de messagerie du chef de projet",
+            "c'est l'adresse de contact de la personne avec qui on parle du projet, ce'est la personne au sein de l'entreprise qui gère le projet\ncorrespond à l'adresse mail de contact dans le Formulaire\n\nnormalement dans pitchou c'est le mail représentant",
+            "faible",
+            ""
+          ]
+        },
+        {
+          "number": 9,
+          "cells": [
+            "adressemailpetitionnaire",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "adresseMailPetitionnaire - Adresse de messagerie du pétitionnaire",
+            "Chez Pitchou c'est pas clair, à clarifier ",
+            "faible",
+            ""
+          ]
+        },
+        {
+          "number": 10,
+          "cells": [
+            "adressepetitionnaire",
+            "character varying(500)",
+            "YES",
+            "",
+            "",
+            "adressePetitionnaire - Adresse postale du pétitionnaire : description détaillée",
+            "Chez Pitchou c'est pas clair, à clarifier ",
+            "faible",
+            ""
+          ]
+        },
+        {
+          "number": 11,
+          "cells": [
+            "cmtprojet",
+            "character varying(1000)",
+            "YES",
+            "",
+            "",
+            "cmtProjet - Commentaires et précisions sur le projet de la demande de dérogation",
+            "on peut créer un commentaire dans pitchou (si on peut avec l'info que ça vient d'onagre)",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 12,
+          "cells": [
+            "codeprojet",
+            "character varying(20)",
+            "NO",
+            "",
+            "",
+            "codeProjet - Code (numérotation) du projet onagreTest",
+            "on sait pas, j'pense on s'en fiche",
+            "on sait pas",
+            ""
+          ]
+        },
+        {
+          "number": 13,
+          "cells": [
+            "datereceptionprojet",
+            "date",
+            "YES",
+            "",
+            "",
+            "dateReceptionProjet - Date de réception du projet de demande de dérogation",
+            "date de première sollicitation",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 14,
+          "cells": [
+            "natureactivites",
+            "character varying(300)",
+            "YES",
+            "",
+            "",
+            "natureActivites - description de la nature des activités de la personne, de la société de l'association etc (défense des animaux)",
+            "a l'air d'être rempli de maniere différente, parfois c'est l'activité plus précise, parfois des impacts, on considere que ça doublonne d'autres infos et qu'on ne garde pas",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 15,
+          "cells": [
+            "nompersonne",
+            "character varying(50)",
+            "YES",
+            "",
+            "",
+            "nomPersonne - Nom de la personne physique",
+            "⚙️ rempli comme le bénéficiaire de DN - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> on mettrait ça dans contact porteur de projet",
+            "moyen",
+            ""
+          ]
+        },
+        {
+          "number": 16,
+          "cells": [
+            "nomprojet",
+            "character varying(150)",
+            "NO",
+            "",
+            "",
+            "nomProjet - Nom du projet de la demande de dérogation",
+            "titre du projet",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 17,
+          "cells": [
+            "precisionpetitionnaire",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "precisionPetitionnaire - Précisions sur le pétitionnaire",
+            "porteur de projet - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> lié à nompersonne et prenompersonne, on espere ne pas avoir à l'utiliser",
+            "moyen",
+            ""
+          ]
+        },
+        {
+          "number": 18,
+          "cells": [
+            "preinstruction",
+            "boolean",
+            "NO",
+            false,
+            "",
+            "preInstruction - Pre instruction du projet de demande de dérogation. V2.0 : la notion n'est plus utilisée par l'application mais est conservée en base pour historique",
+            "on abandonne",
+            "fort",
+            ""
+          ]
+        },
+        {
+          "number": 19,
+          "cells": [
+            "prenompersonne",
+            "character varying(50)",
+            "YES",
+            "",
+            "",
+            "prenomsPersonne - Prénom de la personne physique",
+            "⚙️ rempli comme le bénéficiaire de DN - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> on mettrait ça dans contact porteur de projet",
+            "moyen",
+            ""
+          ]
+        },
+        {
+          "number": 20,
+          "cells": [
+            "projetlie",
+            "boolean",
+            "NO",
+            "",
+            "",
+            "projetLie - Le projet est lie à un autre projet pour des instructions complexes",
+            "⚙️ lié à la table projet_projet (~800dossiers OUI sur les 18000), n'existe pas dans pitchou, on créer un champs --> garder l'info, trancher où",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 21,
+          "cells": [
+            "projetmultiinstruction",
+            "boolean",
+            "NO",
+            "",
+            "",
+            "projetMultiInstruction - Le projet de demande de dérogation est instruit par plusieurs régions",
+            "on se base sur la liste des régions concernées par la DDEP",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 22,
+          "cells": [
+            "qualificationpersonne",
+            "character varying(50)",
+            "YES",
+            "",
+            "",
+            "qualificationPersonne - qualification de la personne (métier, fonction etc) Exemple : Ingénieur, Président Directeur Général",
+            "⚙️ rempli comme le bénéficiaire de DN - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> on mettrait ça dans contact porteur de projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 23,
+          "cells": [
+            "telephonepetitionnaire",
+            "character varying(20)",
+            "YES",
+            "",
+            "",
+            "telephonePetitionnaire - Numéro de téléphone du pétitionnaire",
+            "⚙️ rempli comme le bénéficiaire de DN - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> on mettrait ça dans contact porteur de projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 24,
+          "cells": [
+            "versionprojet",
+            "integer",
+            "NO",
+            "",
+            "",
+            "version - numéro de version de la table Projet",
+            "on met dans la description du projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 25,
+          "cells": [
+            "nomcoordinateur",
+            "character varying(50)",
+            "YES",
+            "",
+            "",
+            "nomcoordinateur - Nom du coordinateur du projet",
+            "personne contact",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 26,
+          "cells": [
+            "telephoneportablepetitionnaire",
+            "character varying(20)",
+            "YES",
+            "",
+            "",
+            "telephoneportablepetitionnaire - Numéro de téléphone portable du pétitionnaire",
+            "⚙️ rempli comme le bénéficiaire de DN - peut-être qu'on aura pas besoin de l'exploiter car ya d'autres colonnes plus claires --> on mettrait ça dans contact porteur de projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 27,
+          "cells": [
+            "servicecoordinateurid",
+            "integer",
+            "YES",
+            "",
+            "FK→services.servicesid",
+            "servicecoordinateurid - service coordinateur du projet",
+            "on met dans la description du projet",
+            "moyen",
+            ""
+          ]
+        },
+        {
+          "number": 28,
+          "cells": [
+            "typelieu",
+            "character varying(20)",
+            "NO",
+            "",
+            "",
+            "typeLieu - Type du lieu concerné par le projet",
+            "on les ignore car on a l'info dans d'autres tables a priori",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 29,
+          "cells": [
+            "lieux",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "lieux - Lieux précis des opérations du projet",
+            "on les ignore car on a l'info dans d'autres tables a priori",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "name": "motifderogation",
+      "rows": [
+        {
+          "number": 1,
+          "cells": [
+            "motifderogationId",
+            "codemotifderogation",
+            "libmotifderogation",
+            "versionmotifderogation",
+            "libcourtmodifderogation",
+            "libdirectivemotifderogation",
+            "acteuriddernieremodif",
+            "Correspondance avec pitchou",
+            "",
+            "",
+            "Les motifs dans Pitchou"
+          ]
+        },
+        {
+          "number": 2,
+          "cells": [
+            25,
+            10,
+            "Pour des raisons impératives dintérêt public majeur de santé publique",
+            0,
+            "Intérêt public santé publique",
+            "Oiseaux",
+            "",
+            "RIIPM",
+            "",
+            "",
+            "0 RIIPM"
+          ]
+        },
+        {
+          "number": 3,
+          "cells": [
+            26,
+            10,
+            "Pour des raisons impératives dintérêt public majeur de sécurité publique",
+            0,
+            "Intérêt public sécurité publique",
+            "Oiseaux",
+            "",
+            "RIIPM",
+            "",
+            "",
+            "1 Sécurité aérienne"
+          ]
+        },
+        {
+          "number": 4,
+          "cells": [
+            14,
+            11,
+            "Pour la protection de la flore sauvage",
+            1,
+            "Protection flore sauvage",
+            "Habitats",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            "2 Prévenir des dommages"
+          ]
+        },
+        {
+          "number": 5,
+          "cells": [
+            15,
+            11,
+            "Pour la protection de la faune sauvage",
+            1,
+            "Protection faune sauvage",
+            "Habitats",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            "3 Protection faune, flore, habitats"
+          ]
+        },
+        {
+          "number": 6,
+          "cells": [
+            16,
+            11,
+            "Pour la conservation des habitats naturels",
+            1,
+            "Conservation habitats naturels",
+            "Habitats",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            "4 Recherche"
+          ]
+        },
+        {
+          "number": 7,
+          "cells": [
+            20,
+            11,
+            "Dans un but de reproduction nécessaire pour les activités 51, 52, 53, y compris la dissémination artificielle d'espèces végétales",
+            1,
+            "But reprod.(act.51,52,53) dissém. artif. esp. vég.",
+            "Habitats",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            "5 Repeuplement, réintroduction"
+          ]
+        },
+        {
+          "number": 8,
+          "cells": [
+            56,
+            11,
+            "Pour la conservation des habitats naturels",
+            1,
+            "Conservation habitats naturels",
+            "Hab+Ois",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            "6 Prise ou détention limitée"
+          ]
+        },
+        {
+          "number": 9,
+          "cells": [
+            57,
+            11,
+            "Pour la protection de la faune sauvage",
+            1,
+            "Protection faune sauvage",
+            "Hab+Ois",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 10,
+          "cells": [
+            58,
+            11,
+            "Pour la protection de la flore sauvage",
+            1,
+            "Protection flore sauvage",
+            "Hab+Ois",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 11,
+          "cells": [
+            1002,
+            11,
+            "Autres",
+            0,
+            "Autres",
+            "Hab+Ois",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 12,
+          "cells": [
+            1005,
+            11,
+            "Autres",
+            0,
+            "Autres",
+            "Hors Directive - Outre-MER",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 13,
+          "cells": [
+            1006,
+            11,
+            "Pour la protection de la faune sauvage",
+            1,
+            "Protection faune sauvage",
+            "Hors Directive - Outre-MER",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 14,
+          "cells": [
+            1010,
+            11,
+            "Pour la conservation des habitats naturels",
+            1,
+            "Conservation habitats naturels",
+            "Hors Directive - Outre-MER",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 15,
+          "cells": [
+            1011,
+            11,
+            "Pour la protection de la flore sauvage",
+            1,
+            "Protection flore sauvage",
+            "Hors Directive - Outre-MER",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 16,
+          "cells": [
+            27,
+            20,
+            "Pour des raisons impératives dintérêt public majeur de sécurité aérienne",
+            0,
+            "Intérêt public sécurité aérienne",
+            "Oiseaux",
+            "",
+            "Sécurité aérienne",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 17,
+          "cells": [
+            28,
+            30,
+            "Pour prévenir des dégâts sérieux aux récoltes",
+            0,
+            "Prévenir dégâts sérieux récoltes",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 18,
+          "cells": [
+            29,
+            30,
+            "Pour prévenir des dégâts sérieux aux cheptels",
+            0,
+            "Prévenir dégâts cheptels",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 19,
+          "cells": [
+            30,
+            30,
+            "Pour prévenir des dégâts sérieux aux forêts",
+            0,
+            "Prévenir dégâts sérieux forêts",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 20,
+          "cells": [
+            31,
+            30,
+            "Pour prévenir des dégâts sérieux aux pêcheries",
+            0,
+            "Prévenir dégâts sérieux pêcheries",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 21,
+          "cells": [
+            32,
+            30,
+            "Pour prévenir des dégats sérieux à l’eau",
+            0,
+            "Prévenir dégâts eau",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 22,
+          "cells": [
+            33,
+            30,
+            "Pour prévenir des dommages sérieux aux cheptels reproducteurs agricoles",
+            1,
+            "Prévenir dommages sérieux cheptels reproducteurs",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 23,
+          "cells": [
+            1000,
+            30,
+            "Autres",
+            0,
+            "Autres",
+            "Oiseaux",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 24,
+          "cells": [
+            1003,
+            30,
+            "Pour des raisons impératives dintérêt public majeur (autres)",
+            0,
+            "Intérêt public majeur (autres)",
+            "Oiseaux",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 25,
+          "cells": [
+            7,
+            31,
+            "Pour prévenir des dégâts sérieux aux récoltes",
+            1,
+            "Prévenir dégâts sérieux récoltes",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 26,
+          "cells": [
+            8,
+            31,
+            "Pour prévenir des dégâts sérieux aux cheptels",
+            1,
+            "Prévenir dégâts cheptels",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 27,
+          "cells": [
+            9,
+            31,
+            "Pour prévenir des dégâts sérieux aux forêts",
+            1,
+            "Prévenir dégâts sérieux forêts",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 28,
+          "cells": [
+            10,
+            31,
+            "Pour prévenir des dégâts sérieux aux pêcheries",
+            1,
+            "Prévenir dégâts sérieux pêcheries",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 29,
+          "cells": [
+            11,
+            31,
+            "Pour prévenir des dégâts sérieux à l’eau",
+            1,
+            "Prévenir dégâts eau",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 30,
+          "cells": [
+            12,
+            31,
+            "Pour prévenir des dommages sérieux aux cheptels reproducteurs agricoles",
+            2,
+            "Prévenir dommages sérieux cheptels reproducteurs",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 31,
+          "cells": [
+            13,
+            31,
+            "Pour prévenir des dégâts sérieux à toute autre forme de propriété",
+            1,
+            "Prévenir dégâts à autre forme de propriété",
+            "Habitats",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 32,
+          "cells": [
+            59,
+            31,
+            "Pour prévenir des dégats sérieux à l’eau",
+            0,
+            "Prévenir dégâts eau",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 33,
+          "cells": [
+            60,
+            31,
+            "Pour prévenir des dégâts sérieux aux cheptels",
+            0,
+            "Prévenir dégâts cheptels",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 34,
+          "cells": [
+            61,
+            31,
+            "Pour prévenir des dégâts sérieux aux forêts",
+            0,
+            "Prévenir dégâts sérieux forêts",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 35,
+          "cells": [
+            62,
+            31,
+            "Pour prévenir des dégâts sérieux aux pêcheries",
+            0,
+            "Prévenir dégâts sérieux pêcheries",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 36,
+          "cells": [
+            63,
+            31,
+            "Pour prévenir des dégâts sérieux aux récoltes",
+            0,
+            "Prévenir dégâts sérieux récoltes",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 37,
+          "cells": [
+            64,
+            31,
+            "Pour prévenir des dommages sérieux aux cheptels reproducteurs agricoles",
+            1,
+            "Prévenir dommages sérieux cheptels reproducteurs",
+            "Hab+Ois",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 38,
+          "cells": [
+            1013,
+            31,
+            "Pour prévenir des dégats sérieux à l’eau",
+            0,
+            "Prévenir dégâts eau",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 39,
+          "cells": [
+            1014,
+            31,
+            "Pour prévenir des dégâts sérieux aux cheptels",
+            0,
+            "Prévenir dégâts cheptels",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 40,
+          "cells": [
+            1015,
+            31,
+            "Pour prévenir des dégâts sérieux aux forêts",
+            0,
+            "Prévenir dégâts sérieux forêts",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 41,
+          "cells": [
+            1016,
+            31,
+            "Pour prévenir des dégâts sérieux aux pêcheries",
+            0,
+            "Prévenir dégâts sérieux pêcheries",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 42,
+          "cells": [
+            1017,
+            31,
+            "Pour prévenir des dégâts sérieux aux récoltes",
+            0,
+            "Prévenir dégâts sérieux récoltes",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 43,
+          "cells": [
+            1018,
+            31,
+            "Pour prévenir des dommages sérieux aux cheptels reproducteurs agricoles",
+            1,
+            "Prévenir dommages sérieux cheptels reproducteurs",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 44,
+          "cells": [
+            1019,
+            31,
+            "",
+            1,
+            "",
+            "Hors Directive - Outre-MER",
+            "",
+            "Prévenir des dommages",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 45,
+          "cells": [
+            34,
+            40,
+            "Pour la protection de la flore sauvage",
+            0,
+            "Protection flore sauvage",
+            "Oiseaux",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 46,
+          "cells": [
+            35,
+            40,
+            "Pour la protection de la faune sauvage",
+            0,
+            "Protection faune sauvage",
+            "Oiseaux",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 47,
+          "cells": [
+            36,
+            40,
+            "Pour la conservation des habitats naturels",
+            0,
+            "Conservation habitats naturels",
+            "Oiseaux",
+            "",
+            "Protection faune, flore, habitats",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 48,
+          "cells": [
+            46,
+            40,
+            "Dans un but de reproduction nécessaire pour les activité 21, 52, 53",
+            0,
+            "But de reproduction nécessaire (act. 21,52,53)",
+            "Oiseaux",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 49,
+          "cells": [
+            1,
+            41,
+            "Dans l’intérêt de la santé publique",
+            1,
+            "Intérêt santé publique",
+            "Habitats",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 50,
+          "cells": [
+            2,
+            41,
+            "Dans l’intérêt de la sécurité publique",
+            1,
+            "Intérêt sécurité publique",
+            "Habitats",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 51,
+          "cells": [
+            3,
+            41,
+            "Pour des raisons impératives d’intérêt public majeur de nature sociale",
+            1,
+            "Intérêt public majeur de nature sociale",
+            "Habitats",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 52,
+          "cells": [
+            4,
+            41,
+            "Pour des raisons impératives d’intérêt public majeur de nature économique",
+            1,
+            "Intérêt public majeur de nature économique",
+            "Habitats",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 53,
+          "cells": [
+            5,
+            41,
+            "Pour des raisons d’intérêt public majeur ayant des conséquences bénéfiques sur l’environnement",
+            1,
+            "Intérêt public maj. pour csq bénef./ environnement",
+            "Habitats",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 54,
+          "cells": [
+            51,
+            41,
+            "Dans l’intérêt de la santé publique",
+            0,
+            "Intérêt santé publique",
+            "Hab+Ois",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 55,
+          "cells": [
+            52,
+            41,
+            "Dans l’intérêt de la sécurité publique",
+            0,
+            "Intérêt sécurité publique",
+            "Hab+Ois",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 56,
+          "cells": [1001, 41, "Autres", 0, "Autres", "Habitats", "", "RIIPM", "", "", ""]
+        },
+        {
+          "number": 57,
+          "cells": [
+            1004,
+            41,
+            "Dans l’intérêt de la santé publique",
+            0,
+            "Intérêt santé publique",
+            "Hors Directive - Outre-MER",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 58,
+          "cells": [
+            1012,
+            41,
+            "Dans l’intérêt de la sécurité publique",
+            0,
+            "Intérêt sécurité publique",
+            "Hors Directive - Outre-MER",
+            "",
+            "RIIPM",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 59,
+          "cells": [
+            44,
+            50,
+            "Dans un but de recherche et/ou d’enseignement",
+            0,
+            "But recherche et/ou enseignement",
+            "Oiseaux",
+            "",
+            "Recherche",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 60,
+          "cells": [
+            17,
+            51,
+            "Dans un but de recherche et/ou d’enseignement",
+            1,
+            "But recherche et/ou enseignement",
+            "Habitats",
+            "",
+            "Recherche",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 61,
+          "cells": [
+            53,
+            51,
+            "Dans un but de recherche et/ou d’enseignement",
+            1,
+            "But recherche et/ou enseignement",
+            "Hab+Ois",
+            "",
+            "Recherche",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 62,
+          "cells": [
+            1007,
+            51,
+            "Dans un but de recherche et/ou d’enseignement",
+            1,
+            "But recherche et/ou enseignement",
+            "Hors Directive - Outre-MER",
+            "",
+            "Recherche",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 63,
+          "cells": [
+            18,
+            52,
+            "Dans un but de renforcement des populations de cette espèce",
+            1,
+            "But renforcement des populations de l’espèce",
+            "Habitats",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 64,
+          "cells": [
+            19,
+            52,
+            "Dans un but de réintroduction de cette espèce",
+            1,
+            "But réintroduction de l’espèce",
+            "Habitats",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 65,
+          "cells": [
+            54,
+            52,
+            "Dans un but de réintroduction de cette espèce",
+            0,
+            "But réintroduction de lespèce",
+            "Hab+Ois",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 66,
+          "cells": [
+            55,
+            52,
+            "Dans un but de renforcement des populations de cette espèce",
+            0,
+            "But renforcement des populations de l’espèce",
+            "Hab+Ois",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 67,
+          "cells": [
+            1008,
+            52,
+            "Dans un but de réintroduction de cette espèce",
+            0,
+            "But réintroduction de l’espèce",
+            "Hors Directive - Outre-MER",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 68,
+          "cells": [
+            1009,
+            52,
+            "Dans un but de renforcement des populations de cette espèce",
+            0,
+            "But renforcement des populations de l’espèce",
+            "Hors Directive - Outre-MER",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 69,
+          "cells": [
+            45,
+            55,
+            "Dans un but de réintroduction de cette espèce",
+            0,
+            "But réintroduction de lespèce",
+            "Oiseaux",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 70,
+          "cells": [
+            50,
+            55,
+            "Dans un but de renforcement des populations de cette espèce",
+            0,
+            "But renforcement des populations de lespèce",
+            "Oiseaux",
+            "",
+            "Repeuplement, réintroduction",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 71,
+          "cells": [
+            21,
+            60,
+            "Pour permettre, sous des conditions de contrôle strict, de manière sélective et limitée, le prélèvement de certains spécimens des espèces inscrites à l’annexe IV en nombre limité et spécifié par les autorités nationales compétentes",
+            1,
+            "Sous conditions prélèvement spécimens Annexe IV",
+            "Habitats",
+            "",
+            "Prise ou détention limitée",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 72,
+          "cells": [
+            22,
+            60,
+            "Pour permettre, sous des conditions de contrôle strict, de manière sélective et limitée, la conservation de certains spécimens des espèces inscrites à l’annexe IV en nombre limité et spécifié par les autorités nationales compétentes",
+            1,
+            "Sous conditions conservation spécimens annexe IV",
+            "Habitats",
+            "",
+            "Prise ou détention limitée",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 73,
+          "cells": [
+            49,
+            64,
+            "Pour permettre, sous des conditions de contrôle strict et avec des méthodes sélectives, toute autre utilisation judicieuse de certains oiseaux en petits nombres (y compris chasses « traditionnelles »)",
+            0,
+            "Sous cond. méthodes sélect. util. judicieuse oisx",
+            "Oiseaux",
+            "",
+            "Prise ou détention limitée",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 74,
+          "cells": [
+            47,
+            65,
+            "Pour permettre, sous des conditions de contrôle strict, de manière sélective et limitée, le prélèvement de certains spécimens des espèces inscrites à l’annexe IV en nombre limité et spécifié par les autorités nationales compétentes (capture de certains oiseaux en petits nombres par exemple fauconnerie, chasse au vol)",
+            0,
+            "Sous conditions prélèvement spécimens Annexe IV",
+            "Oiseaux",
+            "",
+            "Prise ou détention limitée",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 75,
+          "cells": [
+            48,
+            65,
+            "Pour permettre, sous des conditions de contrôle strict, de manière sélective et limitée, la conservation de certains spécimens des espèces inscrites à l’annexe IV en nombre limité et spécifié par les autorités nationales compétentes (capture de certains oiseaux en petits nombres par exemple fauconnerie, chasse au vol)",
+            0,
+            "Sous conditions conservation spéc. oisx Annexe IV",
+            "Oiseaux",
+            "",
+            "Prise ou détention limitée",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Demandes",
+      "rows": [
+        {
+          "number": 1,
+          "cells": ["STRUCTURE", "", "", "", "", "", "Correspondance Pitchou", "", "Commentaire"]
+        },
+        {
+          "number": 2,
+          "cells": [
+            "Colonne",
+            "Type",
+            "Nullable",
+            "Défaut",
+            "Clé",
+            "Commentaire",
+            "Info: on peut avoir plusieurs demandes pour un projet --> on a plusieurs demandes dans un projet quand il y a plusieurs saisines sur le projet",
+            "",
+            "il y a ~22000 dossiers"
+          ]
+        },
+        {
+          "number": 3,
+          "cells": [
+            "demandesid",
+            "integer",
+            "NO",
+            "",
+            "PK",
+            "id - numéro de série de la table Demandes",
+            "✅ dossierid",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 4,
+          "cells": [
+            "acteursid",
+            "integer",
+            "YES",
+            "",
+            "FK→acteurs.acteursid",
+            "",
+            "✅ l'instructeur qui suit le dossier. ",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 5,
+          "cells": [
+            "motifderogationid",
+            "integer",
+            "YES",
+            "",
+            "FK→motifderogation.motifderogationid",
+            "",
+            "✅ correspondance ",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 6,
+          "cells": [
+            "projetid",
+            "integer",
+            "NO",
+            "",
+            "FK→projet.projetid",
+            "",
+            "✅ on prend",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 7,
+          "cells": [
+            "cmtdemande",
+            "character varying(5000)",
+            "YES",
+            "",
+            "",
+            "cmtDemande - Commentaires liés à la demande de dérogation portant sur les espèces protégées",
+            "✅ Dans les commentaires de l'instruction",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 8,
+          "cells": [
+            "codedemande",
+            "character varying(20)",
+            "NO",
+            "",
+            "",
+            "codeDemande - Code (numérotation) de la demande onagreTest, calculé à partir de la date de création et du motif de dérogation portant sur les espèces protégées",
+            "on prend pas",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 9,
+          "cells": [
+            "datereception",
+            "date",
+            "YES",
+            "",
+            "",
+            "dateReception - Date de réception de la demande de dérogation portant sur les espèces protégées",
+            "✅ date du passage à la phase \"étude de recevabilité\"",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 10,
+          "cells": [
+            "lieux",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "lieux - Lieux précis des opérations de la demande de dérogation portant sur les espèces protégées",
+            "✅  dans la description du projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 11,
+          "cells": [
+            "periodes",
+            "character varying(100)",
+            "YES",
+            "",
+            "",
+            "periodes - Périodes souhaitées dans le cadre de la demande de dérogation portant sur les espèces protégées",
+            "✅  dans la description du projet",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 12,
+          "cells": [
+            "versiondemandes",
+            "integer",
+            "NO",
+            "",
+            "",
+            "version - numéro de version de la table Demandes",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 13,
+          "cells": [
+            "decisionsid",
+            "integer",
+            "YES",
+            "",
+            "FK→decisions.decisionsid",
+            "decisionsid - id de la décision rattachée à la demande",
+            "✅  table decision_administrative",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 14,
+          "cells": [
+            "statut",
+            "integer",
+            "YES",
+            "",
+            "",
+            "statut - statut de la demande",
+            "⚙️ Il faut demander à Onagre ce que ça signifie car on n'a pas d'infos dans la base de données",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 15,
+          "cells": [
+            "datestatut",
+            "date",
+            "YES",
+            "",
+            "",
+            "dateStatut - date du statut de la demande",
+            "⚙️ Il faut demander à Onagre ce que ça signifie car on n'a pas d'infos dans la base de données",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 16,
+          "cells": [
+            "typelieu",
+            "character varying(20)",
+            "NO",
+            "",
+            "",
+            "typeLieu - type du lieu concerné par la demande : \n\"commune\", \"departement\" ou \"region\"",
+            "✅  localisation du projet dans Pitchou",
+            "",
+            "\"region\"\n\"departement\"\n\"commune\"\n\"canton\""
+          ]
+        },
+        {
+          "number": 17,
+          "cells": [
+            "solutionsalternatives",
+            "character varying(1000)",
+            "YES",
+            "",
+            "",
+            "",
+            "✅  synthèse des solutions alternatives dans pitchou (no_other_satisfactory_solution_justification)",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 18,
+          "cells": [
+            "dau",
+            "boolean",
+            "YES",
+            "",
+            "",
+            "dau - Demande d'Autorisation Unique",
+            "✅  ae oui ou non",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 19,
+          "cells": [
+            "datedaumiseadisposition",
+            "date",
+            "YES",
+            "",
+            "",
+            "datedaumiseadisposition - Date de mise à disposition (DAU)",
+            "⚙️ On veut le garder ! Il faut créer une carte pour créer une colonne pour stocker cette info dans Pitchou. ",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 20,
+          "cells": [
+            "nommandataire",
+            "character varying(50)",
+            "YES",
+            "",
+            "",
+            "nomMandataire - Nom du mandataire, ayant mandat pour la demande",
+            "✅  oui on la met dans la table des acteurs du dossier",
+            "",
+            "1700/22k"
+          ]
+        },
+        {
+          "number": 21,
+          "cells": [
+            "surfaceimpacteeretenueha",
+            "integer",
+            "YES",
+            "",
+            "",
+            "surfaceimpacteeretenueha - Surface impactée retenue : nombre d'hectares concernés",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 22,
+          "cells": [
+            "surfaceimpacteeretenueare",
+            "integer",
+            "YES",
+            "",
+            "",
+            "surfaceimpacteeretenueare - Surface impactée retenue : nombre d'ares concernés",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 23,
+          "cells": [
+            "servicecoordinateurdauid",
+            "integer",
+            "YES",
+            "",
+            "FK→services.servicesid",
+            "",
+            "⚙️ par défaut dans les commentaires, mais à réfléchir côté tech si on améliore la base de donnée pour avoir des champs différents spécifiques à la source (onagre ou gunenv)",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 24,
+          "cells": [
+            "necessiteavisreglementaire",
+            "boolean",
+            "YES",
+            "",
+            "",
+            "necessiteAvisReglementaire - Indique si un Avis Reglementaire est nécessaire",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 25,
+          "cells": [
+            "departementsid",
+            "integer",
+            "YES",
+            "",
+            "",
+            "departementsid - id du département de la Demande",
+            "✅  département principal",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 26,
+          "cells": [
+            "nbattenteavisfacultatif",
+            "integer",
+            "NO",
+            0,
+            "",
+            "nbAttenteAvisFacultatif - Le nombre d'avis facultatifs en attente de réponse",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 27,
+          "cells": [
+            "nbattentecomplement",
+            "integer",
+            "NO",
+            0,
+            "",
+            "nbAttenteComplement - Le nombre d'échanges en attente de réception d'un complément",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 28,
+          "cells": [
+            "nbattenteavisreglementaire",
+            "integer",
+            "NO",
+            0,
+            "",
+            "nbAttenteAvisReglementaire - Le nombre d'avis réglementaires en attente de réponse",
+            "X",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 29,
+          "cells": [
+            "contientmesureserca",
+            "boolean",
+            "NO",
+            false,
+            "",
+            "contientmesuresERCA - v2.1 indique si la demande contient des mesures E-R-C-(A)",
+            "✅ mesures erc Oui/non (question dn Des mesures ERC sont-elles prévues )",
+            "",
+            ""
+          ]
+        },
+        {
+          "number": 30,
+          "cells": [
+            "regions",
+            "character varying(255)",
+            "YES",
+            "",
+            "",
+            "",
+            "✅ localisation",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "name": "decisions",
+      "rows": [
+        {
+          "number": 1,
+          "cells": ["table naturedecision", "", "", "", "", "Correspondance avec pitchou", ""]
+        },
+        {
+          "number": 3,
+          "cells": [
+            1,
+            1,
+            "En attente de signature",
+            "Demande en attente de signature",
+            "",
+            "pas de décision, dossier encore en instruction",
+            ""
+          ]
+        },
+        {
+          "number": 4,
+          "cells": [
+            2,
+            2,
+            "Annulée",
+            "Demande annulée (Ne plus utiliser)",
+            178,
+            "classé sans suite",
+            ""
+          ]
+        },
+        {
+          "number": 5,
+          "cells": [3, 1, "Acceptée", "Demande acceptée", "", "AE/Arrêté de dérogation", ""]
+        },
+        {
+          "number": 6,
+          "cells": [
+            4,
+            1,
+            "Refusée par arrêté",
+            "Demande refusée par arrêté",
+            "",
+            "Arrêté refus",
+            ""
+          ]
+        },
+        {
+          "number": 7,
+          "cells": [
+            5,
+            1,
+            "Refusée par délai expiré",
+            "Demande refusée par délai d'instruction expiré",
+            "",
+            "pas de décision, dossier encore en instruction",
+            ""
+          ]
+        },
+        {
+          "number": 8,
+          "cells": [
+            1001,
+            0,
+            "Demande annulée par le Pétit.",
+            "Demande annulée par le Pétitionnaire",
+            178,
+            "classé sans suite",
+            ""
+          ]
+        },
+        {
+          "number": 9,
+          "cells": [
+            1002,
+            0,
+            "Demande annulée par l'instruct",
+            "Demande annulée par le Service instructeur",
+            178,
+            "classé sans suite",
+            ""
+          ]
+        },
+        {
+          "number": 13,
+          "cells": ["STRUCTURE", "", "", "", "", "", ""]
+        },
+        {
+          "number": 14,
+          "cells": [
+            "Colonne",
+            "Type",
+            "Nullable",
+            "Défaut",
+            "Clé",
+            "Commentaire",
+            "Correspondance Pitchou"
+          ]
+        },
+        {
+          "number": 15,
+          "cells": [
+            "decisionsid",
+            "integer",
+            "NO",
+            "",
+            "PK ",
+            "id - numéro de série de la table Decisions",
+            ""
+          ]
+        },
+        {
+          "number": 16,
+          "cells": [
+            "naturedecisionid",
+            "integer",
+            "YES",
+            "",
+            "FK→naturedecision.naturedecisionid",
+            "",
+            "type de décision administrative, à préciser"
+          ]
+        },
+        {
+          "number": 17,
+          "cells": [
+            "clefoncdecision",
+            "character varying(30)",
+            "NO",
+            "",
+            "",
+            "cleFoncDecision  - champs technique pour besoin spécifique de la clé fonctionnelle",
+            ""
+          ]
+        },
+        {
+          "number": 18,
+          "cells": [
+            "cmtdecision",
+            "character varying(1000)",
+            "YES",
+            "",
+            "",
+            "cmtDecision - Commentaires et précisions sur les décisions administratives",
+            "✅  correspond au number de decision_administrative"
+          ]
+        },
+        {
+          "number": 19,
+          "cells": [
+            "versiondecisions",
+            "integer",
+            "NO",
+            "",
+            "",
+            "version - numéro de version de la table Decisions",
+            "X"
+          ]
+        },
+        {
+          "number": 20,
+          "cells": [
+            "datesignaturedecision",
+            "date",
+            "YES",
+            "",
+            "",
+            "datesignaturedecision - date de signature de décision",
+            "✅  signature_date dans decision_administrative"
+          ]
+        },
+        {
+          "number": 21,
+          "cells": [
+            "datenotificationdecision",
+            "date",
+            "YES",
+            "",
+            "",
+            "datenotificationdecision - date de notification de décision",
+            "✅  dans le commentaire"
+          ]
+        },
+        {
+          "number": 22,
+          "cells": [
+            "datepublicationdecision",
+            "date",
+            "YES",
+            "",
+            "",
+            "datepublicationdecision - date de publication de décision",
+            "✅  dans le commentaire"
+          ]
+        },
+        {
+          "number": 23,
+          "cells": [
+            "datefinactivites",
+            "date",
+            "YES",
+            "",
+            "",
+            "datefinactivites - date de fin des activités autorisées par la dérogation",
+            "✅  dans le commentaire + ✅ durée de dérogation = datefinactvites - datesignature "
+          ]
+        },
+        {
+          "number": 24,
+          "cells": [
+            "dateenvoiprojetarrete",
+            "date",
+            "YES",
+            "",
+            "",
+            "dateEnvoiProjetArrete - Date d'envoi du projet d'arrêté",
+            ""
+          ]
+        },
+        {
+          "number": 25,
+          "cells": [
+            "sanssuite",
+            "boolean",
+            "YES",
+            "",
+            "",
+            "sanssuite - v2.1 ajout d'un champ sans suite dans l'onglet decisions",
+            "X"
+          ]
+        },
+        {
+          "number": 26,
+          "cells": [
+            "datesanssuite",
+            "date",
+            "YES",
+            "",
+            "",
+            "datesanssuite - v2.1 ajout d'un champ date sans suite dans l'onglet decisions",
+            "✅ -> phase classé sans suite"
+          ]
+        },
+        {
+          "number": 27,
+          "cells": [
+            "cmtsanssuite",
+            "character varying(1000)",
+            "YES",
+            "",
+            "",
+            "cmtsanssuite - v2.1 ajout d'un champ commentaire sans suite dans l'onglet decisions",
+            "✅ dans le commentaire"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Objet",
+      "rows": [
+        {
+          "number": 1,
+          "cells": [
+            "objetid",
+            "codeobjet",
+            "libobjet",
+            "version objet",
+            "libcourt objjet",
+            "Correspondance avec activité Pitchou",
+            ""
+          ]
+        },
+        {
+          "number": 2,
+          "cells": [
+            1,
+            "13a",
+            "Infrastructures de transport routières",
+            1,
+            "Infrastructures transport routières - 13a",
+            "Infrastructures de transport routières",
+            ""
+          ]
+        },
+        {
+          "number": 3,
+          "cells": [
+            2,
+            "13b",
+            "Infrastructures de transport ferroviaire",
+            0,
+            "Infrastructures transport ferroviaire - 13b",
+            "Infrastructures de transport ferroviaire",
+            ""
+          ]
+        },
+        {
+          "number": 4,
+          "cells": [
+            3,
+            "13c",
+            "Infrastructures de transport maritime et fluvial",
+            1,
+            "Infrastructures transport marit./fluvial - 13c",
+            "Infrastructures de transport maritime et fluvial",
+            ""
+          ]
+        },
+        {
+          "number": 5,
+          "cells": [
+            4,
+            "13d",
+            "Production énergie renouvelable",
+            1,
+            "Production énergies renouvelables - 13d",
+            "Production énergie renouvelable – Méhaniseur, biomasse",
+            ""
+          ]
+        },
+        {
+          "number": 6,
+          "cells": [
+            4,
+            "13d",
+            "Production énergie renouvelable",
+            1,
+            "Production énergies renouvelables - 13d",
+            "Production énergie renouvelable – Photovoltaïque",
+            ""
+          ]
+        },
+        {
+          "number": 7,
+          "cells": [
+            4,
+            "13d",
+            "Production énergie renouvelable",
+            1,
+            "Production énergies renouvelables - 13d",
+            "Production énergie renouvelable – Eolien",
+            ""
+          ]
+        },
+        {
+          "number": 8,
+          "cells": [
+            4,
+            "13d",
+            "Production énergie renouvelable",
+            1,
+            "Production énergies renouvelables - 13d",
+            "Production énergie renouvelable – Photovoltaïque",
+            ""
+          ]
+        },
+        {
+          "number": 9,
+          "cells": [
+            4,
+            "13d",
+            "Production énergie renouvelable",
+            1,
+            "Production énergies renouvelables - 13d",
+            "Production énergie renouvelable -  Hydroélectricité",
+            ""
+          ]
+        },
+        {
+          "number": 10,
+          "cells": [
+            5,
+            "13e",
+            "Production énergie autre-projets liés au nucléaire",
+            1,
+            "Production énergie / projet nucléaire - 13e",
+            "Production énergie autre-projets liés au nucléaire",
+            ""
+          ]
+        },
+        {
+          "number": 11,
+          "cells": [
+            6,
+            "13f",
+            "Transport énergie électrique",
+            1,
+            "Transport énergie électrique - 13f",
+            "Transport énergie électrique",
+            ""
+          ]
+        },
+        {
+          "number": 12,
+          "cells": [
+            7,
+            "13g",
+            "Projets liés à la gestion de l’eau",
+            1,
+            "Projets liés à la gestion de l'eau - 13g",
+            "Projets liés à la gestion de l’eau",
+            ""
+          ]
+        },
+        {
+          "number": 13,
+          "cells": [
+            8,
+            "13h",
+            "Projets de bâtiments pour les services publics-installations sportives",
+            1,
+            "Projets bâtiments services publics - 13h",
+            "Projets de bâtiments pour les services publics-installations sportives",
+            ""
+          ]
+        },
+        {
+          "number": 14,
+          "cells": [9, "14a", "Carrières", 1, "Carrières roches massives - 14a", "Carrières", ""]
+        },
+        {
+          "number": 15,
+          "cells": [
+            12,
+            "14d",
+            "Industries de production de biens et marchandises",
+            1,
+            "Industries production biens marchandises - 14d",
+            "Industries de production de biens et marchandises",
+            ""
+          ]
+        },
+        {
+          "number": 16,
+          "cells": [
+            13,
+            "14e",
+            "Plate-formes logistiques, centres commerciaux",
+            1,
+            "PF logistique, centres commerciaux - 14e",
+            "Plate-formes logistiques, centres commerciaux",
+            ""
+          ]
+        },
+        {
+          "number": 17,
+          "cells": [
+            14,
+            "14f",
+            "Installations agricoles",
+            1,
+            "Installations agricoles - 14f",
+            "Installations agricoles",
+            ""
+          ]
+        },
+        {
+          "number": 18,
+          "cells": [
+            15,
+            "14g",
+            "Installations de loisir et de tourisme",
+            1,
+            "Installations loisir tourisme - 14g",
+            "Installations de loisir et de tourisme",
+            ""
+          ]
+        },
+        {
+          "number": 19,
+          "cells": [
+            16,
+            "14h",
+            "Événementiel avec ou sans aménagement temporaire",
+            1,
+            "Evènementiels (aménagements temporaires) - 14h",
+            "Événementiel avec ou sans aménagement temporaire",
+            ""
+          ]
+        },
+        {
+          "number": 20,
+          "cells": [
+            17,
+            17,
+            "Demande à caractère scientifique",
+            1,
+            "Demande à caractère scientifique - 17",
+            "Demande à caractère scientifique",
+            ""
+          ]
+        },
+        {
+          "number": 21,
+          "cells": [
+            18,
+            18,
+            "Infrastructure - Autres",
+            1,
+            "Infrastructures  Autres - 18",
+            "Infrastructures - Autres",
+            ""
+          ]
+        },
+        {
+          "number": 22,
+          "cells": [
+            19,
+            "19x",
+            "Pédagogique enseignement",
+            1,
+            "Pédagogique / enseignement - 19x",
+            "Pédagogique enseignement",
+            ""
+          ]
+        },
+        {
+          "number": 23,
+          "cells": [
+            20,
+            "20x",
+            "Scientifique recherche",
+            1,
+            "Recherche scientifique - 20x",
+            "Demande à caractère scientifique",
+            ""
+          ]
+        },
+        {
+          "number": 24,
+          "cells": [
+            21,
+            "21x",
+            "Inventaire lié à la connaissance",
+            1,
+            "Inventaires liés à la connaissance - 21x",
+            "Inventaire lié à la connaissance",
+            "Demande à caractère scientifique"
+          ]
+        },
+        {
+          "number": 25,
+          "cells": [
+            22,
+            "22x",
+            "Inventaire lié aux aménagements et aux projets",
+            1,
+            "Inventaires liés aux aménagements projet - 22x",
+            "à supprimer",
+            ""
+          ]
+        },
+        {
+          "number": 26,
+          "cells": [
+            23,
+            "23x",
+            "Dommages aux biens et activités",
+            1,
+            "Dommages aux biens et activités - 23x",
+            "Dommages aux biens et activités",
+            ""
+          ]
+        },
+        {
+          "number": 27,
+          "cells": [
+            24,
+            "24x",
+            "Préservation de la sécurité et santé publique",
+            1,
+            "Préservation sécurité / santé publique - 24x",
+            "Préservation de la sécurité et santé publique",
+            ""
+          ]
+        },
+        {
+          "number": 28,
+          "cells": [25, "25x", "Péril animalier", 1, "Péril animalier - 25x", "Péril animalier", ""]
+        },
+        {
+          "number": 29,
+          "cells": [
+            26,
+            "26x",
+            "Exploitation forestière",
+            1,
+            "Exploitation forestière - 26x",
+            "Exploitation forestière",
+            ""
+          ]
+        },
+        {
+          "number": 30,
+          "cells": [
+            27,
+            "27x",
+            "UTN (Unité Touristique Nouvelle)",
+            2,
+            "UTN (Unité Touristique Nouvelle) - 27x",
+            "UTN (Unité Touristique Nouvelle)",
+            ""
+          ]
+        },
+        {
+          "number": 31,
+          "cells": [
+            28,
+            "28x",
+            "Installations de gestion des déchets",
+            1,
+            "Installations de gestion de déchets - 28x",
+            "Installations de gestion des déchets",
+            ""
+          ]
+        },
+        {
+          "number": 32,
+          "cells": [
+            29,
+            "29x",
+            "Urbanisation logement",
+            1,
+            "Urbanisation logement - 29x",
+            "Urbanisation logement (déclaration préalable travaux, PC, permis d’aménager)",
+            ""
+          ]
+        },
+        {
+          "number": 33,
+          "cells": [30, "30x", "ZAC", 1, "ZAC - 30x", "ZAC", ""]
+        },
+        {
+          "number": 34,
+          "cells": [
+            31,
+            "31x",
+            "Infrastructures aéroportuaires",
+            1,
+            "Infrastructures aéroportuaires - 31x",
+            "Infrastructures aéroportuaires",
+            ""
+          ]
+        },
+        {
+          "number": 35,
+          "cells": [32, "32x", "Desaîrage", 1, "Desaîrage - 32x", "Desaîrage", ""]
+        },
+        {
+          "number": 36,
+          "cells": [
+            33,
+            "33x",
+            "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+            1,
+            "Ent. bât. restaur. démol. ouv. d'art - 33x",
+            "Restauration, réfection, entretien et démolition de bâtiments et ouvrages d’art",
+            ""
+          ]
+        },
+        {
+          "number": 37,
+          "cells": [
+            34,
+            "34x",
+            "Conservation des espèces",
+            1,
+            "Conservation des espèces - 34x",
+            "Conservation des espèces",
+            ""
+          ]
+        },
+        {
+          "number": 38,
+          "cells": [35, "35x", "Transport gaz", 1, "Transport gaz - 35x", "Transport gaz", ""]
+        },
+        {
+          "number": 39,
+          "cells": [
+            36,
+            "36x",
+            "Transport hydrocarbures",
+            1,
+            "Transport hydrocarbures - 36x",
+            "Transport hydrocarbures",
+            ""
+          ]
+        },
+        {
+          "number": 40,
+          "cells": [
+            37,
+            "37x",
+            "Transport (autres canalisations)",
+            1,
+            "Transport (autres canalisations) - 37x",
+            "Transport (autres canalisations)",
+            ""
+          ]
+        },
+        {
+          "number": 41,
+          "cells": [
+            38,
+            "38x",
+            "Restauration écologique",
+            1,
+            "Restauration écologique - 38x",
+            "Restauration écologique",
+            ""
+          ]
+        },
+        {
+          "number": 42,
+          "cells": [
+            39,
+            "39x",
+            "Aménagements fonciers",
+            1,
+            "Aménagements fonciers - 39x",
+            "Aménagements fonciers (AFAF, remembrement…)",
+            ""
+          ]
+        },
+        {
+          "number": 43,
+          "cells": [
+            40,
+            "40x",
+            "Carrière de matériaux alluvionnaires",
+            1,
+            "Carrières de matériaux alluvionnaires - 40x",
+            "Carrière de matériaux alluvionnaires",
+            ""
+          ]
+        },
+        {
+          "number": 44,
+          "cells": [
+            41,
+            "41x",
+            "Infrastructures des ouvrages de défense contre la mer",
+            1,
+            "Infra. Ouvrages de défense contre la mer - 41x",
+            "Infrastructures des ouvrages de défense contre la mer",
+            ""
+          ]
+        },
+        {
+          "number": 45,
+          "cells": [
+            42,
+            "42x",
+            "Transport eau aqueduc",
+            0,
+            "Transport eau aqueduc - 42x",
+            "Transport eau aqueduc",
+            ""
+          ]
+        }
+      ]
+    }
+  ]
+}

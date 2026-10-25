@@ -18,6 +18,19 @@ export const statusHints: Record<MappingStatus, string> = {
 };
 export const isComplete = (mapping: OnagreMapping) =>
   mapping.status === "validated" || mapping.status === "excluded";
+export function compareMappings(left: OnagreMapping, right: OnagreMapping): number {
+  const section = left.section.localeCompare(right.section, "fr");
+  if (section) return section;
+  const leftKey = left.relations?.primaryKey ?? [];
+  const rightKey = right.relations?.primaryKey ?? [];
+  const priority = Number(rightKey.length > 0) - Number(leftKey.length > 0);
+  if (priority) return priority;
+  if (leftKey.length > 0 && rightKey.length > 0) {
+    const position = leftKey.indexOf(left.label) - rightKey.indexOf(right.label);
+    if (position) return position;
+  }
+  return left.key.localeCompare(right.key, "fr", { numeric: true });
+}
 export const normalize = (value: string) =>
   value
     .normalize("NFD")

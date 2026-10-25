@@ -1,3 +1,4 @@
+import { validateActivityChoice } from "./activities/validation.ts";
 import type { Knex } from "knex";
 import type { OnagreMapping } from "@pitchou/types/onagre.ts";
 import type { parseDecision } from "./validation.ts";
@@ -16,6 +17,7 @@ export async function saveMapping(
     throw new MappingConflict(
       "Cette correspondance a changé. Rechargez la page avant de reprendre votre modification.",
     );
+  await validateActivityChoice(trx, before, decision);
   const [after] = await trx("onagre_mapping")
     .where({ key: decision.key })
     .update({
