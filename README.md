@@ -17,12 +17,26 @@ Le serveur récupère les données des dossiers via [l'API Démarche Numérique]
 
 ## En dév
 
-En dev, on peut lancer `pnpm run dev` pour lancer le tout.\
-Le repo est synchronisé dans le conteneur du serveur via un volume.\
-Les données de la base de données sont sauvegarder dans un volume dans le repo (pour faire des test facilement)
+`just dev` lance l'application instructeur sur `127.0.0.1:5173` et l'administration
+sur `127.0.0.1:5174`. Les services de support se lancent avec `just docker-up`.
 
-http://localhost:2648/
-http://localhost:2648/saisie-especes
+Pour accéder aux applications derrière un proxy HTTPS, renseignez leurs adresses
+dans `PUBLIC_SITE_URL_PITCHOU` et `PUBLIC_SITE_URL_ADMIN` dans `.env`, puis relancez
+`just dev`. Laissez `ORIGIN` vide pour que chaque application utilise sa propre
+adresse. Sans proxy, gardez les adresses `http://localhost:5173` et
+`http://localhost:5174` du fichier `.env.example`.
+
+Le proxy doit conserver le nom d'hôte et transmettre les connexions WebSocket
+pour le rechargement à chaud. Chaque application accepte son nom d'hôte configuré
+et utilise son URL publique pour les requêtes et le contrôle d'origine des formulaires.
+Les serveurs Vite restent accessibles uniquement sur la boucle locale.
+
+Les domaines personnels et les secrets restent dans `.env`, ignoré par Git.
+Les entrées DNS et la configuration du proxy appartiennent à l'infrastructure.
+Enregistrez les URL `/auth/callback` et de déconnexion auprès de ProConnect.
+Pour partager la connexion entre les deux applications, configurez
+`SESSION_COOKIE_DOMAIN` avec leur domaine parent, seulement si tous ses
+sous-domaines sont de confiance. Sinon, laissez cette valeur vide.
 
 ### Créer une migration
 

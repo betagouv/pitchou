@@ -108,15 +108,16 @@ data-seed:
 db-size:
     psql "$DATABASE_URL" -c "SELECT relname, pg_size_pretty(pg_total_relation_size(relid)) AS total FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;"
 
-# Run every app in dev mode in parallel (instructeur :5173 + admin :5174)
+# Run both apps; public URLs and reverse-proxy origins come from .env
 dev:
+    @printf 'Instructeur: %s\nAdmin: %s\n' "${PUBLIC_SITE_URL_PITCHOU:-http://localhost:5173}" "${PUBLIC_SITE_URL_ADMIN:-http://localhost:5174}"
     corepack pnpm --parallel --filter "./apps/*" exec vite dev
 
-# Run the instructeur app in dev mode (vite dev server, http://localhost:5173)
+# Run the instructeur app on loopback :5173, using its configured public URL
 dev-instructeur:
     {{ instructeur }} vite dev
 
-# Run the admin app in dev mode (http://localhost:5174)
+# Run the admin app on loopback :5174, using its configured public URL
 dev-admin:
     {{ admin }} vite dev
 
