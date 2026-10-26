@@ -105,3 +105,13 @@ export async function getDossierSyncStatus(
     createdInPitchou: source === "pitchou",
   };
 }
+
+export function assertDdepDepositSource(
+  source: DossierSource,
+  columns: DossierMutator | undefined,
+): void {
+  if (source !== "onagre" && columns?.ddep_depot_date != null)
+    throw new TypeError(
+      "La date de dépôt du DDEP est réservée aux dossiers Onagre pour le moment.",
+    );
+}

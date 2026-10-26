@@ -27,9 +27,13 @@ import { fakeReadOnlyDossier } from "./readOnly.testHelpers.ts";
 
 import type { PitchouState } from "#lib/state/store.svelte.ts";
 
-function renderDossier(readOnly: boolean, canEdit = true) {
+function renderDossier(
+  readOnly: boolean,
+  canEdit = true,
+  source: "onagre" | "demarche_numerique" = "demarche_numerique",
+) {
   return render(Dossier, {
-    dossier: fakeReadOnlyDossier(),
+    dossier: { ...fakeReadOnlyDossier(), source },
     activeTab: "instruction",
     onTabChange: vi.fn(),
     email: "instructeur@example.com",
@@ -80,7 +84,7 @@ test("le mode lecture seule retire toutes les actions d'écriture", async () => 
   // The instruction fields stay visible, but cannot be changed.
   expect(screen.getByRole("combobox", { name: "Phase en cours" })).toBeDisabled();
   expect(screen.getByLabelText("N° de dossier Onagre")).toBeDisabled();
-  expect(screen.getByLabelText("Date de dépôt du DDEP")).toBeDisabled();
+  expect(screen.queryByLabelText("Date de dépôt du DDEP")).toBeNull();
 
   await expect.element(screen.getByText("Dossier en lecture seule")).toBeVisible();
 });
@@ -153,4 +157,9 @@ test("le mode édition conserve les actions d'écriture", () => {
 
   expect(screen.queryByText("Dossier en lecture seule")).toBeNull();
   expect(screen.queryByRole("button", { name: /Marquer le dossier comme/u })).toBeNull();
+});
+
+test("the Onagre DDEP date is disabled in read-only mode", () => {
+  renderDossier(true, true, "onagre");
+  expect(screen.getByLabelText("Date de dépôt du DDEP")).toBeDisabled();
 });

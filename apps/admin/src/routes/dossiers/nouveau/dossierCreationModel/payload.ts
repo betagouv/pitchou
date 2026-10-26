@@ -75,7 +75,6 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     } as AdminDossierCreationPayload["relations"],
     columns: {
       ...buildCreationColumns(model, type, requestContext),
-      ddep_depot_date: model.ddepDepotDate || null,
       communes: model.locationScope === "communes" ? communes : [],
       departments,
       regions: model.locationScope === "regions" ? model.locationRegions : [],

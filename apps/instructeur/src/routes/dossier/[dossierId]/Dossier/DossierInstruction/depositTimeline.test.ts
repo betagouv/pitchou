@@ -25,15 +25,14 @@ test("an unknown deposit is omitted and a DDEP date does not create a phase even
     "Dépôt du DDEP",
   ]);
   expect(steps.some(({ state }) => state === "current")).toBe(false);
-  expect(timelineSteps([], null).some(({ label }) => label === "Dépôt")).toBe(false);
+  expect(timelineSteps([], null).some(({ label }) => label === "Création")).toBe(false);
 });
 
-test("a DDEP milestone keeps both the first solicitation and explicit preliminary history", () => {
+test("DDEP milestones are reserved for Onagre and keep explicit preliminary history", () => {
   const events = [{ phase: "Étude recevabilité" as const, timestamp: "2025-09-20" }];
   expect(timelineSteps(events, DEPOT, "2025-09-15").map(({ label }) => label)).toEqual([
-    "Dépôt",
+    "Création",
     "Accompagnement amont",
-    "Dépôt du DDEP",
     "Étude recevabilité",
     "Instruction",
     "Contrôle",

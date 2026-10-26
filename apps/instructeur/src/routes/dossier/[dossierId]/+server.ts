@@ -44,6 +44,8 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
   try {
     await requireDossierWriteAccess(dossierId, userId, transaction);
     const current = await transaction("dossier").where({ id: dossierId }).forUpdate().first();
+    if (dossierUpdate.ddep_depot_date != null && current?.source !== "onagre")
+      error(400, "La date de dépôt du DDEP est réservée aux dossiers Onagre pour le moment.");
     // Read before writing: the historique labels the update against the state
     // it replaces.
     const before = await getDossierInstructionState(dossierId, transaction);

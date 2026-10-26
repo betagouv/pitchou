@@ -171,6 +171,7 @@
 </section>
 
 <DossierInstructionFields
+  showDdepDepotDate={dossier.source === "onagre"}
   bind:enjeu={() => enjeu, (value) => queueSave({ enjeu: value ?? null })}
   bind:ddepValue={
     () => ddepValue,

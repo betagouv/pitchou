@@ -54,8 +54,8 @@
             </p>
             <p class="fr-mb-0 mt-1 text-sm text-[color:var(--text-mention-grey)]">
               {dossier.depot_date
-                ? `Déposé le ${formatDate(dossier.depot_date)}`
-                : "Date de dépôt non renseignée"}
+                ? `Créé le ${formatDate(dossier.depot_date)}`
+                : "Date de création non renseignée"}
               {#if dossier.groupe_name}
                 · {dossier.groupe_name}
               {:else if dossier.source === "pitchou"}

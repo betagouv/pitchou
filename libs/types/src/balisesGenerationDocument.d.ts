@@ -65,6 +65,8 @@ export type BalisesGenerationDocument = UtilityFunctions & {
   activité_principale: string | null;
   description: string | null;
   localisation: string;
+  date_création_dossier: Date | null;
+  /** Legacy name retained for existing templates. */
   date_dépôt: Date | null;
   date_dépôt_ddep: Date | null;
 

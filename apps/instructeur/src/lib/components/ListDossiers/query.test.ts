@@ -106,7 +106,7 @@ describe("parseDossiersQuery", () => {
 });
 
 describe("readDossiersQuery", () => {
-  test("applies the UI default sort (date de dépôt, décroissant) when the URL has none", () => {
+  test("applies the UI default sort (date de création du dossier, décroissant) when the URL has none", () => {
     const query = readDossiersQuery(new URLSearchParams());
     expect(query.sort).toBe("depositDate");
     expect(query.order).toBe("desc");

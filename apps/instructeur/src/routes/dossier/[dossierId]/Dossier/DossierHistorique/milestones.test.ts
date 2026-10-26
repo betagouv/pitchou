@@ -17,3 +17,10 @@ test("an Onagre dossier with only a DDEP day has no invented first-deposit miles
     timeKnown: false,
   });
 });
+
+test("DN history labels creation separately and does not present an undefined DDEP date", () => {
+  const entries = milestoneEntries(
+    fakeDossierFull({ source: "demarche_numerique", ddep_depot_date: new Date(2026, 6, 15) }),
+  );
+  expect(entries.map(({ label }) => label)).toEqual(["Dossier créé sur Démarches Numériques"]);
+});

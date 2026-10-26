@@ -13,26 +13,36 @@ afterEach(() => {
   store.capabilities = {};
 });
 
-test.each(["demarche_numerique", "pitchou", "onagre"] as const)(
-  "sets and clears the DDEP date on a %s dossier",
+test.each(["onagre"] as const)("sets and clears the DDEP date on a %s dossier", async (source) => {
+  store.capabilities = {
+    modifierDossier: vi.fn().mockResolvedValue(undefined),
+  } as unknown as PitchouState["capabilities"];
+  const dossier = reactive(fakeDossierFull({ source, depot_date: null }));
+  const { rerender } = render(DossierInstruction, { dossier, email: "dates@pitchou.test" });
+  const field = page.getByLabelText("Date de dépôt du DDEP", { exact: true });
+  await field.fill("15/07/2026");
+  await vi.waitFor(() => expect(store.capabilities.modifierDossier).toHaveBeenCalledOnce());
+  const calls = vi.mocked(store.capabilities.modifierDossier!).mock.calls;
+  expect(JSON.parse(JSON.stringify(calls[0][1]))).toEqual({ ddep_depot_date: "2026-07-15" });
+  await rerender({ dossier: store.fullDossiers.get(dossier.id)!, email: "dates@pitchou.test" });
+  await field.fill("");
+  await vi.waitFor(() =>
+    expect(store.capabilities.modifierDossier).toHaveBeenLastCalledWith(dossier.id, {
+      ddep_depot_date: null,
+    }),
+  );
+  expect(dossier.depot_date).toBeNull();
+});
+
+test.each(["demarche_numerique", "pitchou", "gunenv", "import_fichier", "unknown"] as const)(
+  "does not expose a DDEP date field on %s dossiers",
   async (source) => {
-    store.capabilities = {
-      modifierDossier: vi.fn().mockResolvedValue(undefined),
-    } as unknown as PitchouState["capabilities"];
-    const dossier = reactive(fakeDossierFull({ source, depot_date: null }));
-    const { rerender } = render(DossierInstruction, { dossier, email: "dates@pitchou.test" });
-    const field = page.getByLabelText("Date de dépôt du DDEP", { exact: true });
-    await field.fill("15/07/2026");
-    await vi.waitFor(() => expect(store.capabilities.modifierDossier).toHaveBeenCalledOnce());
-    const calls = vi.mocked(store.capabilities.modifierDossier!).mock.calls;
-    expect(JSON.parse(JSON.stringify(calls[0][1]))).toEqual({ ddep_depot_date: "2026-07-15" });
-    await rerender({ dossier: store.fullDossiers.get(dossier.id)!, email: "dates@pitchou.test" });
-    await field.fill("");
-    await vi.waitFor(() =>
-      expect(store.capabilities.modifierDossier).toHaveBeenLastCalledWith(dossier.id, {
-        ddep_depot_date: null,
-      }),
-    );
-    expect(dossier.depot_date).toBeNull();
+    render(DossierInstruction, {
+      dossier: fakeDossierFull({ source }),
+      email: "dates@pitchou.test",
+    });
+    await expect
+      .element(page.getByLabelText("Date de dépôt du DDEP", { exact: true }))
+      .not.toBeInTheDocument();
   },
 );

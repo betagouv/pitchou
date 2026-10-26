@@ -72,3 +72,18 @@ test("l'ancienne balise demandeur reste un alias de porteur_de_projet", () => {
   const tags = getDocumentGenerationTags({ id: "dossier-1" } as unknown as DossierFull, []);
   expect(tags.demandeur).toBe(tags.porteur_de_projet);
 });
+
+test.each(["onagre", "demarche_numerique", "pitchou"] as const)(
+  "creation tags retain the legacy alias and DDEP is available only for Onagre: %s",
+  (source) => {
+    const creationDate = new Date("2025-01-15");
+    const ddepDate = new Date("2026-07-15");
+    const tags = getDocumentGenerationTags(
+      { source, depot_date: creationDate, ddep_depot_date: ddepDate } as DossierFull,
+      [],
+    );
+    expect(tags.date_création_dossier).toBe(creationDate);
+    expect(tags.date_dépôt).toBe(creationDate);
+    expect(tags.date_dépôt_ddep).toBe(source === "onagre" ? ddepDate : null);
+  },
+);

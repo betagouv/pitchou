@@ -4,7 +4,7 @@ export const dossiersExportHeaders = [
   "N° dossier",
   "Titre dossier",
   "Activité",
-  "Date de dépôt / Première sollicitation",
+  "Date de création du dossier",
   "Mails des instructeur·ices",
   "Département principal",
   "Localisation",

@@ -20,7 +20,7 @@ export type DossierSortKey = "depot_date" | "name" | "phase";
 export type DossierSortOrder = "asc" | "desc";
 
 export const DOSSIER_SORT_OPTIONS: { key: DossierSortKey; label: string }[] = [
-  { key: "depot_date", label: "Date de dépôt" },
+  { key: "depot_date", label: "Date de création du dossier" },
   { key: "name", label: "Nom" },
   { key: "phase", label: "Phase" },
 ];

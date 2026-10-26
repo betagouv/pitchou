@@ -35,7 +35,6 @@ test.each([
       () => ({}),
     );
     expect(result.dossier.depot_date).toBe(expected);
-    if ("ddep_depot_date" in additional)
-      expect(result.dossier.ddep_depot_date).toBe(additional.ddep_depot_date);
+    expect(result.dossier.ddep_depot_date).toBeNull();
   },
 );

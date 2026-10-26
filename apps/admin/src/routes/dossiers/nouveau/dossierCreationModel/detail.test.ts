@@ -137,7 +137,7 @@ describe("dossier creation detail", () => {
   });
 });
 
-it("keeps a missing first deposit and a separate DDEP day through an edit", () => {
+it("keeps an unknown creation date and does not write DDEP dates through the native intake form", () => {
   const source = detail({
     id: 42,
     name: "Import",
@@ -148,10 +148,7 @@ it("keeps a missing first deposit and a separate DDEP day through an edit", () =
   });
   const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
   expect(model.depotDate).toBe("");
-  expect(model.ddepDepotDate).toBe("2026-07-15");
   const payload = buildCreationPayload(model);
   expect(payload.depot_date).toBeNull();
-  expect(payload.columns?.ddep_depot_date).toBe("2026-07-15");
-  model.ddepDepotDate = "";
-  expect(buildCreationPayload(model).columns?.ddep_depot_date).toBeNull();
+  expect(payload.columns).not.toHaveProperty("ddep_depot_date");
 });

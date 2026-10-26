@@ -41,7 +41,9 @@ afterEach(() => {
 test("deadline sort labels select the corresponding direction without changing the default", async () => {
   const onSort = vi.fn();
   render(DossiersSortMenu, { sortKey: "depositDate", sortOrder: "desc", onSort });
-  await page.getByRole("button", { name: "Tri : Date de dépôt : les plus récentes" }).click();
+  await page
+    .getByRole("button", { name: "Tri : Date de création du dossier : les plus récentes" })
+    .click();
   await page.getByRole("menuitemradio", { name: /^Date d’échéance : les plus urgentes$/u }).click();
   expect(onSort).toHaveBeenLastCalledWith("nextDueDate", "asc");
   await page.getByRole("button", { name: /Tri :/u }).click();

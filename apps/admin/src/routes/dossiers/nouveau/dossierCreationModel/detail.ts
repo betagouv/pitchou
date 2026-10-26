@@ -173,7 +173,6 @@ export function createDossierCreationModelFromDetail(
   model.eolienCarcassExaminationAddress = detailText(dossier.eolien_carcass_examination_address);
   model.compensatedNidsCount = detailNumber(dossier.dossier_oiseau_simple_compensated_nids_count);
   model.depotDate = detailDate(dossier.depot_date);
-  model.ddepDepotDate = detailDate(dossier.ddep_depot_date);
   model.phase = detail.phase;
   return model;
 }

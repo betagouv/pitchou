@@ -16,22 +16,12 @@
   >
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fr-mt-2w">
     <div class="fr-input-group">
-      <label class="fr-label" for="dossier-depot-date">Date de dépôt / Première sollicitation</label
-      >
+      <label class="fr-label" for="dossier-depot-date">Date de création du dossier</label>
       <DatePicker
         id="dossier-depot-date"
-        label="Date de dépôt / Première sollicitation"
+        label="Date de création du dossier"
         value={model.depotDate}
         onChange={(value) => (model.depotDate = value ?? "")}
-      />
-    </div>
-    <div class="fr-input-group">
-      <label class="fr-label" for="dossier-ddep-depot-date">Date de dépôt du DDEP</label>
-      <DatePicker
-        id="dossier-ddep-depot-date"
-        label="Date de dépôt du DDEP"
-        value={model.ddepDepotDate}
-        onChange={(value) => (model.ddepDepotDate = value ?? "")}
       />
     </div>
     {#if showPhase}

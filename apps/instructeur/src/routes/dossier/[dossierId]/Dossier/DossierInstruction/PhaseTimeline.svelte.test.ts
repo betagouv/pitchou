@@ -37,7 +37,7 @@ test("classification is dated and unreached phases are not completed or upcoming
 test.each(
   [320, 768, 1024, 1440].flatMap((width) => [
     { width, source: "pitchou" as const, ddepDate: null, expectedSteps: 6 },
-    { width, source: "pitchou" as const, ddepDate: new Date("2026-06-01"), expectedSteps: 7 },
+    { width, source: "pitchou" as const, ddepDate: new Date("2026-06-01"), expectedSteps: 6 },
     { width, source: "onagre" as const, ddepDate: new Date("2026-06-01"), expectedSteps: 4 },
   ]),
 )(

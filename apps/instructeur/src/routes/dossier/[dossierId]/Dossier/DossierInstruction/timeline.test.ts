@@ -18,7 +18,7 @@ describe("timelineSteps", () => {
   test("a dossier without phase events is in Accompagnement amont", () => {
     const steps = timelineSteps([], DEPOT);
     expect(steps.map(({ label, state }) => [label, state])).toEqual([
-      ["Dépôt", "done"],
+      ["Création", "done"],
       ["Accompagnement amont", "current"],
       ["Étude recevabilité", "future"],
       ["Instruction", "future"],

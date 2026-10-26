@@ -5,7 +5,7 @@ import type { SortKey } from "./query.ts";
 export type DossierSection = {
   /** Stable key for the `{#each}` block; a month may open several sections */
   key: string;
-  /** e.g. « Déposés en juillet 2026 », « Échéance en juillet 2026 » */
+  /** e.g. « Créés en juillet 2026 », « Échéance en juillet 2026 » */
   title: string;
   dossiers: DossierSummary[];
 };
@@ -18,9 +18,9 @@ const WORDING: Record<
   { monthTitle: (month: string) => string; unknownTitle: string; timelineLabel: string }
 > = {
   depositDate: {
-    monthTitle: (month) => `Déposés en ${month}`,
-    unknownTitle: "Date de dépôt inconnue",
-    timelineLabel: "Déposé le",
+    monthTitle: (month) => `Créés en ${month}`,
+    unknownTitle: "Date de création du dossier inconnue",
+    timelineLabel: "Créé le",
   },
   lastModified: {
     monthTitle: (month) => `Dernièrement modifiés en ${month}`,
@@ -34,7 +34,7 @@ const WORDING: Record<
   },
 };
 
-/** Screen-reader prefix for the date shown on the vertical timeline, e.g. « Déposé le » */
+/** Screen-reader prefix for the date shown on the vertical timeline, e.g. « Créé le » */
 export function timelineDateLabel(sortKey: SortKey): string {
   return WORDING[sortKey].timelineLabel;
 }

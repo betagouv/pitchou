@@ -52,10 +52,10 @@ export function timelineSteps(
   });
 
   const steps: TimelineStep[] = depotDate
-    ? [{ label: "Dépôt", state: "done", detail: [`Le ${formatDay(depotDate)}`] }]
+    ? [{ label: "Création", state: "done", detail: [`Le ${formatDay(depotDate)}`] }]
     : [];
   for (const [index, phase] of orderedPhases.entries()) {
-    if (phase === "Étude recevabilité" && ddepDepotDate) {
+    if (phase === "Étude recevabilité" && source === "onagre" && ddepDepotDate) {
       steps.push({
         label: "Dépôt du DDEP",
         state: "done",

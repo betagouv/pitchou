@@ -19,7 +19,7 @@ function depotEntry(source: string) {
 
 describe("historique — entrée de dépôt", () => {
   test.each([
-    ["demarche_numerique", "Dossier déposé sur Démarches Numériques", "petitionnaire"],
+    ["demarche_numerique", "Dossier créé sur Démarches Numériques", "petitionnaire"],
     ["pitchou", "Dossier créé dans Pitchou", "system"],
     ["gunenv", "Dossier importé depuis GunEnv", "system"],
     ["onagre", "Dossier importé depuis Onagre", "system"],

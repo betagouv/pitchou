@@ -5,6 +5,7 @@ import { fetchAuthenticated } from "../helpers/auth.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 import { getDossiersForExport } from "@pitchou/server/database/dossier/export.ts";
+import { updateDossierFromAdmin } from "@pitchou/server/database/dossier_admin/update.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin/detail.ts";
 import { listDossiersForAdmin } from "@pitchou/server/database/dossier_admin/list.ts";
 import {
@@ -14,8 +15,8 @@ import {
 import type { UserId } from "@pitchou/types/permissions.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-// Exercise the HTTP validation, storage, read models and audit together for each source.
-test.each(["pitchou", "demarche_numerique", "onagre", "gunenv", "import_fichier", "unknown"])(
+// Exercise Onagre HTTP validation, storage, read models and audit together.
+test.each(["onagre"])(
   "sets and clears a DDEP date on a %s dossier without an initial deposit",
   async (source) => {
     const { cap, dossier, id } = await createInstructeurWithDossier(db, {
@@ -95,3 +96,45 @@ test("migration keeps existing deposits and refuses a rollback that would requir
     expect(await trx.schema.hasColumn("dossier", "ddep_depot_date")).toBe(true);
   });
 });
+
+test.each(["pitchou", "demarche_numerique", "gunenv", "import_fichier", "unknown"])(
+  "refuses a DDEP date on %s without changing the creation date or other fields",
+  async (source) => {
+    const owner = await createInstructeurWithDossier(db);
+    await db("dossier")
+      .where({ id: owner.dossier.id })
+      .update({ source, depot_date: "2025-01-15" });
+    const response = await fetchAuthenticated(
+      owner.cap,
+      `${INTEGRATION_BASE_URL}/dossier/${owner.dossier.id}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ddep_depot_date: "2026-07-15", enjeu: true }),
+      },
+    );
+    expect(response.status).toBe(400);
+    await expect(
+      updateDossierFromAdmin(
+        owner.dossier.id as DossierId,
+        { columns: { ddep_depot_date: new Date(2026, 6, 15) } },
+        "dates@pitchou.test",
+        db,
+      ),
+    ).rejects.toThrow("réservée aux dossiers Onagre");
+    const row = await db("dossier").where({ id: owner.dossier.id }).first();
+    expect(row.ddep_depot_date).toBeNull();
+    expect(row.depot_date).toEqual(new Date("2025-01-15"));
+    expect(row.enjeu).toBe(false);
+    expect(await db("action_dossier").where({ dossier: owner.dossier.id })).toHaveLength(0);
+    // The export must not attribute a DDEP day to another source, even for legacy stored values.
+    await db("dossier").where({ id: owner.dossier.id }).update({ ddep_depot_date: "2026-07-15" });
+    const exported = await getDossiersForExport(
+      owner.id as UserId,
+      "service",
+      [owner.dossier.id as DossierId],
+      db,
+    );
+    expect(exported?.[0].ddep_depot_date).toBeNull();
+  },
+);
