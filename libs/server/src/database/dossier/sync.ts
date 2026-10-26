@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { logActionsDossier } from "../action_dossier.ts";
+import { insertBatches } from "../insertBatches.ts";
 import { actionsFromSyncUpdates } from "./syncActions.ts";
 import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
@@ -77,25 +78,23 @@ export async function dumpDossiers(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
     db,
   );
-  await Promise.all([
-    events.length > 0
-      ? db("evenement_phase_dossier")
-          .insert(
-            events.map((event) => ({
-              ...event,
-              caused_by_personne: existingAuthors.has(event.caused_by_personne)
-                ? event.caused_by_personne
-                : null,
-            })),
-          )
-          .onConflict(["dossier", "phase", "timestamp"])
-          .merge(["demarche_numerique_agent_email", "demarche_numerique_motivation"])
-      : Promise.resolve([]),
-    avis.length > 0 ? db("avis_expert").insert(avis) : Promise.resolve([]),
-    commentaires.length > 0 ? db("commentaire").insert(commentaires) : Promise.resolve([]),
-    decisions.length > 0 ? db("decision_administrative").insert(decisions) : Promise.resolve([]),
-    ...updates,
-  ]);
+  await Promise.all(updates);
+  for (const batch of insertBatches(events)) {
+    await db("evenement_phase_dossier")
+      .insert(
+        batch.map((event) => ({
+          ...event,
+          caused_by_personne: existingAuthors.has(event.caused_by_personne)
+            ? event.caused_by_personne
+            : null,
+        })),
+      )
+      .onConflict(["dossier", "phase", "timestamp"])
+      .merge(["demarche_numerique_agent_email", "demarche_numerique_motivation"]);
+  }
+  for (const batch of insertBatches(avis)) await db("avis_expert").insert(batch);
+  for (const batch of insertBatches(commentaires)) await db("commentaire").insert(batch);
+  for (const batch of insertBatches(decisions)) await db("decision_administrative").insert(batch);
 
   // The dossiers whose pétitionnaire data actually changed: only their followers
   // have something new to read.
@@ -126,14 +125,13 @@ async function insertDossiers(dossiersForInsert: DossierForInsert[], db: Knex.Tr
   let avis: PartialBy<AvisExpertInitializer, "dossier">[] = [];
   const commentaires: { dossier: DossierId; personne: null; content: string }[] = [];
   if (dossiersForInsert.length > 0) {
-    const inserted: { id: DossierId }[] = await db("dossier")
-      .insert(
-        dossiersForInsert.map(({ dossier }) => ({
-          ...dossier,
-          next_action_expected_from: dossier.next_action_expected_from ?? "Instructeur",
-        })),
-      )
-      .returning(["id"]);
+    const inserted: { id: DossierId }[] = [];
+    const rows = dossiersForInsert.map(({ dossier }) => ({
+      ...dossier,
+      next_action_expected_from: dossier.next_action_expected_from ?? "Instructeur",
+    }));
+    for (const batch of insertBatches(rows))
+      inserted.push(...(await db("dossier").insert(batch).returning(["id"])));
     avis = dossiersForInsert.flatMap(({ avis_expert }) => avis_expert ?? []);
     inserted.forEach(({ id }, index) => {
       const source = dossiersForInsert[index];

@@ -6,17 +6,17 @@ import { isValidDate } from "@pitchou/common/typeFormat.ts";
 import {
   addDemarcheNumerique88444SynchronizationResult,
   closeDatabaseConnection,
-  createTransaction,
+  directDatabaseConnection,
 } from "@pitchou/server/database.ts";
 import type { DossierDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { AnnotationsPriveesDemarcheNumerique88444 } from "@pitchou/types/demarche-numerique/Demarche88444.ts";
 import type { SchemaDemarcheSimplifiee } from "@pitchou/types/demarche-numerique/schema.ts";
 import type { ChampDescriptor } from "@pitchou/types/demarche-numerique/schema.ts";
-import type DemarcheNumerique88444SynchronizationResult from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 import { format, formatDistanceToNow, sub } from "date-fns";
 import { fr } from "date-fns/locale";
 import { parseArgs } from "node:util";
 import { synchronizeDemarcheNumerique } from "./synchronization-ds/synchronizeDemarcheNumerique.ts";
+import { synchronizationErrorMessage } from "./sync-demarche-numerique/error.ts";
 
 const apiToken = process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN;
 if (!apiToken)
@@ -61,37 +61,49 @@ export const pitchouKeyToAnnotationDS = new Map(
   schema.revision.annotationDescriptors.map(({ label, id }) => [label, id] as const),
 ) as Map<keyof AnnotationsPriveesDemarcheNumerique88444, ChampDescriptor["id"]>;
 
-const transaction = await createTransaction();
+let committed = false;
 try {
-  await synchronizeDemarcheNumerique({
-    apiToken,
-    demarcheNumber: schema.number,
-    lastModified,
-    pitchouKeyToChampDS,
-    pitchouKeyToAnnotationDS,
-    transaction,
-  });
-  console.log("Sync terminé avec succès, commit de la transaction");
-  const result: DemarcheNumerique88444SynchronizationResult = {
+  // The callback transaction rejects on both synchronization and commit failures.
+  await directDatabaseConnection.transaction((transaction) =>
+    synchronizeDemarcheNumerique({
+      apiToken,
+      demarcheNumber: schema.number,
+      lastModified,
+      pitchouKeyToChampDS,
+      pitchouKeyToAnnotationDS,
+      transaction,
+    }),
+  );
+  committed = true;
+  await addDemarcheNumerique88444SynchronizationResult({
     success: true,
     timestamp: new Date(),
     error: null,
-  };
-  await Promise.allSettled([
-    addDemarcheNumerique88444SynchronizationResult(result),
-    transaction.commit().then(() => dispatchArrivalEmailsAfterCommit()),
-  ]);
+  });
+  console.log("Synchronisation terminée, transaction validée");
+  await dispatchArrivalEmailsAfterCommit();
 } catch (error) {
-  console.error("Sync échoué", error, "rollback de la transaction");
-  const result: DemarcheNumerique88444SynchronizationResult = {
-    success: false,
-    timestamp: new Date(),
-    error: String(error),
-  };
-  await Promise.allSettled([
-    addDemarcheNumerique88444SynchronizationResult(result),
-    transaction.rollback(),
-  ]);
+  process.exitCode = 1;
+  const message = synchronizationErrorMessage(error);
+  console.error(
+    committed ? "Erreur après validation de la synchronisation" : "Synchronisation échouée",
+    message,
+  );
+  // A status or dispatch failure after commit must not be reported as a rollback.
+  if (!committed) {
+    try {
+      await addDemarcheNumerique88444SynchronizationResult({
+        success: false,
+        timestamp: new Date(),
+        error: message,
+      });
+    } catch (statusError) {
+      console.error(
+        "Enregistrement de l'échec impossible",
+        synchronizationErrorMessage(statusError),
+      );
+    }
+  }
 } finally {
   console.log("Fin de la synchronisation, cloture de la connexion avec la base de données");
   await closeDatabaseConnection();

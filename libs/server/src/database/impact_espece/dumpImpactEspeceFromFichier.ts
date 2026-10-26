@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
+import { insertBatches } from "../insertBatches.ts";
 import { fromFileToDatabaseImpactEspeceRow } from "./rows.ts";
 import { prepareImpactEspeceFile, type PreparedImpactFile } from "./prepareImpactEspeceFile.ts";
 import type { default as Dossier } from "@pitchou/types/database/public/Dossier.ts";
@@ -45,6 +46,6 @@ export async function dumpImpactEspeceFromFichier(
   // Replace rather than merge: the file describes the dossier's impacts in full.
   const rows = fromFileToDatabaseImpactEspeceRow(parsed.impactEspece, dossierId, fileId);
   await databaseConnection("impact_espece").where({ dossier: dossierId }).delete();
-  if (rows.length > 0) await databaseConnection("impact_espece").insert(rows);
+  for (const batch of insertBatches(rows)) await databaseConnection("impact_espece").insert(batch);
   return parsed.anomalies;
 }
