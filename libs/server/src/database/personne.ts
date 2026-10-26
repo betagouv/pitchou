@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { insertBatches } from "./insertBatches.ts";
 import { normalizeEmail } from "@pitchou/common/stringManipulation.ts";
 
 import type {
@@ -19,17 +20,22 @@ export function createPersonne(
   return databaseConnection("personne").insert(normalised);
 }
 
-export function createPersonnes(
+export async function createPersonnes(
   personnes: PersonneInitializer[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ id: Personne["id"] }[]> {
-  if (personnes.length === 0) return Promise.resolve([]);
+  if (personnes.length === 0) return [];
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => createPersonnes(personnes, trx));
 
   const normalised = personnes.map((personne) =>
     personne.email ? { ...personne, email: normalizeEmail(personne.email) } : personne,
   );
 
-  return databaseConnection("personne").insert(normalised, ["id"]);
+  const inserted: { id: Personne["id"] }[] = [];
+  for (const batch of insertBatches(normalised))
+    inserted.push(...(await databaseConnection("personne").insert(batch, ["id"])));
+  return inserted;
 }
 
 export function getPersonneByEmail(

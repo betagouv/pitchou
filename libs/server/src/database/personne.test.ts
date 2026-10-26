@@ -1,6 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { createPersonne, createPersonnes } from "./personne.ts";
-import { fakeDatabase } from "./fakeDatabase.js";
+import { fakeDatabase as buildFakeDatabase } from "./fakeDatabase.js";
+
+// These tests exercise inserts inside the caller's transaction.
+function fakeDatabase() {
+  const builder = buildFakeDatabase();
+  const build = builder.build.bind(builder);
+  builder.build = () => {
+    const db = build();
+    Object.assign(db.knex, { isTransaction: true });
+    return db;
+  };
+  return builder;
+}
 
 describe("créerPersonnes", () => {
   it("only touches the personne table", async () => {

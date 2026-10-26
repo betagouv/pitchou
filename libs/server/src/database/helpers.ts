@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "./connection.ts";
+import { insertBatches } from "./insertBatches.ts";
 import type Entreprise from "@pitchou/types/database/public/Entreprise.ts";
 import type DemarcheNumerique88444SynchronizationResult from "@pitchou/types/database/public/DemarcheNumerique88444SynchronizationResult.ts";
 
@@ -9,11 +10,14 @@ export function listAllEntreprises(
   return databaseConnection("entreprise").select();
 }
 
-export function dumpEntreprises(
+export async function dumpEntreprises(
   entreprises: Entreprise[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
-  return databaseConnection("entreprise").insert(entreprises).onConflict("siret").merge();
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => dumpEntreprises(entreprises, trx));
+  for (const batch of insertBatches(entreprises))
+    await databaseConnection("entreprise").insert(batch).onConflict("siret").merge();
 }
 
 export async function getDemarcheNumerique88444SynchronizationResults(

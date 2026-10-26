@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { insertBatches } from "./insertBatches.ts";
 
 import type ActionDossier from "@pitchou/types/database/public/ActionDossier.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
@@ -17,18 +18,19 @@ export type ActionDossierView = Pick<
 };
 
 /**
- * Records actions in a dossier's historique. Fire-and-forget shape: callers
- * pass fully-built rows; an empty list is a no-op.
+ * Records actions in a dossier's historique. Every batch shares the caller's
+ * transaction, or a new one when called outside a transaction.
  */
 export async function logActionsDossier(
   actions: ActionDossierInitializer[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
   if (actions.length === 0) return;
-  await databaseConnection("action_dossier").insert(
-    // JSON columns must be serialized for insertion.
-    actions.map((action) => ({ ...action, data: JSON.stringify(action.data ?? {}) })),
-  );
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => logActionsDossier(actions, trx));
+  // JSON columns must be serialized for insertion.
+  const rows = actions.map((action) => ({ ...action, data: JSON.stringify(action.data ?? {}) }));
+  for (const batch of insertBatches(rows)) await databaseConnection("action_dossier").insert(batch);
 }
 
 /**
