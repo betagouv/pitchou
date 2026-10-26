@@ -136,3 +136,19 @@ describe("dossier creation detail", () => {
     });
   });
 });
+
+it("keeps an unknown creation date and does not write DDEP dates through the native intake form", () => {
+  const source = detail({
+    id: 42,
+    name: "Import",
+    demarche_numerique_number: null,
+    demarche_number: null,
+    depot_date: null,
+    ddep_depot_date: "2026-07-15",
+  });
+  const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
+  expect(model.depotDate).toBe("");
+  const payload = buildCreationPayload(model);
+  expect(payload.depot_date).toBeNull();
+  expect(payload.columns).not.toHaveProperty("ddep_depot_date");
+});

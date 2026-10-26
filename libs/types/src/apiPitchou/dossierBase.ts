@@ -71,7 +71,7 @@ export type DossierSummary = Pick<
   | "next_action_expected_from"
   | "next_due_date"
   | "onagre_demande_identifier"
-> & { phase: DossierPhase; phase_start_date: Date } & DossierCommonData &
+> & { phase: DossierPhase; phase_start_date: Date | null } & DossierCommonData &
   DossierPersonnesImpliquees & {
     access: DossierAccess;
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;

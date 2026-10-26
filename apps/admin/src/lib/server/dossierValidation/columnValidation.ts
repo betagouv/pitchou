@@ -1,3 +1,4 @@
+import { isCalendarDate, parseCalendarDate } from "@pitchou/common/calendarDate.ts";
 import { error } from "@sveltejs/kit";
 
 import { prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
@@ -34,7 +35,9 @@ function parseDate(column: string, raw: unknown): Date {
   if (typeof raw !== "string" || Number.isNaN(Date.parse(raw))) {
     error(400, `Property '${column}' must be a valid date.`);
   }
-  return new Date(raw);
+  if (column === "ddep_depot_date" && !isCalendarDate(raw))
+    error(400, "La date de dépôt du DDEP doit être une date au format AAAA-MM-JJ.");
+  return column === "ddep_depot_date" ? parseCalendarDate(raw) : new Date(raw);
 }
 
 function parseString(column: string, raw: unknown, activiteContext: ActiviteContext): string {

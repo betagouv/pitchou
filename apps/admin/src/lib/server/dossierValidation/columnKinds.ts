@@ -60,6 +60,7 @@ export const COLUMN_KINDS: Record<string, ColumnKind> = {
   eolien_rotor_diameter: "number",
   eolien_ground_clearance: "number",
   depot_date: "date",
+  ddep_depot_date: "date",
   intervention_start_date: "date",
   intervention_end_date: "date",
   commissioning_date: "date",

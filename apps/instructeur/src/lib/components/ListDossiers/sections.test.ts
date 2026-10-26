@@ -29,8 +29,8 @@ describe("groupDossiersByMonth", () => {
     );
 
     expect(sections.map((section) => section.title)).toEqual([
-      "Déposés en juillet 2026",
-      "Déposés en juin 2026",
+      "Créés en juillet 2026",
+      "Créés en juin 2026",
     ]);
     expect(sections.map((section) => section.dossiers.map((d) => d.id))).toEqual([[1, 2], [3]]);
   });
@@ -54,7 +54,7 @@ describe("groupDossiersByMonth", () => {
     );
 
     expect(sections).toHaveLength(1);
-    expect(sections[0].title).toBe("Date de dépôt inconnue");
+    expect(sections[0].title).toBe("Date de création du dossier inconnue");
   });
 
   test("groups by next due date with its own wording when sorted by échéance", () => {

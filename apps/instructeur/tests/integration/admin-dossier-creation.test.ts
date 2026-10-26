@@ -134,3 +134,20 @@ test("a dossier created with only the SIRET of its porteur has a personne morale
   });
   expect(detail.acteurs).toEqual([]);
 });
+
+test("native dossier creation cannot assign an Onagre DDEP date", async () => {
+  await expect(
+    createDossierFromAdmin(
+      {
+        name: "DDEP native",
+        depot_date: null,
+        phase: "Accompagnement amont",
+        relations: physicalAdminDossierRelations("Martin", "Camille"),
+        columns: { ddep_depot_date: new Date("2026-07-15") },
+      },
+      "dates@pitchou.test",
+      db,
+    ),
+  ).rejects.toThrow("réservée aux dossiers Onagre");
+  expect(await db("dossier")).toHaveLength(0);
+});

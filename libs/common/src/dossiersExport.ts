@@ -1,10 +1,11 @@
 import type { ExportDossier, ExportEspece } from "@pitchou/types/dossierExport.ts";
+import { calendarDateLabel } from "./calendarDate.ts";
 
 export const dossiersExportHeaders = [
   "N° dossier",
   "Titre dossier",
   "Activité",
-  "Date de dépôt / Première sollicitation",
+  "Date de création du dossier",
   "Mails des instructeur·ices",
   "Département principal",
   "Localisation",
@@ -22,6 +23,7 @@ export const dossiersExportHeaders = [
   "Nombre de prescriptions conformes",
   "Nombre de prescriptions non conformes ou non contrôlées",
   "Nombre de contrôles effectués",
+  "Date de dépôt du DDEP",
 ];
 
 function dateLabel(value: Date | string | null): string {
@@ -130,6 +132,9 @@ export function dossierExportRow(dossier: ExportDossier): (string | number)[] {
     dossier.readOnly ? "" : conformes,
     dossier.readOnly ? "" : dossier.prescriptions.length - conformes,
     dossier.readOnly ? "" : controls,
+    dossier.ddep_depot_date
+      ? calendarDateLabel(dossier.ddep_depot_date).split("-").reverse().join("/")
+      : "",
   ];
 }
 

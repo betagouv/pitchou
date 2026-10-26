@@ -18,7 +18,7 @@ describe("timelineSteps", () => {
   test("a dossier without phase events is in Accompagnement amont", () => {
     const steps = timelineSteps([], DEPOT);
     expect(steps.map(({ label, state }) => [label, state])).toEqual([
-      ["Dépôt", "done"],
+      ["Création", "done"],
       ["Accompagnement amont", "current"],
       ["Étude recevabilité", "future"],
       ["Instruction", "future"],
@@ -93,7 +93,7 @@ describe("timelineSteps", () => {
   });
 
   test("an absent deposit date does not invent a phase date", () => {
-    expect(timelineSteps([], null)[1].detail).toEqual([]);
+    expect(timelineSteps([], null)[0].detail).toEqual([]);
   });
 
   test("a dossier classé sans suite shows no current phase", () => {

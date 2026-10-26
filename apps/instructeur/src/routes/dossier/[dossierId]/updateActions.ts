@@ -1,3 +1,4 @@
+import { calendarDateLabel } from "@pitchou/common/calendarDate.ts";
 import type { DossierUpdate } from "./updatePayload.ts";
 import { phaseEventTimestamp } from "./phaseEventTimestamp.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
@@ -11,6 +12,7 @@ function isoDay(date: Date | string | null | undefined): string | null {
 
 type InstructionState = Pick<
   Dossier,
+  | "ddep_depot_date"
   | "ddep_required"
   | "er_mesures_sufficient"
   | "public_consultation_start_date"
@@ -65,6 +67,13 @@ export function actionsFromDossierUpdate(
     add("echeance_renseignee", { value: isoDay(update.next_due_date) });
   if ("ddep_required" in update || "er_mesures_sufficient" in update)
     add("ddep_renseignee", { value: ddepLabel(update, before) });
+  if ("ddep_depot_date" in update)
+    add("champ_modifie", {
+      field: "Date de dépôt du DDEP",
+      column: "ddep_depot_date",
+      from: before?.ddep_depot_date ? calendarDateLabel(before.ddep_depot_date) : null,
+      to: update.ddep_depot_date ? calendarDateLabel(update.ddep_depot_date) : null,
+    });
   if ("enjeu" in update) add("enjeu_renseigne", { value: update.enjeu ? "Oui" : "Non" });
   if ("onagre_demande_identifier" in update)
     add("onagre_renseigne", { value: update.onagre_demande_identifier ?? null });

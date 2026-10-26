@@ -5,7 +5,7 @@ import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 /** Dépôt label per provenance; unknown sources are legacy imports. */
 const depotLabelBySource: Record<string, string> = {
-  demarche_numerique: "Dossier déposé sur Démarches Numériques",
+  demarche_numerique: "Dossier créé sur Démarches Numériques",
   pitchou: "Dossier créé dans Pitchou",
   gunenv: "Dossier importé depuis GunEnv",
   onagre: "Dossier importé depuis Onagre",
@@ -27,6 +27,16 @@ export function milestoneEntries(dossier: DossierFull): HistoriqueEntry[] {
       // Imported dossiers often only carry the day of their dépôt.
       timeKnown: isTimeOfDayKnown(dossier.depot_date),
       author: viaDN ? "par le pétitionnaire" : undefined,
+    });
+  }
+  if (dossier.source === "onagre" && dossier.ddep_depot_date) {
+    entries.push({
+      id: "virtual-ddep-depot",
+      icon: "fr-icon-file-text-line",
+      tone: "system",
+      label: "Dépôt du DDEP",
+      date: new Date(dossier.ddep_depot_date),
+      timeKnown: false,
     });
   }
   const now = new Date();

@@ -10,8 +10,8 @@
   let { sortKey, sortOrder, onSort }: Props = $props();
 
   const SORT_MENU_OPTIONS: { key: SortKey; order: SortOrder; label: string }[] = [
-    { key: "depositDate", order: "desc", label: "Date de dépôt : les plus récentes" },
-    { key: "depositDate", order: "asc", label: "Date de dépôt : les plus anciennes" },
+    { key: "depositDate", order: "desc", label: "Date de création du dossier : les plus récentes" },
+    { key: "depositDate", order: "asc", label: "Date de création du dossier : les plus anciennes" },
     {
       key: "lastModified",
       order: "desc",

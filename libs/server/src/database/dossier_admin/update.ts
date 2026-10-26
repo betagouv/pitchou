@@ -6,6 +6,7 @@ import { DossierManagedByDnError, DossierUnknownSourceError } from "./errors.ts"
 import { ensurePersonneIdByEmail } from "./personne.ts";
 import {
   assertEditableDossierColumns,
+  assertDdepDepositSource,
   DN_DERIVED_DOSSIER_COLUMNS,
   getDossierSyncStatus,
 } from "./policy.ts";
@@ -20,6 +21,7 @@ export async function updateDossierFromAdminInTransaction(
 ): Promise<void> {
   assertEditableDossierColumns(update.columns);
   const { managedByDn, source } = await getDossierSyncStatus(dossierId, trx);
+  assertDdepDepositSource(source, update.columns);
   if (source === "unknown") throw new DossierUnknownSourceError(dossierId);
   if (managedByDn) {
     if (update.relations) throw new DossierManagedByDnError(dossierId, ["relations"]);

@@ -18,7 +18,7 @@ export type AdminDossierSummary = {
   name: string | null;
   demarche_numerique_number: string | null;
   source: DossierSource;
-  depot_date: Date;
+  depot_date: Date | null;
   phase: DossierPhase | null;
   main_activite: string | null;
   activite_code: string | null;
@@ -105,7 +105,7 @@ function orderResults(query: Knex.QueryBuilder, options: ListAdminDossiersOption
       break;
     case "depot_date":
     default:
-      query.orderBy("dossier.depot_date", order);
+      query.orderBy("dossier.depot_date", order, "last");
   }
   // Stable tie-break, whatever the primary key.
   query.orderBy("dossier.id", "desc");

@@ -51,6 +51,7 @@ describe("phase event identity", () => {
 
 const before = {
   ddep_required: null,
+  ddep_depot_date: null,
   er_mesures_sufficient: null,
   public_consultation_start_date: null,
   public_consultation_end_date: null,
@@ -75,4 +76,15 @@ it("does not record an entity action on unrelated updates", () => {
   const actions = actionsFromDossierUpdate({ enjeu: true }, dossierId, authorId, before);
   expect(actions.map(({ type }) => type)).toEqual(["enjeu_renseigne"]);
   expect(actionsFromDossierUpdate({}, dossierId, authorId, before)).toEqual([]);
+});
+
+it("records the old DDEP day when clearing it, without moving it to the previous UTC day", () => {
+  const actions = actionsFromDossierUpdate({ ddep_depot_date: null }, dossierId, authorId, {
+    ...before,
+    ddep_depot_date: new Date(2026, 6, 15),
+  });
+  expect(actions[0]).toMatchObject({
+    type: "champ_modifie",
+    data: { column: "ddep_depot_date", from: "2026-07-15", to: null },
+  });
 });

@@ -38,6 +38,7 @@ export function fakeDossierFull(overrides: Partial<DossierFull> = {}): DossierFu
     free_comment: "",
     latestCommentaire: null,
     ddep_required: null,
+    ddep_depot_date: null,
     er_mesures_sufficient: null,
     public_consultation_start_date: null,
     public_consultation_end_date: null,

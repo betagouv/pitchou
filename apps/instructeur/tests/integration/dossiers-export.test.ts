@@ -162,7 +162,7 @@ test("export includes enriched data, tagged species, expert stages and latest pr
     { prescription: prescriptions[1].id, controle_date: "2026-09-01", result: "Non conforme" },
   ]);
   const [, row] = await rows(await download(owner.cap));
-  expect(row).toHaveLength(21);
+  expect(row).toHaveLength(22);
   expect(row[2]).toBe("Raw activity");
   expect(row[3]).toBe("01/09/2026");
   expect(String(row[4]).split(" ; ").sort()).toEqual([owner.email, colleague.email].sort());
@@ -181,6 +181,7 @@ test("export includes enriched data, tagged species, expert stages and latest pr
     "1",
     "2",
     "3",
+    "",
   ]);
 });
 

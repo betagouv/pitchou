@@ -30,6 +30,7 @@ export function getDossierInstructionState(
 ): Promise<
   | Pick<
       Dossier,
+      | "ddep_depot_date"
       | "ddep_required"
       | "er_mesures_sufficient"
       | "public_consultation_start_date"
@@ -39,6 +40,7 @@ export function getDossierInstructionState(
 > {
   return databaseConnection("dossier")
     .select([
+      "ddep_depot_date",
       "ddep_required",
       "er_mesures_sufficient",
       "public_consultation_start_date",

@@ -39,5 +39,5 @@ test("les actions sur le dossier alimentent l'onglet Historique", async ({ page,
   await expect(page.getByText("Champ Description renseigné")).toBeVisible();
   await expect(page.getByText("par le pétitionnaire").first()).toBeVisible();
   // The dépôt milestone is derived from the dossier itself.
-  await expect(page.getByText("Dossier déposé sur Démarches Numériques")).toBeVisible();
+  await expect(page.getByText("Dossier créé sur Démarches Numériques")).toBeVisible();
 });

@@ -1,3 +1,4 @@
+import { isCalendarDate, parseCalendarDate } from "@pitchou/common/calendarDate.ts";
 import { error } from "@sveltejs/kit";
 
 import { rejectUnknownProperties } from "#lib/server/requestValidation.ts";
@@ -13,6 +14,7 @@ export type DossierUpdate = Partial<Dossier & { evenementsPhase: EvenementPhaseD
 const dossierUpdateProperties = new Set([
   "next_action_expected_from",
   "next_due_date",
+  "ddep_depot_date",
   "onagre_demande_identifier",
   "enjeu",
   "ddep_required",
@@ -108,13 +110,17 @@ export function parseDossierUpdate(
     "public_consultation_start_date",
     "public_consultation_end_date",
     "next_due_date",
+    "ddep_depot_date",
   ] as const) {
     const rawDate = value[property];
     if (rawDate === undefined || rawDate === null) continue;
     if (typeof rawDate !== "string" || Number.isNaN(Date.parse(rawDate))) {
       error(400, `La propriété '${property}' doit être une date valide ou null.`);
     }
-    value[property] = new Date(rawDate);
+    if (property === "ddep_depot_date" && !isCalendarDate(rawDate))
+      error(400, "La date de dépôt du DDEP doit être une date au format AAAA-MM-JJ.");
+    value[property] =
+      property === "ddep_depot_date" ? parseCalendarDate(rawDate) : new Date(rawDate);
   }
 
   if (value.evenementsPhase !== undefined) {
