@@ -80,6 +80,7 @@ test("le mode lecture seule retire toutes les actions d'écriture", async () => 
   // The instruction fields stay visible, but cannot be changed.
   expect(screen.getByRole("combobox", { name: "Phase en cours" })).toBeDisabled();
   expect(screen.getByLabelText("N° de dossier Onagre")).toBeDisabled();
+  expect(screen.getByLabelText("Date de dépôt du DDEP")).toBeDisabled();
 
   await expect.element(screen.getByText("Dossier en lecture seule")).toBeVisible();
 });

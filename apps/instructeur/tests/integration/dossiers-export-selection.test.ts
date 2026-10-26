@@ -54,7 +54,7 @@ test("national filtered exports preserve read-only restrictions", async () => {
   expect(rows[1][4]).toBe("");
   expect(rows[1][15]).toBe("");
   expect(rows[1][16]).toBe("Oui CNPN");
-  expect(rows[1].slice(18)).toEqual(["", "", ""]);
+  expect(rows[1].slice(18, 21)).toEqual(["", "", ""]);
 });
 
 test.each([null, "all", ["1"], [-1], [1.5], [2147483648]])(

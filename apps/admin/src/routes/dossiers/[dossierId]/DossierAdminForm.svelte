@@ -56,10 +56,6 @@
   async function save(event: SubmitEvent) {
     event.preventDefault();
     if (!can("admin:dossiers:update")) return;
-    if (!readOnly && !model.depotDate) {
-      saveError = "La date de dépôt est requise.";
-      return;
-    }
     onSavingChange(true);
     saveError = null;
     const confirmSaved = pageHeader.beginSave("Dossier enregistré");

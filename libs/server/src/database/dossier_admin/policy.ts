@@ -14,6 +14,7 @@ export const APP_NATIVE_DOSSIER_COLUMNS = new Set<keyof Dossier>([
   "onagre_demande_identifier",
   "enjeu",
   "ddep_required",
+  "ddep_depot_date",
   "er_mesures_sufficient",
   "public_consultation_start_date",
   "public_consultation_end_date",

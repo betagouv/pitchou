@@ -14,6 +14,7 @@
     phase: string;
     nextAction?: DossierFull["next_action_expected_from"];
     nextDueDate?: Date | null;
+    ddepDepotDate?: Date | null;
     onagre?: string | null;
     consultationStart?: Date | null;
     consultationEnd?: Date | null;
@@ -28,6 +29,7 @@
     phase = $bindable(),
     nextAction = $bindable(),
     nextDueDate = $bindable(),
+    ddepDepotDate = $bindable(),
     onagre = $bindable(),
     consultationStart = $bindable(),
     consultationEnd = $bindable(),
@@ -131,6 +133,19 @@
         {disabled}
       />
     </div>
+  </div>
+
+  <div class={rowClass}>
+    <label class={labelClass} for="ddep_depot_date">
+      <span class="fr-icon-calendar-line {iconClass}" aria-hidden="true"></span>
+      Date de dépôt du DDEP
+    </label>
+    <DateInput
+      id="ddep_depot_date"
+      label="Date de dépôt du DDEP"
+      bind:date={ddepDepotDate}
+      {disabled}
+    />
   </div>
 
   <h4 class="fr-mt-4w fr-mb-0">Informations liées au dossier</h4>

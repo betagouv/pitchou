@@ -89,7 +89,12 @@ Les balises ont des types qui peuvent être :
                         <tr>
                             <th scope="row"> <code>{date_dépôt}</code></th>
                             <td> date</td>
-                            <td> Date de dépôt du dossier. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                            <td> Date de dépôt du dossier, vide si elle est inconnue. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{date_dépôt_ddep}</code></th>
+                            <td> date</td>
+                            <td> Date de dépôt du DDEP, distincte de la première sollicitation et vide si elle est inconnue. Les fonctions de formatage des dates sont disponibles pour cette balise.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>

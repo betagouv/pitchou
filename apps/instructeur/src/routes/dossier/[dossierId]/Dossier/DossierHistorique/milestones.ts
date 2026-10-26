@@ -29,6 +29,16 @@ export function milestoneEntries(dossier: DossierFull): HistoriqueEntry[] {
       author: viaDN ? "par le pétitionnaire" : undefined,
     });
   }
+  if (dossier.ddep_depot_date) {
+    entries.push({
+      id: "virtual-ddep-depot",
+      icon: "fr-icon-file-text-line",
+      tone: "system",
+      label: "Dépôt du DDEP",
+      date: new Date(dossier.ddep_depot_date),
+      timeKnown: false,
+    });
+  }
   const now = new Date();
   const consultation: [Date | null, string, string][] = [
     [

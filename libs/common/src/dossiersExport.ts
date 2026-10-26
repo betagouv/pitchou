@@ -22,6 +22,7 @@ export const dossiersExportHeaders = [
   "Nombre de prescriptions conformes",
   "Nombre de prescriptions non conformes ou non contrôlées",
   "Nombre de contrôles effectués",
+  "Date de dépôt du DDEP",
 ];
 
 function dateLabel(value: Date | string | null): string {
@@ -130,6 +131,7 @@ export function dossierExportRow(dossier: ExportDossier): (string | number)[] {
     dossier.readOnly ? "" : conformes,
     dossier.readOnly ? "" : dossier.prescriptions.length - conformes,
     dossier.readOnly ? "" : controls,
+    dateLabel(dossier.ddep_depot_date),
   ];
 }
 

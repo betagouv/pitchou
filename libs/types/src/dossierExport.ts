@@ -20,6 +20,7 @@ export type ExportDossier = Pick<
   | "demarche_numerique_number"
   | "name"
   | "depot_date"
+  | "ddep_depot_date"
   | "main_activite"
   | "activite_label"
   | "primary_department"

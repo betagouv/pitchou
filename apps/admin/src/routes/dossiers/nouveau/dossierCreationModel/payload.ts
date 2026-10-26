@@ -47,7 +47,7 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
 
   return {
     name: model.name.trim(),
-    depot_date: model.depotDate,
+    depot_date: model.depotDate || null,
     phase: model.phase,
     relations: {
       demandeur_type: isPhysical ? "personne_physique" : "personne_morale",
@@ -75,6 +75,7 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     } as AdminDossierCreationPayload["relations"],
     columns: {
       ...buildCreationColumns(model, type, requestContext),
+      ddep_depot_date: model.ddepDepotDate || null,
       communes: model.locationScope === "communes" ? communes : [],
       departments,
       regions: model.locationScope === "regions" ? model.locationRegions : [],

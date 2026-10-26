@@ -174,3 +174,13 @@ describe("parseDossierCreation", () => {
     ).toThrow();
   });
 });
+
+it("accepts an unknown first deposit and a separate DDEP date", () => {
+  expect(
+    parseDossierCreation({
+      ...validCreation,
+      depot_date: null,
+      columns: { ...validCreation.columns, ddep_depot_date: "2026-07-15" },
+    }),
+  ).toMatchObject({ depot_date: null, columns: { ddep_depot_date: new Date(2026, 6, 15) } });
+});

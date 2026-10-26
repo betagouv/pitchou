@@ -96,3 +96,14 @@ describe("parseColumns", () => {
     ).toThrow();
   });
 });
+
+test("validates and clears independent deposit dates", () => {
+  expect(parseColumns({ depot_date: null, ddep_depot_date: null })).toEqual({
+    depot_date: null,
+    ddep_depot_date: null,
+  });
+  expect(() => parseColumns({ ddep_depot_date: "2025-02-29" })).toThrow();
+  expect(parseColumns({ ddep_depot_date: "2024-02-29" }).ddep_depot_date).toEqual(
+    new Date(2024, 1, 29),
+  );
+});

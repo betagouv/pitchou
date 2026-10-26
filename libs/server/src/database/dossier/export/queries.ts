@@ -18,6 +18,7 @@ export function exportDossiersQuery(
       "demarche_numerique_number",
       "dossier.name",
       "depot_date",
+      "ddep_depot_date",
       "main_activite",
       "activite.label as activite_label",
       "primary_department",

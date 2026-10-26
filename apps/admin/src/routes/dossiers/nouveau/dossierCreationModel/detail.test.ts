@@ -136,3 +136,22 @@ describe("dossier creation detail", () => {
     });
   });
 });
+
+it("keeps a missing first deposit and a separate DDEP day through an edit", () => {
+  const source = detail({
+    id: 42,
+    name: "Import",
+    demarche_numerique_number: null,
+    demarche_number: null,
+    depot_date: null,
+    ddep_depot_date: "2026-07-15",
+  });
+  const model = createDossierCreationModelFromDetail(source, ACTIVITE_CODE_BY_LABEL_FIXTURE);
+  expect(model.depotDate).toBe("");
+  expect(model.ddepDepotDate).toBe("2026-07-15");
+  const payload = buildCreationPayload(model);
+  expect(payload.depot_date).toBeNull();
+  expect(payload.columns?.ddep_depot_date).toBe("2026-07-15");
+  model.ddepDepotDate = "";
+  expect(buildCreationPayload(model).columns?.ddep_depot_date).toBeNull();
+});

@@ -1,3 +1,4 @@
+import { withCalendarDateJSON } from "@pitchou/common/calendarDate.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { isDossierSource, type DossierSource } from "@pitchou/types/dossierSource.ts";
@@ -48,6 +49,7 @@ export async function getDossierDetailForAdmin(
     .where({ id: dossierId })
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
+  dossier.ddep_depot_date = withCalendarDateJSON(dossier.ddep_depot_date);
   const [porteurRow, groupes, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
     await Promise.all([
       joinPorteurDeProjet(db("dossier"))

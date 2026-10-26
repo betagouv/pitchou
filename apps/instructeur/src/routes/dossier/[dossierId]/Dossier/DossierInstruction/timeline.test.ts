@@ -93,7 +93,7 @@ describe("timelineSteps", () => {
   });
 
   test("an absent deposit date does not invent a phase date", () => {
-    expect(timelineSteps([], null)[1].detail).toEqual([]);
+    expect(timelineSteps([], null)[0].detail).toEqual([]);
   });
 
   test("a dossier classé sans suite shows no current phase", () => {

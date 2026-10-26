@@ -23,7 +23,6 @@ function focusSpeciesFileButton() {
 
 export function validateDossierCreation(model: DossierCreationModel): string | null {
   const needsSpeciesFile = showsSpeciesSection(model);
-  if (!model.depotDate) return "La date de dépôt est requise.";
   if (needsSpeciesFile && !model.speciesFile) {
     requestAnimationFrame(focusSpeciesFileButton);
     return "Le fichier des espèces concernées est requis.";

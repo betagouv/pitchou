@@ -32,7 +32,7 @@ export function buildDossierUpdateColumns(
   return {
     name: nullableText(model.name),
     description: nullableText(model.description),
-    depot_date: model.depotDate,
+    depot_date: nullableDate(model.depotDate),
     main_activite: nullableText(model.mainActivite),
     type: nullableText(model.type),
     intervention_start_date: nullableDate(model.interventionStartDate),

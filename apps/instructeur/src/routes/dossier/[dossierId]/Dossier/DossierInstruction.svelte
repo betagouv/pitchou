@@ -48,6 +48,7 @@
 
   const dateChamps: ReadonlySet<keyof DossierFull> = new Set([
     "next_due_date",
+    "ddep_depot_date",
     "public_consultation_start_date",
     "public_consultation_end_date",
   ]);
@@ -161,7 +162,12 @@
 
 <section class="fr-mb-4w">
   <h4 class="fr-mb-3w">Avancement du dossier</h4>
-  <PhaseTimeline events={dossier.evenementsPhase} depotDate={dossier.depot_date} />
+  <PhaseTimeline
+    events={dossier.evenementsPhase}
+    depotDate={dossier.depot_date}
+    ddepDepotDate={dossier.ddep_depot_date}
+    source={dossier.source}
+  />
 </section>
 
 <DossierInstructionFields
@@ -179,6 +185,9 @@
   bind:phase={() => phase, setPhase}
   bind:nextAction={
     () => nextActionExpectedFrom, (value) => queueSave({ next_action_expected_from: value ?? null })
+  }
+  bind:ddepDepotDate={
+    () => champ("ddep_depot_date"), (value) => queueSave({ ddep_depot_date: value ?? null })
   }
   bind:nextDueDate={() => nextDueDate, (value) => queueSave({ next_due_date: value ?? null })}
   bind:onagre={() => onagreDemandeIdentifier, setOnagre}

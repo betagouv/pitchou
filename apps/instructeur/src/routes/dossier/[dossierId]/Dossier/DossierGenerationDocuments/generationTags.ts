@@ -63,6 +63,7 @@ export function getDocumentGenerationTags(
     date_fin_consultation_public: publicConsultationEndDate,
     description,
     date_dépôt: depotDate,
+    date_dépôt_ddep: dossier.ddep_depot_date,
     département_principal: mainDepartmentCode,
     nom_département_principal: mainDepartmentCode && departementName(mainDepartmentCode),
     liste_départements: departmentCodes,

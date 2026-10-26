@@ -68,7 +68,10 @@ export async function makeChampsDossierForInitialization(
     dossier: {
       ...makeCommonDossierColumnsForSync(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
       ...additionalData?.dossier,
-      depot_date: additionalData?.dossier?.depot_date ?? dossierDS.dateDepot,
+      depot_date:
+        additionalData?.dossier?.depot_date === undefined
+          ? dossierDS.dateDepot
+          : additionalData.dossier.depot_date,
       demarche_number: demarcheNumber,
       source: "demarche_numerique",
     },

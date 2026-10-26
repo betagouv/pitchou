@@ -90,6 +90,7 @@ export function createDossierCreationModel() {
     noDerogationArgumentFiles: [] as File[],
     supplementalFiles: [] as File[],
     depotDate: new Date().toISOString().slice(0, 10),
+    ddepDepotDate: "",
     phase: "Accompagnement amont",
   };
 }

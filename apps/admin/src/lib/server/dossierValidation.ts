@@ -84,7 +84,7 @@ export function parseDossierCreation(
     error(400, `Property 'name' is required.`);
   return {
     name: body.name.trim(),
-    depot_date: parseDate("depot_date", body.depot_date),
+    depot_date: body.depot_date == null ? null : parseDate("depot_date", body.depot_date),
     phase: parsePhase(body.phase),
     relations: parseCreationRelations(body.relations),
     columns: parseCreationColumns(body.columns, activiteContext),
