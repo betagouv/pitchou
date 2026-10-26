@@ -1,25 +1,41 @@
 import queryGraphQL from "./queryGraphQL.ts";
 
 import { pendingDeletedDossiersQuery, deletedDossiersQuery } from "./graphQLqueries.ts";
+import type { DeletedDossier } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 
-async function getDeletedDossiersList(token: string, demarcheNumber: number) {
-  const delDoss = await queryGraphQL(token, deletedDossiersQuery, { demarcheNumber, last: 100 });
+const queries = {
+  deletedDossiers: deletedDossiersQuery,
+  pendingDeletedDossiers: pendingDeletedDossiersQuery,
+};
 
-  return delDoss.demarche.deletedDossiers.nodes;
-}
+async function getDeletedDossiersList(
+  token: string,
+  demarcheNumber: number,
+  field: keyof typeof queries,
+): Promise<DeletedDossier[]> {
+  const dossiers: DeletedDossier[] = [];
+  const cursors = new Set<string>();
+  let after: string | undefined;
+  while (true) {
+    const result = await queryGraphQL(token, queries[field], {
+      demarcheNumber,
+      deletedFirst: 100,
+      deletedAfter: after,
+    });
+    const { nodes, pageInfo } = result.demarche[field];
+    dossiers.push(...nodes);
+    if (!pageInfo.hasNextPage) return dossiers;
 
-async function getPendingDeletedDossiersList(token: string, demarcheNumber: number) {
-  const pendDelDoss = await queryGraphQL(token, pendingDeletedDossiersQuery, {
-    demarcheNumber,
-    last: 100,
-  });
-
-  return pendDelDoss.demarche.pendingDeletedDossiers.nodes;
+    if (!pageInfo.endCursor || cursors.has(pageInfo.endCursor))
+      throw new Error(`Invalid deletion pagination for ${field}`);
+    after = pageInfo.endCursor;
+    cursors.add(pageInfo.endCursor);
+  }
 }
 
 export default function getAllDeletedDossiers(token: string, demarcheNumber: number) {
   return Promise.all([
-    getDeletedDossiersList(token, demarcheNumber),
-    getPendingDeletedDossiersList(token, demarcheNumber),
-  ]).then((res) => res.flat(Infinity));
+    getDeletedDossiersList(token, demarcheNumber, "deletedDossiers"),
+    getDeletedDossiersList(token, demarcheNumber, "pendingDeletedDossiers"),
+  ]).then((results) => results.flat());
 }
