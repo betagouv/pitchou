@@ -45,6 +45,8 @@
                 </span>
               {:else if dossier.source === "pitchou"}
                 <span class="fr-badge fr-badge--green-emeraude fr-badge--sm">Pitchou</span>
+              {:else if dossier.source === "onagre"}
+                <span class="fr-badge fr-badge--info fr-badge--sm fr-badge--no-icon">Onagre</span>
               {:else}
                 <span class="fr-badge fr-badge--grey fr-badge--sm">Source inconnue</span>
               {/if}

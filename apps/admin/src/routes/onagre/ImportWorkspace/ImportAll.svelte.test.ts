@@ -80,7 +80,27 @@ function mockApi(initial: OnagreImportJob["status"]) {
 }
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+
+test("polling stops at review and resumes when an import is running", async () => {
+  const interval = vi.spyOn(globalThis, "setInterval");
+  const api = mockApi("review");
+  render(ImportAll, { data: { ...data, importJobs: [makeJob("review")] }, writable: true });
+  const apply = page.getByRole("button", { name: "Importer toutes les demandes prêtes · 100" });
+  await expect.element(apply).toBeEnabled();
+  const poll = interval.mock.calls.find((call) => call[1] === 3000)?.[0];
+  expect(typeof poll).toBe("function");
+  const requests = api.fetchMock.mock.calls.length;
+  (poll as () => void)();
+  expect(api.fetchMock).toHaveBeenCalledTimes(requests);
+  await expect.element(apply).toBeEnabled();
+  await apply.click();
+  await expect.element(page.getByRole("button", { name: "Actualiser le suivi" })).toBeEnabled();
+  api.setStatus("completed");
+  (poll as () => void)();
+  await expect.element(page.getByRole("heading", { name: "Import terminé" })).toBeVisible();
 });
 
 test("analyzes without IDs, waits for review, then explicitly imports all eligible records", async () => {

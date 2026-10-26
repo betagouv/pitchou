@@ -17,6 +17,8 @@
       >
     {:else if detail.source === "pitchou"}
       <span class="fr-badge fr-badge--green-emeraude">Créé dans Pitchou</span>
+    {:else if detail.source === "onagre"}
+      <span class="fr-badge fr-badge--info fr-badge--no-icon">Importé d’Onagre</span>
     {:else}
       <span class="fr-badge fr-badge--grey">Source inconnue</span>
     {/if}

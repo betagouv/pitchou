@@ -29,7 +29,7 @@ export type DossiersQuery = {
   search: string;
   /** "" for every phase */
   phase: string;
-  source: "" | "pitchou" | "dn" | "unknown";
+  source: "" | "pitchou" | "dn" | "onagre" | "unknown";
   sort: DossierSortKey;
   order: DossierSortOrder;
   page: number;

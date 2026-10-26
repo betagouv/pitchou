@@ -28,7 +28,10 @@
   );
   onMount(() => {
     if (model.jobs[0]) void model.load(model.jobs[0].id);
-    const timer = setInterval(() => void model.refresh(), 3000);
+    const timer = setInterval(() => {
+      if (model.jobs.some((item) => ["analyzing", "importing"].includes(item.status)))
+        void model.refresh();
+    }, 3000);
     return () => {
       clearInterval(timer);
       model.dispose();
