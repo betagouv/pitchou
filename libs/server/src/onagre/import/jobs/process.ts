@@ -44,7 +44,7 @@ export async function processImportJob(db: Knex): Promise<boolean> {
 
 async function lockImportTables(trx: Knex.Transaction) {
   await trx.raw("select pg_advisory_xact_lock(29102026)");
-  await trx.raw(`LOCK TABLE onagre_snapshot, onagre_source_demande, onagre_mapping,
+  await trx.raw(`LOCK TABLE onagre_snapshot, onagre_source_demande, onagre_source_row, activite, activite_label, onagre_mapping,
     onagre_mapping_revision, onagre_shared_rule, onagre_shared_rule_revision IN SHARE MODE`);
   await trx.raw("LOCK TABLE dossier, onagre_import_identity IN SHARE ROW EXCLUSIVE MODE");
 }

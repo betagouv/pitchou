@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { OnagreImportPreview } from "@pitchou/types/onagreImport.ts";
+  import ImportFields from "./ImportFields.svelte";
   let {
     preview,
     selected,
@@ -54,6 +55,7 @@
             {#each record.issues as issue}<li>{issue}</li>{/each}
           </ul>
         {/if}
+        <ImportFields plan={record.plan} />
         {#if record.omissions.length}
           <details class="import-details">
             <summary>Données non reprises pour cette demande</summary>

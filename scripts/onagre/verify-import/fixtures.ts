@@ -35,7 +35,7 @@ export async function snapshot(
     await db("onagre_source_demande").insert({
       snapshot_id: result.id,
       source_id: row.id,
-      projet_id: row.id,
+      projet_id: Number(demande.projetid),
       code: demande.codedemande,
       name: projet.nomprojet,
       demande,

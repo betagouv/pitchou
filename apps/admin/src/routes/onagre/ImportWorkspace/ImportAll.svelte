@@ -4,6 +4,7 @@
   import Select from "@pitchou/ui/Select.svelte";
   import type { PageData } from "../$types";
   import { ImportJobsModel, jobLabels, recordLabels } from "./jobs.svelte.ts";
+  import ImportRecordDetails from "./ImportRecordDetails.svelte";
   let {
     data,
     writable,
@@ -162,9 +163,7 @@
                     >Ouvrir le dossier #{record.dossierId}</a
                   >{/if}</td
               >
-              <td
-                >{#each record.issues as issue}<p>{issue}</p>{/each}</td
-              >
+              <td><ImportRecordDetails {record} /></td>
             </tr>{/each}</tbody
         >
       </table>

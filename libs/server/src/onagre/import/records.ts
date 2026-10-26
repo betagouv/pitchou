@@ -1,5 +1,7 @@
 import type { OnagreImportRecord } from "@pitchou/types/onagreImport.ts";
-import type { Source } from "./state.ts";
+import type { FrozenInput, Source } from "./state.ts";
+import type { OnagreMapping } from "@pitchou/types/onagre.ts";
+import { planFields } from "./plan.ts";
 import { hash, POLICY, receptionDate } from "./policy.ts";
 import { recordFingerprint } from "../snapshots.ts";
 
@@ -16,11 +18,15 @@ export function inspectRecord(
   source: Source | null,
   target: Target,
   schema: Row[],
+  mappings: OnagreMapping[],
+  activities: FrozenInput["activities"],
 ): OnagreImportRecord {
   const code = source?.demande.codedemande?.trim() || null;
   const name = source?.projet.nomprojet?.trim() || null;
   const date = receptionDate(source?.demande.datereception);
-  const sourceHash = source ? hash({ demande: source.demande, projet: source.projet }) : null;
+  const sourceHash = source
+    ? hash({ demande: source.demande, projet: source.projet, references: source.references })
+    : null;
   const record: OnagreImportRecord = {
     recordId,
     code,
@@ -59,6 +65,14 @@ export function inspectRecord(
   record.issues.push(...unsupportedColumns(schema));
   if (target.duplicateSources > 1)
     record.issues.push("Plusieurs demandes du snapshot portent ce code.");
+  planFields(record, source, mappings, activities);
+  for (const [column, value] of Object.entries(record.plan?.columns ?? {})) {
+    const definition = schema.find((row) => row.column_name === column);
+    if (!definition) record.issues.push(`Le champ ${column} est absent du schéma Pitchou.`);
+    const limit = definition?.character_maximum_length;
+    if (typeof limit === "number" && [...value].length > limit)
+      record.issues.push(`Le champ ${column} dépasse la limite de ${limit} caractères en base.`);
+  }
   if (record.issues.length > 0) record.status = "blocked";
 
   inspectIdentity(record, target);
@@ -87,6 +101,8 @@ function inspectIdentity(record: OnagreImportRecord, target: Target) {
     if (
       identity.source_hash !== record.sourceHash ||
       identity.profile_version !== POLICY.version ||
+      hash((identity.raw_source as { plan?: unknown } | undefined)?.plan ?? null) !==
+        hash(record.plan ?? null) ||
       !target.dossier ||
       hash(target.dossier) !== identity.target_hash ||
       target.candidates.length !== 1 ||
@@ -94,7 +110,7 @@ function inspectIdentity(record: OnagreImportRecord, target: Target) {
     ) {
       record.status = "conflict";
       record.issues.push(
-        "La source, le profil ou le dossier déjà importé a changé. La v1 ne fait aucune mise à jour.",
+        "La source, les transformations, le profil ou le dossier déjà importé a changé. Aucune mise à jour automatique.",
       );
     } else if (record.status === "ready") record.status = "already_imported";
   } else if (target.candidates.length > 0) {

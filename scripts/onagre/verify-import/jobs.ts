@@ -161,7 +161,7 @@ async function verifyExport(db: Database, id: string) {
   const exported = [];
   for await (const line of exportImportJob(db, id)) exported.push(JSON.parse(line));
   assert.equal(exported.length, 4);
-  assert.equal(exported[0].context.policy.version, "experimental-skeleton-v1");
+  assert.equal(exported[0].context.policy.version, "experimental-mappings-v2");
 }
 
 async function verifyDisabled(

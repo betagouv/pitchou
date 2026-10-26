@@ -11,6 +11,7 @@ export type Source = {
   fingerprint: string;
   demande: SourceRow;
   projet: SourceRow;
+  references?: Record<string, SourceRow[]>;
 };
 export type FrozenInput = {
   preview: OnagreImportPreview;
@@ -20,6 +21,7 @@ export type FrozenInput = {
   sharedRules: Record<string, unknown>[];
   sharedRuleRevisions: Record<string, unknown>[];
   schema: Record<string, unknown>[];
+  activities: { code: string; label: string; usable: boolean }[];
   sources: (Source | null)[];
   targets: unknown[];
 };

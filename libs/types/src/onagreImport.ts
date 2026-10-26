@@ -18,6 +18,26 @@ export type OnagreImportRecord = {
   sourceHash: string | null;
   targetHash: string;
   dossierId: number | null;
+  // Optional for reports saved by earlier profiles.
+  plan?: OnagreImportPlan;
+};
+
+export type OnagreImportPlan = {
+  columns: Partial<
+    Record<
+      | "main_activite"
+      | "motif_derogation"
+      | "description"
+      | "no_other_satisfactory_solution_justification",
+      string
+    >
+  >;
+  fields: {
+    target: string;
+    value: string;
+    sources: string[];
+    mappings: { key: string; version: number }[];
+  }[];
 };
 
 export type OnagreImportPreview = {
@@ -41,6 +61,7 @@ export type OnagreImportOutcome = {
   dossierId: number | null;
   issues: string[];
   omissions: string[];
+  plan?: OnagreImportPlan;
 };
 
 export type OnagreImportRun = {

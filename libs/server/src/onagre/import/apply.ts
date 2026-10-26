@@ -48,9 +48,9 @@ export async function applyImportPreview(
     throw new OnagreImportError(
       "La sélection contient une demande absente ou bloquée dans l'aperçu.",
     );
-  // v1 is a sample of at most 10 records. Brief table locks also exclude writers
+  // Manual samples contain at most 10 records. Brief table locks also exclude writers
   // that do not participate in the importer advisory lock, including legacy code.
-  await trx.raw(`LOCK TABLE onagre_snapshot, onagre_source_demande, onagre_mapping,
+  await trx.raw(`LOCK TABLE onagre_snapshot, onagre_source_demande, onagre_source_row, activite, activite_label, onagre_mapping,
     onagre_mapping_revision, onagre_shared_rule, onagre_shared_rule_revision IN SHARE MODE`);
   await trx.raw("LOCK TABLE dossier, onagre_import_identity IN SHARE ROW EXCLUSIVE MODE");
   const current = await capture(

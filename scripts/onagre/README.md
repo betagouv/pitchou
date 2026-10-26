@@ -2,7 +2,7 @@
 
 The admin route `/onagre` supports the team's correspondence meetings. It stores proposals, decisions, comments and revision history in PostgreSQL. All administrators can read it. Writes require `admin:onagre:manage`, included in the administrator bundle.
 
-The shared workspace records business decisions. Validating a correspondence does not execute a transformation. A separate, explicitly enabled rehearsal deployment can now create a sample of at most ten skeletal dossiers with the experimental importer. See [IMPORT.md](IMPORT.md) for supported fields and limits, and [DEPLOYMENT.md](DEPLOYMENT.md) for environment setup.
+The shared workspace records business decisions. Validating a correspondence does not execute a transformation. A separate, explicitly enabled rehearsal deployment offers full-dump analysis and background import, plus samples of at most ten demandes. The experimental importer applies supported validated activity, motif and text mappings. See [IMPORT.md](IMPORT.md) for supported fields and limits, [MAPPED-IMPORT.md](MAPPED-IMPORT.md) for the implemented decisions, and [DEPLOYMENT.md](DEPLOYMENT.md) for environment setup.
 
 ## Load the first backup
 

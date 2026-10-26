@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
+  import ImportFields from "./ImportFields.svelte";
   let { run }: { run: OnagreImportRun } = $props();
   const labels = {
     created: "Dossier créé",
@@ -42,6 +43,7 @@
         {#if outcome.issues.length}<ul>
             {#each outcome.issues as issue}<li>{issue}</li>{/each}
           </ul>{/if}
+        <ImportFields plan={outcome.plan} />
         {#if outcome.omissions.length}
           <details class="import-details">
             <summary>Données non reprises</summary>

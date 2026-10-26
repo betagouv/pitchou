@@ -4,19 +4,22 @@ import type { OnagreImportPolicy } from "@pitchou/types/onagreImport.ts";
 export const SOURCE_INSTANCE = "onagre-national";
 export const MAX_RECORDS = 10;
 export const POLICY: OnagreImportPolicy = {
-  version: "experimental-skeleton-v1",
-  title: "Profil expérimental v1, dossier minimal",
+  version: "experimental-mappings-v2",
+  title: "Profil expérimental v2, correspondances validées",
   description:
-    "Crée le nom du projet, le code de demande et la date de réception historique. " +
+    "Crée un dossier par demande avec le nom du projet, le code et la date de réception historique. " +
+    "Reprend les activités, motifs, lieux, périodes, service coordinateur et solutions alternatives lorsque leur correspondance validée est implémentée. " +
     "La date civile datereception est conservée à minuit UTC dans depot_date. " +
-    "Ce choix expérimental ne valide pas les règles de l'atelier. Les textes des correspondances ne sont jamais exécutés.",
+    "L'unité de reprise, l'assemblage des descriptions et cette convention de date restent expérimentaux. Les textes des correspondances ne sont jamais exécutés.",
   omissions: [
-    "Aucun historique de phase ni date déduite.",
+    "Aucun historique de phase ni décision administrative : chronologie et dates à trancher. Aucune date déduite.",
+    "Aucun commentaire : auteur et date des commentaires Onagre à trancher dans les règles communes.",
     "Aucun porteur, acteur, service, groupe, suivi ou relation affecté.",
-    "Aucune espèce, pièce jointe, décision ou autre donnée métier importée.",
+    "Aucune espèce, pièce jointe, localisation structurée ou autre donnée métier hors du profil.",
     "Aucune notification envoyée. Aucun dossier existant adopté ou modifié.",
     "Les autres champs restent à leur valeur par défaut en base, dont enjeu=false et free_comment vide.",
-    "Les lignes demande et projet brutes sont conservées dans le registre. Les autres tables restent dans le snapshot source.",
+    "Les demandes d'un même projet restent des dossiers distincts. Leurs informations communes sont répétées.",
+    "Les lignes demande, projet et références utilisées ainsi que les valeurs prévues sont conservées dans le registre.",
   ],
 };
 

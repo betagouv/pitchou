@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import type { Knex } from "knex";
-import type { OnagreImportRun, OnagreImportOutcome } from "@pitchou/types/onagreImport.ts";
+import type {
+  OnagreImportRun,
+  OnagreImportOutcome,
+  OnagreImportRecord,
+} from "@pitchou/types/onagreImport.ts";
 import type { FrozenInput } from "./state.ts";
 import { hash, POLICY, SOURCE_INSTANCE, assertImportEnabled } from "./policy.ts";
 
@@ -45,29 +49,10 @@ export async function writeRun(
       dossierId: record.dossierId,
       issues: [...record.issues],
       omissions: [...record.omissions],
+      plan: record.plan,
     };
     if (ids.includes(record.recordId) && record.status === "ready") {
-      const [created] = await trx("dossier")
-        .insert({
-          name: record.name,
-          depot_date: `${record.receptionDate}T00:00:00.000Z`,
-          source: "onagre",
-          onagre_demande_identifier: record.code,
-        })
-        .returning(trx.raw("to_jsonb(dossier) as content"));
-      const dossier = created.content;
-      const source = frozen.sources.find((row) => String(row?.source_id) === record.recordId)!;
-      await trx("onagre_import_identity").insert({
-        source_instance: SOURCE_INSTANCE,
-        source_id: Number(record.recordId),
-        dossier_id: dossier.id,
-        run_id: report.runId,
-        snapshot_id: preview.snapshotId,
-        profile_version: POLICY.version,
-        source_hash: record.sourceHash,
-        target_hash: hash(dossier),
-        raw_source: JSON.stringify({ demande: source.demande, projet: source.projet }),
-      });
+      const dossier = await writeDossier(trx, frozen, record, report.runId);
       outcome.status = "created";
       outcome.dossierId = dossier.id;
     } else if (!ids.includes(record.recordId))
@@ -78,4 +63,40 @@ export async function writeRun(
     .where({ id: report.runId })
     .update({ report: JSON.stringify(report) });
   return report;
+}
+
+async function writeDossier(
+  trx: Knex.Transaction,
+  frozen: FrozenInput,
+  record: OnagreImportRecord,
+  runId: string,
+) {
+  const [created] = await trx("dossier")
+    .insert({
+      ...record.plan?.columns,
+      name: record.name,
+      depot_date: `${record.receptionDate}T00:00:00.000Z`,
+      source: "onagre",
+      onagre_demande_identifier: record.code,
+    })
+    .returning(trx.raw("to_jsonb(dossier) as content"));
+  const dossier = created.content;
+  const source = frozen.sources.find((row) => String(row?.source_id) === record.recordId)!;
+  await trx("onagre_import_identity").insert({
+    source_instance: SOURCE_INSTANCE,
+    source_id: Number(record.recordId),
+    dossier_id: dossier.id,
+    run_id: runId,
+    snapshot_id: frozen.preview.snapshotId,
+    profile_version: POLICY.version,
+    source_hash: record.sourceHash,
+    target_hash: hash(dossier),
+    raw_source: JSON.stringify({
+      demande: source.demande,
+      projet: source.projet,
+      references: source.references,
+      plan: record.plan,
+    }),
+  });
+  return dossier;
 }
