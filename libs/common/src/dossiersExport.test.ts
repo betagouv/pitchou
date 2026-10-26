@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import * as XLSX from "xlsx";
 import type { ExportDossier } from "@pitchou/types/dossierExport.ts";
+import { parseCalendarDate } from "./calendarDate.ts";
 import { dossierExportRow, dossiersExportHeaders, dossiersExportTable } from "./dossiersExport.ts";
 import { tableToCsv, tableToOds } from "./spreadsheet.ts";
 
@@ -37,10 +38,11 @@ function dossier(overrides: Partial<ExportDossier> = {}): ExportDossier {
 }
 
 test("exports all 22 columns, preserving identifiers, accents, quotes and multiline cells in CSV and ODS", async () => {
-  const data = dossier();
+  const data = dossier({ ddep_depot_date: parseCalendarDate("2026-07-15") });
   const table = dossiersExportTable([data]);
   const expected = [dossiersExportHeaders, dossierExportRow(data)];
   expect(table[1]).toHaveLength(22);
+  expect(table[1][21]).toBe("15/07/2026");
   expect(table[1].slice(0, 12)).toEqual([
     "42",
     data.name,
@@ -173,9 +175,9 @@ test("CSV neutralizes formulas while ODS stores them as literal strings", async 
   expect(ods.Sheets.Dossiers.A1.f).toBeUndefined();
 });
 
-test("exports the DDEP date while leaving an unknown first deposit blank", () => {
+test("exports the local DDEP calendar day while leaving an unknown creation date blank", () => {
   const row = dossierExportRow(
-    dossier({ depot_date: null, ddep_depot_date: new Date("2026-07-15") }),
+    dossier({ depot_date: null, ddep_depot_date: parseCalendarDate("2026-07-15") }),
   );
   expect(row[3]).toBe("");
   expect(row[dossiersExportHeaders.indexOf("Date de dépôt du DDEP")]).toBe("15/07/2026");
