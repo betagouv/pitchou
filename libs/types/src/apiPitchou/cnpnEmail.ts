@@ -17,6 +17,8 @@ export type DossierCnpnEmailSentEvent = {
   sent_at: Date | string;
   delivered_at: Date | string | null;
   opened_at: Date | string | null;
+  delivery_failed_at?: Date | string | null;
+  delivery_failure_reason?: string | null;
   recipient_email: string;
   cc_emails: string[];
   subject: string;

@@ -2,7 +2,7 @@
   import type { EmailRow } from "@pitchou/types/adminEmails.ts";
   import {
     kindLabels,
-    statusLabels,
+    emailStatusLabel,
     environmentLabels,
     reasonLabels,
     formatDate,
@@ -62,8 +62,7 @@
           >
           <td data-label="État" data-status={row.status}
             ><span class="status-badge"
-              ><span class="status-dot" aria-hidden="true"></span>{statusLabels[row.status] ??
-                row.status}</span
+              ><span class="status-dot" aria-hidden="true"></span>{emailStatusLabel(row)}</span
             ><span class="row-secondary"
               >{environmentLabels[row.environment] ?? row.environment}</span
             >
@@ -76,8 +75,10 @@
           <td data-label="Suivi"
             >{#if row.source === "cnpn"}<span class="row-secondary"
                 >{row.delivered_at ? "Réception confirmée" : "Réception non confirmée"}</span
-              ><span class="row-secondary"
-                >{row.opened_at ? "Ouverture détectée" : "Ouverture non détectée"}</span
+              ><span
+                class="row-secondary"
+                title="La détection dépend du chargement des images et des réglages de suivi. Une absence de signal ne signifie pas que le mail n'a pas été lu."
+                >{row.opened_at ? "Ouverture détectée" : "Lecture inconnue"}</span
               >{:else}<span class="attempt-count"
                 >{row.attempt_count} tentative{(row.attempt_count ?? 0) > 1 ? "s" : ""}</span
               >{/if}<span class="row-secondary"

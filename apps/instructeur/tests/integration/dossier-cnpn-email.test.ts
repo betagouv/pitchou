@@ -115,11 +115,11 @@ test("staging recipient restrictions show a handled refusal without recording an
 });
 
 test.each(["accurate", "underreported"])(
-  "rejects 15 MiB of actual attachments with %s DB sizes before an attempt",
+  "rejects 8.7 MB of actual attachments with %s DB sizes before an attempt",
   async (metadata) => {
     const instructeur = await createInstructeurWithDossier(db);
     const attachment = await createFichierS3(db, await getTestS3(), {
-      bytes: Buffer.alloc(15 * 1024 * 1024),
+      bytes: Buffer.alloc(8_700_000),
     });
     if (metadata === "underreported")
       await db("file").where({ id: attachment.id }).update({ size: "1" });
@@ -130,6 +130,7 @@ test.each(["accurate", "underreported"])(
 
     await expect(postEmail(instructeur, { attachmentIds: [attachment.id] })).rejects.toMatchObject({
       status: 413,
+      body: { message: expect.stringContaining("France Transfert") },
     });
     expect(sendEmail).not.toHaveBeenCalled();
     await expect(db("dossier_cnpn_email_sent_event")).resolves.toEqual([]);
@@ -143,12 +144,12 @@ test("includes the body and cumulative MIME size, then allows editing after a 41
     [1, 2].map((index) =>
       createFichierS3(db, s3, {
         name: `piece-${index}.pdf`,
-        bytes: Buffer.alloc(7_200_000),
+        bytes: Buffer.alloc(3_500_000),
       }),
     ),
   );
   const attachmentIds = attachments.map(({ id }) => id);
-  // The actual 14.4 MB fits with a short body, but not with the long body below.
+  // The actual 7 MB fits with a short body, but not with the long body below.
   // Deliberately overstate DB metadata to prove it is not the source of truth.
   await db("file").whereIn("id", attachmentIds).update({ size: "20000000" });
   await db("edge_dossier__fichier_pieces_jointes_petitionnaire").insert(
@@ -173,7 +174,7 @@ test("includes the body and cumulative MIME size, then allows editing after a 41
   expect(sendEmail).toHaveBeenCalledTimes(1);
   expect(
     vi.mocked(sendEmail).mock.calls[0]![0].attachments?.map(({ content }) => content.length),
-  ).toEqual([7_200_000, 7_200_000]);
+  ).toEqual([3_500_000, 3_500_000]);
   await expect(
     db("dossier_cnpn_email_sent_event").where({ id: requestId }).first(),
   ).resolves.toMatchObject({ status: "sent" });

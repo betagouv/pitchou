@@ -5,12 +5,16 @@ const {
   recordDossierCnpnEmailBrevoEvent,
   releaseDossierCnpnEmailReadReceipt,
   sendCnpnEmailReadReceipt,
+  sendCnpnEmailDeliveryFailure,
+  completeFailureNotification,
   transaction,
 } = vi.hoisted(() => ({
   markDossierCnpnEmailReadReceiptSent: vi.fn(),
   recordDossierCnpnEmailBrevoEvent: vi.fn(),
   releaseDossierCnpnEmailReadReceipt: vi.fn(),
   sendCnpnEmailReadReceipt: vi.fn(),
+  sendCnpnEmailDeliveryFailure: vi.fn(),
+  completeFailureNotification: vi.fn(),
   transaction: vi.fn(),
 }));
 
@@ -20,7 +24,12 @@ vi.mock("./database/dossier_cnpn_email.ts", () => ({
   recordDossierCnpnEmailBrevoEvent,
   releaseDossierCnpnEmailReadReceipt,
 }));
-vi.mock("./emails.ts", () => ({ sendCnpnEmailReadReceipt }));
+vi.mock("./emails.ts", () => ({
+  sendCnpnEmailReadReceipt,
+  isDefinitiveEmailSendFailure: () => false,
+}));
+vi.mock("./emails/cnpnFailure.ts", () => ({ sendCnpnEmailDeliveryFailure }));
+vi.mock("./database/dossier_cnpn_email/failure.ts", () => ({ completeFailureNotification }));
 
 import { processDossierCnpnEmailBrevoEvent } from "./cnpnEmailBrevo.ts";
 
@@ -38,6 +47,35 @@ beforeEach(() => {
   markDossierCnpnEmailReadReceiptSent.mockResolvedValue(undefined);
   releaseDossierCnpnEmailReadReceipt.mockResolvedValue(undefined);
   sendCnpnEmailReadReceipt.mockResolvedValue({ messageId: "receipt-message-id" });
+  sendCnpnEmailDeliveryFailure.mockResolvedValue({ messageId: "failure-message-id" });
+  completeFailureNotification.mockResolvedValue(undefined);
+});
+
+test("alerte l'expéditeur d'un échec et libère la notification si l'envoi échoue", async () => {
+  const failureNotification = {
+    eventId: "email-event-id",
+    claimedAt,
+    sentByEmail: "sender@test.fr",
+    dossierId: 42,
+    subject: "Saisine",
+    reason: "552 5.3.4 Error: message file too big",
+  };
+  recordDossierCnpnEmailBrevoEvent.mockResolvedValue({ matched: true, failureNotification });
+  const bounce = { ...event, type: "soft_bounce" as const, reason: failureNotification.reason };
+  sendCnpnEmailDeliveryFailure.mockRejectedValueOnce(new Error("unavailable"));
+  await expect(processDossierCnpnEmailBrevoEvent(bounce)).rejects.toThrow("unavailable");
+  expect(completeFailureNotification).toHaveBeenCalledWith(
+    "email-event-id",
+    claimedAt,
+    false,
+    undefined,
+    false,
+  );
+
+  await expect(processDossierCnpnEmailBrevoEvent(bounce)).resolves.toBe("processed");
+  expect(sendCnpnEmailDeliveryFailure).toHaveBeenCalledWith("sender@test.fr", failureNotification);
+  expect(completeFailureNotification).toHaveBeenLastCalledWith("email-event-id", claimedAt, true);
+  expect(sendCnpnEmailReadReceipt).not.toHaveBeenCalled();
 });
 
 test("envoie un accusé au gestionnaire lors de la première ouverture", async () => {

@@ -72,7 +72,10 @@
     {/if}
   </div>
 
-  <p class="fr-info-text fr-mt-n1w fr-mb-3w">Un accusé de lecture du mail vous sera communiqué.</p>
+  <p class="fr-info-text fr-mt-n1w fr-mb-3w">
+    Un accusé vous sera envoyé si une ouverture du mail est détectée. Certains logiciels de
+    messagerie empêchent cette détection.
+  </p>
 
   <CnpnCcPicker {dossierId} bind:selectedEmails={ccEmails} />
 

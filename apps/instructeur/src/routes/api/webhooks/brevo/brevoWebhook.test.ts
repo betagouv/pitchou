@@ -3,14 +3,19 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 vi.mock(import("@pitchou/server/cnpnEmailBrevo.ts"), () => ({
   processDossierCnpnEmailBrevoEvent: vi.fn(),
 }));
+vi.mock("@pitchou/server/emails/webhookIssue.ts", () => ({
+  reportBrevoWebhookIssue: vi.fn().mockResolvedValue("processed"),
+}));
 
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
 import { POST } from "./+server.ts";
+import { reportBrevoWebhookIssue } from "@pitchou/server/emails/webhookIssue.ts";
 
 beforeEach(() => {
   vi.stubEnv("BREVO_WEBHOOK_SECRET", "webhook-secret");
   vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
   vi.mocked(processDossierCnpnEmailBrevoEvent).mockReset().mockResolvedValue("processed");
+  vi.mocked(reportBrevoWebhookIssue).mockReset().mockResolvedValue("processed");
 });
 
 afterEach(() => vi.unstubAllEnvs());
@@ -57,6 +62,47 @@ test("ignore les événements non suivis", async () => {
   expect(response.status).toBe(204);
   expect(processDossierCnpnEmailBrevoEvent).not.toHaveBeenCalled();
 });
+
+test("persists CNPN tracking even when the independent technical alert fails", async () => {
+  vi.mocked(reportBrevoWebhookIssue).mockRejectedValueOnce(new Error("Brevo unavailable"));
+  await expect(
+    eventRequest({
+      event: "soft_bounce",
+      email: "cnpn@example.com",
+      "message-id": "provider-id",
+      ts_event: 1_789_000_000,
+      reason: "too big",
+    }),
+  ).rejects.toMatchObject({ status: 429 });
+  expect(processDossierCnpnEmailBrevoEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ type: "soft_bounce", reason: "too big" }),
+  );
+});
+
+test.each(["soft_bounce", "hard_bounce", "blocked", "invalid_email", "error"])(
+  "enregistre le refus %s et son motif",
+  async (event) => {
+    const reason = "552 5.3.4 Error: message file too big";
+    expect(
+      (
+        await eventRequest({
+          event,
+          email: "cnpn@example.com",
+          "message-id": "brevo-message-id",
+          ts_event: 1_789_000_000,
+          reason,
+        })
+      ).status,
+    ).toBe(204);
+    expect(processDossierCnpnEmailBrevoEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: event,
+        reason,
+        recipientEmail: "cnpn@example.com",
+      }),
+    );
+  },
+);
 
 test("demande à Brevo de rejouer une saisine arrivée avant l'enregistrement du mail", async () => {
   vi.mocked(processDossierCnpnEmailBrevoEvent).mockResolvedValueOnce("unmatched");

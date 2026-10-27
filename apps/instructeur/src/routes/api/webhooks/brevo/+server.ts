@@ -2,12 +2,19 @@ import { timingSafeEqual } from "node:crypto";
 import { error, type RequestHandler } from "@sveltejs/kit";
 import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
+import type { DossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
 import { EMAIL_ENVIRONMENT_TAG_PREFIX, getEmailEnvironmentTag } from "@pitchou/server/emails.ts";
+import { reportBrevoWebhookIssue } from "@pitchou/server/emails/webhookIssue.ts";
 
-const eventTypes: Readonly<Record<string, "delivered" | "opened">> = {
+const eventTypes: Readonly<Record<string, DossierCnpnEmailBrevoEvent["type"]>> = {
   delivered: "delivered",
   unique_opened: "opened",
   opened: "opened",
+  soft_bounce: "soft_bounce",
+  hard_bounce: "hard_bounce",
+  blocked: "blocked",
+  invalid_email: "invalid_email",
+  error: "error",
 };
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 
@@ -60,13 +67,28 @@ export const POST: RequestHandler = async ({ request }) => {
 
   let result: "processed" | "retry" | "unmatched";
   try {
-    result = await processDossierCnpnEmailBrevoEvent({
+    const event = {
       type,
       providerMessageId: messageId,
       requestId,
       recipientEmail: email,
       occurredAt,
-    });
+      ...(typeof payload.reason === "string" ? { reason: payload.reason.slice(0, 2000) } : {}),
+    };
+    let issueResult = "retry";
+    try {
+      issueResult = await reportBrevoWebhookIssue(
+        event,
+        tags,
+        typeof payload.subject === "string"
+          ? payload.subject.slice(0, 255)
+          : "Objet non communiqué",
+      );
+    } catch {
+      // Persist CNPN tracking even if the independent technical alert needs a retry.
+    }
+    result = await processDossierCnpnEmailBrevoEvent(event);
+    if (issueResult === "retry") result = "retry";
   } catch {
     error(429, "Le traitement de l'événement doit être rejoué.");
   }

@@ -1,5 +1,11 @@
 <script lang="ts">
   import { byteFormat } from "@pitchou/common/typeFormat.ts";
+  import {
+    base64MimeBytes,
+    MAX_EMAIL_BYTES,
+    FRANCE_TRANSFERT_URL,
+    EMAIL_SIZE_ERROR,
+  } from "@pitchou/common/emailSize.ts";
   import type File from "@pitchou/types/database/public/File.ts";
   import type { PieceJointeGroup, PieceJointeSimple } from "./piecesJointes.ts";
 
@@ -22,6 +28,11 @@
     selectable
       .filter((piece) => piece.fileId && selectedIds.includes(piece.fileId))
       .reduce((sum, piece) => sum + (piece.description?.size ?? 0), 0),
+  );
+  const encodedSize = $derived(
+    selectable
+      .filter((piece) => piece.fileId && selectedIds.includes(piece.fileId))
+      .reduce((sum, piece) => sum + base64MimeBytes(piece.description?.size ?? 0), 0),
   );
 
   function toggle(piece: PieceJointeSimple) {
@@ -58,11 +69,23 @@
     </button>
   </h3>
 
+  {#if encodedSize >= MAX_EMAIL_BYTES}
+    <div class="fr-alert fr-alert--warning fr-m-2w" role="alert">
+      <p>{EMAIL_SIZE_ERROR}</p>
+      <a href={FRANCE_TRANSFERT_URL} target="_blank" rel="noopener noreferrer"
+        >Ouvrir France Transfert</a
+      >
+    </div>
+  {/if}
+
   {#if expanded}
     <div id={contentId} class="fr-p-2w">
       <p class="fr-hint-text fr-mb-2w">
-        20 fichiers maximum. Le mail complet doit rester sous 20 Mo après encodage des pièces
-        jointes.
+        20 fichiers maximum. Le mail complet doit rester sous 10 Mo après encodage des pièces
+        jointes. Pour les fichiers volumineux, utilisez
+        <a href={FRANCE_TRANSFERT_URL} target="_blank" rel="noopener noreferrer">France Transfert</a
+        >, ajoutez le lien de téléchargement au corps du mail et retirez les pièces jointes
+        correspondantes.
       </p>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {#each groups as group}
