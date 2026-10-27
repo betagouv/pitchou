@@ -31,7 +31,7 @@ test("dashboard links to pending work, respects access and clears resolved alert
     await expect(attention.getByRole("link", { name: /Dossiers sans groupe/u })).toContainText("1");
     await expect(attention.getByRole("link", { name: /Groupes à vérifier/u })).toContainText("1");
     await expect(
-      attention.getByRole("link", { name: /Départements sans groupe actif/u }),
+      attention.getByRole("link", { name: /Départements sans couverture complète/u }),
     ).toContainText(String(departements.length));
     await expect(page.getByText("Tout est à jour")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("dashboard-attention-desktop.png") });

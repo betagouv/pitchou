@@ -1,9 +1,24 @@
 import { directDatabaseConnection as db } from "../database/connection.ts";
-import { getSessionUser } from "../users.ts";
+import { requireGroupManager } from "./groups/access.ts";
+import { replaceRules, readRules } from "./groups/rules.ts";
+import { calculatePreview, resolvedRules } from "./groups/preview.ts";
+import type { GroupRule } from "@pitchou/types/groupRouting.ts";
+import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
+import type AuthUser from "@pitchou/types/database/public/AuthUser.ts";
 import { audit } from "./audit.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
-export async function listGroups() {
-  const [groups, departments, members, counts, users] = await Promise.all([
+type ManagedGroup = GroupeInstructeurs & {
+  departments: string[];
+  rules: GroupRule[];
+  members: number[];
+  dossierCount: number;
+};
+
+export async function listGroups(): Promise<{
+  groups: ManagedGroup[];
+  users: Pick<AuthUser, "id" | "email" | "active">[];
+}> {
+  const [groups, departments, members, counts, users, rules] = await Promise.all([
     db("groupe_instructeurs").orderBy("name"),
     db("groupe_departement"),
     db("user_groupe"),
@@ -12,6 +27,7 @@ export async function listGroups() {
       .count("dossier as count")
       .groupBy("groupe_instructeurs"),
     db("auth_user").select("id", "email", "active").orderBy("email"),
+    db("groupe_regle").orderBy("id"),
   ]);
   return {
     groups: groups.map((g) => ({
@@ -19,6 +35,25 @@ export async function listGroups() {
       departments: departments
         .filter((d) => d.groupe_instructeurs === g.id)
         .map((d) => d.department),
+      rules: [
+        ...(departments.some((d) => d.groupe_instructeurs === g.id)
+          ? [
+              {
+                departments: departments
+                  .filter((d) => d.groupe_instructeurs === g.id)
+                  .map((d) => d.department),
+                communes: [],
+                activites: [],
+              },
+            ]
+          : []),
+        ...rules
+          .filter((r) => r.groupe_instructeurs === g.id)
+          .map(
+            ({ departments, communes, activites }) =>
+              ({ departments, communes, activites }) as GroupRule,
+          ),
+      ] as GroupRule[],
       members: members.filter((m) => m.groupe_instructeurs === g.id).map((m) => m.user_id),
       dossierCount: Number(counts.find((c) => c.groupe_instructeurs === g.id)?.count ?? 0),
     })),
@@ -32,6 +67,8 @@ export type GroupUpdate = {
   active: boolean;
   departments: string[];
   members: number[];
+  rules?: GroupRule[];
+  previewToken?: string;
 };
 export async function saveGroup(actor: UserId, input: GroupUpdate) {
   if (!input.name.trim()) throw new TypeError("Le nom du groupe est requis");
@@ -40,14 +77,15 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
     const before = input.id
       ? await trx("groupe_instructeurs").where({ id: input.id }).first()
       : null;
-    const currentActor = await getSessionUser(actor, trx);
-    if (
-      !currentActor?.permissions.includes("admin:access") ||
-      !currentActor.permissions.includes("groups:manage")
-    )
-      throw new TypeError("Gestion des groupes non autorisée");
+    await requireGroupManager(trx, actor);
     if (input.id && !before) throw new TypeError("Groupe introuvable");
+    if (input.previewToken && input.previewToken !== (await calculatePreview(trx, input)).token)
+      throw new TypeError(
+        "Les affectations ont changé. Vérifiez un nouvel aperçu avant d’enregistrer.",
+      );
+    const rules = await resolvedRules(trx, input);
     if (before) {
+      before.rules = await readRules(trx, before.id);
       before.departments = await trx("groupe_departement")
         .where({ groupe_instructeurs: before.id })
         .pluck("department");
@@ -59,21 +97,7 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
     const [group] = before
       ? await trx("groupe_instructeurs").where({ id: input.id }).update(values).returning("*")
       : await trx("groupe_instructeurs").insert(values).returning("*");
-    // Add before removing so followers retain eligibility through unchanged coverage.
-    if (input.departments.length > 0)
-      await trx("groupe_departement")
-        .insert(
-          [...new Set(input.departments)].map((department) => ({
-            groupe_instructeurs: group.id,
-            department,
-          })),
-        )
-        .onConflict(["groupe_instructeurs", "department"])
-        .ignore();
-    await trx("groupe_departement")
-      .where({ groupe_instructeurs: group.id })
-      .whereNotIn("department", input.departments)
-      .delete();
+    await replaceRules(trx, group.id, rules);
     if (input.members.length > 0)
       await trx("user_groupe")
         .insert(
@@ -88,7 +112,11 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
       .where({ groupe_instructeurs: group.id })
       .whereNotIn("user_id", input.members)
       .delete();
-    await audit(trx, actor, "group_saved", { id: group.id, before, after: input });
+    await audit(trx, actor, "group_saved", {
+      id: group.id,
+      before,
+      after: { ...input, rules, previewToken: undefined },
+    });
     return group;
   });
 }

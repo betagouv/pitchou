@@ -3,6 +3,7 @@ import type { Permission } from "@pitchou/types/permissions.ts";
 // Every write route must opt into a permission. Unlisted writes are denied.
 const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
   { method: "POST", path: /^\/api\/dossiers(?:\/minimal)?$/u, anyOf: ["admin:dossiers:create"] },
+  { method: "POST", path: /^\/api\/dossiers\/[^/]+\/affectations$/u, anyOf: ["groups:manage"] },
   { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:update"] },
   { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:delete"] },
   {
@@ -84,7 +85,7 @@ export function canAccessAdminRoute(
     return permissions.includes("users:manage");
   if (
     /^\/groupes-instructeurs(?:\/|$)/u.test(path) ||
-    (path === "/api/groupes-instructeurs" && method !== "GET")
+    (/^\/api\/groupes-instructeurs(?:\/|$)/u.test(path) && method !== "GET")
   )
     return permissions.includes("groups:manage");
   if (["GET", "HEAD", "OPTIONS"].includes(method)) return true;

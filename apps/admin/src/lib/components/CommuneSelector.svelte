@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
 
-  import type { Commune } from "./dossierAdminFormModel.ts";
+  import type { Commune } from "#lib/dossierLocation.ts";
 
   type ApiCommune = {
     nom: string;

@@ -31,34 +31,40 @@
 <PageHelp title="Groupes instructeurs">
   <h3>Répartition des dossiers</h3>
   <p>
-    Chaque dossier appartient à tous les groupes actifs qui couvrent son département principal.
-    Plusieurs groupes peuvent donc partager un même dossier.
+    Chaque dossier est affecté à tous les groupes actifs dont une règle correspond. Les critères
+    d'une règle se combinent avec ET, les règles avec OU.
   </p>
   <p>
-    Les affectations sont recalculées lorsque le département principal du dossier, les départements
-    du groupe ou son état actif changent. Cela concerne aussi les dossiers existants, quelle que
-    soit leur source.
+    Les critères portent sur le département principal, les communes du projet par code INSEE et
+    l'activité principale du référentiel Pitchou. Un critère vide n'impose aucune restriction. Pour
+    les communes, une seule correspondance suffit.
   </p>
   <h3>Créer et modifier un groupe</h3>
   <p>
-    Utilisez le bouton + pour créer un groupe. Cliquez sur une ligne pour modifier son nom, ses
-    départements ou ses membres. « Tous » indique que le groupe couvre tous les départements
-    proposés.
+    Cliquez sur une ligne pour modifier le nom, les règles ou les membres. Un groupe sans règle
+    reçoit uniquement des affectations manuelles.
   </p>
   <p>
-    Un groupe actif reçoit les dossiers de ses départements. Un groupe archivé ne reçoit plus de
-    dossiers et ne donne plus d'accès à ses membres au titre de ce groupe. Sa configuration reste
-    conservée.
+    Vérifiez l'aperçu des dossiers ajoutés et retirés avant d'enregistrer. Ce recalcul des dossiers
+    existants n'envoie pas d'e-mail d'arrivée. Les nouvelles arrivées ordinaires conservent leurs
+    notifications.
+  </p>
+  <p>
+    Un groupe archivé ne donne plus d'accès. Ses règles et exceptions sont conservées pour une
+    éventuelle réactivation.
+  </p>
+  <h3>Affectations manuelles et exclusions</h3>
+  <p>
+    La fiche d'un dossier affiche l'origine de ses affectations. Vous pouvez inclure un groupe
+    manuellement, exclure durablement un dossier d'un groupe ou rétablir les règles automatiques.
+    Ces exceptions persistent après recalcul.
   </p>
   <h3>Vérifications et alertes</h3>
   <p>
-    Les groupes « À vérifier » sont actifs, mais leur couverture importée reste à confirmer.
-    Vérifiez leurs départements, puis enregistrez.
-  </p>
-  <p>
-    L'alerte signale les départements sans groupe actif. La page Dossiers signale les dossiers sans
-    affectation. Pour affecter un dossier, renseignez son département principal et assurez-vous
-    qu'un groupe actif le couvre.
+    Les groupes « À vérifier » attendent une confirmation de leur couverture importée. L'alerte
+    indique les départements sans couverture automatique complète. Des règles conditionnelles
+    peuvent néanmoins y affecter certains dossiers. La page Dossiers signale les dossiers
+    effectivement sans affectation.
   </p>
   <h3>Accès des membres</h3>
   <p>
@@ -68,7 +74,7 @@
 </PageHelp>
 {#if form?.message}<p class="fr-alert fr-alert--error" role="alert">{form.message}</p>{/if}
 {#if uncovered.length}<div id="uncovered-departments" class="fr-alert fr-alert--warning">
-    <h2>Départements sans groupe</h2>
+    <h2>Départements sans couverture automatique complète</h2>
     <p>{uncovered.join(", ")}</p>
   </div>{/if}
 {#each sections as section}

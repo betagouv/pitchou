@@ -1,3 +1,4 @@
+import { listDossierAssignments } from "@pitchou/server/administration.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
 
 import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
@@ -13,6 +14,7 @@ export const load: PageServerLoad = async ({ params }) => {
   try {
     const detail = await getDossierDetailForAdmin(dossierId);
     return {
+      assignments: await listDossierAssignments(dossierId),
       detail: JSON.parse(JSON.stringify(detail)) as AdminDossierDetail,
       // Outside production only: the panel is not even sent to the browser there.
       simulation: simulationAllowed()

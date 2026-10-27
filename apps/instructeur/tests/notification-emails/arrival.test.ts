@@ -58,9 +58,13 @@ test("Department routing and admin delete/reinsert saves do not notify unchanged
   expect((await dispatch(new Date())).send).not.toHaveBeenCalled();
 });
 
-test("a newly routed department relation queues arrivals without any novelty event", async () => {
+test("a manual inclusion queues arrivals without any novelty event", async () => {
   const { dossier, member } = await setupArrival();
-  await db.transaction((trx) => attachDossierToGroupe(trx, dossier.id, member.groupeId));
+  await db("groupe_dossier_override").insert({
+    dossier: dossier.id,
+    groupe_instructeurs: member.groupeId,
+    mode: "include",
+  });
   const rows = await db("email_notification_outbox");
   expect(rows).toHaveLength(2);
   expect(rows.every((row) => row.kind === "arrival")).toBe(true);

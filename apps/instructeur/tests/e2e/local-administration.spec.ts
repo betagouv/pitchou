@@ -45,10 +45,12 @@ test("an administrator prepares a user and assigns department coverage through t
   ).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByLabel("Nom du groupe").fill("Service Paris");
-  await page.getByRole("searchbox", { name: "Rechercher un département" }).fill("paris");
-  await page.getByLabel("75 · Paris", { exact: true }).check();
+  await page.getByRole("button", { name: "Ajouter une règle" }).click();
+  await page.getByText("Département principal, au choix", { exact: true }).click();
+  await page.getByText("75 - Paris", { exact: true }).click();
   await page.getByRole("tab", { name: /Membres/u }).click();
   await page.getByLabel("future@example.org", { exact: true }).check();
+  await page.getByRole("button", { name: "Vérifier les affectations" }).click();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   const saveStatus = page.locator("header").getByRole("status");
   await expect(saveStatus).toHaveText("Groupe enregistré");
@@ -78,11 +80,12 @@ test("an administrator prepares a user and assigns department coverage through t
   await activeSection.getByRole("button", { name: "Modifier Service Paris", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Nom du groupe")).toHaveValue("Service Paris");
-  await page.getByRole("searchbox", { name: "Rechercher un département" }).fill("paris");
-  await expect(page.getByLabel("75 · Paris", { exact: true })).toBeChecked();
+  await page.getByText("Département principal, au choix", { exact: true }).click();
+  await expect(page.getByLabel("75 - Paris", { exact: true })).toBeChecked();
   await page.getByRole("tab", { name: /Membres/u }).click();
   await expect(page.getByLabel("future@example.org", { exact: true })).toBeChecked();
   await page.getByLabel("Groupe actif", { exact: true }).uncheck();
+  await page.getByRole("button", { name: "Vérifier les affectations" }).click();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Archivés", exact: true })).toContainText(
@@ -157,14 +160,13 @@ test("group member pagination preserves selections across pages, searches and ta
   await expect(page.getByRole("navigation", { name: "Pagination des membres" })).toContainText(
     "Page 1 / 2",
   );
-  await page.getByRole("tab", { name: /Départements/u }).click();
-  const departmentSearch = page.getByRole("searchbox", { name: "Rechercher un département" });
-  await departmentSearch.fill("paris");
-  await page.getByLabel("75 · Paris", { exact: true }).check();
-  await departmentSearch.fill("gironde");
-  await page.getByLabel("33 · Gironde", { exact: true }).check();
-  await departmentSearch.fill("paris");
-  await expect(page.getByLabel("75 · Paris", { exact: true })).toBeChecked();
+  await page.getByRole("tab", { name: /Règles/u }).click();
+  await page.getByRole("button", { name: "Ajouter une règle" }).click();
+  await page.getByText("Département principal, au choix", { exact: true }).click();
+  await page.getByText("75 - Paris", { exact: true }).click();
+  await page.getByText("33 - Gironde", { exact: true }).click();
+  await expect(page.getByLabel("75 - Paris", { exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "Vérifier les affectations" }).click();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(page.locator("header").getByRole("status")).toContainText("Groupe enregistré");
   const group = await db("groupe_instructeurs").where({ name: "Service paginé" }).first();

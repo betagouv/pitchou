@@ -22,6 +22,7 @@
   import DossierPhaseHistory from "./DossierPhaseHistory.svelte";
   import DossierSyncSimulation from "./DossierSyncSimulation.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
+  import DossierAssignments from "./DossierAssignments.svelte";
   import DossierDeleteSection from "./DossierDeleteSection.svelte";
   import type { PageData } from "./$types";
 
@@ -119,6 +120,14 @@
 {:else}
   <div class="admin-stack">
     <DossierDetailHeader {detail} />
+    <DossierAssignments
+      {dossierId}
+      initial={data.assignments}
+      onChanged={reload}
+      activityLabels={Object.fromEntries(
+        (activiteReferentiel?.activites ?? []).map((activity) => [activity.code, activity.label]),
+      )}
+    />
 
     {#if detail.source === "demarche_numerique"}
       <div class="fr-alert fr-alert--info my-0">
