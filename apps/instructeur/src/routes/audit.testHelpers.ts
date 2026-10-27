@@ -9,7 +9,10 @@ const mocks = vi.hoisted(() => {
     where: vi.fn().mockReturnThis(),
     forUpdate: vi.fn().mockReturnThis(),
   };
-  const transaction = vi.fn(() => query);
+  const transaction = Object.assign(
+    vi.fn(() => query),
+    { isTransaction: true },
+  );
   const commit = vi.fn();
   const rollback = vi.fn();
   const database = Object.assign(

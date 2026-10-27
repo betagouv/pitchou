@@ -47,7 +47,7 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
 
   return {
     name: model.name.trim(),
-    depot_date: model.depotDate,
+    depot_date: model.depotDate || null,
     phase: model.phase,
     relations: {
       demandeur_type: isPhysical ? "personne_physique" : "personne_morale",

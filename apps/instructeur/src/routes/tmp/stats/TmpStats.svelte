@@ -63,7 +63,9 @@
   let dossiersEnAccompagnement = $derived(trouverDossiersEnAccompagnement(dossiers));
 
   function trouverDossiersDeMoinsDe3Ans(dossiers: DossierSummary[]) {
-    return dossiers.filter((d) => isBefore(sub(aujourdhui, { years: 3 }), d.depot_date));
+    return dossiers.filter(
+      (d) => d.depot_date && isBefore(sub(aujourdhui, { years: 3 }), d.depot_date),
+    );
   }
 
   let dossiersEnAccompagnementDeMoinsDe3Ans = $derived(

@@ -174,3 +174,13 @@ describe("parseDossierCreation", () => {
     ).toThrow();
   });
 });
+
+it("accepts an unknown creation date", () => {
+  expect(
+    parseDossierCreation({
+      ...validCreation,
+      depot_date: null,
+      columns: validCreation.columns,
+    }),
+  ).toMatchObject({ depot_date: null });
+});

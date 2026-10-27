@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
+import { insertBatches } from "./insertBatches.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { IdentiteDossierInitializer } from "@pitchou/types/database/public/IdentiteDossier.ts";
@@ -30,7 +31,6 @@ export async function syncIdentitesDossier(
     ([dossier, identitesDossier]) => identitesDossier.map((identite) => ({ ...identite, dossier })),
   );
 
-  if (identites.length > 0) {
-    await databaseConnection("identite_dossier").insert(identites);
-  }
+  for (const batch of insertBatches(identites))
+    await databaseConnection("identite_dossier").insert(batch);
 }

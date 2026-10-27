@@ -4,7 +4,7 @@ import type { AdminDossierRelations } from "./relationTypes.ts";
 
 export type AdminDossierCreation = {
   name: string;
-  depot_date: Date;
+  depot_date: Date | null;
   phase: DossierPhase;
   relations: AdminDossierRelations;
   columns?: DossierMutator;

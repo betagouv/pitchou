@@ -25,6 +25,7 @@ const notPetitionnaireColumns: Set<string> = new Set([
   // Instruction annotations
   "free_comment",
   "ddep_required",
+  "ddep_depot_date",
   "er_mesures_sufficient",
   "onagre_demande_identifier",
   "next_action_expected_from",

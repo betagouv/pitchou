@@ -7,7 +7,7 @@ export type AdminDossierSummary = {
   name: string | null;
   demarche_numerique_number: string | null;
   source: DossierSource;
-  depot_date: string;
+  depot_date: string | null;
   phase: string | null;
   main_activite: string | null;
   activite_code: string | null;
@@ -20,7 +20,7 @@ export type DossierSortKey = "depot_date" | "name" | "phase";
 export type DossierSortOrder = "asc" | "desc";
 
 export const DOSSIER_SORT_OPTIONS: { key: DossierSortKey; label: string }[] = [
-  { key: "depot_date", label: "Date de dépôt" },
+  { key: "depot_date", label: "Date de création du dossier" },
   { key: "name", label: "Nom" },
   { key: "phase", label: "Phase" },
 ];
@@ -114,7 +114,7 @@ export type AdminDossierDetail = {
     name: string | null;
     demarche_numerique_number: string | null;
     demarche_number: number | null;
-    depot_date: string;
+    depot_date: string | null;
   };
   source: DossierSource;
   managedByDn: boolean;
@@ -129,7 +129,7 @@ export type AdminDossierDetail = {
 
 export type AdminDossierCreationPayload = {
   name: string;
-  depot_date: string;
+  depot_date: string | null;
   phase: string | null;
   relations: AdminDossierRelationsPayload;
   columns?: Record<string, unknown>;

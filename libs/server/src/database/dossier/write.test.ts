@@ -5,6 +5,7 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 it("reads the fields needed to audit DDEP and consultation updates", async () => {
   const before = {
+    ddep_depot_date: null,
     ddep_required: false,
     er_mesures_sufficient: true,
     public_consultation_start_date: new Date("2026-09-01"),

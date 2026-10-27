@@ -87,9 +87,14 @@ Les balises ont des types qui peuvent être :
                             <td> Date de fin de la consultation du public ou enquête publique. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>{date_dépôt}</code></th>
+                            <th scope="row"> <code>{date_création_dossier}</code></th>
                             <td> date</td>
-                            <td> Date de dépôt du dossier. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                            <td> Date de création du dossier, vide si elle est inconnue. L'ancienne balise <code>{date_dépôt}</code> reste disponible pour les modèles existants. Attention, par défaut la date est représentée en temps UTC. Vous pouvez utiliser les « <a href="#fonctions-disponibles">fonctions disponibles</a> » pour la formatter.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"> <code>{date_dépôt_ddep}</code></th>
+                            <td> date</td>
+                            <td> Date de dépôt du DDEP pour les dossiers Onagre, vide si elle est inconnue ou si le dossier provient d'une autre source. Les fonctions de formatage des dates sont disponibles pour cette balise.</td>
                         </tr>
                         <tr>
                             <th scope="row"> <code>{date_fin_intervention}</code></th>
@@ -458,7 +463,7 @@ Pour la liste {scientifique.intervenants}, chaque élément de la liste contient
 
 ### Exemples d'utilisation des fonctions dans un modèle de document
 
-Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre modèle de document :
+Vous pouvez afficher une date telle quelle (ex. <code>{ date_création_dossier }</code>) ou la formater pour l'afficher proprement. Voici des extraits de code à insérer dans votre modèle de document :
 
 <div class="fr-table">
     <div class="fr-table__wrapper">
@@ -474,16 +479,16 @@ Vous pouvez afficher une date telle quelle (ex. <code>{ date_dépôt }</code>) o
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { date_dépôt }.</code></th>
-                            <td>Le porteur de projet a sollicité la DREAL le Wed Aug 30 2023 02:00:00 GMT+0200 (heure d’été d’Europe centrale)..</td>
+                            <th scope="row"> <code>Le dossier a été créé le { date_création_dossier }.</code></th>
+                            <td>Le dossier a été créé le Wed Aug 30 2023 02:00:00 GMT+0200 (heure d’été d’Europe centrale)..</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { formatter_date_simple(date_dépôt) }.</code></th>
-                            <td>Le porteur de projet a sollicité la DREAL le 30 août 2023.</td>
+                            <th scope="row"> <code>Le dossier a été créé le { formatter_date_simple(date_création_dossier) }.</code></th>
+                            <td>Le dossier a été créé le 30 août 2023.</td>
                         </tr>
                         <tr>
-                            <th scope="row"> <code>Le porteur de projet a sollicité la DREAL le { formatter_date(date_dépôt, 'P') }.</code></th>
-                            <td> Le porteur de projet a sollicité la DREAL le 30/08/2023.</td>
+                            <th scope="row"> <code>Le dossier a été créé le { formatter_date(date_création_dossier, 'P') }.</code></th>
+                            <td> Le dossier a été créé le 30/08/2023.</td>
                         </tr>
                     </tbody>
                 </table>

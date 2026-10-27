@@ -7,11 +7,13 @@
   type Props = {
     events: DossierFull["evenementsPhase"];
     depotDate: DossierFull["depot_date"];
+    ddepDepotDate?: DossierFull["ddep_depot_date"];
+    source?: DossierFull["source"];
   };
 
-  let { events, depotDate }: Props = $props();
+  let { events, depotDate, ddepDepotDate, source }: Props = $props();
 
-  const steps = $derived(timelineSteps(events, depotDate));
+  const steps = $derived(timelineSteps(events, depotDate, ddepDepotDate, source));
   const latestEvent = $derived([...events].sort(comparePhaseEventsNewestFirst)[0]);
 
   // Same green as the list's progress bar.
@@ -24,7 +26,7 @@
   </p>
 {/if}
 
-<ol class="fr-m-0 fr-p-0 grid list-none grid-cols-2 gap-y-6">
+<ol style:--step-count={steps.length} class="fr-m-0 fr-p-0 grid list-none grid-cols-2 gap-y-6">
   {#each steps as step, index}
     <li class="relative flex min-w-0 flex-col gap-1">
       {#if index > 0}
@@ -133,8 +135,10 @@
   @media (width >= 64rem) {
     /* End columns cover half an interval plus half a 24px marker. */
     ol {
-      --edge-column: calc((100% - 24px) / 10 + 12px);
-      grid-template-columns: var(--edge-column) repeat(4, minmax(0, 1fr)) var(--edge-column);
+      --edge-column: calc((100% - 24px) / (2 * (var(--step-count) - 1)) + 12px);
+      grid-template-columns:
+        var(--edge-column) repeat(calc(var(--step-count) - 2), minmax(0, 1fr))
+        var(--edge-column);
     }
     li:first-child {
       --step-alignment: flex-start;

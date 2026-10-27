@@ -42,3 +42,19 @@ test("accepts the canonical recevabilite phase, not its retired name", () => {
     ),
   ).toThrow();
 });
+
+test.each(["2025-02-29", "2026-04-31", "2026-13-01", "", "yesterday", "2026-01-01T23:00:00Z"])(
+  "rejects an invalid DDEP calendar day %s",
+  (ddep_depot_date) => {
+    expect(() => parseDossierUpdate({ ddep_depot_date }, DOSSIER_ID)).toThrow();
+  },
+);
+
+test("sets or clears the DDEP day without changing the initial deposit", () => {
+  expect(parseDossierUpdate({ ddep_depot_date: "2024-02-29" }, DOSSIER_ID)).toEqual({
+    ddep_depot_date: new Date(2024, 1, 29),
+  });
+  expect(parseDossierUpdate({ ddep_depot_date: null }, DOSSIER_ID)).toEqual({
+    ddep_depot_date: null,
+  });
+});

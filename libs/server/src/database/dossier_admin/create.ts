@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import { ensurePersonneIdByEmail } from "./personne.ts";
-import { assertEditableDossierColumns } from "./policy.ts";
+import { assertEditableDossierColumns, assertDdepDepositSource } from "./policy.ts";
 import { updateDossierAdminRelations } from "./relations.ts";
 import type { AdminDossierCreation } from "./types.ts";
 
@@ -12,6 +12,7 @@ export async function createDossierFromAdmin(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ id: DossierId }> {
   assertEditableDossierColumns(creation.columns);
+  assertDdepDepositSource("pitchou", creation.columns);
   return databaseConnection.transaction(async (trx) => {
     const [{ id }] = await trx("dossier")
       .insert({

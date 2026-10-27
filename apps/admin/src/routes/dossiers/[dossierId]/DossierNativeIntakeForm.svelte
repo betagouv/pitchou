@@ -9,6 +9,7 @@
   import type { ActiviteAdmin } from "#lib/actions/adminActivites.ts";
   import { updateDossier, type AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
 
+  import DossierCreationAdminSection from "../nouveau/DossierCreationAdminSection.svelte";
   import DossierIntakeFields from "../nouveau/DossierIntakeFields.svelte";
   import {
     buildCreationPayload,
@@ -144,6 +145,7 @@
   {/snippet}
 
   {#key formVersion}
+    <DossierCreationAdminSection {model} showPhase={false} />
     <DossierIntakeFields
       {model}
       {activites}

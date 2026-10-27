@@ -1,3 +1,4 @@
+import { withCalendarDateJSON } from "@pitchou/common/calendarDate.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import { withResolvedActivite } from "../activite.ts";
@@ -105,6 +106,7 @@ async function loadDossier(
       .first(),
     getDossierActeurs([dossierId], transaction),
   ]);
+  dossier.ddep_depot_date = withCalendarDateJSON(dossier.ddep_depot_date);
   dossier.acteurs = acteurs.get(dossierId) ?? [];
   return dossier;
 }

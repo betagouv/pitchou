@@ -68,9 +68,14 @@ export async function makeChampsDossierForInitialization(
     dossier: {
       ...makeCommonDossierColumnsForSync(dossierDS, pitchouKeyToChampDS, pitchouKeyToAnnotationDS),
       ...additionalData?.dossier,
-      depot_date: additionalData?.dossier?.depot_date ?? dossierDS.dateDepot,
+      depot_date:
+        additionalData?.dossier?.depot_date === undefined
+          ? dossierDS.dateDepot
+          : additionalData.dossier.depot_date,
       demarche_number: demarcheNumber,
       source: "demarche_numerique",
+      // The DDEP submission date is currently defined only for Onagre imports.
+      ddep_depot_date: null,
     },
     evenement_phase_dossier: additionalData?.evenement_phase_dossier,
     avis_expert: additionalData?.avis_expert,

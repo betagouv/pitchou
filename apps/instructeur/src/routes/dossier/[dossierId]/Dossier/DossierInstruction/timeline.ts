@@ -1,5 +1,6 @@
 import { formatDateAbsolute } from "@pitchou/common/formatDate.ts";
 import { orderedPhases, comparePhaseEventsNewestFirst } from "@pitchou/common/phases.ts";
+import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
 type PhaseEvent = { phase: DossierPhase; timestamp: Date | string };
@@ -16,7 +17,7 @@ function formatDay(date: Date | string): string {
 }
 
 /**
- * Builds the « Avancement du dossier » timeline: a Dépôt step followed by the five
+ * Builds the « Avancement du dossier » timeline with known deposit milestones and
  * phases. Phases before the current one show as done even when they were skipped
  * (e.g. dossiers created directly in « Étude recevabilité »). A dossier
  * « classé sans suite » completes phases only up to the furthest one reached,
@@ -25,15 +26,18 @@ function formatDay(date: Date | string): string {
 export function timelineSteps(
   events: readonly PhaseEvent[],
   depotDate: Date | string | null | undefined,
+  ddepDepotDate?: Date | string | null,
+  source?: DossierSource,
 ): TimelineStep[] {
   const ascending = [...events].sort(comparePhaseEventsNewestFirst).reverse();
   // No event records the initial default phase. Actual returns keep their event dates.
-  if (depotDate && ascending[0]?.phase !== "Accompagnement amont") {
+  if (source !== "onagre" && depotDate && ascending[0]?.phase !== "Accompagnement amont") {
     ascending.unshift({ phase: "Accompagnement amont", timestamp: depotDate });
   }
-  const currentPhase = ascending.at(-1)?.phase ?? "Accompagnement amont";
+  const currentPhase =
+    ascending.at(-1)?.phase ?? (source === "onagre" ? undefined : "Accompagnement amont");
   const classified = currentPhase === "Classé sans suite";
-  const currentIndex = orderedPhases.indexOf(currentPhase);
+  const currentIndex = currentPhase ? orderedPhases.indexOf(currentPhase) : -1;
   const furthestIndex = Math.max(-1, ...ascending.map(({ phase }) => orderedPhases.indexOf(phase)));
 
   // Periods spent in each phase: from each event to the next one, the latest
@@ -47,10 +51,19 @@ export function timelineSteps(
     periodsByPhase.set(event.phase, [...(periodsByPhase.get(event.phase) ?? []), period]);
   });
 
-  const steps: TimelineStep[] = [
-    { label: "Dépôt", state: "done", detail: depotDate ? [`Le ${formatDay(depotDate)}`] : [] },
-  ];
+  const steps: TimelineStep[] = depotDate
+    ? [{ label: "Création", state: "done", detail: [`Le ${formatDay(depotDate)}`] }]
+    : [];
   for (const [index, phase] of orderedPhases.entries()) {
+    if (phase === "Étude recevabilité" && source === "onagre" && ddepDepotDate) {
+      steps.push({
+        label: "Dépôt du DDEP",
+        state: "done",
+        detail: [`Le ${formatDay(ddepDepotDate)}`],
+      });
+    }
+    // Onagre did not record these preliminary phases. Keep them only when an event exists.
+    if (source === "onagre" && index < 2 && !periodsByPhase.has(phase)) continue;
     steps.push({
       label: phase,
       state: classified

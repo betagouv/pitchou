@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import * as XLSX from "xlsx";
 import type { ExportDossier } from "@pitchou/types/dossierExport.ts";
+import { parseCalendarDate } from "./calendarDate.ts";
 import { dossierExportRow, dossiersExportHeaders, dossiersExportTable } from "./dossiersExport.ts";
 import { tableToCsv, tableToOds } from "./spreadsheet.ts";
 
@@ -9,6 +10,7 @@ function dossier(overrides: Partial<ExportDossier> = {}): ExportDossier {
     id: 42 as ExportDossier["id"],
     demarche_numerique_number: null,
     name: 'Projet, avec des "guillemets"\net une deuxième ligne',
+    ddep_depot_date: null,
     depot_date: new Date("2026-09-01T10:00:00Z"),
     main_activite: "Production énergie renouvelable - Éolien",
     activite_label: "Parc éolien",
@@ -35,11 +37,12 @@ function dossier(overrides: Partial<ExportDossier> = {}): ExportDossier {
   };
 }
 
-test("exports all 21 columns, preserving identifiers, accents, quotes and multiline cells in CSV and ODS", async () => {
-  const data = dossier();
+test("exports all 22 columns, preserving identifiers, accents, quotes and multiline cells in CSV and ODS", async () => {
+  const data = dossier({ ddep_depot_date: parseCalendarDate("2026-07-15") });
   const table = dossiersExportTable([data]);
   const expected = [dossiersExportHeaders, dossierExportRow(data)];
-  expect(table[1]).toHaveLength(21);
+  expect(table[1]).toHaveLength(22);
+  expect(table[1][21]).toBe("15/07/2026");
   expect(table[1].slice(0, 12)).toEqual([
     "42",
     data.name,
@@ -160,6 +163,7 @@ test("deduplicates species and experts, exports flags independently, and uses la
     1,
     3,
     5,
+    "",
   ]);
 });
 
@@ -169,4 +173,12 @@ test("CSV neutralizes formulas while ODS stores them as literal strings", async 
   const ods = XLSX.read(await tableToOds(table), { type: "array" });
   expect(ods.Sheets.Dossiers.A1).toMatchObject({ t: "s", v: "=1+1" });
   expect(ods.Sheets.Dossiers.A1.f).toBeUndefined();
+});
+
+test("exports the local DDEP calendar day while leaving an unknown creation date blank", () => {
+  const row = dossierExportRow(
+    dossier({ depot_date: null, ddep_depot_date: parseCalendarDate("2026-07-15") }),
+  );
+  expect(row[3]).toBe("");
+  expect(row[dossiersExportHeaders.indexOf("Date de dépôt du DDEP")]).toBe("15/07/2026");
 });

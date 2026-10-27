@@ -18,8 +18,8 @@ export default interface Dossier {
   /** Unique dossier identifier on Démarches Simplifiées. Used only for some GraphQL API mutations. Prefer demarche_numerique_number */
   demarche_numerique_id: string | null;
 
-  /** Date on which the protected espece derogation request was received by the instructeurs. */
-  depot_date: Date;
+  /** Date of the initial deposit or first contact, when known. Independent of the DDEP deposit date. */
+  depot_date: Date | null;
 
   /** List of departments covered by the project */
   departments: unknown | null;
@@ -216,6 +216,9 @@ export default interface Dossier {
 
   /** Porteur de projet of the dossier. */
   porteur_de_projet: PorteurDeProjetId | null;
+
+  /** Date on which the DDEP was submitted, independent of the initial deposit or first contact. */
+  ddep_depot_date: Date | null;
 }
 
 /** Represents the initializer for the table public.dossier */
@@ -226,8 +229,8 @@ export interface DossierInitializer {
   /** Unique dossier identifier on Démarches Simplifiées. Used only for some GraphQL API mutations. Prefer demarche_numerique_number */
   demarche_numerique_id?: string | null;
 
-  /** Date on which the protected espece derogation request was received by the instructeurs. */
-  depot_date: Date;
+  /** Date of the initial deposit or first contact, when known. Independent of the DDEP deposit date. */
+  depot_date?: Date | null;
 
   /** List of departments covered by the project */
   departments?: unknown | null;
@@ -436,6 +439,9 @@ export interface DossierInitializer {
 
   /** Porteur de projet of the dossier. */
   porteur_de_projet?: PorteurDeProjetId | null;
+
+  /** Date on which the DDEP was submitted, independent of the initial deposit or first contact. */
+  ddep_depot_date?: Date | null;
 }
 
 /** Represents the mutator for the table public.dossier */
@@ -445,8 +451,8 @@ export interface DossierMutator {
   /** Unique dossier identifier on Démarches Simplifiées. Used only for some GraphQL API mutations. Prefer demarche_numerique_number */
   demarche_numerique_id?: string | null;
 
-  /** Date on which the protected espece derogation request was received by the instructeurs. */
-  depot_date?: Date;
+  /** Date of the initial deposit or first contact, when known. Independent of the DDEP deposit date. */
+  depot_date?: Date | null;
 
   /** List of departments covered by the project */
   departments?: unknown | null;
@@ -643,4 +649,7 @@ export interface DossierMutator {
 
   /** Porteur de projet of the dossier. */
   porteur_de_projet?: PorteurDeProjetId | null;
+
+  /** Date on which the DDEP was submitted, independent of the initial deposit or first contact. */
+  ddep_depot_date?: Date | null;
 }

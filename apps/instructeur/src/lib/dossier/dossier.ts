@@ -199,8 +199,8 @@ export function loadDossiers() {
 
       /* Format the dossiers */
       for (const dossier of dossiers) {
-        dossier.depot_date = new Date(dossier.depot_date);
-        dossier.phase_start_date = new Date(dossier.phase_start_date);
+        if (dossier.depot_date) dossier.depot_date = new Date(dossier.depot_date);
+        if (dossier.phase_start_date) dossier.phase_start_date = new Date(dossier.phase_start_date);
         if (dossier.next_due_date) dossier.next_due_date = new Date(dossier.next_due_date);
       }
 

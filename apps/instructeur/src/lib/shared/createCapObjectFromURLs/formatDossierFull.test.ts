@@ -7,6 +7,7 @@ test.each([
   "intervention_end_date",
   "commissioning_date",
   "depot_date",
+  "ddep_depot_date",
   "public_consultation_start_date",
   "public_consultation_end_date",
   "next_due_date",
@@ -25,4 +26,13 @@ test.each([null, undefined])("preserves an absent commissioning date: %s", (comm
   const payload = JSON.parse(JSON.stringify(fakeDossierFull({ commissioning_date })));
 
   expect(formatDossierFull(payload).commissioning_date).toBe(commissioning_date);
+});
+
+test("loads a DDEP calendar day in local time and preserves missing dates", () => {
+  const payload = JSON.parse(JSON.stringify(fakeDossierFull({ depot_date: null })));
+  payload.ddep_depot_date = "2026-07-15";
+  expect(formatDossierFull(payload).ddep_depot_date).toEqual(new Date(2026, 6, 15));
+  const unknown = formatDossierFull(fakeDossierFull({ depot_date: null, ddep_depot_date: null }));
+  expect(unknown.depot_date).toBeNull();
+  expect(unknown.ddep_depot_date).toBeNull();
 });

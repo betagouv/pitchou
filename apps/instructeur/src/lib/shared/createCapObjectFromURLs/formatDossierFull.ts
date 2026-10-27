@@ -1,3 +1,4 @@
+import { isCalendarDate, parseCalendarDate } from "@pitchou/common/calendarDate.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 export function formatDossierFull(ret: DossierFull): DossierFull {
@@ -12,6 +13,11 @@ export function formatDossierFull(ret: DossierFull): DossierFull {
   ] as const) {
     if (ret[key]) ret[key] = new Date(ret[key]);
   }
+
+  if (ret.ddep_depot_date)
+    ret.ddep_depot_date = isCalendarDate(ret.ddep_depot_date)
+      ? parseCalendarDate(ret.ddep_depot_date)
+      : new Date(ret.ddep_depot_date);
 
   if (ret.especesImpactees) Object.freeze(ret.especesImpactees);
   if (ret.evenementsPhase) Object.freeze(ret.evenementsPhase);

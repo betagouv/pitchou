@@ -14,6 +14,7 @@ export const APP_NATIVE_DOSSIER_COLUMNS = new Set<keyof Dossier>([
   "onagre_demande_identifier",
   "enjeu",
   "ddep_required",
+  "ddep_depot_date",
   "er_mesures_sufficient",
   "public_consultation_start_date",
   "public_consultation_end_date",
@@ -103,4 +104,14 @@ export async function getDossierSyncStatus(
     managedByDn: source === "demarche_numerique",
     createdInPitchou: source === "pitchou",
   };
+}
+
+export function assertDdepDepositSource(
+  source: DossierSource,
+  columns: DossierMutator | undefined,
+): void {
+  if (source !== "onagre" && columns?.ddep_depot_date != null)
+    throw new TypeError(
+      "La date de dépôt du DDEP est réservée aux dossiers Onagre pour le moment.",
+    );
 }

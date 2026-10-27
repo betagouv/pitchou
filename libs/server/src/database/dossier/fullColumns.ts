@@ -7,6 +7,7 @@ export const dossierFullColumns = [
   "demarche_numerique_number",
   "demarche_number",
   "depot_date",
+  "ddep_depot_date",
   "dossier.name as name",
   "description",
   "urgent_contact_phone",

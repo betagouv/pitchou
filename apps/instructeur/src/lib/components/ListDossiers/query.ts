@@ -34,7 +34,7 @@ export const DEFAULT_PAGE_SIZE = 10;
 export type Nouveaute = "" | "oui" | "non";
 
 export const SORT_OPTIONS: { key: SortKey; label: string; orderable: boolean }[] = [
-  { key: "depositDate", label: "Date de dépôt", orderable: true },
+  { key: "depositDate", label: "Date de création du dossier", orderable: true },
   { key: "lastModified", label: "Dernière modification", orderable: true },
   { key: "nextDueDate", label: "Date de prochaine échéance", orderable: true },
 ];
@@ -119,7 +119,7 @@ export const DEFAULT_SORT: SortKey = "depositDate";
 export const DEFAULT_ORDER: SortOrder = "desc";
 
 /**
- * Reads a query from the URL and applies the list's UI default sort (« date de dépôt,
+ * Reads a query from the URL and applies the list's UI default sort (« date de création du dossier,
  * les plus récentes ») when the URL carries none.
  */
 export function readDossiersQuery(params: URLSearchParams): DossiersQuery {

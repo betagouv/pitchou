@@ -81,7 +81,7 @@ function isDossierSummary(x: any): x is DossierSummary {
   if (!phaseValid || !actionValid) return false;
 
   // DonnéesDossierPourStats
-  const statsValid = isValidDateString(x.depot_date);
+  const statsValid = x.depot_date === null || isValidDateString(x.depot_date);
 
   return statsValid;
 }

@@ -33,10 +33,10 @@
         />
       </div>
       <div class="fr-input-group min-w-[14rem]">
-        <label class="fr-label" for="edit-depot-date">Date de dépôt</label>
+        <label class="fr-label" for="edit-depot-date">Date de création du dossier</label>
         <DatePicker
           id="edit-depot-date"
-          label="Date de dépôt"
+          label="Date de création du dossier"
           value={model.depotDate}
           onChange={(value) => (model.depotDate = value ?? "")}
         />

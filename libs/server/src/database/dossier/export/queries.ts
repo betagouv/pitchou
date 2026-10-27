@@ -18,6 +18,7 @@ export function exportDossiersQuery(
       "demarche_numerique_number",
       "dossier.name",
       "depot_date",
+      trx.raw("CASE WHEN source = 'onagre' THEN ddep_depot_date ELSE NULL END AS ddep_depot_date"),
       "main_activite",
       "activite.label as activite_label",
       "primary_department",
