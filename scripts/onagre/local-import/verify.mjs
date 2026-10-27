@@ -24,6 +24,9 @@ try {
         depot_date: null,
         ddep_depot_date: "2020-02-01",
         description: null,
+        main_activite: "energie-photovoltaique",
+        communes: [{ name: "Synthetic commune", code: "75056", postalCode: "75001" }],
+        departments: ["75"],
       },
       records: [
         {
@@ -54,6 +57,28 @@ try {
   const run = async (value = sample) => (await importSamples(client, [value], reviewer.email))[0];
   const first = await run();
   assert.equal(first.outcomes.filter((o) => o.status === "created").length, 5);
+  const location = (
+    await client.query("SELECT communes, departments FROM dossier WHERE id=$1", [first.dossierId])
+  ).rows[0];
+  assert.deepEqual(location.communes, sample.proposal.dossier.communes);
+  assert.deepEqual(location.departments, sample.proposal.dossier.departments);
+  const activity = (
+    await client.query(
+      `SELECT d.main_activite, a.code, a.label FROM dossier d
+       JOIN activite_label l ON l.label=d.main_activite AND NOT l.needs_review
+       JOIN activite a ON a.code=l.activite_code WHERE d.id=$1`,
+      [first.dossierId],
+    )
+  ).rows[0];
+  assert.equal(activity.code, "energie-photovoltaique");
+  assert.equal(activity.main_activite, activity.label);
+  assert.equal(sample.proposal.dossier.main_activite, "energie-photovoltaique");
+  const withLabel = structuredClone(sample);
+  withLabel.proposal.dossier.main_activite = activity.label;
+  assert((await run(withLabel)).outcomes.every((o) => o.status === "unchanged"));
+  const unknownActivity = structuredClone(sample);
+  unknownActivity.proposal.dossier.main_activite = "synthetic-unknown-activity";
+  await assert.rejects(() => run(unknownActivity), /existing reviewed Pitchou activity/u);
   const second = await run();
   assert.equal(first.dossierId, second.dossierId);
   assert(second.outcomes.every((o) => o.status === "unchanged"));
@@ -66,6 +91,17 @@ try {
   sample.proposal.records[3].values.timestamp = "2020-03-02T00:00:00.000Z";
   const changed = await run();
   assert.equal(changed.outcomes.filter((o) => o.status === "updated").length, 3);
+  sample.proposal.dossier.communes[0].postalCode = "75002";
+  assert.equal((await run()).outcomes[0].status, "updated");
+  assert.deepEqual(
+    (await client.query("SELECT communes FROM dossier WHERE id=$1", [first.dossierId])).rows[0]
+      .communes,
+    sample.proposal.dossier.communes,
+  );
+  assert((await run()).outcomes.every((o) => o.status === "unchanged"));
+  const invalidLocation = structuredClone(sample);
+  invalidLocation.proposal.dossier.departments = { code: "75" };
+  await assert.rejects(() => run(invalidLocation), /Invalid location/u);
   assert.equal(
     (await client.query("SELECT ddep_depot_date FROM dossier WHERE id=$1", [first.dossierId]))
       .rows[0].ddep_depot_date,

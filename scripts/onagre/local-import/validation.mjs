@@ -1,3 +1,4 @@
+import { validateSpecies } from "./species.mjs";
 export const columns = {
   dossier: [
     "source",
@@ -8,6 +9,8 @@ export const columns = {
     "main_activite",
     "description",
     "primary_department",
+    "communes",
+    "departments",
     "no_other_satisfactory_solution_justification",
     "motif_derogation",
   ],
@@ -26,8 +29,28 @@ export function validateFields(table, values) {
   )
     throw new Error("Invalid record");
   for (const [key, value] of Object.entries(values)) {
-    if (!columns[table].includes(key) || (value !== null && typeof value !== "string"))
+    const location = table === "dossier" && ["communes", "departments"].includes(key);
+    if (!columns[table].includes(key) || (value !== null && !location && typeof value !== "string"))
       throw new Error(`Unsupported field ${table}.${key}`);
+    if (location && value !== null) {
+      const valid =
+        Array.isArray(value) &&
+        value.every((item) =>
+          key === "departments"
+            ? typeof item === "string" && /^(?:\d{2,3}|2[AB])$/u.test(item)
+            : item &&
+              typeof item === "object" &&
+              !Array.isArray(item) &&
+              Object.keys(item).every((field) => ["name", "code", "postalCode"].includes(field)) &&
+              typeof item.name === "string" &&
+              item.name.trim().length > 0 &&
+              typeof item.code === "string" &&
+              /^[0-9AB]{5}$/u.test(item.code) &&
+              typeof item.postalCode === "string" &&
+              /^\d{5}$/u.test(item.postalCode),
+        );
+      if (!valid) throw new Error(`Invalid location ${key}`);
+    }
     if (
       key.endsWith("_date") &&
       value !== null &&
@@ -50,6 +73,7 @@ export function validateSample(sample) {
   if (sample.proposal.dossier.source !== "onagre" || sample.proposal.dossier.depot_date !== null)
     throw new Error("Expected Onagre source and unknown creation date");
   const records = sample.proposal.records ?? [];
+  if (sample.proposal.speciesImpacts !== undefined) validateSpecies(sample.proposal.speciesImpacts);
   if (!Array.isArray(records)) throw new Error("Expected records array");
   const known = new Map([[identity.key, "dossier"]]);
   for (const record of records) {
@@ -76,6 +100,9 @@ export function validateSample(sample) {
     )
       throw new Error("Invalid historical phase");
     known.set(record.sourceKey, record.table);
+  }
+  for (const impact of sample.proposal.speciesImpacts ?? []) {
+    if (known.has(impact.sourceKey)) throw new Error("Duplicate species identity");
   }
   return sample;
 }

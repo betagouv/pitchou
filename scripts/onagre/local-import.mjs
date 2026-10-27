@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { connect, initialize } from "./local-import/connection.mjs";
 import { importSamples } from "./local-import/run.mjs";
 import { assertIgnoredFile } from "./local-import/files.mjs";
+import { uploadSpeciesFiles } from "./local-import/species.mjs";
 const args = process.argv.slice(2),
   apply = args[0] === "--apply";
 if (apply) args.shift();
@@ -26,7 +27,10 @@ let committed = false;
 try {
   await client.query("BEGIN");
   await initialize(client);
-  const dossiers = await importSamples(client, samples, reviewerEmail);
+  const generatedFiles = [];
+  const dossiers = await importSamples(client, samples, reviewerEmail, { files: generatedFiles });
+  // Immutable, content-addressed file identities make a failed DB commit safe to retry.
+  if (apply) await uploadSpeciesFiles(generatedFiles, process.env);
   await client.query(apply ? "COMMIT" : "ROLLBACK");
   committed = apply;
   const report = { applied: apply, checkedAt: new Date().toISOString(), dossiers };

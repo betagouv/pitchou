@@ -1,10 +1,12 @@
 import { mergeFields } from "./merge.mjs";
 const quote = (value) => `"${value}"`;
+// pg encodes arrays as PostgreSQL arrays unless JSON columns are serialized explicitly.
+const parameter = (value) => (Array.isArray(value) ? JSON.stringify(value) : value);
 async function insert(client, table, fields) {
   const keys = Object.keys(fields);
   const result = await client.query(
     `INSERT INTO public.${quote(table)} (${keys.map(quote).join(",")}) VALUES (${keys.map((_, i) => `$${i + 1}`).join(",")}) RETURNING id`,
-    Object.values(fields),
+    Object.values(fields).map(parameter),
   );
   return String(result.rows[0].id);
 }
@@ -43,7 +45,7 @@ export async function writeRecord(client, dossierKey, sourceKey, table, values, 
     if (entries.length > 0) {
       await client.query(
         `UPDATE public.${quote(table)} SET ${entries.map(([key], i) => `${quote(key)}=$${i + 1}`).join(",")} WHERE id=$${entries.length + 1}`,
-        [...entries.map(([, value]) => value), targetId],
+        [...entries.map(([, value]) => parameter(value)), targetId],
       );
       status = "updated";
     }
