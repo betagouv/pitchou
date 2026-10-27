@@ -10,6 +10,7 @@ import {
   refreshDossierFull,
 } from "./CnpnEmailModal/setup.ts";
 import { dossier, latestSaisineId, saisineId } from "./CnpnEmailModal/fixtures.ts";
+import { EMAIL_SIZE_ERROR, FRANCE_TRANSFERT_URL } from "@pitchou/common/emailSize.ts";
 
 test("ouvre la modale avant la fin de la préparation du mail", async () => {
   const rootOverflow = document.documentElement.style.overflow;
@@ -55,7 +56,11 @@ test("préremplit les destinataires et envoie la saisine sélectionnée", async 
       "derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr",
     );
   await expect
-    .element(page.getByText("Un accusé de lecture du mail vous sera communiqué."))
+    .element(
+      page.getByText(
+        "Un accusé vous sera envoyé si une ouverture du mail est détectée. Certains logiciels de messagerie empêchent cette détection.",
+      ),
+    )
     .toBeVisible();
   await expect.element(page.getByText("Environnement de test")).toBeVisible();
   await expect
@@ -138,12 +143,7 @@ test("propose les options d'alignement du corps du mail", async () => {
 });
 
 test("permet de corriger le mail après une erreur de validation", async () => {
-  vi.mocked(sendCnpnEmail).mockRejectedValueOnce(
-    new RequestError(
-      413,
-      "Le mail et les pièces jointes dépassent la limite de 20 Mo après encodage.",
-    ),
-  );
+  vi.mocked(sendCnpnEmail).mockRejectedValueOnce(new RequestError(413, EMAIL_SIZE_ERROR));
   render(CnpnEmailModal, {
     dossier,
     email: "sender@example.com",
@@ -154,10 +154,12 @@ test("permet de corriger le mail après une erreur de validation", async () => {
   await page.getByRole("button", { name: "Envoyer", exact: true }).click();
   await vi.advanceTimersByTimeAsync(3000);
 
-  await expect.element(page.getByRole("alert")).toMatchTextContent("dépassent la limite");
+  await expect.element(page.getByRole("alert")).toMatchTextContent("dépasse la limite de 10 Mo");
   const alert = page.getByRole("alert").element();
   expect(alert.closest("footer")).not.toBeNull();
-  expect(alert.nextElementSibling?.textContent).toContain("Annuler");
+  await expect
+    .element(page.getByRole("link", { name: "Ouvrir France Transfert" }))
+    .toHaveAttribute("href", FRANCE_TRANSFERT_URL);
   await expect.element(page.getByLabelText("Objet")).not.toBeDisabled();
   await expect.element(page.getByRole("button", { name: "Envoyer", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: /Pièces jointes/u }).click();

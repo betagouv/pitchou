@@ -24,10 +24,9 @@ import {
 } from "@pitchou/server/emails.ts";
 import { parseDossierId, parseRequest } from "./request.ts";
 import { authorizeSendAttempt } from "./attempt.ts";
+import { EMAIL_SIZE_ERROR } from "@pitchou/common/emailSize.ts";
 
 const CNPN_EMAIL = "derogations-especes-protegees.et4.deb.dgaln@developpement-durable.gouv.fr";
-const EMAIL_SIZE_ERROR =
-  "Le mail dépasse la limite de 20 Mo après encodage. Réduisez les pièces jointes ou le corps du mail.";
 const IS_TEST_ENVIRONMENT = dev || process.env.PUBLIC_PITCHOU_ENV === "staging";
 
 async function readableToBuffer(body: NodeJS.ReadableStream, budget: number): Promise<Buffer> {

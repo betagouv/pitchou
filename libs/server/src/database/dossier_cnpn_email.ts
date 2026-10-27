@@ -22,6 +22,8 @@ const sentEventColumns = [
   "sent_at",
   "delivered_at",
   "opened_at",
+  "delivery_failed_at",
+  "delivery_failure_reason",
   "recipient_email",
   "cc_emails",
   "subject",

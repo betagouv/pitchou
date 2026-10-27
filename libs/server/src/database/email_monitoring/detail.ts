@@ -51,6 +51,11 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
       "attachment_ids",
       "attachment_names",
       "read_receipt_sent_at",
+      "delivery_failed_at",
+      "delivery_failure_event",
+      "delivery_failure_reason",
+      "failure_notification_sent_at",
+      "failure_notification_uncertain_at",
     );
   // These are existing timestamps, not a reconstructed attempt history.
   const history = [
@@ -59,6 +64,9 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
     ["delivered", row.delivered_at],
     ["opened", row.opened_at],
     ["read_receipt", stored.read_receipt_sent_at],
+    [stored.delivery_failure_event ?? "delivery_failed", stored.delivery_failed_at],
+    ["failure_notification", stored.failure_notification_sent_at],
+    ["failure_notification_uncertain", stored.failure_notification_uncertain_at],
   ]
     .filter(([, date]) => date)
     .map(([event, date]) => ({
@@ -68,7 +76,10 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
       environment: "unrecorded",
       occurred_at: date as Date | string,
       attempt: 0,
-      details: {},
+      details:
+        event === stored.delivery_failure_event && stored.delivery_failure_reason
+          ? { reason: stored.delivery_failure_reason }
+          : {},
     }))
     .sort((a, b) => +new Date(a.occurred_at) - +new Date(b.occurred_at));
   return {

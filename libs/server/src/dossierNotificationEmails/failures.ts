@@ -1,3 +1,5 @@
+import { isNetworkError } from "ky";
+
 export function notificationErrorCategory(error: unknown): string {
   if (error instanceof Error && error.message === "Missing BREVO_API_KEY environment variable")
     return "configuration";
@@ -12,7 +14,7 @@ export function notificationErrorCategory(error: unknown): string {
   }
   if (error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name))
     return "timeout";
-  if (error instanceof TypeError) return "network";
+  if (isNetworkError(error) || error instanceof TypeError) return "network";
   return "unknown";
 }
 

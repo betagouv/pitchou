@@ -123,7 +123,7 @@ test("le mode lecture seule masque les éléments internes au service", () => {
   expect(screen.queryByRole("heading", { name: /Autre expert/u, hidden: true })).toBeNull();
   expect(screen.queryByText(/Date d’ajout du courrier de saisine/u)).toBeNull();
   expect(screen.queryByText(/Date d’envoi du mail via Pitchou/u)).toBeNull();
-  expect(screen.queryByText(/Date de lecture de la saisine/u)).toBeNull();
+  expect(screen.queryByText(/Ouverture du mail de saisine/u)).toBeNull();
   expect(
     screen.queryByRole("link", { name: /Télécharger le fichier saisine/u, hidden: true }),
   ).toBeNull();

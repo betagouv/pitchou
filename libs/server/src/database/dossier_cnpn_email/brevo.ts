@@ -1,15 +1,11 @@
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type { DossierCnpnEmailBrevoEvent } from "../../cnpnEmailBrevo.ts";
+import { recordDeliveryFailure, type FailureNotification } from "./failure.ts";
 
 export async function recordDossierCnpnEmailBrevoEvent(
-  event: {
-    type: "delivered" | "opened";
-    providerMessageId: string;
-    requestId?: string;
-    recipientEmail: string;
-    occurredAt: Date;
-  },
+  event: DossierCnpnEmailBrevoEvent,
   db: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<
   | { matched: false }
@@ -23,6 +19,8 @@ export async function recordDossierCnpnEmailBrevoEvent(
         subject: string;
       };
       retryReadReceipt?: boolean;
+      failureNotification?: FailureNotification;
+      retryFailureNotification?: boolean;
     }
 > {
   const column = event.type === "delivered" ? "delivered_at" : "opened_at";
@@ -40,6 +38,10 @@ export async function recordDossierCnpnEmailBrevoEvent(
     });
   }
   if (message.recipient_email !== event.recipientEmail.toLowerCase()) return { matched: true };
+
+  if (event.type !== "delivered" && event.type !== "opened") {
+    return recordDeliveryFailure(message.id, event, db);
+  }
 
   const match = { id: message.id, status: "sent" };
   const query = db("dossier_cnpn_email_sent_event").where(match);

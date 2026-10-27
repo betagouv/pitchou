@@ -3,6 +3,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 import path from "node:path";
 import { INTEGRATION_DB_NAME, databaseUrl, makeAdminKnex, makeKnex } from "./db.ts";
 import { initTestS3, type TestS3Credentials } from "./init-test-s3.ts";
+import { TEST_EMAIL_ENVIRONMENT } from "./emailEnvironment.ts";
 
 export const INTEGRATION_PORT = 32649;
 export const INTEGRATION_BASE_URL = `http://127.0.0.1:${INTEGRATION_PORT}`;
@@ -81,7 +82,7 @@ function spawnKit(
       NODE_ENV: "production",
       PITCHOU_ADMIN_EMAILS: TEST_ADMIN_EMAIL,
       DEMARCHE_SIMPLIFIEE_API_TOKEN: process.env.DEMARCHE_SIMPLIFIEE_API_TOKEN ?? "test",
-      BREVO_API_KEY: process.env.BREVO_API_KEY ?? "test",
+      ...TEST_EMAIL_ENVIRONMENT,
       KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER:
         process.env.KEY_CHIFFREMENT_DONNEES_INSTRUCTIONS_DOSSIER ??
         "testtesttesttesttesttesttesttesttesttest",

@@ -4,20 +4,14 @@
   import { piecesJointesAvis, type PieceJointeSimple } from "../piecesJointes.ts";
   import { deletePieceJointe } from "../deletePieceJointe.ts";
   import PieceJointeDeleteButton from "../PieceJointeDeleteButton.svelte";
-  import type {
-    DossierCnpnEmailSentEvent,
-    DossierFull,
-    FrontEndAvisExpert,
-  } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   let {
     dossierId,
     avisExpert,
-    cnpnEmailEvent,
   }: {
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
-    cnpnEmailEvent?: DossierCnpnEmailSentEvent;
   } = $props();
   const readOnly = readOnlyMode();
   let deletedKeys = $state<string[]>([]);
@@ -69,36 +63,6 @@
         {/if}
       {/if}
     </li>
-    {#if cnpnEmailEvent}
-      <li
-        class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
-      >
-        <span
-          class="fr-icon-send-plane-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
-          aria-hidden="true"
-        ></span>
-        <div class="min-w-0 flex-1">
-          <span class="fr-hint-text block">Date d’envoi du mail via Pitchou</span>
-          <strong class="block">{formatDateAbsolute(cnpnEmailEvent.sent_at)}</strong>
-        </div>
-      </li>
-      <li
-        class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
-      >
-        <span
-          class="fr-icon-eye-line fr-icon--sm flex-none text-[color:var(--text-action-high-blue-france)]"
-          aria-hidden="true"
-        ></span>
-        <div class="min-w-0 flex-1">
-          <span class="fr-hint-text block">Date de lecture de la saisine</span>
-          <strong class="block"
-            >{cnpnEmailEvent.opened_at
-              ? formatDateAbsolute(cnpnEmailEvent.opened_at)
-              : "Pas encore lue"}</strong
-          >
-        </div>
-      </li>
-    {/if}
   {/if}
   {#if avisFile || avisExpert.avis_date || avisExpert.avis === "Avis favorable tacite"}
     <li

@@ -3,7 +3,7 @@
   import type { EmailDetail } from "@pitchou/types/adminEmails.ts";
   import MailPreview from "./MailPreview.svelte";
   import MailTimeline from "./MailTimeline.svelte";
-  import { kindLabels, statusLabels, environmentLabels } from "./labels.ts";
+  import { kindLabels, emailStatusLabel, environmentLabels } from "./labels.ts";
   import { trapDialogFocus, showMailDialog } from "./MailDetails/dialog.ts";
   import { mailMetadata } from "./MailDetails/metadata.ts";
   import "./MailDetails/styles.css";
@@ -70,9 +70,7 @@
           <div class="mail-eyebrow">
             <span>{kindLabels[row.kind]}</span><span
               >{environmentLabels[row.environment] ?? row.environment}</span
-            ><span class="mail-state" data-status={row.status}
-              >{statusLabels[row.status] ?? row.status}</span
-            >
+            ><span class="mail-state" data-status={row.status}>{emailStatusLabel(row)}</span>
           </div>
           <h3>{row.subject ?? "Objet non enregistré"}</h3>
           <div class="mail-envelope">
@@ -124,9 +122,9 @@
                   {#each detail.attachments as attachment}<li>{attachment.name}</li>{/each}
                 </ul>{/if}
               <p class="mail-note">
-                Accepté signifie pris en charge par l'expéditeur. Les confirmations CNPN concernent
-                le destinataire principal ; une ouverture détectée ne prouve pas une lecture
-                complète.
+                Les confirmations CNPN concernent le destinataire principal. Une ouverture détectée
+                ne prouve pas une lecture complète. Sans signal d'ouverture, la lecture reste
+                inconnue, car les images ou le suivi peuvent être bloqués.
               </p>
               <a
                 class="mail-permalink"

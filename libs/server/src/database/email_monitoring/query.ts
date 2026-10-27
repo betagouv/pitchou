@@ -37,7 +37,8 @@ export function emailRows(db: Knex.Transaction) {
       db.raw("'cnpn'::text as source"),
       "c.id",
       db.raw("'cnpn'::text as kind"),
-      "c.status",
+      db.raw(`CASE WHEN c.delivery_failed_at IS NOT NULL AND c.delivered_at IS NULL
+        AND c.opened_at IS NULL THEN 'failed' ELSE c.status END as status`),
       db.raw("'unrecorded'::text as environment"),
       "c.dossier",
       "d.name as dossier_name",
@@ -47,7 +48,7 @@ export function emailRows(db: Knex.Transaction) {
       "c.sent_at",
       "c.created_at",
       db.raw(
-        "NULL::timestamptz as retry_at, NULL::integer as attempt_count, NULL::text as last_error, NULL::text as cancellation_reason",
+        "NULL::timestamptz as retry_at, NULL::integer as attempt_count, c.delivery_failure_reason as last_error, NULL::text as cancellation_reason",
       ),
       "c.provider_message_id",
       "c.subject",
