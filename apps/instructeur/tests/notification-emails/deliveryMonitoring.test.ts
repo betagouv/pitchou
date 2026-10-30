@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { emailFilters, emailOverview } from "@pitchou/server/database/email_monitoring.ts";
 import { setup } from "./fixtures.ts";
+import { reportEmailIssue } from "@pitchou/server/emails/issues.ts";
 
 const filters = (query = "") => emailFilters(new URLSearchParams(query));
 const acceptedAt = new Date("2026-10-28T15:51:56Z");
@@ -104,7 +105,38 @@ test("ignores other recipients, environments, message IDs, API errors and succes
   expect((await emailOverview(filters("status=failed"), db)).total).toBe(0);
 });
 
-test("keeps one mail per result and uses the latest recorded reason across pagination", async () => {
+test("shows failures persisted by the alert writer and retains the first deduplicated event", async () => {
+  const row = await acceptedNotification();
+  const send = vi.fn().mockResolvedValue({ messageId: "simulated-alert" });
+  const event = {
+    key: `delivery:${row.provider_message_id}:old@test.fr`,
+    environment: "pitchou-env-production",
+    type: "hard_bounce",
+    recipient: "old@test.fr",
+    subject: "Nouveau dossier",
+    reason: '511 "User Unknown"',
+    occurredAt: new Date(failedAt),
+    providerMessageId: row.provider_message_id,
+  };
+  await reportEmailIssue(event, { db, send });
+  await reportEmailIssue(
+    { ...event, type: "blocked", reason: "Later duplicate event" },
+    { db, send },
+  );
+  expect(send).toHaveBeenCalledOnce();
+  expect(await db("email_issue_notification")).toHaveLength(1);
+  const result = await emailOverview(filters(`status=failed&email=notification:${row.id}`), db);
+  expect(result.total).toBe(1);
+  expect(result.detail?.row.last_error).toBe(event.reason);
+  expect(result.detail?.history.map((entry) => entry.event)).toEqual([
+    "queued",
+    "sent",
+    "hard_bounce",
+  ]);
+  expect(result.detail?.history.at(-1)?.occurred_at).toBe(failedAt);
+});
+
+test("defensively groups duplicate issue fixtures across pagination and uses their latest reason", async () => {
   const row = await acceptedNotification();
   await issue(row, { type: "soft_bounce", occurredAt: "2026-10-28T15:51:57.000Z" });
   await issue(row, { type: "blocked", reason: "blocked : due to blacklist user" });

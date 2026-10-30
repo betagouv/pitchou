@@ -1,22 +1,36 @@
 import type { Knex } from "knex";
 import type { EmailRow } from "@pitchou/types/adminEmails.ts";
 
-// Match the actual envelope, even if the account address has changed since sending.
 // Technical alert delivery state does not determine whether the original mail failed.
-export function notificationDeliveryIssues(db: Knex.Transaction, row?: EmailRow) {
-  return db("email_issue_notification as i")
-    .whereRaw("i.issue->>'providerMessageId' = ?", [
-      row ? row.provider_message_id : db.ref("n.provider_message_id"),
-    ])
-    .whereRaw("i.issue->>'recipient' = ?", [
-      row ? row.email : db.raw("coalesce(n.message->'to'->>0, p.email)"),
-    ])
-    .whereRaw("i.issue->>'environment' = ?", [
-      row ? `pitchou-env-${row.environment}` : db.raw("'pitchou-env-' || n.environment"),
-    ])
-    .whereRaw(
-      "i.issue->>'type' IN ('soft_bounce', 'hard_bounce', 'blocked', 'invalid_email', 'error')",
+function deliveryIssues(db: Knex.Transaction) {
+  return db("email_issue_notification as i").whereRaw(
+    "i.issue->>'type' IN ('soft_bounce', 'hard_bounce', 'blocked', 'invalid_email', 'error')",
+  );
+}
+
+// Match the actual envelope, even if the account address has changed since sending.
+export function notificationDeliveryIssues(db: Knex.Transaction, row: EmailRow) {
+  return deliveryIssues(db)
+    .whereRaw("i.issue->>'providerMessageId' = ?", [row.provider_message_id])
+    .whereRaw("i.issue->>'recipient' = ?", [row.email])
+    .whereRaw("i.issue->>'environment' = ?", [`pitchou-env-${row.environment}`])
+    .orderByRaw("i.issue->>'occurredAt' DESC")
+    .orderBy("i.id");
+}
+
+// Group the retained failures once, rather than scanning them for each notification.
+export function latestNotificationDeliveryIssues(db: Knex.Transaction) {
+  return deliveryIssues(db)
+    .distinctOn("provider_message_id", "recipient", "environment")
+    .select("i.id")
+    .select(
+      db.raw(`i.issue->>'providerMessageId' as provider_message_id,
+      i.issue->>'recipient' as recipient, i.issue->>'environment' as environment,
+      i.issue->>'reason' as reason`),
     )
+    .orderBy("provider_message_id")
+    .orderBy("recipient")
+    .orderBy("environment")
     .orderByRaw("i.issue->>'occurredAt' DESC")
     .orderBy("i.id");
 }
