@@ -109,6 +109,10 @@
                   Dates enregistrées uniquement. Les tentatives intermédiaires ne sont pas
                   conservées pour les mails CNPN.
                 </p>{/if}
+              {#if row.source === "notification"}<p class="mail-note">
+                  Les échecs signalés par Brevo sont conservés ici. L'absence d'échec ne confirme
+                  pas la distribution. Une distribution ultérieure ne met pas à jour ce suivi.
+                </p>{/if}
             </div>
           {:else}<div class="mail-pane-content">
               <dl class="mail-metadata">

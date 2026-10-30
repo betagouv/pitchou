@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type { EmailFilters } from "@pitchou/types/adminEmails.ts";
+import { notificationDeliveryIssues } from "./issues.ts";
 
 // Project both sources before filtering, sorting, counting or paginating.
 // CNPN has no environment or attempt counter. NULL must not imply production or one attempt.
@@ -7,11 +8,19 @@ export function emailRows(db: Knex.Transaction) {
   const notifications = db("email_notification_outbox as n")
     .leftJoin("dossier as d", "d.id", "n.dossier")
     .leftJoin("auth_user as p", "p.id", "n.personne")
+    .joinRaw("LEFT JOIN LATERAL (?) AS delivery_issue ON true", [
+      db.raw("?", [
+        notificationDeliveryIssues(db)
+          .select(db.raw("i.issue->>'reason' as reason"))
+          .select("i.id")
+          .limit(1),
+      ]),
+    ])
     .select(
       db.raw("'notification'::text as source"),
       "n.id",
       "n.kind",
-      "n.status",
+      db.raw("CASE WHEN delivery_issue.id IS NOT NULL THEN 'failed' ELSE n.status END as status"),
       "n.environment",
       "n.dossier",
       "d.name as dossier_name",
@@ -24,7 +33,7 @@ export function emailRows(db: Knex.Transaction) {
       "n.created_at",
       "n.retry_at",
       "n.attempt_count",
-      "n.last_error",
+      db.raw("coalesce(delivery_issue.reason, n.last_error) as last_error"),
       "n.cancellation_reason",
       "n.provider_message_id",
       db.raw(

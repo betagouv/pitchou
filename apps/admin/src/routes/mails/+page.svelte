@@ -58,10 +58,18 @@
   </p>
   <h3>Distribution et ouverture</h3>
   <p>
-    Un mail pris en charge par Brevo attend encore la confirmation de sa distribution. Les
-    distributions et ouvertures concernent le destinataire principal. Une ouverture détectée ne
-    garantit pas que le message a été lu intégralement. Sans ouverture détectée, la lecture reste
-    inconnue.
+    Un mail pris en charge par Brevo n'est pas nécessairement distribué. Les échecs de livraison
+    enregistrés apparaissent dans « À vérifier », avec le motif dans la liste et l'historique du
+    mail. « Annulés ou bloqués » concerne les annulations et la protection de préproduction.
+  </p>
+  <p>
+    Les confirmations de distribution et d'ouverture concernent les mails CNPN et leur destinataire
+    principal. Une ouverture détectée ne garantit pas que le message a été lu intégralement. Sans
+    ouverture détectée, la lecture reste inconnue.
+  </p>
+  <p>
+    Pour les notifications, seuls les échecs signalés sont conservés. Une distribution ultérieure ne
+    met pas à jour ce suivi. L'absence d'échec enregistré ne confirme pas la distribution.
   </p>
 </PageHelp>
 <div class="notification-monitor" aria-busy={!!navigating.to}>
