@@ -32,6 +32,8 @@ n'ajuste pas ces variables automatiquement. Les configurations Vite chargent aus
 les envois Sentry et les accès accidentels à des services réels.
 Les serveurs HTTP et E2E imposent aussi `PITCHOU_EMAIL_DELIVERY_DISABLED=true` et effacent
 `BREVO_API_KEY` et `MAILPIT_URL`, même si le shell contient des identifiants réels.
+Ils imposent un jeton Démarches Numériques factice, même si le shell contient un jeton
+vide ou réel. Un jeton vide ne doit pas empêcher les tests de révocation d'atteindre le contrôle des droits.
 
 | Job GitHub                          | Recette locale                                   | Services                                            |
 | ----------------------------------- | ------------------------------------------------ | --------------------------------------------------- |
