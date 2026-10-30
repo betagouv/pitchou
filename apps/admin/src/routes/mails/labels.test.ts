@@ -18,3 +18,12 @@ test("distinguishes Brevo acceptance, delivery failure, delivery and opening", (
   );
   expect(emailStatusLabel({ ...accepted, opened_at: new Date() })).toBe("Ouverture détectée");
 });
+
+test("labels notification delivery failures separately from API acceptance", () => {
+  expect(emailStatusLabel({ ...accepted, source: "notification" })).toBe(
+    "Pris en charge par Brevo",
+  );
+  expect(emailStatusLabel({ ...accepted, source: "notification", status: "failed" })).toBe(
+    "Échec de livraison signalé",
+  );
+});

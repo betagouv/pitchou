@@ -72,6 +72,7 @@ export function emailStatusLabel(row: {
   delivered_at: Date | string | null;
   opened_at: Date | string | null;
 }) {
+  if (row.source === "notification" && row.status === "failed") return "Échec de livraison signalé";
   if (row.source === "cnpn") {
     if (row.status === "failed" && row.sent_at) return "Échec de livraison";
     if (row.opened_at) return "Ouverture détectée";

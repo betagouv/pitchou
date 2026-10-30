@@ -2,6 +2,8 @@ import type { Knex } from "knex";
 import type { EmailDetail, EmailRow } from "@pitchou/types/adminEmails.ts";
 import { emailPreviewHtml } from "./preview.ts";
 import { emailRows } from "./query.ts";
+import { notificationDeliveryIssues } from "./issues.ts";
+import type { NotificationHistoryRow } from "@pitchou/types/emailNotifications.ts";
 
 export async function emailDetail(key: string, db: Knex.Transaction): Promise<EmailDetail | null> {
   const [source, id] = key.split(":");
@@ -20,12 +22,26 @@ async function notificationDetail(row: EmailRow, db: Knex.Transaction): Promise<
     .where({ id })
     .first("message", "first_attempt_at");
   const message = stored.message;
+  const history: NotificationHistoryRow[] = await db("email_notification_history")
+    .where({ notification_id: id })
+    .orderBy("occurred_at")
+    .orderBy("id");
+  const issues = await notificationDeliveryIssues(db, row).select("i.id", "i.issue");
+  for (const { id: issueId, issue } of issues) {
+    history.push({
+      id: `issue:${issueId}`,
+      notification_id: id,
+      event: issue.type,
+      environment: row.environment,
+      occurred_at: issue.occurredAt,
+      attempt: 0,
+      details: { reason: issue.reason, providerMessageId: issue.providerMessageId },
+    });
+  }
+  history.sort((a, b) => +new Date(a.occurred_at) - +new Date(b.occurred_at));
   return {
     row,
-    history: await db("email_notification_history")
-      .where({ notification_id: id })
-      .orderBy("occurred_at")
-      .orderBy("id"),
+    history,
     html: typeof message?.htmlContent === "string" ? emailPreviewHtml(message.htmlContent) : null,
     recipients: Array.isArray(message?.to)
       ? message.to.filter((v: unknown) => typeof v === "string")
