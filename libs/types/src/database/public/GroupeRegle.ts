@@ -17,6 +17,8 @@ export default interface GroupeRegle {
   communes: string[];
 
   activites: string[];
+
+  access_level: string;
 }
 
 /** Represents the initializer for the table public.groupe_regle */
@@ -34,6 +36,9 @@ export interface GroupeRegleInitializer {
 
   /** Default value: '{}'::text[] */
   activites?: string[];
+
+  /** Default value: 'instruct'::text */
+  access_level?: string;
 }
 
 /** Represents the mutator for the table public.groupe_regle */
@@ -47,4 +52,6 @@ export interface GroupeRegleMutator {
   communes?: string[];
 
   activites?: string[];
+
+  access_level?: string;
 }

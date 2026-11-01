@@ -44,14 +44,15 @@ export async function listGroups(): Promise<{
                   .map((d) => d.department),
                 communes: [],
                 activites: [],
+                accessLevel: "instruct",
               },
             ]
           : []),
         ...rules
           .filter((r) => r.groupe_instructeurs === g.id)
           .map(
-            ({ departments, communes, activites }) =>
-              ({ departments, communes, activites }) as GroupRule,
+            ({ departments, communes, activites, access_level }) =>
+              ({ departments, communes, activites, accessLevel: access_level }) as GroupRule,
           ),
       ] as GroupRule[],
       members: members.filter((m) => m.groupe_instructeurs === g.id).map((m) => m.user_id),

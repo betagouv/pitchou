@@ -23,6 +23,7 @@
   import DossierSyncSimulation from "./DossierSyncSimulation.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
   import DossierAssignments from "./DossierAssignments.svelte";
+  import DossierUserAccess from "./DossierUserAccess.svelte";
   import DossierDeleteSection from "./DossierDeleteSection.svelte";
   import type { PageData } from "./$types";
 
@@ -128,6 +129,7 @@
         (activiteReferentiel?.activites ?? []).map((activity) => [activity.code, activity.label]),
       )}
     />
+    <DossierUserAccess {dossierId} initial={data.userAccess} onChanged={reload} />
 
     {#if detail.source === "demarche_numerique"}
       <div class="fr-alert fr-alert--info my-0">

@@ -32,16 +32,20 @@ beforeEach(() => {
   vi.stubEnv("PUBLIC_SITE_URL_PITCHOU", "https://pitchou.test");
 });
 
-test("the assignment endpoint commits before sending and does not send on repeated assignment", async () => {
+test("the retired assignment endpoint refuses colleague subscriptions without writes or email", async () => {
   const { actor, recipient } = await setup();
   await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
   const request = () =>
     event(actor.cap, actor.dossier.id, { personneEmails: [actor.email, recipient.email] });
-  expect((await assignFollowers(request())).status).toBe(204);
-  expect(sendEmail).toHaveBeenCalledOnce();
-  expect((await db("email_notification_outbox").first()).status).toBe("sent");
-  expect((await assignFollowers(request())).status).toBe(204);
-  expect(sendEmail).toHaveBeenCalledOnce();
+  await expect(Promise.resolve().then(() => assignFollowers(request()))).rejects.toMatchObject({
+    status: 403,
+  });
+  expect(await db("edge_personne_follows_dossier").where({ personne: recipient.id })).toHaveLength(
+    0,
+  );
+  expect(await db("action_dossier")).toHaveLength(0);
+  expect(await db("email_notification_outbox")).toHaveLength(0);
+  expect(sendEmail).not.toHaveBeenCalled();
 });
 
 test("instruction endpoint queues actual changes, excluding identical submitted values", async () => {

@@ -45,7 +45,7 @@
   const piecesProjet = $derived(piecesJointesProjet(dossier));
   const piecesAvis = $derived(
     piecesJointesAvis(
-      readOnly.current
+      (readOnly.restricted ?? readOnly.current)
         ? {
             ...dossier,
             avisExpert: dossier.avisExpert
@@ -85,7 +85,7 @@
   />
   <PieceJointeSection
     title="Avis d'experts"
-    emptyMessage={readOnly.current
+    emptyMessage={(readOnly.restricted ?? readOnly.current)
       ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
       : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
     tabLabel="Avis"
@@ -102,12 +102,12 @@
     openTab={() => openTab("controles")}
   />
   <!-- The attachments added by the instructeur stay internal to the service. -->
-  {#if !readOnly.current}
+  {#if !(readOnly.restricted ?? readOnly.current)}
     <PieceJointeSection
       title="Autres"
       emptyMessage="Aucune autre pièce jointe n'est associée à ce dossier."
       pieces={visiblePieces(piecesAutres)}
-      onDelete={deleteSelectedPiece}
+      onDelete={readOnly.current ? undefined : deleteSelectedPiece}
     />
   {/if}
 </section>

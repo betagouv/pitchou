@@ -1,6 +1,6 @@
 <script lang="ts">
   import RuleCommunes from "./RuleCommunes.svelte";
-  import type { GroupRule } from "@pitchou/types/groupRouting.ts";
+  import type { AccessLevel, GroupRule } from "@pitchou/types/groupRouting.ts";
   import type { PageData } from "../$types";
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import { departements } from "@pitchou/common/departements.ts";
@@ -11,7 +11,7 @@
   const id = $props.id();
   const departments = departements.map((d) => ({ value: d.code, label: `${d.code} - ${d.name}` }));
   const activities = $derived(activites.map((a) => ({ value: a.code, label: a.label })));
-  function change(index: number, key: keyof GroupRule, value: string[]) {
+  function change(index: number, key: keyof GroupRule, value: string[] | AccessLevel) {
     rules = rules.map((rule, i) => (i === index ? { ...rule, [key]: value } : rule));
   }
 </script>
@@ -19,11 +19,22 @@
 <div class="grid gap-4">
   <p class="hint m-0">
     Un dossier doit satisfaire tous les critères d'une règle. Une seule règle correspondante suffit.
-    Sans règle, seules les affectations manuelles sont conservées.
+    Sans règle, seules les affectations manuelles sont conservées. Tous les groupes correspondants
+    reçoivent le dossier. Le niveau le plus fort des règles correspondantes s'applique.
   </p>
   {#each rules as rule, index}
     <fieldset class="grid gap-3 rounded-lg border border-[var(--border-default-grey)] p-4">
       <legend>Règle {index + 1}{index > 0 ? " · OU" : ""}</legend>
+      <label for={`${id}-access-${index}`}>Niveau d'accès de la règle {index + 1}</label>
+      <select
+        class="fr-select"
+        id={`${id}-access-${index}`}
+        value={rule.accessLevel ?? "instruct"}
+        onchange={(event) => change(index, "accessLevel", event.currentTarget.value as AccessLevel)}
+      >
+        <option value="instruct">Instruction</option>
+        <option value="read">Lecture complète</option>
+      </select>
       <label for={`${id}-departments-${index}`}>Département principal, au choix</label>
       <MultiSelectFilter
         id={`${id}-departments-${index}`}
@@ -56,7 +67,10 @@
     type="button"
     class="fr-btn fr-btn--secondary justify-self-start"
     disabled={rules.length >= 50}
-    onclick={() => (rules = [...rules, { departments: [], communes: [], activites: [] }])}
-    >Ajouter une règle</button
+    onclick={() =>
+      (rules = [
+        ...rules,
+        { departments: [], communes: [], activites: [], accessLevel: "instruct" },
+      ])}>Ajouter une règle</button
   >
 </div>

@@ -55,12 +55,13 @@ export function changeLocalisation(
 export function filterByLocalisation(
   dossiers: DossierSummary[],
   query: LocalisationQuery,
+  includeRestricted = false,
 ): DossierSummary[] {
   if (query.departementSelection === "none") return [];
   const selected = query.departementSelection === "custom" ? new Set(query.departement) : undefined;
   return dossiers.filter(
     (dossier) =>
-      (query.localisation === "france" || dossier.access === "complet") &&
+      (includeRestricted || query.localisation === "france" || dossier.access !== "lecture") &&
       (!selected || dossier.departments?.some((code) => selected.has(code))),
   );
 }

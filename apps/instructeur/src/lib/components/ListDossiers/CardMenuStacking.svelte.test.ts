@@ -40,6 +40,8 @@ test("an open card menu covers subsequent card controls until closed", async () 
   const button = second.getBoundingClientRect();
   const x = button.left + button.width / 2;
   const y = button.top + button.height / 2;
+  // Exercise overlap even when the menu contains a single action.
+  menu.style.minHeight = `${button.bottom - menu.getBoundingClientRect().top + 8}px`;
   const bounds = menu.getBoundingClientRect();
   expect(y).toBeGreaterThan(bounds.top);
   expect(y).toBeLessThan(bounds.bottom);

@@ -22,9 +22,9 @@
   <div class="access-guidance">
     <h2>Comment obtenir l'accès ?</h2>
     <p>
-      Demandez à un collègue déjà membre de votre groupe de vous ajouter depuis ses paramètres
-      Pitchou, avec votre adresse professionnelle. Si votre compte est désactivé, si vos droits sont
-      restreints ou si le groupe n'a plus de membre actif, contactez un administrateur.
+      Contactez un administrateur Pitchou pour obtenir l'accès avec votre adresse professionnelle.
+      Seuls les administrateurs autorisés à gérer les groupes peuvent ajouter ou retirer leurs
+      membres. Un administrateur peut aussi vérifier vos droits ou réactiver votre compte.
     </p>
   </div>
   <div class="access-actions">

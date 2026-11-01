@@ -1,7 +1,7 @@
 import { parseGroupRules } from "@pitchou/common/groupRouting.ts";
 import { createHash } from "node:crypto";
 import type { Knex } from "knex";
-import type { GroupPreview, GroupRule } from "@pitchou/types/groupRouting.ts";
+import type { AccessLevel, GroupPreview, GroupRule } from "@pitchou/types/groupRouting.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import { directDatabaseConnection as db } from "../../database/connection.ts";
 import { requireGroupManager } from "./access.ts";
@@ -22,10 +22,52 @@ export async function resolvedRules(
   const existing = input.id ? await readRules(trx, input.id) : [];
   return [
     ...(input.departments.length > 0
-      ? [{ departments: input.departments, communes: [], activites: [] }]
+      ? [
+          {
+            departments: input.departments,
+            communes: [],
+            activites: [],
+            accessLevel: "instruct" as const,
+          },
+        ]
       : []),
-    ...existing.filter((rule) => rule.communes.length > 0 || rule.activites.length > 0),
+    ...existing.filter(
+      (rule) =>
+        rule.communes.length > 0 || rule.activites.length > 0 || rule.accessLevel === "read",
+    ),
   ];
+}
+
+async function proposedAssignments(trx: Knex.Transaction, input: GroupUpdate, rules: GroupRule[]) {
+  const matches = trx("dossier as d")
+    .select("d.id", "d.name")
+    .select(
+      trx.raw(
+        `CASE WHEN ?::boolean THEN COALESCE(
+      (SELECT CASE WHEN o.mode = 'include' THEN o.access_level ELSE 'none' END
+       FROM groupe_dossier_override o WHERE o.dossier = d.id AND o.groupe_instructeurs = ?::uuid),
+      (SELECT CASE WHEN bool_or(r."accessLevel" = 'instruct') THEN 'instruct' ELSE 'read' END
+       FROM jsonb_to_recordset(?::jsonb) AS r(departments text[], communes text[], activites text[], "accessLevel" text)
+       WHERE pitchou_rule_matches(d, r.departments, r.communes, r.activites)
+       HAVING count(*) > 0)
+    ) END AS access_level`,
+        [
+          input.active,
+          input.id ?? null,
+          JSON.stringify(
+            rules.map((rule) => ({ ...rule, accessLevel: rule.accessLevel ?? "instruct" })),
+          ),
+        ],
+      ),
+    )
+    .orderBy("d.id");
+  return (
+    (await matches) as {
+      id: number;
+      name: string | null;
+      access_level: AccessLevel | "none" | null;
+    }[]
+  ).filter((d) => d.access_level && d.access_level !== "none");
 }
 
 export async function calculatePreview(
@@ -36,31 +78,35 @@ export async function calculatePreview(
   const group = input.id ? await trx("groupe_instructeurs").where({ id: input.id }).first() : null;
   if (input.id && !group) throw new TypeError("Groupe introuvable");
   const before = input.id
-    ? ((await trx("edge_groupe_instructeurs__dossier")
+    ? await trx("edge_groupe_instructeurs__dossier")
         .where({ groupe_instructeurs: input.id })
+        .select("dossier", "access_level")
         .orderBy("dossier")
-        .pluck("dossier")) as number[])
     : [];
-  const matches = trx("dossier as d").select("d.id", "d.name").orderBy("d.id");
-  if (input.active) {
-    matches.whereRaw(
-      `COALESCE((SELECT o.mode = 'include' FROM groupe_dossier_override o
-    WHERE o.dossier = d.id AND o.groupe_instructeurs = ?::uuid), EXISTS (
-      SELECT 1 FROM jsonb_to_recordset(?::jsonb) AS r(departments text[], communes text[], activites text[])
-      WHERE pitchou_rule_matches(d, r.departments, r.communes, r.activites)))`,
-      [input.id ?? null, JSON.stringify(rules)],
-    );
-  } else {
-    matches.whereRaw("false");
-  }
-  const after = (await matches) as { id: number; name: string | null }[];
-  const beforeSet = new Set(before);
+  const after = await proposedAssignments(trx, input, rules);
+  const beforeMap = new Map(before.map((d) => [d.dossier, d.access_level]));
   const afterSet = new Set(after.map((d) => d.id));
-  const added = after.filter((d) => !beforeSet.has(d.id));
-  const removed = before.filter((id) => !afterSet.has(id));
+  const added = after.filter((d) => !beforeMap.has(d.id));
+  const removed = before.filter((d) => !afterSet.has(d.dossier));
+  const upgraded = after.filter(
+    (d) => beforeMap.get(d.id) === "read" && d.access_level === "instruct",
+  );
+  const downgraded = after.filter(
+    (d) => beforeMap.get(d.id) === "instruct" && d.access_level === "read",
+  );
+  const summarize = (rows: { id: number; name: string | null }[]) => ({
+    count: rows.length,
+    dossiers: rows.slice(0, 100).map(({ id, name }) => ({ id, name })),
+  });
   const removedRows =
     removed.length > 0
-      ? await trx("dossier").select("id", "name").whereIn("id", removed.slice(0, 100)).orderBy("id")
+      ? await trx("dossier")
+          .select("id", "name")
+          .whereIn(
+            "id",
+            removed.slice(0, 100).map((d) => d.dossier),
+          )
+          .orderBy("id")
       : [];
   const state = input.id
     ? {
@@ -77,8 +123,10 @@ export async function calculatePreview(
     .digest("hex");
   return {
     token,
-    added: { count: added.length, dossiers: added.slice(0, 100) },
+    added: summarize(added),
     removed: { count: removed.length, dossiers: removedRows },
+    upgraded: summarize(upgraded),
+    downgraded: summarize(downgraded),
   };
 }
 

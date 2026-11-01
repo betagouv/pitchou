@@ -4,6 +4,7 @@ import { readJsonObject } from "#lib/server/requestValidation.ts";
 import { saveAdministration } from "#lib/server/administration.ts";
 import { parseDossierId } from "#lib/server/dossierValidation.ts";
 import type { AssignmentMode } from "@pitchou/types/groupRouting.ts";
+import { parseAccessLevel } from "@pitchou/common/groupRouting.ts";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params }) =>
@@ -23,6 +24,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         parseDossierId(params.dossierId),
         body.groupId as string,
         body.mode as AssignmentMode,
+        parseAccessLevel(body.accessLevel),
       ),
     ),
   );

@@ -9,12 +9,17 @@
   let { activeTab, onSelect, hasPendingChanges = false }: Props = $props();
 
   const readOnly = readOnlyMode();
-  const tabs = $derived(visibleDossierTabs(readOnly.current));
+  const tabs = $derived(
+    visibleDossierTabs(readOnly.restricted ?? readOnly.current, readOnly.current),
+  );
 </script>
 
 <ul class="fr-tabs__list" role="tablist" aria-label="Navigation des onglets du dossier">
   {#each tabs as tab}
-    {@const pending = tab.id === "detail-du-projet" && hasPendingChanges && !readOnly.current}
+    {@const pending =
+      tab.id === "detail-du-projet" &&
+      hasPendingChanges &&
+      !(readOnly.restricted ?? readOnly.current)}
     <li role="presentation">
       <button
         type="button"

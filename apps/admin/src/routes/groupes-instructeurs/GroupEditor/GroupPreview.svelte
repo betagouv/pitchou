@@ -9,7 +9,11 @@
     {preview.added.count} dossier(s) ajouté(s), {preview.removed.count} dossier(s) retiré(s). Aucun e-mail
     d'arrivée ne sera envoyé pour ce recalcul.
   </p>
-  {#each [{ label: "Ajouts", result: preview.added }, { label: "Retraits", result: preview.removed }] as item}
+  <p>
+    {preview.upgraded.count} passage(s) à l'instruction, {preview.downgraded.count} passage(s) en lecture
+    complète.
+  </p>
+  {#each [{ label: "Ajouts", result: preview.added }, { label: "Retraits", result: preview.removed }, { label: "Passages à l'instruction", result: preview.upgraded }, { label: "Passages en lecture complète", result: preview.downgraded }] as item}
     {#if item.result.count}
       <details>
         <summary>{item.label} · {item.result.count}</summary>

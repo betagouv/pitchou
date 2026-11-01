@@ -1,5 +1,6 @@
 import { getContext, setContext } from "svelte";
 
+const restrictedKey = Symbol("dossier-restricted");
 const key = Symbol("dossier-read-only");
 
 /**
@@ -9,8 +10,12 @@ const key = Symbol("dossier-read-only");
  *
  * Takes a getter rather than a value so the mode stays reactive.
  */
-export function provideReadOnly(readOnly: () => boolean): void {
+export function provideReadOnly(
+  readOnly: () => boolean,
+  restricted: () => boolean = readOnly,
+): void {
   setContext(key, readOnly);
+  setContext(restrictedKey, restricted);
 }
 
 /**
@@ -20,9 +25,13 @@ export function provideReadOnly(readOnly: () => boolean): void {
  * Outside a dossier page — in a component test, typically — nothing provides
  * the mode and edition stays available.
  */
-export function readOnlyMode(): { readonly current: boolean } {
+export function readOnlyMode(): { readonly current: boolean; readonly restricted?: boolean } {
   const readOnly = getContext<(() => boolean) | undefined>(key);
+  const restricted = getContext<(() => boolean) | undefined>(restrictedKey);
   return {
+    get restricted() {
+      return restricted?.() ?? readOnly?.() ?? false;
+    },
     get current() {
       return readOnly?.() ?? false;
     },

@@ -30,11 +30,15 @@
   const readOnly = readOnlyMode();
   setContext(dossierReviewContext, () => dossier);
   const pending = $derived(
-    readOnly.current ? undefined : store.notificationByDossier.get(dossier.id),
+    (readOnly.restricted ?? readOnly.current)
+      ? undefined
+      : store.notificationByDossier.get(dossier.id),
   );
-  const boundChanges = $derived(readOnly.current ? [] : boundReviewChanges(dossier, pending));
+  const boundChanges = $derived(
+    (readOnly.restricted ?? readOnly.current) ? [] : boundReviewChanges(dossier, pending),
+  );
   const needsRefresh = $derived(
-    !readOnly.current &&
+    !(readOnly.restricted ?? readOnly.current) &&
       pending?.changes.some((change) =>
         change.revisions.some((id) => !boundChanges.some((bound) => bound.revisions.includes(id))),
       ),

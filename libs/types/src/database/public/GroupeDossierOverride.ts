@@ -11,6 +11,8 @@ export default interface GroupeDossierOverride {
   dossier: DossierId;
 
   mode: string;
+
+  access_level: string;
 }
 
 /** Represents the initializer for the table public.groupe_dossier_override */
@@ -20,6 +22,9 @@ export interface GroupeDossierOverrideInitializer {
   dossier: DossierId;
 
   mode: string;
+
+  /** Default value: 'instruct'::text */
+  access_level?: string;
 }
 
 /** Represents the mutator for the table public.groupe_dossier_override */
@@ -29,4 +34,6 @@ export interface GroupeDossierOverrideMutator {
   dossier?: DossierId;
 
   mode?: string;
+
+  access_level?: string;
 }

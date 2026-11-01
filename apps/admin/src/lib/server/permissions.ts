@@ -4,6 +4,11 @@ import type { Permission } from "@pitchou/types/permissions.ts";
 const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
   { method: "POST", path: /^\/api\/dossiers(?:\/minimal)?$/u, anyOf: ["admin:dossiers:create"] },
   { method: "POST", path: /^\/api\/dossiers\/[^/]+\/affectations$/u, anyOf: ["groups:manage"] },
+  {
+    method: "POST",
+    path: /^\/api\/dossiers\/[^/]+\/acces-utilisateurs$/u,
+    anyOf: ["groups:manage"],
+  },
   { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:update"] },
   { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:delete"] },
   {

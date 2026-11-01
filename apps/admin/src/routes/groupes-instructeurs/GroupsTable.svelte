@@ -92,10 +92,10 @@
                 {:else if !group.rules.length}
                   <span class="text-[var(--text-mention-grey)]">Manuelle uniquement</span>
                 {/if}
-                {#if group.rules.some((rule) => rule.communes.length || rule.activites.length)}
+                {#if group.rules.length}
                   <span class="text-xs"
-                    >{group.rules.filter((rule) => rule.communes.length || rule.activites.length)
-                      .length} règle(s) avec critères</span
+                    >{group.rules.length} règle(s), dont
+                    {group.rules.filter((rule) => rule.accessLevel === "read").length} en lecture complète</span
                   >
                 {/if}
               </td>

@@ -85,7 +85,7 @@
         class:active={withoutInstructeurActive}
         onclick={onToggleWithoutInstructeur}
       >
-        Dossiers sans instructeur·ice
+        Dossiers sans suivi
       </button>
     {/if}
 
@@ -109,7 +109,7 @@
         class:active={actionInstructeurActive}
         onclick={onToggleActionInstructeur}
       >
-        Dossiers où je dois agir
+        Action attendue de l’instruction
       </button>
     {/if}
 

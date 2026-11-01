@@ -27,6 +27,7 @@
         departments: [...rule.departments],
         communes: [...rule.communes],
         activites: [...rule.activites],
+        accessLevel: rule.accessLevel ?? "instruct",
       })),
     ),
   );

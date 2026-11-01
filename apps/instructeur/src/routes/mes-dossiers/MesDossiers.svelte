@@ -38,8 +38,7 @@
   {/if}
 {/snippet}
 
-<!-- « à enjeux » is replaced by the « prochaine action à moi » quick filter: on this page
-     every dossier is followed by the instructeur, so their own next action matters more -->
+<!-- This list contains the current user’s personally followed dossiers. -->
 <ListDossiers
   title="Mes dossiers"
   followedOnly

@@ -1,7 +1,8 @@
 import { test, expect } from "../fixtures/playwright.ts";
+import { allowGroupManagement } from "../helpers/groupMembership.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
 
-test("members manage their group from settings, including first-login accounts and leaving", async ({
+test("administrators manage their group from settings, including first-login accounts and leaving", async ({
   page,
   db,
   loginAs,
@@ -10,6 +11,7 @@ test("members manage their group from settings, including first-login accounts a
     email: "owner@example.org",
     nomGroupe: "DREAL Bretagne",
   });
+  await allowGroupManagement(db, owner.id);
   await loginAs(owner.codeAcces);
   await page.goto("/mes-dossiers");
   await page.getByRole("button", { name: "Mon espace" }).click();
@@ -86,12 +88,15 @@ test("membership search and pagination work across multiple groups", async ({
   await page.goto("/parametres/groupes");
   const group = page.getByRole("region", { name: "Bretagne", exact: true });
   await expect(group.getByText("Page 1 sur 2")).toBeVisible();
+  await expect(
+    page.getByText("Les administrateurs autorisés à gérer les groupes", { exact: false }),
+  ).toBeVisible();
+  await expect(group.getByRole("combobox")).toHaveCount(0);
+  await expect(group.getByRole("button", { name: /Retirer|Quitter le groupe/u })).toHaveCount(0);
   await group.getByRole("button", { name: "Suivant" }).click();
   await expect(group.getByText("Page 2 sur 2")).toBeVisible();
   await group.getByRole("searchbox", { name: "Rechercher un membre" }).fill("colleague00");
-  await expect(
-    group.getByRole("button", { name: "Retirer colleague00@example.org" }),
-  ).toBeVisible();
+  await expect(group.getByText("colleague00@example.org", { exact: true })).toBeVisible();
   await expect(group.getByRole("navigation")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Normandie", exact: true })).toBeVisible();
   await page.evaluate(() => {

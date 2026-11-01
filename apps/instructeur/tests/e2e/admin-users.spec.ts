@@ -118,7 +118,7 @@ test("users can be found, paginated and edited without losing their permissions"
   }
   await page.setViewportSize({ width: 1280, height: 720 });
   await dialog
-    .getByRole("combobox", { name: "Exception : Instruire les dossiers de ses groupes" })
+    .getByRole("combobox", { name: "Exception : Instruire les dossiers autorisés" })
     .click();
   await page.getByRole("option", { name: "Refuser", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("user-editor-dark.png") });

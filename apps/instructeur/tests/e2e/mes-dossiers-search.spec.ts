@@ -86,14 +86,17 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   await expect(page.getByTestId("card-dossier")).toContainText("Parc photovoltaïque à Anglet");
 });
 
-test("le filtre Dossiers où je dois agir remplace à enjeux", async ({ page, db }) => {
+test("le filtre Action attendue de l’instruction remplace à enjeux", async ({ page, db }) => {
   await setupDossiers(db, [
     { name: "Parc photovoltaïque à Anglet", next_action_expected_from: "Instructeur" },
     { name: "Carrière de calcaire", next_action_expected_from: "Pétitionnaire" },
   ]);
   await gotoMesDossiers(page, db);
   await expect(page.getByRole("button", { name: "Dossiers à enjeux" })).toHaveCount(0);
-  const button = page.getByRole("button", { name: "Dossiers où je dois agir", exact: true });
+  const button = page.getByRole("button", {
+    name: "Action attendue de l’instruction",
+    exact: true,
+  });
   await button.click();
   await expect(page).toHaveURL(/actionInstructeur=1/u);
   await expect(page.getByTestId("card-dossier")).toContainText("Parc photovoltaïque à Anglet");

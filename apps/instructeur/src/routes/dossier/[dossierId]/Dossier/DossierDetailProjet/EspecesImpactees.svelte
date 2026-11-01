@@ -25,7 +25,9 @@
   const readOnly = readOnlyMode();
   const impacts = $derived(dossier.especesImpactees.impacts);
   const sourceFile = $derived(dossier.especesImpactees.sourceFile);
-  const groups = $derived(impactGroups(impacts, readOnly.current ? new Map() : groupChanges));
+  const groups = $derived(
+    impactGroups(impacts, (readOnly.restricted ?? readOnly.current) ? new Map() : groupChanges),
+  );
 
   async function makeFileContentBlob() {
     const especes = dossier.especesImpactees.sourceFile;
@@ -51,7 +53,7 @@
   {#if sourceFile}
     <FichierEspecesAlert {anomalies} />
   {/if}
-  {#if !readOnly.current && change}
+  {#if !(readOnly.restricted ?? readOnly.current) && change}
     <div class="review-row dossier-review-row">
       <div class="file-info">
         <p class="fr-m-0">

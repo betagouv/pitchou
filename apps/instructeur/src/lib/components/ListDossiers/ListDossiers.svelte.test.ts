@@ -93,7 +93,7 @@ test("shared menu can hide deadlines while retaining read-only viewing extras an
   await page.getByRole("button", { name: /Plus d’actions/u }).click();
   expect(screen.queryByRole("menuitem", { name: /Modifier la date/u })).toBeNull();
   expect(screen.queryByRole("menuitem", { name: /Partager/u })).toBeNull();
-  expect(screen.getByRole("menuitem", { name: "Faire suivre le dossier" })).toBeTruthy();
+  expect(screen.queryByRole("menuitem", { name: "Faire suivre le dossier" })).toBeNull();
   await page.getByRole("menuitem", { name: "Voir le dossier en lecture seule" }).click();
   expect(viewReadOnly).toHaveBeenCalledOnce();
 });

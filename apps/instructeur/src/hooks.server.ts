@@ -1,3 +1,4 @@
+import { canReadDossiers } from "#lib/server/dossierEntry.ts";
 import { readSession } from "@pitchou/server/session.ts";
 import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
 import type { Handle, ServerInit } from "@sveltejs/kit/hooks";
@@ -53,11 +54,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
       });
     return new Response("Authentification requise", { status: 401 });
   }
-  if (
-    path !== "/api/session" &&
-    !isSettings &&
-    (session.groupes.length === 0 || !session.permissions.includes("dossier:read"))
-  ) {
+  if (path !== "/api/session" && !isSettings && !(await canReadDossiers(session))) {
     if (
       ["GET", "HEAD"].includes(event.request.method) &&
       event.request.headers.get("accept")?.includes("text/html")
@@ -72,6 +69,8 @@ const authenticate: Handle = async ({ event, resolve }) => {
       !path.startsWith("/api/metriques/") &&
       !isSettings &&
       path !== "/dossiers/export" &&
+      path !== "/dossiers/relation-suivis" &&
+      path !== "/dossiers/notifications" &&
       !session.permissions.includes("dossier:instruct")
     )
       return new Response("Permission d'instruction requise", { status: 403 });

@@ -16,7 +16,14 @@ export async function getNotificationsForUser(
   if (!personne) throw new Error("Utilisateur inconnu");
   const accessible = db(dossierAccessQuery(userId, db).as("access"))
     .select("access.dossier")
-    .where("access.access", "complet");
+    .where(function () {
+      this.whereNot("access.access", "lecture").orWhereExists(
+        db("edge_personne_follows_dossier as follow")
+          .select(db.raw("1"))
+          .where("follow.personne", userId)
+          .where("follow.dossier", db.ref("access.dossier")),
+      );
+    });
   if (dossierId !== undefined) accessible.where("access.dossier", dossierId);
   const applicantChanges = db("action_dossier as a")
     .whereIn("a.dossier", accessible.clone())
@@ -73,8 +80,7 @@ export async function updateNotificationDossier(
     const personne = await getUserById(userId, trx);
     if (
       !personne ||
-      (await dossiersAccessibleToUser(update.dossier, userId, trx)).get(update.dossier) !==
-        "complet"
+      !(await dossiersAccessibleToUser(update.dossier, userId, trx)).has(update.dossier)
     ) {
       throw new Error("Accès au dossier refusé");
     }

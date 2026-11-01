@@ -102,7 +102,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await page.getByRole("dialog").locator("summary").click();
   await page
     .getByRole("combobox", {
-      name: "Exception : Instruire les dossiers de ses groupes",
+      name: "Exception : Instruire les dossiers autorisés",
       exact: true,
     })
     .click();

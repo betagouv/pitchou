@@ -2,10 +2,12 @@ import type { GroupRule } from "@pitchou/types/groupRouting.ts";
 import type { Knex } from "knex";
 
 export function splitRules(rules: GroupRule[]) {
-  const simple = rules.filter((rule) => rule.communes.length === 0 && rule.activites.length === 0);
+  const isSimple = (rule: GroupRule) =>
+    rule.communes.length === 0 && rule.activites.length === 0 && rule.accessLevel !== "read";
+  const simple = rules.filter(isSimple);
   return {
     departments: [...new Set(simple.flatMap((rule) => rule.departments))],
-    conditional: rules.filter((rule) => rule.communes.length > 0 || rule.activites.length > 0),
+    conditional: rules.filter((rule) => !isSimple(rule)),
   };
 }
 
@@ -18,9 +20,12 @@ export async function readRules(db: Knex | Knex.Transaction, groupId: string) {
     db("groupe_regle").where({ groupe_instructeurs: groupId }).orderBy("id"),
   ]);
   return [
-    ...(departments.length > 0 ? [{ departments, communes: [], activites: [] }] : []),
+    ...(departments.length > 0
+      ? [{ departments, communes: [], activites: [], accessLevel: "instruct" as const }]
+      : []),
     ...conditional.map(
-      ({ departments, communes, activites }) => ({ departments, communes, activites }) as GroupRule,
+      ({ departments, communes, activites, access_level }) =>
+        ({ departments, communes, activites, accessLevel: access_level }) as GroupRule,
     ),
   ];
 }
@@ -36,7 +41,11 @@ export async function replaceRules(db: Knex.Transaction, groupId: string, rules:
       .ignore();
   if (conditional.length > 0)
     await db("groupe_regle").insert(
-      conditional.map((rule) => ({ ...rule, groupe_instructeurs: groupId })),
+      conditional.map(({ accessLevel = "instruct", ...rule }) => ({
+        ...rule,
+        access_level: accessLevel,
+        groupe_instructeurs: groupId,
+      })),
     );
   await db("groupe_departement")
     .where({ groupe_instructeurs: groupId })

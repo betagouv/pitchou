@@ -1,3 +1,4 @@
+import { dossierAccessQuery } from "./dossier/access.ts";
 import type { Knex } from "knex";
 
 import { directDatabaseConnection } from "../database.ts";
@@ -89,16 +90,12 @@ export function findFollowerUser(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any[]> {
-  return databaseConnection("user_groupe as m")
-    .join("auth_user as u", "u.id", "m.user_id")
-    .join(
-      "edge_groupe_instructeurs__dossier as e",
-      "e.groupe_instructeurs",
-      "m.groupe_instructeurs",
-    )
-    .whereRaw("pitchou_can_instruct(u.id)")
-    .distinct("e.dossier as dossier_id", "u.id as personne_id")
-    .where({ "u.id": userId, "u.active": true, "u.email": personneEmail, "e.dossier": dossierId });
+  return databaseConnection("auth_user as u")
+    .join(dossierAccessQuery(userId, databaseConnection).as("access"), function () {
+      this.on("access.dossier", databaseConnection.raw("?", [dossierId]));
+    })
+    .select("access.dossier as dossier_id", "u.id as personne_id")
+    .where({ "u.id": userId, "u.active": true, "u.email": personneEmail });
 }
 
 export async function personneFollowsDossier(

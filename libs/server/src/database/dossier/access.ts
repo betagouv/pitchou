@@ -37,20 +37,32 @@ export function dossierAccessQuery(userId: UserId, db: Knex.Transaction | Knex) 
     .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
     .select("m.groupe_instructeurs")
     .where({ "m.user_id": userId, "g.active": true });
-  const ownership = db("edge_groupe_instructeurs__dossier as e")
-    .select("e.dossier")
-    .where("e.dossier", db.ref("dossier.id"))
+  const groupGrants = db("edge_groupe_instructeurs__dossier as e")
+    .select("e.dossier", "e.access_level")
     .whereIn("e.groupe_instructeurs", membership.clone());
+  const directGrants = db("dossier_user_access")
+    .select("dossier", "access_level")
+    .where("user_id", userId);
+  const grants = db(db.unionAll([groupGrants, directGrants], true).as("grants"))
+    .select("dossier")
+    .select(db.raw("bool_or(access_level = 'instruct') as instruction"))
+    .groupBy("dossier");
+  // Keep batch reads relational. Calling pitchou_dossier_access for every row
+  // repeats account and membership queries across the entire dossier listing.
   return db("dossier")
+    .leftJoin(grants.as("dossier_grant"), "dossier_grant.dossier", "dossier.id")
     .select("dossier.id as dossier")
     .select(
-      db.raw("case when exists (?) and exists (?) then 'complet' else 'lecture' end as access", [
-        ownership,
-        permissionQuery(userId, "dossier:instruct", db),
-      ]),
+      db.raw(
+        `case when dossier_grant.instruction and exists (?) then 'complet'
+        when dossier_grant.dossier is not null then 'lecture_complete' else 'lecture' end as access`,
+        [permissionQuery(userId, "dossier:instruct", db)],
+      ),
     )
     .whereExists(permissionQuery(userId, "dossier:read", db))
-    .whereExists(membership);
+    .where(function () {
+      this.whereExists(membership).orWhereNotNull("dossier_grant.dossier");
+    });
 }
 
 export async function dossiersAccessibleToUser(
@@ -93,7 +105,7 @@ export async function getEvenementsPhaseDossiers(
       "access.dossier",
       "evenement_phase_dossier.dossier",
     )
-    .where("access.access", "complet")
+    .whereNot("access.access", "lecture")
     .modify(orderPhaseEvents);
 }
 

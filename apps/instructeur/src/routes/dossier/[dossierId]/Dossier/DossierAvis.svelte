@@ -44,7 +44,7 @@
   // Read-only mode only exposes the official avis — the avis of the other
   // experts consulted by the instructeur stay internal.
   const visibleAvisExpert = $derived(
-    readOnly.current
+    (readOnly.restricted ?? readOnly.current)
       ? dossier.avisExpert.filter(({ expert }) => isOfficialAvisExpert(expert))
       : dossier.avisExpert,
   );
@@ -80,7 +80,7 @@
     {:else}
       <p>
         <span class="fr-mb-3w">
-          {readOnly.current
+          {(readOnly.restricted ?? readOnly.current)
             ? "Aucun avis du CSRPN, du CNPN ou du ministre n'est associé à ce dossier."
             : "Aucun fichier de saisine ou fichier d'avis d'expert n'est associé à ce dossier."}
         </span>

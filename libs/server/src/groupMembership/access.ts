@@ -15,4 +15,18 @@ export async function requireGroupMember(actor: UserId, groupId: string, trx: Kn
   const user = await getSessionUser(actor, trx);
   if (!user?.groupes.some((group) => group.id === groupId))
     throw new GroupMembershipError(403, "Vous devez être membre de ce groupe actif.");
+  return user;
+}
+
+export async function requireMembershipManager(
+  actor: UserId,
+  groupId: string,
+  trx: Knex.Transaction,
+) {
+  const user = await requireGroupMember(actor, groupId, trx);
+  if (!user.permissions.includes("admin:access") || !user.permissions.includes("groups:manage"))
+    throw new GroupMembershipError(
+      403,
+      "L'ajout et le retrait de membres sont réservés aux administrateurs autorisés à gérer les groupes.",
+    );
 }

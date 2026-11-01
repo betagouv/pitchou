@@ -5,6 +5,7 @@ import { addGroupMember, removeGroupMember } from "@pitchou/server/groupMembersh
 import { getSessionUser } from "@pitchou/server/users.ts";
 import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { allowGroupManagement } from "../helpers/groupMembership.ts";
 import { admin } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
@@ -29,15 +30,21 @@ test("adding an existing member cannot restore permissions removed by an adminis
       body: JSON.stringify({ email: owner.email }),
     },
   );
-  expect(response.status).toBe(200);
+  expect(response.status).toBe(403);
+  await db("user_groupe").insert({
+    user_id: administrator.id,
+    groupe_instructeurs: owner.groupeId,
+  });
+  await addGroupMember(administrator.id, owner.groupeId, owner.email, db);
   expect((await getSessionUser(owner.id as UserId, db))?.permissions).toEqual([]);
   expect((await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status).toBe(
     403,
   );
 });
 
-test("a colleague cannot restore an empty administrator configuration by removing and adding a member", async () => {
+test("membership changes cannot restore an empty administrator configuration by removing and adding a member", async () => {
   const owner = await createInstructeurWithDossier(db);
+  await allowGroupManagement(db, owner.id);
   const administrator = await admin();
   const user = await saveUser(administrator.id, {
     email: "restricted@example.org",
@@ -60,6 +67,7 @@ test.each([
   "removing the last row in %s does not turn an account into an unconfigured account",
   async (table, column, value) => {
     const owner = await createInstructeurWithDossier(db);
+    await allowGroupManagement(db, owner.id);
     const [user] = await db("auth_user").insert({ email: "revoked@example.org" }).returning("*");
     await db(table).insert({ user_id: user.id, [column]: value });
     await db(table).where({ user_id: user.id }).delete();

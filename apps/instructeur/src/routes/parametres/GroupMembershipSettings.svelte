@@ -4,7 +4,8 @@
   import type { UserId } from "@pitchou/types/permissions.ts";
   import GroupMembers from "./GroupMembers.svelte";
 
-  let { userId }: { userId: UserId } = $props();
+  let { userId, canManageGroupMembers }: { userId: UserId; canManageGroupMembers: boolean } =
+    $props();
   let groups = $state<MembershipGroup[]>([]);
   let loading = $state(true);
   let failure = $state("");
@@ -29,8 +30,8 @@
 
 <div class="flex flex-col gap-6">
   <p class="m-0! text-sm text-[var(--text-mention-grey)]">
-    Chaque membre peut ajouter ou retirer des collègues dans son groupe. Les départements et l'état
-    du groupe restent gérés par les administrateurs.
+    Les administrateurs autorisés à gérer les groupes ajoutent et retirent les membres. Pour
+    modifier la composition de votre groupe, contactez un administrateur Pitchou.
   </p>
   {#if loading}
     <p role="status" class="m-0 p-6">Chargement des groupes…</p>
@@ -43,8 +44,8 @@
     <div class="p-6 md:p-8">
       <h3 class="fr-h6 fr-mb-1w">Vous n'appartenez à aucun groupe actif</h3>
       <p class="fr-mb-0">
-        Un collègue déjà membre peut vous ajouter avec votre adresse professionnelle. Pour créer un
-        groupe ou rétablir l'accès à un groupe sans membre, contactez un administrateur Pitchou.
+        Contactez un administrateur Pitchou pour rejoindre un groupe avec votre adresse
+        professionnelle ou rétablir votre accès.
       </p>
     </div>
   {:else}
@@ -52,6 +53,7 @@
       <GroupMembers
         {group}
         {userId}
+        {canManageGroupMembers}
         onChanged={async () => {
           const response = await fetch("/parametres/groupes", {
             headers: { accept: "application/json" },

@@ -10,6 +10,7 @@ export function notificationEmailMessage(
     demarche_numerique_number: number | null;
     name: string | null;
     enjeu: boolean | null;
+    restricted?: boolean;
   },
   siteUrl: string,
 ): EmailMessage {
@@ -17,24 +18,25 @@ export function notificationEmailMessage(
   const enjeu =
     context.enjeu === null ? "Enjeu à déterminer" : context.enjeu ? "À enjeu" : "Sans enjeu";
   const label = `${number} - ${context.name ?? "Dossier sans titre"}`;
-  const dossierUrl = new URL(`/dossier/${context.dossier}?tab=historique`, siteUrl).href;
+  const tab = context.restricted ? "detail-du-projet" : "historique";
+  const dossierUrl = new URL(`/dossier/${context.dossier}?tab=${tab}`, siteUrl).href;
   const settingsUrl = new URL("/parametres/notifications", siteUrl).href;
   const logoUrl = new URL("/images/pitchou-logo-email.png", siteUrl).href;
   const title =
     context.kind === "arrival"
       ? "Nouveau dossier"
       : context.kind === "assignment"
-        ? "Attribution de dossier"
+        ? "Suivi de dossier"
         : "Nouveautés sur votre dossier";
   const subject =
     context.kind === "arrival"
       ? `Nouveau dossier: ${label}`
-      : `${context.kind === "assignment" ? "Attribution dossier" : "Nouveauté"}: ${number} - ${enjeu} - ${context.name ?? "Dossier sans titre"}`;
+      : `${context.kind === "assignment" ? "Suivi dossier" : "Nouveauté"}: ${number} - ${enjeu} - ${context.name ?? "Dossier sans titre"}`;
   const introduction =
     context.kind === "arrival"
       ? "Un nouveau dossier vient d’arriver dans Pitchou et attend d'être suivi par un-e instructeur-trice:"
       : context.kind === "assignment"
-        ? "Le dossier suivant vous a été attribué pour suivi dans Pitchou:"
+        ? "Vous suivez désormais ce dossier dans Pitchou:"
         : "Il y a du nouveau sur votre dossier:";
   return {
     to: [context.email],

@@ -73,6 +73,7 @@ export const DATE_FIELD_LABEL: Record<DateField, string> = {
 export type DossiersContext = {
   notificationByDossier: PitchouState["notificationByDossier"];
   followRelations?: PitchouState["followRelations"];
+  followedOnly?: boolean;
   especeByCD_REF?: PitchouState["espèceByCD_REF"];
 };
 

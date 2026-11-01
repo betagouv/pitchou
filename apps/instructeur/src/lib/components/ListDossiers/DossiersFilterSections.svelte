@@ -123,7 +123,7 @@
         checked={withoutInstructeur}
         onchange={(e) => toggleWithoutInstructeur(e.currentTarget.checked)}
       />
-      <label class="fr-label" for="sans-instructeurice">Dossiers sans instructeur·ice</label>
+      <label class="fr-label" for="sans-instructeurice">Dossiers sans suivi</label>
     </div>
   </div>
 {/if}

@@ -124,7 +124,7 @@ test("manual-only groups preserve inclusions, exclusions survive recomputation, 
   expect(await ownership(dossier.id)).toEqual([group.id]);
 });
 
-test("replacing equivalent rules preserves follows and excluding the last owning group removes them", async () => {
+test("replacing rules and excluding the last owning group preserve follows while reading remains", async () => {
   const actor = await admin();
   const instructor = await createInstructeurWithDossier(db);
   await changeAssignment(actor.token, instructor.dossier.id, instructor.groupeId, "auto");
@@ -153,6 +153,8 @@ test("replacing equivalent rules preserves follows and excluding the last owning
   ).toBe(200);
   expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
   await changeAssignment(actor.token, instructor.dossier.id, instructor.groupeId, "exclude");
+  expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
+  await db("user_groupe").where({ user_id: instructor.id }).delete();
   expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
 });
 

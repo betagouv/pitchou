@@ -29,7 +29,7 @@ async function download(cap: string, scope = "service", format = "csv", extra = 
   );
 }
 
-test("service and followed exports validate selected dossiers against the caller's services and ignore pagination", async () => {
+test("service and followed exports respect access, include restricted personal follows, and ignore pagination", async () => {
   const owner = await createInstructeurWithDossier(db, {
     email: "owner@export.fr",
     nomGroupe: "Owner service",
@@ -59,8 +59,9 @@ test("service and followed exports validate selected dossiers against the caller
     expect(service[1][4]).toBe(owner.email);
     expect(service[2][4]).toBe(foreign.email);
     const followed = await rows(await download(owner.cap, "followed", format));
-    expect(followed).toHaveLength(2);
+    expect(followed).toHaveLength(3);
     expect(followed[1][0]).toBe("1234");
+    expect(followed.find((row) => row[0] === String(foreign.dossier.id))?.[4]).toBe("");
   }
   await db("edge_personne_follows_dossier").where({ personne: owner.id }).delete();
   expect(await rows(await download(owner.cap, "followed"))).toHaveLength(1);

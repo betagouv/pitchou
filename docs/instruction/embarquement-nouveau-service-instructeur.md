@@ -6,8 +6,8 @@ Quand un service instructeur (DREAL, DDT) rejoint Pitchou, les étapes suivantes
   - présenter Pitchou et notre mode de fonctionnement
   - s'assurer que Pitchou permet au service instructeur de continuer son travail sans perte de données et de manière plus ou moins transparente pour les pétitionnaires des dossiers en cours,
   - préparer un calendrier d'embarquement du service
-- Suite à cette rencontre, l'équipe Pitchou créé un "groupe instructeur" pour ce service instructeur dans la procédure "Démarche Numérique" dédiée et rajoute le ou les instructeur·rices avec qui iels sont en contact dans ce groupe. Par la suite, les instructeur·rices sont automone et peuvent gérer leur groupe (ajouter ou supprimer des membres).
-- Les instructeur·rices se connectent sur le [lien de connexion Pitchou](https://pitchou.beta.gouv.fr/) obtiennent leur lien de connexion par email
+- Après cette rencontre, un administrateur Pitchou crée un groupe local pour le service, configure ses règles d'accès aux dossiers et ajoute les instructeur·rices avec leur adresse professionnelle. Les administrateurs disposant des droits de gestion des groupes ajoutent et retirent les membres dans Pitchou. Les membres consultent leur groupe dans leurs paramètres et contactent un administrateur pour toute modification. La composition du groupe Pitchou est indépendante des groupes de Démarche Numérique.
+- Les instructeur·rices se connectent sur [Pitchou](https://pitchou.beta.gouv.fr/) avec ProConnect et leur adresse professionnelle.
 - L'équipe Pitchou accompagne le service insructeur dans l'ajout de premiers dossiers dans [Démarche Numérique](https://demarche.numerique.gouv.fr/commencer/derogation-especes-protegees)
 - Lorsque des dossiers ont été saisis par le service ou des pétitionnaires, les instructeur·rices se connectent sur Pitchou et peuvent accéder à leurs dossiers
 

@@ -14,7 +14,7 @@ test("escapes dossier names and includes dossier and settings links without capa
     },
     "https://pitchou.test",
   );
-  expect(message.subject).toBe('Attribution dossier: 123456 - À enjeu - <script>"A&B"</script>');
+  expect(message.subject).toBe('Suivi dossier: 123456 - À enjeu - <script>"A&B"</script>');
   expect(message.htmlContent).toContain("&lt;script&gt;&quot;A&amp;B&quot;&lt;/script&gt;");
   expect(message.htmlContent).toContain('href="https://pitchou.test/dossier/42?tab=historique"');
   expect(message.htmlContent).toContain('href="https://pitchou.test/parametres/notifications"');

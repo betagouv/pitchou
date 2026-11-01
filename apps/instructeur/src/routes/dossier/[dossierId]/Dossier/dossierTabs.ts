@@ -21,19 +21,18 @@ export const dossierTabs: { id: DossierTab; label: string; icon: string }[] = [
  * Tabs left out of read-only mode: the historique exposes who did what inside
  * the service, and the document generator is an instruction tool.
  */
-const tabsHiddenWhenReadOnly: ReadonlySet<DossierTab> = new Set([
-  "historique",
-  "generation-document",
-]);
-
 export const defaultDossierTab: DossierTab = "instruction";
 
-export function isDossierTabVisible(tab: DossierTab, readOnly: boolean): boolean {
-  return !readOnly || !tabsHiddenWhenReadOnly.has(tab);
+export function isDossierTabVisible(
+  tab: DossierTab,
+  restricted: boolean,
+  readOnly = restricted,
+): boolean {
+  return !(restricted && tab === "historique") && !(readOnly && tab === "generation-document");
 }
 
-export function visibleDossierTabs(readOnly: boolean): typeof dossierTabs {
-  return readOnly ? dossierTabs.filter(({ id }) => isDossierTabVisible(id, readOnly)) : dossierTabs;
+export function visibleDossierTabs(restricted: boolean, readOnly = restricted): typeof dossierTabs {
+  return dossierTabs.filter(({ id }) => isDossierTabVisible(id, restricted, readOnly));
 }
 
 /** Tab ids that existed before the tab rework, mapped to their replacement. */

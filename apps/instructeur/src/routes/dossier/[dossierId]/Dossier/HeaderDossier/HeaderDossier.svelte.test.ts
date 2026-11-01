@@ -68,7 +68,7 @@ test("the compact header appears as soon as the original leaves the viewport, ev
   expect(screen.getByRole("heading", { level: 2 })).toMatchTextContent(
     props().dossier.name!.trim(),
   );
-  expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
+  expect(screen.getByText("Aucun suivi")).toBeTruthy();
   expect(screen.queryByTestId("sticky-dossier-header")).toBeNull();
   setIntersection(true, 100);
   await scroll(500);
@@ -95,10 +95,8 @@ test("both follow states keep the outlined medium button and the untruncated loc
     ...props(),
     dossierFollowers: ["a.long.instructeur.name@example.com"],
   });
-  expect(screen.queryByText("Sans instructeur-ice")).toBeNull();
-  expect(screen.getByRole("button", { name: "Suivi par a.long.instructeur.name" })).not.toHaveClass(
-    "truncate",
-  );
+  expect(screen.queryByText("Aucun suivi")).toBeNull();
+  expect(screen.getByText("Suivi par a.long.instructeur.name")).not.toHaveClass("truncate");
   const follow = screen.getByRole("button", { name: "Suivre ce dossier" });
   expect(follow).toHaveClass("fr-btn--secondary");
   expect(getComputedStyle(follow).minHeight).toBe("40px");

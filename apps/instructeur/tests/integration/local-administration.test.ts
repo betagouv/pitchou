@@ -51,7 +51,7 @@ test("permission exclusions and account deactivation take effect on an existing 
     user_id: instructor.id,
     permission: "dossier:instruct",
   });
-  expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
+  expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
   const response = await fetchAuthenticated(
     instructor.cap,
     `${INTEGRATION_BASE_URL}/dossier/${instructor.dossier.id}`,
@@ -66,6 +66,7 @@ test("permission exclusions and account deactivation take effect on an existing 
   await db("auth_user")
     .where({ id: sessionUserId(instructor.cap) })
     .update({ active: false });
+  expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
   expect(await readSession(instructor.cap, db)).toBeNull();
   expect(
     (await fetchAuthenticated(instructor.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status,

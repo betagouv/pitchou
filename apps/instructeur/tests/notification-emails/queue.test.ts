@@ -123,7 +123,7 @@ test("DN form, attachment and species changes queue mail, but deferred baselines
   expect(await db("email_notification_outbox")).toHaveLength(2);
 });
 
-test("queues immediate assignments only for newly added third-party followers", async () => {
+test("refuses third-party follow changes and never queues mail for personal follow events", async () => {
   const { actor, recipient, action } = await setup();
   await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
   const assign = async () =>
@@ -134,24 +134,17 @@ test("queues immediate assignments only for newly added third-party followers", 
         [actor.email, recipient.email],
         trx,
       );
-      if (updated)
-        await logActionsDossier(
-          updated.added.map((follower) => ({
-            dossier: actor.dossier.id as ActionDossierInitializer["dossier"],
-            type: "dossier_suivi",
-            author_personne: actor.id as ActionDossierInitializer["author_personne"],
-            data: { follower },
-          })),
-          trx,
-        );
+      expect(updated).toBe(false);
     });
   await assign();
   await assign();
   await action("dossier_suivi", { data: { follower: actor.email } });
-  expect(await db("email_notification_outbox")).toHaveLength(1);
+  expect(await db("edge_personne_follows_dossier").where({ personne: recipient.id })).toHaveLength(
+    0,
+  );
+  expect(await db("email_notification_outbox")).toHaveLength(0);
   const sent = await dispatch(new Date());
-  expect(sent.send).toHaveBeenCalledOnce();
-  expect(sent.send.mock.calls[0][0].subject).toContain("Attribution dossier:");
+  expect(sent.send).not.toHaveBeenCalled();
 });
 
 test.each(["preference", "unfollow", "access"])("rechecks %s before delivery", async (change) => {

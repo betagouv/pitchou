@@ -47,6 +47,7 @@ beforeEach(() => {
   mocks.connect.mockResolvedValue({ id: 7, active: true });
   mocks.createSession.mockResolvedValue("session");
   mocks.sessionUser.mockResolvedValue({
+    active: true,
     groupes: [{ id: "group" }],
     permissions: ["dossier:read", "dossier:instruct"],
   });

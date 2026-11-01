@@ -90,7 +90,7 @@ test("cards omit references, SIRET and tasks, but keep a clickable non-underline
   }
 });
 
-test("both stars stay violet-blue and Moi only replaces Instructeur for followed dossiers", async () => {
+test("personal tracking keeps stars violet-blue and does not assign the next action", async () => {
   const props = cardProps(true, false);
   const { rerender } = render(CardDossier, props);
   expect(getComputedStyle(screen.getByRole("button", { name: /^Suivre$/u })).color).toBe(
@@ -100,7 +100,7 @@ test("both stars stay violet-blue and Moi only replaces Instructeur for followed
   expect(props.currentInstructeurFollowsDossier).toHaveBeenCalledWith(dossier.id);
   expect(screen.getByText("Instructeur", { exact: true })).toBeTruthy();
   await rerender({ ...props, dossierFollowedByCurrentInstructeur: true });
-  expect(screen.getByText("Moi", { exact: true })).toBeTruthy();
+  expect(screen.getByText("Instructeur", { exact: true })).toBeTruthy();
   expect(getComputedStyle(screen.getByRole("button", { name: /^Ne plus suivre$/u })).color).toBe(
     "rgb(106, 106, 244)",
   );
@@ -121,20 +121,20 @@ test("unassigned can coexist with shared notification badges and never makes a r
   const { rerender } = render(CardDossier, cardProps());
   expect(screen.getByText("Nouveau dossier")).toBeTruthy();
   expect(screen.queryByText("Nouveau suivi")).toBeNull();
-  expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
-  expect(screen.getByText("Sans instructeur-ice")).toHaveClass("fr-badge--purple-glycine");
+  expect(screen.getByText("Aucun suivi")).toBeTruthy();
+  expect(screen.getByText("Aucun suivi")).toHaveClass("fr-badge--purple-glycine");
   store.followRelations!.set("colleague@example.org", new SvelteSet([dossier.id]));
   await tick();
-  expect(screen.queryByText("Sans instructeur-ice")).toBeNull();
+  expect(screen.queryByText("Aucun suivi")).toBeNull();
   store.followRelations!.get("colleague@example.org")!.delete(dossier.id);
   store.notificationByDossier.set(dossier.id, makeNotification());
   await rerender(cardProps(false));
-  expect(screen.getByText("Sans instructeur-ice")).toBeTruthy();
+  expect(screen.getByText("Aucun suivi")).toBeTruthy();
   expect(screen.getByTestId("card-dossier").classList.contains("unread")).toBe(false);
   expect(screen.queryByText("Nouveau dossier")).toBeNull();
 });
 
-test("card menu retains assignment and deadline editing, without sharing or manual unread actions", async () => {
+test("card menu retains deadline editing without changing other people’s follows", async () => {
   render(CardDossier, cardProps());
   const trigger = screen.getByRole("button", { name: /Plus d’actions/u });
   for (const element of [trigger, trigger.querySelector("svg")!]) {
@@ -144,10 +144,9 @@ test("card menu retains assignment and deadline editing, without sharing or manu
   }
   await fireEvent.click(trigger);
   expect(screen.getAllByRole("menuitem").map((item) => item.textContent?.trim())).toEqual([
-    "Faire suivre le dossier",
     "Modifier la date de la prochaine échéance",
   ]);
-  for (const [index, icon] of ["share-forward-fill", "calendar-event-line"].entries()) {
+  for (const [index, icon] of ["calendar-event-line"].entries()) {
     const glyph = screen.getAllByRole("menuitem")[index].querySelector(`.fr-icon-${icon}`)!;
     expect(glyph).toHaveAttribute("aria-hidden", "true");
     expect(getComputedStyle(glyph, "::before").maskImage).toMatch(/^url\(/u);

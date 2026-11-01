@@ -45,9 +45,9 @@
     reçoit uniquement des affectations manuelles.
   </p>
   <p>
-    Vérifiez l'aperçu des dossiers ajoutés et retirés avant d'enregistrer. Ce recalcul des dossiers
-    existants n'envoie pas d'e-mail d'arrivée. Les nouvelles arrivées ordinaires conservent leurs
-    notifications.
+    Vérifiez l'aperçu des dossiers ajoutés, retirés et des changements de niveau d'accès avant
+    d'enregistrer. Ce recalcul des dossiers existants n'envoie pas d'e-mail d'arrivée. Les nouvelles
+    arrivées ordinaires conservent leurs notifications.
   </p>
   <p>
     Un groupe archivé ne donne plus d'accès. Ses règles et exceptions sont conservées pour une
@@ -68,8 +68,16 @@
   </p>
   <h3>Accès des membres</h3>
   <p>
-    Un instructeur membre d'au moins un groupe actif peut consulter les dossiers des autres groupes
-    en lecture seule. Il peut instruire les dossiers de ses groupes selon ses permissions.
+    Chaque règle ou inclusion manuelle accorde soit la lecture complète des informations internes,
+    soit l'instruction. Le niveau le plus fort de tous les groupes et accès individuels s'applique,
+    dans la limite des permissions du compte. Les membres d'un groupe actif conservent la lecture
+    restreinte des autres dossiers.
+  </p>
+  <p>
+    La fiche du dossier permet aussi d'accorder un accès individuel sans appartenance à un groupe.
+    Seuls les administrateurs autorisés gèrent ces accès et les membres des groupes. Le suivi est un
+    choix personnel pour retrouver un dossier et recevoir ses notifications ; il ne donne aucun
+    accès supplémentaire et ne désigne aucun responsable.
   </p>
 </PageHelp>
 {#if form?.message}<p class="fr-alert fr-alert--error" role="alert">{form.message}</p>{/if}

@@ -34,11 +34,9 @@
     notification?: Pick<Notification, "viewed" | "updated_at" | "viewed_at">;
     /** Hides every action writing to the dossier, the current user included. */
     readOnly: boolean;
+    restricted?: boolean;
     onReadOnlyChange: (readOnly: boolean) => void;
-    /**
-     * Whether the current user may edit this dossier at all. Read-only mode
-     * looks the same for everyone, so only the way back out depends on it.
-     */
+    /** Whether the current user may return from the restricted preview to editing. */
     canEdit: boolean;
     onClose: () => void;
   };
@@ -52,12 +50,16 @@
     currentDossierFollowedByCurrentInstructeur,
     notification,
     readOnly,
+    restricted = readOnly && dossier.access !== "lecture_complete",
     onReadOnlyChange,
     canEdit,
     onClose,
   }: Props = $props();
 
-  provideReadOnly(() => readOnly);
+  provideReadOnly(
+    () => readOnly,
+    () => restricted,
+  );
 
   const sendEvenementConsulterUnDossier = debounce(
     () => sendEvenement({ type: "consulterUnDossier", details: { dossierId: dossier.id } }),
@@ -94,7 +96,7 @@
 </svelte:head>
 
 <div class="fr-grid-row fr-mt-2w">
-  <DossierNotificationReadTracker dossierId={dossier.id} {readOnly} />
+  <DossierNotificationReadTracker dossierId={dossier.id} readOnly={restricted} />
   <!-- min-w-0 lets the column shrink below its content width (long title, wide
        tab bar) instead of forcing the page to scroll horizontally. -->
   <div class="fr-col min-w-0">
@@ -116,10 +118,10 @@
       <DossierTabList
         {activeTab}
         onSelect={onTabChange}
-        hasPendingChanges={!readOnly &&
+        hasPendingChanges={!restricted &&
           !!store.notificationByDossier.get(dossier.id)?.changes.length}
       />
-      {#each visibleDossierTabs(readOnly) as tab (tab.id)}
+      {#each visibleDossierTabs(restricted, readOnly) as tab (tab.id)}
         <div
           id="tabpanel-{tab.id}-panel"
           aria-labelledby="tabpanel-{tab.id}"

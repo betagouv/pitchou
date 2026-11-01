@@ -19,16 +19,11 @@ export async function getAccessibleDossierGroupeMembers(
 ): Promise<GroupeMember[] | undefined> {
   if (lockForUpdate) await databaseConnection.raw("select pg_advisory_xact_lock(2105102026)");
   const access = await dossiersAccessibleToUser(dossierId, userId, databaseConnection);
-  if (access.get(dossierId) !== "complet") return undefined;
-  return databaseConnection("user_groupe as m")
-    .join("auth_user as u", "u.id", "m.user_id")
-    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
-    .join("edge_groupe_instructeurs__dossier as e", "e.groupe_instructeurs", "g.id")
-    .where({ "e.dossier": dossierId, "u.active": true, "g.active": true })
-    .whereRaw("pitchou_can_instruct(u.id)")
+  if (!access.has(dossierId)) return undefined;
+  return databaseConnection("auth_user as u")
+    .where({ "u.id": userId, "u.active": true })
     .whereNotNull("u.email")
-    .distinct("u.id", "u.email", "u.first_names as firstNames", "u.last_name as lastName")
-    .orderBy("u.email");
+    .select("u.id", "u.email", "u.first_names as firstNames", "u.last_name as lastName");
 }
 
 export async function followDossierForPersonnes(

@@ -1,12 +1,13 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { requireUserId, requireDossierWriteAccess } from "#lib/server/auth.ts";
+import { requireUserId, requireDossierAccessLevel, lockDossierAccess } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import {
   getNotificationsForUser,
   updateNotificationDossier,
 } from "@pitchou/server/database/notification.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
+import { personneFollowsDossier } from "@pitchou/server/database/relation_suivi.ts";
 import type { NotificationUpdate } from "@pitchou/types/notification.ts";
 
 const notificationUpdateProperties = new Set(["dossier", "arrival", "followRevision", "revisions"]);
@@ -56,7 +57,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   // The update upserts, so an unchecked dossier id would create a notification
   // row for a dossier the userId cannot reach.
   const updated = await directDatabaseConnection.transaction(async (transaction) => {
-    await requireDossierWriteAccess(notification.dossier, userId, transaction);
+    await lockDossierAccess(transaction);
+    const { access } = await requireDossierAccessLevel(notification.dossier, userId, transaction);
+    if (
+      access === "lecture" &&
+      !(await personneFollowsDossier(userId, notification.dossier, transaction))
+    )
+      error(403, "Suivez ce dossier pour gérer vos notifications en lecture restreinte.");
     return updateNotificationDossier(userId, notification, transaction);
   });
   return json(updated);

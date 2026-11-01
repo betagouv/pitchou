@@ -1,5 +1,10 @@
 import { departements } from "./departements.ts";
-import type { GroupRule } from "@pitchou/types/groupRouting.ts";
+import type { AccessLevel, GroupRule } from "@pitchou/types/groupRouting.ts";
+
+export function parseAccessLevel(value: unknown = "instruct"): AccessLevel {
+  if (value !== "read" && value !== "instruct") throw new TypeError("Niveau d'accès invalide");
+  return value;
+}
 
 export function parseGroupRules(value: unknown): GroupRule[] {
   if (!Array.isArray(value) || value.length > 50)
@@ -9,7 +14,7 @@ export function parseGroupRules(value: unknown): GroupRule[] {
     if (!rule || typeof rule !== "object" || Array.isArray(rule))
       throw new TypeError("Règle invalide");
     const input = rule as Record<string, unknown>;
-    const result = {} as GroupRule;
+    const result = { accessLevel: parseAccessLevel(input.accessLevel) } as GroupRule;
     for (const key of ["departments", "communes", "activites"] as const) {
       const values = input[key];
       if (

@@ -62,6 +62,19 @@ export async function claimEmail(
       });
       return undefined;
     }
+    if (row.kind === "novelty") {
+      const { rows } = await trx.raw("select pitchou_notification_eligible(?, ?, ?) as eligible", [
+        row.dossier,
+        row.personne,
+        row.batch_key,
+      ]);
+      if (!rows[0].eligible) {
+        await trx("email_notification_outbox")
+          .where({ id })
+          .update({ status: "cancelled", claimed_at: null });
+        return undefined;
+      }
+    }
     const message = row.message ?? notificationEmailMessage({ ...row, ...recipient }, siteUrl);
     if (stagingSuppressesMessage(message)) {
       await suppressNotification(trx, id);
@@ -86,10 +99,11 @@ function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
     .join("email_notification_preferences as pref", "pref.personne", "p.id")
     .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
     .where({ "p.id": row.personne })
-    .whereRaw("pitchou_can_instruct(p.id)")
+    .whereRaw("pitchou_dossier_access(d.id, p.id) is not null")
     .where(`pref.${row.kind}`, true)
-    .whereNotNull("p.email")
-    .whereExists(
+    .whereNotNull("p.email");
+  if (row.kind === "arrival")
+    recipientQuery.whereExists(
       trx("user_groupe as cg")
         .join("groupe_instructeurs as g", "g.id", "cg.groupe_instructeurs")
         .where("g.active", true)
@@ -122,6 +136,13 @@ function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
     email: string;
     name: string | null;
     enjeu: boolean | null;
+    restricted: boolean;
     demarche_numerique_number: number | null;
-  }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
+  }>([
+    "p.email",
+    "d.name",
+    "d.enjeu",
+    "d.demarche_numerique_number",
+    trx.raw("pitchou_dossier_access(d.id, p.id) = 'lecture' as restricted"),
+  ]);
 }

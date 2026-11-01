@@ -6,33 +6,35 @@ Both applications use ProConnect. On the first login, Pitchou matches the ProCon
 
 The admin pages `/utilisateurs` and `/groupes-instructeurs` manage accounts and coverage. Effective permissions are the union of bundle permissions and individual grants, minus exclusions. The definitions live in `libs/types/src/permissions.ts`.
 
-| Permission               | Access                                                           |
-| ------------------------ | ---------------------------------------------------------------- |
-| `dossier:read`           | Read dossiers when the user belongs to at least one active group |
-| `dossier:instruct`       | Full access to dossiers owned by the user's groups               |
-| `admin:access`           | Enter the admin application                                      |
-| `admin:dossiers:create`  | Create dossiers, including their initial files                   |
-| `admin:dossiers:update`  | Edit dossier fields, relations and phases                        |
-| `admin:dossiers:delete`  | Delete native dossiers                                           |
-| `admin:dossiers:files`   | Add or remove dossier attachments                                |
-| `admin:dossiers:species` | Replace or remove impacted-species files                         |
-| `admin:activites:manage` | Edit activities, labels and categories                           |
-| `admin:especes:manage`   | Edit or remove protected-species reference corrections           |
-| `admin:changelog:create` | Create changelog drafts                                          |
-| `admin:changelog:update` | Edit and publish changelog entries and manage their media        |
-| `admin:changelog:delete` | Delete changelog entries                                         |
-| `admin:sync:run`         | Run DN synchronization                                           |
-| `admin:sync:simulate`    | Simulate DN changes on dossiers, where simulation is enabled     |
-| `users:manage`           | Manage users and their permissions                               |
-| `groups:manage`          | Manage groups, membership and department coverage                |
+| Permission               | Access                                                                  |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `dossier:read`           | Read dossiers through active group membership or a direct dossier grant |
+| `dossier:instruct`       | Edit dossiers with a group or individual instruction grant              |
+| `admin:access`           | Enter the admin application                                             |
+| `admin:dossiers:create`  | Create dossiers, including their initial files                          |
+| `admin:dossiers:update`  | Edit dossier fields, relations and phases                               |
+| `admin:dossiers:delete`  | Delete native dossiers                                                  |
+| `admin:dossiers:files`   | Add or remove dossier attachments                                       |
+| `admin:dossiers:species` | Replace or remove impacted-species files                                |
+| `admin:activites:manage` | Edit activities, labels and categories                                  |
+| `admin:especes:manage`   | Edit or remove protected-species reference corrections                  |
+| `admin:changelog:create` | Create changelog drafts                                                 |
+| `admin:changelog:update` | Edit and publish changelog entries and manage their media               |
+| `admin:changelog:delete` | Delete changelog entries                                                |
+| `admin:sync:run`         | Run DN synchronization                                                  |
+| `admin:sync:simulate`    | Simulate DN changes on dossiers, where simulation is enabled            |
+| `users:manage`           | Manage users and their permissions                                      |
+| `groups:manage`          | Manage groups, rules and group or individual dossier grants             |
 
-The `instructeur` bundle grants both dossier permissions. The `administrateur` bundle grants every permission. Admin pages still require `admin:access` alongside their management permission. An administrator needs group membership to access dossiers through the instructor application.
+The `instructeur` bundle grants both dossier permissions. The `administrateur` bundle grants every permission. Admin pages still require `admin:access` alongside their management permission. Instructor-app access requires active group membership or a direct dossier grant, including for administrators.
 
-Adding a group member grants the instructor bundle only if that account's permissions have never been configured. The database remembers permission changes even after the last grant or exclusion is removed. Saving an account in administration also records an explicit configuration when all permissions are empty. Removing and re-adding a member cannot undo those administrator choices.
+Changing group membership requires both `admin:access` and `groups:manage`, because membership grants access to the group's dossiers. Other members can still consult their group directory. Adding a group member grants the instructor bundle only if that account's permissions have never been configured. The database remembers permission changes even after the last grant or exclusion is removed. Saving an account in administration also records an explicit configuration when all permissions are empty. Removing and re-adding a member cannot undo those administrator choices.
 
 Group assignment follows automatic rules and persistent manual exceptions, described below. Several groups can own the same dossier. Database triggers recalculate assignments when routing criteria, rules or group activity change. This applies to DN dossiers and native dossiers. The dossiers page lists dossiers without an owning group.
 
-Users read dossiers outside their groups with the existing read-only field and document restrictions. Removing the last active membership removes all dossier access. Sessions resolve permissions and membership on every request. A browser also checks for access changes when it regains focus. Followers must retain instruction permission and membership in an owning group. Losing one of several qualifying memberships preserves the follow.
+Users with active group membership can read other dossiers with the existing cross-service field and document restrictions. Explicit grants can provide complete read-only access or instruction access. Direct individual grants work without group membership. Sessions resolve permissions on every request. A browser also checks for access changes when it regains focus.
+
+Following is personal tracking in "Mes dossiers" and notifications. It does not grant access or assign responsibility. Users manage their own follows; they cannot subscribe or unsubscribe colleagues. A follow survives an instruction-to-read downgrade while the user retains reading access. Removing the last reading access deletes the follow and cancels pending notifications. Restricted readers receive only information available in their restricted view. Formal responsibility and work assignment are outside this feature.
 
 ## Deployment configuration
 
@@ -73,7 +75,7 @@ Migration `20261023104000_granular-admin-permissions.ts` replaces each direct `a
 
 ## Upgrade after email notifications
 
-The local-user migrations now run on 23 October, after the deployed email-notification migrations. The upgrade preserves account IDs, saved mail preferences, pending messages and notification history. Preferences and delivery checks use `auth_user` and `user_groupe`. Arrival tracking records every group owning a dossier, with one email per recipient when several groups receive the dossier together. Delivery rechecks active membership and instructor permissions.
+The local-user migrations now run on 23 October, after the deployed email-notification migrations. The upgrade preserves account IDs, saved mail preferences, pending messages and notification history. Preferences and delivery checks use `auth_user` and local access grants. Arrival tracking records every group receiving a dossier, with one email per recipient when several groups receive the dossier together. Delivery rechecks current reading access and, for group arrivals, active membership.
 
 The ownership migration baselines existing dossiers instead of emailing the historical backlog. After the flexible-assignment migration below, rule and group changes also baseline existing dossiers silently. Ordinary dossier arrivals retain their notifications. General, Notifications and My groups share the instructor settings navigation.
 
@@ -92,3 +94,13 @@ The group editor previews additions and removals, including manual exceptions an
 Rule edits, group activation changes and activity mapping corrections silently baseline existing dossier assignments. They cancel obsolete pending arrival messages and do not send new arrival messages for the recalculation. Ordinary dossier arrivals and manual inclusions retain arrival notifications. Migration also baselines existing assignments. Preview is read-only. Group and manual-assignment writes require both `admin:access` and `groups:manage`, recheck authorization in the transaction, and record administration events. The dossier administration page explains automatic matches, manual inclusions and exclusions, including exceptions on DN dossiers.
 
 The department alert reports departments without unrestricted automatic coverage. Conditional rules can cover some dossiers there; the unmatched-dossier list remains the check for dossiers with no effective assignment.
+
+## Dossier access levels and individual grants
+
+Migration `20261101120000_dossier-access-levels.ts` gives each automatic rule and manual inclusion an access level, `read` for complete read-only access or `instruct` for instruction. Existing rules, overrides and effective group edges default to `instruct`, preserving existing access. Legacy `groupe_departement` rows always grant instruction; department-only read rules live in `groupe_regle`.
+
+Within a group, an explicit manual inclusion sets the access level and an exclusion removes that group's contribution. Automatic mode uses the strongest matching rule. Across groups and direct grants, the strongest applicable contribution wins. Excluding a dossier from one group does not block another group or an individual grant.
+
+`dossier_user_access` stores individual grants. Administrators with both `admin:access` and `groups:manage` can add, change or revoke group and individual grants from the dossier administration page. These changes use the access advisory lock and record before/after audit events. A grant never activates an account or overrides its permission exclusions. `dossier:read` is always required; an instruction grant without `dossier:instruct` gives complete read-only access.
+
+The instructor API distinguishes three values. `lecture` keeps the existing restricted cross-service projection. `lecture_complete` includes internal notes, history and documents, with all instruction mutations forbidden. `complet` permits instruction. Group previews include access upgrades and downgrades as well as additions and removals. The preview token includes access levels, so a changed level requires a new preview.

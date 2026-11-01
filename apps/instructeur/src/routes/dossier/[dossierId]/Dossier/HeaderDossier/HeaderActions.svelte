@@ -13,7 +13,7 @@
     email: string;
     followersLabel: string;
     followedByCurrentInstructeur: boolean | undefined;
-    onOpenFollowers: () => void;
+    onOpenFollowers?: () => void;
     onAddPieceJointe: () => void;
     /** Switches the dossier to read-only mode. */
     onEnterReadOnly: () => void;
@@ -24,7 +24,6 @@
     email,
     followersLabel,
     followedByCurrentInstructeur,
-    onOpenFollowers,
     onAddPieceJointe,
     onEnterReadOnly,
   }: Props = $props();
@@ -33,37 +32,27 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-4">
-  <!-- Read-only mode hides every write action, so the followers are shown as
-       plain text rather than as a way to open the modal. -->
-  {#if readOnly.current}
-    <p class="fr-mb-0 fr-text--sm followers-label">{followersLabel}</p>
-  {:else}
-    <button
-      type="button"
-      class="fr-link fr-text--sm followers-label editable-followers"
-      onclick={onOpenFollowers}
-    >
-      {followersLabel}
-    </button>
+  <p class="fr-mb-0 fr-text--sm followers-label">{followersLabel}</p>
 
-    {#if typeof followedByCurrentInstructeur === "boolean"}
-      {#if followedByCurrentInstructeur}
-        <button
-          onclick={() => instructeurLeavesDossier(email, dossier.id)}
-          type="button"
-          class="fr-btn fr-btn--secondary follow-button fr-icon-star-fill fr-btn--icon-left"
-          >Vous suivez ce dossier</button
-        >
-      {:else}
-        <button
-          onclick={() => instructeurFollowsDossier(email, dossier.id)}
-          type="button"
-          class="fr-btn fr-btn--secondary follow-button fr-icon-star-line fr-btn--icon-left"
-          >Suivre ce dossier</button
-        >
-      {/if}
+  {#if typeof followedByCurrentInstructeur === "boolean"}
+    {#if followedByCurrentInstructeur}
+      <button
+        onclick={() => instructeurLeavesDossier(email, dossier.id)}
+        type="button"
+        class="fr-btn fr-btn--secondary follow-button fr-icon-star-fill fr-btn--icon-left"
+        >Vous suivez ce dossier</button
+      >
+    {:else}
+      <button
+        onclick={() => instructeurFollowsDossier(email, dossier.id)}
+        type="button"
+        class="fr-btn fr-btn--secondary follow-button fr-icon-star-line fr-btn--icon-left"
+        >Suivre ce dossier</button
+      >
     {/if}
+  {/if}
 
+  {#if !readOnly.current}
     <DossierActionsMenu
       dossierId={dossier.id}
       dossierName={dossier.name}
@@ -88,14 +77,6 @@
 <style>
   .followers-label {
     overflow-wrap: anywhere;
-  }
-
-  .editable-followers {
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
 
   .follow-button {

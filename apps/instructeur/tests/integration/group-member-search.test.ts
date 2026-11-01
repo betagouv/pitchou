@@ -13,6 +13,9 @@ function search(token: string, groupId: string, query = "") {
 
 test("members search active users by name or email without exposing account details", async () => {
   const owner = await createInstructeurWithDossier(db);
+  await db("auth_permission_exclusion").insert(
+    ["dossier:read", "dossier:instruct"].map((permission) => ({ user_id: owner.id, permission })),
+  );
   const [candidate] = await db("auth_user")
     .insert({
       email: "celine@example.org",

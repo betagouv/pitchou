@@ -28,10 +28,8 @@
           (readOnlyDossier?.access === "lecture" ? readOnlyDossier : undefined)),
   );
 
-  // Either the instructeur asked to preview the dossier, or their service only
-  // has read-only access. In that case the payload is already restricted and
-  // they cannot switch to editable mode.
-  const readOnly = $derived(data.readOnly || dossier?.access === "lecture");
+  // Editing and visibility are separate: complete readers keep internal data.
+  const readOnly = $derived(data.readOnly || dossier?.access !== "complet");
   const email = $derived(store.identité?.email);
   const followRelations = $derived(store.followRelations);
   const notification = $derived(store.notificationByDossier?.get(id));
@@ -48,9 +46,7 @@
     email ? !!followRelations?.get(email)?.has(id) : false,
   );
 
-  // Per dossier, not per user: one cap is `complet` for the service's own
-  // dossiers and `lecture` for all other dossiers. Someone
-  // who cannot edit gets no way out of read-only mode.
+  // Only the effective instruction grant permits dossier edits.
   const canEdit = $derived(dossier?.access === "complet" && !!store.capabilities.modifierDossier);
 
   // The active tab lives in the `tab` query param; legacy links used a hash
@@ -69,7 +65,9 @@
   // Read-only mode hides some tabs, so a link pointing at one of them falls back
   // to the default tab without losing what the URL asked for.
   const activeTab = $derived(
-    isDossierTabVisible(requestedTab, readOnly) ? requestedTab : defaultDossierTab,
+    isDossierTabVisible(requestedTab, data.readOnly || dossier?.access === "lecture", readOnly)
+      ? requestedTab
+      : defaultDossierTab,
   );
 
   function readTabFromLocation() {
@@ -150,6 +148,7 @@
       {currentDossierFollowedByCurrentInstructeur}
       {notification}
       {readOnly}
+      restricted={data.readOnly || dossier.access === "lecture"}
       onReadOnlyChange={setReadOnly}
       {canEdit}
       onClose={closeDossier}

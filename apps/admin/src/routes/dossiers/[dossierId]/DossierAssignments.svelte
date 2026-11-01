@@ -1,6 +1,10 @@
 <script lang="ts">
   import { can } from "#lib/access.svelte.ts";
-  import type { AssignmentMode, GroupAssignment } from "@pitchou/types/groupRouting.ts";
+  import type {
+    AccessLevel,
+    AssignmentMode,
+    GroupAssignment,
+  } from "@pitchou/types/groupRouting.ts";
   let {
     dossierId,
     initial,
@@ -19,18 +23,23 @@
   let saving = $state(false);
   let message = $state("");
   let selected = $state("");
+  let selectedLevel = $state<AccessLevel>("instruct");
   const visible = $derived(
     assignments.filter((group) => group.assigned || group.automatic || group.mode !== "auto"),
   );
   const available = $derived(assignments.filter((group) => !visible.includes(group)));
-  async function save(groupId: string, mode: AssignmentMode) {
+  async function save(
+    groupId: string,
+    mode: AssignmentMode,
+    accessLevel: AccessLevel = "instruct",
+  ) {
     saving = true;
     message = "";
     try {
       const response = await fetch(`/api/dossiers/${dossierId}/affectations`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ groupId, mode }),
+        body: JSON.stringify({ groupId, mode, accessLevel }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message ?? "Affectation impossible");
@@ -49,7 +58,8 @@
   <h2>Affectations aux groupes instructeurs</h2>
   <p>
     Les ajouts manuels et les exclusions persistent après recalcul des règles. Plusieurs groupes
-    peuvent recevoir ce dossier.
+    peuvent recevoir ce dossier. Une exclusion retire uniquement l'accès apporté par ce groupe. Un
+    ajout manuel remplace le niveau des règles de ce groupe.
   </p>
   {#if message}<p class="fr-alert fr-alert--error" role="alert">{message}</p>{/if}
   <fieldset disabled={saving}>
@@ -63,6 +73,9 @@
               ? "Exclusion manuelle"
               : "Règle automatique"}
         </p>
+        {#if group.accessLevel}<p>
+            Niveau accordé : {group.accessLevel === "instruct" ? "Instruction" : "Lecture complète"}
+          </p>{/if}
         {#if group.automatic}
           <p class="fr-hint-text">
             Correspondance automatique{group.departments.length
@@ -71,7 +84,7 @@
           </p>
           {#each group.rules as rule}
             <p class="fr-hint-text">
-              Règle : {[
+              Règle · {rule.accessLevel === "read" ? "Lecture complète" : "Instruction"} : {[
                 rule.departments.length ? `départements ${rule.departments.join(", ")}` : "",
                 rule.communes.length ? `communes INSEE ${rule.communes.join(", ")}` : "",
                 rule.activites.length
@@ -94,13 +107,34 @@
             onchange={(event) => {
               const mode = event.currentTarget.value as AssignmentMode;
               event.currentTarget.value = group.mode;
-              save(group.id, mode);
+              save(
+                group.id,
+                mode,
+                group.mode === "auto"
+                  ? (group.accessLevel ?? group.manualAccessLevel)
+                  : group.manualAccessLevel,
+              );
             }}
           >
             <option value="auto">Suivre les règles automatiques</option>
             <option value="include">Inclure manuellement</option>
             <option value="exclude">Exclure durablement</option>
           </select>
+          {#if group.mode === "include"}
+            <label class="fr-label mt-2" for={`access-${group.id}`}
+              >Niveau d'accès manuel de {group.name}</label
+            >
+            <select
+              class="fr-select"
+              id={`access-${group.id}`}
+              value={group.manualAccessLevel}
+              onchange={(event) =>
+                save(group.id, "include", event.currentTarget.value as AccessLevel)}
+            >
+              <option value="instruct">Instruction</option>
+              <option value="read">Lecture complète</option>
+            </select>
+          {/if}
         {/if}
       </div>
     {:else}<p>Ce dossier n'est affecté à aucun groupe.</p>{/each}
@@ -112,11 +146,16 @@
             >{group.name}{group.active ? "" : " · Archivé"}</option
           >{/each}
       </select>
+      <label class="fr-label mt-2" for="assignment-new-level">Niveau d'accès du groupe ajouté</label
+      >
+      <select class="fr-select" id="assignment-new-level" bind:value={selectedLevel}>
+        <option value="instruct">Instruction</option><option value="read">Lecture complète</option>
+      </select>
       <button
         class="fr-btn fr-btn--secondary mt-2"
         type="button"
         disabled={!selected}
-        onclick={() => save(selected, "include")}>Affecter au groupe</button
+        onclick={() => save(selected, "include", selectedLevel)}>Affecter au groupe</button
       >
     {/if}
   </fieldset>
