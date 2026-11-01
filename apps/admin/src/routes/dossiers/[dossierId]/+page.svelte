@@ -1,9 +1,9 @@
 <script lang="ts">
   import { can } from "#lib/access.svelte.ts";
+  import { invalidateAll } from "$app/navigation";
   import { page } from "$app/state";
 
   import Loader from "@pitchou/ui/Loader.svelte";
-
   import { onMount } from "svelte";
 
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
@@ -80,9 +80,11 @@
     return () => pageHeader.clearAction();
   });
 
-  async function reload() {
+  async function reload(updated?: AdminDossierDetail) {
     try {
-      detail = await loadDossierDetail(dossierId);
+      detail = updated ?? (await loadDossierDetail(dossierId));
+      // Routing changes also affect the server-loaded assignments and effective user access.
+      await invalidateAll();
     } catch (e) {
       if (e instanceof AccessDeniedError) {
         accessDenied = true;
@@ -163,7 +165,7 @@
         activiteCodeByLabel={codeByLabel}
         formId={editFormId}
         onSavingChange={(value) => (saving = value)}
-        onSaved={(updated) => (detail = updated)}
+        onSaved={reload}
         onFilesChanged={reload}
       />
     {:else}
@@ -174,7 +176,7 @@
         activiteCodeByLabel={codeByLabel}
         formId={editFormId}
         onSavingChange={(value) => (saving = value)}
-        onSaved={(updated) => (detail = updated)}
+        onSaved={reload}
         onFilesChanged={reload}
       />
     {/if}

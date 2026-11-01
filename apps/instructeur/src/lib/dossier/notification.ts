@@ -61,7 +61,10 @@ export function enqueueNotificationRequest<T>(
 
 async function publishNotification(notification: DossierNotification): Promise<void> {
   const capabilities = store.capabilities;
-  const cached = store.fullDossiers.get(notification.dossier);
+  const restricted = store.readOnlyDossiers.get(notification.dossier);
+  const cached =
+    store.fullDossiers.get(notification.dossier) ??
+    (restricted?.access === "lecture" ? restricted : undefined);
   const known = new Set(
     cached?.notificationSnapshot?.changes.flatMap(({ revisions }) => revisions),
   );
@@ -77,10 +80,10 @@ async function publishNotification(notification: DossierNotification): Promise<v
       if (
         fresh.notificationSnapshot &&
         fresh.notificationSnapshot !== cached.notificationSnapshot &&
-        fresh === store.fullDossiers.get(notification.dossier)
+        (fresh === store.fullDossiers.get(notification.dossier) ||
+          fresh === store.readOnlyDossiers.get(notification.dossier))
       )
         return;
-      if (fresh.access === "lecture") return;
     } catch {
       if (capabilities === store.capabilities)
         store.errors.add({

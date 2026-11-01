@@ -19,7 +19,7 @@
     {@const pending =
       tab.id === "detail-du-projet" &&
       hasPendingChanges &&
-      !(readOnly.restricted ?? readOnly.current)}
+      (readOnly.review ?? !(readOnly.restricted ?? readOnly.current))}
     <li role="presentation">
       <button
         type="button"

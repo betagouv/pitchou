@@ -23,7 +23,9 @@
     layout?: "inline" | "grid";
   } = $props();
   const readOnly = readOnlyMode();
-  const pending = $derived(!(readOnly.restricted ?? readOnly.current) && !!change);
+  const pending = $derived(
+    (readOnly.review ?? !(readOnly.restricted ?? readOnly.current)) && !!change,
+  );
 
   function display(value: unknown): string {
     if (value == null || value === "") return "Non renseigné";

@@ -162,14 +162,14 @@ export async function fetchDossierFullSnapshot(
     store.readOnlyDossiers.set(id, dossierFull);
     if (dossierFull.access === "lecture") {
       store.fullDossiers.delete(id);
-      store.notificationByDossier.delete(id);
+      if (!dossierFull.notificationSnapshot) store.notificationByDossier.delete(id);
     }
   } else {
-    registerReviewSnapshot(dossierFull);
     setDossierFull(dossierFull);
-    if (dossierFull.notificationSnapshot)
-      store.notificationByDossier.set(id, formatNotification(dossierFull.notificationSnapshot));
   }
+  registerReviewSnapshot(dossierFull);
+  if (dossierFull.notificationSnapshot)
+    store.notificationByDossier.set(id, formatNotification(dossierFull.notificationSnapshot));
 
   return dossierFull;
 }
