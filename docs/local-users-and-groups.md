@@ -4,7 +4,9 @@ Pitchou owns users, permissions, group membership and dossier ownership. DN supp
 
 Both applications use ProConnect. On the first login, Pitchou matches the ProConnect email to an existing `auth_user`, ignoring case and surrounding spaces. This includes accounts migrated from email-link login and accounts prepared by administrators. It preserves the account ID, permissions and memberships, then binds the account to the ProConnect issuer and subject. If no email matches, it creates an account with no permissions or groups. A different address or alias does not automatically recover an existing account. Later logins use the identity binding, even if the email changes. A different identity cannot claim an already bound account by email.
 
-The admin pages `/utilisateurs` and `/groupes-instructeurs` manage accounts and coverage. Effective permissions are the union of bundle permissions and individual grants, minus exclusions. The definitions live in `libs/types/src/permissions.ts`.
+The admin pages `/utilisateurs` and `/groupes-instructeurs` manage accounts and coverage. Each user and group has a dedicated editor at `/utilisateurs/:id` or `/groupes-instructeurs/:id`; `/nouveau` opens creation. User tabs keep account, membership and custom-permission edits in one draft until saving. Selected groups appear above the searchable available list. Group changes still require the assignment preview before saving.
+
+Effective permissions are the union of bundle permissions and individual grants, minus exclusions. The definitions live in `libs/types/src/permissions.ts`.
 
 | Permission               | Access                                                                  |
 | ------------------------ | ----------------------------------------------------------------------- |

@@ -32,22 +32,22 @@ for (const width of [1280, 320]) {
     await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
     const row = page.getByRole("button", { name: "Modifier camille@example.org", exact: true });
     await row.click();
-    const dialog = page.getByRole("dialog");
-    const account = dialog.getByRole("tab", { name: "Compte et profils", exact: true });
-    const groupTab = dialog.getByRole("tab", { name: "Groupes", exact: true });
-    const permissions = dialog.getByRole("tab", {
+    const editor = page.locator(".editor-page");
+    const account = editor.getByRole("tab", { name: "Compte et profils", exact: true });
+    const groupTab = editor.getByRole("tab", { name: "Groupes", exact: true });
+    const permissions = editor.getByRole("tab", {
       name: "Permissions personnalisées",
       exact: true,
     });
     await expect(account).toHaveAttribute("aria-selected", "true");
-    await expect(dialog.getByRole("tabpanel")).toHaveCount(1);
+    await expect(editor.getByRole("tabpanel")).toHaveCount(1);
     await page.screenshot({ path: testInfo.outputPath(`user-account-${width}.png`) });
-    await dialog.getByRole("switch", { name: "Compte actif" }).uncheck();
+    await editor.getByRole("switch", { name: "Compte actif" }).uncheck();
     await account.focus();
     await page.keyboard.press("ArrowRight");
     await expect(groupTab).toBeFocused();
-    const selected = dialog.getByRole("region", { name: "Groupes sélectionnés", exact: true });
-    const available = dialog.getByRole("region", { name: "Groupes disponibles", exact: true });
+    const selected = editor.getByRole("region", { name: "Groupes sélectionnés", exact: true });
+    const available = editor.getByRole("region", { name: "Groupes disponibles", exact: true });
     for (const group of original) {
       await expect(
         selected.getByRole("button", { name: `Retirer ${group.name}`, exact: true }),
@@ -56,7 +56,7 @@ for (const width of [1280, 320]) {
         0,
       );
     }
-    await expect(selected).toContainText("Archivé");
+    await expect(selected).toContainText("Groupe archivé");
     const search = available.getByRole("searchbox");
     await search.fill("aucun résultat");
     await expect(available).toContainText("Aucun groupe ne correspond");
@@ -73,13 +73,13 @@ for (const width of [1280, 320]) {
     await account.click();
     await groupTab.click();
     await expect(selected).toBeInViewport();
-    expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(
+    expect(await editor.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(
       true,
     );
     await page.screenshot({ path: testInfo.outputPath(`user-groups-${width}.png`) });
     await page.keyboard.press("End");
     await expect(permissions).toBeFocused();
-    await dialog
+    await editor
       .getByRole("combobox", { name: "Exception : Instruire les dossiers autorisés", exact: true })
       .click();
     await page.getByRole("option", { name: "Refuser", exact: true }).click();
@@ -87,15 +87,15 @@ for (const width of [1280, 320]) {
     await permissions.focus();
     await page.keyboard.press("ArrowRight");
     await expect(account).toBeFocused();
-    await expect(dialog.getByRole("switch", { name: "Compte actif" })).not.toBeChecked();
+    await expect(editor.getByRole("switch", { name: "Compte actif" })).not.toBeChecked();
     await groupTab.click();
     await expect(selected.getByRole("button")).toHaveCount(3);
     expect(
       await db("user_groupe").where({ user_id: target.id }).pluck("groupe_instructeurs"),
     ).toEqual(expect.arrayContaining(original.map((group) => group.id)));
     expect((await db("auth_user").where({ id: target.id }).first()).active).toBe(true);
-    await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-    await expect(dialog).toHaveCount(0);
+    await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+    await expect(editor).toHaveCount(0);
     expect((await db("auth_user").where({ id: target.id }).first()).active).toBe(false);
     expect(
       await db("auth_permission_exclusion").where({ user_id: target.id }).pluck("permission"),
@@ -106,22 +106,22 @@ for (const width of [1280, 320]) {
     await row.click();
     await groupTab.click();
     await selected.getByRole("button", { name: "Retirer Service 01", exact: true }).click();
-    await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
+    await editor.getByRole("button", { name: "Annuler", exact: true }).click();
     await row.click();
     await groupTab.click();
     await expect(
       selected.getByRole("button", { name: "Retirer Service 01", exact: true }),
     ).toBeVisible();
-    await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
+    await editor.getByRole("button", { name: "Annuler", exact: true }).click();
 
     await page.getByRole("button", { name: "Préparer un compte", exact: true }).click();
     await groupTab.click();
     await available.getByRole("checkbox", { name: "Service 02", exact: true }).click();
-    await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
+    await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
     await expect(account).toHaveAttribute("aria-selected", "true");
-    await expect(dialog.getByLabel("Adresse e-mail professionnelle")).toBeFocused();
+    await expect(editor.getByLabel("Adresse e-mail professionnelle")).toBeFocused();
     expect(
-      await dialog
+      await editor
         .getByLabel("Adresse e-mail professionnelle")
         .evaluate((input: HTMLInputElement) => input.validity.valid),
     ).toBe(false);
@@ -129,7 +129,7 @@ for (const width of [1280, 320]) {
     await expect(
       selected.getByRole("button", { name: "Retirer Service 02", exact: true }),
     ).toBeVisible();
-    await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
+    await editor.getByRole("button", { name: "Annuler", exact: true }).click();
   });
 }
 
@@ -146,22 +146,22 @@ test("a rejected account change keeps the editor and its error visible", async (
   await loginAs(administrator.codeAcces);
   await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
   await page.getByRole("button", { name: "Modifier admin@example.org", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("switch", { name: "Compte actif" }).uncheck();
-  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog.locator("footer").getByRole("alert")).toContainText(
+  const editor = page.locator(".editor-page");
+  await editor.getByRole("switch", { name: "Compte actif" }).uncheck();
+  await editor.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor.locator("footer").getByRole("alert")).toContainText(
     "Vous ne pouvez pas retirer vos propres droits",
   );
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeEnabled();
+  await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toBeEnabled();
   await expect(page.locator("header").getByRole("status")).toBeEmpty();
   expect((await db("auth_user").where({ id: administrator.id }).first()).active).toBe(true);
-  await expect(dialog.getByRole("tab", { name: "Groupes", exact: true })).toHaveAttribute(
+  await expect(editor.getByRole("tab", { name: "Groupes", exact: true })).toHaveAttribute(
     "aria-selected",
     "true",
   );
-  await dialog.getByRole("tab", { name: "Compte et profils", exact: true }).click();
-  await expect(dialog.getByRole("switch", { name: "Compte actif" })).not.toBeChecked();
-  await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("tab", { name: "Compte et profils", exact: true }).click();
+  await expect(editor.getByRole("switch", { name: "Compte actif" })).not.toBeChecked();
+  await editor.getByRole("button", { name: "Annuler", exact: true }).click();
+  await expect(editor).toHaveCount(0);
 });

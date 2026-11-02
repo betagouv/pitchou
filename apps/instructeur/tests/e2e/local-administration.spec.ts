@@ -27,23 +27,23 @@ test("an administrator prepares a user and assigns department coverage through t
   ]);
 
   await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await expect(page.getByRole("columnheader", { name: "État", exact: true })).toHaveCount(0);
   await expect(page.getByRole("columnheader", { name: "Gestion", exact: true })).toHaveCount(0);
   await page.locator("header").getByRole("button", { name: "Créer un groupe" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
+  const editor = page.locator(".editor-page");
+  await expect(editor).toBeVisible();
   await expect(
-    dialog
+    editor
       .locator("footer")
       .getByRole("button", { name: "Vérifier les affectations", exact: true }),
   ).toBeInViewport();
   await page.setViewportSize({ width: 390, height: 640 });
   await expect(
-    dialog.locator("footer").getByRole("button", { name: "Annuler", exact: true }),
+    editor.locator("footer").getByRole("button", { name: "Annuler", exact: true }),
   ).toBeInViewport();
   await expect(
-    dialog
+    editor
       .locator("footer")
       .getByRole("button", { name: "Vérifier les affectations", exact: true }),
   ).toBeInViewport();
@@ -69,7 +69,7 @@ test("an administrator prepares a user and assigns department coverage through t
   ).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 720 });
   await expect(saveStatus).toBeEmpty({ timeout: 5000 });
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   const [group] = await db("groupe_instructeurs").where({ name: "Service Paris" });
   expect(
     await db("groupe_departement").where({ groupe_instructeurs: group.id }).pluck("department"),
@@ -80,10 +80,10 @@ test("an administrator prepares a user and assigns department coverage through t
 
   const activeSection = page.getByRole("region", { name: "Actifs", exact: true });
   await activeSection.getByRole("button", { name: "Modifier Service Paris", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Modifier Service Paris" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Service Paris", exact: true })).toBeVisible();
   await page.getByLabel("Nom du groupe").fill("Unsaved name");
   await page.getByRole("button", { name: "Annuler", exact: true }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await activeSection.getByRole("button", { name: "Modifier Service Paris", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Nom du groupe")).toHaveValue("Service Paris");
@@ -95,7 +95,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await page.getByLabel("Groupe actif", { exact: true }).uncheck();
   await page.getByRole("button", { name: "Vérifier les affectations" }).click();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await expect(page.getByRole("region", { name: "Archivés", exact: true })).toContainText(
     "Service Paris",
   );
@@ -107,7 +107,7 @@ test("an administrator prepares a user and assigns department coverage through t
 
   await page.goto(`${E2E_ADMIN_BASE_URL}/utilisateurs`);
   await page.getByRole("button", { name: "Modifier future@example.org", exact: true }).click();
-  await dialog.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
+  await editor.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
   await page
     .getByRole("combobox", {
       name: "Exception : Instruire les dossiers autorisés",

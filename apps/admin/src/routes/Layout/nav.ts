@@ -38,6 +38,10 @@ export function pageInfoFor(pathname: string): PageInfo {
   }
   if (pathname.startsWith("/dossiers/")) return { title: "Dossier", backHref: "/dossiers" };
   if (pathname === "/utilisateurs") return { title: "Utilisateurs" };
+  if (pathname.startsWith("/utilisateurs/"))
+    return { title: "Utilisateur", backHref: "/utilisateurs" };
+  if (pathname.startsWith("/groupes-instructeurs/"))
+    return { title: "Groupe instructeur", backHref: "/groupes-instructeurs" };
   if (pathname === "/groupes-instructeurs") return { title: "Groupes instructeurs" };
   if (pathname === "/aarri") return { title: "Utilisateurices et niveau AARRI" };
   if (pathname === "/especes-protegees") return { title: "Espèces protégées modifiées" };

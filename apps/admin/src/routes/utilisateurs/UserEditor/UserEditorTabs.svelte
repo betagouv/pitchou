@@ -45,8 +45,8 @@
 <style>
   .user-tabs {
     position: sticky;
-    top: 0;
-    z-index: 1;
+    top: 3.5rem;
+    z-index: 20;
     display: flex;
     flex-wrap: wrap;
     padding: 0 1.5rem;

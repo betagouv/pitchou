@@ -66,11 +66,11 @@ for (const viewport of [
         const lastGroup = page.getByRole("button", { name: "Modifier Groupe 39", exact: true });
         await expect(lastGroup).toBeInViewport();
         await lastGroup.click();
-        const dialog = page.getByRole("dialog");
+        const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
         await expect(
-          dialog.getByRole("button", { name: "Vérifier les affectations", exact: true }),
+          editor.getByRole("button", { name: "Vérifier les affectations", exact: true }),
         ).toBeInViewport();
-        await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
+        await editor.getByRole("button", { name: "Annuler", exact: true }).click();
         await expect(heading).toBeInViewport();
       }
     }

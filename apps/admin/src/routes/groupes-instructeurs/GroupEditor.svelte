@@ -7,6 +7,9 @@
   import GroupIdentityFields from "./GroupEditor/GroupIdentityFields.svelte";
   import GroupAssignmentFields from "./GroupEditor/GroupAssignmentFields.svelte";
   import { enhance } from "$app/forms";
+  import EditorPage from "#lib/components/EditorPage.svelte";
+  import GroupEditorActions from "./GroupEditor/GroupEditorActions.svelte";
+  import { invalidateAll } from "$app/navigation";
   import GroupEditorDialog from "./GroupEditor/GroupEditorDialog.svelte";
   import type { PageData } from "./$types";
 
@@ -17,7 +20,7 @@
   }: {
     data: PageData;
     current: PageData["groups"][number] | undefined;
-    onClose: () => void;
+    onClose: () => void | Promise<void>;
   } = $props();
   let name = $state(untrack(() => current?.name ?? ""));
   let active = $state(untrack(() => current?.active ?? true));
@@ -71,45 +74,41 @@
   }
 </script>
 
-<GroupEditorDialog
-  title={previewOpen
-    ? "Vérifier les affectations"
-    : current
-      ? `Modifier ${current.name}`
-      : "Nouveau groupe"}
-  onClose={() => {
-    if (saving) return;
-    if (previewOpen) previewOpen = false;
-    else onClose();
-  }}
+<EditorPage
+  title={current ? current.name : "Nouveau groupe"}
+  label="Modifier le groupe"
+  modalOpen={previewOpen}
 >
   <form
     bind:this={form}
     id={formId}
     method="POST"
-    hidden={previewOpen}
-    style:display={previewOpen ? "none" : undefined}
+    action="/groupes-instructeurs"
     use:enhance={({ cancel }) => {
       if (!previewOpen || !previewCurrent) {
         cancel();
         return;
       }
-      const confirmSaved = pageHeader.beginSave("Groupe enregistré");
+      pageHeader.clearFeedback();
       saving = true;
       message = "";
-      return async ({ result, update }) => {
-        if (result.type === "failure") {
+      return async ({ result }) => {
+        try {
+          if (result.type !== "success") {
+            message = String(
+              result.type === "failure"
+                ? (result.data?.message ?? "Enregistrement impossible")
+                : "Enregistrement impossible",
+            );
+            preview = null;
+            previewOpen = false;
+            return;
+          }
+          await invalidateAll();
+          await onClose();
+          pageHeader.showSaved("Groupe enregistré");
+        } finally {
           saving = false;
-          message = String(result.data?.message ?? "Enregistrement impossible");
-          preview = null;
-          previewOpen = false;
-          return;
-        }
-        await update({ reset: false });
-        saving = false;
-        if (result.type === "success") {
-          onClose();
-          confirmSaved();
         }
       };
     }}
@@ -124,57 +123,54 @@
       <GroupAssignmentFields {data} {formId} bind:rules bind:members bind:rulesValid />
     </fieldset>
   </form>
-  {#if previewOpen && preview}
-    <GroupPreviewPanel
-      {preview}
-      {name}
-      input={previewInput}
-      stale={previewStale}
-      onStale={() => (previewStale = true)}
-    />
-    {#if !previewCurrent}
-      <p class="fr-px-3w" role="status">
-        L'aperçu n'est plus à jour. Revenez à l'édition pour vérifier les affectations à nouveau.
-      </p>
-    {/if}
-  {/if}
-
   {#snippet footer()}
-    <div class="w-full">
-      {#if !rulesValid}<p class="fr-text--sm fr-mb-2w" role="status">
-          Complétez les critères de chaque règle avant de vérifier les affectations.
-        </p>{/if}
-      {#if message}<p class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
-          {message}
-        </p>{/if}
-      <div class="flex w-full flex-wrap items-center justify-end gap-2">
-        {#if previewOpen}
-          <button
-            class="fr-btn fr-btn--secondary"
-            type="button"
-            disabled={saving}
-            onclick={() => (previewOpen = false)}>Revenir à l'édition</button
-          >
-          <button class="fr-btn" type="submit" form={formId} disabled={saving || !previewCurrent}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
-        {:else}
-          <button
-            class="fr-btn fr-btn--secondary"
-            type="button"
-            disabled={saving}
-            onclick={onClose}
-          >
-            Annuler
-          </button>
-          <button
-            class="fr-btn"
-            type="button"
-            disabled={saving || !name.trim() || !rulesValid}
-            onclick={showPreview}>{saving ? "Vérification…" : "Vérifier les affectations"}</button
-          >
-        {/if}
-      </div>
-    </div>
+    <GroupEditorActions
+      {saving}
+      {message}
+      {rulesValid}
+      {formId}
+      {previewCurrent}
+      previewOpen={false}
+      validName={!!name.trim()}
+      {onClose}
+      {showPreview}
+    />
   {/snippet}
-</GroupEditorDialog>
+  {#snippet overlay()}
+    {#if previewOpen && preview}
+      <GroupEditorDialog
+        title="Vérifier les affectations"
+        onClose={() => {
+          if (!saving) previewOpen = false;
+        }}
+      >
+        <GroupPreviewPanel
+          {preview}
+          {name}
+          input={previewInput}
+          stale={previewStale}
+          onStale={() => (previewStale = true)}
+        />
+        {#if !previewCurrent}
+          <p class="fr-px-3w" role="status">
+            L'aperçu n'est plus à jour. Revenez à l'édition pour vérifier les affectations à
+            nouveau.
+          </p>
+        {/if}
+        {#snippet footer()}
+          <GroupEditorActions
+            {saving}
+            {message}
+            {rulesValid}
+            {formId}
+            {previewCurrent}
+            previewOpen={true}
+            validName={!!name.trim()}
+            onClose={() => (previewOpen = false)}
+            {showPreview}
+          />
+        {/snippet}
+      </GroupEditorDialog>
+    {/if}
+  {/snippet}
+</EditorPage>

@@ -4,16 +4,13 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
-  import UserEditor from "./UserEditor.svelte";
   import UsersTable from "./UsersTable.svelte";
   import { normalize, userName, type User } from "./model.ts";
   import { compareUsers, parseQuery } from "./list.ts";
   import type { PageData, ActionData } from "./$types";
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  let selected = $state<number | null>(null);
   const query = $derived(parseQuery(page.url.searchParams));
-  let editorOpen = $state(false);
   function updateQuery(values: Record<string, string>, resetPages = true) {
     const url = new URL(page.url.href);
     if (resetPages) {
@@ -27,8 +24,7 @@
     void goto(url, { replace: true, reset: false });
   }
   function select(id: number | null) {
-    selected = id;
-    editorOpen = true;
+    void goto(`/utilisateurs/${id ?? "nouveau"}${page.url.search}`);
   }
   $effect(() => {
     pageHeader.setAction({ label: "Préparer un compte", onClick: () => select(null) });
@@ -76,10 +72,3 @@
       updateQuery({ [section.pageKey]: next === 1 ? "" : String(next) }, false)}
   />
 {/each}
-{#if editorOpen}
-  <UserEditor
-    groups={data.groups}
-    current={data.users.find((user) => user.id === selected)}
-    onClose={() => (editorOpen = false)}
-  />
-{/if}

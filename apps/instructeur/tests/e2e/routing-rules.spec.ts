@@ -29,27 +29,27 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await loginAs(actor.codeAcces);
   await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Nom du groupe").fill("Photovoltaïque Dax");
-  await dialog.getByRole("button", { name: "Ajouter une règle" }).click();
-  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
-  await dialog.getByText("40 - Landes", { exact: true }).click();
-  await dialog.getByRole("button", { name: "40 - Landes", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Communes du projet", exact: true }).click();
-  await dialog.getByLabel("Rechercher une commune").fill("Dax");
-  await dialog.getByRole("button", { name: "Dax (40100)", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Activité principale", exact: true }).click();
-  await dialog.getByRole("button", { name: "Sélectionner des activités", exact: true }).click();
-  await dialog
+  const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
+  await editor.getByLabel("Nom du groupe").fill("Photovoltaïque Dax");
+  await editor.getByRole("button", { name: "Ajouter une règle" }).click();
+  await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await editor.getByRole("option", { name: "Département principal", exact: true }).click();
+  await editor.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
+  await editor.getByText("40 - Landes", { exact: true }).click();
+  await editor.getByRole("button", { name: "40 - Landes", exact: true }).click();
+  await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await editor.getByRole("option", { name: "Communes du projet", exact: true }).click();
+  await editor.getByLabel("Rechercher une commune").fill("Dax");
+  await editor.getByRole("button", { name: "Dax (40100)", exact: true }).click();
+  await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await editor.getByRole("option", { name: "Activité principale", exact: true }).click();
+  await editor.getByRole("button", { name: "Sélectionner des activités", exact: true }).click();
+  await editor
     .getByText("Production énergie renouvelable - Photovoltaïque", { exact: true })
     .click();
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0);
-  await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
-  const preview = dialog.getByRole("region", { name: "Aperçu des affectations" });
+  await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0);
+  await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
+  const preview = editor.getByRole("region", { name: "Aperçu des affectations" });
   await expect(preview.locator("dl > div").filter({ hasText: "Dossiers ajoutés" })).toContainText(
     "1",
   );
@@ -58,8 +58,8 @@ test("an admin previews a combined rule and manages persistent dossier exception
   );
   await preview.locator("summary").click();
   await expect(preview.getByRole("link", { name: /Projet solaire/u })).toBeVisible();
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   const group = await db("groupe_instructeurs").where({ name: "Photovoltaïque Dax" }).first();
   expect(await db("groupe_regle").where({ groupe_instructeurs: group.id })).toMatchObject([
     { departments: ["40"], communes: ["40088"], activites: ["energie-photovoltaique"] },
@@ -73,10 +73,10 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await automatic
     .getByRole("button", { name: "Modifier l'affectation de Photovoltaïque Dax" })
     .click();
-  const editor = automatic.getByRole("form");
-  await chooseInSelect(editor.getByRole("combobox"), "Exclure durablement");
-  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(editor).toHaveCount(0);
+  const assignmentEditor = automatic.getByRole("form");
+  await chooseInSelect(assignmentEditor.getByRole("combobox"), "Exclure durablement");
+  await assignmentEditor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(assignmentEditor).toHaveCount(0);
   await expect(assignments).toContainText("Exclusion manuelle");
   await assignments.getByRole("button", { name: "Ajouter un groupe", exact: true }).click();
   await assignments.getByRole("combobox", { name: /^Groupe instructeur/u }).click();

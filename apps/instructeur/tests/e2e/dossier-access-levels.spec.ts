@@ -18,24 +18,24 @@ test("an admin edits rule levels and grants a person access without group member
   await loginAs(actor.codeAcces);
   await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Nom du groupe").fill("Lecture Paris");
-  await dialog.getByRole("button", { name: "Ajouter une règle" }).click();
-  await dialog.getByRole("combobox", { name: "Niveau d'accès de la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Lecture complète", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
-  await dialog.getByText("75 - Paris", { exact: true }).click();
-  await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
+  const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
+  await editor.getByLabel("Nom du groupe").fill("Lecture Paris");
+  await editor.getByRole("button", { name: "Ajouter une règle" }).click();
+  await editor.getByRole("combobox", { name: "Niveau d'accès de la règle 1" }).click();
+  await editor.getByRole("option", { name: "Lecture complète", exact: true }).click();
+  await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await editor.getByRole("option", { name: "Département principal", exact: true }).click();
+  await editor.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
+  await editor.getByText("75 - Paris", { exact: true }).click();
+  await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
   await expect(
-    dialog
+    editor
       .getByRole("region", { name: "Aperçu des affectations" })
       .locator("dl > div")
       .filter({ hasText: "Dossiers ajoutés" }),
   ).toContainText("1");
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Modifier Lecture Paris", exact: true }),
   ).toContainText("1 règle(s), dont 1 en lecture complète");

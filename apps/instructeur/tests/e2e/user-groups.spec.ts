@@ -19,24 +19,24 @@ test("user editor saves, removes and prepares group memberships", async ({
   await loginAs(admin.codeAcces);
   await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
   const row = page.getByRole("button", { name: "Modifier cible@example.org", exact: true });
-  const dialog = page.getByRole("dialog");
+  const editor = page.locator(".editor-page");
   await row.click();
-  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
-  await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
+  await editor.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await editor.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
+  await editor.getByRole("button", { name: "Annuler", exact: true }).click();
   expect(await db("user_groupe").where({ user_id: target.id })).toHaveLength(0);
   await row.click();
-  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
-  await dialog.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("ancien");
-  await dialog.getByRole("checkbox", { name: "Ancien service", exact: true }).click();
-  await dialog.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("");
-  await expect(dialog.getByText("2 groupes sélectionnés.", { exact: true })).toBeVisible();
+  await editor.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await editor.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
+  await editor.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("ancien");
+  await editor.getByRole("checkbox", { name: "Ancien service", exact: true }).click();
+  await editor.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("");
+  await expect(editor.getByText("2 groupes sélectionnés.", { exact: true })).toBeVisible();
   await page.emulateMedia({ colorScheme: "dark" });
-  await dialog.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
+  await editor.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath("user-groups-dark.png") });
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   expect(
     (await db("user_groupe").where({ user_id: target.id }).pluck("groupe_instructeurs")).sort(),
   ).toEqual([admin.groupeId, archived.id].sort());
@@ -46,28 +46,28 @@ test("user editor saves, removes and prepares group memberships", async ({
     .first();
   expect(audit.data.after.groupIds.sort()).toEqual([admin.groupeId, archived.id].sort());
   await row.click();
-  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await editor.getByRole("tab", { name: "Groupes", exact: true }).click();
   await expect(
-    dialog.getByRole("button", { name: "Retirer Ancien service", exact: true }),
+    editor.getByRole("button", { name: "Retirer Ancien service", exact: true }),
   ).toBeVisible();
-  await dialog.getByRole("button", { name: "Retirer Bretagne", exact: true }).click();
-  await expect(dialog.getByText(/Aucun groupe actif sélectionné/u)).toBeVisible();
-  await dialog.getByRole("button", { name: "Retirer Ancien service", exact: true }).click();
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Retirer Bretagne", exact: true }).click();
+  await expect(editor.getByText(/Aucun groupe actif sélectionné/u)).toBeVisible();
+  await editor.getByRole("button", { name: "Retirer Ancien service", exact: true }).click();
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   expect(await db("user_groupe").where({ user_id: target.id })).toHaveLength(0);
 
   await page.getByRole("button", { name: "Préparer un compte", exact: true }).click();
-  await dialog.getByLabel("Adresse e-mail professionnelle").fill("nouveau@example.org");
-  await dialog.getByRole("checkbox", { name: "Instructeur", exact: true }).check();
-  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
+  await editor.getByLabel("Adresse e-mail professionnelle").fill("nouveau@example.org");
+  await editor.getByRole("checkbox", { name: "Instructeur", exact: true }).check();
+  await editor.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await editor.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 800 });
-  await dialog.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeInViewport();
+  await editor.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
+  await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toBeInViewport();
   await page.screenshot({ path: testInfo.outputPath("user-groups-mobile.png") });
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   const prepared = await db("auth_user").where({ email: "nouveau@example.org" }).first();
   expect(
     await db("user_groupe").where({ user_id: prepared.id }).pluck("groupe_instructeurs"),
@@ -87,7 +87,7 @@ test("group changes require permission and invalid changes roll back user edits"
   await loginAs(admin.codeAcces);
   await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
   await page.getByRole("button", { name: "Modifier cible@example.org", exact: true }).click();
-  await page.getByRole("dialog").getByRole("tab", { name: "Groupes", exact: true }).click();
+  await page.locator(".editor-page").getByRole("tab", { name: "Groupes", exact: true }).click();
   await expect(page.getByRole("searchbox", { name: "Rechercher un groupe" })).toHaveCount(0);
   await expect(
     page.getByText("La modification des groupes nécessite", { exact: false }),

@@ -19,29 +19,32 @@ for (const { width, colorScheme } of [
     await loginAs(actor.codeAcces);
     await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
     await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Nom du groupe").fill("Multi-régions");
-    await dialog.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
-    await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-    await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-    await dialog
+    const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
+    await editor.getByLabel("Nom du groupe").fill("Multi-régions");
+    await editor.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
+    await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+    await editor.getByRole("option", { name: "Département principal", exact: true }).click();
+    await editor
       .getByRole("button", { name: "Sélectionner des départements", exact: true })
       .click();
-    await dialog.getByRole("button", { name: "Tout", exact: true }).click();
+    await editor.getByRole("button", { name: "Tout", exact: true }).click();
     await page.keyboard.press("Escape");
     await page.route("**/api/groupes-instructeurs/apercu", (route) =>
       route.fulfill({ status: 503, json: { message: "Aperçu indisponible. Réessayez." } }),
     );
-    await dialog.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
-    await expect(dialog.getByRole("alert")).toContainText("Aperçu indisponible. Réessayez.");
-    const trigger = dialog.getByRole("button", { name: "Tous les départements", exact: true });
+    await editor.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
+    await expect(editor.getByRole("alert")).toContainText("Aperçu indisponible. Réessayez.");
+    const trigger = editor.getByRole("button", { name: "Tous les départements", exact: true });
     await trigger.scrollIntoViewIfNeeded();
     await trigger.click();
-    const popup = dialog.getByRole("group", { name: "Départements", exact: true });
+    const popup = editor.getByRole("group", { name: "Départements", exact: true });
     await expect(popup).toBeVisible();
     const triggerBox = (await trigger.boundingBox())!;
     const popupBox = (await popup.boundingBox())!;
-    expect(popupBox.y + popupBox.height).toBeLessThanOrEqual(triggerBox.y);
+    expect(
+      popupBox.y + popupBox.height <= triggerBox.y ||
+        popupBox.y >= triggerBox.y + triggerBox.height,
+    ).toBe(true);
     expect(popupBox.y).toBeGreaterThanOrEqual(0);
     expect(popupBox.x).toBeGreaterThanOrEqual(0);
     expect(popupBox.x + popupBox.width).toBeLessThanOrEqual(width);
@@ -51,15 +54,15 @@ for (const { width, colorScheme } of [
     await expect(popup.getByLabel("99 - Étranger", { exact: true })).toBeChecked();
     await page.keyboard.press("Escape");
     await expect(popup).toHaveCount(0);
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("button", { name: "99 - Étranger", exact: true })).toBeFocused();
-    await dialog.getByRole("button", { name: "99 - Étranger", exact: true }).click();
+    await expect(editor).toBeVisible();
+    await expect(editor.getByRole("button", { name: "99 - Étranger", exact: true })).toBeFocused();
+    await editor.getByRole("button", { name: "99 - Étranger", exact: true }).click();
     await page.setViewportSize({ width, height: 740 });
     await expect(popup).toBeVisible();
     const resized = (await popup.boundingBox())!;
     expect(resized.y).toBeGreaterThanOrEqual(0);
     expect(resized.y + resized.height).toBeLessThanOrEqual(740);
-    await dialog.getByRole("heading", { name: "Nouveau groupe", exact: true }).click();
+    await page.getByRole("heading", { name: "Nouveau groupe", exact: true }).click();
     await expect(popup).toHaveCount(0);
   });
 }

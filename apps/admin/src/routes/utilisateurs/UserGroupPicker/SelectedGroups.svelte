@@ -15,14 +15,17 @@
     <ul>
       {#each groups as group (group.id)}
         <li>
-          <span
-            >{group.name}{#if !group.active}<small>Archivé</small>{/if}</span
-          >
+          <div class="group-identity">
+            <strong>{group.name}</strong>
+            <span class:archived={!group.active}
+              >{group.active ? "Groupe actif" : "Groupe archivé"}</span
+            >
+          </div>
           <button
             type="button"
             aria-label={`Retirer ${group.name}`}
             onclick={() => onRemove(group.id)}
-            ><span class="fr-icon-close-line fr-icon--sm" aria-hidden="true"></span></button
+            ><span class="fr-icon-subtract-line fr-icon--sm" aria-hidden="true"></span> Retirer</button
           >
         </li>
       {/each}
@@ -37,7 +40,7 @@
     padding: 1rem;
     border: 1px solid var(--border-default-grey);
     border-radius: 0.625rem;
-    background: var(--background-alt-grey);
+    background: var(--background-default-grey);
   }
   h3 {
     display: flex;
@@ -53,9 +56,6 @@
     font-size: 0.75rem;
   }
   ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
     padding: 0;
     margin: 0.875rem 0 0;
     list-style: none;
@@ -63,28 +63,31 @@
   li {
     display: flex;
     align-items: center;
-    max-width: 100%;
-    border: 1px solid var(--border-action-low-blue-france);
-    border-radius: 0.5rem;
-    background: var(--background-action-low-blue-france);
-    color: var(--text-action-high-blue-france);
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-top: 1px solid var(--border-default-grey);
   }
-  li > span {
+  .group-identity {
+    display: grid;
+    gap: 0.25rem;
     min-width: 0;
-    padding: 0.375rem 0.25rem 0.375rem 0.75rem;
     overflow-wrap: anywhere;
     font-size: 0.875rem;
   }
   button {
     flex-shrink: 0;
-    align-self: stretch;
-    padding: 0.5rem;
-    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.375rem;
+    color: var(--text-action-high-blue-france);
+    font-size: 0.8125rem;
   }
-  small {
-    display: block;
+  .group-identity > span {
     color: var(--text-mention-grey);
     font-size: 0.75rem;
+  }
+  .group-identity > .archived {
+    color: var(--text-default-warning);
   }
   p {
     margin: 0.75rem 0 0;

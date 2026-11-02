@@ -95,14 +95,14 @@ test("users can be found, paginated and edited without losing their permissions"
   const targetRow = page.getByRole("button", { name: `Modifier ${target.email}`, exact: true });
   await targetRow.focus();
   await page.keyboard.press("Enter");
-  const dialog = page.getByRole("dialog", { name: "Modifier l'utilisateur" });
-  await expect(dialog.getByLabel("Adresse e-mail professionnelle")).toHaveAttribute("readonly", "");
-  await expect(dialog.getByLabel("Instructeur", { exact: true })).toBeChecked();
-  await dialog.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
-  await expect(dialog.getByLabel("Exception : Modifier les dossiers")).toHaveText("Autoriser");
+  const editor = page.locator(".editor-page");
+  await expect(editor.getByLabel("Adresse e-mail professionnelle")).toHaveAttribute("readonly", "");
+  await expect(editor.getByLabel("Instructeur", { exact: true })).toBeChecked();
+  await editor.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
+  await expect(editor.getByLabel("Exception : Modifier les dossiers")).toHaveText("Autoriser");
   for (const width of [1280, 760, 390]) {
     await page.setViewportSize({ width, height: 720 });
-    const overflowingControls = await dialog.getByRole("combobox").evaluateAll((controls) =>
+    const overflowingControls = await editor.getByRole("combobox").evaluateAll((controls) =>
       controls
         .filter((control) => {
           const bounds = control.getBoundingClientRect();
@@ -114,25 +114,25 @@ test("users can be found, paginated and edited without losing their permissions"
     expect(overflowingControls, `Permission dropdowns must fit their rows at ${width}px`).toEqual(
       [],
     );
-    await dialog.getByRole("combobox").last().scrollIntoViewIfNeeded();
+    await editor.getByRole("combobox").last().scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath(`permissions-${width}.png`) });
   }
   await page.setViewportSize({ width: 1280, height: 720 });
-  await dialog
+  await editor
     .getByRole("combobox", { name: "Exception : Instruire les dossiers autorisés" })
     .click();
   await page.getByRole("option", { name: "Refuser", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("user-editor-dark.png") });
   await page.setViewportSize({ width: 390, height: 640 });
-  await expect(dialog.locator("footer").getByRole("button", { name: "Annuler" })).toBeInViewport();
+  await expect(editor.locator("footer").getByRole("button", { name: "Annuler" })).toBeInViewport();
   await expect(
-    dialog.locator("footer").getByRole("button", { name: "Enregistrer", exact: true }),
+    editor.locator("footer").getByRole("button", { name: "Enregistrer", exact: true }),
   ).toBeInViewport();
-  await dialog.getByRole("tab", { name: "Compte et profils", exact: true }).click();
-  await dialog.getByRole("switch", { name: "Compte actif" }).uncheck();
+  await editor.getByRole("tab", { name: "Compte et profils", exact: true }).click();
+  await editor.getByRole("switch", { name: "Compte actif" }).uncheck();
   // Saving another tab must still submit every selected exception.
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   await expect(page.locator("header").getByRole("status")).toHaveText("Utilisateur enregistré");
   await expect(page.getByRole("region", { name: "Désactivés", exact: true })).toContainText(
     "Élodie Moreau",

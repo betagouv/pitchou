@@ -2,9 +2,10 @@
   import "./UserEditor/styles.css";
   import { tick, untrack } from "svelte";
   import { enhance } from "$app/forms";
-  import Modal from "#lib/components/Modal.svelte";
+  import EditorPage from "#lib/components/EditorPage.svelte";
+  import { invalidateAll } from "$app/navigation";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
-  import { type User } from "./model.ts";
+  import { userName, type User } from "./model.ts";
   import type { PageData } from "./$types";
   import UserAccountFields from "./UserEditor/UserAccountFields.svelte";
   import UserPermissionFields from "./UserEditor/UserPermissionFields.svelte";
@@ -15,7 +16,11 @@
     current,
     groups,
     onClose,
-  }: { current: User | undefined; groups: PageData["groups"]; onClose: () => void } = $props();
+  }: {
+    current: User | undefined;
+    groups: PageData["groups"];
+    onClose: () => void | Promise<void>;
+  } = $props();
   const formId = $props.id();
   let email = $state(untrack(() => current?.email ?? ""));
   let active = $state(untrack(() => current?.active ?? true));
@@ -24,14 +29,6 @@
   let saving = $state(false);
   let message = $state("");
   let tab = $state("account");
-  let formElement: HTMLFormElement;
-
-  $effect(() => {
-    const currentTab = tab;
-    void tick().then(() => {
-      if (tab === currentTab) formElement?.parentElement?.scrollTo({ top: 0 });
-    });
-  });
 
   async function showInvalidField(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -43,33 +40,34 @@
   }
 </script>
 
-<Modal
-  title={current ? "Modifier l'utilisateur" : "Préparer un compte"}
-  size="large"
-  onClose={() => {
-    if (!saving) onClose();
-  }}
+<EditorPage
+  title={current ? userName(current) : "Préparer un compte"}
+  label={current ? "Modifier l'utilisateur" : "Préparer un compte"}
 >
   <form
-    bind:this={formElement}
     id={formId}
     method="POST"
+    action="/utilisateurs"
     autocomplete="off"
     oninvalidcapture={showInvalidField}
     use:enhance={() => {
-      const confirmSaved = pageHeader.beginSave("Utilisateur enregistré");
+      pageHeader.clearFeedback();
       saving = true;
       message = "";
-      return async ({ result, update }) => {
+      return async ({ result }) => {
         try {
-          if (result.type === "failure") {
-            message = String(result.data?.message ?? "Enregistrement impossible");
+          if (result.type !== "success") {
+            message = String(
+              result.type === "failure"
+                ? (result.data?.message ?? "Enregistrement impossible")
+                : "Enregistrement impossible",
+            );
             return;
           }
-          await update({ reset: false });
           if (result.type === "success") {
-            onClose();
-            confirmSaved();
+            await invalidateAll();
+            await onClose();
+            pageHeader.showSaved("Utilisateur enregistré");
           }
         } finally {
           saving = false;
@@ -142,4 +140,4 @@
       </div>
     </div>
   {/snippet}
-</Modal>
+</EditorPage>

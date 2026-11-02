@@ -22,17 +22,17 @@ test("preview pages remain bounded, recover from errors and reject stale assignm
   await loginAs(actor.codeAcces);
   await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs`);
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Nom du groupe").fill("Paris");
-  await dialog.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
-  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
-  await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
-  await dialog.getByText("75 - Paris", { exact: true }).click();
+  const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
+  await editor.getByLabel("Nom du groupe").fill("Paris");
+  await editor.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
+  await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await editor.getByRole("option", { name: "Département principal", exact: true }).click();
+  await editor.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
+  await editor.getByText("75 - Paris", { exact: true }).click();
   await page.keyboard.press("Escape");
-  await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
-  await dialog.locator("summary").filter({ hasText: "Dossiers ajoutés" }).click();
-  const category = dialog.locator("details").filter({ hasText: "Dossiers ajoutés" });
+  await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
+  await editor.locator("summary").filter({ hasText: "Dossiers ajoutés" }).click();
+  const category = editor.locator("details").filter({ hasText: "Dossiers ajoutés" });
   const navigation = category.getByRole("navigation", { name: "Pagination : Dossiers ajoutés" });
   await expect(category.locator("li")).toHaveCount(25);
   await expect(category).toContainText("Dossiers 1 à 25 sur 107");
@@ -71,12 +71,12 @@ test("preview pages remain bounded, recover from errors and reject stale assignm
   await db("dossier").where({ name: "Projet 107" }).update({ primary_department: "69" });
   await navigation.getByRole("button", { name: "Page suivante", exact: true }).click();
   await expect(category.getByRole("alert")).toContainText("Actualisez l'aperçu");
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeDisabled();
+  await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toBeDisabled();
   await expect(category).toContainText("Dossiers 1 à 25 sur 107");
-  await dialog.getByRole("button", { name: "Revenir à l'édition", exact: true }).click();
-  await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeEnabled();
-  await expect(dialog.locator("summary").filter({ hasText: "Dossiers ajoutés" })).toContainText(
+  await editor.getByRole("button", { name: "Revenir à l'édition", exact: true }).click();
+  await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
+  await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toBeEnabled();
+  await expect(editor.locator("summary").filter({ hasText: "Dossiers ajoutés" })).toContainText(
     "106",
   );
 });

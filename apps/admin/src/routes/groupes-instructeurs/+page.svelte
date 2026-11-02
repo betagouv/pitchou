@@ -2,11 +2,9 @@
   import PageHelp from "#lib/components/PageHelp.svelte";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import GroupsTable from "./GroupsTable.svelte";
-  import GroupEditor from "./GroupEditor.svelte";
+  import { goto } from "$app/navigation";
   import type { PageData, ActionData } from "./$types";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  let selected = $state<string | null>(null);
-  let editorOpen = $state(false);
   const sections = $derived([
     { title: "À vérifier", groups: data.groups.filter((g) => g.active && g.coverage_needs_review) },
     { title: "Actifs", groups: data.groups.filter((g) => g.active && !g.coverage_needs_review) },
@@ -23,8 +21,7 @@
     ),
   );
   function select(id: string | null) {
-    selected = id;
-    editorOpen = true;
+    void goto(`/groupes-instructeurs/${id ?? "nouveau"}`);
   }
 </script>
 
@@ -93,10 +90,3 @@
     onSelect={select}
   />
 {/each}
-{#if editorOpen}
-  <GroupEditor
-    {data}
-    current={data.groups.find((group) => group.id === selected)}
-    onClose={() => (editorOpen = false)}
-  />
-{/if}
