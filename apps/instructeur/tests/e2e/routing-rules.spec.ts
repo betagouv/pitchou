@@ -31,18 +31,30 @@ test("an admin previews a combined rule and manages persistent dossier exception
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Nom du groupe").fill("Photovoltaïque Dax");
   await dialog.getByRole("button", { name: "Ajouter une règle" }).click();
-  await dialog.getByText("Département principal, au choix", { exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
+  await dialog.getByRole("button", { name: "Tous les départements", exact: true }).click();
   await dialog.getByText("40 - Landes", { exact: true }).click();
-  await dialog.getByLabel("ET communes du projet, au choix").fill("Dax");
+  await dialog.getByRole("button", { name: "40 - Landes", exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await dialog.getByRole("option", { name: "Communes du projet", exact: true }).click();
+  await dialog.getByLabel("Rechercher une commune").fill("Dax");
   await dialog.getByRole("button", { name: "Dax (40100)", exact: true }).click();
-  await dialog.getByText("ET activité principale, au choix", { exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await dialog.getByRole("option", { name: "Activité principale", exact: true }).click();
+  await dialog.getByRole("button", { name: "Toutes les activités", exact: true }).click();
   await dialog
     .getByText("Production énergie renouvelable - Photovoltaïque", { exact: true })
     .click();
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
   const preview = dialog.getByRole("region", { name: "Aperçu des affectations" });
-  await expect(preview).toContainText("1 dossier(s) ajouté(s), 0 dossier(s) retiré(s)");
+  await expect(preview.locator("dl > div").filter({ hasText: "Dossiers ajoutés" })).toContainText(
+    "1",
+  );
+  await expect(preview.locator("dl > div").filter({ hasText: "Dossiers retirés" })).toContainText(
+    "0",
+  );
   await preview.locator("summary").click();
   await expect(preview.getByRole("link", { name: /Projet solaire/u })).toBeVisible();
   await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();

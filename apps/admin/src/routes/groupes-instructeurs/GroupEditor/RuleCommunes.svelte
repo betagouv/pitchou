@@ -10,15 +10,12 @@
 <div>
   <CommuneSelector
     {id}
-    label="ET communes du projet, au choix"
+    label="Rechercher une commune"
     value={communes}
     onChange={(value) => {
       selected = Object.fromEntries(value.filter((c) => c.code).map((c) => [c.code!, c]));
       onChange(Object.keys(selected));
     }}
   />
-  <p class="hint m-0">
-    Une commune correspondante suffit. Sans sélection : toutes les communes. Les codes INSEE sont
-    conservés.
-  </p>
+  <p class="hint m-0">Une commune correspondante suffit.</p>
 </div>

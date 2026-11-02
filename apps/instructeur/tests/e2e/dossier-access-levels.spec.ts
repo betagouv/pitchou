@@ -20,13 +20,19 @@ test("an admin edits rule levels and grants a person access without group member
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Nom du groupe").fill("Lecture Paris");
   await dialog.getByRole("button", { name: "Ajouter une règle" }).click();
-  await dialog.getByLabel("Niveau d'accès de la règle 1").selectOption("read");
-  await dialog.getByText("Département principal, au choix", { exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Niveau d'accès de la règle 1" }).click();
+  await dialog.getByRole("option", { name: "Lecture complète", exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
+  await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
+  await dialog.getByRole("button", { name: "Tous les départements", exact: true }).click();
   await dialog.getByText("75 - Paris", { exact: true }).click();
   await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
-  await expect(dialog.getByRole("region", { name: "Aperçu des affectations" })).toContainText(
-    "1 dossier(s) ajouté(s)",
-  );
+  await expect(
+    dialog
+      .getByRole("region", { name: "Aperçu des affectations" })
+      .locator("dl > div")
+      .filter({ hasText: "Dossiers ajoutés" }),
+  ).toContainText("1");
   await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await expect(

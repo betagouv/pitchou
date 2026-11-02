@@ -62,9 +62,10 @@
   aria-labelledby={formId + "-" + tab}
   tabindex="0"
 >
-  {#if tab === "rules"}
+  <div hidden={tab !== "rules"}>
     <GroupRules bind:rules activites={data.activites} />
-  {:else}
+  </div>
+  {#if tab === "members"}
     <label class="fr-label" for={formId + "-member-search"}>Rechercher un membre</label>
     <input
       id={formId + "-member-search"}

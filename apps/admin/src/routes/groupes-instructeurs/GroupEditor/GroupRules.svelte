@@ -1,76 +1,44 @@
 <script lang="ts">
-  import RuleCommunes from "./RuleCommunes.svelte";
-  import type { AccessLevel, GroupRule } from "@pitchou/types/groupRouting.ts";
+  import { untrack } from "svelte";
+  import type { GroupRule } from "@pitchou/types/groupRouting.ts";
   import type { PageData } from "../$types";
-  import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
-  import { departements } from "@pitchou/common/departements.ts";
+  import RuleEditor from "./RuleEditor.svelte";
   let {
     rules = $bindable<GroupRule[]>([]),
     activites,
   }: { rules: GroupRule[]; activites: PageData["activites"] } = $props();
-  const id = $props.id();
-  const departments = departements.map((d) => ({ value: d.code, label: `${d.code} - ${d.name}` }));
-  const activities = $derived(activites.map((a) => ({ value: a.code, label: a.label })));
-  function change(index: number, key: keyof GroupRule, value: string[] | AccessLevel) {
-    rules = rules.map((rule, i) => (i === index ? { ...rule, [key]: value } : rule));
+  let keys = $state(untrack(() => rules.map((_, index) => index)));
+  let nextKey = untrack(() => keys.length);
+  function addRule() {
+    keys = [...keys, nextKey++];
+    rules = [...rules, { departments: [], communes: [], activites: [], accessLevel: "instruct" }];
+  }
+  function removeRule(index: number) {
+    keys = keys.filter((_, i) => i !== index);
+    rules = rules.filter((_, i) => i !== index);
   }
 </script>
 
 <div class="grid gap-4">
   <p class="hint m-0">
-    Un dossier doit satisfaire tous les critères d'une règle. Une seule règle correspondante suffit.
-    Sans règle, seules les affectations manuelles sont conservées. Tous les groupes correspondants
-    reçoivent le dossier. Le niveau le plus fort des règles correspondantes s'applique.
+    Tous les critères d'une règle doivent correspondre. Une seule règle suffit pour affecter un
+    dossier. Sans règle, seules les affectations manuelles sont conservées.
   </p>
-  {#each rules as rule, index}
-    <fieldset class="grid gap-3 rounded-lg border border-[var(--border-default-grey)] p-4">
-      <legend>Règle {index + 1}{index > 0 ? " · OU" : ""}</legend>
-      <label for={`${id}-access-${index}`}>Niveau d'accès de la règle {index + 1}</label>
-      <select
-        class="fr-select"
-        id={`${id}-access-${index}`}
-        value={rule.accessLevel ?? "instruct"}
-        onchange={(event) => change(index, "accessLevel", event.currentTarget.value as AccessLevel)}
-      >
-        <option value="instruct">Instruction</option>
-        <option value="read">Lecture complète</option>
-      </select>
-      <label for={`${id}-departments-${index}`}>Département principal, au choix</label>
-      <MultiSelectFilter
-        id={`${id}-departments-${index}`}
-        label="Départements"
-        allLabel="Tous les départements"
-        options={departments}
-        selected={rule.departments}
-        onChange={(value) => change(index, "departments", value)}
-      />
-      <RuleCommunes codes={rule.communes} onChange={(value) => change(index, "communes", value)} />
-      <label for={`${id}-activites-${index}`}>ET activité principale, au choix</label>
-      <MultiSelectFilter
-        id={`${id}-activites-${index}`}
-        label="Activités"
-        allLabel="Toutes les activités"
-        options={activities}
-        selected={rule.activites}
-        onChange={(value) => change(index, "activites", value)}
-      />
-      <button
-        type="button"
-        class="fr-btn fr-btn--tertiary fr-btn--sm justify-self-start"
-        onclick={() => (rules = rules.filter((_, i) => i !== index))}>Supprimer cette règle</button
-      >
-    </fieldset>
+  {#each keys as key, index (key)}
+    <RuleEditor
+      rule={rules[index]}
+      {index}
+      {activites}
+      onChange={(updated) => (rules = rules.map((rule, i) => (i === index ? updated : rule)))}
+      onRemove={() => removeRule(index)}
+    />
   {:else}
     <p class="fr-alert fr-alert--info fr-alert--sm">Aucune affectation automatique.</p>
   {/each}
   <button
     type="button"
-    class="fr-btn fr-btn--secondary justify-self-start"
+    class="fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left justify-self-start"
     disabled={rules.length >= 50}
-    onclick={() =>
-      (rules = [
-        ...rules,
-        { departments: [], communes: [], activites: [], accessLevel: "instruct" },
-      ])}>Ajouter une règle</button
+    onclick={addRule}>Ajouter une règle</button
   >
 </div>
