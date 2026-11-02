@@ -26,10 +26,11 @@ for (const width of [1280, 320]) {
     await loginAs(actor.codeAcces);
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ colorScheme: "dark" });
-    const listUrl = `${E2E_ADMIN_BASE_URL}/utilisateurs?q=camille`;
+    const search = "?q=camille&tri=name&ordre=desc&actifs=1&desactives=1";
+    const listUrl = `${E2E_ADMIN_BASE_URL}/utilisateurs${search}`;
     await page.goto(listUrl);
     await page.getByRole("button", { name: "Modifier camille@example.org", exact: true }).click();
-    await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/utilisateurs/${user.id}?q=camille`);
+    await expect(page).toHaveURL(`${E2E_ADMIN_BASE_URL}/utilisateurs/${user.id}${search}`);
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.reload();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Camille Martin");
@@ -48,6 +49,8 @@ for (const width of [1280, 320]) {
     await page.screenshot({ path: testInfo.outputPath(`user-account-page-${width}.png`) });
     await page.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
     await page.screenshot({ path: testInfo.outputPath(`user-permissions-page-${width}.png`) });
+    await page.getByRole("link", { name: "Retour", exact: true }).click();
+    await expect(page).toHaveURL(listUrl);
 
     await page.goto(`${E2E_ADMIN_BASE_URL}/groupes-instructeurs/${group.id}`);
     await page.reload();
