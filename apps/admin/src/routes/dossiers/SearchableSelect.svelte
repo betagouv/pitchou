@@ -152,9 +152,10 @@
       id={`${id}-popover`}
       label="Rechercher une option"
       {trigger}
+      fixedHeader
       onClose={() => closeList(true)}
     >
-      <div class="relative border-b border-[color:var(--border-default-grey)]">
+      <div class="relative shrink-0 border-b border-[color:var(--border-default-grey)] p-1">
         <span
           class="fr-icon-search-line absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--text-default-grey)]"
           aria-hidden="true"

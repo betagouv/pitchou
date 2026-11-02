@@ -7,12 +7,14 @@
     label,
     trigger,
     onClose,
+    fixedHeader = false,
     children,
   }: {
     id: string;
     label: string;
     trigger: HTMLButtonElement;
     onClose: () => void;
+    fixedHeader?: boolean;
     children: Snippet;
   } = $props();
   let panel = $state<HTMLDivElement>();
@@ -56,7 +58,10 @@
   role="group"
   aria-label={label}
   popover="manual"
-  class="fixed inset-auto z-[2000] m-0 h-auto overflow-y-auto overscroll-contain [padding:0.5rem_1rem_0.75rem] bg-[var(--background-default-grey)] text-[var(--text-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
+  class={[
+    "fixed inset-auto z-[2000] m-0 h-auto overscroll-contain [padding:0.5rem_1rem_0.75rem] bg-[var(--background-default-grey)] text-[var(--text-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]",
+    fixedHeader ? "flex flex-col overflow-hidden" : "overflow-y-auto",
+  ]}
   style:left="{placement?.left ?? 0}px"
   style:width="{placement?.width ?? 0}px"
   style:max-height="{placement?.maxHeight ?? 0}px"

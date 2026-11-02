@@ -68,8 +68,8 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
   const automatic = assignments.getByRole("article", { name: "Photovoltaïque Dax", exact: true });
-  await automatic.getByText("Voir les règles du groupe", { exact: true }).click();
-  await expect(automatic.getByText(/Correspondance automatique/u)).toBeVisible();
+  await automatic.getByText("Détails de l'affectation", { exact: true }).click();
+  await expect(automatic.getByText("40 · Landes", { exact: true })).toBeVisible();
   await automatic
     .getByRole("button", { name: "Modifier l'affectation de Photovoltaïque Dax" })
     .click();

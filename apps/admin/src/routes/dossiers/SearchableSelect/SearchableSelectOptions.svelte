@@ -20,7 +20,7 @@
 </script>
 
 <ul
-  class="list-none m-0 p-0 max-h-96 overflow-y-auto"
+  class="list-none m-0 min-h-0 flex-1 p-0 overflow-y-auto overscroll-contain"
   id={`${id}-options`}
   role="listbox"
   aria-labelledby={labelledBy}

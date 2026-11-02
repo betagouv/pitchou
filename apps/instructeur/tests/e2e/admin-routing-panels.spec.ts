@@ -54,8 +54,8 @@ test("routing saves refresh assignments and effective access without losing doss
   await page.locator("header").getByRole("button", { name: "Enregistrer", exact: true }).click();
   await accessTab.click();
   await expect(assignments.getByRole("heading", { name: "Service Paris" })).toBeVisible();
-  await assignments.getByText("Voir les règles du groupe", { exact: true }).click();
-  await expect(assignments.getByText(/Correspondance automatique/u)).toBeVisible();
+  await assignments.getByText("Détails de l'affectation", { exact: true }).click();
+  await expect(assignments.getByText("75 · Paris", { exact: true })).toBeVisible();
   await expect(effectiveAccess).toContainText("Instruction");
 
   // The form must keep edits made before a group assignment refreshes the page data.

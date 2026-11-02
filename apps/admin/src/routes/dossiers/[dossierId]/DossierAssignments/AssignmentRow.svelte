@@ -5,6 +5,7 @@
     GroupAssignment,
   } from "@pitchou/types/groupRouting.ts";
   import AssignmentEditor from "./AssignmentEditor.svelte";
+  import AssignmentOrigin from "./AssignmentOrigin.svelte";
 
   let {
     group,
@@ -51,31 +52,7 @@
     {#if group.mode === "exclude"}<span class="access-badge access-badge-muted">Exclu</span>{/if}
   </p>
   {#if group.automatic || group.rules.length}
-    <details class="access-details">
-      <summary>Voir les règles du groupe</summary>
-      {#if group.automatic}
-        <p>
-          Correspondance automatique{group.departments.length
-            ? ` · département principal ${group.departments.join(", ")}`
-            : ""}
-        </p>
-      {:else}
-        <p>Aucune correspondance automatique pour ce dossier.</p>
-      {/if}
-      {#each group.rules as rule}
-        <p>
-          Règle · {rule.accessLevel === "read" ? "Lecture complète" : "Instruction"} : {[
-            rule.departments.length ? `départements ${rule.departments.join(", ")}` : "",
-            rule.communes.length ? `communes INSEE ${rule.communes.join(", ")}` : "",
-            rule.activites.length
-              ? `activités ${rule.activites.map((code) => activityLabels[code] ?? code).join(", ")}`
-              : "",
-          ]
-            .filter(Boolean)
-            .join(" ET ") || "Aucun critère"}
-        </p>
-      {/each}
-    </details>
+    <AssignmentOrigin {group} {activityLabels} />
   {/if}
   {#if editing && editable}
     <AssignmentEditor {group} {saving} {onSave} onCancel={() => (editing = false)} />
