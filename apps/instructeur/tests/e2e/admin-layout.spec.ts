@@ -68,7 +68,7 @@ for (const viewport of [
         await lastGroup.click();
         const dialog = page.getByRole("dialog");
         await expect(
-          dialog.getByRole("button", { name: "Enregistrer", exact: true }),
+          dialog.getByRole("button", { name: "Vérifier les affectations", exact: true }),
         ).toBeInViewport();
         await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
         await expect(heading).toBeInViewport();
