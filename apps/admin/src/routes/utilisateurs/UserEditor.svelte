@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./UserEditor/styles.css";
-  import { tick, untrack } from "svelte";
+  import { onDestroy, tick, untrack } from "svelte";
   import { enhance } from "$app/forms";
   import EditorPage from "#lib/components/EditorPage.svelte";
   import { invalidateAll } from "$app/navigation";
@@ -27,6 +27,11 @@
   let bundles = $state<string[]>(untrack(() => [...(current?.bundles ?? [])]));
   let groupIds = $state<string[]>(untrack(() => current?.groupes.map((group) => group.id) ?? []));
   let saving = $state(false);
+  let mounted = true;
+  let saveVersion = 0;
+  onDestroy(() => {
+    mounted = false;
+  });
   let message = $state("");
   let tab = $state("account");
 
@@ -51,10 +56,13 @@
     autocomplete="off"
     oninvalidcapture={showInvalidField}
     use:enhance={() => {
+      const version = ++saveVersion;
+      const isCurrent = () => mounted && version === saveVersion;
       pageHeader.clearFeedback();
       saving = true;
       message = "";
       return async ({ result }) => {
+        if (!isCurrent()) return;
         try {
           if (result.type !== "success") {
             message = String(
@@ -66,11 +74,12 @@
           }
           if (result.type === "success") {
             await invalidateAll();
+            if (!isCurrent()) return;
             await onClose();
             pageHeader.showSaved("Utilisateur enregistré");
           }
         } finally {
-          saving = false;
+          if (isCurrent()) saving = false;
         }
       };
     }}

@@ -3,7 +3,7 @@
   import GroupPreviewPanel from "./GroupEditor/GroupPreview.svelte";
   import type { GroupPreview } from "@pitchou/types/groupRouting.ts";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
-  import { untrack } from "svelte";
+  import { onDestroy, untrack } from "svelte";
   import GroupIdentityFields from "./GroupEditor/GroupIdentityFields.svelte";
   import GroupAssignmentFields from "./GroupEditor/GroupAssignmentFields.svelte";
   import { enhance } from "$app/forms";
@@ -36,6 +36,11 @@
   );
   let members = $state(untrack(() => [...(current?.members ?? [])]));
   let saving = $state(false);
+  let mounted = true;
+  let saveVersion = 0;
+  onDestroy(() => {
+    mounted = false;
+  });
   let message = $state("");
   let rulesValid = $state(true);
   const formId = $props.id();
@@ -89,10 +94,13 @@
         cancel();
         return;
       }
+      const version = ++saveVersion;
+      const isCurrent = () => mounted && version === saveVersion;
       pageHeader.clearFeedback();
       saving = true;
       message = "";
       return async ({ result }) => {
+        if (!isCurrent()) return;
         try {
           if (result.type !== "success") {
             message = String(
@@ -105,10 +113,11 @@
             return;
           }
           await invalidateAll();
+          if (!isCurrent()) return;
           await onClose();
           pageHeader.showSaved("Groupe enregistré");
         } finally {
-          saving = false;
+          if (isCurrent()) saving = false;
         }
       };
     }}
