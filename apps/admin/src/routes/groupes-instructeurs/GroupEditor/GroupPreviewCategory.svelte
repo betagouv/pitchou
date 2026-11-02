@@ -130,4 +130,7 @@
     margin: 0 0 1rem;
     min-width: 0;
   }
+  fieldset :global(nav) {
+    flex-wrap: wrap;
+  }
 </style>

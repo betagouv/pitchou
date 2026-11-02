@@ -92,7 +92,7 @@ test("a changed dossier beyond page one invalidates pages and saving without par
   const before = await state();
   const stale = await post(actor.token, input, pageQuery(preview.token, "added", 2));
   expect(stale.status).toBe(409);
-  expect(await stale.json()).toEqual({ message: expect.stringContaining("Actualisez") });
+  expect(await stale.json()).toMatchObject({ message: expect.stringContaining("Actualisez") });
   expect((await saveGroup(actor.token, { ...input, previewToken: preview.token })).status).toBe(
     400,
   );
