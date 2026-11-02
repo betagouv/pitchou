@@ -40,9 +40,12 @@
   let preview = $state<GroupPreview | null>(null);
   let previewOpen = $state(false);
   let previewInput = $state("");
+  let previewStale = $state(false);
   const input = $derived({ id: current?.id, name, active, rules, members });
   const currentInput = $derived(JSON.stringify(input));
-  const previewCurrent = $derived(rulesValid && preview !== null && currentInput === previewInput);
+  const previewCurrent = $derived(
+    rulesValid && !previewStale && preview !== null && currentInput === previewInput,
+  );
   async function showPreview() {
     if (!rulesValid || !form.reportValidity()) return;
     saving = true;
@@ -57,6 +60,7 @@
       const result = await response.json();
       if (!response.ok) throw new Error(result.message ?? "Aperçu impossible");
       preview = result;
+      previewStale = false;
       previewInput = snapshot;
       previewOpen = true;
     } catch (cause) {
@@ -121,10 +125,16 @@
     </fieldset>
   </form>
   {#if previewOpen && preview}
-    <GroupPreviewPanel {preview} {name} />
+    <GroupPreviewPanel
+      {preview}
+      {name}
+      input={previewInput}
+      stale={previewStale}
+      onStale={() => (previewStale = true)}
+    />
     {#if !previewCurrent}
       <p class="fr-px-3w" role="status">
-        La configuration a changé. Revenez à l'édition pour vérifier les affectations à nouveau.
+        L'aperçu n'est plus à jour. Revenez à l'édition pour vérifier les affectations à nouveau.
       </p>
     {/if}
   {/if}

@@ -9,6 +9,18 @@ export type GroupRule = {
 
 export type AssignmentMode = "auto" | "include" | "exclude";
 
+export const GROUP_PREVIEW_PAGE_SIZE = 25;
+
+export type PreviewCategory = "added" | "removed" | "upgraded" | "downgraded";
+
+export type GroupPreviewPage = {
+  token: string;
+  count: number;
+  dossiers: { id: number; name: string | null }[];
+  page: number;
+  pageSize: number;
+};
+
 export type GroupAssignment = {
   id: string;
   name: string;

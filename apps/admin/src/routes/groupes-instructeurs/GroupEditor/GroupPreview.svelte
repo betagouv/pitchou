@@ -1,12 +1,29 @@
 <script lang="ts">
-  import type { GroupPreview } from "@pitchou/types/groupRouting.ts";
-  let { preview, name = "" }: { preview: GroupPreview; name?: string } = $props();
+  import type { GroupPreview, PreviewCategory } from "@pitchou/types/groupRouting.ts";
+  import GroupPreviewCategory from "./GroupPreviewCategory.svelte";
+  let {
+    preview,
+    name = "",
+    input,
+    stale,
+    onStale,
+  }: {
+    preview: GroupPreview;
+    name?: string;
+    input: string;
+    stale: boolean;
+    onStale: () => void;
+  } = $props();
   const changes = $derived([
-    { label: "Dossiers ajoutés", result: preview.added },
-    { label: "Dossiers retirés", result: preview.removed },
-    { label: "Passages à l'instruction", result: preview.upgraded },
-    { label: "Passages en lecture complète", result: preview.downgraded },
-  ]);
+    { category: "added", label: "Dossiers ajoutés", result: preview.added },
+    { category: "removed", label: "Dossiers retirés", result: preview.removed },
+    { category: "upgraded", label: "Passages à l'instruction", result: preview.upgraded },
+    { category: "downgraded", label: "Passages en lecture complète", result: preview.downgraded },
+  ] satisfies {
+    category: PreviewCategory;
+    label: string;
+    result: GroupPreview[PreviewCategory];
+  }[]);
   const hasChanges = $derived(changes.some((item) => item.result.count > 0));
 </script>
 
@@ -31,25 +48,7 @@
   {/if}
   {#each changes as item}
     {#if item.result.count}
-      <details>
-        <summary>{item.label} · {item.result.count.toLocaleString("fr-FR")}</summary>
-        <ul>
-          {#each item.result.dossiers as dossier}
-            <li>
-              <a href={`/dossiers/${dossier.id}`} target="_blank" rel="noreferrer"
-                >{dossier.name || "Dossier sans nom"} · #{dossier.id}<span class="sr-only">
-                  , nouvel onglet</span
-                ></a
-              >
-            </li>
-          {/each}
-        </ul>
-        {#if item.result.count > item.result.dossiers.length}<p>
-            {item.result.dossiers.length} dossiers affichés sur {item.result.count.toLocaleString(
-              "fr-FR",
-            )}.
-          </p>{/if}
-      </details>
+      <GroupPreviewCategory {...item} token={preview.token} {input} {stale} {onStale} />
     {/if}
   {/each}
 </section>
@@ -106,23 +105,6 @@
   }
   .unchanged {
     margin: 0;
-  }
-  details {
-    border-top: 1px solid var(--border-default-grey);
-  }
-  summary {
-    padding: 1rem 0;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  ul {
-    margin: 0 0 1rem;
-    padding-left: 1.25rem;
-  }
-  li {
-    margin: 0.5rem 0;
-    overflow-wrap: anywhere;
   }
   @media (max-width: 30rem) {
     .group-preview {

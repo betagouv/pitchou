@@ -6,7 +6,11 @@ export {
 } from "./administration/users.ts";
 export { listGroups, saveGroup, type GroupUpdate } from "./administration/groups.ts";
 
-export { previewGroup } from "./administration/groups/preview.ts";
+export {
+  previewGroup,
+  parsePreviewPage,
+  StaleGroupPreviewError,
+} from "./administration/groups/preview.ts";
 export { listDossierUserAccess, saveDossierUserAccess } from "./administration/dossierAccess.ts";
 export {
   listDossierAssignments,
