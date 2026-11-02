@@ -3,7 +3,6 @@ import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
-import { allowGroupManagement } from "../helpers/groupMembership.ts";
 import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 
 function members(token: string, groupId: string, method: string, body: object, origin?: string) {
@@ -18,9 +17,8 @@ function members(token: string, groupId: string, method: string, body: object, o
   });
 }
 
-test("administrators prepare colleagues by email and ProConnect reuses the account without DN", async () => {
+test("members prepare colleagues by email and ProConnect reuses the account without DN", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await allowGroupManagement(db, owner.id);
   const response = await members(owner.cap, owner.groupeId, "POST", { email: " New@Example.org " });
   expect(response.status).toBe(200);
   const user = await db("auth_user").where({ email: "new@example.org" }).first();
@@ -49,9 +47,8 @@ test("administrators prepare colleagues by email and ProConnect reuses the accou
   expect(await db("administration_event").where({ action: "group_member_added" })).toHaveLength(1);
 });
 
-test("administrators see only their own groups in settings and cannot change another group", async () => {
+test("members see only their groups and cannot change someone else's group or routing", async () => {
   const owner = await createInstructeurWithDossier(db, { nomGroupe: "Owner" });
-  await allowGroupManagement(db, owner.id);
   const foreign = await createInstructeurWithDossier(db, { nomGroupe: "Foreign" });
   const list = await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/parametres/groupes`);
   const groups = await list.json();
@@ -76,9 +73,26 @@ test("administrators see only their own groups in settings and cannot change ano
   expect(await db("administration_event")).toHaveLength(0);
 });
 
+test("all active members can manage membership even with read-only dossier rights", async () => {
+  const owner = await createInstructeurWithDossier(db);
+  await db("auth_permission_exclusion").insert({
+    user_id: owner.id,
+    permission: "dossier:instruct",
+  });
+  expect(
+    (await members(owner.cap, owner.groupeId, "POST", { email: "reader@example.org" })).status,
+  ).toBe(200);
+  await db("auth_permission_exclusion").insert({ user_id: owner.id, permission: "dossier:read" });
+  expect(
+    (await members(owner.cap, owner.groupeId, "POST", { email: "another@example.org" })).status,
+  ).toBe(200);
+  expect((await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status).toBe(
+    403,
+  );
+});
+
 test("existing accounts retain administrator restrictions and disabled accounts stay disabled", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await allowGroupManagement(db, owner.id);
   const [existing] = await db("auth_user").insert({ email: "existing@example.org" }).returning("*");
   await db("auth_permission").insert({ user_id: existing.id, permission: "dossier:read" });
   await db("auth_permission_exclusion").insert({
@@ -97,9 +111,8 @@ test("existing accounts retain administrator restrictions and disabled accounts 
   expect((await db("auth_user").where({ id: existing.id }).first()).active).toBe(false);
 });
 
-test("a last administrator member can leave and immediately loses membership management and dossier access", async () => {
+test("a last member can leave and immediately loses membership management and dossier access", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await allowGroupManagement(db, owner.id);
   await db("edge_personne_follows_dossier").insert({
     personne: owner.id,
     dossier: owner.dossier.id,
@@ -125,7 +138,6 @@ test("a last administrator member can leave and immediately loses membership man
 
 test("invalid input, foreign origins, archived groups and inactive sessions cannot mutate membership", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await allowGroupManagement(db, owner.id);
   expect((await members(owner.cap, owner.groupeId, "POST", { email: "invalid" })).status).toBe(400);
   expect((await members(owner.cap, owner.groupeId, "DELETE", { userId: "1" })).status).toBe(400);
   expect((await members(owner.cap, owner.groupeId, "DELETE", { userId: 2147483648 })).status).toBe(
@@ -156,7 +168,6 @@ test("invalid input, foreign origins, archived groups and inactive sessions cann
 
 test("a colleague who has already signed in receives membership on the same account", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await allowGroupManagement(db, owner.id);
   const colleague = await connectUser(
     {
       issuer: "https://proconnect.test",

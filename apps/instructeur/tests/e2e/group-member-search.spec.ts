@@ -1,8 +1,7 @@
 import { test, expect } from "../fixtures/playwright.ts";
-import { allowGroupManagement } from "../helpers/groupMembership.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
 
-test("administrators find colleagues by name or email and can still add a new address", async ({
+test("members find colleagues by name or email and can still add a new address", async ({
   page,
   db,
   loginAs,
@@ -21,7 +20,6 @@ test("administrators find colleagues by name or email and can still add a new ad
     first_names: "Camille",
     last_name: "Martin",
   });
-  await allowGroupManagement(db, owner.id);
   await loginAs(owner.codeAcces);
   await page.goto("/parametres/groupes");
   const group = page.getByRole("region", { name: "Bretagne", exact: true });

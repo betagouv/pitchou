@@ -4,7 +4,7 @@ import type { UserId } from "@pitchou/types/permissions.ts";
 import { directDatabaseConnection as database } from "./database/connection.ts";
 import { getSessionUser } from "./users.ts";
 
-import { GroupMembershipError, requireMembershipManager } from "./groupMembership/access.ts";
+import { GroupMembershipError, requireGroupMember } from "./groupMembership/access.ts";
 import { accountForMembership } from "./groupMembership/accounts.ts";
 import { audit } from "./administration/audit.ts";
 export { GroupMembershipError } from "./groupMembership/access.ts";
@@ -54,7 +54,7 @@ export async function addGroupMember(
     throw new GroupMembershipError(400, "Adresse e-mail invalide.");
   return db.transaction(async (trx) => {
     await trx.raw("select pg_advisory_xact_lock(2105102026)");
-    await requireMembershipManager(actor, groupId, trx);
+    await requireGroupMember(actor, groupId, trx);
     const user = await accountForMembership(email, trx);
     const inserted = await trx("user_groupe")
       .insert({ user_id: user.id, groupe_instructeurs: groupId })
@@ -74,7 +74,7 @@ export async function removeGroupMember(
 ) {
   return db.transaction(async (trx) => {
     await trx.raw("select pg_advisory_xact_lock(2105102026)");
-    await requireMembershipManager(actor, groupId, trx);
+    await requireGroupMember(actor, groupId, trx);
     const removed = await trx("user_groupe")
       .where({ groupe_instructeurs: groupId, user_id: memberId })
       .delete();

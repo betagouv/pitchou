@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier, attachCapToGroupe } from "../factories/index.ts";
-import { allowGroupManagement } from "../helpers/groupMembership.ts";
 import { sessionUserId } from "../helpers/auth.ts";
 import {
   addGroupMember,
@@ -13,8 +12,6 @@ test("concurrent removals recheck the actor after taking the membership lock", a
   const first = await createInstructeurWithDossier(db, { nomGroupe: "First" });
   const second = await createInstructeurWithDossier(db, { nomGroupe: "Second" });
   await attachCapToGroupe(db, second.cap, first.groupeId);
-  await allowGroupManagement(db, first.id);
-  await allowGroupManagement(db, second.id);
   const results = await Promise.allSettled([
     removeGroupMember(sessionUserId(first.cap), first.groupeId, sessionUserId(second.cap), db),
     removeGroupMember(sessionUserId(second.cap), first.groupeId, sessionUserId(first.cap), db),
@@ -33,11 +30,10 @@ test("concurrent removals recheck the actor after taking the membership lock", a
   );
 });
 
-test.each(["admin:access", "groups:manage"])(
+test.each(["membership", "account", "group"])(
   "queued membership writes recheck revoked %s after acquiring the lock",
-  async (permission) => {
+  async (revocation) => {
     const owner = await createInstructeurWithDossier(db);
-    await allowGroupManagement(db, owner.id);
     const blocker = await db.transaction();
     await blocker.raw("select pg_advisory_xact_lock(2105102026)");
     let signalLockAttempt!: () => void;
@@ -59,14 +55,23 @@ test.each(["admin:access", "groups:manage"])(
     );
     try {
       await attempted;
-      await blocker("auth_permission_exclusion").insert({ user_id: owner.id, permission });
+      if (revocation === "membership")
+        await blocker("user_groupe").where({ user_id: owner.id }).delete();
+      else if (revocation === "account")
+        await blocker("auth_user").where({ id: owner.id }).update({ active: false });
+      else
+        await blocker("groupe_instructeurs")
+          .where({ id: owner.groupeId })
+          .update({ active: false });
       await blocker.commit();
       expect(await result).toMatchObject({ status: 403 });
       await expect(
         removeGroupMember(sessionUserId(owner.cap), owner.groupeId, sessionUserId(owner.cap), db),
       ).rejects.toMatchObject({ status: 403 });
       expect(await db("auth_user").where({ email: "queued@example.org" })).toHaveLength(0);
-      expect(await db("user_groupe").where({ user_id: owner.id })).toHaveLength(1);
+      expect(await db("user_groupe").where({ user_id: owner.id })).toHaveLength(
+        revocation === "membership" ? 0 : 1,
+      );
       expect(await db("administration_event")).toHaveLength(0);
     } finally {
       db.off("query", onQuery);

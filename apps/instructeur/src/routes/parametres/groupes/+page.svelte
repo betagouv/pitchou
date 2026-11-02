@@ -6,4 +6,4 @@
 
 <svelte:head><title>Mes groupes - Paramètres - Pitchou</title></svelte:head>
 
-<GroupMembershipSettings userId={data.userId} canManageGroupMembers={data.canManageGroupMembers} />
+<GroupMembershipSettings userId={data.userId} />

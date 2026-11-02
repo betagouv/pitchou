@@ -9,14 +9,8 @@
   let {
     group,
     userId,
-    canManageGroupMembers,
     onChanged,
-  }: {
-    group: MembershipGroup;
-    userId: UserId;
-    canManageGroupMembers: boolean;
-    onChanged: () => Promise<void>;
-  } = $props();
+  }: { group: MembershipGroup; userId: UserId; onChanged: () => Promise<void> } = $props();
   let email = $state("");
   let query = $state("");
   let page = $state(1);
@@ -79,34 +73,32 @@
       {/if}
     </span>
   </div>
-  {#if canManageGroupMembers}
-    <form
-      onsubmit={add}
-      class="rounded-lg border border-[var(--border-default-grey)] bg-[var(--background-alt-grey)] p-4 mb-5"
+  <form
+    onsubmit={add}
+    class="rounded-lg border border-[var(--border-default-grey)] bg-[var(--background-alt-grey)] p-4 mb-5"
+  >
+    <label class="fr-label" for={`email-${group.id}`}
+      >Ajouter un membre par adresse professionnelle</label
     >
-      <label class="fr-label" for={`email-${group.id}`}
-        >Ajouter un membre par adresse professionnelle</label
+    <p class="fr-hint-text mt-1 mb-3" id={`email-help-${group.id}`}>
+      Cette personne peut déjà utiliser Pitchou ou se connecter plus tard avec ProConnect. Aucun
+      mail d'invitation n'est envoyé.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <GroupMemberCombobox
+        id={`email-${group.id}`}
+        groupId={group.id}
+        describedBy={`email-help-${group.id}`}
+        bind:value={email}
+        disabled={saving}
+      />
+      <button
+        class="fr-btn fr-icon-add-line fr-btn--icon-left shrink-0"
+        disabled={saving}
+        aria-busy={saving}>{saving ? "Ajout…" : "Ajouter"}</button
       >
-      <p class="fr-hint-text mt-1 mb-3" id={`email-help-${group.id}`}>
-        Cette personne peut déjà utiliser Pitchou ou se connecter plus tard avec ProConnect. Aucun
-        mail d'invitation n'est envoyé.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3">
-        <GroupMemberCombobox
-          id={`email-${group.id}`}
-          groupId={group.id}
-          describedBy={`email-help-${group.id}`}
-          bind:value={email}
-          disabled={saving}
-        />
-        <button
-          class="fr-btn fr-icon-add-line fr-btn--icon-left shrink-0"
-          disabled={saving}
-          aria-busy={saving}>{saving ? "Ajout…" : "Ajouter"}</button
-        >
-      </div>
-    </form>
-  {/if}
+    </div>
+  </form>
   {#if failure}<p class="fr-error-text mb-4!" role="alert">{failure}</p>{/if}
   <div class="overflow-hidden rounded-lg border border-[var(--border-default-grey)]">
     <div
@@ -140,16 +132,14 @@
                 >Compte désactivé</span
               >{/if}
           </div>
-          {#if canManageGroupMembers}
-            <button
-              class="fr-btn fr-btn--tertiary fr-btn--sm"
-              aria-label={member.id === userId
-                ? "Quitter le groupe"
-                : `Retirer ${member.email ?? "ce membre"}`}
-              onclick={() => (removing = member)}
-              disabled={saving}>{member.id === userId ? "Quitter le groupe" : "Retirer"}</button
-            >
-          {/if}
+          <button
+            class="fr-btn fr-btn--tertiary fr-btn--sm"
+            aria-label={member.id === userId
+              ? "Quitter le groupe"
+              : `Retirer ${member.email ?? "ce membre"}`}
+            onclick={() => (removing = member)}
+            disabled={saving}>{member.id === userId ? "Quitter le groupe" : "Retirer"}</button
+          >
         </li>
       {:else}
         <li class="p-4 text-[var(--text-mention-grey)]">
@@ -176,7 +166,7 @@
       </nav>
     {/if}
   </div>
-  {#if canManageGroupMembers && removing}
+  {#if removing}
     <RemoveGroupMemberDialog
       {group}
       member={removing}

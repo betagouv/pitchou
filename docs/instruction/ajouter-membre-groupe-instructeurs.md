@@ -1,12 +1,12 @@
 # Ajouter un membre à un groupe instructeur
 
-L'ajout et le retrait de membres dans Pitchou sont réservés aux administrateurs disposant des permissions `admin:access` et `groups:manage`. Être membre d'un groupe ne suffit pas pour en modifier la composition.
+Chaque membre actif peut ajouter ou retirer des collègues dans ses propres groupes actifs, depuis **Paramètres**, puis **Mes groupes**. Il peut aussi quitter un groupe.
 
-Si vous n'avez pas ces droits, contactez un administrateur Pitchou avec l'adresse professionnelle de la personne et le nom du groupe concerné. Vous pouvez consulter et rechercher les membres de vos groupes actifs dans **Paramètres**, puis **Mes groupes**.
+Si vous n'appartenez pas encore au groupe, demandez à un collègue déjà membre de vous ajouter avec votre adresse professionnelle. Pour créer un groupe, réactiver un compte ou rétablir un groupe sans membre actif, contactez un administrateur Pitchou.
 
 Un administrateur peut modifier les membres existants depuis la gestion des groupes dans l'application d'administration. Pour préparer un nouveau compte depuis l'administration, les droits de gestion des utilisateurs sont aussi nécessaires.
 
-S'il appartient au groupe actif, un administrateur autorisé à gérer les groupes peut aussi ajouter un membre depuis l'application d'instruction :
+Pour ajouter un collègue depuis l'application d'instruction :
 
 1. Ouvrez **Paramètres**, puis **Mes groupes**. Dans le groupe concerné, recherchez la personne par son nom ou son adresse professionnelle.
 2. Sélectionnez son compte existant ou saisissez l'adresse qu'elle utilisera avec ProConnect, puis cliquez sur **Ajouter**.
