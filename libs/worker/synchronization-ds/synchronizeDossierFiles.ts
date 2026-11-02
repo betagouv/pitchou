@@ -4,6 +4,7 @@ import {
 } from "@pitchou/server/database/impact_espece/prepareImpactEspeceFile.ts";
 import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/edge_dossier__fichier_pieces_jointes_petitionnaire.ts";
 import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/database/especes_impactees.ts";
+import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/fichier.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -107,6 +108,7 @@ export async function synchronizeDownloadedDossierFiles(
     if (isChampDSPieceJustificative(field) && field.files.length === 0)
       files.set(dossier.number, null);
   }
+  const deferredFileCleanup = new Set<FileId>();
   const especesImpactees =
     files.size > 0
       ? await synchronizeFichiersEspecesImpacteesFromDS88444(
@@ -114,6 +116,7 @@ export async function synchronizeDownloadedDossierFiles(
           dossierIdByDNNumber,
           transaction,
           downloads.preparedFiles,
+          deferredFileCleanup,
         )
       : undefined;
   const filesByDossierId = new Map(
@@ -134,5 +137,6 @@ export async function synchronizeDownloadedDossierFiles(
     champsWithPiecesJointes88444,
     transaction,
   );
+  await deleteFichiersWithoutOtherReferences([...deferredFileCleanup], transaction);
   return [especesImpactees, piecesJointesPetitionnaire] as const;
 }

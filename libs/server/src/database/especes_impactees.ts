@@ -27,6 +27,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
   preparedFiles?: ReadonlyMap<FileId, PreparedImpactFile>,
+  deferredFileCleanup?: Set<FileId>,
 ): Promise<Set<DossierId>> {
   if (!databaseConnection.isTransaction)
     return databaseConnection.transaction((trx) =>
@@ -35,6 +36,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
         dossierIdByDNNumber,
         trx,
         preparedFiles,
+        deferredFileCleanup,
       ),
     );
   // Lock in a stable order before reading either the pointer or its impact snapshot.
@@ -67,7 +69,12 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   const oldFileIds = currentRows.flatMap(({ especes_impactees }) =>
     especes_impactees ? [especes_impactees] : [],
   );
-  await deleteFichiersWithoutOtherReferences(oldFileIds, databaseConnection);
+  // A caller adding other file references must finish those writes before orphan cleanup.
+  if (deferredFileCleanup) {
+    for (const fileId of oldFileIds) deferredFileCleanup.add(fileId);
+  } else {
+    await deleteFichiersWithoutOtherReferences(oldFileIds, databaseConnection);
+  }
 
   return changedDossiers;
 }
