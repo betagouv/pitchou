@@ -47,6 +47,7 @@
   let form: HTMLFormElement;
   let preview = $state<GroupPreview | null>(null);
   let previewOpen = $state(false);
+  let previewTrigger = $state.raw<Element | null>(null);
   let previewInput = $state("");
   let previewStale = $state(false);
   const input = $derived({ id: current?.id, name, active, rules, members });
@@ -56,6 +57,7 @@
   );
   async function showPreview() {
     if (!rulesValid || !form.reportValidity()) return;
+    previewTrigger = document.activeElement;
     saving = true;
     message = "";
     const snapshot = currentInput;
@@ -149,6 +151,7 @@
     {#if previewOpen && preview}
       <GroupEditorDialog
         title="Vérifier les affectations"
+        returnFocus={previewTrigger}
         onClose={() => {
           if (!saving) previewOpen = false;
         }}

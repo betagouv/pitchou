@@ -72,7 +72,9 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   await page.keyboard.press("Escape");
   await expect(editor).toBeVisible();
   await expect(access).toBeFocused();
-  await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
+  const verify = editor.getByRole("button", { name: "Vérifier les affectations" });
+  await verify.focus();
+  await page.keyboard.press("Enter");
   await expect(page.getByRole("dialog")).toHaveAccessibleName("Vérifier les affectations");
   await expect(page.getByRole("dialog")).toHaveCount(1);
   await expect(page.locator(".editor-content")).toHaveAttribute("inert", "");
@@ -92,6 +94,7 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   await page.screenshot({ path: testInfo.outputPath("04-preview-mobile.png") });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(verify).toBeFocused();
   await expect(editor.getByLabel("Rechercher une commune")).toHaveValue("Pau");
   await editor
     .getByRole("button", { name: "Retirer le critère Communes du projet", exact: true })
@@ -102,6 +105,7 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   await page.screenshot({ path: testInfo.outputPath("05-rule.png") });
   await editor.getByRole("button", { name: "Vérifier les affectations" }).click();
   await editor.getByRole("button", { name: "Revenir à l'édition", exact: true }).click();
+  await expect(verify).toBeFocused();
   await editor
     .getByRole("button", { name: "Retirer le critère Département principal", exact: true })
     .click();

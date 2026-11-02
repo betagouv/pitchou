@@ -7,13 +7,22 @@
     onClose,
     children,
     footer,
-  }: { title: string; onClose: () => void; children: Snippet; footer: Snippet } = $props();
+    returnFocus,
+  }: {
+    title: string;
+    onClose: () => void;
+    children: Snippet;
+    footer: Snippet;
+    returnFocus: Element | null;
+  } = $props();
   let container: HTMLDivElement;
 
   onMount(() => {
-    const trigger = document.activeElement;
+    const trigger = returnFocus;
     return () => {
-      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+      void tick().then(() => {
+        if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+      });
     };
   });
 
