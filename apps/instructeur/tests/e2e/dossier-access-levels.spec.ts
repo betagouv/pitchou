@@ -44,6 +44,7 @@ test("an admin edits rule levels and grants a person access without group member
     { access_level: "read" },
   ]);
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);
+  await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
   await expect(assignments).toContainText("Niveau accordé : Lecture complète");
   await assignments.getByLabel("Mode d'affectation de Lecture Paris").selectOption("include");
