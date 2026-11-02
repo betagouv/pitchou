@@ -5,6 +5,7 @@ import {
   createInstructeurWithCapToGroup,
 } from "../factories/index.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("an admin previews a combined rule and manages persistent dossier exceptions", async ({
   page,
@@ -66,11 +67,21 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);
   await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
-  await expect(assignments).toContainText("Correspondance automatique");
-  await assignments.getByLabel("Mode d'affectation de Photovoltaïque Dax").selectOption("exclude");
+  const automatic = assignments.getByRole("article", { name: "Photovoltaïque Dax", exact: true });
+  await automatic.getByText("Voir les règles du groupe", { exact: true }).click();
+  await expect(automatic.getByText(/Correspondance automatique/u)).toBeVisible();
+  await automatic
+    .getByRole("button", { name: "Modifier l'affectation de Photovoltaïque Dax" })
+    .click();
+  const editor = automatic.getByRole("form");
+  await chooseInSelect(editor.getByRole("combobox"), "Exclure durablement");
+  await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(editor).toHaveCount(0);
   await expect(assignments).toContainText("Exclusion manuelle");
-  await assignments.getByLabel("Ajouter un groupe manuellement").selectOption(manual.id);
-  await assignments.getByRole("button", { name: "Affecter au groupe" }).click();
+  await assignments.getByRole("button", { name: "Ajouter un groupe", exact: true }).click();
+  await assignments.getByRole("combobox", { name: /^Groupe instructeur/u }).click();
+  await page.getByRole("option", { name: "DGALN", exact: true }).click();
+  await assignments.getByRole("button", { name: "Ajouter le groupe", exact: true }).click();
   await expect(assignments).toContainText("Ajout manuel");
   await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
   await page.reload();
@@ -82,8 +93,8 @@ test("an admin previews a combined rule and manages persistent dossier exception
       .where({ dossier: dossier.id })
       .pluck("groupe_instructeurs"),
   ).toEqual([manual.id]);
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 320, height: 844 });
   await assignments.scrollIntoViewIfNeeded();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
   await page.screenshot({ path: testInfo.outputPath("routing-exceptions-mobile.png") });
 });

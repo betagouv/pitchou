@@ -1,6 +1,7 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("an admin edits rule levels and grants a person access without group membership", async ({
   page,
@@ -46,30 +47,39 @@ test("an admin edits rule levels and grants a person access without group member
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);
   await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
-  await expect(assignments).toContainText("Niveau accordé : Lecture complète");
-  await assignments.getByLabel("Mode d'affectation de Lecture Paris").selectOption("include");
-  await expect(assignments.getByLabel("Niveau d'accès manuel de Lecture Paris")).toHaveValue(
-    "read",
-  );
-  await expect(assignments).toContainText("Niveau accordé : Lecture complète");
+  const groupRow = assignments.getByRole("article", { name: "Lecture Paris", exact: true });
+  await expect(groupRow.getByText("Lecture complète", { exact: true })).toBeVisible();
+  await groupRow.getByRole("button", { name: "Modifier l'affectation de Lecture Paris" }).click();
+  const groupForm = groupRow.getByRole("form");
+  await chooseInSelect(groupForm.getByRole("combobox"), "Inclure manuellement");
+  await expect(groupForm.getByRole("radio", { name: /^Lecture complète/u })).toBeChecked();
+  await groupForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(groupForm).toHaveCount(0);
+  await expect(groupRow.getByText("Lecture complète", { exact: true })).toBeVisible();
   const access = page.getByRole("region", { name: "Accès individuels au dossier" });
-  await access
-    .getByLabel("Accorder un accès individuel", { exact: true })
-    .selectOption(String(user.id));
+  await access.getByRole("button", { name: "Ajouter une personne", exact: true }).click();
+  await access.getByRole("combobox", { name: /^Personne/u }).click();
+  await page.getByRole("option", { name: "lecture@example.org", exact: true }).click();
   await access.getByRole("button", { name: "Accorder l'accès", exact: true }).click();
-  await expect(access).toContainText("Origine : accès individuel manuel · Lecture complète");
-  await expect(access).toContainText(
-    "Accès effectif, tous groupes et permissions compris : Lecture complète",
-  );
+  const person = access.getByRole("article", { name: "Accès de lecture@example.org" });
+  await expect(person.getByText("Lecture complète", { exact: true })).toBeVisible();
+  await expect(person.getByText(/^Accès effectif/u)).toHaveCount(0);
+  expect(
+    (await db.raw("select pitchou_dossier_access(?, ?) as level", [dossier.id, user.id])).rows[0]
+      .level,
+  ).toBe("lecture_complete");
   expect(await db("user_groupe").where({ user_id: user.id })).toHaveLength(0);
-  await access
-    .getByLabel("Niveau d'accès de lecture@example.org", { exact: true })
-    .selectOption("instruct");
-  await expect(access).toContainText("Origine : accès individuel manuel · Instruction");
+  const edit = person.getByRole("button", { name: "Modifier l'accès de lecture@example.org" });
+  await edit.click();
+  await person.getByRole("radio", { name: /^Instruction/u }).check();
+  await person.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(person.getByRole("form")).toHaveCount(0);
+  await expect(person.getByText("Instruction", { exact: true })).toBeVisible();
   expect(
     await db("dossier_user_access").where({ dossier: dossier.id, user_id: user.id }),
   ).toMatchObject([{ access_level: "instruct" }]);
-  await access
+  await edit.click();
+  await person
     .getByRole("button", { name: "Révoquer l'accès individuel de lecture@example.org" })
     .click();
   await expect(access).toContainText("Aucun accès individuel.");

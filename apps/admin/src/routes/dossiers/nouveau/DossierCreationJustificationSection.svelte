@@ -5,7 +5,7 @@
     scientifiqueDemandeTypeOptions,
   } from "@pitchou/common/dossierFormOptions.ts";
 
-  import SearchableSelect from "./SearchableSelect.svelte";
+  import SearchableSelect from "../SearchableSelect.svelte";
   import { motifDerogationGuidance, type DossierCreationModel } from "./dossierCreationModel.ts";
 
   let { model }: { model: DossierCreationModel } = $props();

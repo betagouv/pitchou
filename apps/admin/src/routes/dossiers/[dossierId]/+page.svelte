@@ -20,8 +20,7 @@
   import DossierAdminTabs from "./DossierAdminTabs.svelte";
   import DossierSyncSimulation from "./DossierSyncSimulation.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
-  import DossierAssignments from "./DossierAssignments.svelte";
-  import DossierUserAccess from "./DossierUserAccess.svelte";
+  import DossierAccess from "./DossierAccess.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -151,20 +150,15 @@
       tabindex="0"
       hidden={activeTab !== "access"}
     >
-      <div class="admin-stack">
-        <DossierAssignments
-          {dossierId}
-          initial={data.assignments}
-          onChanged={reload}
-          activityLabels={Object.fromEntries(
-            (activiteReferentiel?.activites ?? []).map((activity) => [
-              activity.code,
-              activity.label,
-            ]),
-          )}
-        />
-        <DossierUserAccess {dossierId} initial={data.userAccess} onChanged={reload} />
-      </div>
+      <DossierAccess
+        {dossierId}
+        assignments={data.assignments}
+        userAccess={data.userAccess}
+        onChanged={reload}
+        activityLabels={Object.fromEntries(
+          (activiteReferentiel?.activites ?? []).map((activity) => [activity.code, activity.label]),
+        )}
+      />
     </div>
     {#if simulationAvailable && data.simulation}
       <div

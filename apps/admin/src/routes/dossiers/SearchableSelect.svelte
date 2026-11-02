@@ -1,8 +1,9 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import MultiSelectFilterPopover from "@pitchou/ui/MultiSelectFilterPopover.svelte";
 
-  import { filterSearchableOptions, type SearchableOption } from "./searchableSelect.ts";
-  import SearchableSelectOptions from "./SearchableSelectOptions.svelte";
+  import { filterSearchableOptions, type SearchableOption } from "./SearchableSelect/options.ts";
+  import SearchableSelectOptions from "./SearchableSelect/SearchableSelectOptions.svelte";
 
   type Props = {
     id: string;
@@ -11,6 +12,7 @@
     value: string;
     placeholder?: string;
     required?: boolean;
+    disabled?: boolean;
     onChange: (value: string) => void;
   };
 
@@ -21,6 +23,7 @@
     value,
     placeholder = "Sélectionnez ou commencez à saisir",
     required = false,
+    disabled = false,
     onChange,
   }: Props = $props();
 
@@ -36,6 +39,7 @@
   const selectedLabel = $derived(options.find((option) => option.value === value)?.label ?? "");
 
   async function openList() {
+    if (disabled) return;
     open = true;
     query = "";
     activeIndex = Math.max(
@@ -53,6 +57,7 @@
   }
 
   function selectOption(option: SearchableOption) {
+    if (disabled) return;
     invalid = false;
     onChange(option.value);
     closeList(true);
@@ -113,6 +118,7 @@
     tabindex="-1"
     aria-hidden="true"
     {required}
+    {disabled}
     {value}
     oninvalid={onInvalid}
   >
@@ -123,6 +129,7 @@
 
   <button
     type="button"
+    {disabled}
     class={`fr-select w-full text-left cursor-pointer ${selectedLabel ? "" : "text-[color:var(--text-mention-grey)]"}`}
     {id}
     bind:this={trigger}
@@ -140,9 +147,12 @@
     <span id={`${id}-value`}>{selectedLabel || placeholder}</span>
   </button>
 
-  {#if open}
-    <div
-      class="absolute z-20 left-0 right-0 top-[calc(100%+0.25rem)] bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] shadow-[0_4px_12px_rgba(0,0,0,0.18)]"
+  {#if open && trigger && !disabled}
+    <MultiSelectFilterPopover
+      id={`${id}-popover`}
+      label="Rechercher une option"
+      {trigger}
+      onClose={() => closeList(true)}
     >
       <div class="relative border-b border-[color:var(--border-default-grey)]">
         <span
@@ -178,7 +188,7 @@
         onActivate={(index) => (activeIndex = index)}
         onSelect={selectOption}
       />
-    </div>
+    </MultiSelectFilterPopover>
   {/if}
   {#if invalid}<p class="fr-error-text" id={`${id}-error`} role="alert">
       Veuillez sélectionner une option.

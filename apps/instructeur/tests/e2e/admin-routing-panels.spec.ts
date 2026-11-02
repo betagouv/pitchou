@@ -1,6 +1,7 @@
 import { test, expect } from "../fixtures/playwright.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { chooseInSelect } from "../helpers/select.ts";
 
 test("routing saves refresh assignments and effective access without losing dossier edits", async ({
   page,
@@ -38,11 +39,11 @@ test("routing saves refresh assignments and effective access without losing doss
   await accessTab.click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
   const access = page.getByRole("region", { name: "Accès individuels au dossier" });
-  const effectiveAccess = access.getByText("Accès effectif, tous groupes et permissions compris", {
-    exact: false,
-  });
+  const person = access.getByRole("article", { name: "Accès de instructeur@example.org" });
+  const effectiveAccess = person.getByText(/^Accès effectif/u);
   await expect(assignments).toContainText("Ce dossier n'est affecté à aucun groupe.");
-  await expect(effectiveAccess).toContainText("Lecture complète");
+  await expect(person).toContainText("Lecture complète");
+  await expect(effectiveAccess).toHaveCount(0);
 
   await dossierTab.click();
   await page.locator('label[for="demandeur-physical"]').click();
@@ -53,24 +54,40 @@ test("routing saves refresh assignments and effective access without losing doss
   await page.locator("header").getByRole("button", { name: "Enregistrer", exact: true }).click();
   await accessTab.click();
   await expect(assignments.getByRole("heading", { name: "Service Paris" })).toBeVisible();
-  await expect(assignments).toContainText("Correspondance automatique");
+  await assignments.getByText("Voir les règles du groupe", { exact: true }).click();
+  await expect(assignments.getByText(/Correspondance automatique/u)).toBeVisible();
   await expect(effectiveAccess).toContainText("Instruction");
 
   // The form must keep edits made before a group assignment refreshes the page data.
   await dossierTab.click();
   await page.locator("#project-name").fill("Modification non enregistrée");
   await accessTab.click();
-  const mode = assignments.getByLabel("Mode d'affectation de Service Paris");
-  await mode.selectOption("exclude");
-  await expect(effectiveAccess).toContainText("Lecture complète");
-  await expect(mode).toHaveValue("exclude");
+  const group = assignments.getByRole("article", { name: "Service Paris", exact: true });
+  const edit = group.getByRole("button", { name: "Modifier l'affectation de Service Paris" });
+  const form = group.getByRole("form", { name: "Modifier l'affectation de Service Paris" });
+  const mode = form.getByRole("combobox", { name: "Mode d'affectation de Service Paris" });
+  await edit.click();
+  await chooseInSelect(mode, "Exclure durablement");
+  await expect(effectiveAccess).toContainText("Instruction");
+  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(form).toHaveCount(0);
+  await expect(effectiveAccess).toHaveCount(0);
+  await expect(group).toContainText("Exclusion manuelle");
   await expect(accessTab).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#project-name")).toHaveValue("Modification non enregistrée");
-  await mode.selectOption("include");
+  await edit.click();
+  await chooseInSelect(mode, "Inclure manuellement");
+  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(form).toHaveCount(0);
   await expect(effectiveAccess).toContainText("Instruction");
-  await expect(mode).toHaveValue("include");
-  await assignments.getByLabel("Niveau d'accès manuel de Service Paris").selectOption("read");
-  await expect(effectiveAccess).toContainText("Lecture complète");
+  await expect(group).toContainText("Ajout manuel");
+  await edit.click();
+  await form.getByRole("radio", { name: /^Lecture complète/u }).check();
+  await expect(effectiveAccess).toContainText("Instruction");
+  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
+  await expect(form).toHaveCount(0);
+  await expect(effectiveAccess).toHaveCount(0);
+  await expect(group.getByText("Lecture complète", { exact: true })).toBeVisible();
   await expect(accessTab).toHaveAttribute("aria-selected", "true");
   await dossierTab.click();
   await expect(page.locator("#project-name")).toBeVisible();

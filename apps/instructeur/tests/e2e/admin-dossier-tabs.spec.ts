@@ -4,7 +4,7 @@ import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 const simulationEnabled = process.env.PUBLIC_PITCHOU_ENV === "staging";
 
-for (const width of [1280, 390]) {
+for (const width of [1280, 320]) {
   test(`dossier tabs preserve drafts and the active access panel at ${width}px`, async ({
     page,
     db,
@@ -66,23 +66,30 @@ for (const width of [1280, 390]) {
     await expect(
       page.getByRole("heading", { name: "Supprimer le dossier", exact: true }),
     ).toHaveCount(0);
-    const person = access.getByLabel("Accorder un accès individuel", { exact: true });
-    const level = access.getByLabel("Niveau d'accès individuel", { exact: true });
-    await person.selectOption(String(reader.id));
-    await level.selectOption("instruct");
+    await access.getByRole("button", { name: "Ajouter une personne", exact: true }).click();
+    const person = access.getByRole("combobox", { name: /^Personne/u });
+    const level = access.getByRole("radio", { name: /^Instruction/u });
+    await person.click();
+    await page.getByRole("option", { name: "lecture@example.org", exact: true }).click();
+    await level.check();
     await dossierTab.click();
     await expect(name).toHaveValue("Brouillon conservé");
     await expect(save).toBeVisible();
     await accessTab.click();
-    await expect(person).toHaveValue(String(reader.id));
-    await expect(level).toHaveValue("instruct");
+    await expect(person).toContainText("lecture@example.org");
+    await expect(level).toBeChecked();
+    expect(await db("dossier_user_access").where({ dossier: dossier.id })).toHaveLength(0);
     await page.getByRole("tablist").scrollIntoViewIfNeeded();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     await page.screenshot({ path: testInfo.outputPath(`access-tab-${width}.png`) });
 
     await access.getByRole("button", { name: "Accorder l'accès", exact: true }).click();
-    await expect(access).toContainText("Origine : accès individuel manuel · Instruction");
-    await expect(person).toBeEnabled();
+    await expect(
+      access.getByRole("article", { name: "Accès de lecture@example.org" }),
+    ).toContainText("Instruction");
+    await expect(
+      access.getByRole("button", { name: "Ajouter une personne", exact: true }),
+    ).toBeEnabled();
     await expect(accessTab).toHaveAttribute("aria-selected", "true");
     await expect(assignments).toBeVisible();
     await expect(save).toHaveCount(0);
@@ -151,7 +158,7 @@ test("the simulation tab preserves its draft and keeps DN eligibility", async ({
     page.locator("header.sticky").getByRole("button", { name: "Enregistrer", exact: true }),
   ).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Phases", exact: true })).toHaveCount(0);
-  for (const width of [1280, 390]) {
+  for (const width of [1280, 320]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     await page.screenshot({ path: testInfo.outputPath(`simulation-tab-${width}.png`) });

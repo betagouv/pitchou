@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterSearchableOptions, type SearchableOption } from "./searchableSelect.ts";
+import { filterSearchableOptions, type SearchableOption } from "./options.ts";
 
 const options: SearchableOption[] = [
   { value: "carriere", label: "Carrières" },

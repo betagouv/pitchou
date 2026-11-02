@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SearchableOption } from "./searchableSelect.ts";
+  import type { SearchableOption } from "./options.ts";
 
   type Props = {
     id: string;
