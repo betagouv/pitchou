@@ -18,7 +18,7 @@
     <ul>
       {#each items as item (item.id)}
         <li>
-          <span class="identity">{item.label}</span>
+          <span class="entry-label">{item.label}</span>
           {#if item.status}<span class="status">{item.status}</span>{/if}
           <button
             class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-close-line"
@@ -69,7 +69,7 @@
     border-radius: 0.375rem;
     font-size: 0.875rem;
   }
-  .identity {
+  .entry-label {
     flex: 1;
     min-width: 0;
     overflow-wrap: anywhere;
