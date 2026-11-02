@@ -21,13 +21,15 @@ test("user editor saves, removes and prepares group memberships", async ({
   const row = page.getByRole("button", { name: "Modifier cible@example.org", exact: true });
   const dialog = page.getByRole("dialog");
   await row.click();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).check();
+  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
   await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
   expect(await db("user_groupe").where({ user_id: target.id })).toHaveLength(0);
   await row.click();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).check();
+  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
   await dialog.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("ancien");
-  await dialog.getByRole("checkbox", { name: "Ancien service", exact: true }).check();
+  await dialog.getByRole("checkbox", { name: "Ancien service", exact: true }).click();
   await dialog.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("");
   await expect(dialog.getByText("2 groupes sélectionnés.", { exact: true })).toBeVisible();
   await page.emulateMedia({ colorScheme: "dark" });
@@ -44,10 +46,13 @@ test("user editor saves, removes and prepares group memberships", async ({
     .first();
   expect(audit.data.after.groupIds.sort()).toEqual([admin.groupeId, archived.id].sort());
   await row.click();
-  await expect(dialog.getByRole("checkbox", { name: "Ancien service", exact: true })).toBeChecked();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).uncheck();
+  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await expect(
+    dialog.getByRole("button", { name: "Retirer Ancien service", exact: true }),
+  ).toBeVisible();
+  await dialog.getByRole("button", { name: "Retirer Bretagne", exact: true }).click();
   await expect(dialog.getByText(/Aucun groupe actif sélectionné/u)).toBeVisible();
-  await dialog.getByRole("checkbox", { name: "Ancien service", exact: true }).uncheck();
+  await dialog.getByRole("button", { name: "Retirer Ancien service", exact: true }).click();
   await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   expect(await db("user_groupe").where({ user_id: target.id })).toHaveLength(0);
@@ -55,7 +60,8 @@ test("user editor saves, removes and prepares group memberships", async ({
   await page.getByRole("button", { name: "Préparer un compte", exact: true }).click();
   await dialog.getByLabel("Adresse e-mail professionnelle").fill("nouveau@example.org");
   await dialog.getByRole("checkbox", { name: "Instructeur", exact: true }).check();
-  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).check();
+  await dialog.getByRole("tab", { name: "Groupes", exact: true }).click();
+  await dialog.getByRole("checkbox", { name: "Bretagne", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 800 });
   await dialog.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
   await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeInViewport();
@@ -81,6 +87,7 @@ test("group changes require permission and invalid changes roll back user edits"
   await loginAs(admin.codeAcces);
   await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
   await page.getByRole("button", { name: "Modifier cible@example.org", exact: true }).click();
+  await page.getByRole("dialog").getByRole("tab", { name: "Groupes", exact: true }).click();
   await expect(page.getByRole("searchbox", { name: "Rechercher un groupe" })).toHaveCount(0);
   await expect(
     page.getByText("La modification des groupes nécessite", { exact: false }),

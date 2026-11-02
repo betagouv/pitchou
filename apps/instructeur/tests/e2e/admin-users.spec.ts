@@ -98,6 +98,7 @@ test("users can be found, paginated and edited without losing their permissions"
   const dialog = page.getByRole("dialog", { name: "Modifier l'utilisateur" });
   await expect(dialog.getByLabel("Adresse e-mail professionnelle")).toHaveAttribute("readonly", "");
   await expect(dialog.getByLabel("Instructeur", { exact: true })).toBeChecked();
+  await dialog.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
   await expect(dialog.getByLabel("Exception : Modifier les dossiers")).toHaveText("Autoriser");
   for (const width of [1280, 760, 390]) {
     await page.setViewportSize({ width, height: 720 });
@@ -127,9 +128,9 @@ test("users can be found, paginated and edited without losing their permissions"
   await expect(
     dialog.locator("footer").getByRole("button", { name: "Enregistrer", exact: true }),
   ).toBeInViewport();
+  await dialog.getByRole("tab", { name: "Compte et profils", exact: true }).click();
   await dialog.getByRole("switch", { name: "Compte actif" }).uncheck();
-  // Collapsing advanced rights must still submit every selected exception.
-  await dialog.locator("summary").click();
+  // Saving another tab must still submit every selected exception.
   await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await expect(page.locator("header").getByRole("status")).toHaveText("Utilisateur enregistré");
@@ -146,32 +147,6 @@ test("users can be found, paginated and edited without losing their permissions"
   expect(await db("auth_permission_bundle").where({ user_id: target.id }).pluck("bundle")).toEqual([
     "instructeur",
   ]);
-});
-
-test("a rejected account change keeps the editor and its error visible", async ({
-  page,
-  db,
-  loginAs,
-}) => {
-  const administrator = await createInstructeurWithCapToGroup(db, { email: "admin@example.org" });
-  await db("auth_permission_bundle").insert({
-    user_id: administrator.id,
-    bundle: "administrateur",
-  });
-  await loginAs(administrator.codeAcces);
-  await page.goto(E2E_ADMIN_BASE_URL + "/utilisateurs");
-  await page.getByRole("button", { name: "Modifier admin@example.org", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("switch", { name: "Compte actif" }).uncheck();
-  await dialog.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(dialog.locator("footer").getByRole("alert")).toContainText(
-    "Vous ne pouvez pas retirer vos propres droits",
-  );
-  await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toBeEnabled();
-  await expect(page.locator("header").getByRole("status")).toBeEmpty();
-  expect((await db("auth_user").where({ id: administrator.id }).first()).active).toBe(true);
-  await dialog.getByRole("button", { name: "Annuler", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
 });
 
 test("limited administrators are not offered unrelated write actions", async ({

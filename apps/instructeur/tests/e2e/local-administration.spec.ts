@@ -107,7 +107,7 @@ test("an administrator prepares a user and assigns department coverage through t
 
   await page.goto(`${E2E_ADMIN_BASE_URL}/utilisateurs`);
   await page.getByRole("button", { name: "Modifier future@example.org", exact: true }).click();
-  await page.getByRole("dialog").locator("summary").click();
+  await dialog.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
   await page
     .getByRole("combobox", {
       name: "Exception : Instruire les dossiers autorisés",

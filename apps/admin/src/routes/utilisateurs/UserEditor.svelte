@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./UserEditor/styles.css";
-  import { untrack } from "svelte";
+  import { tick, untrack } from "svelte";
   import { enhance } from "$app/forms";
   import Modal from "#lib/components/Modal.svelte";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
@@ -9,6 +9,7 @@
   import UserAccountFields from "./UserEditor/UserAccountFields.svelte";
   import UserPermissionFields from "./UserEditor/UserPermissionFields.svelte";
   import UserGroupPicker from "./UserGroupPicker.svelte";
+  import UserEditorTabs from "./UserEditor/UserEditorTabs.svelte";
 
   let {
     current,
@@ -22,6 +23,24 @@
   let groupIds = $state<string[]>(untrack(() => current?.groupes.map((group) => group.id) ?? []));
   let saving = $state(false);
   let message = $state("");
+  let tab = $state("account");
+  let formElement: HTMLFormElement;
+
+  $effect(() => {
+    const currentTab = tab;
+    void tick().then(() => {
+      if (tab === currentTab) formElement?.parentElement?.scrollTo({ top: 0 });
+    });
+  });
+
+  async function showInvalidField(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (tab === "account" || !input.closest('[data-user-tab="account"]')) return;
+    event.preventDefault();
+    tab = "account";
+    await tick();
+    input.reportValidity();
+  }
 </script>
 
 <Modal
@@ -32,9 +51,11 @@
   }}
 >
   <form
+    bind:this={formElement}
     id={formId}
     method="POST"
     autocomplete="off"
+    oninvalidcapture={showInvalidField}
     use:enhance={() => {
       const confirmSaved = pageHeader.beginSave("Utilisateur enregistré");
       saving = true;
@@ -63,10 +84,25 @@
       {#each groupIds as id}<input type="hidden" name="groupIds" value={id} />{/each}
     {/if}
     <fieldset disabled={saving} class="editor-fields">
-      <UserAccountFields {current} {formId} bind:email bind:active bind:bundles />
-      <section class="editor-section" aria-label="Groupes de l'utilisateur">
-        <h3 class="section-heading">Groupes</h3>
-        <div class="section-content">
+      <UserEditorTabs id={formId} bind:selected={tab} groupCount={groupIds.length} />
+      <div
+        class="tab-panel"
+        role="tabpanel"
+        id={`${formId}-panel-account`}
+        aria-labelledby={`${formId}-tab-account`}
+        data-user-tab="account"
+        hidden={tab !== "account"}
+      >
+        <UserAccountFields {current} {formId} bind:email bind:active bind:bundles />
+      </div>
+      <div
+        class="tab-panel"
+        role="tabpanel"
+        id={`${formId}-panel-groups`}
+        aria-labelledby={`${formId}-tab-groups`}
+        hidden={tab !== "groups"}
+      >
+        <section aria-label="Groupes de l'utilisateur">
           {#if groups !== null}
             <UserGroupPicker {groups} bind:selected={groupIds} />
           {:else}
@@ -82,9 +118,17 @@
               départements.
             </p>
           {/if}
-        </div>
-      </section>
-      <UserPermissionFields {current} {formId} {active} {bundles} {saving} />
+        </section>
+      </div>
+      <div
+        class="tab-panel"
+        role="tabpanel"
+        id={`${formId}-panel-permissions`}
+        aria-labelledby={`${formId}-tab-permissions`}
+        hidden={tab !== "permissions"}
+      >
+        <UserPermissionFields {current} {formId} {active} {bundles} {saving} />
+      </div>
     </fieldset>
   </form>
   {#snippet footer()}
