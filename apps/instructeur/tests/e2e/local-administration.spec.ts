@@ -54,6 +54,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await page.getByRole("option", { name: "Département principal", exact: true }).click();
   await page.getByRole("button", { name: "Tous les départements", exact: true }).click();
   await page.getByText("75 - Paris", { exact: true }).click();
+  await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
   await page.getByRole("tab", { name: /Membres/u }).click();
   await page.getByLabel("future@example.org", { exact: true }).check();
   await page.getByRole("button", { name: "Vérifier les affectations" }).click();
@@ -88,6 +89,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await expect(page.getByLabel("Nom du groupe")).toHaveValue("Service Paris");
   await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
   await expect(page.getByLabel("75 - Paris", { exact: true })).toBeChecked();
+  await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
   await page.getByRole("tab", { name: /Membres/u }).click();
   await expect(page.getByLabel("future@example.org", { exact: true })).toBeChecked();
   await page.getByLabel("Groupe actif", { exact: true }).uncheck();
