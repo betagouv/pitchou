@@ -77,6 +77,10 @@ function spawnKit(
       ...process.env,
       PORT: String(port),
       HOST: "127.0.0.1",
+      // Runtime changes must not override either origin check's build configuration.
+      ORIGIN: "https://runtime-origin.invalid",
+      ORIGIN_ADMIN: "https://runtime-admin.invalid",
+      ORIGIN_INSTRUCTEUR: "https://runtime-instructeur.invalid",
       DATABASE_URL: databaseUrl(dbName),
       NODE_ENV: "production",
       PITCHOU_ADMIN_EMAILS: TEST_ADMIN_EMAIL,

@@ -1,4 +1,5 @@
 import { canReadDossiers } from "#lib/server/dossierEntry.ts";
+import { hasExpectedOrigin } from "@pitchou/server/requestOrigin.ts";
 import { readSession } from "@pitchou/server/session.ts";
 import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
 import type { Handle, ServerInit } from "@sveltejs/kit/hooks";
@@ -63,7 +64,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
     return new Response("Accès aux dossiers non autorisé", { status: 403 });
   }
   if (!["GET", "HEAD", "OPTIONS"].includes(event.request.method)) {
-    if (event.request.headers.get("origin") !== event.url.origin)
+    if (!hasExpectedOrigin(event.request, event.url, __PITCHOU_ORIGIN__))
       return new Response("Origine de la requête refusée", { status: 403 });
     if (
       !path.startsWith("/api/metriques/") &&

@@ -40,6 +40,10 @@ Following is personal tracking in "Mes dossiers" and notifications. It does not 
 
 Register each application's `/auth/callback` and `/auth/login` logout return URL with the ProConnect client. Both apps need `PROCONNECT_DOMAIN`, `PROCONNECT_CLIENT_ID`, `PROCONNECT_CLIENT_SECRET` and `ADMIN_SESSION_SECRET`. Set `PUBLIC_SITE_URL_PITCHOU` and `PUBLIC_SITE_URL_ADMIN` to their respective public origins.
 
+For fixed public addresses, including HTTPS development proxies, set `ORIGIN_INSTRUCTEUR` and `ORIGIN_ADMIN` to the respective app origins. These values configure both SvelteKit and Pitchou's request-origin guard. Each app-specific value takes precedence over `ORIGIN`, which remains a fallback for deployments building one app at a time. Use only the scheme, hostname and optional port, without a path. A trailing slash is normalized away. Unset origins retain request-URL detection.
+
+Restart `just dev` after changing these values. For production, set them before building and rebuild before restarting: both origin checks use the build configuration, not later runtime environment changes. An app accepts only its own configured origin for authenticated writes; the other app's origin is not an additional trusted origin. Keep `PUBLIC_SITE_URL_PITCHOU` and `PUBLIC_SITE_URL_ADMIN` consistent for authentication redirects and links, but those variables do not configure the request-origin guard.
+
 Both staging apps must set `PUBLIC_PITCHOU_ENV=staging` and `SESSION_COOKIE_DOMAIN=pitchou.incubateur.net`. This shares sign-in and sign-out between `staging.pitchou.incubateur.net` and `staging.admin.pitchou.incubateur.net`. Leaving the domain unset on either app creates separate sessions. Leave it unset only for localhost, where both apps already share a hostname.
 
 Staging uses `pitchou_staging_session`; production uses `pitchou_session`. Staging ignores the old `pitchou_session` cookies, including any conflicting host-only and parent-domain cookies left by previous deployments. Users must sign in once after deploying this change to both apps. Do not delete the old parent-domain cookie from staging, since it may belong to a production session.
