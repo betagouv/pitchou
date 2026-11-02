@@ -24,10 +24,16 @@ for (const { width, colorScheme } of [
     await dialog.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
     await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
     await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-    await dialog.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
-    await expect(dialog.getByRole("alert")).toContainText(
-      "Une règle doit contenir au moins un critère",
+    await dialog
+      .getByRole("button", { name: "Sélectionner des départements", exact: true })
+      .click();
+    await dialog.getByRole("button", { name: "Tout", exact: true }).click();
+    await page.keyboard.press("Escape");
+    await page.route("**/api/groupes-instructeurs/apercu", (route) =>
+      route.fulfill({ status: 503, json: { message: "Aperçu indisponible. Réessayez." } }),
     );
+    await dialog.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toContainText("Aperçu indisponible. Réessayez.");
     const trigger = dialog.getByRole("button", { name: "Tous les départements", exact: true });
     await trigger.scrollIntoViewIfNeeded();
     await trigger.click();
@@ -40,6 +46,7 @@ for (const { width, colorScheme } of [
     expect(popupBox.x).toBeGreaterThanOrEqual(0);
     expect(popupBox.x + popupBox.width).toBeLessThanOrEqual(width);
     await page.screenshot({ path: testInfo.outputPath(`popup-${width}-${colorScheme}.png`) });
+    await popup.getByRole("button", { name: "Aucun", exact: true }).click();
     await popup.getByText("99 - Étranger", { exact: true }).click();
     await expect(popup.getByLabel("99 - Étranger", { exact: true })).toBeChecked();
     await page.keyboard.press("Escape");

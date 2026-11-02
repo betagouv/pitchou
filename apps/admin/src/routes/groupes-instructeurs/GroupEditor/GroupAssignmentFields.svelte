@@ -8,7 +8,14 @@
     formId,
     rules = $bindable<GroupRule[]>([]),
     members = $bindable<number[]>([]),
-  }: { data: PageData; formId: string; rules: GroupRule[]; members: number[] } = $props();
+    rulesValid = $bindable(true),
+  }: {
+    data: PageData;
+    formId: string;
+    rules: GroupRule[];
+    members: number[];
+    rulesValid?: boolean;
+  } = $props();
   let tab = $state<"rules" | "members">("rules");
   let search = $state("");
   let memberPage = $state(1);
@@ -63,7 +70,7 @@
   tabindex="0"
 >
   <div hidden={tab !== "rules"}>
-    <GroupRules bind:rules activites={data.activites} />
+    <GroupRules bind:rules bind:valid={rulesValid} activites={data.activites} />
   </div>
   {#if tab === "members"}
     <label class="fr-label" for={formId + "-member-search"}>Rechercher un membre</label>

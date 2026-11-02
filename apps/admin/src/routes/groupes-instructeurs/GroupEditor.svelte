@@ -34,6 +34,7 @@
   let members = $state(untrack(() => [...(current?.members ?? [])]));
   let saving = $state(false);
   let message = $state("");
+  let rulesValid = $state(true);
   const formId = $props.id();
   let form: HTMLFormElement;
   let preview = $state<GroupPreview | null>(null);
@@ -41,9 +42,9 @@
   let previewInput = $state("");
   const input = $derived({ id: current?.id, name, active, rules, members });
   const currentInput = $derived(JSON.stringify(input));
-  const previewCurrent = $derived(preview !== null && currentInput === previewInput);
+  const previewCurrent = $derived(rulesValid && preview !== null && currentInput === previewInput);
   async function showPreview() {
-    if (!form.reportValidity()) return;
+    if (!rulesValid || !form.reportValidity()) return;
     saving = true;
     message = "";
     const snapshot = currentInput;
@@ -116,7 +117,7 @@
       <input type="hidden" name="previewToken" value={previewCurrent ? preview?.token : ""} />
       {#each members as member}<input type="hidden" name="members" value={member} />{/each}
       <GroupIdentityFields {formId} bind:name bind:active />
-      <GroupAssignmentFields {data} {formId} bind:rules bind:members />
+      <GroupAssignmentFields {data} {formId} bind:rules bind:members bind:rulesValid />
     </fieldset>
   </form>
   {#if previewOpen && preview}
@@ -130,6 +131,9 @@
 
   {#snippet footer()}
     <div class="w-full">
+      {#if !rulesValid}<p class="fr-text--sm fr-mb-2w" role="status">
+          Complétez les critères de chaque règle avant de vérifier les affectations.
+        </p>{/if}
       {#if message}<p class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w" role="alert">
           {message}
         </p>{/if}
@@ -156,7 +160,7 @@
           <button
             class="fr-btn"
             type="button"
-            disabled={saving || !name.trim()}
+            disabled={saving || !name.trim() || !rulesValid}
             onclick={showPreview}>{saving ? "Vérification…" : "Vérifier les affectations"}</button
           >
         {/if}

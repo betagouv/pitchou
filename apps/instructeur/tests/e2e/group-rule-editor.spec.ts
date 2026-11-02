@@ -16,8 +16,14 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   const group = await createGroupeInstructeurs(db, { name: "DREAL Nouvelle-Aquitaine" });
   await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "40" });
   await createDossier(db, { name: "Parc solaire des Landes", primary_department: "40" });
-  await createDossier(db, { name: "Restauration de la ripisylve à Pau", primary_department: "64" });
-  await page.route("https://geo.api.gouv.fr/communes?*", (route) => route.fulfill({ json: [] }));
+  await createDossier(db, {
+    name: "Restauration de la ripisylve à Pau",
+    primary_department: "64",
+    communes: JSON.stringify([{ name: "Pau", code: "64445" }]),
+  });
+  await page.route("https://geo.api.gouv.fr/communes?*", (route) =>
+    route.fulfill({ json: [{ nom: "Pau", code: "64445", codesPostaux: ["64000"] }] }),
+  );
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.emulateMedia({ colorScheme: "dark" });
   await loginAs(actor.codeAcces);
@@ -29,16 +35,21 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   const addCriterion = (number: number) =>
     dialog.getByRole("combobox", { name: `Ajouter un critère à la règle ${number}` });
   await expect(dialog.getByLabel("Rechercher une commune")).toHaveCount(0);
-  await expect(dialog.getByRole("button", { name: "Toutes les activités" })).toHaveCount(0);
+  await expect(dialog.getByRole("button", { name: "Sélectionner des activités" })).toHaveCount(0);
   await dialog.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
   const rules = dialog.getByRole("group", { name: /^Règle/u });
   await expect(rules).toHaveCount(2);
-  await expect(rules.nth(1).getByRole("button", { name: "Tous les départements" })).toHaveCount(0);
+  await expect(
+    rules.nth(1).getByRole("button", { name: "Sélectionner des départements" }),
+  ).toHaveCount(0);
   await addCriterion(2).click();
   await expect(dialog.getByRole("option")).toHaveCount(3);
   await page.screenshot({ path: testInfo.outputPath("01-add-criterion.png") });
   await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await rules.nth(1).getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await rules
+    .nth(1)
+    .getByRole("button", { name: "Sélectionner des départements", exact: true })
+    .click();
   await dialog.getByText("64 - Pyrénées-Atlantiques", { exact: true }).click();
   await dialog.getByRole("button", { name: "64 - Pyrénées-Atlantiques", exact: true }).click();
   await addCriterion(2).click();
@@ -46,6 +57,8 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
     dialog.getByRole("option", { name: "Département principal", exact: true }),
   ).toHaveCount(0);
   await dialog.getByRole("option", { name: "Communes du projet", exact: true }).click();
+  await dialog.getByLabel("Rechercher une commune").fill("Pau");
+  await dialog.getByRole("button", { name: "Pau (64000)", exact: true }).click();
   await dialog.getByLabel("Rechercher une commune").fill("Pau");
   await rules.nth(0).getByRole("button", { name: "Supprimer cette règle", exact: true }).click();
   await expect(rules).toHaveCount(1);
@@ -92,14 +105,11 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   await dialog
     .getByRole("button", { name: "Retirer le critère Département principal", exact: true })
     .click();
-  await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
-  await expect(dialog.getByRole("alert")).toContainText(
-    "Une règle doit contenir au moins un critère",
-  );
+  await expect(dialog.getByRole("button", { name: "Vérifier les affectations" })).toBeDisabled();
   await expect(dialog.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0);
   await addCriterion(1).click();
   await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
   await dialog.getByText("64 - Pyrénées-Atlantiques", { exact: true }).click();
   await dialog.getByRole("button", { name: "64 - Pyrénées-Atlantiques", exact: true }).click();
   await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();

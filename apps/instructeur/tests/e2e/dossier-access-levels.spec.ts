@@ -24,7 +24,7 @@ test("an admin edits rule levels and grants a person access without group member
   await dialog.getByRole("option", { name: "Lecture complète", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
   await dialog.getByText("75 - Paris", { exact: true }).click();
   await dialog.getByRole("button", { name: "Vérifier les affectations" }).click();
   await expect(

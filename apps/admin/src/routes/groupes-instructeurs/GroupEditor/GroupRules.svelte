@@ -6,9 +6,14 @@
   let {
     rules = $bindable<GroupRule[]>([]),
     activites,
-  }: { rules: GroupRule[]; activites: PageData["activites"] } = $props();
+    valid = $bindable(true),
+  }: { rules: GroupRule[]; activites: PageData["activites"]; valid?: boolean } = $props();
+  let validity = $state<Record<number, boolean>>({});
   let keys = $state(untrack(() => rules.map((_, index) => index)));
   let nextKey = untrack(() => keys.length);
+  $effect(() => {
+    valid = keys.every((key) => validity[key] === true);
+  });
   function addRule() {
     keys = [...keys, nextKey++];
     rules = [...rules, { departments: [], communes: [], activites: [], accessLevel: "instruct" }];
@@ -29,6 +34,9 @@
       rule={rules[index]}
       {index}
       {activites}
+      onValidityChange={(value) => {
+        if (validity[key] !== value) validity[key] = value;
+      }}
       onChange={(updated) => (rules = rules.map((rule, i) => (i === index ? updated : rule)))}
       onRemove={() => removeRule(index)}
     />

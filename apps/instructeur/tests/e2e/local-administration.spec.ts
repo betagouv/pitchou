@@ -52,7 +52,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await page.getByRole("button", { name: "Ajouter une règle" }).click();
   await page.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await page.getByRole("option", { name: "Département principal", exact: true }).click();
-  await page.getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await page.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
   await page.getByText("75 - Paris", { exact: true }).click();
   await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
   await page.getByRole("tab", { name: /Membres/u }).click();
@@ -172,7 +172,7 @@ test("group member pagination preserves selections across pages, searches and ta
   await page.getByRole("button", { name: "Ajouter une règle" }).click();
   await page.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await page.getByRole("option", { name: "Département principal", exact: true }).click();
-  await page.getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await page.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
   await page.getByText("75 - Paris", { exact: true }).click();
   await page.getByText("33 - Gironde", { exact: true }).click();
   await expect(page.getByLabel("75 - Paris", { exact: true })).toBeChecked();

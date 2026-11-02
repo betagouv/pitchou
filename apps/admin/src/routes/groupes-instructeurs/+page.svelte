@@ -36,8 +36,8 @@
   </p>
   <p>
     Les critères portent sur le département principal, les communes du projet par code INSEE et
-    l'activité principale du référentiel Pitchou. Un critère vide n'impose aucune restriction. Pour
-    les communes, une seule correspondance suffit.
+    l'activité principale du référentiel Pitchou. Un critère absent n'impose aucune restriction.
+    Pour les communes, une seule correspondance suffit.
   </p>
   <h3>Créer et modifier un groupe</h3>
   <p>

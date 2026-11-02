@@ -13,12 +13,14 @@
     activites,
     onChange,
     onRemove,
+    onValidityChange,
   }: {
     rule: GroupRule;
     index: number;
     activites: PageData["activites"];
     onChange: (rule: GroupRule) => void;
     onRemove: () => void;
+    onValidityChange: (valid: boolean) => void;
   } = $props();
   type Criterion = "departments" | "communes" | "activites";
   const criteria: { value: Criterion; label: string }[] = [
@@ -34,6 +36,15 @@
   const available = $derived(criteria.filter(({ value }) => !enabled.includes(value)));
   const departments = departements.map((d) => ({ value: d.code, label: `${d.code} - ${d.name}` }));
   const activities = $derived(activites.map((a) => ({ value: a.code, label: a.label })));
+  $effect(() => {
+    onValidityChange(enabled.length > 0 && enabled.every((key) => rule[key].length > 0));
+  });
+  function selectionMode(selected: string[], options: { value: string }[]) {
+    if (selected.length === 0) return "none";
+    return options.length > 0 && options.every(({ value }) => selected.includes(value))
+      ? "all"
+      : "custom";
+  }
   const accessOptions: { value: AccessLevel; label: string }[] = [
     { value: "instruct", label: "Instruction" },
     { value: "read", label: "Lecture complète" },
@@ -75,6 +86,8 @@
           id={`${id}-departments`}
           label="Départements"
           allLabel="Tous les départements"
+          noneLabel="Sélectionner des départements"
+          selectionMode={selectionMode(rule.departments, departments)}
           options={departments}
           selected={rule.departments}
           onChange={(departments) => onChange({ ...rule, departments })}
@@ -89,13 +102,19 @@
           id={`${id}-activites`}
           label="Activités"
           allLabel="Toutes les activités"
+          noneLabel="Sélectionner des activités"
+          selectionMode={selectionMode(rule.activites, activities)}
           options={activities}
           selected={rule.activites}
           onChange={(activites) => onChange({ ...rule, activites })}
         />
       {/if}
       {#if rule[key].length === 0}<p class="hint m-0">
-          Sans sélection, ce critère ne limite pas les dossiers.
+          Sélectionnez au moins {key === "departments"
+            ? "un département"
+            : key === "communes"
+              ? "une commune"
+              : "une activité"}, ou retirez ce critère.
         </p>{/if}
     </div>
   {:else}

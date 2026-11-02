@@ -33,7 +33,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await dialog.getByRole("button", { name: "Ajouter une règle" }).click();
   await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await dialog.getByRole("option", { name: "Département principal", exact: true }).click();
-  await dialog.getByRole("button", { name: "Tous les départements", exact: true }).click();
+  await dialog.getByRole("button", { name: "Sélectionner des départements", exact: true }).click();
   await dialog.getByText("40 - Landes", { exact: true }).click();
   await dialog.getByRole("button", { name: "40 - Landes", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
@@ -42,7 +42,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await dialog.getByRole("button", { name: "Dax (40100)", exact: true }).click();
   await dialog.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await dialog.getByRole("option", { name: "Activité principale", exact: true }).click();
-  await dialog.getByRole("button", { name: "Toutes les activités", exact: true }).click();
+  await dialog.getByRole("button", { name: "Sélectionner des activités", exact: true }).click();
   await dialog
     .getByText("Production énergie renouvelable - Photovoltaïque", { exact: true })
     .click();
