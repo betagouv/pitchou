@@ -19,11 +19,6 @@
   let tab = $state<"rules" | "members">("rules");
   let search = $state("");
   let memberPage = $state(1);
-  const visibleUsers = $derived(
-    data.users.filter((user) =>
-      (user.email ?? `Compte ${user.id}`).toLowerCase().includes(search.toLowerCase()),
-    ),
-  );
   function changeTab(next: typeof tab) {
     tab = next;
     search = "";
@@ -73,14 +68,6 @@
     <GroupRules bind:rules bind:valid={rulesValid} activites={data.activites} />
   </div>
   {#if tab === "members"}
-    <label class="fr-label" for={formId + "-member-search"}>Rechercher un membre</label>
-    <input
-      id={formId + "-member-search"}
-      class="fr-input"
-      type="search"
-      bind:value={search}
-      oninput={() => (memberPage = 1)}
-    />
-    <GroupMemberPicker {visibleUsers} bind:members bind:memberPage />
+    <GroupMemberPicker users={data.users} bind:search bind:members bind:memberPage />
   {/if}
 </div>

@@ -38,6 +38,10 @@ for (const width of [1280, 320]) {
     const selected = page.getByRole("region", { name: "Groupes sélectionnés", exact: true });
     await expect(selected.getByRole("listitem")).toHaveCount(3);
     await expect(selected).toContainText("Groupe archivé");
+    await expect(selected.getByText("Groupe actif", { exact: true })).toHaveCount(0);
+    await expect(
+      selected.getByRole("button", { name: "Retirer DREAL Bretagne", exact: true }),
+    ).toHaveText("");
     await page.screenshot({ path: testInfo.outputPath(`user-groups-page-${width}.png`) });
     await selected.getByRole("button", { name: "Retirer DREAL Bretagne", exact: true }).click();
     await page.getByRole("button", { name: "Annuler", exact: true }).click();
@@ -58,6 +62,18 @@ for (const width of [1280, 320]) {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("DREAL Bretagne");
     await expect(page.getByLabel("Nom du groupe")).toHaveValue("DREAL Bretagne");
     await page.screenshot({ path: testInfo.outputPath(`group-page-${width}.png`) });
+    await page.getByRole("tab", { name: /Membres/u }).click();
+    const selectedMembers = page.getByRole("region", { name: "Membres sélectionnés" });
+    await expect(selectedMembers.getByRole("listitem")).toHaveCount(1);
+    await page.screenshot({ path: testInfo.outputPath(`group-members-page-${width}.png`) });
+    await selectedMembers
+      .getByRole("button", { name: "Retirer camille@example.org", exact: true })
+      .click();
+    await expect(page.getByRole("searchbox", { name: "Rechercher un membre" })).toBeFocused();
+    await page.getByRole("checkbox", { name: "camille@example.org", exact: true }).click();
+    await expect(selectedMembers.getByRole("listitem")).toHaveCount(1);
+    expect(await db("user_groupe").where({ groupe_instructeurs: group.id })).toHaveLength(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     await page.getByLabel("Nom du groupe").fill("Brouillon Bretagne");
     await page.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
     await expect(
