@@ -48,14 +48,15 @@ test("an admin edits rule levels and grants a person access without group member
   await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   const assignments = page.getByRole("region", { name: "Affectations aux groupes instructeurs" });
   const groupRow = assignments.getByRole("article", { name: "Lecture Paris", exact: true });
-  await expect(groupRow.getByText("Lecture complète", { exact: true })).toBeVisible();
+  const groupAccess = groupRow.locator(".access-row-heading .access-badge");
+  await expect(groupAccess).toHaveText("Lecture complète");
   await groupRow.getByRole("button", { name: "Modifier l'affectation de Lecture Paris" }).click();
   const groupForm = groupRow.getByRole("form");
   await chooseInSelect(groupForm.getByRole("combobox"), "Inclure manuellement");
   await expect(groupForm.getByRole("radio", { name: /^Lecture complète/u })).toBeChecked();
   await groupForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(groupForm).toHaveCount(0);
-  await expect(groupRow.getByText("Lecture complète", { exact: true })).toBeVisible();
+  await expect(groupAccess).toHaveText("Lecture complète");
   const access = page.getByRole("region", { name: "Accès individuels au dossier" });
   await access.getByRole("button", { name: "Ajouter une personne", exact: true }).click();
   await access.getByRole("combobox", { name: /^Personne/u }).click();
