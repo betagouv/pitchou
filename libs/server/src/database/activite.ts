@@ -57,11 +57,9 @@ export function withResolvedActivite<
 export async function getActiviteReferentiel(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ActiviteReferentiel> {
-  const [groupes, activites, labels] = await Promise.all([
-    databaseConnection("activite_groupe").select("*").orderBy("label"),
-    databaseConnection("activite").select("*").orderBy("label"),
-    databaseConnection("activite_label").select("*").orderBy("label"),
-  ]);
+  const groupes = await databaseConnection("activite_groupe").select("*").orderBy("label");
+  const activites = await databaseConnection("activite").select("*").orderBy("label");
+  const labels = await databaseConnection("activite_label").select("*").orderBy("label");
 
   return { groupes, activites, labels };
 }

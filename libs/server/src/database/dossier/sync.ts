@@ -55,13 +55,13 @@ export async function dumpDossiers(
   const { actions, changedDossiers } = await actionsFromSyncUpdates(dossiersForUpdate, db);
   await logActionsDossier(actions, db);
 
-  const updates = dossiersForUpdate.map(({ dossier }) =>
-    db("dossier")
+  for (const { dossier } of dossiersForUpdate) {
+    await db("dossier")
       .where("demarche_numerique_number", dossier.demarche_numerique_number)
       .where("source", "demarche_numerique")
       .update(dossier)
-      .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]),
-  );
+      .returning(["id", "demarche_numerique_number", "demarche_numerique_id"]);
+  }
   const { avis, commentaires } = await insertDossiers(dossiersForInsert, db);
   const allDossiers = [...dossiersForUpdate, ...dossiersForInsert];
   const events = allDossiers.flatMap(
@@ -78,7 +78,6 @@ export async function dumpDossiers(
     allDossiers.flatMap(({ decision_administrative }) => decision_administrative ?? []),
     db,
   );
-  await Promise.all(updates);
   for (const batch of insertBatches(events)) {
     await db("evenement_phase_dossier")
       .insert(

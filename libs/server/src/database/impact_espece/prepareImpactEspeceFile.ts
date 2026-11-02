@@ -43,10 +43,8 @@ export async function prepareImpactEspeceFile(
   }
 
   // Database failures must abort the transaction, not become file anomalies.
-  const [especeByCD_REF, referentiel] = await Promise.all([
-    loadEspeceByCD_REF(databaseConnection),
-    getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
-  ]);
+  const especeByCD_REF = await loadEspeceByCD_REF(databaseConnection);
+  const referentiel = await getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection);
 
   let parsed: Awaited<ReturnType<typeof parseFichierEspecesImpactees>>;
   try {

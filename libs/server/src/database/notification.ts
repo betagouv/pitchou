@@ -29,33 +29,33 @@ export async function getNotificationsForUser(
     .whereIn("a.dossier", accessible.clone())
     .where("a.author_petitionnaire", true)
     .whereRaw("a.data->>'notification' = 'true'");
-  const [dossiers, notifications, arrivals, actions, latestChanges] = await Promise.all([
-    accessible.clone(),
-    db("notification").where("personne", personne.id).whereIn("dossier", accessible.clone()),
-    db("notification_arrival").whereIn("dossier", accessible.clone()),
-    applicantChanges
-      .clone()
-      .select("a.*")
-      .where(function () {
-        this.whereRaw("COALESCE(a.data->>'notification_legacy', 'false') <> 'true'").orWhereExists(
-          db("notification as legacy")
-            .select(db.raw("1"))
-            .where("legacy.dossier", db.ref("a.dossier"))
-            .where({ "legacy.personne": personne.id, "legacy.receive_legacy_changes": true }),
-        );
-      })
-      .whereNotExists(
-        db("notification_review as r")
+  const dossiers = await accessible.clone();
+  const notifications = await db("notification")
+    .where("personne", personne.id)
+    .whereIn("dossier", accessible.clone());
+  const arrivals = await db("notification_arrival").whereIn("dossier", accessible.clone());
+  const actions = await applicantChanges
+    .clone()
+    .select("a.*")
+    .where(function () {
+      this.whereRaw("COALESCE(a.data->>'notification_legacy', 'false') <> 'true'").orWhereExists(
+        db("notification as legacy")
           .select(db.raw("1"))
-          .where("r.action", db.ref("a.id"))
-          .where("r.personne", personne.id),
-      ),
-    applicantChanges
-      .clone()
-      .select("a.dossier")
-      .max("a.created_at as detected_at")
-      .groupBy("a.dossier"),
-  ]);
+          .where("legacy.dossier", db.ref("a.dossier"))
+          .where({ "legacy.personne": personne.id, "legacy.receive_legacy_changes": true }),
+      );
+    })
+    .whereNotExists(
+      db("notification_review as r")
+        .select(db.raw("1"))
+        .where("r.action", db.ref("a.id"))
+        .where("r.personne", personne.id),
+    );
+  const latestChanges = await applicantChanges
+    .clone()
+    .select("a.dossier")
+    .max("a.created_at as detected_at")
+    .groupBy("a.dossier");
   const byDossier = new Map(notifications.map((row) => [row.dossier, row]));
   const arrivalByDossier = new Map(arrivals.map((row) => [row.dossier, row.created_at]));
   const actionsByDossier = Map.groupBy(actions, (row) => row.dossier);

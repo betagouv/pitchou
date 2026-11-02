@@ -43,62 +43,56 @@ export async function getDossiersSummariesForUser(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  const dossiersP = loadDossierSummaries(userId, transaction);
-  const eventsP = getLatestEvenementsPhaseDossiers(userId, transaction);
-  const decisionsP = getDecisionsAdministratives(userId, transaction);
-  const avisP = getAvisExpertFilesForUser(userId, transaction);
-  const acteursP = dossiersP.then((dossiers) =>
-    getDossierActeurs(
+  try {
+    const dossiers = await loadDossierSummaries(userId, transaction);
+    const events = await getLatestEvenementsPhaseDossiers(userId, transaction);
+    const decisions = await getDecisionsAdministratives(userId, transaction);
+    const avis = await getAvisExpertFilesForUser(userId, transaction);
+    const acteurs = await getDossierActeurs(
       dossiers.map(({ id }) => id),
       transaction,
       summaryInvolvements,
-    ),
-  );
-  const result = Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP]).then(
-    ([dossiers, events, decisions, avis, acteurs]) => {
-      const eventByDossier = new Map<Dossier["id"], EvenementPhaseDossier>(
-        events.map((event) => [event.dossier, event]),
-      );
-      for (const dossier of dossiers) {
-        dossier.acteurs = acteurs.get(dossier.id) ?? [];
-        const event = eventByDossier.get(dossier.id);
-        dossier.phase = event?.phase ?? "Accompagnement amont";
-        dossier.phase_start_date = event?.timestamp ?? dossier.depot_date;
+    );
+    const eventByDossier = new Map<Dossier["id"], EvenementPhaseDossier>(
+      events.map((event) => [event.dossier, event]),
+    );
+    for (const dossier of dossiers) {
+      dossier.acteurs = acteurs.get(dossier.id) ?? [];
+      const event = eventByDossier.get(dossier.id);
+      dossier.phase = event?.phase ?? "Accompagnement amont";
+      dossier.phase_start_date = event?.timestamp ?? dossier.depot_date;
+    }
+    const decisionsByDossier = new Map<Dossier["id"], FrontEndDecisionAdministrative[]>();
+    for (const decision of decisions) {
+      const values = decisionsByDossier.get(decision.dossier) || [];
+      values.push(decision);
+      decisionsByDossier.set(decision.dossier, values);
+    }
+    for (const dossier of dossiers) {
+      const values = decisionsByDossier.get(dossier.id);
+      if (values) dossier.decisionsAdministratives = values;
+    }
+    const avisByDossier = new Map<Dossier["id"], DossierSummary["avisExperts"]>();
+    for (const { dossier, expert, hasSaisineFile, hasAvisFile } of avis) {
+      const values = avisByDossier.get(dossier) ?? [];
+      values.push({ expert, hasSaisineFile, hasAvisFile });
+      avisByDossier.set(dossier, values);
+    }
+    for (const dossier of dossiers) {
+      dossier.avisExperts = avisByDossier.get(dossier.id) ?? [];
+      if (dossier.access === "lecture") {
+        delete dossier.latestCommentaire;
+        dossier.avisExperts = dossier.avisExperts
+          .filter(({ expert }) => isOfficialAvisExpert(expert))
+          .map(({ expert, hasAvisFile }) => ({ expert, hasAvisFile }));
       }
-      const decisionsByDossier = new Map<Dossier["id"], FrontEndDecisionAdministrative[]>();
-      for (const decision of decisions) {
-        const values = decisionsByDossier.get(decision.dossier) || [];
-        values.push(decision);
-        decisionsByDossier.set(decision.dossier, values);
-      }
-      for (const dossier of dossiers) {
-        const values = decisionsByDossier.get(dossier.id);
-        if (values) dossier.decisionsAdministratives = values;
-      }
-      const avisByDossier = new Map<Dossier["id"], DossierSummary["avisExperts"]>();
-      for (const { dossier, expert, hasSaisineFile, hasAvisFile } of avis) {
-        const values = avisByDossier.get(dossier) ?? [];
-        values.push({ expert, hasSaisineFile, hasAvisFile });
-        avisByDossier.set(dossier, values);
-      }
-      for (const dossier of dossiers) {
-        dossier.avisExperts = avisByDossier.get(dossier.id) ?? [];
-        if (dossier.access === "lecture") {
-          delete dossier.latestCommentaire;
-          dossier.avisExperts = dossier.avisExperts
-            .filter(({ expert }) => isOfficialAvisExpert(expert))
-            .map(({ expert, hasAvisFile }) => ({ expert, hasAvisFile }));
-        }
-      }
-      return dossiers;
-    },
-  );
-  if (!databaseConnection.isTransaction) {
-    Promise.all([dossiersP, eventsP, decisionsP, avisP, acteursP])
-      .then(transaction.commit)
-      .catch(transaction.rollback);
+    }
+    if (!databaseConnection.isTransaction) await transaction.commit();
+    return dossiers;
+  } catch (error) {
+    if (!databaseConnection.isTransaction) await transaction.rollback();
+    throw error;
   }
-  return result;
 }
 
 function loadDossierSummaries(

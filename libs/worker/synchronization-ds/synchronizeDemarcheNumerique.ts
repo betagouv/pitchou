@@ -18,7 +18,7 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
   const prepared = await prepareSynchronization(options);
   const { dossiersDS, existingDossiers, dossiersForSync } = prepared;
-  const fileDownloads = startDossierFileDownloads(
+  const fileDownloads = await startDossierFileDownloads(
     dossiersDS,
     demarcheNumber,
     pitchouKeyToChampDS,
@@ -30,15 +30,14 @@ export async function synchronizeDemarcheNumerique(options: SynchronizationOptio
   const deleted = await deletedDossiersP;
   const { dossiersToInitialize, dossiersToUpdate, dossiersChangedByEntreprises } =
     await persistSynchronizationPreparation(prepared, transaction);
-  const dossierPersistence =
+  const dossiersChangedByColumns =
     dossiersToInitialize.length > 0 || dossiersToUpdate.length > 0
-      ? dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
+      ? await dumpDossiers(dossiersToInitialize, dossiersToUpdate, transaction)
       : undefined;
-  const deletedDossiers = deleteDossierByDSNumber(
+  await deleteDossierByDSNumber(
     deleted.map(({ number }) => number),
     transaction,
   );
-  const [dossiersChangedByColumns] = await Promise.all([dossierPersistence, deletedDossiers]);
 
   const {
     dossierIdByDNNumber,

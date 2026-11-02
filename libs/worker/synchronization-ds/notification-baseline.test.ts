@@ -48,28 +48,25 @@ vi.mock("./prepareDossiersForPersistence.ts", () => ({
   })),
 }));
 vi.mock("./synchronizeDossierRelations.ts", () => ({
-  synchronizeDossierRelations: async () => ({
-    dossierIdByDNNumber: new Map([
-      [101, 1],
-      [102, 2],
-    ]),
-    synchronizations: [],
-    acteursSynchronization: Promise.resolve().then(() => {
-      state.acteursFinished = true;
-      return new Set([1, 2]);
-    }),
-  }),
+  synchronizeDossierRelations: async () => {
+    state.acteursFinished = true;
+    return {
+      dossierIdByDNNumber: new Map([
+        [101, 1],
+        [102, 2],
+      ]),
+      synchronizations: [],
+      acteursSynchronization: new Set([1, 2]),
+    };
+  },
 }));
 vi.mock("./synchronizeDossierFiles.ts", () => ({
   startDossierFileDownloads: vi.fn(),
   prepareDossierFiles: vi.fn(async () => ({})),
-  synchronizeDownloadedDossierFiles: () => [
-    Promise.resolve(new Set([1, 2])),
-    Promise.resolve().then(() => {
-      state.filesFinished = true;
-      return new Set([1, 2]);
-    }),
-  ],
+  synchronizeDownloadedDossierFiles: async () => {
+    state.filesFinished = true;
+    return [new Set([1, 2]), new Set([1, 2])];
+  },
 }));
 vi.mock("./synchronization-notification.ts", () => ({ updateNotification: vi.fn() }));
 

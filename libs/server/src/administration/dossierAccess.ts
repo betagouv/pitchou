@@ -12,15 +12,13 @@ export async function listDossierUserAccess(
 ) {
   if (!(await database("dossier").where({ id: dossierId }).first()))
     throw new TypeError("Dossier introuvable");
-  const [grants, users] = await Promise.all([
-    database("dossier_user_access as a")
-      .join("auth_user as u", "u.id", "a.user_id")
-      .where("a.dossier", dossierId)
-      .select("a.user_id", "a.access_level", "u.email", "u.active")
-      .select(database.raw("pitchou_dossier_access(?, u.id) as effective_access", [dossierId]))
-      .orderBy("u.email"),
-    database("auth_user").select("id", "email", "active").orderBy("email"),
-  ]);
+  const grants = await database("dossier_user_access as a")
+    .join("auth_user as u", "u.id", "a.user_id")
+    .where("a.dossier", dossierId)
+    .select("a.user_id", "a.access_level", "u.email", "u.active")
+    .select(database.raw("pitchou_dossier_access(?, u.id) as effective_access", [dossierId]))
+    .orderBy("u.email");
+  const users = await database("auth_user").select("id", "email", "active").orderBy("email");
   return { grants, users };
 }
 

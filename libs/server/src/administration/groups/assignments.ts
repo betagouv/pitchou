@@ -17,27 +17,27 @@ export async function listDossierAssignments(
 ): Promise<GroupAssignment[]> {
   const dossier = await database("dossier").where({ id: dossierId }).first();
   if (!dossier) throw new TypeError("Dossier introuvable");
-  const [groups, rules, departments] = await Promise.all([
-    database("groupe_instructeurs as g")
-      .leftJoin("groupe_dossier_override as o", (join) =>
-        join.on("o.groupe_instructeurs", "g.id").andOnVal("o.dossier", dossierId),
-      )
-      .select("g.id", "g.name", "g.active", "o.mode", "o.access_level as manualAccessLevel")
-      .select(
-        database.raw(
-          'pitchou_group_matches(d, g.id) as automatic, pitchou_group_owns(d, g.id) as assigned, pitchou_group_access(d, g.id) as "accessLevel"',
-        ),
-      )
-      .joinRaw("CROSS JOIN dossier d")
-      .where("d.id", dossierId)
-      .orderBy("g.name"),
-    database("groupe_regle as r")
-      .select("r.*")
-      .joinRaw("CROSS JOIN dossier d")
-      .where("d.id", dossierId)
-      .whereRaw("pitchou_rule_matches(d, r.departments, r.communes, r.activites)"),
-    database("groupe_departement").where({ department: dossier.primary_department ?? "" }),
-  ]);
+  const groups = await database("groupe_instructeurs as g")
+    .leftJoin("groupe_dossier_override as o", (join) =>
+      join.on("o.groupe_instructeurs", "g.id").andOnVal("o.dossier", dossierId),
+    )
+    .select("g.id", "g.name", "g.active", "o.mode", "o.access_level as manualAccessLevel")
+    .select(
+      database.raw(
+        'pitchou_group_matches(d, g.id) as automatic, pitchou_group_owns(d, g.id) as assigned, pitchou_group_access(d, g.id) as "accessLevel"',
+      ),
+    )
+    .joinRaw("CROSS JOIN dossier d")
+    .where("d.id", dossierId)
+    .orderBy("g.name");
+  const rules = await database("groupe_regle as r")
+    .select("r.*")
+    .joinRaw("CROSS JOIN dossier d")
+    .where("d.id", dossierId)
+    .whereRaw("pitchou_rule_matches(d, r.departments, r.communes, r.activites)");
+  const departments = await database("groupe_departement").where({
+    department: dossier.primary_department ?? "",
+  });
   return groups.map((group) => ({
     ...group,
     mode: group.mode ?? "auto",

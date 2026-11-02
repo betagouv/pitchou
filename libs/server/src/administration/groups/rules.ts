@@ -12,13 +12,13 @@ export function splitRules(rules: GroupRule[]) {
 }
 
 export async function readRules(db: Knex | Knex.Transaction, groupId: string) {
-  const [departments, conditional] = await Promise.all([
-    db("groupe_departement")
-      .where({ groupe_instructeurs: groupId })
-      .orderBy("department")
-      .pluck("department"),
-    db("groupe_regle").where({ groupe_instructeurs: groupId }).orderBy("id"),
-  ]);
+  const departments = await db("groupe_departement")
+    .where({ groupe_instructeurs: groupId })
+    .orderBy("department")
+    .pluck("department");
+  const conditional = await db("groupe_regle")
+    .where({ groupe_instructeurs: groupId })
+    .orderBy("id");
   return [
     ...(departments.length > 0
       ? [{ departments, communes: [], activites: [], accessLevel: "instruct" as const }]

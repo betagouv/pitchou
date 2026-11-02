@@ -58,10 +58,8 @@ export async function searchTaxref(
 export async function getTaxrefFiltres(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ regnes: string[]; classes: string[] }> {
-  const [regnes, classes] = await Promise.all([
-    distinctValues(databaseConnection, "regne"),
-    distinctValues(databaseConnection, "classe"),
-  ]);
+  const regnes = await distinctValues(databaseConnection, "regne");
+  const classes = await distinctValues(databaseConnection, "classe");
   return { regnes, classes };
 }
 

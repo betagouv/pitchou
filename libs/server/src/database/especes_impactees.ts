@@ -1,5 +1,4 @@
 import type { PreparedImpactFile } from "./impact_espece/prepareImpactEspeceFile.ts";
-import pLimit from "p-limit";
 import type { Knex } from "knex";
 
 import { anomaliesTitle } from "@pitchou/common/impact_espece/anomalies.ts";
@@ -17,9 +16,6 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
 import type ImpactEspece from "@pitchou/types/database/public/ImpactEspece.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
-
-// Each import reads its file back from the object storage, so they are not all started at once.
-const limiteImports = pLimit(4);
 
 /**
  * Attaches the freshly downloaded espèces impactées files to their dossier and
@@ -53,24 +49,20 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
     .orderBy("id")
     .forUpdate();
   const changedDossiers = new Set<DossierId>();
-  await Promise.all(
-    currentRows.map((current) =>
-      limiteImports(async () => {
-        const number = Number(current.demarche_numerique_number);
-        const fileId = especesImpacteesByDossierNumber.get(number);
-        if (fileId === undefined || dossierIdByDNNumber.get(number) !== current.id) return;
+  for (const current of currentRows) {
+    const number = Number(current.demarche_numerique_number);
+    const fileId = especesImpacteesByDossierNumber.get(number);
+    if (fileId === undefined || dossierIdByDNNumber.get(number) !== current.id) continue;
 
-        await synchronizeDossierImpacts(
-          current,
-          fileId,
-          number,
-          changedDossiers,
-          databaseConnection,
-          preparedFiles,
-        );
-      }),
-    ),
-  );
+    await synchronizeDossierImpacts(
+      current,
+      fileId,
+      number,
+      changedDossiers,
+      databaseConnection,
+      preparedFiles,
+    );
+  }
 
   const oldFileIds = currentRows.flatMap(({ especes_impactees }) =>
     especes_impactees ? [especes_impactees] : [],

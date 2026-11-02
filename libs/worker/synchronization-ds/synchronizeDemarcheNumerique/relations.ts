@@ -36,22 +36,16 @@ export async function synchronizeRelationsAndFiles(
     transaction,
   }: Pick<SynchronizationOptions, "demarcheNumber" | "pitchouKeyToChampDS" | "transaction">,
 ) {
-  const { dossierIdByDNNumber, acteursSynchronization, synchronizations } =
+  const { dossierIdByDNNumber, acteursSynchronization: dossiersChangedByActeurs } =
     await synchronizeDossierRelations(dossiersDS, dossiersForSync, demarcheNumber, transaction);
-  const [especesImpacteesP, piecesJointesP] = synchronizeDownloadedDossierFiles(
-    files,
-    dossiersDS,
-    dossierIdByDNNumber,
-    pitchouKeyToChampDS,
-    transaction,
-  );
-  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes, dossiersChangedByActeurs] =
-    await Promise.all([
-      especesImpacteesP,
-      piecesJointesP,
-      acteursSynchronization,
-      ...synchronizations,
-    ]);
+  const [dossiersChangedByEspeces, dossiersChangedByPiecesJointes] =
+    await synchronizeDownloadedDossierFiles(
+      files,
+      dossiersDS,
+      dossierIdByDNNumber,
+      pitchouKeyToChampDS,
+      transaction,
+    );
 
   return {
     dossierIdByDNNumber,
