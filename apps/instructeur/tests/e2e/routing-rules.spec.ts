@@ -31,6 +31,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
   const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
   await editor.getByLabel("Nom du groupe").fill("Photovoltaïque Dax");
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await editor.getByRole("button", { name: "Ajouter une règle" }).click();
   await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await editor.getByRole("option", { name: "Département principal", exact: true }).click();

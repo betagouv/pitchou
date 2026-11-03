@@ -54,8 +54,8 @@
 
 {#each grants as permission}<input type="hidden" name="grants" value={permission} />{/each}
 {#each exclusions as permission}<input type="hidden" name="exclusions" value={permission} />{/each}
-<section class="editor-section" aria-label="Permissions personnalisées">
-  <h3 class="section-heading permissions-heading">
+<section aria-label="Permissions personnalisées">
+  <h3 class="permissions-heading">
     <span>Permissions personnalisées</span><span class="exception-count"
       >{exceptionCount
         ? `${exceptionCount} exception${exceptionCount > 1 ? "s" : ""}`

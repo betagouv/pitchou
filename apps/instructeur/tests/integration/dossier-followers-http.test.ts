@@ -19,12 +19,12 @@ function follow(cap: string, email: string, dossierId: number, direction = "suiv
   });
 }
 
-test("following is personal and the previous assignment endpoints cannot change other people's follows", async () => {
+test("group assignment is available while the personal-follow endpoint stays self-only", async () => {
   const actor = await createInstructeurWithDossier(db, { email: "actor@test.fr" });
   const colleague = await createGroupeMember(actor.groupeId, "colleague@test.fr");
   await attachPersonneSuitDossier(db, colleague.id, actor.dossier.id);
-  expect((await listCandidates(actor.cap, actor.dossier.id)).status).toBe(403);
-  expect((await updateFollowers(actor.cap, actor.dossier.id, [])).status).toBe(403);
+  expect((await listCandidates(actor.cap, actor.dossier.id)).status).toBe(200);
+  expect((await updateFollowers(actor.cap, actor.dossier.id, [colleague.email])).status).toBe(204);
   expect((await follow(actor.cap, colleague.email, actor.dossier.id)).status).toBe(403);
   expect(
     await db("edge_personne_follows_dossier").where({ dossier: actor.dossier.id }),
@@ -86,5 +86,23 @@ test("concurrent self-follows are idempotent and leave a single audit transition
   ).toHaveLength(1);
   expect(
     await db("action_dossier").where({ dossier: actor.dossier.id, type: "dossier_suivi" }),
+  ).toHaveLength(1);
+});
+
+test("full read-only access cannot list or replace other people's follows", async () => {
+  const actor = await createInstructeurWithDossier(db, { email: "reader@test.fr" });
+  const colleague = await createGroupeMember(actor.groupeId, "colleague@test.fr");
+  await attachPersonneSuitDossier(db, colleague.id, actor.dossier.id);
+  await db("edge_groupe_instructeurs__dossier")
+    .where({ dossier: actor.dossier.id })
+    .update({ access_level: "read" });
+  expect((await listCandidates(actor.cap, actor.dossier.id)).status).toBe(403);
+  expect((await updateFollowers(actor.cap, actor.dossier.id, [])).status).toBe(403);
+  expect((await follow(actor.cap, actor.email, actor.dossier.id)).status).toBe(204);
+  expect(
+    await db("edge_personne_follows_dossier").where({
+      dossier: actor.dossier.id,
+      personne: colleague.id,
+    }),
   ).toHaveLength(1);
 });

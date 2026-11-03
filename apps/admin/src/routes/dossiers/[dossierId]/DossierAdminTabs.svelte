@@ -28,7 +28,12 @@
   }
 </script>
 
-<div class="dossier-tabs" role="tablist" aria-label="Administration du dossier" bind:this={list}>
+<div
+  class="dossier-tabs admin-page-tabs"
+  role="tablist"
+  aria-label="Administration du dossier"
+  bind:this={list}
+>
   {#each tabs as tab, index}
     <button
       type="button"

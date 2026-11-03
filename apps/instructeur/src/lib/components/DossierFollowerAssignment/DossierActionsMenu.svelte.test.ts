@@ -26,7 +26,12 @@ test("all menu icons download SVG masks and paint blue glyphs, not solid rectang
   container.style.justifyContent = "flex-end";
   await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
   await document.fonts.ready;
-  for (const [index, name] of ["calendar-event-line", "attachment-line", "eye-line"].entries()) {
+  for (const [index, name] of [
+    "share-forward-fill",
+    "calendar-event-line",
+    "attachment-line",
+    "eye-line",
+  ].entries()) {
     const item = screen.getAllByRole("menuitem")[index];
     const glyph = item.querySelector(`.fr-icon-${name}`)!;
     expect(glyph).toHaveAttribute("aria-hidden", "true");
@@ -72,22 +77,22 @@ test("keyboard opens on the first item, navigates all entries and restores focus
   expect(screen.getByRole("menu").id).toBe(trigger.getAttribute("aria-controls"));
   for (const [key, index] of [
     ["ArrowDown", 1],
-    ["End", 1],
+    ["End", 2],
     ["ArrowDown", 0],
-    ["ArrowUp", 1],
+    ["ArrowUp", 2],
     ["Home", 0],
   ] as const) {
     await userEvent.keyboard(`{${key}}`);
     expect(items[index]).toHaveFocus();
   }
-  expect(items[1].querySelector("span")).toBeNull();
+  expect(items[2].querySelector("span")).toBeNull();
   await userEvent.keyboard("{Escape}");
   expect(trigger).toHaveFocus();
   expect(screen.queryByRole("menu")).toBeNull();
   await userEvent.keyboard("{Enter}{End}{Enter}");
   expect(onClick).toHaveBeenCalledOnce();
   expect(screen.queryByRole("menu")).toBeNull();
-  await rerender({ ...props, showDeadline: false, extraItems: [{ label: "Sans icône", onClick }] });
+  await rerender({ ...props, showDeadline: false });
   await userEvent.click(trigger);
   expect(screen.queryByRole("menuitem", { name: /Modifier la date/u })).toBeNull();
   await userEvent.tab();
@@ -97,7 +102,7 @@ test("keyboard opens on the first item, navigates all entries and restores focus
   expect(screen.queryByRole("menu")).toBeNull();
 });
 
-test.each(["Modifier la date de la prochaine échéance"])(
+test.each(["Faire suivre le dossier", "Modifier la date de la prochaine échéance"])(
   "%s still opens its dialog and restores trigger focus on close",
   async (label) => {
     render(DossierActionsMenu, props);

@@ -1,4 +1,11 @@
 /* Shared presentation for the admin app. Public and instructeur styles stay separate. */
+.admin-page-tabs {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 20;
+  background: var(--background-default-grey);
+}
+
 .admin-ui .fr-btn {
   border-radius: 0.5rem;
   font-size: 0.875rem;

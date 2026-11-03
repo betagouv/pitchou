@@ -24,11 +24,11 @@
     <p>
       Gérez les accès des groupes ou accordez un accès à une personne, sans changer ses groupes.
     </p>
+    <p class="access-footnote">
+      Les accès se cumulent : retirer un accès laisse les autres en place. Les permissions du compte
+      restent applicables.
+    </p>
   </div>
   <DossierAssignments {dossierId} initial={assignments} {activityLabels} {onChanged} />
   <DossierUserAccess {dossierId} initial={userAccess} {onChanged} />
-  <p class="access-footnote">
-    Les accès se cumulent : retirer un accès laisse les autres en place. Les permissions du compte
-    restent applicables.
-  </p>
 </div>

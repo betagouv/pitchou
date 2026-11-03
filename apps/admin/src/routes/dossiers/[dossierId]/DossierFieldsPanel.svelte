@@ -6,6 +6,7 @@
   import { activiteFormContext } from "#lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
+  import DossierDetailHeader from "./DossierDetailHeader.svelte";
   import DossierDeleteSection from "./DossierDeleteSection.svelte";
 
   let {
@@ -27,6 +28,7 @@
 </script>
 
 <div class="admin-stack">
+  <DossierDetailHeader {detail} />
   {#if detail.source === "demarche_numerique"}
     <div class="fr-alert fr-alert--info my-0">
       <p>

@@ -1,5 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import shareForwardIcon from "@gouvfr/dsfr/dist/icons/system/share-forward-fill.svg?no-inline";
+  import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
   import EditNextDueDateModal from "#lib/components/EditNextDueDateModal.svelte";
   import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
@@ -24,11 +26,16 @@
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
-  let activeModal = $state<"dueDate" | null>(null);
+  let activeModal = $state<"assignment" | "dueDate" | null>(null);
   let rootElement: HTMLElement | undefined = $state();
   let triggerElement: HTMLButtonElement | undefined = $state();
   let menuElement: HTMLUListElement | undefined = $state();
   const items = $derived([
+    {
+      label: "Faire suivre le dossier",
+      icon: "fr-icon-share-forward-fill",
+      onClick: () => (activeModal = "assignment"),
+    },
     ...(showDeadline
       ? [
           {
@@ -139,6 +146,7 @@
             {#if item.icon}
               <span
                 class="{item.icon} shrink-0 text-[color:var(--text-action-high-blue-france)]"
+                style:--share-forward-icon={`url('${shareForwardIcon}')`}
                 aria-hidden="true"
               ></span>
             {/if}
@@ -150,11 +158,20 @@
   {/if}
 </div>
 
+{#if activeModal === "assignment"}
+  <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeModal} />
+{/if}
+
 {#if showDeadline && activeModal === "dueDate"}
   <EditNextDueDateModal {dossierId} {dossierName} onClose={closeModal} />
 {/if}
 
 <style>
+  .fr-icon-share-forward-fill::before {
+    -webkit-mask-image: var(--share-forward-icon);
+    mask-image: var(--share-forward-icon);
+  }
+
   .dossier-actions-trigger {
     justify-content: center;
     width: 24px;

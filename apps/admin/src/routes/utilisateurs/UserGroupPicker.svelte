@@ -76,16 +76,6 @@
           </p>
         {/each}
       </div>
-      <p class="help" role="status">
-        {selected.length} groupe{selected.length > 1 ? "s" : ""} sélectionné{selected.length > 1
-          ? "s"
-          : ""}.
-      </p>
-      {#if groups.some((group) => !group.active)}
-        <p class="help">
-          Les groupes archivés conservent leurs membres, mais ne donnent pas accès aux dossiers.
-        </p>
-      {/if}
     {:else}
       <p class="help">Aucun groupe disponible. Créez un groupe sur la page Groupes instructeurs.</p>
     {/if}

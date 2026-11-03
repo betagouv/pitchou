@@ -14,7 +14,7 @@
   .tab-panel {
     display: grid;
     gap: 1rem;
-    padding: 1.5rem;
+    padding: 1rem 0;
   }
   .tab-panel[hidden] {
     display: none;
@@ -183,6 +183,8 @@
     color: var(--text-mention-grey);
   }
   .permissions-heading {
+    margin: 0 0 0.75rem;
+    font-size: 0.9375rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -195,9 +197,6 @@
     color: var(--text-mention-grey);
     font-weight: 400;
     font-size: 0.75rem;
-  }
-  .exceptions-content {
-    padding: 1rem;
   }
   .exceptions-content > .help {
     margin: 0 0 0.75rem;
@@ -248,9 +247,6 @@
     color: var(--text-inverted-blue-france);
   }
   @media (max-width: 575px) {
-    .tab-panel {
-      padding: 1rem;
-    }
     .profile-grid {
       grid-template-columns: 1fr;
     }

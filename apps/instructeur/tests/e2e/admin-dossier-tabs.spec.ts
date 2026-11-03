@@ -46,6 +46,9 @@ for (const width of [1280, 320]) {
     await expect(dossierTab).toHaveAttribute("aria-selected", "true");
     await expect(page.getByRole("tabpanel")).toHaveCount(1);
     await expect(name).toBeVisible();
+    await expect(
+      page.getByRole("tabpanel").getByText("Créé dans Pitchou", { exact: true }),
+    ).toBeVisible();
     await expect(save).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Supprimer le dossier", exact: true }),
@@ -60,8 +63,10 @@ for (const width of [1280, 320]) {
     await expect(accessTab).toHaveAttribute("aria-selected", "true");
     await expect(assignments).toBeVisible();
     await expect(access).toBeVisible();
+    await expect(page.getByText("Créé dans Pitchou", { exact: true })).toBeHidden();
+    const caveat = await page.getByText(/^Les accès se cumulent/u).boundingBox();
+    expect(caveat!.y + caveat!.height).toBeLessThan((await assignments.boundingBox())!.y);
     await expect(save).toHaveCount(0);
-    await expect(name).toHaveCount(1);
     await expect(name).toBeHidden();
     await expect(
       page.getByRole("heading", { name: "Supprimer le dossier", exact: true }),

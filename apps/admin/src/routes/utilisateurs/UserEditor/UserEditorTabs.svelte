@@ -24,7 +24,12 @@
   }
 </script>
 
-<div class="user-tabs" role="tablist" aria-label="Paramètres de l'utilisateur" bind:this={list}>
+<div
+  class="user-tabs admin-page-tabs"
+  role="tablist"
+  aria-label="Paramètres de l'utilisateur"
+  bind:this={list}
+>
   {#each tabs as tab, index}
     <button
       type="button"
@@ -44,20 +49,15 @@
 
 <style>
   .user-tabs {
-    position: sticky;
-    top: 3.5rem;
-    z-index: 20;
     display: flex;
     flex-wrap: wrap;
-    padding: 0 1.5rem;
-    background: var(--background-default-grey);
     border-bottom: 1px solid var(--border-default-grey);
   }
   button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 1rem;
     border-bottom: 3px solid transparent;
     color: var(--text-mention-grey);
     font-size: 0.875rem;
@@ -74,9 +74,6 @@
     font-size: 0.75rem;
   }
   @media (max-width: 575px) {
-    .user-tabs {
-      padding: 0 1rem;
-    }
     button {
       padding: 0.75rem 0.5rem;
     }

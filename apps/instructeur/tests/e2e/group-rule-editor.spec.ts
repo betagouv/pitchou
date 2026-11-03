@@ -36,6 +36,7 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
     editor.getByRole("combobox", { name: `Ajouter un critère à la règle ${number}` });
   await expect(editor.getByLabel("Rechercher une commune")).toHaveCount(0);
   await expect(editor.getByRole("button", { name: "Sélectionner des activités" })).toHaveCount(0);
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await editor.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
   const rules = editor.getByRole("group", { name: /^Règle/u });
   await expect(rules).toHaveCount(2);

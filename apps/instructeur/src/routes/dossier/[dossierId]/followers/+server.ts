@@ -1,11 +1,102 @@
-import { error } from "@sveltejs/kit";
-import { requireUserId } from "#lib/server/auth.ts";
+import { dispatchAssignmentEmailsAfterCommit } from "@pitchou/server/dossierNotificationEmails.ts";
+import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import { requireUserId } from "#lib/server/auth.ts";
+import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
+import { createTransaction } from "@pitchou/server/database.ts";
+import {
+  listDossierFollowerCandidates,
+  updateDossierFollowers,
+} from "@pitchou/server/database/relation_suivi.ts";
+import { logDossierActions } from "@pitchou/server/database/action_dossier.ts";
+import { getUserById } from "@pitchou/server/database/personne.ts";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
-const personalFollowingOnly: RequestHandler = ({ locals }) => {
-  requireUserId(locals);
-  error(403, "Le suivi est personnel. Chaque personne choisit les dossiers qu'elle suit.");
+const updateProperties = new Set(["personneEmails"]);
+
+function parseDossierId(raw: string): DossierId {
+  const dossierId = Number(raw);
+  if (!Number.isInteger(dossierId) || dossierId <= 0) {
+    error(400, "dossierId invalide");
+  }
+  return dossierId as DossierId;
+}
+
+function parsePersonneEmails(value: Record<string, unknown>): string[] {
+  rejectUnknownProperties(value, updateProperties);
+  if (
+    !Array.isArray(value.personneEmails) ||
+    value.personneEmails.some((email) => typeof email !== "string" || email.length === 0)
+  ) {
+    error(400, "La propriété 'personneEmails' doit être un tableau d'adresses email.");
+  }
+  if (new Set(value.personneEmails).size !== value.personneEmails.length) {
+    error(400, "La propriété 'personneEmails' ne doit pas contenir de doublons.");
+  }
+  return value.personneEmails;
+}
+
+export const GET: RequestHandler = async ({ params, locals }) => {
+  const candidates = await listDossierFollowerCandidates(
+    requireUserId(locals),
+    parseDossierId(params.dossierId!),
+  );
+  if (!candidates) {
+    error(403, "La capability ne permet pas d'accéder à ce dossier.");
+  }
+  return json(candidates);
 };
 
-export const GET = personalFollowingOnly;
-export const POST = personalFollowingOnly;
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const userId = requireUserId(locals);
+  const dossierId = parseDossierId(params.dossierId!);
+  const personneEmails = parsePersonneEmails(await readJsonObject(request));
+  const transaction = await createTransaction();
+
+  try {
+    const updated = await updateDossierFollowers(userId, dossierId, personneEmails, transaction);
+    if (!updated) {
+      await transaction.rollback();
+      error(403, "Une personne sélectionnée n'appartient pas au groupe instructeur du dossier.");
+    }
+    const actor = await getUserById(userId);
+    await logDossierActions(
+      [
+        ...updated.added.map((follower) => ({
+          dossier: dossierId,
+          type: "dossier_suivi",
+          data: {
+            follower,
+            // "à la demande de" when someone else assigned the follower.
+            requested_by: actor?.email && actor.email !== follower ? actor.email : null,
+          },
+          author_personne: actor?.id ?? null,
+        })),
+        ...updated.removed.map((follower) => ({
+          dossier: dossierId,
+          type: "dossier_suivi_termine",
+          data: { follower },
+          author_personne: actor?.id ?? null,
+        })),
+      ],
+      transaction,
+      // Assigning several followers at once is a single act for the instructeur,
+      // whatever the number of historique entries it produces.
+      {
+        type: "assignDossierFollowers",
+        details: {
+          dossierId,
+          followerCount: personneEmails.length,
+          addedPersonneEmails: updated.added,
+          removedPersonneEmails: updated.removed,
+        },
+      },
+    );
+    await transaction.commit();
+    await dispatchAssignmentEmailsAfterCommit(dossierId);
+    return new Response(null, { status: 204 });
+  } catch (err) {
+    if (!transaction.isCompleted()) await transaction.rollback();
+    throw err;
+  }
+};

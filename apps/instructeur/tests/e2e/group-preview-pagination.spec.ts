@@ -24,6 +24,7 @@ test("preview pages remain bounded, recover from errors and reject stale assignm
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
   const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
   await editor.getByLabel("Nom du groupe").fill("Paris");
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await editor.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
   await editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await editor.getByRole("option", { name: "Département principal", exact: true }).click();

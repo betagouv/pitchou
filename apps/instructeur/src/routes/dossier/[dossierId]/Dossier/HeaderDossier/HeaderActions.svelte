@@ -24,6 +24,7 @@
     email,
     followersLabel,
     followedByCurrentInstructeur,
+    onOpenFollowers,
     onAddPieceJointe,
     onEnterReadOnly,
   }: Props = $props();
@@ -32,7 +33,15 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-4">
-  <p class="fr-mb-0 fr-text--sm followers-label">{followersLabel}</p>
+  {#if readOnly.current}
+    <p class="fr-mb-0 fr-text--sm followers-label">{followersLabel}</p>
+  {:else}
+    <button
+      type="button"
+      class="fr-link fr-text--sm followers-label editable-followers"
+      onclick={onOpenFollowers}>{followersLabel}</button
+    >
+  {/if}
 
   {#if typeof followedByCurrentInstructeur === "boolean"}
     {#if followedByCurrentInstructeur}
@@ -77,6 +86,14 @@
 <style>
   .followers-label {
     overflow-wrap: anywhere;
+  }
+
+  .editable-followers {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .follow-button {

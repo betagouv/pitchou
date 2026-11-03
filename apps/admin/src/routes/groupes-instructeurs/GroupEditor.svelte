@@ -4,7 +4,6 @@
   import type { GroupPreview } from "@pitchou/types/groupRouting.ts";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { onDestroy, untrack } from "svelte";
-  import GroupIdentityFields from "./GroupEditor/GroupIdentityFields.svelte";
   import GroupAssignmentFields from "./GroupEditor/GroupAssignmentFields.svelte";
   import { enhance } from "$app/forms";
   import EditorPage from "#lib/components/EditorPage.svelte";
@@ -130,8 +129,15 @@
       <input type="hidden" name="rules" value={JSON.stringify(rules)} />
       <input type="hidden" name="previewToken" value={previewCurrent ? preview?.token : ""} />
       {#each members as member}<input type="hidden" name="members" value={member} />{/each}
-      <GroupIdentityFields {formId} bind:name bind:active />
-      <GroupAssignmentFields {data} {formId} bind:rules bind:members bind:rulesValid />
+      <GroupAssignmentFields
+        {data}
+        {formId}
+        bind:name
+        bind:active
+        bind:rules
+        bind:members
+        bind:rulesValid
+      />
     </fieldset>
   </form>
   {#snippet footer()}

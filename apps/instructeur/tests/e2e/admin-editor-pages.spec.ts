@@ -2,7 +2,7 @@ import { test, expect } from "../fixtures/playwright.ts";
 import { createInstructeurWithCapToGroup, createGroupeInstructeurs } from "../factories/index.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
-for (const width of [1280, 320]) {
+for (const width of [1600, 320]) {
   test(`user and group editors have refreshable pages at ${width}px`, async ({
     page,
     db,
@@ -23,6 +23,9 @@ for (const width of [1280, 320]) {
     await db("user_groupe").insert(
       [group, second, archived].map((g) => ({ user_id: user.id, groupe_instructeurs: g.id })),
     );
+    await db("groupe_instructeurs").insert(
+      Array.from({ length: 12 }, (_, i) => ({ name: `Service ${i + 1}` })),
+    );
     await loginAs(actor.codeAcces);
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ colorScheme: "dark" });
@@ -35,6 +38,12 @@ for (const width of [1280, 320]) {
     await page.reload();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Camille Martin");
     await page.getByRole("tab", { name: "Groupes", exact: true }).click();
+    await expect(page.locator(".editor-page")).toHaveCSS("max-width", "none");
+    const choices = page.getByRole("group", { name: "Choisir les groupes", exact: true });
+    await expect(choices).toHaveCSS("max-height", "none");
+    expect(await choices.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(
+      1,
+    );
     const selected = page.getByRole("region", { name: "Groupes sélectionnés", exact: true });
     await expect(selected.getByRole("listitem")).toHaveCount(3);
     await expect(selected).toContainText("Groupe archivé");
@@ -52,6 +61,9 @@ for (const width of [1280, 320]) {
     await page.getByRole("tab", { name: "Compte et profils", exact: true }).click();
     await page.screenshot({ path: testInfo.outputPath(`user-account-page-${width}.png`) });
     await page.getByRole("tab", { name: "Permissions personnalisées", exact: true }).click();
+    await expect(
+      page.getByRole("region", { name: "Permissions personnalisées", exact: true }),
+    ).toHaveCSS("border-top-width", "0px");
     await page.screenshot({ path: testInfo.outputPath(`user-permissions-page-${width}.png`) });
     await page.getByRole("link", { name: "Retour", exact: true }).click();
     await expect(page).toHaveURL(listUrl);
@@ -62,7 +74,14 @@ for (const width of [1280, 320]) {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("DREAL Bretagne");
     await expect(page.getByLabel("Nom du groupe")).toHaveValue("DREAL Bretagne");
     await page.screenshot({ path: testInfo.outputPath(`group-page-${width}.png`) });
-    await page.getByRole("tab", { name: /Membres/u }).click();
+    const groupTab = page.getByRole("tab", { name: "Groupe", exact: true });
+    await expect(groupTab).toHaveAttribute("aria-selected", "true");
+    await groupTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(page.getByRole("tab", { name: /Règles/u })).toBeFocused();
+    await expect(page.getByLabel("Nom du groupe")).toBeHidden();
+    await page.keyboard.press("End");
+    await expect(page.getByRole("tab", { name: /Membres/u })).toBeFocused();
     const selectedMembers = page.getByRole("region", { name: "Membres sélectionnés" });
     await expect(selectedMembers.getByRole("listitem")).toHaveCount(1);
     await page.screenshot({ path: testInfo.outputPath(`group-members-page-${width}.png`) });
@@ -74,6 +93,7 @@ for (const width of [1280, 320]) {
     await expect(selectedMembers.getByRole("listitem")).toHaveCount(1);
     expect(await db("user_groupe").where({ groupe_instructeurs: group.id })).toHaveLength(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    await groupTab.click();
     await page.getByLabel("Nom du groupe").fill("Brouillon Bretagne");
     await page.getByRole("button", { name: "Vérifier les affectations", exact: true }).click();
     await expect(

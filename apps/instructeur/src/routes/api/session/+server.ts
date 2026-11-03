@@ -9,6 +9,8 @@ const endpoints = {
   recupérerDossierComplet: "/dossier/:dossierId",
   listFollowRelations: "/dossiers/relation-suivis",
   updateFollowRelation: "/dossiers/relation-suivis",
+  listDossierFollowerCandidates: "/dossier/:dossierId/followers",
+  updateDossierFollowers: "/dossier/:dossierId/followers",
   listerEvenementsPhaseDossier: "/dossiers/evenements-phases",
   listerActionsDossier: "/dossier/:dossierId/historique",
   listerCommentaires: "/dossier/:dossierId/commentaires",

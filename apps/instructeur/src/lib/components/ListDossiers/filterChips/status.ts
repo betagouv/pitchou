@@ -22,7 +22,7 @@ export function appendStatusChips(
   if (query.actionInstructeur) {
     chips.push({
       key: "actionInstructeur",
-      label: "Action attendue de l’instruction",
+      label: "Dossiers où je dois agir",
       next: withUpdates({ actionInstructeur: false }),
     });
   }

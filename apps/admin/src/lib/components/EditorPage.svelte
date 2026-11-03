@@ -34,9 +34,7 @@
 <style>
   .editor-page {
     width: 100%;
-    max-width: 72rem;
     min-width: 0;
-    margin: 0 auto;
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -49,7 +47,7 @@
     position: sticky;
     bottom: 0;
     z-index: 10;
-    padding: 1rem;
+    padding: 1rem 0;
     background: var(--background-default-grey);
     border-top: 1px solid var(--border-default-grey);
     box-shadow: 0 -0.25rem 1rem var(--background-default-grey);

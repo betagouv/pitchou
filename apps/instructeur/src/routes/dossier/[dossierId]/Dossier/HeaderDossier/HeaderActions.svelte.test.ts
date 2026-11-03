@@ -45,14 +45,13 @@ test.each([false, true])(
     expect(
       [...document.fonts].some((font) => font.family === "Marianne" && font.status === "loaded"),
     ).toBe(true);
-    const followers = screen.getByText(props(follows).followersLabel);
-    const [follow, menu] = screen.getAllByRole("button");
+    const [followers, follow, menu] = screen.getAllByRole("button");
     const bounds = [followers, follow, menu].map((button) => button.getBoundingClientRect());
     expect(bounds[1].left - bounds[0].right).toBe(16);
     expect(bounds[2].left - bounds[1].right).toBe(16);
-    expect(bounds.slice(1).map((box) => box.height)).toEqual([40, 40]);
+    expect(bounds.map((box) => box.height)).toEqual([40, 40, 40]);
     expect(bounds[2].width).toBe(40);
-    expect(bounds[1].top).toBe(bounds[2].top);
+    expect(bounds.map((box) => box.top)).toEqual([bounds[0].top, bounds[0].top, bounds[0].top]);
     expect(getComputedStyle(menu).boxShadow).toBe(getComputedStyle(follow).boxShadow);
     expect(getComputedStyle(menu).boxShadow).toContain("rgb(106, 106, 244)");
     expect(getComputedStyle(menu).borderRadius).toBe("4px");
@@ -98,7 +97,7 @@ test.each(["light", "dark"])(
         });
         const menu = screen.getByRole("button", { name: /Plus d’actions pour Dossier test/u });
         for (const button of [follow, menu, list]) {
-          await userEvent.hover(screen.getByText(props().followersLabel));
+          await userEvent.hover(screen.getByRole("button", { name: props().followersLabel }));
           const idle = getComputedStyle(button).backgroundColor;
           await userEvent.hover(button);
           probe.style.backgroundColor =
@@ -156,14 +155,15 @@ test("header callbacks, labels and extra icons stay intact", async () => {
     callbacks.email,
     callbacks.dossier.id,
   );
-  expect(screen.getByText(callbacks.followersLabel)).toBeTruthy();
-  expect(callbacks.onOpenFollowers).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole("button", { name: callbacks.followersLabel }));
+  expect(callbacks.onOpenFollowers).toHaveBeenCalledOnce();
   for (const [label, icon, callback] of [
     ["Ajouter une pièce jointe", "fr-icon-attachment-line", callbacks.onAddPieceJointe],
     ["Voir le dossier en lecture seule", "fr-icon-eye-line", callbacks.onEnterReadOnly],
   ] as const) {
     await userEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
     expect(screen.getAllByRole("menuitem").map((item) => item.textContent?.trim())).toEqual([
+      "Faire suivre le dossier",
       "Ajouter une pièce jointe",
       "Voir le dossier en lecture seule",
     ]);

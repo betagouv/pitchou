@@ -19,7 +19,6 @@
   import DossierFieldsPanel from "./DossierFieldsPanel.svelte";
   import DossierAdminTabs from "./DossierAdminTabs.svelte";
   import DossierSyncSimulation from "./DossierSyncSimulation.svelte";
-  import DossierDetailHeader from "./DossierDetailHeader.svelte";
   import DossierAccess from "./DossierAccess.svelte";
   import type { PageData } from "./$types";
 
@@ -121,7 +120,6 @@
   <Loader />
 {:else}
   <div class="admin-stack">
-    <DossierDetailHeader {detail} />
     <DossierAdminTabs
       current={activeTab}
       simulation={simulationAvailable}

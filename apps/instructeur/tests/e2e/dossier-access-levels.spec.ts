@@ -20,6 +20,7 @@ test("an admin edits rule levels and grants a person access without group member
   await page.getByRole("button", { name: "Créer un groupe", exact: true }).click();
   const editor = page.getByRole("region", { name: "Modifier le groupe", exact: true });
   await editor.getByLabel("Nom du groupe").fill("Lecture Paris");
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await editor.getByRole("button", { name: "Ajouter une règle" }).click();
   await editor.getByRole("combobox", { name: "Niveau d'accès de la règle 1" }).click();
   await editor.getByRole("option", { name: "Lecture complète", exact: true }).click();

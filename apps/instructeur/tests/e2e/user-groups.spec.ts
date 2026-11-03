@@ -31,7 +31,9 @@ test("user editor saves, removes and prepares group memberships", async ({
   await editor.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("ancien");
   await editor.getByRole("checkbox", { name: "Ancien service", exact: true }).click();
   await editor.getByRole("searchbox", { name: "Rechercher un groupe" }).fill("");
-  await expect(editor.getByText("2 groupes sélectionnés.", { exact: true })).toBeVisible();
+  await expect(
+    editor.getByRole("region", { name: "Groupes sélectionnés" }).getByRole("listitem"),
+  ).toHaveCount(2);
   await page.emulateMedia({ colorScheme: "dark" });
   await editor.getByRole("group", { name: "Choisir les groupes" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath("user-groups-dark.png") });

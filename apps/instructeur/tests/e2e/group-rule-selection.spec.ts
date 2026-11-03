@@ -21,6 +21,7 @@ test("empty criteria are unfinished while selecting all departments creates vali
   const add = editor.getByRole("combobox", { name: "Ajouter un critère à la règle 1" });
   await editor.getByLabel("Nom du groupe").fill("Tous les départements");
   await expect(verify).toBeEnabled();
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await editor.getByRole("button", { name: "Ajouter une règle", exact: true }).click();
   await expect(verify).toBeDisabled();
   await add.click();

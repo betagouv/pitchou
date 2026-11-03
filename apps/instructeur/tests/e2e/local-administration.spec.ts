@@ -49,6 +49,7 @@ test("an administrator prepares a user and assigns department coverage through t
   ).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByLabel("Nom du groupe").fill("Service Paris");
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await page.getByRole("button", { name: "Ajouter une règle" }).click();
   await page.getByRole("combobox", { name: "Ajouter un critère à la règle 1" }).click();
   await page.getByRole("option", { name: "Département principal", exact: true }).click();
@@ -87,6 +88,7 @@ test("an administrator prepares a user and assigns department coverage through t
   await activeSection.getByRole("button", { name: "Modifier Service Paris", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Nom du groupe")).toHaveValue("Service Paris");
+  await page.getByRole("tab", { name: /Règles/u }).click();
   await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
   await expect(page.getByLabel("75 - Paris", { exact: true })).toBeChecked();
   await page.getByRole("button", { name: "75 - Paris", exact: true }).click();
@@ -96,6 +98,7 @@ test("an administrator prepares a user and assigns department coverage through t
       .getByRole("region", { name: "Membres sélectionnés" })
       .getByRole("button", { name: "Retirer future@example.org", exact: true }),
   ).toBeVisible();
+  await page.getByRole("tab", { name: "Groupe", exact: true }).click();
   await page.getByLabel("Groupe actif", { exact: true }).uncheck();
   await page.getByRole("button", { name: "Vérifier les affectations" }).click();
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();

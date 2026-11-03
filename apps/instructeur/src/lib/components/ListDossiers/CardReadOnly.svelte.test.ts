@@ -28,7 +28,7 @@ test.each([
     );
     expect(screen.getByRole("button", { name: /^Suivre$/u })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Plus d’actions/u })).toBeNull();
-    expect(screen.queryByText("Aucun suivi")).toBeNull();
+    expect(screen.queryByText("Sans instructeur-ice")).toBeNull();
     expect(screen.getByTestId("card-dossier").classList.contains("unread")).toBe(!readOnly);
   },
 );

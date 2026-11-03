@@ -37,7 +37,7 @@ export function appendAssignmentChips(
   for (const value of query.instructeur) {
     chips.push({
       key: `instructeur:${value}`,
-      label: value === WITHOUT_INSTRUCTEUR ? "Sans suivi" : value,
+      label: value === WITHOUT_INSTRUCTEUR ? "Sans instructeur·ice" : value,
       next: withUpdates({ instructeur: query.instructeur.filter((email) => email !== value) }),
     });
   }

@@ -101,7 +101,7 @@
         {/if}
         {#if dossierFollowers.length === 0}
           <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine fr-mb-0">
-            Aucun suivi
+            Sans instructeur-ice
           </p>
         {/if}
         <DossierNotificationBadges dossierId={dossier.id} />

@@ -113,14 +113,18 @@
   <div class="min-w-0">
     <span class="fr-sr-only">Prochaine action attendue de&nbsp;:</span>
     <p class="dossier-text fr-mb-0 {unread ? 'font-bold' : 'font-normal'}">
-      {dossier.next_action_expected_from || "(non renseignée)"}
+      {dossier.next_action_expected_from === "Instructeur" && dossierFollowedByCurrentInstructeur
+        ? "Moi"
+        : dossier.next_action_expected_from || "(non renseignée)"}
     </p>
   </div>
 
   <div class="flex min-w-0 flex-col items-start gap-2 [overflow-wrap:anywhere] [&>*]:max-w-full">
     {#if !readOnly}<DossierNotificationBadges dossierId={dossier.id} />{/if}
     {#if canEdit && !followed}
-      <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">Aucun suivi</p>
+      <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">
+        Sans instructeur-ice
+      </p>
     {/if}
     <TagEcheance dueDate={dossier.next_due_date} />
   </div>
