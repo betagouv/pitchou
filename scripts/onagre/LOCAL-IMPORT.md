@@ -1,10 +1,18 @@
 # Local JSON dossier review
 
+## Current project and demande model
+
+The migration branch now includes the unfinished `feat/dossier-demandes-captures` feature. This is a development dependency, not acceptance of the UI or authorization to merge or deploy it. Further generic feature improvements should stay on that feature branch and be merged into this branch as needed.
+
+The owner-approved target is one Pitchou dossier per Onagre project, containing independently editable demandes. Access is shared across the dossier; every subsequent business change is recorded for historical consultation and comparison. Historical Onagre demandes are separate demandes, not reconstructed revisions of one demande.
+
+The existing JSON samples and importer below still implement the previous one-demande-per-dossier preparation format. Before importing again, adapt the private JSON to one file per project containing its demandes, preserving their stable Onagre identities and per-demande mapping evidence. Adapt the importer to create or update the project grouping and each demande idempotently, together with the routing changes described below. Start with the existing samples, including the project with two demandes, and verify repeated imports before widening the set. Do not reset the development database or discard the previous private samples.
+
 ## Compatibility after the group-assignment merge
 
 The preparation helpers remain usable, but the database importer has not yet been adapted to the application-owned routing merged in PR #737. Do not run an import or its database verification commands against the new schema yet. The current reviewer lookup calls the removed `pitchou_can_instruct` SQL function, and direct SQL writes no longer recalculate assignments or establish arrival baselines.
 
-The adaptation must use the shared routing/access services within the import transaction, recalculate the affected dossiers with `silent: true`, and represent any approved manual exception through the existing override or individual-access mechanism. Preserve explicit exclusions and human edits. See [the transaction contract](../../documentation/application-routing.md). The owner has indicated a revised import plan; clarify it before changing the importer’s identity, grouping or selection rules.
+The adaptation must use the shared routing/access services within the import transaction, recalculate the affected dossiers with `silent: true`, and represent any approved manual exception through the existing override or individual-access mechanism. Preserve explicit exclusions and human edits. See [the transaction contract](../../documentation/application-routing.md). Apply the approved project/demande model above; ask the owner about unresolved mapping or selection decisions.
 
 Local databases that applied an intermediate version of the assignment branch may have a different schema despite recording similarly named migrations. Check migration history and actual tables before running migrations; a successful code merge does not upgrade the database.
 
