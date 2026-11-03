@@ -32,20 +32,27 @@ beforeEach(() => {
   vi.stubEnv("PUBLIC_SITE_URL_PITCHOU", "https://pitchou.test");
 });
 
-test("the retired assignment endpoint refuses colleague subscriptions without writes or email", async () => {
+test("the assignment endpoint persists colleague follows and sends only once", async () => {
   const { actor, recipient } = await setup();
   await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
   const request = () =>
     event(actor.cap, actor.dossier.id, { personneEmails: [actor.email, recipient.email] });
-  await expect(Promise.resolve().then(() => assignFollowers(request()))).rejects.toMatchObject({
-    status: 403,
-  });
+  expect((await assignFollowers(request())).status).toBe(204);
   expect(await db("edge_personne_follows_dossier").where({ personne: recipient.id })).toHaveLength(
-    0,
+    1,
   );
-  expect(await db("action_dossier")).toHaveLength(0);
-  expect(await db("email_notification_outbox")).toHaveLength(0);
-  expect(sendEmail).not.toHaveBeenCalled();
+  expect(await db("action_dossier")).toMatchObject([
+    { type: "dossier_suivi", data: { follower: recipient.email } },
+  ]);
+  expect(await db("email_notification_outbox")).toMatchObject([
+    { personne: recipient.id, kind: "assignment", status: "sent" },
+  ]);
+  expect(sendEmail).toHaveBeenCalledOnce();
+  expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: [recipient.email] }));
+  expect((await assignFollowers(request())).status).toBe(204);
+  expect(sendEmail).toHaveBeenCalledOnce();
+  expect(await db("action_dossier")).toHaveLength(1);
+  expect(await db("email_notification_outbox")).toHaveLength(1);
 });
 
 test("instruction endpoint queues actual changes, excluding identical submitted values", async () => {

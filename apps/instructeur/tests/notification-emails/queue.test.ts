@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
-import { updateDossierFollowers } from "@pitchou/server/database/relation_suivi.ts";
 import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
@@ -123,25 +122,10 @@ test("DN form, attachment and species changes queue mail, but deferred baselines
   expect(await db("email_notification_outbox")).toHaveLength(2);
 });
 
-test("refuses third-party follow changes and never queues mail for personal follow events", async () => {
-  const { actor, recipient, action } = await setup();
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
-  const assign = async () =>
-    db.transaction(async (trx) => {
-      const updated = await updateDossierFollowers(
-        actor.id as UserId,
-        actor.dossier.id as ActionDossierInitializer["dossier"],
-        [actor.email, recipient.email],
-        trx,
-      );
-      expect(updated).toBe(false);
-    });
-  await assign();
-  await assign();
+test("never queues mail for personal follow events", async () => {
+  const { actor, action } = await setup();
   await action("dossier_suivi", { data: { follower: actor.email } });
-  expect(await db("edge_personne_follows_dossier").where({ personne: recipient.id })).toHaveLength(
-    0,
-  );
+  await action("dossier_suivi_termine", { data: { follower: actor.email } });
   expect(await db("email_notification_outbox")).toHaveLength(0);
   const sent = await dispatch(new Date());
   expect(sent.send).not.toHaveBeenCalled();

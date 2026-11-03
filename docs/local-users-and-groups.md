@@ -36,7 +36,7 @@ Group assignment follows automatic rules and persistent manual exceptions, descr
 
 Users with active group membership can read other dossiers with the existing cross-service field and document restrictions. Explicit grants can provide complete read-only access or instruction access. Direct individual grants work without group membership. Sessions resolve permissions on every request. A browser also checks for access changes when it regains focus.
 
-Following is personal tracking in "Mes dossiers" and notifications. It does not grant access or assign responsibility. Users manage their own follows; they cannot subscribe or unsubscribe colleagues. A follow survives an instruction-to-read downgrade while the user retains reading access. Removing the last reading access deletes the follow and cancels pending notifications. Restricted readers receive only information available in their restricted view. Formal responsibility and work assignment are outside this feature.
+Following is personal tracking in "Mes dossiers" and notifications. It does not grant access or assign responsibility. Users manage their own follows. Users with instruction access to a dossier can also use "Faire suivre le dossier" to subscribe or unsubscribe eligible colleagues in its owning active groups. Those colleagues must have active accounts and instruction permission. Read-only users can manage only their own follows. A follow survives an instruction-to-read downgrade while the user retains reading access. Removing the last reading access deletes the follow and cancels pending notifications. Restricted readers receive only information available in their restricted view. Formal responsibility and work assignment are outside this feature.
 
 ## Deployment configuration
 
