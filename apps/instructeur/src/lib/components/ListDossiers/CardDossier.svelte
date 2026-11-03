@@ -35,7 +35,7 @@
   const name = $derived(dossier.name || "(nom non renseigné)");
 
   const canEdit = $derived(dossier.access === "complet" && !readOnly);
-  const unread = $derived(canEdit && notificationViewed === false);
+  const unread = $derived(!readOnly && notificationViewed === false);
   const followed = $derived(dossierIsFollowed(dossier.id, store.followRelations));
   const porteurDeProjet = $derived(applicantName(dossier));
   const localisation = $derived(formatLocalisation(dossier) || "(non renseignée)");
@@ -48,9 +48,7 @@
   data-testid="card-dossier"
 >
   <div class={PROJECT_GRID}>
-    {#if !canEdit}
-      <span class="fr-icon-lock-line fr-icon--sm w-8 text-center" aria-label="Lecture seule"></span>
-    {:else if dossierFollowedByCurrentInstructeur}
+    {#if dossierFollowedByCurrentInstructeur}
       <button
         type="button"
         class="follow-button fr-btn fr-icon-star-fill fr-btn--tertiary-no-outline fr-btn--sm relative z-10"
@@ -78,7 +76,7 @@
              dossier while the page keeps a single, properly named link. Controls
              that do something else sit above it. -->
         <a
-          href={`/dossier/${dossier.id}${canEdit ? "" : "?lecture=1"}`}
+          href={`/dossier/${dossier.id}${readOnly || dossier.access === "lecture" ? "?lecture=1" : ""}`}
           class="project-title fr-link block truncate text-[color:var(--text-title-grey)] after:absolute after:inset-0 after:content-[''] {unread
             ? 'font-bold'
             : 'font-normal'}"
@@ -122,7 +120,7 @@
   </div>
 
   <div class="flex min-w-0 flex-col items-start gap-2 [overflow-wrap:anywhere] [&>*]:max-w-full">
-    {#if canEdit}<DossierNotificationBadges dossierId={dossier.id} />{/if}
+    {#if !readOnly}<DossierNotificationBadges dossierId={dossier.id} />{/if}
     {#if canEdit && !followed}
       <p class="fr-badge fr-badge--sm fr-badge--no-icon fr-badge--purple-glycine">
         Sans instructeur-ice

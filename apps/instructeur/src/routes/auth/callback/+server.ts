@@ -1,3 +1,4 @@
+import { canReadDossiers } from "#lib/server/dossierEntry.ts";
 import { error, redirect } from "@sveltejs/kit";
 import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { createSession } from "@pitchou/server/session.ts";
@@ -37,7 +38,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
   setSessionCookie(cookies, token);
 
   const sessionUser = await getSessionUser(account.id);
-  if (!sessionUser?.groupes.length || !sessionUser.permissions.includes("dossier:read")) {
+  if (!(await canReadDossiers(sessionUser))) {
     redirect(303, "/auth/acces-refuse");
   }
 

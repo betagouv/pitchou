@@ -37,7 +37,7 @@ export async function getDossiersForExport(
           "dossier.id",
         )
         .whereIn("dossier.id", selectedIds);
-      if (scope !== "france") ids.where("dossier_access.access", "complet");
+      if (scope === "service") ids.whereNot("dossier_access.access", "lecture");
       if (scope === "followed") {
         ids.whereExists(
           trx("edge_personne_follows_dossier")
@@ -46,6 +46,13 @@ export async function getDossiersForExport(
             .where("personne", personne.id),
         );
       }
+      const accessRows = await trx(dossierAccessQuery(userId, trx).as("access")).select(
+        "dossier",
+        "access",
+      );
+      const restrictedIds = new Set(
+        accessRows.filter(({ access }) => access === "lecture").map(({ dossier }) => dossier),
+      );
       const dossiers = await exportDossiersQuery(ids, trx);
       const relations = await exportRelationsQueries(ids, trx);
       const followers = groupBy(relations.followers, (row) => row.dossier);
@@ -56,19 +63,21 @@ export async function getDossiersForExport(
       const controles = groupBy(relations.controles, (row) => row.prescription);
       return dossiers.map((dossier) => ({
         ...dossier,
-        readOnly: scope === "france",
+        readOnly: scope === "france" || restrictedIds.has(dossier.id),
         followers:
-          scope === "france" ? [] : (followers.get(dossier.id) ?? []).map(({ email }) => email),
+          scope === "france" || restrictedIds.has(dossier.id)
+            ? []
+            : (followers.get(dossier.id) ?? []).map(({ email }) => email),
         especes: especes.get(dossier.id) ?? [],
         avis:
-          scope === "france"
+          scope === "france" || restrictedIds.has(dossier.id)
             ? (avis.get(dossier.id) ?? [])
                 .filter(({ expert }) => isOfficialAvisExpert(expert))
                 .map((entry) => ({ ...entry, saisine_date: null, saisine_fichier: null }))
             : (avis.get(dossier.id) ?? []),
         decisions: decisions.get(dossier.id) ?? [],
         prescriptions:
-          scope === "france"
+          scope === "france" || restrictedIds.has(dossier.id)
             ? []
             : (prescriptions.get(dossier.id) ?? []).map(({ id }) => ({
                 controles: controles.get(id) ?? [],

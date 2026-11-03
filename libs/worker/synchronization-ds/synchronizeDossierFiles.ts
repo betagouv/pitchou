@@ -4,6 +4,7 @@ import {
 } from "@pitchou/server/database/impact_espece/prepareImpactEspeceFile.ts";
 import { synchronizeFichiersPiecesJointesPetitionnaireFromDS88444 } from "@pitchou/server/database/edge_dossier__fichier_pieces_jointes_petitionnaire.ts";
 import { synchronizeFichiersEspecesImpacteesFromDS88444 } from "@pitchou/server/database/especes_impactees.ts";
+import { deleteFichiersWithoutOtherReferences } from "@pitchou/server/database/fichier.ts";
 import type { ChampFormulaire88444 } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema.ts";
@@ -30,7 +31,7 @@ const champsWithPiecesJointes88444: ChampFormulaire88444[] = [
   "Pièces jointes décrivant précisément le protocole qui sera mis en place",
 ];
 
-export function startDossierFileDownloads(
+export async function startDossierFileDownloads(
   dossiersDS: DossierDS88444[],
   demarcheNumber: number,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
@@ -41,29 +42,25 @@ export function startDossierFileDownloads(
       `Les fonctions pour récupérer les fichiers n'ont pas été trouvées pour la Démarche numéro ${demarcheNumber}.`,
     );
   }
-  return {
-    especesImpactees: getFichiersEspecesImpactees88444(
-      dossiersDS,
-      pitchouKeyToChampDS,
-      transaction,
-    ),
-    piecesJointesPetitionnaire: getPiecesJointesPetitionnaire88444(
-      dossiersDS,
-      pitchouKeyToChampDS,
-      champsWithPiecesJointes88444,
-      transaction,
-    ),
-  };
+  const especesImpactees = await getFichiersEspecesImpactees88444(
+    dossiersDS,
+    pitchouKeyToChampDS,
+    transaction,
+  );
+  const piecesJointesPetitionnaire = await getPiecesJointesPetitionnaire88444(
+    dossiersDS,
+    pitchouKeyToChampDS,
+    champsWithPiecesJointes88444,
+    transaction,
+  );
+  return { especesImpactees, piecesJointesPetitionnaire };
 }
 
 export async function prepareDossierFiles(
-  downloads: ReturnType<typeof startDossierFileDownloads>,
+  downloads: Awaited<ReturnType<typeof startDossierFileDownloads>>,
   transaction: Knex.Transaction,
 ) {
-  const [especesImpactees, piecesJointesPetitionnaire] = await Promise.all([
-    downloads.especesImpactees,
-    downloads.piecesJointesPetitionnaire,
-  ]);
+  const { especesImpactees, piecesJointesPetitionnaire } = downloads;
   const preparedFiles = new Map<FileId, PreparedImpactFile>();
   const candidates = [...(especesImpactees ?? [])];
   const imported: { demarche_numerique_number: string; source_file: FileId }[] =
@@ -95,53 +92,51 @@ export async function prepareDossierFiles(
   return { especesImpactees, piecesJointesPetitionnaire, preparedFiles };
 }
 
-export function synchronizeDownloadedDossierFiles(
+export async function synchronizeDownloadedDossierFiles(
   downloads: Awaited<ReturnType<typeof prepareDossierFiles>>,
   dossiersDS: DossierDS88444[],
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   pitchouKeyToChampDS: Map<keyof DossierDemarcheNumerique88444, ChampDescriptor["id"]>,
   transaction: Knex.Transaction,
 ) {
-  const especesImpactees = Promise.resolve(downloads.especesImpactees).then((downloadedFiles) => {
-    const files = new Map<number, FileId | null>(downloadedFiles);
-    const fieldId = pitchouKeyToChampDS.get(
-      "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
-    );
-    for (const dossier of dossiersDS) {
-      const field = dossier.champs.find(({ id }) => id === fieldId);
-      if (isChampDSPieceJustificative(field) && field.files.length === 0)
-        files.set(dossier.number, null);
-    }
-    if (files.size > 0) {
-      return synchronizeFichiersEspecesImpacteesFromDS88444(
-        files,
-        dossierIdByDNNumber,
-        transaction,
-        downloads.preparedFiles,
-      );
-    }
-  });
-  const piecesJointesPetitionnaire = Promise.resolve(downloads.piecesJointesPetitionnaire).then(
-    (downloadedFiles) => {
-      const filesByDossierId = new Map(
-        [...downloadedFiles].map(([number, files]) => {
-          const id = dossierIdByDNNumber.get(number);
-          if (!id) {
-            console.log("dossierIdByDNNumber", dossierIdByDNNumber);
-            throw new Error(`Id de dossier manquant pour dossier DS ${number}`);
-          }
-          return [id, files] as const;
-        }),
-      );
-      return synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
-        filesByDossierId,
-        dossiersDS,
-        dossierIdByDNNumber,
-        pitchouKeyToChampDS,
-        champsWithPiecesJointes88444,
-        transaction,
-      );
-    },
+  const files = new Map<number, FileId | null>(downloads.especesImpactees);
+  const fieldId = pitchouKeyToChampDS.get(
+    "Déposez ici le fichier téléchargé après remplissage sur https://pitchou.beta.gouv.fr/saisie-especes",
   );
-  return [especesImpactees, piecesJointesPetitionnaire];
+  for (const dossier of dossiersDS) {
+    const field = dossier.champs.find(({ id }) => id === fieldId);
+    if (isChampDSPieceJustificative(field) && field.files.length === 0)
+      files.set(dossier.number, null);
+  }
+  const deferredFileCleanup = new Set<FileId>();
+  const especesImpactees =
+    files.size > 0
+      ? await synchronizeFichiersEspecesImpacteesFromDS88444(
+          files,
+          dossierIdByDNNumber,
+          transaction,
+          downloads.preparedFiles,
+          deferredFileCleanup,
+        )
+      : undefined;
+  const filesByDossierId = new Map(
+    [...downloads.piecesJointesPetitionnaire].map(([number, files]) => {
+      const id = dossierIdByDNNumber.get(number);
+      if (!id) {
+        console.log("dossierIdByDNNumber", dossierIdByDNNumber);
+        throw new Error(`Id de dossier manquant pour dossier DS ${number}`);
+      }
+      return [id, files] as const;
+    }),
+  );
+  const piecesJointesPetitionnaire = await synchronizeFichiersPiecesJointesPetitionnaireFromDS88444(
+    filesByDossierId,
+    dossiersDS,
+    dossierIdByDNNumber,
+    pitchouKeyToChampDS,
+    champsWithPiecesJointes88444,
+    transaction,
+  );
+  await deleteFichiersWithoutOtherReferences([...deferredFileCleanup], transaction);
+  return [especesImpactees, piecesJointesPetitionnaire] as const;
 }

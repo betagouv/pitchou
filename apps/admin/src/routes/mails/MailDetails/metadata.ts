@@ -13,7 +13,7 @@ export function mailMetadata(detail: EmailDetail): [string, string][] {
     ["À", detail.recipients.join(", ") || "Non enregistré"],
     ["Création", formatDate(row.created_at)],
     [row.source === "cnpn" ? "Demande d’envoi" : "Envoi prévu", formatDate(row.due_at)],
-    ["Accepté par l’expéditeur", formatDate(row.sent_at)],
+    ["Pris en charge par Brevo", formatDate(row.sent_at)],
   ];
   if (row.personne) fields.push(["Personne", `#${row.personne}`]);
   if (detail.cc.length > 0) fields.push(["Copie", detail.cc.join(", ")]);

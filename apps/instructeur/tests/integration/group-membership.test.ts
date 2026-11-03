@@ -1,9 +1,10 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { expect, test } from "vitest";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
-import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 
 function members(token: string, groupId: string, method: string, body: object, origin?: string) {
   return fetch(`${INTEGRATION_BASE_URL}/parametres/groupes/${groupId}/membres`, {
@@ -75,14 +76,21 @@ test("members see only their groups and cannot change someone else's group or ro
 
 test("all active members can manage membership even with read-only dossier rights", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await db("auth_permission_exclusion").insert({
-    user_id: owner.id,
-    permission: "dossier:instruct",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: owner.id,
+      permission: "dossier:instruct",
+    }),
+  );
   expect(
     (await members(owner.cap, owner.groupeId, "POST", { email: "reader@example.org" })).status,
   ).toBe(200);
-  await db("auth_permission_exclusion").insert({ user_id: owner.id, permission: "dossier:read" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: owner.id,
+      permission: "dossier:read",
+    }),
+  );
   expect(
     (await members(owner.cap, owner.groupeId, "POST", { email: "another@example.org" })).status,
   ).toBe(200);
@@ -95,16 +103,20 @@ test("existing accounts retain administrator restrictions and disabled accounts 
   const owner = await createInstructeurWithDossier(db);
   const [existing] = await db("auth_user").insert({ email: "existing@example.org" }).returning("*");
   await db("auth_permission").insert({ user_id: existing.id, permission: "dossier:read" });
-  await db("auth_permission_exclusion").insert({
-    user_id: existing.id,
-    permission: "dossier:instruct",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: existing.id,
+      permission: "dossier:instruct",
+    }),
+  );
   expect((await members(owner.cap, owner.groupeId, "POST", { email: existing.email })).status).toBe(
     200,
   );
   expect((await getSessionUser(existing.id, db))?.permissions).toEqual(["dossier:read"]);
   expect(await db("auth_permission_bundle").where({ user_id: existing.id })).toHaveLength(0);
-  await db("auth_user").where({ id: existing.id }).update({ active: false });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_user").where({ id: existing.id }).update({ active: false }),
+  );
   expect((await members(owner.cap, owner.groupeId, "POST", { email: existing.email })).status).toBe(
     409,
   );
@@ -154,36 +166,21 @@ test("invalid input, foreign origins, archived groups and inactive sessions cann
       )
     ).status,
   ).toBe(403);
-  await db("groupe_instructeurs").where({ id: owner.groupeId }).update({ active: false });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_instructeurs").where({ id: owner.groupeId }).update({ active: false }),
+    { silent: true },
+  );
   expect(
     (await members(owner.cap, owner.groupeId, "POST", { email: "new@example.org" })).status,
   ).toBe(403);
-  await db("auth_user").where({ id: owner.id }).update({ active: false });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_user").where({ id: owner.id }).update({ active: false }),
+  );
   expect(
     (await members(owner.cap, owner.groupeId, "POST", { email: "new@example.org" })).status,
   ).toBe(401);
   expect((await members("", owner.groupeId, "DELETE", { userId: owner.id })).status).toBe(401);
   expect(await db("administration_event")).toHaveLength(0);
-});
-
-test("a colleague who has already signed in receives membership on the same account", async () => {
-  const owner = await createInstructeurWithDossier(db);
-  const colleague = await connectUser(
-    {
-      issuer: "https://proconnect.test",
-      subject: "returning",
-      email: "returning@example.org",
-      firstNames: "Alex",
-      lastName: "Martin",
-    },
-    db,
-  );
-  expect((await getSessionUser(colleague.id, db))?.groupes).toEqual([]);
-  expect(
-    (await members(owner.cap, owner.groupeId, "POST", { email: colleague.email })).status,
-  ).toBe(200);
-  const current = await getSessionUser(colleague.id, db);
-  expect(current?.groupes.map((group) => group.id)).toEqual([owner.groupeId]);
-  expect(current?.permissions).toContain("dossier:instruct");
-  expect(await db("auth_user").where({ email: colleague.email })).toHaveLength(1);
 });

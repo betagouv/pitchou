@@ -1,13 +1,14 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
 
-import { db } from "../setup/db.ts";
 import {
   createDossier,
   createGroupeInstructeurs,
   createInstructeurWithDossier,
 } from "../factories/index.ts";
-import { ADMIN_BASE_URL, INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { ADMIN_BASE_URL, INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 import { admin, saveGroup } from "../helpers/administration.ts";
 test("department ownership includes every matching group and recalculates across sources", async () => {
@@ -32,13 +33,17 @@ test("department ownership includes every matching group and recalculates across
     expect(
       await db("edge_groupe_instructeurs__dossier").where({ dossier: dossier.id }),
     ).toHaveLength(2);
-    await db("dossier").where({ id: dossier.id }).update({ primary_department: "69" });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "69" }),
+    );
     expect(
       await db("edge_groupe_instructeurs__dossier")
         .where({ dossier: dossier.id })
         .pluck("groupe_instructeurs"),
     ).toEqual([all.id]);
-    await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
+    );
   }
   const change = await saveGroup(administrator.token, {
     id: group.id,
@@ -62,24 +67,33 @@ test("removing one of several owning memberships preserves a follower, removing 
   const instructor = await createInstructeurWithDossier(db);
   const second = await createGroupeInstructeurs(db, { name: "Second" });
   const dossier = await db("dossier").where({ id: instructor.dossier.id }).first();
-  await db("groupe_departement").insert({
-    groupe_instructeurs: second.id,
-    department: dossier.primary_department,
-  });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: second.id,
+        department: dossier.primary_department,
+      }),
+    { silent: true },
+  );
   await db("user_groupe").insert({ user_id: instructor.id, groupe_instructeurs: second.id });
   await db("edge_personne_follows_dossier").insert({
     personne: instructor.id,
     dossier: dossier.id,
   });
-  await db("user_groupe")
-    .where({ user_id: instructor.id, groupe_instructeurs: instructor.groupeId })
-    .delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe")
+      .where({ user_id: instructor.id, groupe_instructeurs: instructor.groupeId })
+      .delete(),
+  );
   expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
   expect(
     (await fetchAuthenticated(instructor.cap, `${INTEGRATION_BASE_URL}/dossier/${dossier.id}`))
       .status,
   ).toBe(200);
-  await db("user_groupe").where({ user_id: instructor.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: instructor.id }).delete(),
+  );
   expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
   expect(
     (await fetchAuthenticated(instructor.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status,
@@ -89,7 +103,12 @@ test("removing one of several owning memberships preserves a follower, removing 
 test("DN import cannot create users, memberships or follower assignments", async () => {
   const { dumpDossiers } = await import("@pitchou/server/database/dossier.ts");
   const group = await createGroupeInstructeurs(db);
-  await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "75" });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({ groupe_instructeurs: group.id, department: "75" }),
+    { silent: true },
+  );
   await dumpDossiers(
     [
       {

@@ -1,4 +1,6 @@
 import type { Knex } from "knex";
+import { queueActionNotifications } from "../dossierNotificationEmails/actions.ts";
+import { lockDossierAccess } from "../dossierRouting.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 import { insertBatches } from "./insertBatches.ts";
@@ -28,9 +30,16 @@ export async function logActionsDossier(
   if (actions.length === 0) return;
   if (!databaseConnection.isTransaction)
     return databaseConnection.transaction((trx) => logActionsDossier(actions, trx));
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   // JSON columns must be serialized for insertion.
   const rows = actions.map((action) => ({ ...action, data: JSON.stringify(action.data ?? {}) }));
-  for (const batch of insertBatches(rows)) await databaseConnection("action_dossier").insert(batch);
+  for (const batch of insertBatches(rows)) {
+    const inserted = await databaseConnection("action_dossier").insert(batch).returning("id");
+    await queueActionNotifications(
+      databaseConnection as Knex.Transaction,
+      inserted.map((row) => row.id),
+    );
+  }
 }
 
 /**

@@ -44,7 +44,7 @@
     /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
     showFilterInstructeurice?: boolean;
     showFilterEnjeu?: boolean;
-    /** Show the « prochaine action à moi » quick filter for « mes dossiers » */
+    /** Show the next instruction action filter for followed dossiers */
     showFilterActionInstructeur?: boolean;
     showFilterUnread?: boolean;
     notificationByDossier: PitchouState["notificationByDossier"];
@@ -85,13 +85,13 @@
 
   let statusMessage = $state("");
   const ctx = $derived({
+    followedOnly,
     notificationByDossier,
     followRelations,
     especeByCD_REF: store.espèceByCD_REF,
   });
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
   const sortedDossiers = $derived(sortDossiers(filteredDossiers, query, notificationByDossier));
-
   const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
   const especeLabelByCD_REF = $derived(mapEspeceLabelByCD_REF(store.espèceByCD_REF));
   const analyticsContext = $derived({

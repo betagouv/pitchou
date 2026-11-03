@@ -11,6 +11,7 @@ export function createSubmission(getDossierId: () => DossierFull["id"]) {
     retryAllowed: false,
     sent: false,
     errorMessage: "",
+    sizeExceeded: false,
   });
 
   async function send(draft: Omit<SendCnpnEmailRequest, "requestId">) {
@@ -18,6 +19,7 @@ export function createSubmission(getDossierId: () => DossierFull["id"]) {
     state.retryAllowed = false;
     state.sending = true;
     state.errorMessage = "";
+    state.sizeExceeded = false;
     try {
       await sendCnpnEmail(getDossierId(), { ...draft, requestId });
       state.sent = true;
@@ -28,6 +30,7 @@ export function createSubmission(getDossierId: () => DossierFull["id"]) {
       }
     } catch (error) {
       if (error instanceof RequestError) {
+        state.sizeExceeded = error.status === 413;
         if (error.status === 502) state.retryAllowed = true;
         else if (![425, 504].includes(error.status)) state.submitted = false;
       } else {

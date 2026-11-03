@@ -6,6 +6,7 @@
     type SelectOption,
   } from "./Select/options.ts";
   import SelectOptionMarker from "./Select/SelectOptionMarker.svelte";
+  import FilterPopover from "./MultiSelectFilterPopover.svelte";
 
   export type FilterOption = SelectOption<string>;
 
@@ -38,6 +39,7 @@
 
   let open = $state(false);
   let root: HTMLElement | undefined = $state();
+  let trigger = $state<HTMLButtonElement>();
 
   const allOptions = $derived(flattenOptions(options));
   const groups = $derived(toRenderedGroups(options));
@@ -71,6 +73,7 @@
 
 <div class="relative flex-[1_1_auto] min-w-0" bind:this={root}>
   <button
+    bind:this={trigger}
     {id}
     type="button"
     class="fr-select w-full text-left truncate cursor-pointer [&.placeholder]:text-[color:var(--text-mention-grey)]"
@@ -83,13 +86,8 @@
     {summary}
   </button>
 
-  {#if open}
-    <div
-      class="absolute z-10 top-[calc(100%+0.25rem)] left-0 right-0 min-w-[16rem] max-h-[24rem] overflow-y-auto [padding:0.5rem_1rem_0.75rem] bg-[var(--background-default-grey)] border border-[color:var(--border-default-grey)] rounded-[0.25rem] shadow-[var(--overlap-shadow,0_2px_6px_rgba(0,0,0,0.16))]"
-      id="{id}-options"
-      role="group"
-      aria-label={label}
-    >
+  {#if open && trigger}
+    <FilterPopover id="{id}-options" {label} {trigger} onClose={() => (open = false)}>
       <div class="flex gap-2 mb-1">
         <button
           type="button"
@@ -157,6 +155,6 @@
           </ul>
         </div>
       {/each}
-    </div>
+    </FilterPopover>
   {/if}
 </div>

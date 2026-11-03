@@ -4,12 +4,17 @@ import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "@pitchou/comm
 import { directDatabaseConnection } from "../database.ts";
 import { loadEspeceByCD_REF } from "../especeProtegee.ts";
 import { getReferentielTypeImpactMethodeMoyenDePoursuite } from "../referentielTypeImpactMethodeMoyenDePoursuite.ts";
-import { loadFichierContent } from "./fichier.ts";
+import { fileKey, getObject } from "../objectStorage.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 import type Personne from "@pitchou/types/database/public/Personne.ts";
 import type { DescriptionMenacesEspeces } from "@pitchou/types/especes.d.ts";
 import type { DossierForGeoMCE } from "@pitchou/types/geomce.ts";
+
+const mediaTypes = new Set([
+  "application/vnd.oasis.opendocument.spreadsheet",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
 
 function formatDate(date: Date | null): string | null {
   return date ? date.toISOString().slice(0, "YYYY-MM-DD".length) : null;
@@ -20,7 +25,7 @@ export async function getDossiersForGeoMCE(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<DossierForGeoMCE[] | undefined> {
   const ids = Array.isArray(dossierIds) ? dossierIds : [dossierIds];
-  const dossiersP = databaseConnection("dossier")
+  const dossiers = await databaseConnection("dossier")
     .select(["dossier.*", "decision_administrative.signature_date"])
     .leftJoin("decision_administrative", { "decision_administrative.dossier": "dossier.id" })
     .where({ "decision_administrative.type": "Arrêté dérogation" })
@@ -30,17 +35,16 @@ export async function getDossiersForGeoMCE(
       const seen = new Set();
       return rows.filter(({ id }) => !seen.has(id) && Boolean(seen.add(id)));
     });
-  const instructeursP = getInstructeursByDossier(ids, databaseConnection);
-  const [especes, maps, instructeurs, dossiers] = await Promise.all([
-    loadEspeceByCD_REF(databaseConnection),
-    getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection),
-    instructeursP,
-    dossiersP,
-  ]);
-  const mediaTypes = new Set([
-    "application/vnd.oasis.opendocument.spreadsheet",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  ]);
+  const instructeurs = await getInstructeursByDossier(ids, databaseConnection);
+  const especes = await loadEspeceByCD_REF(databaseConnection);
+  const maps = await getReferentielTypeImpactMethodeMoyenDePoursuite(databaseConnection);
+  const files = await databaseConnection("file")
+    .select(["id", "media_type"])
+    .whereIn(
+      "id",
+      dossiers.flatMap(({ especes_impactees }) => (especes_impactees ? [especes_impactees] : [])),
+    );
+  const fileById = new Map(files.map((file) => [file.id, file]));
   return Promise.all(
     dossiers.map(async (dossier) => {
       let description: DescriptionMenacesEspeces = {
@@ -49,11 +53,12 @@ export async function getDossiersForGeoMCE(
         flore: [],
       };
       const fileId = dossier.especes_impactees as FileId | null;
-      const file = fileId ? await loadFichierContent(fileId, databaseConnection) : null;
-      if (file?.media_type && mediaTypes.has(file.media_type)) {
+      const file = fileId ? fileById.get(fileId) : undefined;
+      const content = fileId && file ? await getObject(fileKey(fileId)) : null;
+      if (content && file?.media_type && mediaTypes.has(file.media_type)) {
         try {
           description = await importDescriptionMenacesEspecesFromOdsArrayBuffer(
-            await arrayBuffer(file.body),
+            await arrayBuffer(content.body),
             especes,
             maps.activités,
             maps.méthodes,

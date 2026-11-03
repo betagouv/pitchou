@@ -2,11 +2,9 @@
   import PageHelp from "#lib/components/PageHelp.svelte";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import GroupsTable from "./GroupsTable.svelte";
-  import GroupEditor from "./GroupEditor.svelte";
+  import { goto } from "$app/navigation";
   import type { PageData, ActionData } from "./$types";
   let { data, form }: { data: PageData; form: ActionData } = $props();
-  let selected = $state<string | null>(null);
-  let editorOpen = $state(false);
   const sections = $derived([
     { title: "À vérifier", groups: data.groups.filter((g) => g.active && g.coverage_needs_review) },
     { title: "Actifs", groups: data.groups.filter((g) => g.active && !g.coverage_needs_review) },
@@ -23,52 +21,65 @@
     ),
   );
   function select(id: string | null) {
-    selected = id;
-    editorOpen = true;
+    void goto(`/groupes-instructeurs/${id ?? "nouveau"}`);
   }
 </script>
 
 <PageHelp title="Groupes instructeurs">
   <h3>Répartition des dossiers</h3>
   <p>
-    Chaque dossier appartient à tous les groupes actifs qui couvrent son département principal.
-    Plusieurs groupes peuvent donc partager un même dossier.
+    Chaque dossier est affecté à tous les groupes actifs dont une règle correspond. Les critères
+    d'une règle se combinent avec ET, les règles avec OU.
   </p>
   <p>
-    Les affectations sont recalculées lorsque le département principal du dossier, les départements
-    du groupe ou son état actif changent. Cela concerne aussi les dossiers existants, quelle que
-    soit leur source.
+    Les critères portent sur le département principal, les communes du projet par code INSEE et
+    l'activité principale du référentiel Pitchou. Un critère absent n'impose aucune restriction.
+    Pour les communes, une seule correspondance suffit.
   </p>
   <h3>Créer et modifier un groupe</h3>
   <p>
-    Utilisez le bouton + pour créer un groupe. Cliquez sur une ligne pour modifier son nom, ses
-    départements ou ses membres. « Tous » indique que le groupe couvre tous les départements
-    proposés.
+    Cliquez sur une ligne pour modifier le nom, les règles ou les membres. Un groupe sans règle
+    reçoit uniquement des affectations manuelles.
   </p>
   <p>
-    Un groupe actif reçoit les dossiers de ses départements. Un groupe archivé ne reçoit plus de
-    dossiers et ne donne plus d'accès à ses membres au titre de ce groupe. Sa configuration reste
-    conservée.
+    Vérifiez l'aperçu des dossiers ajoutés, retirés et des changements de niveau d'accès avant
+    d'enregistrer. Ce recalcul des dossiers existants n'envoie pas d'e-mail d'arrivée. Les nouvelles
+    arrivées ordinaires conservent leurs notifications.
+  </p>
+  <p>
+    Un groupe archivé ne donne plus d'accès. Ses règles et exceptions sont conservées pour une
+    éventuelle réactivation.
+  </p>
+  <h3>Affectations manuelles et exclusions</h3>
+  <p>
+    La fiche d'un dossier affiche l'origine de ses affectations. Vous pouvez inclure un groupe
+    manuellement, exclure durablement un dossier d'un groupe ou rétablir les règles automatiques.
+    Ces exceptions persistent après recalcul.
   </p>
   <h3>Vérifications et alertes</h3>
   <p>
-    Les groupes « À vérifier » sont actifs, mais leur couverture importée reste à confirmer.
-    Vérifiez leurs départements, puis enregistrez.
-  </p>
-  <p>
-    L'alerte signale les départements sans groupe actif. La page Dossiers signale les dossiers sans
-    affectation. Pour affecter un dossier, renseignez son département principal et assurez-vous
-    qu'un groupe actif le couvre.
+    Les groupes « À vérifier » attendent une confirmation de leur couverture importée. L'alerte
+    indique les départements sans couverture automatique complète. Des règles conditionnelles
+    peuvent néanmoins y affecter certains dossiers. La page Dossiers signale les dossiers
+    effectivement sans affectation.
   </p>
   <h3>Accès des membres</h3>
   <p>
-    Un instructeur membre d'au moins un groupe actif peut consulter les dossiers des autres groupes
-    en lecture seule. Il peut instruire les dossiers de ses groupes selon ses permissions.
+    Chaque règle ou inclusion manuelle accorde soit la lecture complète des informations internes,
+    soit l'instruction. Le niveau le plus fort de tous les groupes et accès individuels s'applique,
+    dans la limite des permissions du compte. Les membres d'un groupe actif conservent la lecture
+    restreinte des autres dossiers.
+  </p>
+  <p>
+    La fiche du dossier permet aussi d'accorder un accès individuel sans appartenance à un groupe.
+    Seuls les administrateurs autorisés gèrent ces accès et les membres des groupes. Le suivi est un
+    choix personnel pour retrouver un dossier et recevoir ses notifications ; il ne donne aucun
+    accès supplémentaire et ne désigne aucun responsable.
   </p>
 </PageHelp>
 {#if form?.message}<p class="fr-alert fr-alert--error" role="alert">{form.message}</p>{/if}
 {#if uncovered.length}<div id="uncovered-departments" class="fr-alert fr-alert--warning">
-    <h2>Départements sans groupe</h2>
+    <h2>Départements sans couverture automatique complète</h2>
     <p>{uncovered.join(", ")}</p>
   </div>{/if}
 {#each sections as section}
@@ -79,10 +90,3 @@
     onSelect={select}
   />
 {/each}
-{#if editorOpen}
-  <GroupEditor
-    {data}
-    current={data.groups.find((group) => group.id === selected)}
-    onClose={() => (editorOpen = false)}
-  />
-{/if}

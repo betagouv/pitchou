@@ -10,8 +10,8 @@
   <h3>Profils et permissions</h3>
   <p>
     Les profils regroupent plusieurs permissions. Le profil Instructeur permet de consulter les
-    dossiers et d'instruire ceux de ses groupes. Le profil Administrateur donne toutes les
-    permissions.
+    dossiers et d'instruire ceux pour lesquels un groupe ou un accès individuel autorise
+    l'instruction. Le profil Administrateur donne toutes les permissions.
   </p>
   <p>
     Les droits personnalisés permettent d'ajouter ou de refuser une permission. Un refus est
@@ -20,7 +20,8 @@
   </p>
   <h3>Groupes et comptes actifs</h3>
   <p>
-    L'accès aux dossiers dans l'application instructeurs nécessite au moins un groupe actif. Les
+    L'accès aux dossiers dans l'application instructeurs nécessite un groupe actif ou un accès
+    individuel accordé depuis la fiche d'un dossier, ainsi que la permission de consulter. Les
     appartenances se modifient dans la fiche de l'utilisateur ou sur la page Groupes instructeurs,
     avec le droit de gérer les groupes.
   </p>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { readOnlyMode } from "../../readOnly.ts";
   import FormControle from "../FormControle.svelte";
   import TagResultatControle from "../../../TagResultatControle.svelte";
   import { formatDateAbsolute, formatDateRelative } from "#lib/dossier/displayDossier.ts";
@@ -23,15 +24,16 @@
     validate,
     remove,
   }: Props = $props();
+  const readOnly = readOnlyMode();
   const notProvided = "(non renseigné)";
 </script>
 
 <section>
   <h6>{controles.length === 1 ? "1 contrôle" : `${controles.length} contrôles`}</h6>
-  <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={add}
-    >Ajouter un contrôle</button
-  >
-  {#if newControle}
+  {#if !readOnly.current}<button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={add}
+      >Ajouter un contrôle</button
+    >{/if}
+  {#if newControle && !readOnly.current}
     <FormControle controle={newControle} onValidate={create}>
       {#snippet buttonValidate()}<button
           type="submit"
@@ -45,7 +47,7 @@
     </FormControle>
   {/if}
   {#each controles as controle}
-    {#if controle === editedControle}
+    {#if controle === editedControle && !readOnly.current}
       <h6>Modification du contrôle</h6>
       <FormControle controle={editedControle} onValidate={validate}>
         {#snippet buttonCancel()}<button
@@ -68,10 +70,10 @@
             >{formatDateAbsolute(controle.controle_date)}</time
           >
           <TagResultatControle result={controle.result || notProvided} />
-          <button
-            class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
-            onclick={() => edit(controle)}>Modifier</button
-          >
+          {#if !readOnly.current}<button
+              class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-pencil-line"
+              onclick={() => edit(controle)}>Modifier</button
+            >{/if}
         </h6>
         <strong>Commentaire&nbsp;:</strong>
         {controle.comment}<br />

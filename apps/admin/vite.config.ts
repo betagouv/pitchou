@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import tailwindcss from "@tailwindcss/vite";
+import { resolveAppOrigin } from "@pitchou/server/requestOrigin.ts";
 
 // The app runs with CWD = this folder (apps/admin); the .env lives at the repo root.
 try {
@@ -13,10 +14,9 @@ try {
 
 export default defineConfig(({ command, isPreview }) => {
   const devOrigin =
-    command === "serve" && !isPreview
-      ? process.env.ORIGIN || process.env.PUBLIC_SITE_URL_ADMIN || undefined
-      : undefined;
-  const origin = devOrigin ? new URL(devOrigin).origin : undefined;
+    command === "serve" && !isPreview ? process.env.PUBLIC_SITE_URL_ADMIN || undefined : undefined;
+  const origin =
+    resolveAppOrigin("admin", process.env) ?? (devOrigin ? new URL(devOrigin).origin : undefined);
   const nodeAdapter = adapter();
   if (origin) {
     // Vite receives HTTP from the local TLS proxy. Keep Request and event.url on the public origin.
@@ -27,6 +27,7 @@ export default defineConfig(({ command, isPreview }) => {
   }
 
   return {
+    define: { __PITCHOU_ORIGIN__: JSON.stringify(origin ?? null) },
     plugins: [
       sentrySvelteKit({
         org: process.env.SENTRY_ORG,
@@ -37,7 +38,7 @@ export default defineConfig(({ command, isPreview }) => {
       tailwindcss(),
       sveltekit({
         adapter: nodeAdapter,
-        paths: { origin: process.env.ORIGIN || origin || undefined },
+        paths: { origin },
         preprocess: vitePreprocess(),
         tracing: { server: true },
       }),

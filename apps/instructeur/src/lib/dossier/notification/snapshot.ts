@@ -35,7 +35,7 @@ function applicantValues(dossier: DossierFull): string {
 /** Register only an atomic detail response, never list metadata attached to cached values. */
 export function registerReviewSnapshot(dossier: DossierFull): void {
   const snapshot = dossier.notificationSnapshot;
-  if (!snapshot || snapshot.dossier !== dossier.id || dossier.access === "lecture") return;
+  if (!snapshot || snapshot.dossier !== dossier.id) return;
   // The notification cannot be retargeted to different revisions by a local edit.
   for (const change of snapshot.changes) {
     Object.freeze(change.revisions);
@@ -55,7 +55,6 @@ export function boundReviewChanges(
     !snapshot ||
     snapshot.dossier !== dossier.id ||
     !pending ||
-    dossier.access === "lecture" ||
     valuesBySnapshot.get(snapshot) !== applicantValues(dossier)
   )
     return [];

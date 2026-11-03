@@ -1,12 +1,13 @@
-import type { Knex } from "knex";
 import type { MembershipGroup } from "@pitchou/types/groupMembership.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
+import type { Knex } from "knex";
 import { directDatabaseConnection as database } from "./database/connection.ts";
+import { reconcileDossierAccess } from "./dossierRouting.ts";
 import { getSessionUser } from "./users.ts";
 
+import { audit } from "./administration/audit.ts";
 import { GroupMembershipError, requireGroupMember } from "./groupMembership/access.ts";
 import { accountForMembership } from "./groupMembership/accounts.ts";
-import { audit } from "./administration/audit.ts";
 export { GroupMembershipError } from "./groupMembership/access.ts";
 
 export async function listMembershipGroups(
@@ -78,6 +79,7 @@ export async function removeGroupMember(
     const removed = await trx("user_groupe")
       .where({ groupe_instructeurs: groupId, user_id: memberId })
       .delete();
+    await reconcileDossierAccess(trx, { users: [memberId] });
     if (removed) await audit(trx, actor, "group_member_removed", { groupId, userId: memberId });
   });
 }

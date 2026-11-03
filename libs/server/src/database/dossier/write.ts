@@ -1,9 +1,10 @@
-import type { Knex } from "knex";
-import { directDatabaseConnection } from "../../database.ts";
-import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
+import type { Knex } from "knex";
+import { directDatabaseConnection } from "../../database.ts";
+import { lockDossierAccess, recalculateAssignments } from "../../dossierRouting.ts";
+import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 
 export function deleteDossierByDSNumber(
   numbers: number[],
@@ -56,6 +57,11 @@ export async function updateDossier(
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      updateDossier(id, dossierParams, causePersonne, trx),
+    );
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   const { evenementsPhase, ...columns } = dossierParams;
   const phaseAdded = evenementsPhase
     ? await databaseConnection("evenement_phase_dossier").insert(
@@ -66,5 +72,9 @@ export async function updateDossier(
     Object.keys(columns).length > 0
       ? await databaseConnection("dossier").where({ id }).update(columns)
       : undefined;
+  if (
+    ["primary_department", "communes", "main_activite"].some((key) => Object.hasOwn(columns, key))
+  )
+    await recalculateAssignments(databaseConnection as Knex.Transaction, { dossiers: [id] });
   return [phaseAdded, updated];
 }

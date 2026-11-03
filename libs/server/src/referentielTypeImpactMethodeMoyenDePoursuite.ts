@@ -17,13 +17,15 @@ import type { ActivitesMethodesMoyensDePoursuiteBundle } from "@pitchou/types/pi
 export async function getReferentielRows(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<ReferentielRows> {
-  const [typesImpact, methodes, moyensDePoursuite] = await Promise.all([
-    databaseConnection("impact_type")
-      .select("*")
-      .orderBy(["classification", "identifiant_pitchou"]),
-    databaseConnection("impact_methode").select("*").orderBy(["classification", "code"]),
-    databaseConnection("impact_moyen_de_poursuite").select("*").orderBy(["classification", "code"]),
-  ]);
+  const typesImpact = await databaseConnection("impact_type")
+    .select("*")
+    .orderBy(["classification", "identifiant_pitchou"]);
+  const methodes = await databaseConnection("impact_methode")
+    .select("*")
+    .orderBy(["classification", "code"]);
+  const moyensDePoursuite = await databaseConnection("impact_moyen_de_poursuite")
+    .select("*")
+    .orderBy(["classification", "code"]);
 
   return { typesImpact, methodes, moyensDePoursuite };
 }

@@ -184,6 +184,7 @@
       sending={submission.sending}
       {countdown}
       errorMessage={submission.errorMessage}
+      sizeExceeded={submission.sizeExceeded}
       onCancelCountdown={cancelCountdown}
       submitted={submission.submitted}
       retryAllowed={submission.retryAllowed}

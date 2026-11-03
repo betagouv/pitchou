@@ -1,14 +1,16 @@
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
 
 test.each(["membership", "group", "coverage", "department", "exclusion"])(
   "a queued dossier write rechecks %s changes",
   async (change) => {
     const instructeur = await createInstructeurWithDossier(db);
     const revocation = await db.transaction();
+    await lockDossierAccess(revocation);
     let response: Promise<Response> | undefined;
     try {
       const {
@@ -54,6 +56,7 @@ test.each(["membership", "group", "coverage", "department", "exclusion"])(
           { timeout: 5000 },
         )
         .toBe(1);
+      await recalculateAssignments(revocation, { silent: true });
       await revocation.commit();
       expect((await response).status).toBe(403);
       expect(await db("dossier").where({ id: instructeur.dossier.id }).first()).not.toMatchObject({

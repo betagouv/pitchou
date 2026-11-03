@@ -1,7 +1,8 @@
+import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { afterEach, expect, test, vi } from "vitest";
 import { seed as seedUsers } from "../../../../libs/database/seeds/dev/06_users.ts";
-import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
-import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
 import { db } from "../setup/db.ts";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -21,9 +22,11 @@ test("staging admins can access both apps without SEED_EMAIL and survive repeate
     bundle: "administrateur",
   });
   await seedUsers(db);
-  const [dossier] = await db("dossier")
-    .insert({ source: "pitchou", primary_department: "75", depot_date: new Date() })
-    .returning("*");
+  const [dossier] = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert({ source: "pitchou", primary_department: "75", depot_date: new Date() })
+      .returning("*"),
+  );
   const emails = ["bootstrap@example.org", "second@example.org"];
   for (const email of emails) {
     const user = await connectUser(

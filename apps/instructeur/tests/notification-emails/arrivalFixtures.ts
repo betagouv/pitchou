@@ -1,11 +1,12 @@
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import {
+  attachCapToGroupe,
+  createCapDossier,
+  createDossier,
   createInstructeurWithCapToGroup,
   createPersonne,
-  createCapDossier,
-  attachCapToGroupe,
-  createDossier,
 } from "../factories/index.ts";
+import { changeArrivalEdges } from "../helpers/routing.ts";
 
 export async function setupArrival() {
   const member = await createInstructeurWithCapToGroup(db, {
@@ -24,9 +25,11 @@ export async function setupArrival() {
     demarche_numerique_number: "123456",
   });
   const arrive = () =>
-    db("edge_groupe_instructeurs__dossier").insert({
-      dossier: dossier.id,
-      groupe_instructeurs: member.groupeId,
-    });
+    changeArrivalEdges(db, (trx) =>
+      trx("edge_groupe_instructeurs__dossier").insert({
+        dossier: dossier.id,
+        groupe_instructeurs: member.groupeId,
+      }),
+    );
   return { member, colleague, outsider, dossier, arrive };
 }

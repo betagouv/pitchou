@@ -69,11 +69,16 @@ describe("addPrescriptionsEtControles", () => {
     const rollback = vi.fn();
     const insert = vi.fn();
     let prescriptionNumber = 0;
+    let queryRunning = false;
     const transaction = vi.fn((table: string) => ({
       insert: (values: unknown) => {
         insert(table, values);
         return {
           returning: async () => {
+            if (queryRunning) throw new Error("concurrent transaction query");
+            queryRunning = true;
+            await Promise.resolve();
+            queryRunning = false;
             if (table === failingTable) throw new Error(`${table} insert failed`);
             return [{ id: table === "prescription" ? `p-${++prescriptionNumber}` : "c-1" }];
           },
@@ -101,7 +106,7 @@ describe("addPrescriptionsEtControles", () => {
     { decision_administrative: "da-id" },
   ] as Omit<FrontEndPrescription, "id">[];
 
-  it("inserts every prescription and its controls atomically without mutating input", async () => {
+  it("inserts prescriptions and controls sequentially and atomically without mutating input", async () => {
     const db = database();
     const input = structuredClone(prescriptions);
     Object.freeze(input);

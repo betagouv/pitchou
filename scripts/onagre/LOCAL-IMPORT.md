@@ -1,5 +1,15 @@
 # Local JSON dossier review
 
+## Compatibility after the group-assignment merge
+
+The preparation helpers remain usable, but the database importer has not yet been adapted to the application-owned routing merged in PR #737. Do not run an import or its database verification commands against the new schema yet. The current reviewer lookup calls the removed `pitchou_can_instruct` SQL function, and direct SQL writes no longer recalculate assignments or establish arrival baselines.
+
+The adaptation must use the shared routing/access services within the import transaction, recalculate the affected dossiers with `silent: true`, and represent any approved manual exception through the existing override or individual-access mechanism. Preserve explicit exclusions and human edits. See [the transaction contract](../../documentation/application-routing.md). The owner has indicated a revised import plan; clarify it before changing the importer’s identity, grouping or selection rules.
+
+Local databases that applied an intermediate version of the assignment branch may have a different schema despite recording similarly named migrations. Check migration history and actual tables before running migrations; a successful code merge does not upgrade the database.
+
+## Previous local importer workflow
+
 `local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:5434/especes_pro_3731` or `127.0.0.1:5434/especes_pro_3731`. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
 
 Run from the repository root with an existing local instructeur email and explicit sample files:
@@ -45,9 +55,9 @@ A private `onagre_local_import.identity` table records each dossier/source ident
 - Related records removed from the JSON are retained and listed in the report. No implicit deletions occur.
 - Deleted or reassigned imported records require explicit resolution. Existing unowned dossiers with the same Onagre code are not automatically adopted.
 
-For local review, the importer assigns dossiers to an existing active group of the specified reviewer and follows them. This is not a production service mapping. Group-arrival notification baselining suppresses new group-arrival emails. No mail delivery or synchronization workers are started.
+The previous local review path assigns dossiers directly to an existing active group of the specified reviewer and follows them. This is not a production service mapping and needs adaptation to the new routing contract. Its historical database notification-baseline flag does not replace the new application service’s `silent: true` option. No mail delivery or synchronization workers are started by this script.
 
-Pitchou's existing database triggers also route dossiers by `primary_department` through `groupe_departement` to active groups. This is the first routing source for Onagre, using the dossier location prepared from the demande or an approved explicit project-location fallback. Linked Onagre services are a last resort and do not override a resolved department. Keep the coordinating service's description separate from access routing. When department routing cannot resolve a responsible group, review the source services and available groups before proposing a new group such as DGALN. Creating a group alone does not implement an exception: the current routing refresh can remove direct assignments that do not match department coverage. Any such extension needs an explicit owner decision.
+Pitchou now supports automatic rules using primary department, project communes and activity, plus persistent manual inclusions/exclusions and read/instruct access levels. All matching active groups can receive a dossier. Use the shared application routing service instead of writing effective group edges directly. For Onagre, the agreed department-first correspondence remains the starting point; linked services are a last resort, and the coordinating service’s description is separate from access routing. A group such as DGALN can now receive approved manual exceptions without requiring department-wide coverage.
 
 Comments without source dates retain an explicit note in their prepared content; the database creation date is the import date. Historical phase timestamps are explicit proposals and must be reviewed with their evidence.
 

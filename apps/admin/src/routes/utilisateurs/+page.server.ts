@@ -1,14 +1,9 @@
+import { loadUserDirectory } from "./directory.server.ts";
 import { fail } from "@sveltejs/kit";
-import { listUsers, listUserGroupOptions, saveUser } from "@pitchou/server/administration.ts";
+import { saveUser } from "@pitchou/server/administration.ts";
 import { parseUser } from "#lib/server/administration.ts";
 import type { Actions, PageServerLoad } from "./$types";
-export const load: PageServerLoad = async ({ locals }) => {
-  const [users, groups] = await Promise.all([
-    listUsers(),
-    locals.user!.permissions.includes("groups:manage") ? listUserGroupOptions() : null,
-  ]);
-  return { users, groups };
-};
+export const load: PageServerLoad = ({ locals }) => loadUserDirectory(locals.user!.permissions);
 export const actions: Actions = {
   default: async ({ request, locals }) => {
     const form = await request.formData();

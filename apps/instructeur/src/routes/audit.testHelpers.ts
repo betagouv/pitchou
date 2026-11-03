@@ -4,14 +4,19 @@ const mocks = vi.hoisted(() => {
   const insert = vi.fn().mockResolvedValue(undefined);
   const first = vi.fn().mockResolvedValue(undefined);
   const query = {
-    insert,
+    insert: (...args: unknown[]) => {
+      const operation = insert(...args);
+      return Object.assign(operation, {
+        returning: () => operation.then(() => [{ id: "recorded-action" }]),
+      });
+    },
     first,
     where: vi.fn().mockReturnThis(),
     forUpdate: vi.fn().mockReturnThis(),
   };
   const transaction = Object.assign(
     vi.fn(() => query),
-    { isTransaction: true },
+    { isTransaction: true, raw: vi.fn().mockResolvedValue(undefined) },
   );
   const commit = vi.fn();
   const rollback = vi.fn();
@@ -36,6 +41,7 @@ const mocks = vi.hoisted(() => {
     commit,
     rollback,
     database,
+    queueNotifications: vi.fn(),
     author: vi.fn(),
     access: vi.fn(),
     deleteControle: vi.fn(),
@@ -54,6 +60,9 @@ const mocks = vi.hoisted(() => {
 export { mocks };
 
 vi.mock("@pitchou/server/database.ts", () => ({ directDatabaseConnection: mocks.database }));
+vi.mock("@pitchou/server/dossierNotificationEmails/actions.ts", () => ({
+  queueActionNotifications: mocks.queueNotifications,
+}));
 vi.mock("#lib/server/auth.ts", () => ({
   requireUserId: () => 7,
   requireDossierAccess: mocks.access,

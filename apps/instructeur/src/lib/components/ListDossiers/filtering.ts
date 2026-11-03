@@ -22,7 +22,7 @@ export function filterDossiers(
   ctx: DossiersContext,
 ): DossierSummary[] {
   const { notificationByDossier, followRelations } = ctx;
-  let result = filterByLocalisation(dossiers, query);
+  let result = filterByLocalisation(dossiers, query, ctx.followedOnly);
 
   if (query.text.trim()) {
     const terms = searchTerms(query.text);

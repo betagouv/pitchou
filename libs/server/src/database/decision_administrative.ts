@@ -103,36 +103,28 @@ export async function updateDecisionAdministrative(
     obligations_end_date,
   };
 
-  let decisionAdministrativeReadyP: Promise<any> = Promise.resolve();
-
-  let previousFichierIdP: Promise<FileId | undefined> = Promise.resolve(undefined);
+  let previousFichierId: FileId | undefined;
 
   if (decisionAdministrative.fichier_upload) {
-    decisionAdministrativeReadyP = registerUploadedFichier(
+    const fichier = await registerUploadedFichier(
       decisionAdministrative.fichier_upload,
       databaseConnection,
-    ).then((fichier) => {
-      decisionAdministrativeDB.fichier = fichier.id;
-    });
+    );
+    decisionAdministrativeDB.fichier = fichier.id;
 
-    previousFichierIdP = databaseConnection("decision_administrative")
+    const decisions = await databaseConnection("decision_administrative")
       .select(["fichier"])
-      .where({ id, dossier })
-      .then((decisions) => decisions[0].fichier);
+      .where({ id, dossier });
+    previousFichierId = decisions[0].fichier;
   }
 
-  await decisionAdministrativeReadyP;
-  const updatedDecisionAdministrativeP = databaseConnection("decision_administrative")
+  await databaseConnection("decision_administrative")
     .update(decisionAdministrativeDB)
     .where({ id, dossier });
 
-  return Promise.all([previousFichierIdP, updatedDecisionAdministrativeP]).then(
-    ([previousFichierId]) => {
-      if (previousFichierId) {
-        return deleteFichiersWithoutOtherReferences([previousFichierId], databaseConnection);
-      }
-    },
-  );
+  if (previousFichierId) {
+    return deleteFichiersWithoutOtherReferences([previousFichierId], databaseConnection);
+  }
 }
 
 export async function deleteDecisionAdministrative(

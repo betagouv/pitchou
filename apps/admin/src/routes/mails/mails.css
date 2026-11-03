@@ -50,10 +50,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-.notification-monitor [data-status="failed"] {
-  --state-color: var(--text-default-error);
-  --state-bg: var(--background-contrast-error);
-}
 .notification-monitor .cnpn-summary > div {
   display: flex;
   align-items: center;

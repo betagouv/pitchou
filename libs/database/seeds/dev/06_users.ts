@@ -1,3 +1,4 @@
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import type { Knex } from "knex";
 import { SEED_DEMARCHE_NUMBER } from "../fixtures/demarche_numerique.ts";
 import { SEED_GROUPES } from "../fixtures/groupes.ts";
@@ -6,6 +7,7 @@ import { SEED_PERSONNES } from "../fixtures/users.ts";
 export async function seed(db: Knex) {
   const SEED_EMAIL = process.env.SEED_EMAIL || "dev@localhost.local";
   await db.transaction(async (trx) => {
+    await lockDossierAccess(trx);
     for (const { departments, ...group } of SEED_GROUPES) {
       const [created] = await trx("groupe_instructeurs")
         .insert({ ...group, demarche_number: SEED_DEMARCHE_NUMBER })
@@ -18,11 +20,13 @@ export async function seed(db: Knex) {
           departments.map((department) => ({ groupe_instructeurs: created.id, department })),
         );
     }
+    await recalculateAssignments(trx, { silent: true });
   });
 
   for (const fixture of SEED_PERSONNES) {
     const email = fixture.email === "dev@localhost.local" ? SEED_EMAIL : fixture.email;
     await db.transaction(async (trx) => {
+      await lockDossierAccess(trx);
       let user = await trx("auth_user").where({ email }).first();
       if (!user) {
         [user] = await trx("auth_user")
@@ -56,6 +60,7 @@ export async function seed(db: Knex) {
   ];
   if (adminEmails.length === 0) return;
   await db.transaction(async (trx) => {
+    await lockDossierAccess(trx);
     const group = await trx("groupe_instructeurs")
       .where({ name: "Administrateur", demarche_number: SEED_DEMARCHE_NUMBER })
       .first();

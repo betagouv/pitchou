@@ -92,7 +92,7 @@ export function listAvailableDepartements(dossiers: DossierSummary[]): Departeme
 export function assignedDepartments(dossiers: Iterable<DossierSummary>): Set<string> {
   const codes = new Set<string>();
   for (const dossier of dossiers) {
-    if (dossier.access === "complet") {
+    if (dossier.access !== "lecture") {
       for (const code of dossier.departments ?? []) codes.add(code);
     }
   }

@@ -12,28 +12,26 @@ export async function getAuthorizedDossierFiles(
 ): Promise<AuthorizedFile[]> {
   if (fileIds.length === 0) return [];
 
-  const [project, avisSaisine, avis, decisions, others] = await Promise.all([
-    db("edge_dossier__fichier_pieces_jointes_petitionnaire")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-    db("avis_expert")
-      .where({ dossier: dossierId })
-      .whereIn("saisine_fichier", fileIds)
-      .pluck("saisine_fichier"),
-    db("avis_expert")
-      .where({ dossier: dossierId })
-      .whereIn("avis_fichier", fileIds)
-      .pluck("avis_fichier"),
-    db("decision_administrative")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-    db("other_attachment")
-      .where({ dossier: dossierId })
-      .whereIn("fichier", fileIds)
-      .pluck("fichier"),
-  ]);
+  const project = await db("edge_dossier__fichier_pieces_jointes_petitionnaire")
+    .where({ dossier: dossierId })
+    .whereIn("fichier", fileIds)
+    .pluck("fichier");
+  const avisSaisine = await db("avis_expert")
+    .where({ dossier: dossierId })
+    .whereIn("saisine_fichier", fileIds)
+    .pluck("saisine_fichier");
+  const avis = await db("avis_expert")
+    .where({ dossier: dossierId })
+    .whereIn("avis_fichier", fileIds)
+    .pluck("avis_fichier");
+  const decisions = await db("decision_administrative")
+    .where({ dossier: dossierId })
+    .whereIn("fichier", fileIds)
+    .pluck("fichier");
+  const others = await db("other_attachment")
+    .where({ dossier: dossierId })
+    .whereIn("fichier", fileIds)
+    .pluck("fichier");
   const authorizedIds = new Set([...project, ...avisSaisine, ...avis, ...decisions, ...others]);
   if (fileIds.some((id) => !authorizedIds.has(id))) return [];
 

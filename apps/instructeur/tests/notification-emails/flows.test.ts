@@ -1,15 +1,16 @@
-import { beforeEach, expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { sendEmail } from "@pitchou/server/emails.ts";
-import { POST as assignFollowers } from "../../src/routes/dossier/[dossierId]/followers/+server.ts";
-import { POST as updateInstruction } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { beforeEach, expect, test, vi } from "vitest";
 import { POST as updateAvis } from "../../src/routes/avis-expert/+server.ts";
 import { POST as updateControle } from "../../src/routes/controle/+server.ts";
-import { POST as updatePrescription } from "../../src/routes/prescription/+server.ts";
-import { PUT as updateCommentaire } from "../../src/routes/dossier/[dossierId]/commentaires/+server.ts";
 import { POST as updateDecision } from "../../src/routes/decision-administrative/+server.ts";
-import { setup } from "./fixtures.ts";
+import { POST as updateInstruction } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { PUT as updateCommentaire } from "../../src/routes/dossier/[dossierId]/commentaires/+server.ts";
+import { POST as assignFollowers } from "../../src/routes/dossier/[dossierId]/followers/+server.ts";
+import { POST as updatePrescription } from "../../src/routes/prescription/+server.ts";
 import { sessionUserId } from "../helpers/auth.ts";
+import { setup } from "./fixtures.ts";
 
 vi.mock("@pitchou/server/emails.ts", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@pitchou/server/emails.ts")>()),
@@ -32,16 +33,29 @@ beforeEach(() => {
   vi.stubEnv("PUBLIC_SITE_URL_PITCHOU", "https://pitchou.test");
 });
 
-test("the assignment endpoint commits before sending and does not send on repeated assignment", async () => {
+test("the assignment endpoint persists colleague follows and sends only once", async () => {
   const { actor, recipient } = await setup();
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier").where({ personne: recipient.id }).delete(),
+  );
   const request = () =>
     event(actor.cap, actor.dossier.id, { personneEmails: [actor.email, recipient.email] });
   expect((await assignFollowers(request())).status).toBe(204);
+  expect(await db("edge_personne_follows_dossier").where({ personne: recipient.id })).toHaveLength(
+    1,
+  );
+  expect(await db("action_dossier")).toMatchObject([
+    { type: "dossier_suivi", data: { follower: recipient.email } },
+  ]);
+  expect(await db("email_notification_outbox")).toMatchObject([
+    { personne: recipient.id, kind: "assignment", status: "sent" },
+  ]);
   expect(sendEmail).toHaveBeenCalledOnce();
-  expect((await db("email_notification_outbox").first()).status).toBe("sent");
+  expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: [recipient.email] }));
   expect((await assignFollowers(request())).status).toBe(204);
   expect(sendEmail).toHaveBeenCalledOnce();
+  expect(await db("action_dossier")).toHaveLength(1);
+  expect(await db("email_notification_outbox")).toHaveLength(1);
 });
 
 test("instruction endpoint queues actual changes, excluding identical submitted values", async () => {

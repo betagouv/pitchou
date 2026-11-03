@@ -1,7 +1,10 @@
-import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
 import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
-import { setup, dispatch } from "./fixtures.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { expect, test, vi } from "vitest";
+import { changeArrivalEdges, writeNotificationFixture } from "../helpers/routing.ts";
+import { dispatch, setup } from "./fixtures.ts";
 
 test("retries a transient failure with the same frozen payload and idempotency key", async () => {
   const { action, actor } = await setup();
@@ -87,9 +90,11 @@ test("recovers a crashed worker's expired claim with its original message", asyn
   const { action } = await setup();
   await action("avis_modifie");
   const [row] = await db("email_notification_outbox");
-  await db("email_notification_outbox")
-    .where({ id: row.id })
-    .update({ claimed_at: row.due_at, first_attempt_at: row.due_at });
+  await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox")
+      .where({ id: row.id })
+      .update({ claimed_at: row.due_at, first_attempt_at: row.due_at }),
+  );
   expect((await dispatch(new Date(row.due_at.getTime() + 60_000))).send).not.toHaveBeenCalled();
   expect((await dispatch(new Date(row.due_at.getTime() + 121_000))).send).toHaveBeenCalledOnce();
 });
@@ -114,17 +119,23 @@ test("dry-run lists eligible jobs without changing state or sending", async () =
 test("disabling or unfollowing discards pending news; only a new change queues after re-enabling", async () => {
   const { action, recipient, actor } = await setup();
   await action("avis_modifie");
-  await db("email_notification_preferences")
-    .where({ personne: recipient.id })
-    .update({ novelty: false });
-  await db("email_notification_preferences")
-    .where({ personne: recipient.id })
-    .update({ novelty: true });
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: recipient.id })
+      .update({ novelty: false }),
+  );
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: recipient.id })
+      .update({ novelty: true }),
+  );
   const [row] = await db("email_notification_outbox");
   expect((await dispatch(row.due_at)).send).not.toHaveBeenCalled();
   await action("controle_modifie");
   expect((await db("email_notification_outbox").first()).status).toBe("pending");
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier").where({ personne: recipient.id }).delete(),
+  );
   await db("edge_personne_follows_dossier").insert({
     personne: recipient.id,
     dossier: actor.dossier.id,
@@ -134,26 +145,31 @@ test("disabling or unfollowing discards pending news; only a new change queues a
 
 test("keeps separate messages for each dossier followed by the same recipient", async () => {
   const { action, recipient, actor } = await setup();
-  await db("email_notification_preferences").update({ arrival: false });
-  const [second] = await db("dossier")
-    .insert({
-      name: "Second dossier",
-      source: "demarche_numerique",
-      depot_date: new Date(),
-      demarche_number: 88444,
-    })
-    .returning("id");
-  await db("edge_groupe_instructeurs__dossier").insert({
-    dossier: second.id,
-    groupe_instructeurs: actor.groupeId,
-  });
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences").update({ arrival: false }),
+  );
+  const [second] = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert({
+        name: "Second dossier",
+        source: "demarche_numerique",
+        depot_date: new Date(),
+        demarche_number: 88444,
+      })
+      .returning("id"),
+  );
+  await changeArrivalEdges(db, (notificationTrx) =>
+    notificationTrx("edge_groupe_instructeurs__dossier").insert({
+      dossier: second.id,
+      groupe_instructeurs: actor.groupeId,
+    }),
+  );
   await db("edge_personne_follows_dossier").insert({ dossier: second.id, personne: recipient.id });
   await action("avis_modifie");
-  await db("action_dossier").insert({
-    dossier: second.id,
-    type: "controle_modifie",
-    author_personne: actor.id,
-  });
+  await logActionsDossier(
+    [{ dossier: second.id, type: "controle_modifie", author_personne: actor.id as never }],
+    db,
+  );
   const rows = await db("email_notification_outbox").orderBy("dossier");
   expect(rows).toHaveLength(2);
   expect(rows.map((row) => row.personne)).toEqual([recipient.id, recipient.id]);

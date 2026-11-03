@@ -1,19 +1,20 @@
-import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 import { getDossiersForExport } from "@pitchou/server/database/dossier/export.ts";
-import { updateDossierFromAdmin } from "@pitchou/server/database/dossier_admin/update.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin/detail.ts";
 import { listDossiersForAdmin } from "@pitchou/server/database/dossier_admin/list.ts";
-import {
-  up,
-  down,
-} from "../../../../libs/database/migrations/20261026120000_dossier-deposit-dates.ts";
-import type { UserId } from "@pitchou/types/permissions.ts";
+import { updateDossierFromAdmin } from "@pitchou/server/database/dossier_admin/update.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
+import { expect, test } from "vitest";
+import {
+  down,
+  up,
+} from "../../../../libs/database/migrations/20261026120000_dossier-deposit-dates.ts";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 // Exercise Onagre HTTP validation, storage, read models and audit together.
 test.each(["onagre"])(
@@ -66,12 +67,14 @@ test.each(["onagre"])(
 );
 
 test("unknown deposit dates sort last in either direction", async () => {
-  const rows = await db("dossier")
-    .insert([
-      { source: "onagre", depot_date: null },
-      { source: "pitchou", depot_date: "2026-07-15" },
-    ])
-    .returning("id");
+  const rows = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert([
+        { source: "onagre", depot_date: null },
+        { source: "pitchou", depot_date: "2026-07-15" },
+      ])
+      .returning("id"),
+  );
   for (const sortOrder of ["asc", "desc"] as const) {
     const result = await listDossiersForAdmin(
       { page: 1, pageSize: 10, sort: "depot_date", order: sortOrder },
@@ -84,9 +87,9 @@ test("unknown deposit dates sort last in either direction", async () => {
 test("migration keeps existing deposits and refuses a rollback that would require invented dates", async () => {
   await db.transaction(async (trx) => {
     await down(trx);
-    const [row] = await trx("dossier")
-      .insert({ source: "pitchou", depot_date: "2025-01-15" })
-      .returning("id");
+    const [row] = await changeAssignments(trx, (routingTrx) =>
+      routingTrx("dossier").insert({ source: "pitchou", depot_date: "2025-01-15" }).returning("id"),
+    );
     await up(trx);
     const migrated = await trx("dossier").where(row).first();
     expect(migrated.depot_date).toEqual(new Date("2025-01-15"));

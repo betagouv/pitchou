@@ -319,7 +319,7 @@ Sur staging, configurez `PITCHOU_ADMIN_EMAILS` sur l'application instructeur ave
 
 Après restauration d'une sauvegarde, utilisez votre propre identité ProConnect. Un administrateur peut ajuster vos permissions et vos groupes dans `/utilisateurs`.
 
-Les anciens liens secrets ne permettent plus de se connecter. La [documentation des comptes locaux](docs/local-users-and-groups.md) décrit la configuration ProConnect et les URL de retour à enregistrer.
+Les anciens liens secrets ne permettent plus de se connecter. La [documentation des comptes locaux](documentation/local-users-and-groups.md) décrit la configuration ProConnect et les URL de retour à enregistrer.
 
 ### GeoMCE
 

@@ -28,13 +28,12 @@
   let { dossier, anomalies }: Props = $props();
 
   const readOnly = readOnlyMode();
+  const canReview = $derived(readOnly.review ?? !(readOnly.restricted ?? readOnly.current));
   setContext(dossierReviewContext, () => dossier);
-  const pending = $derived(
-    readOnly.current ? undefined : store.notificationByDossier.get(dossier.id),
-  );
-  const boundChanges = $derived(readOnly.current ? [] : boundReviewChanges(dossier, pending));
+  const pending = $derived(canReview ? store.notificationByDossier.get(dossier.id) : undefined);
+  const boundChanges = $derived(canReview ? boundReviewChanges(dossier, pending) : []);
   const needsRefresh = $derived(
-    !readOnly.current &&
+    canReview &&
       pending?.changes.some((change) =>
         change.revisions.some((id) => !boundChanges.some((bound) => bound.revisions.includes(id))),
       ),

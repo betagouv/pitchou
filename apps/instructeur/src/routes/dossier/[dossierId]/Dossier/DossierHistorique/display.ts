@@ -4,7 +4,7 @@ import { phaseEventTimestamp } from "../../phaseEventTimestamp.ts";
 import { isTimeOfDayKnown } from "@pitchou/common/formatDate.ts";
 
 import type { DossierAction } from "@pitchou/types/capabilities.ts";
-import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import type { DossierFull, DossierCnpnEmailSentEvent } from "@pitchou/types/API_Pitchou.ts";
 
 export type HistoriqueEntry = {
   id: string;
@@ -91,26 +91,7 @@ export function historiqueEntries(
       date: new Date(event.sent_at),
       timeKnown: true,
       author: authorName ? `par ${authorName}` : undefined,
-      statuses: [
-        ...(event.delivered_at
-          ? [
-              {
-                icon: "fr-icon-checkbox-circle-line",
-                label: "Distribué au destinataire",
-                date: new Date(event.delivered_at),
-              },
-            ]
-          : []),
-        ...(event.opened_at
-          ? [
-              {
-                icon: "fr-icon-eye-line",
-                label: "Ouverture détectée",
-                date: new Date(event.opened_at),
-              },
-            ]
-          : []),
-      ],
+      statuses: cnpnEmailStatuses(event),
     };
   });
 
@@ -120,4 +101,27 @@ export function historiqueEntries(
     ...cnpnEmailEntries,
     ...milestoneEntries(dossier),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
+}
+
+function cnpnEmailStatuses(event: DossierCnpnEmailSentEvent): HistoriqueEntry["statuses"] {
+  const statuses = [];
+  if (event.delivery_failed_at)
+    statuses.push({
+      icon: "fr-icon-error-warning-line",
+      label: `Échec de livraison : ${event.delivery_failure_reason ?? "motif non communiqué par Brevo"}`,
+      date: new Date(event.delivery_failed_at),
+    });
+  if (event.delivered_at)
+    statuses.push({
+      icon: "fr-icon-checkbox-circle-line",
+      label: "Distribué au destinataire",
+      date: new Date(event.delivered_at),
+    });
+  if (event.opened_at)
+    statuses.push({
+      icon: "fr-icon-eye-line",
+      label: "Ouverture détectée",
+      date: new Date(event.opened_at),
+    });
+  return statuses;
 }

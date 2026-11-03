@@ -58,14 +58,23 @@
   </p>
   <h3>Distribution et ouverture</h3>
   <p>
-    Un envoi accepté par l'expéditeur ne signifie pas qu'il a été livré. Les distributions et
-    ouvertures concernent le destinataire principal. Une ouverture détectée ne garantit pas que le
-    message a été lu intégralement.
+    Un mail pris en charge par Brevo n'est pas nécessairement distribué. Les échecs de livraison
+    enregistrés apparaissent dans « À vérifier », avec le motif dans la liste et l'historique du
+    mail. « Annulés ou bloqués » concerne les annulations et la protection de préproduction.
+  </p>
+  <p>
+    Les confirmations de distribution et d'ouverture concernent les mails CNPN et leur destinataire
+    principal. Une ouverture détectée ne garantit pas que le message a été lu intégralement. Sans
+    ouverture détectée, la lecture reste inconnue.
+  </p>
+  <p>
+    Pour les notifications, seuls les échecs signalés sont conservés. Une distribution ultérieure ne
+    met pas à jour ce suivi. L'absence d'échec enregistré ne confirme pas la distribution.
   </p>
 </PageHelp>
 <div class="notification-monitor" aria-busy={!!navigating.to}>
   <section class="summary" aria-label="Répartition des résultats filtrés">
-    {#each [{ label: "En attente", states: ["pending"], status: "pending" }, { label: "Acceptés par l’expéditeur", states: ["sent"], status: "sent" }, { label: "À vérifier", states: ["failed", "uncertain"], status: "uncertain" }, { label: "Annulés ou bloqués", states: ["cancelled", "suppressed"], status: "cancelled" }] as card}
+    {#each [{ label: "En attente", states: ["pending"], status: "pending" }, { label: "Pris en charge par Brevo", states: ["sent"], status: "sent" }, { label: "À vérifier", states: ["failed", "uncertain"], status: "uncertain" }, { label: "Annulés ou bloqués", states: ["cancelled", "suppressed"], status: "cancelled" }] as card}
       <div class="summary-card" data-status={card.status}>
         <span class="summary-label"
           ><span class="status-dot" aria-hidden="true"></span>{card.label}</span
@@ -103,8 +112,8 @@
       <span class="muted">Dates à l'heure de Paris</span>
     </header>
     <p class="list-help">
-      Accepté par l'expéditeur ne signifie pas livré. Cliquez sur un mail pour consulter ses
-      détails.
+      La prise en charge par Brevo ne confirme pas la distribution. La lecture reste inconnue sans
+      ouverture détectée. Cliquez sur un mail pour consulter ses détails.
     </p>
     {#if data.overview.rows.length}<MailTable rows={data.overview.rows} onOpen={open} />{:else}<div
         class="notification-empty"

@@ -1,3 +1,5 @@
+export type Commune = { name: string; code?: string; postalCode?: string; [key: string]: unknown };
+
 type CommuneWithDepartment = { code?: string; departmentCode?: string };
 
 export function communeDepartmentCode(commune: CommuneWithDepartment): string | undefined {

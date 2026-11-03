@@ -1,8 +1,10 @@
-import { dossiersAccessibleToUser } from "./dossier/access.ts";
-import type { Knex } from "knex";
-import type { UserId } from "@pitchou/types/permissions.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
+import type { AuthUser as Personne, UserId } from "@pitchou/types/permissions.ts";
+import type { Knex } from "knex";
+import { cancelIneligibleNotifications } from "../dossierNotificationEmails/cancellation.ts";
+import { lockDossierAccess } from "../dossierRouting.ts";
+import { permissionSql } from "../dossierRouting/access.ts";
+import { dossiersAccessibleToUser } from "./dossier/access.ts";
 
 export type GroupeMember = {
   id: Personne["id"];
@@ -25,7 +27,9 @@ export async function getAccessibleDossierGroupeMembers(
     .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
     .join("edge_groupe_instructeurs__dossier as e", "e.groupe_instructeurs", "g.id")
     .where({ "e.dossier": dossierId, "u.active": true, "g.active": true })
-    .whereRaw("pitchou_can_instruct(u.id)")
+    .whereRaw(
+      `${permissionSql("u.id", "dossier:read")} AND ${permissionSql("u.id", "dossier:instruct")}`,
+    )
     .whereNotNull("u.email")
     .distinct("u.id", "u.email", "u.first_names as firstNames", "u.last_name as lastName")
     .orderBy("u.email");
@@ -37,6 +41,11 @@ export async function followDossierForPersonnes(
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
   if (personneIds.length === 0) return;
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      followDossierForPersonnes(personneIds, dossierId, trx),
+    );
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   await databaseConnection("edge_personne_follows_dossier")
     .insert(personneIds.map((personne) => ({ personne, dossier: dossierId })))
     .onConflict(["personne", "dossier"])
@@ -49,8 +58,17 @@ export async function unfollowDossierForPersonnes(
   databaseConnection: Knex.Transaction | Knex,
 ): Promise<void> {
   if (personneIds.length === 0) return;
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      unfollowDossierForPersonnes(personneIds, dossierId, trx),
+    );
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   await databaseConnection("edge_personne_follows_dossier")
     .delete()
     .where({ dossier: dossierId })
     .whereIn("personne", personneIds);
+  await cancelIneligibleNotifications(databaseConnection as Knex.Transaction, {
+    dossiers: [dossierId],
+    users: personneIds,
+  });
 }

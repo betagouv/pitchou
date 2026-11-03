@@ -1,12 +1,14 @@
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 import { admin } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 test("a queued administrator self-save cannot restore permissions revoked while it waited", async () => {
   const actor = await admin();
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let request: Promise<Response> | undefined;
   try {
     const {
@@ -38,6 +40,7 @@ test("a queued administrator self-save cannot restore permissions revoked while 
         { timeout: 5000 },
       )
       .toBe(1);
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     const response = await request;
     expect(response.status).toBe(400);

@@ -17,9 +17,9 @@ import type { QuantifiedImpact } from "../especesImpact.d.ts";
 import type { DossierNotification } from "../notification.ts";
 
 /**
- * Existing caps can consult every dossier; only owning groups can instruct it.
+ * Full grants expose internal data; account permissions cap editing rights.
  */
-export type DossierAccess = "complet" | "lecture";
+export type DossierAccess = "complet" | "lecture_complete" | "lecture";
 
 export type PrescriptionWithNewControles = Omit<Prescription, "id"> & {
   controles?: Omit<Controle, "id" | "prescription">[];
@@ -107,9 +107,8 @@ export type DossierFull = Omit<
   DossierCommonData &
   DossierPersonnesImpliquees & {
     /**
-     * What the cap that fetched this dossier may do with it. `lecture` means the
-     * payload is already narrowed and no write will be accepted, whatever the UI
-     * offers. A cap is `complet` for its own dossiers and `lecture` for all others.
+     * `lecture` has a restricted payload. `lecture_complete` exposes all internal
+     * data without edits. Only `complet` permits instruction writes.
      */
     access: DossierAccess;
     /** Personal review state read in the same database snapshot as these values. Never shared. */

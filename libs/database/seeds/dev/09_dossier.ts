@@ -1,3 +1,4 @@
+import { lockDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import type { Knex } from "knex";
 
 import { SEED_DOSSIERS } from "../fixtures/dossiers.ts";
@@ -19,6 +20,7 @@ const ORIGIN = process.env.SEED_ORIGIN || "http://localhost:5173";
 
 export async function seed(knex: Knex) {
   await knex.transaction(async (transaction) => {
+    await lockDossierAccess(transaction);
     await transaction.raw("SELECT set_config('pitchou.environment', ?, true)", [
       process.env.PUBLIC_PITCHOU_ENV === "staging" ? "staging" : "development",
     ]);

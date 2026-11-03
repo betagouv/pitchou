@@ -3,8 +3,12 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 vi.mock(import("@pitchou/server/cnpnEmailBrevo.ts"), () => ({
   processDossierCnpnEmailBrevoEvent: vi.fn(),
 }));
+vi.mock("@pitchou/server/emails/webhookIssue.ts", () => ({
+  reportBrevoWebhookIssue: vi.fn().mockResolvedValue("processed"),
+}));
 
 import { processDossierCnpnEmailBrevoEvent } from "@pitchou/server/cnpnEmailBrevo.ts";
+import { reportBrevoWebhookIssue } from "@pitchou/server/emails/webhookIssue.ts";
 import { POST } from "./+server.ts";
 
 beforeEach(() => {
@@ -12,6 +16,7 @@ beforeEach(() => {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
   vi.mocked(processDossierCnpnEmailBrevoEvent).mockReset().mockResolvedValue("processed");
+  vi.mocked(reportBrevoWebhookIssue).mockReset().mockResolvedValue("processed");
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -40,10 +45,20 @@ test.each([
   ["staging", "pitchou-env-other"],
 ])("%s ignores %s even when the IDs could match a local send", async (env, tag) => {
   vi.stubEnv("PUBLIC_PITCHOU_ENV", env);
-  for (const event of ["delivered", "opened", "unique_opened"]) {
+  for (const event of [
+    "delivered",
+    "opened",
+    "unique_opened",
+    "soft_bounce",
+    "hard_bounce",
+    "blocked",
+    "invalid_email",
+    "error",
+  ]) {
     expect((await notify(["cnpn-saisine", tag], event)).status).toBe(204);
   }
   expect(processDossierCnpnEmailBrevoEvent).not.toHaveBeenCalled();
+  expect(reportBrevoWebhookIssue).not.toHaveBeenCalled();
 });
 
 test.each([

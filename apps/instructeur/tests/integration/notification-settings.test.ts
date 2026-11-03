@@ -1,14 +1,17 @@
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
 
 const url = `${INTEGRATION_BASE_URL}/parametres/notifications`;
 test("notification settings belong to the session and remain usable without a group", async () => {
   const owner = await createInstructeurWithDossier(db);
   const other = await createInstructeurWithDossier(db, { nomGroupe: "Other" });
-  await db("user_groupe").where({ user_id: owner.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: owner.id }).delete(),
+  );
   const session = await (
     await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/api/session`)
   ).json();

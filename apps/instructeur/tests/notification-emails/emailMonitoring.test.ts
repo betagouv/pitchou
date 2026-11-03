@@ -1,7 +1,8 @@
-import { randomUUID } from "node:crypto";
-import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { emailFilters, emailOverview } from "@pitchou/server/database/email_monitoring.ts";
+import { randomUUID } from "node:crypto";
+import { expect, test } from "vitest";
+import { writeNotificationFixture } from "../helpers/routing.ts";
 import { setup } from "./fixtures.ts";
 
 const filters = (query = "") => emailFilters(new URLSearchParams(query));
@@ -9,22 +10,25 @@ async function mixed() {
   const { actor, recipient } = await setup();
   const id = randomUUID();
   const date = new Date("2026-10-21T22:30:00Z");
-  await db("email_notification_outbox").insert({
-    id,
-    personne: recipient.id,
-    dossier: actor.dossier.id,
-    kind: "arrival",
-    batch_key: "monitor",
-    due_at: date,
-    created_at: date,
-    environment: "preview",
-    message: {
-      subject: "Notification figée",
-      htmlContent: '<p>Bonjour <script>secret()</script><a href="javascript:alert(1)">lien</a></p>',
-      to: ["frozen@test.fr"],
-      headers: { secret: "private" },
-    },
-  });
+  await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox").insert({
+      id,
+      personne: recipient.id,
+      dossier: actor.dossier.id,
+      kind: "arrival",
+      batch_key: "monitor",
+      due_at: date,
+      created_at: date,
+      environment: "preview",
+      message: {
+        subject: "Notification figée",
+        htmlContent:
+          '<p>Bonjour <script>secret()</script><a href="javascript:alert(1)">lien</a></p>',
+        to: ["frozen@test.fr"],
+        headers: { secret: "private" },
+      },
+    }),
+  );
   await db("dossier_cnpn_email_sent_event").insert({
     id,
     dossier: actor.dossier.id,
@@ -111,14 +115,16 @@ test("global stable sorting and pagination interleave both sources without overl
         status: "failed",
       });
     else
-      await db("email_notification_outbox").insert({
-        personne: recipient.id,
-        dossier: actor.dossier.id,
-        kind: "novelty",
-        batch_key: `sort${i}`,
-        due_at: date,
-        created_at: date,
-      });
+      await writeNotificationFixture(db, (notificationTrx) =>
+        notificationTrx("email_notification_outbox").insert({
+          personne: recipient.id,
+          dossier: actor.dossier.id,
+          kind: "novelty",
+          batch_key: `sort${i}`,
+          due_at: date,
+          created_at: date,
+        }),
+      );
   }
   const first = await emailOverview(filters("sort=created_at&order=desc"), db);
   const second = await emailOverview(filters("sort=created_at&order=desc&page=2"), db);

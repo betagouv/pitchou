@@ -21,9 +21,13 @@ export async function getDossierReviewSnapshot(
       if (!access) return;
       const dossier = await getDossierFull(dossierId, userId, trx);
       if (!dossier) return;
-      if (readOnly || access === "lecture") return { ...dossierFullForReadOnly(dossier), access };
+      if (readOnly && access !== "lecture") return { ...dossierFullForReadOnly(dossier), access };
       const [notificationSnapshot] = await getNotificationsForUser(userId, trx, dossierId);
-      return { ...dossier, access, notificationSnapshot };
+      return {
+        ...(access === "lecture" ? dossierFullForReadOnly(dossier) : dossier),
+        access,
+        notificationSnapshot,
+      };
     },
     { isolationLevel: "repeatable read", readOnly: true },
   );

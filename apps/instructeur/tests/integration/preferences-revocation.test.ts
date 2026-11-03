@@ -1,5 +1,6 @@
-import { expect, test } from "vitest";
 import { saveUser } from "@pitchou/server/administration/users.ts";
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
 import { POST } from "../../src/routes/parametres/notifications/+server.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
 import { admin } from "../helpers/administration.ts";
@@ -29,6 +30,7 @@ test("a preferences write queued behind deactivation rejects without changing pr
   const user = await createInstructeurWithDossier(db);
   const before = await db("email_notification_preferences").where({ personne: user.id }).first();
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let response: ReturnType<typeof savePreferences> | undefined;
   try {
     const {
@@ -41,6 +43,7 @@ test("a preferences write queued behind deactivation rejects without changing pr
     await revocation("auth_user").where({ id: user.id }).update({ active: false });
     response = savePreferences(user.id);
     await expectDatabaseWaiter(pid, "%");
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     expect(await response).toBe(403);
     expect(await db("email_notification_preferences").where({ personne: user.id }).first()).toEqual(

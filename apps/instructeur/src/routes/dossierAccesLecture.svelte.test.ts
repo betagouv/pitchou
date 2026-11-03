@@ -81,7 +81,7 @@ test.each([false, true])(
       data: { ...dossierPageProps(DOSSIER_ID).data, readOnly },
     });
     expect(screen.queryByRole("button", { name: "Repasser en mode édition" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Suivre ce dossier" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Suivre ce dossier" })).toBeTruthy();
     expect(store.capabilities.modifierDossier).not.toHaveBeenCalled();
   },
 );

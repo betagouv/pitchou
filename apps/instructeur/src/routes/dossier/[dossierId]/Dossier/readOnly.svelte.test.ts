@@ -31,15 +31,18 @@ function renderDossier(
   readOnly: boolean,
   canEdit = true,
   source: "onagre" | "demarche_numerique" = "demarche_numerique",
+  access: import("@pitchou/types/API_Pitchou.ts").DossierAccess = "complet",
+  restricted?: boolean,
 ) {
   return render(Dossier, {
-    dossier: { ...fakeReadOnlyDossier(), source },
+    dossier: { ...fakeReadOnlyDossier(), source, access },
     activeTab: "instruction",
     onTabChange: vi.fn(),
     email: "instructeur@example.com",
     dossierFollowers: [],
     currentDossierFollowedByCurrentInstructeur: false,
     readOnly,
+    restricted,
     onReadOnlyChange: vi.fn(),
     canEdit,
     onClose: vi.fn(),
@@ -48,7 +51,6 @@ function renderDossier(
 
 /** Every action writing to the dossier, across the header and the tabs. */
 const writeActions = [
-  "Suivre ce dossier",
   "Ajouter un avis ou une saisine",
   "Rajouter une décision administrative",
   "Ajouter une pièce jointe",
@@ -76,6 +78,8 @@ test("le mode lecture seule retire toutes les actions d'écriture", async () => 
   for (const action of writeActions) {
     expect(screen.queryByRole("button", { name: action, hidden: true })).toBeNull();
   }
+
+  expect(screen.getByRole("button", { name: "Suivre ce dossier" })).toBeTruthy();
 
   // The actions menu only holds write actions, so it disappears entirely.
   expect(screen.queryByRole("button", { name: /Plus d’actions/u })).toBeNull();
@@ -123,7 +127,10 @@ test("le mode lecture seule masque les éléments internes au service", () => {
   expect(screen.queryByRole("heading", { name: /Autre expert/u, hidden: true })).toBeNull();
   expect(screen.queryByText(/Date d’ajout du courrier de saisine/u)).toBeNull();
   expect(screen.queryByText(/Date d’envoi du mail via Pitchou/u)).toBeNull();
-  expect(screen.queryByText(/Date de lecture de la saisine/u)).toBeNull();
+  expect(screen.queryByText(/Ouverture du mail de saisine/u)).toBeNull();
+  expect(
+    screen.queryByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeNull();
   expect(
     screen.queryByRole("link", { name: /Télécharger le fichier saisine/u, hidden: true }),
   ).toBeNull();
@@ -162,4 +169,44 @@ test("le mode édition conserve les actions d'écriture", () => {
 test("the Onagre DDEP date is disabled in read-only mode", () => {
   renderDossier(true, true, "onagre");
   expect(screen.getByLabelText("Date de dépôt du DDEP")).toBeDisabled();
+});
+
+test("la lecture complète conserve les informations internes sans proposer de modification", () => {
+  renderDossier(true, false, "demarche_numerique", "lecture_complete");
+  expect(screen.getByRole("tab", { name: "Historique" })).toBeTruthy();
+  expect(screen.queryByRole("tab", { name: "Générateur de documents" })).toBeNull();
+  expect(screen.getByRole("heading", { name: "Commentaires" })).toBeTruthy();
+  expect(
+    screen.getByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeTruthy();
+  expect(
+    screen.queryByRole("button", { name: /derogations-especes-protegees/u, hidden: true }),
+  ).toBeNull();
+  expect(screen.getByRole("heading", { name: /Autre expert/u, hidden: true })).toBeTruthy();
+  expect(screen.getAllByText(/Date d’ajout du courrier de saisine/u)).toHaveLength(2);
+  expect(screen.getByRole("heading", { name: "Autres", hidden: true })).toBeTruthy();
+  expect(screen.getByText(/Prescription secrète/u)).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Suivre ce dossier" })).toBeTruthy();
+  expect(screen.getByRole("combobox", { name: "Phase en cours" })).toBeDisabled();
+  for (const action of [
+    ...writeActions,
+    "Modifier les prescriptions",
+    "Ajouter une prescription",
+    "Ajouter un contrôle",
+  ]) {
+    expect(screen.queryByRole("button", { name: action, hidden: true })).toBeNull();
+  }
+  expect(screen.queryByLabelText("Laissez un commentaire")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Repasser en mode édition" })).toBeNull();
+});
+
+test("un aperçu restreint reste restreint avec un droit de lecture complète", () => {
+  renderDossier(true, false, "demarche_numerique", "lecture_complete", true);
+  expect(screen.queryByRole("tab", { name: "Historique" })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Commentaires" })).toBeNull();
+  expect(
+    screen.queryByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeNull();
+  expect(screen.queryByRole("heading", { name: /Autre expert/u, hidden: true })).toBeNull();
+  expect(screen.queryByText(/Prescription secrète/u)).toBeNull();
 });

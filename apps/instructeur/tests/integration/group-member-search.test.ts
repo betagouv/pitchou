@@ -1,8 +1,9 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
+import { createInstructeurWithDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { createInstructeurWithDossier } from "../factories/index.ts";
 
 function search(token: string, groupId: string, query = "") {
   return fetchAuthenticated(
@@ -13,6 +14,11 @@ function search(token: string, groupId: string, query = "") {
 
 test("members search active users by name or email without exposing account details", async () => {
   const owner = await createInstructeurWithDossier(db);
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert(
+      ["dossier:read", "dossier:instruct"].map((permission) => ({ user_id: owner.id, permission })),
+    ),
+  );
   const [candidate] = await db("auth_user")
     .insert({
       email: "celine@example.org",
@@ -34,7 +40,10 @@ test("members search active users by name or email without exposing account deta
       },
     ]);
   }
-  await db("user_groupe").insert({ user_id: candidate.id, groupe_instructeurs: owner.groupeId });
+  await db("user_groupe").insert({
+    user_id: candidate.id,
+    groupe_instructeurs: owner.groupeId,
+  });
   expect(await (await search(owner.cap, owner.groupeId, "celine")).json()).toEqual([]);
 });
 
@@ -55,8 +64,15 @@ test("only current members of an active group can search for candidates", async 
   const foreign = await createInstructeurWithDossier(db, { nomGroupe: "Foreign" });
   expect((await search(owner.cap, foreign.groupeId)).status).toBe(403);
   expect((await search("invalid-session", owner.groupeId)).status).toBe(401);
-  await db("user_groupe").where({ user_id: owner.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: owner.id }).delete(),
+  );
   expect((await search(owner.cap, owner.groupeId)).status).toBe(403);
-  await db("groupe_instructeurs").where({ id: foreign.groupeId }).update({ active: false });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_instructeurs").where({ id: foreign.groupeId }).update({ active: false }),
+    { silent: true },
+  );
   expect((await search(foreign.cap, foreign.groupeId)).status).toBe(403);
 });

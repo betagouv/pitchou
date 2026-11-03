@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FRANCE_TRANSFERT_URL } from "@pitchou/common/emailSize.ts";
   let {
     sent,
     loading,
@@ -11,6 +12,7 @@
     subject,
     htmlBody,
     errorMessage,
+    sizeExceeded = false,
     onClose,
   }: {
     sent: boolean;
@@ -24,6 +26,7 @@
     subject: string;
     htmlBody: string;
     errorMessage: string;
+    sizeExceeded?: boolean;
     onClose: () => void;
   } = $props();
 </script>
@@ -33,6 +36,12 @@
 >
   {#if errorMessage && !sent && !loading}
     <p class="fr-error-text fr-m-0 w-full" role="alert">{errorMessage}</p>
+    {#if sizeExceeded}<a
+        class="fr-link"
+        href={FRANCE_TRANSFERT_URL}
+        target="_blank"
+        rel="noopener noreferrer">Ouvrir France Transfert</a
+      >{/if}
   {/if}
   <button type="button" class="fr-btn fr-btn--secondary" disabled={sending} onclick={onClose}>
     {sent ? "Fermer" : "Annuler"}

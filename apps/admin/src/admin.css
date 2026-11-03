@@ -1,4 +1,11 @@
 /* Shared presentation for the admin app. Public and instructeur styles stay separate. */
+.admin-page-tabs {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 20;
+  background: var(--background-default-grey);
+}
+
 .admin-ui .fr-btn {
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -44,8 +51,23 @@
   font-size: 0.8125rem;
 }
 .admin-ui .fr-alert {
+  --admin-alert-border: var(--border-plain-grey);
   border-radius: 0.5rem;
   font-size: 0.875rem;
+  /* DSFR draws straight edges with gradients; complete the rounded outline. */
+  box-shadow: inset 0 0 0 1px var(--admin-alert-border);
+}
+.admin-ui .fr-alert--error {
+  --admin-alert-border: var(--border-plain-error);
+}
+.admin-ui .fr-alert--info {
+  --admin-alert-border: var(--border-plain-info);
+}
+.admin-ui .fr-alert--success {
+  --admin-alert-border: var(--border-plain-success);
+}
+.admin-ui .fr-alert--warning {
+  --admin-alert-border: var(--border-plain-warning);
 }
 .admin-ui .fr-callout {
   margin: 1rem 0;

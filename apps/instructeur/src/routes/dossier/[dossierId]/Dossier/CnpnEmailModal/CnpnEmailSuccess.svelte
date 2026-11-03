@@ -7,5 +7,9 @@
   <h3 class="fr-alert__title">
     {isTestEnvironment ? `Mail envoyé à ${recipient}` : "Mail envoyé au secrétariat du CNPN"}
   </h3>
-  <p>L'envoi a été ajouté à l'historique du dossier.</p>
+  <p>Brevo a pris en charge l'envoi. Sa distribution au destinataire reste à confirmer.</p>
+  <p>
+    Consultez le suivi dans l'historique du dossier. Un échec de livraison signalé par Brevo vous
+    sera communiqué par mail.
+  </p>
 </div>

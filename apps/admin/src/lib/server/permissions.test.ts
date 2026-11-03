@@ -29,6 +29,9 @@ const cases: [string, string, Permission][] = [
   ["POST", "/api/users", "users:manage"],
   ["POST", "/utilisateurs", "users:manage"],
   ["POST", "/api/groupes-instructeurs", "groups:manage"],
+  ["POST", "/api/groupes-instructeurs/apercu", "groups:manage"],
+  ["POST", "/api/dossiers/[dossierId]/affectations", "groups:manage"],
+  ["POST", "/api/dossiers/[dossierId]/acces-utilisateurs", "groups:manage"],
   ["POST", "/groupes-instructeurs", "groups:manage"],
 ];
 describe("admin write permissions", () => {

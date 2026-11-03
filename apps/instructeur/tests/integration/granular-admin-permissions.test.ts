@@ -1,11 +1,12 @@
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { createSession } from "@pitchou/server/session.ts";
+import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { expect, test } from "vitest";
 import { up } from "../../../../libs/database/migrations/20261023104000_granular-admin-permissions.ts";
-import { db } from "../setup/db.ts";
-import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
-import { createSession } from "@pitchou/server/session.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 import { createDossier } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 test("migration expands grants and exclusions without restoring denied access", async () => {
   const [granted, excluded] = await db("auth_user")
@@ -17,10 +18,12 @@ test("migration expands grants and exclusions without restoring denied access", 
     { user_id: excluded.id, permission: "admin:write" },
   ]);
   await db("auth_permission_bundle").insert({ user_id: excluded.id, bundle: "administrateur" });
-  await db("auth_permission_exclusion").insert([
-    { user_id: excluded.id, permission: "admin:write" },
-    { user_id: granted.id, permission: "admin:dossiers:delete" },
-  ]);
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert([
+      { user_id: excluded.id, permission: "admin:write" },
+      { user_id: granted.id, permission: "admin:dossiers:delete" },
+    ]),
+  );
   await db.transaction(up);
   await db.transaction(up);
   const migratedPermissions = await db("auth_permission")
@@ -89,10 +92,12 @@ test("HTTP writes require the specific permission, including combined dossier up
   const update = { columns: { name: "Updated by a limited administrator" } };
   expect((await write(`/api/dossiers/${dossier.id}`, "PUT", update)).status).toBe(200);
   expect((await db("dossier").where({ id: dossier.id }).first()).name).toBe(update.columns.name);
-  await db("auth_permission_exclusion").insert({
-    user_id: user.id,
-    permission: "admin:dossiers:update",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: user.id,
+      permission: "admin:dossiers:update",
+    }),
+  );
   expect((await write(`/api/dossiers/${dossier.id}`, "PUT", update)).status).toBe(403);
 });
 
@@ -127,14 +132,19 @@ test("changelog creation requires publication rights only for published entries"
   expect(draft.status).toBe(201);
   expect((await db("changelog").first()).published).toBe(false);
   await db("changelog").delete();
-  await db("auth_permission").insert({ user_id: user.id, permission: "admin:changelog:update" });
-  expect((await create(true)).status).toBe(201);
-  expect((await db("changelog").first()).published).toBe(true);
-  await db("changelog").delete();
-  await db("auth_permission_exclusion").insert({
+  await db("auth_permission").insert({
     user_id: user.id,
     permission: "admin:changelog:update",
   });
+  expect((await create(true)).status).toBe(201);
+  expect((await db("changelog").first()).published).toBe(true);
+  await db("changelog").delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: user.id,
+      permission: "admin:changelog:update",
+    }),
+  );
   expect((await create(true)).status).toBe(403);
   expect(await db("changelog")).toHaveLength(0);
 });

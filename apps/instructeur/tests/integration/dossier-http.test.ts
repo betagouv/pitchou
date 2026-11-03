@@ -1,8 +1,9 @@
-import { fetchAuthenticated } from "../helpers/auth.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
+import { fetchAuthenticated } from "../helpers/auth.ts";
 
-import { db } from "../setup/db.ts";
 import { createInstructeurWithDossier } from "../factories/index.ts";
+import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 function updateDossier(cap: string, dossierId: number, body: Record<string, unknown>) {
@@ -87,9 +88,11 @@ test("POST /dossier/:id annule la mise à jour si l'évènement de phase échoue
 
 test("POST /dossier/:id rejette un évènement destiné à un autre dossier", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
-  const [unrelatedDossier] = await db("dossier")
-    .insert({ name: "Dossier inaccessible", demarche_number: 88444, depot_date: new Date() })
-    .returning(["id"]);
+  const [unrelatedDossier] = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert({ name: "Dossier inaccessible", demarche_number: 88444, depot_date: new Date() })
+      .returning(["id"]),
+  );
 
   const response = await updateDossier(cap, dossier.id, {
     evenementsPhase: [phaseEvent(unrelatedDossier.id, "2026-07-19T12:00:00.000Z")],

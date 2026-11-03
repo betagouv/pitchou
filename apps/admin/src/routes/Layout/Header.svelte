@@ -15,7 +15,7 @@
 
   let { sidebarCollapsed, onMobileMenuClick, onSidebarToggle }: Props = $props();
 
-  const info = $derived(pageInfoFor(page.url.pathname));
+  const info = $derived(pageInfoFor(page.url.pathname, page.url.search));
   // A page may register a data-dependent title (e.g. the dossier name).
   const title = $derived(pageHeader.title ?? info.title);
 

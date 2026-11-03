@@ -48,6 +48,20 @@ export default interface DossierCnpnEmailSentEvent {
   read_receipt_claimed_at: Date | null;
 
   read_receipt_sent_at: Date | null;
+
+  delivery_failed_at: Date | null;
+
+  delivery_failure_event: string | null;
+
+  delivery_failure_reason: string | null;
+
+  failure_notification_claimed_at: Date | null;
+
+  failure_notification_sent_at: Date | null;
+
+  failure_notification_first_attempt_at: Date | null;
+
+  failure_notification_uncertain_at: Date | null;
 }
 
 /** Represents the initializer for the table public.dossier_cnpn_email_sent_event */
@@ -94,6 +108,20 @@ export interface DossierCnpnEmailSentEventInitializer {
   read_receipt_claimed_at?: Date | null;
 
   read_receipt_sent_at?: Date | null;
+
+  delivery_failed_at?: Date | null;
+
+  delivery_failure_event?: string | null;
+
+  delivery_failure_reason?: string | null;
+
+  failure_notification_claimed_at?: Date | null;
+
+  failure_notification_sent_at?: Date | null;
+
+  failure_notification_first_attempt_at?: Date | null;
+
+  failure_notification_uncertain_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.dossier_cnpn_email_sent_event */
@@ -135,4 +163,18 @@ export interface DossierCnpnEmailSentEventMutator {
   read_receipt_claimed_at?: Date | null;
 
   read_receipt_sent_at?: Date | null;
+
+  delivery_failed_at?: Date | null;
+
+  delivery_failure_event?: string | null;
+
+  delivery_failure_reason?: string | null;
+
+  failure_notification_claimed_at?: Date | null;
+
+  failure_notification_sent_at?: Date | null;
+
+  failure_notification_first_attempt_at?: Date | null;
+
+  failure_notification_uncertain_at?: Date | null;
 }

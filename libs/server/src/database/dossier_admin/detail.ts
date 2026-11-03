@@ -50,51 +50,48 @@ export async function getDossierDetailForAdmin(
     .first();
   if (!dossier) throw new DossierNotFoundError(dossierId);
   dossier.ddep_depot_date = withCalendarDateJSON(dossier.ddep_depot_date);
-  const [porteurRow, groupes, acteurs, evenementsPhase, piecesJointes, especesImpactees] =
-    await Promise.all([
-      joinPorteurDeProjet(db("dossier"))
-        .select(porteurDeProjetColumns)
-        .where("dossier.id", dossierId)
-        .first(),
-      db("edge_groupe_instructeurs__dossier")
-        .select(["groupe_instructeurs.id", "groupe_instructeurs.name"])
-        .join("groupe_instructeurs", {
-          "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
-        })
-        .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
-        .orderBy("groupe_instructeurs.name"),
-      getDossierActeurs([dossierId], db),
-      db("evenement_phase_dossier")
-        .select([
-          "evenement_phase_dossier.phase",
-          "evenement_phase_dossier.timestamp",
-          "personne.email as caused_by_email",
-          "evenement_phase_dossier.demarche_numerique_agent_email",
-        ])
-        .leftJoin("auth_user as personne", {
-          "personne.id": "evenement_phase_dossier.caused_by_personne",
-        })
-        .where({ dossier: dossierId })
-        .modify(orderPhaseEvents),
-      db("edge_dossier__fichier_pieces_jointes_petitionnaire")
-        .select([
-          "file.id",
-          "file.name",
-          "file.media_type",
-          db.raw("file.size::integer as size"),
-          "file.created_at",
-          "file.demarche_numerique_created_at",
-        ])
-        .join("file", { "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier" })
-        .where({ "edge_dossier__fichier_pieces_jointes_petitionnaire.dossier": dossierId })
-        .orderBy("file.created_at", "desc"),
-      dossier.especes_impactees
-        ? db("file")
-            .select(["id", "name", "media_type"])
-            .where({ id: dossier.especes_impactees })
-            .first()
-        : null,
-    ]);
+  const porteurRow = await joinPorteurDeProjet(db("dossier"))
+    .select(porteurDeProjetColumns)
+    .where("dossier.id", dossierId)
+    .first();
+  const groupes = await db("edge_groupe_instructeurs__dossier")
+    .select(["groupe_instructeurs.id", "groupe_instructeurs.name"])
+    .join("groupe_instructeurs", {
+      "groupe_instructeurs.id": "edge_groupe_instructeurs__dossier.groupe_instructeurs",
+    })
+    .where({ "edge_groupe_instructeurs__dossier.dossier": dossierId })
+    .orderBy("groupe_instructeurs.name");
+  const acteurs = await getDossierActeurs([dossierId], db);
+  const evenementsPhase = await db("evenement_phase_dossier")
+    .select([
+      "evenement_phase_dossier.phase",
+      "evenement_phase_dossier.timestamp",
+      "personne.email as caused_by_email",
+      "evenement_phase_dossier.demarche_numerique_agent_email",
+    ])
+    .leftJoin("auth_user as personne", {
+      "personne.id": "evenement_phase_dossier.caused_by_personne",
+    })
+    .where({ dossier: dossierId })
+    .modify(orderPhaseEvents);
+  const piecesJointes = await db("edge_dossier__fichier_pieces_jointes_petitionnaire")
+    .select([
+      "file.id",
+      "file.name",
+      "file.media_type",
+      db.raw("file.size::integer as size"),
+      "file.created_at",
+      "file.demarche_numerique_created_at",
+    ])
+    .join("file", { "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier" })
+    .where({ "edge_dossier__fichier_pieces_jointes_petitionnaire.dossier": dossierId })
+    .orderBy("file.created_at", "desc");
+  const especesImpactees = dossier.especes_impactees
+    ? await db("file")
+        .select(["id", "name", "media_type"])
+        .where({ id: dossier.especes_impactees })
+        .first()
+    : null;
   const source: DossierSource = isDossierSource(dossier.source) ? dossier.source : "unknown";
   return {
     dossier,

@@ -3,7 +3,7 @@ import type { RequestHandler } from "./$types";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import {
   requireUserId,
-  requireDossierAccess,
+  requireDossierInternalReadAccess,
   requireDossierWriteAccess,
 } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
@@ -41,7 +41,10 @@ function parseContent(value: Record<string, unknown>): string {
 
 export const GET: RequestHandler = async ({ params, locals }) => {
   const userId = requireUserId(locals);
-  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
+  const dossierId = await requireDossierInternalReadAccess(
+    Number(params.dossierId!) as DossierId,
+    userId,
+  );
   return json(await getDossierCommentaires(dossierId));
 };
 

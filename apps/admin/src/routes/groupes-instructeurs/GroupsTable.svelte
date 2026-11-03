@@ -46,7 +46,7 @@
         >
           <tr>
             <th scope="col" class="px-4 py-2 text-left font-medium">Groupe</th>
-            <th scope="col" class="px-4 py-2 text-left font-medium">Départements</th>
+            <th scope="col" class="px-4 py-2 text-left font-medium">Affectation automatique</th>
             <th scope="col" class="px-4 py-2 text-right font-medium">Membres</th>
             <th scope="col" class="px-4 py-2 text-right font-medium">Dossiers</th>
           </tr>
@@ -89,8 +89,14 @@
                       >
                     {/each}
                   </div>
-                {:else}
-                  <span class="text-[var(--text-mention-grey)]">Aucun</span>
+                {:else if !group.rules.length}
+                  <span class="text-[var(--text-mention-grey)]">Manuelle uniquement</span>
+                {/if}
+                {#if group.rules.length}
+                  <span class="text-xs"
+                    >{group.rules.length} règle(s), dont
+                    {group.rules.filter((rule) => rule.accessLevel === "read").length} en lecture complète</span
+                  >
                 {/if}
               </td>
               <td class="px-4 py-3 text-right tabular-nums">{group.members.length}</td>

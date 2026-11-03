@@ -1,8 +1,9 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { getSessionUser } from "@pitchou/server/users.ts";
-import { db } from "../setup/db.ts";
-import { admin } from "../helpers/administration.ts";
+import { afterEach, expect, test, vi } from "vitest";
 import { POST } from "../../../admin/src/routes/api/dossiers/[dossierId]/simuler-synchronisation/+server.ts";
+import { admin } from "../helpers/administration.ts";
+import { db } from "../setup/db.ts";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -16,6 +17,7 @@ test.each([
   const actor = await admin();
   const user = await getSessionUser(actor.id);
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let response: Promise<unknown> | undefined;
   try {
     const {
@@ -50,11 +52,15 @@ test.each([
         { timeout: 5000 },
       )
       .toBe(1);
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     expect(await response).toBe(403);
     expect(await db("action_dossier")).toEqual([]);
   } finally {
-    if (!revocation.isCompleted()) await revocation.commit();
+    if (!revocation.isCompleted()) {
+      await recalculateAssignments(revocation, { silent: true });
+      await revocation.commit();
+    }
     await response;
   }
 });

@@ -1,6 +1,8 @@
 import { StagingEmailSuppressedError } from "./emails/recipients.ts";
 import { createHash } from "node:crypto";
 import { sendBrevoEmail } from "./emails/delivery.ts";
+import { base64MimeBytes } from "@pitchou/common/emailSize.ts";
+export { MAX_EMAIL_BYTES, base64MimeBytes } from "@pitchou/common/emailSize.ts";
 export { getEmailEnvironmentTag, EMAIL_ENVIRONMENT_TAG_PREFIX } from "./emails/delivery.ts";
 
 // keep in sync with https://app.brevo.com/templates/listing
@@ -21,15 +23,6 @@ export type EmailMessage = {
   tags?: string[];
   headers?: Record<string, string>;
 };
-
-// Brevo documents 20 MB for the whole message, including encoded attachments.
-// Use decimal MB, not MiB, and leave room for provider-added MIME headers.
-export const MAX_EMAIL_BYTES = 20_000_000;
-
-export function base64MimeBytes(bytes: number): number {
-  const encodedBytes = 4 * Math.ceil(bytes / 3);
-  return encodedBytes + 2 * Math.ceil(encodedBytes / 76);
-}
 
 export function estimateEmailBytes({
   attachments = [],

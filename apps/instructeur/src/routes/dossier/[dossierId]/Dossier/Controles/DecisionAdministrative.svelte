@@ -125,7 +125,7 @@
 
     <!-- Prescriptions and their contrôles are internal follow-up: read-only mode
          exposes the décision administrative itself and its file, nothing more. -->
-    {#if !readOnly.current}
+    {#if !(readOnly.restricted ?? readOnly.current)}
       <Prescriptions {dossierId} {decisionAdministrative} />
     {/if}
   {/if}
