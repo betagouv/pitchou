@@ -1,3 +1,5 @@
+import { sharedDossierIdsSql } from "./projet.ts";
+
 // These fragments accept only source-controlled SQL expressions, never request values.
 // Keeping predicates here lets previews and bulk writes use the same rule semantics.
 export function ruleMatchesSql(d = "d", r = "r") {
@@ -14,6 +16,12 @@ export function ruleMatchesSql(d = "d", r = "r") {
 }
 
 export function groupMatchesSql(d = "d", group = "g.id") {
+  return `(CASE WHEN EXISTS (SELECT 1 FROM dossier_demande WHERE dossier = ${d}.id) THEN
+    EXISTS (SELECT 1 FROM dossier shared_d WHERE shared_d.id IN (${sharedDossierIdsSql(`${d}.id`)})
+    AND ${localGroupMatchesSql("shared_d", group)}) ELSE ${localGroupMatchesSql(d, group)} END)`;
+}
+
+function localGroupMatchesSql(d: string, group: string) {
   return `(EXISTS (SELECT 1 FROM groupe_departement c
       WHERE c.groupe_instructeurs = ${group} AND c.department = ${d}.primary_department)
     OR EXISTS (SELECT 1 FROM group_routing_rule r WHERE r.groupe_instructeurs = ${group}
@@ -21,6 +29,14 @@ export function groupMatchesSql(d = "d", group = "g.id") {
 }
 
 export function groupAccessSql(d = "d", group = "g.id") {
+  return `(CASE WHEN EXISTS (SELECT 1 FROM dossier_demande WHERE dossier = ${d}.id) THEN
+    (SELECT CASE WHEN bool_or(level = 'instruct') THEN 'instruct' ELSE 'read' END
+    FROM (SELECT ${localGroupAccessSql("shared_d", group)} as level FROM dossier shared_d
+      WHERE shared_d.id IN (${sharedDossierIdsSql(`${d}.id`)})) shared_grants
+    WHERE level IS NOT NULL HAVING count(*) > 0) ELSE ${localGroupAccessSql(d, group)} END)`;
+}
+
+function localGroupAccessSql(d: string, group: string) {
   return `(SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM groupe_instructeurs active_group
       WHERE active_group.id = ${group} AND active_group.active) THEN NULL
     WHEN override.mode = 'exclude' THEN NULL

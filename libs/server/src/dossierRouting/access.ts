@@ -1,4 +1,5 @@
 import { BUNDLES, type Permission } from "@pitchou/types/permissions.ts";
+import { sharedDossierIdsSql } from "./projet.ts";
 
 // Expressions are internal aliases. Bind all user-supplied values in the caller's query.
 export function permissionSql(user: string, permission: Permission) {
@@ -19,9 +20,9 @@ export function dossierAccessSql(dossier: string, user: string) {
     SELECT e.access_level FROM edge_groupe_instructeurs__dossier e
     JOIN user_groupe m ON m.groupe_instructeurs = e.groupe_instructeurs
     JOIN groupe_instructeurs g ON g.id = m.groupe_instructeurs AND g.active
-    WHERE e.dossier = ${dossier} AND m.user_id = ${user}
+    WHERE e.dossier IN (${sharedDossierIdsSql(dossier)}) AND m.user_id = ${user}
     UNION ALL SELECT routing_direct_grant.access_level FROM dossier_user_access routing_direct_grant
-      WHERE routing_direct_grant.dossier = ${dossier} AND routing_direct_grant.user_id = ${user}
+      WHERE routing_direct_grant.dossier IN (${sharedDossierIdsSql(dossier)}) AND routing_direct_grant.user_id = ${user}
   ) SELECT CASE WHEN NOT ${permissionSql(user, "dossier:read")}
       OR NOT EXISTS (SELECT 1 FROM dossier existing WHERE existing.id = ${dossier}) THEN NULL
     WHEN EXISTS (SELECT 1 FROM grants WHERE access_level = 'instruct')

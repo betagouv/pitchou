@@ -23,9 +23,9 @@ const references = [
 ];
 
 test.each(references)(
-  "deletes the $type attachment and audits the deletion",
+  "removes the $type attachment from the current demande and retains its historical file",
   async ({ type, table, column }) => {
-    const { cap, dossier } = await createInstructeurWithDossier(db);
+    const { cap, dossier, id: userId } = await createInstructeurWithDossier(db);
     const file = await createFichierS3(db, await getTestS3());
     const [entity] = await db(table)
       .insert({
@@ -44,8 +44,21 @@ test.each(references)(
     const remaining = await db(table).where({ id: entity.id }).first();
     if (type === "autre") expect(remaining).toBeUndefined();
     else expect(remaining).toEqual({ ...entity, [column]: null });
-    expect(await db("file").where({ id: file.id })).toHaveLength(0);
-    await expect.poll(() => s3HasKey(file.key)).toBe(false);
+    expect(await db("file").where({ id: file.id })).toHaveLength(1);
+    expect(await db("demande_revision_file").where({ fichier: file.id })).not.toHaveLength(0);
+    expect(await s3HasKey(file.key)).toBe(true);
+    const route =
+      type === "saisine" || type === "avis"
+        ? "avis-expert"
+        : type === "decision"
+          ? "decision-administrative"
+          : "attachment-autre";
+    const url = `${INTEGRATION_BASE_URL}/${route}/fichier/${file.id}`;
+    const historicalDownload = await fetchAuthenticated(cap, url);
+    expect(historicalDownload.status).toBe(200);
+    expect(Buffer.from(await historicalDownload.arrayBuffer())).toEqual(file.bytes);
+    await db("auth_user").where({ id: userId }).update({ active: false });
+    expect((await fetchAuthenticated(cap, url)).status).toBe(401);
     expect(
       await db("action_dossier")
         .where({ dossier: dossier.id, type: "piece_jointe_supprimee" })

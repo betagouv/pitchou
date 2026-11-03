@@ -40,7 +40,7 @@ test("preserves the old decision object when the later audit insert fails", asyn
   expect(await db("action_dossier").where({ dossier })).toHaveLength(0);
 });
 
-test("commits a decision replacement and its audit before deleting the old object", async () => {
+test("commits a decision replacement and its audit while retaining the historical object", async () => {
   const dossier = (await createDossier(db)).id as DossierId;
   const file = await createFichierS3(db, await getTestS3());
   const [decision] = await db("decision_administrative")
@@ -54,9 +54,10 @@ test("commits a decision replacement and its audit before deleting the old objec
     await logDossierActions([{ dossier, type: "decision_modifiee" }], trx);
     expect(await s3HasKey(file.key)).toBe(true);
   });
-  await expect.poll(() => s3HasKey(file.key)).toBe(false);
+  expect(await s3HasKey(file.key)).toBe(true);
   const updated = await db("decision_administrative").where({ id: decision.id }).first();
   expect(await readS3Body(fileKey(updated.fichier))).toBe("new");
   expect(await db("action_dossier").where({ dossier })).toHaveLength(1);
-  expect(await db("file").where({ id: file.id })).toHaveLength(0);
+  expect(await db("file").where({ id: file.id })).toHaveLength(1);
+  expect(await db("demande_revision_file").where({ fichier: file.id })).not.toHaveLength(0);
 });

@@ -70,7 +70,9 @@ test("pièces jointes admin : ajout/suppression sur dossier natif, refus sur dos
     (await getDossierDetailForAdmin(id, db)).piecesJointes.map((piece) => piece.name),
   ).toContain("note.pdf");
   await deletePieceJointeFromAdmin(id, stored.id as FileId, db);
-  expect(await db("file").where({ id: stored.id }).first()).toBeUndefined();
+  expect((await getDossierDetailForAdmin(id, db)).piecesJointes).toEqual([]);
+  expect(await db("demande_revision_file").where({ fichier: stored.id })).not.toHaveLength(0);
+  expect(await db("file").where({ id: stored.id }).first()).toBeDefined();
   const dnDossier = await createDossierRow(db, { demarche_numerique_number: "910102" });
   await expect(
     addPieceJointeFromAdmin(

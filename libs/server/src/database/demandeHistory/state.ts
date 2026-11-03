@@ -1,0 +1,40 @@
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type AvisExpert from "@pitchou/types/database/public/AvisExpert.ts";
+import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
+import type Prescription from "@pitchou/types/database/public/Prescription.ts";
+import type Controle from "@pitchou/types/database/public/Controle.ts";
+import type ImpactEspece from "@pitchou/types/database/public/ImpactEspece.ts";
+import type EspeceProtegee from "@pitchou/types/database/public/EspeceProtegee.ts";
+import type ImpactType from "@pitchou/types/database/public/ImpactType.ts";
+import type ImpactMethode from "@pitchou/types/database/public/ImpactMethode.ts";
+import type ImpactMoyenDePoursuite from "@pitchou/types/database/public/ImpactMoyenDePoursuite.ts";
+import type File from "@pitchou/types/database/public/File.ts";
+import type OtherAttachment from "@pitchou/types/database/public/OtherAttachment.ts";
+import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
+import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import type { ResolvedActiviteColumns } from "../activite.ts";
+import type { CommentaireView } from "../commentaire.ts";
+import type { DossierCnpnEmailSentEvent } from "@pitchou/types/API_Pitchou.ts";
+
+/** Version 1 of the database history payload. Dates are serialized by PostgreSQL. */
+export type DemandeState = {
+  dossier: Dossier & ResolvedActiviteColumns;
+  porteur: PorteurDeProjet | null;
+  acteurs: DossierActeur[];
+  phases: EvenementPhaseDossier[];
+  avis: AvisExpert[];
+  decisions: DecisionAdministrative[];
+  prescriptions: Prescription[];
+  controles: Controle[];
+  impacts: ImpactEspece[];
+  especes: EspeceProtegee[];
+  impactTypes: ImpactType[];
+  impactMethodes: ImpactMethode[];
+  impactMoyens: ImpactMoyenDePoursuite[];
+  commentaires: CommentaireView[];
+  attachments: OtherAttachment[];
+  pieces: string[];
+  files: File[];
+  cnpnEmails: DossierCnpnEmailSentEvent[];
+};

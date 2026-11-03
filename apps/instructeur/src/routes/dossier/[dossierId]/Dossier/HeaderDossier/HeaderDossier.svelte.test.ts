@@ -6,6 +6,15 @@ import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import HeaderDossier from "../HeaderDossier.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 
+vi.mock(import("../DossierVersions/api.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  fetchVersionData: vi.fn().mockResolvedValue({
+    projet: null,
+    access: "complet",
+    demandes: [{ id: 123, label: "Demande initiale", phase: "Instruction" }],
+  }),
+}));
+
 vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   sendEvenement: vi.fn(),

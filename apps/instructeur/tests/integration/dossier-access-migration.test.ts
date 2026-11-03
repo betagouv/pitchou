@@ -1,7 +1,6 @@
 import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
 import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { up } from "../../../../libs/database/migrations/20261101120000_dossier-access-levels.ts";
 import { createGroupeInstructeurs } from "../factories/dossier.ts";
 import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
 
@@ -44,7 +43,7 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
       "email_notification_groupe_arrival",
     ];
     const snapshots = await Promise.all(preserved.map((table) => db(table).select("*")));
-    await db.transaction(up);
+    await fixture.migrateToLatest();
     for (const [index, table] of preserved.entries())
       expect(await db(table)).toEqual(snapshots[index]);
     expect(await db("dossier_user_access")).toEqual([]);

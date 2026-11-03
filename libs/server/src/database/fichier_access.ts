@@ -47,6 +47,10 @@ const attachmentQuery = `
     union all
     select dossier, 'attachment-autre', null::text
       from other_attachment where fichier = :fileId
+    union all
+    select r.dossier, f.relation, nullif(f.expert, '')
+      from demande_revision_file f join demande_revision r on r.id = f.revision
+      where f.fichier = :fileId
   ) as attachment`;
 
 /**

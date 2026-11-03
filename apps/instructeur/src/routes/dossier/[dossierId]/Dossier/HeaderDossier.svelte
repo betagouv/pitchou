@@ -10,6 +10,7 @@
   import AssignDossierFollowersModal from "#lib/components/DossierFollowerAssignment/AssignDossierFollowersModal.svelte";
   import { readOnlyMode } from "./readOnly.ts";
   import HeaderActions from "./HeaderDossier/HeaderActions.svelte";
+  import DossierDemandes from "./HeaderDossier/DossierDemandes.svelte";
   import CompactDossierHeader from "./HeaderDossier/CompactDossierHeader.svelte";
   import { followersLabel } from "./HeaderDossier/labels.ts";
   import { activityBackground } from "./HeaderDossier/activityBackground.ts";
@@ -43,6 +44,8 @@
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let followersModalOpen = $state(false);
+  let demandeAction = $state<"create" | "link" | null>(null);
+  let canManageDemandes = $state(false);
 
   const background = $derived(activityBackground(activiteIconUrl(dossier.activite_label)));
 
@@ -90,7 +93,10 @@
   </div>
 
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-    <div class="activity-illustration" style:background-color={background}>
+    <div
+      class="flex w-[112px] min-h-40 flex-none items-center justify-center overflow-hidden rounded-2xl max-[575px]:w-24 max-[575px]:min-h-32"
+      style:background-color={background}
+    >
       <ActiviteIcon mainActivite={dossier.activite_label} size="size-24 lg:size-28" />
     </div>
 
@@ -117,6 +123,13 @@
         {dossier.name}
       </h2>
 
+      <DossierDemandes
+        dossierId={dossier.id}
+        readOnly={readOnly.current}
+        bind:action={demandeAction}
+        bind:canManage={canManageDemandes}
+      />
+
       <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p class="fr-mb-0 flex items-center gap-2 main-location">
           <span
@@ -134,6 +147,8 @@
           onOpenFollowers={() => (followersModalOpen = true)}
           onAddPieceJointe={openPieceJointeModal}
           {onEnterReadOnly}
+          onCreateDemande={canManageDemandes ? () => (demandeAction = "create") : undefined}
+          onLinkDemande={canManageDemandes ? () => (demandeAction = "link") : undefined}
         />
       </div>
     </div>
@@ -168,17 +183,6 @@
 {/if}
 
 <style>
-  .activity-illustration {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 112px;
-    min-height: 160px;
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
   .dossier-title {
     overflow-wrap: anywhere;
   }
@@ -191,12 +195,5 @@
   .enjeu-tag {
     color: var(--blue-france-main-525, #6a6af4);
     background-color: var(--background-contrast-blue-france, #ececfe);
-  }
-
-  @media (max-width: 575px) {
-    .activity-illustration {
-      width: 96px;
-      min-height: 128px;
-    }
   }
 </style>

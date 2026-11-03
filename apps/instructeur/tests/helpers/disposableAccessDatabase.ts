@@ -20,17 +20,19 @@ export async function disposableAccessDatabase(before?: string) {
     await admin.raw("CREATE DATABASE ??", [name]);
     created = true;
     const directory = path.resolve(import.meta.dirname, "../../../../libs/database/migrations");
-    await db.migrate.latest({
-      migrationSource: {
-        getMigrations: async () =>
-          (await readdir(directory))
-            .filter((file) => file.endsWith(".ts") && (!before || file < before))
-            .sort(),
-        getMigrationName: (file: string) => file,
-        getMigration: (file: string) => import(path.join(directory, file)),
-      },
-    });
-    return { db, close };
+    const migrate = (cutoff?: string) =>
+      db.migrate.latest({
+        migrationSource: {
+          getMigrations: async () =>
+            (await readdir(directory))
+              .filter((file) => file.endsWith(".ts") && (!cutoff || file < cutoff))
+              .sort(),
+          getMigrationName: (file: string) => file,
+          getMigration: (file: string) => import(path.join(directory, file)),
+        },
+      });
+    await migrate(before);
+    return { db, close, migrateToLatest: () => migrate() };
   } catch (error) {
     await close();
     throw error;

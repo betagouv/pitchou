@@ -4,6 +4,7 @@ import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarc
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
 import type { PorteurDeProjet } from "../porteurDeProjet.ts";
 import type { DossierActeur } from "../dossierActeur.ts";
+import type { ProjetMembership } from "../dossierDemandes.ts";
 
 export type DossierPersonnesImpliquees = {
   porteur_de_projet: PorteurDeProjet | null;
@@ -73,6 +74,7 @@ export type DossierSummary = Pick<
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date | null } & DossierCommonData &
   DossierPersonnesImpliquees & {
+    projet?: ProjetMembership & { count: number; matchingCount?: number };
     access: DossierAccess;
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile?: boolean; hasAvisFile: boolean }[];

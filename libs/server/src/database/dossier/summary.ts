@@ -102,6 +102,13 @@ function loadDossierSummaries(
   return (
     joinPorteurDeProjet(transaction("dossier"))
       .select(columns)
+      .leftJoin("dossier_demande as member", "member.dossier", "dossier.id")
+      .leftJoin("dossier_projet as project", "project.id", "member.projet")
+      .select(
+        transaction.raw(`CASE WHEN project.id IS NOT NULL THEN jsonb_build_object(
+        'id', project.id, 'name', project.name, 'demandeLabel', member.label,
+        'count', (SELECT count(*) FROM dossier_demande sibling WHERE sibling.projet = project.id)) END as projet`),
+      )
       .select("dossier_access.access")
       // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
       // file that could not be imported holds none, so the array doubles as the « renseignee » flag.
