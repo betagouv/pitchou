@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
+import { cleanup, render, screen } from "@testing-library/svelte";
 import { page } from "vitest/browser";
 import { fakeDossierFull } from "../../../fakeDossier.ts";
 import DossierVersions from "./DossierVersions.svelte";
@@ -43,24 +43,26 @@ test("opens a frozen historical state and compares two independently selected de
   render(DossierVersions, { dossierId: 123 });
   await page.getByRole("button", { name: "Consulter et comparer les états" }).click();
   await expect.element(page.getByText("Description actuelle", { exact: true })).toBeVisible();
-  await vi.waitFor(() =>
-    expect(document.querySelectorAll("#version-left-state option")).toHaveLength(3),
-  );
-  await fireEvent.change(document.querySelector("#version-left-state")!, {
-    target: { value: "1" },
-  });
+  await page.getByRole("combobox", { name: "État", exact: true }).click();
+  await page.getByRole("option", { name: /^État 1/u }).click();
   await expect
     .element(page.getByText("Description ancienne conservée", { exact: true }))
     .toBeVisible();
   await expect
     .element(page.getByRole("button", { name: "Modifier", exact: true }))
     .not.toBeInTheDocument();
-  await page.getByRole("checkbox", { name: "Comparer deux états ou demandes" }).click();
+  await page.getByRole("button", { name: "Comparer", exact: true }).click();
   await expect.element(page.getByRole("table")).toBeVisible();
   await expect
     .element(page.getByRole("cell", { name: "Description actuelle", exact: true }))
     .toBeVisible();
-  expect((screen.getAllByLabelText("Demande")[1] as HTMLSelectElement).value).toBe("124");
+  expect(screen.getAllByLabelText("Demande")[1].textContent).toContain("Demande B");
+  await expect
+    .element(page.getByRole("columnheader", { name: /Demande A — État 1/u }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("columnheader", { name: /Demande B — État actuel/u }))
+    .toBeVisible();
   expect(
     requests.mock.calls.every(([, options]) => !options?.method || options.method === "GET"),
   ).toBe(true);

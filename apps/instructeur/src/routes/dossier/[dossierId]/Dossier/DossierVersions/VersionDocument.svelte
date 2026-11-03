@@ -10,7 +10,7 @@
 {#snippet sections(items: ComparisonSection[])}
   {#each items as section (section.key)}
     <details
-      class="fr-p-2w fr-mb-2w border border-[var(--border-default-grey)]"
+      class="fr-p-2w fr-mb-2w rounded-lg border border-[var(--border-default-grey)]"
       open={section.key === "demande"}
     >
       <summary class="cursor-pointer font-bold">{section.label}</summary>
@@ -20,8 +20,10 @@
           <p class="font-bold fr-mb-1w">{record.label}</p>
           <dl>
             {#each record.fields as field (field.key)}
-              <div class="fr-mb-1w">
-                <dt class="font-medium">{field.label}</dt>
+              <div
+                class="grid gap-1 border-b border-[var(--border-default-grey)] py-3 sm:grid-cols-[minmax(12rem,1fr)_2fr] sm:gap-6"
+              >
+                <dt class="text-[var(--text-mention-grey)]">{field.label}</dt>
                 <dd class="fr-ml-0"><ComparisonValue value={field.value} /></dd>
               </div>
             {/each}

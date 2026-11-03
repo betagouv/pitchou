@@ -15,6 +15,8 @@
     followedByCurrentInstructeur: boolean | undefined;
     onOpenFollowers?: () => void;
     onAddPieceJointe: () => void;
+    onCreateDemande?: () => void;
+    onLinkDemande?: () => void;
     /** Switches the dossier to read-only mode. */
     onEnterReadOnly: () => void;
   };
@@ -26,6 +28,8 @@
     followedByCurrentInstructeur,
     onOpenFollowers,
     onAddPieceJointe,
+    onCreateDemande,
+    onLinkDemande,
     onEnterReadOnly,
   }: Props = $props();
 
@@ -68,6 +72,18 @@
       showDeadline={false}
       outlined
       extraItems={[
+        ...(onCreateDemande
+          ? [{ label: "Nouvelle demande", icon: "fr-icon-add-line", onClick: onCreateDemande }]
+          : []),
+        ...(onLinkDemande
+          ? [
+              {
+                label: "Rattacher une demande existante",
+                icon: "fr-icon-links-line",
+                onClick: onLinkDemande,
+              },
+            ]
+          : []),
         {
           label: "Ajouter une pièce jointe",
           icon: "fr-icon-attachment-line",

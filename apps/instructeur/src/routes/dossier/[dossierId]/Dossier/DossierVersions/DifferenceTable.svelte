@@ -1,23 +1,29 @@
 <script lang="ts">
   import type { DemandeDifference } from "@pitchou/types/demandeComparison.ts";
   import ComparisonValue from "./ComparisonValue.svelte";
-  let { differences }: { differences: DemandeDifference[] } = $props();
+  let {
+    differences,
+    leftLabel,
+    rightLabel,
+  }: { differences: DemandeDifference[]; leftLabel: string; rightLabel: string } = $props();
   const labels = { added: "Ajouté", removed: "Retiré", changed: "Modifié" };
 </script>
 
-<p role="status">
+<p role="status" class="fr-mb-2w font-bold">
   {differences.length === 0
     ? "Aucune différence dans les données comparées."
-    : `${differences.length} différence(s)`}
+    : `${differences.length} différence${differences.length > 1 ? "s" : ""}`}
 </p>
 {#if differences.length > 0}
-  <div class="overflow-x-auto">
-    <table class="w-full table-fixed border-collapse">
+  <p class="fr-text--sm text-[var(--text-mention-grey)]">Seules les différences sont affichées.</p>
+  <div class="overflow-x-auto rounded-lg border border-[var(--border-default-grey)]">
+    <table class="w-full min-w-[40rem] table-fixed border-collapse">
       <caption class="fr-sr-only">Comparaison des deux états sélectionnés</caption>
       <thead
         ><tr
-          ><th scope="col">Élément</th><th scope="col">À gauche</th><th scope="col">À droite</th
-          ></tr
+          ><th scope="col" class="w-1/4">Élément</th><th scope="col"
+            ><span class="column-label">État de référence</span>{leftLabel}</th
+          ><th scope="col"><span class="column-label">État comparé</span>{rightLabel}</th></tr
         ></thead
       >
       <tbody
@@ -25,10 +31,12 @@
           <tr>
             <th scope="row"
               ><span class="fr-badge fr-badge--sm fr-mb-1w">{labels[difference.kind]}</span><br
-              />{difference.path.join(" › ")}</th
+              /><span class="block text-sm text-[var(--text-mention-grey)]"
+                >{difference.path.slice(0, -1).join(" › ")}</span
+              ><span class="font-bold">{difference.path.at(-1)}</span></th
             >
-            <td><ComparisonValue value={difference.left} /></td>
-            <td
+            <td class="reference-value"><ComparisonValue value={difference.left} /></td>
+            <td class="compared-value"
               ><ComparisonValue value={difference.right} />{#if difference.detail}<p
                   class="font-bold"
                 >
@@ -56,5 +64,19 @@
   }
   tbody th {
     font-weight: normal;
+  }
+  .column-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: var(--text-mention-grey);
+    margin-bottom: 0.5rem;
+  }
+  .reference-value {
+    border-left: 3px solid var(--border-default-grey);
+  }
+  .compared-value {
+    background: var(--background-contrast-blue-france);
+    border-left: 3px solid var(--border-action-high-blue-france);
   }
 </style>
