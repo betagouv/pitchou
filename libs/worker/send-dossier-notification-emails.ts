@@ -1,5 +1,6 @@
 import { closeDatabaseConnection } from "@pitchou/server/database.ts";
 import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
+import { retryEmailIssues } from "@pitchou/server/emails/issues.ts";
 
 try {
   // Both apps deploy the root cron.json; only instructeur owns this queue worker.
@@ -11,6 +12,9 @@ try {
     });
     console.log(JSON.stringify(result));
     if ("failed" in result && result.failed) process.exitCode = 1;
+    const issues = await retryEmailIssues({ dryRun: process.argv.includes("--dry-run") });
+    console.log(JSON.stringify({ emailIssues: issues }));
+    if ("failed" in issues && issues.failed) process.exitCode = 1;
   }
 } finally {
   await closeDatabaseConnection();

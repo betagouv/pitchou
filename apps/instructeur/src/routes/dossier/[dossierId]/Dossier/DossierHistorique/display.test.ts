@@ -119,6 +119,23 @@ describe("CNPN email history", () => {
     ]);
   });
 
+  test("shows the delivery rejection and its reason in the dossier history", () => {
+    const dossier = dossierWithSource("pitchou");
+    dossier.cnpnEmailSentEvents = [
+      emailEvent({
+        delivery_failed_at: "2026-10-23T12:35:24Z",
+        delivery_failure_reason: "552 5.3.4 Error: message file too big",
+      }),
+    ];
+    expect(historiqueEntries([], dossier)[0].statuses).toEqual([
+      {
+        icon: "fr-icon-error-warning-line",
+        label: "Échec de livraison : 552 5.3.4 Error: message file too big",
+        date: new Date("2026-10-23T12:35:24Z"),
+      },
+    ]);
+  });
+
   test("sorts emails by sent date alongside actions and milestones with distinct IDs", () => {
     const dossier = dossierWithSource("pitchou");
     dossier.cnpnEmailSentEvents = [

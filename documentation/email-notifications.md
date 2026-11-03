@@ -60,14 +60,14 @@ These tests cover preferences, author identity, unchanged or failed saves, arriv
 
 The admin page at `/mails` uses the usual admin session and permissions. It lists notifications and CNPN emails together, with counts by type/status and 20 rows per page. Filters cover dossier, recipient, email ID, source, type, status, environment, existing CNPN tracking and dates. Date boundaries are inclusive in Paris time. **Échéance dépassée** includes pending emails with a deferred retry. Filters apply immediately. The sort panel orders the complete result set. Click a row to open Historique first, followed by Mail and Informations. The email preview preserves safe recorded inline styling in an isolated frame, without regenerating the message. Only the exact Pitchou logo URL on the configured instructeur origin can load an image; scripts, forms and other remote resources are blocked. CNPN receipt and opening counts use existing tracking for the principal recipient. CNPN records have no environment or attempt counter. Detail links use `email=notification:UUID` or `email=cnpn:UUID` to distinguish sources. Notification details show the frozen content when an attempt has started; unsent content is not reconstructed.
 
-| Status       | Meaning                                                                                               |
-| ------------ | ----------------------------------------------------------------------------------------------------- |
-| `pending`    | Waiting to be sent, possibly with a normalized error and retry date.                                  |
-| `failed`     | A CNPN send attempt failed. Intermediate attempts and raw errors are not recorded.                    |
-| `sent`       | Accepted by the sender, without proof of delivery.                                                    |
-| `cancelled`  | Cancelled with a reason such as a disabled preference, discontinued follow-up or lost access.         |
-| `suppressed` | Recipient not allowed in staging, with no automatic retry.                                            |
-| `uncertain`  | An attempt may have been accepted without confirmation; reconciliation with the provider is required. |
+| Status       | Meaning                                                                                                   |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| `pending`    | Waiting to be sent, possibly with a normalized error and retry date.                                      |
+| `failed`     | A CNPN send attempt failed, or a recorded delivery failure was reported for a CNPN email or notification. |
+| `sent`       | Accepted by the sender, without proof of delivery.                                                        |
+| `cancelled`  | Cancelled with a reason such as a disabled preference, discontinued follow-up or lost access.             |
+| `suppressed` | Recipient not allowed in staging, with no automatic retry.                                                |
+| `uncertain`  | An attempt may have been accepted without confirmation; reconciliation with the provider is required.     |
 
 Errors are logged with the notification ID. A failed attempt waits at least one minute before retrying. The body and idempotency key stay unchanged. An expired claim can be recovered after two minutes. After a first ambiguous attempt, automatic retries stop at 25 minutes and the notification becomes `uncertain`. A later explicit rejection cannot erase that first timestamp. If every attempt was explicitly rejected, prolonged retries remain possible. Check the provider's transactional logs before intervening on an uncertain send.
 
@@ -79,6 +79,20 @@ pnpm --filter @pitchou/worker exec tsx send-dossier-notification-emails.ts --dry
 
 Durable state is stored in `email_notification_outbox`, attempts in `email_notification_history`, and preference changes in `email_notification_settings_history`. Use `attempt_count`, `provider_message_id`, `last_error` and `cancellation_reason` to diagnose a send without inspecting its HTML.
 
+The mail page also reads notification delivery failures already stored in `email_issue_notification`.
+It matches the provider message ID, frozen recipient address and environment. These emails appear
+under **À vérifier** and the **Échec** status filter, with the provider reason in the list and
+the failure date, event and message ID in the timeline. A technical alert need not have been sent
+successfully for its recorded delivery failure to appear. This display does not change the outbox,
+retry delivery, change preferences or modify the recipient account.
+
+Notification tracking retains reported failures only. A later delivery or opening does not clear
+them, and absence of a failure does not prove delivery. The issue table deduplicates each message
+and recipient, so the timeline shows recorded failures rather than a complete provider event log.
+Events from before technical alert tracking was deployed are not reconstructed. **Annulés ou
+bloqués** counts cancellations and staging suppression, not Brevo recipient blocks. Review current
+provider logs and confirm account details before deciding what to do with an affected account.
+
 Server-side AARRI events are `notificationEmailQueued`, `notificationEmailSent`, `notificationEmailFailed`, `notificationEmailCancelled`, `notificationEmailUncertain`, `notificationEmailSuppressed` and `notificationEmailSettingsChanged`. Transitions are recorded with the outbox. An authenticated save produces an event only when it succeeds and changes a preference, with only the changed values before/after and the server timestamp.
 
-System events are attributed to the recipient with `source: system` and `attribution: recipient`, without counting as a user action. The environment distinguishes real activity from tests. These events contain no email addresses, HTML bodies, secrets or raw provider errors. Admin views obtain recipient identity through an authorized join. Notification emails do not add delivery, bounce, open or click tracking. The CNPN list uses its existing receipt and opening timestamps.
+System events are attributed to the recipient with `source: system` and `attribution: recipient`, without counting as a user action. The environment distinguishes real activity from tests. These events contain no email addresses, HTML bodies, secrets or raw provider errors. Admin views obtain recipient identity through an authorized join. Notification emails do not retain delivery, open or click confirmations; their failure display uses the technical-alert records described above. The CNPN list uses its existing receipt and opening timestamps.

@@ -9,6 +9,7 @@
   import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
   import Pictogramme from "#lib/components/DSFR/Pictogramme.svelte";
   import CnpnEmailModal from "./CnpnEmailModal.svelte";
+  import CnpnEmailTracking from "./CnpnEmailTracking.svelte";
 
   import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
@@ -29,13 +30,11 @@
     void import("#lib/components/EmailRichTextEditor.svelte");
   }
 
-  function cnpnEmailEventFor(avisExpert: FrontEndAvisExpert) {
-    const saisineFileId = avisExpert.saisine_fichier_description?.id;
-    if (avisExpert.expert?.trim().toUpperCase() !== "CNPN" || !saisineFileId) return;
-    return dossier.cnpnEmailSentEvents?.find((event) =>
-      event.attachment_ids.includes(saisineFileId),
-    );
-  }
+  const latestCnpnEmail = $derived(
+    [...(dossier.cnpnEmailSentEvents ?? [])].sort(
+      (a, b) => +new Date(b.sent_at) - +new Date(a.sent_at),
+    )[0],
+  );
 
   const readOnly = readOnlyMode();
 
@@ -66,15 +65,13 @@
 <div class="flex items-start gap-8 max-[62rem]:flex-col">
   <div class="flex flex-col flex-[1_1_0] min-w-0">
     <h2 class="fr-h4">Avis d'experts</h2>
+    {#if !readOnly.current && latestCnpnEmail}
+      <CnpnEmailTracking event={latestCnpnEmail} />
+    {/if}
     {#if sortedAvisExpert.length >= 1}
       <div class="flex flex-col gap-6">
         {#each sortedAvisExpert as avisExpert}
-          <AvisExpert
-            dossierId={dossier.id}
-            {avisExpert}
-            cnpnEmailEvent={cnpnEmailEventFor(avisExpert)}
-            {deleteAvisExpert}
-          />
+          <AvisExpert dossierId={dossier.id} {avisExpert} {deleteAvisExpert} />
         {/each}
       </div>
     {:else}

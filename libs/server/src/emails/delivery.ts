@@ -20,6 +20,9 @@ export function sendBrevoEmail({
   tags = [],
   ...payload
 }: Record<string, unknown> & { tags?: string[] }): Promise<BrevoSendResponse> {
+  if (process.env.PITCHOU_EMAIL_DELIVERY_DISABLED === "true") {
+    throw new Error("Email delivery is disabled in this environment");
+  }
   const captured = captureEmail(payload, tags);
   if (captured) return captured;
   assertStagingEmailPayload(payload);
@@ -42,5 +45,16 @@ export function sendBrevoEmail({
         ],
       },
     })
-    .json<BrevoSendResponse>();
+    .json<BrevoSendResponse>()
+    .catch(async (error: unknown) => {
+      if (!tags.includes("pitchou-email-issue") && process.env.NODE_ENV !== "test") {
+        try {
+          const { reportBrevoSendFailure } = await import("./sendFailure.ts");
+          await reportBrevoSendFailure(payload, error);
+        } catch {
+          console.error("Technical email alert could not be sent");
+        }
+      }
+      throw error;
+    });
 }

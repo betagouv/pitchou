@@ -2,6 +2,8 @@ import type { Knex } from "knex";
 import type { EmailDetail, EmailRow } from "@pitchou/types/adminEmails.ts";
 import { emailPreviewHtml } from "./preview.ts";
 import { emailRows } from "./query.ts";
+import { notificationDeliveryIssues } from "./issues.ts";
+import type { NotificationHistoryRow } from "@pitchou/types/emailNotifications.ts";
 
 export async function emailDetail(key: string, db: Knex.Transaction): Promise<EmailDetail | null> {
   const [source, id] = key.split(":");
@@ -20,12 +22,26 @@ async function notificationDetail(row: EmailRow, db: Knex.Transaction): Promise<
     .where({ id })
     .first("message", "first_attempt_at");
   const message = stored.message;
+  const history: NotificationHistoryRow[] = await db("email_notification_history")
+    .where({ notification_id: id })
+    .orderBy("occurred_at")
+    .orderBy("id");
+  const issues = await notificationDeliveryIssues(db, row).select("i.id", "i.issue");
+  for (const { id: issueId, issue } of issues) {
+    history.push({
+      id: `issue:${issueId}`,
+      notification_id: id,
+      event: issue.type,
+      environment: row.environment,
+      occurred_at: issue.occurredAt,
+      attempt: 0,
+      details: { reason: issue.reason, providerMessageId: issue.providerMessageId },
+    });
+  }
+  history.sort((a, b) => +new Date(a.occurred_at) - +new Date(b.occurred_at));
   return {
     row,
-    history: await db("email_notification_history")
-      .where({ notification_id: id })
-      .orderBy("occurred_at")
-      .orderBy("id"),
+    history,
     html: typeof message?.htmlContent === "string" ? emailPreviewHtml(message.htmlContent) : null,
     recipients: Array.isArray(message?.to)
       ? message.to.filter((v: unknown) => typeof v === "string")
@@ -51,6 +67,11 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
       "attachment_ids",
       "attachment_names",
       "read_receipt_sent_at",
+      "delivery_failed_at",
+      "delivery_failure_event",
+      "delivery_failure_reason",
+      "failure_notification_sent_at",
+      "failure_notification_uncertain_at",
     );
   // These are existing timestamps, not a reconstructed attempt history.
   const history = [
@@ -59,6 +80,9 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
     ["delivered", row.delivered_at],
     ["opened", row.opened_at],
     ["read_receipt", stored.read_receipt_sent_at],
+    [stored.delivery_failure_event ?? "delivery_failed", stored.delivery_failed_at],
+    ["failure_notification", stored.failure_notification_sent_at],
+    ["failure_notification_uncertain", stored.failure_notification_uncertain_at],
   ]
     .filter(([, date]) => date)
     .map(([event, date]) => ({
@@ -68,7 +92,10 @@ async function cnpnDetail(row: EmailRow, db: Knex.Transaction): Promise<EmailDet
       environment: "unrecorded",
       occurred_at: date as Date | string,
       attempt: 0,
-      details: {},
+      details:
+        event === stored.delivery_failure_event && stored.delivery_failure_reason
+          ? { reason: stored.delivery_failure_reason }
+          : {},
     }))
     .sort((a, b) => +new Date(a.occurred_at) - +new Date(b.occurred_at));
   return {

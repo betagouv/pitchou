@@ -3,20 +3,15 @@
   import AvisExpertFiles from "./AvisExpertFiles.svelte";
   import { readOnlyMode } from "../readOnly.ts";
 
-  import type {
-    DossierCnpnEmailSentEvent,
-    DossierFull,
-    FrontEndAvisExpert,
-  } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossierFull, FrontEndAvisExpert } from "@pitchou/types/API_Pitchou.ts";
 
   type Props = {
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
-    cnpnEmailEvent?: DossierCnpnEmailSentEvent;
     deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => Promise<unknown>;
   };
 
-  let { dossierId, avisExpert, cnpnEmailEvent, deleteAvisExpert }: Props = $props();
+  let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
 
   const readOnly = readOnlyMode();
 
@@ -65,7 +60,7 @@
   </div>
   <!-- Switching to read-only mode while the form is open closes it. -->
   {#if !isEditing || readOnly.current}
-    <AvisExpertFiles {dossierId} {avisExpert} {cnpnEmailEvent} />
+    <AvisExpertFiles {dossierId} {avisExpert} />
   {:else}
     <FormAvisExpert {dossierId} bind:avisExpertInitial={avisExpert} {closeForm} />
     <button

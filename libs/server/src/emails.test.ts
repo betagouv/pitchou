@@ -48,8 +48,8 @@ test.each([
   expect(base64MimeBytes(bytes)).toBe(expected);
 });
 
-test("the former 15 MiB attachment limit exceeds Brevo's 20 MB before headers or body", () => {
-  expect(MAX_EMAIL_BYTES).toBe(20_000_000);
+test("the CNPN limit is 10 decimal MB for the encoded message", () => {
+  expect(MAX_EMAIL_BYTES).toBe(10_000_000);
   expect(base64MimeBytes(15 * 1024 * 1024)).toBeGreaterThan(MAX_EMAIL_BYTES);
 });
 
