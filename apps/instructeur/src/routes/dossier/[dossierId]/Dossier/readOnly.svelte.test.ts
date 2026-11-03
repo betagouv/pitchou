@@ -129,6 +129,9 @@ test("le mode lecture seule masque les éléments internes au service", () => {
   expect(screen.queryByText(/Date d’envoi du mail via Pitchou/u)).toBeNull();
   expect(screen.queryByText(/Ouverture du mail de saisine/u)).toBeNull();
   expect(
+    screen.queryByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeNull();
+  expect(
     screen.queryByRole("link", { name: /Télécharger le fichier saisine/u, hidden: true }),
   ).toBeNull();
 
@@ -173,6 +176,12 @@ test("la lecture complète conserve les informations internes sans proposer de m
   expect(screen.getByRole("tab", { name: "Historique" })).toBeTruthy();
   expect(screen.queryByRole("tab", { name: "Générateur de documents" })).toBeNull();
   expect(screen.getByRole("heading", { name: "Commentaires" })).toBeTruthy();
+  expect(
+    screen.getByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeTruthy();
+  expect(
+    screen.queryByRole("button", { name: /derogations-especes-protegees/u, hidden: true }),
+  ).toBeNull();
   expect(screen.getByRole("heading", { name: /Autre expert/u, hidden: true })).toBeTruthy();
   expect(screen.getAllByText(/Date d’ajout du courrier de saisine/u)).toHaveLength(2);
   expect(screen.getByRole("heading", { name: "Autres", hidden: true })).toBeTruthy();
@@ -195,6 +204,9 @@ test("un aperçu restreint reste restreint avec un droit de lecture complète", 
   renderDossier(true, false, "demarche_numerique", "lecture_complete", true);
   expect(screen.queryByRole("tab", { name: "Historique" })).toBeNull();
   expect(screen.queryByRole("heading", { name: "Commentaires" })).toBeNull();
+  expect(
+    screen.queryByRole("region", { name: "Suivi du dernier mail CNPN", hidden: true }),
+  ).toBeNull();
   expect(screen.queryByRole("heading", { name: /Autre expert/u, hidden: true })).toBeNull();
   expect(screen.queryByText(/Prescription secrète/u)).toBeNull();
 });

@@ -65,7 +65,7 @@
 <div class="flex items-start gap-8 max-[62rem]:flex-col">
   <div class="flex flex-col flex-[1_1_0] min-w-0">
     <h2 class="fr-h4">Avis d'experts</h2>
-    {#if !readOnly.current && latestCnpnEmail}
+    {#if !(readOnly.restricted ?? readOnly.current) && latestCnpnEmail}
       <CnpnEmailTracking event={latestCnpnEmail} />
     {/if}
     {#if sortedAvisExpert.length >= 1}

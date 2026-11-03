@@ -24,6 +24,16 @@ export function fakeReadOnlyDossier(): DossierFull {
     depot_date: new Date("2026-01-15"),
     evenementsPhase: [],
     especesImpactees: { sourceFile: undefined, impacts: [] },
+    cnpnEmailSentEvents: [
+      {
+        id: "cnpn-send",
+        sent_at: "2026-02-01T12:00:00Z",
+        delivered_at: "2026-02-01T12:01:00Z",
+        opened_at: null,
+        delivery_failed_at: null,
+        delivery_failure_reason: null,
+      },
+    ],
     avisExpert: [
       {
         id: "avis-cnpn",
