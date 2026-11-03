@@ -63,7 +63,7 @@ for (const { width, colorScheme } of [
     const resized = (await popup.boundingBox())!;
     expect(resized.y).toBeGreaterThanOrEqual(0);
     expect(resized.y + resized.height).toBeLessThanOrEqual(740);
-    await editor.getByRole("alert").click();
+    await page.getByRole("banner").click({ position: { x: 2, y: 2 } });
     await expect(popup).toHaveCount(0);
   });
 }
