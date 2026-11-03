@@ -31,6 +31,7 @@
   import { goto } from "$app/navigation";
   import { untrack } from "svelte";
   import { navigateDossiers } from "./navigation.ts";
+  import { groupDossiersByProjet } from "./projects.ts";
 
   type Props = {
     title: string;
@@ -92,6 +93,7 @@
   });
   const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
   const sortedDossiers = $derived(sortDossiers(filteredDossiers, query, notificationByDossier));
+  const groupedDossiers = $derived(groupDossiersByProjet(sortedDossiers));
   const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
   const especeLabelByCD_REF = $derived(mapEspeceLabelByCD_REF(store.espèceByCD_REF));
   const analyticsContext = $derived({
@@ -107,13 +109,11 @@
   /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
   function applySearch(next: DossiersQuery) {
     navigate(next);
-    const count = filterDossiers(dossiers, next, ctx).length;
+    const count = groupDossiersByProjet(filterDossiers(dossiers, next, ctx)).length;
     sendDossierSearchEvent(buildSearchEvent(next, count, analyticsContext));
     statusMessage = `${count} ${serviceLabel(next.localisation, followedOnly)}`;
     setTimeout(() => (statusMessage = ""), 400);
   }
-
-  const onSearch = (text: string) => applySearch({ ...copyDossiersQuery(query), text, page: 1 });
 
   const onSort = (key: SortKey, order: SortOrder) =>
     navigate({ ...copyDossiersQuery(query), sort: key, order });
@@ -159,14 +159,14 @@
     actionInstructeurActive={query.actionInstructeur}
     unreadActive={query.nouveaute === "oui"}
     activeFilterCount={countActiveFilters(query)}
-    numberFiltered={filteredDossiers.length}
+    numberFiltered={groupedDossiers.length}
     localisation={query.localisation}
     {followedOnly}
     exportDossierIds={sortedDossiers.map(({ id }) => id)}
     chips={buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF)}
     sortKey={query.sort}
     sortOrder={query.order}
-    {onSearch}
+    onSearch={(text) => applySearch({ ...copyDossiersQuery(query), text, page: 1 })}
     onToggleWithoutInstructeur={() => applySearch(toggleQuickFilter(query, "withoutInstructeur"))}
     onToggleEnjeu={() => applySearch(toggleQuickFilter(query, "enjeu"))}
     onToggleActionInstructeur={() => applySearch(toggleQuickFilter(query, "actionInstructeur"))}
@@ -188,14 +188,14 @@
   {dossiers}
   {followRelations}
   {showFilterInstructeurice}
-  numberResults={filteredDossiers.length}
+  numberResults={groupedDossiers.length}
   onApply={applyFilters}
   onClose={() => (modalOpen = false)}
 />
 
 <PaginatedDossiers
   readOnly={query.localisation === "france"}
-  dossiers={sortedDossiers}
+  dossiers={groupedDossiers}
   sortKey={query.sort}
   requestedPage={query.page}
   pageSize={query.pageSize}

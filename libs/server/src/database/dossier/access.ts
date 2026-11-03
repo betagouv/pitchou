@@ -5,6 +5,7 @@ import type { DossierAccess } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import { orderPhaseEvents } from "../phaseHistory.ts";
+import { sharedDossierIdsSql } from "../../dossierRouting/projet.ts";
 
 export function permissionQuery(
   userId: UserId,
@@ -38,10 +39,12 @@ export function dossierAccessQuery(userId: UserId, db: Knex.Transaction | Knex) 
     .select("m.groupe_instructeurs")
     .where({ "m.user_id": userId, "g.active": true });
   const groupGrants = db("edge_groupe_instructeurs__dossier as e")
-    .select("e.dossier", "e.access_level")
+    .joinRaw(`JOIN LATERAL (${sharedDossierIdsSql("e.dossier")}) shared ON true`)
+    .select("shared.dossier", "e.access_level")
     .whereIn("e.groupe_instructeurs", membership.clone());
-  const directGrants = db("dossier_user_access")
-    .select("dossier", "access_level")
+  const directGrants = db("dossier_user_access as direct")
+    .joinRaw(`JOIN LATERAL (${sharedDossierIdsSql("direct.dossier")}) shared ON true`)
+    .select("shared.dossier", "access_level")
     .where("user_id", userId);
   const grants = db(db.unionAll([groupGrants, directGrants], true).as("grants"))
     .select("dossier")

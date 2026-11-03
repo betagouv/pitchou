@@ -11,6 +11,7 @@
   import { applicantName } from "./presentation.ts";
   import PhaseProgress from "./PhaseProgress.svelte";
   import { PROJECT_GRID, TILE_GRID } from "./rowLayout.ts";
+  import DemandeSummary from "./DemandeSummary.svelte";
 
   type Props = {
     dossier: DossierSummary;
@@ -85,6 +86,7 @@
           {name}
         </a>
       </h4>
+      <DemandeSummary projet={dossier.projet} />
       {#if dossier.enjeu}
         <p class="enjeu-badge fr-badge fr-badge--sm fr-badge--no-icon fr-mt-1w">Dossier à enjeu</p>
       {/if}

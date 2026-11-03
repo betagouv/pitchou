@@ -82,13 +82,14 @@ test.each([
     expect((await db("dossier").where({ id: source }).first())?.especes_impactees).toBe(
       nextFile?.id ?? null,
     );
-    expect(await db("file").where({ id: oldFile.id })).toHaveLength(attachment ? 1 : 0);
+    expect(await db("file").where({ id: oldFile.id })).toHaveLength(1);
+    expect(await db("demande_revision_file").where({ fichier: oldFile.id })).not.toHaveLength(0);
     expect(
       await db("edge_dossier__fichier_pieces_jointes_petitionnaire").where({
         dossier: destination,
         fichier: oldFile.id,
       }),
     ).toHaveLength(attachment ? 1 : 0);
-    await expect.poll(() => s3HasKey(oldFile.key)).toBe(attachment);
+    expect(await s3HasKey(oldFile.key)).toBe(true);
   },
 );

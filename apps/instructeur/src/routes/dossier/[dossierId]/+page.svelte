@@ -3,6 +3,7 @@
   import { page } from "$app/state";
   import { store } from "#lib/state/store.svelte.ts";
   import Dossier from "./Dossier.svelte";
+  import DossierDemandes from "./DossierDemandes.svelte";
   import {
     defaultDossierTab,
     isDossierTabVisible,
@@ -139,6 +140,7 @@
        Keying on the id starts that state over rather than
        carrying one dossier's over to another. -->
   {#key id}
+    <DossierDemandes dossierId={id} {readOnly} />
     <Dossier
       {dossier}
       {activeTab}

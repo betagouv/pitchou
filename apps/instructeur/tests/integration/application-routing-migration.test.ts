@@ -1,7 +1,6 @@
 import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
 import { changeAssignments, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { up } from "../../../../libs/database/migrations/20261101120000_dossier-access-levels.ts";
 import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
 
 test("moving routing into the app preserves assignments, follows and pending email history", async () => {
@@ -32,7 +31,7 @@ test("moving routing into the app preserves assignments, follows and pending ema
       "email_notification_history",
     ];
     const before = await Promise.all(tables.map((table) => db(table).select("*")));
-    await db.transaction(up);
+    await fixture.migrateToLatest();
     before[0] = before[0].map((edge) => ({ ...edge, access_level: "instruct" }));
     expect(before[3].length).toBeGreaterThan(0);
     expect(before[4].length).toBeGreaterThan(0);

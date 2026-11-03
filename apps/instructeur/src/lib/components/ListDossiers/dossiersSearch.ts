@@ -80,6 +80,8 @@ export function especesSearchableText(
 export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
   const parts: (string | null | undefined)[] = [
     dossier.name,
+    dossier.projet?.name,
+    dossier.projet?.demandeLabel,
     dossier.latestCommentaire,
     dossier.main_activite,
     dossier.activite_label,

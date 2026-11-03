@@ -7,10 +7,10 @@ let db: Awaited<ReturnType<typeof disposableAccessDatabase>>["db"];
 beforeEach(async () => {
   database = await disposableAccessDatabase("20261027120000");
   db = database.db;
-});
+}, 60_000);
 afterEach(async () => {
   await database?.close();
-});
+}, 30_000);
 
 async function group(name: string, overrides: Record<string, unknown> = {}) {
   const [row] = await db("groupe_instructeurs")

@@ -52,8 +52,9 @@ test("le navigateur obtient une URL signée, y envoie le fichier, puis l'API l'e
   expect(save.status, await save.clone().text()).toBe(200);
 
   const decision = await db("decision_administrative").where({ dossier: dossier.id }).first();
-  expect(decision.fichier).toBe(upload.id);
-  expect(await readS3Body(`files/${upload.id}`)).toBe(bytes.toString());
+  expect(decision.fichier).toMatch(UUID);
+  expect(decision.fichier).not.toBe(upload.id);
+  expect(await readS3Body(`files/${decision.fichier}`)).toBe(bytes.toString());
   expect(await s3HasKey(`pending/${upload.id}`)).toBe(false);
 });
 

@@ -35,11 +35,11 @@ test("POST /decision-administrative crée la décision et stocke le PDF sur S3",
   expect(decision.number).toBe("AP-001");
   expect(decision.fichier).not.toBeNull();
 
-  expect(decision.fichier).toBe(upload.id);
+  expect(decision.fichier).not.toBe(upload.id);
   expect(await readS3Body(`files/${decision.fichier}`)).toBe(pdfBytes);
 });
 
-test("POST /decision-administrative en modification remplace le PDF S3 (best-effort cleanup ancien objet)", async () => {
+test("POST /decision-administrative replaces the current PDF and preserves its historical bytes", async () => {
   const { cap, dossier } = await createInstructeurWithDossier(db, { email: "instr@test.fr" });
   const v1 = await putPendingUpload("DECISION-V1", "v1.pdf");
   const v2 = await putPendingUpload("DECISION-V2-DIFFERENT", "v2.pdf");
@@ -88,8 +88,11 @@ test("POST /decision-administrative en modification remplace le PDF S3 (best-eff
   const v2Key = `files/${decision2.fichier}`;
 
   expect(await readS3Body(v2Key)).toBe("DECISION-V2-DIFFERENT");
-  // old object should have been swept
-  expect(await s3HasKey(v1Key)).toBe(false);
+  expect(await s3HasKey(v1Key)).toBe(true);
+  expect(await readS3Body(v1Key)).toBe("DECISION-V1");
+  expect(await db("demande_revision_file").where({ fichier: decision1.fichier })).not.toHaveLength(
+    0,
+  );
 });
 
 test("POST /decision-administrative rejette un type de propriété incorrect", async () => {

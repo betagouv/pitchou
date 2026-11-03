@@ -109,6 +109,7 @@ export async function loadFichierContent(
 // All tables/columns that can reference a file (FK -> file.id).
 // Centralised here so deleteFichiersWithoutOtherReferences stays exhaustive.
 const FILE_REFERENCES = [
+  { table: "demande_revision_file", column: "fichier" },
   { table: "edge_dossier__fichier_pieces_jointes_petitionnaire", column: "fichier" },
   { table: "dossier", column: "especes_impactees" },
   { table: "decision_administrative", column: "fichier" },
