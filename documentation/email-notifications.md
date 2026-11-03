@@ -16,7 +16,7 @@ Unchanged values, identical assignments and synchronization without changes do n
 
 Before sending, the worker checks the preference, active account and effective dossier access again. Direct grants can provide that access without group membership. Preferences belong to the authenticated account, and remain editable even without dossier access. Assignments and updates still require follow-up; arrival notifications require access to the relevant group. Disabling a preference, losing access or leaving follow-up cancels the affected pending emails. A dossier can belong to several groups. When several groups receive it in the same transaction, a shared member receives one email. Losing one group does not cancel delivery if the recipient still belongs to another receiving group.
 
-The application queues and cancels emails inside the transaction that changes the dossier or its access. Synchronization collects action IDs and evaluates them after the operation finishes marking initial imports as baseline. Outbox transitions and their audit records commit together. Direct SQL writes no longer run these policies. See [application-owned routing](../docs/application-routing.md).
+The application queues and cancels emails inside the transaction that changes the dossier or its access. Synchronization collects action IDs and evaluates them after the operation finishes marking initial imports as baseline. Outbox transitions and their audit records commit together. Direct SQL writes no longer run these policies. See [application-owned routing](application-routing.md).
 
 ## Email content
 
