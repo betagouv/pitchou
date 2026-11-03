@@ -205,6 +205,6 @@
 />
 
 <!-- Commentaires are internal to the service and never shared. -->
-{#if !readOnly.current}
+{#if !(readOnly.restricted ?? readOnly.current)}
   <Commentaires {dossier} {email} />
 {/if}

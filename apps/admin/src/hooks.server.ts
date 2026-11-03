@@ -3,6 +3,7 @@ import type { Handle } from "@sveltejs/kit/hooks";
 import * as Sentry from "@sentry/sveltekit";
 
 import { readSession } from "@pitchou/server/session.ts";
+import { hasExpectedOrigin } from "@pitchou/server/requestOrigin.ts";
 
 import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
 import { canAccessAdminRoute } from "#lib/server/permissions.ts";
@@ -59,7 +60,7 @@ const authenticate: Handle = async ({ event, resolve }) => {
     return new Response("Permission insuffisante", { status: 403 });
   if (
     !["GET", "HEAD", "OPTIONS"].includes(event.request.method) &&
-    event.request.headers.get("origin") !== event.url.origin
+    !hasExpectedOrigin(event.request, event.url, __PITCHOU_ORIGIN__)
   )
     return new Response("Origine de la requête refusée", { status: 403 });
   return resolve(event);

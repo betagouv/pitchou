@@ -44,16 +44,14 @@ test("preparation skips stored imports per dossier and file, retaining shared an
   await db.transaction(async (trx) => {
     const prepared = await prepareDossierFiles(
       {
-        especesImpactees: Promise.resolve(
-          new Map([
-            [101, stable],
-            [102, changed],
-            [103, shared],
-            [104, shared],
-            [105, missing],
-          ]),
-        ),
-        piecesJointesPetitionnaire: Promise.resolve(new Map()),
+        especesImpactees: new Map([
+          [101, stable],
+          [102, changed],
+          [103, shared],
+          [104, shared],
+          [105, missing],
+        ]),
+        piecesJointesPetitionnaire: new Map(),
       },
       trx,
     );

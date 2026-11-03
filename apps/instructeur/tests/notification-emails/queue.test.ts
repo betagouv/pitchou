@@ -1,12 +1,13 @@
-import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
-import { updateDossierFollowers } from "@pitchou/server/database/relation_suivi.ts";
 import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
-import type { UserId } from "@pitchou/types/permissions.ts";
+import { withDeferredActionNotifications } from "@pitchou/server/dossierNotificationEmails/actions.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
+import { expect, test } from "vitest";
 
-import { setup, dispatch } from "./fixtures.ts";
+import { dispatch, setup } from "./fixtures.ts";
 
 test("preferences default to enabled, persist independently and belong to the authenticated user", async () => {
   const { actor, recipient } = await setup();
@@ -63,7 +64,9 @@ test("aggregates third-party changes per followed dossier, sends at the due time
 
 test("excludes own changes, generated documents, follow events, unknown system actions and no-op writes", async () => {
   const { action, recipient, actor } = await setup();
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier").where({ personne: recipient.id }).delete(),
+  );
   for (const type of [
     "avis_modifie",
     "document_genere",
@@ -83,20 +86,22 @@ test("excludes own changes, generated documents, follow events, unknown system a
 
 test("DN form, attachment and species changes queue mail, but deferred baselines and rollback do not", async () => {
   const { action, actor } = await setup();
-  await db.transaction(async (trx) => {
-    await logActionsDossier(
-      [
-        {
-          dossier: actor.dossier.id as ActionDossierInitializer["dossier"],
-          type: "piece_jointe_importee",
-          author_petitionnaire: true,
-          data: { notification: true },
-        },
-      ],
-      trx,
-    );
-    await trx("action_dossier").update({ data: JSON.stringify({ baseline: true }) });
-  });
+  await db.transaction((trx) =>
+    withDeferredActionNotifications(trx, async () => {
+      await logActionsDossier(
+        [
+          {
+            dossier: actor.dossier.id as ActionDossierInitializer["dossier"],
+            type: "piece_jointe_importee",
+            author_petitionnaire: true,
+            data: { notification: true },
+          },
+        ],
+        trx,
+      );
+      await trx("action_dossier").update({ data: JSON.stringify({ baseline: true }) });
+    }),
+  );
   expect(await db("email_notification_outbox")).toHaveLength(0);
   await expect(
     db.transaction(async (trx) => {
@@ -123,35 +128,13 @@ test("DN form, attachment and species changes queue mail, but deferred baselines
   expect(await db("email_notification_outbox")).toHaveLength(2);
 });
 
-test("queues immediate assignments only for newly added third-party followers", async () => {
-  const { actor, recipient, action } = await setup();
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
-  const assign = async () =>
-    db.transaction(async (trx) => {
-      const updated = await updateDossierFollowers(
-        actor.id as UserId,
-        actor.dossier.id as ActionDossierInitializer["dossier"],
-        [actor.email, recipient.email],
-        trx,
-      );
-      if (updated)
-        await logActionsDossier(
-          updated.added.map((follower) => ({
-            dossier: actor.dossier.id as ActionDossierInitializer["dossier"],
-            type: "dossier_suivi",
-            author_personne: actor.id as ActionDossierInitializer["author_personne"],
-            data: { follower },
-          })),
-          trx,
-        );
-    });
-  await assign();
-  await assign();
+test("never queues mail for personal follow events", async () => {
+  const { actor, action } = await setup();
   await action("dossier_suivi", { data: { follower: actor.email } });
-  expect(await db("email_notification_outbox")).toHaveLength(1);
+  await action("dossier_suivi_termine", { data: { follower: actor.email } });
+  expect(await db("email_notification_outbox")).toHaveLength(0);
   const sent = await dispatch(new Date());
-  expect(sent.send).toHaveBeenCalledOnce();
-  expect(sent.send.mock.calls[0][0].subject).toContain("Attribution dossier:");
+  expect(sent.send).not.toHaveBeenCalled();
 });
 
 test.each(["preference", "unfollow", "access"])("rechecks %s before delivery", async (change) => {
@@ -159,21 +142,30 @@ test.each(["preference", "unfollow", "access"])("rechecks %s before delivery", a
   await action("avis_modifie");
   const [row] = await db("email_notification_outbox");
   if (change === "preference")
-    await db("email_notification_preferences")
-      .where({ personne: recipient.id })
-      .update({ novelty: false, arrival: true });
+    await changeDossierAccess(db, (notificationTrx) =>
+      notificationTrx("email_notification_preferences")
+        .where({ personne: recipient.id })
+        .update({ novelty: false, arrival: true }),
+    );
   if (change === "unfollow")
-    await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
-  if (change === "access") await db("user_groupe").where({ user_id: recipient.id }).delete();
+    await changeDossierAccess(db, (notificationTrx) =>
+      notificationTrx("edge_personne_follows_dossier").where({ personne: recipient.id }).delete(),
+    );
+  if (change === "access")
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("user_groupe").where({ user_id: recipient.id }).delete(),
+    );
   expect((await dispatch(row.due_at)).send).not.toHaveBeenCalled();
   expect((await db("email_notification_outbox").first()).status).toBe("cancelled");
 });
 
 test("disabled categories do not queue and are independent", async () => {
   const { action, recipient } = await setup();
-  await db("email_notification_preferences")
-    .where({ personne: recipient.id })
-    .update({ novelty: false, arrival: true });
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: recipient.id })
+      .update({ novelty: false, arrival: true }),
+  );
   await action("avis_modifie");
   await action("dossier_suivi", { data: { follower: recipient.email } });
   expect((await db("email_notification_outbox")).map((r) => r.kind)).toEqual(["assignment"]);

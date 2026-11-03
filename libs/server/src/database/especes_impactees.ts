@@ -1,5 +1,4 @@
 import type { PreparedImpactFile } from "./impact_espece/prepareImpactEspeceFile.ts";
-import pLimit from "p-limit";
 import type { Knex } from "knex";
 
 import { anomaliesTitle } from "@pitchou/common/impact_espece/anomalies.ts";
@@ -18,9 +17,6 @@ import type { DossierDS88444 } from "@pitchou/types/demarche-numerique/apiSchema
 import type ImpactEspece from "@pitchou/types/database/public/ImpactEspece.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
 
-// Each import reads its file back from the object storage, so they are not all started at once.
-const limiteImports = pLimit(4);
-
 /**
  * Attaches the freshly downloaded espèces impactées files to their dossier and
  * records one review revision per changed impact type. Unreadable files and missing
@@ -31,6 +27,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
   dossierIdByDNNumber: Map<DossierDS88444["number"], Dossier["id"]>,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
   preparedFiles?: ReadonlyMap<FileId, PreparedImpactFile>,
+  deferredFileCleanup?: Set<FileId>,
 ): Promise<Set<DossierId>> {
   if (!databaseConnection.isTransaction)
     return databaseConnection.transaction((trx) =>
@@ -39,6 +36,7 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
         dossierIdByDNNumber,
         trx,
         preparedFiles,
+        deferredFileCleanup,
       ),
     );
   // Lock in a stable order before reading either the pointer or its impact snapshot.
@@ -53,29 +51,30 @@ export async function synchronizeFichiersEspecesImpacteesFromDS88444(
     .orderBy("id")
     .forUpdate();
   const changedDossiers = new Set<DossierId>();
-  await Promise.all(
-    currentRows.map((current) =>
-      limiteImports(async () => {
-        const number = Number(current.demarche_numerique_number);
-        const fileId = especesImpacteesByDossierNumber.get(number);
-        if (fileId === undefined || dossierIdByDNNumber.get(number) !== current.id) return;
+  for (const current of currentRows) {
+    const number = Number(current.demarche_numerique_number);
+    const fileId = especesImpacteesByDossierNumber.get(number);
+    if (fileId === undefined || dossierIdByDNNumber.get(number) !== current.id) continue;
 
-        await synchronizeDossierImpacts(
-          current,
-          fileId,
-          number,
-          changedDossiers,
-          databaseConnection,
-          preparedFiles,
-        );
-      }),
-    ),
-  );
+    await synchronizeDossierImpacts(
+      current,
+      fileId,
+      number,
+      changedDossiers,
+      databaseConnection,
+      preparedFiles,
+    );
+  }
 
   const oldFileIds = currentRows.flatMap(({ especes_impactees }) =>
     especes_impactees ? [especes_impactees] : [],
   );
-  await deleteFichiersWithoutOtherReferences(oldFileIds, databaseConnection);
+  // A caller adding other file references must finish those writes before orphan cleanup.
+  if (deferredFileCleanup) {
+    for (const fileId of oldFileIds) deferredFileCleanup.add(fileId);
+  } else {
+    await deleteFichiersWithoutOtherReferences(oldFileIds, databaseConnection);
+  }
 
   return changedDossiers;
 }

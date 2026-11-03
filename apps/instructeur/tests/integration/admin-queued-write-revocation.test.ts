@@ -1,9 +1,10 @@
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
+import { adminWriteCases, adminWriteFixture, adminWriteSnapshot } from "../helpers/admin-writes.ts";
 import { admin } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
-import { adminWriteCases, adminWriteFixture, adminWriteSnapshot } from "../helpers/admin-writes.ts";
+import { db } from "../setup/db.ts";
+import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 test("admin mutations queued behind permission revocation reject without changing data", async () => {
   const actor = await admin();
@@ -15,6 +16,7 @@ test("admin mutations queued behind permission revocation reject without changin
       .onConflict(["user_id", "bundle"])
       .ignore();
     const revocation = await db.transaction();
+    await lockDossierAccess(revocation);
     let response: Promise<Response> | undefined;
     try {
       const {
@@ -41,13 +43,17 @@ test("admin mutations queued behind permission revocation reject without changin
           },
         )
         .toBe(1);
+      await recalculateAssignments(revocation, { silent: true });
       await revocation.commit();
       expect((await response).status, `${operation.method} ${operation.path}`).toBe(403);
       expect(await adminWriteSnapshot()).toEqual(before);
     } finally {
       // Keep the actor revoked even when an assertion fails, so queued external
       // operations such as synchronization can never start during cleanup.
-      if (!revocation.isCompleted()) await revocation.commit();
+      if (!revocation.isCompleted()) {
+        await recalculateAssignments(revocation, { silent: true });
+        await revocation.commit();
+      }
       await response;
     }
   }

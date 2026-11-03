@@ -1,24 +1,25 @@
-import { sessionUserId } from "../helpers/auth.ts";
-import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import {
-  createDossier as createDossierRow,
-  createInstructeurWithCapToGroup,
-} from "../factories/index.ts";
-import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
+import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
 import {
   createDossierFromAdmin,
-  updateDossierFromAdmin,
   deleteDossierFromAdmin,
   DossierManagedByDnError,
   DossierNotCreatedInPitchouError,
   DossierUnknownSourceError,
+  updateDossierFromAdmin,
 } from "@pitchou/server/database/dossier_admin.ts";
 import {
   getDossierDetailForAdmin,
   listDossiersForAdmin,
 } from "@pitchou/server/database/dossier_admin_list.ts";
-import { getDossierFull, getDossiersSummariesForUser } from "@pitchou/server/database/dossier.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
+import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
+import {
+  createDossier as createDossierRow,
+  createInstructeurWithCapToGroup,
+} from "../factories/index.ts";
+import { sessionUserId } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
@@ -26,10 +27,15 @@ const ADMIN_EMAIL = "admin-dossiers@pitchou.test";
 
 test("un dossier créé depuis l'admin est visible par les instructeurs de son groupe", async () => {
   const instructeur = await createInstructeurWithCapToGroup(db);
-  await db("groupe_departement").insert({
-    groupe_instructeurs: instructeur.groupeId,
-    department: "69",
-  });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: instructeur.groupeId,
+        department: "69",
+      }),
+    { silent: true },
+  );
 
   const { id } = await createDossierFromAdmin(
     {

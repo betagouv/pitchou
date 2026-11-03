@@ -40,6 +40,16 @@ export async function requireDossierAccess(
   return result.dossierId;
 }
 
+export async function requireDossierInternalReadAccess(
+  dossierId: Dossier["id"] | undefined,
+  userId: UserId,
+  databaseConnection?: Knex,
+): Promise<Dossier["id"]> {
+  const result = await requireDossierAccessLevel(dossierId, userId, databaseConnection);
+  if (result.access === "lecture") error(403, "Les informations internes ne sont pas accessibles");
+  return result.dossierId;
+}
+
 export async function lockDossierAccess(transaction: Knex.Transaction): Promise<void> {
   // Use the same lock as account, permission and ownership changes. Acquire it
   // after reading the request body, before checking access or taking row locks.

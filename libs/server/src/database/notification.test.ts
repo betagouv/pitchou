@@ -60,11 +60,13 @@ afterEach(async () => {
   vi.restoreAllMocks();
 });
 
-test("notification reads filter full service access and the current person's acknowledgments", async () => {
+test("notification reads filter current reading access and the current person's acknowledgments", async () => {
   const result = await getNotificationsForUser(cap, db);
   expect(result[0].viewed).toBe(false);
   const actions = queries.find(({ sql }) => sql.startsWith('select "a".*'))!;
+  expect(actions.sql).toContain('"dossier_user_access"');
   expect(actions.sql).toContain('"edge_groupe_instructeurs__dossier"');
+  expect(actions.sql).toContain('"follow"."personne"');
   expect(actions.sql).toContain('"r"."action" = "a"."id"');
   expect(actions.sql).toContain('"r"."personne" = $');
   expect(actions.bindings).toContain(7);
@@ -113,8 +115,8 @@ test("follow dismissal compares its revision and never updates field acknowledgm
   );
 });
 
-test("read-only access is refused before writing any personal state", async () => {
-  vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map([[dossier, "lecture"]]));
+test("missing reading access is refused before writing any personal state", async () => {
+  vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map());
   await expect(updateNotificationDossier(cap, { dossier, arrival: true }, db)).rejects.toThrow(
     "Accès au dossier refusé",
   );

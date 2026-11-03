@@ -50,21 +50,18 @@
   );
   const effective = $derived(effectivePermissions(bundles, grants, exclusions));
   const exceptionCount = $derived(grants.length + exclusions.length);
-  let exceptionsOpen = $state(
-    untrack(() => !!current?.grants.length || !!current?.exclusions.length),
-  );
 </script>
 
 {#each grants as permission}<input type="hidden" name="grants" value={permission} />{/each}
 {#each exclusions as permission}<input type="hidden" name="exclusions" value={permission} />{/each}
-<details bind:open={exceptionsOpen} class="editor-section exceptions">
-  <summary
-    ><span>Droits personnalisés</span><span class="exception-count"
+<section aria-label="Permissions personnalisées">
+  <h3 class="permissions-heading">
+    <span>Permissions personnalisées</span><span class="exception-count"
       >{exceptionCount
         ? `${exceptionCount} exception${exceptionCount > 1 ? "s" : ""}`
         : "Aucune exception"}</span
-    ><span class="fr-icon-arrow-down-s-line fr-icon--sm" aria-hidden="true"></span></summary
-  >
+    >
+  </h3>
   <div class="exceptions-content">
     <p class="help">
       Par défaut, les profils définissent les droits. Une autorisation ajoute un droit ; un refus le
@@ -103,4 +100,4 @@
       </section>
     {/each}
   </div>
-</details>
+</section>

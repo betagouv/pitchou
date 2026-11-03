@@ -1,3 +1,4 @@
+import { writeNotificationFixture } from "../helpers/routing.ts";
 import { randomUUID } from "node:crypto";
 import { test, expect } from "../fixtures/playwright.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
@@ -22,26 +23,30 @@ test("admins can filter delivery failures and inspect the provider reason withou
   for (const [index, recipient] of recipients.entries()) {
     const id = randomUUID();
     const providerMessageId = `<delivery-${index}@smtp-relay.mailin.fr>`;
-    await db("email_notification_outbox").insert({
-      id,
-      personne: admin.id,
-      dossier: dossier.id,
-      kind: "arrival",
-      batch_key: randomUUID(),
-      due_at: now,
-      environment: "production",
-      attempt_count: 1,
-      message: {
-        to: [recipient],
-        subject: "Nouveau dossier : Extension du projet de Tours",
-        htmlContent: "<p>Nouveau dossier</p>",
-      },
-    });
-    await db("email_notification_outbox").where({ id }).update({
-      status: "sent",
-      sent_at: now,
-      provider_message_id: providerMessageId,
-    });
+    await writeNotificationFixture(db, (trx) =>
+      trx("email_notification_outbox").insert({
+        id,
+        personne: admin.id,
+        dossier: dossier.id,
+        kind: "arrival",
+        batch_key: randomUUID(),
+        due_at: now,
+        environment: "production",
+        attempt_count: 1,
+        message: {
+          to: [recipient],
+          subject: "Nouveau dossier : Extension du projet de Tours",
+          htmlContent: "<p>Nouveau dossier</p>",
+        },
+      }),
+    );
+    await writeNotificationFixture(db, (trx) =>
+      trx("email_notification_outbox").where({ id }).update({
+        status: "sent",
+        sent_at: now,
+        provider_message_id: providerMessageId,
+      }),
+    );
     await db("email_issue_notification").insert({
       id: randomUUID(),
       issue: {

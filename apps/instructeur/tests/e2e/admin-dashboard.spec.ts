@@ -1,7 +1,8 @@
-import { departements } from "@pitchou/common/departements.ts";
 import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
-import { test, expect } from "../fixtures/playwright.ts";
+import { departements } from "@pitchou/common/departements.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("dashboard links to pending work, respects access and clears resolved alerts", async ({
@@ -18,11 +19,16 @@ test("dashboard links to pending work, respects access and clears resolved alert
     coverage_needs_review: true,
   });
   const label = "Libellé à vérifier pour le tableau de bord";
-  await db("activite_label").insert({
-    label,
-    activite_code: AUTRE_ACTIVITE_CODE,
-    needs_review: true,
-  });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("activite_label").insert({
+        label,
+        activite_code: AUTRE_ACTIVITE_CODE,
+        needs_review: true,
+      }),
+    { silent: true },
+  );
   try {
     await loginAs(admin.codeAcces);
     await page.goto(E2E_ADMIN_BASE_URL);
@@ -31,7 +37,7 @@ test("dashboard links to pending work, respects access and clears resolved alert
     await expect(attention.getByRole("link", { name: /Dossiers sans groupe/u })).toContainText("1");
     await expect(attention.getByRole("link", { name: /Groupes à vérifier/u })).toContainText("1");
     await expect(
-      attention.getByRole("link", { name: /Départements sans groupe actif/u }),
+      attention.getByRole("link", { name: /Départements sans couverture complète/u }),
     ).toContainText(String(departements.length));
     await expect(page.getByText("Tout est à jour")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("dashboard-attention-desktop.png") });
@@ -45,32 +51,59 @@ test("dashboard links to pending work, respects access and clears resolved alert
     await page.getByRole("button", { name: /libellé.*détecté/u }).click();
     await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
 
-    await db("auth_permission_exclusion").insert({
-      user_id: admin.id,
-      permission: "groups:manage",
-    });
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("auth_permission_exclusion").insert({
+        user_id: admin.id,
+        permission: "groups:manage",
+      }),
+    );
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByRole("link")).toHaveCount(1);
     await expect(attention.getByRole("link", { name: /Libellés d'activité/u })).toBeVisible();
-    await db("auth_permission_exclusion").where({ user_id: admin.id }).delete();
-
-    await db("groupe_departement").insert(
-      departements.map(({ code }) => ({ groupe_instructeurs: admin.groupeId, department: code })),
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("auth_permission_exclusion").where({ user_id: admin.id }).delete(),
     );
-    await db("groupe_instructeurs")
-      .where({ id: admin.groupeId })
-      .update({ coverage_needs_review: false });
-    await db("activite_label").where({ label }).update({ needs_review: false });
+
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_departement").insert(
+          departements.map(({ code }) => ({
+            groupe_instructeurs: admin.groupeId,
+            department: code,
+          })),
+        ),
+      { silent: true },
+    );
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_instructeurs")
+          .where({ id: admin.groupeId })
+          .update({ coverage_needs_review: false }),
+      { silent: true },
+    );
+    await changeAssignments(
+      db,
+      (routingTrx) => routingTrx("activite_label").where({ label }).update({ needs_review: false }),
+      { silent: true },
+    );
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByRole("link")).toHaveCount(1);
     await expect(attention.getByRole("link", { name: /Dossiers sans groupe/u })).toBeVisible();
-    await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
+    );
     await page.goto(E2E_ADMIN_BASE_URL);
     await expect(attention.getByText("Tout est à jour")).toBeVisible();
     await expect(attention.getByRole("link")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("dashboard-all-clear.png") });
 
-    await db("activite_label").where({ label }).update({ needs_review: true });
+    await changeAssignments(
+      db,
+      (routingTrx) => routingTrx("activite_label").where({ label }).update({ needs_review: true }),
+      { silent: true },
+    );
     await page.setViewportSize({ width: 390, height: 800 });
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto(E2E_ADMIN_BASE_URL);
@@ -78,6 +111,10 @@ test("dashboard links to pending work, respects access and clears resolved alert
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
     await page.screenshot({ path: testInfo.outputPath("dashboard-attention-mobile-dark.png") });
   } finally {
-    await db("activite_label").where({ label }).delete();
+    await changeAssignments(
+      db,
+      (routingTrx) => routingTrx("activite_label").where({ label }).delete(),
+      { silent: true },
+    );
   }
 });

@@ -1,3 +1,4 @@
+import { parseGroupRules } from "@pitchou/common/groupRouting.ts";
 import { error } from "@sveltejs/kit";
 import type { GroupUpdate, UserUpdate } from "@pitchou/server/administration.ts";
 import { DEPARTEMENT_VALUES } from "./dossierValidation/columnAcceptedValues.ts";
@@ -40,7 +41,20 @@ export function parseGroup(body: Record<string, unknown>): GroupUpdate {
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(body.id))
   )
     error(400, "Identifiant invalide");
-  const departments = strings(body.departments);
+  let rules;
+  try {
+    rules = body.rules === undefined ? undefined : parseGroupRules(body.rules);
+  } catch (cause) {
+    error(400, cause instanceof Error ? cause.message : "Règle invalide");
+  }
+  const departments = body.departments === undefined && rules ? [] : strings(body.departments);
+  if (rules && departments.length > 0)
+    error(400, "Utilisez uniquement les règles pour définir la couverture");
+  if (
+    body.previewToken !== undefined &&
+    (typeof body.previewToken !== "string" || !/^[a-f0-9]{64}$/u.test(body.previewToken))
+  )
+    error(400, "Aperçu invalide");
   if (departments.some((d) => !DEPARTEMENT_VALUES.has(d))) error(400, "Département inconnu");
   if (
     !Array.isArray(body.members) ||
@@ -52,6 +66,8 @@ export function parseGroup(body: Record<string, unknown>): GroupUpdate {
     name: body.name,
     active: body.active,
     departments,
+    ...(rules === undefined ? {} : { rules }),
+    ...(body.previewToken === undefined ? {} : { previewToken: body.previewToken as string }),
     members: body.members as number[],
   };
 }

@@ -1,12 +1,13 @@
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
 import {
   dossierWriteCases,
   dossierWriteFixture,
   dossierWriteSnapshot,
 } from "../helpers/dossier-writes.ts";
+import { db } from "../setup/db.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 test("every dossier mutation queued behind revocation rejects without changing data", async () => {
   const fixture = await dossierWriteFixture();
@@ -18,6 +19,7 @@ test("every dossier mutation queued behind revocation rejects without changing d
       .onConflict(["user_id", "bundle"])
       .ignore();
     const revocation = await db.transaction();
+    await lockDossierAccess(revocation);
     let response: Promise<Response> | undefined;
     try {
       const {
@@ -50,6 +52,7 @@ test("every dossier mutation queued behind revocation rejects without changing d
           },
         )
         .toBe(1);
+      await recalculateAssignments(revocation, { silent: true });
       await revocation.commit();
       expect((await response).status, `${operation.method} ${operation.path}`).toBe(
         operation.status ?? 403,

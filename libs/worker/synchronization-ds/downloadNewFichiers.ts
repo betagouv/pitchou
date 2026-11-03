@@ -57,30 +57,23 @@ function demarcheNumeriqueContentTypeToActualMediaType({
   return contentType;
 }
 
-/**
- * This function starts the downloads, saves the files in the database
- * and returns the association between the dossier and the corresponding Fichier['id']
- */
 export default async function downloadNewFichiers(
   candidateFichiers: Map<DossierDS88444["number"], DSFile[]>,
   transaction?: Knex.Transaction | Knex,
 ): Promise<Map<DossierDS88444["number"], FileId[]>> {
   const candidateFichiersDB: Map<DossierDS88444["number"], FichierToDownload[]> = new Map(
-    [...candidateFichiers].map(([number, fichiers]) => {
-      return [
-        number,
-        fichiers.map(({ filename, contentType, checksum, createdAt, url }) => ({
-          name: filename,
-          media_type: demarcheNumeriqueContentTypeToActualMediaType({ filename, contentType }),
-          demarche_numerique_checksum: checksum,
-          demarche_numerique_created_at: new Date(createdAt),
-          url,
-        })),
-      ];
-    }),
+    [...candidateFichiers].map(([number, fichiers]): [number, FichierToDownload[]] => [
+      number,
+      fichiers.map(({ filename, contentType, checksum, createdAt, url }) => ({
+        name: filename,
+        media_type: demarcheNumeriqueContentTypeToActualMediaType({ filename, contentType }),
+        demarche_numerique_checksum: checksum,
+        demarche_numerique_created_at: new Date(createdAt),
+        url,
+      })),
+    ]),
   );
 
-  // Look up in the database the files we already have that resemble the candidates
   const fichiersAlreadyInDB = await findExistingFichiers(
     [...candidateFichiersDB.values()].flat(),
     transaction,
@@ -90,46 +83,41 @@ export default async function downloadNewFichiers(
     fichiersAlreadyInDB.map((f) => [makeFichierHash(f), f.id]),
   );
 
-  //console.log('candidateFichiersDB', candidateFichiersDB)
-
-  // Filter the candidate list by removing the files already present in the database
   const fichiersToDownload: typeof candidateFichiersDB = new Map(
     [...candidateFichiersDB]
-      .map(([number, fichiers]): [number, FichierToDownload[]] => {
-        return [
-          number,
-          fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f))),
-        ];
-      })
+      .map(([number, fichiers]): [number, FichierToDownload[]] => [
+        number,
+        fichiers.filter((f) => !fichierIdByHashAlreadyInDB.has(makeFichierHash(f))),
+      ])
       .filter(([, fichiers]) => fichiers.length > 0),
   );
 
-  //console.log('fichiersÀTélécharger', fichiersÀTélécharger.size)
-
-  type ReturnMapEntryData = [DossierDS88444["number"], FileId[]];
-
-  // Download the files and put them directly into the database
-  const retMapDataPs: Promise<ReturnMapEntryData | undefined>[] = [...fichiersToDownload].map(
-    ([number, fichiers]) => {
-      return Promise.all(
-        fichiers.map((fichier) => downloadAndStoreFichier(fichier, number, transaction)),
-      ).then((downloadedFichiers) => {
-        const successfullyDownloadedFichiers = downloadedFichiers.filter((f) => f !== undefined);
-
-        if (successfullyDownloadedFichiers.length > 0) {
-          return [number, successfullyDownloadedFichiers];
-        }
-      });
-    },
+  const downloadCandidates = [...fichiersToDownload].flatMap(([number, fichiers]) =>
+    fichiers.map((fichier) => ({ number, fichier })),
   );
+  const newFichiersByDossier = new Map<DossierDS88444["number"], FileId[]>();
+  // Bound buffered downloads and serialize storage calls sharing the transaction.
+  const downloadBatchSize = 5;
+  for (let index = 0; index < downloadCandidates.length; index += downloadBatchSize) {
+    const downloadedFichiers = await Promise.all(
+      downloadCandidates
+        .slice(index, index + downloadBatchSize)
+        .map(async ({ number, fichier }) => ({
+          number,
+          fichier,
+          buffer: await downloadFichier(fichier, number),
+        })),
+    );
+    for (const { number, fichier, buffer } of downloadedFichiers) {
+      if (!buffer) continue;
+      const fileId = await storeFichier(fichier, buffer, number, transaction);
+      if (fileId === undefined) continue;
+      const fileIds = newFichiersByDossier.get(number) ?? [];
+      fileIds.push(fileId);
+      newFichiersByDossier.set(number, fileIds);
+    }
+  }
 
-  const newFichiersByDossier = new Map(
-    (await Promise.all(retMapDataPs)).filter((x): x is ReturnMapEntryData => x !== undefined),
-  );
-
-  // For each dossier, we return the ids of all the files that concern it — whether they
-  // were just downloaded or were already in the database (matched by hash). This lets the
-  // consumer create the join edges in both cases.
   const fichiersByDossier = new Map<DossierDS88444["number"], FileId[]>();
   for (const [dossierNumber, candidates] of candidateFichiersDB) {
     const fichierIdsAlreadyInDB = candidates
@@ -146,18 +134,11 @@ export default async function downloadNewFichiers(
   return fichiersByDossier;
 }
 
-async function downloadAndStoreFichier(
-  fichier: FichierToDownload,
-  number: DossierDS88444["number"],
-  transaction?: Knex.Transaction | Knex,
-) {
+async function downloadFichier(fichier: FichierToDownload, number: DossierDS88444["number"]) {
   const { url } = fichier;
-  const { demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } = fichier;
-
-  let buffer: Buffer;
   try {
     const { content } = await downloadFichierDS(url);
-    buffer = Buffer.from(content);
+    return Buffer.from(content);
   } catch (err) {
     if (err instanceof HTTPError) {
       console.error(
@@ -178,9 +159,17 @@ async function downloadAndStoreFichier(
           : "",
       );
     }
-    return;
   }
+}
 
+async function storeFichier(
+  fichier: FichierToDownload,
+  buffer: Buffer,
+  number: DossierDS88444["number"],
+  transaction?: Knex.Transaction | Knex,
+) {
+  const { url, demarche_numerique_checksum, demarche_numerique_created_at, media_type, name } =
+    fichier;
   try {
     const insertedFichier = await storeNewFichier(
       {

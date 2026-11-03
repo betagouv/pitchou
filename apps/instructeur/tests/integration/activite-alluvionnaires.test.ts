@@ -1,7 +1,8 @@
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
 import {
-  up,
   down,
+  up,
 } from "../../../../libs/database/migrations/20260906120000_add-carrieres-alluvionnaires-activite.ts";
 import { db } from "../setup/db.ts";
 
@@ -30,9 +31,14 @@ test.each([true, false])(
     const trx = await db.transaction();
     try {
       await down(trx);
-      await trx("activite_label")
-        .where({ label: LABEL })
-        .update({ activite_code: "autre", needs_review: needsReview });
+      await changeAssignments(
+        trx,
+        (routingTrx) =>
+          routingTrx("activite_label")
+            .where({ label: LABEL })
+            .update({ activite_code: "autre", needs_review: needsReview }),
+        { silent: true },
+      );
       const original = await trx("activite_label").where({ label: LABEL }).first();
 
       await up(trx);
@@ -52,7 +58,11 @@ test("rollback preserves canonical labels and aliases for existing dossiers", as
   const trx = await db.transaction();
   try {
     const alias = "Alluvial quarry test alias";
-    await trx("activite_label").insert({ label: alias, activite_code: CODE });
+    await changeAssignments(
+      trx,
+      (routingTrx) => routingTrx("activite_label").insert({ label: alias, activite_code: CODE }),
+      { silent: true },
+    );
 
     await down(trx);
 

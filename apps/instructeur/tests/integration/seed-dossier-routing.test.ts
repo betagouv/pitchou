@@ -1,9 +1,10 @@
+import { departements } from "@pitchou/common/departements.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
 import { seed as seedUsers } from "../../../../libs/database/seeds/dev/06_users.ts";
 import { seedDossierActors } from "../../../../libs/database/seeds/dev/dossier/actors.ts";
 import { seedDossierRows } from "../../../../libs/database/seeds/dev/dossier/rows.ts";
 import { SEED_DOSSIERS } from "../../../../libs/database/seeds/fixtures/dossiers.ts";
-import { departements } from "@pitchou/common/departements.ts";
 import { db } from "../setup/db.ts";
 
 test("fresh and repeated seeds route realistic dossiers and keep one deliberate unmatched example", async () => {
@@ -46,11 +47,18 @@ test("fresh and repeated seeds route realistic dossiers and keep one deliberate 
     (await db("dossier").where({ id: first.dossierIdMap["99000011"] }).first()).departments,
   ).toEqual(["35", "22"]);
   // A rerun repairs old fixtures but preserves group coverage edited in the admin app.
-  await db("dossier")
-    .where({ id: first.dossierIdMap["99000001"] })
-    .update({ primary_department: null });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .where({ id: first.dossierIdMap["99000001"] })
+      .update({ primary_department: null }),
+  );
   const group = await db("groupe_instructeurs").where({ name: "DREAL BRETAGNE" }).first();
-  await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "50" });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({ groupe_instructeurs: group.id, department: "50" }),
+    { silent: true },
+  );
   await seedUsers(db);
   const second = await seedRows();
   expect(second.dossierIdMap).toEqual(first.dossierIdMap);

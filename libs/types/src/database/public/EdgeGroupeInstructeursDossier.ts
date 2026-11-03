@@ -9,6 +9,8 @@ export default interface EdgeGroupeInstructeursDossier {
   dossier: DossierId;
 
   groupe_instructeurs: GroupeInstructeursId;
+
+  access_level: string;
 }
 
 /** Represents the initializer for the table public.edge_groupe_instructeurs__dossier */
@@ -16,6 +18,9 @@ export interface EdgeGroupeInstructeursDossierInitializer {
   dossier: DossierId;
 
   groupe_instructeurs: GroupeInstructeursId;
+
+  /** Default value: 'instruct'::text */
+  access_level?: string;
 }
 
 /** Represents the mutator for the table public.edge_groupe_instructeurs__dossier */
@@ -23,4 +28,6 @@ export interface EdgeGroupeInstructeursDossierMutator {
   dossier?: DossierId;
 
   groupe_instructeurs?: GroupeInstructeursId;
+
+  access_level?: string;
 }

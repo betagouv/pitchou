@@ -1,4 +1,6 @@
 import type { Knex } from "knex";
+import { updateNotifications } from "../dossierNotificationEmails/history.ts";
+import { lockDossierAccess } from "../dossierRouting.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PersonnePhysiqueId } from "@pitchou/types/database/public/PersonnePhysique.ts";
@@ -11,6 +13,7 @@ export async function deleteDossiersWithPersonnesPhysiques(
   dossiers: Knex.QueryBuilder,
   trx: Knex.Transaction,
 ): Promise<DossierId[]> {
+  await lockDossierAccess(trx);
   const rows: { id: DossierId }[] = await dossiers.clone().select("dossier.id");
   const ids = rows.map(({ id }) => id);
   if (ids.length === 0) return [];
@@ -26,6 +29,11 @@ export async function deleteDossiersWithPersonnesPhysiques(
         .whereIn("dossier.id", ids)
         .whereNotNull("porteur_de_projet.personne_physique"),
     );
+  await updateNotifications(
+    trx,
+    (db) => db("email_notification_outbox").whereIn("dossier", ids).where("status", "pending"),
+    { status: "cancelled", claimed_at: null, cancellation_reason: "dossier_deleted" },
+  );
   await trx("dossier").whereIn("id", ids).delete();
   if (personnes.length > 0) {
     await trx("personne_physique")

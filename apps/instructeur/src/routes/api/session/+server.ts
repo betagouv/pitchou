@@ -1,3 +1,4 @@
+import { canReadDossiers } from "#lib/server/dossierEntry.ts";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { json, error } from "@sveltejs/kit";
 import { getMaxUploadSizeBytes } from "@pitchou/server/upload.ts";
@@ -36,6 +37,13 @@ const endpoints = {
   updateNotificationForDossier: "/dossiers/notifications",
 };
 const readActions = new Set([
+  "listFollowRelations",
+  "updateFollowRelation",
+  "listerNotifications",
+  "updateNotificationForDossier",
+  "listerEvenementsPhaseDossier",
+  "listerActionsDossier",
+  "listerCommentaires",
   "listerDossiers",
   "exporterDossiers",
   "recupérerDossierComplet",
@@ -45,7 +53,7 @@ const readActions = new Set([
 export const GET: RequestHandler = async ({ locals }) => {
   const user = locals.user;
   if (!user) error(401, "Authentification requise");
-  const canRead = user.groupes.length > 0 && user.permissions.includes("dossier:read");
+  const canRead = await canReadDossiers(user);
   const canInstruct = canRead && user.permissions.includes("dossier:instruct");
   const revision = await db("administration_event").max("id as id").first();
   return json({

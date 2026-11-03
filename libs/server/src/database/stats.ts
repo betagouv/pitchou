@@ -13,17 +13,17 @@ export async function getPublicStats(): Promise<PublicStats> {
   const today = formatISO(startOfToday());
   try {
     // Fetch all the dossiers
-    const allDossiersP = transaction("dossier").select("id");
+    const allDossiers = await transaction("dossier").select("id");
 
     // Fetch the dossiers currently in the contrôle phase
-    const controlePhaseDossiersP = transaction("evenement_phase_dossier")
+    const controlePhaseDossiers = await transaction("evenement_phase_dossier")
       .select("dossier")
       .max("timestamp as latest_timestamp")
       .where("phase", "Contrôle")
       .groupBy("dossier")
       .orderBy("latest_timestamp", "desc");
 
-    const petitionnairesSinceSeptember2024P = transaction("dossier")
+    const petitionnairesSinceSeptember2024 = await transaction("dossier")
       .select(["demandeur_personne_morale", "demandeur_personne_physique"])
       .where("depot_date", ">=", "2024-09-01")
       .groupBy("demandeur_personne_morale", "demandeur_personne_physique");
@@ -33,35 +33,18 @@ export async function getPublicStats(): Promise<PublicStats> {
       today,
     );
 
-    const prescriptionWithControleCountP = transaction
+    const prescriptionWithControleCountRow = await transaction
       .from(controlesP)
       .countDistinct("prescription as count")
       .first();
 
-    const biodiversiteImpactStatsP = getBiodiversiteImpactStats(
+    const biodiversiteImpactStats = await getBiodiversiteImpactStats(
       transaction,
       controllablePrescriptionsP,
     );
 
-    const conformiteStatsP = getConformiteStats(transaction, controlesP);
-
-    const [
-      allDossiers,
-      controlePhaseDossiers,
-      petitionnairesSinceSeptember2024,
-      conformiteStats,
-      controllablePrescriptions,
-      prescriptionWithControleCountRow,
-      biodiversiteImpactStats,
-    ] = await Promise.all([
-      allDossiersP,
-      controlePhaseDossiersP,
-      petitionnairesSinceSeptember2024P,
-      conformiteStatsP,
-      controllablePrescriptionsP,
-      prescriptionWithControleCountP,
-      biodiversiteImpactStatsP,
-    ]);
+    const conformiteStats = await getConformiteStats(transaction, controlesP);
+    const controllablePrescriptions = await controllablePrescriptionsP;
 
     const controllablePrescriptionCount = controllablePrescriptions.length;
     const prescriptionWithControleCount = Number(prescriptionWithControleCountRow?.count);

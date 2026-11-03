@@ -84,6 +84,7 @@ describe.each(databaseRoutes)("$name audit", ({ name, run, mutation, args, statu
       ["evenement_metrique"],
     ]);
     expect(mocks.database).not.toHaveBeenCalled();
+    expect(mocks.queueNotifications).toHaveBeenCalledWith(mocks.transaction, ["recorded-action"]);
     expect(mocks.commit).toHaveBeenCalledOnce();
     expect(mocks.rollback).not.toHaveBeenCalled();
   });

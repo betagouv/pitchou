@@ -3,12 +3,8 @@ export { buildDossierUpdateColumns } from "./updateColumns.ts";
 
 export type TriState = "" | "oui" | "non";
 export type LocationScope = "" | "communes" | "departements" | "regions" | "france";
-export type Commune = {
-  name: string;
-  code?: string;
-  postalCode?: string;
-  [key: string]: unknown;
-};
+import type { Commune } from "#lib/dossierLocation.ts";
+export type { Commune };
 export type ScientificIntervenant = {
   nom_complet: string | null;
   qualification: string | null;

@@ -1,12 +1,21 @@
-import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { createDossierFromAdmin } from "@pitchou/server/database/dossier_admin.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
 import { setupArrival } from "./arrivalFixtures.ts";
 import { dispatch } from "./fixtures.ts";
 
 test("native admin creation queues arrivals only when its outer transaction commits", async () => {
   const { member } = await setupArrival();
-  await db("groupe_departement").insert({ groupe_instructeurs: member.groupeId, department: "75" });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: member.groupeId,
+        department: "75",
+      }),
+    { silent: true },
+  );
   const created = await db.transaction(async (trx) => {
     const dossier = await createDossierFromAdmin(
       {
@@ -31,7 +40,8 @@ test("native admin creation queues arrivals only when its outer transaction comm
       "admin@test.fr",
       trx,
     );
-    expect(await trx("email_notification_outbox")).toHaveLength(0);
+    expect(await db("email_notification_outbox")).toHaveLength(0);
+    expect(await trx("email_notification_outbox")).toHaveLength(2);
     return dossier;
   });
   expect(await db("email_notification_outbox").where({ dossier: created.id })).toHaveLength(2);

@@ -7,7 +7,7 @@
       {
         count: attention.groups?.unmatchedDossiers ?? 0,
         title: "Dossiers sans groupe",
-        detail: "Compléter le département principal ou la couverture des groupes.",
+        detail: "Vérifier les critères des règles ou affecter les dossiers manuellement.",
         href: "/dossiers#unmatched-dossiers",
         icon: "fr-icon-folder-2-line",
       },
@@ -27,8 +27,8 @@
       },
       {
         count: attention.groups?.uncoveredDepartments ?? 0,
-        title: "Départements sans groupe actif",
-        detail: "Compléter la couverture pour affecter les dossiers de ces départements.",
+        title: "Départements sans couverture complète",
+        detail: "Certaines règles peuvent ne couvrir qu’une partie de ces départements.",
         href: "/groupes-instructeurs#uncovered-departments",
         icon: "fr-icon-map-pin-2-line",
       },

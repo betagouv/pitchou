@@ -53,7 +53,7 @@ for (const width of [1280, 390]) {
     const counter = page.getByTestId("compteur-dossier");
     await expect(cards).toHaveCount(1);
     await expect(cards).toContainText(followed.name!);
-    await expect(counter).toContainText("1 dossiers suivis dans vos territoires d'affectation");
+    await expect(counter).toContainText("1 dossiers suivis");
 
     // Unfollowed owned summaries also contribute every one of their departments.
     await page.getByRole("button", { name: /^Filtres\b/u }).click();
@@ -119,8 +119,9 @@ for (const width of [1280, 390]) {
     await page.reload();
     await expect(cards).toHaveCount(5);
     await expect(counter).toContainText("5 dossiers en France entière (lecture seule)");
-    await expect(cards.getByRole("button")).toHaveCount(0);
-    await expect(foreignCard.getByLabel("Lecture seule", { exact: true })).toBeVisible();
+    await expect(cards.getByRole("button", { name: "Suivre", exact: true })).toHaveCount(4);
+    await expect(cards.getByRole("button", { name: "Ne plus suivre", exact: true })).toHaveCount(1);
+    await expect(cards.locator('button[aria-haspopup="menu"]')).toHaveCount(0);
     for (const dossier of [followed, unfollowed, nearby, elsewhere, unlocated]) {
       await expect(page.getByRole("link", { name: dossier.name!, exact: true })).toHaveAttribute(
         "href",
@@ -146,7 +147,7 @@ for (const width of [1280, 390]) {
     await page.goto("/mes-dossiers?localisation=france");
     await expect(cards).toHaveCount(1);
     await expect(cards).toContainText(followed.name!);
-    await expect(counter).toContainText("1 dossiers suivis dans vos territoires d'affectation");
+    await expect(counter).toContainText("1 dossiers suivis");
     await expect(ownedCard.getByRole("link")).toHaveAttribute("href", `/dossier/${followed.id}`);
     await page.getByRole("button", { name: /^Filtres\b/u }).click();
     await expect(location.getByRole("radio")).toHaveCount(0);

@@ -6,11 +6,10 @@ export async function accountForMembership(email: string, trx: Knex.Transaction)
   if (user && !user.active)
     throw new GroupMembershipError(409, "Ce compte est désactivé. Contactez un administrateur.");
   if (!user) [user] = await trx("auth_user").insert({ email }).returning("*");
-  const configured = await Promise.all(
-    ["auth_permission_bundle", "auth_permission", "auth_permission_exclusion"].map((table) =>
-      trx(table).where({ user_id: user.id }).first(),
-    ),
-  );
+  const bundle = await trx("auth_permission_bundle").where({ user_id: user.id }).first();
+  const grant = await trx("auth_permission").where({ user_id: user.id }).first();
+  const exclusion = await trx("auth_permission_exclusion").where({ user_id: user.id }).first();
+  const configured = [bundle, grant, exclusion];
   // Only bootstrap unconfigured accounts. Explicit administrator choices stay intact.
   if (!user.permissions_configured && configured.every((assignment) => !assignment))
     await trx("auth_permission_bundle").insert({ user_id: user.id, bundle: "instructeur" });

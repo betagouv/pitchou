@@ -9,15 +9,17 @@ import { deleteUnreferencedDossierPersonnes } from "./relations.ts";
 import { deleteDossiersWithPersonnesPhysiques } from "../personne_physique.ts";
 
 async function collectFileIds(dossierId: DossierId, trx: Knex.Transaction): Promise<FileId[]> {
-  const [dossier, pieces, decisions, avis, attachments] = await Promise.all([
-    trx("dossier").select("especes_impactees").where({ id: dossierId }).first(),
-    trx("edge_dossier__fichier_pieces_jointes_petitionnaire")
-      .select("fichier")
-      .where({ dossier: dossierId }),
-    trx("decision_administrative").select("fichier").where({ dossier: dossierId }),
-    trx("avis_expert").select(["saisine_fichier", "avis_fichier"]).where({ dossier: dossierId }),
-    trx("other_attachment").select("fichier").where({ dossier: dossierId }),
-  ]);
+  const dossier = await trx("dossier").select("especes_impactees").where({ id: dossierId }).first();
+  const pieces = await trx("edge_dossier__fichier_pieces_jointes_petitionnaire")
+    .select("fichier")
+    .where({ dossier: dossierId });
+  const decisions = await trx("decision_administrative")
+    .select("fichier")
+    .where({ dossier: dossierId });
+  const avis = await trx("avis_expert")
+    .select(["saisine_fichier", "avis_fichier"])
+    .where({ dossier: dossierId });
+  const attachments = await trx("other_attachment").select("fichier").where({ dossier: dossierId });
   const ids = [
     dossier?.especes_impactees,
     ...pieces.map(({ fichier }) => fichier),

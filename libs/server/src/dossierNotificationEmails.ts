@@ -1,13 +1,14 @@
-import { StagingEmailSuppressedError } from "./emails/recipients.ts";
-import { suppressNotification } from "./dossierNotificationEmails/suppression.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "./database.ts";
-import { sendEmail, isBrevoDuplicateIdempotencyError, type EmailMessage } from "./emails.ts";
-import { claimEmail, dueEmails } from "./dossierNotificationEmails/queue.ts";
 import {
   notificationErrorCategory,
   providerMessageId,
 } from "./dossierNotificationEmails/failures.ts";
+import { updateNotifications } from "./dossierNotificationEmails/history.ts";
+import { claimEmail, dueEmails } from "./dossierNotificationEmails/queue.ts";
+import { suppressNotification } from "./dossierNotificationEmails/suppression.ts";
+import { isBrevoDuplicateIdempotencyError, sendEmail, type EmailMessage } from "./emails.ts";
+import { StagingEmailSuppressedError } from "./emails/recipients.ts";
 
 function definitelyRejected(error: unknown): boolean {
   if (error instanceof Error && error.message === "Missing BREVO_API_KEY environment variable")
@@ -54,15 +55,17 @@ export async function dispatchDossierNotificationEmails(
       } catch (error) {
         if (!(await isBrevoDuplicateIdempotencyError(error))) throw error;
       }
-      await db("email_notification_outbox")
-        .where({ id, claimed_at: now })
-        .update({
+      await updateNotifications(
+        db,
+        (trx) => trx("email_notification_outbox").where({ id, claimed_at: now }),
+        {
           status: "sent",
           sent_at: now,
           claimed_at: null,
           last_error: null,
           provider_message_id: providerMessageId(result),
-        });
+        },
+      );
       sent++;
     } catch (error) {
       if (error instanceof StagingEmailSuppressedError) {
@@ -70,9 +73,10 @@ export async function dispatchDossierNotificationEmails(
         continue;
       }
       failed++;
-      await db("email_notification_outbox")
-        .where({ id, claimed_at: now })
-        .update({
+      await updateNotifications(
+        db,
+        (trx) => trx("email_notification_outbox").where({ id, claimed_at: now }),
+        {
           claimed_at: null,
           retry_at: new Date(now.getTime() + 60_000),
           // Clear only the anchor introduced by this claim. A later rejection
@@ -81,7 +85,8 @@ export async function dispatchDossierNotificationEmails(
             ? { first_attempt_at: null }
             : {}),
           last_error: notificationErrorCategory(error),
-        });
+        },
+      );
       console.error("Dossier notification email failed", id);
     }
   }

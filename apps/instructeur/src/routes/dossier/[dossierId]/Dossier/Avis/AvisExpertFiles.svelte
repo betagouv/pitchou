@@ -34,7 +34,7 @@
 </script>
 
 <ul class="list-none fr-m-0 fr-p-0 border-t border-solid border-[color:var(--border-default-grey)]">
-  {#if !readOnly.current}
+  {#if !(readOnly.restricted ?? readOnly.current)}
     <li
       class="flex items-center gap-3 border-b border-solid border-[color:var(--border-default-grey)] fr-py-1w"
     >

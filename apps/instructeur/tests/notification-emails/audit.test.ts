@@ -1,10 +1,12 @@
-import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { emailNotificationPreferencesForUser } from "@pitchou/server/database/email_notification_preferences.ts";
-import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
 import { getUtilisateursAARRI } from "@pitchou/server/database/utilisateursAARRI.ts";
-import { setup, dispatch } from "./fixtures.ts";
+import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
+import { expect, test, vi } from "vitest";
+import { writeNotificationFixture } from "../helpers/routing.ts";
+import { dispatch, setup } from "./fixtures.ts";
 
 const metrics = (name: string) =>
   db("evenement_metrique").where({ evenement: `notificationEmail${name}` });
@@ -40,9 +42,11 @@ test("authenticated settings changes are atomic, private, timestamped and skip n
   expect(await metrics("SettingsChanged")).toHaveLength(1);
   expect(await emailNotificationPreferencesForUser(0 as UserId, values, db)).toBeUndefined();
   expect(await metrics("SettingsChanged")).toHaveLength(1);
-  await db("email_notification_preferences")
-    .where({ personne: actor.id })
-    .update({ arrival: false });
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: actor.id })
+      .update({ arrival: false }),
+  );
   expect(await metrics("SettingsChanged")).toHaveLength(1);
   expect(
     await db("email_notification_settings_history").where({ personne: actor.id }),
@@ -139,13 +143,15 @@ test("rolled back queue inserts do not leave history or metrics", async () => {
   const before = await metrics("Queued");
   await expect(
     db.transaction(async (trx) => {
-      await trx("email_notification_outbox").insert({
-        personne: recipient.id,
-        dossier: actor.dossier.id,
-        kind: "novelty",
-        batch_key: "rollback",
-        due_at: new Date(),
-      });
+      await writeNotificationFixture(trx, (notificationTrx) =>
+        notificationTrx("email_notification_outbox").insert({
+          personne: recipient.id,
+          dossier: actor.dossier.id,
+          kind: "novelty",
+          batch_key: "rollback",
+          due_at: new Date(),
+        }),
+      );
       throw new Error("rollback");
     }),
   ).rejects.toThrow();
@@ -155,16 +161,18 @@ test("rolled back queue inserts do not leave history or metrics", async () => {
 // All failure paths use the same dispatcher; no real network requests are made.
 test("preview environment is persisted and emitted without fabricating a user action", async () => {
   const { actor, recipient } = await setup();
-  const [row] = await db("email_notification_outbox")
-    .insert({
-      personne: recipient.id,
-      dossier: actor.dossier.id,
-      kind: "novelty",
-      batch_key: "preview",
-      due_at: new Date(),
-      environment: "preview",
-    })
-    .returning("*");
+  const [row] = await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox")
+      .insert({
+        personne: recipient.id,
+        dossier: actor.dossier.id,
+        kind: "novelty",
+        batch_key: "preview",
+        due_at: new Date(),
+        environment: "preview",
+      })
+      .returning("*"),
+  );
   await dispatchDossierNotificationEmails({
     db,
     dossier: row.dossier,

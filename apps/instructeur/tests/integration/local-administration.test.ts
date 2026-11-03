@@ -1,10 +1,11 @@
-import { expect, test } from "vitest";
-import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { readSession } from "@pitchou/server/session.ts";
-import { db } from "../setup/db.ts";
+import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
+import { expect, test } from "vitest";
 import { createInstructeurWithDossier } from "../factories/index.ts";
-import { ADMIN_BASE_URL, INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { fetchAuthenticated, sessionUserId } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { ADMIN_BASE_URL, INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 import { admin, saveGroup } from "../helpers/administration.ts";
 test("a new ProConnect identity is recorded without granting dossier permissions", async () => {
@@ -47,11 +48,13 @@ test("permission exclusions and account deactivation take effect on an existing 
     personne: instructor.id,
     dossier: instructor.dossier.id,
   });
-  await db("auth_permission_exclusion").insert({
-    user_id: instructor.id,
-    permission: "dossier:instruct",
-  });
-  expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: instructor.id,
+      permission: "dossier:instruct",
+    }),
+  );
+  expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
   const response = await fetchAuthenticated(
     instructor.cap,
     `${INTEGRATION_BASE_URL}/dossier/${instructor.dossier.id}`,
@@ -63,9 +66,12 @@ test("permission exclusions and account deactivation take effect on an existing 
   );
   expect(response.status).toBe(403);
   expect((await readSession(instructor.cap, db))?.permissions).not.toContain("dossier:instruct");
-  await db("auth_user")
-    .where({ id: sessionUserId(instructor.cap) })
-    .update({ active: false });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_user")
+      .where({ id: sessionUserId(instructor.cap) })
+      .update({ active: false }),
+  );
+  expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
   expect(await readSession(instructor.cap, db)).toBeNull();
   expect(
     (await fetchAuthenticated(instructor.cap, `${INTEGRATION_BASE_URL}/dossiers`)).status,

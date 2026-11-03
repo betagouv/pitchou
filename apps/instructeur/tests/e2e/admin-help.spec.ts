@@ -21,7 +21,7 @@ test("page help and AARRI downloads live in the header", async ({
     [
       "groupes-instructeurs",
       "Groupes instructeurs",
-      "Chaque dossier appartient à tous les groupes actifs",
+      "Chaque dossier est affecté à tous les groupes actifs",
     ],
     ["activites", "Activités et libellés", "Ces libellés sont rattachés à une"],
     ["aarri", "Niveaux AARRI", "Le niveau AARRI résume"],

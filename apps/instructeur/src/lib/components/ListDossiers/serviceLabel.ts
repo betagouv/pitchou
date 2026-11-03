@@ -1,9 +1,9 @@
 import type { Localisation } from "./localisation.ts";
 
-/** Trailing counter label names the geographic scope, not ownership by a service. */
+/** Personal tracking can include dossiers outside the user's groups. */
 export function serviceLabel(localisation: Localisation, followedOnly = false): string {
-  const dossiers = followedOnly ? "dossiers suivis" : "dossiers";
+  if (followedOnly) return "dossiers suivis";
   return localisation === "france"
-    ? `${dossiers} en France entière (lecture seule)`
-    : `${dossiers} dans vos territoires d'affectation`;
+    ? "dossiers en France entière (lecture seule)"
+    : "dossiers dans vos territoires d'affectation";
 }

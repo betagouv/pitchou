@@ -5,7 +5,7 @@
   import { dossierRegionOptions } from "@pitchou/common/dossierFormOptions.ts";
 
   import type { DossierAdminFormModel, LocationScope } from "./dossierAdminFormModel.ts";
-  import CommuneSelector from "./CommuneSelector.svelte";
+  import CommuneSelector from "#lib/components/CommuneSelector.svelte";
   import DepartmentMultiSelect from "./DepartmentMultiSelect.svelte";
   import DossierProjectMapField from "./DossierProjectMapField.svelte";
 

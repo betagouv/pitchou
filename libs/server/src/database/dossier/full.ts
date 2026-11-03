@@ -24,88 +24,61 @@ export async function getDossierFull(
   const transaction: Knex.Transaction = databaseConnection.isTransaction
     ? (databaseConnection as Knex.Transaction)
     : await databaseConnection.transaction({ readOnly: true });
-  if (!(await dossiersAccessibleToUser(dossierId, userId, transaction)).has(dossierId)) {
-    if (!databaseConnection.isTransaction) await transaction.commit();
-    throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la userId ${userId}`);
-  }
-  // Access was checked above, so the fetch itself selects the dossier by id.
-  const dossierP = loadDossier(dossierId, transaction);
-  const eventsP = getEvenementsPhaseDossier(dossierId, transaction);
-  const avisP = getAvisExpertDossier(dossierId, transaction);
-  const piecesP = getPiecesJointes(dossierId, transaction);
-  const decisionsP = getDecisionsDossier(dossierId, transaction);
-  const attachmentsP = getOtherAttachmentsForDossier(dossierId, transaction);
-  const impactsP = getImpactOnEspeces(dossierId, transaction);
-  const cnpnEmailSentEventsP = getDossierCnpnEmailSentEvents(dossierId, transaction);
-  const prescriptionsP = decisionsP.then((decisions) =>
-    getPrescriptions(
+  try {
+    if (!(await dossiersAccessibleToUser(dossierId, userId, transaction)).has(dossierId)) {
+      throw new TypeError(`Le dossier ${dossierId} n'est pas accessible via la userId ${userId}`);
+    }
+    // Access was checked above, so the fetch itself selects the dossier by id.
+    const dossier = await loadDossier(dossierId, transaction);
+    const events = await getEvenementsPhaseDossier(dossierId, transaction);
+    const avis = await getAvisExpertDossier(dossierId, transaction);
+    const pieces = await getPiecesJointes(dossierId, transaction);
+    const decisions = await getDecisionsDossier(dossierId, transaction);
+    const attachments = await getOtherAttachmentsForDossier(dossierId, transaction);
+    const impacts = await getImpactOnEspeces(dossierId, transaction);
+    const cnpnEmailSentEvents = await getDossierCnpnEmailSentEvents(dossierId, transaction);
+    const prescriptions = await getPrescriptions(
       decisions.map(({ id }) => id),
       transaction,
-    ),
-  );
-  const controlesP = prescriptionsP.then((prescriptions) =>
-    getControles(
+    );
+    const controles = await getControles(
       prescriptions.map(({ id }) => id),
       transaction,
-    ),
-  );
-  const all = Promise.all([
-    dossierP,
-    eventsP,
-    avisP,
-    piecesP,
-    decisionsP,
-    attachmentsP,
-    prescriptionsP,
-    controlesP,
-    impactsP,
-    cnpnEmailSentEventsP,
-  ]);
-  if (!databaseConnection.isTransaction) all.then(transaction.commit).catch(transaction.rollback);
-  return all.then(
-    ([
-      dossier,
-      events,
-      avis,
-      pieces,
-      decisions,
-      attachments,
-      prescriptions,
-      controles,
-      impacts,
-      cnpnEmailSentEvents,
-    ]) =>
-      withResolvedActivite(
-        formatDossierFull(
-          dossier,
-          events,
-          avis,
-          pieces,
-          decisions,
-          attachments,
-          prescriptions,
-          controles,
-          impacts,
-          cnpnEmailSentEvents,
-        ),
+    );
+    const result = withResolvedActivite(
+      formatDossierFull(
+        dossier,
+        events,
+        avis,
+        pieces,
+        decisions,
+        attachments,
+        prescriptions,
+        controles,
+        impacts,
+        cnpnEmailSentEvents,
       ),
-  );
+    );
+    if (!databaseConnection.isTransaction) await transaction.commit();
+    return result;
+  } catch (error) {
+    if (!databaseConnection.isTransaction) await transaction.rollback();
+    throw error;
+  }
 }
 
 async function loadDossier(
   dossierId: DossierFull["id"],
   transaction: Knex.Transaction,
 ): Promise<LoadedDossier> {
-  const [dossier, acteurs] = await Promise.all([
-    joinDossierIdentities(
-      transaction("dossier")
-        .select(dossierFullColumns)
-        .select(transaction.raw(latestCommentaireSubquery)),
-    )
-      .where({ "dossier.id": dossierId })
-      .first(),
-    getDossierActeurs([dossierId], transaction),
-  ]);
+  const dossier = await joinDossierIdentities(
+    transaction("dossier")
+      .select(dossierFullColumns)
+      .select(transaction.raw(latestCommentaireSubquery)),
+  )
+    .where({ "dossier.id": dossierId })
+    .first();
+  const acteurs = await getDossierActeurs([dossierId], transaction);
   dossier.ddep_depot_date = withCalendarDateJSON(dossier.ddep_depot_date);
   dossier.acteurs = acteurs.get(dossierId) ?? [];
   return dossier;

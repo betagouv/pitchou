@@ -1,11 +1,11 @@
 import type { Knex } from "knex";
+import { dossierAccessQuery } from "./dossier/access.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import type { UserId } from "@pitchou/types/permissions.ts";
-import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type { AuthUser as Personne, UserId } from "@pitchou/types/permissions.ts";
 import {
   followDossierForPersonnes,
   getAccessibleDossierGroupeMembers,
@@ -45,6 +45,10 @@ export async function updateDossierFollowers(
   personneEmails: NonNullable<Personne["email"]>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ added: string[]; removed: string[] } | false> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      updateDossierFollowers(userId, dossierId, personneEmails, trx),
+    );
   const members = await getAccessibleDossierGroupeMembers(
     userId,
     dossierId,
@@ -89,16 +93,12 @@ export function findFollowerUser(
   dossierId: Dossier["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any[]> {
-  return databaseConnection("user_groupe as m")
-    .join("auth_user as u", "u.id", "m.user_id")
-    .join(
-      "edge_groupe_instructeurs__dossier as e",
-      "e.groupe_instructeurs",
-      "m.groupe_instructeurs",
-    )
-    .whereRaw("pitchou_can_instruct(u.id)")
-    .distinct("e.dossier as dossier_id", "u.id as personne_id")
-    .where({ "u.id": userId, "u.active": true, "u.email": personneEmail, "e.dossier": dossierId });
+  return databaseConnection("auth_user as u")
+    .join(dossierAccessQuery(userId, databaseConnection).as("access"), function () {
+      this.on("access.dossier", databaseConnection.raw("?", [dossierId]));
+    })
+    .select("access.dossier as dossier_id", "u.id as personne_id")
+    .where({ "u.id": userId, "u.active": true, "u.email": personneEmail });
 }
 
 export async function personneFollowsDossier(

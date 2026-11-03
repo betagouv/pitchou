@@ -56,14 +56,16 @@ export async function synchronizeDossierRelations(
   // every change — columns, acteurs, espèces and pièces jointes — is known.
   // The acteurs are kept apart from the other synchronizations because the
   // caller needs the dossiers they changed.
-  const acteursSynchronization = savePorteursDeProjetAndActeurs(
+  const acteursSynchronization = await savePorteursDeProjetAndActeurs(
     porteurByDossierId,
     acteursByDossierId,
     transaction,
   );
-  const synchronizations: unknown[] = [syncIdentitesDossier(identitesByDossierId, transaction)];
+  const synchronizations: unknown[] = [
+    await syncIdentitesDossier(identitesByDossierId, transaction),
+  ];
   if (messagesByDossierId.size > 0) {
-    synchronizations.push(dumpDossierMessages(messagesByDossierId, transaction));
+    synchronizations.push(await dumpDossierMessages(messagesByDossierId, transaction));
   }
   return { dossierIdByDNNumber, acteursSynchronization, synchronizations };
 }

@@ -1,23 +1,32 @@
-import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import {
-  createGroupeInstructeurs,
-  createInstructeurWithCapToGroup,
-  createPersonne,
-} from "../factories/index.ts";
-import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
 import {
   createDossierFromAdmin,
   updateDossierFromAdmin,
 } from "@pitchou/server/database/dossier_admin.ts";
 import { getDossierDetailForAdmin } from "@pitchou/server/database/dossier_admin_list.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
+import { physicalAdminDossierRelations } from "../factories/adminDossier.ts";
+import {
+  createGroupeInstructeurs,
+  createInstructeurWithCapToGroup,
+  createPersonne,
+} from "../factories/index.ts";
+import { db } from "../setup/db.ts";
 
 const ADMIN_EMAIL = "admin-relations@pitchou.test";
 
 test("a native dossier can change groupe and physical demandeur without mutating an account", async () => {
   await createInstructeurWithCapToGroup(db);
   const nextGroupe = await createGroupeInstructeurs(db, { name: "Nouveau groupe" });
-  await db("groupe_departement").insert({ groupe_instructeurs: nextGroupe.id, department: "69" });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: nextGroupe.id,
+        department: "69",
+      }),
+    { silent: true },
+  );
   const existing = await createPersonne(db, {
     email: "shared@example.org",
     first_names: "Existing",

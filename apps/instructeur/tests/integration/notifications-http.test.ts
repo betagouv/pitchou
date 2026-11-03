@@ -101,11 +101,18 @@ test("legacy dossiers and baseline actions do not become new", async () => {
   expect((await list(cap))[0]).toMatchObject({ viewed: true, new_arrival: null, changes: [] });
 });
 
-test("users outside the owning group cannot access or change review state", async () => {
+test("restricted readers must follow a dossier before managing personal review state", async () => {
   const owner = await createInstructeurWithDossier(db, { nomGroupe: "Service propriétaire" });
   const reader = await createInstructeurWithCapToGroup(db, { nomGroupe: "Service lecteur" });
   expect(await list(reader.cap)).toEqual([]);
   expect((await update(reader.cap, { dossier: owner.dossier.id, arrival: true })).status).toBe(403);
+  expect(await db("notification").where({ personne: reader.id })).toHaveLength(0);
+  await db("edge_personne_follows_dossier").insert({
+    personne: reader.id,
+    dossier: owner.dossier.id,
+  });
+  expect((await update(reader.cap, { dossier: owner.dossier.id, arrival: true })).status).toBe(200);
+  expect((await list(reader.cap))[0].new_arrival).toBeNull();
 });
 
 test("the endpoint rejects manual read/unread and client-supplied personal identities", async () => {

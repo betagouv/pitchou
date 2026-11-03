@@ -1,8 +1,9 @@
+import { canReadDossiers } from "#lib/server/dossierEntry.ts";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = ({ locals, url }) => {
-  if (locals.user?.groupes.length && locals.user.permissions.includes("dossier:read")) {
+export const load: PageServerLoad = async ({ locals, url }) => {
+  if (await canReadDossiers(locals.user)) {
     redirect(303, "/mes-dossiers");
   }
   return {

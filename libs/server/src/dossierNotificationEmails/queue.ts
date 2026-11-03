@@ -1,7 +1,10 @@
-import { stagingSuppressesMessage, suppressNotification } from "./suppression.ts";
 import type { Knex } from "knex";
+import { dossierAccessSql } from "../dossierRouting/access.ts";
 import type { EmailMessage } from "../emails.ts";
+import { cancelIneligibleNotifications } from "./cancellation.ts";
+import { updateNotifications } from "./history.ts";
 import { notificationEmailMessage } from "./message.ts";
+import { stagingSuppressesMessage, suppressNotification } from "./suppression.ts";
 
 export type PendingEmail = {
   id: string;
@@ -39,6 +42,15 @@ export async function claimEmail(
   siteUrl: string,
 ): Promise<PendingEmail | undefined> {
   return db.transaction(async (trx) => {
+    await trx.raw("select pg_advisory_xact_lock(2105102026)");
+    const candidate = await trx("email_notification_outbox")
+      .where({ id })
+      .first("dossier", "personne");
+    if (!candidate) return undefined;
+    await cancelIneligibleNotifications(trx, {
+      dossiers: [candidate.dossier],
+      users: [candidate.personne],
+    });
     const row = await dueEmails(trx, now)
       .where({ id })
       .forUpdate()
@@ -47,15 +59,17 @@ export async function claimEmail(
     if (!row) return undefined;
     const recipient = await recipientForEmail(trx, row);
     if (!recipient) {
-      await trx("email_notification_outbox")
-        .where({ id })
-        .update({ status: "cancelled", claimed_at: null });
+      await updateNotifications(trx, (db) => db("email_notification_outbox").where({ id }), {
+        status: "cancelled",
+        claimed_at: null,
+        cancellation_reason: "lost_access",
+      });
       return undefined;
     }
     // A crash or lost response may hide an accepted message. Never retry it after
     // Brevo's deduplication window; an operator must reconcile it with Brevo logs.
     if (row.first_attempt_at && now.getTime() - row.first_attempt_at.getTime() >= 25 * 60_000) {
-      await trx("email_notification_outbox").where({ id }).update({
+      await updateNotifications(trx, (db) => db("email_notification_outbox").where({ id }), {
         status: "uncertain",
         claimed_at: null,
         last_error: "deduplication_window_expired",
@@ -67,14 +81,12 @@ export async function claimEmail(
       await suppressNotification(trx, id);
       return undefined;
     }
-    await trx("email_notification_outbox")
-      .where({ id })
-      .update({
-        claimed_at: now,
-        first_attempt_at: row.first_attempt_at ?? now,
-        message: JSON.stringify(message),
-        attempt_count: row.attempt_count + 1,
-      });
+    await updateNotifications(trx, (db) => db("email_notification_outbox").where({ id }), {
+      claimed_at: now,
+      first_attempt_at: row.first_attempt_at ?? now,
+      message: JSON.stringify(message),
+      attempt_count: row.attempt_count + 1,
+    });
     // Keep the persisted pre-claim anchor so failure handling can distinguish
     // a first potentially accepted attempt from an earlier unresolved attempt.
     return { ...row, message };
@@ -86,10 +98,11 @@ function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
     .join("email_notification_preferences as pref", "pref.personne", "p.id")
     .join("dossier as d", "d.id", trx.raw("?", [row.dossier]))
     .where({ "p.id": row.personne })
-    .whereRaw("pitchou_can_instruct(p.id)")
+    .whereRaw(`${dossierAccessSql("d.id", "p.id")} IS NOT NULL`)
     .where(`pref.${row.kind}`, true)
-    .whereNotNull("p.email")
-    .whereExists(
+    .whereNotNull("p.email");
+  if (row.kind === "arrival")
+    recipientQuery.whereExists(
       trx("user_groupe as cg")
         .join("groupe_instructeurs as g", "g.id", "cg.groupe_instructeurs")
         .where("g.active", true)
@@ -122,6 +135,13 @@ function recipientForEmail(trx: Knex.Transaction, row: PendingEmail) {
     email: string;
     name: string | null;
     enjeu: boolean | null;
+    restricted: boolean;
     demarche_numerique_number: number | null;
-  }>(["p.email", "d.name", "d.enjeu", "d.demarche_numerique_number"]);
+  }>([
+    "p.email",
+    "d.name",
+    "d.enjeu",
+    "d.demarche_numerique_number",
+    trx.raw(`${dossierAccessSql("d.id", "p.id")} = 'lecture' as restricted`),
+  ]);
 }

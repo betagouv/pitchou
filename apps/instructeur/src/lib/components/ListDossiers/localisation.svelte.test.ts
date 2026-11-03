@@ -138,9 +138,7 @@ test.each(["", "?localisation=france"])(
     });
     expect(screen.getAllByTestId("card-dossier")).toHaveLength(1);
     expect(screen.getByRole("link", { name: "Owned" })).toHaveAttribute("href", "/dossier/1");
-    expect(screen.getByTestId("compteur-dossier").textContent).toContain(
-      "1 dossiers suivis dans vos territoires d'affectation",
-    );
+    expect(screen.getByTestId("compteur-dossier").textContent).toContain("1 dossiers suivis");
     expect(screen.queryByText("France entière (lecture seule)")).toBeNull();
     await fireEvent.click(screen.getByRole("button", { name: "Filtres" }));
     const filters = within(screen.getByRole("group", { name: "Localisation" }));

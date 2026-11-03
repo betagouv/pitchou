@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 
 for (const missing of ["group", "permission"] as const) {
   test(`signed-in users missing a ${missing} reach the access page`, async ({
@@ -11,12 +12,16 @@ for (const missing of ["group", "permission"] as const) {
     await loginAs(user.codeAcces);
     const membership = await db("user_groupe").where({ user_id: user.id }).first();
     if (missing === "group") {
-      await db("user_groupe").where({ user_id: user.id }).delete();
+      await changeDossierAccess(db, (routingTrx) =>
+        routingTrx("user_groupe").where({ user_id: user.id }).delete(),
+      );
     } else {
-      await db("auth_permission_exclusion").insert({
-        user_id: user.id,
-        permission: "dossier:read",
-      });
+      await changeDossierAccess(db, (routingTrx) =>
+        routingTrx("auth_permission_exclusion").insert({
+          user_id: user.id,
+          permission: "dossier:read",
+        }),
+      );
     }
     await page.goto("/auth/acces-refuse");
     await page.getByTitle("Accueil - Pitchou", { exact: true }).click();
@@ -54,9 +59,11 @@ for (const missing of ["group", "permission"] as const) {
     if (missing === "group") {
       await db("user_groupe").insert(membership);
     } else {
-      await db("auth_permission_exclusion")
-        .where({ user_id: user.id, permission: "dossier:read" })
-        .delete();
+      await changeDossierAccess(db, (routingTrx) =>
+        routingTrx("auth_permission_exclusion")
+          .where({ user_id: user.id, permission: "dossier:read" })
+          .delete(),
+      );
     }
     await page.reload();
     await expect(page).toHaveURL(/\/mes-dossiers$/u);
@@ -91,7 +98,9 @@ test("disabled accounts can read the denial reason without an authenticated sess
 }) => {
   const user = await createInstructeurWithCapToGroup(db);
   await loginAs(user.codeAcces);
-  await db("auth_user").where({ id: user.id }).update({ active: false });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_user").where({ id: user.id }).update({ active: false }),
+  );
   await page.goto("/auth/acces-refuse?reason=disabled");
   await expect(page).toHaveURL(/\/auth\/acces-refuse\?reason=disabled$/u);
   await expect(

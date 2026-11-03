@@ -20,16 +20,16 @@ export async function getSessionUser(
 ): Promise<SessionUser | null> {
   const user = await getUser(id, db);
   if (!user?.active || !user.email) return null;
-  const [bundles, grants, exclusions, groupes] = await Promise.all([
-    db("auth_permission_bundle").where({ user_id: id }).pluck("bundle"),
-    db("auth_permission").where({ user_id: id }).pluck("permission"),
-    db("auth_permission_exclusion").where({ user_id: id }).pluck("permission"),
-    db("user_groupe as m")
-      .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
-      .where({ "m.user_id": id, "g.active": true })
-      .select("g.id", "g.name")
-      .orderBy("g.name"),
-  ]);
+  const bundles = await db("auth_permission_bundle").where({ user_id: id }).pluck("bundle");
+  const grants = await db("auth_permission").where({ user_id: id }).pluck("permission");
+  const exclusions = await db("auth_permission_exclusion")
+    .where({ user_id: id })
+    .pluck("permission");
+  const groupes = await db("user_groupe as m")
+    .join("groupe_instructeurs as g", "g.id", "m.groupe_instructeurs")
+    .where({ "m.user_id": id, "g.active": true })
+    .select("g.id", "g.name")
+    .orderBy("g.name");
   return {
     ...user,
     email: user.email,

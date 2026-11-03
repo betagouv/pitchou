@@ -2,7 +2,7 @@ import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import {
   requireUserId,
-  requireDossierAccess,
+  requireDossierInternalReadAccess,
   requireDossierWriteAccess,
 } from "#lib/server/auth.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
@@ -12,7 +12,10 @@ import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
   const userId = requireUserId(locals);
-  const dossierId = await requireDossierAccess(Number(params.dossierId!) as DossierId, userId);
+  const dossierId = await requireDossierInternalReadAccess(
+    Number(params.dossierId!) as DossierId,
+    userId,
+  );
   return json(await getDossierActions(dossierId));
 };
 

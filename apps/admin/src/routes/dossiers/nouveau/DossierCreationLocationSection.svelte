@@ -4,7 +4,7 @@
   import MultiSelectFilter from "@pitchou/ui/MultiSelectFilter.svelte";
   import Select from "@pitchou/ui/Select.svelte";
 
-  import CommuneSelector from "../[dossierId]/CommuneSelector.svelte";
+  import CommuneSelector from "#lib/components/CommuneSelector.svelte";
   import DepartmentMultiSelect from "../[dossierId]/DepartmentMultiSelect.svelte";
   import type { DossierCreationModel } from "./dossierCreationModel.ts";
 

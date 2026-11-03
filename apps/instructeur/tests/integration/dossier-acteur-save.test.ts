@@ -1,8 +1,9 @@
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
 
-import { db } from "../setup/db.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { count, physique } from "../factories/porteurDeProjet.ts";
+import { db } from "../setup/db.ts";
 
 import { savePorteursDeProjetAndActeurs } from "@pitchou/server/database/dossier_acteur.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
@@ -121,7 +122,9 @@ test("deleting a dossier deletes its acteurs", async () => {
   const dossier = await createDossier(db);
   await save(dossier.id, [{ involvements: ["deposant"], personne: personne("Martin") }]);
 
-  await db("dossier").where({ id: dossier.id }).delete();
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ id: dossier.id }).delete(),
+  );
 
   expect(await count(db, "dossier_acteur")).toBe(0);
   expect(await count(db, "personne_physique")).toBe(1);

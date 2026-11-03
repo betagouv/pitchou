@@ -8,7 +8,7 @@
   let { dossierId }: { dossierId: DossierId } = $props();
   const readOnly = readOnlyMode();
   const notification = $derived(
-    readOnly.current ? undefined : store.notificationByDossier.get(dossierId),
+    (readOnly.review ?? !readOnly.current) ? store.notificationByDossier.get(dossierId) : undefined,
   );
   const latestChange = $derived(
     notification?.changes?.toSorted(

@@ -5,13 +5,17 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { sentrySvelteKit } from "@sentry/sveltekit";
 import tailwindcss from "@tailwindcss/vite";
 import { fleetNotifications } from "./preview/notificationPlugin.ts";
+import { resolveAppOrigin } from "@pitchou/server/requestOrigin.ts";
 
 // The app runs with CWD = this folder (apps/instructeur); the .env lives at the repo root.
 try {
   process.loadEnvFile?.("../../.env");
 } catch {}
 
+const origin = resolveAppOrigin("instructeur", process.env);
+
 export default defineConfig({
+  define: { __PITCHOU_ORIGIN__: JSON.stringify(origin ?? null) },
   plugins: [
     fleetNotifications(),
     sentrySvelteKit({
@@ -23,7 +27,7 @@ export default defineConfig({
     tailwindcss(),
     sveltekit({
       adapter: adapter(),
-      paths: { origin: process.env.ORIGIN || undefined },
+      paths: { origin },
       preprocess: vitePreprocess(),
       tracing: { server: true },
     }),

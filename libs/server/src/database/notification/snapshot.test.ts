@@ -42,18 +42,39 @@ test("values and personal revisions use the same owned repeatable-read transacti
   });
 });
 
-test.each(["preview", "shared"])(
-  "%s never reads or exposes personal review state",
-  async (mode) => {
-    if (mode === "shared")
-      vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map([[id, "lecture"]]));
+test("preview never reads or exposes personal review state", async () => {
+  const db = {
+    transaction: async (run: (trx: Knex.Transaction) => Promise<unknown>) =>
+      run({} as Knex.Transaction),
+  } as unknown as Knex;
+  const result = await getDossierReviewSnapshot(id, cap, true, db);
+  expect(getNotificationsForUser).not.toHaveBeenCalled();
+  expect(result?.notificationSnapshot).toBeUndefined();
+});
+
+test.each([false, true])(
+  "restricted followers receive only their personal applicant snapshot, preview=%s",
+  async (preview) => {
+    vi.mocked(dossiersAccessibleToUser).mockResolvedValue(new Map([[id, "lecture"]]));
+    vi.mocked(getDossierFull).mockResolvedValue({
+      ...dossier,
+      free_comment: "Internal note",
+      otherAttachments: [],
+    });
     const db = {
       transaction: async (run: (trx: Knex.Transaction) => Promise<unknown>) =>
         run({} as Knex.Transaction),
     } as unknown as Knex;
-    const result = await getDossierReviewSnapshot(id, cap, mode === "preview", db);
-    expect(getNotificationsForUser).not.toHaveBeenCalled();
-    expect(result?.notificationSnapshot).toBeUndefined();
+    const result = await getDossierReviewSnapshot(id, cap, preview, db);
+    expect(result).toMatchObject({
+      access: "lecture",
+      free_comment: "",
+      notificationSnapshot: notification,
+    });
+    vi.mocked(getNotificationsForUser).mockResolvedValue([]);
+    expect(
+      (await getDossierReviewSnapshot(id, cap, preview, db))?.notificationSnapshot,
+    ).toBeUndefined();
   },
 );
 

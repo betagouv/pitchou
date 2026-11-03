@@ -31,17 +31,12 @@ export async function addOrUpdateAvisExpertWithFichiers(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
   try {
-    const fichierSaisineAddedP = fichierSaisine
-      ? registerUploadedFichier(fichierSaisine, databaseConnection)
-      : Promise.resolve();
-    const fichierAvisAddedP = fichierAvis
-      ? registerUploadedFichier(fichierAvis, databaseConnection)
-      : Promise.resolve();
-
-    const [fichierSaisineAdded, fichierAvisAdded] = await Promise.all([
-      fichierSaisineAddedP,
-      fichierAvisAddedP,
-    ]);
+    const fichierSaisineAdded = fichierSaisine
+      ? await registerUploadedFichier(fichierSaisine, databaseConnection)
+      : undefined;
+    const fichierAvisAdded = fichierAvis
+      ? await registerUploadedFichier(fichierAvis, databaseConnection)
+      : undefined;
 
     if (isAvisExpertToUpdate(avisExpert)) {
       const avisExpertToUpdate = avisExpert as { id: string } & AvisExpertMutator;

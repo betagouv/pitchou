@@ -1,7 +1,16 @@
-import { expect, test } from "vitest";
 import { departements } from "@pitchou/common/departements.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { up } from "../../../../libs/database/migrations/20261023103000_map-imported-group-departments.ts";
-import { db } from "../setup/db.ts";
+import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
+let database: Awaited<ReturnType<typeof disposableAccessDatabase>>;
+let db: Awaited<ReturnType<typeof disposableAccessDatabase>>["db"];
+beforeEach(async () => {
+  database = await disposableAccessDatabase("20261027120000");
+  db = database.db;
+});
+afterEach(async () => {
+  await database?.close();
+});
 
 async function group(name: string, overrides: Record<string, unknown> = {}) {
   const [row] = await db("groupe_instructeurs")

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { readOnlyMode } from "../readOnly.ts";
   import { SvelteMap } from "svelte/reactivity";
   import Prescription from "./Prescriptions/Prescription.svelte";
   import PrescriptionsEditTable from "./Prescriptions/PrescriptionsEditTable.svelte";
@@ -26,6 +27,8 @@
   };
 
   let { dossierId, decisionAdministrative }: Props = $props();
+
+  const readOnly = readOnlyMode();
 
   // Local list, initialized once from the décision then mutated in place
   // (add / remove / import). Intentionally not reactive to the prop.
@@ -136,34 +139,37 @@
     <section class="fr-mb-3w">
       <p>Il n'y a pas de prescriptions associées à cette décision administrative pour le moment</p>
 
-      <button class="fr-btn fr-btn--icon-left fr-icon-add-line" onclick={addPrescription}>
-        Ajouter une prescription
-      </button>
+      {#if !readOnly.current}<button
+          class="fr-btn fr-btn--icon-left fr-icon-add-line"
+          onclick={addPrescription}
+        >
+          Ajouter une prescription
+        </button>{/if}
     </section>
 
-    <PrescriptionImport
-      {dossierId}
-      {decisionAdministrative}
-      onimport={(savedPrescriptions, count) => {
-        prescriptions = savedPrescriptions;
-        importedCount = count;
-      }}
-    />
+    {#if !readOnly.current}<PrescriptionImport
+        {dossierId}
+        {decisionAdministrative}
+        onimport={(savedPrescriptions, count) => {
+          prescriptions = savedPrescriptions;
+          importedCount = count;
+        }}
+      />{/if}
   {:else}
     <h5 class="fr-mb-2w">{prescriptions.length} prescriptions</h5>
 
-    {#if viewPrescription === "view"}
+    {#if viewPrescription === "view" || readOnly.current}
       {#each prescriptions as prescription}
         <Prescription {prescription} refreshDossierFull={() => refreshDossierFull(dossierId)}
         ></Prescription>
       {/each}
 
-      <button
-        class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line"
-        onclick={() => (viewPrescription = "edit")}
-      >
-        Modifier les prescriptions
-      </button>
+      {#if !readOnly.current}<button
+          class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-ball-pen-line"
+          onclick={() => (viewPrescription = "edit")}
+        >
+          Modifier les prescriptions
+        </button>{/if}
     {:else}
       <PrescriptionsEditTable
         {prescriptions}

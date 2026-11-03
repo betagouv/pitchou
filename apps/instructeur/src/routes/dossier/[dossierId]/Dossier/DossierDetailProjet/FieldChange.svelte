@@ -11,11 +11,12 @@
 
   let { dossierId, change }: { dossierId: DossierId; change?: FieldChange } = $props();
   const readOnly = readOnlyMode();
+  const canReview = $derived(readOnly.review ?? !readOnly.current);
   const displayedDossier = getContext<(() => DossierFull) | undefined>(dossierReviewContext);
   let saving = $state(false);
   let failed = $state(false);
   async function acknowledge() {
-    if (!change || readOnly.current || saving) return;
+    if (!change || !canReview || saving) return;
     const bound =
       displayedDossier &&
       boundReviewChanges(displayedDossier(), store.notificationByDossier.get(dossierId));
@@ -41,7 +42,7 @@
   }
 </script>
 
-{#if !readOnly.current && change}
+{#if canReview && change}
   <span class="field-change">
     <span class="change-date"
       >Modifié le

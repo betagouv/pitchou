@@ -27,8 +27,8 @@
       <span class="field-label">Groupe actif</span>
       <span class="hint" id={formId + "-active-help"}
         >{active
-          ? "Ce groupe prend en charge les dossiers dont le département principal fait partie de sa couverture. Le désactiver l'archive et retire ses affectations, sans supprimer les dossiers."
-          : "Ce groupe est archivé et ne prend en charge aucun dossier. Ses membres et ses départements sont conservés. Le réactiver rétablit les affectations correspondant à sa couverture."}</span
+          ? "Ce groupe prend en charge les dossiers correspondant à ses règles ou ajoutés manuellement. Le désactiver l'archive et retire ses affectations, sans supprimer les dossiers."
+          : "Ce groupe est archivé et ne prend en charge aucun dossier. Ses membres, ses règles et ses exceptions sont conservés. Le réactiver rétablit les affectations selon cette configuration."}</span
       >
     </span>
     <input

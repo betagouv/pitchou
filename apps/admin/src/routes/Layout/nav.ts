@@ -30,7 +30,7 @@ const CHANGELOG_ENTRY = /^\/changelog\/\d+$/u;
  * The shell header owns the page `<h1>`: title (and optional back arrow) come
  * from the path. Pages therefore do not render their own h1.
  */
-export function pageInfoFor(pathname: string): PageInfo {
+export function pageInfoFor(pathname: string, search = ""): PageInfo {
   if (pathname === "/") return { title: "Tableau de bord" };
   if (pathname === "/dossiers") return { title: "Dossiers" };
   if (pathname === "/dossiers/nouveau") {
@@ -38,6 +38,10 @@ export function pageInfoFor(pathname: string): PageInfo {
   }
   if (pathname.startsWith("/dossiers/")) return { title: "Dossier", backHref: "/dossiers" };
   if (pathname === "/utilisateurs") return { title: "Utilisateurs" };
+  if (pathname.startsWith("/utilisateurs/"))
+    return { title: "Utilisateur", backHref: `/utilisateurs${search}` };
+  if (pathname.startsWith("/groupes-instructeurs/"))
+    return { title: "Groupe instructeur", backHref: "/groupes-instructeurs" };
   if (pathname === "/groupes-instructeurs") return { title: "Groupes instructeurs" };
   if (pathname === "/aarri") return { title: "Utilisateurices et niveau AARRI" };
   if (pathname === "/especes-protegees") return { title: "Espèces protégées modifiées" };

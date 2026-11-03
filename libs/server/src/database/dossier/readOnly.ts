@@ -4,7 +4,7 @@ import type { FichierAttachment } from "../fichier_access.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 
 /**
- * Whether a read-only viewer may download a file, from how it hangs off its
+ * Whether a restricted cross-service viewer may download a file, from how it hangs off its
  * dossier. This is the download side of `dossierFullForReadOnly`: the projection
  * decides which URLs are handed out, this decides which are served. They must
  * agree, which is why they live together.
@@ -26,11 +26,12 @@ export function isFichierSharedInReadOnly({ relation, expert }: FichierAttachmen
 }
 
 /**
- * Narrows a dossier down to what a read-only viewer may see.
+ * Narrows a dossier down to the restricted cross-service view.
  *
- * Users outside the owning group receive this projection automatically.
+ * Users with only restricted reading access receive this projection automatically.
  * Internal comments, review state and restricted attachments never reach their
- * browser. Owners previewing read-only mode receive the same projection.
+ * browser. Users previewing restricted mode receive the same projection.
+ * Complete read-only grants retain the full dossier and do not use this projection.
  */
 export function dossierFullForReadOnly(dossier: DossierFull): DossierFull {
   return {

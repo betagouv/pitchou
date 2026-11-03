@@ -34,19 +34,21 @@ export function addPrescriptionsEtControles(
   prescriptions: PrescriptionWithNewControles[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ) {
-  return databaseConnection.transaction(async (transaction) =>
-    Promise.all(
-      prescriptions.map(async ({ controles, ...prescription }) => {
-        const { prescriptionId } = await addPrescription(prescription, transaction);
-        if (controles && controles.length > 0) {
-          return addControles(
-            controles.map((controle) => ({ ...controle, prescription: prescriptionId })),
-            transaction,
-          );
-        }
-      }),
-    ),
-  );
+  return databaseConnection.transaction(async (transaction) => {
+    const results = [];
+    for (const { controles, ...prescription } of prescriptions) {
+      const { prescriptionId } = await addPrescription(prescription, transaction);
+      results.push(
+        controles && controles.length > 0
+          ? await addControles(
+              controles.map((controle) => ({ ...controle, prescription: prescriptionId })),
+              transaction,
+            )
+          : undefined,
+      );
+    }
+    return results;
+  });
 }
 
 export function updatePrescription(

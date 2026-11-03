@@ -16,6 +16,8 @@ test("the session exposes identity and ordinary API URLs without credentials", a
   });
   expect(body.listerDossiers).toBe("/dossiers");
   expect(body.listDossierFollowerCandidates).toBe("/dossier/:dossierId/followers");
+  expect(body.updateDossierFollowers).toBe("/dossier/:dossierId/followers");
+  expect(body.updateFollowRelation).toBe("/dossiers/relation-suivis");
   expect(body.creerEvenementMetrique).toBe("/api/metriques/evenements");
   expect(JSON.stringify(body)).not.toContain(cap);
 });

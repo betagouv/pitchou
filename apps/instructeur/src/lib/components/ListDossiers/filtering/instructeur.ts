@@ -26,7 +26,7 @@ export function filterByInstructeur(
     result = result.filter((dossier) => {
       if (
         includesWithoutInstructeur &&
-        dossier.access === "complet" &&
+        dossier.access !== "lecture" &&
         !dossierIsFollowed(dossier.id, followRelations)
       )
         return true;

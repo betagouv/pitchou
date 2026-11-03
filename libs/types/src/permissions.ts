@@ -1,6 +1,6 @@
 export const PERMISSIONS = {
   "dossier:read": "Consulter les dossiers",
-  "dossier:instruct": "Instruire les dossiers de ses groupes",
+  "dossier:instruct": "Instruire les dossiers autorisés",
   "admin:access": "Accéder à l'administration",
   "admin:dossiers:create": "Créer des dossiers",
   "admin:dossiers:update": "Modifier les dossiers",
@@ -15,7 +15,7 @@ export const PERMISSIONS = {
   "admin:sync:run": "Lancer une synchronisation DN",
   "admin:sync:simulate": "Simuler des changements DN sur les dossiers",
   "users:manage": "Gérer les utilisateurs et leurs droits",
-  "groups:manage": "Gérer les groupes et leurs départements",
+  "groups:manage": "Gérer les groupes et les accès aux dossiers",
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

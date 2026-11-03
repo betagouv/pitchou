@@ -1,7 +1,9 @@
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import type { ActionDossierInitializer } from "@pitchou/types/database/public/ActionDossier.ts";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { deliverPreviewNoveltyEmails } from "../../preview/noveltyEmails.ts";
+import { writeNotificationFixture } from "../helpers/routing.ts";
 import { setup } from "./fixtures.ts";
 
 const inboxUrl = "http://127.0.0.1:8025/__fleet/mail/";
@@ -48,14 +50,21 @@ test.each(["preference", "follow", "access"])("preserves the %s delivery check",
   const { action, recipient, actor } = await setup();
   await action("avis_modifie");
   if (change === "preference")
-    await db("email_notification_preferences")
-      .where({ personne: recipient.id })
-      .update({ novelty: false });
+    await changeDossierAccess(db, (notificationTrx) =>
+      notificationTrx("email_notification_preferences")
+        .where({ personne: recipient.id })
+        .update({ novelty: false }),
+    );
   if (change === "follow")
-    await db("edge_personne_follows_dossier")
-      .where({ personne: recipient.id, dossier: actor.dossier.id })
-      .delete();
-  if (change === "access") await db("user_groupe").where({ user_id: recipient.id }).delete();
+    await changeDossierAccess(db, (notificationTrx) =>
+      notificationTrx("edge_personne_follows_dossier")
+        .where({ personne: recipient.id, dossier: actor.dossier.id })
+        .delete(),
+    );
+  if (change === "access")
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("user_groupe").where({ user_id: recipient.id }).delete(),
+    );
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
   expect(capture).not.toHaveBeenCalled();
 });
@@ -66,7 +75,9 @@ test("self actions, suivi and generated documents do not produce preview novelty
     author_personne: recipient.id as ActionDossierInitializer["author_personne"],
   });
   expect((await db("email_notification_outbox")).map((row) => row.personne)).toEqual([actor.id]);
-  await db("edge_personne_follows_dossier").where({ personne: actor.id }).delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier").where({ personne: actor.id }).delete(),
+  );
   await action("document_genere");
   await action("dossier_suivi");
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
@@ -76,13 +87,15 @@ test("self actions, suivi and generated documents do not produce preview novelty
 test("does not accelerate or dispatch assignment and arrival messages", async () => {
   const { actor, action, recipient } = await setup();
   await action("dossier_suivi", { data: { follower: recipient.email } });
-  await db("email_notification_outbox").insert({
-    personne: recipient.id,
-    dossier: actor.dossier.id,
-    kind: "arrival",
-    batch_key: "unrelated",
-    due_at: new Date(Date.now() + 86400000),
-  });
+  await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox").insert({
+      personne: recipient.id,
+      dossier: actor.dossier.id,
+      kind: "arrival",
+      batch_key: "unrelated",
+      due_at: new Date(Date.now() + 86400000),
+    }),
+  );
   const before = await db("email_notification_outbox").orderBy("id");
   expect(before).toHaveLength(2);
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
@@ -98,9 +111,11 @@ test("a broken inbox never falls back to Brevo and retries retain the frozen mes
   expect(await deliver()).toEqual({ sent: 0, failed: 0 });
   const [row] = await db("email_notification_outbox");
   expect(row.status).toBe("pending");
-  await db("email_notification_outbox")
-    .where({ id: row.id })
-    .update({ retry_at: new Date(0) });
+  await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox")
+      .where({ id: row.id })
+      .update({ retry_at: new Date(0) }),
+  );
   expect(await deliver()).toEqual({ sent: 1, failed: 0 });
   expect(capture.mock.calls[0][1].body).toBe(capture.mock.calls[1][1].body);
   expect(capture.mock.calls.every(([url]) => new URL(url).hostname === "127.0.0.1")).toBe(true);
