@@ -1,16 +1,18 @@
-import type { Knex } from "knex";
-import { directDatabaseConnection } from "../../database.ts";
-import { logActionsDossier } from "../action_dossier.ts";
-import { insertBatches } from "../insertBatches.ts";
-import { actionsFromSyncUpdates } from "./syncActions.ts";
-import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type { AvisExpertInitializer } from "@pitchou/types/database/public/AvisExpert.ts";
+import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
+import type { default as Dossier, DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type {
   DossierForInsert,
   DossierForUpdate,
 } from "@pitchou/types/demarche-numerique/DossierForSynchronization.ts";
 import type { PartialBy, PickNonNullable } from "@pitchou/types/tools.d.ts";
+import type { Knex } from "knex";
+import { directDatabaseConnection } from "../../database.ts";
+import { withDeferredActionNotifications } from "../../dossierNotificationEmails/actions.ts";
+import { recalculateAssignments } from "../../dossierRouting.ts";
+import { logActionsDossier } from "../action_dossier.ts";
+import { insertBatches } from "../insertBatches.ts";
+import { actionsFromSyncUpdates } from "./syncActions.ts";
 
 export function getDossierIdsFromDS_Ids(
   ids: Dossier["demarche_numerique_id"][],
@@ -47,6 +49,16 @@ export async function dumpDossiers(
 ): Promise<Set<DossierId>> {
   if (!db.isTransaction)
     return db.transaction((trx) => dumpDossiers(dossiersForInsert, dossiersForUpdate, trx));
+  return withDeferredActionNotifications(db as Knex.Transaction, () =>
+    persistDossiers(dossiersForInsert, dossiersForUpdate, db as Knex.Transaction),
+  );
+}
+
+async function persistDossiers(
+  dossiersForInsert: DossierForInsert[],
+  dossiersForUpdate: DossierForUpdate[],
+  db: Knex.Transaction,
+): Promise<Set<DossierId>> {
   // History inserts take dossier FK locks. Take access first, like instructor saves.
   await db.raw("select pg_advisory_xact_lock(2105102026)");
   truncateDossierStrings([...dossiersForInsert, ...dossiersForUpdate]);
@@ -97,6 +109,16 @@ export async function dumpDossiers(
 
   // The dossiers whose pétitionnaire data actually changed: only their followers
   // have something new to read.
+  const ids = await db("dossier")
+    .where("source", "demarche_numerique")
+    .whereIn(
+      "demarche_numerique_number",
+      allDossiers.flatMap(({ dossier }) =>
+        dossier.demarche_numerique_number == null ? [] : [dossier.demarche_numerique_number],
+      ),
+    )
+    .pluck("id");
+  await recalculateAssignments(db, { dossiers: ids });
   return changedDossiers;
 }
 

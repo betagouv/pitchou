@@ -1,7 +1,8 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
-import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { chooseInSelect } from "../helpers/select.ts";
+import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("routing saves refresh assignments and effective access without losing dossier edits", async ({
   page,
@@ -17,21 +18,28 @@ test("routing saves refresh assignments and effective access without losing doss
     email: "instructeur@example.org",
     nomGroupe: "Service Paris",
   });
-  await db("groupe_departement").insert({
-    groupe_instructeurs: member.groupeId,
-    department: "75",
-  });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: member.groupeId,
+        department: "75",
+      }),
+    { silent: true },
+  );
   const dossier = await createDossier(db, {
     name: "Projet à réaffecter",
     source: "pitchou",
     demarche_number: null,
     primary_department: "33",
   });
-  await db("dossier_user_access").insert({
-    dossier: dossier.id,
-    user_id: member.id,
-    access_level: "read",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: dossier.id,
+      user_id: member.id,
+      access_level: "read",
+    }),
+  );
   await loginAs(administrator.codeAcces);
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);
   const dossierTab = page.getByRole("tab", { name: "Dossier", exact: true });

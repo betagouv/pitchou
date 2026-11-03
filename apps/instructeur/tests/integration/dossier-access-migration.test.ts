@@ -1,7 +1,9 @@
+import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { createDossier, createGroupeInstructeurs } from "../factories/dossier.ts";
-import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
 import { up } from "../../../../libs/database/migrations/20261101120000_dossier-access-levels.ts";
+import { createGroupeInstructeurs } from "../factories/dossier.ts";
+import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
 
 test("access upgrade preserves legacy grants, follows, reviews and email audit records without backlog", async () => {
   const fixture = await disposableAccessDatabase("20261101120000");
@@ -14,7 +16,15 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
     const [rule] = await db("groupe_regle")
       .insert({ groupe_instructeurs: group.id, departments: ["75"] })
       .returning("id");
-    const dossier = await createDossier(db, { primary_department: "75" });
+    await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "75" });
+    const [dossier] = await db("dossier")
+      .insert({
+        name: "Legacy dossier",
+        source: "pitchou",
+        depot_date: new Date(),
+        primary_department: "75",
+      })
+      .returning("id");
     await db("groupe_dossier_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: group.id,
@@ -45,15 +55,17 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
     expect(await db("edge_groupe_instructeurs__dossier").first()).toMatchObject({
       access_level: "instruct",
     });
-    expect(
-      (await db.raw("SELECT pitchou_dossier_access(?, ?) AS access", [dossier.id, user.id])).rows,
-    ).toEqual([{ access: "complet" }]);
-    await db("groupe_dossier_override")
-      .where({ dossier: dossier.id })
-      .update({ access_level: "read" });
-    expect(
-      (await db.raw("SELECT pitchou_dossier_access(?, ?) AS access", [dossier.id, user.id])).rows,
-    ).toEqual([{ access: "lecture_complete" }]);
+    expect((await dossiersAccessibleToUser(dossier.id, user.id, db)).get(dossier.id)).toBe(
+      "complet",
+    );
+    await changeAssignments(db, (trx) =>
+      trx("groupe_dossier_override")
+        .where({ dossier: dossier.id })
+        .update({ access_level: "read" }),
+    );
+    expect((await dossiersAccessibleToUser(dossier.id, user.id, db)).get(dossier.id)).toBe(
+      "lecture_complete",
+    );
     expect(await db("edge_personne_follows_dossier")).toEqual(snapshots[0]);
   } finally {
     await fixture.close();

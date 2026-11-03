@@ -1,8 +1,9 @@
+import { BUNDLES, PERMISSIONS, type UserId } from "@pitchou/types/permissions.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection as db } from "../database/connection.ts";
+import { reconcileDossierAccess } from "../dossierRouting.ts";
 import { getSessionUser } from "../users.ts";
 import { audit } from "./audit.ts";
-import { BUNDLES, PERMISSIONS, type UserId } from "@pitchou/types/permissions.ts";
 export async function listUsers() {
   const [users, bundles, grants, exclusions, memberships] = await Promise.all([
     db("auth_user").select("*").orderBy("email"),
@@ -105,6 +106,7 @@ export async function saveUser(actor: UserId, input: UserUpdate) {
         "Vous ne pouvez pas retirer vos propres droits d'administration des utilisateurs",
       );
     if (!input.active) await trx("session").where({ user_id: user.id }).delete();
+    await reconcileDossierAccess(trx, { users: [user.id] });
     await audit(trx, actor, "user_saved", { id: user.id, before, after: input });
     return user;
   });

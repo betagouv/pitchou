@@ -1,3 +1,4 @@
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
@@ -77,7 +78,9 @@ test.each(["batch", "individual"])(
         await db("edge_personne_follows_dossier").where({ personne: users[0].id }),
       ).toHaveLength(0);
       // Runtime cleanup must still work once the migration has completed.
-      await db("auth_permission_bundle").where({ user_id: users[1].id }).delete();
+      await changeDossierAccess(db, (trx) =>
+        trx("auth_permission_bundle").where({ user_id: users[1].id }).delete(),
+      );
       expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
     } finally {
       await db.destroy();

@@ -1,12 +1,13 @@
-import { directDatabaseConnection as db } from "../database/connection.ts";
-import { requireGroupManager } from "./groups/access.ts";
-import { replaceRules, readRules } from "./groups/rules.ts";
-import { calculatePreview, resolvedRules } from "./groups/preview.ts";
-import type { GroupRule } from "@pitchou/types/groupRouting.ts";
-import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
 import type AuthUser from "@pitchou/types/database/public/AuthUser.ts";
-import { audit } from "./audit.ts";
+import type GroupeInstructeurs from "@pitchou/types/database/public/GroupeInstructeurs.ts";
+import type { GroupRule } from "@pitchou/types/groupRouting.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
+import { directDatabaseConnection as db } from "../database/connection.ts";
+import { recalculateAssignments } from "../dossierRouting.ts";
+import { audit } from "./audit.ts";
+import { requireGroupManager } from "./groups/access.ts";
+import { calculatePreview, resolvedRules } from "./groups/preview.ts";
+import { readRules, replaceRules } from "./groups/rules.ts";
 type ManagedGroup = GroupeInstructeurs & {
   departments: string[];
   rules: GroupRule[];
@@ -113,6 +114,7 @@ export async function saveGroup(actor: UserId, input: GroupUpdate) {
       .where({ groupe_instructeurs: group.id })
       .whereNotIn("user_id", input.members)
       .delete();
+    await recalculateAssignments(trx, { silent: true });
     await audit(trx, actor, "group_saved", {
       id: group.id,
       before,

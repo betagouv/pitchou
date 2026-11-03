@@ -1,19 +1,26 @@
-import { dumpDossiers, deleteDossierByDSNumber } from "@pitchou/server/database/dossier.ts";
+import { deleteDossierByDSNumber, dumpDossiers } from "@pitchou/server/database/dossier.ts";
 import getAllDeletedDossiers from "@pitchou/server/demarche-numerique/getAllDeletedDossiers.ts";
+import { withDeferredActionNotifications } from "@pitchou/server/dossierNotificationEmails/actions.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import { startDossierFileDownloads, prepareDossierFiles } from "./synchronizeDossierFiles.ts";
 import { updateNotification } from "./synchronization-notification.ts";
 import {
-  prepareSynchronization,
   persistSynchronizationPreparation,
+  prepareSynchronization,
   type SynchronizationOptions,
 } from "./synchronizeDemarcheNumerique/preparation.ts";
 import {
   markInitialDossierActions,
   synchronizeRelationsAndFiles,
 } from "./synchronizeDemarcheNumerique/relations.ts";
+import { prepareDossierFiles, startDossierFileDownloads } from "./synchronizeDossierFiles.ts";
 
 export async function synchronizeDemarcheNumerique(options: SynchronizationOptions): Promise<void> {
+  return withDeferredActionNotifications(options.transaction, () =>
+    persistSynchronization(options),
+  );
+}
+
+async function persistSynchronization(options: SynchronizationOptions): Promise<void> {
   const { apiToken, demarcheNumber, pitchouKeyToChampDS, transaction } = options;
   const deletedDossiersP = getAllDeletedDossiers(apiToken, demarcheNumber);
   const prepared = await prepareSynchronization(options);

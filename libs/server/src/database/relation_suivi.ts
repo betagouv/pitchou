@@ -1,12 +1,11 @@
-import { dossierAccessQuery } from "./dossier/access.ts";
 import type { Knex } from "knex";
+import { dossierAccessQuery } from "./dossier/access.ts";
 
 import { directDatabaseConnection } from "../database.ts";
 
-import type { UserId } from "@pitchou/types/permissions.ts";
-import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 import type { DossierFollowerCandidate } from "@pitchou/types/capabilities.ts";
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type { AuthUser as Personne, UserId } from "@pitchou/types/permissions.ts";
 import {
   followDossierForPersonnes,
   getAccessibleDossierGroupeMembers,
@@ -46,6 +45,10 @@ export async function updateDossierFollowers(
   personneEmails: NonNullable<Personne["email"]>[],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<{ added: string[]; removed: string[] } | false> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) =>
+      updateDossierFollowers(userId, dossierId, personneEmails, trx),
+    );
   const members = await getAccessibleDossierGroupeMembers(
     userId,
     dossierId,

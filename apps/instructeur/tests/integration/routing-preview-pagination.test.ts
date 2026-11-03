@@ -1,35 +1,38 @@
-import { expect, test } from "vitest";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import type {
   GroupPreview,
   GroupPreviewPage,
   PreviewCategory,
 } from "@pitchou/types/groupRouting.ts";
-import { db } from "../setup/db.ts";
+import { expect, test } from "vitest";
 import { createGroupeInstructeurs } from "../factories/index.ts";
 import { admin, saveGroup } from "../helpers/administration.ts";
 import {
-  postPreview as post,
   pageQuery,
+  postPreview as post,
   previewRule as rule,
   previewState as state,
 } from "../helpers/routingPreview.ts";
+import { db } from "../setup/db.ts";
 
 test("all four categories paginate beyond 100 with exact counts and no preview writes", async () => {
   const actor = await admin();
   const group = await createGroupeInstructeurs(db);
   const categories = { added: "75", removed: "13", upgraded: "69", downgraded: "21" } as const;
-  const dossiers = await db("dossier")
-    .insert(
-      Object.entries(categories).flatMap(([category, department]) =>
-        Array.from({ length: 107 }, (_, index) => ({
-          name: index === 106 ? null : `${category} ${107 - index}`,
-          primary_department: department,
-          source: "demarche_numerique",
-          demarche_number: 88444,
-        })),
-      ),
-    )
-    .returning(["id", "name", "primary_department"]);
+  const dossiers = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert(
+        Object.entries(categories).flatMap(([category, department]) =>
+          Array.from({ length: 107 }, (_, index) => ({
+            name: index === 106 ? null : `${category} ${107 - index}`,
+            primary_department: department,
+            source: "demarche_numerique",
+            demarche_number: 88444,
+          })),
+        ),
+      )
+      .returning(["id", "name", "primary_department"]),
+  );
   const input = {
     id: group.id,
     name: "Pages",
@@ -76,16 +79,18 @@ test("all four categories paginate beyond 100 with exact counts and no preview w
 
 test("a changed dossier beyond page one invalidates pages and saving without partial results", async () => {
   const actor = await admin();
-  const dossiers = await db("dossier")
-    .insert(
-      Array.from({ length: 106 }, (_, index) => ({
-        name: `Dossier ${index}`,
-        primary_department: "75",
-        source: "demarche_numerique",
-        demarche_number: 88444,
-      })),
-    )
-    .returning("id");
+  const dossiers = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert(
+        Array.from({ length: 106 }, (_, index) => ({
+          name: `Dossier ${index}`,
+          primary_department: "75",
+          source: "demarche_numerique",
+          demarche_number: 88444,
+        })),
+      )
+      .returning("id"),
+  );
   const input = { name: "Stale", active: true, members: [], rules: [rule("75")] };
   const preview: GroupPreview = await (await post(actor.token, input)).json();
   await db("dossier").where({ id: dossiers[105].id }).update({ name: "Changed outside page one" });
@@ -105,15 +110,17 @@ test("a changed dossier beyond page one invalidates pages and saving without par
 test("the token includes unchanged assignments beyond page one and current group state", async () => {
   const actor = await admin();
   const group = await createGroupeInstructeurs(db);
-  const dossiers = await db("dossier")
-    .insert(
-      Array.from({ length: 106 }, () => ({
-        primary_department: "75",
-        source: "demarche_numerique",
-        demarche_number: 88444,
-      })),
-    )
-    .returning("id");
+  const dossiers = await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .insert(
+        Array.from({ length: 106 }, () => ({
+          primary_department: "75",
+          source: "demarche_numerique",
+          demarche_number: 88444,
+        })),
+      )
+      .returning("id"),
+  );
   const input = { id: group.id, name: "Unchanged", active: true, members: [], rules: [rule("75")] };
   expect((await saveGroup(actor.token, input)).status).toBe(200);
   let preview: GroupPreview = await (await post(actor.token, input)).json();

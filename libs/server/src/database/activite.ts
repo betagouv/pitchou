@@ -1,7 +1,9 @@
-import type { Knex } from "knex";
+import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 import type { default as Activite } from "@pitchou/types/database/public/Activite.ts";
 import type { default as ActiviteGroupe } from "@pitchou/types/database/public/ActiviteGroupe.ts";
 import type { default as ActiviteLabel } from "@pitchou/types/database/public/ActiviteLabel.ts";
+import type { Knex } from "knex";
+import { lockDossierAccess, recalculateAssignments } from "../dossierRouting.ts";
 import { directDatabaseConnection } from "./connection.ts";
 
 /**
@@ -27,7 +29,6 @@ export type ActiviteReferentiel = {
 
 /** Activity every label unknown to the referentiel is parked under, pending admin review. */
 export { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
-import { AUTRE_ACTIVITE_CODE } from "@pitchou/common/activiteCodes.ts";
 
 /**
  * Resolved activity of a dossier, derived from its raw `main_activite` label. Attached to dossier
@@ -93,6 +94,9 @@ export async function createActivite(
   groupeCode: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<void> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => createActivite(code, label, groupeCode, trx));
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   await databaseConnection("activite").insert({ code, label, groupe_code: groupeCode });
   await registerCanonicalLabel(code, label, databaseConnection);
 }
@@ -125,6 +129,9 @@ export async function renameActivite(
   label: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<boolean> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => renameActivite(code, label, trx));
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   const updated = await databaseConnection("activite").where({ code }).update({ label });
   if (updated > 0) await registerCanonicalLabel(code, label, databaseConnection);
   return updated > 0;
@@ -145,12 +152,16 @@ async function registerCanonicalLabel(
   const adopted = await databaseConnection("activite_label")
     .where({ label, needs_review: true })
     .update({ activite_code: code, needs_review: false });
-  if (adopted > 0) return;
+  if (adopted > 0) {
+    await recalculateAssignments(databaseConnection as Knex.Transaction, { silent: true });
+    return;
+  }
 
   await databaseConnection("activite_label")
     .insert({ label, activite_code: code, needs_review: false })
     .onConflict("label")
     .ignore();
+  await recalculateAssignments(databaseConnection as Knex.Transaction, { silent: true });
 }
 
 /**
@@ -182,8 +193,13 @@ export async function reassignActiviteLabel(
   activiteCode: string,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<boolean> {
+  if (!databaseConnection.isTransaction)
+    return databaseConnection.transaction((trx) => reassignActiviteLabel(label, activiteCode, trx));
+  await lockDossierAccess(databaseConnection as Knex.Transaction);
   const updated = await databaseConnection("activite_label")
     .where({ label })
     .update({ activite_code: activiteCode, needs_review: false });
+  if (updated > 0)
+    await recalculateAssignments(databaseConnection as Knex.Transaction, { silent: true });
   return updated > 0;
 }

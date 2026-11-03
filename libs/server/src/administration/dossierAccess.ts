@@ -1,10 +1,12 @@
-import type { Knex } from "knex";
+import { parseAccessLevel } from "@pitchou/common/groupRouting.ts";
 import type { AccessLevel } from "@pitchou/types/groupRouting.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
-import { parseAccessLevel } from "@pitchou/common/groupRouting.ts";
+import type { Knex } from "knex";
 import { directDatabaseConnection as db } from "../database/connection.ts";
-import { requireGroupManager } from "./groups/access.ts";
+import { reconcileDossierAccess } from "../dossierRouting.ts";
+import { dossierAccessSql } from "../dossierRouting/access.ts";
 import { audit } from "./audit.ts";
+import { requireGroupManager } from "./groups/access.ts";
 
 export async function listDossierUserAccess(
   dossierId: number,
@@ -16,7 +18,7 @@ export async function listDossierUserAccess(
     .join("auth_user as u", "u.id", "a.user_id")
     .where("a.dossier", dossierId)
     .select("a.user_id", "a.access_level", "u.email", "u.active")
-    .select(database.raw("pitchou_dossier_access(?, u.id) as effective_access", [dossierId]))
+    .select(database.raw(`${dossierAccessSql("a.dossier", "u.id")} as effective_access`))
     .orderBy("u.email");
   const users = await database("auth_user").select("id", "email", "active").orderBy("email");
   return { grants, users };
@@ -45,6 +47,7 @@ export async function saveDossierUserAccess(
         .insert({ ...key, access_level: accessLevel })
         .onConflict(["dossier", "user_id"])
         .merge();
+    await reconcileDossierAccess(trx, { dossiers: [dossierId], users: [userId] });
     await audit(trx, actor, "dossier_user_access_saved", {
       ...key,
       before: before ?? null,

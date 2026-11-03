@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 
 test("removed group members cannot use controls from an already opened page", async ({
   page,
@@ -14,9 +15,11 @@ test("removed group members cannot use controls from an already opened page", as
     name: "Ajouter un membre par adresse professionnelle",
   });
   await expect(input).toBeVisible();
-  await db("user_groupe")
-    .where({ user_id: owner.id, groupe_instructeurs: owner.groupeId })
-    .delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe")
+      .where({ user_id: owner.id, groupe_instructeurs: owner.groupeId })
+      .delete(),
+  );
   await input.fill("revoked@example.org");
   await group.getByRole("button", { name: "Ajouter", exact: true }).click();
   await expect(group.getByRole("alert")).toContainText(

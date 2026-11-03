@@ -1,8 +1,9 @@
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
 
-import { db } from "../setup/db.ts";
 import { createDossier, createGroupeInstructeurs } from "../factories/dossier.ts";
 import { SIRET, count, morale, physique, porteurOf } from "../factories/porteurDeProjet.ts";
+import { db } from "../setup/db.ts";
 
 import { synchronizeDossierRelations } from "../../../../libs/worker/synchronization-ds/synchronizeDossierRelations.ts";
 
@@ -38,7 +39,7 @@ test("a porteur is deleted once no dossier references it, its personne and entre
   await db("dossier").where({ id: b.id }).update({ name: "Autre nom" });
   expect(await count(db, "porteur_de_projet")).toBe(1);
 
-  await db("dossier").where({ id: b.id }).delete();
+  await changeAssignments(db, (routingTrx) => routingTrx("dossier").where({ id: b.id }).delete());
   expect(await count(db, "porteur_de_projet")).toBe(0);
   expect(await count(db, "entreprise")).toBe(1);
 });

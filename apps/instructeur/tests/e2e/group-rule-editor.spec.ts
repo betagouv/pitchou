@@ -1,9 +1,10 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import {
   createDossier,
   createGroupeInstructeurs,
   createInstructeurWithCapToGroup,
 } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("criteria are added on demand and draft rules survive preview, tabs and sibling removal", async ({
@@ -14,7 +15,12 @@ test("criteria are added on demand and draft rules survive preview, tabs and sib
   const actor = await createInstructeurWithCapToGroup(db);
   await db("auth_permission_bundle").insert({ user_id: actor.id, bundle: "administrateur" });
   const group = await createGroupeInstructeurs(db, { name: "DREAL Nouvelle-Aquitaine" });
-  await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "40" });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({ groupe_instructeurs: group.id, department: "40" }),
+    { silent: true },
+  );
   await createDossier(db, { name: "Parc solaire des Landes", primary_department: "40" });
   await createDossier(db, {
     name: "Restauration de la ripisylve à Pau",

@@ -1,7 +1,8 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { dossierAccessSql } from "@pitchou/server/dossierRouting/access.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
-import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { chooseInSelect } from "../helpers/select.ts";
+import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("an admin edits rule levels and grants a person access without group membership", async ({
   page,
@@ -67,8 +68,12 @@ test("an admin edits rule levels and grants a person access without group member
   await expect(person.getByText("Lecture complète", { exact: true })).toBeVisible();
   await expect(person.getByText(/^Accès effectif/u)).toHaveCount(0);
   expect(
-    (await db.raw("select pitchou_dossier_access(?, ?) as level", [dossier.id, user.id])).rows[0]
-      .level,
+    (
+      await db.raw(
+        `SELECT ${dossierAccessSql("input.dossier", "input.user_id")} AS level FROM (SELECT ?::integer dossier, ?::integer user_id) input`,
+        [dossier.id, user.id],
+      )
+    ).rows[0].level,
   ).toBe("lecture_complete");
   expect(await db("user_groupe").where({ user_id: user.id })).toHaveLength(0);
   const edit = person.getByRole("button", { name: "Modifier l'accès de lecture@example.org" });

@@ -1,7 +1,9 @@
-import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { attachDossierToGroupe } from "../factories/index.ts";
 import { dispatchDossierNotificationEmails } from "@pitchou/server/dossierNotificationEmails.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { expect, test, vi } from "vitest";
+import { attachDossierToGroupe } from "../factories/index.ts";
+import { changeArrivalEdges } from "../helpers/routing.ts";
 import { setupArrival } from "./arrivalFixtures.ts";
 import { dispatch } from "./fixtures.ts";
 
@@ -32,12 +34,16 @@ test("notifies all current group members immediately without requiring suivi", a
 
 test("enforces the arrival preference independently of assignment and novelty", async () => {
   const { arrive, member, colleague } = await setupArrival();
-  await db("email_notification_preferences")
-    .where({ personne: member.id })
-    .update({ assignment: false, novelty: false });
-  await db("email_notification_preferences")
-    .where({ personne: colleague.id })
-    .update({ arrival: false });
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: member.id })
+      .update({ assignment: false, novelty: false }),
+  );
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("email_notification_preferences")
+      .where({ personne: colleague.id })
+      .update({ arrival: false }),
+  );
   await arrive();
   expect((await db("email_notification_outbox")).map((r) => r.personne)).toEqual([member.id]);
 });
@@ -47,7 +53,7 @@ test("Department routing and admin delete/reinsert saves do not notify unchanged
   await arrive();
   await dispatch(new Date());
   await db.transaction((trx) => attachDossierToGroupe(trx, dossier.id, member.groupeId));
-  await db.transaction(async (trx) => {
+  await changeArrivalEdges(db, async (trx) => {
     await trx("edge_groupe_instructeurs__dossier").where({ dossier: dossier.id }).delete();
     await trx("edge_groupe_instructeurs__dossier").insert({
       dossier: dossier.id,
@@ -60,11 +66,13 @@ test("Department routing and admin delete/reinsert saves do not notify unchanged
 
 test("a manual inclusion queues arrivals without any novelty event", async () => {
   const { dossier, member } = await setupArrival();
-  await db("groupe_dossier_override").insert({
-    dossier: dossier.id,
-    groupe_instructeurs: member.groupeId,
-    mode: "include",
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      dossier: dossier.id,
+      groupe_instructeurs: member.groupeId,
+      mode: "include",
+    }),
+  );
   const rows = await db("email_notification_outbox");
   expect(rows).toHaveLength(2);
   expect(rows.every((row) => row.kind === "arrival")).toBe(true);
@@ -74,18 +82,22 @@ test("a manual inclusion queues arrivals without any novelty event", async () =>
 test("a real transfer notifies the receiving group, cancels old pending arrivals and deduplicates return saves", async () => {
   const { arrive, dossier, outsider, member } = await setupArrival();
   await arrive();
-  await db("edge_groupe_instructeurs__dossier")
-    .where({ dossier: dossier.id })
-    .update({ groupe_instructeurs: outsider.groupeId });
+  await changeArrivalEdges(db, (notificationTrx) =>
+    notificationTrx("edge_groupe_instructeurs__dossier")
+      .where({ dossier: dossier.id })
+      .update({ groupe_instructeurs: outsider.groupeId }),
+  );
   const rows = await db("email_notification_outbox").where({ status: "pending" });
   expect(rows).toHaveLength(1);
   expect(rows[0].personne).toBe(outsider.id);
   const sent = await dispatch(new Date());
   expect(sent.send).toHaveBeenCalledOnce();
   expect(sent.send.mock.calls[0][0].to).toEqual([outsider.email]);
-  await db("edge_groupe_instructeurs__dossier")
-    .where({ dossier: dossier.id })
-    .update({ groupe_instructeurs: member.groupeId });
+  await changeArrivalEdges(db, (notificationTrx) =>
+    notificationTrx("edge_groupe_instructeurs__dossier")
+      .where({ dossier: dossier.id })
+      .update({ groupe_instructeurs: member.groupeId }),
+  );
   expect((await dispatch(new Date())).send).toHaveBeenCalledTimes(2);
 });
 
@@ -93,20 +105,24 @@ test("uses final transaction membership and never queues rolled-back arrivals", 
   const { dossier, member, colleague } = await setupArrival();
   await expect(
     db.transaction(async (trx) => {
-      await trx("edge_groupe_instructeurs__dossier").insert({
-        dossier: dossier.id,
-        groupe_instructeurs: member.groupeId,
-      });
+      await changeArrivalEdges(trx, (notificationTrx) =>
+        notificationTrx("edge_groupe_instructeurs__dossier").insert({
+          dossier: dossier.id,
+          groupe_instructeurs: member.groupeId,
+        }),
+      );
       throw new Error("rollback");
     }),
   ).rejects.toThrow("rollback");
   expect(await db("email_notification_outbox")).toHaveLength(0);
-  await db.transaction(async (trx) => {
+  await changeArrivalEdges(db, async (trx) => {
     await trx("edge_groupe_instructeurs__dossier").insert({
       dossier: dossier.id,
       groupe_instructeurs: member.groupeId,
     });
-    await trx("user_groupe").where({ user_id: colleague.id }).delete();
+    await changeDossierAccess(trx, (routingTrx) =>
+      routingTrx("user_groupe").where({ user_id: colleague.id }).delete(),
+    );
   });
   expect((await db("email_notification_outbox")).map((r) => r.personne)).toEqual([member.id]);
 });
@@ -117,11 +133,19 @@ test.each(["preference", "membership", "dossier"])(
     const { arrive, dossier, member, colleague } = await setupArrival();
     await arrive();
     if (change === "preference")
-      await db("email_notification_preferences")
-        .where({ personne: member.id })
-        .update({ arrival: false });
-    if (change === "membership") await db("user_groupe").where({ user_id: member.id }).delete();
-    if (change === "dossier") await db("dossier").where({ id: dossier.id }).delete();
+      await changeDossierAccess(db, (notificationTrx) =>
+        notificationTrx("email_notification_preferences")
+          .where({ personne: member.id })
+          .update({ arrival: false }),
+      );
+    if (change === "membership")
+      await changeDossierAccess(db, (routingTrx) =>
+        routingTrx("user_groupe").where({ user_id: member.id }).delete(),
+      );
+    if (change === "dossier")
+      await changeAssignments(db, (routingTrx) =>
+        routingTrx("dossier").where({ id: dossier.id }).delete(),
+      );
     const result = await dispatch(new Date());
     expect(result.send.mock.calls.map(([message]) => message.to)).toEqual(
       change === "dossier" ? [] : [[colleague.email]],
@@ -133,9 +157,11 @@ test("unfollowing does not cancel group arrival mail, and retries reuse the same
   const { arrive, dossier, member } = await setupArrival();
   await arrive();
   await db("edge_personne_follows_dossier").insert({ personne: member.id, dossier: dossier.id });
-  await db("edge_personne_follows_dossier")
-    .where({ personne: member.id, dossier: dossier.id })
-    .delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier")
+      .where({ personne: member.id, dossier: dossier.id })
+      .delete(),
+  );
   const now = new Date();
   const send = vi
     .fn()

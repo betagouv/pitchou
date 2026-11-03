@@ -1,9 +1,11 @@
-import { randomUUID } from "node:crypto";
-import { expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { emailFilters, emailOverview } from "@pitchou/server/database/email_monitoring.ts";
-import { setup } from "./fixtures.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { reportEmailIssue } from "@pitchou/server/emails/issues.ts";
+import { randomUUID } from "node:crypto";
+import { expect, test, vi } from "vitest";
+import { writeNotificationFixture } from "../helpers/routing.ts";
+import { setup } from "./fixtures.ts";
 
 const filters = (query = "") => emailFilters(new URLSearchParams(query));
 const acceptedAt = new Date("2026-10-28T15:51:56Z");
@@ -11,23 +13,27 @@ const failedAt = "2026-10-28T15:51:59.000Z";
 
 async function acceptedNotification() {
   const { actor, recipient } = await setup();
-  const [row] = await db("email_notification_outbox")
-    .insert({
-      personne: recipient.id,
-      dossier: actor.dossier.id,
-      kind: "arrival",
-      batch_key: randomUUID(),
-      due_at: acceptedAt,
-      created_at: acceptedAt,
-      sent_at: acceptedAt,
-      status: "pending",
-      attempt_count: 1,
-      provider_message_id: randomUUID(),
-      environment: "production",
-      message: { subject: "Nouveau dossier", to: ["old@test.fr"], htmlContent: "<p>Bonjour</p>" },
-    })
-    .returning("*");
-  await db("email_notification_outbox").where({ id: row.id }).update({ status: "sent" });
+  const [row] = await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox")
+      .insert({
+        personne: recipient.id,
+        dossier: actor.dossier.id,
+        kind: "arrival",
+        batch_key: randomUUID(),
+        due_at: acceptedAt,
+        created_at: acceptedAt,
+        sent_at: acceptedAt,
+        status: "pending",
+        attempt_count: 1,
+        provider_message_id: randomUUID(),
+        environment: "production",
+        message: { subject: "Nouveau dossier", to: ["old@test.fr"], htmlContent: "<p>Bonjour</p>" },
+      })
+      .returning("*"),
+  );
+  await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox").where({ id: row.id }).update({ status: "sent" }),
+  );
   await db("email_notification_history")
     .where({ notification_id: row.id })
     .update({
@@ -61,7 +67,9 @@ test.each(["soft_bounce", "hard_bounce", "blocked", "invalid_email", "error"])(
     const row = await acceptedNotification();
     const before = await db("email_notification_outbox").where({ id: row.id }).first();
     // A later account address or an unsent technical alert must not hide the failure.
-    await db("auth_user").where({ id: row.personne }).update({ email: "new@test.fr" });
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("auth_user").where({ id: row.personne }).update({ email: "new@test.fr" }),
+    );
     await issue(row, { type }, false);
     const result = await emailOverview(
       filters(`status=failed&source=notification&kind=arrival&email=notification:${row.id}`),
@@ -152,7 +160,9 @@ test("defensively groups duplicate issue fixtures across pagination and uses the
     environment: "production",
     message: row.message,
   }));
-  const rows = await db("email_notification_outbox").insert(copies).returning("*");
+  const rows = await writeNotificationFixture(db, (notificationTrx) =>
+    notificationTrx("email_notification_outbox").insert(copies).returning("*"),
+  );
   for (const copy of rows) await issue(copy);
   const first = await emailOverview(filters(`status=failed&email=notification:${row.id}`), db);
   const second = await emailOverview(filters("status=failed&page=2"), db);

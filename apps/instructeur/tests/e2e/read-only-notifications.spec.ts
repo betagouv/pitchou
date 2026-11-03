@@ -1,4 +1,4 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import {
   createCapDossier,
   createInstructeurWithCapToGroup,
@@ -6,6 +6,7 @@ import {
   createPersonne,
 } from "../factories/index.ts";
 import { attachPersonneSuitDossier } from "../factories/notification.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 
 const internalNote = "Note interne confidentielle du service propriétaire";
 const internalComment = "Commentaire libre confidentiel du service propriétaire";
@@ -28,11 +29,13 @@ for (const access of ["lecture_complete", "lecture"] as const) {
           : await createPersonne(db);
       if (access === "lecture_complete") {
         await createCapDossier(db, reader.codeAcces);
-        await db("dossier_user_access").insert({
-          dossier: owner.dossier.id,
-          user_id: reader.id,
-          access_level: "read",
-        });
+        await changeDossierAccess(db, (routingTrx) =>
+          routingTrx("dossier_user_access").insert({
+            dossier: owner.dossier.id,
+            user_id: reader.id,
+            access_level: "read",
+          }),
+        );
         expect(await db("user_groupe").where({ user_id: reader.id })).toHaveLength(0);
       }
       await db("dossier").where({ id: owner.dossier.id }).update({

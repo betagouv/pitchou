@@ -1,8 +1,9 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
 import { createDossier, createGroupeInstructeurs } from "../factories/index.ts";
 import { admin, saveGroup } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
 import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 const post = (token: string, route: string, body: object) =>
@@ -49,9 +50,11 @@ test("rule preview reports level changes, preserves manual levels, and rejects s
     dossiers: [{ id: dossier.id, name: dossier.name }],
   });
   expect(preview.downgraded.count).toBe(0);
-  await db("groupe_dossier_override")
-    .where({ dossier: manual.id })
-    .update({ access_level: "instruct" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override")
+      .where({ dossier: manual.id })
+      .update({ access_level: "instruct" }),
+  );
   expect(
     (await saveGroup(actor.token, { ...instruction, previewToken: preview.token })).status,
   ).toBe(400);
@@ -102,7 +105,12 @@ test("direct user access can be added, changed and revoked with before and after
     .first();
   expect(revoked.data.before.access_level).toBe("instruct");
   expect(revoked.data.after).toBeNull();
-  await db("auth_permission_exclusion").insert({ user_id: actor.id, permission: "groups:manage" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: actor.id,
+      permission: "groups:manage",
+    }),
+  );
   expect((await save("read")).status).toBe(403);
   expect(await db("dossier_user_access")).toHaveLength(0);
 });

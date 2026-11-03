@@ -1,15 +1,17 @@
 import "./setup.ts";
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
+import { sendEmail } from "@pitchou/server/emails.ts";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
-import { sendEmail } from "@pitchou/server/emails.ts";
-import { db } from "../../setup/db.ts";
+import { POST } from "../../../src/routes/dossier/[dossierId]/cnpn-email/+server.ts";
 import { createInstructeurWithDossier } from "../../factories/index.ts";
 import { sessionUserId } from "../../helpers/auth.ts";
-import { POST } from "../../../src/routes/dossier/[dossierId]/cnpn-email/+server.ts";
+import { db } from "../../setup/db.ts";
 
 test("CNPN authorization is rechecked when reserving a send after waiting for revocation", async () => {
   const instructeur = await createInstructeurWithDossier(db);
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let response: Promise<unknown> | undefined;
   try {
     const {
@@ -44,6 +46,7 @@ test("CNPN authorization is rechecked when reserving a send after waiting for re
         { timeout: 5000 },
       )
       .toBe(1);
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     expect(await response).toMatchObject({ status: 403 });
     expect(sendEmail).not.toHaveBeenCalled();

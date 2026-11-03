@@ -1,10 +1,11 @@
-import { expect, test, vi } from "vitest";
 import { saveUser } from "@pitchou/server/administration/users.ts";
-import { db } from "../setup/db.ts";
+import { lockDossierAccess, recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test, vi } from "vitest";
+import { POST } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { createInstructeurWithDossier, type InstructeurWithDossier } from "../factories/index.ts";
 import { admin } from "../helpers/administration.ts";
 import { sessionUserId } from "../helpers/auth.ts";
-import { createInstructeurWithDossier, type InstructeurWithDossier } from "../factories/index.ts";
-import { POST } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { db } from "../setup/db.ts";
 
 function post(instructeur: InstructeurWithDossier, request: Request) {
   return Promise.resolve(
@@ -90,6 +91,7 @@ test.each(["deactivation", "permission revocation"])(
 test("a dossier write waiting behind revocation checks the committed permissions", async () => {
   const instructeur = await createInstructeurWithDossier(db);
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let response: ReturnType<typeof post> | undefined;
   try {
     const {
@@ -100,6 +102,7 @@ test("a dossier write waiting behind revocation checks the committed permissions
     await revocation("auth_permission_bundle").where({ user_id: instructeur.id }).delete();
     response = post(instructeur, request());
     await expectWaiter(pid, "%");
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     expect(await response).toBe(403);
     expect(await db("dossier").where({ id: instructeur.dossier.id }).first()).not.toMatchObject({

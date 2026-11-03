@@ -47,8 +47,8 @@ export function dossierAccessQuery(userId: UserId, db: Knex.Transaction | Knex) 
     .select("dossier")
     .select(db.raw("bool_or(access_level = 'instruct') as instruction"))
     .groupBy("dossier");
-  // Keep batch reads relational. Calling pitchou_dossier_access for every row
-  // repeats account and membership queries across the entire dossier listing.
+  // Keep batch reads relational so account and membership checks are shared
+  // across the dossier listing instead of repeated for every row.
   return db("dossier")
     .leftJoin(grants.as("dossier_grant"), "dossier_grant.dossier", "dossier.id")
     .select("dossier.id as dossier")

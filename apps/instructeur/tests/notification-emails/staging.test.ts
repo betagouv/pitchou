@@ -1,14 +1,16 @@
-import { baselineSeedNotifications } from "../../../../libs/database/seeds/dev/dossier/notifications.ts";
-import { suppressNotification } from "@pitchou/server/dossierNotificationEmails/suppression.ts";
-import { afterEach, expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { StagingEmailSuppressedError } from "@pitchou/server/emails/recipients.ts";
+import { logActionsDossier } from "@pitchou/server/database/action_dossier.ts";
 import {
   notificationFilters,
   notificationOverview,
 } from "@pitchou/server/database/notification_monitoring.ts";
-import { setup, dispatch } from "./fixtures.ts";
+import { suppressNotification } from "@pitchou/server/dossierNotificationEmails/suppression.ts";
+import { StagingEmailSuppressedError } from "@pitchou/server/emails/recipients.ts";
+import { afterEach, expect, test, vi } from "vitest";
+import { baselineSeedNotifications } from "../../../../libs/database/seeds/dev/dossier/notifications.ts";
+import { changeArrivalEdges, writeNotificationFixture } from "../helpers/routing.ts";
 import { setupArrival } from "./arrivalFixtures.ts";
+import { dispatch, setup } from "./fixtures.ts";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -16,23 +18,27 @@ test.each(["arrival", "assignment", "novelty"])(
   "suppresses %s once without sending, attempting or retrying",
   async (kind) => {
     const { actor, recipient } = await setup();
-    const [row] = await db("email_notification_outbox")
-      .insert({
-        personne: recipient.id,
-        dossier: actor.dossier.id,
-        kind,
-        batch_key: "staging",
-        due_at: new Date(),
-      })
-      .returning("*");
+    const [row] = await writeNotificationFixture(db, (notificationTrx) =>
+      notificationTrx("email_notification_outbox")
+        .insert({
+          personne: recipient.id,
+          dossier: actor.dossier.id,
+          kind,
+          batch_key: "staging",
+          due_at: new Date(),
+        })
+        .returning("*"),
+    );
     // A valid arrival revision is required by the recipient access checks.
     if (kind === "arrival") {
       const arrival = await db("email_notification_groupe_arrival")
         .where({ dossier: actor.dossier.id })
         .first();
-      await db("email_notification_outbox")
-        .where({ id: row.id })
-        .update({ batch_key: arrival.revision });
+      await writeNotificationFixture(db, (notificationTrx) =>
+        notificationTrx("email_notification_outbox")
+          .where({ id: row.id })
+          .update({ batch_key: arrival.revision }),
+      );
     }
     vi.stubEnv("PUBLIC_PITCHOU_ENV", "staging");
     vi.stubEnv("STAGING_EMAIL_ALLOWLIST", "");
@@ -143,10 +149,15 @@ test("an audit failure rolls back the suppressed state and history together", as
 test("seed transactions skip emails while recording group routing and normal activity resumes afterward", async () => {
   const { dossier, member, colleague } = await setupArrival();
   await db.transaction(async (trx) => {
-    await trx("edge_groupe_instructeurs__dossier").insert({
-      dossier: dossier.id,
-      groupe_instructeurs: member.groupeId,
-    });
+    await changeArrivalEdges(
+      trx,
+      (notificationTrx) =>
+        notificationTrx("edge_groupe_instructeurs__dossier").insert({
+          dossier: dossier.id,
+          groupe_instructeurs: member.groupeId,
+        }),
+      true,
+    );
     await trx("edge_personne_follows_dossier").insert({
       dossier: dossier.id,
       personne: colleague.id,
@@ -162,10 +173,9 @@ test("seed transactions skip emails while recording group routing and normal act
   expect(await db("email_notification_groupe_arrival").where({ dossier: dossier.id })).toHaveLength(
     1,
   );
-  await db("action_dossier").insert({
-    dossier: dossier.id,
-    type: "avis_modifie",
-    author_personne: member.id,
-  });
+  await logActionsDossier(
+    [{ dossier: dossier.id as never, type: "avis_modifie", author_personne: member.id as never }],
+    db,
+  );
   expect(await db("email_notification_outbox")).toHaveLength(1);
 });

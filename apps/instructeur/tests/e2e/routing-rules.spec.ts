@@ -1,11 +1,12 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import {
   createDossier,
   createGroupeInstructeurs,
   createInstructeurWithCapToGroup,
 } from "../factories/index.ts";
-import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { chooseInSelect } from "../helpers/select.ts";
+import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("an admin previews a combined rule and manages persistent dossier exceptions", async ({
   page,
@@ -84,7 +85,9 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await page.getByRole("option", { name: "DGALN", exact: true }).click();
   await assignments.getByRole("button", { name: "Ajouter le groupe", exact: true }).click();
   await expect(assignments).toContainText("Ajout manuel");
-  await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
+  );
   await page.reload();
   await page.getByRole("tab", { name: "Accès au dossier", exact: true }).click();
   await expect(assignments).toContainText("DGALN");

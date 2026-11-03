@@ -1,10 +1,9 @@
-import { fetchAuthenticated, sessionUserId } from "../helpers/auth.ts";
-import { randomUUID } from "node:crypto";
-import { expect, test } from "vitest";
 import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import { db } from "../setup/db.ts";
+import { randomUUID } from "node:crypto";
+import { expect, test } from "vitest";
 import {
   attachCapToGroupe,
   createDossier,
@@ -12,6 +11,8 @@ import {
   createInstructeurWithCapToGroup,
   createInstructeurWithDossier,
 } from "../factories/index.ts";
+import { fetchAuthenticated, sessionUserId } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { listCandidates, updateFollowers } from "./dossier-followers-http.ts";
 
@@ -121,7 +122,9 @@ test("removing the final membership revokes all dossier access", async () => {
   await expect(dossiersAccessibleToUser(id, sessionUserId(owner.cap), db)).resolves.toEqual(
     new Map([[id, "complet"]]),
   );
-  await db("user_groupe").where({ user_id: owner.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: owner.id }).delete(),
+  );
   await expect(dossiersAccessibleToUser(id, sessionUserId(owner.cap), db)).resolves.toEqual(
     new Map(),
   );

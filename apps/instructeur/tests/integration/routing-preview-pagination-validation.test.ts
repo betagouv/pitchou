@@ -1,9 +1,15 @@
-import { expect, test } from "vitest";
+import {
+  changeAssignments,
+  changeDossierAccess,
+  lockDossierAccess,
+  recalculateAssignments,
+} from "@pitchou/server/dossierRouting.ts";
 import type { GroupPreview } from "@pitchou/types/groupRouting.ts";
-import { db } from "../setup/db.ts";
+import { expect, test } from "vitest";
 import { createDossier, createGroupeInstructeurs } from "../factories/index.ts";
 import { admin } from "../helpers/administration.ts";
 import { pageQuery, postPreview as post } from "../helpers/routingPreview.ts";
+import { db } from "../setup/db.ts";
 
 const input = { name: "Validation", active: true, members: [], rules: [] };
 const token = "a".repeat(64);
@@ -40,7 +46,9 @@ test.each(["admin:access", "groups:manage"])(
   "paginated previews require %s",
   async (permission) => {
     const actor = await admin();
-    await db("auth_permission_exclusion").insert({ user_id: actor.id, permission });
+    await changeDossierAccess(db, (routingTrx) =>
+      routingTrx("auth_permission_exclusion").insert({ user_id: actor.id, permission }),
+    );
     expect((await post(actor.token, input, pageQuery(token, "added", 1))).status).toBe(403);
     expect(await db("administration_event")).toHaveLength(0);
   },
@@ -50,12 +58,14 @@ test("empty categories have one empty page and manual access survives empty rule
   const actor = await admin();
   const group = await createGroupeInstructeurs(db);
   const manual = await createDossier(db, { primary_department: "75" });
-  await db("groupe_dossier_override").insert({
-    groupe_instructeurs: group.id,
-    dossier: manual.id,
-    mode: "include",
-    access_level: "read",
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      groupe_instructeurs: group.id,
+      dossier: manual.id,
+      mode: "include",
+      access_level: "read",
+    }),
+  );
   const proposal = { ...input, id: group.id };
   const preview: GroupPreview = await (await post(actor.token, proposal)).json();
   for (const category of ["added", "removed", "upgraded", "downgraded"] as const) {
@@ -83,6 +93,7 @@ test("queued page requests recheck administrator permission after acquiring the 
   const actor = await admin();
   const preview: GroupPreview = await (await post(actor.token, input)).json();
   const revocation = await db.transaction();
+  await lockDossierAccess(revocation);
   let request: Promise<Response> | undefined;
   try {
     const {
@@ -102,6 +113,7 @@ test("queued page requests recheck administrator permission after acquiring the 
         { timeout: 5000 },
       )
       .toBe(1);
+    await recalculateAssignments(revocation, { silent: true });
     await revocation.commit();
     expect((await request).status).toBe(400);
     expect(await db("administration_event")).toHaveLength(0);

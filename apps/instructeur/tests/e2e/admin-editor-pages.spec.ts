@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
-import { createInstructeurWithCapToGroup, createGroupeInstructeurs } from "../factories/index.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { createGroupeInstructeurs, createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 for (const width of [1600, 320]) {
@@ -14,12 +15,25 @@ for (const width of [1600, 320]) {
       .insert({ email: "camille@example.org", first_names: "Camille", last_name: "Martin" })
       .returning("*");
     const group = await createGroupeInstructeurs(db, { name: "DREAL Bretagne" });
-    await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "29" });
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_departement").insert({
+          groupe_instructeurs: group.id,
+          department: "29",
+        }),
+      { silent: true },
+    );
     const second = await createGroupeInstructeurs(db, { name: "DDTM du Finistère" });
     const archived = await createGroupeInstructeurs(db, {
       name: "Ancien service régional",
     });
-    await db("groupe_instructeurs").where({ id: archived.id }).update({ active: false });
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_instructeurs").where({ id: archived.id }).update({ active: false }),
+      { silent: true },
+    );
     await db("user_groupe").insert(
       [group, second, archived].map((g) => ({ user_id: user.id, groupe_instructeurs: g.id })),
     );

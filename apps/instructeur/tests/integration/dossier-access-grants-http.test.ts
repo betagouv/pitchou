@@ -1,7 +1,5 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
-import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
-import { fetchAuthenticated } from "../helpers/auth.ts";
 import {
   createCapDossier,
   createDossier,
@@ -9,6 +7,9 @@ import {
   createInstructeurWithDossier,
   createPersonne,
 } from "../factories/index.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { getTestS3 } from "../setup/s3.ts";
 
 function request(cap: string, path: string, method = "GET", body?: object) {
@@ -24,11 +25,13 @@ async function directReader() {
   const person = await createPersonne(db, { email: "direct-reader@example.test" });
   const { cap } = await createCapDossier(db, person.codeAcces);
   const dossier = await createDossier(db, { source: "pitchou", demarche_number: null });
-  await db("dossier_user_access").insert({
-    dossier: dossier.id,
-    user_id: person.id,
-    access_level: "read",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: dossier.id,
+      user_id: person.id,
+      access_level: "read",
+    }),
+  );
   await db("email_notification_preferences").where({ personne: person.id }).update({
     assignment: false,
     novelty: false,
@@ -81,28 +84,39 @@ test("a direct read grant without groups exposes complete information but reject
 
 test("direct instruction works without groups and account exclusions cap or revoke it immediately", async () => {
   const { person, cap, dossier } = await directReader();
-  await db("dossier_user_access")
-    .where({ dossier: dossier.id })
-    .update({ access_level: "instruct" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access")
+      .where({ dossier: dossier.id })
+      .update({ access_level: "instruct" }),
+  );
   expect((await request(cap, `/dossier/${dossier.id}`, "POST", { enjeu: true })).status).toBe(200);
-  await db("auth_permission_exclusion").insert({
-    user_id: person.id,
-    permission: "dossier:instruct",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: person.id,
+      permission: "dossier:instruct",
+    }),
+  );
   expect((await (await request(cap, `/dossier/${dossier.id}`)).json()).access).toBe(
     "lecture_complete",
   );
   expect((await request(cap, `/dossier/${dossier.id}`, "POST", { enjeu: false })).status).toBe(403);
-  await db("auth_permission_exclusion").insert({ user_id: person.id, permission: "dossier:read" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: person.id,
+      permission: "dossier:read",
+    }),
+  );
   expect((await request(cap, `/dossier/${dossier.id}`)).status).toBe(403);
 });
 
 test("personal follow survives a read downgrade, grants no edit access, and disappears on final revocation", async () => {
   const { person, cap, dossier } = await directReader();
-  await db("auth_permission_exclusion").insert({
-    user_id: person.id,
-    permission: "dossier:instruct",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: person.id,
+      permission: "dossier:instruct",
+    }),
+  );
   const body = { direction: "suivre", personneEmail: person.email, dossierId: dossier.id };
   expect((await request(cap, "/dossiers/relation-suivis", "POST", body)).status).toBe(204);
   expect(
@@ -111,27 +125,33 @@ test("personal follow survives a read downgrade, grants no edit access, and disa
   expect((await (await request(cap, `/dossier/${dossier.id}`)).json()).access).toBe(
     "lecture_complete",
   );
-  await db("dossier_user_access").where({ dossier: dossier.id, user_id: person.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").where({ dossier: dossier.id, user_id: person.id }).delete(),
+  );
   expect(await db("edge_personne_follows_dossier").where({ personne: person.id })).toHaveLength(0);
   expect((await request(cap, `/dossier/${dossier.id}`)).status).toBe(403);
 });
 
 test("excluding one group preserves an independent direct grant and personal tracking", async () => {
   const owner = await createInstructeurWithDossier(db);
-  await db("dossier_user_access").insert({
-    dossier: owner.dossier.id,
-    user_id: owner.id,
-    access_level: "read",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: owner.dossier.id,
+      user_id: owner.id,
+      access_level: "read",
+    }),
+  );
   await db("edge_personne_follows_dossier").insert({
     personne: owner.id,
     dossier: owner.dossier.id,
   });
-  await db("groupe_dossier_override").insert({
-    dossier: owner.dossier.id,
-    groupe_instructeurs: owner.groupeId,
-    mode: "exclude",
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      dossier: owner.dossier.id,
+      groupe_instructeurs: owner.groupeId,
+      mode: "exclude",
+    }),
+  );
   expect((await (await request(owner.cap, `/dossier/${owner.dossier.id}`)).json()).access).toBe(
     "lecture_complete",
   );

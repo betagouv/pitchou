@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("user editor saves, removes and prepares group memberships", async ({
@@ -83,7 +84,12 @@ test("group changes require permission and invalid changes roll back user edits"
 }) => {
   const admin = await createInstructeurWithCapToGroup(db);
   await db("auth_permission_bundle").insert({ user_id: admin.id, bundle: "administrateur" });
-  await db("auth_permission_exclusion").insert({ user_id: admin.id, permission: "groups:manage" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: admin.id,
+      permission: "groups:manage",
+    }),
+  );
   const [target] = await db("auth_user").insert({ email: "cible@example.org" }).returning("*");
   await db("user_groupe").insert({ user_id: target.id, groupe_instructeurs: admin.groupeId });
   await loginAs(admin.codeAcces);
@@ -115,7 +121,9 @@ test("group changes require permission and invalid changes roll back user edits"
   expect((await db("auth_user").where({ id: target.id }).first()).active).toBe(true);
   expect(await save(input)).toBe(200);
   expect(await db("user_groupe").where({ user_id: target.id })).toHaveLength(1);
-  await db("auth_permission_exclusion").where({ user_id: admin.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").where({ user_id: admin.id }).delete(),
+  );
   expect(
     await save({ ...input, active: true, groupIds: ["00000000-0000-0000-0000-000000000001"] }),
   ).toBe(400);

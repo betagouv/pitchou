@@ -1,3 +1,5 @@
+import { recalculateAssignments } from "@pitchou/server/dossierRouting.ts";
+import { permissionSql } from "@pitchou/server/dossierRouting/access.ts";
 import type { Knex } from "knex";
 
 import { SEED_DEMARCHE_NUMBER } from "../../fixtures/demarche_numerique.ts";
@@ -79,6 +81,7 @@ export async function seedDossierRows(
         dossier = inserted;
       }
 
+      await recalculateAssignments(transaction, { dossiers: [dossier.id], silent: true });
       dossierIdMap[dossierData.demarche_numerique_number!] = dossier.id;
 
       const fixture = (email: string | undefined) =>
@@ -144,7 +147,9 @@ export async function seedDossierRows(
           "membership.groupe_instructeurs",
         )
         .where("ownership.dossier", dossier.id)
-        .whereRaw("pitchou_can_instruct(membership.user_id)")
+        .whereRaw(
+          `${permissionSql("membership.user_id", "dossier:read")} AND ${permissionSql("membership.user_id", "dossier:instruct")}`,
+        )
         .distinct("membership.user_id as id");
       for (const { id } of agents) {
         const key = String(id);

@@ -1,8 +1,9 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
 import { createDossier, createGroupeInstructeurs } from "../factories/index.ts";
 import { admin, saveGroup } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
 import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 const post = (token: string, route: string, body: object) =>
@@ -18,10 +19,12 @@ test("preview respects manual exceptions and rejects a stale preview without wri
   const included = await createDossier(db, { primary_department: "69" });
   const excluded = await createDossier(db, { primary_department: "75" });
   const added = await createDossier(db, { primary_department: "75" });
-  await db("groupe_dossier_override").insert([
-    { groupe_instructeurs: group.id, dossier: included.id, mode: "include" },
-    { groupe_instructeurs: group.id, dossier: excluded.id, mode: "exclude" },
-  ]);
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert([
+      { groupe_instructeurs: group.id, dossier: included.id, mode: "include" },
+      { groupe_instructeurs: group.id, dossier: excluded.id, mode: "exclude" },
+    ]),
+  );
   const input = {
     id: group.id,
     name: "Preview",
@@ -59,7 +62,12 @@ test("group routing writes and previews require group management even for dossie
   const actor = await admin();
   const group = await createGroupeInstructeurs(db);
   const dossier = await createDossier(db);
-  await db("auth_permission_exclusion").insert({ user_id: actor.id, permission: "groups:manage" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: actor.id,
+      permission: "groups:manage",
+    }),
+  );
   const input = { id: group.id, name: "Denied", active: true, members: [], rules: [] };
   expect((await post(actor.token, "/api/groupes-instructeurs/apercu", input)).status).toBe(403);
   expect((await saveGroup(actor.token, input)).status).toBe(403);

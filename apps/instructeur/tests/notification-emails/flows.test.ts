@@ -1,15 +1,16 @@
-import { beforeEach, expect, test, vi } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { sendEmail } from "@pitchou/server/emails.ts";
-import { POST as assignFollowers } from "../../src/routes/dossier/[dossierId]/followers/+server.ts";
-import { POST as updateInstruction } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { beforeEach, expect, test, vi } from "vitest";
 import { POST as updateAvis } from "../../src/routes/avis-expert/+server.ts";
 import { POST as updateControle } from "../../src/routes/controle/+server.ts";
-import { POST as updatePrescription } from "../../src/routes/prescription/+server.ts";
-import { PUT as updateCommentaire } from "../../src/routes/dossier/[dossierId]/commentaires/+server.ts";
 import { POST as updateDecision } from "../../src/routes/decision-administrative/+server.ts";
-import { setup } from "./fixtures.ts";
+import { POST as updateInstruction } from "../../src/routes/dossier/[dossierId]/+server.ts";
+import { PUT as updateCommentaire } from "../../src/routes/dossier/[dossierId]/commentaires/+server.ts";
+import { POST as assignFollowers } from "../../src/routes/dossier/[dossierId]/followers/+server.ts";
+import { POST as updatePrescription } from "../../src/routes/prescription/+server.ts";
 import { sessionUserId } from "../helpers/auth.ts";
+import { setup } from "./fixtures.ts";
 
 vi.mock("@pitchou/server/emails.ts", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@pitchou/server/emails.ts")>()),
@@ -34,7 +35,9 @@ beforeEach(() => {
 
 test("the assignment endpoint persists colleague follows and sends only once", async () => {
   const { actor, recipient } = await setup();
-  await db("edge_personne_follows_dossier").where({ personne: recipient.id }).delete();
+  await changeDossierAccess(db, (notificationTrx) =>
+    notificationTrx("edge_personne_follows_dossier").where({ personne: recipient.id }).delete(),
+  );
   const request = () =>
     event(actor.cap, actor.dossier.id, { personneEmails: [actor.email, recipient.email] });
   expect((await assignFollowers(request())).status).toBe(204);

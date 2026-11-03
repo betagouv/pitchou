@@ -1,15 +1,17 @@
+import { parseAccessLevel } from "@pitchou/common/groupRouting.ts";
 import type {
   AccessLevel,
   AssignmentMode,
   GroupAssignment,
   GroupRule,
 } from "@pitchou/types/groupRouting.ts";
-import { parseAccessLevel } from "@pitchou/common/groupRouting.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection as db } from "../../database/connection.ts";
-import { requireGroupManager } from "./access.ts";
+import { recalculateAssignments } from "../../dossierRouting.ts";
+import { groupAccessSql, groupMatchesSql, ruleMatchesSql } from "../../dossierRouting/sql.ts";
 import { audit } from "../audit.ts";
+import { requireGroupManager } from "./access.ts";
 
 export async function listDossierAssignments(
   dossierId: number,
@@ -24,7 +26,7 @@ export async function listDossierAssignments(
     .select("g.id", "g.name", "g.active", "o.mode", "o.access_level as manualAccessLevel")
     .select(
       database.raw(
-        'pitchou_group_matches(d, g.id) as automatic, pitchou_group_owns(d, g.id) as assigned, pitchou_group_access(d, g.id) as "accessLevel"',
+        ` ${groupMatchesSql()} as automatic, ${groupAccessSql()} IS NOT NULL as assigned, ${groupAccessSql()} as "accessLevel"`,
       ),
     )
     .joinRaw("CROSS JOIN dossier d")
@@ -34,7 +36,7 @@ export async function listDossierAssignments(
     .select("r.*")
     .joinRaw("CROSS JOIN dossier d")
     .where("d.id", dossierId)
-    .whereRaw("pitchou_rule_matches(d, r.departments, r.communes, r.activites)");
+    .whereRaw(ruleMatchesSql());
   const departments = await database("groupe_departement").where({
     department: dossier.primary_department ?? "",
   });
@@ -78,6 +80,7 @@ export async function saveDossierAssignment(
         .insert({ ...key, mode, access_level: accessLevel })
         .onConflict(["groupe_instructeurs", "dossier"])
         .merge();
+    await recalculateAssignments(trx, { dossiers: [dossierId] });
     await audit(trx, actor, "dossier_assignment_saved", {
       ...key,
       before: before ?? { mode: "auto" },

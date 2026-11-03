@@ -1,8 +1,9 @@
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
-import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import { lockDossierAccess, recalculateAssignments } from "../../dossierRouting.ts";
 import { ensurePersonneIdByEmail } from "./personne.ts";
-import { assertEditableDossierColumns, assertDdepDepositSource } from "./policy.ts";
+import { assertDdepDepositSource, assertEditableDossierColumns } from "./policy.ts";
 import { updateDossierAdminRelations } from "./relations.ts";
 import type { AdminDossierCreation } from "./types.ts";
 
@@ -14,6 +15,7 @@ export async function createDossierFromAdmin(
   assertEditableDossierColumns(creation.columns);
   assertDdepDepositSource("pitchou", creation.columns);
   return databaseConnection.transaction(async (trx) => {
+    await lockDossierAccess(trx);
     const [{ id }] = await trx("dossier")
       .insert({
         ...creation.columns,
@@ -36,6 +38,7 @@ export async function createDossierFromAdmin(
         caused_by_personne: personne,
       });
     }
+    await recalculateAssignments(trx, { dossiers: [id] });
     return { id };
   });
 }

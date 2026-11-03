@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createCapDossier, createDossier, createPersonne } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 
 test("a reader without groups sees internal information and follows personally without edit controls", async ({
   page,
@@ -13,11 +14,13 @@ test("a reader without groups sees internal information and follows personally w
     source: "pitchou",
     demarche_number: null,
   });
-  await db("dossier_user_access").insert({
-    dossier: dossier.id,
-    user_id: person.id,
-    access_level: "read",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: dossier.id,
+      user_id: person.id,
+      access_level: "read",
+    }),
+  );
   await db("email_notification_preferences")
     .where({ personne: person.id })
     .update({ assignment: false, novelty: false, arrival: false });
@@ -53,7 +56,9 @@ test("a reader without groups sees internal information and follows personally w
   await page.getByRole("button", { name: "Vous suivez ce dossier", exact: true }).click();
   await expect(page.getByRole("button", { name: "Suivre ce dossier", exact: true })).toBeVisible();
   expect(await db("edge_personne_follows_dossier").where({ personne: person.id })).toHaveLength(0);
-  await db("dossier_user_access").where({ user_id: person.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").where({ user_id: person.id }).delete(),
+  );
   await page.reload();
   await expect(page).toHaveURL(/\/auth\/acces-refuse$/u);
 });

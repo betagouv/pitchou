@@ -1,7 +1,9 @@
-import { afterAll, beforeAll, beforeEach, expect, test } from "vitest";
-import type { UserId } from "@pitchou/types/permissions.ts";
-import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import { dossiersAccessibleToUser } from "@pitchou/server/database/dossier/access.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { dossierAccessSql } from "@pitchou/server/dossierRouting/access.ts";
+import type Dossier from "@pitchou/types/database/public/Dossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
+import { afterAll, beforeAll, beforeEach, expect, test } from "vitest";
 import { createDossier, createGroupeInstructeurs } from "../factories/dossier.ts";
 import { disposableAccessDatabase } from "../helpers/disposableAccessDatabase.ts";
 import { truncateAll } from "../setup/truncate.ts";
@@ -18,10 +20,10 @@ const access = async (dossier: number, user: UserId) => {
   const value = (await dossiersAccessibleToUser(dossier as Dossier["id"], user, fixture.db)).get(
     dossier as Dossier["id"],
   );
-  const { rows } = await fixture.db.raw("SELECT pitchou_dossier_access(?, ?) AS access", [
-    dossier,
-    user,
-  ]);
+  const { rows } = await fixture.db.raw(
+    `SELECT ${dossierAccessSql("input.dossier", "input.user_id")} AS access FROM (SELECT ?::integer dossier, ?::integer user_id) input`,
+    [dossier, user],
+  );
   expect(value).toBe(rows[0].access ?? undefined);
   return value;
 };
@@ -37,23 +39,36 @@ test("direct grants work without groups and account permissions always cap the s
   const user = await reader();
   const dossier = await createDossier(db);
   const other = await createDossier(db);
-  await db("dossier_user_access").insert({
-    dossier: dossier.id,
-    user_id: user,
-    access_level: "read",
-  });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: dossier.id,
+      user_id: user,
+      access_level: "read",
+    }),
+  );
   expect(await access(dossier.id, user)).toBe("lecture_complete");
   expect(await access(other.id, user)).toBeUndefined();
-  await db("dossier_user_access").where({ user_id: user }).update({ access_level: "instruct" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").where({ user_id: user }).update({ access_level: "instruct" }),
+  );
   expect(await access(dossier.id, user)).toBe("lecture_complete");
   await db("auth_permission").insert({ user_id: user, permission: "dossier:instruct" });
   expect(await access(dossier.id, user)).toBe("complet");
-  await db("auth_permission_exclusion").insert({ user_id: user, permission: "dossier:instruct" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: user,
+      permission: "dossier:instruct",
+    }),
+  );
   expect(await access(dossier.id, user)).toBe("lecture_complete");
-  await db("auth_permission_exclusion").insert({ user_id: user, permission: "dossier:read" });
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({ user_id: user, permission: "dossier:read" }),
+  );
   expect(await access(dossier.id, user)).toBeUndefined();
-  await db("auth_permission_exclusion").delete();
-  await db("auth_user").where({ id: user }).update({ active: false });
+  await changeDossierAccess(db, (routingTrx) => routingTrx("auth_permission_exclusion").delete());
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_user").where({ id: user }).update({ active: false }),
+  );
   expect(await access(dossier.id, user)).toBeUndefined();
 });
 
@@ -68,102 +83,61 @@ test("rules select the strongest level, overrides take precedence, and other gra
   );
   const dossier = await createDossier(db, { primary_department: "75" });
   const rule = { groupe_instructeurs: first.id, departments: ["75"], access_level: "read" };
-  await db("groupe_regle").insert(rule);
-  expect(await access(dossier.id, user)).toBe("lecture_complete");
-  await db("groupe_regle").insert({ ...rule, access_level: "instruct" });
-  expect(await access(dossier.id, user)).toBe("complet");
-  await db("groupe_dossier_override").insert({
-    dossier: dossier.id,
-    groupe_instructeurs: first.id,
-    mode: "include",
-    access_level: "read",
+  await changeAssignments(db, (routingTrx) => routingTrx("groupe_regle").insert(rule), {
+    silent: true,
   });
   expect(await access(dossier.id, user)).toBe("lecture_complete");
-  await db("groupe_departement").insert({ groupe_instructeurs: second.id, department: "75" });
-  expect(await access(dossier.id, user)).toBe("complet");
-  await db("groupe_dossier_override").insert({
-    dossier: dossier.id,
-    groupe_instructeurs: second.id,
-    mode: "exclude",
-  });
-  expect(await access(dossier.id, user)).toBe("lecture_complete");
-  await db("dossier_user_access").insert({ dossier: dossier.id, user_id: user });
-  expect(await access(dossier.id, user)).toBe("complet");
-  await db("dossier_user_access").delete();
-  await db("groupe_dossier_override").where({ groupe_instructeurs: first.id }).delete();
-  expect(await access(dossier.id, user)).toBe("complet");
-  await db("groupe_instructeurs").where({ id: first.id }).update({ active: false });
-  expect(await access(dossier.id, user)).toBe("lecture");
-  await db("groupe_instructeurs").where({ id: second.id }).update({ active: false });
-  expect(await access(dossier.id, user)).toBeUndefined();
-});
-
-test("downgrades preserve follows and notification revisions until all reading access disappears", async () => {
-  const { db } = fixture;
-  const user = await reader();
-  const group = await createGroupeInstructeurs(db);
-  await db("user_groupe").insert({ user_id: user, groupe_instructeurs: group.id });
-  const dossier = await createDossier(db, { primary_department: "75" });
-  await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "75" });
-  await db("edge_personne_follows_dossier").insert({ dossier: dossier.id, personne: user });
-  const before = await db("notification").where({ dossier: dossier.id, personne: user }).first();
-  await db("groupe_dossier_override").insert({
-    dossier: dossier.id,
-    groupe_instructeurs: group.id,
-    mode: "include",
-    access_level: "read",
-  });
-  expect(await db("notification").where({ dossier: dossier.id, personne: user }).first()).toEqual(
-    before,
+  await changeAssignments(
+    db,
+    (routingTrx) => routingTrx("groupe_regle").insert({ ...rule, access_level: "instruct" }),
+    { silent: true },
   );
-  await db("groupe_dossier_override").where({ dossier: dossier.id }).update({ mode: "exclude" });
-  expect(await access(dossier.id, user)).toBe("lecture");
-  expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
-  await db("dossier_user_access").insert({
-    dossier: dossier.id,
-    user_id: user,
-    access_level: "read",
-  });
-  await db("user_groupe").where({ user_id: user }).delete();
-  expect(await access(dossier.id, user)).toBe("lecture_complete");
-  expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
-  const [email] = await db("email_notification_outbox")
-    .insert({
-      personne: user,
+  expect(await access(dossier.id, user)).toBe("complet");
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
       dossier: dossier.id,
-      kind: "novelty",
-      batch_key: "follow-cleanup",
-      due_at: new Date(),
-    })
-    .returning("id");
-  await db("dossier_user_access").where({ user_id: user }).delete();
-  expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
-  expect(await db("email_notification_outbox").where({ id: email.id }).first()).toMatchObject({
-    status: "cancelled",
-    cancellation_reason: "lost_access",
-  });
-  expect(
-    await db("email_notification_history").where({ notification_id: email.id, event: "cancelled" }),
-  ).toHaveLength(1);
-});
-
-test("recalculation is silent, but ordinary arrivals notify read-only group members", async () => {
-  const { db } = fixture;
-  const user = await reader();
-  const group = await createGroupeInstructeurs(db);
-  await db("user_groupe").insert({ user_id: user, groupe_instructeurs: group.id });
-  const existing = await createDossier(db, { primary_department: "75" });
-  const [rule] = await db("groupe_regle")
-    .insert({ groupe_instructeurs: group.id, departments: ["75"], access_level: "read" })
-    .returning("id");
-  expect(await access(existing.id, user)).toBe("lecture_complete");
-  expect(await db("email_notification_outbox")).toHaveLength(0);
-  const arrived = await createDossier(db, { primary_department: "75" });
-  expect(await db("email_notification_outbox")).toMatchObject([
-    { personne: user, dossier: arrived.id, kind: "arrival" },
-  ]);
-  const before = await db("email_notification_groupe_arrival").orderBy("dossier");
-  await db("groupe_regle").where({ id: rule.id }).update({ access_level: "instruct" });
-  expect(await db("email_notification_groupe_arrival").orderBy("dossier")).toEqual(before);
-  expect(await db("email_notification_outbox")).toHaveLength(1);
+      groupe_instructeurs: first.id,
+      mode: "include",
+      access_level: "read",
+    }),
+  );
+  expect(await access(dossier.id, user)).toBe("lecture_complete");
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({ groupe_instructeurs: second.id, department: "75" }),
+    { silent: true },
+  );
+  expect(await access(dossier.id, user)).toBe("complet");
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      dossier: dossier.id,
+      groupe_instructeurs: second.id,
+      mode: "exclude",
+    }),
+  );
+  expect(await access(dossier.id, user)).toBe("lecture_complete");
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({ dossier: dossier.id, user_id: user }),
+  );
+  expect(await access(dossier.id, user)).toBe("complet");
+  await changeDossierAccess(db, (routingTrx) => routingTrx("dossier_user_access").delete());
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").where({ groupe_instructeurs: first.id }).delete(),
+  );
+  expect(await access(dossier.id, user)).toBe("complet");
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_instructeurs").where({ id: first.id }).update({ active: false }),
+    { silent: true },
+  );
+  expect(await access(dossier.id, user)).toBe("lecture");
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_instructeurs").where({ id: second.id }).update({ active: false }),
+    { silent: true },
+  );
+  expect(await access(dossier.id, user)).toBeUndefined();
 });

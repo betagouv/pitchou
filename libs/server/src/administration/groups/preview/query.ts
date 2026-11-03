@@ -1,10 +1,11 @@
-import type { Knex } from "knex";
 import {
   GROUP_PREVIEW_PAGE_SIZE,
   type GroupPreview,
   type GroupRule,
   type PreviewCategory,
 } from "@pitchou/types/groupRouting.ts";
+import type { Knex } from "knex";
+import { ruleMatchesSql } from "../../../dossierRouting/sql.ts";
 import type { GroupUpdate } from "../../groups.ts";
 import type { PreviewPageRequest } from "./pagination.ts";
 
@@ -30,7 +31,7 @@ export async function queryPreview(
           (SELECT CASE WHEN bool_or(r."accessLevel" = 'instruct') THEN 'instruct' ELSE 'read' END
             FROM jsonb_to_recordset(?::jsonb)
               AS r(departments text[], communes text[], activites text[], "accessLevel" text)
-            WHERE pitchou_rule_matches(d, r.departments, r.communes, r.activites)
+            WHERE ${ruleMatchesSql()}
             HAVING count(*) > 0)
         ), 'none') END AS after_level
       FROM dossier d

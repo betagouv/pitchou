@@ -1,9 +1,10 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import {
   createDossier,
   createGroupeInstructeurs,
   createInstructeurWithCapToGroup,
 } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 for (const width of [1280, 320]) {
@@ -21,13 +22,23 @@ for (const width of [1280, 320]) {
       primary_department: "22",
     });
     const group = await createGroupeInstructeurs(db, { name: "Service régional Bretagne" });
-    await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "22" });
-    await db("groupe_dossier_override").insert({
-      dossier: dossier.id,
-      groupe_instructeurs: group.id,
-      mode: "include",
-      access_level: "read",
-    });
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_departement").insert({
+          groupe_instructeurs: group.id,
+          department: "22",
+        }),
+      { silent: true },
+    );
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("groupe_dossier_override").insert({
+        dossier: dossier.id,
+        groupe_instructeurs: group.id,
+        mode: "include",
+        access_level: "read",
+      }),
+    );
     await db("groupe_instructeurs").insert(
       Array.from({ length: 60 }, (_, index) => ({
         name: `Service complémentaire ${String(index + 1).padStart(2, "0")}`,

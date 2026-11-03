@@ -1,5 +1,6 @@
-import { test, expect } from "../fixtures/playwright.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
 import { createInstructeurWithCapToGroup } from "../factories/index.ts";
+import { expect, test } from "../fixtures/playwright.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("preview pages remain bounded, recover from errors and reject stale assignments", async ({
@@ -9,13 +10,15 @@ test("preview pages remain bounded, recover from errors and reject stale assignm
 }, testInfo) => {
   const actor = await createInstructeurWithCapToGroup(db);
   await db("auth_permission_bundle").insert({ user_id: actor.id, bundle: "administrateur" });
-  await db("dossier").insert(
-    Array.from({ length: 107 }, (_, index) => ({
-      name: `Projet ${String(index + 1).padStart(3, "0")}`,
-      source: "demarche_numerique",
-      demarche_number: 88444,
-      primary_department: "75",
-    })),
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").insert(
+      Array.from({ length: 107 }, (_, index) => ({
+        name: `Projet ${String(index + 1).padStart(3, "0")}`,
+        source: "demarche_numerique",
+        demarche_number: 88444,
+        primary_department: "75",
+      })),
+    ),
   );
   await page.setViewportSize({ width: 1280, height: 1000 });
   await page.emulateMedia({ colorScheme: "dark" });
@@ -69,7 +72,9 @@ test("preview pages remain bounded, recover from errors and reject stale assignm
   await page.screenshot({ path: testInfo.outputPath("preview-pagination-mobile.png") });
   await navigation.getByRole("button", { name: "Première page", exact: true }).click();
   await expect(category).toContainText("Dossiers 1 à 25 sur 107");
-  await db("dossier").where({ name: "Projet 107" }).update({ primary_department: "69" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ name: "Projet 107" }).update({ primary_department: "69" }),
+  );
   await navigation.getByRole("button", { name: "Page suivante", exact: true }).click();
   await expect(category.getByRole("alert")).toContainText("Actualisez l'aperçu");
   await expect(editor.getByRole("button", { name: "Enregistrer", exact: true })).toBeDisabled();

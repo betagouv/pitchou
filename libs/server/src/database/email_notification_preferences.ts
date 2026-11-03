@@ -1,7 +1,8 @@
-import type { Knex } from "knex";
-import type { UserId } from "@pitchou/types/permissions.ts";
 import type { EmailNotificationPreferences } from "@pitchou/types/capabilities.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
+import type { Knex } from "knex";
 import { directDatabaseConnection } from "../database.ts";
+import { cancelIneligibleNotifications } from "../dossierNotificationEmails/cancellation.ts";
 
 export async function emailNotificationPreferencesForUser(
   userId: UserId,
@@ -22,6 +23,7 @@ export async function emailNotificationPreferencesForUser(
       await trx("email_notification_preferences")
         .where({ personne: personne.id })
         .update(preferences);
+      await cancelIneligibleNotifications(trx, { users: [userId] });
       return trx("email_notification_preferences")
         .select("assignment", "novelty", "arrival")
         .where({ personne: personne.id })

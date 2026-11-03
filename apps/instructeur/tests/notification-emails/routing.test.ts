@@ -1,22 +1,30 @@
-import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { setupArrival } from "./arrivalFixtures.ts";
-import { createDossier } from "../factories/index.ts";
 import { registerActiviteLabels } from "@pitchou/server/database/activite.ts";
+import { changeAssignments } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
+import { createDossier } from "../factories/index.ts";
+import { setupArrival } from "./arrivalFixtures.ts";
 
 const photovoltaic = "Production énergie renouvelable - Photovoltaïque";
 
 test("editing routing rules silently baselines existing dossiers but normal arrivals still queue", async () => {
   const { dossier, member } = await setupArrival();
-  await db("dossier")
-    .where({ id: dossier.id })
-    .update({ primary_department: "75", main_activite: photovoltaic });
-  await db("groupe_regle").insert({
-    groupe_instructeurs: member.groupeId,
-    departments: ["75"],
-    communes: [],
-    activites: ["energie-photovoltaique"],
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .where({ id: dossier.id })
+      .update({ primary_department: "75", main_activite: photovoltaic }),
+  );
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_regle").insert({
+        groupe_instructeurs: member.groupeId,
+        departments: ["75"],
+        communes: [],
+        activites: ["energie-photovoltaique"],
+      }),
+    { silent: true },
+  );
   expect(await db("edge_groupe_instructeurs__dossier").where({ dossier: dossier.id })).toHaveLength(
     1,
   );
@@ -31,15 +39,25 @@ test("editing routing rules silently baselines existing dossiers but normal arri
   expect(
     await db("email_notification_outbox").where({ dossier: newDossier.id, kind: "arrival" }),
   ).toHaveLength(2);
-  await db("groupe_regle")
-    .where({ groupe_instructeurs: member.groupeId })
-    .update({ departments: ["69"] });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_regle")
+        .where({ groupe_instructeurs: member.groupeId })
+        .update({ departments: ["69"] }),
+    { silent: true },
+  );
   expect(
     await db("email_notification_outbox").where({ dossier: newDossier.id, status: "pending" }),
   ).toHaveLength(0);
-  await db("groupe_regle")
-    .where({ groupe_instructeurs: member.groupeId })
-    .update({ departments: ["75"] });
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_regle")
+        .where({ groupe_instructeurs: member.groupeId })
+        .update({ departments: ["75"] }),
+    { silent: true },
+  );
   expect(
     await db("email_notification_outbox").where({ dossier: newDossier.id, status: "pending" }),
   ).toHaveLength(0);
@@ -49,7 +67,15 @@ test("pending activity registration in a synchronization transaction does not si
   const { member } = await setupArrival();
   const label = "Routing notification unknown label";
   try {
-    await db("groupe_regle").insert({ groupe_instructeurs: member.groupeId, activites: ["autre"] });
+    await changeAssignments(
+      db,
+      (routingTrx) =>
+        routingTrx("groupe_regle").insert({
+          groupe_instructeurs: member.groupeId,
+          activites: ["autre"],
+        }),
+      { silent: true },
+    );
     await db.transaction(async (trx) => {
       await registerActiviteLabels([label], trx);
       await createDossier(trx, { main_activite: label });
@@ -58,32 +84,59 @@ test("pending activity registration in a synchronization transaction does not si
       await db("email_notification_outbox").where({ kind: "arrival", status: "pending" }),
     ).toHaveLength(2);
   } finally {
-    await db("activite_label").where({ label }).delete();
+    await changeAssignments(
+      db,
+      (routingTrx) => routingTrx("activite_label").where({ label }).delete(),
+      { silent: true },
+    );
   }
 });
 
 test("manual additions notify the group, exclusions cancel pending arrivals and restoring auto can notify again", async () => {
   const { dossier, member } = await setupArrival();
   const key = { dossier: dossier.id, groupe_instructeurs: member.groupeId };
-  await db("groupe_dossier_override").insert({ ...key, mode: "include" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({ ...key, mode: "include" }),
+  );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(2);
-  await db("groupe_dossier_override").where(key).update({ mode: "exclude" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").where(key).update({ mode: "exclude" }),
+  );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(0);
-  await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
-  await db("groupe_departement").insert({ groupe_instructeurs: member.groupeId, department: "75" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
+  );
+  await changeAssignments(
+    db,
+    (routingTrx) =>
+      routingTrx("groupe_departement").insert({
+        groupe_instructeurs: member.groupeId,
+        department: "75",
+      }),
+    { silent: true },
+  );
   expect(await db("edge_groupe_instructeurs__dossier").where(key)).toHaveLength(0);
-  await db("groupe_dossier_override").where(key).delete();
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").where(key).delete(),
+  );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(2);
 });
 
 test("a rule edit does not silence a new dossier arriving later in the same transaction", async () => {
   const { member, dossier } = await setupArrival();
-  await db("dossier").where({ id: dossier.id }).update({ primary_department: "75" });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
+  );
   const newcomer = await db.transaction(async (trx) => {
-    await trx("groupe_departement").insert({
-      groupe_instructeurs: member.groupeId,
-      department: "75",
-    });
+    await changeAssignments(
+      trx,
+      (routingTrx) =>
+        routingTrx("groupe_departement").insert({
+          groupe_instructeurs: member.groupeId,
+          department: "75",
+        }),
+      { silent: true },
+    );
     return createDossier(trx, { primary_department: "75" });
   });
   expect(await db("email_notification_outbox").where({ dossier: dossier.id })).toHaveLength(0);

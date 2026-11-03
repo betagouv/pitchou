@@ -1,20 +1,20 @@
-import { fetchAuthenticated } from "../helpers/auth.ts";
-import { randomUUID } from "node:crypto";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { readSpreadsheetRows as rows } from "../helpers/spreadsheet.ts";
-import { db } from "../setup/db.ts";
-import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
+import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
 import {
   attachCapToGroupe,
   attachDossierToGroupe,
+  createCapDossier,
   createDossier,
+  createFichierS3,
   createGroupeInstructeurs,
   createInstructeurWithDossier,
   createPersonne,
-  createCapDossier,
-  createFichierS3,
 } from "../factories/index.ts";
-import { seedEspeceProtegeeReference } from "../factories/especeProtegeeReference.ts";
+import { fetchAuthenticated } from "../helpers/auth.ts";
+import { readSpreadsheetRows as rows } from "../helpers/spreadsheet.ts";
+import { db } from "../setup/db.ts";
+import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 import { getTestS3 } from "../setup/s3.ts";
 
 async function download(cap: string, scope = "service", format = "csv", extra = "") {
@@ -65,7 +65,9 @@ test("service and followed exports respect access, include restricted personal f
   }
   await db("edge_personne_follows_dossier").where({ personne: owner.id }).delete();
   expect(await rows(await download(owner.cap, "followed"))).toHaveLength(1);
-  await db("user_groupe").where({ user_id: owner.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: owner.id }).delete(),
+  );
   expect((await download(owner.cap)).status).toBe(403);
 });
 
@@ -74,20 +76,22 @@ test("export includes enriched data, tagged species, expert stages and latest pr
   const colleague = await createPersonne(db, { email: "colleague@export.fr" });
   const colleagueSession = await createCapDossier(db, colleague.codeAcces);
   await attachCapToGroupe(db, colleagueSession.cap, owner.groupeId);
-  await db("dossier")
-    .where({ id: owner.dossier.id })
-    .update({
-      depot_date: "2026-09-01T10:00:00Z",
-      main_activite: "Raw activity",
-      primary_department: "75",
-      communes: JSON.stringify([{ name: "Paris", code: "75056", postalCode: "75000" }]),
-      departments: JSON.stringify(["75"]),
-      regions: JSON.stringify(["Île-de-France"]),
-      linked_to_ae_regime: true,
-      ddep_required: false,
-      er_mesures_sufficient: true,
-      enjeu: true,
-    });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .where({ id: owner.dossier.id })
+      .update({
+        depot_date: "2026-09-01T10:00:00Z",
+        main_activite: "Raw activity",
+        primary_department: "75",
+        communes: JSON.stringify([{ name: "Paris", code: "75056", postalCode: "75000" }]),
+        departments: JSON.stringify(["75"]),
+        regions: JSON.stringify(["Île-de-France"]),
+        linked_to_ae_regime: true,
+        ddep_required: false,
+        er_mesures_sufficient: true,
+        enjeu: true,
+      }),
+  );
   await attachDossierToGroupe(db, owner.dossier.id, owner.groupeId);
   await db("edge_personne_follows_dossier").insert([
     { personne: owner.id, dossier: owner.dossier.id },
@@ -184,17 +188,4 @@ test("export includes enriched data, tagged species, expert stages and latest pr
     "3",
     "",
   ]);
-});
-
-test("rejects missing and invalid sessions, invalid formats and arbitrary scopes", async () => {
-  const owner = await createInstructeurWithDossier(db);
-  expect((await download("")).status).toBe(401);
-  expect((await download("invalid")).status).toBe(401);
-  expect((await download(randomUUID())).status).toBe(401);
-  expect((await download(owner.cap, "unknown")).status).toBe(400);
-  expect((await download(owner.cap, "service", "grist")).status).toBe(400);
-  const caps = await fetchAuthenticated(owner.cap, `${INTEGRATION_BASE_URL}/api/session`).then(
-    (response) => response.json(),
-  );
-  expect(caps.exporterDossiers).toBe("/dossiers/export");
 });

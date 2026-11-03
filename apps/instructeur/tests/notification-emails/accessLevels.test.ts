@@ -1,20 +1,27 @@
-import { expect, test } from "vitest";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { setup, dispatch } from "./fixtures.ts";
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
+import { expect, test } from "vitest";
+import { dispatch, setup } from "./fixtures.ts";
 
 async function directReader() {
   const fixture = await setup();
   const { actor, recipient } = fixture;
-  await db("dossier_user_access").insert({
-    dossier: actor.dossier.id,
-    user_id: recipient.id,
-    access_level: "read",
-  });
-  await db("auth_permission_exclusion").insert({
-    user_id: recipient.id,
-    permission: "dossier:instruct",
-  });
-  await db("user_groupe").where({ user_id: recipient.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access").insert({
+      dossier: actor.dossier.id,
+      user_id: recipient.id,
+      access_level: "read",
+    }),
+  );
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("auth_permission_exclusion").insert({
+      user_id: recipient.id,
+      permission: "dossier:instruct",
+    }),
+  );
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: recipient.id }).delete(),
+  );
   return fixture;
 }
 
@@ -44,9 +51,11 @@ test("revoking the last direct grant removes the follow and cancels queued deliv
   const row = await db("email_notification_outbox")
     .where({ personne: recipient.id, kind: "novelty" })
     .first();
-  await db("dossier_user_access")
-    .where({ dossier: actor.dossier.id, user_id: recipient.id })
-    .delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("dossier_user_access")
+      .where({ dossier: actor.dossier.id, user_id: recipient.id })
+      .delete(),
+  );
   expect(
     await db("edge_personne_follows_dossier").where({
       personne: recipient.id,
@@ -65,11 +74,13 @@ test("a restricted downgrade preserves following and suppresses already queued i
   const row = await db("email_notification_outbox")
     .where({ personne: recipient.id, kind: "novelty" })
     .first();
-  await db("groupe_dossier_override").insert({
-    dossier: actor.dossier.id,
-    groupe_instructeurs: actor.groupeId,
-    mode: "exclude",
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      dossier: actor.dossier.id,
+      groupe_instructeurs: actor.groupeId,
+      mode: "exclude",
+    }),
+  );
   expect(
     await db("edge_personne_follows_dossier").where({
       personne: recipient.id,
@@ -89,11 +100,13 @@ test.each(["applicant", "phase"])(
   "restricted followers receive visible %s changes without internal history links",
   async (kind) => {
     const { actor, recipient, action } = await setup();
-    await db("groupe_dossier_override").insert({
-      dossier: actor.dossier.id,
-      groupe_instructeurs: actor.groupeId,
-      mode: "exclude",
-    });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("groupe_dossier_override").insert({
+        dossier: actor.dossier.id,
+        groupe_instructeurs: actor.groupeId,
+        mode: "exclude",
+      }),
+    );
     if (kind === "applicant") {
       await action("champ_modifie", {
         author_personne: null,
@@ -118,11 +131,13 @@ test.each(["applicant", "phase"])(
 
 test("restricted followers do not enqueue new private comment or saisine notifications", async () => {
   const { actor, recipient, action } = await setup();
-  await db("groupe_dossier_override").insert({
-    dossier: actor.dossier.id,
-    groupe_instructeurs: actor.groupeId,
-    mode: "exclude",
-  });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("groupe_dossier_override").insert({
+      dossier: actor.dossier.id,
+      groupe_instructeurs: actor.groupeId,
+      mode: "exclude",
+    }),
+  );
   await action("commentaire_ajoute", { data: { excerpt: "Privé" } });
   await action("saisine_importee");
   expect(

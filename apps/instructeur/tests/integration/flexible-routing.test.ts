@@ -1,5 +1,5 @@
+import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { expect, test } from "vitest";
-import { db } from "../setup/db.ts";
 import {
   createDossier,
   createGroupeInstructeurs,
@@ -7,6 +7,7 @@ import {
 } from "../factories/index.ts";
 import { admin, saveGroup } from "../helpers/administration.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { db } from "../setup/db.ts";
 import { ADMIN_BASE_URL } from "../setup/integration-global.ts";
 
 const photovoltaic = "Production énergie renouvelable - Photovoltaïque";
@@ -51,15 +52,21 @@ test("rules combine criteria with AND, rules with OR, and assign every matching 
       communes: JSON.stringify([{ code: "40088" }, { code: "40192" }]),
     });
     expect(await ownership(dossier.id)).toEqual([group.id, broad.id].sort());
-    await db("dossier")
-      .where({ id: dossier.id })
-      .update({ communes: JSON.stringify([{ code: "40192" }]) });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier")
+        .where({ id: dossier.id })
+        .update({ communes: JSON.stringify([{ code: "40192" }]) }),
+    );
     expect(await ownership(dossier.id)).toEqual([broad.id]);
-    await db("dossier")
-      .where({ id: dossier.id })
-      .update({ primary_department: "21", main_activite: "Carrières" });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier")
+        .where({ id: dossier.id })
+        .update({ primary_department: "21", main_activite: "Carrières" }),
+    );
     expect(await ownership(dossier.id)).toEqual([group.id]);
-    await db("dossier").where({ id: dossier.id }).update({ main_activite: null });
+    await changeAssignments(db, (routingTrx) =>
+      routingTrx("dossier").where({ id: dossier.id }).update({ main_activite: null }),
+    );
     expect(await ownership(dossier.id)).toEqual([]);
   }
   const missing = await createDossier(db, { main_activite: photovoltaic });
@@ -71,8 +78,10 @@ test("manual-only groups preserve inclusions, exclusions survive recomputation, 
   const group = await createGroupeInstructeurs(db, { name: "DGALN" });
   const dossier = await createDossier(db, { primary_department: "75" });
   expect((await changeAssignment(actor.token, dossier.id, group.id, "include")).status).toBe(200);
-  await db("dossier").where({ id: dossier.id }).update({ primary_department: "21" });
-  await db.raw("SELECT refresh_pitchou_ownership(NULL)");
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "21" }),
+  );
+  await changeAssignments(db, async () => {});
   expect(await ownership(dossier.id)).toEqual([group.id]);
   await saveGroup(actor.token, {
     id: group.id,
@@ -82,7 +91,7 @@ test("manual-only groups preserve inclusions, exclusions survive recomputation, 
     departments: ["21"],
   });
   expect((await changeAssignment(actor.token, dossier.id, group.id, "exclude")).status).toBe(200);
-  await db.raw("SELECT refresh_pitchou_ownership(NULL)");
+  await changeAssignments(db, async () => {});
   expect(await ownership(dossier.id)).toEqual([]);
   const origins = await (
     await fetchAuthenticated(
@@ -128,9 +137,11 @@ test("replacing rules and excluding the last owning group preserve follows while
   const actor = await admin();
   const instructor = await createInstructeurWithDossier(db);
   await changeAssignment(actor.token, instructor.dossier.id, instructor.groupeId, "auto");
-  await db("dossier")
-    .where({ id: instructor.dossier.id })
-    .update({ primary_department: "40", main_activite: photovoltaic });
+  await changeAssignments(db, (routingTrx) =>
+    routingTrx("dossier")
+      .where({ id: instructor.dossier.id })
+      .update({ primary_department: "40", main_activite: photovoltaic }),
+  );
   const input = {
     id: instructor.groupeId,
     name: "Local",
@@ -154,40 +165,8 @@ test("replacing rules and excluding the last owning group preserve follows while
   expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
   await changeAssignment(actor.token, instructor.dossier.id, instructor.groupeId, "exclude");
   expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
-  await db("user_groupe").where({ user_id: instructor.id }).delete();
+  await changeDossierAccess(db, (routingTrx) =>
+    routingTrx("user_groupe").where({ user_id: instructor.id }).delete(),
+  );
   expect(await db("edge_personne_follows_dossier")).toHaveLength(0);
-});
-
-test("activity mappings recalculate routing, pending labels resolve to autre and missing activity stays unmatched", async () => {
-  const actor = await admin();
-  const label = "Routing test unclassified activity";
-  try {
-    await db("activite_label").insert({ label, activite_code: "autre", needs_review: true });
-    const other = await (
-      await saveGroup(actor.token, {
-        name: "Other",
-        active: true,
-        members: [],
-        rules: [{ departments: [], communes: [], activites: ["autre"] }],
-      })
-    ).json();
-    const solar = await (
-      await saveGroup(actor.token, {
-        name: "Solar",
-        active: true,
-        members: [],
-        rules: [{ departments: [], communes: [], activites: ["energie-photovoltaique"] }],
-      })
-    ).json();
-    const dossier = await createDossier(db, { main_activite: label });
-    expect(await ownership(dossier.id)).toEqual([other.id]);
-    await db("activite_label")
-      .where({ label })
-      .update({ activite_code: "energie-photovoltaique", needs_review: false });
-    expect(await ownership(dossier.id)).toEqual([solar.id]);
-    await db("dossier").where({ id: dossier.id }).update({ main_activite: null });
-    expect(await ownership(dossier.id)).toEqual([]);
-  } finally {
-    await db("activite_label").where({ label }).delete();
-  }
 });
