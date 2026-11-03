@@ -28,7 +28,7 @@ export async function listGroups(): Promise<{
       .count("dossier as count")
       .groupBy("groupe_instructeurs"),
     db("auth_user").select("id", "email", "active").orderBy("email"),
-    db("groupe_regle").orderBy("id"),
+    db("group_routing_rule").orderBy("id"),
   ]);
   return {
     groups: groups.map((g) => ({

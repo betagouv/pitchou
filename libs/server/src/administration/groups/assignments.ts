@@ -20,7 +20,7 @@ export async function listDossierAssignments(
   const dossier = await database("dossier").where({ id: dossierId }).first();
   if (!dossier) throw new TypeError("Dossier introuvable");
   const groups = await database("groupe_instructeurs as g")
-    .leftJoin("groupe_dossier_override as o", (join) =>
+    .leftJoin("dossier_group_override as o", (join) =>
       join.on("o.groupe_instructeurs", "g.id").andOnVal("o.dossier", dossierId),
     )
     .select("g.id", "g.name", "g.active", "o.mode", "o.access_level as manualAccessLevel")
@@ -32,7 +32,7 @@ export async function listDossierAssignments(
     .joinRaw("CROSS JOIN dossier d")
     .where("d.id", dossierId)
     .orderBy("g.name");
-  const rules = await database("groupe_regle as r")
+  const rules = await database("group_routing_rule as r")
     .select("r.*")
     .joinRaw("CROSS JOIN dossier d")
     .where("d.id", dossierId)
@@ -73,10 +73,10 @@ export async function saveDossierAssignment(
     if (!(await trx("groupe_instructeurs").where({ id: groupId }).first()))
       throw new TypeError("Groupe introuvable");
     const key = { dossier: dossierId, groupe_instructeurs: groupId };
-    const before = await trx("groupe_dossier_override").where(key).first();
-    if (mode === "auto") await trx("groupe_dossier_override").where(key).delete();
+    const before = await trx("dossier_group_override").where(key).first();
+    if (mode === "auto") await trx("dossier_group_override").where(key).delete();
     else
-      await trx("groupe_dossier_override")
+      await trx("dossier_group_override")
         .insert({ ...key, mode, access_level: accessLevel })
         .onConflict(["groupe_instructeurs", "dossier"])
         .merge();

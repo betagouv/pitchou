@@ -146,7 +146,7 @@ test("excluding one group preserves an independent direct grant and personal tra
     dossier: owner.dossier.id,
   });
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: owner.dossier.id,
       groupe_instructeurs: owner.groupeId,
       mode: "exclude",

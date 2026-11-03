@@ -133,7 +133,7 @@ test("the token includes unchanged assignments beyond page one and current group
         .where({ id: dossiers[105].id })
         .update({ name: "Renamed unchanged assignment" }),
     () =>
-      db("groupe_dossier_override").insert({
+      db("dossier_group_override").insert({
         groupe_instructeurs: group.id,
         dossier: dossiers[105].id,
         mode: "include",
@@ -143,7 +143,7 @@ test("the token includes unchanged assignments beyond page one and current group
     () =>
       db("groupe_instructeurs").where({ id: group.id }).update({ name: "Renamed current group" }),
     () =>
-      db("groupe_regle").insert({
+      db("group_routing_rule").insert({
         groupe_instructeurs: group.id,
         departments: ["75"],
         communes: [],

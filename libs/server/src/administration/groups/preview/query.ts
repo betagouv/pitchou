@@ -37,7 +37,7 @@ export async function queryPreview(
       FROM dossier d
       LEFT JOIN edge_groupe_instructeurs__dossier e
         ON e.dossier = d.id AND e.groupe_instructeurs = ?::uuid
-      LEFT JOIN groupe_dossier_override o
+      LEFT JOIN dossier_group_override o
         ON o.dossier = d.id AND o.groupe_instructeurs = ?::uuid
     ), categorized AS MATERIALIZED (
       SELECT *, CASE

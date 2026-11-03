@@ -36,9 +36,9 @@ export async function up(db: Knex) {
     await db.raw(`DROP FUNCTION ${signature}`);
 
   await db.raw(`
-    ALTER TABLE groupe_regle ADD COLUMN access_level text NOT NULL DEFAULT 'instruct'
+    ALTER TABLE group_routing_rule ADD COLUMN access_level text NOT NULL DEFAULT 'instruct'
       CHECK (access_level IN ('read', 'instruct'));
-    ALTER TABLE groupe_dossier_override ADD COLUMN access_level text NOT NULL DEFAULT 'instruct'
+    ALTER TABLE dossier_group_override ADD COLUMN access_level text NOT NULL DEFAULT 'instruct'
       CHECK (access_level IN ('read', 'instruct'));
     ALTER TABLE edge_groupe_instructeurs__dossier ADD COLUMN access_level text NOT NULL DEFAULT 'instruct'
       CHECK (access_level IN ('read', 'instruct'));

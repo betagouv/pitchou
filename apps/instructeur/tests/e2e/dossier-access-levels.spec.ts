@@ -43,7 +43,7 @@ test("an admin edits rule levels and grants a person access without group member
   ).toContainText("1 règle(s), dont 1 en lecture complète");
   const group = await db("groupe_instructeurs").where({ name: "Lecture Paris" }).first();
   expect(await db("groupe_departement").where({ groupe_instructeurs: group.id })).toHaveLength(0);
-  expect(await db("groupe_regle").where({ groupe_instructeurs: group.id })).toMatchObject([
+  expect(await db("group_routing_rule").where({ groupe_instructeurs: group.id })).toMatchObject([
     { access_level: "read" },
   ]);
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);

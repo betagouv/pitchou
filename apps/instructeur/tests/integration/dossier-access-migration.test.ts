@@ -13,7 +13,7 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
     const [user] = await db("auth_user").insert({ email: "legacy@example.org" }).returning("id");
     await db("auth_permission_bundle").insert({ user_id: user.id, bundle: "instructeur" });
     await db("user_groupe").insert({ user_id: user.id, groupe_instructeurs: group.id });
-    const [rule] = await db("groupe_regle")
+    const [rule] = await db("group_routing_rule")
       .insert({ groupe_instructeurs: group.id, departments: ["75"] })
       .returning("id");
     await db("groupe_departement").insert({ groupe_instructeurs: group.id, department: "75" });
@@ -25,7 +25,7 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
         primary_department: "75",
       })
       .returning("id");
-    await db("groupe_dossier_override").insert({
+    await db("dossier_group_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: group.id,
       mode: "include",
@@ -48,10 +48,10 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
     for (const [index, table] of preserved.entries())
       expect(await db(table)).toEqual(snapshots[index]);
     expect(await db("dossier_user_access")).toEqual([]);
-    expect(await db("groupe_regle").where({ id: rule.id }).first()).toMatchObject({
+    expect(await db("group_routing_rule").where({ id: rule.id }).first()).toMatchObject({
       access_level: "instruct",
     });
-    expect(await db("groupe_dossier_override").first()).toMatchObject({ access_level: "instruct" });
+    expect(await db("dossier_group_override").first()).toMatchObject({ access_level: "instruct" });
     expect(await db("edge_groupe_instructeurs__dossier").first()).toMatchObject({
       access_level: "instruct",
     });
@@ -59,9 +59,7 @@ test("access upgrade preserves legacy grants, follows, reviews and email audit r
       "complet",
     );
     await changeAssignments(db, (trx) =>
-      trx("groupe_dossier_override")
-        .where({ dossier: dossier.id })
-        .update({ access_level: "read" }),
+      trx("dossier_group_override").where({ dossier: dossier.id }).update({ access_level: "read" }),
     );
     expect((await dossiersAccessibleToUser(dossier.id, user.id, db)).get(dossier.id)).toBe(
       "lecture_complete",

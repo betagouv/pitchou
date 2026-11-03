@@ -32,7 +32,7 @@ for (const width of [1280, 320]) {
       { silent: true },
     );
     await changeAssignments(db, (routingTrx) =>
-      routingTrx("groupe_dossier_override").insert({
+      routingTrx("dossier_group_override").insert({
         dossier: dossier.id,
         groupe_instructeurs: group.id,
         mode: "include",
@@ -102,6 +102,6 @@ for (const width of [1280, 320]) {
     await page.keyboard.press("Enter");
     await expect(popup).toHaveCount(0);
     await expect(groups.getByRole("combobox")).toContainText("Service complémentaire 60");
-    expect(await db("groupe_dossier_override").where({ dossier: dossier.id })).toHaveLength(1);
+    expect(await db("dossier_group_override").where({ dossier: dossier.id })).toHaveLength(1);
   });
 }

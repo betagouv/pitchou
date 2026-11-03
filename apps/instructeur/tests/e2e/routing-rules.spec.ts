@@ -63,7 +63,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await editor.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(editor).toHaveCount(0);
   const group = await db("groupe_instructeurs").where({ name: "Photovoltaïque Dax" }).first();
-  expect(await db("groupe_regle").where({ groupe_instructeurs: group.id })).toMatchObject([
+  expect(await db("group_routing_rule").where({ groupe_instructeurs: group.id })).toMatchObject([
     { departments: ["40"], communes: ["40088"], activites: ["energie-photovoltaique"] },
   ]);
   await page.goto(`${E2E_ADMIN_BASE_URL}/dossiers/${dossier.id}`);

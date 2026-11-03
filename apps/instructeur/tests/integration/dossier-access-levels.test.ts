@@ -83,18 +83,18 @@ test("rules select the strongest level, overrides take precedence, and other gra
   );
   const dossier = await createDossier(db, { primary_department: "75" });
   const rule = { groupe_instructeurs: first.id, departments: ["75"], access_level: "read" };
-  await changeAssignments(db, (routingTrx) => routingTrx("groupe_regle").insert(rule), {
+  await changeAssignments(db, (routingTrx) => routingTrx("group_routing_rule").insert(rule), {
     silent: true,
   });
   expect(await access(dossier.id, user)).toBe("lecture_complete");
   await changeAssignments(
     db,
-    (routingTrx) => routingTrx("groupe_regle").insert({ ...rule, access_level: "instruct" }),
+    (routingTrx) => routingTrx("group_routing_rule").insert({ ...rule, access_level: "instruct" }),
     { silent: true },
   );
   expect(await access(dossier.id, user)).toBe("complet");
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: first.id,
       mode: "include",
@@ -110,7 +110,7 @@ test("rules select the strongest level, overrides take precedence, and other gra
   );
   expect(await access(dossier.id, user)).toBe("complet");
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: second.id,
       mode: "exclude",
@@ -123,7 +123,7 @@ test("rules select the strongest level, overrides take precedence, and other gra
   expect(await access(dossier.id, user)).toBe("complet");
   await changeDossierAccess(db, (routingTrx) => routingTrx("dossier_user_access").delete());
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").where({ groupe_instructeurs: first.id }).delete(),
+    routingTrx("dossier_group_override").where({ groupe_instructeurs: first.id }).delete(),
   );
   expect(await access(dossier.id, user)).toBe("complet");
   await changeAssignments(

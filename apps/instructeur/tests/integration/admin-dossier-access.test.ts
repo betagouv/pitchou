@@ -27,7 +27,7 @@ test("rule preview reports level changes, preserves manual levels, and rejects s
   };
   expect((await saveGroup(actor.token, input)).status).toBe(200);
   expect(await db("groupe_departement").where({ groupe_instructeurs: group.id })).toHaveLength(0);
-  expect(await db("groupe_regle").where({ groupe_instructeurs: group.id })).toMatchObject([
+  expect(await db("group_routing_rule").where({ groupe_instructeurs: group.id })).toMatchObject([
     { access_level: "read" },
   ]);
   expect(
@@ -51,7 +51,7 @@ test("rule preview reports level changes, preserves manual levels, and rejects s
   });
   expect(preview.downgraded.count).toBe(0);
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override")
+    routingTrx("dossier_group_override")
       .where({ dossier: manual.id })
       .update({ access_level: "instruct" }),
   );

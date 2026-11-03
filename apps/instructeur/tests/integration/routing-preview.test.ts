@@ -20,7 +20,7 @@ test("preview respects manual exceptions and rejects a stale preview without wri
   const excluded = await createDossier(db, { primary_department: "75" });
   const added = await createDossier(db, { primary_department: "75" });
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert([
+    routingTrx("dossier_group_override").insert([
       { groupe_instructeurs: group.id, dossier: included.id, mode: "include" },
       { groupe_instructeurs: group.id, dossier: excluded.id, mode: "exclude" },
     ]),
@@ -79,7 +79,7 @@ test("group routing writes and previews require group management even for dossie
       })
     ).status,
   ).toBe(403);
-  expect(await db("groupe_dossier_override")).toHaveLength(0);
+  expect(await db("dossier_group_override")).toHaveLength(0);
 });
 
 test.each([

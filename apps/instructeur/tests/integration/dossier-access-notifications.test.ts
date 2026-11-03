@@ -49,7 +49,7 @@ test("downgrades preserve follows and notification revisions until all reading a
   await db("edge_personne_follows_dossier").insert({ dossier: dossier.id, personne: user });
   const before = await db("notification").where({ dossier: dossier.id, personne: user }).first();
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: group.id,
       mode: "include",
@@ -60,9 +60,7 @@ test("downgrades preserve follows and notification revisions until all reading a
     before,
   );
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override")
-      .where({ dossier: dossier.id })
-      .update({ mode: "exclude" }),
+    routingTrx("dossier_group_override").where({ dossier: dossier.id }).update({ mode: "exclude" }),
   );
   expect(await access(dossier.id, user)).toBe("lecture");
   expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
@@ -109,7 +107,7 @@ test("recalculation is silent, but ordinary arrivals notify read-only group memb
   const [rule] = await changeAssignments(
     db,
     (routingTrx) =>
-      routingTrx("groupe_regle")
+      routingTrx("group_routing_rule")
         .insert({ groupe_instructeurs: group.id, departments: ["75"], access_level: "read" })
         .returning("id"),
     { silent: true },
@@ -124,7 +122,7 @@ test("recalculation is silent, but ordinary arrivals notify read-only group memb
   await changeAssignments(
     db,
     (routingTrx) =>
-      routingTrx("groupe_regle").where({ id: rule.id }).update({ access_level: "instruct" }),
+      routingTrx("group_routing_rule").where({ id: rule.id }).update({ access_level: "instruct" }),
     { silent: true },
   );
   expect(await db("email_notification_groupe_arrival").orderBy("dossier")).toEqual(before);

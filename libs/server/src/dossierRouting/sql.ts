@@ -16,7 +16,7 @@ export function ruleMatchesSql(d = "d", r = "r") {
 export function groupMatchesSql(d = "d", group = "g.id") {
   return `(EXISTS (SELECT 1 FROM groupe_departement c
       WHERE c.groupe_instructeurs = ${group} AND c.department = ${d}.primary_department)
-    OR EXISTS (SELECT 1 FROM groupe_regle r WHERE r.groupe_instructeurs = ${group}
+    OR EXISTS (SELECT 1 FROM group_routing_rule r WHERE r.groupe_instructeurs = ${group}
       AND ${ruleMatchesSql(d)}))`;
 }
 
@@ -29,8 +29,8 @@ export function groupAccessSql(d = "d", group = "g.id") {
       WHERE c.groupe_instructeurs = ${group} AND c.department = ${d}.primary_department)
       THEN 'instruct'
     ELSE (SELECT CASE WHEN bool_or(r.access_level = 'instruct') THEN 'instruct' ELSE 'read' END
-      FROM groupe_regle r WHERE r.groupe_instructeurs = ${group}
+      FROM group_routing_rule r WHERE r.groupe_instructeurs = ${group}
         AND ${ruleMatchesSql(d)} HAVING count(*) > 0) END
-    FROM (SELECT 1) singleton LEFT JOIN groupe_dossier_override override
+    FROM (SELECT 1) singleton LEFT JOIN dossier_group_override override
       ON override.dossier = ${d}.id AND override.groupe_instructeurs = ${group})`;
 }

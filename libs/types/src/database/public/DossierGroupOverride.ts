@@ -4,8 +4,8 @@
 import type { GroupeInstructeursId } from "./GroupeInstructeurs";
 import type { DossierId } from "./Dossier";
 
-/** Represents the table public.groupe_dossier_override */
-export default interface GroupeDossierOverride {
+/** Represents the table public.dossier_group_override */
+export default interface DossierGroupOverride {
   groupe_instructeurs: GroupeInstructeursId;
 
   dossier: DossierId;
@@ -15,8 +15,8 @@ export default interface GroupeDossierOverride {
   access_level: string;
 }
 
-/** Represents the initializer for the table public.groupe_dossier_override */
-export interface GroupeDossierOverrideInitializer {
+/** Represents the initializer for the table public.dossier_group_override */
+export interface DossierGroupOverrideInitializer {
   groupe_instructeurs: GroupeInstructeursId;
 
   dossier: DossierId;
@@ -27,8 +27,8 @@ export interface GroupeDossierOverrideInitializer {
   access_level?: string;
 }
 
-/** Represents the mutator for the table public.groupe_dossier_override */
-export interface GroupeDossierOverrideMutator {
+/** Represents the mutator for the table public.dossier_group_override */
+export interface DossierGroupOverrideMutator {
   groupe_instructeurs?: GroupeInstructeursId;
 
   dossier?: DossierId;

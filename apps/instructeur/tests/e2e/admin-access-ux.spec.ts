@@ -77,7 +77,7 @@ for (const width of [1280, 320]) {
     await expect(groupForm.getByRole("combobox")).toContainText("Exclure durablement");
     await expect(personForm.getByRole("radio", { name: /^Instruction/u })).toBeChecked();
     expect(writes).toHaveLength(0);
-    expect(await db("groupe_dossier_override").where(groupKey).first()).toMatchObject({
+    expect(await db("dossier_group_override").where(groupKey).first()).toMatchObject({
       mode: "include",
       access_level: "read",
     });
@@ -109,14 +109,14 @@ for (const width of [1280, 320]) {
     );
     await expect(groupForm.getByRole("combobox")).toContainText("Exclure durablement");
     expect(writes).toHaveLength(1);
-    expect(await db("groupe_dossier_override").where(groupKey).first()).toMatchObject({
+    expect(await db("dossier_group_override").where(groupKey).first()).toMatchObject({
       mode: "include",
     });
     await page.unroute(groupEndpoint);
     await groupForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
     await expect(groupForm).toHaveCount(0);
     await expect(group).toContainText("Exclusion manuelle");
-    expect(await db("groupe_dossier_override").where(groupKey).first()).toMatchObject({
+    expect(await db("dossier_group_override").where(groupKey).first()).toMatchObject({
       mode: "exclude",
     });
 

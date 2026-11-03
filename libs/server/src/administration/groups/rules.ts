@@ -16,7 +16,7 @@ export async function readRules(db: Knex | Knex.Transaction, groupId: string) {
     .where({ groupe_instructeurs: groupId })
     .orderBy("department")
     .pluck("department");
-  const conditional = await db("groupe_regle")
+  const conditional = await db("group_routing_rule")
     .where({ groupe_instructeurs: groupId })
     .orderBy("id");
   return [
@@ -32,7 +32,7 @@ export async function readRules(db: Knex | Knex.Transaction, groupId: string) {
 
 export async function replaceRules(db: Knex.Transaction, groupId: string, rules: GroupRule[]) {
   const { departments, conditional } = splitRules(rules);
-  const oldIds = await db("groupe_regle").where({ groupe_instructeurs: groupId }).pluck("id");
+  const oldIds = await db("group_routing_rule").where({ groupe_instructeurs: groupId }).pluck("id");
   // Install every new rule before removing any old rule to preserve unchanged follows.
   if (departments.length > 0)
     await db("groupe_departement")
@@ -40,7 +40,7 @@ export async function replaceRules(db: Knex.Transaction, groupId: string, rules:
       .onConflict(["groupe_instructeurs", "department"])
       .ignore();
   if (conditional.length > 0)
-    await db("groupe_regle").insert(
+    await db("group_routing_rule").insert(
       conditional.map(({ accessLevel = "instruct", ...rule }) => ({
         ...rule,
         access_level: accessLevel,
@@ -51,5 +51,5 @@ export async function replaceRules(db: Knex.Transaction, groupId: string, rules:
     .where({ groupe_instructeurs: groupId })
     .whereNotIn("department", departments)
     .delete();
-  await db("groupe_regle").whereIn("id", oldIds).delete();
+  await db("group_routing_rule").whereIn("id", oldIds).delete();
 }

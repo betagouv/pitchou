@@ -62,8 +62,8 @@ export async function recalculateAssignments(
         ${groupAccessSql("d", "candidates.groupe_instructeurs")} AS access_level
       FROM dossier d JOIN LATERAL (
         SELECT c.groupe_instructeurs FROM groupe_departement c WHERE c.department = d.primary_department
-        UNION SELECT r.groupe_instructeurs FROM groupe_regle r WHERE ${ruleMatchesSql()}
-        UNION SELECT o.groupe_instructeurs FROM groupe_dossier_override o
+        UNION SELECT r.groupe_instructeurs FROM group_routing_rule r WHERE ${ruleMatchesSql()}
+        UNION SELECT o.groupe_instructeurs FROM dossier_group_override o
           WHERE o.dossier = d.id AND o.mode = 'include'
       ) candidates ON true WHERE (?::integer[] IS NULL OR d.id = ANY(?::integer[]))
     ), removed AS (

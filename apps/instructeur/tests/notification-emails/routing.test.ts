@@ -17,7 +17,7 @@ test("editing routing rules silently baselines existing dossiers but normal arri
   await changeAssignments(
     db,
     (routingTrx) =>
-      routingTrx("groupe_regle").insert({
+      routingTrx("group_routing_rule").insert({
         groupe_instructeurs: member.groupeId,
         departments: ["75"],
         communes: [],
@@ -42,7 +42,7 @@ test("editing routing rules silently baselines existing dossiers but normal arri
   await changeAssignments(
     db,
     (routingTrx) =>
-      routingTrx("groupe_regle")
+      routingTrx("group_routing_rule")
         .where({ groupe_instructeurs: member.groupeId })
         .update({ departments: ["69"] }),
     { silent: true },
@@ -53,7 +53,7 @@ test("editing routing rules silently baselines existing dossiers but normal arri
   await changeAssignments(
     db,
     (routingTrx) =>
-      routingTrx("groupe_regle")
+      routingTrx("group_routing_rule")
         .where({ groupe_instructeurs: member.groupeId })
         .update({ departments: ["75"] }),
     { silent: true },
@@ -70,7 +70,7 @@ test("pending activity registration in a synchronization transaction does not si
     await changeAssignments(
       db,
       (routingTrx) =>
-        routingTrx("groupe_regle").insert({
+        routingTrx("group_routing_rule").insert({
           groupe_instructeurs: member.groupeId,
           activites: ["autre"],
         }),
@@ -96,11 +96,11 @@ test("manual additions notify the group, exclusions cancel pending arrivals and 
   const { dossier, member } = await setupArrival();
   const key = { dossier: dossier.id, groupe_instructeurs: member.groupeId };
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({ ...key, mode: "include" }),
+    routingTrx("dossier_group_override").insert({ ...key, mode: "include" }),
   );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(2);
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").where(key).update({ mode: "exclude" }),
+    routingTrx("dossier_group_override").where(key).update({ mode: "exclude" }),
   );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(0);
   await changeAssignments(db, (routingTrx) =>
@@ -117,7 +117,7 @@ test("manual additions notify the group, exclusions cancel pending arrivals and 
   );
   expect(await db("edge_groupe_instructeurs__dossier").where(key)).toHaveLength(0);
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").where(key).delete(),
+    routingTrx("dossier_group_override").where(key).delete(),
   );
   expect(await db("email_notification_outbox").where({ status: "pending" })).toHaveLength(2);
 });

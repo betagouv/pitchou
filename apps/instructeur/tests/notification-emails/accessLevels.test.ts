@@ -75,7 +75,7 @@ test("a restricted downgrade preserves following and suppresses already queued i
     .where({ personne: recipient.id, kind: "novelty" })
     .first();
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: actor.dossier.id,
       groupe_instructeurs: actor.groupeId,
       mode: "exclude",
@@ -101,7 +101,7 @@ test.each(["applicant", "phase"])(
   async (kind) => {
     const { actor, recipient, action } = await setup();
     await changeAssignments(db, (routingTrx) =>
-      routingTrx("groupe_dossier_override").insert({
+      routingTrx("dossier_group_override").insert({
         dossier: actor.dossier.id,
         groupe_instructeurs: actor.groupeId,
         mode: "exclude",
@@ -132,7 +132,7 @@ test.each(["applicant", "phase"])(
 test("restricted followers do not enqueue new private comment or saisine notifications", async () => {
   const { actor, recipient, action } = await setup();
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: actor.dossier.id,
       groupe_instructeurs: actor.groupeId,
       mode: "exclude",

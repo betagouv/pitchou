@@ -15,7 +15,7 @@ test.skipIf(process.env.PITCHOU_RUN_PREVIEW_SCALE !== "1")(
       async (trx) => {
         await trx.raw(`INSERT INTO dossier(name, primary_department, source)
         SELECT 'Synthetic ' || n, '75', 'pitchou' FROM generate_series(1, 20000) n`);
-        await trx("groupe_regle").insert({
+        await trx("group_routing_rule").insert({
           groupe_instructeurs: group.id,
           departments: ["75"],
           access_level: "instruct",
@@ -37,7 +37,7 @@ test.skipIf(process.env.PITCHOU_RUN_PREVIEW_SCALE !== "1")(
     await changeAssignments(
       db,
       (trx) =>
-        trx("groupe_regle")
+        trx("group_routing_rule")
           .where({ groupe_instructeurs: group.id })
           .update({ access_level: "read" }),
       { silent: true },

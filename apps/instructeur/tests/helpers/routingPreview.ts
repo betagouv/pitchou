@@ -25,9 +25,9 @@ export const previewState = () =>
     [
       "groupe_instructeurs",
       "groupe_departement",
-      "groupe_regle",
+      "group_routing_rule",
       "user_groupe",
-      "groupe_dossier_override",
+      "dossier_group_override",
       "edge_groupe_instructeurs__dossier",
       "administration_event",
       "email_notification_outbox",

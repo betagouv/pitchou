@@ -37,7 +37,7 @@ export async function createAdminAccessFixture(db: Knex) {
     { silent: true },
   );
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert([
+    routingTrx("dossier_group_override").insert([
       {
         dossier: dossier.id,
         groupe_instructeurs: manual.id,

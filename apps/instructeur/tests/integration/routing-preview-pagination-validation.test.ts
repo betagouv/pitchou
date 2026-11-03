@@ -59,7 +59,7 @@ test("empty categories have one empty page and manual access survives empty rule
   const group = await createGroupeInstructeurs(db);
   const manual = await createDossier(db, { primary_department: "75" });
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       groupe_instructeurs: group.id,
       dossier: manual.id,
       mode: "include",

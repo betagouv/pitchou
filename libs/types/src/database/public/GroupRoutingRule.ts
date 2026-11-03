@@ -3,12 +3,12 @@
 
 import type { GroupeInstructeursId } from "./GroupeInstructeurs";
 
-/** Identifier type for public.groupe_regle */
-export type GroupeRegleId = string & { __brand: "public.groupe_regle" };
+/** Identifier type for public.group_routing_rule */
+export type GroupRoutingRuleId = string & { __brand: "public.group_routing_rule" };
 
-/** Represents the table public.groupe_regle */
-export default interface GroupeRegle {
-  id: GroupeRegleId;
+/** Represents the table public.group_routing_rule */
+export default interface GroupRoutingRule {
+  id: GroupRoutingRuleId;
 
   groupe_instructeurs: GroupeInstructeursId;
 
@@ -21,10 +21,10 @@ export default interface GroupeRegle {
   access_level: string;
 }
 
-/** Represents the initializer for the table public.groupe_regle */
-export interface GroupeRegleInitializer {
+/** Represents the initializer for the table public.group_routing_rule */
+export interface GroupRoutingRuleInitializer {
   /** Default value: gen_random_uuid() */
-  id?: GroupeRegleId;
+  id?: GroupRoutingRuleId;
 
   groupe_instructeurs: GroupeInstructeursId;
 
@@ -41,9 +41,9 @@ export interface GroupeRegleInitializer {
   access_level?: string;
 }
 
-/** Represents the mutator for the table public.groupe_regle */
-export interface GroupeRegleMutator {
-  id?: GroupeRegleId;
+/** Represents the mutator for the table public.group_routing_rule */
+export interface GroupRoutingRuleMutator {
+  id?: GroupRoutingRuleId;
 
   groupe_instructeurs?: GroupeInstructeursId;
 

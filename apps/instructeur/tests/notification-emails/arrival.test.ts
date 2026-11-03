@@ -67,7 +67,7 @@ test("Department routing and admin delete/reinsert saves do not notify unchanged
 test("a manual inclusion queues arrivals without any novelty event", async () => {
   const { dossier, member } = await setupArrival();
   await changeAssignments(db, (routingTrx) =>
-    routingTrx("groupe_dossier_override").insert({
+    routingTrx("dossier_group_override").insert({
       dossier: dossier.id,
       groupe_instructeurs: member.groupeId,
       mode: "include",

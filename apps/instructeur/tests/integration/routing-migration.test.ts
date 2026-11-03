@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { expect, test } from "vitest";
-import { up } from "../../../../libs/database/migrations/20261027120000_flexible-groupe-assignment.ts";
+import { up } from "../../../../libs/database/migrations/20261027120000_flexible-group-assignment.ts";
 import { createGroupeInstructeurs } from "../factories/index.ts";
 import { makeAdminKnex, makeKnex } from "../setup/db.ts";
 
@@ -51,7 +51,7 @@ test("upgrade preserves department assignments, exceptional edges and follows wi
       before,
     );
     expect(await db("edge_personne_follows_dossier")).toHaveLength(1);
-    expect(await db("groupe_dossier_override")).toMatchObject([
+    expect(await db("dossier_group_override")).toMatchObject([
       { dossier: dossier.id, groupe_instructeurs: manual.id, mode: "include" },
     ]);
     expect(await db("email_notification_outbox")).toHaveLength(0);
