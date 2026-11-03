@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { connect, initialize } from "./connection.mjs";
 import { importSamples } from "./run.mjs";
+import { projectForSample } from "./fixtures.mjs";
+import { getReviewer } from "./routing.mjs";
 import { speciesWorkbook, uploadSpeciesFiles } from "./species.mjs";
 import { dbRowToEspeceProtegee } from "../../../libs/common/src/especes/classification.ts";
 import { referentielRowsToBundle } from "../../../libs/common/src/referentielTypeImpactMethodeMoyenDePoursuite.ts";
@@ -8,13 +10,10 @@ import { importDescriptionMenacesEspecesFromOdsArrayBuffer } from "../../../libs
 import { fromFileToDatabaseImpactEspeceRow } from "../../../libs/server/src/database/impact_espece/rows.ts";
 const c = await connect(process.env);
 try {
-  await c.query("BEGIN");
+  await c.begin();
   await initialize(c);
-  const reviewer = (
-    await c.query(
-      "SELECT email FROM auth_user WHERE active AND pitchou_can_instruct(id) AND EXISTS (SELECT 1 FROM user_groupe WHERE user_id=auth_user.id) ORDER BY id LIMIT 1",
-    )
-  ).rows[0];
+  if (!process.argv[2]) throw new Error("Pass the local reviewer's email as the first argument");
+  const reviewer = await getReviewer(c, process.argv[2]);
   const sourceId = String(Date.now()),
     key = `onagre-national:demandes:${sourceId}`;
   const species = (
@@ -61,7 +60,8 @@ try {
     },
     issues: [],
   };
-  const run = async (s = sample) => (await importSamples(c, [s], reviewer.email))[0];
+  const run = async (s = sample) =>
+    (await importSamples(c, [projectForSample(s)], reviewer.email))[0];
   const initial = await run();
   const replay = await run();
   assert(replay.outcomes.every((row) => row.status === "unchanged"));
@@ -152,6 +152,6 @@ try {
     "Passed species checks: stable IDs and workbook bytes, native spreadsheet roundtrip, update without duplicates, immutable file versions, rejection of removed/unowned/edited impacts and replaced attachment, reference checks, local storage guard. All database writes rolled back; no storage writes.",
   );
 } finally {
-  await c.query("ROLLBACK");
+  await c.finish(false);
   await c.end();
 }

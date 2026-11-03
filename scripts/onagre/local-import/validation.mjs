@@ -65,6 +65,7 @@ export function validateSample(sample) {
     sample.formatVersion !== 1 ||
     identity?.sourceInstance !== "onagre-national" ||
     identity.sourceTable !== "demandes" ||
+    typeof identity.sourceId !== "string" ||
     !/^\d+$/u.test(identity.sourceId) ||
     identity.key !== `onagre-national:demandes:${identity.sourceId}`
   )

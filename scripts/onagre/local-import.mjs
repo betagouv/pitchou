@@ -13,7 +13,7 @@ if (
   files.some((file) => file.startsWith("--"))
 ) {
   console.error(
-    "Usage: node --env-file=.env scripts/onagre/local-import.mjs [--apply] reviewer@email dossier.json ...",
+    "Usage: node --env-file=.env --import tsx scripts/onagre/local-import.mjs [--apply] reviewer@email projet.json ...",
   );
   process.exit(1);
 }
@@ -25,13 +25,13 @@ const samples = await Promise.all(
 const client = await connect(process.env);
 let committed = false;
 try {
-  await client.query("BEGIN");
+  await client.begin();
   await initialize(client);
   const generatedFiles = [];
   const dossiers = await importSamples(client, samples, reviewerEmail, { files: generatedFiles });
   // Immutable, content-addressed file identities make a failed DB commit safe to retry.
   if (apply) await uploadSpeciesFiles(generatedFiles, process.env);
-  await client.query(apply ? "COMMIT" : "ROLLBACK");
+  await client.finish(apply);
   committed = apply;
   const report = { applied: apply, checkedAt: new Date().toISOString(), dossiers };
   if (process.env.ONAGRE_LOCAL_REPORT)
@@ -42,21 +42,25 @@ try {
     JSON.stringify(
       {
         applied: apply,
-        dossiers: dossiers.map(({ sourceKey, dossierId, outcomes, retainedRemovedRecords }) => ({
-          sourceKey,
-          dossierId,
-          created: outcomes.filter((o) => o.status === "created").length,
-          updated: outcomes.filter((o) => o.status === "updated").length,
-          preservedLocalEdits: outcomes.flatMap((o) => o.preserved),
-          retainedRemovedRecords,
-        })),
+        dossiers: dossiers.map(
+          ({ sourceKey, dossierId, projectId, projectKey, outcomes, retainedRemovedRecords }) => ({
+            sourceKey,
+            dossierId,
+            projectKey,
+            projectId,
+            created: outcomes.filter((o) => o.status === "created").length,
+            updated: outcomes.filter((o) => o.status === "updated").length,
+            preservedLocalEdits: outcomes.flatMap((o) => o.preserved),
+            retainedRemovedRecords,
+          }),
+        ),
       },
       null,
       2,
     ),
   );
 } catch (error) {
-  if (!committed) await client.query("ROLLBACK");
+  if (!committed) await client.finish(false);
   console.error(
     committed
       ? "Import committed, but writing the local report failed. Re-running is safe; the database identity records are authoritative."

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Onagre project preparation v2",
+  "type": "object",
+  "required": ["formatVersion", "identity", "proposal", "demandes"],
+  "properties": {
+    "formatVersion": { "const": 2 },
+    "identity": {
+      "type": "object",
+      "required": ["sourceInstance", "sourceTable", "sourceId", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceInstance": { "const": "onagre-national" },
+        "sourceTable": { "const": "projet" },
+        "sourceId": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+        "key": { "type": "string", "pattern": "^onagre-national:projet:[1-9][0-9]*$" }
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": { "name": { "type": "string", "pattern": "\\S" } }
+    },
+    "decisions": { "type": "array", "items": { "type": "object" } },
+    "omittedDemandes": { "type": "array", "items": { "type": "object" } },
+    "demandes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["formatVersion", "identity", "label", "proposal"],
+        "properties": {
+          "formatVersion": { "const": 1 },
+          "label": { "type": "string", "pattern": "\\S", "maxLength": 200 },
+          "identity": {
+            "type": "object",
+            "required": ["sourceInstance", "sourceTable", "sourceId", "projetId", "key"],
+            "properties": {
+              "sourceInstance": { "const": "onagre-national" },
+              "sourceTable": { "const": "demandes" },
+              "sourceId": { "type": "string", "pattern": "^[0-9]+$" },
+              "projetId": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+              "key": { "type": "string", "pattern": "^onagre-national:demandes:[0-9]+$" }
+            }
+          },
+          "proposal": {
+            "type": "object",
+            "required": ["dossier", "records"],
+            "properties": {
+              "dossier": {
+                "type": "object",
+                "required": ["source", "depot_date"],
+                "not": { "required": ["name"] },
+                "properties": { "source": { "const": "onagre" }, "depot_date": { "type": "null" } }
+              },
+              "records": { "type": "array", "items": { "type": "object" } },
+              "speciesImpacts": { "type": "array", "items": { "type": "object" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}

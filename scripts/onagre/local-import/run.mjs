@@ -2,18 +2,62 @@ import { validateSample } from "./validation.mjs";
 import { writeRecord } from "./writer.mjs";
 import { writePhase } from "./phase.mjs";
 import { prepareSpeciesFile, writeSpecies } from "./species.mjs";
-export async function importSamples(client, samples, reviewerEmail, options = {}) {
+import { validateProjects } from "./projects.mjs";
+import { writeProject, writeMembership } from "./grouping.mjs";
+import { getReviewer, grantLocalReview, finalizeRouting } from "./routing.mjs";
+import { lockDossierAccess } from "../../../libs/server/src/dossierRouting.ts";
+
+export async function importSamples(client, projects, reviewerEmail, options = {}) {
+  validateProjects(projects);
+  await lockDossierAccess(client.trx);
+  const reviewer = await getReviewer(client, reviewerEmail);
+  const report = [];
+  for (const project of projects) {
+    const group = await writeProject(client, project);
+    const demandes = await importDemandes(
+      client,
+      project.demandes,
+      reviewer,
+      options,
+      project.proposal.name,
+    );
+    for (let index = 0; index < demandes.length; index++) {
+      const demande = demandes[index];
+      const member = await writeMembership(
+        client,
+        project.demandes[index],
+        demande.dossierId,
+        group.targetId,
+      );
+      demande.outcomes.push(member);
+      demande.retainedRemovedRecords = demande.retainedRemovedRecords.filter(
+        (key) => key !== member.sourceKey,
+      );
+      demande.projectId = group.targetId;
+      demande.projectKey = project.identity.key;
+      demande.projectOutcome = group;
+      report.push(demande);
+    }
+  }
+  await finalizeRouting(
+    client,
+    report.map((item) => item.dossierId),
+    reviewer,
+  );
+  return report;
+}
+
+async function importDemandes(client, samples, reviewer, options, projectName) {
   const keys = new Set();
   for (const sample of samples) {
     validateSample(sample);
     if (keys.has(sample.identity.key)) throw new Error("Repeated dossier identity");
     keys.add(sample.identity.key);
   }
-  const { reviewer, groups } = await getReviewer(client, reviewerEmail);
   const report = [];
   for (const sample of samples) {
     const key = sample.identity.key;
-    const fields = await prepareDossier(client, sample);
+    const fields = await prepareDossier(client, sample, projectName);
     const speciesFile = await prepareSpeciesFile(client, sample);
     if (speciesFile) fields.especes_impactees = speciesFile.result.targetId;
     const dossier = await writeRecord(client, key, key, "dossier", fields, {});
@@ -44,18 +88,10 @@ export async function importSamples(client, samples, reviewerEmail, options = {}
       targets.set(record.sourceKey, result.targetId);
       outcomes.push(result);
     }
-    // Local review routing only. Never inferred as a production service correspondence.
-    await client.query(
-      "INSERT INTO edge_groupe_instructeurs__dossier (dossier,groupe_instructeurs) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-      [dossier.targetId, groups[0].id],
-    );
-    await client.query(
-      "INSERT INTO edge_personne_follows_dossier (dossier,personne) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-      [dossier.targetId, reviewer.id],
-    );
+    await grantLocalReview(client, key, Number(dossier.targetId), reviewer.id);
     const stale = (
       await client.query(
-        "SELECT source_key FROM onagre_local_import.identity WHERE dossier_key=$1",
+        "SELECT source_key FROM onagre_local_import.identity WHERE dossier_key=$1 AND table_name NOT IN ('dossier_user_access','dossier_demande')",
         [key],
       )
     ).rows
@@ -72,27 +108,9 @@ export async function importSamples(client, samples, reviewerEmail, options = {}
   return report;
 }
 
-async function getReviewer(client, reviewerEmail) {
-  const reviewer = (
-    await client.query(
-      "SELECT id FROM auth_user WHERE email=$1 AND active AND pitchou_can_instruct(id)",
-      [reviewerEmail],
-    )
-  ).rows[0];
-  if (!reviewer) throw new Error("Reviewer must be an existing active local instructeur");
-  const groups = (
-    await client.query(
-      "SELECT g.id FROM user_groupe m JOIN groupe_instructeurs g ON g.id=m.groupe_instructeurs WHERE m.user_id=$1 AND g.active ORDER BY g.id",
-      [reviewer.id],
-    )
-  ).rows;
-  if (groups.length === 0) throw new Error("Reviewer has no active local group");
-  return { reviewer, groups };
-}
-
-async function prepareDossier(client, sample) {
+async function prepareDossier(client, sample, projectName) {
   const key = sample.identity.key,
-    fields = { ...sample.proposal.dossier };
+    fields = { ...sample.proposal.dossier, name: projectName };
   if (fields.main_activite != null) {
     const activities = (
       await client.query(

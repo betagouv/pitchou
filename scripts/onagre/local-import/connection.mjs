@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
-const { Client, types } = createRequire(
-  new URL("../../../libs/server/package.json", import.meta.url),
-)("pg");
+const require = createRequire(new URL("../../../libs/server/package.json", import.meta.url));
+const { types } = require("pg");
+const knex = require("knex");
 // Keep SQL calendar dates independent of the machine's timezone.
 types.setTypeParser(1082, (value) => value);
 export function assertLocalTarget(env) {
@@ -22,28 +22,47 @@ export function assertLocalTarget(env) {
   return url.href;
 }
 export async function connect(env) {
-  const client = new Client({
-    connectionString: assertLocalTarget(env),
-    connectionTimeoutMillis: 5000,
+  const db = knex({
+    client: "pg",
+    connection: { connectionString: assertLocalTarget(env), connectionTimeoutMillis: 5000 },
+    pool: { min: 0, max: 1 },
   });
-  client.on("error", () => {});
-  await client.connect();
   const {
     rows: [identity],
-  } = await client.query("select current_database() as db, current_user as username");
+  } = await db.raw("select current_database() as db, current_user as username");
   if (identity.db !== "especes_pro_3731" || identity.username !== "dev") {
-    await client.end();
+    await db.destroy();
     throw new Error("Unexpected database identity.");
   }
-  return client;
+  let trx;
+  return {
+    get trx() {
+      if (!trx || trx.isCompleted()) throw new Error("An active import transaction is required");
+      return trx;
+    },
+    async begin() {
+      if (trx && !trx.isCompleted()) throw new Error("Transaction already active");
+      trx = await db.transaction();
+    },
+    async query(sql, values) {
+      // Existing prepared SQL and application routing share the transaction's pinned pg connection.
+      const connection = await this.trx.client.acquireConnection();
+      return connection.query(sql, values);
+    },
+    async finish(apply) {
+      if (trx && !trx.isCompleted()) await (apply ? trx.commit() : trx.rollback());
+    },
+    async end() {
+      await this.finish(false);
+      await db.destroy();
+    },
+  };
 }
 export async function initialize(client) {
   await client.query("SET LOCAL statement_timeout = '20s'");
   await client.query("SET LOCAL lock_timeout = '3s'");
   await client.query("SET LOCAL timezone = 'UTC'");
-  await client.query(
-    "SELECT set_config('pitchou.environment', 'development', true), set_config('pitchou.notification_baseline', 'true', true)",
-  );
+  await client.query("SELECT set_config('pitchou.environment', 'development', true)");
   await client.query("SELECT pg_advisory_xact_lock(2105102026)");
   await client.query("SELECT pg_advisory_xact_lock(27102026)");
   await client.query("CREATE SCHEMA IF NOT EXISTS onagre_local_import");

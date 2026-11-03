@@ -1,15 +1,14 @@
 import assert from "node:assert/strict";
 import { connect, initialize } from "./connection.mjs";
 import { importSamples } from "./run.mjs";
+import { projectForSample } from "./fixtures.mjs";
+import { getReviewer } from "./routing.mjs";
 const client = await connect(process.env);
 try {
-  await client.query("BEGIN");
+  await client.begin();
   await initialize(client);
-  const reviewer = (
-    await client.query(
-      "SELECT email FROM auth_user WHERE active AND pitchou_can_instruct(id) AND EXISTS (SELECT 1 FROM user_groupe WHERE user_id=auth_user.id) ORDER BY id LIMIT 1",
-    )
-  ).rows[0];
+  if (!process.argv[2]) throw new Error("Pass the local reviewer's email as the first argument");
+  const reviewer = await getReviewer(client, process.argv[2]);
   assert(reviewer);
   const sourceId = String(Date.now()),
     key = `onagre-national:demandes:${sourceId}`;
@@ -54,9 +53,10 @@ try {
     },
     issues: [],
   };
-  const run = async (value = sample) => (await importSamples(client, [value], reviewer.email))[0];
+  const run = async (value = sample) =>
+    (await importSamples(client, [projectForSample(value)], reviewer.email))[0];
   const first = await run();
-  assert.equal(first.outcomes.filter((o) => o.status === "created").length, 5);
+  assert.equal(first.outcomes.filter((o) => o.status === "created").length, 6);
   const location = (
     await client.query("SELECT communes, departments FROM dossier WHERE id=$1", [first.dossierId])
   ).rows[0];
@@ -157,6 +157,6 @@ try {
     "Passed PostgreSQL checks: stable dossier and child IDs, replay, field and phase updates, local edits, parent/child conflicts, transaction rollback, retained removals, unowned rows, duplicate refusal. All test data rolled back.",
   );
 } finally {
-  await client.query("ROLLBACK");
+  await client.finish(false);
   await client.end();
 }
