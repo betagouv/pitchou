@@ -1,4 +1,27 @@
 import { validateSample } from "./validation.mjs";
+import { departementName } from "../../../libs/common/src/departements.ts";
+
+export function prepareDemandeLabel(demande) {
+  const fields = demande.proposal.dossier;
+  const code = fields.onagre_demande_identifier?.trim();
+  if (!code) throw new Error("Missing Onagre reference; review the demande label before grouping");
+  const departments = [...new Set(fields.departments ?? [])];
+  const communes = [...new Set((fields.communes ?? []).map(({ name }) => name))];
+  const departmentLocation = departments
+    .map((department) => `${departementName(department)} (${department})`)
+    .join(", ");
+  const location =
+    communes.length > 0
+      ? communes.join(", ") + (departments.length > 0 ? ` (${departments.join(", ")})` : "")
+      : departmentLocation;
+  const label = location ? `${code} — ${location}` : code;
+  // Large geographical perimeters should not overflow the existing label field.
+  if (label.length <= 200) return label;
+  const compact = departmentLocation ? `${code} — ${departmentLocation}` : code;
+  if (compact.length > 200)
+    throw new Error("Onagre label is too long; review its location summary");
+  return compact;
+}
 
 export function validateProjects(projects) {
   const projectKeys = new Set(),
@@ -76,7 +99,7 @@ export function groupPreparedDemandes(samples) {
       });
     const project = projects.get(id);
     if (project.proposal.name !== source.nomprojet) throw new Error("Conflicting project names");
-    demande.label = demande.proposal.dossier.name;
+    demande.label = prepareDemandeLabel(demande);
     delete demande.proposal.dossier.name;
     demande.decisions = [
       ...(demande.decisions ?? []),
@@ -85,7 +108,7 @@ export function groupPreparedDemandes(samples) {
         status: "owner-approved",
         value: demande.label,
         reason:
-          "Keep the reviewed numbered demande title in the selector; display the shared project name above it.",
+          "Use the original Onagre code followed by the prepared project location; keep the shared project title separate.",
       },
     ];
     project.demandes.push(demande);
