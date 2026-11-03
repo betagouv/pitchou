@@ -20,8 +20,8 @@ export function dossierAccessSql(dossier: string, user: string) {
     JOIN user_groupe m ON m.groupe_instructeurs = e.groupe_instructeurs
     JOIN groupe_instructeurs g ON g.id = m.groupe_instructeurs AND g.active
     WHERE e.dossier = ${dossier} AND m.user_id = ${user}
-    UNION ALL SELECT a.access_level FROM dossier_user_access a
-      WHERE a.dossier = ${dossier} AND a.user_id = ${user}
+    UNION ALL SELECT routing_direct_grant.access_level FROM dossier_user_access routing_direct_grant
+      WHERE routing_direct_grant.dossier = ${dossier} AND routing_direct_grant.user_id = ${user}
   ) SELECT CASE WHEN NOT ${permissionSql(user, "dossier:read")}
       OR NOT EXISTS (SELECT 1 FROM dossier existing WHERE existing.id = ${dossier}) THEN NULL
     WHEN EXISTS (SELECT 1 FROM grants WHERE access_level = 'instruct')

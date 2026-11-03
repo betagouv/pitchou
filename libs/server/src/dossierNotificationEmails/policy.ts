@@ -18,7 +18,7 @@ const internalActions = [
   "avis_supprime",
   "decision_importee",
   "decision_modifiee",
-  "decision_supprime",
+  "decision_supprimee",
   "prescription_ajoutee",
   "prescription_modifiee",
   "prescription_supprimee",
