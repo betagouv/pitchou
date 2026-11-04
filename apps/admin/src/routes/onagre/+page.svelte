@@ -10,6 +10,7 @@
   import ActivityWorkspace from "./ActivityWorkspace.svelte";
   import ServiceWorkspace from "./ServiceWorkspace.svelte";
   import SharedRules from "./SharedRules.svelte";
+  import QuestionsWorkspace from "./QuestionsWorkspace.svelte";
   import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -19,6 +20,7 @@
     "services",
     "activites",
     "regles",
+    "questions",
     "dossiers",
     "dump",
     "historique",
@@ -30,6 +32,7 @@
     "Services et groupes",
     "Objets et activités",
     "Règles communes",
+    "Questions à l’équipe",
     "Demandes Onagre",
     "Explorer le dump",
     "Historique",
@@ -104,6 +107,8 @@
     {/if}
   {:else if tab === "regles"}
     <SharedRules rules={data.sharedRules} {writable} />
+  {:else if tab === "questions"}
+    <QuestionsWorkspace questions={data.questions} {writable} />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}

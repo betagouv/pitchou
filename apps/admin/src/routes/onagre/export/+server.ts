@@ -12,6 +12,8 @@ export const GET: RequestHandler = async () => {
     serviceMappings,
     serviceRevisions,
     groupCatalog,
+    questions,
+    questionRevisions,
   ] = await Promise.all([
     db("onagre_mapping").select("*"),
     db("onagre_mapping_revision").select("*"),
@@ -28,6 +30,8 @@ export const GET: RequestHandler = async () => {
     db("onagre_service_mapping").select("*"),
     db("onagre_service_mapping_revision").select("*"),
     db("onagre_group_catalog").select("*"),
+    db("onagre_question").select("*"),
+    db("onagre_question_revision").select("*"),
   ]);
   return new Response(
     JSON.stringify(
@@ -43,6 +47,8 @@ export const GET: RequestHandler = async () => {
         serviceMappings,
         serviceRevisions,
         groupCatalog,
+        questions,
+        questionRevisions,
       },
       null,
       2,

@@ -10,6 +10,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import { getImportAvailability } from "@pitchou/server/onagre/import.ts";
 import { listImportJobs } from "@pitchou/server/onagre/import/jobs.ts";
+import { loadQuestions, parseQuestion, saveQuestion } from "@pitchou/server/onagre/questions.ts";
 import {
   loadServiceMappings,
   parseServiceDecision,
@@ -39,6 +40,7 @@ export const load: PageServerLoad = async ({ url }) => {
   ]);
   return {
     ...workspace,
+    questions: url.searchParams.get("tab") === "questions" ? await loadQuestions(db) : [],
     activityWorkspace: ["activites", "correspondances"].includes(url.searchParams.get("tab") ?? "")
       ? await loadActivityWorkspace(db, workspace.mappings)
       : null,
@@ -60,6 +62,17 @@ const failure = (cause: unknown) => {
   });
 };
 export const actions: Actions = {
+  saveQuestion: async ({ request, locals }) => {
+    try {
+      const input = parseQuestion(await request.formData());
+      await withAdminWriteAccess(locals, "admin:onagre:manage", (trx, actor) =>
+        saveQuestion(trx, actor.id, input),
+      );
+      return { message: "Question enregistrée." };
+    } catch (cause) {
+      return failure(cause);
+    }
+  },
   saveService: async ({ request, locals }) => {
     try {
       const decision = parseServiceDecision(await request.formData());
