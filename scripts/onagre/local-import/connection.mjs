@@ -56,7 +56,12 @@ export async function connectDatabase(connection, expected) {
       return connection.query(sql, values);
     },
     async finish(apply) {
-      if (trx && !trx.isCompleted()) await (apply ? trx.commit() : trx.rollback());
+      if (!trx) return;
+      const current = trx;
+      trx = undefined;
+      if (!current.isCompleted()) await (apply ? current.commit() : current.rollback());
+      // Knex reports COMMIT errors through executionPromise, not commit()'s query promise.
+      await current.executionPromise;
     },
     async end() {
       await this.finish(false);
