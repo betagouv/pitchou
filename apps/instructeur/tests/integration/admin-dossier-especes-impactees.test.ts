@@ -41,9 +41,11 @@ test("the fichier especes impactees can be replaced and removed from a native do
     size: "6",
   });
 
-  expect(await db("file").where({ id: first.id }).first()).toBeUndefined();
+  expect(await db("demande_revision_file").where({ fichier: first.id })).not.toHaveLength(0);
+  expect(await db("file").where({ id: first.id }).first()).toBeDefined();
   expect(await deleteEspecesImpacteesFromAdmin(id, db)).toBe(true);
-  expect(await db("file").where({ id: second.id }).first()).toBeUndefined();
+  expect(await db("demande_revision_file").where({ fichier: second.id })).not.toHaveLength(0);
+  expect(await db("file").where({ id: second.id }).first()).toBeDefined();
   expect(await db("dossier").select("especes_impactees").where({ id }).first()).toMatchObject({
     especes_impactees: null,
   });

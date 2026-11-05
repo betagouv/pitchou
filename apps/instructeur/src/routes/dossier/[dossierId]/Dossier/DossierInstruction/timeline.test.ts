@@ -1,6 +1,23 @@
 import { describe, expect, test } from "vitest";
 import { timelineSteps } from "./timeline.ts";
 
+test("an undated current phase displays no invented transition date", () => {
+  const steps = timelineSteps(
+    [
+      { phase: "Instruction", timestamp: "2020-01-01" },
+      { phase: "Contrôle", timestamp: null, recorded_at: "2026-11-04" },
+    ],
+    null,
+    null,
+    "onagre",
+  );
+  expect(steps.find((step) => step.label === "Contrôle")).toMatchObject({
+    state: "current",
+    detail: ["Date inconnue"],
+  });
+  expect(JSON.stringify(steps)).not.toContain("04/11/2026");
+});
+
 const DEPOT = new Date("2025-09-01");
 
 describe("timelineSteps", () => {

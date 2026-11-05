@@ -57,6 +57,8 @@ export function formatLocalisation({
 
 /** What the searches match a porteur de projet on: its name, and its SIRET for an entreprise. */
 export function porteurDeProjetSearchTerms(porteur: DossierSummary["porteur_de_projet"]): string[] {
+  if (porteur?.type === "organisation")
+    return [porteur.name, porteur.siren].filter(Boolean) as string[];
   if (porteur?.type === "personne_morale")
     return [porteur.legal_name, porteur.siret].filter(Boolean) as string[];
   if (porteur?.type === "personne_physique")

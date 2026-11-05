@@ -3,17 +3,8 @@
   import shareForwardIcon from "@gouvfr/dsfr/dist/icons/system/share-forward-fill.svg?no-inline";
   import AssignDossierFollowersModal from "./AssignDossierFollowersModal.svelte";
   import EditNextDueDateModal from "#lib/components/EditNextDueDateModal.svelte";
-  import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 
-  type Props = {
-    dossierId: Dossier["id"];
-    dossierName: Dossier["name"];
-    showDeadline?: boolean;
-    outlined?: boolean;
-    onEditDueDate?: () => void;
-    /** Context-specific entries appended after the shared ones. */
-    extraItems?: { label: string; icon?: string; onClick: () => void }[];
-  };
+  import type { ActionsMenuProps } from "./props.ts";
 
   let {
     dossierId,
@@ -21,8 +12,9 @@
     showDeadline = true,
     outlined = false,
     onEditDueDate,
+    onAssignmentSaved,
     extraItems = [],
-  }: Props = $props();
+  }: ActionsMenuProps = $props();
 
   const menuId = $derived(`dossier-actions-menu-${dossierId}`);
   let menuOpen = $state(false);
@@ -159,7 +151,12 @@
 </div>
 
 {#if activeModal === "assignment"}
-  <AssignDossierFollowersModal {dossierId} {dossierName} onClose={closeModal} />
+  <AssignDossierFollowersModal
+    {dossierId}
+    {dossierName}
+    onClose={closeModal}
+    onSaved={onAssignmentSaved}
+  />
 {/if}
 
 {#if showDeadline && activeModal === "dueDate"}

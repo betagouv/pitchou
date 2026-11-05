@@ -9,12 +9,18 @@ import {
 } from "@pitchou/server/session.ts";
 
 import { requireEnv } from "./env.ts";
+import type { BridgeTransaction } from "./loginBridge/config.ts";
 
 const TX_COOKIE = "pitchou_admin_oauth_tx";
 // Time allowed to complete the login round-trip (redirect to ProConnect and back).
 const TX_MAX_AGE = 10 * 60;
 
-export type OAuthTransaction = { state: string; nonce: string; redirectTo: string };
+export type OAuthTransaction = {
+  state: string;
+  nonce: string;
+  redirectTo: string;
+  bridge?: BridgeTransaction;
+};
 
 // --- Session cookie (opaque token; the session itself lives in the shared DB) ---
 
@@ -65,7 +71,12 @@ export async function readTransaction(cookies: Cookies): Promise<OAuthTransactio
   if (!token) return null;
   try {
     const { payload } = await jwtVerify<JWTPayload & OAuthTransaction>(token, handshakeSecret());
-    return { state: payload.state, nonce: payload.nonce, redirectTo: payload.redirectTo };
+    return {
+      state: payload.state,
+      nonce: payload.nonce,
+      redirectTo: payload.redirectTo,
+      ...(payload.bridge ? { bridge: payload.bridge } : {}),
+    };
   } catch {
     return null;
   }

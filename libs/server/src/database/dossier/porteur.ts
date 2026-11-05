@@ -3,6 +3,7 @@ import type {
   PorteurDeProjet,
   PorteurDeProjetPersonneMorale,
   PorteurDeProjetPersonnePhysique,
+  PorteurDeProjetOrganisation,
 } from "@pitchou/types/porteurDeProjet.ts";
 
 const personnePhysiqueColumns = [
@@ -30,14 +31,27 @@ const entrepriseColumns = [
   "department",
   "region",
 ] as const;
+const organisationColumns = [
+  "name",
+  "address",
+  "siren",
+  "verification_status",
+  "source",
+  "source_reference",
+  "verification_evidence",
+] as const;
 
 // Flat columns of the porteur, gathered back into one object by `withPorteurDeProjet`.
 export const porteurDeProjetColumns = [
   "porteur_de_projet.personne_physique as porteur_personne_physique",
   "porteur_de_projet.personne_morale as porteur_personne_morale",
+  "porteur_de_projet.organisation as porteur_organisation",
   ...personnePhysiqueColumns.map((column) => `porteur_pp.${column} as porteur_pp_${column}`),
   ...entrepriseColumns.map(
     (column) => `porteur_entreprise.${column} as porteur_entreprise_${column}`,
+  ),
+  ...organisationColumns.map(
+    (column) => `porteur_organisation.${column} as porteur_organisation_${column}`,
   ),
 ];
 
@@ -53,6 +67,11 @@ export function joinPorteurDeProjet<T extends Knex.QueryBuilder>(query: T): T {
       "entreprise as porteur_entreprise",
       "porteur_entreprise.siret",
       "porteur_de_projet.personne_morale",
+    )
+    .leftJoin(
+      "organisation as porteur_organisation",
+      "porteur_organisation.id",
+      "porteur_de_projet.organisation",
     );
   return query;
 }
@@ -74,14 +93,19 @@ export function withPorteurDeProjet<T extends object>(
   const row = dossier as Record<string, unknown>;
   const personnePhysique = takeColumns(row, "porteur_pp_", personnePhysiqueColumns);
   const entreprise = takeColumns(row, "porteur_entreprise_", entrepriseColumns);
+  const organisation = takeColumns(row, "porteur_organisation_", organisationColumns);
   const isPersonneMorale = row.porteur_personne_morale != null;
   const isPersonnePhysique = row.porteur_personne_physique != null;
+  const isOrganisation = row.porteur_organisation != null;
   delete row.porteur_personne_morale;
   delete row.porteur_personne_physique;
+  delete row.porteur_organisation;
   row.porteur_de_projet = isPersonneMorale
     ? ({ type: "personne_morale", ...entreprise } as PorteurDeProjetPersonneMorale)
     : isPersonnePhysique
       ? ({ type: "personne_physique", ...personnePhysique } as PorteurDeProjetPersonnePhysique)
-      : null;
+      : isOrganisation
+        ? ({ type: "organisation", ...organisation } as PorteurDeProjetOrganisation)
+        : null;
   return dossier as T & { porteur_de_projet: PorteurDeProjet | null };
 }

@@ -55,8 +55,8 @@ export type ActiviteReferentielLite = {
 export function activiteFilterEntries(
   dossiers: DossierSummary[],
   referentiel: ActiviteReferentielLite | null,
+  available: ActiviteOption[] = listAvailableActivites(dossiers),
 ): SelectEntry<string>[] {
-  const available = listAvailableActivites(dossiers);
   if (!referentiel) return available.map(({ code, label }) => ({ value: code, label }));
 
   const availableCodes = new Set<string>(available.map(({ code }) => code));

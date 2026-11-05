@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { expect, test, vi } from "vitest";
 
 const startScript = new URL("../../scripts/start.sh", import.meta.url);
-async function runStart(app: string, migrationStatus: number) {
+async function runStart(app: string, migrationStatus: number, staging = false) {
   const directory = await mkdtemp(join(tmpdir(), "pitchou-start-"));
   const log = join(directory, "calls");
   try {
@@ -20,6 +20,11 @@ async function runStart(app: string, migrationStatus: number) {
       { mode: 0o755 },
     );
     await writeFile(
+      join(directory, "aws"),
+      '#!/bin/sh\nprintf "unexpected storage deletion\\n" >> "$START_TEST_LOG"\nexit 99\n',
+      { mode: 0o755 },
+    );
+    await writeFile(
       join(directory, "node"),
       '#!/bin/sh\nprintf "node %s\\n" "$*" >> "$START_TEST_LOG"\n',
       { mode: 0o755 },
@@ -29,7 +34,9 @@ async function runStart(app: string, migrationStatus: number) {
         ...process.env,
         PATH: `${directory}:${process.env.PATH}`,
         PITCHOU_APP: app,
-        PUBLIC_PITCHOU_ENV: "",
+        PUBLIC_PITCHOU_ENV: staging ? "staging" : "",
+        STAGING_RESET_DATA: "false",
+        ONAGRE_DEPLOYMENT_ROLE: "",
         START_TEST_LOG: log,
       },
       encoding: "utf8",
@@ -40,7 +47,10 @@ async function runStart(app: string, migrationStatus: number) {
   }
 }
 test("never starts instructeur with a failed schema migration", async () => {
-  expect(await runStart("instructeur", 23)).toEqual({ status: 23, calls: "migrate\n" });
+  expect(await runStart("instructeur", 23)).toEqual({
+    status: 23,
+    calls: "migrate\n",
+  });
 });
 test("starts instructeur only after migrations succeed", async () => {
   expect(await runStart("instructeur", 0)).toEqual({
@@ -54,12 +64,20 @@ test("admin startup does not mutate the shared database", async () => {
     calls: "node apps/admin/build/index.js\n",
   });
 });
+test("staging restarts preserve imported dossiers and files", async () => {
+  expect(await runStart("instructeur", 0, true)).toEqual({
+    status: 0,
+    calls: "migrate\nnode apps/instructeur/build/index.js\n",
+  });
+});
 test("the duplicated admin scheduler never claims or sends notifications", async () => {
   vi.resetModules();
   vi.stubEnv("PITCHOU_APP", "admin");
   const dispatch = vi.fn();
   const close = vi.fn();
-  vi.doMock("@pitchou/server/database.ts", () => ({ closeDatabaseConnection: close }));
+  vi.doMock("@pitchou/server/database.ts", () => ({
+    closeDatabaseConnection: close,
+  }));
   vi.doMock("@pitchou/server/dossierNotificationEmails.ts", () => ({
     dispatchDossierNotificationEmails: dispatch,
   }));

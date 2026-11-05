@@ -77,9 +77,16 @@ export function especesSearchableText(
  * postal code), régions, décision numéros, porteur de projet, déposants and mandataires, the DS number, the
  * ONAGRE identifier, the instructeurs following the dossier and the impacted especes.
  */
-export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
+const baseTextByDossier = new WeakMap<DossierSummary, string>();
+
+/** Store summaries are frozen and replaced on edits, so their text can be reused. */
+export function baseSearchableText(dossier: DossierSummary): string {
+  const cached = baseTextByDossier.get(dossier);
+  if (cached !== undefined) return cached;
   const parts: (string | null | undefined)[] = [
     dossier.name,
+    dossier.projet?.name,
+    dossier.projet?.demandeLabel,
     dossier.latestCommentaire,
     dossier.main_activite,
     dossier.activite_label,
@@ -101,10 +108,17 @@ export function searchableText(dossier: DossierSummary, ctx: DossiersContext): s
   for (const decision of dossier.decisionsAdministratives ?? []) {
     parts.push(decision.number);
   }
-  parts.push(...instructeurEmailsForDossier(dossier.id, ctx.followRelations));
+  const text = normalize(parts.filter(Boolean).join(" "));
+  if (Object.isFrozen(dossier)) baseTextByDossier.set(dossier, text);
+  return text;
+}
 
+export function searchableText(dossier: DossierSummary, ctx: DossiersContext): string {
+  const instructeurs = normalize(
+    instructeurEmailsForDossier(dossier.id, ctx.followRelations).join(" "),
+  );
   const especes = especesSearchableText(dossier, ctx.especeByCD_REF);
-  return `${normalize(parts.filter(Boolean).join(" "))} ${especes}`;
+  return `${baseSearchableText(dossier)} ${instructeurs} ${especes}`;
 }
 
 /**
@@ -116,8 +130,31 @@ export function dossierMatchesSearch(
   dossier: DossierSummary,
   terms: string[],
   ctx: DossiersContext,
+  instructeursByDossier?: ReadonlyMap<DossierSummary["id"], string>,
 ): boolean {
   if (terms.length === 0) return true;
-  const haystack = searchableText(dossier, ctx);
-  return terms.every((term) => haystack.includes(term));
+  const base = baseSearchableText(dossier);
+  let related: string | undefined;
+  return terms.every((term) => {
+    if (base.includes(term)) return true;
+    const instructeurs = instructeursByDossier
+      ? (instructeursByDossier.get(dossier.id) ?? "")
+      : normalize(instructeurEmailsForDossier(dossier.id, ctx.followRelations).join(" "));
+    related ??= `${instructeurs} ${especesSearchableText(dossier, ctx.especeByCD_REF)}`;
+    return related.includes(term);
+  });
+}
+
+/** Invert the follow relation once per search instead of scanning every person per demande. */
+export function createSearchMatcher(terms: string[], ctx: DossiersContext) {
+  const instructeursByDossier = new Map<DossierSummary["id"], string>();
+  for (const [email, ids] of ctx.followRelations ?? []) {
+    const normalizedEmail = normalize(email);
+    for (const id of ids) {
+      const previous = instructeursByDossier.get(id);
+      instructeursByDossier.set(id, previous ? `${previous} ${normalizedEmail}` : normalizedEmail);
+    }
+  }
+  return (dossier: DossierSummary) =>
+    dossierMatchesSearch(dossier, terms, ctx, instructeursByDossier);
 }

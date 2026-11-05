@@ -1,0 +1,127 @@
+.import-workspace .onagre-field + .onagre-field {
+  margin-top: 0.75rem;
+}
+.import-experimental,
+.import-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--background-alt-grey);
+  color: var(--text-default-grey);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.import-experimental {
+  margin-left: 0.5rem;
+  background: var(--background-contrast-warning);
+  color: var(--text-default-warning);
+}
+.import-records {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.import-record {
+  padding: 1rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+}
+.import-record-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.import-record-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.import-status[data-status="ready"],
+.import-status[data-status="created"] {
+  background: var(--background-contrast-success);
+  color: var(--text-default-success);
+}
+.import-status[data-status="blocked"],
+.import-status[data-status="conflict"] {
+  background: var(--background-contrast-warning);
+  color: var(--text-default-warning);
+}
+.import-workspace .fr-checkbox-group {
+  margin-top: 0.75rem;
+}
+.import-details {
+  margin: 0.5rem 0;
+}
+.import-details > summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  color: var(--text-action-high-blue-france);
+}
+.import-workspace ul {
+  margin: 0.5rem 0;
+}
+.import-provenance {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+  gap: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+}
+.import-provenance dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.import-job-progress {
+  height: 0.5rem;
+  background: var(--border-default-grey);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.import-job-progress > div {
+  height: 100%;
+  background: var(--text-action-high-blue-france);
+  transition: width 0.3s;
+}
+.import-job-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.5rem;
+}
+.import-job-counts > div {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+}
+.import-job-counts strong {
+  font-size: 1.5rem;
+}
+.import-job-counts span {
+  font-size: 0.8rem;
+  color: var(--text-mention-grey);
+}
+.import-job-table {
+  overflow: auto;
+  max-height: 32rem;
+}
+.import-job-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.import-job-table th,
+.import-job-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default-grey);
+  vertical-align: top;
+}
+.import-job-table th {
+  position: sticky;
+  top: 0;
+  background: var(--background-default-grey);
+}

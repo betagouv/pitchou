@@ -2,6 +2,20 @@ import { expect, test } from "vitest";
 import { comparePhaseEventsNewestFirst } from "./phases.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
+test("undated phases use recording time for order and allow subsequent changes", () => {
+  const events = [
+    { phase: "Contrôle" as const, timestamp: null, recorded_at: "2026-11-04T10:00:00Z" },
+    { phase: "Instruction" as const, timestamp: "2020-01-01" },
+  ];
+  expect(events.toSorted(comparePhaseEventsNewestFirst)[0].phase).toBe("Contrôle");
+  expect(
+    [...events, { phase: "Instruction" as const, timestamp: "2026-11-05" }].sort(
+      comparePhaseEventsNewestFirst,
+    )[0].phase,
+  ).toBe("Instruction");
+  expect(events[0].timestamp).toBeNull();
+});
+
 test.each([
   ["2025-02-01T00:00:00.400Z", "Contrôle"],
   ["2025-02-01T00:00:00.600Z", "Instruction"],

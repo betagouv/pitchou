@@ -1,3 +1,4 @@
+import { organisationForm } from "../../organisation.ts";
 export type CreationCommune = {
   name: string;
   code?: string;
@@ -16,7 +17,7 @@ export type CreationProjectMap = {
   [key: string]: unknown;
 };
 
-export type DemandeurType = "" | "personne_physique" | "personne_morale";
+export type DemandeurType = "" | "personne_physique" | "personne_morale" | "organisation";
 export type DossierCreationModel = ReturnType<typeof createDossierCreationModel>;
 export type CompanyDetailsChoice = "" | "keep" | "reset";
 
@@ -97,6 +98,7 @@ export function createDossierCreationModel() {
 function createDemandeurFields() {
   return {
     demandeurType: "" as DemandeurType,
+    organisation: organisationForm(),
     physicalLastName: "",
     physicalFirstNames: "",
     physicalQualification: "",

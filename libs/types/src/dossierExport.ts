@@ -2,6 +2,7 @@ import type { DossierFull, DossierPhase } from "./API_Pitchou.ts";
 import type AvisExpert from "./database/public/AvisExpert.ts";
 import type DecisionAdministrative from "./database/public/DecisionAdministrative.ts";
 import type Controle from "./database/public/Controle.ts";
+import type { PorteurDeProjetOrganisation } from "./porteurDeProjet.ts";
 
 export type DossiersExportScope = "service" | "followed" | "france";
 export type DossiersExportFormat = "ods" | "csv";
@@ -37,6 +38,7 @@ export type ExportDossier = Pick<
   demandeur_personne_physique_first_names: string | null;
   demandeur_personne_morale_legal_name: string | null;
   demandeur_personne_morale_siret: string | null;
+  organisation?: PorteurDeProjetOrganisation | null;
   readOnly?: boolean;
   phase: DossierPhase;
   followers: string[];

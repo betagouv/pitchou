@@ -20,12 +20,17 @@ async function collectFileIds(dossierId: DossierId, trx: Knex.Transaction): Prom
     .select(["saisine_fichier", "avis_fichier"])
     .where({ dossier: dossierId });
   const attachments = await trx("other_attachment").select("fichier").where({ dossier: dossierId });
+  const historical = await trx("demande_revision_file as f")
+    .join("demande_revision as r", "r.id", "f.revision")
+    .where("r.dossier", dossierId)
+    .distinct("f.fichier");
   const ids = [
     dossier?.especes_impactees,
     ...pieces.map(({ fichier }) => fichier),
     ...decisions.map(({ fichier }) => fichier),
     ...avis.flatMap(({ saisine_fichier, avis_fichier }) => [saisine_fichier, avis_fichier]),
     ...attachments.map(({ fichier }) => fichier),
+    ...historical.map(({ fichier }) => fichier),
   ];
   return [...new Set(ids.filter((id): id is FileId => Boolean(id)))];
 }

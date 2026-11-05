@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
+  import { porteurDeProjetName, organisationStatusLabel } from "@pitchou/common/porteurDeProjet.ts";
   import type { AdminDossierSummary } from "#lib/actions/adminDossiers.ts";
   import ActiviteIcon from "#lib/components/ActiviteIcon.svelte";
   import PhaseProgress from "./PhaseProgress.svelte";
@@ -45,6 +45,8 @@
                 </span>
               {:else if dossier.source === "pitchou"}
                 <span class="fr-badge fr-badge--green-emeraude fr-badge--sm">Pitchou</span>
+              {:else if dossier.source === "onagre"}
+                <span class="fr-badge fr-badge--info fr-badge--sm fr-badge--no-icon">Onagre</span>
               {:else}
                 <span class="fr-badge fr-badge--grey fr-badge--sm">Source inconnue</span>
               {/if}
@@ -52,6 +54,11 @@
             <p class="fr-mb-0 mt-1 truncate text-sm text-[color:var(--text-default-grey)]">
               {formatPorteurDeProjet(dossier)}
             </p>
+            {#if dossier.porteur_de_projet?.type === "organisation"}
+              <p class="fr-text--xs fr-mb-0">
+                {organisationStatusLabel(dossier.porteur_de_projet)}
+              </p>
+            {/if}
             <p class="fr-mb-0 mt-1 text-sm text-[color:var(--text-mention-grey)]">
               {dossier.depot_date
                 ? `Créé le ${formatDate(dossier.depot_date)}`

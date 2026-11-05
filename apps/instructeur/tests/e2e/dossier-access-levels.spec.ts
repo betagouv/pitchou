@@ -1,3 +1,4 @@
+import { saveAccessForm } from "../helpers/saveAccess.ts";
 import { dossierAccessSql } from "@pitchou/server/dossierRouting/access.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { expect, test } from "../fixtures/playwright.ts";
@@ -56,8 +57,7 @@ test("an admin edits rule levels and grants a person access without group member
   const groupForm = groupRow.getByRole("form");
   await chooseInSelect(groupForm.getByRole("combobox"), "Inclure manuellement");
   await expect(groupForm.getByRole("radio", { name: /^Lecture complète/u })).toBeChecked();
-  await groupForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(groupForm).toHaveCount(0);
+  await saveAccessForm(page, groupForm, `/api/dossiers/${dossier.id}/affectations`);
   await expect(groupAccess).toHaveText("Lecture complète");
   const access = page.getByRole("region", { name: "Accès individuels au dossier" });
   await access.getByRole("button", { name: "Ajouter une personne", exact: true }).click();

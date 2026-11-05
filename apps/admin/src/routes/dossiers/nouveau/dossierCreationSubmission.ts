@@ -1,3 +1,4 @@
+import { organisationErrors } from "../organisation.ts";
 import {
   requiresEspecesPriseDetentionLimiteeType,
   requiresScientificDemandeType,
@@ -22,6 +23,14 @@ function focusSpeciesFileButton() {
 }
 
 export function validateDossierCreation(model: DossierCreationModel): string | null {
+  if (model.demandeurType === "organisation") {
+    const [error] = Object.values(organisationErrors(model.organisation));
+    if (error) return error;
+  }
+  return validateDossierContent(model);
+}
+
+function validateDossierContent(model: DossierCreationModel): string | null {
   const needsSpeciesFile = showsSpeciesSection(model);
   if (needsSpeciesFile && !model.speciesFile) {
     requestAnimationFrame(focusSpeciesFileButton);

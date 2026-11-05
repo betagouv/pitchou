@@ -46,6 +46,7 @@
           { value: "", label: "Toutes les sources" },
           { value: "pitchou", label: "Créé dans Pitchou" },
           { value: "dn", label: "Importé de Démarches Numériques" },
+          { value: "onagre", label: "Importé d’Onagre" },
           { value: "unknown", label: "Source inconnue" },
         ]}
         value={selectedSource}

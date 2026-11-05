@@ -1,0 +1,208 @@
+.onagre {
+  max-width: 1800px;
+  width: 100%;
+  margin: 0 auto;
+}
+.admin-ui #main:has(> .onagre) {
+  padding-top: 0.5rem;
+}
+.onagre.admin-stack,
+.onagre .admin-stack {
+  gap: 0.5rem;
+}
+:where(.onagre) .admin-panel:not(:where(.dump-data, .dump-sidebar)) {
+  padding: 1rem;
+}
+.onagre .admin-panel > h2 {
+  margin: -1rem -1rem 1rem;
+  padding: 0.75rem 1rem;
+}
+.onagre p {
+  margin: 0.5rem 0;
+}
+.onagre h3 {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+.onagre-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  padding: 0.25rem 0;
+}
+.onagre-tabs a {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background-image: none;
+}
+.onagre-tabs [aria-current] {
+  background: var(--background-action-low-blue-france);
+  color: var(--text-action-high-blue-france);
+  font-weight: 600;
+}
+.onagre-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.onagre-stats strong {
+  display: block;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.onagre-stats span,
+.onagre-context,
+.onagre-fingerprint {
+  font-size: 0.85rem;
+  color: var(--text-mention-grey);
+}
+.onagre-fingerprint {
+  overflow-wrap: anywhere;
+}
+.onagre-notice {
+  padding: 0.5rem;
+  background: var(--background-alt-grey);
+  border-radius: 0.5rem;
+}
+.onagre-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+}
+.onagre-controls > label,
+.onagre-controls > .onagre-field {
+  flex: 1;
+  min-width: 180px;
+}
+.onagre-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.onagre fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.onagre legend {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.onagre textarea {
+  min-height: 6rem;
+}
+.onagre-table-scroll {
+  overflow-x: auto;
+}
+.onagre table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.onagre th,
+.onagre td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-default-grey);
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 450px;
+}
+.onagre th {
+  background: var(--background-alt-grey);
+}
+.onagre-history {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-default-grey);
+  overflow-wrap: anywhere;
+}
+.onagre-disclosure {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+.onagre-disclosure:hover {
+  background: var(--background-alt-grey);
+}
+.onagre-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px dashed var(--border-default-grey);
+  border-radius: 0.5rem;
+  background: var(--background-alt-grey);
+  cursor: pointer;
+}
+.onagre-upload > span:nth-of-type(2) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.onagre-upload .onagre-context {
+  display: block;
+}
+.onagre-upload:focus-within {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: 2px;
+}
+.onagre-upload.disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.onagre-file-action {
+  padding: 0.5rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  background: var(--background-default-grey);
+}
+.onagre-target {
+  position: relative;
+}
+.onagre-suggestions {
+  position: absolute;
+  z-index: 30;
+  top: 4.5rem;
+  left: 0;
+  right: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+  background: var(--background-default-grey);
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px #0002;
+}
+.onagre-suggestions > button,
+.onagre-empty {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.5rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.onagre-suggestions > button:hover,
+.onagre-suggestions [aria-selected="true"] {
+  background: var(--background-action-low-blue-france);
+}
+@media (max-width: 1000px) {
+  .onagre-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .onagre-stats {
+    gap: 0.5rem;
+  }
+}

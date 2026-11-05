@@ -6,6 +6,7 @@ import {
 } from "../factories/index.ts";
 import { expect, test } from "../fixtures/playwright.ts";
 import { chooseInSelect } from "../helpers/select.ts";
+import { saveAccessForm } from "../helpers/saveAccess.ts";
 import { E2E_ADMIN_BASE_URL } from "../setup/e2e-global.ts";
 
 test("an admin previews a combined rule and manages persistent dossier exceptions", async ({
@@ -77,8 +78,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
     .click();
   const assignmentEditor = automatic.getByRole("form");
   await chooseInSelect(assignmentEditor.getByRole("combobox"), "Exclure durablement");
-  await assignmentEditor.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(assignmentEditor).toHaveCount(0);
+  await saveAccessForm(page, assignmentEditor, `/api/dossiers/${dossier.id}/affectations`);
   await expect(assignments).toContainText("Exclusion manuelle");
   await assignments.getByRole("button", { name: "Ajouter un groupe", exact: true }).click();
   await assignments.getByRole("combobox", { name: /^Groupe instructeur/u }).click();

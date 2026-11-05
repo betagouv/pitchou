@@ -14,15 +14,23 @@ export const phases: Set<DossierPhase> = new Set([
 export const phaseTieBreakOrder: readonly DossierPhase[] = [...phases];
 
 export function comparePhaseEventsNewestFirst(
-  a: { phase: DossierPhase; timestamp: Date | string },
-  b: { phase: DossierPhase; timestamp: Date | string },
+  a: { phase: DossierPhase; timestamp: Date | string | null; recorded_at?: Date | string },
+  b: { phase: DossierPhase; timestamp: Date | string | null; recorded_at?: Date | string },
 ): number {
   // Match PostgreSQL timestamp precision 0, including optimistic events not saved yet.
   return (
-    Math.round(new Date(b.timestamp).getTime() / 1000) -
-      Math.round(new Date(a.timestamp).getTime() / 1000) ||
+    phaseEventOrderTime(b) - phaseEventOrderTime(a) ||
     phaseTieBreakOrder.indexOf(b.phase) - phaseTieBreakOrder.indexOf(a.phase)
   );
+}
+
+/** Recording time orders undated events; it is never their historical transition date. */
+export function phaseEventOrderTime(event: {
+  timestamp: Date | string | null;
+  recorded_at?: Date | string;
+}): number {
+  const value = event.timestamp ?? event.recorded_at;
+  return value ? Math.round(new Date(value).getTime() / 1000) : 0;
 }
 
 /**

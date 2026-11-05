@@ -1,3 +1,4 @@
+import { organisationForm } from "../../organisation.ts";
 import { activiteCodeForLabel } from "@pitchou/common/activiteCodes.ts";
 import {
   restaurationDemandeOptions,
@@ -26,9 +27,10 @@ function hydrateDemandeur(model: DossierCreationModel, detail: AdminDossierDetai
   const demandeurIdentity = demandeurActeur(detail);
   const personneContact = acteurOf(detail, "personne_contact") ?? demandeurIdentity;
   const porteur = detail.porteur_de_projet;
-  if (porteur?.type === "personne_morale") {
-    model.demandeurType = "personne_morale";
-    model.legalSiret = porteur.siret;
+  if (porteur?.type === "organisation" || porteur?.type === "personne_morale") {
+    model.demandeurType = porteur.type;
+    if (porteur.type === "organisation") model.organisation = organisationForm(porteur);
+    else model.legalSiret = porteur.siret;
     model.personneContactLastName = personneContact?.last_name ?? "";
     model.personneContactFirstNames = personneContact?.first_names ?? "";
     model.personneContactRole = personneContact?.role ?? "";

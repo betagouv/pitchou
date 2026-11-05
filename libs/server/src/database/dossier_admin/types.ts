@@ -9,7 +9,7 @@ export type AdminDossierCreation = {
   relations: AdminDossierRelations;
   columns?: DossierMutator;
 };
-export type AdminPhaseEvent = { phase: DossierPhase; timestamp: Date };
+export type AdminPhaseEvent = { phase: DossierPhase; timestamp: Date | null };
 export type AdminDossierUpdate = {
   columns?: DossierMutator;
   evenementsPhase?: AdminPhaseEvent[];

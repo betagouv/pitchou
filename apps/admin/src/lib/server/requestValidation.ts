@@ -20,7 +20,7 @@ export function rejectUnknownProperties(
   allowedProperties: ReadonlySet<string>,
 ): void {
   const unknownProperty = Object.keys(value).find((property) => !allowedProperties.has(property));
-  if (unknownProperty) {
+  if (unknownProperty !== undefined) {
     error(400, `Unknown property '${unknownProperty}'.`);
   }
 }

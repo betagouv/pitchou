@@ -7,9 +7,11 @@ import { phases, prochaineActionAttenduePar } from "@pitchou/common/phases.ts";
 import type { DossierNextActionExpectedFrom, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
-import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 
-export type DossierUpdate = Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>;
+export type DossierUpdate = Partial<
+  Dossier & { evenementsPhase: EvenementPhaseDossierInitializer[] }
+>;
 
 const dossierUpdateProperties = new Set([
   "next_action_expected_from",
@@ -33,7 +35,7 @@ const phaseEventProperties = new Set([
   "demarche_numerique_motivation",
 ]);
 
-function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDossier {
+function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDossierInitializer {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     error(400, "Chaque évènement de phase doit être un objet.");
   }
@@ -46,7 +48,10 @@ function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDo
   if (typeof event.phase !== "string" || !phases.has(event.phase as DossierPhase)) {
     error(400, `La propriété 'phase' de l'évènement n'est pas valide.`);
   }
-  if (typeof event.timestamp !== "string" || Number.isNaN(Date.parse(event.timestamp))) {
+  if (
+    event.timestamp !== null &&
+    (typeof event.timestamp !== "string" || Number.isNaN(Date.parse(event.timestamp)))
+  ) {
     error(400, `La propriété 'timestamp' de l'évènement doit être une date valide.`);
   }
   for (const property of [
@@ -62,7 +67,7 @@ function parsePhaseEvent(value: unknown, dossierId: DossierId): EvenementPhaseDo
   return {
     dossier: dossierId,
     phase: event.phase as DossierPhase,
-    timestamp: new Date(event.timestamp),
+    timestamp: event.timestamp === null ? null : new Date(event.timestamp as string),
     caused_by_personne: null,
     demarche_numerique_agent_email: null,
     demarche_numerique_motivation: null,

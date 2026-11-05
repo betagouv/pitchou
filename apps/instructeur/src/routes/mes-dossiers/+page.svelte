@@ -1,51 +1,26 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { store } from "#lib/state/store.svelte.ts";
-  import MesDossiers from "./MesDossiers.svelte";
-  import { loadDossiers } from "#lib/dossier/dossier.ts";
-  import { sendEvenement } from "#lib/shared/aarri.ts";
-  import { loadNotificationByDossierForCurrentInstructeur } from "#lib/shared/main.ts";
-
-  onMount(async () => {
-    loadNotificationByDossierForCurrentInstructeur();
-    try {
-      await loadDossiers();
-      sendEvenement({ type: "afficherLesDossiersSuivis" });
-    } catch (error) {
-      console.error("Erreur lors du chargement de la page Mes dossiers :", error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes("403")) {
-        store.errors.add({
-          message: `Erreur de connexion - Votre lien de connexion n'est plus valide, vous pouvez en recevoir par email ci-dessous`,
-        });
-      } else {
-        store.errors.add({
-          message: `Erreur de chargement de la page - Il s'agit d'un problème technique. Vous pouvez en informer l'équipe Pitchou`,
-        });
-      }
-    }
-  });
-
-  const email = $derived(store.identité?.email);
-  const followRelations = $derived(store.followRelations);
-  const services = $derived(store.identité?.groupesInstructeurs ?? []);
-  const recentSearches = $derived(store.recentSearches ?? []);
-  const notificationByDossier = $derived(store.notificationByDossier);
-
-  const dossiers = $derived.by(() => {
-    const allDossiers = [...store.dossierSummaries.values()];
-    if (!email || !followRelations) return [];
-    const followedDossiers = followRelations.get(email);
-    if (!followedDossiers) return [];
-    return allDossiers.filter((dossier) => followedDossiers.has(dossier.id));
-  });
+  import ServerDossiersList from "#lib/components/ListDossiers/ServerDossiersList.svelte";
 </script>
 
-<MesDossiers
-  {email}
-  {dossiers}
-  {followRelations}
-  {services}
-  {recentSearches}
-  {notificationByDossier}
+<svelte:head><title>Mes dossiers — Pitchou</title></svelte:head>
+
+{#snippet emptyListMessage({ wholeListEmpty }: { wholeListEmpty: boolean })}
+  {#if wholeListEmpty}
+    <p>
+      Vous ne suivez aucun dossier pour le moment. Vous pouvez consulter
+      <a class="fr-link" href="/tous-les-dossiers">tous les dossiers</a> pour commencer à en suivre.
+    </p>
+  {:else}
+    <p>Aucun dossier n'a été trouvé.</p>
+  {/if}
+{/snippet}
+
+<ServerDossiersList
+  scope="followed"
+  title="Mes dossiers"
+  followedOnly
+  showFilterEnjeu={false}
+  showFilterActionInstructeur
+  showFilterUnread
+  {emptyListMessage}
 />

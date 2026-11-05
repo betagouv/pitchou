@@ -4,6 +4,7 @@ import type { DossierDemarcheNumerique88444 } from "../demarche-numerique/Demarc
 import type { DossierAccess, FrontEndDecisionAdministrative } from "./dossierDetails.ts";
 import type { PorteurDeProjet } from "../porteurDeProjet.ts";
 import type { DossierActeur } from "../dossierActeur.ts";
+import type { ProjetMembership } from "../dossierDemandes.ts";
 
 export type DossierPersonnesImpliquees = {
   porteur_de_projet: PorteurDeProjet | null;
@@ -36,6 +37,7 @@ type DossierLocalisation = {
 };
 
 export type DossierCommonData = DossierLocalisation & { source: DossierSource } & {
+  projet?: (ProjetMembership & { count: number; matchingCount?: number }) | null;
   main_activite: DossierDemarcheNumerique88444["Activité principale"] | null;
   /** Code of the Pitchou activity the raw label resolves to (« autre » when unmapped). */
   activite_code: string | null;

@@ -1,4 +1,5 @@
 import type { Knex } from "knex";
+import { randomUUID } from "node:crypto";
 
 import { directDatabaseConnection } from "../database.ts";
 import { addFile } from "./file.ts";
@@ -74,10 +75,12 @@ export async function registerUploadedFichier(
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
   options: { mediaType?: string } = {},
 ): Promise<Partial<File>> {
-  const { id, name } = upload;
+  const { id: uploadId, name } = upload;
   const pending = await headPendingUpload(upload);
+  // Never let a client-selected upload ID overwrite bytes retained by a historical state.
+  const id = randomUUID() as File["id"];
   const key = fileKey(id);
-  await copyObject(pendingKey(id), key);
+  await copyObject(pendingKey(uploadId), key);
 
   let file: Partial<File>;
   try {
@@ -95,8 +98,8 @@ export async function registerUploadedFichier(
     throw err;
   }
 
-  await deleteObject(pendingKey(id)).catch((err) => {
-    console.error(`Échec suppression objet S3 en attente ${pendingKey(id)}`, err);
+  await deleteObject(pendingKey(uploadId)).catch((err) => {
+    console.error(`Échec suppression objet S3 en attente ${pendingKey(uploadId)}`, err);
   });
   return file;
 }

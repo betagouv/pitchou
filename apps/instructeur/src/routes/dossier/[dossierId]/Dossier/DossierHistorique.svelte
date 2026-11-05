@@ -4,6 +4,7 @@
   import { historiqueEntries, type HistoriqueEntry } from "./DossierHistorique/display.ts";
   import type { DossierAction } from "@pitchou/types/capabilities.ts";
   import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+  import DossierVersions from "./DossierVersions.svelte";
 
   type Props = {
     dossier: DossierFull;
@@ -29,8 +30,9 @@
   };
 </script>
 
-<section class="fr-mb-4w max-w-[56rem]">
+<section class="fr-mb-4w">
   <h2 class="fr-h4 fr-mb-3w">Historique</h2>
+  <DossierVersions dossierId={dossier.id} />
 
   {#if errorMessage}
     <div class="fr-alert fr-alert--error fr-alert--sm fr-mb-2w"><p>{errorMessage}</p></div>
@@ -60,10 +62,10 @@
                 >{/if}{#if entry.valueSuffix}{entry.valueSuffix}{/if}
             </p>
             <p class="fr-mb-0 fr-text--xs text-[color:var(--text-mention-grey)]">
-              Le {formatDateAbsolute(
-                entry.date,
-                entry.timeKnown ? "dd/MM/yyyy 'à' HH:mm" : "dd/MM/yyyy",
-              )}
+              {#if entry.date}Le {formatDateAbsolute(
+                  entry.date,
+                  entry.timeKnown ? "dd/MM/yyyy 'à' HH:mm" : "dd/MM/yyyy",
+                )}{:else}Date inconnue{/if}
               {entry.author ?? ""}
             </p>
             {#each entry.statuses ?? [] as status}

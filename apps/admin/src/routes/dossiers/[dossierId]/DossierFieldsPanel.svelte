@@ -6,6 +6,7 @@
   import { activiteFormContext } from "#lib/activiteReferentiel.ts";
   import DossierAdminForm from "./DossierAdminForm.svelte";
   import DossierNativeIntakeForm from "./DossierNativeIntakeForm.svelte";
+  import DossierOrganisationForm from "./DossierOrganisationForm.svelte";
   import DossierDetailHeader from "./DossierDetailHeader.svelte";
   import DossierDeleteSection from "./DossierDeleteSection.svelte";
 
@@ -48,6 +49,9 @@
         Le champ « Activité principale » peut être incomplet.
       </p>
     </div>
+  {/if}
+  {#if detail.source === "onagre" && (!detail.porteur_de_projet || detail.porteur_de_projet.type === "organisation") && can("admin:dossiers:update")}
+    <DossierOrganisationForm {detail} onSaved={onChanged} />
   {/if}
   {#if !referentiel && !referentielError}
     <Loader />

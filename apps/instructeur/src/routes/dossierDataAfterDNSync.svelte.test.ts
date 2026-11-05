@@ -26,6 +26,7 @@ import { getDossierFull } from "#lib/dossier/dossier.ts";
 import PageTousLesDossiers from "./tous-les-dossiers/+page.svelte";
 import PageDossier from "./dossier/[dossierId]/+page.svelte";
 import { fakeDossierFull, fakeDossierSummary } from "./fakeDossier.ts";
+import { makeServerPage } from "#lib/components/ListDossiers/testHelpers.ts";
 
 import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
@@ -43,6 +44,7 @@ const NOM_AFTER_SYNC = "Nom après synchronisation";
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   store.fullDossiers.clear();
   store.dossierSummaries.clear();
   store.capabilities = {};
@@ -52,17 +54,24 @@ afterEach(() => {
 test("after a DN synchronization, the tous-les-dossiers page displays the up-to-date dossier", async () => {
   // the dossier was visited before the synchronization
   store.fullDossiers.set(DOSSIER_ID, fakeDossierFull({ id: DOSSIER_ID, name: NOM_BEFORE_SYNC }));
-  store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
-  store.capabilities = {
-    listerDossiers: vi.fn().mockResolvedValue([
-      fakeDossierSummary({
-        id: DOSSIER_ID,
-        name: NOM_AFTER_SYNC,
-        access: "complet",
-        departments: ["75"],
-      }),
-    ]),
-  } as unknown as PitchouState["capabilities"];
+  store.identité = {
+    email: "instructeur@example.com",
+  } as PitchouState["identité"];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      Response.json(
+        url.startsWith("/dossiers/options")
+          ? { activites: [], assignedDepartments: ["75"], instructeurs: [] }
+          : makeServerPage({
+              items: [fakeDossierSummary({ id: DOSSIER_ID, name: NOM_AFTER_SYNC })],
+              total: 1,
+              totalDemandes: 1,
+              scopeTotal: 1,
+            }),
+      ),
+    ),
+  );
 
   render(PageTousLesDossiers);
 
@@ -75,7 +84,9 @@ test("after a DN synchronization, the tous-les-dossiers page displays the up-to-
 test("after a DN synchronization, the page of an already visited dossier also displays the up-to-date dossier", async () => {
   // the dossier was visited before the synchronization
   store.fullDossiers.set(DOSSIER_ID, fakeDossierFull({ id: DOSSIER_ID, name: NOM_BEFORE_SYNC }));
-  store.identité = { email: "instructeur@example.com" } as PitchouState["identité"];
+  store.identité = {
+    email: "instructeur@example.com",
+  } as PitchouState["identité"];
 
   // the server now responds with the synchronized dossier, but not instantly
   let respondToRefresh: ((dossier: DossierFull) => void) | undefined;

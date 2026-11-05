@@ -1,4 +1,5 @@
 <script lang="ts">
+  import OrganisationFields from "../OrganisationFields.svelte";
   import type { DossierAdminFormModel } from "./dossierAdminFormModel.ts";
   import DossierIdentityFields from "./DossierIdentityFields.svelte";
   import DossierLegalDemandeurFields from "./DossierLegalDemandeurFields.svelte";
@@ -32,7 +33,18 @@
           value="personne_morale"
           bind:group={model.demandeurType}
         />
-        <label class="fr-label" for="edit-demandeur-legal">Personne morale</label>
+        <label class="fr-label" for="edit-demandeur-legal">Personne morale avec SIRET</label>
+      </div>
+      <div class="fr-radio-group">
+        <input
+          id="edit-demandeur-organisation"
+          type="radio"
+          value="organisation"
+          bind:group={model.demandeurType}
+        />
+        <label class="fr-label" for="edit-demandeur-organisation"
+          >Organisation sans SIRET confirmé</label
+        >
       </div>
     </div>
   </div>
@@ -48,6 +60,8 @@
     {#if model.demandeurType === "personne_physique"}
       <h3 class="fr-mb-0">Informations de la personne physique</h3>
       <DossierPhysicalDemandeurFields {model} />
+    {:else if model.demandeurType === "organisation"}
+      <OrganisationFields organisation={model.organisation} />
     {:else}
       <h3 class="fr-mb-0">Informations de la personne morale</h3>
       <DossierLegalDemandeurFields {model} />

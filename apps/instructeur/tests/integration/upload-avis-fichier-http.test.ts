@@ -33,16 +33,17 @@ test("POST /avis-expert avec saisine + avis enregistre les deux fichiers envoyé
 
   const rows = await db("avis_expert").select("*").where({ dossier: dossier.id });
   expect(rows).toHaveLength(1);
-  expect(rows[0]).toMatchObject({ saisine_fichier: saisine.id, avis_fichier: avis.id });
+  expect(rows[0].saisine_fichier).not.toBe(rows[0].avis_fichier);
 
   // the objects moved from pending/ to files/, and the rows carry storage's size + type
-  for (const [upload, bytes] of [
-    [saisine, "SAISINE-PDF"],
-    [avis, "AVIS-PDF"],
+  for (const [upload, storedId, bytes] of [
+    [saisine, rows[0].saisine_fichier, "SAISINE-PDF"],
+    [avis, rows[0].avis_fichier, "AVIS-PDF"],
   ] as const) {
-    expect(await readS3Body(`files/${upload.id}`)).toBe(bytes);
+    expect(storedId).not.toBe(upload.id);
+    expect(await readS3Body(`files/${storedId}`)).toBe(bytes);
     expect(await s3HasKey(`pending/${upload.id}`)).toBe(false);
-    expect(await db("file").where({ id: upload.id }).first()).toMatchObject({
+    expect(await db("file").where({ id: storedId }).first()).toMatchObject({
       name: upload.name,
       media_type: "application/pdf",
       size: String(bytes.length),

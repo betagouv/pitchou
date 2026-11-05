@@ -95,3 +95,18 @@ test("shows an empty result count and disables downloading", async () => {
   await expect.element(page.getByText("0 dossier", { exact: true })).toBeVisible();
   await expect.element(page.getByRole("button", { name: "Télécharger l'export" })).toBeDisabled();
 });
+
+test("server export sends the full query with no visible-page ids and announces matching demandes", async () => {
+  const exporterDossiers = vi.fn().mockResolvedValue(new Blob(["export"]));
+  store.capabilities = { exporterDossiers };
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  render(DossiersExportButton, {
+    localisation: "france",
+    query: "q=marais&page=3",
+    totalDemandes: 32,
+  });
+  await page.getByRole("button", { name: "Exporter les dossiers", exact: true }).click();
+  await expect.element(page.getByText("32 demandes", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Télécharger l'export" }).click();
+  expect(exporterDossiers).toHaveBeenCalledWith("france", "ods", undefined, "q=marais&page=3");
+});

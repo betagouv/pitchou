@@ -9,12 +9,19 @@
   import { changeLocalisation, LOCALISATION_LABEL, type Localisation } from "./localisation.ts";
   import type { DossiersQuery } from "./query.ts";
 
-  let { draft = $bindable(), showScope = true }: { draft: DossiersQuery; showScope?: boolean } =
-    $props();
+  let {
+    draft = $bindable(),
+    showScope = true,
+    assignedDepartmentCodes,
+  }: { draft: DossiersQuery; showScope?: boolean; assignedDepartmentCodes?: string[] } = $props();
   const scopes: Localisation[] = $derived(showScope ? ["assigned", "france"] : ["assigned"]);
   const departementOptions = $derived(
     (!showScope || draft.localisation === "assigned"
-      ? listAssignedDepartements(assignedDepartments(store.dossierSummaries.values()))
+      ? listAssignedDepartements(
+          assignedDepartmentCodes
+            ? new Set(assignedDepartmentCodes)
+            : assignedDepartments(store.dossierSummaries.values()),
+        )
       : listAvailableDepartements([...store.dossierSummaries.values()])
     ).map(({ code, name }) => ({ value: code, label: `${code} — ${name}` })),
   );

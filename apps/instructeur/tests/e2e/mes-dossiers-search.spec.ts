@@ -83,6 +83,7 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
   const options = page.getByRole("listbox", { name: "Recherches récentes" }).getByRole("option");
   await expect(options).toHaveText(["photovoltaïque", "méthaniseur", "carrière"]);
   await options.nth(0).click();
+  await expect(page.getByTestId("card-dossier")).toHaveCount(1);
   await expect(page.getByTestId("card-dossier")).toContainText("Parc photovoltaïque à Anglet");
 });
 
@@ -99,6 +100,7 @@ test("le filtre Dossiers où je dois agir remplace à enjeux", async ({ page, db
   });
   await button.click();
   await expect(page).toHaveURL(/actionInstructeur=1/u);
+  await expect(page.getByTestId("card-dossier")).toHaveCount(1);
   await expect(page.getByTestId("card-dossier")).toContainText("Parc photovoltaïque à Anglet");
   await button.click();
   await expect(page.getByTestId("card-dossier")).toHaveCount(2);

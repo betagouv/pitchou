@@ -3,6 +3,7 @@ import { reconcileArrivalNotifications } from "./dossierNotificationEmails/arriv
 import { cancelIneligibleNotifications } from "./dossierNotificationEmails/cancellation.ts";
 import { dossierAccessSql } from "./dossierRouting/access.ts";
 import { groupAccessSql, ruleMatchesSql } from "./dossierRouting/sql.ts";
+import { sharedDossierIds, sharedDossierIdsSql } from "./dossierRouting/projet.ts";
 
 export async function lockDossierAccess(trx: Knex.Transaction) {
   await trx.raw("select pg_advisory_xact_lock(2105102026)");
@@ -38,6 +39,7 @@ export async function reconcileDossierAccess(
   scope: { dossiers?: number[]; users?: number[] } = {},
 ) {
   await lockDossierAccess(trx);
+  if (scope.dossiers) scope = { ...scope, dossiers: await sharedDossierIds(trx, scope.dossiers) };
   await trx("edge_personne_follows_dossier as f")
     .modify((query) => {
       if (scope.dossiers) query.whereIn("f.dossier", scope.dossiers);
@@ -56,15 +58,19 @@ export async function recalculateAssignments(
 ) {
   await lockDossierAccess(trx);
   if (options.dossiers?.length === 0) return;
+  if (options.dossiers)
+    options = { ...options, dossiers: await sharedDossierIds(trx, options.dossiers) };
   const { rows } = await trx.raw(
     `WITH desired AS MATERIALIZED (
       SELECT d.id AS dossier, candidates.groupe_instructeurs,
         ${groupAccessSql("d", "candidates.groupe_instructeurs")} AS access_level
       FROM dossier d JOIN LATERAL (
-        SELECT c.groupe_instructeurs FROM groupe_departement c WHERE c.department = d.primary_department
-        UNION SELECT r.groupe_instructeurs FROM group_routing_rule r WHERE ${ruleMatchesSql()}
+        SELECT c.groupe_instructeurs FROM groupe_departement c JOIN dossier related ON c.department = related.primary_department
+          WHERE related.id IN (${sharedDossierIdsSql("d.id")})
+        UNION SELECT r.groupe_instructeurs FROM group_routing_rule r JOIN dossier related ON ${ruleMatchesSql("related")}
+          WHERE related.id IN (${sharedDossierIdsSql("d.id")})
         UNION SELECT o.groupe_instructeurs FROM dossier_group_override o
-          WHERE o.dossier = d.id AND o.mode = 'include'
+          WHERE o.dossier IN (${sharedDossierIdsSql("d.id")}) AND o.mode = 'include'
       ) candidates ON true WHERE (?::integer[] IS NULL OR d.id = ANY(?::integer[]))
     ), removed AS (
       DELETE FROM edge_groupe_instructeurs__dossier e

@@ -22,7 +22,9 @@
 
 {#if latestEvent?.phase === "Classé sans suite"}
   <p class="fr-badge fr-badge--no-icon fr-mb-3w">
-    Classé sans suite le {formatDateAbsolute(latestEvent.timestamp, "dd/MM/yyyy")}
+    Classé sans suite{latestEvent.timestamp
+      ? ` le ${formatDateAbsolute(latestEvent.timestamp, "dd/MM/yyyy")}`
+      : " — Date inconnue"}
   </p>
 {/if}
 

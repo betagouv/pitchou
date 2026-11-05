@@ -2,7 +2,7 @@ import type { QuantifiedImpact } from "@pitchou/types/especes.d.ts";
 
 export const VALUE_NOT_PROVIDED = `(non renseigné)`;
 
-export const TYPE_IMPACT_NOT_PROVIDED = `Type d'impact non-renseignée`;
+export const TYPE_IMPACT_NOT_PROVIDED = `Type d’impact non renseigné`;
 
 export type SimplifiedEspeceImpactee = {
   nomVernaculaire: string;

@@ -20,7 +20,7 @@ export const PITCHOU_SECRET_STORAGE_KEY = "secret-pitchou";
 
 export function loadRelationSuivi() {
   if (store.capabilities?.listFollowRelations) {
-    store.capabilities?.listFollowRelations().then((followRelationsDB) => {
+    return store.capabilities.listFollowRelations().then((followRelationsDB) => {
       if (!followRelationsDB || !Array.isArray(followRelationsDB)) {
         throw new TypeError("On attendait un tableau de relation suivis ici !");
       }
@@ -37,7 +37,7 @@ export function loadRelationSuivi() {
 }
 
 export function loadRecentSearches() {
-  store.capabilities?.listRecentSearches?.().then((recentSearches) => {
+  return store.capabilities?.listRecentSearches?.().then((recentSearches) => {
     if (!Array.isArray(recentSearches)) {
       throw new TypeError("On attendait un tableau de recherches récentes ici !");
     }

@@ -1,12 +1,28 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   type Props = {
     searchText: string;
+    debounceMs?: number;
+    navigationKey?: string;
     /** Recent searches offered as clickable suggestions, most recent first */
     suggestions: string[];
     onSearch: (text: string) => void;
   };
 
-  let { searchText, suggestions, onSearch }: Props = $props();
+  let { searchText, suggestions, onSearch, debounceMs = 0, navigationKey }: Props = $props();
+
+  let timer: ReturnType<typeof setTimeout>;
+  $effect(() => {
+    void searchText;
+    void navigationKey;
+    clearTimeout(timer);
+  });
+  onDestroy(() => clearTimeout(timer));
+  function search(text: string, immediate = false) {
+    clearTimeout(timer);
+    if (!debounceMs || immediate) onSearch(text);
+    else timer = setTimeout(() => onSearch(text), debounceMs);
+  }
 
   let suggestionsOpen = $state(false);
   let searchRoot: HTMLElement | undefined = $state();
@@ -24,7 +40,7 @@
 
   function selectSuggestion(suggestion: string) {
     suggestionsOpen = false;
-    onSearch(suggestion);
+    search(suggestion, true);
   }
 </script>
 
@@ -41,7 +57,7 @@
       e.preventDefault();
       suggestionsOpen = false;
       const data = new FormData(e.currentTarget);
-      onSearch(String(data.get("texte-de-recherche") ?? ""));
+      search(String(data.get("texte-de-recherche") ?? ""), true);
     }}
   >
     <label class="fr-label" for="recherche-dossier">Rechercher un dossier</label>
@@ -53,7 +69,7 @@
       placeholder="Rechercher"
       type="search"
       onfocus={() => (suggestionsOpen = true)}
-      oninput={(e) => onSearch(e.currentTarget.value)}
+      oninput={(e) => search(e.currentTarget.value)}
     />
     <button title="Rechercher un dossier" type="submit" class="fr-btn">Rechercher un dossier</button
     >

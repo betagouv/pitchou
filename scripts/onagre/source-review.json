@@ -1,0 +1,286 @@
+[
+  {
+    "filename": "postgresql_database-onagre-lastbackup(6)",
+    "category": "Données de référence",
+    "summary": "Sauvegarde PostgreSQL de la base Onagre : 58 tables, 3 268 584 lignes, dont 22 069 demandes, 17 569 projets et 89 377 métadonnées de pièces jointes.",
+    "previous": "Déjà chargé intégralement dans Explorer le dump. Les demandes et projets alimentent aussi Demandes Onagre.",
+    "decision": "Déjà intégré",
+    "reason": "Le dump reste la source des dossiers à préparer. Son original est conservé sur Polaris ; il n'est pas recopié dans la bibliothèque. Les chemins des pièces jointes ne contiennent pas leurs fichiers.",
+    "links": [
+      {
+        "label": "Explorer le dump",
+        "tab": "dump"
+      },
+      {
+        "label": "Demandes Onagre",
+        "tab": "dossiers"
+      }
+    ],
+    "storeOriginal": false,
+    "fingerprint": "6bf122a1b1b682f977d43fbf85f15c32886cbc9864edf19cae8f742102a95430"
+  },
+  {
+    "filename": "Correspondance Pitchou onagre.xlsx",
+    "category": "Correspondances",
+    "summary": "Classeur de travail de l'équipe, cinq feuilles : Projet, Demandes, decisions, motifderogation et Objet. Il contient 190 propositions non vides, avec des notes et plusieurs choix possibles pour certaines activités.",
+    "previous": "Les propositions reconnues sont déjà dans Correspondances, avec leur texte d'origine. Des brouillons de destination, règle et notes ont été préparés sans validation automatique.",
+    "decision": "Intégré et consultable",
+    "reason": "Le classeur complet est désormais consultable pour vérifier aussi les en-têtes, notes et cellules hors des lignes reconnues. Il ne remplace pas les décisions enregistrées dans l'application.",
+    "links": [
+      {
+        "label": "Correspondances proposées",
+        "tab": "correspondances",
+        "mappingKind": "proposal"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "718741d4c7c5450a946b47fab622c8dca5b5cb11185007c83dff51745310a548"
+  },
+  {
+    "filename": "services.xlsx",
+    "category": "Services et affectation",
+    "summary": "Deux feuilles : 281 services Onagre et une liste de 29 groupes Pitchou liée à la démarche numérique 88444. Aucune association service → groupe n'est renseignée.",
+    "previous": "Inspecté mais non affiché. Les services Onagre étaient accessibles dans le dump ; la liste des groupes du classeur ne l'était pas.",
+    "decision": "Ajouté pour la réunion",
+    "reason": "Afficher les deux listes aide à préparer les affectations. La liste Pitchou est un état historique : vérifier les groupes actuels. Ne pas attribuer de groupe automatiquement à partir du seul nom d'un service.",
+    "links": [
+      {
+        "label": "Services du dump",
+        "tab": "dump",
+        "table": "services"
+      },
+      {
+        "label": "Choix communs d'affectation",
+        "tab": "regles"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "de06a335571c3bb52e962483bb23d9949fe03c85206c4e9a4ce3ba3a346dbb12"
+  },
+  {
+    "filename": "services.csv",
+    "category": "Services et affectation",
+    "summary": "Export de 281 services, avec région, nom, date de fin, visibilité et identifiant de dernière modification. Les sept colonnes correspondent à la table services.",
+    "previous": "Pas d'import séparé. Son contenu est déjà présent dans le dump.",
+    "decision": "Doublon documenté",
+    "reason": "Les 281 lignes concordent avec le dump après normalisation des booléens et valeurs absentes. L'original et une vue du CSV restent disponibles pour vérification, sans créer de nouveaux services.",
+    "links": [
+      {
+        "label": "Table services",
+        "tab": "dump",
+        "table": "services"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "bb4d69eb4677aca212cb85174923de48786ae62bf40e6b05a5fde58ae221e8fa"
+  },
+  {
+    "filename": "TaxrefOnagre.ods",
+    "category": "Espèces et TAXREF",
+    "summary": "Petit exemple comparatif TAXREF v10 autour de Salamandra corsica : deux lignes Onagre et deux lignes TAXREF illustrent les identifiants 701817 et 79253, le nom retenu et sa synonymie.",
+    "previous": "Inspecté mais non affiché, sans correspondance automatique d'espèces.",
+    "decision": "Ajouté pour la réunion",
+    "reason": "Cet exemple aide à comprendre les colonnes Onagre et la différence entre identifiant de nom et identifiant du taxon retenu. Il ne constitue pas une table complète de conversion vers TAXREF v18.",
+    "links": [
+      {
+        "label": "Espèces du dump",
+        "tab": "dump",
+        "table": "especes"
+      },
+      {
+        "label": "Champs à décider",
+        "tab": "correspondances",
+        "mappingTable": "especes"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "bb11559c6dae4f0149e6361a98f7375bdf779d598c85a4980b99dc69842ac309"
+  },
+  {
+    "filename": "export_especes_groupes2.ods",
+    "category": "Espèces et TAXREF",
+    "summary": "Jointure lisible des espèces et de leurs groupes : 17 999 lignes de données, soit 17 997 associations présentes dans le dump et deux groupes sans espèce. Noms scientifiques, noms vernaculaires, familles et libellés des groupes.",
+    "previous": "Les tables sources et les liens étaient dans le dump, mais cette vue jointe n'était pas accessible.",
+    "decision": "Ajouté comme vue de référence",
+    "reason": "Cette vue facilite l'examen des groupes sans effectuer les jointures à la main. Les groupes Onagre sont parfois régionaux ; ils ne doivent pas devenir automatiquement des groupes Pitchou ni des statuts de protection.",
+    "links": [
+      {
+        "label": "Associations du dump",
+        "tab": "dump",
+        "table": "groupesespeces_especes"
+      },
+      {
+        "label": "Groupes du dump",
+        "tab": "dump",
+        "table": "groupesespeces"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "0e3854b360f90a201335a747b824e51410061b1f840d476eff6c4659cd074b75"
+  },
+  {
+    "filename": "groupesespeces.csv",
+    "category": "Espèces et TAXREF",
+    "summary": "175 groupes d'espèces Onagre : identifiants, région, clé fonctionnelle, libellé, règne et version. Certaines lignes comportent deux colonnes finales vides.",
+    "previous": "Pas d'import séparé. Les groupes sont déjà dans Explorer le dump.",
+    "decision": "Doublon documenté",
+    "reason": "Les 175 lignes concordent avec la table groupesespeces après normalisation des valeurs absentes et retrait des colonnes finales sans nom. Le CSV reste consultable ; aucune nouvelle entité métier n'est créée.",
+    "links": [
+      {
+        "label": "Table groupesespeces",
+        "tab": "dump",
+        "table": "groupesespeces"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "d16de237163d18649c0d2b3d1009878a68523d2e4e53d0beda35fa1954af17bc"
+  },
+  {
+    "filename": "especes.csv",
+    "category": "Espèces et TAXREF",
+    "summary": "Export de 574 366 lignes et 18 colonnes de la table especes : taxonomie, noms, identifiants TAXREF et versions. Les valeurs de versionespeces sont 1, 8, 10 et 12 ; elles ne prouvent pas à elles seules la version TAXREF de chaque ligne.",
+    "previous": "Déjà couvert intégralement par la table especes du dump, sans import dans le référentiel Pitchou.",
+    "decision": "Doublon, accès par le dump",
+    "reason": "Les 574 366 lignes concordent avec le dump après normalisation des valeurs absentes. Il n'est pas utile de recopier les 107 Mo du CSV. Le référentiel Pitchou utilise TAXREF v18 : vérifier CD_NOM, CD_REF et les changements de version avant rapprochement.",
+    "links": [
+      {
+        "label": "Consulter les 574 366 lignes",
+        "tab": "dump",
+        "table": "especes"
+      },
+      {
+        "label": "Correspondances des espèces",
+        "tab": "correspondances",
+        "mappingTable": "especes"
+      }
+    ],
+    "storeOriginal": false,
+    "fingerprint": "0b3f063f1f0637f7d210bd600da4cd24cf453877100760b6e2f96e699e5180c7"
+  },
+  {
+    "filename": "onagre_-_liste_des_tables_de_reference_-_v2-8_cle291a3c.pdf",
+    "category": "Documentation",
+    "summary": "Guide Onagre v2.8 de janvier 2019, 27 pages : écrans et listes de valeurs pour les objets, pétitionnaires, motifs, groupes d'espèces, activités, méthodes, avis, mesures, décisions et contrôles.",
+    "previous": "Conservé localement mais non lu en détail ni affiché dans l'application.",
+    "decision": "Ajouté comme documentation",
+    "reason": "Il explique le sens métier des choix Onagre et aide à relire les correspondances. Ses listes datent de 2019 : elles ne remplacent pas les valeurs du dump ni un dictionnaire confirmé des codes statut.",
+    "links": [
+      {
+        "label": "Correspondances des décisions",
+        "tab": "correspondances",
+        "mappingTable": "naturedecision"
+      },
+      {
+        "label": "Méthodes du dump",
+        "tab": "dump",
+        "table": "methode"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "710e76aa513b5e5ccc65059a700832ca9c55e07cb0928c5dad942c4040c4eca9"
+  },
+  {
+    "filename": "Gargominy_et_al_2018.pdf",
+    "category": "Documentation",
+    "summary": "Rapport TAXREF v12 de 2018, 62 pages dans ce fichier : organisation du référentiel, CD_NOM, CD_REF, synonymie, hiérarchie et suivi des changements. La citation interne mentionne 156 pages, mais le PDF fourni en contient 62.",
+    "previous": "Conservé localement mais non affiché dans l'application.",
+    "decision": "Ajouté comme documentation",
+    "reason": "Utile pour comprendre les identifiants et les synonymes. C'est un document de méthode v12, pas le référentiel v18 ni une correspondance v12 → v18 ; il ne doit pas alimenter directement les espèces Pitchou.",
+    "links": [
+      {
+        "label": "Champs espèces",
+        "tab": "correspondances",
+        "mappingTable": "especes"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "781af0c740779b8d14280104ff06598247b5d481d27c2ede1f86c6ae1c72a4b6"
+  },
+  {
+    "filename": "Correspondance_Nom_projet_Objet_projet.ods",
+    "category": "Correspondances",
+    "summary": "59 lignes de travail reliant des catégories de tableau de suivi, les objets Onagre et les objets envisagés dans DS. Inclut des choix d'énergie renouvelable et des catégories à supprimer ou regrouper.",
+    "previous": "Inspecté mais non fusionné avec le classeur de correspondance de l'équipe.",
+    "decision": "Ajouté comme comparaison",
+    "reason": "Utile pour expliquer les propositions d'activités et leurs divergences. Pas d'identifiants source stables sur chaque ligne, et certaines cibles diffèrent du classeur actuel : conserver comme aide à la décision sans écraser les correspondances.",
+    "links": [
+      {
+        "label": "Correspondances des activités",
+        "tab": "correspondances",
+        "mappingTable": "objet"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "19518931227c63fc6b6726f135344800562b2df9f9fc33518a9ea4ad70fc5063"
+  },
+  {
+    "filename": "onagre_structure.xlsx",
+    "category": "Structure de la base",
+    "summary": "59 feuilles : résumé et description des 58 tables, avec types, nullabilité, valeurs par défaut, clés, commentaires, volumes et quelques exemples. Ce n'est pas une copie de toutes les données.",
+    "previous": "Les tables, colonnes et descriptions du dump alimentaient déjà l'explorateur. Les détails de clés et les feuilles du classeur n'étaient pas affichés.",
+    "decision": "Ajouté comme documentation",
+    "reason": "Permet de consulter les relations et contraintes pendant la réunion. Le schéma du dump reste la référence si un futur dump diverge de cette documentation figée.",
+    "links": [
+      {
+        "label": "Structure du dump",
+        "tab": "dump"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "fff888730556680336ebb197f3d152e243f303199d49192a835ba28e4f64233f"
+  },
+  {
+    "filename": "structure_et_contenu.md",
+    "category": "Structure de la base",
+    "summary": "Document Markdown décrivant les 58 tables : colonnes, types, valeurs par défaut, clés primaires et étrangères, comptes de lignes et cinq exemples par table.",
+    "previous": "Inspecté mais non consultable dans la page. Une partie de ses informations est déjà exposée dans Explorer le dump.",
+    "decision": "Ajouté comme documentation",
+    "reason": "Sa vue textuelle est utile pour retrouver une relation ou un commentaire et comparer avec le classeur de structure. Elle ne doit pas remplacer les données d'un nouveau dump.",
+    "links": [
+      {
+        "label": "Explorer le dump",
+        "tab": "dump"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "c280b29a6ac03af1ebdc02542182794b336a2ca6f6c82848b1271cebf807cb91"
+  },
+  {
+    "filename": "20240109.csv",
+    "category": "Exports historiques",
+    "summary": "Liste de 4 351 projets, séparée par tabulations malgré l'extension CSV : numéro, objet, nom, pétitionnaire et date de réception. Le nom du fichier indique le 9 janvier 2024. Ce n'est pas un fichier d'espèces.",
+    "previous": "Non chargé. La documentation précédente le classait à tort parmi les fichiers d'espèces ; cette erreur est corrigée.",
+    "decision": "Ajouté comme archive consultable",
+    "reason": "Utile pour comparer les anciens libellés et rechercher un projet. Export partiel, sans identifiants internes de demandes : ne pas le fusionner automatiquement avec le dump ni créer de dossiers à partir de ses codes affichés.",
+    "links": [
+      {
+        "label": "Projets du dump",
+        "tab": "dump",
+        "table": "projet"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "b0edcf3cdccdd59bc1dbda84ecce980b56056a17b72945b274d734a923aeb6d8"
+  },
+  {
+    "filename": "20240607_ONAGRE_listedemandes.ods",
+    "category": "Exports historiques",
+    "summary": "Liste de 17 349 demandes : codes projet/demande, réception, libellé du statut, DAU, mise à disposition, instructeur, service et région. Le fichier est nommé 7 juin 2024, mais son en-tête indique le 2 juin 2024.",
+    "previous": "Inspecté mais non chargé ; les demandes de la page proviennent du dump.",
+    "decision": "Ajouté comme archive consultable",
+    "reason": "Les libellés de statut et de service peuvent aider la réunion. L'export est ancien, plus petit que le dump et sans demandesid : il ne doit pas écraser les données actuelles ni établir seul la correspondance des codes statut.",
+    "links": [
+      {
+        "label": "Demandes du dump",
+        "tab": "dossiers"
+      },
+      {
+        "label": "Correspondance du statut",
+        "tab": "correspondances",
+        "mapping": "field:demandes.statut"
+      }
+    ],
+    "storeOriginal": true,
+    "fingerprint": "ba4e980f9edfe6d64992ff748397a2a2e6f9dc0f3f7a81ce98c4a901f4e26702"
+  }
+]

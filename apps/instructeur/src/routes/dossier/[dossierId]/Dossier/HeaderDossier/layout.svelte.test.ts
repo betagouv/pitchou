@@ -9,6 +9,15 @@ import Dossier from "../../Dossier.svelte";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 import { store } from "#lib/state/store.svelte.ts";
 
+vi.mock(import("../DossierVersions/api.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  fetchVersionData: vi.fn().mockResolvedValue({
+    projet: null,
+    access: "complet",
+    demandes: [{ id: 123, label: "Demande initiale", phase: "Instruction" }],
+  }),
+}));
+
 vi.mock("$app/env/public", () => ({ PUBLIC_PITCHOU_ENV: "" }));
 vi.mock(import("#lib/shared/aarri.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
@@ -83,6 +92,14 @@ test.each([390, 1024, 1440])(
     const header = target.querySelector("header")!;
     const title = screen.getByRole("heading", { level: 2, name: dossier.name! });
     expect(title.tagName).toBe("H2");
+    const switcher = await screen.findByRole("button", {
+      name: "Changer de demande : Demande initiale",
+    });
+    const switcherBounds = switcher.getBoundingClientRect();
+    expect(switcherBounds.top).toBeGreaterThanOrEqual(title.getBoundingClientRect().bottom);
+    expect(switcherBounds.bottom).toBeLessThanOrEqual(
+      header.querySelector(".main-location")!.getBoundingClientRect().top,
+    );
     expect(getComputedStyle(title).fontSize).toBe(width < 768 ? "28px" : "32px");
     expect(getComputedStyle(document.body).backgroundColor).toBe("rgb(246, 246, 246)");
     expectNoOverflow();

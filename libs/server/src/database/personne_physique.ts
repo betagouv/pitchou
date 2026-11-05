@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 import { updateNotifications } from "../dossierNotificationEmails/history.ts";
-import { lockDossierAccess } from "../dossierRouting.ts";
+import { lockDossierAccess, recalculateAssignments } from "../dossierRouting.ts";
+import { sharedDossierIds } from "../dossierRouting/projet.ts";
 
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { PersonnePhysiqueId } from "@pitchou/types/database/public/PersonnePhysique.ts";
@@ -17,6 +18,9 @@ export async function deleteDossiersWithPersonnesPhysiques(
   const rows: { id: DossierId }[] = await dossiers.clone().select("dossier.id");
   const ids = rows.map(({ id }) => id);
   if (ids.length === 0) return [];
+  const remaining = (await sharedDossierIds(trx, ids)).filter(
+    (id) => !ids.includes(id as DossierId),
+  );
   const personnes: { id: PersonnePhysiqueId }[] = await trx
     .select("personne_physique as id")
     .from("dossier_acteur")
@@ -35,6 +39,10 @@ export async function deleteDossiersWithPersonnesPhysiques(
     { status: "cancelled", claimed_at: null, cancellation_reason: "dossier_deleted" },
   );
   await trx("dossier").whereIn("id", ids).delete();
+  if (remaining.length > 0) await recalculateAssignments(trx, { dossiers: remaining });
+  await trx("dossier_projet")
+    .whereNotExists(trx("dossier_demande").whereRaw("dossier_demande.projet = dossier_projet.id"))
+    .delete();
   if (personnes.length > 0) {
     await trx("personne_physique")
       .whereIn(

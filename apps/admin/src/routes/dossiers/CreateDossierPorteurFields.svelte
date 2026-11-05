@@ -1,4 +1,5 @@
 <script lang="ts">
+  import OrganisationFields from "./OrganisationFields.svelte";
   import {
     porteurFieldIds,
     porteurFormErrors,
@@ -41,11 +42,11 @@
   aria-describedby={errors.type ? errorId("type") : undefined}
 >
   <legend class="fr-fieldset__legend font-normal">Le porteur de projet est... *</legend>
-  {#each [["personne_physique", "une personne physique"], ["personne_morale", "une personne morale"]] as [value, label] (value)}
+  {#each [["personne_physique", "une personne physique"], ["personne_morale", "Personne morale avec SIRET"], ["organisation", "une organisation sans SIRET confirmé"]] as [value, label] (value)}
     <div class="fr-fieldset__element">
       <div class="fr-radio-group">
         <input
-          id={value === "personne_physique" ? porteurFieldIds.type : "new-porteur-morale"}
+          id={value === "personne_physique" ? porteurFieldIds.type : `new-porteur-${value}`}
           type="radio"
           {value}
           {disabled}
@@ -53,7 +54,7 @@
         />
         <label
           class="fr-label"
-          for={value === "personne_physique" ? porteurFieldIds.type : "new-porteur-morale"}
+          for={value === "personne_physique" ? porteurFieldIds.type : `new-porteur-${value}`}
           >{label}</label
         >
       </div>
@@ -67,6 +68,8 @@
 {#if form.type === "personne_physique"}
   {@render textInput("lastName", "Nom")}
   {@render textInput("firstNames", "Prénom")}
+{:else if form.type === "organisation"}
+  <OrganisationFields organisation={form.organisation} {showErrors} {disabled} />
 {:else if form.type === "personne_morale"}
   {@render textInput(
     "siret",

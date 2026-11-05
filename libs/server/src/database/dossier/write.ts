@@ -1,5 +1,5 @@
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
-import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
+import type { EvenementPhaseDossierInitializer } from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import type { AuthUser as Personne } from "@pitchou/types/permissions.ts";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "../../database.ts";
@@ -53,7 +53,7 @@ export function getDossierInstructionState(
 
 export async function updateDossier(
   id: Dossier["id"],
-  dossierParams: Partial<Dossier & { evenementsPhase: EvenementPhaseDossier[] }>,
+  dossierParams: Partial<Dossier & { evenementsPhase: EvenementPhaseDossierInitializer[] }>,
   causePersonne: Personne["id"],
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
 ): Promise<any> {

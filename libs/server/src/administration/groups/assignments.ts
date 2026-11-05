@@ -12,6 +12,7 @@ import { recalculateAssignments } from "../../dossierRouting.ts";
 import { groupAccessSql, groupMatchesSql, ruleMatchesSql } from "../../dossierRouting/sql.ts";
 import { audit } from "../audit.ts";
 import { requireGroupManager } from "./access.ts";
+import { sharedDossierIds } from "../../dossierRouting/projet.ts";
 
 export async function listDossierAssignments(
   dossierId: number,
@@ -19,6 +20,7 @@ export async function listDossierAssignments(
 ): Promise<GroupAssignment[]> {
   const dossier = await database("dossier").where({ id: dossierId }).first();
   if (!dossier) throw new TypeError("Dossier introuvable");
+  const members = await sharedDossierIds(database, [dossierId]);
   const groups = await database("groupe_instructeurs as g")
     .leftJoin("dossier_group_override as o", (join) =>
       join.on("o.groupe_instructeurs", "g.id").andOnVal("o.dossier", dossierId),
@@ -33,13 +35,14 @@ export async function listDossierAssignments(
     .where("d.id", dossierId)
     .orderBy("g.name");
   const rules = await database("group_routing_rule as r")
-    .select("r.*")
+    .distinct("r.*")
     .joinRaw("CROSS JOIN dossier d")
-    .where("d.id", dossierId)
+    .whereIn("d.id", members)
     .whereRaw(ruleMatchesSql());
-  const departments = await database("groupe_departement").where({
-    department: dossier.primary_department ?? "",
-  });
+  const departments = await database("groupe_departement").whereIn(
+    "department",
+    database("dossier").select("primary_department").whereIn("id", members),
+  );
   return groups.map((group) => ({
     ...group,
     mode: group.mode ?? "auto",
@@ -73,17 +76,31 @@ export async function saveDossierAssignment(
     if (!(await trx("groupe_instructeurs").where({ id: groupId }).first()))
       throw new TypeError("Groupe introuvable");
     const key = { dossier: dossierId, groupe_instructeurs: groupId };
-    const before = await trx("dossier_group_override").where(key).first();
-    if (mode === "auto") await trx("dossier_group_override").where(key).delete();
+    const members = await sharedDossierIds(trx, [dossierId]);
+    const before = await trx("dossier_group_override")
+      .whereIn("dossier", members)
+      .where("groupe_instructeurs", groupId);
+    if (mode === "auto")
+      await trx("dossier_group_override")
+        .whereIn("dossier", members)
+        .where("groupe_instructeurs", groupId)
+        .delete();
     else
       await trx("dossier_group_override")
-        .insert({ ...key, mode, access_level: accessLevel })
+        .insert(
+          members.map((dossier) => ({
+            dossier,
+            groupe_instructeurs: groupId,
+            mode,
+            access_level: accessLevel,
+          })),
+        )
         .onConflict(["groupe_instructeurs", "dossier"])
         .merge();
     await recalculateAssignments(trx, { dossiers: [dossierId] });
     await audit(trx, actor, "dossier_assignment_saved", {
       ...key,
-      before: before ?? { mode: "auto" },
+      before: members.length === 1 ? (before[0] ?? { mode: "auto" }) : before,
       after: mode === "auto" ? { mode } : { mode, access_level: accessLevel },
     });
     return listDossierAssignments(dossierId, trx);

@@ -5,7 +5,7 @@ export { dossierDate } from "./filtering/date.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
-import { dossierMatchesSearch, searchTerms } from "./dossiersSearch.ts";
+import { createSearchMatcher, searchTerms } from "./dossiersSearch.ts";
 import { filterByLocalisation } from "./localisation.ts";
 import {
   WITHOUT_INSTRUCTEUR,
@@ -26,7 +26,7 @@ export function filterDossiers(
 
   if (query.text.trim()) {
     const terms = searchTerms(query.text);
-    result = result.filter((dossier) => dossierMatchesSearch(dossier, terms, ctx));
+    result = result.filter(createSearchMatcher(terms, ctx));
   }
   if (query.phase.length > 0) {
     result = result.filter((dossier) => query.phase.includes(dossier.phase));

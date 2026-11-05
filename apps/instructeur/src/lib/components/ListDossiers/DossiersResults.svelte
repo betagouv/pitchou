@@ -12,6 +12,7 @@
     dossiers: DossierSummary[];
     readOnly?: boolean;
     onEditDueDate?: (dossier: DossierSummary) => void;
+    onRefresh?: () => void;
     sortKey: SortKey;
     wholeListEmpty: boolean;
     followedIds: Set<Dossier["id"]>;
@@ -25,6 +26,7 @@
     dossiers,
     readOnly = false,
     onEditDueDate,
+    onRefresh,
     sortKey,
     wholeListEmpty,
     followedIds,
@@ -91,6 +93,7 @@
                 <span></span>
               {/if}
               <CardDossier
+                onAssignmentSaved={onRefresh}
                 {readOnly}
                 {dossier}
                 onEditDueDate={onEditDueDate ? () => onEditDueDate(dossier) : undefined}

@@ -32,7 +32,7 @@ export type ListAdminDossiersOptions = {
   pageSize: number;
   search?: string;
   phase?: DossierPhase;
-  source?: "pitchou" | "dn" | "unknown";
+  source?: "pitchou" | "dn" | "onagre" | "unknown";
   sort?: AdminDossierSortKey;
   order?: "asc" | "desc";
 };
@@ -82,6 +82,8 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
     query.where(function () {
       this.whereILike("dossier.name", `%${search}%`)
         .orWhereILike("porteur_entreprise.legal_name", `%${search}%`)
+        .orWhereILike("porteur_organisation.name", `%${search}%`)
+        .orWhere("porteur_organisation.siren", search.replaceAll(/\s/gu, ""))
         .orWhereILike("porteur_pp.last_name", `%${search}%`)
         .orWhereILike("porteur_pp.first_names", `%${search}%`)
         .orWhere("porteur_entreprise.siret", search.replaceAll(/\s/gu, ""));
@@ -91,6 +93,7 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
   if (options.phase) query.where("latest_phase.phase", options.phase);
   if (options.source === "pitchou") query.where("dossier.source", "pitchou");
   else if (options.source === "dn") query.where("dossier.source", "demarche_numerique");
+  else if (options.source === "onagre") query.where("dossier.source", "onagre");
   else if (options.source === "unknown") query.where("dossier.source", "unknown");
 }
 

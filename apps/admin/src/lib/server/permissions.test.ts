@@ -3,9 +3,11 @@ import { BUNDLES, type Permission } from "@pitchou/types/permissions.ts";
 import { canAccessAdminRoute } from "./permissions.ts";
 
 const cases: [string, string, Permission][] = [
+  ["POST", "/onagre", "admin:onagre:manage"],
   ["POST", "/api/dossiers", "admin:dossiers:create"],
   ["POST", "/api/dossiers/minimal", "admin:dossiers:create"],
   ["PUT", "/api/dossiers/[dossierId]", "admin:dossiers:update"],
+  ["PUT", "/api/dossiers/[dossierId]/porteur", "admin:dossiers:update"],
   ["DELETE", "/api/dossiers/[dossierId]", "admin:dossiers:delete"],
   ["POST", "/api/dossiers/[dossierId]/pieces-jointes", "admin:dossiers:files"],
   ["DELETE", "/api/dossiers/[dossierId]/pieces-jointes/[fichierId]", "admin:dossiers:files"],
@@ -53,6 +55,8 @@ describe("admin write permissions", () => {
     );
   });
   it("retains read access without giving write access", () => {
+    expect(canAccessAdminRoute("/onagre/imports", "POST", ["admin:access"])).toBe(true);
+    expect(canAccessAdminRoute("/onagre/imports", "POST", [])).toBe(false);
     expect(canAccessAdminRoute("/api/dossiers/[dossierId]", "GET", ["admin:access"])).toBe(true);
     expect(canAccessAdminRoute("/utilisateurs", "GET", ["admin:access"])).toBe(false);
     expect(canAccessAdminRoute("/groupes-instructeurs", "GET", ["admin:access"])).toBe(false);

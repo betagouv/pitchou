@@ -1,4 +1,5 @@
 import type Entreprise from "@pitchou/types/database/public/Entreprise.ts";
+import { organisationSourceName } from "@pitchou/common/porteurDeProjet.ts";
 import { companyPropertyLabels, identityPropertyLabels } from "@pitchou/types/notification.ts";
 import type {
   PorteurDeProjet,
@@ -112,6 +113,44 @@ function personnePhysiqueGroups(personne: PorteurDeProjetPersonnePhysique): Port
 
 /** Every column of the porteur de projet, grouped and formatted for display. */
 export function porteurDeProjetGroups(porteur: PorteurDeProjet): PorteurGroup[] {
+  if (porteur.type === "organisation") {
+    const labels = {
+      name: "Nom",
+      siren: "SIREN",
+      address: "Adresse",
+      source: "Source",
+      source_reference: "Référence dans la source",
+      verification_evidence: "Justificatif de vérification",
+    };
+    const row = (
+      property: keyof typeof labels,
+      value: string | null,
+      kind: PorteurRow["kind"] = "text",
+    ): PorteurRow => ({
+      label: labels[property],
+      value,
+      kind,
+      changeKey: `organisation.${property}`,
+    });
+    return [
+      {
+        title: "Identification",
+        rows: [
+          row("name", porteur.name),
+          row("siren", formatSiret(porteur.siren)),
+          row("address", porteur.address, "address"),
+        ],
+      },
+      {
+        title: "Provenance et vérification",
+        rows: [
+          row("source", organisationSourceName(porteur.source)),
+          row("source_reference", porteur.source_reference),
+          row("verification_evidence", porteur.verification_evidence),
+        ],
+      },
+    ];
+  }
   return porteur.type === "personne_morale"
     ? personneMoraleGroups(porteur)
     : personnePhysiqueGroups(porteur);

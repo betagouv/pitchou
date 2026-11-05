@@ -1,5 +1,6 @@
 import type { ExportDossier, ExportEspece } from "@pitchou/types/dossierExport.ts";
 import { calendarDateLabel } from "./calendarDate.ts";
+import { organisationStatusLabel } from "./porteurDeProjet.ts";
 
 export const dossiersExportHeaders = [
   "N° dossier",
@@ -112,7 +113,17 @@ export function dossierExportRow(dossier: ExportDossier): (string | number)[] {
     [...new Set(dossier.followers)].sort().join(" ; "),
     dossier.primary_department ?? "",
     localisation(dossier),
-    [porteur, dossier.demandeur_personne_morale_siret].filter(Boolean).join(" ; "),
+    dossier.organisation
+      ? [
+          dossier.organisation.name,
+          organisationStatusLabel(dossier.organisation),
+          dossier.organisation.verification_status === "verified" && dossier.organisation.siren
+            ? `SIREN ${dossier.organisation.siren}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ; ")
+      : [porteur, dossier.demandeur_personne_morale_siret].filter(Boolean).join(" ; "),
     yesNo(dossier.linked_to_ae_regime),
     dossier.phase,
     ddepLabel(dossier),

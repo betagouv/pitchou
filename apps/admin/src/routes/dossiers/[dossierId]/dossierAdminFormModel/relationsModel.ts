@@ -1,3 +1,4 @@
+import { organisationForm, organisationPayload } from "../../organisation.ts";
 import type {
   AdminDossierDetail,
   AdminDossierIdentite,
@@ -6,7 +7,7 @@ import type {
 } from "#lib/actions/adminDossiers.ts";
 import { acteurOf, demandeurActeur, identiteOf } from "#lib/dossierActeurs.ts";
 
-export type DemandeurType = "personne_physique" | "personne_morale";
+export type DemandeurType = "personne_physique" | "personne_morale" | "organisation";
 export type IdentityFormModel = {
   lastName: string;
   firstNames: string;
@@ -57,10 +58,16 @@ export function createDossierAdminRelationsModel(detail: AdminDossierDetail) {
       : undefined);
   const mandataire = identiteOf("mandataire", acteurOf(detail, "mandataire"));
   const personneContact = identiteOf("representant", acteurOf(detail, "personne_contact"));
-  const demandeurType: DemandeurType = personneMorale ? "personne_morale" : "personne_physique";
+  const demandeurType: DemandeurType =
+    porteur?.type === "organisation"
+      ? "organisation"
+      : personneMorale
+        ? "personne_morale"
+        : "personne_physique";
 
   return {
     demandeurType,
+    organisation: organisationForm(porteur?.type === "organisation" ? porteur : null),
     hasDemandeurIdentity: !!demandeurIdentity,
     demandeurIdentity: identity(demandeurIdentity),
     personnePhysique: {
@@ -112,6 +119,15 @@ export function buildDossierRelations(
   const base = {
     identites,
   };
+  if (model.demandeurType === "organisation") {
+    return {
+      ...base,
+      demandeur_type: "organisation",
+      demandeur_organisation: organisationPayload(model.organisation),
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: null,
+    };
+  }
   if (model.demandeurType === "personne_physique") {
     return {
       ...base,

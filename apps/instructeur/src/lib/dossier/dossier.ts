@@ -1,4 +1,3 @@
-import { SvelteMap } from "svelte/reactivity";
 import { store, setDossierFull } from "#lib/state/store.svelte.ts";
 import { enqueueNotificationRequest, formatNotification } from "./notification.ts";
 import { registerReviewSnapshot } from "./notification/snapshot.ts";
@@ -7,11 +6,8 @@ import {
   loadActivitesMethodesMoyensDePoursuite,
   loadEspecesProtegeesList,
 } from "#lib/especes/activitesMethodesMoyensDePoursuite.ts";
-import { isDossierSummaryArray } from "@pitchou/common/typeguards.ts";
-import { loadRelationSuivi, loadRecentSearches } from "#lib/shared/main.ts";
 import { comparePhaseEventsNewestFirst } from "@pitchou/common/phases.ts";
 
-import type { PitchouState } from "#lib/state/store.svelte.ts";
 import type { DossierFull, DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { ResultatImportFichierEspeces } from "@pitchou/common/impact_espece/parseFichierEspecesImpactees.ts";
 
@@ -186,38 +182,4 @@ export async function especesImpacteesFromFichierOdsArrayBuffer(
   return parseFichierEspecesImpactees(fichierArrayBuffer, especeByCD_REF, referentiel);
 }
 
-export function loadDossiers() {
-  loadRelationSuivi();
-  loadRecentSearches();
-  loadEspecesProtegeesList().catch(() => {});
-
-  if (store.capabilities?.listerDossiers) {
-    return store.capabilities?.listerDossiers().then((dossiers) => {
-      if (!isDossierSummaryArray(dossiers)) {
-        throw new TypeError("On attendait un tableau de dossiers ici !");
-      }
-
-      /* Format the dossiers */
-      for (const dossier of dossiers) {
-        if (dossier.depot_date) dossier.depot_date = new Date(dossier.depot_date);
-        if (dossier.phase_start_date) dossier.phase_start_date = new Date(dossier.phase_start_date);
-        if (dossier.next_due_date) dossier.next_due_date = new Date(dossier.next_due_date);
-      }
-
-      // A SvelteMap, like the store's initial one: `$state` does not proxy Map instances,
-      // so a plain Map here would freeze the list — later `.set()` calls (e.g. the optimistic
-      // update of an échéance from a tile) would update the data without notifying the UI.
-      const dossiersById: PitchouState["dossierSummaries"] = new SvelteMap();
-
-      for (const dossier of dossiers) {
-        Object.freeze(dossier);
-        dossiersById.set(dossier.id, dossier);
-      }
-
-      store.dossierSummaries = dossiersById;
-
-      return dossiersById;
-    });
-  }
-  return Promise.reject(new TypeError("Impossible de charger les dossiers, capability manquante"));
-}
+export { loadDossiers } from "./list.ts";

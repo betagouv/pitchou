@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock(import("node:crypto"), async (original) => ({
+  ...(await original()),
+  randomUUID: () => "aabbccdd-1234-4567-89ab-0123456789ab",
+}));
+
 vi.mock(import("../objectStorage.ts"), () => ({
   fileKey: (id: string) => `files/${id}`,
   pendingKey: (id: string) => `pending/${id}`,
@@ -28,8 +33,9 @@ const copyObject = vi.mocked(objectStorage.copyObject);
 const deleteObject = vi.mocked(objectStorage.deleteObject);
 const addFile = vi.mocked(fileModule.addFile);
 
-const id = "0f4b1e3c-7d2a-4c5e-9b1f-2a3c4d5e6f70" as FileId;
-const upload = { id, name: "arrete.pdf" };
+const id = "aabbccdd-1234-4567-89ab-0123456789ab" as FileId;
+const uploadId = "0f4b1e3c-7d2a-4c5e-9b1f-2a3c4d5e6f70" as FileId;
+const upload = { id: uploadId, name: "arrete.pdf" };
 
 beforeEach(() => {
   headObject.mockReset();
@@ -52,13 +58,14 @@ describe("registerUploadedFichier", () => {
 
     const result = await registerUploadedFichier(upload, db.knex);
 
-    expect(headObject).toHaveBeenCalledWith(`pending/${id}`);
-    expect(copyObject).toHaveBeenCalledWith(`pending/${id}`, `files/${id}`);
+    expect(headObject).toHaveBeenCalledWith(`pending/${uploadId}`);
+    expect(copyObject).toHaveBeenCalledWith(`pending/${uploadId}`, `files/${id}`);
+    expect(copyObject).not.toHaveBeenCalledWith(expect.anything(), `files/${uploadId}`);
     expect(addFile).toHaveBeenCalledWith(
       { id, name: "arrete.pdf", media_type: "application/pdf", size: "12" },
       db.knex,
     );
-    expect(deleteObject).toHaveBeenCalledWith(`pending/${id}`);
+    expect(deleteObject).toHaveBeenCalledWith(`pending/${uploadId}`);
     expect(result).toEqual({ id, name: "arrete.pdf" });
     // The insert must be done before the pending object goes away.
     expect(addFile.mock.invocationCallOrder[0]).toBeLessThan(
@@ -107,7 +114,7 @@ describe("registerUploadedFichier", () => {
     ).rejects.toMatchObject({
       status: 413,
     });
-    expect(deleteObject).toHaveBeenCalledWith(`pending/${id}`);
+    expect(deleteObject).toHaveBeenCalledWith(`pending/${uploadId}`);
     expect(copyObject).not.toHaveBeenCalled();
   });
 
@@ -146,7 +153,7 @@ describe("loadPendingUploadContent", () => {
     });
 
     expect((await loadPendingUploadContent(upload)).toString()).toBe("abcdef");
-    expect(objectStorage.getObject).toHaveBeenCalledWith(`pending/${id}`);
+    expect(objectStorage.getObject).toHaveBeenCalledWith(`pending/${uploadId}`);
   });
 
   it("fails before reading when the object was never sent", async () => {

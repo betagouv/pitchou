@@ -69,7 +69,7 @@ test("les lignes sans type d'impact forment leur propre groupe, sans colonne", (
 
   expect(groupes.map(({ typeImpact }) => typeImpact)).toEqual([
     "Capture pour captivité",
-    "Type d'impact non-renseignée",
+    "Type d’impact non renseigné",
   ]);
   expect(groupes[1].criteriaAllowed).toEqual([]);
   expect(groupes[1].especes[0].impactsValues).toEqual([]);

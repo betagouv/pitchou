@@ -160,6 +160,7 @@ export async function deleteAvisExpert(
 export function getAvisExpertFilesForUser(
   userId: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  dossierIds?: Dossier["id"][],
 ): Promise<
   {
     dossier: Dossier["id"];
@@ -173,6 +174,9 @@ export function getAvisExpertFilesForUser(
     .select("avis_expert.expert as expert")
     .select(databaseConnection.raw('avis_expert.saisine_fichier is not null as "hasSaisineFile"'))
     .select(databaseConnection.raw('avis_expert.avis_fichier is not null as "hasAvisFile"'))
+    .modify((query) => {
+      if (dossierIds) query.whereIn("dossier", dossierIds);
+    })
     .whereIn(
       "dossier",
       dossierAccessQuery(userId, databaseConnection).clearSelect().select("dossier.id"),

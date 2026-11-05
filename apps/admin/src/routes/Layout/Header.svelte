@@ -116,8 +116,12 @@
         disabled={pageHeader.action.disabled}
         onclick={pageHeader.action.onClick}
       >
-        <span class={pageHeader.action.icon ?? "fr-icon-add-line"} aria-hidden="true"></span>
-        <span class="sr-only">{pageHeader.action.label}</span>
+        {#if pageHeader.action.presentation === "text"}
+          <span class="px-2 text-sm font-medium">{pageHeader.action.label}</span>
+        {:else}
+          <span class={pageHeader.action.icon ?? "fr-icon-add-line"} aria-hidden="true"></span>
+          <span class="sr-only">{pageHeader.action.label}</span>
+        {/if}
       </button>
     {/if}
   </div>

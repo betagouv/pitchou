@@ -117,7 +117,8 @@ export type DossierFull = Omit<
     latestCommentaire: string | null;
     projet_map: GeoJSONFeatureCollection | null;
     especesImpactees: FrontEndImpactOnEspecesWithSourceFile;
-    evenementsPhase: EvenementPhaseDossier[];
+    // Older saved states and optimistic events do not have a database recording time yet.
+    evenementsPhase: (Omit<EvenementPhaseDossier, "recorded_at"> & { recorded_at?: Date })[];
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExpert: FrontEndAvisExpert[];
     piecesJointesPetitionnaires: (Pick<

@@ -18,7 +18,9 @@ export function exportDossiersQuery(
       "demarche_numerique_number",
       "dossier.name",
       "depot_date",
-      trx.raw("CASE WHEN source = 'onagre' THEN ddep_depot_date ELSE NULL END AS ddep_depot_date"),
+      trx.raw(
+        "CASE WHEN dossier.source = 'onagre' THEN ddep_depot_date ELSE NULL END AS ddep_depot_date",
+      ),
       "main_activite",
       "activite.label as activite_label",
       "primary_department",
@@ -30,6 +32,9 @@ export function exportDossiersQuery(
       "porteur_pp.first_names as demandeur_personne_physique_first_names",
       "porteur_entreprise.legal_name as demandeur_personne_morale_legal_name",
       "porteur_entreprise.siret as demandeur_personne_morale_siret",
+      trx.raw(`case when porteur_organisation.id is null then null else
+        (to_jsonb(porteur_organisation) - 'id') || jsonb_build_object('type', 'organisation')
+        end as organisation`),
       "linked_to_ae_regime",
       "ddep_required",
       "er_mesures_sufficient",

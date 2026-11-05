@@ -113,7 +113,13 @@ for (const width of [1280, 320]) {
       mode: "include",
     });
     await page.unroute(groupEndpoint);
+    const groupSaved = page.waitForResponse(
+      (response) =>
+        response.url().endsWith(`/api/dossiers/${dossier.id}/affectations`) &&
+        response.request().method() === "POST",
+    );
     await groupForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
+    expect((await groupSaved).status()).toBe(200);
     await expect(groupForm).toHaveCount(0);
     await expect(group).toContainText("Exclusion manuelle");
     expect(await db("dossier_group_override").where(groupKey).first()).toMatchObject({
@@ -133,7 +139,13 @@ for (const width of [1280, 320]) {
       access_level: "read",
     });
     await page.unroute(personEndpoint);
+    const personSaved = page.waitForResponse(
+      (response) =>
+        response.url().endsWith(`/api/dossiers/${dossier.id}/acces-utilisateurs`) &&
+        response.request().method() === "POST",
+    );
     await personForm.getByRole("button", { name: "Enregistrer", exact: true }).click();
+    expect((await personSaved).status()).toBe(200);
     await expect(personForm).toHaveCount(0);
     await expect(person.getByText("Instruction", { exact: true })).toBeVisible();
     await expect(person.getByText(/^Accès effectif/u)).toHaveCount(0);

@@ -25,6 +25,7 @@ describe("porteurFormErrors", () => {
 
 test("the payload only carries the fields of the chosen type", () => {
   const form = {
+    ...emptyPorteurForm(),
     type: "personne_morale" as const,
     lastName: "x",
     firstNames: "y",
