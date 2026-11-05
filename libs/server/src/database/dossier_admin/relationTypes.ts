@@ -1,4 +1,5 @@
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
+import type { PorteurDeProjetOrganisation } from "@pitchou/types/porteurDeProjet.ts";
 
 export type AdminIdentiteDossierType = "demandeur" | "mandataire" | "representant";
 export type AdminDossierIdentite = {
@@ -34,10 +35,18 @@ export type AdminDossierRelations = BaseRelations &
         demandeur_type: "personne_physique";
         demandeur_personne_physique: AdminDemandeurPersonnePhysiqueRelations;
         demandeur_personne_morale: null;
+        demandeur_organisation?: null;
       }
     | {
         demandeur_type: "personne_morale";
         demandeur_personne_physique: null;
         demandeur_personne_morale: AdminDemandeurPersonneMoraleRelations;
+        demandeur_organisation?: null;
+      }
+    | {
+        demandeur_type: "organisation";
+        demandeur_personne_physique: null;
+        demandeur_personne_morale: null;
+        demandeur_organisation: Omit<PorteurDeProjetOrganisation, "type">;
       }
   );

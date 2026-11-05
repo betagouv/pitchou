@@ -15,18 +15,18 @@ export async function writePhase(client, dossierKey, record, dossierId) {
     if (Number(oldDossier) !== Number(dossierId)) throw new Error("Phase ownership changed");
     const live = (
       await client.query(
-        "SELECT phase,timestamp FROM evenement_phase_dossier WHERE dossier=$1 AND phase=$2 AND timestamp=$3 FOR UPDATE",
+        "SELECT phase,timestamp FROM evenement_phase_dossier WHERE dossier=$1 AND phase=$2 AND timestamp IS NOT DISTINCT FROM $3 FOR UPDATE",
         [dossierId, oldPhase, oldTimestamp],
       )
     ).rows[0];
     if (!live) throw new Error(`Imported phase was edited or deleted: ${sourceKey}`);
-    const current = { ...live, timestamp: live.timestamp.toISOString() };
+    const current = { ...live, timestamp: live.timestamp?.toISOString() ?? null };
     const result = mergeFields(identity.last_fields, current, values);
     if (result.conflicts.length > 0 || result.preserved.length > 0)
       throw new Error(`Conflict for phase ${sourceKey}`);
     if (Object.keys(result.updates).length > 0) {
       await client.query(
-        "UPDATE evenement_phase_dossier SET phase=$4,timestamp=$5 WHERE dossier=$1 AND phase=$2 AND timestamp=$3",
+        "UPDATE evenement_phase_dossier SET phase=$4,timestamp=$5 WHERE dossier=$1 AND phase=$2 AND timestamp IS NOT DISTINCT FROM $3",
         [dossierId, oldPhase, oldTimestamp, values.phase, values.timestamp],
       );
       status = "updated";
@@ -34,7 +34,7 @@ export async function writePhase(client, dossierKey, record, dossierId) {
   } else {
     const exists = (
       await client.query(
-        "SELECT 1 FROM evenement_phase_dossier WHERE dossier=$1 AND phase=$2 AND timestamp=$3",
+        "SELECT 1 FROM evenement_phase_dossier WHERE dossier=$1 AND phase=$2 AND timestamp IS NOT DISTINCT FROM $3",
         [dossierId, values.phase, values.timestamp],
       )
     ).rows.length;

@@ -20,16 +20,16 @@ fi
 if [ "$PITCHOU_APP" = "admin" ]; then
   exec node apps/admin/build/index.js
 else
-  if [ "$PUBLIC_PITCHOU_ENV" = "staging" ]; then
+  if [ "$PUBLIC_PITCHOU_ENV" = "staging" ] && [ "${STAGING_RESET_DATA:-false}" = "true" ]; then
     echo "Resetting staging database (drop + recreate public schema)…"
-    pnpm --filter @pitchou/database exec node --import tsx scripts/wipe-schema.ts || echo "⚠ staging schema wipe failed (non-fatal)"
+    pnpm --filter @pitchou/database exec node --import tsx scripts/wipe-schema.ts
     echo "Emptying staging S3 bucket…"
-    aws s3 rm "s3://$S3_BUCKET" --recursive || echo "⚠ staging S3 wipe failed (non-fatal)"
+    aws s3 rm "s3://$S3_BUCKET" --recursive
   fi
   pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js migrate:latest --env production
-  if [ "$PUBLIC_PITCHOU_ENV" = "staging" ]; then
+  if [ "$PUBLIC_PITCHOU_ENV" = "staging" ] && [ "${STAGING_RESET_DATA:-false}" = "true" ]; then
     echo "Seeding staging data…"
-    pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js seed:run --env staging || echo "⚠ staging seed failed (non-fatal)"
+    pnpm --filter @pitchou/database exec node --import tsx ./node_modules/knex/bin/cli.js seed:run --env staging
   fi
   exec node apps/instructeur/build/index.js
 fi

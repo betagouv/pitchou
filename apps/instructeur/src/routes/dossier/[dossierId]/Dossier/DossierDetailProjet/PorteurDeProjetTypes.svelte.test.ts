@@ -128,3 +128,56 @@ test("the porteur block lists every column of its personne physique or entrepris
   const morale = labels({ type: "personne_morale", siret: "12345678900001" });
   for (const label of Object.values(companyPropertyLabels)) expect(morale).toContain(label);
 });
+
+test.each([
+  ["onagre", "Organisation déclarée dans Onagre — à vérifier"],
+  ["Autre registre", "Organisation déclarée dans Autre registre — à vérifier"],
+])("declared organisation keeps its name, provenance and uncertainty for %s", (source, label) => {
+  const view = render(PorteurDeProjet, {
+    dossier: {
+      ...dossier,
+      porteur_de_projet: {
+        type: "organisation",
+        name: "Association des marais",
+        address: "1 rue du Lac",
+        siren: null,
+        verification_status: "source_declared",
+        source,
+        source_reference: "ORG-42",
+        verification_evidence: null,
+      },
+    },
+  });
+  const block = view.container.querySelector('[aria-label="Porteur de projet"]')!;
+  expect(block.querySelector("h4")?.textContent).toContain("Association des marais");
+  for (const value of [label, "ORG-42", "1 rue du Lac"]) expect(block.textContent).toContain(value);
+  expect(block.textContent).not.toContain("SIRET");
+  expect(block.textContent).not.toContain("Organisation vérifiée");
+  expect(block.textContent).not.toContain("Personne physique");
+});
+
+test("verified organisation displays the evidence and only a SIREN, keeping establishment uncertainty", () => {
+  const view = render(PorteurDeProjet, {
+    dossier: {
+      ...dossier,
+      porteur_de_projet: {
+        type: "organisation",
+        name: "Commune des marais",
+        address: null,
+        siren: "123456789",
+        verification_status: "verified",
+        source: "onagre",
+        source_reference: "ORG-43",
+        verification_evidence: "Registre consulté le 4 novembre 2026",
+      },
+    },
+  });
+  const block = view.container.querySelector('[aria-label="Porteur de projet"]')!;
+  for (const value of [
+    "Organisation vérifiée — établissement à confirmer",
+    "123 456 789",
+    "Registre consulté le 4 novembre 2026",
+  ])
+    expect(block.textContent).toContain(value);
+  expect(block.textContent).not.toContain("SIRET");
+});

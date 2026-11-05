@@ -14,9 +14,10 @@
     dossierId: Dossier["id"];
     dossierName: Dossier["name"];
     onClose: () => void;
+    onSaved?: () => void;
   };
 
-  let { dossierId, dossierName, onClose }: Props = $props();
+  let { dossierId, dossierName, onClose, onSaved }: Props = $props();
 
   const titleId = $derived(`assign-dossier-followers-title-${dossierId}`);
   let dialogElement: HTMLDialogElement | undefined = $state();
@@ -93,12 +94,15 @@
       }
       store.followRelations = followRelations;
 
-      const notificationPromise = loadNotificationByDossierForCurrentInstructeur();
+      const notificationPromise = onSaved
+        ? undefined
+        : loadNotificationByDossierForCurrentInstructeur();
       notificationPromise?.catch((error) =>
         console.warn("Failed to reload dossier notifications", error),
       );
       // The metric event is recorded server-side, with the historique entries.
       dialogElement?.close();
+      onSaved?.();
     } catch (error) {
       console.error("Failed to update dossier followers", error);
       errorMessage = "L’attribution du dossier a échoué. Veuillez réessayer.";

@@ -7,16 +7,23 @@
   import Select from "@pitchou/ui/Select.svelte";
 
   let {
+    disabled = false,
     followedOnly = false,
     localisation = "assigned",
-    dossierIds,
+    dossierIds = [],
+    query,
+    totalDemandes,
     chips = [],
   }: {
+    disabled?: boolean;
     followedOnly?: boolean;
     localisation?: Localisation;
-    dossierIds: DossierSummary["id"][];
+    dossierIds?: DossierSummary["id"][];
+    query?: string;
+    totalDemandes?: number;
     chips?: FilterChip[];
   } = $props();
+  const count = $derived(totalDemandes ?? dossierIds.length);
   let dialog: HTMLDialogElement;
   let format = $state<DossiersExportFormat>("ods");
   let exporting = $state(false);
@@ -40,10 +47,15 @@
     errorMessage = "";
     const selectedFormat = format;
     const scope = followedOnly ? "followed" : localisation === "france" ? "france" : "service";
-    const selectedIds = [...dossierIds];
+    const selectedIds = query === undefined ? [...dossierIds] : undefined;
+    const selectedQuery = query;
+    const selectedCount = count;
     const downloadPage = followedOnly ? "mes-dossiers" : "tous-les-dossiers";
     try {
-      const blob = await exportDossiers(scope, selectedFormat, selectedIds);
+      const blob =
+        selectedQuery === undefined
+          ? await exportDossiers(scope, selectedFormat, selectedIds)
+          : await exportDossiers(scope, selectedFormat, undefined, selectedQuery);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -62,7 +74,7 @@
           page: downloadPage,
           format: selectedFormat,
           scope,
-          dossierCount: selectedIds.length,
+          dossierCount: selectedCount,
         },
       });
       setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -81,7 +93,7 @@
   type="button"
   class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-download-line fr-btn--icon-left"
   aria-haspopup="dialog"
-  disabled={!store.capabilities.exporterDossiers || exporting}
+  disabled={disabled || !store.capabilities.exporterDossiers || exporting}
   onclick={openExport}
 >
   Exporter les dossiers
@@ -115,7 +127,7 @@
   <h2 id="export-dossiers-title">Exporter les dossiers</h2>
   <p>
     Vous allez exporter <strong
-      >{dossierIds.length} dossier{dossierIds.length > 1 ? "s" : ""}</strong
+      >{count} {query === undefined ? "dossier" : "demande"}{count > 1 ? "s" : ""}</strong
     >
     de la page "{followedOnly ? "Mes dossiers" : "Tous les dossiers"}". L'export prend en compte les
     filtres actifs et inclut toutes les pages de résultats.
@@ -149,7 +161,7 @@
   <button
     type="button"
     class="fr-btn fr-icon-download-line fr-btn--icon-left"
-    disabled={exporting || dossierIds.length === 0}
+    disabled={exporting || count === 0}
     onclick={download}>{exporting ? "Export en cours…" : "Télécharger l'export"}</button
   >
   <p class="fr-sr-only" role="status">{exporting ? "Export en cours." : ""}</p>

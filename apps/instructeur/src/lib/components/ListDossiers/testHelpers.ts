@@ -1,6 +1,21 @@
 import { parseDossiersQuery, type DossiersQuery, type DossiersContext } from "./listModel.ts";
 import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 import type { PitchouState } from "#lib/state/store.svelte.ts";
+import type { DossiersListPage } from "@pitchou/types/dossierList.ts";
+
+export function makeServerPage(overrides: Partial<DossiersListPage> = {}): DossiersListPage {
+  return {
+    items: [],
+    total: 0,
+    totalDemandes: 0,
+    scopeTotal: 0,
+    page: 1,
+    pageSize: 10,
+    followRelations: [],
+    notifications: [],
+    ...overrides,
+  };
+}
 
 /** Brands a raw number as a DossierId for the test fixtures */
 export const dossierId = (n: number) => n as DossierSummary["id"];

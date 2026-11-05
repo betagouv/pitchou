@@ -1,3 +1,4 @@
+import { buildCreationRelations } from "./creationRelations.ts";
 import type { AdminDossierCreationPayload } from "#lib/actions/adminDossiers.ts";
 import { communeDepartmentCode } from "#lib/dossierLocation.ts";
 
@@ -8,32 +9,7 @@ import { activiteDetailKind, showsRequestContext } from "./visibility.ts";
 const nullable = (value: string) => value.trim() || null;
 
 export function buildCreationPayload(model: DossierCreationModel): AdminDossierCreationPayload {
-  const contactEmail = nullable(model.contactEmail);
-  const contactPhone = nullable(model.contactPhone);
-  const isPhysical = model.demandeurType === "personne_physique";
-  const lastName = isPhysical
-    ? model.physicalLastName.trim()
-    : model.personneContactLastName.trim();
-  const firstNames = isPhysical
-    ? model.physicalFirstNames.trim()
-    : model.personneContactFirstNames.trim();
-  const role = nullable(isPhysical ? model.physicalQualification : model.personneContactRole);
-  const manualAddress = [model.physicalStreet, model.physicalCity].filter(Boolean).join(", ");
-  const physicalCountry =
-    model.physicalCountry === "Autre pays" ? model.physicalOtherCountry : model.physicalCountry;
-  const physicalAddress = model.physicalManualAddress
-    ? nullable([manualAddress, physicalCountry].filter(Boolean).join(", "))
-    : nullable(model.physicalAddress);
   const { departments, communes } = buildLocation(model);
-  const identity = {
-    type: "demandeur" as const,
-    last_name: lastName,
-    first_names: firstNames,
-    email: contactEmail,
-    phone: contactPhone,
-    role,
-  };
-  const identites = isPhysical ? [identity] : [{ ...identity, type: "representant" as const }];
   const requestContext = showsRequestContext(model.activiteCode)
     ? nullable(model.requestContext)
     : null;
@@ -49,30 +25,7 @@ export function buildCreationPayload(model: DossierCreationModel): AdminDossierC
     name: model.name.trim(),
     depot_date: model.depotDate || null,
     phase: model.phase,
-    relations: {
-      demandeur_type: isPhysical ? "personne_physique" : "personne_morale",
-      demandeur_personne_physique: isPhysical
-        ? {
-            last_name: lastName,
-            first_names: firstNames,
-            email: contactEmail,
-            address: physicalAddress,
-            phone: contactPhone,
-            role,
-          }
-        : null,
-      demandeur_personne_morale: isPhysical
-        ? null
-        : {
-            siret: model.legalSiret.replaceAll(" ", ""),
-            legal_name: null,
-            address: null,
-            postal_code: null,
-            department: null,
-            region: null,
-          },
-      identites,
-    } as AdminDossierCreationPayload["relations"],
+    relations: buildCreationRelations(model),
     columns: {
       ...buildCreationColumns(model, type, requestContext),
       communes: model.locationScope === "communes" ? communes : [],

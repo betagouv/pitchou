@@ -8,7 +8,7 @@
   import DossierNotificationBadges from "#lib/components/DossierNotificationBadges.svelte";
   import { store } from "#lib/state/store.svelte.ts";
   import { dossierIsFollowed } from "./filtering.ts";
-  import { applicantName } from "./presentation.ts";
+  import DossierPorteurSummary from "./DossierPorteurSummary.svelte";
   import PhaseProgress from "./PhaseProgress.svelte";
   import { PROJECT_GRID, TILE_GRID } from "./rowLayout.ts";
   import DemandeSummary from "./DemandeSummary.svelte";
@@ -21,6 +21,7 @@
     dossierFollowedByCurrentInstructeur: boolean;
     readOnly?: boolean;
     onEditDueDate?: () => void;
+    onAssignmentSaved?: () => void;
   };
 
   let {
@@ -31,6 +32,7 @@
     notificationViewed,
     readOnly = false,
     onEditDueDate,
+    onAssignmentSaved,
   }: Props = $props();
 
   const name = $derived(dossier.name || "(nom non renseigné)");
@@ -38,7 +40,6 @@
   const canEdit = $derived(dossier.access === "complet" && !readOnly);
   const unread = $derived(!readOnly && notificationViewed === false);
   const followed = $derived(dossierIsFollowed(dossier.id, store.followRelations));
-  const porteurDeProjet = $derived(applicantName(dossier));
   const localisation = $derived(formatLocalisation(dossier) || "(non renseignée)");
 </script>
 
@@ -77,6 +78,7 @@
              dossier while the page keeps a single, properly named link. Controls
              that do something else sit above it. -->
         <a
+          data-sveltekit-preload-data="false"
           href={`/dossier/${dossier.id}${readOnly || dossier.access === "lecture" ? "?lecture=1" : ""}`}
           class="project-title fr-link block truncate text-[color:var(--text-title-grey)] after:absolute after:inset-0 after:content-[''] {unread
             ? 'font-bold'
@@ -94,13 +96,7 @@
   </div>
 
   <div class="min-w-0">
-    <p
-      class="dossier-text fr-mb-0 truncate {unread ? 'font-bold' : 'font-normal'}"
-      title={porteurDeProjet}
-    >
-      <span class="fr-sr-only">Porteur de projet&nbsp;:</span>
-      {porteurDeProjet}
-    </p>
+    <DossierPorteurSummary {dossier} {unread} />
     <p
       class="dossier-text fr-mb-0 flex min-w-0 items-center gap-1 text-[color:var(--text-mention-grey)]"
     >
@@ -136,6 +132,7 @@
         dossierId={dossier.id}
         dossierName={dossier.name}
         {onEditDueDate}
+        {onAssignmentSaved}
       />{/if}
   </div>
 </div>

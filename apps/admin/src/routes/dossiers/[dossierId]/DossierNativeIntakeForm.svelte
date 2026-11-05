@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { organisationErrors } from "../organisation.ts";
   import { can } from "#lib/access.svelte.ts";
   import { setFileAccess } from "../fileAccess.ts";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
@@ -63,6 +64,10 @@
   );
 
   function invalidPorteurField(): string | null {
+    if (model.demandeurType === "organisation") {
+      const field = Object.keys(organisationErrors(model.organisation))[0];
+      if (field) return `organisation-${field}`;
+    }
     if (!model.demandeurType) return "demandeur-physical";
     if (model.demandeurType === "personne_physique") {
       if (!model.physicalLastName.trim()) return "physical-last-name";

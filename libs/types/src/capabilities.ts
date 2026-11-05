@@ -71,7 +71,8 @@ export interface PitchouInstructeurCapabilities {
   exporterDossiers: (
     scope: DossiersExportScope,
     format: DossiersExportFormat,
-    dossierIds: Dossier["id"][],
+    dossierIds?: Dossier["id"][],
+    query?: string,
   ) => Promise<Blob>;
   /**
    * `readOnly` requests the restricted projection available to other services,

@@ -13,6 +13,7 @@ const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
     anyOf: ["groups:manage"],
   },
   { method: "PUT", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:update"] },
+  { method: "PUT", path: /^\/api\/dossiers\/[^/]+\/porteur$/u, anyOf: ["admin:dossiers:update"] },
   { method: "DELETE", path: /^\/api\/dossiers\/[^/]+$/u, anyOf: ["admin:dossiers:delete"] },
   {
     method: "POST",

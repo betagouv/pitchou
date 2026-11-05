@@ -38,7 +38,7 @@ try {
   sibling.label = "Second demande";
   Object.assign(sibling.proposal.dossier, {
     description: "Second",
-    onagre_demande_identifier: `group-test-${sibling.identity.sourceId}`,
+    onagre_demande_identifier: project.demandes[0].proposal.dossier.onagre_demande_identifier,
     primary_department: "71",
     departments: ["71"],
   });
@@ -62,6 +62,7 @@ try {
   assert.equal(first.length, 2);
   assert.equal(first[0].projectId, first[1].projectId);
   const ids = first.map((row) => row.dossierId);
+  assert.notEqual(ids[0], ids[1], "Repeated display codes must not merge distinct source IDs");
   assert.equal((await c.trx("dossier_demande").where({ projet: first[0].projectId })).length, 2);
   for (const id of ids)
     assert.equal(
@@ -153,6 +154,54 @@ try {
   await c.trx("dossier_user_access").where({ dossier: ids[0], user_id: reviewer.id }).delete();
   await assert.rejects(() => run(), /reviewer grant was changed/u);
   await c.query("ROLLBACK TO SAVEPOINT revoked_review");
+  const initialId = String(BigInt(sourceId) + 2n);
+  const initialKey = `onagre-national:projet:${initialId}:initial-demande`;
+  const initial = {
+    formatVersion: 2,
+    identity: {
+      sourceInstance: "onagre-national",
+      sourceTable: "projet",
+      sourceId: initialId,
+      key: `onagre-national:projet:${initialId}`,
+    },
+    proposal: { name: "Synthetic project without source demandes" },
+    omittedDemandes: [],
+    demandes: [
+      {
+        formatVersion: 1,
+        identity: {
+          sourceInstance: "onagre-national",
+          sourceTable: "projet",
+          sourceId: initialId,
+          projetId: initialId,
+          key: initialKey,
+        },
+        label: "Demande initiale — projet Onagre sans demande",
+        source: { rows: { projet: [{ projetid: initialId }], demandes: [] }, relatedDemandes: [] },
+        proposal: {
+          dossier: {
+            source: "onagre",
+            depot_date: null,
+            ddep_depot_date: null,
+            onagre_demande_identifier: "",
+          },
+          records: [],
+          speciesImpacts: [],
+        },
+      },
+    ],
+  };
+  const createdInitial = (await run(initial))[0];
+  const replayedInitial = (await run(initial))[0];
+  assert.equal(createdInitial.dossierId, replayedInitial.dossierId);
+  assert(replayedInitial.outcomes.every((item) => item.status === "unchanged"));
+  const initialRow = await c.trx("dossier").where({ id: createdInitial.dossierId }).first();
+  assert.equal(initialRow.onagre_demande_identifier, "");
+  assert.equal(initialRow.ddep_depot_date, null);
+  assert.equal(
+    (await c.trx("evenement_phase_dossier").where({ dossier: createdInitial.dossierId })).length,
+    0,
+  );
   console.log(
     "Passed project checks: independent demandes, stable group and demande IDs, shared rule routing, silent notifications, corrections, local labels/titles/unfollows, explicit exclusions, rollback on conflicts, retained missing demandes and refused grant restoration. All writes rolled back.",
   );

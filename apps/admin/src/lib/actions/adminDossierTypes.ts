@@ -1,5 +1,8 @@
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
-import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import type {
+  PorteurDeProjet,
+  PorteurDeProjetOrganisation,
+} from "@pitchou/types/porteurDeProjet.ts";
 import type { DossierActeur } from "@pitchou/types/dossierActeur.ts";
 
 export type AdminDossierSummary = {
@@ -49,7 +52,7 @@ export type AdminGroupeInstructeurs = {
 
 export type AdminPhaseHistoryEntry = {
   phase: string;
-  timestamp: string;
+  timestamp: string | null;
   caused_by_email: string | null;
   demarche_numerique_agent_email: string | null;
 };
@@ -100,11 +103,19 @@ export type AdminDossierRelationsPayload = AdminDossierRelationsPayloadBase &
           role: string | null;
         };
         demandeur_personne_morale: null;
+        demandeur_organisation?: null;
       }
     | {
         demandeur_type: "personne_morale";
         demandeur_personne_physique: null;
         demandeur_personne_morale: AdminDemandeurPersonneMorale;
+        demandeur_organisation?: null;
+      }
+    | {
+        demandeur_type: "organisation";
+        demandeur_personne_physique: null;
+        demandeur_personne_morale: null;
+        demandeur_organisation: Omit<PorteurDeProjetOrganisation, "type">;
       }
   );
 
@@ -140,11 +151,12 @@ export type AdminDossierMinimalCreationPayload = {
   primary_department: string;
   porteur_de_projet:
     | { type: "personne_physique"; last_name: string; first_names: string }
-    | { type: "personne_morale"; siret: string };
+    | { type: "personne_morale"; siret: string }
+    | PorteurDeProjetOrganisation;
 };
 
 export type AdminDossierUpdatePayload = {
   columns?: Record<string, unknown>;
-  evenementsPhase?: { phase: string; timestamp: string }[];
+  evenementsPhase?: { phase: string; timestamp: string | null }[];
   relations?: AdminDossierRelationsPayload;
 };

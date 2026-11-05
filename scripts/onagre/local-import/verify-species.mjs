@@ -47,9 +47,9 @@ try {
           values: {
             cd_ref: species.cd_ref,
             classification: species.classification,
-            impact_type: type.identifiant_pitchou,
+            impact_type: null,
             impact_methode: null,
-            impact_moyen_de_poursuite: pursuit.code,
+            impact_moyen_de_poursuite: null,
             nombre_individus: null,
             nids: null,
             oeufs: null,
@@ -96,6 +96,15 @@ try {
       source_file: file.targetId,
     },
   ]);
+  assert.equal(roundtrip[0].impact_type, null);
+  const invalidUnknown = structuredClone(sample.proposal.speciesImpacts);
+  invalidUnknown[0].values.impact_moyen_de_poursuite = pursuit.code;
+  await assert.rejects(() => speciesWorkbook(c, invalidUnknown, key), /not applicable/u);
+  const invalidType = structuredClone(sample.proposal.speciesImpacts);
+  invalidType[0].values.impact_type = "unknown-reference";
+  await assert.rejects(() => speciesWorkbook(c, invalidType, key), /reference no longer/u);
+  sample.proposal.speciesImpacts[0].values.impact_type = type.identifiant_pitchou;
+  sample.proposal.speciesImpacts[0].values.impact_moyen_de_poursuite = pursuit.code;
   sample.proposal.speciesImpacts[0].values.nombre_individus = "11-100";
   const changed = await run();
   assert.equal(changed.outcomes.find((row) => row.table === "impact_espece").status, "updated");

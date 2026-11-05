@@ -2,6 +2,7 @@
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
   import type { PitchouState } from "#lib/state/store.svelte.ts";
   import type { DossiersQuery } from "./listModel.ts";
+  import type { DossiersListOptions } from "@pitchou/types/dossierList.ts";
   import { clearFilters } from "./listModel.ts";
   import DossiersFilterSections from "./DossiersFilterSections.svelte";
   import DossiersEspecesPanel from "./DossiersEspecesPanel.svelte";
@@ -10,6 +11,7 @@
     open: boolean;
     draft: DossiersQuery;
     dossiers: DossierSummary[];
+    options?: DossiersListOptions;
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
     showLocalisationScope?: boolean;
@@ -23,6 +25,7 @@
     open,
     draft = $bindable(),
     dossiers,
+    options,
     followRelations,
     showFilterInstructeurice,
     showLocalisationScope = true,
@@ -98,6 +101,7 @@
         <DossiersFilterSections
           bind:draft
           {dossiers}
+          {options}
           {followRelations}
           {showFilterInstructeurice}
           {showLocalisationScope}

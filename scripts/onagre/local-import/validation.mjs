@@ -1,4 +1,5 @@
 import { validateSpecies } from "./species.mjs";
+import { validateActors } from "./actors.mjs";
 export const columns = {
   dossier: [
     "source",
@@ -61,18 +62,24 @@ export function validateFields(table, values) {
 }
 export function validateSample(sample) {
   const identity = sample.identity;
+  const initial = identity?.sourceTable === "projet";
   if (
     sample.formatVersion !== 1 ||
     identity?.sourceInstance !== "onagre-national" ||
-    identity.sourceTable !== "demandes" ||
+    !["demandes", "projet"].includes(identity.sourceTable) ||
     typeof identity.sourceId !== "string" ||
     !/^\d+$/u.test(identity.sourceId) ||
-    identity.key !== `onagre-national:demandes:${identity.sourceId}`
+    identity.key !==
+      (initial
+        ? `onagre-national:projet:${identity.sourceId}:initial-demande`
+        : `onagre-national:demandes:${identity.sourceId}`)
   )
     throw new Error("Invalid source identity");
   validateFields("dossier", sample.proposal?.dossier);
+  validateActors(sample.proposal);
   if (sample.proposal.dossier.source !== "onagre" || sample.proposal.dossier.depot_date !== null)
     throw new Error("Expected Onagre source and unknown creation date");
+  if (initial) validateInitialDemande(sample);
   const records = sample.proposal.records ?? [];
   if (sample.proposal.speciesImpacts !== undefined) validateSpecies(sample.proposal.speciesImpacts);
   if (!Array.isArray(records)) throw new Error("Expected records array");
@@ -96,14 +103,48 @@ export function validateSample(sample) {
       (!["Instruction", "Contrôle", "Classé sans suite", "Obligations terminées"].includes(
         record.values.phase,
       ) ||
-        !/^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/u.test(record.values.timestamp ?? "") ||
-        new Date(record.values.timestamp).toISOString() !== record.values.timestamp)
+        (record.values.timestamp !== null &&
+          (!/^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/u.test(record.values.timestamp ?? "") ||
+            new Date(record.values.timestamp).toISOString() !== record.values.timestamp)))
     )
       throw new Error("Invalid historical phase");
     known.set(record.sourceKey, record.table);
   }
   for (const impact of sample.proposal.speciesImpacts ?? []) {
     if (known.has(impact.sourceKey)) throw new Error("Duplicate species identity");
+    known.set(impact.sourceKey, "especes_impactees_par_dossier");
+  }
+  const actorKeys = [
+    `${identity.key}:porteur`,
+    `${identity.key}:porteur:person`,
+    `${identity.key}:porteur:organisation`,
+    ...(sample.proposal.contacts ?? []).flatMap(({ sourceKey }) => [
+      `${sourceKey}:person`,
+      `${sourceKey}:contact`,
+    ]),
+  ];
+  for (const key of actorKeys) {
+    if (known.has(key)) throw new Error("Duplicate actor identity");
+    known.set(key, "actor");
   }
   return sample;
+}
+
+function validateInitialDemande(sample) {
+  const identity = sample.identity;
+  if (
+    identity.projetId !== identity.sourceId ||
+    !sample.label?.startsWith("Demande initiale — projet Onagre sans demande") ||
+    sample.source?.rows?.demandes?.length !== 0 ||
+    sample.source?.relatedDemandes?.length !== 0 ||
+    sample.source?.rows?.projet?.length !== 1 ||
+    sample.source.rows.projet[0].projetid !== identity.sourceId ||
+    sample.proposal.dossier.onagre_demande_identifier !== "" ||
+    sample.proposal.dossier.ddep_depot_date !== null ||
+    (sample.proposal.records ?? []).some((record) => record.table !== "commentaire") ||
+    (sample.proposal.speciesImpacts ?? []).length > 0
+  )
+    throw new Error(
+      "Initial demande requires an explicit label and project-only provenance without invented demande data",
+    );
 }

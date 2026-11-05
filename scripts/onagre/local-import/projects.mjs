@@ -1,4 +1,5 @@
 import { validateSample } from "./validation.mjs";
+import { isDeepStrictEqual } from "node:util";
 import { departementName } from "../../../libs/common/src/departements.ts";
 
 export function prepareDemandeLabel(demande) {
@@ -18,14 +19,14 @@ export function prepareDemandeLabel(demande) {
   // Large geographical perimeters should not overflow the existing label field.
   if (label.length <= 200) return label;
   const compact = departmentLocation ? `${code} — ${departmentLocation}` : code;
-  if (compact.length > 200)
-    throw new Error("Onagre label is too long; review its location summary");
+  if (compact.length > 200) return `${code} — ${departments.length} départements`;
   return compact;
 }
 
 export function validateProjects(projects) {
   const projectKeys = new Set(),
-    demandeKeys = new Set();
+    demandeKeys = new Set(),
+    companies = new Map();
   for (const project of projects) {
     const identity = project.identity;
     if (
@@ -47,8 +48,22 @@ export function validateProjects(projects) {
       throw new Error("Invalid project proposal");
     if (!Array.isArray(project.demandes) || project.demandes.length === 0)
       throw new Error("Project requires demandes");
+    if (
+      project.demandes.some((d) => d.identity?.sourceTable === "projet") &&
+      (project.demandes.length !== 1 || (project.omittedDemandes ?? []).length > 0)
+    )
+      throw new Error("An initial demande is only valid for a project with no source demandes");
     for (const demande of project.demandes) {
       validateSample(demande);
+      const porteur = demande.proposal.porteur;
+      if (porteur?.type === "personne_morale") {
+        if (
+          companies.has(porteur.siret) &&
+          !isDeepStrictEqual(companies.get(porteur.siret), porteur.values)
+        )
+          throw new Error("Conflicting prepared metadata for the same SIRET");
+        companies.set(porteur.siret, porteur.values);
+      }
       if (demande.identity.projetId !== identity.sourceId || demandeKeys.has(demande.identity.key))
         throw new Error("Duplicate demande or mismatched source project");
       if (typeof demande.label !== "string" || !demande.label.trim() || demande.label.length > 200)

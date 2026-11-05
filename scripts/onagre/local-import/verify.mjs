@@ -86,11 +86,32 @@ try {
     first.outcomes.map((o) => o.targetId),
     second.outcomes.map((o) => o.targetId),
   );
+  const recordedAt = async () =>
+    (
+      await client.query(
+        "SELECT recorded_at FROM evenement_phase_dossier WHERE dossier=$1 AND phase=$2",
+        [first.dossierId, "Contrôle"],
+      )
+    ).rows[0].recorded_at.toISOString();
+  const originalRecordingTime = await recordedAt();
+  sample.proposal.records[3].values.timestamp = null;
+  assert.equal((await run()).outcomes.filter((o) => o.status === "updated").length, 1);
+  assert((await run()).outcomes.every((o) => o.status === "unchanged"));
+  assert.equal(
+    (
+      await client.query("SELECT timestamp FROM evenement_phase_dossier WHERE dossier=$1", [
+        first.dossierId,
+      ])
+    ).rows[0].timestamp,
+    null,
+  );
+  assert.equal(await recordedAt(), originalRecordingTime);
   sample.proposal.dossier.ddep_depot_date = "2020-02-02";
   sample.proposal.records[1].values.description = "Corrected prescription";
   sample.proposal.records[3].values.timestamp = "2020-03-02T00:00:00.000Z";
   const changed = await run();
   assert.equal(changed.outcomes.filter((o) => o.status === "updated").length, 3);
+  assert.equal(await recordedAt(), originalRecordingTime);
   sample.proposal.dossier.communes[0].postalCode = "75002";
   assert.equal((await run()).outcomes[0].status, "updated");
   assert.deepEqual(
@@ -152,6 +173,10 @@ try {
   const duplicate = structuredClone(sample);
   duplicate.identity.sourceId += "1";
   duplicate.identity.key += "1";
+  await client.query(
+    "DELETE FROM onagre_local_import.identity WHERE table_name='dossier' AND target_id=$1",
+    [String(first.dossierId)],
+  );
   await assert.rejects(() => run(duplicate), /unowned dossier/u);
   console.log(
     "Passed PostgreSQL checks: stable dossier and child IDs, replay, field and phase updates, local edits, parent/child conflicts, transaction rollback, retained removals, unowned rows, duplicate refusal. All test data rolled back.",

@@ -1,8 +1,36 @@
 import type { ComparisonSection } from "@pitchou/types/demandeComparison.ts";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
+import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
+import { organisationSourceName, organisationStatusLabel } from "../porteurDeProjet.ts";
 import { companyPropertyLabels, identityPropertyLabels } from "@pitchou/types/notification.ts";
 import { involvementLabels } from "@pitchou/types/dossierActeur.ts";
 import { record, fileField } from "./fields.ts";
+
+function porteurRecord(porteur: PorteurDeProjet) {
+  if (porteur.type === "organisation") {
+    return record(
+      "porteur",
+      "Identité",
+      {
+        ...porteur,
+        verification_status: organisationStatusLabel(porteur),
+        source: organisationSourceName(porteur.source),
+      },
+      {
+        name: "Nom",
+        address: "Adresse",
+        siren: "SIREN",
+        verification_status: "Statut de vérification",
+        source: "Source",
+        source_reference: "Référence dans la source",
+        verification_evidence: "Justificatif de vérification",
+      },
+    );
+  }
+  if (porteur.type === "personne_morale")
+    return record("porteur", "Identité", porteur, companyPropertyLabels);
+  return record("porteur", "Identité", porteur, { ...identityPropertyLabels, address: "Adresse" });
+}
 
 export function identitySections(dossier: DossierFull): ComparisonSection[] {
   const sections: ComparisonSection[] = [];
@@ -11,18 +39,7 @@ export function identitySections(dossier: DossierFull): ComparisonSection[] {
     {
       key: "porteur",
       label: "Porteur de projet",
-      records: porteur
-        ? [
-            record(
-              "porteur",
-              "Identité",
-              porteur,
-              porteur.type === "personne_morale"
-                ? companyPropertyLabels
-                : { ...identityPropertyLabels, address: "Adresse" },
-            ),
-          ]
-        : [],
+      records: porteur ? [porteurRecord(porteur)] : [],
     },
     {
       key: "acteurs",

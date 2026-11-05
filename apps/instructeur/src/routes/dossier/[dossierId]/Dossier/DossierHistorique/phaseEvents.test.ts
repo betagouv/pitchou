@@ -37,6 +37,19 @@ function entries(events: PhaseEvent[], actions: DossierAction[] = []) {
   } as DossierFull);
 }
 
+test("an undated phase is ordered by recording time but retains an unknown display date", () => {
+  const history = entries([
+    event("2026-11-04", {
+      timestamp: null,
+      recorded_at: new Date("2026-11-04"),
+      phase: "Contrôle",
+    }),
+    event("2020-01-01"),
+  ]);
+  expect(history[0]).toMatchObject({ value: "Contrôle", date: null, timeKnown: false });
+  expect(history[0].id).toContain("undated");
+});
+
 test("preserves legacy, synced and admin phase events in date order without actions", () => {
   const history = entries([
     event("2025-02-01", { phase: "Étude recevabilité", caused_by_personne: null }),
@@ -86,7 +99,7 @@ test("preserves same-phase admin and synced events even closer to the action cre
     ],
     [action("2026-09-02T10:00:02Z")],
   );
-  expect(history.map(({ date }) => date.toISOString())).toEqual([
+  expect(history.map(({ date }) => date?.toISOString())).toEqual([
     "2026-09-02T10:00:02.000Z",
     "2026-09-02T10:00:01.000Z",
     "2026-09-02T10:00:00.000Z",

@@ -16,6 +16,9 @@ export { deleteUnreferencedDossierPersonnes };
 function porteurDeProjetFromRelations(
   relations: AdminDossierRelations,
 ): PorteurDeProjetInitializer {
+  if (relations.demandeur_type === "organisation") {
+    return { type: "organisation", ...relations.demandeur_organisation };
+  }
   if (relations.demandeur_type === "personne_morale") {
     return { type: "personne_morale", siret: relations.demandeur_personne_morale.siret };
   }
@@ -96,6 +99,15 @@ export async function updateDossierAdminRelations(
     .first();
   if (!current) throw new TypeError(`Unknown dossier: ${dossierId}`);
   await replaceDossierRelations(dossierId, relations, trx);
+  if (relations.demandeur_type === "organisation") {
+    await trx("dossier").where({ id: dossierId }).update({
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: null,
+    });
+    await deleteUnreferencedDossierPersonnes([current.demandeur_personne_physique], trx);
+    await savePorteurDeProjetAndActeurs(dossierId, relations, trx);
+    return;
+  }
   if (relations.demandeur_type === "personne_physique") {
     const { last_name, first_names, email } = relations.demandeur_personne_physique;
     const personneId = await updateOrInsertDossierPersonne(

@@ -11,6 +11,13 @@ export function fakeConnection(queries: { run<T>(name: string, value: T): Promis
   };
   const builder = {
     select: vi.fn().mockReturnThis(),
+    count: vi.fn().mockReturnThis(),
+    groupBy: vi.fn().mockReturnThis(),
+    as: vi.fn().mockReturnThis(),
+    withMaterialized: vi.fn().mockReturnThis(),
+    whereIn: vi.fn().mockReturnThis(),
+    distinctOn: vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     join: vi.fn().mockReturnThis(),
     leftJoin: vi.fn().mockReturnThis(),

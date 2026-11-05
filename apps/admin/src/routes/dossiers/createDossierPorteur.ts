@@ -1,11 +1,18 @@
+import {
+  organisationForm,
+  organisationErrors,
+  organisationPayload,
+  type OrganisationForm,
+} from "./organisation.ts";
 import type { AdminDossierMinimalCreationPayload } from "#lib/actions/adminDossiers.ts";
 import { legalSiretError } from "./nouveau/dossierCreationModel.ts";
 
 export type PorteurForm = {
-  type: "" | "personne_physique" | "personne_morale";
+  type: "" | "personne_physique" | "personne_morale" | "organisation";
   lastName: string;
   firstNames: string;
   siret: string;
+  organisation: OrganisationForm;
 };
 export type PorteurField = keyof PorteurForm;
 
@@ -14,6 +21,7 @@ export const emptyPorteurForm = (): PorteurForm => ({
   lastName: "",
   firstNames: "",
   siret: "",
+  organisation: organisationForm(),
 });
 
 /** Id of the input that receives the focus for each field. */
@@ -22,10 +30,15 @@ export const porteurFieldIds: Record<PorteurField, string> = {
   lastName: "new-porteur-last-name",
   firstNames: "new-porteur-first-names",
   siret: "new-porteur-siret",
+  organisation: "organisation-name",
 };
 
 /** Errors of the porteur de projet, in display order; empty when it can be created. */
 export function porteurFormErrors(form: PorteurForm): Partial<Record<PorteurField, string>> {
+  if (form.type === "organisation")
+    return Object.keys(organisationErrors(form.organisation)).length > 0
+      ? { organisation: "Complétez les informations de l’organisation." }
+      : {};
   if (!form.type) {
     return { type: "Indiquez si le porteur de projet est une personne physique ou morale." };
   }
@@ -42,6 +55,8 @@ export function porteurFormErrors(form: PorteurForm): Partial<Record<PorteurFiel
 export function porteurPayload(
   form: PorteurForm,
 ): AdminDossierMinimalCreationPayload["porteur_de_projet"] {
+  if (form.type === "organisation")
+    return { type: "organisation", ...organisationPayload(form.organisation) };
   return form.type === "personne_morale"
     ? { type: "personne_morale", siret: form.siret.replaceAll(" ", "") }
     : {

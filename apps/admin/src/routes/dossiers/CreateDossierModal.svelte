@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { organisationErrors } from "./organisation.ts";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import { onMount, tick } from "svelte";
   import { goto } from "$app/navigation";
@@ -36,7 +37,11 @@
       // Shown under each invalid field, with the focus on the first one.
       showPorteurErrors = true;
       await tick();
-      document.querySelector<HTMLElement>(`#${CSS.escape(porteurFieldIds[invalidField])}`)?.focus();
+      const fieldId =
+        invalidField === "organisation"
+          ? `organisation-${Object.keys(organisationErrors(porteur.organisation))[0]}`
+          : porteurFieldIds[invalidField];
+      document.querySelector<HTMLElement>(`#${CSS.escape(fieldId)}`)?.focus();
       return;
     }
     saving = true;

@@ -44,7 +44,7 @@ export const dossierFullColumns = [
   "main_activite",
   "activite.code as activite_code",
   "activite.label as activite_label",
-  "source",
+  "dossier.source as source",
   "departments",
   "communes",
   "regions",

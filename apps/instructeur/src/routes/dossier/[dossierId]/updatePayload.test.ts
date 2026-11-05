@@ -5,6 +5,16 @@ import { parseDossierUpdate } from "./updatePayload.ts";
 
 const DOSSIER_ID = 123 as DossierId;
 
+test("accepts an unknown phase date but does not let the client set recording time", () => {
+  const event = { dossier: DOSSIER_ID, phase: "Instruction", timestamp: null };
+  expect(
+    parseDossierUpdate({ evenementsPhase: [event] }, DOSSIER_ID).evenementsPhase?.[0],
+  ).toMatchObject({ timestamp: null });
+  expect(() =>
+    parseDossierUpdate({ evenementsPhase: [{ ...event, recorded_at: "2020-01-01" }] }, DOSSIER_ID),
+  ).toThrow();
+});
+
 test.each([...prochaineActionAttenduePar, null])(
   "accepts entity %s without adding unrelated fields",
   (entity) => {

@@ -65,10 +65,14 @@ export function getDecisionAdministratives(
 export function getDecisionsAdministratives(
   cap_dossier: UserId,
   databaseConnection: Knex.Transaction | Knex = directDatabaseConnection,
+  dossierIds?: Dossier["id"][],
 ): Promise<FrontEndDecisionAdministrative[]> {
   return databaseConnection("decision_administrative")
     .select("decision_administrative.*")
     .select(databaseConnection.raw('decision_administrative.fichier is not null as "hasFile"'))
+    .modify((query) => {
+      if (dossierIds) query.whereIn("dossier", dossierIds);
+    })
     .whereIn(
       "dossier",
       dossierAccessQuery(cap_dossier, databaseConnection).clearSelect().select("dossier.id"),

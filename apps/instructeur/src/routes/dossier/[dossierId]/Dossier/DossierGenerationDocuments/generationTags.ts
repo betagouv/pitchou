@@ -107,6 +107,7 @@ function porteurTags(dossier: DossierFull): BalisesGenerationDocument["porteur_d
   const porteurDeProjet: BalisesGenerationDocument["porteur_de_projet"] = {
     adresse: porteur?.address ?? "",
     nom:
+      (porteur?.type === "organisation" && porteur.name) ||
       (porteur?.type === "personne_morale" && (porteur.legal_name || `SIRET ${porteur.siret}`)) ||
       (porteur?.type === "personne_physique" &&
         [porteur.first_names, porteur.last_name].filter(Boolean).join(" ")) ||

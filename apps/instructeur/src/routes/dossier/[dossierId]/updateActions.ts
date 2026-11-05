@@ -58,7 +58,7 @@ export function actionsFromDossierUpdate(
     add("phase_renseignee", {
       dossier: dossierId,
       value: event.phase,
-      timestamp: phaseEventTimestamp(event.timestamp).toISOString(),
+      timestamp: event.timestamp ? phaseEventTimestamp(event.timestamp).toISOString() : null,
     });
   }
   if ("next_action_expected_from" in update)

@@ -4,8 +4,5 @@
 </script>
 
 {#if projet}
-  <p class="fr-text--xs fr-mb-0">{projet.count} demandes · Affichage : {projet.demandeLabel}</p>
-  {#if projet.matchingCount !== undefined && projet.matchingCount !== projet.count}
-    <p class="fr-text--xs fr-mb-0">{projet.matchingCount} demande(s) correspondent aux filtres</p>
-  {/if}
+  <p class="fr-text--xs fr-mb-0">{projet.count} {projet.count === 1 ? "demande" : "demandes"}</p>
 {/if}

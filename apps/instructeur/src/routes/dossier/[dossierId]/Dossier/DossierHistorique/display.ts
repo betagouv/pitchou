@@ -18,7 +18,8 @@ export type HistoriqueEntry = {
   value?: string;
   /** Non-bold context shown right after the bold value, e.g. « → 29/08/2026 ». */
   valueSuffix?: string;
-  date: Date;
+  date: Date | null;
+  orderTime?: number;
   /**
    * Whether the time of day is meaningful. Recorded actions carry a real
    * timestamp; milestones read from a date-only field (the consultation du
@@ -57,13 +58,15 @@ export function historiqueEntries(
 ): HistoriqueEntry[] {
   const phaseEntries = (dossier.evenementsPhase ?? []).map<HistoriqueEntry>((event) => {
     // Optimistic events still have milliseconds; PostgreSQL stores whole seconds.
-    const timestamp = phaseEventTimestamp(event.timestamp);
+    const timestamp = event.timestamp ? phaseEventTimestamp(event.timestamp) : null;
     const action = actions.find(
       ({ type, data }) =>
         type === "phase_renseignee" &&
         data?.dossier === event.dossier &&
         data.value === event.phase &&
-        new Date(str(data, "timestamp") ?? "").getTime() === timestamp.getTime(),
+        (timestamp
+          ? new Date(str(data, "timestamp") ?? "").getTime() === timestamp.getTime()
+          : data.timestamp === null),
     );
     const authorName = emailName(event.demarche_numerique_agent_email);
     return {
@@ -71,9 +74,10 @@ export function historiqueEntries(
       tone: authorName || event.caused_by_personne != null ? "instructeur" : "system",
       author: authorName ? `par ${authorName}` : undefined,
       ...(action ? entryFromAction(action) : {}),
-      id: `phase-${event.dossier}-${event.phase}-${timestamp.toISOString()}`,
-      date: new Date(event.timestamp),
-      timeKnown: isTimeOfDayKnown(event.timestamp),
+      id: `phase-${event.dossier}-${event.phase}-${timestamp?.toISOString() ?? "undated"}`,
+      date: timestamp,
+      orderTime: new Date(event.timestamp ?? event.recorded_at ?? 0).getTime(),
+      timeKnown: event.timestamp ? isTimeOfDayKnown(event.timestamp) : false,
     };
   });
   const cnpnEmailEntries = (dossier.cnpnEmailSentEvents ?? []).map<HistoriqueEntry>((event) => {
@@ -100,7 +104,9 @@ export function historiqueEntries(
     ...phaseEntries,
     ...cnpnEmailEntries,
     ...milestoneEntries(dossier),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime());
+  ].sort(
+    (a, b) => (b.orderTime ?? b.date?.getTime() ?? 0) - (a.orderTime ?? a.date?.getTime() ?? 0),
+  );
 }
 
 function cnpnEmailStatuses(event: DossierCnpnEmailSentEvent): HistoriqueEntry["statuses"] {

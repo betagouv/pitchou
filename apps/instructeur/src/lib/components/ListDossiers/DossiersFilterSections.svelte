@@ -26,6 +26,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
+  import type { DossiersListOptions } from "@pitchou/types/dossierList.ts";
   import type { PitchouState } from "#lib/state/store.svelte.ts";
   import type { ActiviteReferentielLite, DossiersQuery } from "./listModel.ts";
   import {
@@ -42,6 +43,7 @@
   type Props = {
     draft: DossiersQuery;
     dossiers: DossierSummary[];
+    options?: DossiersListOptions;
     followRelations?: PitchouState["followRelations"];
     showFilterInstructeurice: boolean;
     showLocalisationScope?: boolean;
@@ -51,6 +53,7 @@
   let {
     draft = $bindable(),
     dossiers,
+    options,
     followRelations,
     showFilterInstructeurice,
     showLocalisationScope = true,
@@ -64,9 +67,14 @@
     activiteReferentiel = await loadActiviteReferentiel();
   });
 
-  const activiteOptions = $derived(activiteFilterEntries(dossiers, activiteReferentiel));
+  const activiteOptions = $derived(
+    activiteFilterEntries(dossiers, activiteReferentiel, options?.activites),
+  );
   const instructeurOptions = $derived(
-    listAvailableInstructeurs(followRelations).map((email) => ({ value: email, label: email })),
+    (options?.instructeurs ?? listAvailableInstructeurs(followRelations)).map((email) => ({
+      value: email,
+      label: email,
+    })),
   );
 
   // Named instructeurs and the « sans instructeur·ice » sentinel share the same array.
@@ -145,7 +153,11 @@
   />
 </div>
 
-<DossiersLocalisationFilter bind:draft showScope={showLocalisationScope} />
+<DossiersLocalisationFilter
+  bind:draft
+  showScope={showLocalisationScope}
+  assignedDepartmentCodes={options?.assignedDepartments}
+/>
 
 <!-- Entité en charge de la prochaine action -->
 <fieldset class="border-0 fr-mt-0 fr-mx-0 fr-mb-3w fr-p-0">

@@ -87,3 +87,24 @@ test.each(["onagre", "demarche_numerique", "pitchou"] as const)(
     expect(tags.date_dépôt_ddep).toBe(source === "onagre" ? ddepDate : null);
   },
 );
+
+test("organisation document tags keep name and address without fabricating an establishment", () => {
+  const result = getDocumentGenerationTags(
+    {
+      id: "dossier-organisation",
+      porteur_de_projet: {
+        type: "organisation",
+        name: "Syndicat de l'Étang",
+        address: "1 rue du Lac",
+        siren: null,
+        verification_status: "source_declared",
+        verification_evidence: null,
+        source: "onagre",
+        source_reference: "ORG-42",
+      },
+    } as unknown as DossierFull,
+    [],
+  );
+  expect(result.porteur_de_projet.nom).toBe("Syndicat de l'Étang");
+  expect(result.porteur_de_projet.adresse).toBe("1 rue du Lac");
+});

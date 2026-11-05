@@ -75,3 +75,83 @@ test("rejects invalid, duplicate and cross-project identities before writing", (
   blank.demandes[0].label = " ";
   assert.throws(() => validateProjects([blank]), /label/u);
 });
+
+test("shared organisations cannot receive contradictory prepared metadata in one batch", () => {
+  const project = groupPreparedDemandes([sample("1"), sample("2")])[0];
+  const porteur = {
+    type: "personne_morale",
+    siret: "00000000000000",
+    values: { legal_name: "Synthetic company", address: null, postal_code: null, insee_code: null },
+    verification: {
+      status: "verified",
+      reason: "Synthetic fixture",
+      sources: ["https://example.test/registry"],
+    },
+  };
+  for (const demande of project.demandes) demande.proposal.porteur = structuredClone(porteur);
+  validateProjects([project]);
+  project.demandes[1].proposal.porteur.values.legal_name = "Different company";
+  assert.throws(() => validateProjects([project]), /Conflicting prepared metadata/u);
+});
+
+test("large location scopes keep the source code and a compact department count", () => {
+  const demande = sample("1");
+  demande.proposal.dossier.departments = Array.from({ length: 30 }, (_, index) =>
+    String(index < 19 ? index + 1 : index + 2).padStart(2, "0"),
+  );
+  assert.equal(prepareDemandeLabel(demande), "synthetic-1 — 30 départements");
+  assert.equal(demande.proposal.dossier.departments.length, 30);
+});
+
+test("project-only initial demandes retain honest identities and reject invented source events", () => {
+  const project = groupPreparedDemandes([sample("1")])[0];
+  const d = project.demandes[0];
+  d.identity = {
+    sourceInstance: "onagre-national",
+    sourceTable: "projet",
+    sourceId: "100",
+    projetId: "100",
+    key: "onagre-national:projet:100:initial-demande",
+  };
+  d.label = "Demande initiale — projet Onagre sans demande";
+  d.source.rows.demandes = [];
+  d.source.relatedDemandes = [];
+  project.omittedDemandes = [];
+  d.proposal.dossier.onagre_demande_identifier = "";
+  d.proposal.dossier.ddep_depot_date = null;
+  validateProjects([project]);
+  for (const mutate of [
+    (p) => {
+      p.demandes[0].identity.key = "onagre-national:demandes:100";
+    },
+    (p) => {
+      p.demandes[0].proposal.dossier.onagre_demande_identifier = "invented";
+    },
+    (p) => {
+      p.demandes[0].proposal.dossier.ddep_depot_date = "2020-01-01";
+    },
+    (p) => {
+      p.demandes[0].source.rows.demandes = [{ demandesid: "1" }];
+    },
+    (p) => {
+      p.demandes[0].label = "Demande";
+    },
+    (p) => {
+      p.demandes[0].proposal.records.push({
+        table: "evenement_phase_dossier",
+        sourceKey: "onagre-national:projet:100:phase",
+        values: { phase: "Instruction", timestamp: null },
+      });
+    },
+    (p) => {
+      p.omittedDemandes = [{ id: "9", reason: "cancelled" }];
+    },
+    (p) => {
+      p.demandes.push(sample("2"));
+    },
+  ]) {
+    const invalid = structuredClone(project);
+    mutate(invalid);
+    assert.throws(() => validateProjects([invalid]));
+  }
+});

@@ -8,6 +8,7 @@ import { dossierFullColumns, joinDossierIdentities } from "./fullColumns.ts";
 import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
 import { getDossierActeurs } from "./acteurs.ts";
+import { withProjetMembership } from "./projet.ts";
 import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
@@ -71,10 +72,13 @@ async function loadDossier(
   dossierId: DossierFull["id"],
   transaction: Knex.Transaction,
 ): Promise<LoadedDossier> {
-  const dossier = await joinDossierIdentities(
-    transaction("dossier")
-      .select(dossierFullColumns)
-      .select(transaction.raw(latestCommentaireSubquery)),
+  const dossier = await withProjetMembership(
+    joinDossierIdentities(
+      transaction("dossier")
+        .select(dossierFullColumns)
+        .select(transaction.raw(latestCommentaireSubquery)),
+    ),
+    transaction,
   )
     .where({ "dossier.id": dossierId })
     .first();

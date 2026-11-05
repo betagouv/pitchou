@@ -14,37 +14,27 @@
 </script>
 
 <section class="admin-stack" aria-label="Questions à l’équipe">
-  <div class="admin-panel intro">
-    <div>
-      <h2>Questions à l’équipe</h2>
-      <p>
-        Préparer les points à discuter, conserver les exemples et noter les réponses de l’équipe.
-      </p>
-      <p class="onagre-context">
-        Les réponses sont conservées ici. Leur application aux règles et aux imports reste une étape
-        distincte.
-      </p>
+  <div class="toolbar">
+    <div class="filters" role="group" aria-label="Filtrer les questions">
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary"
+        aria-pressed={filter === "all"}
+        onclick={() => (filter = "all")}>Toutes ({questions.length})</button
+      >
+      {#each Object.entries(questionStatusLabels) as [status, label]}
+        <button
+          type="button"
+          class="fr-btn fr-btn--secondary"
+          aria-pressed={filter === status}
+          onclick={() => (filter = status as OnagreQuestionStatus)}
+          >{label} ({questions.filter((q) => q.status === status).length})</button
+        >
+      {/each}
     </div>
     {#if writable}<button type="button" class="fr-btn" onclick={() => (selected = null)}
         >Ajouter une question</button
       >{/if}
-  </div>
-  <div class="filters" role="group" aria-label="Filtrer les questions">
-    <button
-      type="button"
-      class="fr-btn fr-btn--secondary"
-      aria-pressed={filter === "all"}
-      onclick={() => (filter = "all")}>Toutes ({questions.length})</button
-    >
-    {#each Object.entries(questionStatusLabels) as [status, label]}
-      <button
-        type="button"
-        class="fr-btn fr-btn--secondary"
-        aria-pressed={filter === status}
-        onclick={() => (filter = status as OnagreQuestionStatus)}
-        >{label} ({questions.filter((q) => q.status === status).length})</button
-      >
-    {/each}
   </div>
   {#each visible as question (question.id)}
     <article class="admin-panel question">
@@ -86,14 +76,17 @@
 {/if}
 
 <style>
-  .intro,
+  .toolbar,
   header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
   }
-  .intro button,
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .toolbar > button,
   header button {
     flex-shrink: 0;
   }
@@ -140,7 +133,7 @@
     overflow-wrap: anywhere;
   }
   @media (max-width: 800px) {
-    .intro,
+    .toolbar,
     header {
       flex-direction: column;
     }

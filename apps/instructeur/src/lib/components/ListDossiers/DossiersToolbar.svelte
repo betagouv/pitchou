@@ -1,45 +1,19 @@
 <script lang="ts">
-  import type { DossiersQuery, FilterChip, SortKey, SortOrder, Localisation } from "./listModel.ts";
   import { serviceLabel } from "./listModel.ts";
   import DossiersSearchBar from "./DossiersSearchBar.svelte";
   import DossiersSortMenu from "./DossiersSortMenu.svelte";
   import DossiersExportButton from "./DossiersExportButton.svelte";
-  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
 
-  type Props = {
-    title: string;
-    searchText: string;
-    /** Recent searches offered as suggestions when the search bar is focused */
-    recentSearches: string[];
-    showFilterInstructeurice: boolean;
-    showFilterEnjeu: boolean;
-    showFilterActionInstructeur: boolean;
-    showFilterUnread: boolean;
-    withoutInstructeurActive: boolean;
-    enjeuActive: boolean;
-    actionInstructeurActive: boolean;
-    unreadActive: boolean;
-    activeFilterCount: number;
-    numberFiltered: number;
-    localisation?: Localisation;
-    followedOnly?: boolean;
-    exportDossierIds?: DossierSummary["id"][];
-    /** Active filters shown as removable tags */
-    chips: FilterChip[];
-    sortKey: SortKey;
-    sortOrder: SortOrder;
-    onSearch: (text: string) => void;
-    onToggleWithoutInstructeur: () => void;
-    onToggleEnjeu: () => void;
-    onToggleActionInstructeur: () => void;
-    onToggleUnread: () => void;
-    onOpenFilters: () => void;
-    onRemoveFilter: (next: DossiersQuery) => void;
-    onSort: (key: SortKey, order: SortOrder) => void;
-  };
+  import type { DossiersToolbarProps } from "./props.ts";
 
   let {
     title,
+    loading = false,
+    loadError = "",
+    busy = false,
+    searchDebounce = 0,
+    exportQuery,
+    exportCount,
     searchText,
     recentSearches,
     showFilterInstructeurice,
@@ -54,7 +28,7 @@
     numberFiltered,
     localisation = "assigned",
     followedOnly = false,
-    exportDossierIds = [],
+    exportDossierIds,
     chips,
     sortKey,
     sortOrder,
@@ -66,17 +40,35 @@
     onOpenFilters,
     onRemoveFilter,
     onSort,
-  }: Props = $props();
+  }: DossiersToolbarProps = $props();
 </script>
 
 <div class="flex flex-col gap-4 fr-mt-2w">
   <div class="flex flex-wrap items-center justify-between gap-4">
     <h1 class="fr-m-0">{title}</h1>
-    <DossiersExportButton {followedOnly} {localisation} dossierIds={exportDossierIds} {chips} />
+    <DossiersExportButton
+      {followedOnly}
+      {localisation}
+      dossierIds={exportDossierIds}
+      query={exportQuery}
+      totalDemandes={exportCount}
+      disabled={loading || busy || !!loadError}
+      {chips}
+    />
   </div>
 
-  <div class="dossiers-toolbar-controls flex flex-wrap items-center gap-4">
-    <DossiersSearchBar {searchText} suggestions={recentSearches} {onSearch} />
+  <fieldset
+    disabled={loading || !!loadError}
+    aria-label="Recherche et filtres des dossiers"
+    class="dossiers-toolbar-controls flex flex-wrap items-center gap-4 border-0 p-0 m-0 min-w-0"
+  >
+    <DossiersSearchBar
+      debounceMs={searchDebounce}
+      navigationKey={exportQuery}
+      {searchText}
+      suggestions={recentSearches}
+      {onSearch}
+    />
     {#if showFilterInstructeurice}
       <button
         type="button"
@@ -137,7 +129,7 @@
     </button>
 
     <DossiersSortMenu {sortKey} {sortOrder} {onSort} />
-  </div>
+  </fieldset>
 
   {#if chips.length > 0}
     <ul class="fr-tags-group fr-tags-group--sm fr-m-0" data-testid="filtres-actifs">
@@ -156,9 +148,17 @@
     </ul>
   {/if}
 
-  <p class="fr-m-0" data-testid="compteur-dossier">
-    <span class="fr-text--lead">{numberFiltered}</span>
-    <span class="fr-text--lg">{serviceLabel(localisation, followedOnly)}</span>
+  <p class="fr-m-0 min-h-8" data-testid="compteur-dossier">
+    {#if loading}
+      <span role="status">Chargement des dossiers…</span>
+    {:else if loadError}
+      <span>Liste des dossiers indisponible</span>
+    {:else}
+      <span class="fr-text--lead">{numberFiltered}</span>
+      <span class="fr-text--lg">{serviceLabel(localisation, followedOnly)}</span>
+      {#if busy}<span role="status" class="fr-ml-2w fr-text--sm">Actualisation des dossiers…</span
+        >{/if}
+    {/if}
   </p>
 </div>
 

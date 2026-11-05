@@ -1,5 +1,6 @@
 import { validateSample } from "./validation.mjs";
 import { writeRecord } from "./writer.mjs";
+import { writeActors } from "./actors.mjs";
 import { writePhase } from "./phase.mjs";
 import { prepareSpeciesFile, writeSpecies } from "./species.mjs";
 import { validateProjects } from "./projects.mjs";
@@ -63,6 +64,10 @@ async function importDemandes(client, samples, reviewer, options, projectName) {
     const dossier = await writeRecord(client, key, key, "dossier", fields, {});
     const outcomes = [dossier],
       targets = new Map([[key, dossier.targetId]]);
+    for (const result of await writeActors(client, sample, Number(dossier.targetId))) {
+      outcomes.push(result);
+      targets.set(result.sourceKey, result.targetId);
+    }
     if (speciesFile) {
       const speciesResults = await writeSpecies(
         client,
@@ -135,12 +140,18 @@ async function prepareDossier(client, sample, projectName) {
   ).rows[0];
   const matches = fields.onagre_demande_identifier
     ? (
-        await client.query("SELECT id FROM dossier WHERE onagre_demande_identifier=$1", [
-          fields.onagre_demande_identifier,
-        ])
+        await client.query(
+          `SELECT d.id, EXISTS (
+          SELECT 1 FROM onagre_local_import.identity i
+          WHERE i.table_name='dossier' AND i.target_id=d.id::text
+            AND i.source_key=i.dossier_key AND i.dossier_key LIKE 'onagre-national:demandes:%'
+        ) AS imported_onagre FROM dossier d WHERE d.onagre_demande_identifier=$1`,
+          [fields.onagre_demande_identifier],
+        )
       ).rows
     : [];
-  if (matches.some((row) => String(row.id) !== owned?.target_id))
+  // Source IDs identify demandes; Onagre display codes are not unique in the dump.
+  if (matches.some((row) => String(row.id) !== owned?.target_id && !row.imported_onagre))
     throw new Error(`Existing unowned dossier for ${key}; automatic adoption is disabled.`);
   if (sample.proposal.speciesImpacts !== undefined && owned) {
     const current = (

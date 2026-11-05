@@ -6,6 +6,9 @@
 
   type Props = {
     email?: string;
+    loading?: boolean;
+    loadError?: string;
+    onRetry?: () => void;
     dossiers: DossierSummary[];
     followRelations?: PitchouState["followRelations"];
     services?: string[];
@@ -15,6 +18,9 @@
 
   let {
     email = "",
+    loading = false,
+    loadError = "",
+    onRetry,
     dossiers,
     followRelations,
     services = [],
@@ -28,6 +34,9 @@
 </svelte:head>
 
 <ListDossiers
+  {loading}
+  {loadError}
+  {onRetry}
   title="Tous les dossiers"
   {email}
   {dossiers}

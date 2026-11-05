@@ -13,7 +13,8 @@ Both new deployments require `PITCHOU_APP=admin`, `PUBLIC_PITCHOU_ENV=staging`,
 `ONAGRE_DEPLOYMENT_ROLE=workspace` or `rehearsal`, and their own `DATABASE_URL`.
 `scripts/start.sh` applies migrations and starts admin without wiping or seeding data.
 `scripts/scheduled-task.sh` suppresses the shared scheduler jobs in either Onagre role.
-An invalid role fails startup. The existing instructeur staging startup is unchanged.
+An invalid role fails startup. Regular instructeur staging preserves data by default;
+its destructive reset now requires `STAGING_RESET_DATA=true`.
 
 Set `ONAGRE_SOURCE_INSTANCE=onagre-national` consistently across dumps and environments.
 Only rehearsal may set `ONAGRE_IMPORT_ENABLED=true`. Leave it absent or false elsewhere.
@@ -54,3 +55,7 @@ Deploy a reviewed, tested Git commit archive to these two apps. Their separate
 builds use their respective origins. Do not push the experiment to the existing
 production or staging deployment branches. After deployment, check HTTPS readiness
 and database access before sharing the URL. A successful build alone is insufficient.
+
+An owner-authorised demonstration of reviewed migration progress on regular staging
+uses the separate [staging import runbook](STAGING.md), without repointing either
+Onagre workspace/rehearsal app or enabling its experimental background importer.

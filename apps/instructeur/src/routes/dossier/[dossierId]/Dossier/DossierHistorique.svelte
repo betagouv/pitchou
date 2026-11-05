@@ -62,10 +62,10 @@
                 >{/if}{#if entry.valueSuffix}{entry.valueSuffix}{/if}
             </p>
             <p class="fr-mb-0 fr-text--xs text-[color:var(--text-mention-grey)]">
-              Le {formatDateAbsolute(
-                entry.date,
-                entry.timeKnown ? "dd/MM/yyyy 'à' HH:mm" : "dd/MM/yyyy",
-              )}
+              {#if entry.date}Le {formatDateAbsolute(
+                  entry.date,
+                  entry.timeKnown ? "dd/MM/yyyy 'à' HH:mm" : "dd/MM/yyyy",
+                )}{:else}Date inconnue{/if}
               {entry.author ?? ""}
             </p>
             {#each entry.statuses ?? [] as status}

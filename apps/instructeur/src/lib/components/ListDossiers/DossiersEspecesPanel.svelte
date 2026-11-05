@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createSpeciesLoader } from "./species.svelte.ts";
   import type { EspeceProtegee } from "@pitchou/types/especes.d.ts";
   import type { DossiersQuery } from "./listModel.ts";
   import { store } from "#lib/state/store.svelte.ts";
@@ -15,6 +16,7 @@
 
   type Props = { draft: DossiersQuery };
   let { draft = $bindable() }: Props = $props();
+  const species = createSpeciesLoader();
 
   /** How many results the « Afficher plus » button reveals at a time */
   const PAGE_SIZE = 20;
@@ -106,7 +108,10 @@
     <DossiersEspecesFilters id="filtre-especes-dossiers" bind:filters />
   {/if}
 
-  {#if !especeByCD_REF}
+  {#if species.error}
+    <p role="alert">Le chargement des espèces protégées a échoué.</p>
+    <button type="button" class="fr-btn fr-btn--secondary" onclick={species.load}>Réessayer</button>
+  {:else if !especeByCD_REF}
     <p class="fr-mb-0"><Loader />Chargement des espèces protégées…</p>
   {:else}
     {#if selectedEspeces.length > 0}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import OrganisationFields from "../OrganisationFields.svelte";
   import LegalDemandeurFields from "./LegalDemandeurFields.svelte";
   import PhysicalDemandeurFields from "./PhysicalDemandeurFields.svelte";
   import { type CompanyDetailsChoice, type DossierCreationModel } from "./dossierCreationModel.ts";
@@ -54,7 +55,20 @@
           value="personne_morale"
           bind:group={model.demandeurType}
         />
-        <label class="fr-label" for="demandeur-legal">une personne morale</label>
+        <label class="fr-label" for="demandeur-legal">Personne morale avec SIRET</label>
+      </div>
+    </div>
+    <div class="fr-fieldset__element">
+      <div class="fr-radio-group">
+        <input
+          id="demandeur-organisation"
+          type="radio"
+          value="organisation"
+          bind:group={model.demandeurType}
+        />
+        <label class="fr-label" for="demandeur-organisation"
+          >une organisation sans SIRET confirmé</label
+        >
       </div>
     </div>
     {#if typeMissing}
@@ -66,6 +80,8 @@
 
   {#if model.demandeurType === "personne_physique"}
     <PhysicalDemandeurFields {model} showErrors={showPorteurErrors} />
+  {:else if model.demandeurType === "organisation"}
+    <OrganisationFields organisation={model.organisation} showErrors={showPorteurErrors} />
   {:else if model.demandeurType === "personne_morale"}
     <LegalDemandeurFields
       {model}

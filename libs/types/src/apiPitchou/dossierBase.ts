@@ -37,6 +37,7 @@ type DossierLocalisation = {
 };
 
 export type DossierCommonData = DossierLocalisation & { source: DossierSource } & {
+  projet?: (ProjetMembership & { count: number; matchingCount?: number }) | null;
   main_activite: DossierDemarcheNumerique88444["Activité principale"] | null;
   /** Code of the Pitchou activity the raw label resolves to (« autre » when unmapped). */
   activite_code: string | null;
@@ -74,7 +75,6 @@ export type DossierSummary = Pick<
   | "onagre_demande_identifier"
 > & { phase: DossierPhase; phase_start_date: Date | null } & DossierCommonData &
   DossierPersonnesImpliquees & {
-    projet?: ProjetMembership & { count: number; matchingCount?: number };
     access: DossierAccess;
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExperts: { expert: string | null; hasSaisineFile?: boolean; hasAvisFile: boolean }[];

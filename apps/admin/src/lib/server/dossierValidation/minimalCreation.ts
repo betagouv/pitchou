@@ -4,6 +4,7 @@ import type { AdminDossierRelations } from "@pitchou/server/database/dossier_adm
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 
 import { rejectUnknownProperties } from "../requestValidation";
+import { parseOrganisation } from "./organisation.ts";
 
 const trimmed = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
@@ -16,6 +17,17 @@ export function parseMinimalCreationRelations(
     error(400, "Le porteur de projet est requis.");
   }
   const porteur = raw as Record<string, unknown>;
+
+  if (porteur.type === "organisation") {
+    const { type: _type, ...fields } = porteur;
+    return {
+      demandeur_type: "organisation",
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: null,
+      demandeur_organisation: parseOrganisation(fields),
+      identites: [],
+    };
+  }
 
   if (porteur.type === "personne_physique") {
     rejectUnknownProperties(porteur, new Set(["type", "last_name", "first_names"]));
@@ -54,5 +66,5 @@ export function parseMinimalCreationRelations(
     };
   }
 
-  error(400, "Le porteur de projet doit être une personne physique ou une personne morale.");
+  error(400, "Le type de porteur de projet est invalide.");
 }

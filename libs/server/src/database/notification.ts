@@ -10,7 +10,7 @@ import type { DossierNotification, NotificationUpdate } from "@pitchou/types/not
 export async function getNotificationsForUser(
   userId: UserId,
   db: Knex.Transaction | Knex = directDatabaseConnection,
-  dossierId?: DossierId,
+  dossierId?: DossierId | DossierId[],
 ): Promise<DossierNotification[]> {
   const personne = await getUserById(userId, db);
   if (!personne) throw new Error("Utilisateur inconnu");
@@ -24,7 +24,8 @@ export async function getNotificationsForUser(
           .where("follow.dossier", db.ref("access.dossier")),
       );
     });
-  if (dossierId !== undefined) accessible.where("access.dossier", dossierId);
+  if (Array.isArray(dossierId)) accessible.whereIn("access.dossier", dossierId);
+  else if (dossierId !== undefined) accessible.where("access.dossier", dossierId);
   const applicantChanges = db("action_dossier as a")
     .whereIn("a.dossier", accessible.clone())
     .where("a.author_petitionnaire", true)

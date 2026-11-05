@@ -7,6 +7,7 @@ const cases: [string, string, Permission][] = [
   ["POST", "/api/dossiers", "admin:dossiers:create"],
   ["POST", "/api/dossiers/minimal", "admin:dossiers:create"],
   ["PUT", "/api/dossiers/[dossierId]", "admin:dossiers:update"],
+  ["PUT", "/api/dossiers/[dossierId]/porteur", "admin:dossiers:update"],
   ["DELETE", "/api/dossiers/[dossierId]", "admin:dossiers:delete"],
   ["POST", "/api/dossiers/[dossierId]/pieces-jointes", "admin:dossiers:files"],
   ["DELETE", "/api/dossiers/[dossierId]/pieces-jointes/[fichierId]", "admin:dossiers:files"],

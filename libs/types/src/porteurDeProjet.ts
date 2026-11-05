@@ -1,4 +1,5 @@
 import type Entreprise from "./database/public/Entreprise.ts";
+import type Organisation from "./database/public/Organisation.ts";
 import type PersonnePhysique from "./database/public/PersonnePhysique.ts";
 import type { PersonnePhysiqueInitializer } from "./database/public/PersonnePhysique.ts";
 
@@ -7,9 +8,16 @@ export type PorteurDeProjetPersonnePhysique = { type: "personne_physique" } & Om
   "id"
 >;
 export type PorteurDeProjetPersonneMorale = { type: "personne_morale" } & Entreprise;
+export type PorteurDeProjetOrganisation = {
+  type: "organisation";
+  verification_status: "source_declared" | "verified";
+} & Omit<Organisation, "id" | "verification_status">;
 
 /** Porteur de projet of a dossier, as read: told apart by its `type`. */
-export type PorteurDeProjet = PorteurDeProjetPersonnePhysique | PorteurDeProjetPersonneMorale;
+export type PorteurDeProjet =
+  | PorteurDeProjetPersonnePhysique
+  | PorteurDeProjetPersonneMorale
+  | PorteurDeProjetOrganisation;
 
 /**
  * Porteur de projet of a dossier, as written. A personne morale is only its SIRET: the
@@ -18,4 +26,5 @@ export type PorteurDeProjet = PorteurDeProjetPersonnePhysique | PorteurDeProjetP
 export type PorteurDeProjetInitializer =
   | ({ type: "personne_physique" } & Omit<PersonnePhysiqueInitializer, "id">)
   | Pick<PorteurDeProjetPersonneMorale, "type" | "siret">
+  | PorteurDeProjetOrganisation
   | undefined;

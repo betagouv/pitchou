@@ -29,3 +29,23 @@ describe("searchableText — porteur de projet", () => {
     expect(physique).toContain("elise");
   });
 });
+
+test("organisation search includes its accented name and verified SIREN", () => {
+  const text = searchableText(
+    makeDossier({
+      porteur_de_projet: {
+        type: "organisation",
+        name: "Syndicat de l'Étang",
+        siren: "123456789",
+        address: null,
+        verification_status: "verified",
+        verification_evidence: "Registre",
+        source: "onagre",
+        source_reference: "ORG-45",
+      },
+    }),
+    makeContext(),
+  );
+  expect(text).toContain("syndicat de l'etang");
+  expect(text).toContain("123456789");
+});

@@ -6,6 +6,7 @@ import { dossiersExportTable } from "@pitchou/common/dossiersExport.ts";
 import { tableToCsv, tableToOds } from "@pitchou/common/spreadsheet.ts";
 import { readJsonObject, rejectUnknownProperties } from "#lib/server/requestValidation.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import { getDossiersListIds } from "@pitchou/server/database/dossier/list.ts";
 
 export const POST: RequestHandler = async ({ url, request, locals }) => {
   const userId = requireUserId(locals);
@@ -15,15 +16,31 @@ export const POST: RequestHandler = async ({ url, request, locals }) => {
     error(400, "Périmètre d'export invalide.");
   if (format !== "csv" && format !== "ods") error(400, "Format d'export invalide.");
   const bodyParameters = await readJsonObject(request);
-  rejectUnknownProperties(bodyParameters, new Set(["dossierIds"]));
-  const selectedIds = bodyParameters.dossierIds;
-  if (
-    !Array.isArray(selectedIds) ||
-    !selectedIds.every((id) => Number.isInteger(id) && id > 0 && id <= 2147483647)
-  ) {
-    error(400, "Liste de dossiers invalide.");
+  rejectUnknownProperties(bodyParameters, new Set(["dossierIds", "query"]));
+  let selectedIds: DossierId[];
+  if (Object.hasOwn(bodyParameters, "query")) {
+    if (typeof bodyParameters.query !== "string" || Object.hasOwn(bodyParameters, "dossierIds")) {
+      error(400, "Sélection d'export invalide.");
+    }
+    const params = new URLSearchParams(bodyParameters.query);
+    // The export scope remains authoritative, even if a supplied query disagrees.
+    params.set("localisation", scope === "france" ? "france" : "assigned");
+    selectedIds = await getDossiersListIds(
+      userId,
+      params,
+      scope === "followed" ? "followed" : "all",
+    );
+  } else {
+    const ids = bodyParameters.dossierIds;
+    if (
+      !Array.isArray(ids) ||
+      !ids.every((id) => Number.isInteger(id) && id > 0 && id <= 2147483647)
+    ) {
+      error(400, "Liste de dossiers invalide.");
+    }
+    selectedIds = ids as DossierId[];
   }
-  const dossiers = await getDossiersForExport(userId, scope, selectedIds as DossierId[]);
+  const dossiers = await getDossiersForExport(userId, scope, selectedIds);
   if (!dossiers) error(403, "Accès aux dossiers non autorisé.");
   const table = dossiersExportTable(dossiers);
   const body = format === "csv" ? tableToCsv(table) : tableToOds(table);

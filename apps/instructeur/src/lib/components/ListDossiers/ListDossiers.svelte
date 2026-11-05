@@ -1,60 +1,28 @@
 <script lang="ts">
-  import type { DossierSummary } from "@pitchou/types/API_Pitchou.ts";
-  import { store, type PitchouState } from "#lib/state/store.svelte.ts";
-  import type { Snippet } from "svelte";
-  import type { DossiersQuery, SortKey, SortOrder } from "./listModel.ts";
+  import type { ListDossiersProps } from "./props.ts";
   import {
     WITHOUT_INSTRUCTEUR,
-    activiteLabelByCode as mapActiviteLabelByCode,
-    especeLabelByCD_REF as mapEspeceLabelByCD_REF,
-    buildActiveFilterChips,
     buildDossiersSearchParams,
-    buildSearchEvent,
     copyDossiersQuery,
     countActiveFilters,
-    filterDossiers,
-    listAvailableInstructeurs,
-    readDossiersQuery,
     toggleQuickFilter,
-    sortDossiers,
-    serviceLabel,
   } from "./listModel.ts";
   import {
     instructeurFollowsDossier,
     instructeurLeavesDossier,
   } from "#lib/dossier/suiviDossier.ts";
-  import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
+  import { createListControls } from "./controls.svelte.ts";
   import PaginatedDossiers from "./PaginatedDossiers.svelte";
   import DossiersToolbar from "./DossiersToolbar.svelte";
   import DossiersFilterModal from "./DossiersFilterModal.svelte";
-  import { page } from "$app/state";
-  import { goto } from "$app/navigation";
-  import { untrack } from "svelte";
-  import { navigateDossiers } from "./navigation.ts";
-  import { groupDossiersByProjet } from "./projects.ts";
-
-  type Props = {
-    title: string;
-    email?: string;
-    dossiers: DossierSummary[];
-    followRelations?: PitchouState["followRelations"];
-    /** Names of the instructeur's services (groupes instructeurs) */
-    services?: string[];
-    followedOnly?: boolean;
-    recentSearches?: string[];
-    /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
-    showFilterInstructeurice?: boolean;
-    showFilterEnjeu?: boolean;
-    /** Show the next instruction action filter for followed dossiers */
-    showFilterActionInstructeur?: boolean;
-    showFilterUnread?: boolean;
-    notificationByDossier: PitchouState["notificationByDossier"];
-    /** Empty state, overriding the default message. Receives whether the whole (unfiltered) list is empty. */
-    emptyListMessage?: Snippet<[{ wholeListEmpty: boolean }]>;
-  };
-
+  import DossiersLoadState from "./DossiersLoadState.svelte";
+  let props: ListDossiersProps = $props();
   let {
     title,
+    server,
+    loading = false,
+    loadError = "",
+    onRetry,
     email = "",
     dossiers,
     followRelations,
@@ -66,147 +34,99 @@
     showFilterUnread = false,
     notificationByDossier,
     emptyListMessage,
-  }: Props = $props();
+  }: ListDossiersProps = $derived(props);
 
-  // The applied query lives entirely in the URL: search, filters, sort and page are all
-  // reflected as query params, so the view is shareable and survives a reload.
-  const query = $derived.by(() => {
-    const query = readDossiersQuery(new URLSearchParams(page.url.searchParams.toString()));
-    if (followedOnly) query.localisation = "assigned";
-    return query;
-  });
-
-  // The draft edited inside the filters modal. It is mirrored to the URL live (see the
-  // effect below), so the background list re-filters as each filter is toggled.
-  let draft = $state<DossiersQuery>(readDossiersQuery(new URLSearchParams()));
-  let modalOpen = $state(false);
-  // Applied filters (page excluded) captured when the modal opens, to tell an untouched
-  // draft (keep the current page) apart from an edited one (reset to the first page).
-  let filterParamsAtOpening = "";
-
-  let statusMessage = $state("");
-  const ctx = $derived({
-    followedOnly,
-    notificationByDossier,
-    followRelations,
-    especeByCD_REF: store.espèceByCD_REF,
-  });
-  const filteredDossiers = $derived(filterDossiers(dossiers, query, ctx));
-  const sortedDossiers = $derived(sortDossiers(filteredDossiers, query, notificationByDossier));
-  const groupedDossiers = $derived(groupDossiersByProjet(sortedDossiers));
-  const activiteLabelByCode = $derived(mapActiviteLabelByCode(dossiers));
-  const especeLabelByCD_REF = $derived(mapEspeceLabelByCD_REF(store.espèceByCD_REF));
-  const analyticsContext = $derived({
-    instructeurCount: listAvailableInstructeurs(followRelations).length,
-    email,
-    activiteLabelByCode,
-    especeLabelByCD_REF,
-  });
-
-  /** Reflects the given query into the URL, which is the single source of truth */
-  const navigate = (next: DossiersQuery) => navigateDossiers(goto, page.url.pathname, next);
-
-  /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
-  function applySearch(next: DossiersQuery) {
-    navigate(next);
-    const count = groupDossiersByProjet(filterDossiers(dossiers, next, ctx)).length;
-    sendDossierSearchEvent(buildSearchEvent(next, count, analyticsContext));
-    statusMessage = `${count} ${serviceLabel(next.localisation, followedOnly)}`;
-    setTimeout(() => (statusMessage = ""), 400);
-  }
-
-  const onSort = (key: SortKey, order: SortOrder) =>
-    navigate({ ...copyDossiersQuery(query), sort: key, order });
-
-  function openFilters() {
-    draft = copyDossiersQuery(query);
-    filterParamsAtOpening = buildDossiersSearchParams({ ...query, page: 1 }).toString();
-    modalOpen = true;
-  }
-
-  // While the modal is open, reflect its draft into the URL on every change so the list
-  // updates live. The page is reset to the first one only once the filters actually differ
-  // from those applied when the modal opened (so merely opening it does not jump the page).
-  $effect(() => {
-    if (!modalOpen) return;
-    const filtersUnchanged =
-      buildDossiersSearchParams({ ...draft, page: 1 }).toString() === filterParamsAtOpening;
-    const target = filtersUnchanged ? { ...draft } : { ...draft, page: 1 };
-    // `navigate` reads `page.url`; untrack it so the effect depends only on the draft and the
-    // open state, and writing the URL does not re-trigger the effect.
-    untrack(() => navigate(target));
-  });
-
-  function applyFilters() {
-    modalOpen = false;
-    // The URL already reflects the draft (applied live); this records the search analytics
-    // and announces the final count once.
-    applySearch({ ...copyDossiersQuery(draft), page: 1 });
-  }
+  const controls = createListControls(() => props);
 </script>
 
 <div class="flex flex-col fr-mt-2w">
   <DossiersToolbar
     {title}
-    searchText={query.text}
+    {loading}
+    {loadError}
+    searchText={controls.query.text}
     {recentSearches}
     {showFilterInstructeurice}
     {showFilterEnjeu}
     {showFilterActionInstructeur}
     {showFilterUnread}
-    withoutInstructeurActive={query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
-    enjeuActive={query.enjeu}
-    actionInstructeurActive={query.actionInstructeur}
-    unreadActive={query.nouveaute === "oui"}
-    activeFilterCount={countActiveFilters(query)}
-    numberFiltered={groupedDossiers.length}
-    localisation={query.localisation}
+    withoutInstructeurActive={controls.query.instructeur.includes(WITHOUT_INSTRUCTEUR)}
+    enjeuActive={controls.query.enjeu}
+    actionInstructeurActive={controls.query.actionInstructeur}
+    unreadActive={controls.query.nouveaute === "oui"}
+    activeFilterCount={countActiveFilters(controls.query)}
+    numberFiltered={controls.numberFiltered}
+    busy={server?.busy}
+    searchDebounce={server ? 300 : 0}
+    localisation={controls.query.localisation}
     {followedOnly}
-    exportDossierIds={sortedDossiers.map(({ id }) => id)}
-    chips={buildActiveFilterChips(query, activiteLabelByCode, especeLabelByCD_REF)}
-    sortKey={query.sort}
-    sortOrder={query.order}
-    onSearch={(text) => applySearch({ ...copyDossiersQuery(query), text, page: 1 })}
-    onToggleWithoutInstructeur={() => applySearch(toggleQuickFilter(query, "withoutInstructeur"))}
-    onToggleEnjeu={() => applySearch(toggleQuickFilter(query, "enjeu"))}
-    onToggleActionInstructeur={() => applySearch(toggleQuickFilter(query, "actionInstructeur"))}
-    onToggleUnread={() => applySearch(toggleQuickFilter(query, "nouveaute"))}
-    onOpenFilters={openFilters}
-    onRemoveFilter={applySearch}
-    {onSort}
+    exportDossierIds={server ? undefined : controls.collection.sortedDossiers.map(({ id }) => id)}
+    exportQuery={server ? buildDossiersSearchParams(controls.query).toString() : undefined}
+    exportCount={server?.result?.totalDemandes}
+    chips={controls.chips}
+    sortKey={controls.query.sort}
+    sortOrder={controls.query.order}
+    onSearch={(text) =>
+      controls.applySearch({ ...copyDossiersQuery(controls.query), text, page: 1 })}
+    onToggleWithoutInstructeur={() =>
+      controls.applySearch(toggleQuickFilter(controls.query, "withoutInstructeur"))}
+    onToggleEnjeu={() => controls.applySearch(toggleQuickFilter(controls.query, "enjeu"))}
+    onToggleActionInstructeur={() =>
+      controls.applySearch(toggleQuickFilter(controls.query, "actionInstructeur"))}
+    onToggleUnread={() => controls.applySearch(toggleQuickFilter(controls.query, "nouveaute"))}
+    onOpenFilters={controls.openFilters}
+    onRemoveFilter={controls.applySearch}
+    onSort={controls.onSort}
   />
 
   <div aria-live="polite" aria-atomic="true" class="fr-sr-only">
-    {#if statusMessage}{statusMessage}{/if}
+    {#if controls.statusMessage}{controls.statusMessage}{/if}
   </div>
 </div>
 
-<DossiersFilterModal
-  showLocalisationScope={!followedOnly}
-  open={modalOpen}
-  bind:draft
-  {dossiers}
-  {followRelations}
-  {showFilterInstructeurice}
-  numberResults={groupedDossiers.length}
-  onApply={applyFilters}
-  onClose={() => (modalOpen = false)}
-/>
+{#if controls.modalOpen}
+  <DossiersFilterModal
+    showLocalisationScope={!followedOnly}
+    open={controls.modalOpen}
+    bind:draft={controls.draft}
+    {dossiers}
+    {followRelations}
+    {showFilterInstructeurice}
+    options={server?.options}
+    numberResults={controls.numberFiltered}
+    onApply={controls.applyFilters}
+    onClose={controls.closeFilters}
+  />
+{/if}
 
-<PaginatedDossiers
-  readOnly={query.localisation === "france"}
-  dossiers={groupedDossiers}
-  sortKey={query.sort}
-  requestedPage={query.page}
-  pageSize={query.pageSize}
-  onPageSizeChange={(pageSize) => navigate({ ...copyDossiersQuery(query), pageSize, page: 1 })}
-  searchText={query.text}
-  wholeListEmpty={dossiers.length === 0}
-  followedIds={followRelations?.get(email) ?? new Set()}
-  notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
-  notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
-  follow={(id) => instructeurFollowsDossier(email, id)}
-  leave={(id) => instructeurLeavesDossier(email, id)}
-  navigatePage={(page) => navigate({ ...copyDossiersQuery(query), page })}
-  {emptyListMessage}
-/>
+{#if loading || (loadError && !server?.result)}
+  <DossiersLoadState {loading} {loadError} {onRetry} />
+{:else}
+  {#if loadError}
+    <div class="fr-alert fr-alert--error fr-my-2w" role="alert">
+      <p>{loadError} Les résultats précédents restent affichés.</p>
+      <button type="button" class="fr-btn fr-btn--secondary" onclick={onRetry}>Réessayer</button>
+    </div>
+  {/if}
+  <PaginatedDossiers
+    readOnly={controls.query.localisation === "france"}
+    dossiers={controls.displayedDossiers}
+    serverTotal={server?.result?.total}
+    busy={server?.busy}
+    onRefresh={server?.refresh}
+    sortKey={controls.query.sort}
+    requestedPage={server?.result?.page ?? controls.query.page}
+    pageSize={controls.query.pageSize}
+    onPageSizeChange={(pageSize) =>
+      controls.navigate({ ...copyDossiersQuery(controls.query), pageSize, page: 1 })}
+    searchText={controls.query.text}
+    wholeListEmpty={server ? server.result?.scopeTotal === 0 : dossiers.length === 0}
+    followedIds={followRelations?.get(email) ?? new Set()}
+    notificationViewed={(id) => notificationByDossier.get(id)?.viewed ?? true}
+    notificationUpdatedAt={(id) => notificationByDossier.get(id)?.updated_at ?? null}
+    follow={server?.follow ?? ((id) => instructeurFollowsDossier(email, id))}
+    leave={server?.leave ?? ((id) => instructeurLeavesDossier(email, id))}
+    navigatePage={(page) => controls.navigate({ ...copyDossiersQuery(controls.query), page })}
+    {emptyListMessage}
+  />
+{/if}

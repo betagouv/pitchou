@@ -11,13 +11,15 @@ export default interface EvenementPhaseDossier {
 
   phase: DossierPhase;
 
-  timestamp: Date;
+  timestamp: Date | null;
 
   caused_by_personne: AuthUserId | null;
 
   demarche_numerique_agent_email: string | null;
 
   demarche_numerique_motivation: string | null;
+
+  recorded_at: Date;
 }
 
 /** Represents the initializer for the table public.evenement_phase_dossier */
@@ -26,13 +28,16 @@ export interface EvenementPhaseDossierInitializer {
 
   phase: DossierPhase;
 
-  timestamp: Date;
+  timestamp?: Date | null;
 
   caused_by_personne?: AuthUserId | null;
 
   demarche_numerique_agent_email?: string | null;
 
   demarche_numerique_motivation?: string | null;
+
+  /** Default value: CURRENT_TIMESTAMP */
+  recorded_at?: Date;
 }
 
 /** Represents the mutator for the table public.evenement_phase_dossier */
@@ -41,11 +46,13 @@ export interface EvenementPhaseDossierMutator {
 
   phase?: DossierPhase;
 
-  timestamp?: Date;
+  timestamp?: Date | null;
 
   caused_by_personne?: AuthUserId | null;
 
   demarche_numerique_agent_email?: string | null;
 
   demarche_numerique_motivation?: string | null;
+
+  recorded_at?: Date;
 }

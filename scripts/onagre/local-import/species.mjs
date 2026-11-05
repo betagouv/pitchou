@@ -19,7 +19,9 @@ export function validateSpecies(impacts) {
   const keys = new Set();
   for (const impact of impacts) {
     if (
-      !/^onagre-national:descriptionsespeces:\d+:activites:\d+$/u.test(impact.sourceKey) ||
+      !/^onagre-national:descriptionsespeces:\d+:activites:(?:\d+|unspecified)$/u.test(
+        impact.sourceKey,
+      ) ||
       keys.has(impact.sourceKey)
     )
       throw new Error("Invalid or duplicate species identity");
@@ -34,7 +36,7 @@ export function validateSpecies(impacts) {
     if (
       !/^\d+$/u.test(v.cd_ref) ||
       !["oiseau", "faune non-oiseau", "flore"].includes(v.classification) ||
-      typeof v.impact_type !== "string"
+      (v.impact_type !== null && typeof v.impact_type !== "string")
     )
       throw new Error("Invalid species reference");
     for (const key of fields.slice(3))
@@ -191,7 +193,7 @@ function impactRow(v, classification, { species, types, methods, pursuits }) {
   const type = types.find(
     (row) => row.identifiant_pitchou === v.impact_type && row.classification === classification,
   );
-  if (!taxon || !type)
+  if (!taxon || (v.impact_type !== null && !type))
     throw new Error("Species or impact reference no longer matches the proposal");
   const method = methods.find(
     (row) => row.code === v.impact_methode && row.classification === classification,
@@ -200,8 +202,8 @@ function impactRow(v, classification, { species, types, methods, pursuits }) {
     (row) => row.code === v.impact_moyen_de_poursuite && row.classification === classification,
   );
   if (
-    (v.impact_methode !== null && (!method || !type.critere_methode)) ||
-    (v.impact_moyen_de_poursuite !== null && (!pursuit || !type.critere_moyen_de_poursuite))
+    (v.impact_methode !== null && (!method || !type?.critere_methode)) ||
+    (v.impact_moyen_de_poursuite !== null && (!pursuit || !type?.critere_moyen_de_poursuite))
   )
     throw new Error("Method or pursuit is not applicable to the impact");
   for (const [key, criterion] of [
@@ -210,7 +212,7 @@ function impactRow(v, classification, { species, types, methods, pursuits }) {
     ["oeufs", "oeufs"],
     ["surface_habitat_detruit", "surface_habitat_detruit"],
   ])
-    if (v[key] !== null && !type[`critere_${criterion}`])
+    if (v[key] !== null && !type?.[`critere_${criterion}`])
       throw new Error("Quantity is not applicable to the impact");
   return [
     taxon.noms_vernaculaires.join(", "),
@@ -219,9 +221,9 @@ function impactRow(v, classification, { species, types, methods, pursuits }) {
     v.nombre_individus,
     ...(classification === "oiseau" ? [v.nids, v.oeufs] : []),
     v.surface_habitat_detruit,
-    type.libelle_pitchou,
-    type.identifiant_pitchou,
-    type.code_europeen,
+    type?.libelle_pitchou ?? null,
+    type?.identifiant_pitchou ?? null,
+    type?.code_europeen ?? null,
     ...(classification === "flore"
       ? []
       : [

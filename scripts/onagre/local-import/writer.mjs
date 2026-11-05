@@ -1,16 +1,32 @@
 import { mergeFields } from "./merge.mjs";
-const quote = (value) => `"${value}"`;
+const writableTables = new Set([
+  "dossier",
+  "dossier_projet",
+  "decision_administrative",
+  "prescription",
+  "avis_expert",
+  "commentaire",
+  "personne_physique",
+  "entreprise",
+  "organisation",
+  "dossier_acteur",
+  "file",
+  "impact_espece",
+]);
+const quote = (value) => `"${value.replaceAll('"', '""')}"`;
 // pg encodes arrays as PostgreSQL arrays unless JSON columns are serialized explicitly.
 const parameter = (value) => (Array.isArray(value) ? JSON.stringify(value) : value);
+const primaryKey = (table) => (table === "entreprise" ? "siret" : "id");
 async function insert(client, table, fields) {
   const keys = Object.keys(fields);
   const result = await client.query(
-    `INSERT INTO public.${quote(table)} (${keys.map(quote).join(",")}) VALUES (${keys.map((_, i) => `$${i + 1}`).join(",")}) RETURNING id`,
+    `INSERT INTO public.${quote(table)} (${keys.map(quote).join(",")}) VALUES (${keys.map((_, i) => `$${i + 1}`).join(",")}) RETURNING ${quote(primaryKey(table))} AS id`,
     Object.values(fields).map(parameter),
   );
   return String(result.rows[0].id);
 }
 export async function writeRecord(client, dossierKey, sourceKey, table, values, parent) {
+  if (!writableTables.has(table)) throw new Error(`Unsupported import table: ${table}`);
   const identity = (
     await client.query(
       "SELECT * FROM onagre_local_import.identity WHERE dossier_key=$1 AND source_key=$2 FOR UPDATE",
@@ -24,7 +40,10 @@ export async function writeRecord(client, dossierKey, sourceKey, table, values, 
     preserved = [];
   if (identity) {
     const current = (
-      await client.query(`SELECT * FROM public.${quote(table)} WHERE id=$1 FOR UPDATE`, [targetId])
+      await client.query(
+        `SELECT * FROM public.${quote(table)} WHERE ${quote(primaryKey(table))}=$1 FOR UPDATE`,
+        [targetId],
+      )
     ).rows[0];
     if (!current)
       throw new Error(
@@ -44,7 +63,7 @@ export async function writeRecord(client, dossierKey, sourceKey, table, values, 
     const entries = Object.entries(result.updates);
     if (entries.length > 0) {
       await client.query(
-        `UPDATE public.${quote(table)} SET ${entries.map(([key], i) => `${quote(key)}=$${i + 1}`).join(",")} WHERE id=$${entries.length + 1}`,
+        `UPDATE public.${quote(table)} SET ${entries.map(([key], i) => `${quote(key)}=$${i + 1}`).join(",")} WHERE ${quote(primaryKey(table))}=$${entries.length + 1}`,
         [...entries.map(([, value]) => parameter(value)), targetId],
       );
       status = "updated";

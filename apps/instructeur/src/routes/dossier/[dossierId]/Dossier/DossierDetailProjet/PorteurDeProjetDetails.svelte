@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+  import { organisationStatusLabel } from "@pitchou/common/porteurDeProjet.ts";
   import type { FieldChange } from "@pitchou/types/notification.ts";
   import type { PorteurDeProjet } from "@pitchou/types/porteurDeProjet.ts";
   import { porteurDeProjetName } from "#lib/dossier/displayDossier.ts";
@@ -26,7 +27,11 @@
     </h4>
     {#if porteur}
       <p class="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon fr-mb-0">
-        {porteur.type === "personne_morale" ? "Personne morale" : "Personne physique"}
+        {porteur.type === "organisation"
+          ? organisationStatusLabel(porteur)
+          : porteur.type === "personne_morale"
+            ? "Personne morale"
+            : "Personne physique"}
       </p>
     {/if}
   </div>

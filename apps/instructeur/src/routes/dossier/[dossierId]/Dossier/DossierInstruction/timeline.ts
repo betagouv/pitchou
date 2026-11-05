@@ -3,7 +3,11 @@ import { orderedPhases, comparePhaseEventsNewestFirst } from "@pitchou/common/ph
 import type { DossierSource } from "@pitchou/types/dossierSource.ts";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 
-type PhaseEvent = { phase: DossierPhase; timestamp: Date | string };
+type PhaseEvent = {
+  phase: DossierPhase;
+  timestamp: Date | string | null;
+  recorded_at?: Date | string;
+};
 
 export type TimelineStep = {
   label: string;
@@ -12,8 +16,8 @@ export type TimelineStep = {
   detail: string[];
 };
 
-function formatDay(date: Date | string): string {
-  return formatDateAbsolute(date, "dd/MM/yyyy");
+function formatDay(date: Date | string | null): string {
+  return date ? formatDateAbsolute(date, "dd/MM/yyyy") : "Date inconnue";
 }
 
 /**
@@ -47,7 +51,9 @@ export function timelineSteps(
     const next = ascending[index + 1];
     const period = next
       ? `${formatDay(event.timestamp)} → ${formatDay(next.timestamp)}`
-      : `Depuis le ${formatDay(event.timestamp)}`;
+      : event.timestamp
+        ? `Depuis le ${formatDay(event.timestamp)}`
+        : "Date inconnue";
     periodsByPhase.set(event.phase, [...(periodsByPhase.get(event.phase) ?? []), period]);
   });
 

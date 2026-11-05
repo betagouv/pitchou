@@ -5,7 +5,6 @@ import type { DossierAccess } from "@pitchou/types/API_Pitchou.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
 import { orderPhaseEvents } from "../phaseHistory.ts";
-import { sharedDossierIdsSql } from "../../dossierRouting/projet.ts";
 
 export function permissionQuery(
   userId: UserId,
@@ -39,17 +38,24 @@ export function dossierAccessQuery(userId: UserId, db: Knex.Transaction | Knex) 
     .select("m.groupe_instructeurs")
     .where({ "m.user_id": userId, "g.active": true });
   const groupGrants = db("edge_groupe_instructeurs__dossier as e")
-    .joinRaw(`JOIN LATERAL (${sharedDossierIdsSql("e.dossier")}) shared ON true`)
-    .select("shared.dossier", "e.access_level")
+    .select("e.dossier", "e.access_level")
     .whereIn("e.groupe_instructeurs", membership.clone());
   const directGrants = db("dossier_user_access as direct")
-    .joinRaw(`JOIN LATERAL (${sharedDossierIdsSql("direct.dossier")}) shared ON true`)
-    .select("shared.dossier", "access_level")
+    .select("direct.dossier", "access_level")
     .where("user_id", userId);
-  const grants = db(db.unionAll([groupGrants, directGrants], true).as("grants"))
+  const assignedGrants = db(db.unionAll([groupGrants, directGrants], true).as("grants"))
     .select("dossier")
     .select(db.raw("bool_or(access_level = 'instruct') as instruction"))
     .groupBy("dossier");
+  // Collapse duplicate grants before sharing them with every demande in the project.
+  // The left joins also retain dossiers that do not belong to a project.
+  const sharedDossier = "coalesce(sibling.dossier, assigned.dossier)";
+  const grants = db(assignedGrants.as("assigned"))
+    .leftJoin("dossier_demande as member", "member.dossier", "assigned.dossier")
+    .leftJoin("dossier_demande as sibling", "sibling.projet", "member.projet")
+    .select(db.raw(`${sharedDossier} as dossier`))
+    .select(db.raw("bool_or(assigned.instruction) as instruction"))
+    .groupByRaw(sharedDossier);
   // Keep batch reads relational so account and membership checks are shared
   // across the dossier listing instead of repeated for every row.
   return db("dossier")
@@ -88,10 +94,14 @@ export async function dossiersAccessibleToUser(
 export async function getLatestEvenementsPhaseDossiers(
   userId: UserId,
   db: Knex.Transaction | Knex = directDatabaseConnection,
+  dossierIds?: Dossier["id"][],
 ): Promise<EvenementPhaseDossier[]> {
   return db("evenement_phase_dossier")
-    .select("dossier", "phase", "timestamp")
+    .select("dossier", "phase", "timestamp", "recorded_at")
     .whereIn("dossier", dossierAccessQuery(userId, db).clearSelect().select("dossier.id"))
+    .modify((query) => {
+      if (dossierIds) query.whereIn("dossier", dossierIds);
+    })
     .distinctOn("dossier")
     .orderBy("dossier", "asc")
     .modify(orderPhaseEvents);

@@ -22,15 +22,21 @@ export function assertLocalTarget(env) {
   return url.href;
 }
 export async function connect(env) {
+  return connectDatabase(
+    { connectionString: assertLocalTarget(env), connectionTimeoutMillis: 5000 },
+    { db: "especes_pro_3731", username: "dev" },
+  );
+}
+export async function connectDatabase(connection, expected) {
   const db = knex({
     client: "pg",
-    connection: { connectionString: assertLocalTarget(env), connectionTimeoutMillis: 5000 },
+    connection,
     pool: { min: 0, max: 1 },
   });
   const {
     rows: [identity],
   } = await db.raw("select current_database() as db, current_user as username");
-  if (identity.db !== "especes_pro_3731" || identity.username !== "dev") {
+  if (identity.db !== expected.db || identity.username !== expected.username) {
     await db.destroy();
     throw new Error("Unexpected database identity.");
   }
@@ -58,11 +64,13 @@ export async function connect(env) {
     },
   };
 }
-export async function initialize(client) {
+export async function initialize(client, environment = "development") {
+  if (!["development", "staging"].includes(environment))
+    throw new Error("Unsupported import environment");
   await client.query("SET LOCAL statement_timeout = '20s'");
   await client.query("SET LOCAL lock_timeout = '3s'");
   await client.query("SET LOCAL timezone = 'UTC'");
-  await client.query("SELECT set_config('pitchou.environment', 'development', true)");
+  await client.query("SELECT set_config('pitchou.environment', $1, true)", [environment]);
   await client.query("SELECT pg_advisory_xact_lock(2105102026)");
   await client.query("SELECT pg_advisory_xact_lock(27102026)");
   await client.query("CREATE SCHEMA IF NOT EXISTS onagre_local_import");

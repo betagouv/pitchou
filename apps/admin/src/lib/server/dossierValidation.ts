@@ -45,7 +45,10 @@ function parsePhaseEvents(raw: unknown): AdminPhaseEvent[] {
       error(400, "Each phase event must be an object.");
     const value = event as Record<string, unknown>;
     rejectUnknownProperties(value, new Set(["phase", "timestamp"]));
-    return { phase: parsePhase(value.phase), timestamp: parseDate("timestamp", value.timestamp) };
+    return {
+      phase: parsePhase(value.phase),
+      timestamp: value.timestamp === null ? null : parseDate("timestamp", value.timestamp),
+    };
   });
 }
 function parseCreationRelations(raw: unknown): AdminDossierRelations {
@@ -60,7 +63,10 @@ function parseCreationRelations(raw: unknown): AdminDossierRelations {
     const phone = relations.demandeur_personne_physique.phone;
     if (phone && !isValidPhone(phone))
       error(400, `The physical demandeur phone number must be valid.`);
-  } else if (!relations.identites.some(({ type }) => type === "representant")) {
+  } else if (
+    relations.demandeur_type === "personne_morale" &&
+    !relations.identites.some(({ type }) => type === "representant")
+  ) {
     error(400, `A personne contact identity is required for a legal demandeur.`);
   }
   for (const identity of relations.identites)

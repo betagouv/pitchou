@@ -3,6 +3,7 @@
 
 import type { PersonnePhysiqueId } from "./PersonnePhysique";
 import type { EntrepriseSiret } from "./Entreprise";
+import type { OrganisationId } from "./Organisation";
 
 /** Identifier type for public.porteur_de_projet */
 export type PorteurDeProjetId = number & { __brand: "public.porteur_de_projet" };
@@ -17,6 +18,8 @@ export default interface PorteurDeProjet {
   personne_physique: PersonnePhysiqueId | null;
 
   personne_morale: EntrepriseSiret | null;
+
+  organisation: OrganisationId | null;
 }
 
 /**
@@ -30,6 +33,8 @@ export interface PorteurDeProjetInitializer {
   personne_physique?: PersonnePhysiqueId | null;
 
   personne_morale?: EntrepriseSiret | null;
+
+  organisation?: OrganisationId | null;
 }
 
 /**
@@ -42,4 +47,6 @@ export interface PorteurDeProjetMutator {
   personne_physique?: PersonnePhysiqueId | null;
 
   personne_morale?: EntrepriseSiret | null;
+
+  organisation?: OrganisationId | null;
 }

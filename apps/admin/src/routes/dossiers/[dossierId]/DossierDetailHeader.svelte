@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { porteurDeProjetName } from "@pitchou/common/porteurDeProjet.ts";
+  import { porteurDeProjetName, organisationStatusLabel } from "@pitchou/common/porteurDeProjet.ts";
   import type { AdminDossierDetail } from "#lib/actions/adminDossiers.ts";
   let { detail }: { detail: AdminDossierDetail } = $props();
 </script>
@@ -32,4 +32,7 @@
         ? `SIRET ${detail.porteur_de_projet.siret}`
         : "Non renseigné")}
   </p>
+  {#if detail.porteur_de_projet?.type === "organisation"}
+    <p class="fr-text--xs fr-mb-0">{organisationStatusLabel(detail.porteur_de_projet)}</p>
+  {/if}
 </header>

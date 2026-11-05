@@ -82,6 +82,8 @@ function filter(query: Knex.QueryBuilder, options: ListAdminDossiersOptions): vo
     query.where(function () {
       this.whereILike("dossier.name", `%${search}%`)
         .orWhereILike("porteur_entreprise.legal_name", `%${search}%`)
+        .orWhereILike("porteur_organisation.name", `%${search}%`)
+        .orWhere("porteur_organisation.siren", search.replaceAll(/\s/gu, ""))
         .orWhereILike("porteur_pp.last_name", `%${search}%`)
         .orWhereILike("porteur_pp.first_names", `%${search}%`)
         .orWhere("porteur_entreprise.siret", search.replaceAll(/\s/gu, ""));

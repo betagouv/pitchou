@@ -11,6 +11,7 @@ import type {
 import type { EntrepriseSiret } from "@pitchou/types/database/public/Entreprise.ts";
 
 import { rejectUnknownProperties } from "../requestValidation";
+import { parseOrganisation } from "./organisation.ts";
 
 const RELATION_PROPERTIES = new Set([
   "demandeur_type",
@@ -129,9 +130,29 @@ function parseIdentites(raw: unknown): AdminDossierIdentite[] {
 }
 
 export function parseDossierRelations(raw: unknown): AdminDossierRelations {
-  const value = parseExactObject(raw, "relations", RELATION_PROPERTIES);
+  const record =
+    raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
+  const { demandeur_organisation, ...legacy } = record;
+  const value = parseExactObject(legacy, "relations", RELATION_PROPERTIES);
   const demandeurType = parseString(value, "demandeur_type");
   const identites = parseIdentites(value.identites);
+
+  if (demandeurType === "organisation") {
+    if (value.demandeur_personne_morale !== null || value.demandeur_personne_physique !== null)
+      error(
+        400,
+        "Une organisation sans SIRET ne peut pas également désigner une personne ou un établissement.",
+      );
+    return {
+      demandeur_type: "organisation",
+      demandeur_personne_physique: null,
+      demandeur_personne_morale: null,
+      demandeur_organisation: parseOrganisation(demandeur_organisation),
+      identites,
+    };
+  }
+  if (demandeur_organisation != null)
+    error(400, "Les informations d’organisation doivent être nulles pour ce type de porteur.");
 
   if (demandeurType === "personne_physique") {
     if (value.demandeur_personne_morale !== null) {
