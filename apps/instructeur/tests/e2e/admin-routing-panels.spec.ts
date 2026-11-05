@@ -10,6 +10,8 @@ test("routing saves refresh assignments and effective access without losing doss
   db,
   loginAs,
 }) => {
+  // Several persisted routing changes and page refreshes share this scenario.
+  test.setTimeout(60_000);
   const administrator = await createInstructeurWithCapToGroup(db);
   await db("auth_permission_bundle").insert({
     user_id: administrator.id,

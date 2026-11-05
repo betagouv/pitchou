@@ -7,6 +7,8 @@ test("all admin pages contain their content on desktop and mobile", async ({
   db,
   loginAs,
 }, testInfo) => {
+  // This scenario visits 16 pages at two viewport sizes and captures each one.
+  test.setTimeout(120_000);
   const admin = await createInstructeurWithCapToGroup(db, { email: "admin@example.org" });
   await db("auth_permission_bundle").insert({ user_id: admin.id, bundle: "administrateur" });
   const native = await createDossier(db, {

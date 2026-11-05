@@ -79,6 +79,8 @@ test("la barre de recherche suggère les 3 dernières recherches distinctes", as
     await createDossierSearch(db, { personneId: setup.id, text, date: new Date(date) });
   }
   await gotoMesDossiers(page, db);
+  // The heading is server-rendered; wait for client loading before focusing the search.
+  await expect(page.getByTestId("card-dossier")).toHaveCount(2);
   await page.getByLabel("Rechercher un dossier").focus();
   const options = page.getByRole("listbox", { name: "Recherches récentes" }).getByRole("option");
   await expect(options).toHaveText(["photovoltaïque", "méthaniseur", "carrière"]);
