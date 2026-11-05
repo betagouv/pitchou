@@ -62,7 +62,13 @@ test("routing saves refresh assignments and effective access without losing doss
   await page.locator("#physical-first-names").fill("Camille");
   await page.locator("#location-primary-department").click();
   await page.getByRole("option", { name: "75 – Paris", exact: true }).click();
+  const refreshed = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === `/dossiers/${dossier.id}/__data.json` &&
+      response.request().method() === "GET",
+  );
   await page.locator("header").getByRole("button", { name: "Enregistrer", exact: true }).click();
+  expect((await refreshed).status()).toBe(200);
   await accessTab.click();
   await expect(assignments.getByRole("heading", { name: "Service Paris" })).toBeVisible();
   await assignments.getByText("Détails de l'affectation", { exact: true }).click();
