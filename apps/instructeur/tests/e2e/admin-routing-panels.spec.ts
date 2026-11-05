@@ -1,3 +1,4 @@
+import { saveAccessForm } from "../helpers/saveAccess.ts";
 import { changeAssignments, changeDossierAccess } from "@pitchou/server/dossierRouting.ts";
 import { createDossier, createInstructeurWithCapToGroup } from "../factories/index.ts";
 import { expect, test } from "../fixtures/playwright.ts";
@@ -77,23 +78,20 @@ test("routing saves refresh assignments and effective access without losing doss
   await edit.click();
   await chooseInSelect(mode, "Exclure durablement");
   await expect(effectiveAccess).toContainText("Instruction");
-  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(form).toHaveCount(0);
+  await saveAccessForm(page, form, `/api/dossiers/${dossier.id}/affectations`);
   await expect(effectiveAccess).toHaveCount(0);
   await expect(group).toContainText("Exclusion manuelle");
   await expect(accessTab).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#project-name")).toHaveValue("Modification non enregistrée");
   await edit.click();
   await chooseInSelect(mode, "Inclure manuellement");
-  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(form).toHaveCount(0);
+  await saveAccessForm(page, form, `/api/dossiers/${dossier.id}/affectations`);
   await expect(effectiveAccess).toContainText("Instruction");
   await expect(group).toContainText("Ajout manuel");
   await edit.click();
   await form.getByRole("radio", { name: /^Lecture complète/u }).check();
   await expect(effectiveAccess).toContainText("Instruction");
-  await form.getByRole("button", { name: "Enregistrer", exact: true }).click();
-  await expect(form).toHaveCount(0);
+  await saveAccessForm(page, form, `/api/dossiers/${dossier.id}/affectations`);
   await expect(effectiveAccess).toHaveCount(0);
   await expect(
     group.locator(".access-row-heading").getByText("Lecture complète", { exact: true }),

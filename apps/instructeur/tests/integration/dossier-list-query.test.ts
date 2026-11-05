@@ -76,6 +76,9 @@ test("options span the scope and page payloads keep complete visible notificatio
   const options = await getDossiersListOptions(data.user, "all", fixture.db);
   expect(options.activites.map((a) => a.code)).toContain("autre");
   expect(options.assignedDepartments).toEqual(["24", "33"]);
+  expect(
+    (await getDossiersListOptions(data.user, "followed", fixture.db)).assignedDepartments,
+  ).toEqual(options.assignedDepartments);
   expect(options.instructeurs).toEqual(["colleague@example.org", "élise@example.org"]);
   const page = await getDossiersListPage(
     data.user,

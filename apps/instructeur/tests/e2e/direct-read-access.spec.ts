@@ -55,7 +55,11 @@ test("a reader without groups sees internal information and follows personally w
   await expect(page.getByRole("tab", { name: "Historique", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Vous suivez ce dossier", exact: true }).click();
   await expect(page.getByRole("button", { name: "Suivre ce dossier", exact: true })).toBeVisible();
-  expect(await db("edge_personne_follows_dossier").where({ personne: person.id })).toHaveLength(0);
+  await expect
+    .poll(
+      async () => (await db("edge_personne_follows_dossier").where({ personne: person.id })).length,
+    )
+    .toBe(0);
   await changeDossierAccess(db, (routingTrx) =>
     routingTrx("dossier_user_access").where({ user_id: person.id }).delete(),
   );

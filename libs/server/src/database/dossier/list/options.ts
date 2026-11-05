@@ -24,7 +24,8 @@ export async function loadOptions(
     .where(function () {
       this.whereNotNull("a.code").orWhereRaw("nullif(d.main_activite, '') is not null");
     });
-  const departments: { code: string }[] = await scopedQuery(db, userId, scope)
+  // Assignment territories include accessible dossiers that the user does not personally follow.
+  const departments: { code: string }[] = await scopedQuery(db, userId, "all")
     .from("scoped_dossiers as access")
     .join("dossier as d", "d.id", "access.id")
     .distinct(db.raw("json_array_elements_text(d.departments) as code"))
