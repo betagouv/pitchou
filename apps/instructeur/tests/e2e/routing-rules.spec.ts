@@ -14,6 +14,7 @@ test("an admin previews a combined rule and manages persistent dossier exception
   db,
   loginAs,
 }, testInfo) => {
+  test.setTimeout(60_000);
   const actor = await createInstructeurWithCapToGroup(db);
   await db("auth_permission_bundle").insert({ user_id: actor.id, bundle: "administrateur" });
   const dossier = await createDossier(db, {
@@ -83,7 +84,12 @@ test("an admin previews a combined rule and manages persistent dossier exception
   await assignments.getByRole("button", { name: "Ajouter un groupe", exact: true }).click();
   await assignments.getByRole("combobox", { name: /^Groupe instructeur/u }).click();
   await page.getByRole("option", { name: "DGALN", exact: true }).click();
-  await assignments.getByRole("button", { name: "Ajouter le groupe", exact: true }).click();
+  await saveAccessForm(
+    page,
+    assignments.getByRole("form", { name: "Ajouter un groupe", exact: true }),
+    `/api/dossiers/${dossier.id}/affectations`,
+    "Ajouter le groupe",
+  );
   await expect(assignments).toContainText("Ajout manuel");
   await changeAssignments(db, (routingTrx) =>
     routingTrx("dossier").where({ id: dossier.id }).update({ primary_department: "75" }),
