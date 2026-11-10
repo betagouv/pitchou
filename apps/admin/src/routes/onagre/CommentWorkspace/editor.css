@@ -1,0 +1,14 @@
+.comment-editor-content {
+  padding: 1rem;
+}
+#comment-decision fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.comment-editor-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}

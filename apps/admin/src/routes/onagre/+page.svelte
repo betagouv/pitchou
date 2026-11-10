@@ -11,6 +11,7 @@
   import ServiceWorkspace from "./ServiceWorkspace.svelte";
   import SharedRules from "./SharedRules.svelte";
   import QuestionsWorkspace from "./QuestionsWorkspace.svelte";
+  import CommentWorkspace from "./CommentWorkspace.svelte";
   import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -21,6 +22,7 @@
     "activites",
     "regles",
     "questions",
+    "textes",
     "dossiers",
     "dump",
     "historique",
@@ -33,6 +35,7 @@
     "Objets et activités",
     "Règles communes",
     "Questions à l’équipe",
+    "Textes à reprendre",
     "Demandes Onagre",
     "Explorer le dump",
     "Historique",
@@ -109,6 +112,8 @@
     <SharedRules rules={data.sharedRules} {writable} />
   {:else if tab === "questions"}
     <QuestionsWorkspace questions={data.questions} {writable} />
+  {:else if tab === "textes" && data.commentWorkspace}
+    <CommentWorkspace workspace={data.commentWorkspace} {writable} />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}

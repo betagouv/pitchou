@@ -14,6 +14,8 @@ export const GET: RequestHandler = async () => {
     groupCatalog,
     questions,
     questionRevisions,
+    commentDecisions,
+    commentRevisions,
   ] = await Promise.all([
     db("onagre_mapping").select("*"),
     db("onagre_mapping_revision").select("*"),
@@ -32,6 +34,8 @@ export const GET: RequestHandler = async () => {
     db("onagre_group_catalog").select("*"),
     db("onagre_question").select("*"),
     db("onagre_question_revision").select("*"),
+    db("onagre_comment_decision").select("*"),
+    db("onagre_comment_revision").select("*"),
   ]);
   return new Response(
     JSON.stringify(
@@ -49,6 +53,8 @@ export const GET: RequestHandler = async () => {
         groupCatalog,
         questions,
         questionRevisions,
+        commentDecisions,
+        commentRevisions,
       },
       null,
       2,

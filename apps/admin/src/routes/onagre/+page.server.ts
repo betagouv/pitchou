@@ -1,4 +1,9 @@
 import { fail, isHttpError, redirect } from "@sveltejs/kit";
+import {
+  loadCommentWorkspace,
+  parseCommentDecision,
+  saveCommentDecision,
+} from "@pitchou/server/onagre/comments.ts";
 import { loadActivityWorkspace } from "@pitchou/server/onagre/activities.ts";
 import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
 import { parseDecision } from "@pitchou/server/onagre/validation.ts";
@@ -40,6 +45,8 @@ export const load: PageServerLoad = async ({ url }) => {
   ]);
   return {
     ...workspace,
+    commentWorkspace:
+      url.searchParams.get("tab") === "textes" ? await loadCommentWorkspace(db, url) : null,
     questions: url.searchParams.get("tab") === "questions" ? await loadQuestions(db) : [],
     activityWorkspace: ["activites", "correspondances"].includes(url.searchParams.get("tab") ?? "")
       ? await loadActivityWorkspace(db, workspace.mappings)
@@ -62,6 +69,17 @@ const failure = (cause: unknown) => {
   });
 };
 export const actions: Actions = {
+  saveComment: async ({ request, locals }) => {
+    try {
+      const input = parseCommentDecision(await request.formData());
+      await withAdminWriteAccess(locals, "admin:onagre:manage", (trx, actor) =>
+        saveCommentDecision(trx, actor.id, input),
+      );
+      return { message: "Proposition enregistrée. Aucun dossier modifié." };
+    } catch (cause) {
+      return failure(cause);
+    }
+  },
   saveQuestion: async ({ request, locals }) => {
     try {
       const input = parseQuestion(await request.formData());
