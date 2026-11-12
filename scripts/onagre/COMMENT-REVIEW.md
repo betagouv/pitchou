@@ -50,3 +50,34 @@ Repeated loading of identical evidence is idempotent. It creates no proposals.
 The ordinary admin decisions export includes comment proposals and their audit
 history. The source inventory remains separately retained with its generation
 and validation receipts.
+
+## Per-demande explanations
+
+The **Demandes concernées** tab uses the complete occurrence inventory, not the
+three illustrative examples stored with each group. Each explanation retains its
+own description, species, activity and free text. Identical situations within a
+demande can share an explanation, retaining all species and description IDs.
+
+Apply `20261112010000_onagre-comment-evidence.ts` locally, then load the retained
+inventory directory and its original prepared-project selection:
+
+```sh
+nix develop --command node --env-file=.env --import tsx \
+  scripts/onagre/load-comment-evidence.mjs \
+  /absolute/path/to/inventory-directory /absolute/path/to/selection.json
+```
+
+The directory must contain `groups.json`, `occurrences.jsonl` and
+`pitchou-references.json`. The loader verifies inventory provenance, every
+prepared-project hash, the exact demande/description relationship, text and group
+context, and complete coverage of every group's demandes and descriptions. It
+stores facts separately in `onagre_comment_evidence`, bound to the review hash,
+without changing existing groups, proposals or dossiers. Repeated identical loads
+are idempotent; conflicting evidence is rejected atomically.
+
+Impact candidates come from the retained reference snapshot, not an invented
+interpretation of free text. Multiple candidates, no label match, unresolved taxa
+and text awaiting structured mapping have different explanations. These facts
+describe the preparation, not later edits to a dossier. In particular, an existing
+DN dossier is not assumed to contain prepared comments. Missing or stale evidence
+is explicitly reported as unavailable rather than inferred from another demande.

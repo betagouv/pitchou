@@ -1,7 +1,7 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
   import { untrack } from "svelte";
   import { enhance } from "$app/forms";
-  import { beforeNavigate } from "$app/navigation";
   import {
     duplicateDecisionLabels,
     type DuplicateOutcome,
@@ -23,6 +23,7 @@
     revisions: DuplicateRevision[];
     writable: boolean;
   } = $props();
+  const id = $props.id();
   let outcome = $state<DuplicateOutcome>(untrack(() => decision?.outcome ?? "pending"));
   let reason = $state(untrack(() => decision?.reason ?? ""));
   let busy = $state(false);
@@ -30,15 +31,13 @@
   let dirty = $derived(
     outcome !== (decision?.outcome ?? "pending") || reason !== (decision?.reason ?? ""),
   );
-  beforeNavigate(({ cancel }) => {
-    if (dirty && !busy && !window.confirm("Quitter sans enregistrer cette décision ?")) cancel();
-  });
 </script>
 
 <p><strong>État enregistré : {duplicateDecisionLabels[decision?.outcome ?? "pending"]}</strong></p>
 {#if writable}
   <form
     data-duplicate-dirty={dirty}
+    data-duplicate-busy={busy}
     method="POST"
     action="?/saveDuplicate&tab=doublons"
     use:enhance={() => {
@@ -63,14 +62,19 @@
     <input type="hidden" name="review_hash" value={project.review_hash} />
     <input type="hidden" name="version" value={decision?.version ?? 0} />
     <fieldset disabled={busy}>
-      <label
-        >Choix pour cette demande
-        <select name="outcome" class="fr-select" bind:value={outcome}>
-          {#each Object.entries(duplicateDecisionLabels) as [value, label]}<option {value}
-              >{label}</option
-            >{/each}
-        </select>
-      </label>
+      <div class="onagre-field">
+        <label for={id + "-outcome"}>Choix pour cette demande</label>
+        <input type="hidden" name="outcome" value={outcome} />
+        <Select
+          id={id + "-outcome"}
+          disabled={busy}
+          bind:value={outcome}
+          options={Object.entries(duplicateDecisionLabels).map(([value, label]) => ({
+            value: value as DuplicateOutcome,
+            label,
+          }))}
+        />
+      </div>
       {#if outcome === "import_new"}<p>
           Ce choix autorise la préparation d’une nouvelle demande malgré le rapprochement signalé.
           Vérifiez qu’elle n’est pas déjà couverte par un dossier DN.

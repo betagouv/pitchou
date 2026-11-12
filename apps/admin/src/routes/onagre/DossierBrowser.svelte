@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import DemandeDetail from "./DemandeDetail.svelte";
   let { data }: { data: PageData } = $props();
   let currentPage = $derived(Math.max(1, Number(page.url.searchParams.get("page")) || 1));

@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import WorkspaceDialog from "./WorkspaceDialog.svelte";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import { dumpLink } from "./navigation.ts";
   let { explorer }: { explorer: NonNullable<PageData["explorer"]> } = $props();
   const close = () => goto(dumpLink(currentUrl, { row: null }), { reset: false });

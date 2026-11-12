@@ -1,13 +1,56 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
   import { page } from "$app/state";
-  import { goto } from "$app/navigation";
+  import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
+  import { onDestroy, untrack } from "svelte";
   import {
     commentCategories,
     commentOutcomes,
     type CommentWorkspace,
   } from "@pitchou/types/onagreComments.ts";
   import CommentEditor from "./CommentWorkspace/CommentEditor.svelte";
+  import ReviewTable from "./CommentWorkspace/ReviewTable.svelte";
+  import CategoryHelp from "./CommentWorkspace/CategoryHelp.svelte";
   let { workspace, writable }: { workspace: CommentWorkspace; writable: boolean } = $props();
+  let category = $state(untrack(() => workspace.category));
+  let outcome = $state(untrack(() => workspace.outcome));
+  let search = $state(untrack(() => workspace.search));
+  let searchTimer: ReturnType<typeof setTimeout> | undefined;
+  let filterUrl: string | undefined;
+
+  function cancelSearch() {
+    clearTimeout(searchTimer);
+  }
+
+  function applyFilters() {
+    cancelSearch();
+    filterUrl = new URL(
+      link({ category, outcome, text: search || null, textPage: null, textGroup: null }),
+      page.url.href,
+    ).href;
+    void goto(filterUrl, { replace: true, reset: false });
+  }
+
+  function scheduleSearch() {
+    cancelSearch();
+    searchTimer = setTimeout(applyFilters, 350);
+  }
+
+  beforeNavigate(({ to }) => {
+    if (to?.url.href !== filterUrl) {
+      cancelSearch();
+      filterUrl = undefined;
+    }
+  });
+  afterNavigate(({ to }) => {
+    // Keep newer input when an earlier filter request finishes loading.
+    if (to?.url.href !== filterUrl) {
+      category = workspace.category;
+      outcome = workspace.outcome;
+      search = workspace.search;
+    }
+  });
+  onDestroy(cancelSearch);
   function link(changes: Record<string, string | number | null>) {
     const params = new URLSearchParams(page.url.searchParams.toString());
     params.set("tab", "textes");
@@ -19,94 +62,71 @@
   }
 </script>
 
-<section class="admin-panel admin-stack">
+<section class="admin-stack" aria-label="Textes à reprendre">
   {#if workspace.categories.length === 0}<p role="status">
       L’inventaire des commentaires n’a pas encore été chargé dans cet environnement.
     </p>{/if}
-  <div>
-    <h2>Textes à reprendre dans les champs Pitchou</h2>
-    <p>
-      Examinez les formulations conservées en commentaires et proposez leur destination. Les
-      propositions enregistrées ici ne modifient pas les dossiers.
-    </p>
-    <p class="onagre-context">
-      L’inventaire couvre les projets préparés, y compris les doublons mis de côté. Les demandes DN
-      liées restent inchangées. Les comptes sont distincts par ligne et ne s’additionnent pas entre
-      les lignes.
-    </p>
-  </div>
-  <form method="GET" class="onagre-controls">
+  <form
+    method="GET"
+    class="onagre-controls"
+    onsubmit={(event) => {
+      event.preventDefault();
+      applyFilters();
+    }}
+  >
     <input type="hidden" name="tab" value="textes" />
     {#if page.url.searchParams.get("snapshot")}<input
         type="hidden"
         name="snapshot"
         value={page.url.searchParams.get("snapshot")}
       />{/if}
-    <label
-      >Information à examiner
-      <select class="fr-select" name="category" value={workspace.category}>
-        {#each Object.entries(commentCategories) as [key, label]}<option value={key}
-            >{label} ({workspace.categories.find((c) => c.category === key)?.count ?? 0})</option
-          >{/each}
-      </select>
-    </label>
+    <div class="onagre-field">
+      <label for="text-category">Information à examiner</label>
+      <input type="hidden" name="category" value={category} />
+      <Select
+        id="text-category"
+        bind:value={category}
+        onChange={applyFilters}
+        options={Object.entries(commentCategories).map(([value, label]) => ({
+          value: value as typeof category,
+          label:
+            label +
+            " (" +
+            (workspace.categories.find((c) => c.category === value)?.count ?? 0) +
+            ")",
+        }))}
+      />
+    </div>
     <label
       >Rechercher une formulation<input
         class="fr-input"
         name="text"
-        value={workspace.search}
+        bind:value={search}
+        oninput={scheduleSearch}
+        maxlength="200"
         placeholder="capture manuelle, épuisette…"
       /></label
     >
-    <label
-      >Avancement
-      <select class="fr-select" name="outcome" value={workspace.outcome}>
-        <option value="all">Tous</option>
-        {#each Object.entries(commentOutcomes) as [key, label]}<option value={key}>{label}</option
-          >{/each}
-      </select>
-    </label>
-    <button class="fr-btn">Filtrer</button>
+    <div class="onagre-field">
+      <label for="text-outcome">Avancement</label>
+      <input type="hidden" name="outcome" value={outcome} />
+      <Select
+        id="text-outcome"
+        bind:value={outcome}
+        onChange={applyFilters}
+        options={[
+          { value: "all", label: "Tous" },
+          ...Object.entries(commentOutcomes).map(([value, label]) => ({ value, label })),
+        ]}
+      />
+    </div>
   </form>
+  <CategoryHelp category={workspace.category} />
   <p>
     {workspace.total.toLocaleString("fr-FR")} groupes de formulations et contextes. Triés par nombre de
     demandes concernées.
   </p>
-  {#if workspace.category === "unresolved_species"}<p class="fr-alert fr-alert--info">
-      Un rapprochement non résolu ne signifie pas que l’espèce n’est pas protégée ou qu’elle est
-      absente de TAXREF. Chaque cas doit être examiné dans le référentiel.
-    </p>{/if}
-  <div class="onagre-table-scroll">
-    <table>
-      <thead
-        ><tr
-          ><th>Texte Onagre</th><th>Contexte</th><th>Projets</th><th>Demandes</th><th
-            >Proposition</th
-          ></tr
-        ></thead
-      >
-      <tbody>
-        {#each workspace.groups as group (group.id)}
-          <tr>
-            <td class="source-text"><a href={link({ textGroup: group.id })}>{group.value}</a></td>
-            <td
-              >{group.payload.context.activities?.join(" · ") || "Activité non résolue"}<br
-              />{group.payload.context.classifications?.join(" · ") ||
-                "Classification non résolue"}{#if group.payload.context.method}<br />Méthode : {group
-                  .payload.context.method}{/if}</td
-            >
-            <td>{group.project_count.toLocaleString("fr-FR")}</td>
-            <td>{group.demande_count.toLocaleString("fr-FR")}</td>
-            <td
-              >{commentOutcomes[group.decision?.outcome ?? "pending"]}<br /><a
-                href={link({ textGroup: group.id })}>Examiner</a
-              ></td
-            >
-          </tr>
-        {:else}<tr><td colspan="5">Aucun groupe pour ces filtres.</td></tr>{/each}
-      </tbody>
-    </table>
-  </div>
+  <ReviewTable groups={workspace.groups} groupLink={(id) => link({ textGroup: id })} />
   <nav class="onagre-controls" aria-label="Pagination des textes">
     {#if workspace.page > 1}<a href={link({ textPage: workspace.page - 1, textGroup: null })}
         >Page précédente</a
@@ -132,15 +152,3 @@
     />
   {/key}
 {/if}
-
-<style>
-  .source-text {
-    min-width: 18rem;
-    max-width: 38rem;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  td {
-    vertical-align: top;
-  }
-</style>

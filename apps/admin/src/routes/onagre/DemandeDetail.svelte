@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import WorkspaceDialog from "./WorkspaceDialog.svelte";
 
   let {

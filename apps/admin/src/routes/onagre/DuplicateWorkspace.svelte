@@ -1,36 +1,42 @@
 <script lang="ts">
-  import { untrack } from "svelte";
+  import Select from "@pitchou/ui/Select.svelte";
+  import { onDestroy, untrack } from "svelte";
   import { page } from "$app/state";
-  import "./DuplicateWorkspace/workspace.css";
+  import Pagination from "#lib/components/Pagination.svelte";
   import type { DuplicateWorkspace, DuplicateReview } from "@pitchou/types/onagreDuplicates.ts";
-  import ProjectReview from "./DuplicateWorkspace/ProjectReview.svelte";
+  import ProjectDialog from "./DuplicateWorkspace/ProjectDialog.svelte";
+  import "./duplicateLists.css";
   let { workspace, writable }: { workspace: DuplicateWorkspace; writable: boolean } = $props();
-  let search = $state("");
-  let filter = $state("pending");
-  let selectedId = $state(
-    untrack(() => page.url.searchParams.get("project") ?? workspace.projects[0]?.project_id ?? ""),
-  );
-  const canLeave = () =>
-    !document.querySelector('form[data-duplicate-dirty="true"]') ||
-    window.confirm("Quitter sans enregistrer les décisions modifiées ?");
-  let offset = $state(0);
-  const size = 15;
+  let input = $state(""),
+    search = $state(""),
+    filter = $state("pending"),
+    current = $state(1);
+  let selectedId = $state(untrack(() => page.url.searchParams.get("project") ?? ""));
+  let timer: ReturnType<typeof setTimeout>;
+  const size = 20;
   const normalize = (value: string) =>
     value
       .normalize("NFD")
       .replaceAll(/\p{Diacritic}/gu, "")
       .toLowerCase();
-  let decisions = $derived(new Map(workspace.decisions.map((d) => [d.demande_key, d])));
+  function scheduleSearch() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      search = input;
+      current = 1;
+    }, 350);
+  }
+  onDestroy(() => clearTimeout(timer));
+  const decisions = $derived(new Map(workspace.decisions.map((d) => [d.demande_key, d])));
   const pending = (project: DuplicateReview) =>
     project.payload.demandes.filter(
       (d) =>
         d.linkedDossierId === null &&
         (!decisions.has(d.key) || decisions.get(d.key)?.outcome === "pending"),
     ).length;
-  let demandes = $derived(workspace.projects.flatMap((p) => p.payload.demandes));
-  let linked = $derived(demandes.filter((d) => d.linkedDossierId !== null).length);
-  let remaining = $derived(workspace.projects.reduce((total, p) => total + pending(p), 0));
-  let results = $derived(
+  const demandes = $derived(workspace.projects.flatMap((p) => p.payload.demandes));
+  const remaining = $derived(workspace.projects.reduce((total, p) => total + pending(p), 0));
+  const results = $derived(
     workspace.projects.filter((p) => {
       const text = [
         p.payload.name,
@@ -47,121 +53,103 @@
       );
     }),
   );
-  let selected = $derived(
-    workspace.projects.find((p) => p.project_id === selectedId) ?? results[offset] ?? results[0],
-  );
+  const selected = $derived(workspace.projects.find((p) => p.project_id === selectedId));
+  const pages = $derived(Math.max(1, Math.ceil(results.length / size)));
   $effect(() => {
-    if (offset >= results.length) offset = 0;
-    // Keep the open project when saving changes its filter status.
-    if (!selectedId && selected) selectedId = selected.project_id;
+    if (current > pages) current = 1;
   });
 </script>
 
-<section class="admin-panel admin-stack duplicate-review-intro">
-  <h2>Doublons à examiner</h2>
+<section class="admin-stack duplicate-list" aria-label="Doublons à examiner">
   <p>
-    Ces projets présentent un rapprochement possible avec des dossiers DN existants. La décision se
-    prend par demande : un même projet peut couvrir plusieurs campagnes.
-  </p>
-  <div class="counts" aria-label="Bilan de la revue">
-    <span><strong>{workspace.projects.length}</strong> projets</span>
-    <span><strong>{demandes.length}</strong> demandes</span>
-    <span><strong>{remaining}</strong> à décider</span>
-    <span><strong>{demandes.length - linked - remaining}</strong> décisions enregistrées</span>
-    <span><strong>{linked}</strong> déjà reliées</span>
-  </div>
-  <p>
-    Les liens confirmés sont en lecture seule. Les choix enregistrés préparent la reprise ; ils ne
-    lancent aucun import et ne modifient aucun dossier DN. L’export des décisions inclut cette revue
-    et son historique.
+    {workspace.projects.length} projets · {demandes.length} demandes · {remaining} décisions en attente
   </p>
   <div class="filters">
     <label
-      >Rechercher un projet, une référence ou un dossier DN
-      <input
+      >Rechercher un projet, une référence ou un dossier DN<input
         class="fr-input"
         type="search"
-        value={search}
-        oninput={(event) => {
-          if (canLeave()) {
-            search = event.currentTarget.value;
-            offset = 0;
-            selectedId = "";
-          } else event.currentTarget.value = search;
-        }}
+        bind:value={input}
+        oninput={scheduleSearch}
+      /></label
+    >
+    <div class="onagre-field">
+      <label for="duplicate-filter">Avancement</label>
+      <Select
+        id="duplicate-filter"
+        bind:value={filter}
+        onChange={() => (current = 1)}
+        options={[
+          { value: "pending", label: "À examiner" },
+          { value: "done", label: "Entièrement examinés" },
+          { value: "all", label: "Tous" },
+        ]}
       />
-    </label>
-    <label
-      >Afficher
-      <select
-        class="fr-select"
-        value={filter}
-        onchange={(event) => {
-          if (canLeave()) {
-            filter = event.currentTarget.value;
-            offset = 0;
-            selectedId = "";
-          } else event.currentTarget.value = filter;
-        }}
+    </div>
+  </div>
+  <div class="list-controls">
+    <p role="status">{results.length} projet{results.length > 1 ? "s" : ""}</p>
+    <Pagination
+      {current}
+      total={pages}
+      label="Pages des projets à examiner"
+      onChange={(value) => (current = value)}
+    />
+  </div>
+  <div class="onagre-table-scroll">
+    <table>
+      <thead
+        ><tr><th>Projet Onagre</th><th>Pourquoi examiner</th><th>Demandes</th><th>À décider</th></tr
+        ></thead
       >
-        <option value="pending">Projets avec une décision en attente</option>
-        <option value="done">Projets entièrement examinés</option>
-        <option value="all">Tous les projets de la revue</option>
-      </select>
-    </label>
+      <tbody>
+        {#each results.slice((current - 1) * size, current * size) as project (project.project_id)}
+          {@const remaining = pending(project)}
+          <tr class="duplicate-row" class:handled={remaining === 0}>
+            <td class="name"
+              ><button class="row-button" onclick={() => (selectedId = project.project_id)}>
+                <span
+                  class={remaining ? "fr-icon-time-line" : "fr-icon-checkbox-circle-line"}
+                  aria-hidden="true"
+                ></span>{project.payload.name}<span class="fr-sr-only">
+                  — {remaining ? "À examiner" : "Examiné"}</span
+                >
+              </button><span class="reference">Projet {project.project_id}</span></td
+            >
+            <td><span class="reason-preview">{project.payload.reason}</span></td>
+            <td>{project.payload.demandes.length}</td><td>{remaining}</td>
+          </tr>
+        {:else}<tr
+            ><td colspan="4"
+              >{workspace.projects.length
+                ? "Aucun projet pour ces filtres."
+                : "Aucune revue de doublons chargée."}</td
+            ></tr
+          >{/each}
+      </tbody>
+    </table>
   </div>
 </section>
-{#if workspace.projects.length === 0}
-  <p class="admin-panel">Aucune revue de doublons n’a été chargée dans cet environnement.</p>
-{:else if !selected}
-  <p class="admin-panel" role="status">Aucun projet ne correspond à ces filtres.</p>
-{:else}
-  <div class="duplicate-review-layout">
-    <aside class="admin-panel">
-      <p>{results.length} projet{results.length > 1 ? "s" : ""} dans la liste</p>
-      <nav aria-label="Projets à examiner">
-        {#each results.slice(offset, offset + size) as project (project.project_id)}
-          <button
-            class:active={selected.project_id === project.project_id}
-            aria-current={selected.project_id === project.project_id ? "true" : undefined}
-            onclick={() => {
-              if (canLeave()) selectedId = project.project_id;
-            }}
-          >
-            <strong>{project.payload.name}</strong>
-            <span
-              >Projet {project.project_id} · {pending(project)} à décider / {project.payload
-                .demandes.length} demandes</span
-            >
-          </button>
-        {/each}
-      </nav>
-      <div class="pagination">
-        <button
-          class="fr-btn fr-btn--tertiary fr-btn--sm"
-          disabled={offset === 0}
-          onclick={() => {
-            if (!canLeave()) return;
-            offset -= size;
-            selectedId = "";
-          }}>Précédents</button
-        >
-        <span
-          >{Math.floor(offset / size) + 1} / {Math.max(1, Math.ceil(results.length / size))}</span
-        >
-        <button
-          class="fr-btn fr-btn--tertiary fr-btn--sm"
-          disabled={offset + size >= results.length}
-          onclick={() => {
-            if (!canLeave()) return;
-            offset += size;
-            selectedId = "";
-          }}>Suivants</button
-        >
-      </div>
-    </aside>
-    {#key selected.project_id}
-      <ProjectReview project={selected} {decisions} revisions={workspace.revisions} {writable} />
-    {/key}
-  </div>
+{#if selected}
+  {#key selected.project_id}
+    <ProjectDialog
+      project={selected}
+      {decisions}
+      revisions={workspace.revisions}
+      {writable}
+      onClose={() => (selectedId = "")}
+    />
+  {/key}
 {/if}
+
+<style>
+  .reason-preview {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-width: 16rem;
+    max-width: 38rem;
+  }
+</style>

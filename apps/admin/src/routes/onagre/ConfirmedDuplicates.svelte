@@ -1,25 +1,37 @@
 <script lang="ts">
+  import Select from "@pitchou/ui/Select.svelte";
+  import { onDestroy } from "svelte";
+  import Pagination from "#lib/components/Pagination.svelte";
   import {
     confirmationLabels,
     type ConfirmedDuplicate,
   } from "@pitchou/types/onagreConfirmedDuplicates.ts";
   import ConfirmedMatch from "./ConfirmedDuplicates/ConfirmedMatch.svelte";
+  import "./duplicateLists.css";
   let { links }: { links: ConfirmedDuplicate[] } = $props();
+  let input = $state("");
   let search = $state("");
   let profile = $state("");
-  let offset = $state(0);
+  let current = $state(1);
+  let selected = $state<ConfirmedDuplicate | null>(null);
+  let timer: ReturnType<typeof setTimeout>;
   const size = 20;
   const normalize = (value: string) =>
     value
       .normalize("NFD")
       .replaceAll(/\p{Diacritic}/gu, "")
       .toLowerCase();
-  let projects = $derived(new Set(links.map((link) => link.projectId)).size);
-  let dossiers = $derived(new Set(links.map((link) => link.target.id)).size);
-  let related = $derived(
-    new Set(links.flatMap((link) => link.relatedExisting.map((r) => r.dossierId))).size,
-  );
-  let results = $derived(
+  function scheduleSearch() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      search = input;
+      current = 1;
+    }, 350);
+  }
+  onDestroy(() => clearTimeout(timer));
+  const projects = $derived(new Set(links.map((link) => link.projectId)).size);
+  const dossiers = $derived(new Set(links.map((link) => link.target.id)).size);
+  const results = $derived(
     links.filter(
       (link) =>
         (!profile || link.profile === profile) &&
@@ -39,97 +51,80 @@
         ).includes(normalize(search)),
     ),
   );
+  const pages = $derived(Math.max(1, Math.ceil(results.length / size)));
   $effect(() => {
-    if (offset >= results.length) offset = 0;
+    if (current > pages) current = 1;
   });
 </script>
 
-<section class="admin-panel admin-stack confirmed-intro">
-  <h2>Doublons évités</h2>
+<section class="admin-stack duplicate-list" aria-label="Doublons évités">
   <p>
-    Ces demandes Onagre ont été reconnues dans des dossiers DN existants. Le rapprochement permet de
-    conserver le dossier DN au lieu d’en créer une copie.
-  </p>
-  <div class="counts" aria-label="Bilan des doublons évités">
-    <span><strong>{links.length}</strong> demandes reliées sans copie</span>
-    <span><strong>{projects}</strong> projets Onagre</span>
-    <span><strong>{dossiers}</strong> dossiers DN conservés</span>
-  </div>
-  <p>
-    Plusieurs demandes peuvent être reliées au même DN. Aucun dossier DN n’a été supprimé ou
-    fusionné lors du rapprochement ; {related} entrées secondaires documentées ont aussi été conservées.
-  </p>
-  <p>
-    <strong>Confirmé ne veut pas toujours dire facile.</strong> Un code complet facilite certains rapprochements.
-    D’autres ont nécessité de comparer des dates, de lire l’historique ou un acte original. Chaque ligne
-    explique les éléments décisifs et les différences conservées.
+    {links.length} demandes reliées · {projects} projets Onagre · {dossiers} dossiers DN conservés
   </p>
   <div class="filters">
     <label
-      >Rechercher un projet, une demande, un DN ou un lieu
-      <input class="fr-input" type="search" bind:value={search} oninput={() => (offset = 0)} />
-    </label>
-    <label for="confirmation-profile">Ce qui a permis la confirmation</label>
-    <select
-      id="confirmation-profile"
-      class="fr-select"
-      bind:value={profile}
-      onchange={() => (offset = 0)}
+      >Rechercher un projet, une demande ou un lieu<input
+        class="fr-input"
+        type="search"
+        bind:value={input}
+        oninput={scheduleSearch}
+      /></label
     >
-      <option value="">Tous les types de preuve</option>
-      {#each Object.entries(confirmationLabels) as [value, label]}
-        <option {value}>{label} ({links.filter((link) => link.profile === value).length})</option>
-      {/each}
-    </select>
+    <div class="onagre-field">
+      <label for="confirmation-profile">Ce qui a permis la confirmation</label>
+      <Select
+        id="confirmation-profile"
+        bind:value={profile}
+        onChange={() => (current = 1)}
+        options={[
+          { value: "", label: "Tous les types de preuve" },
+          ...Object.entries(confirmationLabels).map(([value, label]) => ({
+            value,
+            label: `${label} (${links.filter((link) => link.profile === value).length})`,
+          })),
+        ]}
+      />
+    </div>
+  </div>
+  <div class="list-controls">
+    <p role="status">{results.length} correspondance{results.length > 1 ? "s" : ""}</p>
+    <Pagination
+      {current}
+      total={pages}
+      label="Pages des doublons évités"
+      onChange={(value) => (current = value)}
+    />
+  </div>
+  <div class="onagre-table-scroll">
+    <table>
+      <thead
+        ><tr><th>Demande Onagre</th><th>Dossier DN conservé</th><th>Confirmation</th></tr></thead
+      >
+      <tbody>
+        {#each results.slice((current - 1) * size, current * size) as link (link.demandeKey)}
+          <tr class="duplicate-row handled">
+            <td class="name"
+              ><button class="row-button" onclick={() => (selected = link)}>
+                <span class="fr-icon-checkbox-circle-line" aria-hidden="true"
+                ></span>{link.projectName}<span class="fr-sr-only"> — Doublon évité</span>
+              </button><span class="reference"
+                >Projet {link.projectId} · Demande {link.source.reference || link.source.id}</span
+              ></td
+            >
+            <td>{link.target.name}<span class="reference">DN {link.target.id}</span></td>
+            <td>{confirmationLabels[link.profile]}</td>
+          </tr>
+        {:else}<tr
+            ><td colspan="3"
+              >{links.length
+                ? "Aucune correspondance pour ces filtres."
+                : "Aucun rapprochement confirmé chargé."}</td
+            ></tr
+          >{/each}
+      </tbody>
+    </table>
   </div>
 </section>
-<p role="status">{results.length} correspondance{results.length > 1 ? "s" : ""} dans la liste</p>
-{#each results.slice(offset, offset + size) as link (link.demandeKey)}
-  <ConfirmedMatch {link} />
-{:else}
-  <p class="admin-panel">
-    {links.length
-      ? "Aucune correspondance pour ces filtres."
-      : "Aucun rapprochement confirmé n’a été chargé dans cet environnement."}
-  </p>
-{/each}
-{#if results.length > size}
-  <nav class="pagination" aria-label="Pages des doublons évités">
-    <button
-      class="fr-btn fr-btn--tertiary fr-btn--sm"
-      disabled={offset === 0}
-      onclick={() => (offset -= size)}>Précédents</button
-    >
-    <span>{Math.floor(offset / size) + 1} / {Math.ceil(results.length / size)}</span>
-    <button
-      class="fr-btn fr-btn--tertiary fr-btn--sm"
-      disabled={offset + size >= results.length}
-      onclick={() => (offset += size)}>Suivants</button
-    >
-  </nav>
+{#if selected}
+  <ConfirmedMatch link={selected} onClose={() => (selected = null)} />
 {/if}
-
-<style>
-  .counts,
-  .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-  }
-  .counts span {
-    padding: 0.75rem;
-    background: var(--background-alt-grey);
-    border-radius: 0.4rem;
-  }
-  .counts strong {
-    font-size: 1.25rem;
-  }
-  .filters {
-    display: grid;
-    gap: 0.5rem;
-  }
-  .pagination {
-    justify-content: center;
-  }
-</style>

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/state";
   import type { CommentGroup } from "@pitchou/types/onagreComments.ts";
   let { group }: { group: CommentGroup } = $props();
   const populations: Record<string, string> = {
@@ -7,12 +6,6 @@
     linked_dn: "Déjà lié à DN",
     blocked: "Projet bloqué, écarté de l’import",
   };
-  function demandeLink(key: string) {
-    const params = new URLSearchParams({ tab: "dossiers", demande: key.split(":").at(-1)! });
-    const snapshot = page.url.searchParams.get("snapshot");
-    if (snapshot) params.set("snapshot", snapshot);
-    return `/onagre?${params}`;
-  }
 </script>
 
 <div class="admin-stack">
@@ -43,24 +36,6 @@
         {populations[key] ?? key} : {count.projects} projets, {count.demandes} demandes.
       </li>{/each}
   </ul>
-  <h3>Exemples de demandes</h3>
-  {#each group.payload.examples as example}
-    <article class="example">
-      <strong>Projet Onagre {example.projectId} · {example.species ?? "Taxon non renseigné"}</strong
-      >
-      <p>
-        {#if example.demandeKey.includes(":demandes:")}<a
-            href={demandeLink(example.demandeKey)}
-            target="_blank"
-            rel="noreferrer"
-            >Voir la demande {example.demandeKey.split(":").at(-1)} dans un nouvel onglet</a
-          >{:else}Demande initiale synthétique{/if}
-      </p>
-      {#each [["Commentaire sur l’activité", example.activityText], ["Description", example.descriptionText], ["Précision", example.precisionText]] as [label, value]}
-        {#if value}<p><strong>{label}</strong><br />{value}</p>{/if}
-      {/each}
-    </article>
-  {/each}
 </div>
 
 <style>
@@ -82,14 +57,5 @@
   }
   dd {
     margin: 0;
-  }
-  .example {
-    border: 1px solid var(--border-default-grey);
-    padding: 1rem;
-    border-radius: 0.5rem;
-  }
-  .example p {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
   }
 </style>

@@ -1,3 +1,5 @@
+import type { CommentExplanation } from "./onagreCommentEvidence.ts";
+
 export const commentCategories = {
   cmtactivitesespeces: "Textes libres des activités",
   unmapped_method: "Méthodes Onagre",
@@ -39,11 +41,24 @@ export interface CommentGroup {
       classifications?: string[];
       impactTypes?: (string | null)[];
       sourceTaxref?: string | null;
+      unresolvedActivityId?: string;
     };
     variants: string[];
     examples: CommentExample[];
+    demandeKeys: string[];
     populations: Record<string, { projects: number; demandes: number }>;
   };
+}
+export interface CommentDemandePage {
+  items: {
+    key: string;
+    label: string;
+    dossiers: { id: number; name: string; url: string }[];
+    explanations: CommentExplanation[];
+  }[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 export interface CommentDecisionInput {
   group_id: string;

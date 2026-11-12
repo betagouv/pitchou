@@ -1,11 +1,11 @@
+import { technicalTabs } from "./navigation.ts";
+import { loadReviewSummary } from "@pitchou/server/onagre/reviewSummary.ts";
 import { fail, isHttpError, redirect } from "@sveltejs/kit";
 import {
   loadCommentWorkspace,
   parseCommentDecision,
   saveCommentDecision,
 } from "@pitchou/server/onagre/comments.ts";
-import { loadActivityWorkspace } from "@pitchou/server/onagre/activities.ts";
-import { loadWorkspace } from "@pitchou/server/onagre/workspace.ts";
 import { parseDecision } from "@pitchou/server/onagre/validation.ts";
 import { parseSharedRule, saveSharedRule } from "@pitchou/server/onagre/sharedRules.ts";
 import { stagePackage } from "@pitchou/server/onagre/package.ts";
@@ -13,15 +13,8 @@ import { saveMapping, MappingConflict } from "@pitchou/server/onagre/mappings.ts
 import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import type { Actions, PageServerLoad } from "./$types";
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
-import { getImportAvailability } from "@pitchou/server/onagre/import.ts";
-import { listImportJobs } from "@pitchou/server/onagre/import/jobs.ts";
-import { loadQuestions, parseQuestion, saveQuestion } from "@pitchou/server/onagre/questions.ts";
-import {
-  loadServiceMappings,
-  parseServiceDecision,
-  saveServiceMapping,
-} from "@pitchou/server/onagre/services.ts";
-import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
+import { parseQuestion, saveQuestion } from "@pitchou/server/onagre/questions.ts";
+import { parseServiceDecision, saveServiceMapping } from "@pitchou/server/onagre/services.ts";
 import { loadConfirmedDuplicates } from "@pitchou/server/onagre/confirmedDuplicates.ts";
 import {
   loadDuplicateWorkspace,
@@ -30,45 +23,17 @@ import {
 } from "@pitchou/server/onagre/duplicates.ts";
 
 export const load: PageServerLoad = async ({ url }) => {
-  if (url.searchParams.get("tab") === "sources") {
-    const params = new URLSearchParams({ tab: "synthese" });
-    const snapshot = url.searchParams.get("snapshot");
-    if (snapshot) params.set("snapshot", snapshot);
-    redirect(303, `/onagre?${params}`);
+  const tab = url.searchParams.get("tab") ?? "accueil";
+  if (technicalTabs.includes(tab)) {
+    const params = new URLSearchParams(url.searchParams);
+    if (tab === "sources") params.set("tab", "synthese");
+    redirect(303, `/tech/onagre?${params}`);
   }
-  const rehearsal = process.env.ONAGRE_DEPLOYMENT_ROLE === "rehearsal";
-  const [workspace, importRuns, importJobs] = await Promise.all([
-    loadWorkspace(url),
-    rehearsal && url.searchParams.get("tab") === "import"
-      ? db<{ report: OnagreImportRun }>("onagre_import_run")
-          .select("report")
-          .whereNull("job_id")
-          .orderBy("created_at", "desc")
-          .limit(10)
-          .then((rows) => rows.map((row) => row.report))
-      : [],
-    rehearsal && url.searchParams.get("tab") === "import" ? listImportJobs(db) : [],
-  ]);
   return {
-    ...workspace,
-    commentWorkspace:
-      url.searchParams.get("tab") === "textes" ? await loadCommentWorkspace(db, url) : null,
-    confirmedDuplicates:
-      url.searchParams.get("tab") === "doublons-evites" ? await loadConfirmedDuplicates(db) : [],
-    duplicateWorkspace:
-      url.searchParams.get("tab") === "doublons" ? await loadDuplicateWorkspace(db) : null,
-    questions: url.searchParams.get("tab") === "questions" ? await loadQuestions(db) : [],
-    activityWorkspace: ["activites", "correspondances"].includes(url.searchParams.get("tab") ?? "")
-      ? await loadActivityWorkspace(db, workspace.mappings)
-      : null,
-    servicesWorkspace:
-      url.searchParams.get("tab") === "services" && workspace.selected?.records_complete
-        ? await loadServiceMappings(db, workspace.selected.id)
-        : null,
-    deploymentRole: rehearsal ? "rehearsal" : "workspace",
-    importEnabled: getImportAvailability().enabled,
-    importRuns,
-    importJobs,
+    summary: await loadReviewSummary(db),
+    commentWorkspace: tab === "textes" ? await loadCommentWorkspace(db, url) : null,
+    confirmedDuplicates: tab === "doublons-evites" ? await loadConfirmedDuplicates(db) : [],
+    duplicateWorkspace: tab === "doublons" ? await loadDuplicateWorkspace(db) : null,
   };
 };
 const failure = (cause: unknown) => {

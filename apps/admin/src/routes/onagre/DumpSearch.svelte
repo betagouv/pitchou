@@ -2,7 +2,7 @@
   import { untrack } from "svelte";
   import { page, navigating } from "$app/state";
   import { filterError, maxFilters, type SourceFilter } from "@pitchou/common/onagre/filters.ts";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import DumpColumns from "./DumpColumns.svelte";
   import DumpFilterRow from "./DumpFilterRow.svelte";
   import { dumpLink } from "./navigation.ts";

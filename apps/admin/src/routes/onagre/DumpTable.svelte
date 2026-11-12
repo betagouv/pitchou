@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page, navigating } from "$app/state";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import DumpSearch from "./DumpSearch.svelte";
   import DumpRowDetail from "./DumpRowDetail.svelte";
   import { dumpLink, visibleColumns } from "./navigation.ts";

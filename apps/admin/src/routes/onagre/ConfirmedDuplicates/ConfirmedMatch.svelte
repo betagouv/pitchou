@@ -5,96 +5,99 @@
     type ConfirmedDuplicate,
   } from "@pitchou/types/onagreConfirmedDuplicates.ts";
   import Facts from "../DuplicateFacts.svelte";
-  let { link }: { link: ConfirmedDuplicate } = $props();
+  import InstructeurLink from "../InstructeurLink.svelte";
+  import WorkspaceDialog from "../WorkspaceDialog.svelte";
+  import ReviewDetailTabs from "../ReviewDetailTabs.svelte";
+  import Pagination from "#lib/components/Pagination.svelte";
+  let { link, onClose }: { link: ConfirmedDuplicate; onClose: () => void } = $props();
+  let tab = $state(0),
+    current = $state(1);
+  const size = 10;
 </script>
 
-<article class="admin-panel">
-  <p>Projet Onagre {link.projectId} · demande {link.source.id}</p>
-  <h3>{link.projectName}</h3>
-  <p class="match">
-    <strong>{link.source.reference || `Demande ${link.source.id}`}</strong><span
-      aria-label="reliée à">→</span
-    ><a href={`/dossiers/${link.target.id}`} target="_blank" rel="noreferrer"
-      >DN {link.target.id} — {link.target.name} (nouvel onglet)</a
+<WorkspaceDialog title="Doublon évité" size="xlarge" {onClose}>
+  <div class="duplicate-detail">
+    <p>Projet Onagre {link.projectId} · Demande {link.source.reference || link.source.id}</p>
+    <h3>{link.projectName}</h3>
+    <ReviewDetailTabs
+      id="confirmed-detail"
+      bind:active={tab}
+      tabs={[
+        "Pourquoi ce rapprochement",
+        "Comparaison Onagre / DN",
+        `Autres entrées DN (${link.relatedExisting.length})`,
+      ]}
+    />
+    <div
+      id="confirmed-detail-panel-0"
+      role="tabpanel"
+      aria-labelledby="confirmed-detail-tab-0"
+      hidden={tab !== 0}
     >
-  </p>
-  <p><strong>{confirmationLabels[link.profile]}</strong></p>
-  <p>{confirmationExplanations[link.profile]}</p>
-  <h4>Ce qui a permis de trancher pour cette demande</h4>
-  <p class="reason">{link.reason}</p>
-  <details>
-    <summary>Comparer les références, dates et lieux</summary>
-    <div class="comparison">
-      <section aria-label="Données Onagre">
-        <h4>Demande Onagre</h4>
-        <Facts facts={link.source} />
-      </section>
-      <section aria-label="Données DN">
-        <h4>Dossier DN conservé</h4>
-        <Facts facts={link.target} />
-      </section>
+      <p>
+        <InstructeurLink dossierId={link.target.id}
+          >DN {link.target.id} — {link.target.name}</InstructeurLink
+        >
+      </p>
+      <h4>{confirmationLabels[link.profile]}</h4>
+      <p>{confirmationExplanations[link.profile]}</p>
+      <h4>Ce qui a permis de trancher</h4>
+      <p class="reason">{link.reason}</p>
+      <p>Rapprochement confirmé le {new Date(link.confirmedAt).toLocaleDateString("fr-FR")}.</p>
+      {#if link.otherDemandesToReview}<p>
+          {link.otherDemandesToReview} autre(s) demande(s) de ce projet restent à examiner.
+          <a href={`?tab=doublons&project=${link.projectId}`}>Examiner le projet</a>
+        </p>{/if}
     </div>
-    <p>
-      Éléments retenus lors du rapprochement confirmé le {new Date(
-        link.confirmedAt,
-      ).toLocaleDateString("fr-FR")}. Les écarts de dates ou de codes sont conservés ; le motif
-      explique ceux qui ont été examinés.
-    </p>
-  </details>
-  {#if link.relatedExisting.length}
-    <details>
-      <summary>Autres entrées DN conservées ({link.relatedExisting.length})</summary>
-      {#each link.relatedExisting as related (related.dossierId)}
-        <p>
-          <a href={`/dossiers/${related.dossierId}`} target="_blank" rel="noreferrer"
-            >DN {related.dossierId} (nouvel onglet)</a
-          >
-          — {related.reason}
-        </p>
-      {/each}
-    </details>
-  {/if}
-  {#if link.otherDemandesToReview}
-    <p class="remaining">
-      Ce lien ne résout pas les {link.otherDemandesToReview} autre{link.otherDemandesToReview > 1
-        ? "s"
-        : ""} demande{link.otherDemandesToReview > 1 ? "s" : ""} de ce projet encore réservée{link.otherDemandesToReview >
-      1
-        ? "s"
-        : ""} dans la revue.
-      <a href={`?tab=doublons&project=${link.projectId}`}>Examiner ce projet</a>.
-    </p>
-  {/if}
-</article>
+    <div
+      id="confirmed-detail-panel-1"
+      role="tabpanel"
+      aria-labelledby="confirmed-detail-tab-1"
+      hidden={tab !== 1}
+    >
+      <div class="comparison">
+        <section aria-label="Données Onagre">
+          <h4>Demande Onagre {link.source.id}</h4>
+          <Facts facts={link.source} />
+        </section>
+        <section aria-label="Données DN">
+          <h4>
+            <InstructeurLink dossierId={link.target.id}>Dossier DN {link.target.id}</InstructeurLink
+            >
+          </h4>
+          <Facts facts={link.target} />
+        </section>
+      </div>
+      <p>Références, dates et lieux conservés lors du rapprochement.</p>
+    </div>
+    <div
+      id="confirmed-detail-panel-2"
+      role="tabpanel"
+      aria-labelledby="confirmed-detail-tab-2"
+      hidden={tab !== 2}
+    >
+      {#if link.relatedExisting.length > size}<Pagination
+          {current}
+          total={Math.ceil(link.relatedExisting.length / size)}
+          label="Pages des entrées DN conservées"
+          onChange={(value) => (current = value)}
+        />{/if}
+      {#each link.relatedExisting.slice((current - 1) * size, current * size) as related (related.dossierId)}
+        <article class="detail-entry">
+          <InstructeurLink dossierId={related.dossierId}>DN {related.dossierId}</InstructeurLink>
+          <p>{related.reason}</p>
+        </article>
+      {:else}<p>Aucune autre entrée DN associée à ce rapprochement.</p>{/each}
+    </div>
+  </div>
+  {#snippet footer()}<button class="fr-btn fr-btn--secondary" onclick={onClose}>Fermer</button
+    >{/snippet}
+</WorkspaceDialog>
 
 <style>
-  h3 {
-    font-size: 1.15rem;
-  }
-  h4 {
-    font-size: 1rem;
-  }
-  .match {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: baseline;
-  }
-  .reason {
-    white-space: pre-line;
-  }
   .comparison {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  details {
-    margin-top: 1rem;
-  }
-  .remaining {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background: var(--background-alt-grey);
+    gap: 1.5rem;
   }
 </style>
