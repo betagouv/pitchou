@@ -60,7 +60,7 @@ export const PROCHAINE_ACTION_LABEL = new Map(
 );
 
 export const DATE_FIELD_LABEL: Record<DateField, string> = {
-  deposit: "de dépôt",
+  deposit: "de création",
   phaseStart: "de début de phase",
   lastModified: "de dernière modification",
   nextDue: "de prochaine échéance",
