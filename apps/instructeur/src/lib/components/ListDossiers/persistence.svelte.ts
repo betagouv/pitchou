@@ -2,6 +2,8 @@ import { untrack } from "svelte";
 import { buildDossiersSearchParams, readDossiersQuery, type DossiersQuery } from "./query.ts";
 import { navigateDossiers } from "./navigation.ts";
 
+const unsavedQueries = new Map<string, string>();
+
 const QUERY_PARAMS = [
   "q",
   "phase",
@@ -36,10 +38,13 @@ function storageKey(email: string, pathname: string): string | undefined {
 function saveDossiersQuery(email: string, pathname: string, query: DossiersQuery): void {
   const key = storageKey(email, pathname);
   if (!key) return;
+  const saved = buildDossiersSearchParams(query).toString();
   try {
-    localStorage.setItem(key, buildDossiersSearchParams(query).toString());
+    localStorage.setItem(key, saved);
+    unsavedQueries.delete(key);
   } catch {
-    // Remembering a list is optional when browser storage is unavailable or full.
+    // Keep this tab's latest choice when readable storage contains an older query.
+    unsavedQueries.set(key, saved);
   }
 }
 
@@ -59,7 +64,7 @@ export function rememberDossiersQuery(
       return;
     }
     try {
-      const saved = localStorage.getItem(key);
+      const saved = unsavedQueries.get(key) ?? localStorage.getItem(key);
       if (!saved) return;
       const params = buildDossiersSearchParams(readDossiersQuery(new URLSearchParams(saved)));
       if (params.size === 0) return;

@@ -106,6 +106,26 @@ test("accounts do not inherit each other's filters", async () => {
   expect(goto).not.toHaveBeenCalled();
 });
 
+test("clearing a saved filter stays cleared when storage becomes read-only", async () => {
+  const key = `pitchou:dossiers-query:${encodeURIComponent(email)}:/mes-dossiers`;
+  localStorage.setItem(key, "nouveaute=oui");
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    throw new Error("Full");
+  });
+  route.url = new URL("http://localhost/mes-dossiers");
+  render(MesDossiers, props);
+  await tick();
+  expect(route.url.search).toBe("?nouveaute=oui");
+  await fireEvent.click(screen.getByRole("button", { name: /^Modifications non lues$/u }));
+  await tick();
+  expect(localStorage.getItem(key)).toBe("nouveaute=oui");
+  expect(route.url.search).toBe("");
+  cleanup();
+  render(MesDossiers, props);
+  await tick();
+  expect(route.url.search).toBe("");
+});
+
 test("unavailable storage leaves filtering usable", async () => {
   vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
     throw new Error("Blocked");
