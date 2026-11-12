@@ -45,4 +45,5 @@
   {recentSearches}
   {notificationByDossier}
   showFilterInstructeurice
+  showFilterSource
 />

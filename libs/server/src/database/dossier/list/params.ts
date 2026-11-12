@@ -1,4 +1,5 @@
 import { removeAccents } from "@pitchou/common/stringManipulation.ts";
+import { readDossierSourceFilter } from "@pitchou/types/dossierSource.ts";
 
 /** Keep the URL defaults identical to the list controls. Unknown categorical values match nothing. */
 export function readParams(params: URLSearchParams) {
@@ -17,6 +18,7 @@ export function readParams(params: URLSearchParams) {
   const dateField = params.get("dateField");
   const sort = params.get("sort");
   return {
+    source: readDossierSourceFilter(params.get("source")),
     terms: [
       ...new Set(
         removeAccents(params.get("q") ?? "")

@@ -23,6 +23,7 @@ export function filterDossiers(
 ): DossierSummary[] {
   const { notificationByDossier, followRelations } = ctx;
   let result = filterByLocalisation(dossiers, query, ctx.followedOnly);
+  if (query.source) result = result.filter((dossier) => dossier.source === query.source);
 
   if (query.text.trim()) {
     const terms = searchTerms(query.text);
@@ -96,6 +97,7 @@ export function filterDossiers(
 
 /** URL param keys driven by the Filtrer panel (text search, sort and page excluded) */
 const FILTER_PARAM_KEYS = [
+  "source",
   "phase",
   "activite",
   "espece",

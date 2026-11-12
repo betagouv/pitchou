@@ -5,9 +5,13 @@
   import DossiersExportButton from "./DossiersExportButton.svelte";
 
   import type { DossiersToolbarProps } from "./props.ts";
+  import { readDossierSourceFilter } from "@pitchou/types/dossierSource.ts";
 
   let {
     title,
+    showFilterSource = false,
+    source = "",
+    onSourceChange,
     loading = false,
     loadError = "",
     busy = false,
@@ -69,6 +73,20 @@
       suggestions={recentSearches}
       {onSearch}
     />
+    {#if showFilterSource}
+      <label class="flex items-center gap-2 fr-m-0">
+        <span>Source</span>
+        <select
+          class="fr-select w-auto fr-m-0"
+          value={source}
+          onchange={(event) => onSourceChange?.(readDossierSourceFilter(event.currentTarget.value))}
+        >
+          <option value="">Toutes les sources</option>
+          <option value="onagre">Onagre</option>
+          <option value="demarche_numerique">Démarche Numérique (DN)</option>
+        </select>
+      </label>
+    {/if}
     {#if showFilterInstructeurice}
       <button
         type="button"

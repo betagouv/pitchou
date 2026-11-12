@@ -4,6 +4,7 @@ import type {
   DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PitchouState } from "#lib/state/store.svelte.ts";
+import { readDossierSourceFilter, type DossierSourceFilter } from "@pitchou/types/dossierSource.ts";
 import {
   readLocalisation,
   writeLocalisation,
@@ -84,6 +85,7 @@ export type DossiersContext = {
  * Departments instead use departementSelection to distinguish all from none within a scope.
  */
 export type DossiersQuery = {
+  source: DossierSourceFilter;
   text: string;
   phase: DossierPhase[];
   activite: ActiviteCode[];
@@ -138,6 +140,7 @@ export function readDossiersQuery(params: URLSearchParams): DossiersQuery {
  */
 export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams {
   const params = new URLSearchParams();
+  if (query.source) params.set("source", query.source);
 
   if (query.text.trim()) params.set("q", query.text.trim());
   for (const phase of query.phase) params.append("phase", phase);
@@ -177,6 +180,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
   const pageSize = Number(params.get("pageSize"));
 
   return {
+    source: readDossierSourceFilter(params.get("source")),
     text: params.get("q") ?? "",
     phase: params.getAll("phase") as DossierPhase[],
     activite: params.getAll("activite"),

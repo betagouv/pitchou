@@ -28,6 +28,7 @@ export type ListDossiersProps = {
   recentSearches?: string[];
   /** Show the instructeur filter (quick button + modal section), irrelevant on « mes dossiers » */
   showFilterInstructeurice?: boolean;
+  showFilterSource?: boolean;
   showFilterEnjeu?: boolean;
   /** Show the next instruction action filter for followed dossiers */
   showFilterActionInstructeur?: boolean;
@@ -38,6 +39,9 @@ export type ListDossiersProps = {
 };
 
 export type DossiersToolbarProps = {
+  showFilterSource?: boolean;
+  source?: DossiersQuery["source"];
+  onSourceChange?: (source: DossiersQuery["source"]) => void;
   title: string;
   loading?: boolean;
   loadError?: string;
