@@ -1,0 +1,55 @@
+.duplicate-review-intro .counts,
+.duplicate-review-intro .filters,
+.duplicate-review-layout .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.duplicate-review-intro .counts span {
+  padding: 0.7rem;
+  background: var(--background-alt-grey);
+  border-radius: 0.4rem;
+}
+.duplicate-review-intro .counts strong {
+  font-size: 1.25rem;
+}
+.duplicate-review-intro .filters label {
+  flex: 1;
+  min-width: 16rem;
+}
+.duplicate-review-layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) minmax(0, 2.5fr);
+  gap: 1rem;
+  align-items: start;
+}
+.duplicate-review-layout nav {
+  display: grid;
+  gap: 0.5rem;
+}
+.duplicate-review-layout nav button {
+  text-align: left;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-default-grey);
+  border-radius: 0.4rem;
+  overflow-wrap: anywhere;
+}
+.duplicate-review-layout nav button.active {
+  background: var(--background-contrast-info);
+  border-color: var(--border-plain-info);
+}
+.duplicate-review-layout nav button span {
+  font-size: 0.85rem;
+}
+.duplicate-review-layout .pagination {
+  margin-top: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+@media (max-width: 900px) {
+  .duplicate-review-layout {
+    grid-template-columns: 1fr;
+  }
+}

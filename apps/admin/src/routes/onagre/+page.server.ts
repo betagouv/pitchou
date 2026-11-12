@@ -22,6 +22,12 @@ import {
   saveServiceMapping,
 } from "@pitchou/server/onagre/services.ts";
 import type { OnagreImportRun } from "@pitchou/types/onagreImport.ts";
+import { loadConfirmedDuplicates } from "@pitchou/server/onagre/confirmedDuplicates.ts";
+import {
+  loadDuplicateWorkspace,
+  parseDuplicateDecision,
+  saveDuplicateDecision,
+} from "@pitchou/server/onagre/duplicates.ts";
 
 export const load: PageServerLoad = async ({ url }) => {
   if (url.searchParams.get("tab") === "sources") {
@@ -47,6 +53,10 @@ export const load: PageServerLoad = async ({ url }) => {
     ...workspace,
     commentWorkspace:
       url.searchParams.get("tab") === "textes" ? await loadCommentWorkspace(db, url) : null,
+    confirmedDuplicates:
+      url.searchParams.get("tab") === "doublons-evites" ? await loadConfirmedDuplicates(db) : [],
+    duplicateWorkspace:
+      url.searchParams.get("tab") === "doublons" ? await loadDuplicateWorkspace(db) : null,
     questions: url.searchParams.get("tab") === "questions" ? await loadQuestions(db) : [],
     activityWorkspace: ["activites", "correspondances"].includes(url.searchParams.get("tab") ?? "")
       ? await loadActivityWorkspace(db, workspace.mappings)
@@ -76,6 +86,17 @@ export const actions: Actions = {
         saveCommentDecision(trx, actor.id, input),
       );
       return { message: "Proposition enregistrée. Aucun dossier modifié." };
+    } catch (cause) {
+      return failure(cause);
+    }
+  },
+  saveDuplicate: async ({ request, locals }) => {
+    try {
+      const input = parseDuplicateDecision(await request.formData());
+      await withAdminWriteAccess(locals, "admin:onagre:manage", (trx, actor) =>
+        saveDuplicateDecision(trx, actor.id, input),
+      );
+      return { message: "Décision enregistrée. Aucun import lancé." };
     } catch (cause) {
       return failure(cause);
     }

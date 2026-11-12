@@ -87,7 +87,11 @@ export async function verifyMappings(db: Database) {
     { id: 50002, demande, projet },
     { id: 50003, demande: { ...demande, datereception: null }, projet },
     { id: 50004, demande, projet: { ...projet, objetid: "4" } },
-    { id: 50005, demande, projet },
+    {
+      id: 50005,
+      demande: { ...demande, projetid: "50005" },
+      projet: { ...projet, projetid: "50005" },
+    },
     { id: 50006, demande, projet },
   ]);
   await seedReferences(db, snapshotId);

@@ -12,6 +12,8 @@
   import SharedRules from "./SharedRules.svelte";
   import QuestionsWorkspace from "./QuestionsWorkspace.svelte";
   import CommentWorkspace from "./CommentWorkspace.svelte";
+  import DuplicateWorkspace from "./DuplicateWorkspace.svelte";
+  import ConfirmedDuplicates from "./ConfirmedDuplicates.svelte";
   import ImportWorkspace from "./ImportWorkspace.svelte";
   import "./workspace.css";
   let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -23,6 +25,8 @@
     "regles",
     "questions",
     "textes",
+    "doublons",
+    "doublons-evites",
     "dossiers",
     "dump",
     "historique",
@@ -36,6 +40,8 @@
     "Règles communes",
     "Questions à l’équipe",
     "Textes à reprendre",
+    "Doublons à examiner",
+    "Doublons évités",
     "Demandes Onagre",
     "Explorer le dump",
     "Historique",
@@ -114,6 +120,10 @@
     <QuestionsWorkspace questions={data.questions} {writable} />
   {:else if tab === "textes" && data.commentWorkspace}
     <CommentWorkspace workspace={data.commentWorkspace} {writable} />
+  {:else if tab === "doublons" && data.duplicateWorkspace}
+    <DuplicateWorkspace workspace={data.duplicateWorkspace} {writable} />
+  {:else if tab === "doublons-evites"}
+    <ConfirmedDuplicates links={data.confirmedDuplicates} />
   {:else if tab === "dossiers"}
     <DossierBrowser {data} />
   {:else if tab === "dump" || tab === "source"}
