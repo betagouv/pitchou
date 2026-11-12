@@ -30,7 +30,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { untrack } from "svelte";
-  import { navigateDossiers } from "./navigation.ts";
+  import { rememberDossiersQuery } from "./persistence.svelte.ts";
 
   type Props = {
     title: string;
@@ -67,8 +67,9 @@
     emptyListMessage,
   }: Props = $props();
 
-  // The applied query lives entirely in the URL: search, filters, sort and page are all
-  // reflected as query params, so the view is shareable and survives a reload.
+  const navigate = rememberDossiersQuery(() => email, page, goto);
+
+  // The URL owns the applied query. Saved preferences restore bare list URLs.
   const query = $derived.by(() => {
     const query = readDossiersQuery(new URLSearchParams(page.url.searchParams.toString()));
     if (followedOnly) query.localisation = "assigned";
@@ -100,9 +101,6 @@
     activiteLabelByCode,
     especeLabelByCD_REF,
   });
-
-  /** Reflects the given query into the URL, which is the single source of truth */
-  const navigate = (next: DossiersQuery) => navigateDossiers(goto, page.url.pathname, next);
 
   /** Applies a filter/search change: updates the URL, sends analytics and announces the count */
   function applySearch(next: DossiersQuery) {
