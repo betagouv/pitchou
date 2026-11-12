@@ -165,9 +165,12 @@ for (const width of [1280, 390]) {
     await expect(cards).toHaveCount(1);
     await expect(ownedCard.getByRole("link")).toHaveAttribute("href", `/dossier/${followed.id}`);
     await page.goto("/tous-les-dossiers");
-    await expect(cards).toHaveCount(2);
+    await expect(page).toHaveURL(/localisation=france/u);
+    await expect(cards).toHaveCount(5);
+    await expect(counter).toContainText("5 dossiers en France entière (lecture seule)");
     await expect(
       ownedCard.getByRole("button", { name: "Ne plus suivre", exact: true }),
     ).toBeVisible();
+    await expect(ownedCard.locator('button[aria-haspopup="menu"]')).toHaveCount(0);
   });
 }
