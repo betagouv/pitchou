@@ -33,7 +33,8 @@ export const load: PageServerLoad = async ({ url }) => {
     summary: await loadReviewSummary(db),
     commentWorkspace: tab === "textes" ? await loadCommentWorkspace(db, url) : null,
     confirmedDuplicates: tab === "doublons-evites" ? await loadConfirmedDuplicates(db) : [],
-    duplicateWorkspace: tab === "doublons" ? await loadDuplicateWorkspace(db) : null,
+    duplicateWorkspace:
+      tab === "doublons" ? await loadDuplicateWorkspace(db, { reviewedLocations: true }) : null,
   };
 };
 const failure = (cause: unknown) => {

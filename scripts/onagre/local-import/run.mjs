@@ -9,6 +9,7 @@ import { getReviewer, grantLocalReview, finalizeRouting } from "./routing.mjs";
 import { lockDossierAccess } from "../../../libs/server/src/dossierRouting.ts";
 import { assertNoUnreviewedDuplicates } from "./reconciliation.mjs";
 import { readReconciledLinks } from "./linked.mjs";
+import { prepareReviewedLocation } from "./locations.mjs";
 
 export async function importSamples(client, projects, reviewerEmail, options = {}) {
   validateProjects(projects);
@@ -36,10 +37,12 @@ export async function importSamples(client, projects, reviewerEmail, options = {
       }
       continue;
     }
+    // Keep raw snapshots intact for reconciliation; existing DN records never reach this step.
+    const samples = project.demandes.map(prepareReviewedLocation);
     const group = await writeProject(client, project);
     const demandes = await importDemandes(
       client,
-      project.demandes,
+      samples,
       reviewer,
       options,
       project.proposal.name,
@@ -49,7 +52,7 @@ export async function importSamples(client, projects, reviewerEmail, options = {
       const demande = demandes[index];
       const member = await writeMembership(
         client,
-        project.demandes[index],
+        samples[index],
         demande.dossierId,
         group.targetId,
       );
@@ -133,6 +136,7 @@ async function importDemandes(client, samples, reviewer, options, projectName, e
       outcomes,
       retainedRemovedRecords: stale,
       issues: sample.issues,
+      ...(sample.locationCorrection ? { locationCorrection: sample.locationCorrection } : {}),
     });
   }
   return report;

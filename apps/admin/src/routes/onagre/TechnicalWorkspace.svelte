@@ -51,7 +51,6 @@
 
 <svelte:head><title>Outils de migration Onagre · Pitchou</title></svelte:head>
 <div class="onagre admin-stack">
-  <a href="/onagre">← Revenir à la revue de l’équipe</a>
   <div class="onagre-environment" class:rehearsal={data.deploymentRole === "rehearsal"}>
     <strong
       >{data.deploymentRole === "rehearsal"

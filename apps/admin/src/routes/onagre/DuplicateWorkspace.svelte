@@ -99,12 +99,18 @@
   <div class="onagre-table-scroll">
     <table>
       <thead
-        ><tr><th>Projet Onagre</th><th>Pourquoi examiner</th><th>Demandes</th><th>À décider</th></tr
+        ><tr
+          ><th>Projet Onagre</th><th>Départements</th><th>Pourquoi examiner</th><th>Demandes</th><th
+            >À décider</th
+          ></tr
         ></thead
       >
       <tbody>
         {#each results.slice((current - 1) * size, current * size) as project (project.project_id)}
           {@const remaining = pending(project)}
+          {@const departments = [
+            ...new Set(project.payload.demandes.flatMap((d) => d.departments)),
+          ].sort()}
           <tr class="duplicate-row" class:handled={remaining === 0}>
             <td class="name"
               ><button class="row-button" onclick={() => (selectedId = project.project_id)}>
@@ -116,11 +122,12 @@
                 >
               </button><span class="reference">Projet {project.project_id}</span></td
             >
+            <td>{departments.join(", ") || "Non renseignés"}</td>
             <td><span class="reason-preview">{project.payload.reason}</span></td>
             <td>{project.payload.demandes.length}</td><td>{remaining}</td>
           </tr>
         {:else}<tr
-            ><td colspan="4"
+            ><td colspan="5"
               >{workspace.projects.length
                 ? "Aucun projet pour ces filtres."
                 : "Aucune revue de doublons chargée."}</td

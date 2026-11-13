@@ -27,6 +27,23 @@
     <dd>{facts.communes.join(", ") || "Non renseignées"}</dd>
   </div>
 </dl>
+{#if facts.locationCorrection}
+  {@const correction = facts.locationCorrection}
+  <p>
+    {correction.reason}
+    <a
+      href={`${correction.evidence.url}#page=${correction.evidence.articlePage}`}
+      target="_blank"
+      rel="noopener noreferrer">{correction.evidence.title}</a
+    >.
+  </p>
+  <details>
+    <summary>Valeur Onagre d’origine et justification</summary>
+    <p>{correction.originalDepartments.join(", ")}</p>
+    <p>{correction.scopeMatch}</p>
+    <p>Pages du recueil : {correction.evidence.physicalPages.join(", ")}.</p>
+  </details>
+{/if}
 
 <style>
   dl {

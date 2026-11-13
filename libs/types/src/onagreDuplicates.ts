@@ -1,3 +1,5 @@
+import type { ReviewedLocationCorrection } from "./onagreLocations.ts";
+
 export const duplicateDecisionLabels = {
   pending: "À examiner",
   ignore: "Ne pas importer cette demande",
@@ -11,6 +13,7 @@ export type DuplicateFacts = {
   signatures: string[];
   departments: string[];
   communes: string[];
+  locationCorrection?: ReviewedLocationCorrection;
 };
 export type DuplicateDemande = DuplicateFacts & {
   key: string;

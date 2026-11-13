@@ -27,7 +27,6 @@ export type DateField = "deposit" | "phaseStart" | "lastModified" | "nextDue";
 
 export type SortKey = "depositDate" | "lastModified" | "nextDueDate";
 export type SortOrder = "asc" | "desc";
-
 export const PAGE_SIZES = [10, 25, 50, 100];
 export const DEFAULT_PAGE_SIZE = 10;
 
@@ -141,7 +140,6 @@ export function readDossiersQuery(params: URLSearchParams): DossiersQuery {
 export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams {
   const params = new URLSearchParams();
   if (query.source) params.set("source", query.source);
-
   if (query.text.trim()) params.set("q", query.text.trim());
   for (const phase of query.phase) params.append("phase", phase);
   for (const activite of query.activite) params.append("activite", activite);
@@ -167,7 +165,6 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
   }
   if (query.page > 1) params.set("page", String(query.page));
   if (query.pageSize !== DEFAULT_PAGE_SIZE) params.set("pageSize", String(query.pageSize));
-
   return params;
 }
 

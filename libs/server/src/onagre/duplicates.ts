@@ -9,6 +9,7 @@ import {
   type DuplicateWorkspace,
 } from "@pitchou/types/onagreDuplicates.ts";
 import { MappingConflict } from "./mappings.ts";
+import { withReviewedLocations } from "./duplicates/locations.ts";
 
 export function parseDuplicateDecision(form: FormData): DuplicateDecisionInput {
   const get = (key: string) => String(form.get(key) ?? "").trim();
@@ -35,7 +36,10 @@ export function parseDuplicateDecision(form: FormData): DuplicateDecisionInput {
   return input;
 }
 
-export async function loadDuplicateWorkspace(db: Knex): Promise<DuplicateWorkspace> {
+export async function loadDuplicateWorkspace(
+  db: Knex,
+  { reviewedLocations = false } = {},
+): Promise<DuplicateWorkspace> {
   const [projects, decisions, revisions] = await Promise.all([
     db<DuplicateReview>("onagre_duplicate_project")
       .select("project_id", "review_hash", "payload")
@@ -43,7 +47,12 @@ export async function loadDuplicateWorkspace(db: Knex): Promise<DuplicateWorkspa
     db<DuplicateDecision>("onagre_duplicate_decision").select("*"),
     db<DuplicateRevision>("onagre_duplicate_revision").select("*").orderBy("id", "desc"),
   ]);
-  return { projects, decisions, revisions };
+  // Exports retain the raw payload bound to review_hash; only the UI requests corrected facts.
+  return {
+    projects: reviewedLocations ? projects.map(withReviewedLocations) : projects,
+    decisions,
+    revisions,
+  };
 }
 
 export async function saveDuplicateDecision(

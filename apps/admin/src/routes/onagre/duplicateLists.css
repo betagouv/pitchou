@@ -14,8 +14,9 @@
 .duplicate-list td {
   vertical-align: top;
 }
-.duplicate-list th {
+.duplicate-list .onagre-table-scroll th {
   white-space: nowrap;
+  overflow-wrap: normal;
 }
 .duplicate-list .duplicate-row {
   position: relative;
