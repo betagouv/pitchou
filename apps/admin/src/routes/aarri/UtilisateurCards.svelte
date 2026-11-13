@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
   import BadgeNiveauAARRI from "./BadgeNiveauAARRI.svelte";
+  import EmailCopyButton from "./EmailCopyButton.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -25,14 +26,19 @@
       <li
         class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-solid border-[color:var(--border-default-grey)] bg-[var(--background-lifted-grey)] px-4 py-3"
       >
-        <div class="flex w-96 max-w-full min-w-0 shrink-0 items-center gap-3">
+        <div class="flex w-[48rem] max-w-full min-w-0 items-center gap-3">
           <!-- Fixed slot so the badges form an aligned column, like the levels legend. -->
           <span class="w-24 shrink-0">
             <BadgeNiveauAARRI niveau={utilisateur.niveau} />
           </span>
-          <span class="min-w-0 truncate font-semibold" title={utilisateur.email ?? undefined}>
-            {utilisateur.email ?? "—"}
-          </span>
+          <div class="flex min-w-0 items-center gap-1">
+            <span class="min-w-0 font-semibold [overflow-wrap:anywhere]">
+              {utilisateur.email ?? "—"}
+            </span>
+            {#if utilisateur.email}
+              <EmailCopyButton email={utilisateur.email} />
+            {/if}
+          </div>
         </div>
         {#if utilisateur.groupesInstructeurs.length >= 1}
           <ul class="fr-m-0 fr-p-0 flex min-w-48 grow list-none flex-wrap gap-1">
@@ -42,7 +48,7 @@
           </ul>
         {/if}
         <p
-          class="fr-mb-0 ml-auto shrink-0 text-right text-sm text-[color:var(--text-mention-grey)]"
+          class="fr-mb-0 ml-auto max-w-full text-right text-sm text-[color:var(--text-mention-grey)]"
         >
           {utilisateur.actionCount} action{utilisateur.actionCount > 1 ? "s" : ""} · Dernière activité
           le {formatDate(utilisateur.lastActivityDate)}
