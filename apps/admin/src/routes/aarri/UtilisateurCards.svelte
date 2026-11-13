@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { UtilisateurAARRI } from "@pitchou/types/API_Pitchou.ts";
   import BadgeNiveauAARRI from "./BadgeNiveauAARRI.svelte";
-  import EmailCopyButton from "./EmailCopyButton.svelte";
+  import EmailAddress from "./EmailAddress.svelte";
 
   type Props = {
     utilisateurs: UtilisateurAARRI[];
@@ -31,14 +31,11 @@
           <span class="w-24 shrink-0">
             <BadgeNiveauAARRI niveau={utilisateur.niveau} />
           </span>
-          <div class="flex min-w-0 items-center gap-1">
-            <span class="min-w-0 font-semibold [overflow-wrap:anywhere]">
-              {utilisateur.email ?? "—"}
-            </span>
-            {#if utilisateur.email}
-              <EmailCopyButton email={utilisateur.email} />
-            {/if}
-          </div>
+          {#if utilisateur.email}
+            <EmailAddress email={utilisateur.email} />
+          {:else}
+            <span>—</span>
+          {/if}
         </div>
         {#if utilisateur.groupesInstructeurs.length >= 1}
           <ul class="fr-m-0 fr-p-0 flex min-w-48 grow list-none flex-wrap gap-1">
