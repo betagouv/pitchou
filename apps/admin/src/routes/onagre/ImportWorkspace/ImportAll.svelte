@@ -2,7 +2,7 @@
   import { onMount, untrack } from "svelte";
   import { goto } from "$app/navigation";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { PageData } from "../$types";
+  import type { PageData } from "../../tech/onagre/$types";
   import { ImportJobsModel, jobLabels, recordLabels } from "./jobs.svelte.ts";
   import ImportRecordDetails from "./ImportRecordDetails.svelte";
   let {

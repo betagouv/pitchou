@@ -1,7 +1,8 @@
 import type { Knex } from "knex";
 import type { FrozenInput, Source } from "./state.ts";
 import { hash, OnagreImportError, POLICY, SOURCE_INSTANCE } from "./policy.ts";
-import { inspectRecord, type Target } from "./records.ts";
+import { inspectRecord } from "./records.ts";
+import { captureTargets } from "./targets.ts";
 import { captureActivities, captureReferences } from "./references.ts";
 import type { OnagreMapping } from "@pitchou/types/onagre.ts";
 
@@ -55,56 +56,4 @@ export async function capture(connection: Knex, snapshotId: number, ids: string[
     inputHash: hash({ sourceInstance: SOURCE_INSTANCE, snapshot, sources, policy: POLICY, schema }),
     targetHash: hash(targets),
   };
-}
-
-async function captureTargets(
-  connection: Knex,
-  snapshotId: number,
-  ids: string[],
-  sources: (Source | null)[],
-): Promise<Target[]> {
-  if (ids.length === 0) return [];
-  const codes = [
-    ...new Set(
-      sources
-        .map((source) => source?.demande.codedemande?.trim())
-        .filter((code): code is string => !!code),
-    ),
-  ];
-  const identities = await connection("onagre_import_identity")
-    .where({ source_instance: SOURCE_INSTANCE })
-    .whereIn("source_id", ids.map(Number));
-  // Query all matching codes once per batch, retaining exact PostgreSQL timestamps.
-  const dossiers = await connection("dossier")
-    .where((builder) => {
-      builder.whereIn(
-        "id",
-        identities.map((identity) => identity.dossier_id),
-      );
-      if (codes.length > 0)
-        builder.orWhereRaw("btrim(onagre_demande_identifier) = any(?::text[])", [codes]);
-    })
-    .select(
-      connection.raw("to_jsonb(dossier) as content, btrim(onagre_demande_identifier) as code"),
-    )
-    .orderBy("id");
-  const duplicates =
-    codes.length > 0
-      ? await connection("onagre_source_demande")
-          .where({ snapshot_id: snapshotId })
-          .whereRaw("btrim(demande->>'codedemande') = any(?::text[])", [codes])
-          .select(connection.raw("btrim(demande->>'codedemande') as code"))
-          .count("* as count")
-          .groupByRaw("btrim(demande->>'codedemande')")
-      : [];
-  return ids.map((id, index) => {
-    const code = sources[index]?.demande.codedemande?.trim();
-    const identity = identities.find((row) => row.source_id === Number(id)) ?? null;
-    return {
-      identity,
-      dossier: dossiers.find((row) => row.content.id === identity?.dossier_id)?.content ?? null,
-      candidates: code ? dossiers.filter((row) => row.code === code).map((row) => row.content) : [],
-      duplicateSources: Number(duplicates.find((row) => row.code === code)?.count ?? 0),
-    };
-  });
 }

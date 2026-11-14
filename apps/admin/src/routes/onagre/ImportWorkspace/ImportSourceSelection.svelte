@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { PageData } from "../$types";
+  import type { PageData } from "../../tech/onagre/$types";
 
   let {
     data,

@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import Select from "@pitchou/ui/Select.svelte";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import SnapshotUpload from "./SnapshotUpload.svelte";
   import { dumpLink } from "./navigation.ts";
   let { data, writable }: { data: PageData; writable: boolean } = $props();

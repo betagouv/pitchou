@@ -84,4 +84,21 @@ export async function initialize(client, environment = "development") {
     target_id text NOT NULL, last_fields jsonb NOT NULL,
     PRIMARY KEY (dossier_key, source_key), UNIQUE (table_name, target_id)
   )`);
+  await client.query(`CREATE TABLE IF NOT EXISTS onagre_local_import.reconciled_demande (
+    source_key text PRIMARY KEY, project_key text NOT NULL, source_hash text NOT NULL,
+    dossier_id integer NOT NULL REFERENCES public.dossier(id),
+    project_id uuid NOT NULL REFERENCES public.dossier_projet(id),
+    original_identity jsonb NOT NULL, decision jsonb NOT NULL,
+    reviewed_by integer NOT NULL REFERENCES public.auth_user(id),
+    recorded_at timestamptz NOT NULL DEFAULT now()
+  )`);
+  // Several reviewed source demandes can describe one unchanged DN record.
+  await client.query(`ALTER TABLE onagre_local_import.reconciled_demande
+    DROP CONSTRAINT IF EXISTS reconciled_demande_dossier_id_key`);
+  await client.query(`CREATE TABLE IF NOT EXISTS onagre_local_import.excluded_candidate (
+    project_key text NOT NULL, dossier_id integer NOT NULL REFERENCES public.dossier(id),
+    source_hash text NOT NULL, target_hash text NOT NULL, evidence_hash text NOT NULL,
+    decision jsonb NOT NULL, reviewed_by integer NOT NULL REFERENCES public.auth_user(id),
+    recorded_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (project_key, dossier_id)
+  )`);
 }

@@ -43,11 +43,20 @@ try {
       {
         applied: apply,
         dossiers: dossiers.map(
-          ({ sourceKey, dossierId, projectId, projectKey, outcomes, retainedRemovedRecords }) => ({
+          ({
+            sourceKey,
+            dossierId,
+            projectId,
+            projectKey,
+            reconciliation,
+            outcomes,
+            retainedRemovedRecords,
+          }) => ({
             sourceKey,
             dossierId,
             projectKey,
             projectId,
+            reconciliation,
             created: outcomes.filter((o) => o.status === "created").length,
             updated: outcomes.filter((o) => o.status === "updated").length,
             preservedLocalEdits: outcomes.flatMap((o) => o.preserved),
@@ -61,6 +70,20 @@ try {
   );
 } catch (error) {
   if (!committed) await client.finish(false);
+  if (error.reconciliation && process.env.ONAGRE_LOCAL_REPORT)
+    await writeFile(
+      process.env.ONAGRE_LOCAL_REPORT,
+      JSON.stringify(
+        {
+          applied: false,
+          status: "reconciliation_required",
+          projects: error.reconciliation,
+        },
+        null,
+        2,
+      ) + "\n",
+      { mode: 0o600 },
+    );
   console.error(
     committed
       ? "Import committed, but writing the local report failed. Re-running is safe; the database identity records are authoritative."

@@ -1,3 +1,17 @@
+export const technicalTabs = [
+  "synthese",
+  "sources",
+  "correspondances",
+  "services",
+  "activites",
+  "regles",
+  "dossiers",
+  "dump",
+  "source",
+  "historique",
+  "import",
+];
+
 export function dumpLink(
   url: { searchParams: Pick<URLSearchParams, "get"> },
   changes: Record<string, string | number | null> = {},

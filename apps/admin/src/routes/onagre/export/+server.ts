@@ -1,6 +1,8 @@
 import { directDatabaseConnection as db } from "@pitchou/server/database.ts";
 import type { RequestHandler } from "./$types";
 import { listDocuments } from "@pitchou/server/onagre/documents.ts";
+import { loadDuplicateWorkspace } from "@pitchou/server/onagre/duplicates.ts";
+import { loadConfirmedDuplicates } from "@pitchou/server/onagre/confirmedDuplicates.ts";
 export const GET: RequestHandler = async () => {
   const [
     mappings,
@@ -14,6 +16,10 @@ export const GET: RequestHandler = async () => {
     groupCatalog,
     questions,
     questionRevisions,
+    duplicateReview,
+    confirmedDuplicates,
+    commentDecisions,
+    commentRevisions,
   ] = await Promise.all([
     db("onagre_mapping").select("*"),
     db("onagre_mapping_revision").select("*"),
@@ -32,6 +38,10 @@ export const GET: RequestHandler = async () => {
     db("onagre_group_catalog").select("*"),
     db("onagre_question").select("*"),
     db("onagre_question_revision").select("*"),
+    loadDuplicateWorkspace(db),
+    loadConfirmedDuplicates(db),
+    db("onagre_comment_decision").select("*"),
+    db("onagre_comment_revision").select("*"),
   ]);
   return new Response(
     JSON.stringify(
@@ -49,6 +59,10 @@ export const GET: RequestHandler = async () => {
         groupCatalog,
         questions,
         questionRevisions,
+        duplicateReview,
+        confirmedDuplicates,
+        commentDecisions,
+        commentRevisions,
       },
       null,
       2,

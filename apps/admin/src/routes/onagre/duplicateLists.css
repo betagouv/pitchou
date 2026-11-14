@@ -1,0 +1,104 @@
+.duplicate-list .filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+.duplicate-list .counts,
+.duplicate-list .list-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.duplicate-list td {
+  vertical-align: top;
+}
+.duplicate-list .onagre-table-scroll th {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.duplicate-list .duplicate-row {
+  position: relative;
+  --row-background: var(--background-contrast-warning);
+  --row-hover: var(--background-contrast-warning-hover);
+  --row-status: var(--text-default-warning);
+}
+.duplicate-list .duplicate-row.handled {
+  --row-background: var(--background-contrast-success);
+  --row-hover: var(--background-contrast-success-hover);
+  --row-status: var(--text-default-success);
+}
+.duplicate-list .duplicate-row td {
+  background: var(--row-background);
+}
+.duplicate-list .duplicate-row:hover td,
+.duplicate-list .duplicate-row:focus-within td {
+  background: var(--row-hover);
+}
+.duplicate-list .row-button {
+  --hover-tint: transparent;
+  --active-tint: transparent;
+  background-color: transparent;
+  text-align: left;
+  color: inherit;
+}
+.duplicate-list .row-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+.duplicate-list .row-button:focus-visible {
+  outline: none;
+}
+.duplicate-list .row-button:focus-visible::after {
+  outline: 2px solid var(--border-action-high-blue-france);
+  outline-offset: -2px;
+}
+.duplicate-list .row-button [aria-hidden] {
+  color: var(--row-status);
+  margin-right: 0.35rem;
+}
+.duplicate-list .reference {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-mention-grey);
+  margin-top: 0.25rem;
+}
+.duplicate-list .name {
+  min-width: 16rem;
+  max-width: 35rem;
+  overflow-wrap: anywhere;
+}
+.duplicate-detail {
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+.duplicate-detail h3 {
+  font-size: 1.15rem;
+}
+.duplicate-detail h4 {
+  font-size: 1rem;
+}
+.duplicate-detail .reason {
+  white-space: pre-line;
+}
+.duplicate-detail .detail-entry + .detail-entry {
+  border-top: 1px solid var(--border-default-grey);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+.duplicate-detail .page-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 650px) {
+  .duplicate-list .filters {
+    grid-template-columns: 1fr;
+  }
+}

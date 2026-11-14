@@ -116,9 +116,7 @@ function inspectIdentity(record: OnagreImportRecord, target: Target) {
   } else if (target.candidates.length > 0) {
     record.status = "conflict";
     record.issues.push(
-      target.candidates.length > 1
-        ? "Plusieurs dossiers existants portent ce code Onagre. Rapprochement ambigu bloqué."
-        : "Un dossier existant porte ce code Onagre sans registre d'import. Adoption non prise en charge.",
+      `Des demandes existantes nécessitent un rapprochement (référence Onagre ou nom similaire dans le même département) : ${target.candidates.map((row) => row.id).join(", ")}. Aucune fusion automatique.`,
     );
   }
 }

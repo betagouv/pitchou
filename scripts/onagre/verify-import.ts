@@ -40,6 +40,8 @@ try {
   await verifyJobs(db);
   const { verifyMappings } = await import("./verify-import/mappings.ts");
   await verifyMappings(db);
+  const { verifyReconciliation } = await import("./verify-import/reconciliation.ts");
+  await verifyReconciliation(db);
   console.log(
     "PASS: disposable PostgreSQL migrations, preview safety, gates, atomic writes, replay, conflicts, stale previews, concurrency and raw provenance.",
   );

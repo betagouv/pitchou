@@ -10,6 +10,7 @@ export function applyFilters(
   userId: UserId,
   params: ListParams,
 ) {
+  if (params.source) query.where("d.source", params.source);
   if (params.departmentSelection === "none") query.whereRaw("false");
   if (params.departmentSelection === "custom")
     query.whereRaw(

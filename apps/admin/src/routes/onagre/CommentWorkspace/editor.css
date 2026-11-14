@@ -1,0 +1,30 @@
+.comment-editor-content {
+  padding: 1rem;
+}
+.comment-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-default-grey);
+  margin-bottom: 1rem;
+}
+.comment-tabs button {
+  padding: 0.75rem 1rem;
+  border-bottom: 3px solid transparent;
+  color: var(--text-mention-grey);
+}
+.comment-tabs button[aria-selected="true"] {
+  color: var(--text-action-high-blue-france);
+  border-bottom-color: var(--border-action-high-blue-france);
+  font-weight: 700;
+}
+#comment-decision fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.comment-editor-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}

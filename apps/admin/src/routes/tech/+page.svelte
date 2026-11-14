@@ -15,6 +15,12 @@
 
 <!-- Single column with the same gap as the view padding (p-2 on <main>), like the activities page. -->
 <div class="admin-stack">
+  <section class="admin-panel">
+    <h2 class="my-0 text-base font-semibold">Migration Onagre</h2>
+    <p>Explorer les données source, configurer les correspondances et suivre les imports.</p>
+    <a class="fr-btn fr-btn--secondary" href="/tech/onagre">Ouvrir les outils de migration</a>
+    <a class="fr-link fr-ml-2w" href="/onagre">Revue de l’équipe</a>
+  </section>
   <PageHelp title="Outils techniques">
     <h3>Synchronisation Démarches Numériques</h3>
     <p class="!m-0 text-sm">

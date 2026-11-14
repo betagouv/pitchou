@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   let { data }: { data: PageData } = $props();
   let rehearsal = $derived(data.deploymentRole === "rehearsal");
   let complete = $derived(

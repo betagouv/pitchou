@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import DumpToolbar from "./DumpToolbar.svelte";
   import DumpTable from "./DumpTable.svelte";
   import { dumpLink } from "./navigation.ts";

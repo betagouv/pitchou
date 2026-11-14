@@ -52,6 +52,8 @@ export function pageInfoFor(pathname: string, search = ""): PageInfo {
   if (pathname === "/changelog") return { title: "Changelog" };
   if (pathname.startsWith("/onagre")) return { title: "Migration Onagre" };
   if (pathname === "/tech") return { title: "Tech" };
+  if (pathname === "/tech/onagre")
+    return { title: "Outils de migration Onagre", backHref: "/tech" };
   if (CHANGELOG_ENTRY.test(pathname)) {
     // The editor registers the real title (« Entrée du <date> ») itself.
     return { title: "Entrée du changelog", backHref: "/changelog" };

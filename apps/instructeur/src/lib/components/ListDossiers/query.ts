@@ -4,6 +4,7 @@ import type {
   DossierNextActionExpectedFrom,
 } from "@pitchou/types/API_Pitchou.ts";
 import type { PitchouState } from "#lib/state/store.svelte.ts";
+import { readDossierSourceFilter, type DossierSourceFilter } from "@pitchou/types/dossierSource.ts";
 import {
   readLocalisation,
   writeLocalisation,
@@ -26,7 +27,6 @@ export type DateField = "deposit" | "phaseStart" | "lastModified" | "nextDue";
 
 export type SortKey = "depositDate" | "lastModified" | "nextDueDate";
 export type SortOrder = "asc" | "desc";
-
 export const PAGE_SIZES = [10, 25, 50, 100];
 export const DEFAULT_PAGE_SIZE = 10;
 
@@ -84,6 +84,7 @@ export type DossiersContext = {
  * Departments instead use departementSelection to distinguish all from none within a scope.
  */
 export type DossiersQuery = {
+  source: DossierSourceFilter;
   text: string;
   phase: DossierPhase[];
   activite: ActiviteCode[];
@@ -138,7 +139,7 @@ export function readDossiersQuery(params: URLSearchParams): DossiersQuery {
  */
 export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams {
   const params = new URLSearchParams();
-
+  if (query.source) params.set("source", query.source);
   if (query.text.trim()) params.set("q", query.text.trim());
   for (const phase of query.phase) params.append("phase", phase);
   for (const activite of query.activite) params.append("activite", activite);
@@ -164,7 +165,6 @@ export function buildDossiersSearchParams(query: DossiersQuery): URLSearchParams
   }
   if (query.page > 1) params.set("page", String(query.page));
   if (query.pageSize !== DEFAULT_PAGE_SIZE) params.set("pageSize", String(query.pageSize));
-
   return params;
 }
 
@@ -177,6 +177,7 @@ export function parseDossiersQuery(params: URLSearchParams): DossiersQuery {
   const pageSize = Number(params.get("pageSize"));
 
   return {
+    source: readDossierSourceFilter(params.get("source")),
     text: params.get("q") ?? "",
     phase: params.getAll("phase") as DossierPhase[],
     activite: params.getAll("activite"),

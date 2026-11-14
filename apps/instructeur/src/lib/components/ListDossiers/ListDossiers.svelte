@@ -29,6 +29,7 @@
     followedOnly = false,
     recentSearches = [],
     showFilterInstructeurice = false,
+    showFilterSource = false,
     showFilterEnjeu = true,
     showFilterActionInstructeur = false,
     showFilterUnread = false,
@@ -47,6 +48,10 @@
     searchText={controls.query.text}
     {recentSearches}
     {showFilterInstructeurice}
+    {showFilterSource}
+    source={controls.query.source}
+    onSourceChange={(source) =>
+      controls.applySearch({ ...copyDossiersQuery(controls.query), source, page: 1 })}
     {showFilterEnjeu}
     {showFilterActionInstructeur}
     {showFilterUnread}

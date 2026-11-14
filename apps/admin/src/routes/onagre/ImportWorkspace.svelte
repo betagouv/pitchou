@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import type { PageData } from "../tech/onagre/$types";
   import { ImportModel } from "./ImportWorkspace/model.svelte.ts";
   import ImportAll from "./ImportWorkspace/ImportAll.svelte";
   import ImportSourceSelection from "./ImportWorkspace/ImportSourceSelection.svelte";

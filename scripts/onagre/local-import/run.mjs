@@ -7,26 +7,52 @@ import { validateProjects } from "./projects.mjs";
 import { writeProject, writeMembership } from "./grouping.mjs";
 import { getReviewer, grantLocalReview, finalizeRouting } from "./routing.mjs";
 import { lockDossierAccess } from "../../../libs/server/src/dossierRouting.ts";
+import { assertNoUnreviewedDuplicates } from "./reconciliation.mjs";
+import { readReconciledLinks } from "./linked.mjs";
+import { prepareReviewedLocation } from "./locations.mjs";
 
 export async function importSamples(client, projects, reviewerEmail, options = {}) {
   validateProjects(projects);
   await lockDossierAccess(client.trx);
+  const excludedCandidates = await assertNoUnreviewedDuplicates(client, projects);
   const reviewer = await getReviewer(client, reviewerEmail);
   const report = [];
   for (const project of projects) {
+    const links = await readReconciledLinks(client, project);
+    if (links.length > 0) {
+      // A reviewed link does not transfer ownership of a DN record to this importer.
+      for (const demande of project.demandes) {
+        const link = links.find((row) => row.source_key === demande.identity.key);
+        if (!link) throw new Error(`Missing reviewed demande link: ${demande.identity.key}`);
+        report.push({
+          sourceKey: demande.identity.key,
+          dossierId: link.dossier_id,
+          projectId: link.project_id,
+          projectKey: project.identity.key,
+          reconciliation: "linked_existing",
+          outcomes: [],
+          retainedRemovedRecords: [],
+          issues: demande.issues,
+        });
+      }
+      continue;
+    }
+    // Keep raw snapshots intact for reconciliation; existing DN records never reach this step.
+    const samples = project.demandes.map(prepareReviewedLocation);
     const group = await writeProject(client, project);
     const demandes = await importDemandes(
       client,
-      project.demandes,
+      samples,
       reviewer,
       options,
       project.proposal.name,
+      excludedCandidates.get(project.identity.sourceId),
     );
     for (let index = 0; index < demandes.length; index++) {
       const demande = demandes[index];
       const member = await writeMembership(
         client,
-        project.demandes[index],
+        samples[index],
         demande.dossierId,
         group.targetId,
       );
@@ -42,13 +68,15 @@ export async function importSamples(client, projects, reviewerEmail, options = {
   }
   await finalizeRouting(
     client,
-    report.map((item) => item.dossierId),
+    report
+      .filter((item) => item.reconciliation !== "linked_existing")
+      .map((item) => item.dossierId),
     reviewer,
   );
   return report;
 }
 
-async function importDemandes(client, samples, reviewer, options, projectName) {
+async function importDemandes(client, samples, reviewer, options, projectName, excluded) {
   const keys = new Set();
   for (const sample of samples) {
     validateSample(sample);
@@ -58,7 +86,7 @@ async function importDemandes(client, samples, reviewer, options, projectName) {
   const report = [];
   for (const sample of samples) {
     const key = sample.identity.key;
-    const fields = await prepareDossier(client, sample, projectName);
+    const fields = await prepareDossier(client, sample, projectName, excluded);
     const speciesFile = await prepareSpeciesFile(client, sample);
     if (speciesFile) fields.especes_impactees = speciesFile.result.targetId;
     const dossier = await writeRecord(client, key, key, "dossier", fields, {});
@@ -108,12 +136,13 @@ async function importDemandes(client, samples, reviewer, options, projectName) {
       outcomes,
       retainedRemovedRecords: stale,
       issues: sample.issues,
+      ...(sample.locationCorrection ? { locationCorrection: sample.locationCorrection } : {}),
     });
   }
   return report;
 }
 
-async function prepareDossier(client, sample, projectName) {
+async function prepareDossier(client, sample, projectName, excluded) {
   const key = sample.identity.key,
     fields = { ...sample.proposal.dossier, name: projectName };
   if (fields.main_activite != null) {
@@ -151,7 +180,12 @@ async function prepareDossier(client, sample, projectName) {
       ).rows
     : [];
   // Source IDs identify demandes; Onagre display codes are not unique in the dump.
-  if (matches.some((row) => String(row.id) !== owned?.target_id && !row.imported_onagre))
+  // Only exact, hash-checked negative reviews from the locked preflight can bypass a code clash.
+  if (
+    matches.some(
+      (row) => String(row.id) !== owned?.target_id && !row.imported_onagre && !excluded.has(row.id),
+    )
+  )
     throw new Error(`Existing unowned dossier for ${key}; automatic adoption is disabled.`);
   if (sample.proposal.speciesImpacts !== undefined && owned) {
     const current = (

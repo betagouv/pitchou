@@ -47,6 +47,13 @@ export function buildActiveFilterChips(
   if (query.text.trim()) {
     chips.push({ key: "text", label: query.text.trim(), next: withUpdates({ text: "" }) });
   }
+  if (query.source) {
+    chips.push({
+      key: "source",
+      label: `Source : ${query.source === "onagre" ? "Onagre" : "Démarche Numérique (DN)"}`,
+      next: withUpdates({ source: "" }),
+    });
+  }
   for (const phase of query.phase) {
     chips.push({
       key: `phase:${phase}`,
@@ -103,6 +110,7 @@ export function buildActiveFilterChips(
  */
 export function countActiveFilters(query: DossiersQuery): number {
   return (
+    (query.source ? 1 : 0) +
     query.phase.length +
     query.activite.length +
     query.espece.length +

@@ -4,4 +4,9 @@
 
 <svelte:head><title>Tous les dossiers — Pitchou</title></svelte:head>
 
-<ServerDossiersList scope="all" title="Tous les dossiers" showFilterInstructeurice />
+<ServerDossiersList
+  scope="all"
+  title="Tous les dossiers"
+  showFilterInstructeurice
+  showFilterSource
+/>
