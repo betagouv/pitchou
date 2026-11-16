@@ -1,14 +1,11 @@
 <script lang="ts">
-  import * as env from "$app/env/public";
-
-  const environnement = env.PUBLIC_PITCHOU_ENV;
-  const estStaging = environnement === "staging";
+  let { staging }: { staging: boolean } = $props();
 </script>
 
-{#if estStaging}
+{#if staging}
   <!-- DSFR has no fr-notice--warning modifier; repaint from the warning tokens -->
   <div
-    class="fr-notice fr-notice--info bg-[var(--background-contrast-warning)] text-[color:var(--text-default-warning)] [&_.fr-notice\_\_title]:text-[color:var(--text-default-warning)] [&_.fr-notice\_\_desc]:text-[color:var(--text-default-warning)] [&_.fr-notice\_\_body::before]:text-[color:var(--text-default-warning)]"
+    class="fr-notice fr-notice--info shrink-0 bg-[var(--background-contrast-warning)] text-[color:var(--text-default-warning)] [&_.fr-notice\_\_title]:text-[color:var(--text-default-warning)] [&_.fr-notice\_\_desc]:text-[color:var(--text-default-warning)] [&_.fr-notice\_\_body::before]:text-[color:var(--text-default-warning)]"
     role="region"
     aria-label="Environnement de test"
   >
