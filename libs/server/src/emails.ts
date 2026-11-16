@@ -13,6 +13,7 @@ const PITCHOU_SENDER = { name: "Pitchou", email: "contact@pitchou.beta.gouv.fr" 
 export type BrevoSendResponse = { messageId: string };
 
 export type EmailMessage = {
+  sender?: { name: string; email: string };
   to: string[];
   cc?: string[];
   bcc?: string[];
@@ -25,6 +26,7 @@ export type EmailMessage = {
 };
 
 export function estimateEmailBytes({
+  sender = PITCHOU_SENDER,
   attachments = [],
   htmlContent,
   ...headers
@@ -38,7 +40,7 @@ export function estimateEmailBytes({
     64 * 1024 +
     textBytes +
     3 * Math.ceil(textBytes / 73) +
-    4 * Buffer.byteLength(JSON.stringify({ sender: PITCHOU_SENDER, ...headers })) +
+    4 * Buffer.byteLength(JSON.stringify({ sender, ...headers })) +
     attachments.reduce(
       (sum, { name, size }) => sum + 4 * 1024 + 8 * Buffer.byteLength(name) + base64MimeBytes(size),
       0,
@@ -69,6 +71,7 @@ export async function sendLoginEmail(email: string, loginLink: string): Promise<
 }
 
 export function sendEmail({
+  sender = PITCHOU_SENDER,
   to,
   cc = [],
   bcc = [],
@@ -80,7 +83,7 @@ export function sendEmail({
   headers = {},
 }: EmailMessage): Promise<BrevoSendResponse> {
   return sendBrevoEmail({
-    sender: PITCHOU_SENDER,
+    sender,
     to: to.map((email) => ({ email })),
     ...(cc.length > 0 ? { cc: cc.map((email) => ({ email })) } : {}),
     ...(bcc.length > 0 ? { bcc: bcc.map((email) => ({ email })) } : {}),

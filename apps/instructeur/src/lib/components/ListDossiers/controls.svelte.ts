@@ -12,7 +12,7 @@ import { sendDossierSearchEvent } from "#lib/shared/aarri.ts";
 import { page } from "$app/state";
 import { goto } from "$app/navigation";
 import { untrack, onDestroy } from "svelte";
-import { navigateDossiers } from "./navigation.ts";
+import { rememberDossiersQuery } from "./persistence.svelte.ts";
 import { createListCollection } from "./collection.svelte.ts";
 import { loadFilterSpecies } from "./species.svelte.ts";
 
@@ -55,6 +55,12 @@ class DossiersControls {
 
   constructor(getProps: () => ListDossiersProps) {
     this.getProps = getProps;
+    this.navigate = rememberDossiersQuery(
+      () => this.props.email ?? "",
+      page,
+      goto,
+      () => !this.serverMode,
+    );
     this.trackQuery();
     this.trackFilters();
     this.trackFeedback();
@@ -64,8 +70,7 @@ class DossiersControls {
     });
   }
 
-  navigate = (next: DossiersQuery) =>
-    navigateDossiers(goto, page.url.pathname, next, !this.serverMode);
+  navigate: (next: DossiersQuery) => unknown;
   onSort = (sort: SortKey, order: SortOrder) =>
     this.navigate({ ...copyDossiersQuery(this.query), sort, order });
 

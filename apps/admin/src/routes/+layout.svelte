@@ -3,10 +3,12 @@
 
   import { afterNavigate } from "$app/navigation";
   import { untrack } from "svelte";
+  import * as env from "$app/env/public";
 
   import UiHeader from "@pitchou/ui/Header.svelte";
   import UiFooter from "@pitchou/ui/Footer.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
+  import EnvironmentBanner from "@pitchou/ui/EnvironmentBanner.svelte";
 
   import AdminHeader from "./Layout/Header.svelte";
   import Sidebar from "./Layout/Sidebar.svelte";
@@ -45,34 +47,40 @@
 </svelte:head>
 
 {#if data.isAdmin}
-  <!-- Logged-in admins get the internal-tool shell: sidebar + topbar, no DSFR chrome. -->
-  <div class="admin-ui relative flex h-dvh overflow-hidden">
-    <Sidebar
-      open={sidebarOpen}
-      collapsed={sidebarCollapsed}
-      onClose={() => (sidebarOpen = false)}
-      email={data.user?.email}
-      onLogout={logout}
-    />
+  <div class="flex h-dvh flex-col overflow-hidden">
+    <EnvironmentBanner staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
 
-    <!-- Contain absolute elements such as hidden table captions inside this scroll area. -->
-    <div
-      class="relative flex min-h-0 min-w-0 flex-1 scroll-pt-16 flex-col overflow-y-auto overscroll-y-contain"
-    >
-      <AdminHeader
-        {sidebarCollapsed}
-        onMobileMenuClick={() => (sidebarOpen = true)}
-        onSidebarToggle={toggleSidebar}
+    <!-- Logged-in admins get the internal-tool shell: sidebar + topbar, no DSFR chrome. -->
+    <div class="admin-ui relative flex min-h-0 flex-1 overflow-hidden">
+      <Sidebar
+        open={sidebarOpen}
+        collapsed={sidebarCollapsed}
+        onClose={() => (sidebarOpen = false)}
+        email={data.user?.email}
+        onLogout={logout}
       />
 
-      <!-- Full-width content with slim padding, like the rest of the shell. -->
-      <main tabindex="-1" id="main" class="flex flex-1 flex-col p-2">
-        {@render children()}
-      </main>
+      <!-- Contain absolute elements such as hidden table captions inside this scroll area. -->
+      <div
+        class="relative flex min-h-0 min-w-0 flex-1 scroll-pt-16 flex-col overflow-y-auto overscroll-y-contain"
+      >
+        <AdminHeader
+          {sidebarCollapsed}
+          onMobileMenuClick={() => (sidebarOpen = true)}
+          onSidebarToggle={toggleSidebar}
+        />
+
+        <!-- Full-width content with slim padding, like the rest of the shell. -->
+        <main tabindex="-1" id="main" class="flex flex-1 flex-col p-2">
+          {@render children()}
+        </main>
+      </div>
     </div>
   </div>
 {:else}
   <!-- Logged-out (or non-admin) screens keep the standard DSFR layout. -->
+  <EnvironmentBanner staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
+
   <UiHeader
     serviceTitle="Pitchou"
     serviceTagline="Administration"

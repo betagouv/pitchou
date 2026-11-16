@@ -38,6 +38,9 @@ for (const viewport of [
       await page.goto(`${E2E_ADMIN_BASE_URL}/${path}`);
       const heading = page.getByRole("heading", { level: 1, name: title });
       await expect(heading).toBeVisible();
+      await expect(page.getByRole("region", { name: "Environnement de test" })).toHaveCount(
+        process.env.PUBLIC_PITCHOU_ENV === "staging" ? 1 : 0,
+      );
       await page.evaluate(() => {
         document.querySelector("main")!.parentElement!.scrollTop = 100000;
         window.scrollTo(0, 100000);
@@ -48,19 +51,25 @@ for (const viewport of [
       await expect(heading).toBeInViewport();
       const bounds = await page.evaluate(() => {
         const panel = document.querySelector("main")!.parentElement!;
+        const banner = document
+          .querySelector('[aria-label="Environnement de test"]')
+          ?.getBoundingClientRect();
         return {
           documentHeight: document.documentElement.scrollHeight,
           windowScroll: window.scrollY,
           panelScroll: panel.scrollTop,
           panelBottom: panel.getBoundingClientRect().bottom,
           headerTop: document.querySelector("h1")!.closest("header")!.getBoundingClientRect().top,
+          bannerTop: banner?.top ?? 0,
+          bannerBottom: banner?.bottom ?? 0,
         };
       });
       expect(bounds.documentHeight).toBe(viewport.height);
       expect(bounds.windowScroll).toBe(0);
       expect(bounds.panelScroll).toBeGreaterThan(0);
       expect(bounds.panelBottom).toBe(viewport.height);
-      expect(bounds.headerTop).toBe(0);
+      expect(bounds.bannerTop).toBe(0);
+      expect(bounds.headerTop).toBe(bounds.bannerBottom);
       if (viewport.width >= 1024) await expect(page.locator("#admin-sidebar")).toBeInViewport();
       if (path === "groupes-instructeurs") {
         const lastGroup = page.getByRole("button", { name: "Modifier Groupe 39", exact: true });

@@ -47,6 +47,7 @@ function result(name: string, page = 1) {
   });
 }
 beforeEach(() => {
+  localStorage.clear();
   state.url = new URL(origin);
   vi.mocked(goto).mockImplementation(async (url) => {
     state.url = new URL(String(url), origin);
@@ -55,6 +56,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  localStorage.clear();
   store.capabilities = {};
   store.identité = undefined;
   store.dossierSummaries.clear();
