@@ -39,6 +39,8 @@ export function notificationEmailMessage(
         ? "Vous suivez désormais ce dossier dans Pitchou:"
         : "Il y a du nouveau sur votre dossier:";
   return {
+    sender: { name: "Pitchou", email: "no-reply@pitchou.beta.gouv.fr" },
+    replyTo: "support@pitchou.beta.gouv.fr",
     to: [context.email],
     subject,
     htmlContent: notificationEmailHtml({

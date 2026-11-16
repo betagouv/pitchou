@@ -22,6 +22,8 @@ The application queues and cancels emails inside the transaction that changes th
 
 The three templates share the Pitchou logo, a light layout with a purple border, a dossier link and an italic settings link. They announce the change without describing the dossier contents.
 
+Notifications are sent as `Pitchou <no-reply@pitchou.beta.gouv.fr>` with `Reply-To: support@pitchou.beta.gouv.fr`. The sending address must be authorized in Brevo, and the support address must accept incoming replies. Messages already frozen for a sending attempt retain their recorded content during retries.
+
 - Arrival: `Nouveau dossier: N° - Titre`.
 - Assignment: `Attribution dossier: N° - Enjeu - Titre`.
 - Update: `Nouveauté: N° - Enjeu - Titre`.
@@ -30,14 +32,14 @@ The enjeu label is **À enjeu**, **Sans enjeu** or **Enjeu à déterminer**. Wit
 
 ## Configuration
 
-| Variable                  | Purpose                                                                                                                                                                |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`            | Database used by the application and worker.                                                                                                                           |
-| `PUBLIC_SITE_URL_PITCHOU` | Instructeur origin for dossier, settings and logo links in emails.                                                                                                     |
-| `BREVO_API_KEY`           | Transactional email key used by instructeur, admin and the worker. The fixed sender is `contact@pitchou.beta.gouv.fr`. No additional hosted Brevo template is needed.  |
-| `PUBLIC_PITCHOU_ENV`      | The value `staging` enables staging recipient protection.                                                                                                              |
-| `STAGING_EMAIL_ALLOWLIST` | Exact email addresses allowed in staging, separated by commas. Empty by default; domains and wildcards are not supported. Case and surrounding whitespace are ignored. |
-| `MAILPIT_URL`             | Optional local capture, only with `NODE_ENV=development` or `test`. See [development email capture](test-email-capture.md).                                            |
+| Variable                  | Purpose                                                                                                                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`            | Database used by the application and worker.                                                                                                                               |
+| `PUBLIC_SITE_URL_PITCHOU` | Instructeur origin for dossier, settings and logo links in emails.                                                                                                         |
+| `BREVO_API_KEY`           | Transactional email key used by instructeur, admin and the worker. Notification emails use `no-reply@pitchou.beta.gouv.fr`. No additional hosted Brevo template is needed. |
+| `PUBLIC_PITCHOU_ENV`      | The value `staging` enables staging recipient protection.                                                                                                                  |
+| `STAGING_EMAIL_ALLOWLIST` | Exact email addresses allowed in staging, separated by commas. Empty by default; domains and wildcards are not supported. Case and surrounding whitespace are ignored.     |
+| `MAILPIT_URL`             | Optional local capture, only with `NODE_ENV=development` or `test`. See [development email capture](test-email-capture.md).                                                |
 
 In staging, every recipient, including CC/BCC, must be allowed. Otherwise, the message is blocked before Brevo and the notification becomes `suppressed`, without a sending attempt or retry. Adding an address later does not replay these messages. `PITCHOU_ADMIN_EMAILS` grants admin access, not permission to receive email. The allowlist does not restrict production. Seeded demo data does not trigger notifications.
 
