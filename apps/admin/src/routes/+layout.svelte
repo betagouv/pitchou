@@ -7,7 +7,7 @@
   import UiHeader from "@pitchou/ui/Header.svelte";
   import UiFooter from "@pitchou/ui/Footer.svelte";
   import AccountMenu from "@pitchou/ui/AccountMenu.svelte";
-  import BandeauEnvironnement from "@pitchou/ui/BandeauEnvironnement.svelte";
+  import EnvironmentBanner from "@pitchou/ui/EnvironmentBanner.svelte";
 
   import AdminHeader from "./Layout/Header.svelte";
   import Sidebar from "./Layout/Sidebar.svelte";
@@ -41,7 +41,7 @@
 
 {#if data.isAdmin}
   <div class="flex h-dvh flex-col overflow-hidden">
-    <BandeauEnvironnement staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
+    <EnvironmentBanner staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
 
     <!-- Logged-in admins get the internal-tool shell: sidebar + topbar, no DSFR chrome. -->
     <div class="admin-ui relative flex min-h-0 flex-1 overflow-hidden">
@@ -72,7 +72,7 @@
   </div>
 {:else}
   <!-- Logged-out (or non-admin) screens keep the standard DSFR layout. -->
-  <BandeauEnvironnement staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
+  <EnvironmentBanner staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
 
   <UiHeader
     serviceTitle="Pitchou"

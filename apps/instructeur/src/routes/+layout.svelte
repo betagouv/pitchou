@@ -11,7 +11,7 @@
 
   import { store } from "#lib/state/store.svelte.ts";
 
-  import BandeauEnvironnement from "@pitchou/ui/BandeauEnvironnement.svelte";
+  import EnvironmentBanner from "@pitchou/ui/EnvironmentBanner.svelte";
   import Header from "./Layout/Header/Header.svelte";
   import Footer from "./Layout/Footer.svelte";
   import { createPageViewTracker } from "./Layout/tracking.ts";
@@ -47,7 +47,7 @@
   <title>Pitchou</title>
 </svelte:head>
 
-<BandeauEnvironnement staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
+<EnvironmentBanner staging={env.PUBLIC_PITCHOU_ENV === "staging"} />
 
 <Header {nav} {email} />
 
