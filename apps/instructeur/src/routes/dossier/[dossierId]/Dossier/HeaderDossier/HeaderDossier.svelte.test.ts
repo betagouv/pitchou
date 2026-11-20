@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { tick } from "svelte";
 import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import HeaderDossier from "../HeaderDossier.svelte";
+import { fetchVersionData } from "../DossierVersions/api.ts";
 import { fakeDossierFull } from "../../../../fakeDossier.ts";
 
 vi.mock(import("../DossierVersions/api.ts"), async (importOriginal) => ({
@@ -123,4 +125,40 @@ test("both follow states keep the outlined medium button and the untruncated loc
     getComputedStyle(unfollow, "::before").color,
   );
   expect(screen.queryByRole("button", { name: /Marquer le dossier/u })).toBeNull();
+});
+
+test("only dossiers with multiple demandes show a selector, and the actions menu omits demande changes", async () => {
+  const headerProps = props();
+  const singletonId = 125 as DossierId;
+  vi.mocked(fetchVersionData)
+    .mockResolvedValueOnce({
+      projet: { id: "project", name: headerProps.dossier.name },
+      access: "complet",
+      demandes: [
+        { id: headerProps.dossier.id, label: "Demande initiale", phase: "Instruction" },
+        { id: 124, label: "Seconde demande", phase: "Instruction" },
+      ],
+    })
+    .mockResolvedValueOnce({
+      projet: { id: "singleton", name: "Projet avec une demande" },
+      access: "complet",
+      demandes: [{ id: singletonId, label: "Demande unique", phase: "Instruction" }],
+    });
+  const { rerender } = render(HeaderDossier, headerProps);
+  await fireEvent.click(await screen.findByRole("button", { name: /Changer de demande/u }));
+  expect(screen.getAllByRole("menuitemradio")).toHaveLength(2);
+
+  await fireEvent.click(screen.getByRole("button", { name: /Plus d’actions/u }));
+  expect(screen.getAllByRole("menuitem").map((item) => item.textContent?.trim())).toEqual([
+    "Faire suivre le dossier",
+    "Ajouter une pièce jointe",
+    "Voir le dossier en lecture seule",
+  ]);
+
+  await rerender({ ...headerProps, dossier: fakeDossierFull({ id: singletonId }) });
+  await waitFor(() =>
+    expect(fetchVersionData).toHaveBeenCalledWith("/dossier/125/demandes", expect.any(AbortSignal)),
+  );
+  await tick();
+  expect(screen.queryByRole("button", { name: /Changer de demande/u })).toBeNull();
 });

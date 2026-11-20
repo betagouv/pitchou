@@ -6,6 +6,20 @@ distinct projects and demandes per group. They overlap across groups and must
 not be summed. Case, whitespace and apostrophe normalization do not establish a
 semantic equivalence between different wording.
 
+The working view retains demandes with a DDEP deposit date on or after
+1 January 2023, and demandes with no date. Historic evidence and review
+decisions remain available in the inventory and export. For an existing local
+inventory, apply the date-scope migration, then load the dates from the original
+SQL export and its pinned source selection:
+
+```sh
+node --env-file=.env --import tsx scripts/onagre/load-comment-dates.mjs \
+  .fleet/onagre/all.sql .fleet/onagre/migration/full/selection.json
+```
+
+Add `--apply` before the two paths to persist the verified dates. The original
+review inventory retained 7,125 groups under this scope.
+
 The inventory includes all nonempty prepared projects. Each group separates the
 selection for new imports, existing linked DN references and blocked projects.
 Source notes for linked DN demandes describe the preparation; the importer does

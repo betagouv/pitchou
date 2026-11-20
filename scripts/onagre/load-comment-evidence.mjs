@@ -5,6 +5,7 @@ import readline from "node:readline";
 import assert from "node:assert/strict";
 import { connect } from "./local-import/connection.mjs";
 import { hash, sourceReader } from "./load-comment-evidence/source.mjs";
+import { writeCommentDepotDates } from "./load-comment-evidence/dates.mjs";
 
 const [directory, selectionPath, ...extra] = process.argv.slice(2);
 assert(
@@ -40,6 +41,7 @@ try {
     assert.deepEqual(g.payload.descriptionIds, groups.get(g.id)?.descriptions);
     assert.deepEqual(g.payload.context, groups.get(g.id)?.context);
   }
+  const dates = new Map();
   const rows = new Map(),
     coverage = new Map();
   let occurrenceCount = 0;
@@ -52,7 +54,12 @@ try {
     const occurrence = JSON.parse(line),
       group = groups.get(occurrence.groupId);
     assert(group && group.demandes.includes(occurrence.demandeKey));
-    const { facts, sourceHash } = readSource(occurrence, group);
+    const { facts, sourceHash, depotDate } = readSource(occurrence, group);
+    dates.set(occurrence.demandeKey, {
+      demande_key: occurrence.demandeKey,
+      source_project_id: occurrence.projectId,
+      ddep_depot_date: depotDate,
+    });
     const key = `${group.id}/${occurrence.demandeKey}`;
     if (!rows.has(key))
       rows.set(key, {
@@ -108,6 +115,7 @@ try {
     Number((await client.trx("onagre_comment_evidence").count("* as count").first()).count),
     output.length,
   );
+  await writeCommentDepotDates(client.trx, [...dates.values()]);
   await client.finish(true);
   console.log(
     JSON.stringify({

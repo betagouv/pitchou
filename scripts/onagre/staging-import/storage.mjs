@@ -19,7 +19,8 @@ export function storage(env) {
   }
   return {
     async upload(files) {
-      for (const file of files) await put(`files/${file.result.targetId}`, file.body, mediaType);
+      for (const file of files)
+        await put(`files/${file.result.targetId}`, file.body, file.mediaType ?? mediaType);
     },
     async report(hash, value) {
       await put(

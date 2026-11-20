@@ -10,6 +10,7 @@ import {
 } from "@pitchou/types/onagreDuplicates.ts";
 import { MappingConflict } from "./mappings.ts";
 import { withReviewedLocations } from "./duplicates/locations.ts";
+import { importedDuplicateDossier, loadImportedDuplicateDemandes } from "./duplicates/imported.ts";
 
 export function parseDuplicateDecision(form: FormData): DuplicateDecisionInput {
   const get = (key: string) => String(form.get(key) ?? "").trim();
@@ -48,8 +49,24 @@ export async function loadDuplicateWorkspace(
     db<DuplicateRevision>("onagre_duplicate_revision").select("*").orderBy("id", "desc"),
   ]);
   // Exports retain the raw payload bound to review_hash; only the UI requests corrected facts.
+  if (!reviewedLocations) return { projects, decisions, revisions };
+  const imported = await loadImportedDuplicateDemandes(
+    db,
+    projects.flatMap(({ payload }) => payload.demandes.map(({ key }) => key)),
+  );
+  const reviewed = projects.map(withReviewedLocations);
+  for (const { payload } of reviewed)
+    for (const demande of payload.demandes) {
+      const id = importedDuplicateDossier(
+        imported,
+        payload.projectId,
+        payload.sourceHash,
+        demande.key,
+      );
+      if (id !== undefined) demande.importedDossierId = id;
+    }
   return {
-    projects: reviewedLocations ? projects.map(withReviewedLocations) : projects,
+    projects: reviewed,
     decisions,
     revisions,
   };
@@ -72,6 +89,16 @@ export async function saveDuplicateDecision(
     throw new MappingConflict(
       "Cette demande est absente de la revue ou possède déjà un lien confirmé.",
     );
+  const imported = await loadImportedDuplicateDemandes(trx, [demande.key]);
+  if (
+    importedDuplicateDossier(
+      imported,
+      input.project_id,
+      project.payload.sourceHash,
+      demande.key,
+    ) !== undefined
+  )
+    throw new MappingConflict("Cette demande a déjà été importée.");
   const before = await trx<DuplicateDecision>("onagre_duplicate_decision")
     .where({ demande_key: input.demande_key })
     .first();

@@ -31,6 +31,7 @@
       {group.payload.context.impactTypes?.map((v) => v ?? "Non résolu").join(" ; ") || "Aucun"}
     </dd>
   </dl>
+  <p class="fr-mb-0">Répartition dans l’inventaire complet</p>
   <ul>
     {#each Object.entries(group.payload.populations) as [key, count]}<li>
         {populations[key] ?? key} : {count.projects} projets, {count.demandes} demandes.

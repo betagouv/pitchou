@@ -9,7 +9,12 @@ import { latestCommentaireSubquery } from "../commentaire.ts";
 import { formatDossierFull, type LoadedDossier } from "./fullFormat.ts";
 import { getDossierActeurs } from "./acteurs.ts";
 import { withProjetMembership } from "./projet.ts";
-import { getAvisExpertDossier, getDecisionsDossier, getPiecesJointes } from "./fullQueries.ts";
+import {
+  getAvisExpertDossier,
+  getDecisionsDossier,
+  getOnagreConsultations,
+  getPiecesJointes,
+} from "./fullQueries.ts";
 import { getImpactOnEspeces } from "../impact_espece/read.ts";
 import { getOtherAttachmentsForDossier } from "../other_attachment.ts";
 import { getPrescriptions } from "../prescription.ts";
@@ -33,6 +38,7 @@ export async function getDossierFull(
     const dossier = await loadDossier(dossierId, transaction);
     const events = await getEvenementsPhaseDossier(dossierId, transaction);
     const avis = await getAvisExpertDossier(dossierId, transaction);
+    dossier.onagreConsultations = await getOnagreConsultations(dossierId, transaction);
     const pieces = await getPiecesJointes(dossierId, transaction);
     const decisions = await getDecisionsDossier(dossierId, transaction);
     const attachments = await getOtherAttachmentsForDossier(dossierId, transaction);

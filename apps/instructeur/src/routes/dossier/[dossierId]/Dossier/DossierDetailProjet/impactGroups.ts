@@ -41,12 +41,32 @@ export function impactGroups(
 }
 
 type ImpactColumn = {
-  key: Exclude<keyof FrontEndImpactOnEspece, "espece" | "typeImpact">;
+  key:
+    | "nombreIndividus"
+    | "surfaceHabitatDetruit"
+    | "nids"
+    | "oeufs"
+    | "methode"
+    | "moyenDePoursuite";
   label: string;
   criterion?: string;
   /** Numeric values: the column takes the shared fixed width, the species column the rest. */
   narrow?: true;
 };
+
+export function impactRows(impacts: FrontEndImpactOnEspece[], groupBySpecies: boolean) {
+  return groupBySpecies
+    ? [...Map.groupBy(impacts, ({ espece }) => espece.CD_REF).values()]
+    : impacts.map((impact) => [impact]);
+}
+
+export function impactValues(impacts: FrontEndImpactOnEspece[], key: ImpactColumn["key"]) {
+  return [
+    ...new Set(
+      impacts.map((impact) => impact[key]).filter((value) => value != null && value !== ""),
+    ),
+  ];
+}
 
 const columns: ImpactColumn[] = [
   {

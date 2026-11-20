@@ -558,9 +558,11 @@ test(
         "UPDATE onagre_local_import.reconciled_demande SET source_hash=$1 WHERE source_key=$2",
         [reconciliationHash(multi), decision.demandeKey],
       );
-      await assert.rejects(
-        importSamples(c, [multi], email),
-        /Additional Onagre demandes require a scope review/u,
+      const partial = await importSamples(c, [multi], email);
+      assert.equal(
+        partial.find(({ sourceKey }) => sourceKey === multi.demandes[1].identity.key)
+          ?.reconciliation,
+        "scope_review_required",
       );
       await c.finish(false);
     } finally {

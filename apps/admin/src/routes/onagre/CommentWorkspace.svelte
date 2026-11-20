@@ -66,6 +66,9 @@
   {#if workspace.categories.length === 0}<p role="status">
       L’inventaire des commentaires n’a pas encore été chargé dans cet environnement.
     </p>{/if}
+  {#if workspace.dateScoped}
+    <p>Demandes déposées depuis le 1ᵉʳ janvier 2023 et demandes sans date de dépôt du DDEP.</p>
+  {/if}
   <form
     method="GET"
     class="onagre-controls"

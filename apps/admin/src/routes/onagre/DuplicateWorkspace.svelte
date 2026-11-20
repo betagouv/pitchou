@@ -32,6 +32,7 @@
     project.payload.demandes.filter(
       (d) =>
         d.linkedDossierId === null &&
+        d.importedDossierId === undefined &&
         (!decisions.has(d.key) || decisions.get(d.key)?.outcome === "pending"),
     ).length;
   const demandes = $derived(workspace.projects.flatMap((p) => p.payload.demandes));

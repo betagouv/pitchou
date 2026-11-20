@@ -123,6 +123,12 @@ export async function prepareSpeciesFile(client, sample) {
 }
 export async function writeSpecies(client, sample, dossierId, fileId) {
   const impacts = sample.proposal.speciesImpacts;
+  const activityLabels = new Map(
+    (sample.source?.rows?.activites ?? []).map((row) => [
+      String(row.activitesid),
+      row.libactivites,
+    ]),
+  );
   const existing = (
     await client.query(
       "SELECT source_key FROM onagre_local_import.identity WHERE dossier_key=$1 AND table_name='impact_espece'",
@@ -142,12 +148,13 @@ export async function writeSpecies(client, sample, dossierId, fileId) {
     throw new Error("Unowned species impacts exist; reconcile before importing");
   const results = [];
   for (const row of impacts) {
+    const activity = activityLabels.get(row.sourceKey.split(":").at(-1)) ?? null;
     const result = await writeRecord(
       client,
       sample.identity.key,
       row.sourceKey,
       "impact_espece",
-      { ...row.values, source_file: fileId },
+      { ...row.values, source_file: fileId, onagre_activity: activity },
       { dossier: dossierId },
     );
     if (result.preserved.length > 0)
@@ -177,7 +184,7 @@ export async function uploadSpeciesFiles(files, env) {
           Bucket: env.S3_BUCKET,
           Key: `files/${file.result.targetId}`,
           Body: file.body,
-          ContentType: mediaType,
+          ContentType: file.mediaType ?? mediaType,
         }),
         { abortSignal: AbortSignal.timeout(15000) },
       );

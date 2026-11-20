@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type AvisExpert from "@pitchou/types/database/public/AvisExpert.ts";
+import type { OnagreConsultation } from "@pitchou/types/apiPitchou/dossierDetails.ts";
 import type DecisionAdministrative from "@pitchou/types/database/public/DecisionAdministrative.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type File from "@pitchou/types/database/public/File.ts";
@@ -75,4 +76,22 @@ export async function getPiecesJointes(
     })
     .leftJoin("file", { "file.id": "edge_dossier__fichier_pieces_jointes_petitionnaire.fichier" })
     .where({ dossier: dossierId });
+}
+export async function getOnagreConsultations(
+  dossierId: Dossier["id"],
+  db: Knex,
+): Promise<OnagreConsultation[]> {
+  const rows = await db<{
+    source_key: string;
+    avis_expert_id: OnagreConsultation["avisExpertId"];
+    payload: Omit<OnagreConsultation, "key" | "avisExpertId">;
+  }>("onagre_consultation")
+    .select("source_key", "avis_expert_id", "payload")
+    .where("dossier", dossierId)
+    .orderBy("source_key");
+  return rows.map(({ source_key, avis_expert_id, payload }) => ({
+    ...payload,
+    key: source_key,
+    avisExpertId: avis_expert_id,
+  }));
 }

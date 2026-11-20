@@ -44,8 +44,6 @@
   const idModalAddPieceJointe = "modale-ajouter-piece-jointe-entete";
 
   let followersModalOpen = $state(false);
-  let demandeAction = $state<"create" | "link" | null>(null);
-  let canManageDemandes = $state(false);
 
   const background = $derived(activityBackground(activiteIconUrl(dossier.activite_label)));
 
@@ -123,12 +121,7 @@
         {dossier.name}
       </h2>
 
-      <DossierDemandes
-        dossierId={dossier.id}
-        readOnly={readOnly.current}
-        bind:action={demandeAction}
-        bind:canManage={canManageDemandes}
-      />
+      <DossierDemandes dossierId={dossier.id} />
 
       <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p class="fr-mb-0 flex items-center gap-2 main-location">
@@ -147,8 +140,6 @@
           onOpenFollowers={() => (followersModalOpen = true)}
           onAddPieceJointe={openPieceJointeModal}
           {onEnterReadOnly}
-          onCreateDemande={canManageDemandes ? () => (demandeAction = "create") : undefined}
-          onLinkDemande={canManageDemandes ? () => (demandeAction = "link") : undefined}
         />
       </div>
     </div>
