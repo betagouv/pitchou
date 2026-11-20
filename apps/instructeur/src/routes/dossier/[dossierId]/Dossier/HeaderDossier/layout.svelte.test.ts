@@ -12,9 +12,12 @@ import { store } from "#lib/state/store.svelte.ts";
 vi.mock(import("../DossierVersions/api.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   fetchVersionData: vi.fn().mockResolvedValue({
-    projet: null,
+    projet: { id: "project", name: "Projet avec deux demandes" },
     access: "complet",
-    demandes: [{ id: 123, label: "Demande initiale", phase: "Instruction" }],
+    demandes: [
+      { id: 123, label: "Demande initiale", phase: "Instruction" },
+      { id: 124, label: "Seconde demande", phase: "Instruction" },
+    ],
   }),
 }));
 
