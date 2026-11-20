@@ -54,6 +54,21 @@ export type FrontEndAvisExpert = Omit<AvisExpert, "avis_fichier" | "saisine_fich
   saisine_fichier_description?: FrontEndFichier;
 };
 
+export type OnagreConsultation = {
+  key: string;
+  avisExpertId: FrontEndAvisExpert["id"] | null;
+  kind: "saisine" | "regulatory" | "optional";
+  organisation: string | null;
+  saisineDate: string | null;
+  responseDate: string | null;
+  outcome: string | null;
+  comment: string | null;
+  relatedResponseDate?: string;
+  relatedSaisineDate?: string;
+  relatedKey?: string;
+  files: { name: string; fileId?: File["id"] }[];
+};
+
 export type FrontEndOtherAttachment = {
   id: string;
   dossier: Dossier["id"];
@@ -87,6 +102,7 @@ export type FrontEndImpactOnEspece = {
   nids: number | null;
   oeufs: number | null;
   surfaceHabitatDetruit: number | null;
+  onagreActivity?: string;
 };
 
 export type FrontEndImpactOnEspecesWithSourceFile = {
@@ -121,6 +137,7 @@ export type DossierFull = Omit<
     evenementsPhase: (Omit<EvenementPhaseDossier, "recorded_at"> & { recorded_at?: Date })[];
     decisionsAdministratives: FrontEndDecisionAdministrative[] | undefined;
     avisExpert: FrontEndAvisExpert[];
+    onagreConsultations?: OnagreConsultation[];
     piecesJointesPetitionnaires: (Pick<
       File,
       "demarche_numerique_created_at" | "media_type" | "name"

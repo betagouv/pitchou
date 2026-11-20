@@ -1,6 +1,7 @@
 import type { Knex } from "knex";
 import type { CommentDemandePage, CommentGroup } from "@pitchou/types/onagreComments.ts";
 import { loadCommentEvidence } from "./evidence.ts";
+import { currentCommentEvidence, hasCommentDepotDates } from "./scope.ts";
 
 export async function loadCommentDemandes(
   db: Knex,
@@ -10,9 +11,12 @@ export async function loadCommentDemandes(
 ): Promise<CommentDemandePage | null> {
   const group = await db<CommentGroup>("onagre_comment_group").where("id", groupId).first();
   if (!group) return null;
-  const keys = [...new Set(group.payload.demandeKeys)].sort((a, b) =>
-    a.localeCompare(b, "en", { numeric: true }),
-  );
+  const scopedKeys = (await hasCommentDepotDates(db))
+    ? await currentCommentEvidence(db)
+        .where({ "e.group_id": group.id, "e.review_hash": group.review_hash })
+        .pluck<string[]>("e.demande_key")
+    : group.payload.demandeKeys;
+  const keys = [...new Set(scopedKeys)].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
   const pageSize = 20;
   const total = keys.length;
   const page = Math.min(

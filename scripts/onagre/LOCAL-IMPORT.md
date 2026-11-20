@@ -20,7 +20,7 @@ Review edits now belong in the project files. To rerun legacy preparation helper
 
 The importer now uses the shared application routing and access services in the same Knex transaction as its prepared SQL writes. It acquires the access lock before resolving the reviewer, groups all selected demandes, shares their direct grants and calls `recalculateAssignments` with `silent: true` after the complete batch. It neither calls the removed `pitchou_can_instruct` function nor writes effective group edges directly.
 
-Existing group rules and overrides determine the assignment. A direct instruction grant and personal follow are seeded for the explicitly supplied local reviewer, separately from the production correspondence. Replay preserves unfollows and refuses to recreate a changed or revoked review grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
+Existing group rules and overrides determine the assignment. A direct instruction grant gives the explicitly supplied reviewer access. Following a dossier is a separate, manual action. Replay refuses to recreate a changed or revoked review grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
 
 Local databases that applied an intermediate version of the assignment branch may have a different schema despite recording similarly named migrations. Check migration history and actual tables before running migrations; a successful code merge does not upgrade the database.
 
@@ -87,13 +87,26 @@ For a proven non-match, use a separate homogeneous plan with `action: "exclude_c
 
 Reviewer access and source/target hashes are checked under a transaction lock. The operation creates only the project grouping, memberships and private reconciliation ledger. A single-record project retains the current DN title; a project with several records uses the reviewed Onagre project title, while each DN record keeps its own title. The DN source, business fields, statuses, history, attachments, actors and access stay unchanged. There is no data enrichment from Onagre in this operation. The plan and record IDs must remain private.
 
-Reapplying the exact decision is a no-op. The prepared importer reports `linked_existing` and skips all business writes for linked demandes, preserving subsequent instructor edits. Changed source proposals, target identity or membership require a fresh review. Other unlinked demandes within the same project block importing that project until their scope is resolved. The read-only report distinguishes fully reconciled projects from partial links and unresolved candidates. The separate admin experimental importer still blocks these candidates; the local ledger does not grant it ownership.
+Reapplying an exact link decision preserves the existing DN history. The prepared importer reports `linked_existing` and adds missing linked opinions and available attachments. It records conflicts for review and preserves existing DN values. When one confirmed link, its exact demande code and the current candidate check identify a single covered demande, the remaining prepared demandes are imported into that same dossier grouping. Ambiguous siblings remain in the report as `scope_review_required`. A changed source, target identity or grouping requires review. The separate admin experimental importer still uses its own candidate checks.
+
+To supply original files, set `ONAGRE_ATTACHMENT_MANIFEST` to an ignored JSON
+file with entries containing `sourceId` (the Onagre piece ID), `path`, `sha256`
+and `mediaType`. The default importer run previews additions and conflicts in
+its report. An applied run verifies every supplied checksum before recording and
+uploading a file. Unavailable originals are reported separately.
+
+Imported consultations retain Onagre's service saisines, regulatory opinions
+and optional opinions. A dated regulatory response links to a compatible
+saisine on the same demande when each has a unique counterpart within four
+calendar months. If several saisines are compatible, an exact transmission
+date and a filename explicitly identifying the saisine and its council can
+establish a unique link. Source entries that cannot be paired are still displayed.
 
 Within each demande, `proposal.dossier` contains prepared business fields and `proposal.records` contains related records. Each related record has a stable `sourceKey`, a supported `table` and `values`. Prescriptions also specify an earlier decision's `parentSourceKey`. The importer validates an allowlist of tables and columns. It reads prepared values, never interprets mapping prose or calls an LLM. Reports include both the project UUID and each demande's existing-style dossier ID.
 
 `main_activite` accepts an existing Pitchou activity code or reviewed label. The importer resolves it against the target database's activity referentiel and stores its canonical label, as Pitchou expects. Unknown or ambiguous activities stop the import; it never creates a new activity.
 
-Supported related tables are `decision_administrative`, `prescription`, `avis_expert`, `commentaire` and `evenement_phase_dossier`. Optional `proposal.speciesImpacts` entries populate the existing species impact table and its required source spreadsheet. Prepared porteurs and contacts use the dedicated structures below. Original attachments and production service routing remain outside this local importer. Draft proposals are accepted for local review. Approval statuses do not authorize production writes.
+Supported prepared records include `decision_administrative`, `prescription`, `avis_expert`, `commentaire` and `evenement_phase_dossier`. Optional `proposal.speciesImpacts` entries populate the existing species impact table and its required source spreadsheet. Prepared porteurs and contacts use the dedicated structures below. The original-file manifest supplies attachment bytes, and the prepared source supplies the Onagre consultation entries. Draft proposals are accepted for local review. Approval statuses do not authorize production writes.
 
 Migration constraint: adding a database field, UI field or other extension to Pitchou requires the owner's explicit prior consent. A missing destination for an Onagre value does not authorize extending Pitchou. First consider existing fields, comments or retaining the value only in the private source archive.
 
@@ -127,7 +140,7 @@ When the species is verified but the impact type is ambiguous, unknown or absent
 
 Each species entry has a stable `sourceKey` derived from its source description and activity, and explicit nullable `values`. A description with no activity link uses `activites:unspecified`; do not invent a source activity ID. Resolving the type for an existing source activity updates the same impact identity. Adding source activity links to a previously unlinked description requires reconciling the old unspecified identity, like other removed impact identities. The importer validates references again against the local database. It generates an XLSX with a provenance sheet and a filename identifying it as generated from Onagre. This is not an original Onagre attachment. Pitchou's existing download button still calls it the original file; the comment and downloaded workbook explain its actual origin.
 
-The generated workbook uses a content hash in its import identity. A changed workbook creates an immutable file version while updating the existing impact IDs and dossier pointer. Only `--apply` uploads bytes, exclusively to local storage on port 9000 in `pitchou-dev`, after all database checks and before commit. A failed commit can leave an unused local object; it cannot replace the previous workbook. Missing objects can be restored by rerunning. No general attachment import is enabled.
+The generated workbook uses a content hash in its import identity. A changed workbook creates an immutable file version while updating the existing impact IDs and dossier pointer. Only `--apply` uploads bytes, exclusively to local storage on port 9000 in `pitchou-dev`, after all database checks and before commit. A failed commit can leave an unused local object; it cannot replace the previous workbook. Missing objects can be restored by rerunning.
 
 Species imports reject replaced attachments, edited or unowned impacts, and removed impact identities until explicitly reconciled, preventing the spreadsheet and impact table from diverging. This is stricter than ordinary fields, whose unchanged proposals preserve local edits. Old generated file versions remain retained.
 
@@ -168,7 +181,7 @@ node --test scripts/onagre/prepare-fields.test.mjs scripts/onagre/prepare-specie
 node --env-file=.env --import tsx scripts/onagre/local-import/verify-species.mjs reviewer@example.test
 ```
 
-The database verification scripts use synthetic records and roll back. They check replay, changes, stable IDs, local edits, conflicts, retained removals, refusal to adopt existing dossiers, shared group routing, silent notifications, explicit exclusions and preservation of unfollows and reviewer-grant revocations.
+The database verification scripts use synthetic records and roll back. They check replay, changes, stable IDs, local edits, conflicts, retained removals, refusal to adopt existing dossiers, shared group routing, silent notifications, explicit exclusions, manual follows and unfollows, and preservation of reviewer-grant revocations.
 
 `verify-actors.mjs --disposable` creates a random database on the test PostgreSQL server, runs all migrations, seeds a synthetic reviewer, and drops the database after verification. It uses `TEST_DB_HOST`, `TEST_DB_PORT`, `TEST_DB_USER` and `TEST_DB_PASSWORD`, with the same defaults as the application integration tests. It checks declared and verified organisations, isolation despite matching names or SIRENs, ownership and local-edit protection, and an upgrade to a verified SIRET that retains contacts and former organisation provenance. It does not use the development database or change the public importer's target restrictions.
 

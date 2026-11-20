@@ -10,43 +10,47 @@ import { lockDossierAccess } from "../../../libs/server/src/dossierRouting.ts";
 import { assertNoUnreviewedDuplicates } from "./reconciliation.mjs";
 import { readReconciledLinks } from "./linked.mjs";
 import { prepareReviewedLocation } from "./locations.mjs";
+import { writeConsultations } from "./consultations.mjs";
+import { writeAttachments } from "./attachments.mjs";
+import { enrichLinkedDemande } from "./enrich.mjs";
 
 export async function importSamples(client, projects, reviewerEmail, options = {}) {
   validateProjects(projects);
   await lockDossierAccess(client.trx);
-  const excludedCandidates = await assertNoUnreviewedDuplicates(client, projects);
+  const { excluded, blockedSiblings } = await assertNoUnreviewedDuplicates(client, projects);
   const reviewer = await getReviewer(client, reviewerEmail);
   const report = [];
   for (const project of projects) {
     const links = await readReconciledLinks(client, project);
+    const byDemande = new Map(links.map((link) => [link.source_key, link]));
+    const unlinked = project.demandes.filter((demande) => !byDemande.has(demande.identity.key));
     if (links.length > 0) {
-      // A reviewed link does not transfer ownership of a DN record to this importer.
-      for (const demande of project.demandes) {
-        const link = links.find((row) => row.source_key === demande.identity.key);
-        if (!link) throw new Error(`Missing reviewed demande link: ${demande.identity.key}`);
-        report.push({
-          sourceKey: demande.identity.key,
-          dossierId: link.dossier_id,
-          projectId: link.project_id,
-          projectKey: project.identity.key,
-          reconciliation: "linked_existing",
-          outcomes: [],
-          retainedRemovedRecords: [],
-          issues: demande.issues,
-        });
+      report.push(...(await enrichLinkedDemandes(client, project, byDemande, options)));
+      if (unlinked.length === 0) continue;
+      if (blockedSiblings.has(project.identity.sourceId)) {
+        for (const demande of unlinked)
+          report.push({
+            sourceKey: demande.identity.key,
+            projectKey: project.identity.key,
+            projectId: links[0].project_id,
+            reconciliation: "scope_review_required",
+            outcomes: [],
+            retainedRemovedRecords: [],
+            issues: demande.issues,
+          });
+        continue;
       }
-      continue;
     }
-    // Keep raw snapshots intact for reconciliation; existing DN records never reach this step.
-    const samples = project.demandes.map(prepareReviewedLocation);
-    const group = await writeProject(client, project);
+    const samples = unlinked.map(prepareReviewedLocation);
+    const group =
+      links.length > 0 ? { targetId: links[0].project_id } : await writeProject(client, project);
     const demandes = await importDemandes(
       client,
       samples,
       reviewer,
       options,
       project.proposal.name,
-      excludedCandidates.get(project.identity.sourceId),
+      excluded.get(project.identity.sourceId),
     );
     for (let index = 0; index < demandes.length; index++) {
       const demande = demandes[index];
@@ -69,10 +73,31 @@ export async function importSamples(client, projects, reviewerEmail, options = {
   await finalizeRouting(
     client,
     report
-      .filter((item) => item.reconciliation !== "linked_existing")
+      .filter((item) => item.dossierId && item.reconciliation !== "linked_existing")
       .map((item) => item.dossierId),
     reviewer,
   );
+  return report;
+}
+
+async function enrichLinkedDemandes(client, project, links, options) {
+  const report = [];
+  for (const demande of project.demandes) {
+    const link = links.get(demande.identity.key);
+    if (!link) continue;
+    const enrichment = await enrichLinkedDemande(client, demande, link.dossier_id, options);
+    report.push({
+      sourceKey: demande.identity.key,
+      dossierId: link.dossier_id,
+      projectId: link.project_id,
+      projectKey: project.identity.key,
+      reconciliation: "linked_existing",
+      outcomes: enrichment.outcomes,
+      enrichment,
+      retainedRemovedRecords: [],
+      issues: demande.issues,
+    });
+  }
   return report;
 }
 
@@ -109,18 +134,15 @@ async function importDemandes(client, samples, reviewer, options, projectName, e
       }
       options.files?.push(speciesFile);
     }
-    for (const record of sample.proposal.records ?? []) {
-      const parent =
-        record.table === "prescription"
-          ? { decision_administrative: targets.get(record.parentSourceKey) }
-          : { dossier: Number(dossier.targetId) };
-      const result =
-        record.table === "evenement_phase_dossier"
-          ? await writePhase(client, key, record, dossier.targetId)
-          : await writeRecord(client, key, record.sourceKey, record.table, record.values, parent);
-      targets.set(record.sourceKey, result.targetId);
+    outcomes.push(...(await writeRelatedRecords(client, sample, dossier.targetId, targets)));
+    const attachments = await writeAttachments(client, sample, Number(dossier.targetId), options);
+    for (const result of attachments.outcomes) {
+      targets.set(result.sourceKey, result.targetId);
       outcomes.push(result);
     }
+    for (const sourceId of attachments.ids.keys())
+      targets.set(`onagre-national:piecesjointes:${sourceId}:attachment`, true);
+    await writeConsultations(client, sample, Number(dossier.targetId), targets, attachments.ids);
     await grantLocalReview(client, key, Number(dossier.targetId), reviewer.id);
     const stale = (
       await client.query(
@@ -134,12 +156,38 @@ async function importDemandes(client, samples, reviewer, options, projectName, e
       sourceKey: key,
       dossierId: Number(dossier.targetId),
       outcomes,
+      ...(attachments.unavailable.length > 0 || attachments.conflicts.length > 0
+        ? {
+            enrichment: {
+              unavailableAttachments: attachments.unavailable,
+              conflicts: attachments.conflicts,
+            },
+          }
+        : {}),
       retainedRemovedRecords: stale,
       issues: sample.issues,
       ...(sample.locationCorrection ? { locationCorrection: sample.locationCorrection } : {}),
     });
   }
   return report;
+}
+
+async function writeRelatedRecords(client, sample, dossierId, targets) {
+  const outcomes = [];
+  for (const record of sample.proposal.records ?? []) {
+    const parent =
+      record.table === "prescription"
+        ? { decision_administrative: targets.get(record.parentSourceKey) }
+        : { dossier: Number(dossierId) };
+    const key = sample.identity.key;
+    const result =
+      record.table === "evenement_phase_dossier"
+        ? await writePhase(client, key, record, dossierId)
+        : await writeRecord(client, key, record.sourceKey, record.table, record.values, parent);
+    targets.set(record.sourceKey, result.targetId);
+    outcomes.push(result);
+  }
+  return outcomes;
 }
 
 async function prepareDossier(client, sample, projectName, excluded) {

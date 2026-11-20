@@ -42,7 +42,7 @@
   aria-labelledby="duplicate-detail-tab-0"
   hidden={tab !== 0}
 >
-  <h4>Pourquoi l’import est bloqué</h4>
+  <h4>Motif de la revue</h4>
   <p class="reason">{project.payload.reason}</p>
   <h4>À décider</h4>
   <p>{project.payload.question}</p>
@@ -77,6 +77,14 @@
           >
         </p>
         <p>{demande.linkReason}</p>
+      {:else if demande.importedDossierId !== undefined}
+        <p>
+          <span class="fr-icon-checkbox-circle-line" aria-hidden="true"></span>
+          Demande importée dans le dossier Pitchou
+          <InstructeurLink dossierId={demande.importedDossierId}
+            >{demande.importedDossierId}</InstructeurLink
+          >.
+        </p>
       {:else}
         <p><strong>À décider :</strong> {demande.question}</p>
         {#key decisions.get(demande.key)?.version ?? 0}

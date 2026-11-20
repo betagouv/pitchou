@@ -11,6 +11,7 @@ const writableTables = new Set([
   "organisation",
   "dossier_acteur",
   "file",
+  "other_attachment",
   "impact_espece",
 ]);
 const quote = (value) => `"${value.replaceAll('"', '""')}"`;

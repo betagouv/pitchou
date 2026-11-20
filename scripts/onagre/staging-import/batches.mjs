@@ -1,7 +1,16 @@
 import { initialize } from "../local-import/connection.mjs";
 import { importSamples } from "../local-import/run.mjs";
 
-export function batches({ client, objects, sha256, reviewerEmail, apply, report }) {
+export function batches({
+  client,
+  objects,
+  sha256,
+  progressSha256,
+  reviewerEmail,
+  apply,
+  report,
+  attachments,
+}) {
   async function batch(items) {
     if (apply) {
       await client.begin();
@@ -13,26 +22,27 @@ export function batches({ client, objects, sha256, reviewerEmail, apply, report 
         client,
         items.map((entry) => entry.project),
         reviewerEmail,
-        { files },
+        { files, attachments },
       );
       if (apply) {
         // A failed DB commit can only leave immutable, unreferenced generated objects.
         await objects.upload(files);
-        for (const entry of items)
+        for (const entry of items.filter(
+          ({ project }) =>
+            !results.some(
+              (result) =>
+                result.projectKey === project.identity.key &&
+                result.reconciliation === "scope_review_required",
+            ),
+        ))
           await client.query(
             "INSERT INTO onagre_local_import.staging_progress(bundle_sha256,project_key) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-            [sha256, entry.project.identity.key],
+            [progressSha256, entry.project.identity.key],
           );
         await client.finish(true);
       }
       report.projects += items.length;
-      report.demandes += results.length;
-      for (const result of results)
-        for (const outcome of result.outcomes) {
-          if (outcome.status === "created") report.created++;
-          if (outcome.status === "updated") report.updated++;
-          report.preservedEdits += outcome.preserved.length;
-        }
+      tallyResults(report, results);
       report.batches++;
     } catch (error) {
       if (apply) await client.finish(false);
@@ -60,4 +70,23 @@ export function batches({ client, objects, sha256, reviewerEmail, apply, report 
     console.log(JSON.stringify(report));
     await objects.report(sha256, report);
   };
+}
+
+function tallyResults(report, results) {
+  report.demandes += results.length;
+  for (const result of results) {
+    if (result.reconciliation === "scope_review_required")
+      report.heldDemandes.push({ projectKey: result.projectKey, sourceKey: result.sourceKey });
+    if (result.reconciliation === "linked_existing")
+      report.enrichment.push({
+        dossierId: result.dossierId,
+        sourceKey: result.sourceKey,
+        ...result.enrichment,
+      });
+    for (const outcome of result.outcomes) {
+      if (outcome.status === "created") report.created++;
+      if (outcome.status === "updated") report.updated++;
+      report.preservedEdits += outcome.preserved.length;
+    }
+  }
 }

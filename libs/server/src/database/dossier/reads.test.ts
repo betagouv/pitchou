@@ -34,6 +34,7 @@ vi.mock("./acteurs.ts", () => ({
 }));
 vi.mock("./fullQueries.ts", () => ({
   getAvisExpertDossier: () => queries.run("avis", []),
+  getOnagreConsultations: () => queries.run("onagreConsultations", []),
   getPiecesJointes: () => queries.run("pieces", []),
   getDecisionsDossier: () => queries.run("decisions", [{ id: "decision", dossier: 42 }]),
 }));
@@ -92,6 +93,7 @@ describe.each([
       "acteurs",
       "events",
       "avis",
+      "onagreConsultations",
       "pieces",
       "decisions",
       "attachments",

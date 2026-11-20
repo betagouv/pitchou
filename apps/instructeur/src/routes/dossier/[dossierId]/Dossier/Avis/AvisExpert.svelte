@@ -9,9 +9,10 @@
     dossierId: DossierFull["id"];
     avisExpert: FrontEndAvisExpert;
     deleteAvisExpert: (avisExpert: FrontEndAvisExpert) => Promise<unknown>;
+    imported?: boolean;
   };
 
-  let { dossierId, avisExpert, deleteAvisExpert }: Props = $props();
+  let { dossierId, avisExpert, deleteAvisExpert, imported = false }: Props = $props();
 
   const readOnly = readOnlyMode();
 
@@ -45,7 +46,7 @@
       {avisExpert.expert ?? "Expert"}
       -
       {#if avisExpert.expert === "Ministre" || avisExpert.expert === "CNPN" || avisExpert.expert === "CSRPN"}
-        {avisExpert.avis ?? "Avis en attente"}
+        {avisExpert.avis ?? (imported ? "Avis non renseigné" : "Avis en attente")}
       {:else}
         {avisExpert.avis_fichier_url ? "Avis rendu" : "Avis en attente"}
       {/if}

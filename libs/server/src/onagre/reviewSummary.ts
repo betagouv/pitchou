@@ -1,5 +1,7 @@
 import type { Knex } from "knex";
 import type { DuplicateProject } from "@pitchou/types/onagreDuplicates.ts";
+import { currentCommentCounts, hasCommentDepotDates } from "./comments/scope.ts";
+import { importedDuplicateDossier, loadImportedDuplicateDemandes } from "./duplicates/imported.ts";
 
 // Count review items, not source occurrences: several items can concern the same demande.
 export async function loadReviewSummary(db: Knex) {
@@ -8,9 +10,16 @@ export async function loadReviewSummary(db: Knex) {
     db.schema.hasTable("onagre_duplicate_project"),
     db.schema.hasTable("onagre_confirmed_duplicate"),
   ]);
+  const dateScoped = hasTexts && (await hasCommentDepotDates(db));
+  const textGroups = db("onagre_comment_group as g");
+  if (dateScoped)
+    textGroups.join(currentCommentCounts(db).as("scope"), {
+      "scope.group_id": "g.id",
+      "scope.review_hash": "g.review_hash",
+    });
   const [texts, projects, decisions, confirmed] = await Promise.all([
     hasTexts
-      ? db("onagre_comment_group as g")
+      ? textGroups
           .leftJoin("onagre_comment_decision as d", "d.group_id", "g.id")
           .select(db.raw("coalesce(d.outcome, 'pending') as outcome"))
           .count<{ outcome: string; count: string }[]>({ count: "g.id" })
@@ -25,11 +34,19 @@ export async function loadReviewSummary(db: Knex) {
       : null,
   ]);
   const outcomes = new Map(decisions.map((d) => [d.demande_key, d.outcome]));
+  const imported = await loadImportedDuplicateDemandes(
+    db,
+    projects.flatMap(({ payload }) => payload.demandes.map(({ key }) => key)),
+  );
   let pendingDemandes = 0;
   let pendingProjects = 0;
   for (const { payload } of projects) {
     const pending = payload.demandes.filter(
-      (d) => d.linkedDossierId === null && (outcomes.get(d.key) ?? "pending") === "pending",
+      (d) =>
+        d.linkedDossierId === null &&
+        importedDuplicateDossier(imported, payload.projectId, payload.sourceHash, d.key) ===
+          undefined &&
+        (outcomes.get(d.key) ?? "pending") === "pending",
     ).length;
     pendingDemandes += pending;
     if (pending) pendingProjects++;

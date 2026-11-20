@@ -75,7 +75,11 @@
         {group.label}
       </h4>
       <div class="review-row dossier-review-row">
-        <EspecesImpactTable {group} pending={!!group.change} />
+        <EspecesImpactTable
+          {group}
+          pending={!!group.change}
+          groupBySpecies={dossier.source === "onagre"}
+        />
         <div class="review-control">
           <FieldChange dossierId={dossier.id} change={group.change} />
         </div>

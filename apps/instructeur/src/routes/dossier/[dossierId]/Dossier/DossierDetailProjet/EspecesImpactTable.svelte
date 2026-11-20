@@ -1,11 +1,20 @@
 <script lang="ts">
   import EspecesStatusBadge from "#lib/components/EspecesStatusBadge.svelte";
-  import { impactColumns, type ImpactGroup } from "./impactGroups.ts";
+  import { impactColumns, impactRows, impactValues, type ImpactGroup } from "./impactGroups.ts";
   import { VALUE_NOT_PROVIDED } from "#lib/especes/especesByTypeImpact.ts";
   import { LIBELLES_STATUT_LISTE_ROUGE } from "@pitchou/common/especes/listeRouge.ts";
 
-  let { group, pending = false }: { group: ImpactGroup; pending?: boolean } = $props();
+  let {
+    group,
+    pending = false,
+    groupBySpecies = false,
+  }: {
+    group: ImpactGroup;
+    pending?: boolean;
+    groupBySpecies?: boolean;
+  } = $props();
   const columns = $derived(impactColumns(group.impacts));
+  const rows = $derived(impactRows(group.impacts, groupBySpecies));
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users must be able to scroll wide tables.) -->
@@ -20,7 +29,13 @@
       </tr>
     </thead>
     <tbody>
-      {#each group.impacts as impact}
+      {#each rows as impacts}
+        {@const impact = impacts[0]}
+        {@const activities = [
+          ...new Set(
+            impacts.flatMap(({ onagreActivity }) => (onagreActivity ? [onagreActivity] : [])),
+          ),
+        ]}
         <tr>
           <td>
             <span class="species-name">
@@ -39,9 +54,19 @@
                 />
               {/if}
             </span>
+            {#if groupBySpecies && activities.length > 0}
+              <details>
+                <summary>Activités Onagre</summary>
+                <ul class="fr-m-0">
+                  {#each activities as activity}<li>{activity}</li>{/each}
+                </ul>
+              </details>
+            {/if}
           </td>
           {#each columns as column (column.key)}
-            <td class:narrow={column.narrow}>{impact[column.key] ?? VALUE_NOT_PROVIDED}</td>
+            <td class:narrow={column.narrow}
+              >{impactValues(impacts, column.key).join(" / ") || VALUE_NOT_PROVIDED}</td
+            >
           {/each}
         </tr>
       {:else}

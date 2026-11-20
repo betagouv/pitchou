@@ -90,5 +90,6 @@ export interface CommentWorkspace {
   category: CommentCategory;
   search: string;
   outcome: string;
+  dateScoped?: boolean;
   choices: CommentChoice[];
 }

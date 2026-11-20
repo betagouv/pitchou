@@ -16,6 +16,30 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+test("groups each Onagre species by impact and keeps source activities available", async () => {
+  const view = render(DossierDetailProjet, {
+    dossier: {
+      ...speciesDossier([
+        habitat,
+        impact({ onagreActivity: "Destruction de spécimens", nombreIndividus: "2" }),
+        impact({ onagreActivity: "Autre activité source", nombreIndividus: "4" }),
+      ]),
+      source: "onagre",
+    },
+    anomalies: undefined,
+  });
+  view.getByRole("button", { name: /^Espèces impactées/u }).click();
+  await tick();
+  const tables = view.getAllByRole("table");
+  expect(tables).toHaveLength(2);
+  expect(tables.map((table) => table.querySelectorAll("tbody tr").length)).toEqual([1, 1]);
+  expect(view.getByText("2 / 4")).toBeDefined();
+  const detail = view.getByText("Activités Onagre");
+  detail.click();
+  expect(detail.closest("details")?.textContent).toContain("Destruction de spécimens");
+  expect(detail.closest("details")?.textContent).toContain("Autre activité source");
+});
+
 test("numeric columns share one width across tables and the species column takes the rest", async () => {
   await page.viewport(1440, 900);
   try {

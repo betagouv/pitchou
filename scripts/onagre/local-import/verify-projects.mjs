@@ -78,6 +78,8 @@ try {
       2,
     );
   assert.deepEqual(await c.trx("email_notification_outbox").count("*").first(), beforeMail);
+  assert.deepEqual(await c.trx("edge_personne_follows_dossier").whereIn("dossier", ids), []);
+  await c.trx("edge_personne_follows_dossier").insert({ dossier: ids[0], personne: reviewer.id });
   const replay = await run();
   assert.deepEqual(
     replay.map((row) => [row.projectId, row.dossierId]),
@@ -89,6 +91,11 @@ try {
         row.projectOutcome.status === "unchanged" &&
         row.outcomes.every((item) => item.status === "unchanged"),
     ),
+  );
+  assert.equal(
+    (await c.trx("edge_personne_follows_dossier").where({ dossier: ids[0], personne: reviewer.id }))
+      .length,
+    1,
   );
   project.proposal.name = "Corrected project title";
   project.demandes[1].label = "Corrected label";
@@ -203,7 +210,7 @@ try {
     0,
   );
   console.log(
-    "Passed project checks: independent demandes, stable group and demande IDs, shared rule routing, silent notifications, corrections, local labels/titles/unfollows, explicit exclusions, rollback on conflicts, retained missing demandes and refused grant restoration. All writes rolled back.",
+    "Passed project checks: independent demandes, stable group and demande IDs, shared rule routing, silent notifications, manual follows and unfollows, corrections, local labels and titles, explicit exclusions, rollback on conflicts, retained missing demandes and refused grant restoration. All writes rolled back.",
   );
 } finally {
   await c.finish(false);

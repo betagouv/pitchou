@@ -70,7 +70,7 @@ export function sourceReader(manifest, references) {
       }),
     };
     verifyFacts(occurrence, group, source, facts, impacts, issues);
-    return { facts, sourceHash: entry.sha256 };
+    return { facts, sourceHash: entry.sha256, depotDate: demande.depotDate };
   };
 }
 
@@ -86,6 +86,7 @@ function prepareDemande(d) {
     return result;
   };
   return {
+    depotDate: rows.demandes?.[0]?.datereception || null,
     descriptions: index(rows.descriptionsespeces, "descriptionsespecesid"),
     species: index(rows.especes, "especesid"),
     methods: index(rows.methode, "methodeid"),

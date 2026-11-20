@@ -1,12 +1,24 @@
+import { createHash } from "node:crypto";
 import { initialize } from "../local-import/connection.mjs";
 import { batches } from "./batches.mjs";
 import { restoreReferences } from "./references.mjs";
 import { getReviewer } from "../local-import/routing.mjs";
 
-export async function run({ client, objects, bundle, sha256, reviewerEmail, apply, limit }) {
+export async function run({
+  client,
+  objects,
+  bundle,
+  sha256,
+  reviewerEmail,
+  apply,
+  limit,
+  attachments,
+}) {
+  const progressSha256 = progressHash(sha256, attachments);
   const report = {
     mode: apply ? "apply" : "dry-run",
     bundleSha256: sha256,
+    progressSha256,
     reviewedThrough: bundle.reviewedThrough,
     startedAt: new Date().toISOString(),
     projects: 0,
@@ -14,6 +26,8 @@ export async function run({ client, objects, bundle, sha256, reviewerEmail, appl
     resumed: 0,
     created: 0,
     updated: 0,
+    enrichment: [],
+    heldDemandes: [],
     preservedEdits: 0,
     failures: [],
     batches: 0,
@@ -22,22 +36,20 @@ export async function run({ client, objects, bundle, sha256, reviewerEmail, appl
   await initialize(client, "staging");
   await getReviewer(client, reviewerEmail);
   report.references = await restoreReferences(client, bundle.references);
-  await client.query(`CREATE TABLE IF NOT EXISTS onagre_local_import.staging_progress (
-    bundle_sha256 text NOT NULL, project_key text NOT NULL, completed_at timestamptz NOT NULL DEFAULT now(),
-    PRIMARY KEY (bundle_sha256, project_key)
-  )`);
-  const done = new Set(
-    (
-      await client.query(
-        "SELECT project_key FROM onagre_local_import.staging_progress WHERE bundle_sha256=$1",
-        [sha256],
-      )
-    ).rows.map((row) => row.project_key),
-  );
+  const done = await loadProgress(client, progressSha256);
   if (apply) await client.finish(true);
   let seen = 0;
   const queue = [];
-  const flush = batches({ client, objects, sha256, reviewerEmail, apply, report });
+  const flush = batches({
+    client,
+    objects,
+    sha256,
+    progressSha256,
+    reviewerEmail,
+    apply,
+    report,
+    attachments,
+  });
   try {
     for await (const entry of bundle.projects()) {
       if (limit && seen++ >= limit) break;
@@ -63,4 +75,27 @@ export async function run({ client, objects, bundle, sha256, reviewerEmail, appl
     await objects.report(sha256, report);
     throw error;
   }
+}
+
+function progressHash(sha256, attachments) {
+  const attachmentHashes = [...(attachments ?? [])]
+    .map(([id, entry]) => [id, entry.sha256, entry.mediaType])
+    .sort(([a], [b]) => a.localeCompare(b));
+  return createHash("sha256")
+    .update(JSON.stringify([sha256, "onagre-consultations-and-dn-v2", attachmentHashes]))
+    .digest("hex");
+}
+
+async function loadProgress(client, progressSha256) {
+  await client.query(`CREATE TABLE IF NOT EXISTS onagre_local_import.staging_progress (
+    bundle_sha256 text NOT NULL, project_key text NOT NULL, completed_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (bundle_sha256, project_key)
+  )`);
+  const rows = (
+    await client.query(
+      "SELECT project_key FROM onagre_local_import.staging_progress WHERE bundle_sha256=$1",
+      [progressSha256],
+    )
+  ).rows;
+  return new Set(rows.map((row) => row.project_key));
 }

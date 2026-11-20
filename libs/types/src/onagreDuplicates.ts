@@ -19,6 +19,7 @@ export type DuplicateDemande = DuplicateFacts & {
   key: string;
   id: string;
   linkedDossierId: number | null;
+  importedDossierId?: number;
   linkReason: string;
   question: string;
 };

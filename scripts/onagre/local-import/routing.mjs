@@ -43,11 +43,6 @@ export async function grantLocalReview(client, demandeKey, dossierId, reviewerId
     await client
       .trx("dossier_user_access")
       .insert({ dossier: dossierId, user_id: reviewerId, access_level: "instruct" });
-  await client
-    .trx("edge_personne_follows_dossier")
-    .insert({ dossier: dossierId, personne: reviewerId })
-    .onConflict(["dossier", "personne"])
-    .ignore();
   await client.query(
     "INSERT INTO onagre_local_import.identity VALUES ($1,$2,'dossier_user_access',$3,$4)",
     [

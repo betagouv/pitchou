@@ -3,6 +3,7 @@ import { connect, initialize } from "./local-import/connection.mjs";
 import { importSamples } from "./local-import/run.mjs";
 import { assertIgnoredFile } from "./local-import/files.mjs";
 import { uploadSpeciesFiles } from "./local-import/species.mjs";
+import { readAttachmentManifest } from "./local-import/attachments.mjs";
 const args = process.argv.slice(2),
   apply = args[0] === "--apply";
 if (apply) args.shift();
@@ -22,13 +23,17 @@ if (process.env.ONAGRE_LOCAL_REPORT) assertIgnoredFile(process.env.ONAGRE_LOCAL_
 const samples = await Promise.all(
   files.map(async (file) => JSON.parse(await readFile(file, "utf8"))),
 );
+const attachments = await readAttachmentManifest(process.env.ONAGRE_ATTACHMENT_MANIFEST);
 const client = await connect(process.env);
 let committed = false;
 try {
   await client.begin();
   await initialize(client);
   const generatedFiles = [];
-  const dossiers = await importSamples(client, samples, reviewerEmail, { files: generatedFiles });
+  const dossiers = await importSamples(client, samples, reviewerEmail, {
+    files: generatedFiles,
+    attachments,
+  });
   // Immutable, content-addressed file identities make a failed DB commit safe to retry.
   if (apply) await uploadSpeciesFiles(generatedFiles, process.env);
   await client.finish(apply);
@@ -51,6 +56,7 @@ try {
             reconciliation,
             outcomes,
             retainedRemovedRecords,
+            enrichment,
           }) => ({
             sourceKey,
             dossierId,
@@ -61,6 +67,7 @@ try {
             updated: outcomes.filter((o) => o.status === "updated").length,
             preservedLocalEdits: outcomes.flatMap((o) => o.preserved),
             retainedRemovedRecords,
+            enrichment,
           }),
         ),
       },

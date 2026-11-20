@@ -26,6 +26,7 @@ type JoinedRow = CriteriaColumns & {
   nids: number | null;
   oeufs: number | null;
   surface_habitat_detruit: number | null;
+  onagre_activity: string | null;
 };
 
 function criteriaAllowedOf(row: JoinedRow): QuantifiedImpact[] {
@@ -58,6 +59,7 @@ function toImpactEspece(row: JoinedRow): FrontEndImpactOnEspece {
     nids: row.nids,
     oeufs: row.oeufs,
     surfaceHabitatDetruit: row.surface_habitat_detruit,
+    ...(row.onagre_activity ? { onagreActivity: row.onagre_activity } : {}),
   };
 }
 
@@ -86,6 +88,7 @@ export function getImpactOnEspeces(
         "impact_espece.nids as nids",
         "impact_espece.oeufs as oeufs",
         "impact_espece.surface_habitat_detruit as surface_habitat_detruit",
+        "impact_espece.onagre_activity",
       ])
       // `espece_protegee` is a view, so there is no foreign key behind this join.
       .leftJoin("espece_protegee", { "espece_protegee.cd_ref": "impact_espece.cd_ref" })

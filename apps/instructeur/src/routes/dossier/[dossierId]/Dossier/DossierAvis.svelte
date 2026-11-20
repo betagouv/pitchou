@@ -3,6 +3,7 @@
   import { refreshDossierFull } from "#lib/dossier/dossier.ts";
   import { sendEvenement } from "#lib/shared/aarri.ts";
   import AvisExpert from "./Avis/AvisExpert.svelte";
+  import OnagreConsultations from "./Avis/OnagreConsultations.svelte";
   import { differenceInDays } from "date-fns";
   import ModalAddPieceJointe from "./ModalAddPieceJointe.svelte";
   import { readOnlyMode } from "./readOnly.ts";
@@ -37,6 +38,12 @@
   );
 
   const readOnly = readOnlyMode();
+  const onagreConsultations = $derived(
+    (readOnly.restricted ?? readOnly.current) ? [] : (dossier.onagreConsultations ?? []),
+  );
+  const onagreAvisIds = $derived(
+    new Set(onagreConsultations.map(({ avisExpertId }) => avisExpertId)),
+  );
 
   const idModalAddPieceJointeAvis = "modale-ajouter-piece-jointe-avis";
 
@@ -45,7 +52,7 @@
   const visibleAvisExpert = $derived(
     (readOnly.restricted ?? readOnly.current)
       ? dossier.avisExpert.filter(({ expert }) => isOfficialAvisExpert(expert))
-      : dossier.avisExpert,
+      : dossier.avisExpert.filter(({ id }) => !onagreAvisIds.has(id)),
   );
 
   let sortedAvisExpert = $derived(
@@ -68,13 +75,22 @@
     {#if !(readOnly.restricted ?? readOnly.current) && latestCnpnEmail}
       <CnpnEmailTracking event={latestCnpnEmail} />
     {/if}
+    {#if onagreConsultations.length}
+      <OnagreConsultations
+        consultations={onagreConsultations}
+        expertOpinions={dossier.avisExpert}
+        attachments={dossier.otherAttachments}
+        dossierId={dossier.id}
+        {deleteAvisExpert}
+      />
+    {/if}
     {#if sortedAvisExpert.length >= 1}
       <div class="flex flex-col gap-6">
         {#each sortedAvisExpert as avisExpert}
           <AvisExpert dossierId={dossier.id} {avisExpert} {deleteAvisExpert} />
         {/each}
       </div>
-    {:else}
+    {:else if onagreConsultations.length === 0}
       <p>
         <span class="fr-mb-3w">
           {(readOnly.restricted ?? readOnly.current)

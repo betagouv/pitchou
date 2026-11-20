@@ -9,13 +9,24 @@ import {
   type CommentWorkspace,
   type CommentChoice,
 } from "@pitchou/types/onagreComments.ts";
+import { currentCommentCounts, hasCommentDepotDates } from "./scope.ts";
 
 export async function loadCommentWorkspace(db: Knex, url: URL): Promise<CommentWorkspace> {
   const { category, search, outcome } = readFilters(url);
   if (!(await db.schema.hasTable("onagre_comment_group")))
     return emptyWorkspace(category, search, outcome);
+  const dateScoped = await hasCommentDepotDates(db);
+  const scoped = () => {
+    const query = db("onagre_comment_group as g");
+    if (dateScoped)
+      query.join(currentCommentCounts(db).as("scope"), {
+        "scope.group_id": "g.id",
+        "scope.review_hash": "g.review_hash",
+      });
+    return query;
+  };
   const base = () => {
-    const query = db("onagre_comment_group as g")
+    const query = scoped()
       .leftJoin("onagre_comment_decision as d", "d.group_id", "g.id")
       .where("g.category", category);
     if (search) query.whereILike("g.value", `%${search.replaceAll(/[\\%_]/gu, "\\$&")}%`);
@@ -24,10 +35,10 @@ export async function loadCommentWorkspace(db: Knex, url: URL): Promise<CommentW
   };
   const [{ count }, categories, refs] = await Promise.all([
     base().count({ count: "g.id" }).first() as Promise<{ count: string }>,
-    db("onagre_comment_group")
-      .select("category")
-      .count<{ category: CommentCategory; count: string }[]>({ count: "id" })
-      .groupBy("category"),
+    scoped()
+      .select("g.category")
+      .count<{ category: CommentCategory; count: string }[]>({ count: "g.id" })
+      .groupBy("g.category"),
     getReferentielRows(db),
   ]);
   const total = Number(count),
@@ -38,15 +49,21 @@ export async function loadCommentWorkspace(db: Knex, url: URL): Promise<CommentW
     Math.max(1, Math.ceil(total / pageSize)),
   );
   const columns = ["g.*", db.raw("to_jsonb(d) as decision")];
+  if (dateScoped)
+    columns.push(
+      db.raw(
+        "scope.demande_count::int as demande_count, scope.project_count::int as project_count",
+      ),
+    );
   const groups = (await base()
     .select(...columns)
-    .orderBy("g.demande_count", "desc")
+    .orderBy(dateScoped ? "scope.demande_count" : "g.demande_count", "desc")
     .orderBy("g.id")
     .limit(pageSize)
     .offset((page - 1) * pageSize)) as (CommentGroup & { decision: CommentDecision | null })[];
   const selectedId = url.searchParams.get("textGroup");
   const selected = selectedId
-    ? await db("onagre_comment_group as g")
+    ? await scoped()
         .leftJoin("onagre_comment_decision as d", "d.group_id", "g.id")
         .select(...columns)
         .where("g.id", selectedId)
@@ -65,6 +82,7 @@ export async function loadCommentWorkspace(db: Knex, url: URL): Promise<CommentW
     category,
     search,
     outcome,
+    dateScoped,
     choices: referenceChoices(refs),
   };
 }
