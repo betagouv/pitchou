@@ -1,0 +1,154 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API Pitchou",
+    "version": "1.0.0",
+    "description": "API de consultation pour les services partenaires habilités. Obtenez un jeton OAuth 2.0 via Client Credentials auprès du fournisseur indiqué lors de votre habilitation. Dans le bac à sable, utilisez le jeton d’accès dans Swagger UI."
+  },
+  "servers": [{ "url": "/api/v1" }],
+  "paths": {
+    "/dossiers/{id}/statut": {
+      "get": {
+        "operationId": "getDossierStatut",
+        "summary": "Consulter le statut d’un dossier",
+        "description": "Requiert la portée `dossiers:read:statut` et une habilitation explicite sur le dossier ou sur un groupe instructeur actif auquel il est affecté.",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statut du dossier",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DossierStatut" },
+                "example": {
+                  "id": 123,
+                  "statut": "instruction",
+                  "date_changement_statut": "2026-01-15T09:30:00.000Z"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "serviceBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Jeton d’accès OAuth 2.0 à durée courte émis pour Pitchou via Client Credentials."
+      }
+    },
+    "headers": {
+      "RequestId": {
+        "description": "Identifiant de la requête pour l’assistance",
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "Authenticate": { "schema": { "type": "string" } }
+    },
+    "schemas": {
+      "DossierId": { "type": "integer", "minimum": 1, "maximum": 2147483647, "example": 123 },
+      "DossierStatut": {
+        "type": "object",
+        "required": ["id", "statut", "date_changement_statut"],
+        "properties": {
+          "id": { "$ref": "#/components/schemas/DossierId" },
+          "statut": {
+            "type": "string",
+            "enum": [
+              "accompagnement_amont",
+              "etude_recevabilite",
+              "instruction",
+              "controle",
+              "classe_sans_suite",
+              "obligations_terminees"
+            ]
+          },
+          "date_changement_statut": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Date du dernier événement de phase enregistré, ou null en l’absence d’événement."
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "required": ["type", "title", "status"],
+        "properties": {
+          "type": { "type": "string", "format": "uri-reference", "example": "about:blank" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Identifiant de dossier invalide",
+        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "Unauthorized": {
+        "description": "Jeton absent ou invalide, ou client désactivé",
+        "headers": {
+          "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
+          "WWW-Authenticate": { "$ref": "#/components/headers/Authenticate" }
+        },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "Forbidden": {
+        "description": "Portée du jeton insuffisante",
+        "headers": {
+          "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
+          "WWW-Authenticate": { "$ref": "#/components/headers/Authenticate" }
+        },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "NotFound": {
+        "description": "Dossier introuvable ou hors de l’habilitation du client",
+        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "RateLimited": {
+        "description": "Quota de requêtes dépassé pour ce client",
+        "headers": {
+          "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
+          "Retry-After": { "schema": { "type": "integer" } }
+        },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "Unavailable": {
+        "description": "Service temporairement indisponible",
+        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      }
+    }
+  }
+}

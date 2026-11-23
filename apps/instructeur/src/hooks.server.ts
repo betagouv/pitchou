@@ -1,4 +1,5 @@
 import { canReadDossiers } from "#lib/server/dossierEntry.ts";
+import { handleExternalApi, isExternalApiPath } from "#lib/server/externalApi.ts";
 import { hasExpectedOrigin } from "@pitchou/server/requestOrigin.ts";
 import { readSession } from "@pitchou/server/session.ts";
 import { readSessionToken, setSessionCookie } from "#lib/server/session.ts";
@@ -78,7 +79,11 @@ const authenticate: Handle = async ({ event, resolve }) => {
   }
   return resolve(event);
 };
-export const handle = sequence(Sentry.sentryHandle(), requestLogger, authenticate);
+const handleBrowser = sequence(Sentry.sentryHandle(), requestLogger, authenticate);
+export const handle: Handle = (input) =>
+  isExternalApiPath(input.event.url.pathname) || isExternalApiPath(input.event.route.id ?? "")
+    ? handleExternalApi(input)
+    : handleBrowser(input);
 
 function isPublicRoute(path: string) {
   return (

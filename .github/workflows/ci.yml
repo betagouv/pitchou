@@ -31,8 +31,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 2
       - uses: ./.github/actions/setup
       - run: pnpm exec just check-format check-lint check-file-length
+      - name: Check the v1 OpenAPI contract
+        run: |
+          set -euo pipefail
+          contract=apps/instructeur/src/lib/server/externalApi/openapi.json
+          specs=$(mktemp -d)
+          cp "$contract" "$specs/revision.json"
+          oasdiff() {
+            docker run --rm --read-only --network none --user "$(id -u):$(id -g)" \
+              --volume "$specs:/spec:ro" \
+              tufin/oasdiff:v1.39.0@sha256:004bef22058ace818b61f0eb2f05efb89fc6a3882f68bf4db0b6a86f40723fe0 "$@"
+          }
+          oasdiff validate /spec/revision.json
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]] && git cat-file -e "HEAD^1:$contract"; then
+            git show "HEAD^1:$contract" > "$specs/base.json"
+            oasdiff breaking --fail-on WARN /spec/base.json /spec/revision.json
+          fi
 
   types:
     name: TypeScript

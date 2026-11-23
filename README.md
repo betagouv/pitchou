@@ -13,6 +13,8 @@ Front-end en Svelte
 Back-end en Node.js
 Base de données Postgres
 
+La [documentation de l’API externe](documentation/external-api.md) décrit le contrat versionné et l’habilitation des services partenaires.
+
 Le serveur récupère les données des dossiers via [l'API Démarche Numérique](https://doc.demarches-simplifiees.fr/api-graphql). Il en fait une sauvegarde régulière, parce que Démarches Simplfiées ne sauvegarde les données que temporairement (1 an pour le moment, nous allons demander 5 ans)
 
 ## En dév
