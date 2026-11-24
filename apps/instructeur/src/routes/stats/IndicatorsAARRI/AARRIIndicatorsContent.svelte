@@ -76,7 +76,7 @@
   <h2>Évolution</h2>
   <p>
     Évolution hebdomadaire du nombre d'utilisateurices par indicateur AARRI depuis le premier
-    évènement enregistré.
+    évènement enregistré. Chaque date indique le lundi de la semaine mesurée.
   </p>
 
   <AARRIEvolutionChart indicators={indicatorsByDate} />

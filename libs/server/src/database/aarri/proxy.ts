@@ -6,15 +6,7 @@ type ProxyCounts = { proxyImpact: number; proxyRetention: number };
 
 // Events between any two snapshot boundaries contribute to the same counts.
 // Group them first so the running totals only process the grouped counts.
-export async function calculateProxyIndicators(
-  weeks: string[],
-  observedAt: Date,
-  database = directDatabaseConnection,
-): Promise<Map<string, ProxyCounts>> {
-  const result: {
-    rows: { week: Date; proxy_impact: string; proxy_retention: string }[];
-  } = await database.raw(
-    `
+const proxyIndicatorsQuery = `
       with snapshots as (
         select week, cutoff - interval '30 days' as window_start, cutoff + interval '1 microsecond' as window_end
         from unnest(:weeks::date[]) as weeks(week)
@@ -71,13 +63,20 @@ export async function calculateProxyIndicators(
             width_bucket(through_window, occupied_buckets) as through_index
         ) as cutoff_indexes
       ) as counts
-    `,
-    {
-      weeks: weeks.map((week) => formatISO(new Date(week), { representation: "date" })),
-      observed_at: observedAt,
-      modifications: EVENEMENTS_MODIFICATIONS,
-    },
-  );
+`;
+
+export async function calculateProxyIndicators(
+  weeks: string[],
+  observedAt: Date,
+  database = directDatabaseConnection,
+): Promise<Map<string, ProxyCounts>> {
+  const result: {
+    rows: { week: Date; proxy_impact: string; proxy_retention: string }[];
+  } = await database.raw(proxyIndicatorsQuery, {
+    weeks: weeks.map((week) => formatISO(new Date(week), { representation: "date" })),
+    observed_at: observedAt,
+    modifications: EVENEMENTS_MODIFICATIONS,
+  });
 
   return new Map(
     result.rows.map(({ week, proxy_impact, proxy_retention }) => [
