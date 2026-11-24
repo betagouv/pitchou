@@ -84,7 +84,20 @@ test("shows both proxies in the summary, chart, comparison and methodology", asy
       expect.stringMatching(/^Proxy-rétention — .+ : 5$/u),
     ]),
   );
-  const table = page.getByRole("table");
+  const table = page.getByRole("table", {
+    name: /par indicateur entre/u,
+  });
+  const rowLabels = [...table.element().querySelectorAll("tbody td:first-child")].map((cell) =>
+    cell.textContent?.trim(),
+  );
+  expect(rowLabels).toEqual([
+    "Acquis",
+    "Activé",
+    "Proxy-rétention",
+    "Retenu",
+    "Proxy-impact",
+    "Impact",
+  ]);
   await expect
     .element(page.getByRole("link", { name: /Consulter les valeurs par semaine/u }))
     .toHaveAttribute("href", "#comparaison-aarri");

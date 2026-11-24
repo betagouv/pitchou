@@ -6,24 +6,25 @@ export const AARRI_SERIES = [
   },
   { key: "nombreUtilisateuriceActif", label: "Activé", color: "var(--artwork-minor-green-menthe)" },
   {
+    key: "nombreUtilisateuriceProxyRetenu",
+    label: "Proxy-rétention",
+    color: "var(--text-action-high-yellow-moutarde)",
+  },
+  {
     key: "nombreUtilisateuriceRetenu",
     label: "Retenu",
     color: "var(--artwork-minor-yellow-moutarde)",
   },
   {
+    key: "nombreUtilisateuriceProxyImpact",
+    label: "Proxy-impact",
+    color:
+      "color-mix(in srgb, var(--text-action-high-pink-tuile) 60%, var(--artwork-minor-purple-glycine))",
+  },
+  {
     key: "nombreUtilisateuriceImpact",
     label: "Impact",
     color: "var(--artwork-minor-red-marianne)",
-  },
-  {
-    key: "nombreUtilisateuriceProxyRetenu",
-    label: "Proxy-rétention",
-    color: "var(--artwork-minor-green-bourgeon)",
-  },
-  {
-    key: "nombreUtilisateuriceProxyImpact",
-    label: "Proxy-impact",
-    color: "var(--artwork-minor-purple-glycine)",
   },
 ] as const;
 
