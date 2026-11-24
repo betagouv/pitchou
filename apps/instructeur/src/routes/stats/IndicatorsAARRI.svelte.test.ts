@@ -71,14 +71,12 @@ test("shows both proxies in the summary, chart, comparison and methodology", asy
   expect(summary?.textContent).toMatch(/Proxy-impact\s*4/u);
   expect(summary?.textContent).toMatch(/Proxy-rétention\s*4/u);
   const chart = page.getByRole("img", { name: /par indicateur AARRI/u });
-  const proxyCurves = chart.element().querySelectorAll("path[stroke-dasharray]");
-  expect([...proxyCurves].map((path) => path.getAttribute("stroke-dasharray"))).toEqual([
-    "9 5",
-    "2 5",
-  ]);
-  const pointLabels = [...chart.element().querySelectorAll("circle title")].map(
-    (label) => label.textContent,
-  );
+  const chartElement = chart.element();
+  expect(chartElement.querySelectorAll("path[stroke-dasharray]")).toHaveLength(0);
+  const markers = [...chartElement.querySelectorAll("circle:has(title)")];
+  expect(markers.every((marker) => marker.getAttribute("r") === "3")).toBe(true);
+  expect(markers.every((marker) => marker.getAttribute("fill") !== "none")).toBe(true);
+  const pointLabels = markers.map((marker) => marker.querySelector("title")?.textContent);
   expect(pointLabels).toEqual(
     expect.arrayContaining([
       expect.stringMatching(/^Proxy-impact — .+ : 4$/u),
