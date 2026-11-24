@@ -7,14 +7,15 @@ import { readAttachmentManifest } from "./local-import/attachments.mjs";
 const args = process.argv.slice(2),
   apply = args[0] === "--apply";
 if (apply) args.shift();
-const [reviewerEmail, ...files] = args;
-if (
-  !reviewerEmail?.includes("@") ||
-  files.length === 0 ||
-  files.some((file) => file.startsWith("--"))
-) {
+const first = args[0];
+const reviewerEmail =
+  first?.includes("@") && !first.includes("/") && !first.endsWith(".json")
+    ? args.shift()
+    : undefined;
+const files = args;
+if (files.length === 0 || files.some((file) => file.startsWith("--"))) {
   console.error(
-    "Usage: node --env-file=.env --import tsx scripts/onagre/local-import.mjs [--apply] reviewer@email projet.json ...",
+    "Usage: node --env-file=.env --import tsx scripts/onagre/local-import.mjs [--apply] [reviewer@email] projet.json ...",
   );
   process.exit(1);
 }

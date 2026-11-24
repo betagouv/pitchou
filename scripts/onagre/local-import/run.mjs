@@ -18,7 +18,8 @@ export async function importSamples(client, projects, reviewerEmail, options = {
   validateProjects(projects);
   await lockDossierAccess(client.trx);
   const { excluded, blockedSiblings } = await assertNoUnreviewedDuplicates(client, projects);
-  const reviewer = await getReviewer(client, reviewerEmail);
+  const reviewer =
+    reviewerEmail === undefined ? undefined : await getReviewer(client, reviewerEmail);
   const report = [];
   for (const project of projects) {
     const links = await readReconciledLinks(client, project);
@@ -143,7 +144,7 @@ async function importDemandes(client, samples, reviewer, options, projectName, e
     for (const sourceId of attachments.ids.keys())
       targets.set(`onagre-national:piecesjointes:${sourceId}:attachment`, true);
     await writeConsultations(client, sample, Number(dossier.targetId), targets, attachments.ids);
-    await grantLocalReview(client, key, Number(dossier.targetId), reviewer.id);
+    if (reviewer) await grantLocalReview(client, key, Number(dossier.targetId), reviewer.id);
     const stale = (
       await client.query(
         "SELECT source_key FROM onagre_local_import.identity WHERE dossier_key=$1 AND table_name NOT IN ('dossier_user_access','dossier_demande')",

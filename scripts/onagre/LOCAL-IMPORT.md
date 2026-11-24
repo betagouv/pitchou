@@ -20,7 +20,7 @@ Review edits now belong in the project files. To rerun legacy preparation helper
 
 The importer now uses the shared application routing and access services in the same Knex transaction as its prepared SQL writes. It acquires the access lock before resolving the reviewer, groups all selected demandes, shares their direct grants and calls `recalculateAssignments` with `silent: true` after the complete batch. It neither calls the removed `pitchou_can_instruct` function nor writes effective group edges directly.
 
-Existing group rules and overrides determine the assignment. A direct instruction grant gives the explicitly supplied reviewer access. Following a dossier is a separate, manual action. Replay refuses to recreate a changed or revoked review grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
+Existing group rules and overrides determine the assignment on every import. Supplying a reviewer adds a direct instruction grant for local review. Following a dossier is a separate, manual action. Replay with a reviewer refuses to recreate that reviewer's changed or revoked grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
 
 Local databases that applied an intermediate version of the assignment branch may have a different schema despite recording similarly named migrations. Check migration history and actual tables before running migrations; a successful code merge does not upgrade the database.
 
@@ -28,12 +28,14 @@ Local databases that applied an intermediate version of the assignment branch ma
 
 `local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:5434/especes_pro_3731` or `127.0.0.1:5434/especes_pro_3731`. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
 
-Run from the repository root with an existing local instructeur email and explicit sample files:
+Run from the repository root with explicit sample files:
 
 ```sh
-node --env-file=.env --import tsx scripts/onagre/local-import.mjs reviewer@example.test .fleet/onagre/migration/projects/example.json
-node --env-file=.env --import tsx scripts/onagre/local-import.mjs --apply reviewer@example.test .fleet/onagre/migration/projects/example.json
+node --env-file=.env --import tsx scripts/onagre/local-import.mjs backups/onagre/migration/full/projects/example.json
+node --env-file=.env --import tsx scripts/onagre/local-import.mjs --apply backups/onagre/migration/full/projects/example.json
 ```
+
+To add an individual review grant, pass the email of an active local instructeur before the project files. Group routing also runs when the email is omitted.
 
 Without `--apply`, the transaction rolls back. PostgreSQL sequences can still advance during a dry run. With `--apply`, all selected dossiers commit together. `ONAGRE_LOCAL_REPORT` optionally writes a private JSON report; point it inside the ignored workspace.
 
