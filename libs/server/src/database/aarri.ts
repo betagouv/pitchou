@@ -2,6 +2,7 @@ import { differenceInCalendarWeeks } from "date-fns";
 import { directDatabaseConnection } from "../database.ts";
 import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
 import { calculateIndicatorAcquis } from "./aarri/acquis.ts";
+import { calculateProxyIndicators } from "./aarri/proxy.ts";
 import { calculateIndicatorActif, calculateIndicatorImpact } from "./aarri/seuils.ts";
 import { calculateIndicatorRetenu } from "./aarri/retenu.ts";
 
@@ -21,12 +22,16 @@ export async function indicatorsAARRI(): Promise<IndicatorsAARRI[]> {
   const actifs = await calculateIndicatorActif(nbSemainesObservees);
   const retenus = await calculateIndicatorRetenu(premiereSemaine ?? new Date());
   const impacts = await calculateIndicatorImpact(nbSemainesObservees);
-  return [...acquis.keys()].map((date) => ({
+  const weeks = [...acquis.keys()];
+  const proxies = await calculateProxyIndicators(weeks, new Date());
+  return weeks.map((date) => ({
     date,
     nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,
     nombreUtilisateuriceActif: actifs.get(date) ?? 0,
     nombreUtilisateuriceRetenu: retenus.get(date) ?? 0,
     nombreUtilisateuriceImpact: impacts.get(date) ?? 0,
+    nombreUtilisateuriceProxyImpact: proxies.get(date)?.proxyImpact ?? 0,
+    nombreUtilisateuriceProxyRetenu: proxies.get(date)?.proxyRetention ?? 0,
     nombreBaseUtilisateuricePotentielle: 300,
   }));
 }

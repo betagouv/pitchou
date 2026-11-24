@@ -15,6 +15,16 @@ export const AARRI_SERIES = [
     label: "Impact",
     color: "var(--artwork-minor-red-marianne)",
   },
+  {
+    key: "nombreUtilisateuriceProxyRetenu",
+    label: "Proxy-rétention",
+    color: "var(--artwork-minor-blue-cumulus)",
+  },
+  {
+    key: "nombreUtilisateuriceProxyImpact",
+    label: "Proxy-impact",
+    color: "var(--artwork-minor-purple-glycine)",
+  },
 ] as const;
 
 export function niceChartStep(max: number, targetTicks: number): number {

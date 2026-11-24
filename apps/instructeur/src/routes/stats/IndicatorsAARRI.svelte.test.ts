@@ -14,6 +14,8 @@ function snapshot(date: string, acquired: number): Indicators {
     nombreUtilisateuriceActif: 10,
     nombreUtilisateuriceRetenu: 5,
     nombreUtilisateuriceImpact: 2,
+    nombreUtilisateuriceProxyImpact: 3,
+    nombreUtilisateuriceProxyRetenu: 4,
   };
 }
 
@@ -56,6 +58,38 @@ test("shows an error when the indicators cannot load", async () => {
   await expect
     .element(page.getByRole("alert"))
     .toMatchTextContent("Impossible de charger les indicateurs.");
+});
+
+test("shows both proxies in the summary, chart, comparison and methodology", async () => {
+  const first = { ...snapshot("2026-10-01", 10), nombreUtilisateuriceProxyRetenu: 5 };
+  const last = { ...snapshot("2026-10-08", 20), nombreUtilisateuriceProxyImpact: 4 };
+  render(IndicatorsAARRI, { indicatorsByDateP: Promise.resolve([last, first]) });
+
+  const summaryHeading = page.getByRole("heading", { name: "État des lieux" });
+  await expect.element(summaryHeading).toBeVisible();
+  const summary = summaryHeading.element().closest("section");
+  expect(summary?.textContent).toMatch(/Proxy-impact\s*4/u);
+  expect(summary?.textContent).toMatch(/Proxy-rétention\s*4/u);
+  const chart = page.getByRole("img", { name: /par indicateur AARRI/u });
+  const pointLabels = [...chart.element().querySelectorAll("circle title")].map(
+    (label) => label.textContent,
+  );
+  expect(pointLabels).toEqual(
+    expect.arrayContaining([
+      expect.stringMatching(/^Proxy-impact — .+ : 4$/u),
+      expect.stringMatching(/^Proxy-rétention — .+ : 4$/u),
+      expect.stringMatching(/^Proxy-rétention — .+ : 5$/u),
+    ]),
+  );
+  const table = page.getByRole("table");
+  await expect
+    .element(table.getByRole("row").filter({ hasText: "Proxy-impact" }))
+    .toMatchTextContent(/\+1/u);
+  await expect
+    .element(table.getByRole("row").filter({ hasText: "Proxy-rétention" }))
+    .toMatchTextContent(/-1/u);
+  await expect.element(page.getByRole("heading", { name: "Proxy-impact" })).toBeVisible();
+  await expect.element(page.getByRole("heading", { name: "Proxy-rétention" })).toBeVisible();
 });
 
 test("handles an empty indicators response", async () => {

@@ -4,6 +4,8 @@ export interface IndicatorsAARRI {
   nombreUtilisateuriceActif: number;
   nombreUtilisateuriceRetenu: number;
   nombreUtilisateuriceImpact: number;
+  nombreUtilisateuriceProxyImpact: number;
+  nombreUtilisateuriceProxyRetenu: number;
   date: string;
 }
 
