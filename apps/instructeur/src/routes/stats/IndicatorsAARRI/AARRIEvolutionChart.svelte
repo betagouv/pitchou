@@ -130,9 +130,16 @@
           d={linePath(s.key)}
           fill="none"
           stroke={s.color}
+          stroke-dasharray={"dash" in s ? s.dash : undefined}
         />
         {#each points as point, i}
-          <circle cx={x(i)} cy={y(point[s.key])} r="3" fill={s.color}>
+          <circle
+            cx={x(i)}
+            cy={y(point[s.key])}
+            r={"radius" in s ? s.radius : 3}
+            fill={"radius" in s ? "none" : s.color}
+            stroke={"radius" in s ? s.color : undefined}
+          >
             <title>{s.label} — {labelDate(point.date)} : {point[s.key]}</title>
           </circle>
         {/each}
@@ -174,8 +181,17 @@
     <figcaption class="flex flex-wrap gap-6 justify-center mt-2">
       {#each series as s}
         <span class="inline-flex items-center gap-2">
-          <span class="inline-block w-4 h-4 rounded-[2px]" style={`background-color:${s.color}`}
-          ></span>
+          <svg aria-hidden="true" width="24" height="12">
+            <line
+              x1="0"
+              y1="6"
+              x2="24"
+              y2="6"
+              stroke-width="2.5"
+              stroke={s.color}
+              stroke-dasharray={"dash" in s ? s.dash : undefined}
+            />
+          </svg>
           {s.label}
           <span class="fr-sr-only">Dernière valeur</span>
           <strong>{points[points.length - 1][s.key]}</strong>

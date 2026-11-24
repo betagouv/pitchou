@@ -76,12 +76,21 @@
   <h2>Évolution</h2>
   <p>
     Évolution hebdomadaire du nombre d'utilisateurices par indicateur AARRI depuis le premier
-    évènement enregistré. Chaque date indique le lundi de la semaine mesurée.
+    évènement enregistré. Chaque date indique le lundi de la semaine mesurée. Les indicateurs proxy
+    sont calculés jusqu'au dimanche soir pour les semaines passées et jusqu'au moment de la
+    consultation pour la semaine en cours.
   </p>
 
   <AARRIEvolutionChart indicators={indicatorsByDate} />
 
-  <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurices par indicateur entre deux dates</h3>
+  <p class="fr-mt-2w">
+    <a href="#comparaison-aarri">Consulter les valeurs par semaine dans le tableau de comparaison</a
+    >.
+  </p>
+
+  <h3 class="fr-mt-4w" id="comparaison-aarri">
+    Évolution du nombre d'utilisateurices par indicateur entre deux dates
+  </h3>
 
   <div class="flex flex-wrap items-center gap-[0.5rem_1.5rem] fr-mb-3w">
     <div class="fr-select-group flex items-center gap-2 fr-mb-0">

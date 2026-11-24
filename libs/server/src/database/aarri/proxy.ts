@@ -8,7 +8,9 @@ type ProxyCounts = { proxyImpact: number; proxyRetention: number };
 // Group them first so the running totals only process the grouped counts.
 const proxyIndicatorsQuery = `
       with snapshots as (
-        select week, cutoff - interval '30 days' as window_start, cutoff + interval '1 microsecond' as window_end
+        select week,
+          cutoff - interval '720 hours' as window_start,
+          cutoff + interval '1 microsecond' as window_end
         from unnest(:weeks::date[]) as weeks(week)
         cross join lateral (
           select least((week + 7)::timestamptz - interval '1 microsecond', :observed_at) as cutoff
@@ -34,7 +36,7 @@ const proxyIndicatorsQuery = `
         cross join boundaries
         where e.evenement = any(:modifications::text[])
           and e.date <= :observed_at
-          and u.email not ilike '%@beta.gouv.fr'
+          and (u.email is null or u.email not ilike '%@beta.gouv.fr')
         group by e.personne, bucket
       ), running_totals as (
         select personne, bucket,

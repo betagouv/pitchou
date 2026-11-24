@@ -6,24 +6,24 @@ import { calculateProxyIndicators } from "./aarri/proxy.ts";
 import { calculateIndicatorActif, calculateIndicatorImpact } from "./aarri/seuils.ts";
 import { calculateIndicatorRetenu } from "./aarri/retenu.ts";
 
-async function firstEventWeek(): Promise<Date | undefined> {
+async function getObservation(): Promise<{ week: Date | null; observed_at: Date }> {
   const result = await directDatabaseConnection.raw(
-    `select date_trunc('week', min(date))::date as week from evenement_metrique`,
+    `select date_trunc('week', min(date))::date as week, now() as observed_at from evenement_metrique`,
   );
-  return result.rows[0]?.week ?? undefined;
+  return result.rows[0];
 }
 
 export async function indicatorsAARRI(): Promise<IndicatorsAARRI[]> {
-  const premiereSemaine = await firstEventWeek();
+  const { week: premiereSemaine, observed_at: observedAt } = await getObservation();
   const nbSemainesObservees = premiereSemaine
-    ? differenceInCalendarWeeks(new Date(), premiereSemaine, { weekStartsOn: 1 }) + 2
+    ? differenceInCalendarWeeks(observedAt, premiereSemaine, { weekStartsOn: 1 }) + 2
     : 5;
-  const acquis = await calculateIndicatorAcquis(nbSemainesObservees);
+  const acquis = await calculateIndicatorAcquis(nbSemainesObservees, observedAt);
   const actifs = await calculateIndicatorActif(nbSemainesObservees);
   const retenus = await calculateIndicatorRetenu(premiereSemaine ?? new Date());
   const impacts = await calculateIndicatorImpact(nbSemainesObservees);
   const weeks = [...acquis.keys()];
-  const proxies = await calculateProxyIndicators(weeks, new Date());
+  const proxies = await calculateProxyIndicators(weeks, observedAt);
   return weeks.map((date) => ({
     date,
     nombreUtilisateuriceAcquis: acquis.get(date) ?? 0,

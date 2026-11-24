@@ -71,6 +71,11 @@ test("shows both proxies in the summary, chart, comparison and methodology", asy
   expect(summary?.textContent).toMatch(/Proxy-impact\s*4/u);
   expect(summary?.textContent).toMatch(/Proxy-rétention\s*4/u);
   const chart = page.getByRole("img", { name: /par indicateur AARRI/u });
+  const proxyCurves = chart.element().querySelectorAll("path[stroke-dasharray]");
+  expect([...proxyCurves].map((path) => path.getAttribute("stroke-dasharray"))).toEqual([
+    "9 5",
+    "2 5",
+  ]);
   const pointLabels = [...chart.element().querySelectorAll("circle title")].map(
     (label) => label.textContent,
   );
@@ -82,6 +87,9 @@ test("shows both proxies in the summary, chart, comparison and methodology", asy
     ]),
   );
   const table = page.getByRole("table");
+  await expect
+    .element(page.getByRole("link", { name: /Consulter les valeurs par semaine/u }))
+    .toHaveAttribute("href", "#comparaison-aarri");
   await expect
     .element(table.getByRole("row").filter({ hasText: "Proxy-impact" }))
     .toMatchTextContent(/\+1/u);

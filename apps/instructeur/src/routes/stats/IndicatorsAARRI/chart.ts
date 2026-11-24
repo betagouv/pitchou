@@ -19,11 +19,15 @@ export const AARRI_SERIES = [
     key: "nombreUtilisateuriceProxyRetenu",
     label: "Proxy-rétention",
     color: "var(--artwork-minor-blue-cumulus)",
+    dash: "9 5",
+    radius: 5,
   },
   {
     key: "nombreUtilisateuriceProxyImpact",
     label: "Proxy-impact",
     color: "var(--artwork-minor-purple-glycine)",
+    dash: "2 5",
+    radius: 7,
   },
 ] as const;
 
