@@ -6,12 +6,17 @@ export type Involvement =
   | "deposant"
   | "mandataire"
   | "personne_contact"
+  /**
+   * Added after Onagre import. It refers to the legal representative of the dossier.
+   */
+  | "beneficiaire"
   | "beneficiaire_demarche_numerique";
 
 export const involvementLabels: Record<Involvement, string> = {
   deposant: "Déposant",
   mandataire: "Mandataire",
   personne_contact: "Personne contact",
+  beneficiaire: "Bénéficiaire",
   beneficiaire_demarche_numerique: "Bénéficiaire Démarche Numérique",
 };
 

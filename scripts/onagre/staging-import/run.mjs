@@ -20,6 +20,7 @@ export async function run({
     bundleSha256: sha256,
     progressSha256,
     reviewedThrough: bundle.reviewedThrough,
+    reviewerGrant: reviewerEmail !== undefined,
     startedAt: new Date().toISOString(),
     projects: 0,
     demandes: 0,
@@ -34,7 +35,7 @@ export async function run({
   };
   await client.begin();
   await initialize(client, "staging");
-  await getReviewer(client, reviewerEmail);
+  if (reviewerEmail !== undefined) await getReviewer(client, reviewerEmail);
   report.references = await restoreReferences(client, bundle.references);
   const done = await loadProgress(client, progressSha256);
   if (apply) await client.finish(true);

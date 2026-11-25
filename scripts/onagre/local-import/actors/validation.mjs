@@ -1,4 +1,5 @@
 import { isOrganisation } from "../../../../libs/common/src/organisation.ts";
+import { personFieldLength } from "./source.mjs";
 
 const personColumns = ["first_names", "last_name", "email", "address", "phone", "role"];
 const companyColumns = ["legal_name", "address", "postal_code", "insee_code"];
@@ -28,6 +29,7 @@ function validatePerson(person) {
   if (
     !fields(person, personColumns) ||
     !(person.first_names || person.last_name) ||
+    Object.values(person).some((value) => value && [...value].length > personFieldLength) ||
     (person.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(person.email))
   )
     throw new Error("Expected a prepared person identity with explicit nullable fields");
@@ -39,7 +41,9 @@ export function validateActors(proposal) {
     for (const contact of proposal.contacts) {
       if (
         !contact ||
-        Object.keys(contact).some((key) => !["sourceKey", "values"].includes(key)) ||
+        Object.keys(contact).some((key) => !["sourceKey", "values", "involvement"].includes(key)) ||
+        (contact.involvement !== undefined &&
+          !["personne_contact", "beneficiaire"].includes(contact.involvement)) ||
         typeof contact.sourceKey !== "string" ||
         !/^onagre-national:[\w:-]+$/u.test(contact.sourceKey) ||
         keys.has(contact.sourceKey)

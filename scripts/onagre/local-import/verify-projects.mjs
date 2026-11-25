@@ -58,7 +58,7 @@ try {
     .insert(groups.map((group) => ({ user_id: reviewer.id, groupe_instructeurs: group.id })));
   const beforeMail = await c.trx("email_notification_outbox").count("*").first();
   const run = (input = project) => importSamples(c, [input], reviewer.email);
-  const first = await run();
+  const first = await importSamples(c, [project]);
   assert.equal(first.length, 2);
   assert.equal(first[0].projectId, first[1].projectId);
   const ids = first.map((row) => row.dossierId);
@@ -78,12 +78,18 @@ try {
       2,
     );
   assert.deepEqual(await c.trx("email_notification_outbox").count("*").first(), beforeMail);
+  assert.deepEqual(await c.trx("dossier_user_access").whereIn("dossier", ids), []);
   assert.deepEqual(await c.trx("edge_personne_follows_dossier").whereIn("dossier", ids), []);
   await c.trx("edge_personne_follows_dossier").insert({ dossier: ids[0], personne: reviewer.id });
   const replay = await run();
   assert.deepEqual(
     replay.map((row) => [row.projectId, row.dossierId]),
     first.map((row) => [row.projectId, row.dossierId]),
+  );
+  assert.equal(
+    (await c.trx("dossier_user_access").whereIn("dossier", ids).where({ user_id: reviewer.id }))
+      .length,
+    2,
   );
   assert(
     replay.every(

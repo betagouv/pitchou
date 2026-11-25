@@ -79,8 +79,7 @@ async function resolvePorteur(client, proposal, previous, key, sourceKey, dossie
   return { results, porteurId, personId, organisationId, siret };
 }
 
-export async function writePorteur(client, sample, dossierId) {
-  const proposal = sample.proposal.porteur;
+export async function writePorteur(client, sample, dossierId, proposal = sample.proposal.porteur) {
   if (proposal === undefined) return [];
   const key = sample.identity.key,
     sourceKey = `${key}:porteur`;

@@ -57,6 +57,7 @@ export async function grantLocalReview(client, demandeKey, dossierId, reviewerId
 export async function finalizeRouting(client, dossierIds, reviewer) {
   for (const id of dossierIds) await shareDirectAccess(id, client.trx);
   await recalculateAssignments(client.trx, { dossiers: dossierIds, silent: true });
+  if (!reviewer) return;
   const access = await dossiersAccessibleToUser(dossierIds, reviewer.id, client.trx);
   if (dossierIds.some((id) => access.get(id) !== "complet"))
     throw new Error("Reviewer cannot instruct every imported demande");

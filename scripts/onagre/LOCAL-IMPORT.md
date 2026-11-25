@@ -20,20 +20,22 @@ Review edits now belong in the project files. To rerun legacy preparation helper
 
 The importer now uses the shared application routing and access services in the same Knex transaction as its prepared SQL writes. It acquires the access lock before resolving the reviewer, groups all selected demandes, shares their direct grants and calls `recalculateAssignments` with `silent: true` after the complete batch. It neither calls the removed `pitchou_can_instruct` function nor writes effective group edges directly.
 
-Existing group rules and overrides determine the assignment. A direct instruction grant gives the explicitly supplied reviewer access. Following a dossier is a separate, manual action. Replay refuses to recreate a changed or revoked review grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
+Existing group rules and overrides determine the assignment on every import. Supplying a reviewer adds a direct instruction grant for local review. Following a dossier is a separate, manual action. Replay with a reviewer refuses to recreate that reviewer's changed or revoked grant. Explicit group overrides and human edits are retained. See [the transaction contract](../../documentation/application-routing.md). Ask the owner about unresolved mapping or selection decisions.
 
 Local databases that applied an intermediate version of the assignment branch may have a different schema despite recording similarly named migrations. Check migration history and actual tables before running migrations; a successful code merge does not upgrade the database.
 
 ## Run locally
 
-`local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:5434/especes_pro_3731` or `127.0.0.1:5434/especes_pro_3731`. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
+`local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:<port>/especes_pro_3731` or `127.0.0.1:<port>/especes_pro_3731`. The port defaults to 5434; set `ONAGRE_LOCAL_DB_PORT` to use another one (for example 5432 with `compose.dev.yml`). `DATABASE_URL` must use exactly that port. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
 
-Run from the repository root with an existing local instructeur email and explicit sample files:
+Run from the repository root with explicit sample files:
 
 ```sh
-node --env-file=.env --import tsx scripts/onagre/local-import.mjs reviewer@example.test .fleet/onagre/migration/projects/example.json
-node --env-file=.env --import tsx scripts/onagre/local-import.mjs --apply reviewer@example.test .fleet/onagre/migration/projects/example.json
+node --env-file=.env --import tsx scripts/onagre/local-import.mjs backups/onagre/migration/full/projects/example.json
+node --env-file=.env --import tsx scripts/onagre/local-import.mjs --apply backups/onagre/migration/full/projects/example.json
 ```
+
+To add an individual review grant, pass the email of an active local instructeur before the project files. Group routing also runs when the email is omitted.
 
 Without `--apply`, the transaction rolls back. PostgreSQL sequences can still advance during a dry run. With `--apply`, all selected dossiers commit together. `ONAGRE_LOCAL_REPORT` optionally writes a private JSON report; point it inside the ignored workspace.
 
@@ -116,7 +118,16 @@ Straightforward mappings and mappings already validated by the team may be imple
 
 ## Porteurs and contacts
 
-Prepare identities by reading all relevant source columns together. Name fields can contain organisations or functions; `precisionpetitionnaire` and addresses can identify the actual organisation. Use the team's validated fallback from unusable `nompersonne`/`prenompersonne` to `nomcoordinateur`, and from empty `adressemailchefprojet` to `adressemailpetitionnaire`, after checking that the details belong to the chosen person. Do not mechanically concatenate conflicting identities. Empty values and placeholders such as `0` are not identities. Keep the choice, source fields and alternatives in each private JSON's decisions. The SQL importer consumes prepared identities; it does not guess from raw source columns.
+Prepare identities by reading all relevant source columns together. Name fields can contain organisations or functions; `precisionpetitionnaire` and addresses can identify the actual organisation. Do not mechanically concatenate conflicting identities. Keep the choice, source fields and alternatives in each private JSON's decisions.
+
+The importer then applies the owner's pétitionnaire decision of 25 November 2026 from the retained source rows (`actors/source.mjs`). The branch is `projet.petitionnairesid` → `petitionnaires.categorieid` → `categorie.typepersonne`:
+
+- **Personne Morale**: the prepared porteur applies unchanged. `prenompersonne`/`nompersonne` become a person with the `beneficiaire` involvement, kept as is (even `0` or an organisation name), without role, with `adressepetitionnaire` and `telephoneportablepetitionnaire` or else `telephonepetitionnaire`. Its email is a valid `adressemailpetitionnaire`, otherwise a valid `adressemailchefprojet` only when `nomcoordinateur` is empty.
+- **Personne Physique**: the porteur is the person from `prenompersonne`/`nompersonne`, without role, with `adressepetitionnaire`, `telephoneportablepetitionnaire` or else `telephonepetitionnaire`, and a valid `adressemailpetitionnaire`, otherwise `adressemailchefprojet` only when its local part contains the last name and the first name or its initial.
+- In both branches, a non-empty `nomcoordinateur` becomes a `personne_contact` with a valid `adressemailchefprojet`. The leading civility is removed, uppercase words form the last name and the other words the first names; without that signal, the last word is the last name.
+- An unknown category keeps the prepared porteur and contacts.
+
+Empty values, whitespace and `0` count as empty, except the Bénéficiaire's names. Person fields are limited to 255 characters: an over-long `adressepetitionnaire` is truncated (six demandes in the current files), and any other over-long value is refused at validation. `qualificationpersonne` is not imported. When the decision applies, earlier prepared contacts (`applicant-contact`) are removed on replay; one edited, reassigned or shared since then stops the import for reconciliation instead.
 
 The owner approved importing identifiable people as `personne_contact`, without accounts or access rights. `personneshabilitees` remains excluded, including from comments. A porteur may be a person or an organisation; the source category and contextual evidence determine which.
 

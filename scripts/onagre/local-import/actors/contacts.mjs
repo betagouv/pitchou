@@ -1,10 +1,12 @@
 import { writeRecord } from "../writer.mjs";
 import { identity, assertPrivatePerson } from "./identity.mjs";
 
-export async function writeContacts(client, sample, dossierId) {
+/** Writes each person with its dossier involvement (`personne_contact` unless stated). */
+export async function writeContacts(client, sample, dossierId, contacts) {
   const key = sample.identity.key,
     results = [];
-  for (const contact of sample.proposal.contacts ?? []) {
+  for (const contact of contacts) {
+    const involvement = contact.involvement ?? "personne_contact";
     const personKey = `${contact.sourceKey}:person`,
       actorKey = `${contact.sourceKey}:contact`;
     const person = await identity(client, key, personKey),
@@ -19,7 +21,7 @@ export async function writeContacts(client, sample, dossierId) {
         !current ||
         String(current.personne_physique) !== person.target_id ||
         current.dossier !== dossierId ||
-        current.involvement !== "personne_contact"
+        current.involvement !== involvement
       )
         throw new Error("Imported contact was deleted or reassigned; reconcile before importing");
       await assertPrivatePerson(client, person.target_id, dossierId);
@@ -43,7 +45,7 @@ export async function writeContacts(client, sample, dossierId) {
         {
           dossier: dossierId,
           personne_physique: Number(saved.targetId),
-          involvement: "personne_contact",
+          involvement,
         },
       ),
     );
