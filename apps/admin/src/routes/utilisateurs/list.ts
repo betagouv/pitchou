@@ -13,6 +13,7 @@ export const NO_GROUP = "aucun";
 export const NO_PROFILE = "aucun";
 
 const collator = new Intl.Collator("fr", { sensitivity: "base", numeric: true });
+const groupIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
 
 export function groupFilterOptions(groups: User["groupes"]) {
   const options = new Map<string, string>();
@@ -28,18 +29,14 @@ function positivePage(value: string | null) {
   const page = Number(value);
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
-export function parseQuery(
-  params: Pick<URLSearchParams, "get">,
-  groupeOptions: ReturnType<typeof groupFilterOptions>,
-) {
+export function parseQuery(params: Pick<URLSearchParams, "get">) {
   const sort = params.get("tri");
   const profile = params.get("profil") ?? "";
-  const groupe = params.get("groupe") ?? "";
+  const groupe = (params.get("groupe") ?? "").toLowerCase();
   return {
     search: params.get("q") ?? "",
     profile: profile === NO_PROFILE || Object.hasOwn(profiles, profile) ? profile : "",
-    groupe:
-      groupe === NO_GROUP || groupeOptions.some((option) => option.value === groupe) ? groupe : "",
+    groupe: groupe === NO_GROUP || groupIdPattern.test(groupe) ? groupe : "",
     sort: SORT_OPTIONS.some((option) => option.key === sort)
       ? (sort as SortKey)
       : ("email" as const),

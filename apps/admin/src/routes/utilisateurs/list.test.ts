@@ -57,7 +57,6 @@ it("falls back to valid view settings for malformed URLs", () => {
       new URLSearchParams(
         "q=élodie&groupe=inconnu&profil=inconnu&tri=inconnu&ordre=inconnu&actifs=-2&desactives=1.5",
       ),
-      [],
     ),
   ).toEqual({
     search: "élodie",
@@ -71,7 +70,6 @@ it("falls back to valid view settings for malformed URLs", () => {
   expect(
     parseQuery(
       new URLSearchParams("profil=instructeur&tri=groups&ordre=desc&actifs=4&desactives=2"),
-      [],
     ),
   ).toMatchObject({
     profile: "instructeur",
@@ -83,8 +81,12 @@ it("falls back to valid view settings for malformed URLs", () => {
 });
 
 it("combines group, profile and text filters using active memberships", () => {
-  const activeGroup = { id: "g1", name: "DDT 2", active: true };
-  const archivedGroup = { id: "g2", name: "Archivé", active: false };
+  const activeGroup = { id: "e815f62e-ff02-4cf1-9589-e07c862cb5ed", name: "DDT 2", active: true };
+  const archivedGroup = {
+    id: "e815f62e-ff02-4cf1-9589-e07c862cb5ee",
+    name: "Archivé",
+    active: false,
+  };
   const users = [
     user(1, { groupes: [activeGroup], bundles: ["instructeur"] }),
     user(2, { groupes: [activeGroup] }),
@@ -93,15 +95,23 @@ it("combines group, profile and text filters using active memberships", () => {
     user(5),
   ];
   const options = groupFilterOptions(users.flatMap((user) => user.groupes));
-  expect(options).toEqual([{ value: "g1", label: "DDT 2" }]);
+  expect(options).toEqual([{ value: activeGroup.id, label: "DDT 2" }]);
 
   const matchingIds = (query: string) =>
-    filterUsers(users, parseQuery(new URLSearchParams(query), options)).map((user) => user.id);
-  expect(matchingIds("groupe=g1")).toEqual([1, 2]);
-  expect(matchingIds("groupe=g1&profil=instructeur")).toEqual([1]);
-  expect(matchingIds("groupe=g1&profil=aucun")).toEqual([2]);
+    filterUsers(users, parseQuery(new URLSearchParams(query))).map((user) => user.id);
+  expect(matchingIds(`groupe=${activeGroup.id}`)).toEqual([1, 2]);
+  expect(matchingIds(`groupe=${activeGroup.id}&profil=instructeur`)).toEqual([1]);
+  expect(matchingIds(`groupe=${activeGroup.id}&profil=aucun`)).toEqual([2]);
+  expect(matchingIds(`groupe=${archivedGroup.id}`)).toEqual([]);
   expect(matchingIds("groupe=aucun&profil=aucun")).toEqual([3, 5]);
   expect(matchingIds("groupe=aucun&profil=aucun&q=archive")).toEqual([3]);
+});
+
+it("preserves a bookmarked group filter for an unavailable group", () => {
+  const groupId = "e815f62e-ff02-4cf1-9589-e07c862cb5ef";
+  const query = parseQuery(new URLSearchParams({ groupe: groupId.toUpperCase() }));
+  expect(query.groupe).toBe(groupId);
+  expect(filterUsers([user(1)], query)).toEqual([]);
 });
 
 it("keeps page links bounded while exposing the first, last and neighboring pages", () => {

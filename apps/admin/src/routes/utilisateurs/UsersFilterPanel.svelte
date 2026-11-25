@@ -29,6 +29,7 @@
         id="user-group-filter"
         class="min-w-0 flex-auto"
         ariaLabel="Filtrer par groupe"
+        placeholder="Groupe indisponible"
         options={[
           { value: "", label: "Tous les groupes" },
           { value: NO_GROUP, label: "Aucun groupe" },

@@ -168,6 +168,10 @@ test("users can be found, paginated and edited without losing their permissions"
   expect(await db("auth_permission_bundle").where({ user_id: target.id }).pluck("bundle")).toEqual([
     "instructeur",
   ]);
+  await page.goto(`${E2E_ADMIN_BASE_URL}/utilisateurs?groupe=e815f62e-ff02-4cf1-9589-e07c862cb5ef`);
+  await expect(active).toContainText("Aucun utilisateur ne correspond");
+  await filterToggle.click();
+  await expect(group).toHaveText("Groupe indisponible");
 });
 
 test("limited administrators are not offered unrelated write actions", async ({

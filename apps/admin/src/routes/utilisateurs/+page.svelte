@@ -12,7 +12,7 @@
   const groupeOptions = $derived(
     groupFilterOptions(data.groups ?? data.users.flatMap((user) => user.groupes)),
   );
-  const query = $derived(parseQuery(page.url.searchParams, groupeOptions));
+  const query = $derived(parseQuery(page.url.searchParams));
   function updateQuery(values: Record<string, string>, resetPages = true) {
     const url = new URL(page.url.href);
     if (resetPages) {
