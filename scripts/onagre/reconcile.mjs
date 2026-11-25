@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { connect } from "./local-import/connection.mjs";
+import { connect, localTargetPort } from "./local-import/connection.mjs";
 import { assertIgnoredFile } from "./local-import/files.mjs";
 import { validateProjects } from "./local-import/projects.mjs";
 import { readReconciledLinks } from "./local-import/linked.mjs";
@@ -104,7 +104,11 @@ try {
     JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
-        target: { host: "localhost", port: 5434, database: "especes_pro_3731" },
+        target: {
+          host: "localhost",
+          port: Number(localTargetPort(process.env)),
+          database: "especes_pro_3731",
+        },
         applied: false,
         limitation:
           "Candidates are not confirmed duplicates. Absence of a match does not prove absence of overlap. No adoption or merge is performed.",

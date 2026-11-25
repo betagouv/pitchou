@@ -26,7 +26,7 @@ Local databases that applied an intermediate version of the assignment branch ma
 
 ## Run locally
 
-`local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:5434/especes_pro_3731` or `127.0.0.1:5434/especes_pro_3731`. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
+`local-import.mjs` imports JSON proposals into the existing development database without resetting it. It accepts only `NODE_ENV=development`, the `dev` database user and `localhost:<port>/especes_pro_3731` or `127.0.0.1:<port>/especes_pro_3731`. The port defaults to 5434; set `ONAGRE_LOCAL_DB_PORT` to use another one (for example 5432 with `compose.dev.yml`). `DATABASE_URL` must use exactly that port. It rejects staging and connection-string overrides. This is a local review tool, not the production migration runner.
 
 Run from the repository root with explicit sample files:
 

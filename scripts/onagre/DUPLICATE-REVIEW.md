@@ -59,7 +59,8 @@ database migration workflow. Load a private reviewed JSON bundle with:
 node --env-file=.env --import tsx scripts/onagre/load-duplicate-review.mjs /path/to/private-review.json
 ```
 
-The loader requires the declared development database on localhost port 5434.
+The loader requires the declared development database on localhost port 5434,
+or on the port set in `ONAGRE_LOCAL_DB_PORT`.
 It only writes review evidence. The bundle format is
 `pitchou-onagre-duplicate-review-v1`, with a `projects` array of `DuplicateReview`
 values from `libs/types/src/onagreDuplicates.ts`. Each `review_hash` is the SHA256

@@ -4,19 +4,28 @@ const { types } = require("pg");
 const knex = require("knex");
 // Keep SQL calendar dates independent of the machine's timezone.
 types.setTypeParser(1082, (value) => value);
+const DEFAULT_LOCAL_PORT = "5434";
+// The port may differ between developer machines; host, database and user stay pinned.
+export function localTargetPort(env) {
+  const port = env.ONAGRE_LOCAL_DB_PORT ?? DEFAULT_LOCAL_PORT;
+  if (!/^[1-9][0-9]{0,4}$/u.test(port) || Number(port) > 65535)
+    throw new Error("ONAGRE_LOCAL_DB_PORT must be a TCP port number.");
+  return port;
+}
 export function assertLocalTarget(env) {
+  const port = localTargetPort(env);
   const url = new URL(env.DATABASE_URL ?? "");
   if (
     env.NODE_ENV !== "development" ||
     env.PUBLIC_PITCHOU_ENV === "staging" ||
     !["localhost", "127.0.0.1"].includes(url.hostname) ||
-    url.port !== "5434" ||
+    url.port !== port ||
     url.pathname !== "/especes_pro_3731" ||
     url.username !== "dev" ||
     url.search
   ) {
     throw new Error(
-      "This importer only supports the declared local development database on port 5434.",
+      `This importer only supports the declared local development database on port ${port} (set ONAGRE_LOCAL_DB_PORT to change it).`,
     );
   }
   return url.href;
