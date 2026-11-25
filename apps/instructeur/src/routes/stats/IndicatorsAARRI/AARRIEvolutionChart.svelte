@@ -16,7 +16,7 @@
   const innerWidth = WIDTH - MARGIN.left - MARGIN.right;
   const innerHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
 
-  // One curve per AARRI phase. Colors match the bars in IndicatorsAARRI.svelte.
+  // One curve per indicator. Colors match the summary bars.
   const series = AARRI_SERIES;
 
   type SeriesKey = (typeof series)[number]["key"];
@@ -67,7 +67,7 @@
   // Width of one transparent hit area (one per week).
   let columnWidth = $derived(points.length > 1 ? innerWidth / (points.length - 1) : innerWidth);
 
-  // Tooltip box geometry. One header row (date) + one row per phase.
+  // Tooltip box geometry. One header row (date) + one row per indicator.
   const TOOLTIP_WIDTH = 172;
   const TOOLTIP_ROW = 18;
   let tooltipHeight = $derived(14 + (series.length + 1) * TOOLTIP_ROW);
@@ -87,7 +87,7 @@
       viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="Évolution du nombre d'utilisateurices par phase AARRI au cours du temps"
+      aria-label="Évolution du nombre d'utilisateurices par indicateur AARRI au cours du temps"
       class="w-full h-auto"
       onmouseleave={() => (hoveredIndex = null)}
     >
@@ -123,7 +123,7 @@
         {/if}
       {/each}
 
-      <!-- one curve (+ point markers) per phase -->
+      <!-- one curve (+ point markers) per indicator -->
       {#each series as s}
         <path
           class="[stroke-width:2.5] fill-none"
@@ -136,14 +136,6 @@
             <title>{s.label} — {labelDate(point.date)} : {point[s.key]}</title>
           </circle>
         {/each}
-        <!-- last (rightmost) value of the curve -->
-        <text
-          class="text-[13px] font-bold"
-          x={x(points.length - 1) + 6}
-          y={y(points[points.length - 1][s.key])}
-          fill={s.color}
-          dominant-baseline="middle">{points[points.length - 1][s.key]}</text
-        >
       {/each}
 
       <!-- hover crosshair + tooltip for the hovered week -->
@@ -182,9 +174,12 @@
     <figcaption class="flex flex-wrap gap-6 justify-center mt-2">
       {#each series as s}
         <span class="inline-flex items-center gap-2">
-          <span class="inline-block w-4 h-4 rounded-[2px]" style={`background-color:${s.color}`}
-          ></span>
+          <svg aria-hidden="true" width="24" height="12">
+            <line x1="0" y1="6" x2="24" y2="6" stroke-width="2.5" stroke={s.color} />
+          </svg>
           {s.label}
+          <span class="fr-sr-only">Dernière valeur</span>
+          <strong>{points[points.length - 1][s.key]}</strong>
         </span>
       {/each}
     </figcaption>

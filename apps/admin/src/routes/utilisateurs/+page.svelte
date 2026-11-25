@@ -5,11 +5,13 @@
   import { page } from "$app/state";
   import { pageHeader } from "#lib/pageHeader.svelte.ts";
   import UsersTable from "./UsersTable.svelte";
-  import { normalize, userName, type User } from "./model.ts";
-  import { compareUsers, parseQuery } from "./list.ts";
+  import { compareUsers, filterUsers, groupFilterOptions, parseQuery } from "./list.ts";
   import type { PageData, ActionData } from "./$types";
 
   let { data, form }: { data: PageData; form: ActionData } = $props();
+  const groupeOptions = $derived(
+    groupFilterOptions(data.groups ?? data.users.flatMap((user) => user.groupes)),
+  );
   const query = $derived(parseQuery(page.url.searchParams));
   function updateQuery(values: Record<string, string>, resetPages = true) {
     const url = new URL(page.url.href);
@@ -30,17 +32,8 @@
     pageHeader.setAction({ label: "Préparer un compte", onClick: () => select(null) });
     return () => pageHeader.clearAction();
   });
-  const allUsers: User[] = $derived(data.users);
   const users = $derived(
-    allUsers
-      .filter(
-        (user) =>
-          (!query.profile || user.bundles.includes(query.profile)) &&
-          normalize(
-            `${userName(user)} ${user.email ?? ""} ${user.groupes.map((group) => group.name).join(" ")}`,
-          ).includes(normalize(query.search)),
-      )
-      .sort((a, b) => compareUsers(a, b, query.sort, query.order)),
+    filterUsers(data.users, query).sort((a, b) => compareUsers(a, b, query.sort, query.order)),
   );
   const sections = $derived([
     {
@@ -62,11 +55,11 @@
 
 <UsersHelp />
 {#if form?.message}<p class="fr-alert fr-alert--error" role="alert">{form.message}</p>{/if}
-<UsersControls {query} {updateQuery} />
+<UsersControls {query} {groupeOptions} {updateQuery} />
 {#each sections as section}
   <UsersTable
     {...section}
-    filtered={!!query.search || !!query.profile}
+    filtered={!!query.search || !!query.profile || !!query.groupe}
     onSelect={select}
     onPageChange={(next) =>
       updateQuery({ [section.pageKey]: next === 1 ? "" : String(next) }, false)}

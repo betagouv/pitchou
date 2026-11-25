@@ -49,6 +49,8 @@ function isIndicatorsAARRI(indicators: any): indicators is IndicatorsAARRI {
     typeof indicators.nombreUtilisateuriceActif === "number" &&
     typeof indicators.nombreUtilisateuriceRetenu === "number" &&
     typeof indicators.nombreUtilisateuriceImpact === "number" &&
+    typeof indicators.nombreUtilisateuriceProxyImpact === "number" &&
+    typeof indicators.nombreUtilisateuriceProxyRetenu === "number" &&
     isValidDate(indicators.date)
   ) {
     return true;
