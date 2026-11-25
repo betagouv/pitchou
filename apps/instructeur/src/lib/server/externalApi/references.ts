@@ -1,4 +1,5 @@
 import { json } from "@sveltejs/kit";
+import { calendarDateLabel } from "@pitchou/common/calendarDate.ts";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { externalKeyIsUsable } from "@pitchou/server/database/externalApi/access.ts";
 import { getTaxrefFiltres } from "@pitchou/server/taxref.ts";
@@ -136,7 +137,7 @@ async function readStats() {
 
 async function readAarri() {
   return (await indicatorsAARRI()).map((row) => ({
-    date: row.date,
+    date: calendarDateLabel(new Date(row.date)),
     potential_user_count: row.nombreBaseUtilisateuricePotentielle,
     acquired_user_count: row.nombreUtilisateuriceAcquis,
     active_user_count: row.nombreUtilisateuriceActif,

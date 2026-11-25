@@ -113,7 +113,14 @@ test("preserves dossier calendar dates and the permitted attribution of phase ev
       demarche_numerique_motivation: "Import Démarches Numériques",
     })),
   );
-  const [file] = await db("file").insert({ name: "Annexe", size: "0" }).returning("id");
+  const size = 2 ** 31;
+  const [file] = await db("file")
+    .insert({ name: "Annexe", size: String(size) })
+    .returning("id");
+  await db("edge_dossier__fichier_pieces_jointes_petitionnaire").insert({
+    dossier: dossier.id,
+    fichier: file.id,
+  });
   await db("other_attachment").insert({
     dossier: dossier.id,
     fichier: file.id,
@@ -125,9 +132,15 @@ test("preserves dossier calendar dates and the permitted attribution of phase ev
     expert: "CNPN",
     avis_date: calendarDay,
     saisine_date: calendarDay,
+    saisine_fichier: file.id,
   });
   const [decision] = await db("decision_administrative")
-    .insert({ dossier: dossier.id, signature_date: calendarDay, obligations_end_date: calendarDay })
+    .insert({
+      dossier: dossier.id,
+      signature_date: calendarDay,
+      obligations_end_date: calendarDay,
+      fichier: file.id,
+    })
     .returning("id");
   const [prescription] = await db("prescription")
     .insert({ decision_administrative: decision.id, due_date: calendarDay })
@@ -153,7 +166,6 @@ test("preserves dossier calendar dates and the permitted attribution of phase ev
     decisions: { signature_date: day, obligations_end_date: day },
     prescriptions: { due_date: day },
     controles: { controle_date: time, post_controle_action_date: day, next_due_date: day },
-    "pieces-jointes": { piece_date: day },
     "phase-events": {
       status: "instruction",
       status_changed_at: time,
@@ -167,6 +179,14 @@ test("preserves dossier calendar dates and the permitted attribution of phase ev
       expect.objectContaining(expected),
     ]);
   }
+  expect(await readJson(secret, `${path}/pieces-jointes`)).toEqual(
+    expect.arrayContaining([expect.objectContaining({ id: file.id, piece_date: day, size })]),
+  );
+  const browser = await fetchAuthenticated(cap, `${INTEGRATION_BASE_URL}/dossier/${dossier.id}`);
+  expect(browser.status).toBe(200);
+  expect((await browser.json()).piecesJointesPetitionnaires).toEqual([
+    expect.objectContaining({ id: file.id, size }),
+  ]);
   expect(await readJson(secret, `/dossiers/${restricted.id}/phase-events`)).toEqual([
     { status: "instruction", status_changed_at: time },
   ]);

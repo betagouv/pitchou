@@ -38,6 +38,12 @@ export function dossierFullForReadOnly(dossier: DossierFull): DossierFull {
     ...dossier,
     notificationSnapshot: undefined,
     cnpnEmailSentEvents: undefined,
+    evenementsPhase: dossier.evenementsPhase?.map((event) => ({
+      ...event,
+      caused_by_personne: null,
+      demarche_numerique_agent_email: null,
+      demarche_numerique_motivation: null,
+    })),
 
     // Commentaires are the service talking to itself. `free_comment` is the
     // legacy column the commentaires were migrated from; it is still selected

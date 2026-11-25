@@ -36,7 +36,7 @@ test("supports personal account and reference scopes without dossier permission"
     email,
     permissions: [],
     can_read_dossiers: false,
-    max_upload_size_bytes: expect.any(Number),
+    max_upload_size_bytes: process.env.MAX_UPLOAD_SIZE === "Infinity" ? null : expect.any(Number),
   });
   expect(await readJson(secret, "/account/api-keys")).toEqual([
     { ...key, lastUsedAt: expect.any(String) },
@@ -87,6 +87,11 @@ test("supports personal account and reference scopes without dossier permission"
     expect(await readJson(secret, `/references/${resource}`)).toBeDefined();
   }
   const date = new Date();
+  const {
+    rows: [{ week }],
+  } = await db.raw("select to_char(date_trunc('week', ?::timestamptz), 'YYYY-MM-DD') as week", [
+    date,
+  ]);
   await db("evenement_metrique").insert([
     { personne: user.id, evenement: "ajouterContrôle", date },
     ...Array.from({ length: 4 }, () => ({
@@ -97,7 +102,11 @@ test("supports personal account and reference scopes without dossier permission"
   ]);
   expect(await readJson(secret, "/references/aarri")).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ proxy_retained_user_count: 1, proxy_impacted_user_count: 1 }),
+      expect.objectContaining({
+        date: week,
+        proxy_retained_user_count: 1,
+        proxy_impacted_user_count: 1,
+      }),
     ]),
   );
   expect((await read(secret, "/dossiers")).status).toBe(403);

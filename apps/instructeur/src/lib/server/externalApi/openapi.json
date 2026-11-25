@@ -2088,7 +2088,11 @@
           "groupes": { "type": "array", "items": { "$ref": "#/components/schemas/Groupe" } },
           "permissions": { "type": "array", "items": { "type": "string" } },
           "can_read_dossiers": { "type": "boolean" },
-          "max_upload_size_bytes": { "type": "integer", "minimum": 1 }
+          "max_upload_size_bytes": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "description": "Taille maximale d’un fichier, en octets. La valeur null indique l’absence de limite."
+          }
         }
       },
       "GroupeWithMembers": {
@@ -2461,7 +2465,7 @@
           "proxy_impacted_user_count"
         ],
         "properties": {
-          "date": { "type": "string" },
+          "date": { "type": "string", "format": "date" },
           "potential_user_count": { "type": "integer" },
           "acquired_user_count": { "type": "integer" },
           "active_user_count": { "type": "integer" },

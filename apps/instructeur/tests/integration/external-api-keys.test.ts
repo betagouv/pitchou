@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import { expect, test } from "vitest";
 import { createSession } from "@pitchou/server/session.ts";
 import { admitExternalApiRequest } from "@pitchou/server/database/externalApi.ts";
-import { dossierReadScope as scope, retiredStatusScope } from "@pitchou/types/externalApi.ts";
+import {
+  dossierInternalScope,
+  dossierReadScope as scope,
+  retiredStatusScope,
+} from "@pitchou/types/externalApi.ts";
 import type { Permission } from "@pitchou/types/permissions.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
@@ -133,6 +137,11 @@ test("admins manage integration-owned keys and grants independently of their own
   expect(created.status).toBe(201);
   const { id } = await created.json();
   const service = `${integrations}/${id}`;
+  const invalid = await send(admin.session, `${service}/keys`, "POST", {
+    ...keyInput,
+    scopes: [dossierInternalScope],
+  });
+  expect(invalid.status).toBe(400);
   const issued = await send(admin.session, `${service}/keys`, "POST", keyInput);
   expect(issued.status).toBe(201);
   const { key, secret } = await issued.json();

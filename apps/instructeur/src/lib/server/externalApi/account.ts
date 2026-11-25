@@ -18,6 +18,7 @@ import { apiProblem } from "./responses.ts";
 export async function readAccount(userId: UserId, trx: Knex.Transaction) {
   const user = await getSessionUser(userId, trx);
   if (!user) return;
+  const uploadLimit = getMaxUploadSizeBytes();
   return {
     id: user.id,
     email: user.email,
@@ -26,7 +27,7 @@ export async function readAccount(userId: UserId, trx: Knex.Transaction) {
     groupes: user.groupes,
     permissions: user.permissions,
     can_read_dossiers: await canReadDossiers(user, trx),
-    max_upload_size_bytes: getMaxUploadSizeBytes(),
+    max_upload_size_bytes: Number.isFinite(uploadLimit) ? Math.floor(uploadLimit) : null,
   };
 }
 

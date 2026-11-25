@@ -57,7 +57,7 @@ export async function getOtherAttachmentsForDossier(
       "other_attachment.*",
       "file_other_attachment.name as file_name",
       "file_other_attachment.media_type as file_media_type",
-      databaseConnection.raw("file_other_attachment.size::integer as file_size"),
+      databaseConnection.raw("file_other_attachment.size::double precision as file_size"),
     ])
     .leftJoin("file as file_other_attachment", {
       "file_other_attachment.id": "other_attachment.fichier",

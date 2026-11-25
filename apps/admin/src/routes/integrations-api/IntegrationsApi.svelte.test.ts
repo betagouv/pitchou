@@ -5,7 +5,8 @@ import { cleanup, render } from "@testing-library/svelte";
 import { afterEach, expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { pageHeader } from "#lib/pageHeader.svelte.ts";
-import { dossierReadScope } from "@pitchou/types/externalApi.ts";
+import { dossierReadScope, serviceScopes } from "@pitchou/types/externalApi.ts";
+import ApiKeySettings from "@pitchou/ui/ApiKeySettings.svelte";
 import IntegrationsApi from "./+page.svelte";
 
 vi.mock("$app/navigation", () => ({ invalidateAll: vi.fn().mockResolvedValue(undefined) }));
@@ -82,4 +83,29 @@ test("adds a group grant using the custom dropdowns", async () => {
       body: JSON.stringify({ groupeId: "group-id", scope: dossierReadScope }),
     }),
   );
+});
+
+test("internal dossier access requires the basic dossier scope on a service key", async () => {
+  render(ApiKeySettings, {
+    endpoint: "/api/integrations-api/service-geomce/keys",
+    title: "Clés de service",
+    keys: [],
+    onChange: async () => {},
+    availableScopes: serviceScopes,
+  });
+  const read = page.getByRole("checkbox", { name: "Consulter les dossiers", exact: true });
+  const internal = page.getByRole("checkbox", {
+    name: "Consulter les informations internes des dossiers",
+  });
+  const readLabel = page.getByText("Consulter les dossiers", { exact: true });
+  const internalLabel = page.getByText("Consulter les informations internes des dossiers", {
+    exact: true,
+  });
+  await readLabel.click();
+  await expect.element(internal).toBeDisabled();
+  await readLabel.click();
+  await internalLabel.click();
+  await expect.element(read).toBeDisabled();
+  await internalLabel.click();
+  await expect.element(read).toBeEnabled();
 });

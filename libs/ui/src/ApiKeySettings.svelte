@@ -3,6 +3,7 @@
   import {
     apiKeyLifetimes,
     apiScopeLabels,
+    dossierInternalScope,
     dossierReadScope,
     type ApiKeyInput,
     type ApiKeySummary,
@@ -129,7 +130,15 @@
       <legend class="fr-label mb-1">Permissions de la clé</legend>
       {#each availableScopes as scope (scope)}
         <div class="fr-checkbox-group fr-checkbox-group--sm">
-          <input type="checkbox" id={`${formId}-${scope}`} value={scope} bind:group={scopes} />
+          <input
+            type="checkbox"
+            id={`${formId}-${scope}`}
+            value={scope}
+            bind:group={scopes}
+            disabled={(scope === dossierInternalScope &&
+              !selectedScopes.includes(dossierReadScope)) ||
+              (scope === dossierReadScope && selectedScopes.includes(dossierInternalScope))}
+          />
           <label class="fr-label" for={`${formId}-${scope}`}>{apiScopeLabels[scope]}</label>
         </div>
       {/each}

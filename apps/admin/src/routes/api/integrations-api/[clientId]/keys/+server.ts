@@ -4,7 +4,11 @@ import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { audit } from "@pitchou/server/administration/audit.ts";
 import { apiIntegration } from "@pitchou/server/database/externalApi/integrations.ts";
 import { createApiKey, revokeApiKey } from "@pitchou/server/database/externalApi/keys.ts";
-import { serviceScopes } from "@pitchou/types/externalApi.ts";
+import {
+  dossierInternalScope,
+  dossierReadScope,
+  serviceScopes,
+} from "@pitchou/types/externalApi.ts";
 import {
   apiKeyId,
   apiKeyResponseHeaders,
@@ -14,6 +18,9 @@ import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
   const input = parseApiKeyInput(await readJsonObject(request), serviceScopes);
+  if (input.scopes.includes(dossierInternalScope) && !input.scopes.includes(dossierReadScope)) {
+    error(400, "La lecture interne exige aussi la permission de consulter les dossiers.");
+  }
   const clientId = params.clientId;
   return withAdminWriteAccess(locals, "admin:api:manage", async (trx, actor) => {
     if (!(await apiIntegration(clientId, trx).first("client_id")))
