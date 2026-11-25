@@ -59,10 +59,13 @@ export async function readTaxref(params: URLSearchParams) {
 export async function readBdcStatuts(params: URLSearchParams) {
   const search = parseSearch(params, ["status", "iucn"], bdcSortFields);
   if (!search) return apiProblem(400, "Filtres de référentiel invalides");
+  const category = params.get("iucn");
+  const uicn = parseUicnFilter(category);
+  if (category !== null && !uicn) return apiProblem(400, "Catégorie UICN invalide");
   const { rows, ...page } = await searchBdcStatut({
     ...search,
     statut: params.get("status") ?? "",
-    uicn: parseUicnFilter(params.get("iucn")),
+    uicn,
   });
   return {
     ...page,

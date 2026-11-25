@@ -4,6 +4,9 @@ import { withDossierRead } from "#lib/server/externalApi/read.ts";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = ({ locals, params }) =>
-  withDossierRead(locals, params.id, async (id, _internal, trx, _principal, access) =>
-    json(await readExternalDossier(id, access, trx)),
+  withDossierRead(
+    locals,
+    params.id,
+    (id, _internal, trx, _principal, access) => readExternalDossier(id, access, trx),
+    json,
   );

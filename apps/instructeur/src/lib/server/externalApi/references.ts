@@ -129,6 +129,8 @@ async function readAarri() {
     active_user_count: row.nombreUtilisateuriceActif,
     retained_user_count: row.nombreUtilisateuriceRetenu,
     impacted_user_count: row.nombreUtilisateuriceImpact,
+    proxy_retained_user_count: row.nombreUtilisateuriceProxyRetenu,
+    proxy_impacted_user_count: row.nombreUtilisateuriceProxyImpact,
   }));
 }
 

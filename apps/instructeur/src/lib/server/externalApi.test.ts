@@ -81,6 +81,23 @@ test("ignores browser authentication and returns a Bearer challenge", async () =
   expect(admitExternalApiRequest).not.toHaveBeenCalled();
 });
 
+test("rejects JWT credentials when OAuth is disabled", async () => {
+  vi.stubEnv("EXTERNAL_API_ISSUER", "");
+  vi.stubEnv("EXTERNAL_API_AUDIENCE", "");
+  vi.stubEnv("EXTERNAL_API_JWKS_URL", "");
+  const response = await callDossier(await signToken());
+  expect(response.status).toBe(401);
+  expect(response.headers.get("WWW-Authenticate")).toContain('error="invalid_token"');
+  expect(admitExternalApiRequest).not.toHaveBeenCalled();
+});
+
+test("reports an unavailable verifier when OAuth is only partially configured", async () => {
+  vi.stubEnv("EXTERNAL_API_JWKS_URL", "");
+  const response = await callDossier(await signToken());
+  expect(response.status).toBe(503);
+  expect(admitExternalApiRequest).not.toHaveBeenCalled();
+});
+
 test.each([
   ["another audience", { aud: "https://another-api.example" }, "at+jwt"],
   ["another issuer", { iss: "https://another-issuer.example" }, "at+jwt"],
@@ -107,7 +124,7 @@ test("checks dossier grants and revocation for each call with the same token", a
   expect(missing.status).toBe(404);
   const timestamp = new Date("2026-11-20T11:24:00Z");
   const dossier = { id: 123, status: "instruction", status_changed_at: timestamp.toISOString() };
-  vi.mocked(withExternalDossier).mockResolvedValue(Response.json(dossier));
+  vi.mocked(withExternalDossier).mockResolvedValue(dossier);
   const response = await callDossier(token);
   expect(withExternalDossier).toHaveBeenLastCalledWith(
     { kind: "service", clientId, scopes: new Set([scope]) },

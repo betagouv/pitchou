@@ -14,6 +14,8 @@ Dans l’application admin, ouvrez **Intégrations API** (`/integrations-api`). 
 
 Créez ensuite une clé pour ce service avec les permissions convenues. Transmettez le jeton par un canal privé et envoyez l’URL de l’API au partenaire. Plusieurs clés peuvent coexister pendant un renouvellement. Révoquer une clé retire son accès. Désactiver le service bloque toutes ses clés et ses autres identifiants. Les clés de service appartiennent à l’intégration. Les changements effectués par les administrateurs sont enregistrés dans le journal d’administration.
 
+Au premier déploiement, l’application instructeur applique les migrations à la base partagée. Déployez-la en premier pour rendre la gestion des intégrations disponible dès le démarrage de l’administration.
+
 ## Permissions et ressources
 
 | Permission               | Ressources accessibles                                                                                                                                                                                                 |

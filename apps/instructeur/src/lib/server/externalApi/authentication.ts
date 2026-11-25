@@ -2,8 +2,7 @@ import { createRemoteJWKSet, errors, jwtVerify } from "jose";
 
 const maximumTokenAge = 600;
 
-function readHttpsUrl(value: string | undefined) {
-  if (!value) throw new Error("Missing OAuth URL");
+function readHttpsUrl(value: string) {
   const url = new URL(value);
   if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash) {
     throw new Error("Expected an HTTPS OAuth URL without credentials, query or fragment");
@@ -11,11 +10,9 @@ function readHttpsUrl(value: string | undefined) {
   return url;
 }
 
-function configureVerifier() {
-  const { EXTERNAL_API_ISSUER: issuer, EXTERNAL_API_AUDIENCE: audience } = process.env;
-  if (!issuer || !audience) throw new Error("Missing external API OAuth issuer or audience");
+function configureVerifier(issuer: string, audience: string, jwksUrl: string) {
   readHttpsUrl(issuer);
-  const keys = createRemoteJWKSet(readHttpsUrl(process.env.EXTERNAL_API_JWKS_URL));
+  const keys = createRemoteJWKSet(readHttpsUrl(jwksUrl));
   return (token: string) =>
     jwtVerify(token, keys, {
       algorithms: ["RS256", "ES256"],
@@ -31,7 +28,15 @@ function configureVerifier() {
 let verifyToken: ReturnType<typeof configureVerifier> | undefined;
 
 export async function verifyExternalApiToken(token: string) {
-  verifyToken ??= configureVerifier();
+  const {
+    EXTERNAL_API_ISSUER: issuer,
+    EXTERNAL_API_AUDIENCE: audience,
+    EXTERNAL_API_JWKS_URL: jwksUrl,
+  } = process.env;
+  if (!issuer && !audience && !jwksUrl) return null;
+  if (!issuer || !audience || !jwksUrl)
+    throw new Error("Incomplete external API OAuth configuration");
+  verifyToken ??= configureVerifier(issuer, audience, jwksUrl);
   try {
     const { payload } = await verifyToken(token);
     const { client_id: clientId, sub, jti, exp, iat, scope } = payload;

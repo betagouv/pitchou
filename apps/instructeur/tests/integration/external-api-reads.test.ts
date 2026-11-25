@@ -109,6 +109,7 @@ test("uses the same dossier and file restrictions for related reads and download
   ]);
   const response = await read(secret, files[0].url);
   expect(response.status).toBe(200);
+  expect(response.headers.get("content-type")).toBe("text/plain");
   expect(await response.text()).toBe("contenu");
   expect((await read(secret, files[0].url, "HEAD")).headers.get("content-length")).toBe("7");
 });

@@ -68,7 +68,7 @@ export function apiIntegration(clientId: string, db: Knex) {
   return db("external_api_client").where({ client_id: clientId });
 }
 
-export function changeApiIntegrationGrant(
+export async function changeApiIntegrationGrant(
   clientId: string,
   scope: ApiGrant["scope"],
   target: ApiGrantTarget,
@@ -85,5 +85,7 @@ export function changeApiIntegrationGrant(
   const grants = db(
     "dossierId" in target ? "external_api_dossier_grant" : "external_api_groupe_grant",
   );
-  return add ? grants.insert(values).onConflict().ignore() : grants.where(values).del();
+  if (!add) return (await grants.where(values).del()) > 0;
+  const inserted = await grants.insert(values).onConflict().ignore().returning("client_id");
+  return inserted.length > 0;
 }

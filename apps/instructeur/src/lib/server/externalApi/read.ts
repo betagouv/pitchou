@@ -31,7 +31,7 @@ export function parseDossierId(id: string): DossierId | undefined {
   return /^[1-9]\d{0,9}$/u.test(id) && value <= 2_147_483_647 ? (value as DossierId) : undefined;
 }
 
-export function withDossierRead(
+export function withDossierRead<T>(
   locals: App.Locals,
   id: string,
   read: (
@@ -40,18 +40,19 @@ export function withDossierRead(
     trx: Knex.Transaction,
     principal: ExternalApiPrincipal,
     access: DossierAccess,
-  ) => Promise<Response>,
+  ) => Promise<T | undefined>,
+  respond: (data: T) => Response | Promise<Response>,
 ) {
   return withApiScope(locals, dossierReadScope, async (principal) => {
     const dossierId = parseDossierId(id);
     if (!dossierId) return apiProblem(400, "Identifiant de dossier invalide");
-    const response = await withExternalDossier(
+    const data = await withExternalDossier(
       principal,
       dossierId,
       (access, trx) => read(dossierId, access !== "lecture", trx, principal, access),
       directDatabaseConnection,
     );
-    return response ?? apiNotFound();
+    return data === undefined ? apiNotFound() : respond(data);
   });
 }
 

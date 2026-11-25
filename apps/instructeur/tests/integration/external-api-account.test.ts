@@ -37,7 +37,8 @@ test("supports personal account and reference scopes without dossier permission"
   });
   await db("dossier_search").insert({ personne: user.id, text: "Ancienne recherche" });
   expect(await readJson(secret, "/account/recent-searches")).toEqual([]);
-  expect(await readJson(secret, "/references/bdc-statuts")).toMatchObject({ rows: [] });
+  expect(await readJson(secret, "/references/bdc-statuts?iucn=VU")).toMatchObject({ rows: [] });
+  expect((await read(secret, "/references/bdc-statuts?iucn=LC")).status).toBe(400);
   await db("espece_taxref").insert({
     cd_nom: "123",
     cd_ref: "123",
@@ -66,10 +67,23 @@ test("supports personal account and reference scopes without dossier permission"
     "activites",
     "impacts-especes",
     "stats",
-    "aarri",
   ]) {
     expect(await readJson(secret, `/references/${resource}`)).toBeDefined();
   }
+  const date = new Date();
+  await db("evenement_metrique").insert([
+    { personne: user.id, evenement: "ajouterContrôle", date },
+    ...Array.from({ length: 4 }, () => ({
+      personne: user.id,
+      evenement: "modifierPrescription",
+      date,
+    })),
+  ]);
+  expect(await readJson(secret, "/references/aarri")).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ proxy_retained_user_count: 1, proxy_impacted_user_count: 1 }),
+    ]),
+  );
   expect((await read(secret, "/dossiers")).status).toBe(403);
   const write = await fetch(INTEGRATION_BASE_URL + "/api/v1/account", {
     method: "POST",

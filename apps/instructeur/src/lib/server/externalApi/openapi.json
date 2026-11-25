@@ -539,7 +539,7 @@
             "description": "Télécharger une pièce jointe",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
-              "application/octet-stream": {
+              "*/*": {
                 "schema": { "type": "string", "format": "binary" }
               }
             }
@@ -808,7 +808,7 @@
             "name": "iucn",
             "in": "query",
             "description": "Catégorie de la liste rouge nationale.",
-            "schema": { "type": "string" }
+            "schema": { "type": "string", "enum": ["CR", "EN", "VU"] }
           },
           {
             "name": "sort",
@@ -1991,7 +1991,9 @@
           "acquired_user_count",
           "active_user_count",
           "retained_user_count",
-          "impacted_user_count"
+          "impacted_user_count",
+          "proxy_retained_user_count",
+          "proxy_impacted_user_count"
         ],
         "properties": {
           "date": { "type": "string" },
@@ -1999,7 +2001,9 @@
           "acquired_user_count": { "type": "integer" },
           "active_user_count": { "type": "integer" },
           "retained_user_count": { "type": "integer" },
-          "impacted_user_count": { "type": "integer" }
+          "impacted_user_count": { "type": "integer" },
+          "proxy_retained_user_count": { "type": "integer" },
+          "proxy_impacted_user_count": { "type": "integer" }
         }
       }
     },

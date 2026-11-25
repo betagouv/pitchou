@@ -94,15 +94,17 @@ export async function loadFichierContent(
   body: Readable;
   size?: number;
 } | null> {
-  const f = await getFile(fileId, databaseConnection);
-  if (!f) return null;
+  const file = await getFile(fileId, databaseConnection);
+  return file ? loadStoredFichier(file) : null;
+}
 
-  const s3 = await getObject(fileKey(fileId));
+export async function loadStoredFichier(file: Pick<File, "id" | "name" | "media_type" | "size">) {
+  const s3 = await getObject(fileKey(file.id));
   return {
-    name: f.name,
-    media_type: f.media_type,
+    name: file.name,
+    media_type: file.media_type,
     body: s3.body,
-    size: f.size != null && f.size !== "" ? Number(f.size) : undefined,
+    size: file.size != null && file.size !== "" ? Number(file.size) : undefined,
   };
 }
 

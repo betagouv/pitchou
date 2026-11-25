@@ -17,12 +17,17 @@ export const GET: RequestHandler = ({ locals, params }) => {
   )
     return apiNotFound();
 
-  return withDossierRead(locals, params.id, async (id, internal, trx, principal) => {
-    if (isResource(sharedDossierResources, resource))
-      return json(await sharedDossierResources[resource](id, internal, trx));
-    if (isResource(internalDossierResources, resource))
-      return internal ? json(await internalDossierResources[resource](id, trx)) : apiNotFound();
-    const userId = principal.kind === "personal" ? principal.userId : null;
-    return json(await listDossierFollowers(id, userId, internal, trx));
-  });
+  return withDossierRead(
+    locals,
+    params.id,
+    async (id, internal, trx, principal) => {
+      if (isResource(sharedDossierResources, resource))
+        return sharedDossierResources[resource](id, internal, trx);
+      if (isResource(internalDossierResources, resource))
+        return internal ? internalDossierResources[resource](id, trx) : undefined;
+      const userId = principal.kind === "personal" ? principal.userId : null;
+      return listDossierFollowers(id, userId, internal, trx);
+    },
+    json,
+  );
 };

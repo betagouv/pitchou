@@ -1,32 +1,50 @@
 import { Readable } from "node:stream";
 import { error } from "@sveltejs/kit";
-import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
-import { getFile } from "@pitchou/server/database/file.ts";
+import { loadFichierContent, loadStoredFichier } from "@pitchou/server/database/fichier.ts";
+import type File from "@pitchou/types/database/public/File.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
-import type { Knex } from "knex";
 
-export async function downloadFichierResponse(
-  fileId: FileId,
-  options?: { headOnly: boolean; db: Knex.Transaction },
-): Promise<Response> {
-  const fichier = options?.headOnly
-    ? await getFile(fileId, options.db)
-    : await loadFichierContent(fileId, options?.db);
+export async function downloadFichierResponse(fileId: FileId): Promise<Response> {
+  const fichier = await loadFichierContent(fileId);
   if (!fichier) {
     error(404, "Fichier non trouvé");
   }
+  return fichierResponse(fichier);
+}
 
-  const nomAscii = fichier.name
+export async function downloadStoredFichierResponse(
+  file: Pick<File, "id" | "name" | "media_type" | "size">,
+  headOnly: boolean,
+): Promise<Response> {
+  const fichier = headOnly ? file : await loadStoredFichier(file);
+  return fichierResponse({
+    ...fichier,
+    media_type: fichier.media_type || "application/octet-stream",
+  });
+}
+
+function fichierResponse(fichier: {
+  name: string;
+  media_type: string | null;
+  size?: string | number;
+  body?: Readable;
+}): Response {
+  const asciiName = fichier.name
     .normalize("NFD")
     // strip diacritics
     .replaceAll(/[\u0300-\u036F]/gu, "")
     // Keep printable ASCII in the header fallback.
-    .replaceAll(/[^\u0020-\u007E]/gu, "");
+    .replaceAll(/[^\u0020-\u007E]/gu, "")
+    .replaceAll(/["\\]/gu, "\\$&");
+  const encodedName = encodeURIComponent(fichier.name).replaceAll(
+    /['()*]/gu,
+    (character) => `%${character.codePointAt(0)!.toString(16).toUpperCase()}`,
+  );
 
   const headers = new Headers();
   headers.set(
     "content-disposition",
-    `attachment; filename="${nomAscii}"; filename*=UTF-8''${encodeURI(fichier.name)}`,
+    `attachment; filename="${asciiName}"; filename*=UTF-8''${encodedName}`,
   );
   if (fichier.media_type) {
     headers.set("content-type", fichier.media_type);
@@ -35,7 +53,7 @@ export async function downloadFichierResponse(
     headers.set("content-length", String(fichier.size));
   }
 
-  if (!("body" in fichier)) return new Response(null, { headers });
+  if (!fichier.body) return new Response(null, { headers });
   const body =
     fichier.body instanceof Readable
       ? (Readable.toWeb(fichier.body) as ReadableStream)

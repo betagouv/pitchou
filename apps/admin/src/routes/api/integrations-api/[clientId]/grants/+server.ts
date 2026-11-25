@@ -43,12 +43,13 @@ const change: RequestHandler = async ({ locals, params, request }) => {
       if (!(await resource.forKeyShare().first("id")))
         error(404, "Dossier ou groupe actif introuvable.");
     }
-    await changeApiIntegrationGrant(clientId, scope, target, add, trx);
-    await audit(trx, actor.id, add ? "api.grant.created" : "api.grant.revoked", {
-      clientId,
-      scope,
-      ...target,
-    });
+    if (await changeApiIntegrationGrant(clientId, scope, target, add, trx)) {
+      await audit(trx, actor.id, add ? "api.grant.created" : "api.grant.revoked", {
+        clientId,
+        scope,
+        ...target,
+      });
+    }
     return new Response(null, { status: 204 });
   });
 };

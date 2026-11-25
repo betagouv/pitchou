@@ -144,8 +144,16 @@ test("admins manage integration-owned keys and grants independently of their own
 
   const grant = { dossierId: visible.id, scope };
   expect((await send(admin.session, `${service}/grants`, "POST", grant)).status).toBe(204);
+  expect((await send(admin.session, `${service}/grants`, "POST", grant)).status).toBe(204);
   expect((await readDossier(visible.id, secret)).status).toBe(200);
   expect((await send(admin.session, `${service}/grants`, "DELETE", grant)).status).toBe(204);
+  expect((await send(admin.session, `${service}/grants`, "DELETE", grant)).status).toBe(204);
+  expect(
+    await db("administration_event")
+      .whereLike("action", "api.grant.%")
+      .orderBy("id")
+      .pluck("action"),
+  ).toEqual(["api.grant.created", "api.grant.revoked"]);
   expect((await readDossier(visible.id, secret)).status).toBe(404);
   expect((await send(admin.session, `${service}/grants`, "POST", grant)).status).toBe(204);
 
