@@ -18,9 +18,10 @@ export type CommentaireView = Pick<Commentaire, "id" | "content" | "created_at" 
  * Raw SQL selecting the content of a dossier's most recent commentaire, to embed in
  * queries on the `dossier` table.
  */
-export const latestCommentaireSubquery = `(select content from commentaire
+export const latestCommentaireExpression = `(select content from commentaire
   where commentaire.dossier = dossier.id
-  order by created_at desc, id desc limit 1) as "latestCommentaire"`;
+  order by created_at desc, id desc limit 1)`;
+export const latestCommentaireSubquery = `${latestCommentaireExpression} as "latestCommentaire"`;
 
 const viewColumns = [
   "commentaire.id",

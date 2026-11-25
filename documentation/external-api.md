@@ -1,6 +1,6 @@
 # API externe Pitchou
 
-Le service instructeur publie le contrat OpenAPI sur `/api/v1/openapi.json` et Swagger UI sur `/api/v1/docs`. La CI valide le contrat et bloque les changements incompatibles par rapport à la branche cible d’une pull request. Un changement incompatible introduit une nouvelle version et une période de migration annoncée aux partenaires.
+Le service instructeur publie le contrat OpenAPI sur `/api/v1/openapi.json` et Swagger UI sur `/api/v1/docs`. La CI valide le contrat et vérifie sa compatibilité avec la branche cible d’une pull request et avec la révision de base de la file de fusion. Un changement incompatible introduit une nouvelle version et une période de migration annoncée aux partenaires.
 
 ## Clés personnelles
 
@@ -22,17 +22,23 @@ Au premier déploiement, l’application instructeur applique les migrations à 
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `dossiers:read`          | Liste, fiche et ressources du dossier. Une clé personnelle suit le niveau d’accès de son titulaire. Une clé de service nécessite une habilitation et dispose de la lecture restreinte par défaut.                      |
 | `dossiers:read:internal` | Accès interne pour une intégration disposant aussi de `dossiers:read`. Les deux permissions doivent être présentes sur la clé et chacune doit être accordée sur le dossier ou l’un de ses groupes instructeurs actifs. |
-| `account:read`           | Compte, groupes et membres, notifications, préférences et recherches récentes du titulaire. Cette permission est réservée aux clés personnelles.                                                                       |
-| `references:read`        | Activités, TAXREF, BDC-Statuts, espèces protégées, types d’impact, méthodes, moyens de poursuite et statistiques publiques. Cette permission s’applique à la clé et ne requiert pas d’habilitation par dossier.        |
+| `account:read`           | Compte, clés personnelles, groupes et membres, notifications, préférences et recherches récentes du titulaire. Cette permission est réservée aux clés personnelles.                                                    |
+| `references:read`        | Activités, TAXREF, BDC-Statuts, espèces protégées, types d’impact, méthodes, moyens de poursuite, statistiques publiques et nouveautés. Cette permission ne requiert pas d’habilitation par dossier.                   |
 
 Les chemins ci-dessous sont relatifs à `/api/v1`. Toutes ces opérations sont en lecture seule.
 
 - `GET /dossiers` liste les dossiers par identifiant croissant. Utilisez `limit` (50 par défaut, 100 au maximum) et transmettez la valeur de `next_cursor` dans le paramètre `after` pour lire la suite. Vous pouvez filtrer par `status`, `department` principal, `q` (nom ou identifiant) et, avec une clé personnelle, `followed`.
+- Avec une clé personnelle, la liste inclut le niveau d’accès, les lieux, l’activité, les références des espèces impactées et les prochaines échéances. Le dernier commentaire est disponible avec un accès interne au dossier.
 - `GET /dossiers/{id}` renvoie la fiche du projet et son état d’instruction. Les sous-ressources `avis-experts`, `decisions`, `especes-impactees`, `phase-events`, `followers` et `pieces-jointes` appliquent le niveau de lecture du dossier.
 - Les prescriptions, contrôles, commentaires, événements de l’historique et envois CNPN sont accessibles via `prescriptions`, `controles`, `comments`, `history` et `cnpn-emails` avec un accès interne. Les avis non officiels, les saisines et les pièces internes demandent le même niveau d’accès.
+- `GET /dossiers/{id}/follower-candidates` liste les personnes que le titulaire d’une clé personnelle peut ajouter au suivi d’un dossier qu’il peut instruire.
 - La liste des pièces fournit une URL de téléchargement par fichier. Utilisez le même en-tête `Authorization` pour le téléchargement. Le dossier de l’URL détermine l’accès à la pièce, y compris lorsque le fichier est partagé entre plusieurs dossiers.
 - `GET /account` identifie le titulaire. Ses données personnelles sont accessibles sous `/account/groupes`, `/account/notifications`, `/account/notification-preferences` et `/account/recent-searches`.
+- `GET /account/api-keys` renvoie les métadonnées des clés personnelles du titulaire. `GET /account/groupes/{groupId}/member-candidates?q=…` permet de rechercher des membres à ajouter à un groupe actif dont le titulaire fait partie.
+- Les nouveautés publiées sont disponibles sous `/references/changelog`. `/references/synchronization-status` fournit la date de la dernière synchronisation réussie avec Démarches Numériques.
 - Les chemins sous `/references` et les paramètres de recherche sont documentés dans Swagger.
+
+Les dates sans heure, comme une signature ou une échéance, sont renvoyées sous la forme `YYYY-MM-DD`. Les horodatages sont en UTC.
 
 ## Appeler l’API
 

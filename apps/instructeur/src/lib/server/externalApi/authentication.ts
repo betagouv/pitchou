@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, errors, jwtVerify } from "jose";
+import { createRemoteJWKSet, decodeProtectedHeader, errors, jwtVerify } from "jose";
 
 const maximumTokenAge = 600;
 
@@ -37,6 +37,18 @@ export async function verifyExternalApiToken(token: string) {
   if (!issuer || !audience || !jwksUrl)
     throw new Error("Incomplete external API OAuth configuration");
   verifyToken ??= configureVerifier(issuer, audience, jwksUrl);
+  let header: ReturnType<typeof decodeProtectedHeader>;
+  try {
+    header = decodeProtectedHeader(token);
+  } catch {
+    return null;
+  }
+  // The verifier understands only the JWS base64 extension, and JWT payloads must be encoded.
+  if (
+    (Array.isArray(header.crit) && header.crit.some((name) => name !== "b64")) ||
+    header.b64 === false
+  )
+    return null;
   try {
     const { payload } = await verifyToken(token);
     const { client_id: clientId, sub, jti, exp, iat, scope } = payload;

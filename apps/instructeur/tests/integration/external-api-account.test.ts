@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { createSession } from "@pitchou/server/session.ts";
+import { createApiKey } from "@pitchou/server/database/externalApi/keys.ts";
 import {
   accountReadScope,
   dossierReadScope,
@@ -7,6 +8,7 @@ import {
   type ApiScope,
 } from "@pitchou/types/externalApi.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
+import { createGroupeInstructeurs } from "../factories/dossier.ts";
 import {
   readExternalApi as read,
   readExternalApiJson as readJson,
@@ -28,8 +30,22 @@ test("supports personal account and reference scopes without dossier permission"
   expect((await issue([dossierReadScope])).status).toBe(403);
   const issued = await issue([accountReadScope, referenceReadScope]);
   expect(issued.status).toBe(201);
-  const { secret } = await issued.json();
-  expect(await readJson(secret, "/account")).toMatchObject({ id: user.id, email, permissions: [] });
+  const { secret, key } = await issued.json();
+  expect(await readJson(secret, "/account")).toMatchObject({
+    id: user.id,
+    email,
+    permissions: [],
+    can_read_dossiers: false,
+    max_upload_size_bytes: expect.any(Number),
+  });
+  expect(await readJson(secret, "/account/api-keys")).toEqual([
+    { ...key, lastUsedAt: expect.any(String) },
+  ]);
+  const login = await fetchAuthenticated(
+    session,
+    INTEGRATION_BASE_URL + "/auth/login/__data.json?redirectTo=%2Fparametres%2Fapi",
+  );
+  expect(await login.json()).toMatchObject({ type: "redirect", location: "/parametres/api" });
   expect(await readJson(secret, "/account/groupes")).toEqual([]);
   expect(await readJson(secret, "/account/notifications")).toEqual([]);
   expect(await readJson(secret, "/account/notification-preferences")).toMatchObject({
@@ -92,4 +108,81 @@ test("supports personal account and reference scopes without dossier permission"
   });
   expect(write.status).toBe(405);
   expect(write.headers.get("Allow")).toContain("GET");
+});
+
+test("personal keys see the same group candidates as the signed-in member", async () => {
+  const email = "group-member@example.test";
+  const [member] = await db("auth_user").insert({ email }).returning("id");
+  await db("auth_user").insert({ email: "candidate@example.test", first_names: "Céline" });
+  await db("auth_user").insert({
+    email: "inactive@example.test",
+    first_names: "Céline",
+    active: false,
+  });
+  const group = await createGroupeInstructeurs(db);
+  const foreignGroup = await createGroupeInstructeurs(db, { name: "Autre groupe" });
+  const membership = { user_id: member.id, groupe_instructeurs: group.id };
+  await db("user_groupe").insert(membership);
+  const session = await createSession(
+    { userId: member.id, email, name: "Test", idToken: null },
+    db,
+  );
+  const { secret } = await createApiKey(
+    { user_id: member.id },
+    { label: "Compte", scopes: [accountReadScope], days: 30 },
+    db,
+  );
+  const query = "?q=celine";
+  const route = `/account/groupes/${group.id}/member-candidates`;
+  const uiResponse = await fetchAuthenticated(
+    session,
+    `${INTEGRATION_BASE_URL}/parametres/groupes/${group.id}/membres${query}`,
+  );
+  expect(uiResponse.status).toBe(200);
+  const candidates = await readJson(secret, route + query);
+  expect(candidates).toEqual(await uiResponse.json());
+  expect(candidates).toEqual([expect.objectContaining({ email: "candidate@example.test" })]);
+  expect((await read(secret, `/account/groupes/${foreignGroup.id}/member-candidates`)).status).toBe(
+    403,
+  );
+  await db("user_groupe").where(membership).delete();
+  expect((await read(secret, route)).status).toBe(403);
+});
+
+test("reference reads include published releases, synchronization time, and unclassified species", async () => {
+  const [account] = await db("auth_user").insert({ email: "reader@example.test" }).returning("id");
+  const { secret } = await createApiKey(
+    { user_id: account.id },
+    { label: "Référentiels", scopes: [referenceReadScope], days: 30 },
+    db,
+  );
+  const date = "2026-11-25";
+  await db("changelog").insert([
+    {
+      version_major: 1,
+      version_minor: 0,
+      version_patch: 1,
+      date,
+      titre: "Public",
+      contenu: "<p>Publié</p>",
+      published: true,
+      updated_by: "test",
+    },
+    { titre: "Brouillon", contenu: "<p>Brouillon</p>", published: false, updated_by: "test" },
+  ]);
+  expect(await readJson(secret, "/references/changelog")).toEqual([
+    { version: "1.0.1", date, title: "Public", content: "<p>Publié</p>" },
+  ]);
+  const timestamp = "2026-11-25T10:00:00.000Z";
+  await db("demarche_numerique_88444_synchronization_result").insert([
+    { timestamp, success: true },
+    { timestamp, success: false, error: "Internal error" },
+  ]);
+  expect(await readJson(secret, "/references/synchronization-status")).toEqual({
+    last_success_at: timestamp,
+  });
+  await db("espece_protegee_modification").insert({ cd_ref: "123", espece_cnpn: true });
+  expect(await readJson(secret, "/references/especes-protegees")).toEqual([
+    expect.objectContaining({ cd_ref: "123", classification: null, espece_cnpn: true }),
+  ]);
 });

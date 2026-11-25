@@ -2,7 +2,9 @@ import { json } from "@sveltejs/kit";
 import type { Knex } from "knex";
 import { directDatabaseConnection } from "@pitchou/server/database.ts";
 import { withExternalKey } from "@pitchou/server/database/externalApi/access.ts";
+import { listApiKeys } from "@pitchou/server/database/externalApi/keys.ts";
 import { getSessionUser } from "@pitchou/server/users.ts";
+import { getMaxUploadSizeBytes } from "@pitchou/server/upload.ts";
 import { listMembershipGroups } from "@pitchou/server/groupMembership.ts";
 import { getNotificationsForUser } from "@pitchou/server/database/notification.ts";
 import { getRecentSearchesForUser } from "@pitchou/server/database/dossier_search.ts";
@@ -23,10 +25,13 @@ export async function readAccount(userId: UserId, trx: Knex.Transaction) {
     last_name: user.last_name,
     groupes: user.groupes,
     permissions: user.permissions,
+    can_read_dossiers: await canReadDossiers(user, trx),
+    max_upload_size_bytes: getMaxUploadSizeBytes(),
   };
 }
 
 export const accountResources = {
+  "api-keys": (userId: UserId, trx: Knex.Transaction) => listApiKeys({ user_id: userId }, trx),
   groupes: listMembershipGroups,
   notifications: getNotificationsForUser,
   "notification-preferences": (userId: UserId, trx: Knex.Transaction) =>
@@ -49,8 +54,9 @@ export function withAccountRead(
       (trx) => read(principal.userId, trx),
       directDatabaseConnection,
     );
-    return data === undefined
-      ? apiProblem(401, "Compte inaccessible", { "WWW-Authenticate": "Bearer" })
-      : json(data);
+    if (data === undefined) {
+      return apiProblem(401, "Compte inaccessible", { "WWW-Authenticate": "Bearer" });
+    }
+    return data instanceof Response ? data : json(data);
   });
 }

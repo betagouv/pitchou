@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import { isOfficialAvisExpert } from "@pitchou/common/avisExpert.ts";
+import { withCalendarDateJSON } from "@pitchou/common/calendarDate.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
@@ -27,10 +28,10 @@ async function readAvis(id: DossierId, internal: boolean, trx: Knex.Transaction)
       id: avis.id,
       expert: avis.expert,
       avis: avis.avis,
-      avis_date: avis.avis_date,
+      avis_date: withCalendarDateJSON(avis.avis_date),
       avis_file_url: avis.avis_fichier ? downloadUrl(id, avis.avis_fichier) : null,
       ...(internal && {
-        saisine_date: avis.saisine_date,
+        saisine_date: withCalendarDateJSON(avis.saisine_date),
         saisine_file_url: avis.saisine_fichier ? downloadUrl(id, avis.saisine_fichier) : null,
       }),
     }));
@@ -41,15 +42,34 @@ async function readDecisions(id: DossierId, trx: Knex.Transaction) {
     id: decision.id,
     number: decision.number,
     type: decision.type,
-    signature_date: decision.signature_date,
-    obligations_end_date: decision.obligations_end_date,
+    signature_date: withCalendarDateJSON(decision.signature_date),
+    obligations_end_date: withCalendarDateJSON(decision.obligations_end_date),
     file_url: decision.fichier ? downloadUrl(id, decision.fichier) : null,
   }));
 }
 
 async function readPrescriptions(dossier: DossierId, trx: Knex.Transaction) {
   const decisions = await trx("decision_administrative").where({ dossier }).pluck("id");
-  return getPrescriptions(decisions, trx);
+  return (await getPrescriptions(decisions, trx)).map((prescription) => ({
+    ...prescription,
+    due_date: withCalendarDateJSON(prescription.due_date),
+  }));
+}
+
+async function readControles(dossier: DossierId, trx: Knex.Transaction) {
+  const prescriptions = await trx("prescription")
+    .join(
+      "decision_administrative as decision",
+      "decision.id",
+      "prescription.decision_administrative",
+    )
+    .where("decision.dossier", dossier)
+    .pluck("prescription.id");
+  return (await getControles(prescriptions, trx)).map((controle) => ({
+    ...controle,
+    post_controle_action_date: withCalendarDateJSON(controle.post_controle_action_date),
+    next_due_date: withCalendarDateJSON(controle.next_due_date),
+  }));
 }
 
 async function readPiecesJointes(id: DossierId, internal: boolean, trx: Knex.Transaction) {
@@ -59,7 +79,7 @@ async function readPiecesJointes(id: DossierId, internal: boolean, trx: Knex.Tra
       ...file,
       size: Number(size),
       piece_type: pieceType,
-      piece_date: pieceDate,
+      piece_date: withCalendarDateJSON(pieceDate),
       relation: relation === "attachment-autre" ? "other-attachment" : relation,
       url: downloadUrl(dossier, file.id),
     }));
@@ -72,21 +92,22 @@ export const sharedDossierResources = {
   "especes-impactees": (id: DossierId, _internal: boolean, trx: Knex.Transaction) =>
     readEspeceImpacts(id, trx),
   "phase-events": async (id: DossierId, internal: boolean, trx: Knex.Transaction) =>
-    (await getEvenementsPhaseDossier(id, trx)).map(
-      ({ phase, timestamp, demarche_numerique_motivation: demarcheNumeriqueReason }) => ({
-        ...formatStatus(phase, timestamp),
-        ...(internal && { demarche_numerique_reason: demarcheNumeriqueReason }),
+    (await getEvenementsPhaseDossier(id, trx)).map((event) => ({
+      ...formatStatus(event.phase, event.timestamp),
+      ...(internal && {
+        demarche_numerique_reason: event.demarche_numerique_motivation,
+        author_email: event.demarche_numerique_agent_email,
+        author_type:
+          event.demarche_numerique_agent_email || event.caused_by_personne !== null
+            ? "instructeur"
+            : "system",
       }),
-    ),
+    })),
 };
 
 export const internalDossierResources = {
   prescriptions: readPrescriptions,
-  controles: async (id: DossierId, trx: Knex.Transaction) =>
-    getControles(
-      (await readPrescriptions(id, trx)).map(({ id }) => id),
-      trx,
-    ),
+  controles: readControles,
   comments: getDossierCommentaires,
   history: getDossierActions,
   "cnpn-emails": getDossierCnpnEmailSentEvents,

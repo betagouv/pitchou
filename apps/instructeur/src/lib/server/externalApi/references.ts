@@ -8,6 +8,8 @@ import { getActiviteReferentiel } from "@pitchou/server/database/activite.ts";
 import { getReferentielRows } from "@pitchou/server/referentielTypeImpactMethodeMoyenDePoursuite.ts";
 import { getPublicStats } from "@pitchou/server/database/stats.ts";
 import { indicatorsAARRI } from "@pitchou/server/database/aarri.ts";
+import { listPublishedChangelogEntries } from "@pitchou/server/database/changelog.ts";
+import { getDemarcheNumerique88444SynchronizationResults } from "@pitchou/server/database/helpers.ts";
 import { referenceReadScope } from "@pitchou/types/externalApi.ts";
 import { readBdcStatuts, readTaxref } from "./search.ts";
 import { withApiScope } from "./read.ts";
@@ -26,6 +28,17 @@ export const referenceResources = {
   "impacts-especes": readEspeceImpactReferences,
   stats: readStats,
   aarri: readAarri,
+  changelog: async () =>
+    (await listPublishedChangelogEntries()).map(({ version, date, titre, contenu }) => ({
+      version,
+      date,
+      title: titre,
+      content: contenu,
+    })),
+  "synchronization-status": async () => {
+    const results = await getDemarcheNumerique88444SynchronizationResults();
+    return { last_success_at: results.find(({ success }) => success)?.timestamp ?? null };
+  },
 };
 
 async function readProtectedEspeces() {

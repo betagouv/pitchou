@@ -513,6 +513,67 @@
         }
       }
     },
+    "/dossiers/{id}/follower-candidates": {
+      "get": {
+        "operationId": "listDossierFollowerCandidates",
+        "summary": "Lister les personnes pouvant suivre un dossier",
+        "description": "Portée `dossiers:read`. Réservé au titulaire d’une clé personnelle disposant du droit d’instruire ce dossier.",
+        "tags": ["Dossiers"],
+        "security": [
+          {
+            "serviceBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DossierId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les personnes pouvant suivre un dossier",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FollowerCandidate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
     "/dossiers/{id}/pieces-jointes/{fileId}": {
       "get": {
         "operationId": "downloadPieceJointe",
@@ -575,6 +636,51 @@
         }
       }
     },
+    "/account/api-keys": {
+      "get": {
+        "operationId": "listPersonalApiKeys",
+        "summary": "Lister les clés personnelles du titulaire",
+        "description": "Portée `account:read`. Renvoie les métadonnées des clés personnelles du titulaire.",
+        "tags": ["Compte"],
+        "security": [
+          {
+            "serviceBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les clés personnelles du titulaire",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeySummary"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
     "/account/groupes": {
       "get": {
         "operationId": "listAccountGroupes",
@@ -600,6 +706,89 @@
           "429": { "$ref": "#/components/responses/RateLimited" },
           "503": { "$ref": "#/components/responses/Unavailable" }
         }
+      }
+    },
+    "/account/groupes/{groupId}/member-candidates": {
+      "get": {
+        "operationId": "searchGroupMemberCandidates",
+        "summary": "Rechercher des personnes à ajouter à un groupe",
+        "description": "Portée `account:read`. Le titulaire doit être membre du groupe actif. Renvoie jusqu’à 20 comptes actifs qui ne font pas encore partie du groupe.",
+        "tags": ["Compte"],
+        "security": [
+          {
+            "serviceBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rechercher des personnes à ajouter à un groupe",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupMemberCandidate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Portée du jeton insuffisante ou titulaire non membre du groupe actif",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              },
+              "WWW-Authenticate": {
+                "$ref": "#/components/headers/Authenticate"
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Nom, prénom ou adresse e-mail.",
+            "schema": {
+              "type": "string",
+              "maxLength": 254
+            }
+          }
+        ]
       }
     },
     "/account/notifications": {
@@ -960,6 +1149,100 @@
         }
       }
     },
+    "/references/changelog": {
+      "get": {
+        "operationId": "listPublishedChangelogEntries",
+        "summary": "Lister les nouveautés publiées",
+        "description": "Portée `references:read`. Les nouveautés sont triées par version décroissante.",
+        "tags": ["Référentiels"],
+        "security": [
+          {
+            "serviceBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les nouveautés publiées",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChangelogEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/references/synchronization-status": {
+      "get": {
+        "operationId": "getSynchronizationStatus",
+        "summary": "Consulter la dernière synchronisation Démarches Numériques",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [
+          {
+            "serviceBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulter la dernière synchronisation Démarches Numériques",
+            "headers": {
+              "X-Request-Id": {
+                "$ref": "#/components/headers/RequestId"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["last_success_at"],
+                  "properties": {
+                    "last_success_at": {
+                      "type": ["string", "null"],
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
     "/references/aarri": {
       "get": {
         "operationId": "getAarri",
@@ -1063,6 +1346,81 @@
           "followed": {
             "type": "boolean",
             "description": "Présent avec une clé personnelle."
+          },
+          "access": {
+            "type": "string",
+            "enum": ["restricted", "full_read", "full"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "departments": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            },
+            "description": "Présent avec une clé personnelle."
+          },
+          "communes": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "required": ["name", "code"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "postalCode": {
+                  "type": ["string", "null"]
+                }
+              }
+            },
+            "description": "Présent avec une clé personnelle."
+          },
+          "regions": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            },
+            "description": "Présent avec une clé personnelle."
+          },
+          "location_scope": {
+            "type": ["string", "null"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "enjeu": { "type": "boolean", "description": "Présent avec une clé personnelle." },
+          "linked_to_ae_regime": {
+            "type": ["boolean", "null"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "next_action_expected_from": {
+            "type": ["string", "null"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "next_due_date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Présent avec une clé personnelle."
+          },
+          "activite_code": {
+            "type": ["string", "null"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "activite_label": {
+            "type": ["string", "null"],
+            "description": "Présent avec une clé personnelle."
+          },
+          "impacted_espece_cd_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Présent avec une clé personnelle."
+          },
+          "latest_comment": {
+            "type": ["string", "null"],
+            "description": "Présent avec une clé personnelle et un accès interne au dossier."
           }
         }
       },
@@ -1171,8 +1529,8 @@
           "urgent_contact_phone": { "type": ["string", "null"] },
           "request_context": { "type": ["string", "null"] },
           "accompaniment_need": { "type": ["string", "null"] },
-          "intervention_start_date": { "type": ["string", "null"], "format": "date-time" },
-          "intervention_end_date": { "type": ["string", "null"], "format": "date-time" },
+          "intervention_start_date": { "type": ["string", "null"], "format": "date" },
+          "intervention_end_date": { "type": ["string", "null"], "format": "date" },
           "intervention_duration": { "type": ["number", "null"] },
           "no_other_satisfactory_solution_justification": { "type": ["string", "null"] },
           "motif_derogation": { "type": ["string", "null"] },
@@ -1238,7 +1596,7 @@
             }
           },
           "next_action_expected_from": { "type": ["string", "null"] },
-          "next_due_date": { "type": ["string", "null"], "format": "date-time" },
+          "next_due_date": { "type": ["string", "null"], "format": "date" },
           "ddep_required": { "type": ["boolean", "null"] },
           "scientifique_demande_type": {
             "type": ["array", "null"],
@@ -1261,11 +1619,11 @@
           "onagre_demande_identifier": { "type": ["string", "null"] },
           "public_consultation_start_date": {
             "type": ["string", "null"],
-            "format": "date-time"
+            "format": "date"
           },
           "public_consultation_end_date": {
             "type": ["string", "null"],
-            "format": "date-time"
+            "format": "date"
           },
           "mesures_erc_planned": { "type": ["boolean", "null"] },
           "er_mesures_sufficient": { "type": ["boolean", "null"] },
@@ -1275,7 +1633,7 @@
           "ecological_inventory_completed": { "type": ["boolean", "null"] },
           "especes_present_in_influence_area": { "type": ["boolean", "null"] },
           "risk_despite_erc_mesures": { "type": ["boolean", "null"] },
-          "commissioning_date": { "type": ["string", "null"], "format": "date-time" },
+          "commissioning_date": { "type": ["string", "null"], "format": "date" },
           "status": { "$ref": "#/components/schemas/DossierStatus" },
           "status_changed_at": { "type": ["string", "null"], "format": "date-time" },
           "porteur_de_projet": {
@@ -1377,9 +1735,9 @@
           "id": { "type": "string", "format": "uuid" },
           "expert": { "type": ["string", "null"] },
           "avis": { "type": ["string", "null"] },
-          "avis_date": { "type": ["string", "null"], "format": "date-time" },
+          "avis_date": { "type": ["string", "null"], "format": "date" },
           "avis_file_url": { "type": ["string", "null"], "format": "uri-reference" },
-          "saisine_date": { "type": ["string", "null"], "format": "date-time" },
+          "saisine_date": { "type": ["string", "null"], "format": "date" },
           "saisine_file_url": { "type": ["string", "null"], "format": "uri-reference" }
         }
       },
@@ -1390,8 +1748,8 @@
           "id": { "type": "string", "format": "uuid" },
           "number": { "type": ["string", "null"] },
           "type": { "type": ["string", "null"] },
-          "signature_date": { "type": ["string", "null"], "format": "date-time" },
-          "obligations_end_date": { "type": ["string", "null"], "format": "date-time" },
+          "signature_date": { "type": ["string", "null"], "format": "date" },
+          "obligations_end_date": { "type": ["string", "null"], "format": "date" },
           "file_url": { "type": ["string", "null"], "format": "uri-reference" }
         }
       },
@@ -1413,7 +1771,7 @@
         "properties": {
           "id": { "type": "string", "format": "uuid" },
           "decision_administrative": { "type": "string", "format": "uuid" },
-          "due_date": { "type": ["string", "null"], "format": "date-time" },
+          "due_date": { "type": ["string", "null"], "format": "date" },
           "article_number": { "type": ["string", "null"] },
           "description": { "type": ["string", "null"] },
           "avoided_surface": { "type": ["number", "null"] },
@@ -1443,8 +1801,8 @@
           "result": { "type": ["string", "null"] },
           "comment": { "type": ["string", "null"] },
           "post_controle_action_type": { "type": ["string", "null"] },
-          "post_controle_action_date": { "type": ["string", "null"], "format": "date-time" },
-          "next_due_date": { "type": ["string", "null"], "format": "date-time" }
+          "post_controle_action_date": { "type": ["string", "null"], "format": "date" },
+          "next_due_date": { "type": ["string", "null"], "format": "date" }
         }
       },
       "PieceJointe": {
@@ -1485,7 +1843,7 @@
           },
           "expert": { "type": ["string", "null"] },
           "piece_type": { "type": ["string", "null"] },
-          "piece_date": { "type": ["string", "null"], "format": "date-time" },
+          "piece_date": { "type": ["string", "null"], "format": "date" },
           "url": { "type": "string", "format": "uri-reference" }
         }
       },
@@ -1518,7 +1876,16 @@
         "properties": {
           "status": { "$ref": "#/components/schemas/DossierStatus" },
           "status_changed_at": { "type": "string", "format": "date-time" },
-          "demarche_numerique_reason": { "type": ["string", "null"] }
+          "demarche_numerique_reason": { "type": ["string", "null"] },
+          "author_email": {
+            "type": ["string", "null"],
+            "description": "Adresse de l’agent Démarches Numériques si renseignée. Accès interne requis."
+          },
+          "author_type": {
+            "type": "string",
+            "enum": ["instructeur", "system"],
+            "description": "Accès interne requis."
+          }
         }
       },
       "CnpnEmail": {
@@ -1606,6 +1973,93 @@
           "destroyed_habitat_area": { "type": ["number", "null"] }
         }
       },
+      "ApiKeySummary": {
+        "type": "object",
+        "required": ["id", "label", "scopes", "expiresAt", "revokedAt", "lastUsedAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revokedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "FollowerCandidate": {
+        "type": "object",
+        "required": ["email", "first_names", "last_name", "followed"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "followed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GroupMemberCandidate": {
+        "type": "object",
+        "required": ["id", "email", "first_names", "last_name"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string"
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ChangelogEntry": {
+        "type": "object",
+        "required": ["version", "date", "title", "content"],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string",
+            "description": "Contenu HTML publié."
+          }
+        }
+      },
       "Groupe": {
         "type": "object",
         "required": ["id", "name"],
@@ -1616,14 +2070,25 @@
       },
       "Account": {
         "type": "object",
-        "required": ["id", "email", "first_names", "last_name", "groupes", "permissions"],
+        "required": [
+          "id",
+          "email",
+          "first_names",
+          "last_name",
+          "groupes",
+          "permissions",
+          "can_read_dossiers",
+          "max_upload_size_bytes"
+        ],
         "properties": {
           "id": { "type": "integer" },
           "email": { "type": "string" },
           "first_names": { "type": ["string", "null"] },
           "last_name": { "type": ["string", "null"] },
           "groupes": { "type": "array", "items": { "$ref": "#/components/schemas/Groupe" } },
-          "permissions": { "type": "array", "items": { "type": "string" } }
+          "permissions": { "type": "array", "items": { "type": "string" } },
+          "can_read_dossiers": { "type": "boolean" },
+          "max_upload_size_bytes": { "type": "integer", "minimum": 1 }
         }
       },
       "GroupeWithMembers": {
@@ -1791,7 +2256,7 @@
         ],
         "properties": {
           "cd_ref": { "type": "string" },
-          "classification": { "type": "string" },
+          "classification": { "type": ["string", "null"] },
           "scientific_names": { "type": "array", "items": { "type": "string" } },
           "common_names": { "type": "array", "items": { "type": "string" } },
           "status_type_codes": { "type": "array", "items": { "type": "string" } },

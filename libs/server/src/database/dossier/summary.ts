@@ -9,6 +9,7 @@ import { latestCommentaireSubquery } from "../commentaire.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import { joinPorteurDeProjet, porteurDeProjetColumns, withPorteurDeProjet } from "./porteur.ts";
 import { getDossierActeurs } from "./acteurs.ts";
+import { joinDossierActivite } from "./fullColumns.ts";
 import { summaryInvolvements } from "@pitchou/common/dossierActeur.ts";
 import type Dossier from "@pitchou/types/database/public/Dossier.ts";
 import type EvenementPhaseDossier from "@pitchou/types/database/public/EvenementPhaseDossier.ts";
@@ -100,7 +101,7 @@ function loadDossierSummaries(
   transaction: Knex.Transaction,
 ): Promise<DossierSummary[]> {
   return (
-    joinPorteurDeProjet(transaction("dossier"))
+    joinDossierActivite(joinPorteurDeProjet(transaction("dossier")))
       .select(columns)
       .select("dossier_access.access")
       // CD_REF of every espece the dossier impacts. A dossier can hold impacts without a file, and a
@@ -116,14 +117,6 @@ function loadDossierSummaries(
         "dossier_access.dossier",
         "dossier.id",
       )
-      // Only reviewed labels resolve to an activity; labels pending review keep their raw display
-      // through the fallback in `withResolvedActivite`.
-      .leftJoin("activite_label", (join) =>
-        join
-          .on("activite_label.label", "dossier.main_activite")
-          .andOnVal("activite_label.needs_review", false),
-      )
-      .leftJoin("activite", { "activite.code": "activite_label.activite_code" })
       .then((dossiers: DossierSummary[]) =>
         dossiers.map((dossier) => {
           dossier.especesImpacteesRenseignees = dossier.especesImpacteesCD_REF.length > 0;

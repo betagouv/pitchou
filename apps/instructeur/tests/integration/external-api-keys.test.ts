@@ -169,10 +169,17 @@ test("admins manage integration-owned keys and grants independently of their own
     "admin:api:manage",
   ]);
   expect((await send(replacement.session, service, "PATCH", { enabled: false })).status).toBe(204);
+  expect((await send(replacement.session, service, "PATCH", { enabled: false })).status).toBe(204);
   expect((await readDossier(visible.id, secret)).status).toBe(401);
   expect(
     (await send(replacement.session, `${service}/keys`, "DELETE", { id: key.id })).status,
   ).toBe(204);
   expect((await send(replacement.session, service, "PATCH", { enabled: true })).status).toBe(204);
+  expect((await send(replacement.session, service, "PATCH", { enabled: true })).status).toBe(204);
   expect((await readDossier(visible.id, secret)).status).toBe(401);
+  expect(
+    (await send(replacement.session, `${integrations}/missing`, "PATCH", { enabled: true })).status,
+  ).toBe(404);
+  const updated = await db("administration_event").where({ action: "api.integration.updated" });
+  expect(updated).toHaveLength(2);
 });

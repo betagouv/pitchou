@@ -31,10 +31,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 2
+          fetch-depth: ${{ github.event_name == 'merge_group' && '0' || '2' }}
       - uses: ./.github/actions/setup
       - run: pnpm exec just check-format check-lint check-file-length
       - name: Check the v1 OpenAPI contract
+        env:
+          MERGE_GROUP_BASE: ${{ github.event.merge_group.base_sha }}
         run: |
           set -euo pipefail
           contract=apps/instructeur/src/lib/server/externalApi/openapi.json
@@ -46,8 +48,14 @@ jobs:
               tufin/oasdiff:v1.39.0@sha256:004bef22058ace818b61f0eb2f05efb89fc6a3882f68bf4db0b6a86f40723fe0 "$@"
           }
           oasdiff validate /spec/revision.json
-          if [[ "$GITHUB_EVENT_NAME" == pull_request ]] && git cat-file -e "HEAD^1:$contract"; then
-            git show "HEAD^1:$contract" > "$specs/base.json"
+          case "$GITHUB_EVENT_NAME" in
+            pull_request) base=HEAD^1 ;;
+            merge_group) base=${MERGE_GROUP_BASE:?Missing merge group base SHA} ;;
+            *) exit 0 ;;
+          esac
+          git cat-file -e "${base}^{commit}"
+          if git cat-file -e "$base:$contract" 2>/dev/null; then
+            git show "$base:$contract" > "$specs/base.json"
             oasdiff breaking --fail-on WARN /spec/base.json /spec/revision.json
           fi
 

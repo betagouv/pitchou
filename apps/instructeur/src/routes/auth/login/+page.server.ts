@@ -1,7 +1,7 @@
 import { canReadDossiers } from "#lib/server/dossierEntry.ts";
 import { redirect } from "@sveltejs/kit";
 
-import { sanitizeInternalPath } from "#lib/server/redirect.ts";
+import { isSettingsPath, sanitizeInternalPath } from "#lib/server/redirect.ts";
 
 import type { PageServerLoad } from "./$types";
 
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 
   // Already signed in: skip the wall.
   if (locals.user) {
-    if (!(await canReadDossiers(locals.user))) {
+    if (!isSettingsPath(redirectTo) && !(await canReadDossiers(locals.user))) {
       redirect(303, "/auth/acces-refuse");
     }
     redirect(303, redirectTo);

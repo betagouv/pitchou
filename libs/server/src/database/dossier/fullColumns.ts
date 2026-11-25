@@ -88,10 +88,14 @@ export const dossierFullColumns = [
 ];
 
 export function joinDossierIdentities<T extends Knex.QueryBuilder>(query: T): T {
-  joinPorteurDeProjet(query)
-    .leftJoin("file as file_especes_impactees", {
-      "file_especes_impactees.id": "dossier.especes_impactees",
-    })
+  joinPorteurDeProjet(query).leftJoin("file as file_especes_impactees", {
+    "file_especes_impactees.id": "dossier.especes_impactees",
+  });
+  return joinDossierActivite(query);
+}
+
+export function joinDossierActivite<T extends Knex.QueryBuilder>(query: T): T {
+  query
     // Only reviewed labels resolve to an activity; labels pending review keep their raw display
     // through the fallback in `withResolvedActivite`.
     .leftJoin("activite_label", function () {

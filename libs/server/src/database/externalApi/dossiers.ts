@@ -3,11 +3,17 @@ import { withCalendarDateJSON } from "@pitchou/common/calendarDate.ts";
 import type { DossierAccess, DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import { dossierReadScope } from "@pitchou/types/externalApi.ts";
 import type { DossierId } from "@pitchou/types/database/public/Dossier.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import type { ExternalApiPrincipal } from "../externalApi.ts";
 import { directDatabaseConnection } from "../connection.ts";
 import { withResolvedActivite } from "../activite.ts";
 import { getDossierActeurs } from "../dossier/acteurs.ts";
-import { dossierProjectColumns, joinDossierIdentities } from "../dossier/fullColumns.ts";
+import { latestCommentaireExpression } from "../commentaire.ts";
+import {
+  dossierProjectColumns,
+  joinDossierActivite,
+  joinDossierIdentities,
+} from "../dossier/fullColumns.ts";
 import { withPorteurDeProjet } from "../dossier/porteur.ts";
 import { orderPhaseEvents } from "../phaseHistory.ts";
 import { externalDossiers } from "./access.ts";
@@ -53,6 +59,41 @@ export type DossierListFilters = {
   followed?: boolean;
 };
 
+function selectPersonalDossierFields(
+  query: Knex.QueryBuilder,
+  userId: UserId,
+  followed: boolean | undefined,
+  db: Knex,
+) {
+  const follow = db("edge_personne_follows_dossier")
+    .select("dossier")
+    .where("dossier", db.ref("dossier.id"))
+    .where("personne", userId);
+  joinDossierActivite(query).select(
+    db.raw("exists (?) as followed", [follow]),
+    "access.access as dossier_access",
+    "dossier.departments",
+    "dossier.communes",
+    "dossier.regions",
+    "dossier.location_scope",
+    "dossier.enjeu",
+    "dossier.linked_to_ae_regime",
+    "dossier.next_action_expected_from",
+    "dossier.next_due_date",
+    "activite.code as activite_code",
+    "activite.label as activite_label",
+    db.raw(
+      "array(select distinct cd_ref from impact_espece where impact_espece.dossier = dossier.id order by cd_ref) as impacted_espece_cd_refs",
+    ),
+    // Apply the UI's comment visibility before selecting the comment text.
+    db.raw(
+      `case when access.access <> 'lecture' then ${latestCommentaireExpression} end as latest_comment`,
+    ),
+  );
+  if (followed === true) query.whereExists(follow);
+  if (followed === false) query.whereNotExists(follow);
+}
+
 export async function listExternalDossiers(
   principal: ExternalApiPrincipal,
   filters: DossierListFilters,
@@ -78,13 +119,7 @@ export async function listExternalDossiers(
     );
   }
   if (principal.kind === "personal") {
-    const follow = db("edge_personne_follows_dossier")
-      .select("dossier")
-      .where("dossier", db.ref("dossier.id"))
-      .where("personne", principal.userId);
-    query.select(db.raw("exists (?) as followed", [follow]));
-    if (filters.followed === true) query.whereExists(follow);
-    if (filters.followed === false) query.whereNotExists(follow);
+    selectPersonalDossierFields(query, principal.userId, filters.followed, db);
   }
   withLatestPhase(query, db);
   if (filters.phase) {
@@ -107,10 +142,17 @@ export async function listExternalDossiers(
     .limit(filters.limit + 1)
     .timeout(5000, { cancel: true });
   return {
-    dossiers: rows.slice(0, filters.limit).map(({ phase, timestamp, ...dossier }) => ({
-      ...dossier,
-      ...formatStatus(phase, timestamp),
-    })),
+    dossiers: rows
+      .slice(0, filters.limit)
+      .map(({ phase, timestamp, dossier_access, next_due_date, latest_comment, ...dossier }) => ({
+        ...(dossier_access ? withResolvedActivite(dossier) : dossier),
+        ...formatStatus(phase, timestamp),
+        ...(dossier_access && {
+          access: accessByLevel[dossier_access as DossierAccess],
+          next_due_date: withCalendarDateJSON(next_due_date),
+          ...(dossier_access !== "lecture" && { latest_comment }),
+        }),
+      })),
     next_cursor: rows.length > filters.limit ? rows[filters.limit - 1].id : null,
   };
 }
@@ -135,6 +177,12 @@ export async function readExternalDossier(
   return {
     ...withResolvedActivite(withPorteurDeProjet(dossier)),
     ...formatStatus(phase, timestamp),
+    intervention_start_date: withCalendarDateJSON(dossier.intervention_start_date),
+    intervention_end_date: withCalendarDateJSON(dossier.intervention_end_date),
+    next_due_date: withCalendarDateJSON(dossier.next_due_date),
+    public_consultation_start_date: withCalendarDateJSON(dossier.public_consultation_start_date),
+    public_consultation_end_date: withCalendarDateJSON(dossier.public_consultation_end_date),
+    commissioning_date: withCalendarDateJSON(dossier.commissioning_date),
     submission_date: submissionDate,
     ddep_submission_date: withCalendarDateJSON(ddepSubmissionDate),
     project_map: projectMap,

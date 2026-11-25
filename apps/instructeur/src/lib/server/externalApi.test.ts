@@ -98,6 +98,18 @@ test("reports an unavailable verifier when OAuth is only partially configured", 
   expect(admitExternalApiRequest).not.toHaveBeenCalled();
 });
 
+test.each(["not-json", JSON.stringify({ alg: "ES256", crit: ["unexpected"], unexpected: true })])(
+  "rejects an invalid or unsupported protected header before looking up keys",
+  async (header) => {
+    const encoded = Buffer.from(header).toString("base64url");
+    const response = await callDossier(`${encoded}.e30.c2ln`);
+    expect(response.status).toBe(401);
+    expect(response.headers.get("WWW-Authenticate")).toBe('Bearer error="invalid_token"');
+    expect(fetch).not.toHaveBeenCalled();
+    expect(admitExternalApiRequest).not.toHaveBeenCalled();
+  },
+);
+
 test.each([
   ["another audience", { aud: "https://another-api.example" }, "at+jwt"],
   ["another issuer", { iss: "https://another-issuer.example" }, "at+jwt"],
