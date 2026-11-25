@@ -24,6 +24,17 @@ them, and some prepared projects contain them. The
 entire stream is validated before opening a database connection. Keep source data,
 credentials, bundles and reports in ignored private storage, never Git.
 
+Build the bundle locally from the prepared project files, both in ignored storage. The command
+writes every `<projet>.json` in numeric order, escapes U+2028, U+2029 and U+0085, validates each project (naming the file that fails, without leaving a partial bundle)
+and refuses to replace an existing bundle. It prints the project count and the SHA256 to review:
+
+```sh
+node --import tsx scripts/onagre/staging-bundle.mjs backups/onagre/migration/full/projects backups/onagre/staging-bundle-YYYYMMDD/bundle.json.gz reviewed-cutoff-name
+```
+
+The header carries no species reference rows: staging already holds the local reference tables,
+and a project that needs a missing row fails on its own in the import report.
+
 Run in a foreground Scalingo one-off container on `pitchou-staging` in
 `osc-secnum-fr1`, uploading the bundle with `scalingo run --file`. The entry point
 pins the database, bucket and staging email protection. No production target is
