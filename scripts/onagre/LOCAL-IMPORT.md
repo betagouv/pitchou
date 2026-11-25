@@ -118,7 +118,16 @@ Straightforward mappings and mappings already validated by the team may be imple
 
 ## Porteurs and contacts
 
-Prepare identities by reading all relevant source columns together. Name fields can contain organisations or functions; `precisionpetitionnaire` and addresses can identify the actual organisation. Use the team's validated fallback from unusable `nompersonne`/`prenompersonne` to `nomcoordinateur`, and from empty `adressemailchefprojet` to `adressemailpetitionnaire`, after checking that the details belong to the chosen person. Do not mechanically concatenate conflicting identities. Empty values and placeholders such as `0` are not identities. Keep the choice, source fields and alternatives in each private JSON's decisions. The SQL importer consumes prepared identities; it does not guess from raw source columns.
+Prepare identities by reading all relevant source columns together. Name fields can contain organisations or functions; `precisionpetitionnaire` and addresses can identify the actual organisation. Do not mechanically concatenate conflicting identities. Keep the choice, source fields and alternatives in each private JSON's decisions.
+
+The importer then applies the owner's pétitionnaire decision of 25 November 2026 from the retained source rows (`actors/source.mjs`). The branch is `projet.petitionnairesid` → `petitionnaires.categorieid` → `categorie.typepersonne`:
+
+- **Personne Morale**: the prepared porteur applies unchanged. `prenompersonne`/`nompersonne` become a person with the `beneficiaire` involvement, kept as is (even `0` or an organisation name), without role, with `adressepetitionnaire` and `telephoneportablepetitionnaire` or else `telephonepetitionnaire`. Its email is a valid `adressemailpetitionnaire`, otherwise a valid `adressemailchefprojet` only when `nomcoordinateur` is empty.
+- **Personne Physique**: the porteur is the person from `prenompersonne`/`nompersonne`, without role, with `adressepetitionnaire`, `telephoneportablepetitionnaire` or else `telephonepetitionnaire`, and a valid `adressemailpetitionnaire`, otherwise `adressemailchefprojet` only when its local part contains the last name and the first name or its initial.
+- In both branches, a non-empty `nomcoordinateur` becomes a `personne_contact` with a valid `adressemailchefprojet`. The leading civility is removed, uppercase words form the last name and the other words the first names; without that signal, the last word is the last name.
+- An unknown category keeps the prepared porteur and contacts.
+
+Empty values, whitespace and `0` count as empty, except the Bénéficiaire's names. `qualificationpersonne` is not imported. When the decision applies, earlier prepared contacts (`applicant-contact`) are removed on replay; one edited, reassigned or shared since then stops the import for reconciliation instead.
 
 The owner approved importing identifiable people as `personne_contact`, without accounts or access rights. `personneshabilitees` remains excluded, including from comments. A porteur may be a person or an organisation; the source category and contextual evidence determine which.
 

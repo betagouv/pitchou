@@ -4,6 +4,7 @@ import { importSamples } from "./run.mjs";
 import { projectForSample } from "./fixtures.mjs";
 import { disposableClient, seedReviewer } from "./disposable.mjs";
 import { verifyOrganisations } from "./actors/verify-organisations.mjs";
+import { verifySourceActors } from "./actors/verify-source.mjs";
 const disposable = process.argv[2] === "--disposable";
 const email = disposable ? "actors-verifier@example.test" : process.argv[2];
 const client = disposable ? await disposableClient() : await connect(process.env);
@@ -156,8 +157,9 @@ try {
     "Existing legal name",
   );
   await verifyOrganisations(client, sample, run);
+  await verifySourceActors(client, sample, run);
   console.log(
-    "Passed PostgreSQL actor checks: stable replay, shared SIRET porteurs, separate persons, corrections, local-edit preservation/conflicts, deleted/reassigned/shared-person protection, retained contacts, physical porteurs, unowned company preservation. All fixtures rolled back.",
+    "Passed PostgreSQL actor checks: stable replay, shared SIRET porteurs, separate persons, corrections, local-edit preservation/conflicts, deleted/reassigned/shared-person protection, retained contacts, physical porteurs, unowned company preservation, pétitionnaire decision (Bénéficiaire, coordinator contact, physical porteur, former contact removal and edit protection). All fixtures rolled back.",
   );
 } finally {
   await client.end();

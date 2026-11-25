@@ -39,7 +39,9 @@ export function validateActors(proposal) {
     for (const contact of proposal.contacts) {
       if (
         !contact ||
-        Object.keys(contact).some((key) => !["sourceKey", "values"].includes(key)) ||
+        Object.keys(contact).some((key) => !["sourceKey", "values", "involvement"].includes(key)) ||
+        (contact.involvement !== undefined &&
+          !["personne_contact", "beneficiaire"].includes(contact.involvement)) ||
         typeof contact.sourceKey !== "string" ||
         !/^onagre-national:[\w:-]+$/u.test(contact.sourceKey) ||
         keys.has(contact.sourceKey)

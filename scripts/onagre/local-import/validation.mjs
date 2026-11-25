@@ -1,5 +1,5 @@
 import { validateSpecies } from "./species.mjs";
-import { validateActors } from "./actors.mjs";
+import { actorProposal, assertReplaceableContacts, validateActors } from "./actors.mjs";
 export const columns = {
   dossier: [
     "source",
@@ -77,6 +77,9 @@ export function validateSample(sample) {
     throw new Error("Invalid source identity");
   validateFields("dossier", sample.proposal?.dossier);
   validateActors(sample.proposal);
+  const actors = actorProposal(sample);
+  validateActors(actors);
+  assertReplaceableContacts(sample, actors);
   if (sample.proposal.dossier.source !== "onagre" || sample.proposal.dossier.depot_date !== null)
     throw new Error("Expected Onagre source and unknown creation date");
   if (initial) validateInitialDemande(sample);
@@ -118,10 +121,10 @@ export function validateSample(sample) {
     `${identity.key}:porteur`,
     `${identity.key}:porteur:person`,
     `${identity.key}:porteur:organisation`,
-    ...(sample.proposal.contacts ?? []).flatMap(({ sourceKey }) => [
-      `${sourceKey}:person`,
-      `${sourceKey}:contact`,
-    ]),
+    ...[
+      ...(sample.proposal.contacts ?? []),
+      ...(actors.legacyContacts ? actors.contacts : []),
+    ].flatMap(({ sourceKey }) => [`${sourceKey}:person`, `${sourceKey}:contact`]),
   ];
   for (const key of actorKeys) {
     if (known.has(key)) throw new Error("Duplicate actor identity");

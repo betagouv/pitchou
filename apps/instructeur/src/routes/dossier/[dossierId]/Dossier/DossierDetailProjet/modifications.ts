@@ -7,7 +7,7 @@ export function nouvellesModifications(changes: FieldChange[]) {
     [...fields].filter(
       ([field]) =>
         ["Entreprise", "Demandeur", "Mandataire", "Représentant de l'entreprise"].includes(field) ||
-        /^(deposant|mandataire|personne_contact|beneficiaire_demarche_numerique|demandeur|representant|entreprise)\./u.test(
+        /^(deposant|mandataire|personne_contact|beneficiaire|beneficiaire_demarche_numerique|demandeur|representant|entreprise)\./u.test(
           field,
         ),
     ),
