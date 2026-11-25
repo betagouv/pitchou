@@ -1,16 +1,21 @@
 <script lang="ts">
   import "./users-controls.css";
-  import Select from "@pitchou/ui/Select.svelte";
-  import { profiles } from "./model.ts";
-  import { parseQuery, SORT_OPTIONS, type SortKey } from "./list.ts";
+  import ListToolbar from "#lib/components/ListToolbar.svelte";
+  import UsersFilterPanel from "./UsersFilterPanel.svelte";
+  import { SORT_OPTIONS, type groupFilterOptions, type parseQuery, type SortKey } from "./list.ts";
   let {
     query,
+    groupeOptions,
     updateQuery,
   }: {
     query: ReturnType<typeof parseQuery>;
+    groupeOptions: ReturnType<typeof groupFilterOptions>;
     updateQuery: (values: Record<string, string>) => void;
   } = $props();
+  let filterOpen = $state(false);
   let sortOpen = $state(false);
+  const filterCount = $derived(Number(!!query.groupe) + Number(!!query.profile));
+
   function sortBy(key: SortKey) {
     const order =
       query.sort === key
@@ -24,54 +29,34 @@
   }
 </script>
 
-<div class="users-controls">
-  <div class="filters">
-    <div class="search-field">
-      <span class="fr-icon-search-line fr-icon--sm" aria-hidden="true"></span>
-      <label class="sr-only" for="user-search">Rechercher un utilisateur</label>
-      <input
+<div class="users-controls flex flex-col gap-2">
+  <div class="flex flex-wrap items-center gap-3">
+    <div class="min-w-0 flex-[1_1_25rem]">
+      <ListToolbar
         id="user-search"
-        type="search"
+        label="Rechercher un utilisateur"
         placeholder="Rechercher par nom, e-mail ou groupe…"
         value={query.search}
-        oninput={(event) => updateQuery({ q: event.currentTarget.value })}
-        autocomplete="off"
+        onSearch={(q) => updateQuery({ q })}
+        filterId="users-filters"
+        sortId="users-sort"
+        bind:filterOpen
+        bind:sortOpen
+        {filterCount}
       />
     </div>
-    <Select
-      id="user-profile-filter"
-      ariaLabel="Filtrer par profil"
-      class="profile-filter w-48 max-w-full text-sm"
-      options={[
-        { value: "", label: "Tous les profils" },
-        ...Object.entries(profiles).map(([value, info]) => ({ value, label: info.label })),
-      ]}
-      value={query.profile}
-      onChange={(value) => updateQuery({ profil: value })}
-    />
-    <button
-      class="sort-toggle"
-      type="button"
-      aria-expanded={sortOpen}
-      aria-controls="users-sort"
-      onclick={() => (sortOpen = !sortOpen)}
-    >
-      <span class="fr-icon-list-ordered fr-icon--sm" aria-hidden="true"></span>
-      Trier
-      <span
-        class:expanded={sortOpen}
-        class="fr-icon-arrow-down-s-line fr-icon--sm"
-        aria-hidden="true"
-      ></span>
-    </button>
-    {#if query.search || query.profile}<button
+    {#if query.search || filterCount}<button
+        type="button"
         class="clear-filters"
-        onclick={() => updateQuery({ q: "", profil: "" })}>Réinitialiser</button
+        onclick={() => updateQuery({ q: "", groupe: "", profil: "" })}>Réinitialiser</button
       >{/if}
   </div>
+  {#if filterOpen}
+    <UsersFilterPanel {query} {groupeOptions} {updateQuery} />
+  {/if}
   {#if sortOpen}
     <div id="users-sort" class="sort-panel" role="group" aria-label="Trier les utilisateurs">
-      {#each SORT_OPTIONS as option}
+      {#each SORT_OPTIONS as option (option.key)}
         <button
           type="button"
           aria-pressed={query.sort === option.key}

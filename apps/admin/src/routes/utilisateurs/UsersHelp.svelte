@@ -31,7 +31,7 @@
   </p>
   <h3>Rechercher et modifier</h3>
   <p>
-    Recherchez par nom, e-mail ou groupe, filtrez par profil et choisissez un ordre de tri. Cliquez
-    sur une ligne pour modifier les accès du compte.
+    Recherchez par nom, e-mail ou groupe, filtrez par groupe ou profil et choisissez un ordre de
+    tri. Cliquez sur une ligne pour modifier les accès du compte.
   </p>
 </PageHelp>

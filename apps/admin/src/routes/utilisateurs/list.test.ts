@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareUsers, parseQuery, visiblePages } from "./list.ts";
+import { compareUsers, filterUsers, groupFilterOptions, parseQuery, visiblePages } from "./list.ts";
 import type { User } from "./model.ts";
 
 function user(id: number, overrides: Partial<User> = {}): User {
@@ -10,6 +10,7 @@ function user(id: number, overrides: Partial<User> = {}): User {
     last_name: null,
     last_login_at: null,
     groupes: [],
+    bundles: [],
     ...overrides,
   } as User;
 }
@@ -54,12 +55,14 @@ it("falls back to valid view settings for malformed URLs", () => {
   expect(
     parseQuery(
       new URLSearchParams(
-        "q=élodie&profil=inconnu&tri=inconnu&ordre=inconnu&actifs=-2&desactives=1.5",
+        "q=élodie&groupe=inconnu&profil=inconnu&tri=inconnu&ordre=inconnu&actifs=-2&desactives=1.5",
       ),
+      [],
     ),
   ).toEqual({
     search: "élodie",
     profile: "",
+    groupe: "",
     sort: "email",
     order: "asc",
     activePage: 1,
@@ -68,6 +71,7 @@ it("falls back to valid view settings for malformed URLs", () => {
   expect(
     parseQuery(
       new URLSearchParams("profil=instructeur&tri=groups&ordre=desc&actifs=4&desactives=2"),
+      [],
     ),
   ).toMatchObject({
     profile: "instructeur",
@@ -76,6 +80,28 @@ it("falls back to valid view settings for malformed URLs", () => {
     activePage: 4,
     inactivePage: 2,
   });
+});
+
+it("combines group, profile and text filters using active memberships", () => {
+  const activeGroup = { id: "g1", name: "DDT 2", active: true };
+  const archivedGroup = { id: "g2", name: "Archivé", active: false };
+  const users = [
+    user(1, { groupes: [activeGroup], bundles: ["instructeur"] }),
+    user(2, { groupes: [activeGroup] }),
+    user(3, { groupes: [archivedGroup], grants: ["dossier:read"] }),
+    user(4, { bundles: ["administrateur"] }),
+    user(5),
+  ];
+  const options = groupFilterOptions(users.flatMap((user) => user.groupes));
+  expect(options).toEqual([{ value: "g1", label: "DDT 2" }]);
+
+  const matchingIds = (query: string) =>
+    filterUsers(users, parseQuery(new URLSearchParams(query), options)).map((user) => user.id);
+  expect(matchingIds("groupe=g1")).toEqual([1, 2]);
+  expect(matchingIds("groupe=g1&profil=instructeur")).toEqual([1]);
+  expect(matchingIds("groupe=g1&profil=aucun")).toEqual([2]);
+  expect(matchingIds("groupe=aucun&profil=aucun")).toEqual([3, 5]);
+  expect(matchingIds("groupe=aucun&profil=aucun&q=archive")).toEqual([3]);
 });
 
 it("keeps page links bounded while exposing the first, last and neighboring pages", () => {

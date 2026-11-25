@@ -7,7 +7,10 @@ test("users can be found, paginated and edited without losing their permissions"
   db,
   loginAs,
 }, testInfo) => {
-  const administrator = await createInstructeurWithCapToGroup(db, { email: "admin@example.org" });
+  const administrator = await createInstructeurWithCapToGroup(db, {
+    email: "admin@example.org",
+    nomGroupe: "DDT 75",
+  });
   await db("auth_permission_bundle").insert({
     user_id: administrator.id,
     bundle: "administrateur",
@@ -38,11 +41,11 @@ test("users can be found, paginated and edited without losing their permissions"
   await expect(page.getByRole("columnheader", { name: "État", exact: true })).toHaveCount(0);
   const active = page.getByRole("region", { name: "Actifs", exact: true });
   const search = page.getByRole("searchbox", { name: "Rechercher un utilisateur" });
-  const profile = page.getByRole("combobox", { name: "Filtrer par profil" });
+  const filterToggle = page.getByRole("button", { name: /^Filtrer/u });
   const searchHeight = await search
     .locator("..")
     .evaluate((element) => element.getBoundingClientRect().height);
-  expect(await profile.evaluate((element) => element.getBoundingClientRect().height)).toBe(
+  expect(await filterToggle.evaluate((element) => element.getBoundingClientRect().height)).toBe(
     searchHeight,
   );
   const topPagination = active.getByRole("navigation", {
@@ -88,7 +91,25 @@ test("users can be found, paginated and edited without losing their permissions"
   await expect(active).toContainText("Aucun utilisateur ne correspond");
   await page.getByRole("button", { name: "Réinitialiser" }).click();
   await expect(active.getByText("Page 1 sur 2")).toBeVisible();
-  await page.getByRole("combobox", { name: "Filtrer par profil" }).click();
+  await filterToggle.click();
+  const group = page.getByRole("combobox", { name: "Filtrer par groupe" });
+  const profile = page.getByRole("combobox", { name: "Filtrer par profil" });
+  await group.click();
+  await page.getByRole("option", { name: "DDT 75", exact: true }).click();
+  await profile.click();
+  await page.getByRole("option", { name: "Aucun profil", exact: true }).click();
+  await expect(active).toContainText("Aucun utilisateur ne correspond");
+  await group.click();
+  await page.getByRole("option", { name: "Aucun groupe", exact: true }).click();
+  await expect(active.getByText("Page 1 sur 2")).toBeVisible();
+  await expect(page).toHaveURL(/groupe=aucun&profil=aucun|profil=aucun&groupe=aucun/u);
+  await page.reload();
+  await filterToggle.click();
+  await expect(group).toHaveText("Aucun groupe");
+  await expect(profile).toHaveText("Aucun profil");
+  await page.getByRole("button", { name: "Réinitialiser" }).click();
+  await expect(group).toHaveText("Tous les groupes");
+  await profile.click();
   await page.getByRole("option", { name: "Instructeur", exact: true }).click();
   await expect(active.getByRole("button", { name: /^Modifier /u })).toHaveCount(2);
   await page.screenshot({ path: testInfo.outputPath("users-dark.png") });
