@@ -24,6 +24,7 @@
       title: "Mes groupes instructeurs",
       icon: "fr-icon-team-line",
     },
+    { value: "/parametres/api", label: "API", title: "API", icon: "fr-icon-terminal-line" },
   ];
   const selected = $derived(page.url.pathname.replace(/\/$/u, ""));
   const currentSection = $derived(

@@ -115,7 +115,11 @@ test("checks dossier status grants and revocation for each call with the same to
     timestamp,
   });
   const response = await callStatus(token);
-  expect(readExternalDossierStatus).toHaveBeenLastCalledWith(clientId, scope, 123);
+  expect(readExternalDossierStatus).toHaveBeenLastCalledWith(
+    { kind: "service", clientId, scopes: new Set([scope]) },
+    scope,
+    123,
+  );
   expect(response.status).toBe(200);
   expect(response.headers.get("Cache-Control")).toBe("no-store");
   expect(response.headers.get("X-Request-Id")).toMatch(/^[\da-f-]{36}$/u);

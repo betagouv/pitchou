@@ -13,6 +13,10 @@ export default interface ExternalApiClient {
   rate_window_start: Date | null;
 
   requests_this_minute: number;
+
+  name: string | null;
+
+  allow_oauth: boolean;
 }
 
 /** Represents the initializer for the table public.external_api_client */
@@ -26,6 +30,11 @@ export interface ExternalApiClientInitializer {
 
   /** Default value: 0 */
   requests_this_minute?: number;
+
+  name?: string | null;
+
+  /** Default value: false */
+  allow_oauth?: boolean;
 }
 
 /** Represents the mutator for the table public.external_api_client */
@@ -37,4 +46,8 @@ export interface ExternalApiClientMutator {
   rate_window_start?: Date | null;
 
   requests_this_minute?: number;
+
+  name?: string | null;
+
+  allow_oauth?: boolean;
 }

@@ -3,7 +3,7 @@
   "info": {
     "title": "API Pitchou",
     "version": "1.0.0",
-    "description": "API de consultation pour les services partenaires habilités. Obtenez un jeton OAuth 2.0 via Client Credentials auprès du fournisseur indiqué lors de votre habilitation. Dans le bac à sable, utilisez le jeton d’accès dans Swagger UI."
+    "description": "Créez une clé personnelle dans Paramètres → API, ou utilisez la clé de service fournie par l’équipe Pitchou. Dans Swagger UI, saisissez la clé dans Authorize. Les services configurés pour OAuth peuvent également utiliser leur jeton d’accès."
   },
   "servers": [{ "url": "/api/v1" }],
   "paths": {
@@ -11,7 +11,7 @@
       "get": {
         "operationId": "getDossierStatut",
         "summary": "Consulter le statut d’un dossier",
-        "description": "Requiert la portée `dossiers:read:statut` et une habilitation explicite sur le dossier ou sur un groupe instructeur actif auquel il est affecté.",
+        "description": "Requiert la portée `dossiers:read:statut`. Une clé personnelle suit les droits de son titulaire. Un service doit être explicitement habilité sur le dossier ou sur un groupe instructeur actif auquel il est affecté.",
         "security": [{ "serviceBearer": [] }],
         "parameters": [
           {
@@ -51,8 +51,7 @@
       "serviceBearer": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "Jeton d’accès OAuth 2.0 à durée courte émis pour Pitchou via Client Credentials."
+        "description": "Clé personnelle Pitchou, clé de service ou jeton d’accès OAuth 2.0 selon la configuration de l’intégration."
       }
     },
     "headers": {

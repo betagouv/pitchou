@@ -13,6 +13,8 @@ import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
 const scope = "dossiers:read:statut";
+const limitedClient = { kind: "service", clientId: "limited-client" } as const;
+const otherClient = { kind: "service", clientId: "other-client" } as const;
 
 test("filters status reads by scope, client, direct grants and active group assignments", async () => {
   const direct = await createDossier(db);
@@ -21,8 +23,8 @@ test("filters status reads by scope, client, direct grants and active group assi
   const groupe = await createGroupeInstructeurs(db);
   await attachDossierToGroupe(db, assigned.id, groupe.id);
   await db("external_api_client").insert([
-    { client_id: "limited-client", enabled: true },
-    { client_id: "other-client", enabled: true },
+    { client_id: "limited-client", enabled: true, allow_oauth: true },
+    { client_id: "other-client", enabled: true, allow_oauth: true },
   ]);
   await db("external_api_dossier_grant").insert({
     client_id: "limited-client",
@@ -40,26 +42,26 @@ test("filters status reads by scope, client, direct grants and active group assi
     { dossier: direct.id, phase: "Contrôle", timestamp },
   ]);
 
-  expect(await readExternalDossierStatus("limited-client", scope, direct.id, db)).toEqual({
+  expect(await readExternalDossierStatus(limitedClient, scope, direct.id, db)).toEqual({
     id: direct.id,
     phase: "Contrôle",
     timestamp,
   });
-  expect(await readExternalDossierStatus("limited-client", scope, assigned.id, db)).toEqual({
+  expect(await readExternalDossierStatus(limitedClient, scope, assigned.id, db)).toEqual({
     id: assigned.id,
     phase: null,
     timestamp: null,
   });
-  expect(await readExternalDossierStatus("limited-client", scope, other.id, db)).toBeUndefined();
-  expect(await readExternalDossierStatus("other-client", scope, direct.id, db)).toBeUndefined();
+  expect(await readExternalDossierStatus(limitedClient, scope, other.id, db)).toBeUndefined();
+  expect(await readExternalDossierStatus(otherClient, scope, direct.id, db)).toBeUndefined();
   expect(
-    await readExternalDossierStatus("limited-client", "other:scope", direct.id, db),
+    await readExternalDossierStatus(limitedClient, "other:scope", direct.id, db),
   ).toBeUndefined();
 
   await db("groupe_instructeurs").where({ id: groupe.id }).update({ active: false });
-  expect(await readExternalDossierStatus("limited-client", scope, assigned.id, db)).toBeUndefined();
+  expect(await readExternalDossierStatus(limitedClient, scope, assigned.id, db)).toBeUndefined();
   await db("external_api_client").where({ client_id: "limited-client" }).update({ enabled: false });
-  expect(await readExternalDossierStatus("limited-client", scope, direct.id, db)).toBeUndefined();
+  expect(await readExternalDossierStatus(limitedClient, scope, direct.id, db)).toBeUndefined();
   expect(await admitExternalApiRequest("limited-client", db)).toBe("disabled");
 });
 

@@ -1,12 +1,8 @@
 import { json } from "@sveltejs/kit";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import { readExternalDossierStatus } from "@pitchou/server/database/externalApi.ts";
-import {
-  apiNotFound,
-  apiProblem,
-  apiUnavailable,
-  dossierStatusScope,
-} from "#lib/server/externalApi/responses.ts";
+import { dossierStatusScope } from "@pitchou/types/externalApi.ts";
+import { apiNotFound, apiProblem, apiUnavailable } from "#lib/server/externalApi/responses.ts";
 import type { RequestHandler } from "./$types";
 
 const statusByPhase = {
@@ -34,7 +30,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   }
 
   try {
-    const dossier = await readExternalDossierStatus(principal.clientId, dossierStatusScope, id);
+    const dossier = await readExternalDossierStatus(principal, dossierStatusScope, id);
     if (!dossier) return apiNotFound();
     const statut = statusByPhase[dossier.phase ?? "Accompagnement amont"];
     if (typeof statut !== "string") return apiUnavailable();

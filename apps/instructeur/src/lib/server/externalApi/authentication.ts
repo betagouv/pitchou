@@ -1,7 +1,5 @@
 import { createRemoteJWKSet, errors, jwtVerify } from "jose";
 
-export type ExternalApiPrincipal = { clientId: string; scopes: ReadonlySet<string> };
-
 const maximumTokenAge = 600;
 
 function readHttpsUrl(value: string | undefined) {
@@ -32,7 +30,7 @@ function configureVerifier() {
 
 let verifyToken: ReturnType<typeof configureVerifier> | undefined;
 
-export async function verifyExternalApiToken(token: string): Promise<ExternalApiPrincipal | null> {
+export async function verifyExternalApiToken(token: string) {
   verifyToken ??= configureVerifier();
   try {
     const { payload } = await verifyToken(token);

@@ -1,12 +1,23 @@
 import type { Knex } from "knex";
 import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
+import type { UserId } from "@pitchou/types/permissions.ts";
 import { directDatabaseConnection } from "./connection.ts";
 import { orderPhaseEvents } from "./phaseHistory.ts";
+import { dossierAccessQuery } from "./dossier/access.ts";
+import { externalApiRequestsPerMinute, usableApiKeys } from "./externalApi/keys.ts";
 
-export const externalApiRequestsPerMinute = 60;
+export { externalApiRequestsPerMinute };
+export type ExternalApiIdentity =
+  | { kind: "personal"; userId: UserId; keyId: string }
+  | { kind: "service"; clientId: string; keyId?: string };
+export type ExternalApiPrincipal = ExternalApiIdentity & { scopes: ReadonlySet<string> };
 type Admission = "admitted" | "disabled" | "limited";
 
-export async function admitExternalApiRequest(clientId: string, db = directDatabaseConnection) {
+export async function admitExternalApiRequest(
+  clientId: string,
+  db = directDatabaseConnection,
+  requireOAuth = false,
+) {
   // PostgreSQL serializes concurrent requests for the same client across app instances.
   const { rows } = await db
     .raw<{ rows: [{ admission: Admission }] }>(
@@ -17,17 +28,18 @@ export async function admitExternalApiRequest(clientId: string, db = directDatab
           requests_this_minute = CASE WHEN rate_window_start = clock.window_start
             THEN requests_this_minute + 1 ELSE 1 END
       FROM clock
-      WHERE client_id = :clientId AND enabled AND (
+      WHERE client_id = :clientId AND enabled AND (NOT :requireOAuth OR allow_oauth) AND (
         rate_window_start IS NULL OR rate_window_start < clock.window_start OR
         (rate_window_start = clock.window_start AND requests_this_minute < :limit)
       )
       RETURNING client_id
     )
     SELECT CASE WHEN EXISTS (SELECT 1 FROM admitted) THEN 'admitted'
-      WHEN EXISTS (SELECT 1 FROM external_api_client WHERE client_id = :clientId AND enabled)
+      WHEN EXISTS (SELECT 1 FROM external_api_client WHERE client_id = :clientId AND enabled
+        AND (NOT :requireOAuth OR allow_oauth))
         THEN 'limited'
       ELSE 'disabled' END AS admission`,
-      { clientId, limit: externalApiRequestsPerMinute },
+      { clientId, limit: externalApiRequestsPerMinute, requireOAuth },
     )
     .timeout(3000, { cancel: true });
   return rows[0].admission;
@@ -36,7 +48,7 @@ export async function admitExternalApiRequest(clientId: string, db = directDatab
 type DossierStatusRow = { id: number; phase: DossierPhase | null; timestamp: Date | null };
 
 export async function readExternalDossierStatus(
-  clientId: string,
+  identity: ExternalApiIdentity,
   scope: string,
   dossierId: number,
   db: Knex = directDatabaseConnection,
@@ -47,6 +59,33 @@ export async function readExternalDossierStatus(
     .modify(orderPhaseEvents)
     .limit(1)
     .toSQL();
+  const access =
+    identity.kind === "personal"
+      ? dossierAccessQuery(identity.userId, db).as("personal_access")
+      : serviceAccessQuery(identity.clientId, scope, !identity.keyId, db);
+  const query = db("dossier")
+    .first<DossierStatusRow>("dossier.id", "latest_phase.phase", "latest_phase.timestamp")
+    .joinRaw(`LEFT JOIN LATERAL (${latestPhase.sql}) AS latest_phase ON true`, [
+      ...latestPhase.bindings,
+    ])
+    .where("dossier.id", dossierId)
+    .whereExists(
+      identity.kind === "personal"
+        ? db.select(db.raw("1")).from(access).where("personal_access.dossier", db.ref("dossier.id"))
+        : access,
+    );
+  if (identity.keyId) {
+    query.whereExists(
+      usableApiKeys(db)
+        .select("id")
+        .where({ id: identity.keyId })
+        .whereRaw("? = ANY(scopes)", [scope]),
+    );
+  }
+  return query.timeout(3000, { cancel: true });
+}
+
+function serviceAccessQuery(clientId: string, scope: string, requireOAuth: boolean, db: Knex) {
   const dossierGrant = db("external_api_dossier_grant as grant")
     .select(db.raw("1"))
     .where({ "grant.client_id": clientId, "grant.scope": scope })
@@ -62,15 +101,9 @@ export async function readExternalDossierStatus(
     .where({ "grant.client_id": clientId, "grant.scope": scope, "groupe.active": true })
     .where("assignment.dossier", db.ref("dossier.id"));
 
-  return db("dossier")
-    .first<DossierStatusRow>("dossier.id", "latest_phase.phase", "latest_phase.timestamp")
-    .joinRaw(`LEFT JOIN LATERAL (${latestPhase.sql}) AS latest_phase ON true`, [
-      ...latestPhase.bindings,
-    ])
-    .where("dossier.id", dossierId)
-    .whereExists(
-      db("external_api_client").select("client_id").where({ client_id: clientId, enabled: true }),
-    )
-    .where((grants) => grants.whereExists(dossierGrant).orWhereExists(groupeGrant))
-    .timeout(3000, { cancel: true });
+  const client = db("external_api_client")
+    .select("client_id")
+    .where({ client_id: clientId, enabled: true });
+  if (requireOAuth) client.where({ allow_oauth: true });
+  return client.where((grants) => grants.whereExists(dossierGrant).orWhereExists(groupeGrant));
 }

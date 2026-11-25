@@ -1,5 +1,3 @@
-export const dossierStatusScope = "dossiers:read:statut";
-
 export function apiProblem(status: number, title: string, headers?: HeadersInit) {
   const responseHeaders = new Headers(headers);
   responseHeaders.set("Content-Type", "application/problem+json");

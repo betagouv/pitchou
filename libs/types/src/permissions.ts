@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   "admin:changelog:delete": "Supprimer des entrées de changelog",
   "admin:sync:run": "Lancer une synchronisation DN",
   "admin:sync:simulate": "Simuler des changements DN sur les dossiers",
+  "admin:api:manage": "Gérer les intégrations et les clés de service de l’API",
   "users:manage": "Gérer les utilisateurs et leurs droits",
   "groups:manage": "Gérer les groupes et les accès aux dossiers",
 } as const;
@@ -23,7 +24,7 @@ export const PERMISSION_GROUPS = [
   { label: "Instruction", permissions: ["dossier:read", "dossier:instruct"] },
   {
     label: "Administration : accès et comptes",
-    permissions: ["admin:access", "users:manage", "groups:manage"],
+    permissions: ["admin:access", "users:manage", "groups:manage", "admin:api:manage"],
   },
   {
     label: "Administration : dossiers",

@@ -3,13 +3,14 @@ import swaggerBundle from "swagger-ui-dist/swagger-ui-bundle.js?url";
 import swaggerStyles from "swagger-ui-dist/swagger-ui.css?url";
 
 export const GET = () => {
-  const sandbox =
-    process.env.PUBLIC_PITCHOU_ENV === "staging" &&
-    process.env.EXTERNAL_API_SWAGGER_TRY_IT_OUT === "true";
+  const interactive =
+    process.env.NODE_ENV === "development" ||
+    (process.env.PUBLIC_PITCHOU_ENV === "staging" &&
+      process.env.EXTERNAL_API_SWAGGER_TRY_IT_OUT === "true");
   const init = `SwaggerUIBundle({
     url: "/api/v1/openapi.json",
     dom_id: "#swagger-ui",
-    supportedSubmitMethods: ${sandbox ? '["get"]' : "[]"},
+    supportedSubmitMethods: ${interactive ? '["get"]' : "[]"},
     validatorUrl: null,
     persistAuthorization: false
   });`;

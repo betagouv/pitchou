@@ -1,5 +1,5 @@
 import type { SessionUser } from "@pitchou/types/permissions.ts";
-import type { ExternalApiPrincipal } from "#lib/server/externalApi/authentication.ts";
+import type { ExternalApiPrincipal } from "@pitchou/server/database/externalApi.ts";
 declare global {
   const __PITCHOU_ORIGIN__: string | null;
   interface Window {
