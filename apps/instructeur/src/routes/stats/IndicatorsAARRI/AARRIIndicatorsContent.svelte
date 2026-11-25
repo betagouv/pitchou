@@ -7,6 +7,7 @@
   import AARRIEvolutionChart from "./AARRIEvolutionChart.svelte";
   import MatrixImpact from "./MatrixImpact.svelte";
   import AARRICurrentState from "./AARRICurrentState.svelte";
+  import { AARRI_SERIES } from "./chart.ts";
 
   let {
     indicatorsByDate,
@@ -45,32 +46,6 @@
   const endIndicator = $derived(
     indicatorsByDate.find((indicators) => endDate && isSameDay(indicators.date, endDate)),
   );
-  const evolutionRows = $derived([
-    {
-      phase: "Acquis",
-      color: "var(--artwork-minor-brown-caramel)",
-      before: startIndicator?.nombreUtilisateuriceAcquis,
-      after: endIndicator?.nombreUtilisateuriceAcquis,
-    },
-    {
-      phase: "Activé",
-      color: "var(--artwork-minor-green-menthe)",
-      before: startIndicator?.nombreUtilisateuriceActif,
-      after: endIndicator?.nombreUtilisateuriceActif,
-    },
-    {
-      phase: "Retenu",
-      color: "var(--artwork-minor-yellow-moutarde)",
-      before: startIndicator?.nombreUtilisateuriceRetenu,
-      after: endIndicator?.nombreUtilisateuriceRetenu,
-    },
-    {
-      phase: "Impact",
-      color: "var(--artwork-minor-red-marianne)",
-      before: startIndicator?.nombreUtilisateuriceImpact,
-      after: endIndicator?.nombreUtilisateuriceImpact,
-    },
-  ]);
   function formatEvolution(change: number): string {
     return change > 0 ? `+${change}` : `${change}`;
   }
@@ -100,12 +75,22 @@
 <section class="fr-mt-4w">
   <h2>Évolution</h2>
   <p>
-    Évolution du nombre d'utilisateurices par phase AARRI depuis le premier évènement enregistré.
+    Évolution hebdomadaire du nombre d'utilisateurices par indicateur AARRI depuis le premier
+    évènement enregistré. Chaque date indique le lundi de la semaine mesurée. Les indicateurs proxy
+    sont calculés jusqu'au dimanche soir pour les semaines passées et jusqu'au moment de la
+    consultation pour la semaine en cours.
   </p>
 
   <AARRIEvolutionChart indicators={indicatorsByDate} />
 
-  <h3 class="fr-mt-4w">Évolution du nombre d'utilisateurice par phase entre deux dates</h3>
+  <p class="fr-mt-2w">
+    <a href="#comparaison-aarri">Consulter les valeurs par semaine dans le tableau de comparaison</a
+    >.
+  </p>
+
+  <h3 class="fr-mt-4w" id="comparaison-aarri">
+    Évolution du nombre d'utilisateurices par indicateur entre deux dates
+  </h3>
 
   <div class="flex flex-wrap items-center gap-[0.5rem_1.5rem] fr-mb-3w">
     <div class="fr-select-group flex items-center gap-2 fr-mb-0">
@@ -135,12 +120,13 @@
           <div class="fr-table__content">
             <table id="table-0">
               <caption class="fr-sr-only">
-                Évolution du nombre d'utilisateurice par phase entre {formatDateAbsolute(startDate)} et
-                {formatDateAbsolute(endDate)}
+                Évolution du nombre d'utilisateurices par indicateur entre {formatDateAbsolute(
+                  startDate,
+                )} et {formatDateAbsolute(endDate)}
               </caption>
               <thead>
                 <tr>
-                  <th>Phase</th>
+                  <th>Indicateur</th>
                   <th>{formatDateAbsolute(startDate)}</th>
                   <th>{formatDateAbsolute(endDate)}</th>
                   <th>Évolution</th>
@@ -148,24 +134,26 @@
                 </tr>
               </thead>
               <tbody>
-                {#each evolutionRows as row, i}
-                  {@const change = (row.after ?? 0) - (row.before ?? 0)}
+                {#each AARRI_SERIES as { key, label, color }, i}
+                  {@const before = startIndicator[key]}
+                  {@const after = endIndicator[key]}
+                  {@const change = after - before}
                   <tr id={`table-0-row-key-${i + 1}`} data-row-key={i + 1}>
                     <td>
                       <span
                         class="inline-block w-3 h-3 rounded-full fr-mr-1w align-middle"
-                        style={`background-color:${row.color}`}
+                        style:background-color={color}
                       ></span>
-                      {row.phase}
+                      {label}
                     </td>
-                    <td>{row.before}</td>
-                    <td>{row.after}</td>
+                    <td>{before}</td>
+                    <td>{after}</td>
                     <td class={changeClass(change)}>
                       {evolutionArrow(change)}
                       {formatEvolution(change)}
                     </td>
                     <td class={changeClass(change)}>
-                      {formatPercent(row.before, change)}
+                      {formatPercent(before, change)}
                     </td>
                   </tr>
                 {/each}

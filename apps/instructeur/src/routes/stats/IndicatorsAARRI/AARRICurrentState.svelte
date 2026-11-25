@@ -1,31 +1,37 @@
 <script lang="ts">
   import type { IndicatorsAARRI } from "@pitchou/types/API_Pitchou.ts";
+  import { AARRI_SERIES } from "./chart.ts";
+
   type Props = { indicators: IndicatorsAARRI };
   let { indicators }: Props = $props();
   const baseWidth = 80;
   const rows = $derived([
-    { label: "Impact", value: indicators.nombreUtilisateuriceImpact, color: "red-marianne" },
-    { label: "Retenu", value: indicators.nombreUtilisateuriceRetenu, color: "yellow-moutarde" },
-    { label: "Activé", value: indicators.nombreUtilisateuriceActif, color: "green-menthe" },
-    { label: "Acquis", value: indicators.nombreUtilisateuriceAcquis, color: "brown-caramel" },
-    { label: "Base", value: indicators.nombreBaseUtilisateuricePotentielle, color: "blue-ecume" },
+    ...AARRI_SERIES.toReversed().map(({ key, label, color }) => ({
+      label,
+      value: indicators[key],
+      color,
+    })),
+    {
+      label: "Base",
+      value: indicators.nombreBaseUtilisateuricePotentielle,
+      color: "var(--artwork-minor-blue-ecume)",
+    },
   ]);
 </script>
 
 <section class="fr-mt-4w">
   <h2>État des lieux</h2>
-  <p>
-    Voici la valeur des nombres d'utilisateurices de Pitchou pour chaque phase AARRI aujourd'hui.
-  </p>
-  <div class="flex flex-col gap-2">
+  <p>Voici le nombre d'utilisateurices de Pitchou pour chaque indicateur AARRI aujourd'hui.</p>
+  <div class="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-x-3 gap-y-2">
     {#each rows as row}
-      <div class="fr-grid-row fr-grid-row--middle">
-        <span class="fr-col-1">{row.label}</span>
+      <span>{row.label}</span>
+      <div class="flex items-center gap-2">
         <div
           class="h-10"
-          style={`background:var(--artwork-minor-${row.color});width:${(row.value / indicators.nombreBaseUtilisateuricePotentielle) * baseWidth}%`}
+          style:background={row.color}
+          style:width={`${(row.value / indicators.nombreBaseUtilisateuricePotentielle) * baseWidth}%`}
         ></div>
-        <span class="fr-ml-1w">{row.value}</span>
+        <span>{row.value}</span>
       </div>
     {/each}
   </div>
@@ -47,12 +53,22 @@
     Une personne activée est une personne qui a effectué 5 actions de modifications (principalement
     des modifications de dossier) sur une période de 7 jours.
   </p>
+  <h3>Proxy-rétention</h3>
+  <p>
+    Une personne est comptée si elle a effectué au moins 5 actions de modification dans les 30 jours
+    précédents. Elle peut sortir de cet indicateur quand ses actions deviennent trop anciennes.
+  </p>
   <h3>Rétention</h3>
   <p>
     Une personne est passée en rétention (on dira qu'elle est régulièrement active) lorsqu'elle a
     fait des actions de modification et de consultation très régulièrement. On le traduit comme suit
     : la personne a renouvelé 5 actions de consultation ou de modification sur 7 jours glissants sur
     les 5 dernières semaines.
+  </p>
+  <h3>Proxy-impact</h3>
+  <p>
+    Une personne est comptée dès qu'elle a enregistré au moins un contrôle, quel qu'en soit le
+    résultat, dans l'historique AARRI conservé sur environ 50 semaines.
   </p>
   <h3>Impact</h3>
   <p>
