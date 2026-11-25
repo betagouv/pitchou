@@ -81,10 +81,19 @@ function person(first_names, last_name, values = {}) {
   return { first_names, last_name, email: null, address: null, phone: null, role: null, ...values };
 }
 
+/** Pitchou person fields are varchar(255); PostgreSQL counts characters, not UTF-16 units. */
+export const personFieldLength = 255;
+
+/** Owner decision: an over-long postal address is truncated rather than dropped. */
+export function truncateAddress(value) {
+  const text = sourceText(value);
+  return text && [...text].slice(0, personFieldLength).join("").trimEnd();
+}
+
 /** The pétitionnaire's postal address and phone, the mobile phone first. */
 function petitionnaireDetails(projet) {
   return {
-    address: sourceText(projet.adressepetitionnaire),
+    address: truncateAddress(projet.adressepetitionnaire),
     phone:
       sourceText(projet.telephoneportablepetitionnaire) ??
       sourceText(projet.telephonepetitionnaire),

@@ -127,7 +127,7 @@ The importer then applies the owner's pétitionnaire decision of 25 November 202
 - In both branches, a non-empty `nomcoordinateur` becomes a `personne_contact` with a valid `adressemailchefprojet`. The leading civility is removed, uppercase words form the last name and the other words the first names; without that signal, the last word is the last name.
 - An unknown category keeps the prepared porteur and contacts.
 
-Empty values, whitespace and `0` count as empty, except the Bénéficiaire's names. `qualificationpersonne` is not imported. When the decision applies, earlier prepared contacts (`applicant-contact`) are removed on replay; one edited, reassigned or shared since then stops the import for reconciliation instead.
+Empty values, whitespace and `0` count as empty, except the Bénéficiaire's names. Person fields are limited to 255 characters: an over-long `adressepetitionnaire` is truncated (six demandes in the current files), and any other over-long value is refused at validation. `qualificationpersonne` is not imported. When the decision applies, earlier prepared contacts (`applicant-contact`) are removed on replay; one edited, reassigned or shared since then stops the import for reconciliation instead.
 
 The owner approved importing identifiable people as `personne_contact`, without accounts or access rights. `personneshabilitees` remains excluded, including from comments. A porteur may be a person or an organisation; the source category and contextual evidence determine which.
 

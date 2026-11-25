@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { actorProposal, assertReplaceableContacts, validateActors } from "./actors.mjs";
-import { emailMatchesPerson, sourceActors, splitCoordinateur } from "./actors/source.mjs";
+import {
+  emailMatchesPerson,
+  sourceActors,
+  splitCoordinateur,
+  truncateAddress,
+} from "./actors/source.mjs";
 const person = {
   first_names: "Camille",
   last_name: "Exemple",
@@ -176,6 +181,24 @@ test("the decision only replaces former applicant contacts", () => {
   sample.proposal.contacts[0].sourceKey = "onagre-national:projet:7:other-contact";
   assert.throws(() => assertReplaceableContacts(sample), /former applicant/u);
   assertReplaceableContacts(sourceSample(null));
+});
+
+test("addresses are truncated to 255 characters and longer person fields are refused", () => {
+  const long = `${"é".repeat(250)}  12345 6789`;
+  assert.equal(truncateAddress(long), `${"é".repeat(250)}  123`.trimEnd());
+  assert.equal([...truncateAddress(long)].length, 255);
+  assert.equal(truncateAddress(`${"a".repeat(254)} b`), "a".repeat(254));
+  assert.equal(truncateAddress(" 1 rue des Lilas "), "1 rue des Lilas");
+  assert.equal(truncateAddress("0"), null);
+  assert.throws(
+    () =>
+      validateActors({
+        contacts: [{ ...contact, values: { ...person, last_name: "x".repeat(256) } }],
+      }),
+    /identity/u,
+  );
+  const sample = sourceSample("Personne Morale", { adressepetitionnaire: "a".repeat(300) });
+  assert.equal(byInvolvement(sourceActors(sample), "beneficiaire").values.address, "a".repeat(255));
 });
 
 test("an unknown pétitionnaire category keeps the prepared porteur and contacts", () => {

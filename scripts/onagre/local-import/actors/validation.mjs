@@ -1,4 +1,5 @@
 import { isOrganisation } from "../../../../libs/common/src/organisation.ts";
+import { personFieldLength } from "./source.mjs";
 
 const personColumns = ["first_names", "last_name", "email", "address", "phone", "role"];
 const companyColumns = ["legal_name", "address", "postal_code", "insee_code"];
@@ -28,6 +29,7 @@ function validatePerson(person) {
   if (
     !fields(person, personColumns) ||
     !(person.first_names || person.last_name) ||
+    Object.values(person).some((value) => value && [...value].length > personFieldLength) ||
     (person.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(person.email))
   )
     throw new Error("Expected a prepared person identity with explicit nullable fields");

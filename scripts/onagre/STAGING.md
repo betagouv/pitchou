@@ -12,10 +12,15 @@ and verify the staging email allowlist. Build staging from `main`, merge the
 reviewed feature commit locally, then push once with an exact force-with-lease
 when resetting the branch was authorised. This avoids deploying intermediate main.
 
-`staging-import.mjs` accepts a private gzip NDJSON bundle, its SHA256, and an existing
-active reviewer email. The bundle identifies the reviewed cutoff and contains
+`staging-import.mjs` accepts a private gzip NDJSON bundle, its SHA256, and optionally an
+existing active reviewer email. Without a reviewer, existing dossier access is left unchanged
+and group routing alone assigns imported dossiers. With one, the reviewer receives an
+`instruct` grant on each imported dossier; an existing read-only grant for that account stops
+the project instead of being upgraded, so pass a reviewer only when that account has none. The bundle identifies the reviewed cutoff and contains
 checksummed prepared projects plus species reference rows. A header contains the
-reference rows and project count; subsequent lines contain one project each. The
+reference rows and project count; subsequent lines contain one project each. Escape U+2028,
+U+2029 and U+0085 in each line (`\u2028`, `\u2029`, `\u0085`): the reader splits lines on
+them, and some prepared projects contain them. The
 entire stream is validated before opening a database connection. Keep source data,
 credentials, bundles and reports in ignored private storage, never Git.
 
@@ -25,8 +30,8 @@ pins the database, bucket and staging email protection. No production target is
 accepted. Example command inside that container:
 
 ```sh
-node --import tsx scripts/onagre/staging-import.mjs /tmp/uploads/bundle.json.gz SHA256 reviewer@example.org 20
-node --import tsx scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle.json.gz SHA256 reviewer@example.org
+node --import tsx scripts/onagre/staging-import.mjs /tmp/uploads/bundle.json.gz SHA256 20
+node --import tsx scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle.json.gz SHA256
 ```
 
 The first command rolls back database changes and checks the first 20 projects.
