@@ -7,11 +7,75 @@
   },
   "servers": [{ "url": "/api/v1" }],
   "paths": {
-    "/dossiers/{id}/statut": {
+    "/dossiers": {
       "get": {
-        "operationId": "getDossierStatut",
-        "summary": "Consulter le statut d’un dossier",
-        "description": "Requiert la portée `dossiers:read:statut`. Une clé personnelle suit les droits de son titulaire. Un service doit être explicitement habilité sur le dossier ou sur un groupe instructeur actif auquel il est affecté.",
+        "operationId": "listDossiers",
+        "summary": "Lister les dossiers accessibles",
+        "description": "Portée `dossiers:read`. Résultats triés par identifiant Pitchou croissant. Passez `next_cursor` dans la requête suivante tant qu’il est renseigné.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "description": "Identifiant du dernier dossier de la page précédente.",
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Nombre maximal de dossiers par page.",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Statut courant.",
+            "schema": { "$ref": "#/components/schemas/DossierStatus" }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "description": "Code du département principal.",
+            "schema": { "type": "string", "pattern": "^(?:[0-9]{2,3}|2[AB])$" }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Nom, identifiant Onagre ou numéro Pitchou ou Démarches Numériques.",
+            "schema": { "type": "string", "maxLength": 200 }
+          },
+          {
+            "name": "followed",
+            "in": "query",
+            "description": "Dossiers suivis ou non suivis par le titulaire. Clé personnelle requise.",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les dossiers accessibles",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DossiersPage" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}": {
+      "get": {
+        "operationId": "getDossier",
+        "summary": "Consulter la fiche d’un dossier",
+        "description": "Portée `dossiers:read`.",
+        "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
           {
@@ -23,23 +87,901 @@
         ],
         "responses": {
           "200": {
-            "description": "Statut du dossier",
+            "description": "Consulter la fiche d’un dossier",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Dossier" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/avis-experts": {
+      "get": {
+        "operationId": "listAvisExperts",
+        "summary": "Lister les avis d’experts",
+        "description": "Portée `dossiers:read`. Les saisines et les avis non officiels requièrent un accès interne.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les avis d’experts",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/DossierStatut" },
-                "example": {
-                  "id": 123,
-                  "statut": "instruction",
-                  "date_changement_statut": "2026-01-15T09:30:00.000Z"
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AvisExpert" }
                 }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/Forbidden" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/decisions": {
+      "get": {
+        "operationId": "listDecisions",
+        "summary": "Lister les décisions administratives",
+        "description": "Portée `dossiers:read`.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les décisions administratives",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Decision" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/pieces-jointes": {
+      "get": {
+        "operationId": "listPiecesJointes",
+        "summary": "Lister les pièces jointes accessibles",
+        "description": "Portée `dossiers:read`.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les pièces jointes accessibles",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PieceJointe" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/especes-impactees": {
+      "get": {
+        "operationId": "listEspeceImpacts",
+        "summary": "Lister les impacts sur les espèces",
+        "description": "Portée `dossiers:read`.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les impacts sur les espèces",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/EspeceImpact" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/phase-events": {
+      "get": {
+        "operationId": "listDossierPhaseEvents",
+        "summary": "Consulter les événements de phase",
+        "description": "Portée `dossiers:read`.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulter les événements de phase",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DossierPhaseEvent" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/prescriptions": {
+      "get": {
+        "operationId": "listPrescriptions",
+        "summary": "Lister les prescriptions",
+        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les prescriptions",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Prescription" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/controles": {
+      "get": {
+        "operationId": "listControles",
+        "summary": "Lister les contrôles",
+        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les contrôles",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Controle" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/comments": {
+      "get": {
+        "operationId": "listDossierComments",
+        "summary": "Lister les commentaires internes",
+        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les commentaires internes",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DossierComment" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/history": {
+      "get": {
+        "operationId": "listDossierHistory",
+        "summary": "Consulter l’historique interne",
+        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulter l’historique interne",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DossierAction" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/cnpn-emails": {
+      "get": {
+        "operationId": "listCnpnEmails",
+        "summary": "Lister les envois au CNPN",
+        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les envois au CNPN",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CnpnEmail" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/followers": {
+      "get": {
+        "operationId": "listDossierFollowers",
+        "summary": "Lister les personnes qui suivent le dossier",
+        "description": "Portée `dossiers:read`. En lecture restreinte, seule la relation de suivi du titulaire est visible.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lister les personnes qui suivent le dossier",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["email"],
+                    "properties": { "email": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/dossiers/{id}/pieces-jointes/{fileId}": {
+      "get": {
+        "operationId": "downloadPieceJointe",
+        "summary": "Télécharger une pièce jointe",
+        "description": "Portée `dossiers:read`. Utilisez l’URL fournie dans la liste des pièces. Le type de contenu dépend du fichier.",
+        "tags": ["Dossiers"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/DossierId" }
+          },
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Télécharger une pièce jointe",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/ResourceNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "operationId": "getAccount",
+        "summary": "Consulter son compte Pitchou",
+        "description": "Portée `account:read`. Clé personnelle requise.",
+        "tags": ["Compte"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter son compte Pitchou",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Account" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/account/groupes": {
+      "get": {
+        "operationId": "listAccountGroupes",
+        "summary": "Lister ses groupes instructeurs et leurs membres",
+        "description": "Portée `account:read`. Clé personnelle requise.",
+        "tags": ["Compte"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister ses groupes instructeurs et leurs membres",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GroupeWithMembers" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/account/notifications": {
+      "get": {
+        "operationId": "listAccountNotifications",
+        "summary": "Lister ses notifications de dossier",
+        "description": "Portée `account:read`. Clé personnelle requise.",
+        "tags": ["Compte"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister ses notifications de dossier",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Notification" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/account/notification-preferences": {
+      "get": {
+        "operationId": "getNotificationPreferences",
+        "summary": "Consulter ses préférences de notification",
+        "description": "Portée `account:read`. Clé personnelle requise.",
+        "tags": ["Compte"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter ses préférences de notification",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/NotificationPreferences" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/account/recent-searches": {
+      "get": {
+        "operationId": "listRecentSearches",
+        "summary": "Lister ses recherches récentes",
+        "description": "Portée `account:read`. Clé personnelle requise.",
+        "tags": ["Compte"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister ses recherches récentes",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/taxref": {
+      "get": {
+        "operationId": "searchTaxref",
+        "summary": "Rechercher dans TAXREF",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Numéro de page.",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Texte à rechercher.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Ordre du tri.",
+            "schema": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          {
+            "name": "kingdom",
+            "in": "query",
+            "description": "Règne.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "class",
+            "in": "query",
+            "description": "Classe.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Clé de tri.",
+            "schema": {
+              "type": "string",
+              "enum": ["scientific_name", "common_name", "cd_nom", "cd_ref"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rechercher dans TAXREF",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaxrefPage" } }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/taxref-filters": {
+      "get": {
+        "operationId": "getTaxrefFilters",
+        "summary": "Lister les filtres TAXREF",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister les filtres TAXREF",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["kingdoms", "classes"],
+                  "properties": {
+                    "kingdoms": { "type": "array", "items": { "type": "string" } },
+                    "classes": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/bdc-statuts": {
+      "get": {
+        "operationId": "searchBdcStatuts",
+        "summary": "Rechercher dans BDC-Statuts",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Numéro de page.",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Texte à rechercher.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Ordre du tri.",
+            "schema": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Type de statut.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "iucn",
+            "in": "query",
+            "description": "Catégorie de la liste rouge nationale.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Clé de tri.",
+            "schema": { "type": "string", "enum": ["cd_ref", "cd_nom", "status_type"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rechercher dans BDC-Statuts",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BdcStatutsPage" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/InvalidParameters" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/bdc-statuts-filters": {
+      "get": {
+        "operationId": "getBdcStatutsFilters",
+        "summary": "Lister les types de statut BDC-Statuts",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister les types de statut BDC-Statuts",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["statuses"],
+                  "properties": {
+                    "statuses": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/especes-protegees": {
+      "get": {
+        "operationId": "listEspecesProtegees",
+        "summary": "Lister les espèces protégées",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Lister les espèces protégées",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/EspeceProtegee" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/activites": {
+      "get": {
+        "operationId": "listActivites",
+        "summary": "Consulter le référentiel des activités",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter le référentiel des activités",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Activites" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/impacts-especes": {
+      "get": {
+        "operationId": "getEspeceImpactReferences",
+        "summary": "Consulter les types d’impact, méthodes et moyens de poursuite",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter les types d’impact, méthodes et moyens de poursuite",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EspeceImpactReferences" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/stats": {
+      "get": {
+        "operationId": "getStats",
+        "summary": "Consulter les statistiques publiques",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter les statistiques publiques",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Stats" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Unavailable" }
+        }
+      }
+    },
+    "/references/aarri": {
+      "get": {
+        "operationId": "getAarri",
+        "summary": "Consulter les indicateurs AARRI publics",
+        "description": "Portée `references:read`.",
+        "tags": ["Référentiels"],
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Consulter les indicateurs AARRI publics",
+            "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Aarri" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
           "429": { "$ref": "#/components/responses/RateLimited" },
           "503": { "$ref": "#/components/responses/Unavailable" }
         }
@@ -63,29 +1005,6 @@
     },
     "schemas": {
       "DossierId": { "type": "integer", "minimum": 1, "maximum": 2147483647, "example": 123 },
-      "DossierStatut": {
-        "type": "object",
-        "required": ["id", "statut", "date_changement_statut"],
-        "properties": {
-          "id": { "$ref": "#/components/schemas/DossierId" },
-          "statut": {
-            "type": "string",
-            "enum": [
-              "accompagnement_amont",
-              "etude_recevabilite",
-              "instruction",
-              "controle",
-              "classe_sans_suite",
-              "obligations_terminees"
-            ]
-          },
-          "date_changement_statut": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "Date du dernier événement de phase enregistré, ou null en l’absence d’événement."
-          }
-        }
-      },
       "Problem": {
         "type": "object",
         "required": ["type", "title", "status"],
@@ -94,16 +1013,997 @@
           "title": { "type": "string" },
           "status": { "type": "integer" }
         }
+      },
+      "DossierStatus": {
+        "type": "string",
+        "enum": [
+          "accompagnement_amont",
+          "etude_recevabilite",
+          "instruction",
+          "controle",
+          "classe_sans_suite",
+          "obligations_terminees"
+        ]
+      },
+      "DossierSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "source",
+          "demarche_numerique_number",
+          "onagre_demande_identifier",
+          "primary_department",
+          "submission_date",
+          "main_activite",
+          "status",
+          "status_changed_at"
+        ],
+        "properties": {
+          "id": { "$ref": "#/components/schemas/DossierId" },
+          "name": { "type": ["string", "null"] },
+          "source": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "pitchou",
+              "demarche_numerique",
+              "gunenv",
+              "onagre",
+              "import_fichier"
+            ]
+          },
+          "demarche_numerique_number": { "type": ["string", "null"] },
+          "onagre_demande_identifier": { "type": ["string", "null"] },
+          "primary_department": { "type": ["string", "null"] },
+          "submission_date": { "type": ["string", "null"], "format": "date-time" },
+          "main_activite": { "type": ["string", "null"] },
+          "status": { "$ref": "#/components/schemas/DossierStatus" },
+          "status_changed_at": { "type": ["string", "null"], "format": "date-time" },
+          "followed": {
+            "type": "boolean",
+            "description": "Présent avec une clé personnelle."
+          }
+        }
+      },
+      "DossiersPage": {
+        "type": "object",
+        "required": ["dossiers", "next_cursor"],
+        "properties": {
+          "dossiers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DossierSummary" }
+          },
+          "next_cursor": {
+            "anyOf": [{ "$ref": "#/components/schemas/DossierId" }, { "type": "null" }]
+          }
+        }
+      },
+      "Dossier": {
+        "type": "object",
+        "required": [
+          "id",
+          "demarche_numerique_number",
+          "demarche_number",
+          "submission_date",
+          "ddep_submission_date",
+          "name",
+          "description",
+          "urgent_contact_phone",
+          "request_context",
+          "accompaniment_need",
+          "intervention_start_date",
+          "intervention_end_date",
+          "intervention_duration",
+          "no_other_satisfactory_solution_justification",
+          "motif_derogation",
+          "motif_derogation_justification",
+          "linked_to_ae_regime",
+          "ae_procedures",
+          "ae_other_procedure",
+          "especes_prise_detention_limitee_type",
+          "scientifique_mortality_measures_taken",
+          "scientifique_mortality_measures_details",
+          "eolien_commissioning_year",
+          "eolien_turbines_count",
+          "eolien_tip_height",
+          "eolien_rotor_diameter",
+          "eolien_ground_clearance",
+          "eolien_monitored_turbines_count",
+          "eolien_field_inventory_period",
+          "eolien_monitoring_visits_count",
+          "eolien_weekly_monitoring_visits_count",
+          "eolien_mortality_actions",
+          "eolien_carcass_collection_method",
+          "eolien_carcass_preservation_method",
+          "eolien_carcass_examination_address",
+          "main_activite",
+          "activite_code",
+          "activite_label",
+          "source",
+          "departments",
+          "communes",
+          "regions",
+          "location_scope",
+          "primary_department",
+          "project_map",
+          "next_action_expected_from",
+          "next_due_date",
+          "ddep_required",
+          "scientifique_demande_type",
+          "scientifique_previous_assessment",
+          "scientifique_demande_purposes",
+          "scientifique_suivi_protocol_description",
+          "scientifique_capture_mode",
+          "scientifique_light_source_conditions",
+          "scientifique_marking_conditions",
+          "scientifique_transport_conditions",
+          "scientifique_intervention_perimeter",
+          "scientifique_intervenants",
+          "scientifique_other_intervenants_details",
+          "enjeu",
+          "onagre_demande_identifier",
+          "public_consultation_start_date",
+          "public_consultation_end_date",
+          "mesures_erc_planned",
+          "er_mesures_sufficient",
+          "dossier_oiseau_simple_compensated_nids_count",
+          "dossier_oiseau_simple_destroyed_nids_count",
+          "type",
+          "ecological_inventory_completed",
+          "especes_present_in_influence_area",
+          "risk_despite_erc_mesures",
+          "commissioning_date",
+          "status",
+          "status_changed_at",
+          "porteur_de_projet",
+          "acteurs",
+          "access"
+        ],
+        "properties": {
+          "id": { "$ref": "#/components/schemas/DossierId" },
+          "demarche_numerique_number": { "type": ["string", "null"] },
+          "demarche_number": { "type": ["number", "null"] },
+          "submission_date": { "type": ["string", "null"], "format": "date-time" },
+          "ddep_submission_date": { "type": ["string", "null"], "format": "date" },
+          "name": { "type": ["string", "null"] },
+          "description": { "type": ["string", "null"] },
+          "urgent_contact_phone": { "type": ["string", "null"] },
+          "request_context": { "type": ["string", "null"] },
+          "accompaniment_need": { "type": ["string", "null"] },
+          "intervention_start_date": { "type": ["string", "null"], "format": "date-time" },
+          "intervention_end_date": { "type": ["string", "null"], "format": "date-time" },
+          "intervention_duration": { "type": ["number", "null"] },
+          "no_other_satisfactory_solution_justification": { "type": ["string", "null"] },
+          "motif_derogation": { "type": ["string", "null"] },
+          "motif_derogation_justification": { "type": ["string", "null"] },
+          "linked_to_ae_regime": { "type": ["boolean", "null"] },
+          "ae_procedures": {},
+          "ae_other_procedure": { "type": ["string", "null"] },
+          "especes_prise_detention_limitee_type": { "type": ["string", "null"] },
+          "scientifique_mortality_measures_taken": { "type": ["boolean", "null"] },
+          "scientifique_mortality_measures_details": { "type": ["string", "null"] },
+          "eolien_commissioning_year": { "type": ["number", "null"] },
+          "eolien_turbines_count": { "type": ["number", "null"] },
+          "eolien_tip_height": { "type": ["number", "null"] },
+          "eolien_rotor_diameter": { "type": ["number", "null"] },
+          "eolien_ground_clearance": { "type": ["number", "null"] },
+          "eolien_monitored_turbines_count": { "type": ["number", "null"] },
+          "eolien_field_inventory_period": { "type": ["string", "null"] },
+          "eolien_monitoring_visits_count": { "type": ["number", "null"] },
+          "eolien_weekly_monitoring_visits_count": { "type": ["number", "null"] },
+          "eolien_mortality_actions": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          },
+          "eolien_carcass_collection_method": { "type": ["string", "null"] },
+          "eolien_carcass_preservation_method": { "type": ["string", "null"] },
+          "eolien_carcass_examination_address": { "type": ["string", "null"] },
+          "main_activite": { "type": ["string", "null"] },
+          "activite_code": { "type": ["string", "null"] },
+          "activite_label": { "type": ["string", "null"] },
+          "source": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "pitchou",
+              "demarche_numerique",
+              "gunenv",
+              "onagre",
+              "import_fichier"
+            ]
+          },
+          "departments": { "type": ["array", "null"], "items": { "type": "string" } },
+          "communes": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "required": ["name", "code"],
+              "properties": {
+                "name": { "type": "string" },
+                "code": { "type": "string" },
+                "postalCode": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "regions": { "type": ["array", "null"], "items": { "type": "string" } },
+          "location_scope": { "type": ["string", "null"] },
+          "primary_department": { "type": ["string", "null"] },
+          "project_map": {
+            "type": ["object", "null"],
+            "required": ["type", "features"],
+            "properties": {
+              "type": { "const": "FeatureCollection" },
+              "features": { "type": "array", "items": { "type": "object" } }
+            }
+          },
+          "next_action_expected_from": { "type": ["string", "null"] },
+          "next_due_date": { "type": ["string", "null"], "format": "date-time" },
+          "ddep_required": { "type": ["boolean", "null"] },
+          "scientifique_demande_type": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          },
+          "scientifique_previous_assessment": { "type": ["boolean", "null"] },
+          "scientifique_demande_purposes": {},
+          "scientifique_suivi_protocol_description": { "type": ["string", "null"] },
+          "scientifique_capture_mode": {
+            "type": ["array", "null"],
+            "items": { "type": "string" }
+          },
+          "scientifique_light_source_conditions": { "type": ["string", "null"] },
+          "scientifique_marking_conditions": { "type": ["string", "null"] },
+          "scientifique_transport_conditions": { "type": ["string", "null"] },
+          "scientifique_intervention_perimeter": { "type": ["string", "null"] },
+          "scientifique_intervenants": {},
+          "scientifique_other_intervenants_details": { "type": ["string", "null"] },
+          "enjeu": { "type": "boolean" },
+          "onagre_demande_identifier": { "type": ["string", "null"] },
+          "public_consultation_start_date": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "public_consultation_end_date": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "mesures_erc_planned": { "type": ["boolean", "null"] },
+          "er_mesures_sufficient": { "type": ["boolean", "null"] },
+          "dossier_oiseau_simple_compensated_nids_count": { "type": ["number", "null"] },
+          "dossier_oiseau_simple_destroyed_nids_count": { "type": ["number", "null"] },
+          "type": { "type": ["string", "null"] },
+          "ecological_inventory_completed": { "type": ["boolean", "null"] },
+          "especes_present_in_influence_area": { "type": ["boolean", "null"] },
+          "risk_despite_erc_mesures": { "type": ["boolean", "null"] },
+          "commissioning_date": { "type": ["string", "null"], "format": "date-time" },
+          "status": { "$ref": "#/components/schemas/DossierStatus" },
+          "status_changed_at": { "type": ["string", "null"], "format": "date-time" },
+          "porteur_de_projet": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "type",
+                  "first_names",
+                  "last_name",
+                  "email",
+                  "address",
+                  "phone",
+                  "role"
+                ],
+                "properties": {
+                  "type": { "const": "personne_physique" },
+                  "first_names": { "type": ["string", "null"] },
+                  "last_name": { "type": ["string", "null"] },
+                  "email": { "type": ["string", "null"] },
+                  "address": { "type": ["string", "null"] },
+                  "phone": { "type": ["string", "null"] },
+                  "role": { "type": ["string", "null"] }
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "type",
+                  "siret",
+                  "legal_name",
+                  "address",
+                  "siren",
+                  "legal_form",
+                  "naf_code",
+                  "naf_label",
+                  "creation_date",
+                  "admin_status",
+                  "headcount",
+                  "share_capital",
+                  "insee_code",
+                  "postal_code",
+                  "department",
+                  "region"
+                ],
+                "properties": {
+                  "type": { "const": "personne_morale" },
+                  "siret": { "type": "string" },
+                  "legal_name": { "type": ["string", "null"] },
+                  "address": { "type": ["string", "null"] },
+                  "siren": { "type": ["string", "null"] },
+                  "legal_form": { "type": ["string", "null"] },
+                  "naf_code": { "type": ["string", "null"] },
+                  "naf_label": { "type": ["string", "null"] },
+                  "creation_date": { "type": ["string", "null"] },
+                  "admin_status": { "type": ["string", "null"] },
+                  "headcount": { "type": ["string", "null"] },
+                  "share_capital": { "type": ["string", "null"] },
+                  "insee_code": { "type": ["string", "null"] },
+                  "postal_code": { "type": ["string", "null"] },
+                  "department": { "type": ["string", "null"] },
+                  "region": { "type": ["string", "null"] }
+                }
+              },
+              { "type": "null" }
+            ]
+          },
+          "acteurs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "first_names",
+                "last_name",
+                "email",
+                "address",
+                "phone",
+                "role",
+                "involvements"
+              ],
+              "properties": {
+                "first_names": { "type": ["string", "null"] },
+                "last_name": { "type": ["string", "null"] },
+                "email": { "type": ["string", "null"] },
+                "address": { "type": ["string", "null"] },
+                "phone": { "type": ["string", "null"] },
+                "role": { "type": ["string", "null"] },
+                "involvements": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "access": { "type": "string", "enum": ["restricted", "full_read", "full"] }
+        }
+      },
+      "AvisExpert": {
+        "type": "object",
+        "required": ["id", "expert", "avis", "avis_date", "avis_file_url"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "expert": { "type": ["string", "null"] },
+          "avis": { "type": ["string", "null"] },
+          "avis_date": { "type": ["string", "null"], "format": "date-time" },
+          "avis_file_url": { "type": ["string", "null"], "format": "uri-reference" },
+          "saisine_date": { "type": ["string", "null"], "format": "date-time" },
+          "saisine_file_url": { "type": ["string", "null"], "format": "uri-reference" }
+        }
+      },
+      "Decision": {
+        "type": "object",
+        "required": ["id", "number", "type", "signature_date", "obligations_end_date", "file_url"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "number": { "type": ["string", "null"] },
+          "type": { "type": ["string", "null"] },
+          "signature_date": { "type": ["string", "null"], "format": "date-time" },
+          "obligations_end_date": { "type": ["string", "null"], "format": "date-time" },
+          "file_url": { "type": ["string", "null"], "format": "uri-reference" }
+        }
+      },
+      "Prescription": {
+        "type": "object",
+        "required": [
+          "id",
+          "decision_administrative",
+          "due_date",
+          "article_number",
+          "description",
+          "avoided_surface",
+          "compensated_surface",
+          "avoided_nids",
+          "compensated_nids",
+          "avoided_individus",
+          "compensated_individus"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "decision_administrative": { "type": "string", "format": "uuid" },
+          "due_date": { "type": ["string", "null"], "format": "date-time" },
+          "article_number": { "type": ["string", "null"] },
+          "description": { "type": ["string", "null"] },
+          "avoided_surface": { "type": ["number", "null"] },
+          "compensated_surface": { "type": ["number", "null"] },
+          "avoided_nids": { "type": ["number", "null"] },
+          "compensated_nids": { "type": ["number", "null"] },
+          "avoided_individus": { "type": ["number", "null"] },
+          "compensated_individus": { "type": ["number", "null"] }
+        }
+      },
+      "Controle": {
+        "type": "object",
+        "required": [
+          "id",
+          "prescription",
+          "controle_date",
+          "result",
+          "comment",
+          "post_controle_action_type",
+          "post_controle_action_date",
+          "next_due_date"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "prescription": { "type": "string", "format": "uuid" },
+          "controle_date": { "type": ["string", "null"], "format": "date-time" },
+          "result": { "type": ["string", "null"] },
+          "comment": { "type": ["string", "null"] },
+          "post_controle_action_type": { "type": ["string", "null"] },
+          "post_controle_action_date": { "type": ["string", "null"], "format": "date-time" },
+          "next_due_date": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "PieceJointe": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "media_type",
+          "size",
+          "created_at",
+          "demarche_numerique_created_at",
+          "relation",
+          "expert",
+          "piece_type",
+          "piece_date",
+          "url"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "media_type": { "type": ["string", "null"] },
+          "size": { "type": "integer", "minimum": 0 },
+          "created_at": { "type": "string", "format": "date-time" },
+          "demarche_numerique_created_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "relation": {
+            "type": "string",
+            "enum": [
+              "avis",
+              "saisine",
+              "decision-administrative",
+              "especes-impactees",
+              "piece-jointe-petitionnaire",
+              "other-attachment"
+            ]
+          },
+          "expert": { "type": ["string", "null"] },
+          "piece_type": { "type": ["string", "null"] },
+          "piece_date": { "type": ["string", "null"], "format": "date-time" },
+          "url": { "type": "string", "format": "uri-reference" }
+        }
+      },
+      "DossierComment": {
+        "type": "object",
+        "required": ["id", "content", "created_at", "updated_at", "author_email"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": ["string", "null"], "format": "date-time" },
+          "author_email": { "type": ["string", "null"] }
+        }
+      },
+      "DossierAction": {
+        "type": "object",
+        "required": ["id", "type", "data", "created_at", "author_petitionnaire", "author_email"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "type": { "type": "string" },
+          "data": {},
+          "created_at": { "type": "string", "format": "date-time" },
+          "author_petitionnaire": { "type": "boolean" },
+          "author_email": { "type": ["string", "null"] }
+        }
+      },
+      "DossierPhaseEvent": {
+        "type": "object",
+        "required": ["status", "status_changed_at"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/DossierStatus" },
+          "status_changed_at": { "type": "string", "format": "date-time" },
+          "demarche_numerique_reason": { "type": ["string", "null"] }
+        }
+      },
+      "CnpnEmail": {
+        "type": "object",
+        "required": [
+          "id",
+          "dossier",
+          "sent_by_email",
+          "sent_at",
+          "delivered_at",
+          "opened_at",
+          "delivery_failed_at",
+          "delivery_failure_reason",
+          "recipient_email",
+          "cc_emails",
+          "subject",
+          "attachment_ids",
+          "attachment_names"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "dossier": { "$ref": "#/components/schemas/DossierId" },
+          "sent_by_email": { "type": ["string", "null"] },
+          "sent_at": { "type": "string", "format": "date-time" },
+          "delivered_at": { "type": ["string", "null"], "format": "date-time" },
+          "opened_at": { "type": ["string", "null"], "format": "date-time" },
+          "delivery_failed_at": { "type": ["string", "null"], "format": "date-time" },
+          "delivery_failure_reason": { "type": ["string", "null"] },
+          "recipient_email": { "type": "string" },
+          "cc_emails": { "type": "array", "items": { "type": "string" } },
+          "subject": { "type": "string" },
+          "attachment_ids": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" }
+          },
+          "attachment_names": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "EspeceImpact": {
+        "type": "object",
+        "required": [
+          "espece",
+          "impact_type",
+          "method",
+          "moyen_de_poursuite",
+          "individual_count",
+          "nest_count",
+          "egg_count",
+          "destroyed_habitat_area"
+        ],
+        "properties": {
+          "espece": {
+            "type": "object",
+            "required": [
+              "cd_ref",
+              "common_name",
+              "scientific_name",
+              "espece_cnpn",
+              "espece_ministerielle",
+              "red_list_status"
+            ],
+            "properties": {
+              "cd_ref": { "type": "string" },
+              "common_name": { "type": "string" },
+              "scientific_name": { "type": "string" },
+              "espece_cnpn": { "type": "boolean" },
+              "espece_ministerielle": { "type": "boolean" },
+              "red_list_status": { "type": ["string", "null"] }
+            }
+          },
+          "impact_type": {
+            "type": ["object", "null"],
+            "required": ["pitchou_id", "label", "allowed_criteria"],
+            "properties": {
+              "pitchou_id": { "type": "string" },
+              "label": { "type": "string" },
+              "allowed_criteria": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "method": { "type": ["string", "null"] },
+          "moyen_de_poursuite": { "type": ["string", "null"] },
+          "individual_count": { "type": ["string", "null"] },
+          "nest_count": { "type": ["number", "null"] },
+          "egg_count": { "type": ["number", "null"] },
+          "destroyed_habitat_area": { "type": ["number", "null"] }
+        }
+      },
+      "Groupe": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "required": ["id", "email", "first_names", "last_name", "groupes", "permissions"],
+        "properties": {
+          "id": { "type": "integer" },
+          "email": { "type": "string" },
+          "first_names": { "type": ["string", "null"] },
+          "last_name": { "type": ["string", "null"] },
+          "groupes": { "type": "array", "items": { "$ref": "#/components/schemas/Groupe" } },
+          "permissions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "GroupeWithMembers": {
+        "type": "object",
+        "required": ["id", "name", "members"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "email", "first_names", "last_name", "active"],
+              "properties": {
+                "id": { "type": "integer" },
+                "email": { "type": ["string", "null"] },
+                "first_names": { "type": ["string", "null"] },
+                "last_name": { "type": ["string", "null"] },
+                "active": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "Notification": {
+        "type": "object",
+        "required": [
+          "dossier",
+          "viewed",
+          "updated_at",
+          "viewed_at",
+          "new_arrival",
+          "new_follow",
+          "changes"
+        ],
+        "properties": {
+          "dossier": { "$ref": "#/components/schemas/DossierId" },
+          "viewed": { "type": "boolean" },
+          "updated_at": { "type": ["string", "null"], "format": "date-time" },
+          "viewed_at": { "type": ["string", "null"], "format": "date-time" },
+          "new_arrival": {
+            "type": ["object", "null"],
+            "required": ["detected_at"],
+            "properties": { "detected_at": { "type": "string", "format": "date-time" } }
+          },
+          "new_follow": {
+            "type": ["object", "null"],
+            "required": ["revision", "detected_at"],
+            "properties": {
+              "revision": { "type": "string", "format": "uuid" },
+              "detected_at": { "type": "string", "format": "date-time" }
+            }
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "label", "revisions", "detected_at", "modified_at"],
+              "properties": {
+                "field": { "type": "string" },
+                "label": { "type": "string" },
+                "column": { "type": "string" },
+                "revisions": {
+                  "type": "array",
+                  "items": { "type": "string", "format": "uuid" }
+                },
+                "detected_at": { "type": "string", "format": "date-time" },
+                "modified_at": { "type": ["string", "null"], "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "NotificationPreferences": {
+        "type": "object",
+        "required": ["assignment", "novelty", "arrival"],
+        "properties": {
+          "assignment": { "type": "boolean" },
+          "novelty": { "type": "boolean" },
+          "arrival": { "type": "boolean" }
+        }
+      },
+      "Taxref": {
+        "type": "object",
+        "required": [
+          "id",
+          "cd_nom",
+          "cd_ref",
+          "scientific_name",
+          "common_name",
+          "kingdom",
+          "class"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "cd_nom": { "type": "string" },
+          "cd_ref": { "type": "string" },
+          "scientific_name": { "type": "string" },
+          "common_name": { "type": "string" },
+          "kingdom": { "type": "string" },
+          "class": { "type": "string" }
+        }
+      },
+      "BdcStatut": {
+        "type": "object",
+        "required": [
+          "id",
+          "cd_nom",
+          "cd_ref",
+          "status_type_code",
+          "status_label",
+          "document_code",
+          "full_citation",
+          "doc_url",
+          "scientific_name",
+          "common_name",
+          "red_list_status"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "cd_nom": { "type": "string" },
+          "cd_ref": { "type": "string" },
+          "status_type_code": { "type": "string" },
+          "status_label": { "type": "string" },
+          "document_code": { "type": "string" },
+          "full_citation": { "type": "string" },
+          "doc_url": { "type": "string" },
+          "scientific_name": { "type": ["string", "null"] },
+          "common_name": { "type": ["string", "null"] },
+          "red_list_status": { "type": ["string", "null"] }
+        }
+      },
+      "TaxrefPage": {
+        "type": "object",
+        "required": ["rows", "total", "page", "pageSize"],
+        "properties": {
+          "rows": { "type": "array", "items": { "$ref": "#/components/schemas/Taxref" } },
+          "total": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        }
+      },
+      "BdcStatutsPage": {
+        "type": "object",
+        "required": ["rows", "total", "page", "pageSize"],
+        "properties": {
+          "rows": { "type": "array", "items": { "$ref": "#/components/schemas/BdcStatut" } },
+          "total": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        }
+      },
+      "EspeceProtegee": {
+        "type": "object",
+        "required": [
+          "cd_ref",
+          "classification",
+          "scientific_names",
+          "common_names",
+          "status_type_codes",
+          "espece_ministerielle",
+          "espece_cnpn",
+          "red_list_status",
+          "protection_statuses"
+        ],
+        "properties": {
+          "cd_ref": { "type": "string" },
+          "classification": { "type": "string" },
+          "scientific_names": { "type": "array", "items": { "type": "string" } },
+          "common_names": { "type": "array", "items": { "type": "string" } },
+          "status_type_codes": { "type": "array", "items": { "type": "string" } },
+          "espece_ministerielle": { "type": "boolean" },
+          "espece_cnpn": { "type": "boolean" },
+          "red_list_status": { "type": ["string", "null"] },
+          "protection_statuses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["status_type_code", "documents"],
+              "properties": {
+                "status_type_code": { "type": "string" },
+                "documents": { "type": "array", "items": { "type": "object" } }
+              }
+            }
+          }
+        }
+      },
+      "Activites": {
+        "type": "object",
+        "required": ["groupes", "activites", "labels"],
+        "properties": {
+          "groupes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "label", "color"],
+              "properties": {
+                "code": { "type": "string" },
+                "label": { "type": "string" },
+                "color": { "type": "string" }
+              }
+            }
+          },
+          "activites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "label", "groupe_code"],
+              "properties": {
+                "code": { "type": "string" },
+                "label": { "type": "string" },
+                "groupe_code": { "type": "string" }
+              }
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["label", "activite_code", "needs_review", "created_at"],
+              "properties": {
+                "label": { "type": "string" },
+                "activite_code": { "type": "string" },
+                "needs_review": { "type": "boolean" },
+                "created_at": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "EspeceImpactReferences": {
+        "type": "object",
+        "required": ["impact_types", "methods", "moyens_de_poursuite"],
+        "properties": {
+          "impact_types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "pitchou_id",
+                "european_code",
+                "classification",
+                "pitchou_label",
+                "european_label",
+                "onagre_activites",
+                "allows_method",
+                "allows_moyen_de_poursuite",
+                "allows_individual_count",
+                "allows_nest_count",
+                "allows_egg_count",
+                "allows_destroyed_habitat_area"
+              ],
+              "properties": {
+                "pitchou_id": { "type": "string" },
+                "european_code": { "type": "string" },
+                "classification": { "type": "string" },
+                "pitchou_label": { "type": "string" },
+                "european_label": { "type": "string" },
+                "onagre_activites": { "type": "array", "items": { "type": "string" } },
+                "allows_method": { "type": "boolean" },
+                "allows_moyen_de_poursuite": { "type": "boolean" },
+                "allows_individual_count": { "type": "boolean" },
+                "allows_nest_count": { "type": "boolean" },
+                "allows_egg_count": { "type": "boolean" },
+                "allows_destroyed_habitat_area": { "type": "boolean" }
+              }
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "classification", "pitchou_label", "european_label"],
+              "properties": {
+                "code": { "type": "string" },
+                "classification": { "type": "string" },
+                "pitchou_label": { "type": "string" },
+                "european_label": { "type": "string" }
+              }
+            }
+          },
+          "moyens_de_poursuite": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "classification", "pitchou_label", "european_label"],
+              "properties": {
+                "code": { "type": "string" },
+                "classification": { "type": "string" },
+                "pitchou_label": { "type": "string" },
+                "european_label": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "Stats": {
+        "type": "object",
+        "required": [
+          "dossierCount",
+          "controlePhaseDossierCount",
+          "controlePhaseDossierWithDecisionCount",
+          "controlePhaseDossierWithoutDecisionCount",
+          "porteurDeProjetCountSinceSeptember2024",
+          "controllablePrescriptionCount",
+          "prescriptionWithControleCount",
+          "complianceStats",
+          "biodiversityImpactStats"
+        ],
+        "properties": {
+          "dossierCount": { "type": "integer" },
+          "controlePhaseDossierCount": { "type": "integer" },
+          "controlePhaseDossierWithDecisionCount": { "type": "integer" },
+          "controlePhaseDossierWithoutDecisionCount": { "type": "integer" },
+          "porteurDeProjetCountSinceSeptember2024": { "type": "integer" },
+          "controllablePrescriptionCount": { "type": "integer" },
+          "prescriptionWithControleCount": { "type": "integer" },
+          "complianceStats": {
+            "type": "object",
+            "required": [
+              "nonCompliantPrescriptionCount",
+              "tooLatePrescriptionCount",
+              "prescriptionCompliantAfterFirstControleCount",
+              "prescriptionCompliantAfterSecondControleCount",
+              "prescriptionCompliantAfterThirdControleCount",
+              "prescriptionReturnedToComplianceCount"
+            ],
+            "properties": {
+              "nonCompliantPrescriptionCount": { "type": "integer" },
+              "tooLatePrescriptionCount": { "type": "integer" },
+              "prescriptionCompliantAfterFirstControleCount": { "type": "integer" },
+              "prescriptionCompliantAfterSecondControleCount": { "type": "integer" },
+              "prescriptionCompliantAfterThirdControleCount": { "type": "integer" },
+              "prescriptionReturnedToComplianceCount": { "type": "integer" }
+            }
+          },
+          "biodiversityImpactStats": {
+            "type": "object",
+            "required": [
+              "compliantPrescriptionCount",
+              "avoidedSurfaceTotal",
+              "compensatedSurfaceTotal",
+              "avoidedNestCount",
+              "compensatedNestCount",
+              "avoidedIndividualCount",
+              "compensatedIndividualCount"
+            ],
+            "properties": {
+              "compliantPrescriptionCount": { "type": "number" },
+              "avoidedSurfaceTotal": { "type": "number" },
+              "compensatedSurfaceTotal": { "type": "number" },
+              "avoidedNestCount": { "type": "number" },
+              "compensatedNestCount": { "type": "number" },
+              "avoidedIndividualCount": { "type": "number" },
+              "compensatedIndividualCount": { "type": "number" }
+            }
+          }
+        }
+      },
+      "Aarri": {
+        "type": "object",
+        "required": [
+          "date",
+          "potential_user_count",
+          "acquired_user_count",
+          "active_user_count",
+          "retained_user_count",
+          "impacted_user_count"
+        ],
+        "properties": {
+          "date": { "type": "string" },
+          "potential_user_count": { "type": "integer" },
+          "acquired_user_count": { "type": "integer" },
+          "active_user_count": { "type": "integer" },
+          "retained_user_count": { "type": "integer" },
+          "impacted_user_count": { "type": "integer" }
+        }
       }
     },
     "responses": {
-      "BadRequest": {
-        "description": "Identifiant de dossier invalide",
-        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
-        "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
-        }
-      },
       "Unauthorized": {
         "description": "Jeton absent ou invalide, ou client désactivé",
         "headers": {
@@ -124,13 +2024,6 @@
           "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
         }
       },
-      "NotFound": {
-        "description": "Dossier introuvable ou hors de l’habilitation du client",
-        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
-        "content": {
-          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
-        }
-      },
       "RateLimited": {
         "description": "Quota de requêtes dépassé pour ce client",
         "headers": {
@@ -143,6 +2036,20 @@
       },
       "Unavailable": {
         "description": "Service temporairement indisponible",
+        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "InvalidParameters": {
+        "description": "Identifiant ou filtre invalide",
+        "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
+        "content": {
+          "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
+        }
+      },
+      "ResourceNotFound": {
+        "description": "Ressource introuvable ou inaccessible",
         "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
         "content": {
           "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }

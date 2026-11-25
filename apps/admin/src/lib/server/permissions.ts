@@ -66,12 +66,12 @@ const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
   { method: "PATCH", path: /^\/api\/integrations-api\/[^/]+$/u, anyOf: ["admin:api:manage"] },
   {
     method: "POST",
-    path: /^\/api\/integrations-api\/[^/]+\/(?:cles|habilitations)$/u,
+    path: /^\/api\/integrations-api\/[^/]+\/(?:keys|grants)$/u,
     anyOf: ["admin:api:manage"],
   },
   {
     method: "DELETE",
-    path: /^\/api\/integrations-api\/[^/]+\/(?:cles|habilitations)$/u,
+    path: /^\/api\/integrations-api\/[^/]+\/(?:keys|grants)$/u,
     anyOf: ["admin:api:manage"],
   },
   // Uploading bytes grants no right to attach them. Each attachment route also checks access.

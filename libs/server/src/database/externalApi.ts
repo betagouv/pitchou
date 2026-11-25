@@ -1,10 +1,6 @@
-import type { Knex } from "knex";
-import type { DossierPhase } from "@pitchou/types/API_Pitchou.ts";
 import type { UserId } from "@pitchou/types/permissions.ts";
 import { directDatabaseConnection } from "./connection.ts";
-import { orderPhaseEvents } from "./phaseHistory.ts";
-import { dossierAccessQuery } from "./dossier/access.ts";
-import { externalApiRequestsPerMinute, usableApiKeys } from "./externalApi/keys.ts";
+import { externalApiRequestsPerMinute } from "./externalApi/keys.ts";
 
 export { externalApiRequestsPerMinute };
 export type ExternalApiIdentity =
@@ -43,67 +39,4 @@ export async function admitExternalApiRequest(
     )
     .timeout(3000, { cancel: true });
   return rows[0].admission;
-}
-
-type DossierStatusRow = { id: number; phase: DossierPhase | null; timestamp: Date | null };
-
-export async function readExternalDossierStatus(
-  identity: ExternalApiIdentity,
-  scope: string,
-  dossierId: number,
-  db: Knex = directDatabaseConnection,
-): Promise<DossierStatusRow | undefined> {
-  const latestPhase = db("evenement_phase_dossier")
-    .select("phase", "timestamp")
-    .where("evenement_phase_dossier.dossier", db.ref("dossier.id"))
-    .modify(orderPhaseEvents)
-    .limit(1)
-    .toSQL();
-  const access =
-    identity.kind === "personal"
-      ? dossierAccessQuery(identity.userId, db).as("personal_access")
-      : serviceAccessQuery(identity.clientId, scope, !identity.keyId, db);
-  const query = db("dossier")
-    .first<DossierStatusRow>("dossier.id", "latest_phase.phase", "latest_phase.timestamp")
-    .joinRaw(`LEFT JOIN LATERAL (${latestPhase.sql}) AS latest_phase ON true`, [
-      ...latestPhase.bindings,
-    ])
-    .where("dossier.id", dossierId)
-    .whereExists(
-      identity.kind === "personal"
-        ? db.select(db.raw("1")).from(access).where("personal_access.dossier", db.ref("dossier.id"))
-        : access,
-    );
-  if (identity.keyId) {
-    query.whereExists(
-      usableApiKeys(db)
-        .select("id")
-        .where({ id: identity.keyId })
-        .whereRaw("? = ANY(scopes)", [scope]),
-    );
-  }
-  return query.timeout(3000, { cancel: true });
-}
-
-function serviceAccessQuery(clientId: string, scope: string, requireOAuth: boolean, db: Knex) {
-  const dossierGrant = db("external_api_dossier_grant as grant")
-    .select(db.raw("1"))
-    .where({ "grant.client_id": clientId, "grant.scope": scope })
-    .where("grant.dossier", db.ref("dossier.id"));
-  const groupeGrant = db("external_api_groupe_grant as grant")
-    .join("groupe_instructeurs as groupe", "groupe.id", "grant.groupe_instructeurs")
-    .join(
-      "edge_groupe_instructeurs__dossier as assignment",
-      "assignment.groupe_instructeurs",
-      "groupe.id",
-    )
-    .select(db.raw("1"))
-    .where({ "grant.client_id": clientId, "grant.scope": scope, "groupe.active": true })
-    .where("assignment.dossier", db.ref("dossier.id"));
-
-  const client = db("external_api_client")
-    .select("client_id")
-    .where({ client_id: clientId, enabled: true });
-  if (requireOAuth) client.where({ allow_oauth: true });
-  return client.where((grants) => grants.whereExists(dossierGrant).orWhereExists(groupeGrant));
 }

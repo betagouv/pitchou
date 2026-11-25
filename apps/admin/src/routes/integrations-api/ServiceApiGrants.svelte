@@ -1,11 +1,15 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
   import {
-    apiScopeLabels,
-    dossierStatusScope,
+    dossierGrantScopeLabels,
+    dossierReadScope,
+    apiScopeLabel,
     type ApiGrant,
     type ApiGrantTarget,
+    type DossierGrantScope,
   } from "@pitchou/types/externalApi.ts";
+  import Select from "@pitchou/ui/Select.svelte";
+  import type { SelectOption } from "@pitchou/ui/Select/options.ts";
   import { apiSettingsRequest } from "@pitchou/ui/apiSettingsRequest.ts";
 
   let {
@@ -18,15 +22,30 @@
     groupes: { id: string; name: string }[];
   } = $props();
   const formId = $props.id();
-  const scopeChoices = Object.entries(apiScopeLabels);
-  let kind = $state<"dossier" | "groupe">("dossier");
+  type ResourceKind = "dossier" | "groupe";
+  const resourceOptions: SelectOption<ResourceKind>[] = [
+    { value: "dossier", label: "Dossier" },
+    { value: "groupe", label: "Groupe instructeur" },
+  ];
+  const scopeOptions = (Object.keys(dossierGrantScopeLabels) as DossierGrantScope[]).map(
+    (value) => ({
+      value,
+      label: dossierGrantScopeLabels[value],
+    }),
+  );
+  const groupeOptions = $derived(groupes.map(({ id, name }) => ({ value: id, label: name })));
+  let kind = $state<ResourceKind>("dossier");
   let dossierId = $state<number>();
   let groupeId = $state("");
-  let scope = $state<string>(dossierStatusScope);
+  let scope: DossierGrantScope = $state(dossierReadScope);
   let busy = $state(false);
   let failure = $state("");
 
-  async function change(method: "POST" | "DELETE", target: ApiGrantTarget, scope: string) {
+  async function change(
+    method: "POST" | "DELETE",
+    target: ApiGrantTarget,
+    scope: ApiGrant["scope"],
+  ) {
     if (busy) return;
     busy = true;
     failure = "";
@@ -53,19 +72,87 @@
 </script>
 
 <section
-  class="space-y-4 border-t border-[var(--border-default-grey)] pt-4"
+  class="flex flex-col gap-4 border-t border-[var(--border-default-grey)] pt-4"
   aria-labelledby={`${formId}-title`}
 >
-  <h3 id={`${formId}-title`} class="fr-h6 m-0!">Habilitations</h3>
+  <h3 id={`${formId}-title`} class="m-0! text-base! font-bold">Habilitations</h3>
   {#if failure}<p class="fr-error-text m-0!" role="alert">{failure}</p>{/if}
+  <form onsubmit={add} autocomplete="off" class="flex flex-col items-start gap-4">
+    <div class="grid w-full gap-4 md:grid-cols-3">
+      <div class="fr-select-group m-0!">
+        <label class="fr-label" for={`${formId}-target`}>Type de ressource</label>
+        <Select
+          id={`${formId}-target`}
+          class="fr-mt-1w"
+          options={resourceOptions}
+          bind:value={kind}
+          disabled={busy}
+        />
+      </div>
+      {#if kind === "dossier"}
+        <div class="fr-input-group m-0!">
+          <label class="fr-label" for={`${formId}-dossier`}>Numéro de dossier Pitchou</label>
+          <input
+            class="fr-input"
+            id={`${formId}-dossier`}
+            type="number"
+            autocomplete="off"
+            min="1"
+            max="2147483647"
+            required
+            bind:value={dossierId}
+            disabled={busy}
+          />
+        </div>
+      {:else}
+        <div class="fr-select-group m-0!">
+          <label class="fr-label" for={`${formId}-groupe`}>Groupe instructeur</label>
+          <Select
+            id={`${formId}-groupe`}
+            class="fr-mt-1w"
+            options={groupeOptions}
+            placeholder="Sélectionner un groupe"
+            bind:value={groupeId}
+            required
+            disabled={busy}
+          />
+        </div>
+      {/if}
+      <div class="fr-select-group m-0!">
+        <label class="fr-label" for={`${formId}-scope`}>Permission</label>
+        <Select
+          id={`${formId}-scope`}
+          class="fr-mt-1w"
+          options={scopeOptions}
+          bind:value={scope}
+          disabled={busy}
+        />
+      </div>
+    </div>
+    <button
+      type="submit"
+      class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-add-line"
+      disabled={busy || (kind === "dossier" ? !dossierId : !groupeId)}
+    >
+      Ajouter l’habilitation
+    </button>
+  </form>
+
   {#if grants.length}
-    <ul class="m-0! list-none divide-y divide-[var(--border-default-grey)] p-0!">
+    <ul
+      class="m-0! list-none divide-y divide-[var(--border-default-grey)] rounded-lg border border-[var(--border-default-grey)] p-0!"
+    >
       {#each grants as grant (`${grant.scope}:${"dossierId" in grant ? grant.dossierId : grant.groupeId}`)}
-        <li class="flex flex-wrap items-center justify-between gap-2 py-2!">
-          <span class="fr-text--sm">{grant.label} · {apiScopeLabels[grant.scope]}</span>
+        <li class="flex flex-wrap items-center justify-between gap-3 p-4!">
+          <div class="min-w-0 [overflow-wrap:anywhere]">
+            <p class="m-0! text-sm font-bold">{grant.label}</p>
+            <p class="m-0! text-sm text-[var(--text-mention-grey)]">
+              {apiScopeLabel(grant.scope)}
+            </p>
+          </div>
           <button
             type="button"
-            class="fr-btn fr-btn--secondary fr-btn--sm"
+            class="fr-btn fr-btn--tertiary fr-btn--sm"
             disabled={busy}
             onclick={() =>
               change(
@@ -81,60 +168,6 @@
       {/each}
     </ul>
   {:else}
-    <p class="fr-text--sm m-0!">Aucun dossier ni groupe habilité.</p>
+    <p class="m-0! text-sm text-[var(--text-mention-grey)]">Aucun dossier ni groupe habilité.</p>
   {/if}
-
-  <form onsubmit={add} class="space-y-3">
-    <div class="grid gap-3 md:grid-cols-3">
-      <div class="fr-select-group m-0!">
-        <label class="fr-label" for={`${formId}-target`}>Type de ressource</label>
-        <select class="fr-select" id={`${formId}-target`} bind:value={kind} disabled={busy}>
-          <option value="dossier">Dossier</option>
-          <option value="groupe">Groupe instructeur</option>
-        </select>
-      </div>
-      {#if kind === "dossier"}
-        <div class="fr-input-group m-0!">
-          <label class="fr-label" for={`${formId}-dossier`}>Numéro de dossier Pitchou</label>
-          <input
-            class="fr-input"
-            id={`${formId}-dossier`}
-            type="number"
-            min="1"
-            max="2147483647"
-            required
-            bind:value={dossierId}
-            disabled={busy}
-          />
-        </div>
-      {:else}
-        <div class="fr-select-group m-0!">
-          <label class="fr-label" for={`${formId}-groupe`}>Groupe instructeur</label>
-          <select
-            class="fr-select"
-            id={`${formId}-groupe`}
-            bind:value={groupeId}
-            required
-            disabled={busy}
-          >
-            <option value="">Sélectionner un groupe</option>
-            {#each groupes as groupe (groupe.id)}<option value={groupe.id}>{groupe.name}</option
-              >{/each}
-          </select>
-        </div>
-      {/if}
-      <div class="fr-select-group m-0!">
-        <label class="fr-label" for={`${formId}-scope`}>Permission</label>
-        <select class="fr-select" id={`${formId}-scope`} bind:value={scope} disabled={busy}>
-          {#each scopeChoices as [value, label] (value)}<option {value}>{label}</option>{/each}
-        </select>
-      </div>
-    </div>
-    <button
-      type="submit"
-      class="fr-btn fr-btn--secondary"
-      disabled={busy || (kind === "dossier" ? !dossierId : !groupeId)}
-      >Ajouter l’habilitation</button
-    >
-  </form>
 </section>

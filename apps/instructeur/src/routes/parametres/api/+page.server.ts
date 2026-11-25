@@ -7,6 +7,6 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
   setHeaders({ "Cache-Control": "no-store" });
   return {
     keys: await listApiKeys({ user_id: userId }),
-    canCreate: locals.user?.permissions.includes("dossier:read") ?? false,
+    canReadDossiers: locals.user?.permissions.includes("dossier:read") ?? false,
   };
 };

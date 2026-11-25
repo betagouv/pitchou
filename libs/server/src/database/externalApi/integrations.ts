@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Knex } from "knex";
-import type { ApiGrant, ApiGrantTarget, ApiScope } from "@pitchou/types/externalApi.ts";
+import type { ApiGrant, ApiGrantTarget } from "@pitchou/types/externalApi.ts";
 import { directDatabaseConnection } from "../connection.ts";
 import { listServiceApiKeys } from "./keys.ts";
 
@@ -70,7 +70,7 @@ export function apiIntegration(clientId: string, db: Knex) {
 
 export function changeApiIntegrationGrant(
   clientId: string,
-  scope: ApiScope,
+  scope: ApiGrant["scope"],
   target: ApiGrantTarget,
   add: boolean,
   db: Knex,

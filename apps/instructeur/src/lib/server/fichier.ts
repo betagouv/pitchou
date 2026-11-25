@@ -1,10 +1,17 @@
 import { Readable } from "node:stream";
 import { error } from "@sveltejs/kit";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
+import { getFile } from "@pitchou/server/database/file.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
+import type { Knex } from "knex";
 
-export async function downloadFichierResponse(fileId: FileId): Promise<Response> {
-  const fichier = await loadFichierContent(fileId);
+export async function downloadFichierResponse(
+  fileId: FileId,
+  options?: { headOnly: boolean; db: Knex.Transaction },
+): Promise<Response> {
+  const fichier = options?.headOnly
+    ? await getFile(fileId, options.db)
+    : await loadFichierContent(fileId, options?.db);
   if (!fichier) {
     error(404, "Fichier non trouvé");
   }
@@ -24,10 +31,11 @@ export async function downloadFichierResponse(fileId: FileId): Promise<Response>
   if (fichier.media_type) {
     headers.set("content-type", fichier.media_type);
   }
-  if (fichier.size !== undefined) {
+  if (fichier.size !== undefined && fichier.size !== "") {
     headers.set("content-length", String(fichier.size));
   }
 
+  if (!("body" in fichier)) return new Response(null, { headers });
   const body =
     fichier.body instanceof Readable
       ? (Readable.toWeb(fichier.body) as ReadableStream)

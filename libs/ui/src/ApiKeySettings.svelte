@@ -1,34 +1,39 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import {
     apiKeyLifetimes,
     apiScopeLabels,
-    dossierStatusScope,
+    dossierReadScope,
     type ApiKeyInput,
     type ApiKeySummary,
     type ApiScope,
   } from "@pitchou/types/externalApi.ts";
   import { apiSettingsRequest } from "./apiSettingsRequest.ts";
   import ApiKeyList from "./ApiKeyList.svelte";
+  import Select from "./Select.svelte";
 
   let {
     endpoint,
     keys,
     title,
     onChange,
-    canCreate = true,
+    availableScopes,
   }: {
     endpoint: string;
     keys: ApiKeySummary[];
     title: string;
     onChange: () => Promise<void>;
-    canCreate?: boolean;
+    availableScopes: readonly ApiScope[];
   } = $props();
 
   const formId = $props.id();
-  const scopeChoices = Object.entries(apiScopeLabels) as [ApiScope, string][];
+  const lifetimeOptions = apiKeyLifetimes.map((value) => ({ value, label: `${value} jours` }));
   let label = $state("");
   let days = $state<ApiKeyInput["days"]>(30);
-  let scopes = $state<ApiScope[]>([dossierStatusScope]);
+  let scopes = $state<ApiScope[]>(
+    untrack(() => (availableScopes.includes(dossierReadScope) ? [dossierReadScope] : [])),
+  );
+  const selectedScopes = $derived(scopes.filter((scope) => availableScopes.includes(scope)));
   let busy = $state(false);
   let failure = $state("");
   let notice = $state("");
@@ -42,12 +47,16 @@
 
   async function create(event: SubmitEvent) {
     event.preventDefault();
-    if (busy || !canCreate || scopes.length === 0) return;
+    if (busy || selectedScopes.length === 0) return;
     busy = true;
     failure = "";
     notice = "";
     try {
-      const response = await apiSettingsRequest(endpoint, "POST", { label, scopes, days });
+      const response = await apiSettingsRequest(endpoint, "POST", {
+        label,
+        scopes: selectedScopes,
+        days,
+      });
       issued = await response.json();
       label = "";
       await refresh();
@@ -88,15 +97,67 @@
   }
 </script>
 
-<section aria-labelledby={`${formId}-title`} class="space-y-4">
-  <h3 id={`${formId}-title`} class="fr-h6 m-0!">{title}</h3>
+<section aria-labelledby={`${formId}-title`} class="flex flex-col gap-4">
+  <h3 id={`${formId}-title`} class="m-0! text-base! font-bold">{title}</h3>
+  <form onsubmit={create} autocomplete="off" class="flex flex-col items-start gap-4">
+    <div class="grid w-full gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,0.6fr)]">
+      <div class="fr-input-group m-0!">
+        <label class="fr-label" for={`${formId}-label`}>Nom de la clé</label>
+        <input
+          id={`${formId}-label`}
+          class="fr-input"
+          type="text"
+          autocomplete="off"
+          bind:value={label}
+          maxlength="80"
+          required
+          disabled={busy}
+        />
+      </div>
+      <div class="fr-select-group m-0!">
+        <label class="fr-label" for={`${formId}-days`}>Durée de validité</label>
+        <Select
+          id={`${formId}-days`}
+          class="fr-mt-1w"
+          options={lifetimeOptions}
+          bind:value={days}
+          disabled={busy}
+        />
+      </div>
+    </div>
+    <fieldset class="m-0 min-w-0 border-0 p-0" disabled={busy}>
+      <legend class="fr-label mb-1">Permissions de la clé</legend>
+      {#each availableScopes as scope (scope)}
+        <div class="fr-checkbox-group fr-checkbox-group--sm">
+          <input type="checkbox" id={`${formId}-${scope}`} value={scope} bind:group={scopes} />
+          <label class="fr-label" for={`${formId}-${scope}`}>{apiScopeLabels[scope]}</label>
+        </div>
+      {/each}
+    </fieldset>
+    <button
+      type="submit"
+      class="fr-btn fr-btn--icon-left fr-icon-add-line"
+      disabled={busy || !label.trim() || selectedScopes.length === 0}
+    >
+      Créer la clé
+    </button>
+  </form>
   {#if failure}<p class="fr-error-text m-0!" role="alert">{failure}</p>{/if}
   {#if notice}<p class="fr-valid-text m-0!" role="status">{notice}</p>{/if}
   {#if issued}
-    <div class="fr-alert fr-alert--info" role="status">
-      <p>Copiez la clé « {issued.key.label} ». Elle est affichée une seule fois.</p>
+    <div class="fr-alert fr-alert--info min-w-0" role="status">
+      <p class="mb-3! [overflow-wrap:anywhere]">
+        Copiez la clé « {issued.key.label} ». Elle est affichée une seule fois.
+      </p>
       <label class="fr-label" for={`${formId}-secret`}>Jeton d’accès</label>
-      <input id={`${formId}-secret`} class="fr-input font-mono" value={issued.secret} readonly />
+      <input
+        id={`${formId}-secret`}
+        class="fr-input font-mono"
+        value={issued.secret}
+        autocomplete="off"
+        spellcheck={false}
+        readonly
+      />
       <div class="mt-3 flex flex-wrap gap-2">
         <button type="button" class="fr-btn fr-btn--sm" onclick={copy}>Copier la clé</button>
         <button
@@ -108,46 +169,4 @@
     </div>
   {/if}
   <ApiKeyList {keys} {busy} onRevoke={revoke} />
-  {#if canCreate}
-    <form onsubmit={create} class="space-y-4 border-t border-[var(--border-default-grey)] pt-4">
-      <h4 class="fr-text--bold m-0!">Créer une clé</h4>
-      <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(9rem,0.6fr)]">
-        <div class="fr-input-group m-0!">
-          <label class="fr-label" for={`${formId}-label`}>Nom de la clé</label>
-          <input
-            id={`${formId}-label`}
-            class="fr-input"
-            bind:value={label}
-            maxlength="80"
-            required
-            disabled={busy}
-          />
-        </div>
-        <div class="fr-select-group m-0!">
-          <label class="fr-label" for={`${formId}-days`}>Durée de validité</label>
-          <select id={`${formId}-days`} class="fr-select" bind:value={days} disabled={busy}>
-            {#each apiKeyLifetimes as lifetime (lifetime)}<option value={lifetime}
-                >{lifetime} jours</option
-              >{/each}
-          </select>
-        </div>
-      </div>
-      <fieldset class="m-0 border-0 p-0" disabled={busy}>
-        <legend class="fr-label mb-1">Permissions de la clé</legend>
-        {#each scopeChoices as [scope, name] (scope)}
-          <div class="fr-checkbox-group fr-checkbox-group--sm">
-            <input type="checkbox" id={`${formId}-${scope}`} value={scope} bind:group={scopes} />
-            <label class="fr-label" for={`${formId}-${scope}`}>{name}</label>
-          </div>
-        {/each}
-      </fieldset>
-      <button type="submit" class="fr-btn" disabled={busy || !label.trim() || scopes.length === 0}
-        >Créer la clé</button
-      >
-    </form>
-  {:else}
-    <p class="fr-text--sm m-0!">
-      La création d’une clé nécessite la permission de consulter les dossiers.
-    </p>
-  {/if}
 </section>

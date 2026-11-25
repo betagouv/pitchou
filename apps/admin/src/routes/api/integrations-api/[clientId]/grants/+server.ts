@@ -6,8 +6,8 @@ import {
   apiIntegration,
   changeApiIntegrationGrant,
 } from "@pitchou/server/database/externalApi/integrations.ts";
-import { apiKeyId, isApiScope } from "@pitchou/server-utils/apiKeys.ts";
-import type { ApiGrantTarget } from "@pitchou/types/externalApi.ts";
+import { apiKeyId, isDossierGrantScope } from "@pitchou/server-utils/apiKeys.ts";
+import { retiredStatusScope, type ApiGrantTarget } from "@pitchou/types/externalApi.ts";
 import type { RequestHandler } from "./$types";
 
 function parseTarget({ dossierId, groupeId }: Record<string, unknown>): ApiGrantTarget {
@@ -27,10 +27,11 @@ function parseTarget({ dossierId, groupeId }: Record<string, unknown>): ApiGrant
 const change: RequestHandler = async ({ locals, params, request }) => {
   const body = await readJsonObject(request);
   const { scope } = body;
-  if (!isApiScope(scope)) error(400, "Choisissez une permission proposée.");
+  const add = request.method === "POST";
+  if (!isDossierGrantScope(scope) && (add || scope !== retiredStatusScope))
+    error(400, "Choisissez une permission proposée.");
   const target = parseTarget(body);
   const clientId = params.clientId;
-  const add = request.method === "POST";
   return withAdminWriteAccess(locals, "admin:api:manage", async (trx, actor) => {
     if (!(await apiIntegration(clientId, trx).first("client_id")))
       error(404, "Service introuvable.");

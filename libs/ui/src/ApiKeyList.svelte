@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { apiScopeLabels, type ApiKeySummary } from "@pitchou/types/externalApi.ts";
+  import { apiScopeLabel, type ApiKeySummary } from "@pitchou/types/externalApi.ts";
 
   let {
     keys,
@@ -28,17 +28,17 @@
 </script>
 
 {#if keys.length}
-  <ul class="m-0! list-none space-y-2 p-0!">
+  <ul
+    class="m-0! list-none divide-y divide-[var(--border-default-grey)] rounded-lg border border-[var(--border-default-grey)] p-0!"
+  >
     {#each keys as key (key.id)}
       {@const expired = Date.parse(key.expiresAt) <= Date.now()}
-      <li
-        class="rounded-lg border border-[var(--border-default-grey)] bg-[var(--background-default-grey)] p-4!"
-      >
+      <li class="flex flex-col gap-2 p-4!">
         <div class="flex flex-wrap items-start justify-between gap-3">
-          <div class="min-w-0">
-            <p class="m-0! font-bold break-words">{key.label}</p>
-            <p class="fr-text--sm m-0!">
-              {key.scopes.map((scope) => apiScopeLabels[scope] ?? scope).join(", ")}
+          <div class="min-w-0 [overflow-wrap:anywhere]">
+            <p class="m-0! font-bold">{key.label}</p>
+            <p class="fr-text--sm m-0! text-[var(--text-mention-grey)]">
+              {key.scopes.map(apiScopeLabel).join(", ")}
             </p>
           </div>
           <span
@@ -49,18 +49,24 @@
             {key.revokedAt ? "Révoquée" : expired ? "Expirée" : "Active"}
           </span>
         </div>
-        <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
-          <dl class="fr-text--sm m-0! flex flex-wrap gap-x-5 gap-y-1">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <dl
+            class="fr-text--sm m-0! flex flex-wrap gap-x-5 gap-y-1 text-[var(--text-mention-grey)]"
+          >
             <div>
-              <dt class="inline">Expiration</dt>
+              <dt class="inline font-medium">Expiration</dt>
               <dd class="m-0! inline">
                 <time datetime={key.expiresAt}>{formatDate(key.expiresAt)}</time>
               </dd>
             </div>
             <div>
-              <dt class="inline">Dernière utilisation</dt>
+              <dt class="inline font-medium">Dernière utilisation</dt>
               <dd class="m-0! inline">
-                {key.lastUsedAt ? formatDate(key.lastUsedAt) : "Jamais utilisée"}
+                {#if key.lastUsedAt}
+                  <time datetime={key.lastUsedAt}>{formatDate(key.lastUsedAt)}</time>
+                {:else}
+                  Jamais utilisée
+                {/if}
               </dd>
             </div>
           </dl>
@@ -68,21 +74,21 @@
             <div class="flex flex-wrap gap-2">
               <button
                 type="button"
-                class="fr-btn fr-btn--sm"
+                class="fr-btn fr-btn--tertiary fr-btn--sm"
                 disabled={busy}
-                onclick={() => confirmRevocation(key.id)}>Confirmer la révocation</button
+                onclick={() => (confirmation = undefined)}>Annuler</button
               >
               <button
                 type="button"
-                class="fr-btn fr-btn--secondary fr-btn--sm"
+                class="fr-btn fr-btn--sm"
                 disabled={busy}
-                onclick={() => (confirmation = undefined)}>Annuler</button
+                onclick={() => confirmRevocation(key.id)}>Confirmer la révocation</button
               >
             </div>
           {:else if !key.revokedAt && !expired}
             <button
               type="button"
-              class="fr-btn fr-btn--secondary fr-btn--sm"
+              class="fr-btn fr-btn--tertiary fr-btn--sm"
               disabled={busy}
               onclick={() => (confirmation = key.id)}
               aria-label={`Révoquer la clé ${key.label}`}>Révoquer</button
@@ -93,5 +99,5 @@
     {/each}
   </ul>
 {:else}
-  <p class="fr-text--sm m-0!">Aucune clé créée.</p>
+  <p class="fr-text--sm m-0! text-[var(--text-mention-grey)]">Aucune clé créée.</p>
 {/if}

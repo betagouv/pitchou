@@ -12,36 +12,35 @@ export { GroupMembershipError } from "./groupMembership/access.ts";
 
 export async function listMembershipGroups(
   actor: UserId,
-  db: Knex = database,
+  db: Knex | Knex.Transaction = database,
 ): Promise<MembershipGroup[]> {
-  return db.transaction(
-    async (trx) => {
-      const user = await getSessionUser(actor, trx);
-      if (!user) throw new GroupMembershipError(403, "Compte inactif ou inaccessible.");
-      const members = await trx("user_groupe as m")
-        .join("auth_user as u", "u.id", "m.user_id")
-        .whereIn(
-          "m.groupe_instructeurs",
-          user.groupes.map((g) => g.id),
-        )
-        .select(
-          "m.groupe_instructeurs",
-          "u.id",
-          "u.email",
-          "u.first_names",
-          "u.last_name",
-          "u.active",
-        )
-        .orderBy("u.email");
-      return user.groupes.map((group) => ({
-        ...group,
-        members: members
-          .filter((member) => member.groupe_instructeurs === group.id)
-          .map(({ groupe_instructeurs, ...member }) => member),
-      }));
-    },
-    { readOnly: true, isolationLevel: "repeatable read" },
-  );
+  async function read(trx: Knex.Transaction) {
+    const user = await getSessionUser(actor, trx);
+    if (!user) throw new GroupMembershipError(403, "Compte inactif ou inaccessible.");
+    const members = await trx("user_groupe as m")
+      .join("auth_user as u", "u.id", "m.user_id")
+      .whereIn(
+        "m.groupe_instructeurs",
+        user.groupes.map((g) => g.id),
+      )
+      .select(
+        "m.groupe_instructeurs",
+        "u.id",
+        "u.email",
+        "u.first_names",
+        "u.last_name",
+        "u.active",
+      )
+      .orderBy("u.email");
+    return user.groupes.map((group) => ({
+      ...group,
+      members: members
+        .filter((member) => member.groupe_instructeurs === group.id)
+        .map(({ groupe_instructeurs, ...member }) => member),
+    }));
+  }
+  if (db.isTransaction) return read(db as Knex.Transaction);
+  return db.transaction(read, { readOnly: true, isolationLevel: "repeatable read" });
 }
 
 export async function addGroupMember(

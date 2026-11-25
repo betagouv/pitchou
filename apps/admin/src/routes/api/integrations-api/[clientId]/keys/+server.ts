@@ -4,6 +4,7 @@ import { withAdminWriteAccess } from "#lib/server/writeAccess.ts";
 import { audit } from "@pitchou/server/administration/audit.ts";
 import { apiIntegration } from "@pitchou/server/database/externalApi/integrations.ts";
 import { createApiKey, revokeApiKey } from "@pitchou/server/database/externalApi/keys.ts";
+import { serviceScopes } from "@pitchou/types/externalApi.ts";
 import {
   apiKeyId,
   apiKeyResponseHeaders,
@@ -12,7 +13,7 @@ import {
 import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
-  const input = parseApiKeyInput(await readJsonObject(request));
+  const input = parseApiKeyInput(await readJsonObject(request), serviceScopes);
   const clientId = params.clientId;
   return withAdminWriteAccess(locals, "admin:api:manage", async (trx, actor) => {
     if (!(await apiIntegration(clientId, trx).first("client_id")))

@@ -2,8 +2,10 @@ import { error } from "@sveltejs/kit";
 import {
   apiKeyLifetimes,
   apiScopeLabels,
+  dossierGrantScopeLabels,
   type ApiKeyInput,
   type ApiScope,
+  type DossierGrantScope,
 } from "@pitchou/types/externalApi.ts";
 
 export function apiKeyLabel(label: unknown): string {
@@ -16,11 +18,22 @@ export function isApiScope(scope: unknown): scope is ApiScope {
   return typeof scope === "string" && Object.hasOwn(apiScopeLabels, scope);
 }
 
-export function parseApiKeyInput(body: Record<string, unknown>): ApiKeyInput {
+export function isDossierGrantScope(scope: unknown): scope is DossierGrantScope {
+  return typeof scope === "string" && Object.hasOwn(dossierGrantScopeLabels, scope);
+}
+
+export function parseApiKeyInput(
+  body: Record<string, unknown>,
+  allowedScopes: readonly ApiScope[],
+): ApiKeyInput {
   const { days, scopes } = body;
   const lifetime = apiKeyLifetimes.find((value) => value === days);
   if (!lifetime) error(400, "Choisissez une durée de validité proposée.");
-  if (!Array.isArray(scopes) || scopes.length === 0 || !scopes.every(isApiScope))
+  if (
+    !Array.isArray(scopes) ||
+    scopes.length === 0 ||
+    !scopes.every((scope) => isApiScope(scope) && allowedScopes.includes(scope))
+  )
     error(400, "Choisissez au moins une permission proposée.");
   return { label: apiKeyLabel(body.label), scopes: [...new Set(scopes)], days: lifetime };
 }

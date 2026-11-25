@@ -2,7 +2,8 @@ import type { Knex } from "knex";
 import type { DossierFull } from "@pitchou/types/API_Pitchou.ts";
 import { joinPorteurDeProjet, porteurDeProjetColumns } from "./porteur.ts";
 
-export const dossierFullColumns = [
+// Shared by the instructeur dossier view and the API project response.
+export const dossierProjectColumns = [
   "dossier.id as id",
   "demarche_numerique_number",
   "demarche_number",
@@ -19,9 +20,6 @@ export const dossierFullColumns = [
   "no_other_satisfactory_solution_justification",
   "motif_derogation",
   "motif_derogation_justification",
-  "file_especes_impactees.id as especes_impactees_id",
-  "file_especes_impactees.name as especes_impactees_name",
-  "file_especes_impactees.media_type as especes_impactees_media_type",
   "linked_to_ae_regime",
   "ae_procedures",
   "ae_other_procedure",
@@ -66,7 +64,6 @@ export const dossierFullColumns = [
   "scientifique_intervenants",
   "scientifique_other_intervenants_details",
   "enjeu",
-  "free_comment",
   "onagre_demande_identifier",
   "public_consultation_start_date",
   "public_consultation_end_date",
@@ -81,6 +78,14 @@ export const dossierFullColumns = [
   "commissioning_date",
   ...porteurDeProjetColumns,
 ] as (keyof DossierFull)[];
+
+export const dossierFullColumns = [
+  ...dossierProjectColumns,
+  "file_especes_impactees.id as especes_impactees_id",
+  "file_especes_impactees.name as especes_impactees_name",
+  "file_especes_impactees.media_type as especes_impactees_media_type",
+  "free_comment",
+];
 
 export function joinDossierIdentities<T extends Knex.QueryBuilder>(query: T): T {
   joinPorteurDeProjet(query)

@@ -2,8 +2,9 @@ import { expect, test } from "vitest";
 import {
   admitExternalApiRequest,
   externalApiRequestsPerMinute,
-  readExternalDossierStatus,
 } from "@pitchou/server/database/externalApi.ts";
+import { listExternalDossiers } from "@pitchou/server/database/externalApi/dossiers.ts";
+import { dossierReadScope as scope } from "@pitchou/types/externalApi.ts";
 import {
   attachDossierToGroupe,
   createDossier,
@@ -12,14 +13,21 @@ import {
 import { db } from "../setup/db.ts";
 import { INTEGRATION_BASE_URL } from "../setup/integration-global.ts";
 
-const scope = "dossiers:read:statut";
-const limitedClient = { kind: "service", clientId: "limited-client" } as const;
-const otherClient = { kind: "service", clientId: "other-client" } as const;
+const limitedClient = {
+  kind: "service",
+  clientId: "limited-client",
+  scopes: new Set([scope]),
+} as const;
+const otherClient = {
+  kind: "service",
+  clientId: "other-client",
+  scopes: new Set([scope]),
+} as const;
 
-test("filters status reads by scope, client, direct grants and active group assignments", async () => {
+test("lists dossiers by client, direct grants and active groupe assignments", async () => {
   const direct = await createDossier(db);
   const assigned = await createDossier(db);
-  const other = await createDossier(db);
+  await createDossier(db);
   const groupe = await createGroupeInstructeurs(db);
   await attachDossierToGroupe(db, assigned.id, groupe.id);
   await db("external_api_client").insert([
@@ -42,27 +50,29 @@ test("filters status reads by scope, client, direct grants and active group assi
     { dossier: direct.id, phase: "Contrôle", timestamp },
   ]);
 
-  expect(await readExternalDossierStatus(limitedClient, scope, direct.id, db)).toEqual({
-    id: direct.id,
-    phase: "Contrôle",
-    timestamp,
-  });
-  expect(await readExternalDossierStatus(limitedClient, scope, assigned.id, db)).toEqual({
-    id: assigned.id,
-    phase: null,
-    timestamp: null,
-  });
-  expect(await readExternalDossierStatus(limitedClient, scope, other.id, db)).toBeUndefined();
-  expect(await readExternalDossierStatus(otherClient, scope, direct.id, db)).toBeUndefined();
-  expect(
-    await readExternalDossierStatus(limitedClient, "other:scope", direct.id, db),
-  ).toBeUndefined();
+  const filters = { after: 0, limit: 10 };
+  const firstPage = await listExternalDossiers(limitedClient, filters, db);
+  expect(firstPage.dossiers).toEqual([
+    expect.objectContaining({
+      id: direct.id,
+      status: "controle",
+      status_changed_at: timestamp.toISOString(),
+    }),
+    expect.objectContaining({
+      id: assigned.id,
+      status: "accompagnement_amont",
+      status_changed_at: null,
+    }),
+  ]);
+  expect((await listExternalDossiers(otherClient, filters, db)).dossiers).toEqual([]);
 
   await db("groupe_instructeurs").where({ id: groupe.id }).update({ active: false });
-  expect(await readExternalDossierStatus(limitedClient, scope, assigned.id, db)).toBeUndefined();
+  expect((await listExternalDossiers(limitedClient, filters, db)).dossiers).toEqual([
+    expect.objectContaining({ id: direct.id }),
+  ]);
   await db("external_api_client").where({ client_id: "limited-client" }).update({ enabled: false });
-  expect(await readExternalDossierStatus(limitedClient, scope, direct.id, db)).toBeUndefined();
-  expect(await admitExternalApiRequest("limited-client", db)).toBe("disabled");
+  expect((await listExternalDossiers(limitedClient, filters, db)).dossiers).toEqual([]);
+  expect(await admitExternalApiRequest(limitedClient.clientId, db)).toBe("disabled");
 });
 
 test("admits requests atomically across connections and resets the previous minute", async () => {
@@ -103,7 +113,11 @@ test("serves the OpenAPI contract and Swagger assets without a browser session",
   const response = await fetch(`${INTEGRATION_BASE_URL}/api/v1/openapi.json`);
   expect(response.status).toBe(200);
   const contract = await response.json();
-  expect(contract.paths["/dossiers/{id}/statut"].get.operationId).toBe("getDossierStatut");
+  expect(contract.paths).not.toHaveProperty("/dossiers/{id}/statut");
+  expect(contract.paths["/dossiers/{id}"].get.operationId).toBe("getDossier");
+  expect(
+    contract.paths["/dossiers"].get.parameters.map(({ name }: { name: string }) => name),
+  ).toEqual(["after", "limit", "status", "department", "q", "followed"]);
 
   const documentation = await fetch(`${INTEGRATION_BASE_URL}/api/v1/docs`);
   expect(documentation.status).toBe(200);
@@ -120,7 +134,7 @@ test("serves the OpenAPI contract and Swagger assets without a browser session",
   }
 });
 
-test.each(["/api/v1/dossiers/1/statut", "/%61pi/v1/dossiers/1/statut"])(
+test.each(["/api/v1/dossiers/1", "/%61pi/v1/dossiers/1"])(
   "returns an API challenge rather than a browser login at %s",
   async (path) => {
     const response = await fetch(INTEGRATION_BASE_URL + path, {

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { expect, test } from "vitest";
 import { createSession } from "@pitchou/server/session.ts";
 import { admitExternalApiRequest } from "@pitchou/server/database/externalApi.ts";
-import { dossierStatusScope as scope } from "@pitchou/types/externalApi.ts";
+import { dossierReadScope as scope, retiredStatusScope } from "@pitchou/types/externalApi.ts";
 import type { Permission } from "@pitchou/types/permissions.ts";
 import { createDossier } from "../factories/dossier.ts";
 import { fetchAuthenticated } from "../helpers/auth.ts";
@@ -11,7 +11,7 @@ import { ADMIN_BASE_URL, INTEGRATION_BASE_URL } from "../setup/integration-globa
 
 const personalPage = `${INTEGRATION_BASE_URL}/parametres/api`;
 const personalData = `${personalPage}/__data.json`;
-const personalKeys = `${personalPage}/cles`;
+const personalKeys = `${personalPage}/keys`;
 const integrations = `${ADMIN_BASE_URL}/api/integrations-api`;
 const keyInput = { label: "Suivi des dossiers", scopes: [scope], days: 30 };
 
@@ -32,8 +32,8 @@ function send(session: string, url: string, method: string, body: object) {
   });
 }
 
-function readStatus(id: number, secret: string) {
-  return fetch(`${INTEGRATION_BASE_URL}/api/v1/dossiers/${id}/statut`, {
+function readDossier(id: number, secret: string) {
+  return fetch(`${INTEGRATION_BASE_URL}/api/v1/dossiers/${id}`, {
     headers: { Authorization: `Bearer ${secret}` },
   });
 }
@@ -65,22 +65,33 @@ test("a personal key is shown once, scoped to its owner and revocable", async ()
   );
   expect((await send(other.session, personalKeys, "DELETE", { id: key.id })).status).toBe(404);
 
-  const initial = await readStatus(visible.id, secret);
+  const initial = await readDossier(visible.id, secret);
   expect(initial.status).toBe(200);
-  expect(await initial.json()).toEqual({
+  expect(await initial.json()).toMatchObject({
     id: visible.id,
-    statut: "accompagnement_amont",
-    date_changement_statut: null,
+    status: "accompagnement_amont",
+    status_changed_at: null,
   });
-  expect((await readStatus(hidden.id, secret)).status).toBe(404);
+  expect(
+    (await send(owner.session, personalKeys, "POST", { ...keyInput, scopes: [retiredStatusScope] }))
+      .status,
+  ).toBe(400);
+  await db("external_api_key")
+    .where({ id: key.id })
+    .update({ scopes: [retiredStatusScope] });
+  expect((await readDossier(visible.id, secret)).status).toBe(403);
+  await db("external_api_key")
+    .where({ id: key.id })
+    .update({ scopes: [scope] });
+  expect((await readDossier(hidden.id, secret)).status).toBe(404);
   expect((await db("external_api_key").where({ id: key.id }).first()).last_used_at).toBeInstanceOf(
     Date,
   );
   await db("dossier_user_access").where(grant).del();
-  expect((await readStatus(visible.id, secret)).status).toBe(404);
+  expect((await readDossier(visible.id, secret)).status).toBe(404);
   await db("dossier_user_access").insert(grant);
   expect((await send(owner.session, personalKeys, "DELETE", { id: key.id })).status).toBe(204);
-  expect((await readStatus(visible.id, secret)).status).toBe(401);
+  expect((await readDossier(visible.id, secret)).status).toBe(401);
 });
 
 test("rejects disabled owners and expired keys, and limits valid keys", async () => {
@@ -94,9 +105,9 @@ test("rejects disabled owners and expired keys, and limits valid keys", async ()
       ),
       requests_this_minute: 60,
     });
-  expect((await readStatus(1, secret)).status).toBe(429);
+  expect((await readDossier(1, secret)).status).toBe(429);
   await db("auth_user").where({ id: owner.id }).update({ active: false });
-  expect((await readStatus(1, secret)).status).toBe(401);
+  expect((await readDossier(1, secret)).status).toBe(401);
   await db("auth_user").where({ id: owner.id }).update({ active: true });
   await db("external_api_key")
     .where({ id: key.id })
@@ -104,7 +115,7 @@ test("rejects disabled owners and expired keys, and limits valid keys", async ()
       created_at: db.raw("now() - interval '2 days'"),
       expires_at: db.raw("now() - interval '1 day'"),
     });
-  expect((await readStatus(1, secret)).status).toBe(401);
+  expect((await readDossier(1, secret)).status).toBe(401);
 });
 
 test("admins manage integration-owned keys and grants independently of their own account", async () => {
@@ -122,21 +133,21 @@ test("admins manage integration-owned keys and grants independently of their own
   expect(created.status).toBe(201);
   const { id } = await created.json();
   const service = `${integrations}/${id}`;
-  const issued = await send(admin.session, `${service}/cles`, "POST", keyInput);
+  const issued = await send(admin.session, `${service}/keys`, "POST", keyInput);
   expect(issued.status).toBe(201);
   const { key, secret } = await issued.json();
   const row = await db("external_api_key").where({ id: key.id }).first();
   expect(row.user_id).toBeNull();
   expect(row.client_id).toBe(id);
   expect(await admitExternalApiRequest(id, db, true)).toBe("disabled");
-  expect((await readStatus(visible.id, secret)).status).toBe(404);
+  expect((await readDossier(visible.id, secret)).status).toBe(404);
 
   const grant = { dossierId: visible.id, scope };
-  expect((await send(admin.session, `${service}/habilitations`, "POST", grant)).status).toBe(204);
-  expect((await readStatus(visible.id, secret)).status).toBe(200);
-  expect((await send(admin.session, `${service}/habilitations`, "DELETE", grant)).status).toBe(204);
-  expect((await readStatus(visible.id, secret)).status).toBe(404);
-  expect((await send(admin.session, `${service}/habilitations`, "POST", grant)).status).toBe(204);
+  expect((await send(admin.session, `${service}/grants`, "POST", grant)).status).toBe(204);
+  expect((await readDossier(visible.id, secret)).status).toBe(200);
+  expect((await send(admin.session, `${service}/grants`, "DELETE", grant)).status).toBe(204);
+  expect((await readDossier(visible.id, secret)).status).toBe(404);
+  expect((await send(admin.session, `${service}/grants`, "POST", grant)).status).toBe(204);
 
   const settings = await fetchAuthenticated(admin.session, `${ADMIN_BASE_URL}/integrations-api`);
   expect(settings.status).toBe(200);
@@ -144,16 +155,16 @@ test("admins manage integration-owned keys and grants independently of their own
   expect(html).toContain(keyInput.label);
   expect(html).not.toContain(secret);
   await db("auth_user").where({ id: admin.id }).update({ active: false });
-  expect((await readStatus(visible.id, secret)).status).toBe(200);
+  expect((await readDossier(visible.id, secret)).status).toBe(200);
   const replacement = await createAccount("replacement@example.test", [
     "admin:access",
     "admin:api:manage",
   ]);
   expect((await send(replacement.session, service, "PATCH", { enabled: false })).status).toBe(204);
-  expect((await readStatus(visible.id, secret)).status).toBe(401);
+  expect((await readDossier(visible.id, secret)).status).toBe(401);
   expect(
-    (await send(replacement.session, `${service}/cles`, "DELETE", { id: key.id })).status,
+    (await send(replacement.session, `${service}/keys`, "DELETE", { id: key.id })).status,
   ).toBe(204);
   expect((await send(replacement.session, service, "PATCH", { enabled: true })).status).toBe(204);
-  expect((await readStatus(visible.id, secret)).status).toBe(401);
+  expect((await readDossier(visible.id, secret)).status).toBe(401);
 });
