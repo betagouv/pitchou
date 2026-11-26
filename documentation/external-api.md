@@ -1,6 +1,8 @@
 # Pitchou external API
 
-The Instructeur app serves the OpenAPI contract at `/api/v1/openapi.json` and Swagger UI at `/api/v1/docs`. CI validates the contract and checks compatibility against the pull request target branch and the merge queue base revision. A breaking change requires a new API version and a migration period announced to partners.
+The Instructeur app serves Swagger UI at `/api/v1/docs` and the OpenAPI contract at `/api/v1/openapi.json`. Anyone can open both URLs without a Pitchou account or API key. Requests to the API's data endpoints require a bearer token.
+
+CI validates the contract and checks compatibility against the pull request target branch and the merge queue base revision. A breaking change requires a new API version and a migration period announced to partners.
 
 ## Personal keys
 

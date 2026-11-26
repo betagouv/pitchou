@@ -109,9 +109,13 @@ test("admits requests atomically across connections and resets the previous minu
   expect(await admitExternalApiRequest("unregistered-client", db)).toBe("disabled");
 });
 
-test("serves the OpenAPI contract and Swagger assets without a browser session", async () => {
-  const response = await fetch(`${INTEGRATION_BASE_URL}/api/v1/openapi.json`);
+test("serves the OpenAPI contract and Swagger assets without credentials", async () => {
+  const response = await fetch(`${INTEGRATION_BASE_URL}/api/v1/openapi.json`, {
+    headers: { Accept: "application/json" },
+    redirect: "manual",
+  });
   expect(response.status).toBe(200);
+  expect(response.headers.get("Content-Type")).toContain("application/json");
   const contract = await response.json();
   expect(contract.paths).not.toHaveProperty("/dossiers/{id}/statut");
   expect(contract.paths["/dossiers/{id}"].get.operationId).toBe("getDossier");
@@ -119,8 +123,12 @@ test("serves the OpenAPI contract and Swagger assets without a browser session",
     contract.paths["/dossiers"].get.parameters.map(({ name }: { name: string }) => name),
   ).toEqual(["after", "limit", "status", "department", "q", "followed"]);
 
-  const documentation = await fetch(`${INTEGRATION_BASE_URL}/api/v1/docs`);
+  const documentation = await fetch(`${INTEGRATION_BASE_URL}/api/v1/docs`, {
+    headers: { Accept: "text/html" },
+    redirect: "manual",
+  });
   expect(documentation.status).toBe(200);
+  expect(documentation.headers.get("Content-Type")).toContain("text/html");
   expect(documentation.headers.get("Content-Security-Policy")).toContain("connect-src 'self'");
   const html = await documentation.text();
   expect(html).toContain("supportedSubmitMethods: []");
@@ -134,7 +142,7 @@ test("serves the OpenAPI contract and Swagger assets without a browser session",
   }
 });
 
-test.each(["/api/v1/dossiers/1", "/%61pi/v1/dossiers/1"])(
+test.each(["/api/v1/dossiers", "/api/v1/dossiers/1", "/%61pi/v1/dossiers/1"])(
   "returns an API challenge rather than a browser login at %s",
   async (path) => {
     const response = await fetch(INTEGRATION_BASE_URL + path, {
