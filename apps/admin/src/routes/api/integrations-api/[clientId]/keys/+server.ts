@@ -7,6 +7,7 @@ import { createApiKey, revokeApiKey } from "@pitchou/server/database/externalApi
 import {
   dossierInternalScope,
   dossierReadScope,
+  serviceApiKeyLifetimes,
   serviceScopes,
 } from "@pitchou/types/externalApi.ts";
 import {
@@ -17,7 +18,11 @@ import {
 import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
-  const input = parseApiKeyInput(await readJsonObject(request), serviceScopes);
+  const input = parseApiKeyInput(
+    await readJsonObject(request),
+    serviceScopes,
+    serviceApiKeyLifetimes,
+  );
   if (input.scopes.includes(dossierInternalScope) && !input.scopes.includes(dossierReadScope)) {
     error(400, "La lecture interne exige aussi la permission de consulter les dossiers.");
   }

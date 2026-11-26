@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { untrack } from "svelte";
+  import { untrack, type Component, type Snippet } from "svelte";
   import {
     apiKeyLifetimes,
-    apiScopeLabels,
-    dossierInternalScope,
     dossierReadScope,
     type ApiKeyInput,
     type ApiKeySummary,
     type ApiScope,
   } from "@pitchou/types/externalApi.ts";
   import { apiSettingsRequest } from "./apiSettingsRequest.ts";
-  import ApiKeyList from "./ApiKeyList.svelte";
-  import Select from "./Select.svelte";
+  import ApiKeyFields from "./ApiKeySettings/ApiKeyFields.svelte";
+  import ApiKeyList from "./ApiKeySettings/ApiKeyList.svelte";
+  import IssuedApiKey from "./ApiKeySettings/IssuedApiKey.svelte";
 
   let {
     endpoint,
@@ -19,16 +18,26 @@
     title,
     onChange,
     availableScopes,
+    availableLifetimes = apiKeyLifetimes,
+    createDialog: Dialog,
   }: {
     endpoint: string;
     keys: ApiKeySummary[];
     title: string;
     onChange: () => Promise<void>;
     availableScopes: readonly ApiScope[];
+    availableLifetimes?: readonly ApiKeyInput["days"][];
+    createDialog?: Component<{
+      title: string;
+      busy: boolean;
+      onClose: () => void;
+      initialFocus: () => void;
+      children: Snippet;
+      footer: Snippet;
+    }>;
   } = $props();
 
   const formId = $props.id();
-  const lifetimeOptions = apiKeyLifetimes.map((value) => ({ value, label: `${value} jours` }));
   let label = $state("");
   let days = $state<ApiKeyInput["days"]>(30);
   let scopes = $state<ApiScope[]>(
@@ -36,7 +45,10 @@
   );
   const selectedScopes = $derived(scopes.filter((scope) => availableScopes.includes(scope)));
   let busy = $state(false);
+  let creating = $state(false);
+  let nameInput = $state<HTMLInputElement>();
   let failure = $state("");
+  let creationFailure = $state("");
   let notice = $state("");
   let issued = $state<{ key: ApiKeySummary; secret: string }>();
 
@@ -51,6 +63,7 @@
     if (busy || selectedScopes.length === 0) return;
     busy = true;
     failure = "";
+    creationFailure = "";
     notice = "";
     try {
       const response = await apiSettingsRequest(endpoint, "POST", {
@@ -62,7 +75,7 @@
       label = "";
       await refresh();
     } catch (error) {
-      failure = error instanceof Error ? error.message : "Création de la clé impossible.";
+      creationFailure = error instanceof Error ? error.message : "Création de la clé impossible.";
     } finally {
       busy = false;
     }
@@ -87,95 +100,94 @@
     }
   }
 
-  async function copy() {
-    if (!issued) return;
-    try {
-      await navigator.clipboard.writeText(issued.secret);
-      notice = "Clé copiée.";
-    } catch {
-      notice = "Sélectionnez le jeton pour le copier.";
-    }
+  function closeCreation() {
+    creating = false;
+    creationFailure = "";
+    issued = undefined;
   }
 </script>
 
-<section aria-labelledby={`${formId}-title`} class="flex flex-col gap-4">
-  <h3 id={`${formId}-title`} class="m-0! text-base! font-bold">{title}</h3>
-  <form onsubmit={create} autocomplete="off" class="flex flex-col items-start gap-4">
-    <div class="grid w-full gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,0.6fr)]">
-      <div class="fr-input-group m-0!">
-        <label class="fr-label" for={`${formId}-label`}>Nom de la clé</label>
-        <input
-          id={`${formId}-label`}
-          class="fr-input"
-          type="text"
-          autocomplete="off"
-          bind:value={label}
-          maxlength="80"
-          required
-          disabled={busy}
-        />
-      </div>
-      <div class="fr-select-group m-0!">
-        <label class="fr-label" for={`${formId}-days`}>Durée de validité</label>
-        <Select
-          id={`${formId}-days`}
-          class="fr-mt-1w"
-          options={lifetimeOptions}
-          bind:value={days}
-          disabled={busy}
-        />
-      </div>
-    </div>
-    <fieldset class="m-0 min-w-0 border-0 p-0" disabled={busy}>
-      <legend class="fr-label mb-1">Permissions de la clé</legend>
-      {#each availableScopes as scope (scope)}
-        <div class="fr-checkbox-group fr-checkbox-group--sm">
-          <input
-            type="checkbox"
-            id={`${formId}-${scope}`}
-            value={scope}
-            bind:group={scopes}
-            disabled={(scope === dossierInternalScope &&
-              !selectedScopes.includes(dossierReadScope)) ||
-              (scope === dossierReadScope && selectedScopes.includes(dossierInternalScope))}
-          />
-          <label class="fr-label" for={`${formId}-${scope}`}>{apiScopeLabels[scope]}</label>
-        </div>
-      {/each}
-    </fieldset>
-    <button
-      type="submit"
-      class="fr-btn fr-btn--icon-left fr-icon-add-line"
-      disabled={busy || !label.trim() || selectedScopes.length === 0}
-    >
-      Créer la clé
-    </button>
+{#snippet keyForm()}
+  <form id={formId} onsubmit={create} autocomplete="off" class="flex flex-col gap-4">
+    <ApiKeyFields
+      {formId}
+      {busy}
+      {availableScopes}
+      {availableLifetimes}
+      {selectedScopes}
+      bind:label
+      bind:days
+      bind:scopes
+      bind:nameInput
+    />
+    {#if creationFailure}<p class="fr-error-text m-0!" role="alert">{creationFailure}</p>{/if}
+    {#if !Dialog}{@render submitButton()}{/if}
   </form>
+{/snippet}
+
+{#snippet submitButton()}
+  <button
+    type="submit"
+    form={formId}
+    class="fr-btn self-start"
+    class:fr-btn--icon-left={!Dialog}
+    class:fr-icon-add-line={!Dialog}
+    disabled={busy || !label.trim() || selectedScopes.length === 0}
+  >
+    {busy ? "Création…" : "Créer la clé"}
+  </button>
+{/snippet}
+
+<section aria-labelledby={`${formId}-title`} class="flex flex-col gap-4">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <h3 id={`${formId}-title`} class="m-0! text-base! font-bold">{title}</h3>
+    {#if Dialog}
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-add-line"
+        disabled={busy}
+        onclick={() => (creating = true)}
+      >
+        Créer une clé de service
+      </button>
+    {/if}
+  </header>
+  {#if !Dialog}{@render keyForm()}{/if}
   {#if failure}<p class="fr-error-text m-0!" role="alert">{failure}</p>{/if}
   {#if notice}<p class="fr-valid-text m-0!" role="status">{notice}</p>{/if}
-  {#if issued}
-    <div class="fr-alert fr-alert--info min-w-0" role="status">
-      <p class="mb-3! [overflow-wrap:anywhere]">
-        Copiez la clé « {issued.key.label} ». Elle est affichée une seule fois.
-      </p>
-      <label class="fr-label" for={`${formId}-secret`}>Jeton d’accès</label>
-      <input
-        id={`${formId}-secret`}
-        class="fr-input font-mono"
-        value={issued.secret}
-        autocomplete="off"
-        spellcheck={false}
-        readonly
-      />
-      <div class="mt-3 flex flex-wrap gap-2">
-        <button type="button" class="fr-btn fr-btn--sm" onclick={copy}>Copier la clé</button>
-        <button
-          type="button"
-          class="fr-btn fr-btn--secondary fr-btn--sm"
-          onclick={() => (issued = undefined)}>Masquer</button
-        >
-      </div>
-    </div>
+  {#if !Dialog && issued}
+    {#key issued.key.id}
+      <IssuedApiKey {issued} onDismiss={() => (issued = undefined)} />
+    {/key}
   {/if}
   <ApiKeyList {keys} {busy} onRevoke={revoke} />
 </section>
+
+{#if Dialog && creating}
+  <Dialog
+    title={issued ? "Clé de service créée" : "Créer une clé de service"}
+    {busy}
+    onClose={closeCreation}
+    initialFocus={() => nameInput?.focus()}
+  >
+    <div class="fr-p-3w">
+      {#if issued}
+        <IssuedApiKey {issued} inDialog />
+      {:else}
+        {@render keyForm()}
+      {/if}
+    </div>
+    {#snippet footer()}
+      <button
+        type="button"
+        class="fr-btn fr-btn--secondary"
+        class:ml-auto={issued}
+        disabled={busy}
+        onclick={closeCreation}
+      >
+        {issued ? "Terminer" : "Annuler"}
+      </button>
+      {#if !issued}{@render submitButton()}{/if}
+    {/snippet}
+  </Dialog>
+{/if}

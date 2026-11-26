@@ -5,11 +5,12 @@ export const referenceReadScope = "references:read";
 export const retiredStatusScope = "dossiers:read:statut";
 
 export const dossierGrantScopeLabels = {
-  [dossierReadScope]: "Consulter les dossiers",
-  [dossierInternalScope]: "Consulter les informations internes des dossiers",
+  [dossierReadScope]: "Lecture restreinte",
+  [dossierInternalScope]: "Lecture complète",
 };
 export const apiScopeLabels = {
-  ...dossierGrantScopeLabels,
+  [dossierReadScope]: "Consulter les dossiers",
+  [dossierInternalScope]: dossierGrantScopeLabels[dossierInternalScope],
   [accountReadScope]: "Consulter mon compte, mes groupes et mes notifications",
   [referenceReadScope]: "Consulter les référentiels",
 };
@@ -29,10 +30,11 @@ export function apiScopeLabel(scope: string) {
 }
 
 export const apiKeyLifetimes = [7, 30, 90] as const;
+export const serviceApiKeyLifetimes = [...apiKeyLifetimes, 180, 365] as const;
 export type ApiKeyInput = {
   label: string;
   scopes: ApiScope[];
-  days: (typeof apiKeyLifetimes)[number];
+  days: (typeof serviceApiKeyLifetimes)[number];
 };
 
 export type ApiKeySummary = {
@@ -44,7 +46,7 @@ export type ApiKeySummary = {
   lastUsedAt: string | null;
 };
 
-export type ApiGrantTarget = { dossierId: number } | { groupeId: string };
+export type ApiGrantTarget = { dossierId: number } | { groupeId: string } | { allDossiers: true };
 export type ApiGrant = ApiGrantTarget & {
   scope: DossierGrantScope | typeof retiredStatusScope;
   label: string;

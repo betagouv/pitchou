@@ -7,7 +7,7 @@ import { listServiceApiKeys } from "./keys.ts";
 type Integration = { id: string; name: string; enabled: boolean; allowOAuth: boolean };
 
 export async function listApiIntegrations(db: Knex = directDatabaseConnection) {
-  const [clients, keys, dossiers, groupes, activeGroupes] = await Promise.all([
+  const [clients, keys, allDossiers, dossiers, groupes, activeGroupes] = await Promise.all([
     db("external_api_client")
       .select<Integration[]>(
         "client_id as id",
@@ -17,6 +17,9 @@ export async function listApiIntegrations(db: Knex = directDatabaseConnection) {
       )
       .orderBy("name"),
     listServiceApiKeys(db),
+    db("external_api_all_dossiers_grant")
+      .select<{ clientId: string; scope: ApiGrant["scope"] }[]>("client_id as clientId", "scope")
+      .orderBy("scope"),
     db("external_api_dossier_grant as grant")
       .join("dossier", "dossier.id", "grant.dossier")
       .select<(ApiGrant & { clientId: string })[]>(
@@ -42,7 +45,12 @@ export async function listApiIntegrations(db: Knex = directDatabaseConnection) {
       .select<{ id: string; name: string }[]>("id", "name")
       .orderBy("name"),
   ]);
-  const grants = [...dossiers, ...groupes];
+  const globalGrants = allDossiers.map((grant): ApiGrant & { clientId: string } => ({
+    ...grant,
+    allDossiers: true,
+    label: "Tous les dossiers",
+  }));
+  const grants = [...globalGrants, ...dossiers, ...groupes];
   return {
     integrations: clients.map((client) => ({
       ...client,
@@ -75,16 +83,14 @@ export async function changeApiIntegrationGrant(
   add: boolean,
   db: Knex,
 ) {
-  const values = {
-    client_id: clientId,
-    scope,
-    ...("dossierId" in target
-      ? { dossier: target.dossierId }
-      : { groupe_instructeurs: target.groupeId }),
-  };
-  const grants = db(
-    "dossierId" in target ? "external_api_dossier_grant" : "external_api_groupe_grant",
-  );
+  const identity = { client_id: clientId, scope };
+  const [table, values]: [string, Record<string, string | number>] =
+    "dossierId" in target
+      ? ["external_api_dossier_grant", { ...identity, dossier: target.dossierId }]
+      : "groupeId" in target
+        ? ["external_api_groupe_grant", { ...identity, groupe_instructeurs: target.groupeId }]
+        : ["external_api_all_dossiers_grant", identity];
+  const grants = db(table);
   if (!add) return (await grants.where(values).del()) > 0;
   const inserted = await grants.insert(values).onConflict().ignore().returning("client_id");
   return inserted.length > 0;

@@ -50,6 +50,9 @@ test("a personal key is shown once, scoped to its owner and revocable", async ()
   const grant = { user_id: owner.id, dossier: visible.id, access_level: "read" };
   await db("dossier_user_access").insert(grant);
 
+  expect((await send(owner.session, personalKeys, "POST", { ...keyInput, days: 365 })).status).toBe(
+    400,
+  );
   const response = await send(owner.session, personalKeys, "POST", keyInput);
   expect(response.status).toBe(201);
   expect(response.headers.get("Cache-Control")).toBe("no-store");
@@ -142,12 +145,13 @@ test("admins manage integration-owned keys and grants independently of their own
     scopes: [dossierInternalScope],
   });
   expect(invalid.status).toBe(400);
-  const issued = await send(admin.session, `${service}/keys`, "POST", keyInput);
+  const issued = await send(admin.session, `${service}/keys`, "POST", { ...keyInput, days: 365 });
   expect(issued.status).toBe(201);
   const { key, secret } = await issued.json();
   const row = await db("external_api_key").where({ id: key.id }).first();
   expect(row.user_id).toBeNull();
   expect(row.client_id).toBe(id);
+  expect(row.expires_at.getTime() - row.created_at.getTime()).toBe(365 * 86_400_000);
   expect(await admitExternalApiRequest(id, db, true)).toBe("disabled");
   expect((await readDossier(visible.id, secret)).status).toBe(404);
 

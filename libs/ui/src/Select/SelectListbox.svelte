@@ -38,7 +38,7 @@
   aria-label={ariaLabel}
   tabindex="-1"
   popover="manual"
-  class="fr-p-1v fixed inset-auto z-[2000] m-0 h-auto min-w-[12rem] overflow-y-auto overscroll-contain rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] text-[color:var(--text-default-grey)] shadow-[0_4px_16px_rgba(0,0,18,0.16)]"
+  class="fr-p-1v fixed inset-auto z-[2000] m-0 box-border h-auto overflow-x-hidden overflow-y-auto overscroll-contain rounded-[0.25rem] border border-[color:var(--border-default-grey)] bg-[var(--background-default-grey)] text-[color:var(--text-default-grey)] shadow-[0_4px_16px_rgba(0,0,18,0.16)] [overflow-wrap:anywhere]"
   style:left="{placement.left}px"
   style:width="{placement.width}px"
   style:max-height="{placement.maxHeight}px"
@@ -75,7 +75,7 @@
           tabindex="-1"
           aria-selected={isSelected}
           class={[
-            "fr-px-1w fr-py-1v flex w-full cursor-pointer items-start gap-2 rounded-[0.25rem] text-left",
+            "fr-px-1w fr-py-1v box-border flex w-full cursor-pointer items-start gap-2 rounded-[0.25rem] text-left",
             activeIndex === index && "bg-[var(--background-alt-grey)]",
             isSelected && "fr-text--bold text-[color:var(--text-active-blue-france)]",
           ]}

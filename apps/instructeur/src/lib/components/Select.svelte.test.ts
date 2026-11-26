@@ -127,3 +127,40 @@ test("the list stays under its trigger inside a container that traps fixed posit
     container.remove();
   }
 });
+
+test("a narrow dropdown wraps long text and scrolls vertically within the viewport", async () => {
+  const { innerWidth, innerHeight } = window;
+  await page.viewport(360, 800);
+  try {
+    const onChange = vi.fn();
+    const { container } = render(Select, {
+      id: "narrow-select",
+      ariaLabel: "Choice",
+      options: [
+        {
+          label: "Regroupement".repeat(8),
+          options: [
+            { value: "long", label: "Identifiant".repeat(12), hint: "Description".repeat(12) },
+            ...Array.from({ length: 12 }, (_, i) => ({ value: String(i), label: `Option ${i}` })),
+          ],
+        },
+      ],
+      value: "long",
+      onChange,
+    });
+    container.style.cssText = "width: 120px; margin-inline-start: auto;";
+
+    await page.getByRole("combobox", { name: "Choice" }).click();
+    const list = page.getByRole("listbox").element();
+    expect(list.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth - 8);
+    expect(list.scrollWidth).toBe(list.clientWidth);
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+    list.scrollTop = list.scrollHeight;
+    expect(list.scrollTop).toBeGreaterThan(0);
+
+    await page.getByRole("option", { name: "Option 11", exact: true }).click();
+    expect(onChange).toHaveBeenCalledWith("11");
+  } finally {
+    await page.viewport(innerWidth, innerHeight);
+  }
+});

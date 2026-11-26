@@ -85,6 +85,9 @@ export async function externalKeyIsUsable(
 }
 
 function serviceAccessQuery(clientId: string, scope: string, requireOAuth: boolean, db: Knex) {
+  const allDossiersGrant = db("external_api_all_dossiers_grant")
+    .select("client_id")
+    .where({ client_id: clientId, scope });
   const dossierGrant = db("external_api_dossier_grant as grant")
     .select("grant.dossier")
     .where({ "grant.client_id": clientId, "grant.scope": scope })
@@ -104,5 +107,7 @@ function serviceAccessQuery(clientId: string, scope: string, requireOAuth: boole
     .select("client_id")
     .where({ client_id: clientId, enabled: true });
   if (requireOAuth) client.where({ allow_oauth: true });
-  return client.where((grants) => grants.whereExists(dossierGrant).orWhereExists(groupeGrant));
+  return client.where((grants) =>
+    grants.whereExists(allDossiersGrant).orWhereExists(dossierGrant).orWhereExists(groupeGrant),
+  );
 }

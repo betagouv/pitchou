@@ -2,6 +2,8 @@
 const PREFERRED_HEIGHT = 288;
 /** Below that, opening on a side is not worth it — the other side wins. */
 const MIN_HEIGHT = 144;
+/** Keep options readable when the trigger is narrow. */
+const MIN_WIDTH = 192;
 /** Space between the trigger and the list. */
 const GAP = 4;
 /** Breathing room kept against the viewport edges. */
@@ -40,7 +42,10 @@ export function computePlacement(
   const dropUp = below < Math.min(preferredHeight, above) && above > MIN_HEIGHT;
   const available = dropUp ? above : below;
 
-  const width = Math.min(Math.max(rect.width, minWidth), viewportWidth - 2 * VIEWPORT_MARGIN);
+  const width = Math.min(
+    Math.max(rect.width, minWidth, MIN_WIDTH),
+    viewportWidth - 2 * VIEWPORT_MARGIN,
+  );
   // A widened list is nudged left so it never overflows the viewport.
   const left = Math.max(
     VIEWPORT_MARGIN,

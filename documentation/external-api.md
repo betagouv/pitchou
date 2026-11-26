@@ -16,20 +16,20 @@ Each request applies the key's scopes and the account's current permissions. Rev
 
 In the admin app, open the account under **Utilisateurs → Permissions personnalisées**. Choose **Autoriser** for **Gérer les intégrations et les clés de service de l’API** and save.
 
-Open **Intégrations API** and add one service per partner integration. Grant it access to a dossier by its Pitchou number, or to the dossiers assigned to an active instructeur group. Each new service needs a grant before it can read dossiers.
+Open **Intégrations API** and add one service per partner integration. In **Habilitations**, grant access to a dossier by its Pitchou number, to the dossiers assigned to an active instructeur group, or to **Tous les dossiers**. The last option covers existing and future dossiers, including dossiers without a group. Each new service needs a grant before it can read dossiers.
 
-Create a key for the service with the agreed scopes. Share the token through a private channel and give the partner the API URL. A service can have multiple keys during rotation. Revoking a key removes its access. Disabling the service blocks all its keys and other credentials. The integration owns its keys, and the administration audit log records administrative changes.
+Create a key for the service with the agreed scopes. Service key lifetimes are 7, 30, 90, 180, or 365 days. Existing keys keep their original expiration dates. Share the token through a private channel and give the partner the API URL. A service can have multiple keys during rotation. Revoking a key removes its access. Disabling the service blocks all its keys and other credentials. The integration owns its keys, and the administration audit log records administrative changes.
 
 On first deployment, the Instructeur app applies the API migration to the shared database. Scalingo deploys both apps automatically. **Intégrations API** temporarily returns `503` if the admin app starts before the migration finishes.
 
 ## Scopes and resources
 
-| Scope                    | Resources                                                                                                                                                                                    |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dossiers:read`          | Dossier list, details, and related resources. A personal key uses its owner's access level. A service key requires a grant and receives restricted read access by default.                   |
-| `dossiers:read:internal` | Internal access for a service that also has `dossiers:read`. The key needs both scopes, and the service needs a grant for each scope on the dossier or one of its active instructeur groups. |
-| `account:read`           | The owner's account, personal keys, groups and members, notifications, preferences, and recent searches. Only personal keys can use this scope.                                              |
-| `references:read`        | Activities, TAXREF, BDC-Statuts, protected species, impact types, methods, means of pursuit, public statistics, and release notes. This scope is independent of dossier grants.              |
+| Scope                    | Resources                                                                                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dossiers:read`          | Dossier list, details, and related resources. A personal key uses its owner's access level. For service keys, the matching grant gives **Lecture restreinte**.                  |
+| `dossiers:read:internal` | The **Lecture complète** grant adds access to internal information. The service key needs both scopes, and both grants must cover the dossier.                                  |
+| `account:read`           | The owner's account, personal keys, groups and members, notifications, preferences, and recent searches. Only personal keys can use this scope.                                 |
+| `references:read`        | Activities, TAXREF, BDC-Statuts, protected species, impact types, methods, means of pursuit, public statistics, and release notes. This scope is independent of dossier grants. |
 
 All paths below are relative to `/api/v1`. These operations are read-only.
 

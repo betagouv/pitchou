@@ -25,9 +25,10 @@ export function isDossierGrantScope(scope: unknown): scope is DossierGrantScope 
 export function parseApiKeyInput(
   body: Record<string, unknown>,
   allowedScopes: readonly ApiScope[],
+  allowedLifetimes: readonly ApiKeyInput["days"][] = apiKeyLifetimes,
 ): ApiKeyInput {
   const { days, scopes } = body;
-  const lifetime = apiKeyLifetimes.find((value) => value === days);
+  const lifetime = allowedLifetimes.find((value) => value === days);
   if (!lifetime) error(400, "Choisissez une durée de validité proposée.");
   if (
     !Array.isArray(scopes) ||
