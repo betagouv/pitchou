@@ -144,3 +144,28 @@ test("historical accounts without email can change permissions and status while 
     email: null,
   });
 });
+
+test("managing API integrations requires a direct permission grant", async () => {
+  const administrator = await admin();
+  const integrations = () =>
+    fetchAuthenticated(administrator.token, `${ADMIN_BASE_URL}/integrations-api`);
+  const save = (grants: string[]) =>
+    fetchAuthenticated(administrator.token, `${ADMIN_BASE_URL}/api/users`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id: administrator.id,
+        email: administrator.email,
+        active: true,
+        bundles: ["administrateur"],
+        grants,
+        exclusions: [],
+      }),
+    });
+
+  expect((await integrations()).status).toBe(403);
+  expect((await save(["admin:api:manage"])).status).toBe(200);
+  expect((await integrations()).status).toBe(200);
+  expect((await save([])).status).toBe(200);
+  expect((await integrations()).status).toBe(403);
+});

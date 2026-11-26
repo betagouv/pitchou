@@ -11,7 +11,8 @@
   <p>
     Les profils regroupent plusieurs permissions. Le profil Instructeur permet de consulter les
     dossiers et d'instruire ceux pour lesquels un groupe ou un accès individuel autorise
-    l'instruction. Le profil Administrateur donne toutes les permissions.
+    l'instruction. Le profil Administrateur donne les permissions d'administration courantes. La
+    gestion des intégrations et des clés de service de l’API demande une autorisation individuelle.
   </p>
   <p>
     Les droits personnalisés permettent d'ajouter ou de refuser une permission. Un refus est

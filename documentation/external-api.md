@@ -10,7 +10,9 @@ Chaque appel applique les permissions de la clé et les droits actuels du compte
 
 ## Clés de service
 
-Dans l’application admin, ouvrez **Intégrations API** (`/integrations-api`). Cette page exige `admin:access` et `admin:api:manage`. Ajoutez un service par intégration partenaire. Accordez-lui une permission sur un dossier par son numéro Pitchou, ou sur les dossiers affectés à un groupe instructeur actif. Un service nouvellement créé doit recevoir une habilitation pour consulter des dossiers.
+L’accès à **Intégrations API** (`/integrations-api`) exige `admin:access` et une autorisation individuelle pour `admin:api:manage`. Dans **Utilisateurs → Permissions personnalisées**, choisissez **Autoriser** pour **Gérer les intégrations et les clés de service de l’API**.
+
+Ouvrez ensuite **Intégrations API**. Ajoutez un service par intégration partenaire. Accordez-lui une permission sur un dossier par son numéro Pitchou, ou sur les dossiers affectés à un groupe instructeur actif. Un service nouvellement créé doit recevoir une habilitation pour consulter des dossiers.
 
 Créez ensuite une clé pour ce service avec les permissions convenues. Transmettez le jeton par un canal privé et envoyez l’URL de l’API au partenaire. Plusieurs clés peuvent coexister pendant un renouvellement. Révoquer une clé retire son accès. Désactiver le service bloque toutes ses clés et ses autres identifiants. Les clés de service appartiennent à l’intégration. Les changements effectués par les administrateurs sont enregistrés dans le journal d’administration.
 

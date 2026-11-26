@@ -51,7 +51,9 @@ export const PERMISSION_GROUPS = [
 ] satisfies { label: string; permissions: Permission[] }[];
 export const BUNDLES = {
   instructeur: ["dossier:read", "dossier:instruct"],
-  administrateur: Object.keys(PERMISSIONS) as Permission[],
+  administrateur: (Object.keys(PERMISSIONS) as Permission[]).filter(
+    (permission) => permission !== "admin:api:manage",
+  ),
 } satisfies Record<string, Permission[]>;
 export type PermissionBundle = keyof typeof BUNDLES;
 
