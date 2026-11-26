@@ -60,11 +60,13 @@
       <h2 class="my-0 ml-0 mr-auto text-[1.25rem]">{title}</h2>
       <button
         type="button"
-        class="fr-btn fr-btn--tertiary-no-outline fr-icon-close-line"
+        class="fr-btn fr-btn--tertiary-no-outline size-11 min-h-0 shrink-0 justify-center p-0"
         title="Fermer"
         aria-label="Fermer"
         onclick={onClose}
-      ></button>
+      >
+        <span class="fr-icon-close-line" aria-hidden="true"></span>
+      </button>
     </header>
 
     <!-- Padding-free on purpose: each consumer pads its own content (the selector brings its own). -->

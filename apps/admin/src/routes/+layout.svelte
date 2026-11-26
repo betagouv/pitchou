@@ -50,6 +50,7 @@
         collapsed={sidebarCollapsed}
         onClose={() => (sidebarOpen = false)}
         email={data.user?.email}
+        permissions={data.user?.permissions ?? []}
         onLogout={logout}
       />
 

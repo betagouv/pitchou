@@ -69,7 +69,22 @@ test("a first login is recorded even when the account awaits access", async () =
   expect(mocks.connect).toHaveBeenCalledOnce();
   expect(mocks.createSession).toHaveBeenCalledOnce();
 });
+test("an active account without dossier access returns to API settings", async () => {
+  mocks.transaction.mockResolvedValue({
+    state: "state",
+    nonce: "nonce",
+    redirectTo: "/parametres/api",
+  });
+  mocks.sessionUser.mockResolvedValue({ active: true, groupes: [], permissions: [] });
+  await expect(callback()).rejects.toMatchObject({ status: 303, location: "/parametres/api" });
+  expect(mocks.cookie).toHaveBeenCalledWith({}, "session");
+});
 test("disabled accounts cannot create sessions", async () => {
+  mocks.transaction.mockResolvedValue({
+    state: "state",
+    nonce: "nonce",
+    redirectTo: "/parametres/api",
+  });
   mocks.connect.mockResolvedValue({ id: 7, active: false });
   await expect(callback()).rejects.toMatchObject({
     status: 303,

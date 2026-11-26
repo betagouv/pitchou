@@ -25,7 +25,16 @@ function fakeDossier(): DossierFull {
         attachment_names: ["internal-saisine.pdf"],
       },
     ],
-    evenementsPhase: [{ dossier: 123, phase: "Instruction", timestamp: new Date("2026-02-01") }],
+    evenementsPhase: [
+      {
+        dossier: 123,
+        phase: "Instruction",
+        timestamp: new Date("2026-02-01"),
+        caused_by_personne: 42,
+        demarche_numerique_agent_email: "phase-agent@example.test",
+        demarche_numerique_motivation: "Motif interne de la phase",
+      },
+    ],
     piecesJointesPetitionnaires: [{ url: "/piece-jointe-petitionnaire/fichier/1", name: "ddep" }],
     avisExpert: [
       {
@@ -76,6 +85,11 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
   expect(shared.free_comment).toBe("");
   expect(shared.latestCommentaire).toBeNull();
   expect(shared.cnpnEmailSentEvents).toBeUndefined();
+  expect(shared.evenementsPhase?.[0]).toMatchObject({
+    caused_by_personne: null,
+    demarche_numerique_agent_email: null,
+    demarche_numerique_motivation: null,
+  });
 
   // Only the official avis, and never the saisine that produced it.
   expect(shared.avisExpert.map(({ expert }) => expert)).toEqual(["CNPN"]);
@@ -98,6 +112,8 @@ test("un dossier en lecture seule ne contient aucun élément interne au service
     "Prescription interne",
     "Autre expert",
     "internal-cnpn@example.test",
+    "phase-agent@example.test",
+    "Motif interne de la phase",
     "/avis-expert/fichier/11",
     "/avis-expert/fichier/20",
     "/attachment-autre/fichier/40",
@@ -113,7 +129,9 @@ test("un dossier en lecture seule garde ce qui est partagé", () => {
   expect(shared.name).toBe("Dossier test");
   // The instruction tab shows the phase timeline, and the contrôles tab reads
   // the current phase from it.
-  expect(shared.evenementsPhase).toHaveLength(1);
+  expect(shared.evenementsPhase).toMatchObject([
+    { phase: "Instruction", timestamp: new Date("2026-02-01") },
+  ]);
   // « Projet » attachments, the official avis file and the décision file.
   expect(shared.piecesJointesPetitionnaires).toHaveLength(1);
   expect(shared.avisExpert[0]!.avis_fichier_url).toBe("/avis-expert/fichier/10");
@@ -148,4 +166,5 @@ test("la projection ne modifie pas le dossier d'origine", () => {
   expect(dossier.avisExpert[0]!.saisine_fichier_url).toBe("/avis-expert/fichier/11");
   expect(dossier.decisionsAdministratives![0]!.prescriptions).toHaveLength(1);
   expect(dossier.otherAttachments).toHaveLength(1);
+  expect(dossier.evenementsPhase?.[0]?.caused_by_personne).toBe(42);
 });

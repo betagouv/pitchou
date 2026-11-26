@@ -3,6 +3,7 @@
   import pitchouLogo from "@pitchou/ui/pitchou-logo.svg";
   import pitchouLogoDark from "@pitchou/ui/pitchou-logo-dark.svg";
   import pitchouIcon from "@pitchou/ui/pitchou-icon.svg";
+  import type { Permission } from "@pitchou/types/permissions.ts";
 
   import { NAV, isNavActive } from "./nav.ts";
   import UserCard from "./UserCard.svelte";
@@ -13,10 +14,14 @@
     collapsed: boolean;
     onClose: () => void;
     email?: string;
+    permissions: readonly Permission[];
     onLogout: () => void;
   };
 
-  let { open, collapsed, onClose, email, onLogout }: Props = $props();
+  let { open, collapsed, onClose, email, permissions, onLogout }: Props = $props();
+  const visibleNav = $derived(
+    NAV.filter((item) => !item.permission || permissions.includes(item.permission)),
+  );
 </script>
 
 {#snippet content(iconOnly: boolean)}
@@ -61,7 +66,7 @@
 
     <nav class="flex-1 overflow-y-auto p-3" aria-label="Menu principal">
       <div class="flex flex-col gap-1">
-        {#each NAV as item (item.href)}
+        {#each visibleNav as item (item.href)}
           {@const active = isNavActive(page.url.pathname, item.href)}
           <a
             href={item.href}

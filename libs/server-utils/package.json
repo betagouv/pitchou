@@ -7,6 +7,9 @@
     ".": "./src/index.ts",
     "./*": "./src/*"
   },
+  "dependencies": {
+    "@pitchou/types": "workspace:*"
+  },
   "peerDependencies": {
     "@sveltejs/kit": "catalog:"
   },

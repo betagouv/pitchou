@@ -22,7 +22,8 @@
     "knex": "catalog:",
     "maplibre-gl": "catalog:",
     "pg": "catalog:",
-    "jose": "catalog:"
+    "jose": "catalog:",
+    "swagger-ui-dist": "catalog:"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",

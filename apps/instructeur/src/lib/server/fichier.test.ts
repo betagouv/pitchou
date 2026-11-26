@@ -1,7 +1,7 @@
 import { Readable } from "node:stream";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadFichierContent } from "@pitchou/server/database/fichier.ts";
-import { downloadFichierResponse } from "./fichier.ts";
+import { downloadFichierResponse, downloadStoredFichierResponse } from "./fichier.ts";
 import type { FileId } from "@pitchou/types/database/public/File.ts";
 
 vi.mock(import("@pitchou/server/database/fichier.ts"), () => ({
@@ -15,6 +15,19 @@ beforeEach(() => {
 });
 
 const id = "00000000-0000-0000-0000-000000000001" as FileId;
+
+it("uses the binary fallback and encodes punctuation in attachment metadata", async () => {
+  const response = await downloadStoredFichierResponse(
+    { id, name: 'L\'avis "final".pdf', media_type: null, size: "7" },
+    true,
+  );
+  expect(response.headers.get("content-type")).toBe("application/octet-stream");
+  expect(response.headers.get("content-length")).toBe("7");
+  expect(response.headers.get("content-disposition")).toBe(
+    'attachment; filename="L\'avis \\"final\\".pdf"; filename*=UTF-8\'\'L%27avis%20%22final%22.pdf',
+  );
+  expect(response.body).toBeNull();
+});
 
 describe("downloadFichierResponse", () => {
   it("throws a 404 SvelteKit error when the fichier is not found", async () => {

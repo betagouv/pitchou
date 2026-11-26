@@ -25,10 +25,11 @@ Effective permissions are the union of bundle permissions and individual grants,
 | `admin:changelog:delete` | Delete changelog entries                                                |
 | `admin:sync:run`         | Run DN synchronization                                                  |
 | `admin:sync:simulate`    | Simulate DN changes on dossiers, where simulation is enabled            |
+| `admin:api:manage`       | Manage API integrations, service keys and grants                        |
 | `users:manage`           | Manage users and their permissions                                      |
 | `groups:manage`          | Manage groups, rules and group or individual dossier grants             |
 
-The `instructeur` bundle grants both dossier permissions. The `administrateur` bundle grants every permission. Admin pages still require `admin:access` alongside their management permission. Instructor-app access requires active group membership or a direct dossier grant, including for administrators.
+The `instructeur` bundle grants both dossier permissions. The `administrateur` bundle grants the standard administration and dossier permissions. Grant `admin:api:manage` individually through the user editor. Admin pages require `admin:access` alongside their management permission. Instructor-app access requires active group membership or a direct dossier grant, including for administrators.
 
 In the instructor application's settings, active members can add and remove colleagues in their own active groups, or leave a group. These actions do not require administrator or dossier permissions. The server rechecks current membership after acquiring the access advisory lock. Group creation, routing rules and dossier grants remain managed in the admin application. Adding a group member grants the instructor bundle only if that account's permissions have never been configured. The database remembers permission changes even after the last grant or exclusion is removed. Saving an account in administration also records an explicit configuration when all permissions are empty. Removing and re-adding a member cannot undo those administrator choices.
 
@@ -79,7 +80,7 @@ Migration invalidates existing sessions. Old email links and capability URLs no 
 
 Development groups have explicit department coverage in `libs/database/seeds/fixtures/groupes.ts`. Dossier fixtures must specify `primary_department`, and the shared application routing service assigns their groups. The 11 realistic examples have primary departments; a separate demonstration dossier, DN number `99000012`, intentionally leaves it null so the unmatched-dossier alert remains testable. Rerunning seeds refreshes dossier fixtures and preserves coverage already saved for existing groups.
 
-Migration `20261023104000_granular-admin-permissions.ts` replaces each direct `admin:write` grant or exclusion with the twelve granular write permissions. It preserves existing individual exclusions and leaves bundles unchanged. Deploy the migration with the updated applications. The administrator bundle grants all current permissions; users can receive individual grants or exclusions. Admin read access remains controlled by `admin:access`, with separate management permissions for the users and groups pages. Admin dossier permissions apply across groups and do not grant instructor-app access. Unlisted write routes are denied until assigned a permission. Editing a dossier with attached uploads requires the matching file permissions as well as dossier editing.
+Migration `20261023104000_granular-admin-permissions.ts` replaces each direct `admin:write` grant or exclusion with the twelve granular write permissions. It preserves existing individual exclusions and leaves bundles unchanged. Deploy the migration with the updated applications. Admin read access remains controlled by `admin:access`, with separate management permissions for the users and groups pages. Admin dossier permissions apply across groups and do not grant instructor-app access. Unlisted write routes are denied until assigned a permission. Editing a dossier with attached uploads requires the matching file permissions as well as dossier editing.
 
 ## Upgrade after email notifications
 

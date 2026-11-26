@@ -62,6 +62,18 @@ const writeRules: { method: string; path: RegExp; anyOf: Permission[] }[] = [
     anyOf: ["admin:changelog:update"],
   },
   { method: "POST", path: /^\/api\/synchronisation-dn$/u, anyOf: ["admin:sync:run"] },
+  { method: "POST", path: /^\/api\/integrations-api$/u, anyOf: ["admin:api:manage"] },
+  { method: "PATCH", path: /^\/api\/integrations-api\/[^/]+$/u, anyOf: ["admin:api:manage"] },
+  {
+    method: "POST",
+    path: /^\/api\/integrations-api\/[^/]+\/(?:keys|grants)$/u,
+    anyOf: ["admin:api:manage"],
+  },
+  {
+    method: "DELETE",
+    path: /^\/api\/integrations-api\/[^/]+\/(?:keys|grants)$/u,
+    anyOf: ["admin:api:manage"],
+  },
   // Uploading bytes grants no right to attach them. Each attachment route also checks access.
   {
     method: "POST",
@@ -84,6 +96,11 @@ export function canAccessAdminRoute(
   // SvelteKit resolves encoded URLs and data requests to the same route ID.
   // Unmatched reads reach SvelteKit's 404; unmatched writes remain denied.
   const path = routeId ?? "";
+  if (
+    ["GET", "HEAD", "OPTIONS"].includes(method) &&
+    /^\/(?:api\/)?integrations-api(?:\/|$)/u.test(path)
+  )
+    return permissions.includes("admin:api:manage");
   if (path === "/dossiers/nouveau") return permissions.includes("admin:dossiers:create");
   if (path === "/changelog/nouveau") return permissions.includes("admin:changelog:create");
   if (/^\/(?:api\/users|utilisateurs)(?:\/|$)/u.test(path))

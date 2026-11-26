@@ -1,12 +1,20 @@
+import type { Permission } from "@pitchou/types/permissions.ts";
+
 // Sidebar entries and the per-path header titles of the admin shell.
 
-export type NavItem = { href: string; label: string; icon: string };
+export type NavItem = { href: string; label: string; icon: string; permission?: Permission };
 
 export const NAV: NavItem[] = [
   { href: "/", label: "Accueil", icon: "fr-icon-home-4-line" },
   { href: "/dossiers", label: "Dossiers", icon: "fr-icon-folder-2-line" },
   { href: "/utilisateurs", label: "Utilisateurs", icon: "fr-icon-user-line" },
   { href: "/groupes-instructeurs", label: "Groupes instructeurs", icon: "fr-icon-team-line" },
+  {
+    href: "/integrations-api",
+    label: "Intégrations API",
+    icon: "fr-icon-terminal-line",
+    permission: "admin:api:manage",
+  },
   { href: "/aarri", label: "Suivi AARRI", icon: "fr-icon-bar-chart-box-line" },
   { href: "/especes-protegees", label: "Espèces protégées", icon: "fr-icon-leaf-line" },
   { href: "/activites", label: "Activités", icon: "fr-icon-briefcase-line" },
@@ -43,6 +51,7 @@ export function pageInfoFor(pathname: string, search = ""): PageInfo {
   if (pathname.startsWith("/groupes-instructeurs/"))
     return { title: "Groupe instructeur", backHref: "/groupes-instructeurs" };
   if (pathname === "/groupes-instructeurs") return { title: "Groupes instructeurs" };
+  if (pathname === "/integrations-api") return { title: "Intégrations API" };
   if (pathname === "/aarri") return { title: "Utilisateurices et niveau AARRI" };
   if (pathname === "/especes-protegees") return { title: "Espèces protégées modifiées" };
   if (pathname === "/activites") return { title: "Activités et regroupement des libellés" };

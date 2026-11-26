@@ -4,6 +4,7 @@ import { connectUser, getSessionUser } from "@pitchou/server/users.ts";
 import { createSession } from "@pitchou/server/session.ts";
 
 import { exchangeCodeAndFetchUser } from "#lib/server/proconnect.ts";
+import { isSettingsPath, sanitizeInternalPath } from "#lib/server/redirect.ts";
 import { readTransaction, clearTransaction, setSessionCookie } from "#lib/server/session.ts";
 
 import type { RequestHandler } from "./$types";
@@ -37,10 +38,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
   });
   setSessionCookie(cookies, token);
 
+  const redirectTo = sanitizeInternalPath(tx.redirectTo);
+  if (isSettingsPath(redirectTo)) redirect(303, redirectTo);
   const sessionUser = await getSessionUser(account.id);
   if (!(await canReadDossiers(sessionUser))) {
     redirect(303, "/auth/acces-refuse");
   }
 
-  redirect(303, tx.redirectTo || "/");
+  redirect(303, redirectTo);
 };
