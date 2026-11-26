@@ -42,13 +42,15 @@ and a project that needs a missing row fails on its own in the import report.
 
 Run in a foreground Scalingo one-off container on `pitchou-staging` in
 `osc-secnum-fr1`, uploading the bundle with `scalingo run --file`. Quote the whole command, or
-the Scalingo CLI reads `--import` as its own flag. The entry point
+the Scalingo CLI reads `--import` as its own flag. The deployed image drops the root development
+dependencies, so run through `@pitchou/database`, which ships `tsx`, as `scripts/start.sh` does,
+with absolute paths. The entry point
 pins the database, bucket and staging email protection. No production target is
 accepted. Example commands, run from the operator machine:
 
 ```sh
-scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "node --import tsx scripts/onagre/staging-import.mjs /tmp/uploads/bundle-part-1-of-2.json.gz SHA256 20"
-scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "node --import tsx scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle-part-1-of-2.json.gz SHA256"
+scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "pnpm --filter @pitchou/database exec node --import tsx /app/scripts/onagre/staging-import.mjs /tmp/uploads/bundle-part-1-of-2.json.gz SHA256 20"
+scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "pnpm --filter @pitchou/database exec node --import tsx /app/scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle-part-1-of-2.json.gz SHA256"
 ```
 
 Repeat both commands for each following part, with its own file and SHA256.
