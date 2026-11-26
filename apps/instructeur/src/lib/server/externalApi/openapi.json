@@ -1,60 +1,60 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "API Pitchou",
+    "title": "Pitchou API",
     "version": "1.0.0",
-    "description": "Créez une clé personnelle dans Paramètres → API, ou utilisez la clé de service fournie par l’équipe Pitchou. Dans Swagger UI, saisissez la clé dans Authorize. Les services configurés pour OAuth peuvent également utiliser leur jeton d’accès."
+    "description": "Create a personal key under Paramètres → API or use the service key provided by the Pitchou team. In Swagger UI, enter the key under Authorize. OAuth-enabled services can also use their access token."
   },
   "servers": [{ "url": "/api/v1" }],
   "paths": {
     "/dossiers": {
       "get": {
         "operationId": "listDossiers",
-        "summary": "Lister les dossiers accessibles",
-        "description": "Portée `dossiers:read`. Résultats triés par identifiant Pitchou croissant. Passez `next_cursor` dans la requête suivante tant qu’il est renseigné.",
+        "summary": "List accessible dossiers",
+        "description": "Requires `dossiers:read`. Results are sorted by ascending Pitchou ID. Pass the returned `next_cursor` as `after` to fetch the next page.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
           {
             "name": "after",
             "in": "query",
-            "description": "Identifiant du dernier dossier de la page précédente.",
+            "description": "ID of the last dossier on the previous page.",
             "schema": { "$ref": "#/components/schemas/DossierId" }
           },
           {
             "name": "limit",
             "in": "query",
-            "description": "Nombre maximal de dossiers par page.",
+            "description": "Maximum number of dossiers per page.",
             "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
           },
           {
             "name": "status",
             "in": "query",
-            "description": "Statut courant.",
+            "description": "Current status.",
             "schema": { "$ref": "#/components/schemas/DossierStatus" }
           },
           {
             "name": "department",
             "in": "query",
-            "description": "Code du département principal.",
+            "description": "Main department code.",
             "schema": { "type": "string", "pattern": "^(?:[0-9]{2,3}|2[AB])$" }
           },
           {
             "name": "q",
             "in": "query",
-            "description": "Nom, identifiant Onagre ou numéro Pitchou ou Démarches Numériques.",
+            "description": "Name, Onagre identifier, Pitchou number, or Démarches Numériques number.",
             "schema": { "type": "string", "maxLength": 200 }
           },
           {
             "name": "followed",
             "in": "query",
-            "description": "Dossiers suivis ou non suivis par le titulaire. Clé personnelle requise.",
+            "description": "Filter by whether the key holder follows the dossier. Requires a personal key.",
             "schema": { "type": "boolean" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Lister les dossiers accessibles",
+            "description": "List accessible dossiers",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -73,8 +73,8 @@
     "/dossiers/{id}": {
       "get": {
         "operationId": "getDossier",
-        "summary": "Consulter la fiche d’un dossier",
-        "description": "Portée `dossiers:read`.",
+        "summary": "Get dossier details",
+        "description": "Requires `dossiers:read`.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -87,7 +87,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Consulter la fiche d’un dossier",
+            "description": "Get dossier details",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Dossier" } }
@@ -105,8 +105,8 @@
     "/dossiers/{id}/avis-experts": {
       "get": {
         "operationId": "listAvisExperts",
-        "summary": "Lister les avis d’experts",
-        "description": "Portée `dossiers:read`. Les saisines et les avis non officiels requièrent un accès interne.",
+        "summary": "List expert opinions",
+        "description": "Requires `dossiers:read`. Requests for expert opinions and unofficial opinions require internal access.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -119,7 +119,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les avis d’experts",
+            "description": "List expert opinions",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -142,8 +142,8 @@
     "/dossiers/{id}/decisions": {
       "get": {
         "operationId": "listDecisions",
-        "summary": "Lister les décisions administratives",
-        "description": "Portée `dossiers:read`.",
+        "summary": "List administrative decisions",
+        "description": "Requires `dossiers:read`.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -156,7 +156,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les décisions administratives",
+            "description": "List administrative decisions",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -179,8 +179,8 @@
     "/dossiers/{id}/pieces-jointes": {
       "get": {
         "operationId": "listPiecesJointes",
-        "summary": "Lister les pièces jointes accessibles",
-        "description": "Portée `dossiers:read`.",
+        "summary": "List accessible attachments",
+        "description": "Requires `dossiers:read`.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -193,7 +193,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les pièces jointes accessibles",
+            "description": "List accessible attachments",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -216,8 +216,8 @@
     "/dossiers/{id}/especes-impactees": {
       "get": {
         "operationId": "listEspeceImpacts",
-        "summary": "Lister les impacts sur les espèces",
-        "description": "Portée `dossiers:read`.",
+        "summary": "List impacts on species",
+        "description": "Requires `dossiers:read`.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -230,7 +230,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les impacts sur les espèces",
+            "description": "List impacts on species",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -253,8 +253,8 @@
     "/dossiers/{id}/phase-events": {
       "get": {
         "operationId": "listDossierPhaseEvents",
-        "summary": "Consulter les événements de phase",
-        "description": "Portée `dossiers:read`.",
+        "summary": "List phase events",
+        "description": "Requires `dossiers:read`.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -267,7 +267,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Consulter les événements de phase",
+            "description": "List phase events",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -290,8 +290,8 @@
     "/dossiers/{id}/prescriptions": {
       "get": {
         "operationId": "listPrescriptions",
-        "summary": "Lister les prescriptions",
-        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "summary": "List prescriptions",
+        "description": "Requires `dossiers:read` and internal access to the dossier. A service also needs `dossiers:read:internal` and a matching grant.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -304,7 +304,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les prescriptions",
+            "description": "List prescriptions",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -327,8 +327,8 @@
     "/dossiers/{id}/controles": {
       "get": {
         "operationId": "listControles",
-        "summary": "Lister les contrôles",
-        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "summary": "List inspections",
+        "description": "Requires `dossiers:read` and internal access to the dossier. A service also needs `dossiers:read:internal` and a matching grant.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -341,7 +341,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les contrôles",
+            "description": "List inspections",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -364,8 +364,8 @@
     "/dossiers/{id}/comments": {
       "get": {
         "operationId": "listDossierComments",
-        "summary": "Lister les commentaires internes",
-        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "summary": "List internal comments",
+        "description": "Requires `dossiers:read` and internal access to the dossier. A service also needs `dossiers:read:internal` and a matching grant.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -378,7 +378,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les commentaires internes",
+            "description": "List internal comments",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -401,8 +401,8 @@
     "/dossiers/{id}/history": {
       "get": {
         "operationId": "listDossierHistory",
-        "summary": "Consulter l’historique interne",
-        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "summary": "Get internal history",
+        "description": "Requires `dossiers:read` and internal access to the dossier. A service also needs `dossiers:read:internal` and a matching grant.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -415,7 +415,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Consulter l’historique interne",
+            "description": "Get internal history",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -438,8 +438,8 @@
     "/dossiers/{id}/cnpn-emails": {
       "get": {
         "operationId": "listCnpnEmails",
-        "summary": "Lister les envois au CNPN",
-        "description": "Portée `dossiers:read`. Accès interne au dossier requis. Un service doit aussi disposer de la portée `dossiers:read:internal` et d’une habilitation correspondante.",
+        "summary": "List CNPN emails",
+        "description": "Requires `dossiers:read` and internal access to the dossier. A service also needs `dossiers:read:internal` and a matching grant.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -452,7 +452,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les envois au CNPN",
+            "description": "List CNPN emails",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -475,8 +475,8 @@
     "/dossiers/{id}/followers": {
       "get": {
         "operationId": "listDossierFollowers",
-        "summary": "Lister les personnes qui suivent le dossier",
-        "description": "Portée `dossiers:read`. En lecture restreinte, seule la relation de suivi du titulaire est visible.",
+        "summary": "List dossier followers",
+        "description": "Requires `dossiers:read`. With restricted access, the key holder can see their own follow relationship.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -489,7 +489,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les personnes qui suivent le dossier",
+            "description": "List dossier followers",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -516,8 +516,8 @@
     "/dossiers/{id}/follower-candidates": {
       "get": {
         "operationId": "listDossierFollowerCandidates",
-        "summary": "Lister les personnes pouvant suivre un dossier",
-        "description": "Portée `dossiers:read`. Réservé au titulaire d’une clé personnelle disposant du droit d’instruire ce dossier.",
+        "summary": "List people who can follow a dossier",
+        "description": "Requires a personal key with `dossiers:read` and permission to instruct the dossier.",
         "tags": ["Dossiers"],
         "security": [
           {
@@ -536,7 +536,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les personnes pouvant suivre un dossier",
+            "description": "List people who can follow a dossier",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -577,8 +577,8 @@
     "/dossiers/{id}/pieces-jointes/{fileId}": {
       "get": {
         "operationId": "downloadPieceJointe",
-        "summary": "Télécharger une pièce jointe",
-        "description": "Portée `dossiers:read`. Utilisez l’URL fournie dans la liste des pièces. Le type de contenu dépend du fichier.",
+        "summary": "Download an attachment",
+        "description": "Requires `dossiers:read`. Use the URL returned by the attachment list. The content type depends on the file.",
         "tags": ["Dossiers"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
@@ -597,7 +597,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Télécharger une pièce jointe",
+            "description": "Download an attachment",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "*/*": {
@@ -617,13 +617,13 @@
     "/account": {
       "get": {
         "operationId": "getAccount",
-        "summary": "Consulter son compte Pitchou",
-        "description": "Portée `account:read`. Clé personnelle requise.",
-        "tags": ["Compte"],
+        "summary": "Get the key holder's Pitchou account",
+        "description": "Requires a personal key with `account:read`.",
+        "tags": ["Account"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter son compte Pitchou",
+            "description": "Get the key holder's Pitchou account",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Account" } }
@@ -639,9 +639,9 @@
     "/account/api-keys": {
       "get": {
         "operationId": "listPersonalApiKeys",
-        "summary": "Lister les clés personnelles du titulaire",
-        "description": "Portée `account:read`. Renvoie les métadonnées des clés personnelles du titulaire.",
-        "tags": ["Compte"],
+        "summary": "List the holder's personal keys",
+        "description": "Requires `account:read`. Returns the holder's personal key metadata.",
+        "tags": ["Account"],
         "security": [
           {
             "serviceBearer": []
@@ -649,7 +649,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les clés personnelles du titulaire",
+            "description": "List the holder's personal keys",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -684,13 +684,13 @@
     "/account/groupes": {
       "get": {
         "operationId": "listAccountGroupes",
-        "summary": "Lister ses groupes instructeurs et leurs membres",
-        "description": "Portée `account:read`. Clé personnelle requise.",
-        "tags": ["Compte"],
+        "summary": "List the holder's instructeur groups and their members",
+        "description": "Requires a personal key with `account:read`.",
+        "tags": ["Account"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister ses groupes instructeurs et leurs membres",
+            "description": "List the holder's instructeur groups and their members",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -711,9 +711,9 @@
     "/account/groupes/{groupId}/member-candidates": {
       "get": {
         "operationId": "searchGroupMemberCandidates",
-        "summary": "Rechercher des personnes à ajouter à un groupe",
-        "description": "Portée `account:read`. Le titulaire doit être membre du groupe actif. Renvoie jusqu’à 20 comptes actifs qui ne font pas encore partie du groupe.",
-        "tags": ["Compte"],
+        "summary": "Search for people to add to a group",
+        "description": "Requires `account:read`. The key holder must belong to the active group. Returns up to 20 active accounts that are not already members.",
+        "tags": ["Account"],
         "security": [
           {
             "serviceBearer": []
@@ -721,7 +721,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Rechercher des personnes à ajouter à un groupe",
+            "description": "Search for people to add to a group",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -745,7 +745,7 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
-            "description": "Portée du jeton insuffisante ou titulaire non membre du groupe actif",
+            "description": "Insufficient token scope or the key holder does not belong to the active group",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -782,7 +782,7 @@
           {
             "name": "q",
             "in": "query",
-            "description": "Nom, prénom ou adresse e-mail.",
+            "description": "Last name, first name, or email address.",
             "schema": {
               "type": "string",
               "maxLength": 254
@@ -794,13 +794,13 @@
     "/account/notifications": {
       "get": {
         "operationId": "listAccountNotifications",
-        "summary": "Lister ses notifications de dossier",
-        "description": "Portée `account:read`. Clé personnelle requise.",
-        "tags": ["Compte"],
+        "summary": "List the holder's dossier notifications",
+        "description": "Requires a personal key with `account:read`.",
+        "tags": ["Account"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister ses notifications de dossier",
+            "description": "List the holder's dossier notifications",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -821,13 +821,13 @@
     "/account/notification-preferences": {
       "get": {
         "operationId": "getNotificationPreferences",
-        "summary": "Consulter ses préférences de notification",
-        "description": "Portée `account:read`. Clé personnelle requise.",
-        "tags": ["Compte"],
+        "summary": "Get the holder's notification preferences",
+        "description": "Requires a personal key with `account:read`.",
+        "tags": ["Account"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter ses préférences de notification",
+            "description": "Get the holder's notification preferences",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -845,13 +845,13 @@
     "/account/recent-searches": {
       "get": {
         "operationId": "listRecentSearches",
-        "summary": "Lister ses recherches récentes",
-        "description": "Portée `account:read`. Clé personnelle requise.",
-        "tags": ["Compte"],
+        "summary": "List the holder's recent searches",
+        "description": "Requires a personal key with `account:read`.",
+        "tags": ["Account"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister ses recherches récentes",
+            "description": "List the holder's recent searches",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -869,45 +869,45 @@
     "/references/taxref": {
       "get": {
         "operationId": "searchTaxref",
-        "summary": "Rechercher dans TAXREF",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Search TAXREF",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
           {
             "name": "page",
             "in": "query",
-            "description": "Numéro de page.",
+            "description": "Page number.",
             "schema": { "type": "integer", "minimum": 1, "default": 1 }
           },
           {
             "name": "q",
             "in": "query",
-            "description": "Texte à rechercher.",
+            "description": "Search text.",
             "schema": { "type": "string" }
           },
           {
             "name": "order",
             "in": "query",
-            "description": "Ordre du tri.",
+            "description": "Sort order.",
             "schema": { "type": "string", "enum": ["asc", "desc"] }
           },
           {
             "name": "kingdom",
             "in": "query",
-            "description": "Règne.",
+            "description": "Kingdom.",
             "schema": { "type": "string" }
           },
           {
             "name": "class",
             "in": "query",
-            "description": "Classe.",
+            "description": "Class.",
             "schema": { "type": "string" }
           },
           {
             "name": "sort",
             "in": "query",
-            "description": "Clé de tri.",
+            "description": "Sort field.",
             "schema": {
               "type": "string",
               "enum": ["scientific_name", "common_name", "cd_nom", "cd_ref"]
@@ -916,7 +916,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Rechercher dans TAXREF",
+            "description": "Search TAXREF",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/TaxrefPage" } }
@@ -933,13 +933,13 @@
     "/references/taxref-filters": {
       "get": {
         "operationId": "getTaxrefFilters",
-        "summary": "Lister les filtres TAXREF",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "List TAXREF filters",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister les filtres TAXREF",
+            "description": "List TAXREF filters",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -964,51 +964,51 @@
     "/references/bdc-statuts": {
       "get": {
         "operationId": "searchBdcStatuts",
-        "summary": "Rechercher dans BDC-Statuts",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Search BDC-Statuts",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "parameters": [
           {
             "name": "page",
             "in": "query",
-            "description": "Numéro de page.",
+            "description": "Page number.",
             "schema": { "type": "integer", "minimum": 1, "default": 1 }
           },
           {
             "name": "q",
             "in": "query",
-            "description": "Texte à rechercher.",
+            "description": "Search text.",
             "schema": { "type": "string" }
           },
           {
             "name": "order",
             "in": "query",
-            "description": "Ordre du tri.",
+            "description": "Sort order.",
             "schema": { "type": "string", "enum": ["asc", "desc"] }
           },
           {
             "name": "status",
             "in": "query",
-            "description": "Type de statut.",
+            "description": "Status type.",
             "schema": { "type": "string" }
           },
           {
             "name": "iucn",
             "in": "query",
-            "description": "Catégorie de la liste rouge nationale.",
+            "description": "National Red List category.",
             "schema": { "type": "string", "enum": ["CR", "EN", "VU"] }
           },
           {
             "name": "sort",
             "in": "query",
-            "description": "Clé de tri.",
+            "description": "Sort field.",
             "schema": { "type": "string", "enum": ["cd_ref", "cd_nom", "status_type"] }
           }
         ],
         "responses": {
           "200": {
-            "description": "Rechercher dans BDC-Statuts",
+            "description": "Search BDC-Statuts",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -1027,13 +1027,13 @@
     "/references/bdc-statuts-filters": {
       "get": {
         "operationId": "getBdcStatutsFilters",
-        "summary": "Lister les types de statut BDC-Statuts",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "List BDC-Statuts status types",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister les types de statut BDC-Statuts",
+            "description": "List BDC-Statuts status types",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -1057,13 +1057,13 @@
     "/references/especes-protegees": {
       "get": {
         "operationId": "listEspecesProtegees",
-        "summary": "Lister les espèces protégées",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "List protected species",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Lister les espèces protégées",
+            "description": "List protected species",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -1084,13 +1084,13 @@
     "/references/activites": {
       "get": {
         "operationId": "listActivites",
-        "summary": "Consulter le référentiel des activités",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Get the activity reference data",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter le référentiel des activités",
+            "description": "Get the activity reference data",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Activites" } }
@@ -1106,13 +1106,13 @@
     "/references/impacts-especes": {
       "get": {
         "operationId": "getEspeceImpactReferences",
-        "summary": "Consulter les types d’impact, méthodes et moyens de poursuite",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Get impact types, methods, and means of pursuit",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter les types d’impact, méthodes et moyens de poursuite",
+            "description": "Get impact types, methods, and means of pursuit",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -1130,13 +1130,13 @@
     "/references/stats": {
       "get": {
         "operationId": "getStats",
-        "summary": "Consulter les statistiques publiques",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Get public statistics",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter les statistiques publiques",
+            "description": "Get public statistics",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Stats" } }
@@ -1152,9 +1152,9 @@
     "/references/changelog": {
       "get": {
         "operationId": "listPublishedChangelogEntries",
-        "summary": "Lister les nouveautés publiées",
-        "description": "Portée `references:read`. Les nouveautés sont triées par version décroissante.",
-        "tags": ["Référentiels"],
+        "summary": "List published release notes",
+        "description": "Requires `references:read`. Release notes are sorted by descending version.",
+        "tags": ["Reference data"],
         "security": [
           {
             "serviceBearer": []
@@ -1162,7 +1162,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Lister les nouveautés publiées",
+            "description": "List published release notes",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -1197,9 +1197,9 @@
     "/references/synchronization-status": {
       "get": {
         "operationId": "getSynchronizationStatus",
-        "summary": "Consulter la dernière synchronisation Démarches Numériques",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Get the latest Démarches Numériques synchronization",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [
           {
             "serviceBearer": []
@@ -1207,7 +1207,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Consulter la dernière synchronisation Démarches Numériques",
+            "description": "Get the latest Démarches Numériques synchronization",
             "headers": {
               "X-Request-Id": {
                 "$ref": "#/components/headers/RequestId"
@@ -1246,13 +1246,13 @@
     "/references/aarri": {
       "get": {
         "operationId": "getAarri",
-        "summary": "Consulter les indicateurs AARRI publics",
-        "description": "Portée `references:read`.",
-        "tags": ["Référentiels"],
+        "summary": "Get public AARRI indicators",
+        "description": "Requires `references:read`.",
+        "tags": ["Reference data"],
         "security": [{ "serviceBearer": [] }],
         "responses": {
           "200": {
-            "description": "Consulter les indicateurs AARRI publics",
+            "description": "Get public AARRI indicators",
             "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
             "content": {
               "application/json": {
@@ -1276,12 +1276,12 @@
       "serviceBearer": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Clé personnelle Pitchou, clé de service ou jeton d’accès OAuth 2.0 selon la configuration de l’intégration."
+        "description": "A Pitchou personal key, service key, or OAuth 2.0 access token, depending on the integration configuration."
       }
     },
     "headers": {
       "RequestId": {
-        "description": "Identifiant de la requête pour l’assistance",
+        "description": "Request ID for support",
         "schema": { "type": "string", "format": "uuid" }
       },
       "Authenticate": { "schema": { "type": "string" } }
@@ -1345,19 +1345,19 @@
           "status_changed_at": { "type": ["string", "null"], "format": "date-time" },
           "followed": {
             "type": "boolean",
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "access": {
             "type": "string",
             "enum": ["restricted", "full_read", "full"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "departments": {
             "type": ["array", "null"],
             "items": {
               "type": "string"
             },
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "communes": {
             "type": ["array", "null"],
@@ -1376,51 +1376,51 @@
                 }
               }
             },
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "regions": {
             "type": ["array", "null"],
             "items": {
               "type": "string"
             },
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "location_scope": {
             "type": ["string", "null"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
-          "enjeu": { "type": "boolean", "description": "Présent avec une clé personnelle." },
+          "enjeu": { "type": "boolean", "description": "Present for personal keys." },
           "linked_to_ae_regime": {
             "type": ["boolean", "null"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "next_action_expected_from": {
             "type": ["string", "null"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "next_due_date": {
             "type": ["string", "null"],
             "format": "date",
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "activite_code": {
             "type": ["string", "null"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "activite_label": {
             "type": ["string", "null"],
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "impacted_espece_cd_refs": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Présent avec une clé personnelle."
+            "description": "Present for personal keys."
           },
           "latest_comment": {
             "type": ["string", "null"],
-            "description": "Présent avec une clé personnelle et un accès interne au dossier."
+            "description": "Present for personal keys with internal access to the dossier."
           }
         }
       },
@@ -1879,12 +1879,12 @@
           "demarche_numerique_reason": { "type": ["string", "null"] },
           "author_email": {
             "type": ["string", "null"],
-            "description": "Adresse de l’agent Démarches Numériques si renseignée. Accès interne requis."
+            "description": "Email address of the Démarches Numériques agent when recorded. Requires internal access."
           },
           "author_type": {
             "type": "string",
             "enum": ["instructeur", "system"],
-            "description": "Accès interne requis."
+            "description": "Requires internal access."
           }
         }
       },
@@ -2056,7 +2056,7 @@
           },
           "content": {
             "type": "string",
-            "description": "Contenu HTML publié."
+            "description": "Published HTML content."
           }
         }
       },
@@ -2091,7 +2091,7 @@
           "max_upload_size_bytes": {
             "type": ["integer", "null"],
             "minimum": 0,
-            "description": "Taille maximale d’un fichier, en octets. La valeur null indique l’absence de limite."
+            "description": "Maximum file size in bytes. A null value means unlimited."
           }
         }
       },
@@ -2478,7 +2478,7 @@
     },
     "responses": {
       "Unauthorized": {
-        "description": "Jeton absent ou invalide, ou client désactivé",
+        "description": "Missing or invalid token, or disabled account or service",
         "headers": {
           "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
           "WWW-Authenticate": { "$ref": "#/components/headers/Authenticate" }
@@ -2488,7 +2488,7 @@
         }
       },
       "Forbidden": {
-        "description": "Portée du jeton insuffisante",
+        "description": "Insufficient token scope",
         "headers": {
           "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
           "WWW-Authenticate": { "$ref": "#/components/headers/Authenticate" }
@@ -2498,7 +2498,7 @@
         }
       },
       "RateLimited": {
-        "description": "Quota de requêtes dépassé pour ce client",
+        "description": "Request quota exceeded for this client",
         "headers": {
           "X-Request-Id": { "$ref": "#/components/headers/RequestId" },
           "Retry-After": { "schema": { "type": "integer" } }
@@ -2508,21 +2508,21 @@
         }
       },
       "Unavailable": {
-        "description": "Service temporairement indisponible",
+        "description": "Service temporarily unavailable",
         "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
         "content": {
           "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
         }
       },
       "InvalidParameters": {
-        "description": "Identifiant ou filtre invalide",
+        "description": "Invalid ID or filter",
         "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
         "content": {
           "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }
         }
       },
       "ResourceNotFound": {
-        "description": "Ressource introuvable ou inaccessible",
+        "description": "Resource unavailable or outside the caller's access",
         "headers": { "X-Request-Id": { "$ref": "#/components/headers/RequestId" } },
         "content": {
           "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problem" } }

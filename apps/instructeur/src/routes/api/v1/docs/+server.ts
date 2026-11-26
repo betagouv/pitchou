@@ -18,11 +18,11 @@ export const GET = () => {
 
   return new Response(
     `<!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>API Pitchou</title>
+    <title>Pitchou API</title>
     <link rel="stylesheet" href="${swaggerStyles}">
   </head>
   <body>

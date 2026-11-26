@@ -1,50 +1,52 @@
-# API externe Pitchou
+# Pitchou external API
 
-Le service instructeur publie le contrat OpenAPI sur `/api/v1/openapi.json` et Swagger UI sur `/api/v1/docs`. La CI valide le contrat et vérifie sa compatibilité avec la branche cible d’une pull request et avec la révision de base de la file de fusion. Un changement incompatible introduit une nouvelle version et une période de migration annoncée aux partenaires.
+The Instructeur app serves the OpenAPI contract at `/api/v1/openapi.json` and Swagger UI at `/api/v1/docs`. CI validates the contract and checks compatibility against the pull request target branch and the merge queue base revision. A breaking change requires a new API version and a migration period announced to partners.
 
-## Clés personnelles
+## Personal keys
 
-Connectez-vous avec ProConnect puis ouvrez **Paramètres → API** (`/parametres/api`). Donnez un nom à la clé, choisissez ses permissions et sa durée de validité, puis copiez le jeton. Pitchou affiche le jeton une seule fois et conserve son empreinte. Cette page permet de voir la dernière utilisation et de révoquer une clé.
+Sign in with ProConnect and open **Paramètres → API** (`/parametres/api`). Name the key, choose its scopes and lifetime, and copy the token. Pitchou displays the token once and stores its hash. The page shows when each key was last used and lets you revoke it.
 
-Chaque appel applique les permissions de la clé et les droits actuels du compte. Le retrait de droits ou la désactivation du compte prend effet pour les appels suivants. Un compte sans droit de consulter les dossiers peut créer une clé pour son compte et les référentiels.
+Each request applies the key's scopes and the account's current permissions. Revoking permissions or disabling the account takes effect on subsequent requests. Accounts without dossier access can create keys for their account data and reference data.
 
-## Clés de service
+## Service keys
 
-L’accès à **Intégrations API** (`/integrations-api`) exige `admin:access` et une autorisation individuelle pour `admin:api:manage`. Dans **Utilisateurs → Permissions personnalisées**, choisissez **Autoriser** pour **Gérer les intégrations et les clés de service de l’API**.
+**Intégrations API** (`/integrations-api`) requires `admin:access` and an individual grant of `admin:api:manage`. Any active account with `admin:access` and `users:manage` can assign this grant to another user or to itself. On an existing instance, use an administrator who can already edit users. On a fresh database, the initial user migration assigns the `administrateur` profile to the accounts configured in `PITCHOU_ADMIN_EMAILS`, giving them the permissions to assign the grant.
 
-Ouvrez ensuite **Intégrations API**. Ajoutez un service par intégration partenaire. Accordez-lui une permission sur un dossier par son numéro Pitchou, ou sur les dossiers affectés à un groupe instructeur actif. Un service nouvellement créé doit recevoir une habilitation pour consulter des dossiers.
+In the admin app, open the account under **Utilisateurs → Permissions personnalisées**. Choose **Autoriser** for **Gérer les intégrations et les clés de service de l’API** and save.
 
-Créez ensuite une clé pour ce service avec les permissions convenues. Transmettez le jeton par un canal privé et envoyez l’URL de l’API au partenaire. Plusieurs clés peuvent coexister pendant un renouvellement. Révoquer une clé retire son accès. Désactiver le service bloque toutes ses clés et ses autres identifiants. Les clés de service appartiennent à l’intégration. Les changements effectués par les administrateurs sont enregistrés dans le journal d’administration.
+Open **Intégrations API** and add one service per partner integration. Grant it access to a dossier by its Pitchou number, or to the dossiers assigned to an active instructeur group. Each new service needs a grant before it can read dossiers.
 
-Au premier déploiement, l’application instructeur applique la migration API à la base partagée. Les deux applications se déploient automatiquement sur Scalingo. La page **Intégrations API** renvoie temporairement une réponse `503` si l’administration démarre avant l’application de la migration.
+Create a key for the service with the agreed scopes. Share the token through a private channel and give the partner the API URL. A service can have multiple keys during rotation. Revoking a key removes its access. Disabling the service blocks all its keys and other credentials. The integration owns its keys, and the administration audit log records administrative changes.
 
-## Permissions et ressources
+On first deployment, the Instructeur app applies the API migration to the shared database. Scalingo deploys both apps automatically. **Intégrations API** temporarily returns `503` if the admin app starts before the migration finishes.
 
-| Permission               | Ressources accessibles                                                                                                                                                                                                 |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dossiers:read`          | Liste, fiche et ressources du dossier. Une clé personnelle suit le niveau d’accès de son titulaire. Une clé de service nécessite une habilitation et dispose de la lecture restreinte par défaut.                      |
-| `dossiers:read:internal` | Accès interne pour une intégration disposant aussi de `dossiers:read`. Les deux permissions doivent être présentes sur la clé et chacune doit être accordée sur le dossier ou l’un de ses groupes instructeurs actifs. |
-| `account:read`           | Compte, clés personnelles, groupes et membres, notifications, préférences et recherches récentes du titulaire. Cette permission est réservée aux clés personnelles.                                                    |
-| `references:read`        | Activités, TAXREF, BDC-Statuts, espèces protégées, types d’impact, méthodes, moyens de poursuite, statistiques publiques et nouveautés. Cette permission ne requiert pas d’habilitation par dossier.                   |
+## Scopes and resources
 
-Les chemins ci-dessous sont relatifs à `/api/v1`. Toutes ces opérations sont en lecture seule.
+| Scope                    | Resources                                                                                                                                                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dossiers:read`          | Dossier list, details, and related resources. A personal key uses its owner's access level. A service key requires a grant and receives restricted read access by default.                   |
+| `dossiers:read:internal` | Internal access for a service that also has `dossiers:read`. The key needs both scopes, and the service needs a grant for each scope on the dossier or one of its active instructeur groups. |
+| `account:read`           | The owner's account, personal keys, groups and members, notifications, preferences, and recent searches. Only personal keys can use this scope.                                              |
+| `references:read`        | Activities, TAXREF, BDC-Statuts, protected species, impact types, methods, means of pursuit, public statistics, and release notes. This scope is independent of dossier grants.              |
 
-- `GET /dossiers` liste les dossiers par identifiant croissant. Utilisez `limit` (50 par défaut, 100 au maximum) et transmettez la valeur de `next_cursor` dans le paramètre `after` pour lire la suite. Vous pouvez filtrer par `status`, `department` principal, `q` (nom ou identifiant) et, avec une clé personnelle, `followed`.
-- Avec une clé personnelle, la liste inclut le niveau d’accès, les lieux, l’activité, les références des espèces impactées et les prochaines échéances. Le dernier commentaire est disponible avec un accès interne au dossier.
-- `GET /dossiers/{id}` renvoie la fiche du projet et son état d’instruction. Les sous-ressources `avis-experts`, `decisions`, `especes-impactees`, `phase-events`, `followers` et `pieces-jointes` appliquent le niveau de lecture du dossier.
-- Les prescriptions, contrôles, commentaires, événements de l’historique et envois CNPN sont accessibles via `prescriptions`, `controles`, `comments`, `history` et `cnpn-emails` avec un accès interne. Les avis non officiels, les saisines et les pièces internes demandent le même niveau d’accès.
-- `GET /dossiers/{id}/follower-candidates` liste les personnes que le titulaire d’une clé personnelle peut ajouter au suivi d’un dossier qu’il peut instruire.
-- La liste des pièces fournit une URL de téléchargement par fichier. Utilisez le même en-tête `Authorization` pour le téléchargement. Le dossier de l’URL détermine l’accès à la pièce, y compris lorsque le fichier est partagé entre plusieurs dossiers.
-- `GET /account` identifie le titulaire. Ses données personnelles sont accessibles sous `/account/groupes`, `/account/notifications`, `/account/notification-preferences` et `/account/recent-searches`.
-- `GET /account/api-keys` renvoie les métadonnées des clés personnelles du titulaire. `GET /account/groupes/{groupId}/member-candidates?q=…` permet de rechercher des membres à ajouter à un groupe actif dont le titulaire fait partie.
-- Les nouveautés publiées sont disponibles sous `/references/changelog`. `/references/synchronization-status` fournit la date de la dernière synchronisation réussie avec Démarches Numériques.
-- Les chemins sous `/references` et les paramètres de recherche sont documentés dans Swagger.
+All paths below are relative to `/api/v1`. These operations are read-only.
 
-Les dates sans heure, comme une signature ou une échéance, sont renvoyées sous la forme `YYYY-MM-DD`. Les horodatages sont en UTC.
+- `GET /dossiers` lists dossiers by ascending Pitchou ID. Use `limit` (default 50, maximum 100) and pass the returned `next_cursor` as `after` to fetch the next page. Filters include `status`, the main `department`, `q` (name or identifier), and `followed` for personal keys.
+- For personal keys, the list also includes access levels, locations, activities, impacted species references, and upcoming deadlines. Internal dossier access includes the latest comment.
+- `GET /dossiers/{id}` returns project details and the current instruction status. The related resources `avis-experts`, `decisions`, `especes-impactees`, `phase-events`, `followers`, and `pieces-jointes` apply the dossier's read access level.
+- Internal dossier access includes `prescriptions`, `controles`, `comments`, `history`, and `cnpn-emails`. Unofficial expert opinions, requests for expert opinions, and internal attachments require the same access level.
+- `GET /dossiers/{id}/follower-candidates` lists people a personal key holder can add as followers on a dossier they can instruct.
+- The attachment list provides a download URL for each file. Use the same `Authorization` header to download it. The dossier in the URL determines access, including for files shared across several dossiers.
+- `GET /account` identifies the key holder. Related data is available under `/account/groupes`, `/account/notifications`, `/account/notification-preferences`, and `/account/recent-searches`.
+- `GET /account/api-keys` returns the holder's personal key metadata. `GET /account/groupes/{groupId}/member-candidates?q=…` searches for people to add to an active group the holder belongs to.
+- Published release notes are available at `/references/changelog`. `/references/synchronization-status` returns the time of the last successful Démarches Numériques synchronization.
+- Swagger documents the paths under `/references` and their search parameters.
 
-## Appeler l’API
+Calendar dates, such as signature dates and deadlines, use `YYYY-MM-DD`. Timestamps use UTC.
 
-Sur `just dev`, ouvrez `/api/v1/docs`, cliquez sur **Authorize** et collez le jeton brut, puis utilisez **Try it out**. En préproduction, les appels interactifs sont disponibles avec `EXTERNAL_API_SWAGGER_TRY_IT_OUT=true` et `PUBLIC_PITCHOU_ENV=staging`. Publiez l’API en HTTPS.
+## Call the API
+
+With `just dev` running, open `/api/v1/docs`, click **Authorize**, paste the raw token, then use **Try it out**. Staging supports interactive requests when `EXTERNAL_API_SWAGGER_TRY_IT_OUT=true` and `PUBLIC_PITCHOU_ENV=staging`. Serve the API over HTTPS.
 
 ```sh
 curl --fail-with-body \
@@ -52,15 +54,15 @@ curl --fail-with-body \
   "$PITCHOU_BASE_URL/api/v1/dossiers?limit=20&department=75&status=instruction"
 ```
 
-La liste et la fiche de dossier renvoient `status` et `status_changed_at`. En l’absence d’événement de phase enregistré, le statut est `accompagnement_amont` et la date est `null`. Une ancienne clé dédiée au statut doit être remplacée par une clé portant la permission `dossiers:read` pour accéder à ces ressources.
+The dossier list and details return `status` and `status_changed_at`. When a dossier has no recorded phase event, its status is `accompagnement_amont` and the date is `null`. Replace legacy status-only keys with a key carrying `dossiers:read` to use these resources.
 
-- Un jeton absent, invalide ou associé à un compte ou service désactivé reçoit `401`. Un jeton sans la permission requise reçoit `403`.
-- Un dossier inexistant ou hors habilitation reçoit la même réponse `404`.
-- La limite est de 60 requêtes par minute par clé personnelle et par service. Un dépassement reçoit `429` et `Retry-After`.
-- Les réponses de données et les erreurs associées portent `Cache-Control: no-store` et `X-Request-Id`. Le journal `external_api_request` contient le compte ou le service correspondant et l’identifiant de clé quand il est disponible.
+- A missing or invalid token, or one belonging to a disabled account or service, receives `401`. A token without the required scope receives `403`.
+- Missing dossiers and dossiers outside the holder's grants both return `404`.
+- The limit is 60 requests per minute per personal key or service. Requests over the limit receive `429` and a `Retry-After` header.
+- Data and error responses include `Cache-Control: no-store` and `X-Request-Id`. The `external_api_request` log records the account or service and the key ID when available.
 
-## Intégrations qui utilisent OAuth
+## OAuth integrations
 
-Une intégration configurée pour OAuth peut demander un jeton via `client_credentials` au fournisseur indiqué lors de son habilitation. Les services existants conservent leur accès OAuth. Les services créés depuis l’administration utilisent des clés de service.
+An OAuth-enabled integration can request a token using `client_credentials` from the provider specified for that integration. Existing OAuth-enabled services keep their access. Services created in the admin app use service keys.
 
-Pour configurer un client OAuth, enregistrer son `client_id` dans `external_api_client` avec `allow_oauth = true`. Les habilitations de ce client se gèrent dans **Intégrations API**. Configurer `EXTERNAL_API_ISSUER`, `EXTERNAL_API_AUDIENCE` et `EXTERNAL_API_JWKS_URL` sur le service instructeur. Réserver l’audience Pitchou aux clients `client_credentials` et utiliser des audiences distinctes par environnement. Le fournisseur doit émettre un JWT `at+jwt` signé en RS256 ou ES256, valide au plus dix minutes, avec le même identifiant dans `sub` et `client_id`.
+To configure an OAuth client, register its `client_id` in `external_api_client` with `allow_oauth = true`. Manage its grants in **Intégrations API**. Set `EXTERNAL_API_ISSUER`, `EXTERNAL_API_AUDIENCE`, and `EXTERNAL_API_JWKS_URL` on the Instructeur app. Reserve the Pitchou audience for `client_credentials` clients and use a distinct audience per environment. The provider must issue an `at+jwt` signed with RS256 or ES256, valid for at most ten minutes, with the same identifier in `sub` and `client_id`.
