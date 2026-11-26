@@ -132,6 +132,8 @@ test("serves the OpenAPI contract and Swagger assets without credentials", async
   expect(documentation.headers.get("Content-Security-Policy")).toContain("connect-src 'self'");
   const html = await documentation.text();
   expect(html).toContain("supportedSubmitMethods: []");
+  expect(html).toContain('rel="icon" href="/favicon/favicon.ico?v=pitchou"');
+  expect(html).toContain('rel="icon" href="/favicon/favicon.svg?v=pitchou"');
   const assets = [...html.matchAll(/(?:src|href)="([^"]*swagger-ui[^" ]+)"/gu)];
   expect(assets).toHaveLength(2);
   for (const [_, asset] of assets) {

@@ -23,6 +23,8 @@ export const GET = () => {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pitchou API</title>
+    <link rel="icon" href="/favicon/favicon.ico?v=pitchou" sizes="16x16 32x32 48x48">
+    <link rel="icon" href="/favicon/favicon.svg?v=pitchou" type="image/svg+xml" sizes="any">
     <link rel="stylesheet" href="${swaggerStyles}">
   </head>
   <body>
