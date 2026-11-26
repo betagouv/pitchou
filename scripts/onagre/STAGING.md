@@ -25,25 +25,33 @@ entire stream is validated before opening a database connection. Keep source dat
 credentials, bundles and reports in ignored private storage, never Git.
 
 Build the bundle locally from the prepared project files, both in ignored storage. The command
-writes every `<projet>.json` in numeric order, escapes U+2028, U+2029 and U+0085, validates each project (naming the file that fails, without leaving a partial bundle)
-and refuses to replace an existing bundle. It prints the project count and the SHA256 to review:
+writes every `<projet>.json` in numeric order, escapes U+2028, U+2029 and U+0085, validates each
+project (naming the file that fails, without leaving a partial bundle) and refuses to replace an
+existing bundle. Scalingo refuses `run --file` uploads over 100 MB, so pass a number of parts:
+each `bundle-part-N-of-M.json.gz` holds a contiguous range of projects, stays under 95 MB (the
+command fails otherwise; use more parts) and prints its own SHA256. Import the parts one after
+the other, in order (part 1, then part 2, …), each with its own SHA256; each resumes on its
+own. The order matters: the first imported occurrence of a SIRET keeps its company metadata.
 
 ```sh
-node --import tsx scripts/onagre/staging-bundle.mjs backups/onagre/migration/full/projects backups/onagre/staging-bundle-YYYYMMDD/bundle.json.gz reviewed-cutoff-name
+node --import tsx scripts/onagre/staging-bundle.mjs backups/onagre/migration/full/projects backups/onagre/staging-bundle-YYYYMMDD/bundle.json.gz reviewed-cutoff-name 2
 ```
 
 The header carries no species reference rows: staging already holds the local reference tables,
 and a project that needs a missing row fails on its own in the import report.
 
 Run in a foreground Scalingo one-off container on `pitchou-staging` in
-`osc-secnum-fr1`, uploading the bundle with `scalingo run --file`. The entry point
+`osc-secnum-fr1`, uploading the bundle with `scalingo run --file`. Quote the whole command, or
+the Scalingo CLI reads `--import` as its own flag. The entry point
 pins the database, bucket and staging email protection. No production target is
-accepted. Example command inside that container:
+accepted. Example commands, run from the operator machine:
 
 ```sh
-node --import tsx scripts/onagre/staging-import.mjs /tmp/uploads/bundle.json.gz SHA256 20
-node --import tsx scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle.json.gz SHA256
+scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "node --import tsx scripts/onagre/staging-import.mjs /tmp/uploads/bundle-part-1-of-2.json.gz SHA256 20"
+scalingo --region osc-secnum-fr1 --app pitchou-staging run --file bundle-part-1-of-2.json.gz "node --import tsx scripts/onagre/staging-import.mjs --apply /tmp/uploads/bundle-part-1-of-2.json.gz SHA256"
 ```
+
+Repeat both commands for each following part, with its own file and SHA256.
 
 The first command rolls back database changes and checks the first 20 projects.
 Omit the limit for a complete dry run. Dry runs retain only an operational report

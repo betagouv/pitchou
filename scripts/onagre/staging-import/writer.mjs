@@ -28,21 +28,33 @@ export function projectFiles(directory) {
     .map((name) => path.join(directory, name));
 }
 
-/**
- * Writes the reviewed staging bundle: a header, then one checksummed project per line, gzipped.
- * Species reference rows are not included: staging already holds the local reference tables, and
- * a project that needs a missing row fails individually in the import report.
- */
-export async function writeBundle({ projectsDirectory, output, reviewedThrough }) {
-  if (typeof reviewedThrough !== "string" || !reviewedThrough.trim())
-    throw new Error("Name the reviewed cutoff of this bundle");
-  const files = projectFiles(projectsDirectory);
-  if (files.length === 0) throw new Error("No prepared project files");
+/** Scalingo refuses `run --file` uploads over 100 MB; keep a margin for each part. */
+export const uploadLimitBytes = 95_000_000;
+
+/** `bundle.json.gz` stays as is for one part, else becomes `bundle-part-1-of-3.json.gz`, … */
+export function partOutputs(output, parts) {
+  if (parts === 1) return [output];
+  if (!output.endsWith(".json.gz")) throw new Error("Name a multi-part bundle `….json.gz`");
+  return Array.from({ length: parts }, (_, index) =>
+    output.replace(/\.json\.gz$/u, `-part-${index + 1}-of-${parts}.json.gz`),
+  );
+}
+
+/** Exactly `parts` contiguous chunks whose sizes differ by at most one, in numeric order. */
+export function splitFiles(files, parts) {
+  const bounds = Array.from({ length: parts + 1 }, (_, index) =>
+    Math.round((index * files.length) / parts),
+  );
+  return bounds.slice(0, -1).map((start, index) => files.slice(start, bounds[index + 1]));
+}
+
+async function writePart({ files, output, reviewedThrough, part }) {
   async function* rows() {
     yield bundleLine({
       formatVersion: 1,
       target: "pitchou-staging",
       reviewedThrough,
+      ...(part ? { part } : {}),
       projectCount: files.length,
       references: [],
     });
@@ -63,16 +75,62 @@ export async function writeBundle({ projectsDirectory, output, reviewedThrough }
     }
   }
   // `wx` refuses to replace an existing bundle whose SHA256 may already have been reviewed.
+  await pipeline(
+    Readable.from(rows()),
+    createGzip(),
+    fs.createWriteStream(output, { flags: "wx", mode: 0o600 }),
+  );
+  const bytes = fs.readFileSync(output);
+  return { path: output, projects: files.length, bytes: bytes.length, sha256: hash(bytes) };
+}
+
+/**
+ * Writes the reviewed staging bundle in one or more parts: each part has a header, then one
+ * checksummed project per line, gzipped, and is imported on its own with its own SHA256.
+ * Species reference rows are not included: staging already holds the local reference tables, and
+ * a project that needs a missing row fails individually in the import report.
+ */
+export async function writeBundle({
+  projectsDirectory,
+  output,
+  reviewedThrough,
+  parts = 1,
+  maxBytes = uploadLimitBytes,
+}) {
+  if (typeof reviewedThrough !== "string" || !reviewedThrough.trim())
+    throw new Error("Name the reviewed cutoff of this bundle");
+  const files = projectFiles(projectsDirectory);
+  if (files.length === 0) throw new Error("No prepared project files");
+  if (!Number.isInteger(parts) || parts < 1 || parts > files.length)
+    throw new Error("Choose a number of parts between 1 and the number of projects");
+  const chunks = splitFiles(files, parts);
+  const outputs = partOutputs(output, chunks.length);
+  const existing = outputs.find((name) => fs.existsSync(name));
+  if (existing)
+    throw Object.assign(new Error(`EEXIST: ${existing} already exists`), { code: "EEXIST" });
+  // Every part this run started, so a failure removes them all and leaves no partial bundle.
+  const started = [],
+    results = [];
   try {
-    await pipeline(
-      Readable.from(rows()),
-      createGzip(),
-      fs.createWriteStream(output, { flags: "wx", mode: 0o600 }),
-    );
+    for (const [index, chunk] of chunks.entries()) {
+      started.push(outputs[index]);
+      const result = await writePart({
+        files: chunk,
+        output: outputs[index],
+        reviewedThrough,
+        part: chunks.length > 1 ? `${index + 1}/${chunks.length}` : undefined,
+      });
+      if (result.bytes > maxBytes)
+        throw new Error(
+          `${path.basename(result.path)} is ${result.bytes} bytes, over the ${maxBytes}-byte upload limit; use more parts`,
+        );
+      results.push(result);
+    }
   } catch (error) {
-    // A partial bundle would otherwise block the next run with a misleading EEXIST.
-    if (error.code !== "EEXIST") fs.rmSync(output, { force: true });
+    // Never remove a bundle created by someone else between the check and the write.
+    for (const name of started)
+      if (!(error.code === "EEXIST" && error.path === name)) fs.rmSync(name, { force: true });
     throw error;
   }
-  return { projects: files.length, sha256: hash(fs.readFileSync(output)) };
+  return results;
 }
